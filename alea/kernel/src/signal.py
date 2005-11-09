@@ -2,9 +2,12 @@
 Signal for actions done by the kernel
 """
 
-class Listener(): # FIXME : convert it in an interface 
+from zope.interface import Interface
+
+class Listener(Interface):
+    """ A listener is a callable object. """
     def __call__(self, signal):
-        pass
+        """ Call method. """
 
 class Listeners(dict):
     def register( self, listener, signals ):
