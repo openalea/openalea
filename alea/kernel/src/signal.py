@@ -2,9 +2,9 @@
 Signal for actions done by the kernel
 """
 
-#class Listener(): # Ça devrait pas être une interface ???
-#    def __call__(self, signal):
-#        pass
+class Listener(): # FIXME : convert it in an interface 
+    def __call__(self, signal):
+        pass
 
 class Listeners(dict):
     def register( self, listener, signals ):

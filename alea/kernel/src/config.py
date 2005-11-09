@@ -6,11 +6,12 @@ This module define the path for
  - doc
  - examples
 """
-import alea, os
+import os
 
 pj = os.path.join
 
-prefix = os.path.dirname(alea.__file__)
+version="0.0.1"
+prefix = r"D:\pradal\devlp\alea"
 pkg_dir = prefix
 doc_dir = pj(prefix, 'doc')
 test_dir = pj(prefix, 'test')
@@ -18,4 +19,3 @@ example_dir = pj(prefix, 'example')
 lib_dir = pj(prefix, 'lib')
 bin_dir = pj(prefix, 'bin')
 setting_dir = pj(prefix, '.alea')
-
