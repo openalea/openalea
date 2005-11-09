@@ -98,7 +98,7 @@
                             <cstring>tab</cstring>
                         </property>
                         <attribute name="title">
-                            <string>Tab 1</string>
+                            <string>Workspace 1</string>
                         </attribute>
                     </widget>
                 </widget>

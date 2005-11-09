@@ -11,7 +11,8 @@ Inside load packages, we show the components and widgets available from this pac
 :since: 08/11/2005
 """
 import qt
-from alea.kernel import package
+import sys
+from alea.kernel import mypackage as package
 
 loaded_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
@@ -36,42 +37,40 @@ notloaded_data = \
 class PkgExplorer( qt.QListView ):
   def __init__( self, parent = None, name = "", fl = 0 ):
     qt.QListView.__init__( self, parent, name, fl )
-    self.addColumn( "Name" )
-    self.addColumn( "Description" )
-    self.addColumn( "System name" )
+    self.col_name = self.addColumn( "Name" )
+    self.col_installed = self.addColumn( " " )
+    self.col_loaded = self.addColumn( " " )
+    self.col_desc = self.addColumn( "Description" )
+    self.col_sysname = self.addColumn( "System name" )
     self.loaded_pixmap = qt.QPixmap()
     self.loaded_pixmap.loadFromData( loaded_data, "PNG" )
     self.notloaded_pixmap = qt.QPixmap()
     self.notloaded_pixmap.loadFromData( notloaded_data, "PNG" )
+    self.setRootIsDecorated( True )
     self.fill()
 
   def fill( self ):
     pm = package.load()
     for p in pm.packages():
-      self.add_package( self, p )
+      self.add_package( p )
 
   def add_package( self, pkg ):
-    if pkg.is_installed:
-      name = pkg.name
-    else:
-      name = "*"+pkg.name
-    i = qt.QListViewItem( self, name, pkg.description, pkg.sys_name )
-    if pkg.loaded():
-      i.setPixmap( 0, self.loaded_pixmap )
+    i = qt.QListViewItem( self )
+    i.setText( self.col_name, pkg.name )
+    i.setText( self.col_desc, pkg.description )
+    i.setText( self.col_sysname, pkg.sys_name )
+    if pkg.is_loaded:
+      i.setPixmap( self.col_loaded, self.loaded_pixmap )
       enabled = True
     else:
-      i.setPixmap( 0, self.notloaded_pixmap )
+      i.setPixmap( self.col_loaded, self.notloaded_pixmap )
       enabled = False
-    comp = qt.QListViewItem( i, "components" )
-    comp.setEnabled( enabled )
+    if pkg.is_installed:
+      i.setText( self.col_installed, "+" )
+    else:
+      i.setText( self.col_installed, "-" )
     for c in pkg.components:
-      cli = qt.QListViewItem( comp, c )
+      cli = qt.QListViewItem( i, c )
       cli.setEnabled( enabled )
-    if pkg.is_gui:
-      inter = qt.QListViewItem( i, "widgets" )
-      inter.setEnabled( enabled )
-      for c in pkg.interfaces:
-        cli = qt.QListViewItem( inter, c )
-        cli.setEnabled( enabled )
 
 

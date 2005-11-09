@@ -10,8 +10,29 @@ Module implementing the main window of the ALEA application.
 from alea_base_window import BaseWnd
 from pyCute import PyCute
 import qt
-from sys import argv
+import sys
 from pkg_explorer import PkgExplorer
+from alea_workspace import WSCanvas
+
+DEBUG_INOUT = True
+
+class RedirectWriteFile( object ):
+  def __init__( self, embed, log ):
+    self.log = log
+    self.embed = embed
+  def write( self, text ):
+    self.log.write( text )
+    self.embed.write( text )
+  def __getattr__( self, attr ):
+    if attr not in [ "log", "embed", "write" ]:
+      return getattr( self.embed, attr )
+    else:
+      return object.__getattr__( self, attr )
+  def __setattr__( self, attr, value ):
+    if attr not in [ "log", "embed" ]:
+      return setattr( self.embed, attr, value )
+    else:
+      return object.__setattr__( self, attr, value )
 
 class AleaWnd( BaseWnd ):
   """
@@ -33,19 +54,33 @@ class AleaWnd( BaseWnd ):
     """
     BaseWnd.__init__( self )
 
+    # Fill the package tabs
+    eframe = self.explore_frame.page( 0 )
+    self.pkg_explore = PkgExplorer(eframe, name = "Package Explorer")
+    eframe.layout().add( self.pkg_explore )
+
+    # Fill the objects tabs
+
+    # Fill the file system tabs
+
+    # Fill the workspace with an empty one
+    wframe = self.workspaces.page( 0 )
+    self.wscanvas = WSCanvas( wframe, name = "WSCanvas" )
+    self.workspace_layout = qt.QHBoxLayout( wframe )
+    self.workspace_layout.add( self.wscanvas )
+
     # Inserting pyCute shell
     self.shell_layout = qt.QHBoxLayout( self.shell_frame )
     self.shell = PyCute(parent=self.shell_frame)
     self.shell_layout.add( self.shell )
 
-    # Fill the package tabs
-#    eframe = self.explore_frame.page( 0 )
-#    self.pkg_explore = PkgExplorer(self.explore_frame.page( 0 ), name = "Package Explorer")
-#    self.eframe.layout.add( self.pkg_explore )
+    # DEBUG
+    if DEBUG_INOUT:
+      self.stderr = file( "log_err.txt", "w" )
+      self.stdout = file( "log_out.txt", "w" )
 
-    # Fill the objects tabs
-
-    # Fill the file system tabs
+      sys.stderr = RedirectWriteFile( sys.stderr, self.stderr )
+      sys.stdout = RedirectWriteFile( sys.stdout, self.stdout )
 
   def fileExit( self ):
     """
@@ -81,7 +116,7 @@ class AleaWnd( BaseWnd ):
     pass
 
 if __name__ == "__main__":
-    app=qt.QApplication(argv)
+    app=qt.QApplication(sys.argv)
     w=AleaWnd()
     app.setMainWidget(w)
     w.show()
