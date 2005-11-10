@@ -2,7 +2,7 @@
 This module ptovides topological sort of graph.
 
 In the directed graph we progressively pick one leaf node,
-remove all adges to it and add it at the head of the (ini-
+remove all edges to it and add it at the head of the (ini-
 tially empty) result list. If there is no more such leaf
 node, we have either a cycle (if there are still edges/
 nodes left) or we're done. Isolated nodes (with neither in-

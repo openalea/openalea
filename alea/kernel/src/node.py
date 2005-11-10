@@ -6,7 +6,7 @@ This module provides basic internal alea Node class, with is managed by Workspac
 """
 from top_sort import *
 
-class Workspace:
+class Workspace(object):
     '''
     This is a basic class for storing and managing nodes.
     
@@ -113,7 +113,7 @@ class Workspace:
         node2.dependencies = node1.data.id
               
             
-class InitialNodeData:
+class InitialNodeData(object):
     '''
     Data used to initialise the node.
     '''

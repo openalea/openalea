@@ -2,7 +2,7 @@
 """
 Module implementing the main window of the ALEA application.
 
-:author: Barbier de Reuille Pierre, Donès Nicolas
+:author: Barbier de Reuille Pierre, Dones Nicolas
 :version: 0.1
 :since: 08/11/2005
 """

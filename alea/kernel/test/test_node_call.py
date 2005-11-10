@@ -4,7 +4,7 @@ This module provides the basic tests for alea_node module
 :Version: 0.0.1
 :Authors: Loic Calvino, Szymon Stoma
 """
-from alea_node import *
+from node import *
 
 class TestOne:
     def setup_method(self, method):
