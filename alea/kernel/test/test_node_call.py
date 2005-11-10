@@ -1,9 +1,13 @@
 """
-This module provides the basic tests for alea_node module
+This module provides the basic tests for node module
 
 :Version: 0.0.1
 :Authors: Loic Calvino, Szymon Stoma
 """
+
+import sys
+sys.path.append("..\src")
+
 from node import *
 
 class TestOne:
