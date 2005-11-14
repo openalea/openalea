@@ -141,7 +141,6 @@ def pid(package):
 
 #TODO
 def alea_package():
-    config= alea.config.alea_config
     dirs={}
     dirs['settings']='.'
     
@@ -157,6 +156,9 @@ class PackageManager(object):
         self.pkgs= {}
         self._node2widget=None
 
+    def __repr__(self):
+        return repr(self.pkgs)
+        
     def register( self, package ):
         self.pkgs[pid(package)]= package
         self._node2widget= None
@@ -196,13 +198,16 @@ class PackageManager(object):
             
         w= self._node2widget.get(node.__class__.__name__)
         if w:
-            return w()(node)
+            return w(node)
         else:
             return None
+
+    def __getitem__(self,pkg_id):
+        return self.pkgs[pkg_id]
         
     def _compute_node2widget( self ):
         self._node2widget= {}
-        for p in self.pckgs.values():
+        for p in self.pkgs.values():
             self._node2widget.update(p.node2widget)
 
 ################################################################################
