@@ -2,8 +2,10 @@
 Test the Package Mngr
 """
 
+import os
+pj=os.path.join
 import sys
-sys.path.append("..\src")
+sys.path.append(pj("..","src"))
 
 import package
 from package import NodeFactory, WidgetFactory, Package,\

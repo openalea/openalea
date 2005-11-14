@@ -5,8 +5,10 @@ This module provides the basic tests for node module
 :Authors: Loic Calvino, Szymon Stoma
 """
 
+import os
+pj=os.path.join
 import sys
-sys.path.append("..\src")
+sys.path.append(pj("..","src"))
 
 from node import *
 
