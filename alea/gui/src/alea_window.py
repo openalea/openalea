@@ -69,6 +69,8 @@ class AleaWnd( BaseWnd ):
     self.workspace_layout = qt.QHBoxLayout( wframe )
     self.workspace_layout.add( self.wscanvas )
 
+    self.workspaces.setFocusPolicy( qt.QWidget.NoFocus )
+
     # Inserting pyCute shell
     self.shell_layout = qt.QHBoxLayout( self.shell_frame )
     self.shell = PyCute(parent=self.shell_frame)

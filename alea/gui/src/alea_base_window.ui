@@ -35,7 +35,7 @@
                         <cstring>tab</cstring>
                     </property>
                     <attribute name="title">
-                        <string>Packages</string>
+                        <string>Nodes</string>
                     </attribute>
                     <vbox>
                         <property name="name">
@@ -61,7 +61,7 @@
                         <cstring>TabPage</cstring>
                     </property>
                     <attribute name="title">
-                        <string>File System</string>
+                        <string>Applications</string>
                     </attribute>
                     <vbox>
                         <property name="name">
