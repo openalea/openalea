@@ -9,7 +9,7 @@ The package manager register, install and load packages.
 import cPickle
 import config
 
-################################################################################
+###############################################################################
 
 class NodeFactory(object):
     def __init__(self, name, desc, cat, dep, node, widget= ''):
@@ -21,8 +21,8 @@ class NodeFactory(object):
 	...        pass
 	        
 	 >>> 
-	 >>> n= NodeFactory("MyNode", "This is my node","Data",["gnuplot","alea"],mynode)
-	 >>> p= Package("blablabla",[n],[w])
+	 >>> n= NodeFactory('MyNode', 'This is my node','Data',['gnuplot','alea'],mynode)
+	 >>> p= Package('blablabla',[n],[w])
 	 >>> PackageManager.register(p)
 
 	:Parameters:
@@ -41,6 +41,7 @@ class NodeFactory(object):
 	  - `node` : class
 	  - `widget` : String
 	"""
+
         self.name=name
         self.description=desc
         self.category=cat
@@ -51,7 +52,7 @@ class NodeFactory(object):
     def __call__(self):
         return self.node()
 
-################################################################################
+###############################################################################
 
 class WidgetFactory(object):
     def __init__(self, name, icons, widget, node ):
@@ -70,7 +71,7 @@ class WidgetFactory(object):
         return None
             
 
-################################################################################
+###############################################################################
 
 def create_node2widget( widgets ):
     d= {}
@@ -131,13 +132,13 @@ class Package(object):
         return True
         
 
-################################################################################
+###############################################################################
 
 def pid(package):
     """ Package id. """
     return package.name
 
-################################################################################
+###############################################################################
 
 #TODO
 def alea_package():
@@ -146,7 +147,7 @@ def alea_package():
     
     return Package('alea', 'alea', config.version,directories=dirs)
 
-################################################################################
+###############################################################################
 
 class PackageManager(object):
     """
@@ -210,7 +211,7 @@ class PackageManager(object):
         for p in self.pkgs.values():
             self._node2widget.update(p.node2widget)
 
-################################################################################
+###############################################################################
 # PackageManager Factory
 
 def load_pkg_manager():
