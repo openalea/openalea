@@ -2,8 +2,15 @@
 Code for installing modules.
 """
 
-import shutil
+import path
 
 def install_tree( src, dest, exclude=['.svn']):
-    shutil.copytree(src,dest)
+    src= path(src)
+    if src.exists():
+        # check if dest don't exists
+        src.copytree(dest)
+    else:
+        return False
+
+
 
