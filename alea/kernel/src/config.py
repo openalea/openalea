@@ -6,7 +6,8 @@ This module define the path for
  - doc
  - examples
 """
-from alea import path
+import alea
+from alea.kernel import path
 
 version="0.0.1"
 prefix = path(r"D:/pradal/devlp/alea")
