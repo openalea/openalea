@@ -74,6 +74,9 @@ class WidgetFactory(object):
 ###############################################################################
 
 def create_node2widget( widgets ):
+    '''
+    Return a dict [node] = associated widget
+    '''
     d= {}
     for w in widgets:
         d[w.node.__name__]= w
@@ -151,7 +154,7 @@ def alea_package():
 
 class PackageManager(object):
     """
-    The PackageManager register, install and load packages.
+    The PackageManager registers, installs and loads packages.
     """
     def __init__(self):
         self.pkgs= {}
@@ -161,11 +164,25 @@ class PackageManager(object):
         return repr(self.pkgs)
         
     def register( self, package ):
+        '''
+        Registers a package in the package manager
+        Returns true
+
+        :Parameters:
+        - package
+        '''
         self.pkgs[pid(package)]= package
         self._node2widget= None
         return True
 
     def unregister( self, package ):
+        '''
+        Removes a package from the available package list of the package manager
+        Returns true if the package was in the list, false otherwise
+        
+        :Parameters: 
+        - package
+        '''
         if pid(package) in self.pkgs:
             del self.pkgs[pid(package)]
             self._node2widget= None
@@ -174,26 +191,50 @@ class PackageManager(object):
             return False
                 
     def install( self, package ):
+        '''
+        Installs the package's files in the OpenAlea file tree
+
+        :Parameters:
+        - package
+        '''
         if not pid(package) in self.pkgs:
             self.register(package)
         return package.install(alea_package())
 
     def uninstall( self, package ):
+        '''
+        Removes package's files from the OpenAlea file tree
+
+        :Parameters: 
+        - package 
+        '''
         if pid(package) in self.pkgs:
             self.unregister(package)
         return package.uninstall(alea_package())
 
     def packages(self):
+        '''
+        Returns a package id list which contains the available packages
+
+        '''
         return self.pkgs.keys()
 
     def loaded_packages(self):
+        '''
+        returns the list of loaded packages id 
+        ''' 
     	return [ name for name, pkg in self.pkgs.iteritems() if pkg.loaded ]
 
     def installed_packages(self):
+        '''
+        returns the list of installed packages id 
+        '''
     	return [ name for name, pkg in self.pkgs.iteritems() if pkg.installed ]
 
     def widget(self, node):
-        """ Return a wiget instance for a given node instance. """
+        """
+        Return a widget instance for a given node instance. 
+        """
         if not self._node2widget:
             self._compute_node2widget()
             
@@ -204,9 +245,15 @@ class PackageManager(object):
             return None
 
     def __getitem__(self,pkg_id):
+        '''
+        returns the package identified by pkg_id
+        '''
         return self.pkgs[pkg_id]
         
     def _compute_node2widget( self ):
+        '''
+        rebuild dependencies list between nodes and widget
+        '''
         self._node2widget= {}
         for p in self.pkgs.values():
             self._node2widget.update(p.node2widget)
@@ -215,25 +262,36 @@ class PackageManager(object):
 # PackageManager Factory
 
 def load_pkg_manager():
+    '''
+    Loads a saved PackageManager
+    '''
     setting_dir='.'
     fn= os.path.join(setting_dir,"PackageManager.ini")
     f= open(fn)
     pkg_mgr= cPickle.load(f)
-    return pkg_manager
+    return pkg_mgr
     
 def save_pkg_manager( pkg_manager ):
+    '''
+    Saves a PackageManager
+    '''
     setting_dir='.'
     fn= os.path.join(config.setting_dir,"PackageManager.ini")
     f= open(fn,'w')
     cPickle.dump(pkg_manager,f)
 
 def register(package):
+    '''
+    Registers a package in the main PackageManager
+    Saves the new registered packages list
+    '''
     pkg_manager= load_pkg_manager()
     is_ok= pkg_manager.register(package)
     save_pkg_manager(pkg_manager)
     return is_ok
 
 def install(package):
+
     pkg_manager= load_pkg_manager()
     is_ok= pkg_manager.install(package)
     save_pkg_manager(pkg_manager)
