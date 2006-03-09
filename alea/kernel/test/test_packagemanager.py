@@ -143,3 +143,21 @@ def test_pm1():
     
     pm.unregister(p3)
     assert not pm.widget(node_instance)
+
+def test_pm_factories():
+    p1= pkg_os()
+    p2= pkg_node()
+    p3= pkg_widget()
+
+    package.register(p1)
+
+    pm= package.load_pkg_manager()
+    assert len(pm.packages()) == 1
+
+    package.register(p2)
+    pm= package.load_pkg_manager()
+    assert len(pm.packages()) == 2
+
+    package.register(p3)
+    pm= package.load_pkg_manager()
+    assert len(pm.packages()) == 3

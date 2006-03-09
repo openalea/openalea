@@ -8,6 +8,7 @@ The package manager register, install and load packages.
 
 import cPickle
 import config
+from path import path
 
 ###############################################################################
 
@@ -21,7 +22,8 @@ class NodeFactory(object):
 	...        pass
 	        
 	 >>> 
-	 >>> n= NodeFactory('MyNode', 'This is my node','Data',['gnuplot','alea'],mynode)
+	 >>> n= NodeFactory('MyNode', 'This is my node','Data',
+         ['gnuplot','alea'],mynode)
 	 >>> p= Package('blablabla',[n],[w])
 	 >>> PackageManager.register(p)
 
@@ -134,6 +136,7 @@ class Package(object):
         self.installed= False
         return True
         
+        
 
 ###############################################################################
 
@@ -191,12 +194,12 @@ class PackageManager(object):
             return False
                 
     def install( self, package ):
-        '''
+        """
         Installs the package's files in the OpenAlea file tree
 
         :Parameters:
         - package
-        '''
+        """
         if not pid(package) in self.pkgs:
             self.register(package)
         return package.install(alea_package())
@@ -263,27 +266,29 @@ class PackageManager(object):
 
 def load_pkg_manager():
     '''
-    Loads a saved PackageManager
+    Return the OpenAlea PackageManager.
     '''
-    setting_dir='.'
-    fn= os.path.join(setting_dir,"PackageManager.ini")
-    f= open(fn)
-    pkg_mgr= cPickle.load(f)
+    fn= config.setting_dir / "PackageManager.ini"
+    if fn.exists():
+        f= fn.open()
+        pkg_mgr= cPickle.load(f)
+    else:
+        pkg_mgr= PackageManager()
+        
     return pkg_mgr
     
 def save_pkg_manager( pkg_manager ):
     '''
-    Saves a PackageManager
+    Save the PackageManager into an ini file
     '''
-    setting_dir='.'
-    fn= os.path.join(config.setting_dir,"PackageManager.ini")
-    f= open(fn,'w')
+    fn= config.setting_dir / "PackageManager.ini"
+    f= fn.open('w')
     cPickle.dump(pkg_manager,f)
 
 def register(package):
     '''
-    Registers a package in the main PackageManager
-    Saves the new registered packages list
+    Register a package into the OpenAlea PackageManager
+    Saves the new registered package list
     '''
     pkg_manager= load_pkg_manager()
     is_ok= pkg_manager.register(package)
@@ -291,7 +296,7 @@ def register(package):
     return is_ok
 
 def install(package):
-
+    
     pkg_manager= load_pkg_manager()
     is_ok= pkg_manager.install(package)
     save_pkg_manager(pkg_manager)
