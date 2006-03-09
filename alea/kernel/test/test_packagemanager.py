@@ -161,3 +161,13 @@ def test_pm_factories():
     package.register(p3)
     pm= package.load_pkg_manager()
     assert len(pm.packages()) == 3
+
+    package.unregister(p1)
+    package.unregister(p2)
+    package.unregister(p3)
+
+    pm= package.load_pkg_manager()
+    assert len(pm.packages()) == 0
+    
+    pm= package.PackageManager()
+    package.save_pkg_manager(pm)
