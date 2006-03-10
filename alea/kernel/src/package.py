@@ -10,6 +10,8 @@ import cPickle
 import config
 from path import path
 
+from tempfile import mkdtemp
+
 ###############################################################################
 
 class NodeFactory(object):
@@ -126,8 +128,21 @@ class Package(object):
     	self.loaded= True
     	return True
     
-    def install(self, dest_pkg):
-        """ Install this package in the dest package directories"""
+    def install(self):
+        """ Install this package in the alea package directories"""
+
+        destination_path = config.prefix
+        #src_path = path(__file__).dirname()
+        
+
+        for k in self.directories.keys():
+            src_path, k= k.splitpath()
+            if k == 'lib' or k == 'bin':
+                
+                (src_path / k).copytree(destination_path / k)
+            else :
+                (src_path / k).copytree(destination_path / self.name / k ) 
+    
         self.installed= True
         return True
 
@@ -147,6 +162,7 @@ def pid(package):
 ###############################################################################
 
 #TODO
+# Return Alea Config stuff
 def alea_package():
     dirs={}
     dirs['settings']='.'
@@ -195,7 +211,7 @@ class PackageManager(object):
                 
     def install( self, package ):
         """
-        Installs the package's files in the OpenAlea file tree
+        Installs the packages files in the OpenAlea file tree
 
         :Parameters:
         - package
@@ -206,7 +222,7 @@ class PackageManager(object):
 
     def uninstall( self, package ):
         '''
-        Removes package's files from the OpenAlea file tree
+        Removes packages files from the OpenAlea file tree
 
         :Parameters: 
         - package 
@@ -314,3 +330,22 @@ def uninstall(package):
     save_pkg_manager(pkg_manager)
     return is_ok
 
+# functions to install a package to Alea
+
+def create_temp_package(path):
+    pkgname = "pn"
+    sysname = "sn"
+    version = 3.14
+    return Package(pkgname, sysname, version);
+
+def install_package(package_url):
+    # fetch the package
+
+    # extract the package to a temp location
+    temp_path = path(mkdtemp('', 'alea_pkg_install_tmp'))
+
+    # check that the install file exists
+
+    # There's no error return here.  A goofed install won't be
+    # reported to the caller.
+    system("python " + temp_path + "/install.py")

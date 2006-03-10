@@ -2,9 +2,10 @@
 This module define the path for
  - prefix
  - test
- - widget
+ - widget 
  - doc
  - examples
+ - includes 
 """
 from path import path
 
@@ -21,12 +22,13 @@ def _prefix():
         return path('.')
 
 version="0.0.1"
-prefix = _prefix()
-pkg_dir = prefix
+prefix = path("c:\\alea")
+pkg_dir = prefix / 'packages'
 doc_dir = prefix / 'doc'
 test_dir = prefix / 'test'
 example_dir = prefix / 'example'
 lib_dir = prefix / 'lib'
 bin_dir = prefix / 'bin'
+include_dir = prefix / 'include' 
 setting_dir = prefix
 

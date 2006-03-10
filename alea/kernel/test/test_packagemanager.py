@@ -91,11 +91,11 @@ def test_package_node():
     alea_pkg= alea_package()
     assert alea_pkg
 
-    pkg.install(alea_pkg)
-    assert pkg.installed
+    #pkg.install(alea_pkg)
+    #assert pkg.installed
 
-    pkg.uninstall(alea_pkg)
-    assert not pkg.installed
+    #pkg.uninstall(alea_pkg)
+    #assert not pkg.installed
 
 ###############################################################################
 
@@ -171,3 +171,54 @@ def test_pm_factories():
     
     pm= package.PackageManager()
     package.save_pkg_manager(pm)
+
+######################################################
+
+def test_pkg_install():
+    '''
+    test of the pakage installation process
+    '''
+    from path import path 
+    import config 
+
+    src_dir= path(__file__).dirname().abspath()
+    package_tree = [ 'lib/toto.dll', 'bin/toto.exe', 'include/toto.h', 'exemples/toto.exp', 'python/toto.py', 'doc/toto.doc', 'resources/toto.rsc', 'test/toto.tst' ]
+    package_tree= [ src_dir / f for f in package_tree ]
+    toto_pkg = pkg_os()
+    toto_pkg.name = 'toto'
+    toto_pkg.directories = {} 
+
+    tempdir = src_dir
+    destdir = config.prefix
+    print "source dir is " + tempdir 
+    print 'destination dir is ' + destdir
+    
+    for k in package_tree:      
+        toto_pkg.directories[path(k).dirname()] = k
+        f= k
+        print f
+        dir= f.dirname()
+        if not dir.exists():
+            dir.mkdir()
+        if not f.exists():
+            f.touch()
+
+    toto_pkg.install()
+
+    result = true
+    files_to_remove =[]
+    for k in toto_pkg.package_tree:
+        k= k.splitpath()[1]
+        if k == 'lib' or k == 'bin':
+            filename = destdir / k
+        else :
+            filename = destdir / toto_pkg.name / path(k).filename()
+        files_to_remove.append(filename) 
+        result = result and filename.exists()
+
+    assert(result)
+
+    if result :        
+        for k in files_to_remove : 
+            k.remove()
+    
