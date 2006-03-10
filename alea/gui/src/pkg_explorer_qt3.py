@@ -6,13 +6,13 @@ Visible attributes are : loaded or not. Loading a package will be done using a d
 
 Inside load packages, we show the components and widgets available from this package.
 
-:author: Barbier de Reuille Pierre, Donès Nicolas, Florence Chaubert
+:author: Barbier de Reuille Pierre, Donès Nicolas
 :version: 0.1
 :since: 08/11/2005
 """
+import qt
 import sys
-from PyQt4 import QtCore, QtGui
-from alea.kernel import package
+from alea.kernel import mypackage as package
 
 loaded_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
@@ -34,19 +34,17 @@ notloaded_data = \
     "\xf7\x02\x14\xa2\x8e\x85\x45\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
 
-
-
-class PkgExplorer( QtGui.QListWidget ):
+class PkgExplorer( qt.QListView ):
   def __init__( self, parent = None, name = "", fl = 0 ):
-    QtGui.QListWidget.__init__( self, parent, name, fl )
-    '''self.col_name = self.addColumn( "Name" )
+    qt.QListView.__init__( self, parent, name, fl )
+    self.col_name = self.addColumn( "Name" )
     self.col_installed = self.addColumn( " " )
     self.col_loaded = self.addColumn( " " )
     self.col_desc = self.addColumn( "Description" )
-    self.col_sysname = self.addColumn( "System name" )'''
-    self.loaded_pixmap = QtGui.QPixmap()
+    self.col_sysname = self.addColumn( "System name" )
+    self.loaded_pixmap = qt.QPixmap()
     self.loaded_pixmap.loadFromData( loaded_data, "PNG" )
-    self.notloaded_pixmap = QtGui.QPixmap()
+    self.notloaded_pixmap = qt.QPixmap()
     self.notloaded_pixmap.loadFromData( notloaded_data, "PNG" )
     self.setRootIsDecorated( True )
     self.fill()
@@ -57,13 +55,12 @@ class PkgExplorer( QtGui.QListWidget ):
       self.add_package( p )
 
   def add_package( self, pkg ):
-    i = QtGui.QListWidgetItem( self )
+    i = qt.QListViewItem( self )
     i.setText( self.col_name, pkg.name )
     i.setText( self.col_desc, pkg.description )
     i.setText( self.col_sysname, pkg.sys_name )
     if pkg.is_loaded:
-      i.setIcon(QtGui.QIcon(self.loaded_pixmap))
-      #i.setPixmap( self.col_loaded, self.loaded_pixmap )
+      i.setPixmap( self.col_loaded, self.loaded_pixmap )
       enabled = True
     else:
       i.setPixmap( self.col_loaded, self.notloaded_pixmap )
