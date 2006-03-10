@@ -182,7 +182,7 @@ def test_pkg_install():
     import config 
 
     src_dir= path(__file__).dirname().abspath()
-    package_tree = [ 'lib/toto.dll', 'bin/toto.exe', 'include/toto.h', 'exemples/toto.exp', 'python/toto.py', 'doc/toto.doc', 'resources/toto.rsc', 'test/toto.tst' ]
+    package_tree = [ 'lib/toto.dll', 'bin/toto.exe', 'include/toto.h', 'examples/toto.exp', 'packages/toto.py', 'documentation/toto.doc', 'resources/toto.rsc', 'tests/toto.tst' ]
     package_tree= [ src_dir / f for f in package_tree ]
     toto_pkg = pkg_os()
     toto_pkg.name = 'toto'
@@ -205,20 +205,30 @@ def test_pkg_install():
 
     toto_pkg.install()
 
-    result = true
+    result = True
     files_to_remove =[]
-    for k in toto_pkg.package_tree:
-        k= k.splitpath()[1]
-        if k == 'lib' or k == 'bin':
-            filename = destdir / k
-        else :
-            filename = destdir / toto_pkg.name / path(k).filename()
-        files_to_remove.append(filename) 
-        result = result and filename.exists()
+    dirs_to_remove =[]
+    for k in package_tree:
+        # make sure the file was copied
+        src,f = k.splitall()[-2:]
 
-    assert(result)
+        if src =='bin' or src ==  'lib':
+            fn= destdir / src / f
+        else:
+            d= destdir / src / 'toto'
+            fn= d / f
+            dirs_to_remove.append(d)
 
-    if result :        
-        for k in files_to_remove : 
-            k.remove()
+        assert fn.exists()
+        files_to_remove.append(fn)
+            
+    for fn in files_to_remove:
+        fn.remove()
+
+    # remove created deirectories
+    for d in dirs_to_remove:
+        d.rmdir()
+
+    for d in toto_pkg.directories.keys():
+        d.rmtree()
     

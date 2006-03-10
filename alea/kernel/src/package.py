@@ -9,6 +9,7 @@ The package manager register, install and load packages.
 import cPickle
 import config
 from path import path
+from install import install_tree
 
 from tempfile import mkdtemp
 
@@ -98,6 +99,9 @@ class Package(object):
                  widget_factories= [],
                  directories= {'pkg':'','doc':'','test':'','example':'','lib':'','bin':'','setting':''}
                  ):
+	"""
+	"""
+        
         self.name=name  
     	self.system_name=system_name 
     	self.version=version 
@@ -132,16 +136,19 @@ class Package(object):
         """ Install this package in the alea package directories"""
 
         destination_path = config.prefix
+        print "Installing package %s in %s" % ( self.name, config.prefix )
         #src_path = path(__file__).dirname()
-        
 
         for k in self.directories.keys():
             src_path, k= k.splitpath()
+            src= src_path / k
             if k == 'lib' or k == 'bin':
-                
-                (src_path / k).copytree(destination_path / k)
+                dest = destination_path / k
             else :
-                (src_path / k).copytree(destination_path / self.name / k ) 
+                dest =  destination_path / k / self.name
+
+            print "Copy %s in %s" % ( src, dest )
+            install_tree(src,dest)
     
         self.installed= True
         return True
