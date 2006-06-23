@@ -199,6 +199,12 @@ class IrixPlatform(PosixPlatform):
         PosixPlatform.SetCompilerFlags(self, env)
         env.Append(CPPFLAGS = "-DSYSTEM_IS__IRIX")
 
+# sgi specific
+class CygwinPlatform(PosixPlatform):
+    def SetCompilerFlags(self, env):
+        PosixPlatform.SetCompilerFlags(self, env)
+        env.Append(CPPFLAGS = "-DSYSTEM_IS__CYGWIN")
+
 # win32 specific
 class Win32Platform(Platform):
 
@@ -255,6 +261,8 @@ def GetPlatform():
             return DarwinPlatform("darwin")
         elif(string.find(pfname,"irix")>=0):
             return IrixPlatform("irix")
+        elif(string.find(pfname,"cygwin")>=0):
+            return CygwinPlatform("cygwin")
         else:
             return PosixPlatform(pfname)
     elif(osname == "nt" & pfname== "win32"):
