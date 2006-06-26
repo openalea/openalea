@@ -23,25 +23,48 @@ class Msvc:
       t= Tool( 'msvc' )
       t( env )
 
-      CXXFLAGS= []
+      # /GR: enable C++ RTTI
+      CCFLAGS= ['/MD','/GR','/GX']
       CPPPATH= [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
-      CPPDEFINES= [ 'WIN32' ]
+      CPPDEFINES= [ 'UNICODE' ]
+      LIBS= ['advapi32','uuid','stlport_vc6']
+
       if env["warnings"]:
          # TODO add warnings flags
-         CXXFLAGS += [ '/W3' ]
+         CCFLAGS += [ '/W3' ]
 
       if env["debug"]:
-         # TODO add debug flags
-         CXXFLAGS.extend(['/MLd','/DEBUG','/Z7','/Od','/Ob0'])
-         CPPDEFINES= [ '_DEBUG' ]
+         # Optimization
+         # /Od2: disable optimizations
+         CCFLAGS.extend(['/Od'])
+         # language
+         # /Zi enable debugging information
+         CCFLAGS.extend(['/Zi'])
+         # code generation
+         # /GZ: enable runtime debug checks
+         # /Gm: enable minimal rebuild
+         CCFLAGS.extend(['/GZ','/Gm'])
+
+         CPPDEFINES.append( '_DEBUG' )
       else:
-         # TODO add optimized flags
-         CXXFLAGS.extend(['/ML','/O2','/Ob2','/Gy','/GF','/GA','/GB' ])
-         CPPDEFINES= [ 'NDEBUG' ]
+         # Optimization
+         # /O2: maximum speed
+         # /ob2: inline expansion (n=2)
+         CCFLAGS.extend(['/O2','/Ob2'])
+         # code generation
+         # /Gy: separate functions for linker
+         # /GF: enable read-only string pooling
+         # /GA: enable for Windows Application
+         # /GB: optimize for blended model
+         # /GR: enable C++ RTTI
+         CCFLAGS.extend(['/Gy','/GF','/GA','/GB' ])
+         
+         CPPDEFINES.append( 'NDEBUG' )
 
       env.AppendUnique(CPPPATH = CPPPATH)
-      env.AppendUnique(CXXFLAGS = CXXFLAGS)
+      env.AppendUnique(CCFLAGS = CCFLAGS)
       env.AppendUnique(CPPDEFINES = CPPDEFINES)
+      env.AppendUnique( LIBS= LIBS )
 
 
    def configure( self, config ):

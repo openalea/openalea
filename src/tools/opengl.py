@@ -46,7 +46,7 @@ class OpenGL:
       if isinstance( platform, Posix ):
          env.AppendUnique( LIBS= [ 'GLU', 'glut' ] )
       elif isinstance( platform, Win32 ):
-         env.AppendUnique( LIBS= [ 'GLU32', 'glut32' ] )
+         env.AppendUnique( LIBS= [ 'opengl32','GLU32', 'glut32' ] )
 
 
    def configure( self, config ):
