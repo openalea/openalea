@@ -1,4 +1,4 @@
-#!/usr/bin/install
+#!/usr/bin/python
 # Install configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL
@@ -55,10 +55,23 @@ class Install:
                              'data', 
                              pj( '$prefix', 'share' ) ))
 
-        opts.Add(PathOption( 'pythondir', 
-                             'python packages install directory', 
-                             pj( '$prefix', 'site-packages' ) ))
-    
+        # Program & Library names
+
+        opts.Add( 'program_prefix', 
+                  'prepend prefix to installed program names', '' )
+
+        opts.Add( 'program_suffix', 
+                  'append suffix to installed program names', '' )
+
+        opts.Add( 'lib_prefix', 
+                  'prepend prefix to installed library names', '' )
+
+        opts.Add( 'lib_suffix', 
+                  'append suffix to installed library names', '' )
+
+
+
+
     def update( self, env ):
         """ Update the environment with specific flags """
         pass

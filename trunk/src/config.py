@@ -7,7 +7,6 @@ import os, sys
 import string
 import environ
 
-import SCons.Defaults
 import SCons.Util
 import SCons.Tool
 import SCons.Environment
@@ -42,14 +41,14 @@ class CircularDependency( Exception ):
 #----------------------------------
 # Utils
 
-def import_tool( name, dir ):
+def import_tool( name, import_dir ):
 
     old_syspath= sys.path
 
     if tool_path not in sys.path: 
         sys.path.insert( 0, tool_path )
     
-    sys.path= dir + sys.path
+    sys.path= import_dir + sys.path
 
     try:
         mod= __import__( name )

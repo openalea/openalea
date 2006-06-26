@@ -38,15 +38,18 @@ class QT:
       t= Tool( 'qt' )
       t( env )
 
-      qt_lib='qt-mt' 
       if isinstance( platform, Win32 ):
-         qt_lib='qt-mtnc321' 
+         qt_lib='qt-mtnc321'
+      else:
+         qt_lib='qt-mt' 
       
-
-      multithread= exist( 'qt-mt' , pj( env['QTDIR'], 'lib' ) )
+      multithread= exist( qt_lib , pj( env['QTDIR'], 'lib' ) )
       if multithread:
          env.AppendUnique( CPPDEFINES= ['QT_THREAD_SUPPORT'] )
          env.Replace( QT_LIB= qt_lib )
+
+      if isinstance( platform, Win32 ):
+         env.AppendUnique( CPPDEFINES= ['QT_DLL'] )
 
 
    def configure( self, config ):

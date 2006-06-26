@@ -19,7 +19,10 @@ class Python:
    def default( self ):
 
       self._default[ 'include' ]= get_python_inc()
-      self._default[ 'lib' ]= get_config_var( 'LIBPL' )
+      try:
+         self._default[ 'lib' ]= get_config_var( 'LIBDIR' )
+      except:
+         self._default[ 'lib' ]= '/usr/lib'
 
 
    def option(  self, opts ):
