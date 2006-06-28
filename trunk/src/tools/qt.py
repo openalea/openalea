@@ -50,6 +50,8 @@ class QT:
 
       if isinstance( platform, Win32 ):
          env.AppendUnique( CPPDEFINES= ['QT_DLL'] )
+      elif isinstance( platform, Cygwin ):
+         env['QT_CPPPATH']='/usr/include/qt3'
 
 
    def configure( self, config ):

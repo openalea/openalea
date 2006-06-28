@@ -43,7 +43,9 @@ class OpenGL:
       env.AppendUnique( CPPPATH= [ env['gl_includes'] ] )
       env.AppendUnique( LIBPATH= [ env['gl_lib'] ] )
 
-      if isinstance( platform, Posix ):
+      if isinstance( platform, Cygwin ):
+         env.AppendUnique( LIBS= [ 'opengl32','glu32', 'glut32' ] )
+      elif isinstance( platform, Posix ):
          env.AppendUnique( LIBS= [ 'GLU', 'glut' ] )
       elif isinstance( platform, Win32 ):
          env.AppendUnique( LIBS= [ 'opengl32','GLU32', 'glut32' ] )

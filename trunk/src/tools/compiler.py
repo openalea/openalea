@@ -52,7 +52,7 @@ class Compiler:
       opts.Add( 'EXTRA_CXXFLAGS', 'Specific user flags for c++ compiler', '')
       opts.Add( 'EXTRA_CXXDEFINES', 'Specific c++ defines', '')
       opts.Add( 'EXTRA_LINKFLAGS', 'Specific user flags for c++ linker', '')
-      opts.Add( 'EXTRA_CPPPATH', 'Specific user iinclude path', '')
+      opts.Add( 'EXTRA_CPPPATH', 'Specific user include path', '')
       opts.Add( 'EXTRA_LIBPATH', 'Specific user library path', '')
       opts.Add( 'EXTRA_LIBS', 'Specific user libraries', '')
 
@@ -60,6 +60,8 @@ class Compiler:
    def update( self, env ):
       """ Update the environment with specific flags """
 
+      if isinstance( platform, Cygwin ):
+         env.AppendUnique( CXXFLAGS= '-DSYSTEM_IS__CYGWIN' )
       env.Append( CXXFLAGS= Split( env['EXTRA_CXXFLAGS'] ) )
       env.Append( CXXDEFINES= Split( env['EXTRA_CXXDEFINES'] ) )
       env.Append( LINKFLAGS= Split( env['EXTRA_LINKFLAGS'] ) )
