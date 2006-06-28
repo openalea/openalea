@@ -126,6 +126,10 @@ class Irix( Posix ):
    def __init__( self ):
       self.name= "irix"
 
+class Cygwin( Posix ):
+   def __init__( self ):
+      self.name= "cygwin"
+
 class Darwin( Posix ):
    def __init__( self ):
       self.name= "darwin"
@@ -142,6 +146,8 @@ def GetPlatform():
    if osname == "posix" :
      if pfname.find( "linux" ) >= 0 :
          return Linux()
+     elif pfname.find( "cygwin" ) >= 0 :
+         return Cygwin()
      elif pfname.find( "darwin" ) >= 0 :
          return Darwin()
      elif pfname.find( "irix" ) >= 0 :

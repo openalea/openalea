@@ -16,8 +16,11 @@ class Readline:
 
    def default( self ):
       if isinstance( platform, Posix ):
+         
          self._default[ 'include' ]= '/usr/include'
          self._default[ 'lib' ]= '/usr/lib'
+         if isinstance( platform, Cygwin ):
+            self._default[ 'include' ]= '/usr/include/readline'
 
 
    def option(  self, opts ):

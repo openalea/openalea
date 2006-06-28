@@ -39,6 +39,11 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
+try:
+    YaccAction= SCons.Defaults.YaccAction
+except:
+    YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
+    
 yy_suffix=['.y','.yy']
 
 def _yaccEmitter(target, source, env, ysuf, hsuf):
@@ -65,9 +70,9 @@ def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
     c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 
-    c_file.add_action('.y', SCons.Defaults.YaccAction)
+    c_file.add_action('.y', YaccAction)
     for yy in yy_suffix:
-      cxx_file.add_action(yy, SCons.Defaults.YaccAction)
+      cxx_file.add_action(yy, YaccAction)
     c_file.add_emitter('.y', yEmitter)
     for yy in yy_suffix:
       cxx_file.add_emitter(yy, yyEmitter)
