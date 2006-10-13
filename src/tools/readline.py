@@ -13,6 +13,8 @@ class Readline:
       self.config= config
       self._default= {}
 
+   def depends( self ):
+       return [ "termcap" ]
 
    def default( self ):
       if isinstance( platform, Posix ):
@@ -59,6 +61,10 @@ class Readline:
 def create( config ):
    " Create readline tool "
    readline= Readline( config )
+
+   deps= readline.depends()
+   for lib in deps:
+      config.add_tool( lib )
 
    return readline
 
