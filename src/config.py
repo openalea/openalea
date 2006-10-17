@@ -5,7 +5,7 @@
 
 import os, sys
 import string
-import environ
+#import environ
 
 import SCons.Util
 import SCons.Tool
