@@ -61,6 +61,7 @@ for d in dirs:
     if e.args[ 0 ] != 17:
       raise
 
+'''
 init_py = pkg_dir/"__init__.py"
 print "Creating %s ..." % ( init_py, )
 
@@ -70,14 +71,15 @@ from os.path import join
 __path__.append( join( __path__[ 0 ], "src" ) )
 """)
 f.close()
+'''
 
 files = [
-  pkg_dir/"LICENSE",
-  pkg_dir/"README",
-  pkg_dir/"ChangeLog",
-  pkg_dir/"AUTHORS",
-  pkg_dir/"NEWS",
-  pkg_dir/"TODO"
+  pkg_dir/"LICENSE.txt",
+  pkg_dir/"README.txt",
+  pkg_dir/"ChangeLog.txt",
+  pkg_dir/"AUTHORS.txt",
+  pkg_dir/"NEWS.txt",
+  pkg_dir/"TODO.txt"
   ]
 
 for f in files:
