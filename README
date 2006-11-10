@@ -1,0 +1,115 @@
+DistX
+-----
+
+Author=Samuel Dufour-Kowalski
+Licence=Cecill-C
+
+Version:"0.1.0"
+
+Installation:
+-------------
+
+DistX is a standard python package. To install it, execute:
+
+python setup install
+
+
+
+Description:
+------------
+
+DistX is a distutils extension which add some specific options and command to distribute
+OpenAlea packages.
+
+Distutils new extra sub commands :
+
+Build sub command:
+
+  build_namespace :  	     Create empty namespaces
+				No parameters
+
+  build_scons :              Build subdirectory with scons
+				Use scons_parameters option from setup.py
+				Use '--scons-ext-param=' for adding scons options from command line
+				Use '--scons-path=' to specify scons program path.
+				Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
+
+Install sub command
+
+  install_external_data :    Install external data
+				Parameter '--external-prefix=' : base directory for external data 
+				if destination directory is not absolute
+
+
+
+  Nota : Scons is responsible to compile  external library. It does not interact with distutils. 
+	Scons is first executed, before any other distutils command. 
+
+	 You can transmit parameters to scons with setup.py in order to specify destination directory
+         ex : external libraries can be put in src/lib
+              boost.python libraries must be put in the python_package hierarchy
+         However, final installation is managed by the distutils functions. 
+
+  Nota 2 : the command bdist_wininst is desactivated.
+          This is because it is impossible with wininst python installer to install 3rd party data.
+	   Use simple bdist_instead
+
+Setup new parameters :
+
+  scons_dir : list of directory where to execute scons
+  scons_parameters : list of strings to pass to scons as parameters
+  namespace : list of strings defining namespace
+  external_data : map with the form { destination directory :source directory } to install external data.
+		 parameter 'external-prefix' is prepend to dest directory if dest is not absolute
+  add_env_path : list of subdirectories to add to PATH environment variable
+                      (only for nt os)
+
+Usage:
+------
+
+#You can use distx in your setup.py as follow:
+
+from openalea.distx import setup 
+from openalea import config #retrieve openalea config file
+from os.path import join as joindir
+
+packagename='my_openalea_package'
+namespace='openalea'
+
+if __name__ == '__main__':
+    setup(name=packagename,
+          version='1.0',
+          author='me',
+          ...
+
+          #Define where to execute scons
+          #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
+          scons_dir = ['.'],
+          #scons parameters  
+          scons_parameters = [ 'lib=lib'],
+      
+
+          #define empty namespace
+          namespace= [namespace],
+          #pure python  packages
+          packages= [namespace+'.'+my_openalea_package],
+          #python packages directory
+          package_dir= {namespace+'.'+my_openalea_package : joindir('src',my_openalea_package)},
+      
+          #add package platform libraries if any
+          package_data= { namespace+'.'+my_openalea_package : ['*.so', '*.pyd', '*.dll']},
+                     
+	  #copy shared data in default OpenAlea directory
+	  #map of 'destination subdirectory' : 'source subdirectory'
+	  external_data={pj(config.prefix_dir, 'doc', name) : 'doc',
+         	          pj(config.prefix_dir, 'examples', name): 'examples' ,
+                	   pj(config.prefix_dir, 'test', name): 'test',
+	                   pj(config.prefix_dir, 'include'):  pj('src', 'include'),
+        	           pj(config.prefix_dir,'lib'):  pj('src','lib'),
+        	           },
+
+	  #ONLY FOR WINDOWS 
+	  #Add to PATH environment variable for openalea lib
+	  add_env_path=[pj(config.prefix_dir,'lib')]
+          
+"""
