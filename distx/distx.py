@@ -411,6 +411,17 @@ class install_external_data(Command):
 class distx_bdist_wininst (bdist_wininst):
     """Desactivate bdist_wininst"""
 
+#     def initialize_options (self):
+#         bdist_wininst.initialize_options(self)
+# 	self.external_prefix = None
+
+#     def finalize_options (self):
+#         bdist_wininst.finalize_options(self)
+#         self.set_undefined_options('install',
+# 				   ('external_prefix', 'external_prefix'),
+#                                   )
+
+
     def run(self):
         if self.distribution.has_external_data():
             print """
@@ -419,9 +430,46 @@ BDIST_WININST command doesn't work properly with external_data.
 Use instead simple BDIST command or other system installer.
 
 """
-
         else :
-            bdist_wininst.run(self)   
+            bdist_wininst.run(self)
+
+
+#     def create_extern_script(self):
+#         """Create a install script to place external data in the rigth place"""
+
+#         external_data=self.distribution.external_data
+
+#         if(not external_data or len(external_data)==0): return
+        
+#         self.external_prefix=convert_path(self.external_prefix)
+        
+#         print 'import shutils'
+
+# 	for (dest, src) in self.external_data.items():
+        
+#             #define destination directory
+#             if(self.external_prefix and not os.path.isabs(dest)):
+#                 dest=joindir(self.external_prefix,dest)
+
+#             normal_install_dir=joindir(sys.prefix, dest)
+#             final_install_dir=dest
+
+#             print "shutil.copytree(%s, %s)"%(normal_install_dir, final_install)
+
+        
+
+        
+
+class distx_sdist (sdist):
+    """Desactivate sdist"""
+
+    def run(self):
+        if self.distribution.has_external_data():
+            print """
+
+SDIST command doesn't work properly with external_data.
+Abording...
+"""
 
 class DistxDistribution(Distribution):
     """Main installation class
@@ -442,6 +490,7 @@ class DistxDistribution(Distribution):
                           'build_namespace': build_namespace, 
                           'build':distx_build,
                           'bdist_wininst':distx_bdist_wininst,
+                          'sdist':distx_sdist,
                          }
 
     def has_external_data(self):
