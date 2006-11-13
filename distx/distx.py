@@ -19,7 +19,8 @@ Build sub command:
   build_namespace :  	     Create empty namespaces
 				No parameters
 
-  build_scons :              Build subdirectory with scons
+  build_scons :              Run scons scripts
+				Use scons_scripts option from setup.py
 				Use scons_parameters option from setup.py
 				Use '--scons-ext-param=' for adding scons options from command line
 				Use '--scons-path=' to specify scons program path.
@@ -46,7 +47,7 @@ Install sub command
 
 Setup new parameters :
 
-  scons_script : list of script to execute with scons (SConstruct)
+  scons_scripts : list of script to execute with scons (SConstruct)
   scons_parameters : list of strings to pass to scons as parameters
   namespace : list of strings defining namespace
   external_data : map with the form { destination directory :source directory } to install external data.
@@ -71,7 +72,7 @@ if __name__ == '__main__':
 
           #Define where to execute scons
           #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-          scons_script = ['./SConstruct'],
+          scons_scripts = ['SConstruct'],
           #scons parameters  
           scons_parameters = [ 'lib=lib'],
       
@@ -129,8 +130,8 @@ class distx_build(build):
 	self.scons_ext_param="" #None value are not accepted
  	self.scons_path=None #scons path
 
-    def has_scons_script(self):
-        return self.distribution.has_scons_script()
+    def has_scons_scripts(self):
+        return self.distribution.has_scons_scripts()
     
     def has_namespace(self):
         return self.distribution.has_namespace()
@@ -138,7 +139,7 @@ class distx_build(build):
     
     sub_commands = []
     sub_commands.extend(build.sub_commands)
-    sub_commands.append(('build_scons', has_scons_script))
+    sub_commands.append(('build_scons', has_scons_scripts))
     sub_commands.append(('build_namespace', has_namespace))
 
     #define user options
@@ -168,7 +169,7 @@ class build_scons (Command):
 
     def initialize_options (self):
         self.outfiles = None
-        self.scons_script=None #scons directory
+        self.scons_scripts=None #scons directory
         self.scons_parameters=None #scons parameters
 	self.build_dir=None #build directory
 	self.scons_ext_param=None #scons external parameters
@@ -177,7 +178,7 @@ class build_scons (Command):
     def finalize_options (self):
         
         #set default values
-        self.scons_script = self.distribution.scons_script
+        self.scons_scripts = self.distribution.scons_scripts
         self.scons_parameters=self.distribution.scons_parameters
         if(not self.scons_parameters) : self.scons_parameters="" #None value are not accepted
 
@@ -192,7 +193,7 @@ class build_scons (Command):
         
     def run (self):
         """Run scons command with subprocess if available"""
-        if not(self.scons_script) or len(self.scons_script)==0:
+        if not(self.scons_scripts) or len(self.scons_scripts)==0:
             return
 
         #cwd=os.getcwd() #get current directory
@@ -206,7 +207,7 @@ class build_scons (Command):
             
 
         #run each scons  script
-        for s in self.scons_script:
+        for s in self.scons_scripts:
             try:
                 #os.chdir(d)
                 file_param='-f %s'%(s,)
@@ -346,6 +347,8 @@ class install_external_data(Command):
         self.root=None
         self.force = 0
 
+        print 'install extern initialise'
+
     def finalize_options (self):
         self.set_undefined_options('install',
 				   ('external_prefix', 'external_prefix'),
@@ -411,54 +414,104 @@ class install_external_data(Command):
 class distx_bdist_wininst (bdist_wininst):
     """Desactivate bdist_wininst"""
 
-#     def initialize_options (self):
-#         bdist_wininst.initialize_options(self)
-# 	self.external_prefix = None
-
-#     def finalize_options (self):
-#         bdist_wininst.finalize_options(self)
-#         self.set_undefined_options('install',
-# 				   ('external_prefix', 'external_prefix'),
-#                                   )
-
+    def initialize_options (self):
+        bdist_wininst.initialize_options(self)
+	self.external_prefix = None
+        self.install_script=None
+        
+    def finalize_options (self):
+        bdist_wininst.finalize_options(self)
+        self.post_install_name=self.distribution.post_install_name
+        self.set_undefined_options('install',
+				   ('external_prefix', 'external_prefix'),
+                                  )
 
     def run(self):
-        if self.distribution.has_external_data():
-            print """
+        if(os.name!='nt') :
+            print "bdist_wininst : No NT OS\n"
+            return
 
-BDIST_WININST command doesn't work properly with external_data.
-Use instead simple BDIST command or other system installer.
+        if self.distribution.has_external_data():
+
+            scriptname=self.create_postinstall_script(self.install_script)
+            self.install_script=scriptname
+
+        bdist_wininst.run(self)
+
+
+    def create_postinstall_script(self, initial_script):
+        """Create a install script to place external data in the rigth place
+        @param initial_script : name of the initial postinstall script or None
+        @return the new post install script name
+        """
+
+        external_data=self.distribution.external_data
+        if(not external_data or len(external_data)==0): return
+
+        # open file to write
+        outscript=file(self.post_install_name, 'w')
+        
+        self.external_prefix=convert_path(self.external_prefix)
+        
+        
+
+        base_script_str="""
+import os
+import shutil
+from distutils.dir_util import remove_tree, mkpath
+
+def copyalltree (src, dst):
+    "Copy an entire directory tree 'src' to a new location 'dst'.  "
+    
+    names = os.listdir(src)
+    mkpath(dst)
+    directory_created(dst)
+            
+    for n in names:
+        src_name = os.path.join(src, n)
+        dst_name = os.path.join(dst, n)
+
+        if os.path.isdir(src_name):
+            copyalltree(src_name, dst_name)
+
+        else:
+            shutil.copyfile(src_name, dst_name)
+            file_created(dst_name)
+
 
 """
-        else :
-            bdist_wininst.run(self)
 
+        outscript.write(base_script_str)
 
-#     def create_extern_script(self):
-#         """Create a install script to place external data in the rigth place"""
-
-#         external_data=self.distribution.external_data
-
-#         if(not external_data or len(external_data)==0): return
+    	for (dest, src) in external_data.items():
         
-#         self.external_prefix=convert_path(self.external_prefix)
-        
-#         print 'import shutils'
-
-# 	for (dest, src) in self.external_data.items():
-        
-#             #define destination directory
-#             if(self.external_prefix and not os.path.isabs(dest)):
-#                 dest=joindir(self.external_prefix,dest)
-
-#             normal_install_dir=joindir(sys.prefix, dest)
-#             final_install_dir=dest
-
-#             print "shutil.copytree(%s, %s)"%(normal_install_dir, final_install)
+            # define destination directory
+            if(self.external_prefix and not os.path.isabs(dest)):
+                    dest=joindir(self.external_prefix,dest)
 
         
+            normal_install_dir=change_root(sys.prefix, dest)
+            final_install_dir=dest
+            outscript.write("copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir, final_install_dir))
+            outscript.write("remove_tree(r\'%s\')\n"%(normal_install_dir))
+            outscript.write("os.removedirs(os.path.dirname(os.path.abspath(r\'%s\')))\n"%(normal_install_dir))
+           
+
+        #Call initial postinstall _script
+        if(initial_script):
+            try:
+                importname= split(initial_script, '.')[0]
+                outscript.write("import %s"%(importname,))
+            except Exception, e:
+                print '\n!! Warning !! Cannot include %s script in post install script.\n', e
+
+        outscript.close()
+
+        return self.post_install_name
+        
 
         
+from distutils.command.sdist import sdist
 
 class distx_sdist (sdist):
     """Desactivate sdist"""
@@ -479,11 +532,24 @@ class DistxDistribution(Distribution):
     def __init__(self,attrs=None):
         self.external_data  = None
         self.namespace=None
-        self.scons_script  = None
+        self.scons_scripts  = None
         self.scons_parameters = None
         self.add_env_path=None
-        
+
         Distribution.__init__(self,attrs)
+        
+        
+        #add script if bdist_wininst command
+        if('bdist_wininst' in attrs['script_args'] and os.name=='nt'):
+            self.post_install_name=self.metadata.get_name()+'_postinstall_script.py'
+
+            if(not hasattr(self, 'scripts') or not self.scripts or self.scripts==''):
+                self.scripts=[self.post_install_name]
+            else:
+                self.scripts.append(self.post_install_name)
+                        
+                
+                    
         self.cmdclass = { 'install_external_data':install_external_data,
                           'install':distx_install,
                           'build_scons':build_scons,
@@ -500,8 +566,8 @@ class DistxDistribution(Distribution):
         return self.namespace and len(self.namespace) > 0
 
 
-    def has_scons_script(self):
-        return self.scons_script and len(self.scons_script) > 0
+    def has_scons_scripts(self):
+        return self.scons_scripts and len(self.scons_scripts) > 0
 
 
 
