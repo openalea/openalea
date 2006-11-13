@@ -46,7 +46,7 @@ Install sub command
 
 Setup new parameters :
 
-  scons_dir : list of directory where to execute scons
+  scons_script : list of script to execute with scons (SConstruct)
   scons_parameters : list of strings to pass to scons as parameters
   namespace : list of strings defining namespace
   external_data : map with the form { destination directory :source directory } to install external data.
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
           #Define where to execute scons
           #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-          scons_dir = ['.'],
+          scons_script = ['./SConstruct'],
           #scons parameters  
           scons_parameters = [ 'lib=lib'],
       
@@ -129,8 +129,8 @@ class distx_build(build):
 	self.scons_ext_param="" #None value are not accepted
  	self.scons_path=None #scons path
 
-    def has_scons_dir(self):
-        return self.distribution.has_scons_dir()
+    def has_scons_script(self):
+        return self.distribution.has_scons_script()
     
     def has_namespace(self):
         return self.distribution.has_namespace()
@@ -138,7 +138,7 @@ class distx_build(build):
     
     sub_commands = []
     sub_commands.extend(build.sub_commands)
-    sub_commands.append(('build_scons', has_scons_dir))
+    sub_commands.append(('build_scons', has_scons_script))
     sub_commands.append(('build_namespace', has_namespace))
 
     #define user options
@@ -168,7 +168,7 @@ class build_scons (Command):
 
     def initialize_options (self):
         self.outfiles = None
-        self.scons_dir=None #scons directory
+        self.scons_script=None #scons directory
         self.scons_parameters=None #scons parameters
 	self.build_dir=None #build directory
 	self.scons_ext_param=None #scons external parameters
@@ -177,7 +177,7 @@ class build_scons (Command):
     def finalize_options (self):
         
         #set default values
-        self.scons_dir = self.distribution.scons_dir
+        self.scons_script = self.distribution.scons_script
         self.scons_parameters=self.distribution.scons_parameters
         if(not self.scons_parameters) : self.scons_parameters="" #None value are not accepted
 
@@ -192,10 +192,10 @@ class build_scons (Command):
         
     def run (self):
         """Run scons command with subprocess if available"""
-        if not(self.scons_dir) or len(self.scons_dir)==0:
+        if not(self.scons_script) or len(self.scons_script)==0:
             return
 
-        cwd=os.getcwd() #get current directory
+        #cwd=os.getcwd() #get current directory
 
         #try to import subprocess package
         try:
@@ -205,10 +205,11 @@ class build_scons (Command):
             subprocess_enabled=False
             
 
-        #run scons for each subdirectory
-        for d in self.scons_dir:
+        #run each scons  script
+        for s in self.scons_script:
             try:
-                os.chdir(d)
+                #os.chdir(d)
+                file_param='-f %s'%(s,)
                 
 		#join all parameters strings for setup.py scons_parameters list
                 param=join(self.scons_parameters, sep=' ') 
@@ -222,7 +223,7 @@ class build_scons (Command):
 		else:
 		    command='scons'
 
-		commandstr=command+' '+build_param+' '+param+' '+externp
+		commandstr=command+' '+file_param+' '+build_param+' '+param+' '+externp
                 print commandstr
                 
                 if(subprocess_enabled): #subprocess call
@@ -243,7 +244,7 @@ class build_scons (Command):
 		sys.exit()
 
         #return to origin directory
-        os.chdir(cwd)
+        #os.chdir(cwd)
 
 class build_namespace (Command):
     """Create an empty Namespace"""
@@ -430,7 +431,7 @@ class DistxDistribution(Distribution):
     def __init__(self,attrs=None):
         self.external_data  = None
         self.namespace=None
-        self.scons_dir  = None
+        self.scons_script  = None
         self.scons_parameters = None
         self.add_env_path=None
         
@@ -450,8 +451,8 @@ class DistxDistribution(Distribution):
         return self.namespace and len(self.namespace) > 0
 
 
-    def has_scons_dir(self):
-        return self.scons_dir and len(self.scons_dir) > 0
+    def has_scons_script(self):
+        return self.scons_script and len(self.scons_script) > 0
 
 
 
