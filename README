@@ -1,72 +1,82 @@
-DistX
------
+====== DistX ======
 
-Author=Samuel Dufour-Kowalski
-Licence=Cecill-C
+**Authors** : Samuel Dufour-Kowalski / Christophe Pradal
 
-Version:"0.1.0"
+**Institutes** : INRIA, CIRAD
 
-Installation:
--------------
+**Status** : Python package
 
-DistX is a standard python package. To install it, execute:
+**License** : Cecill-C
 
-python setup install
+**URL** : http://openalea.gforge.inria.fr
+
+===== About =====
+
+DistX is an OpenAlea package which extends python Distutils library to facilitate package installation.
 
 
+DistX defines new distutils extra commands :
 
-Description:
-------------
+=== Distutils build subcommands ===
 
-DistX is a distutils extension which add some specific options and command to distribute
-OpenAlea packages.
 
-Distutils new extra sub commands :
+  *//build_namespace// : Create empty namespaces. 
+      * Use ''namespace'' option from //setup.py//.
 
-Build sub command:
+   *//build_scons// : Build subdirectory with scons. 
+      * Use ''scons_parameter'' option from //setup.py//.
+      *	Use ''--scons-ext-param='' for adding scons options from the command line.
+      * Use ''--scons-path='' to specify scons program path from the command line.
 
-  build_namespace :  	     Create empty namespaces
-				No parameters
+Nota :Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
 
-  build_scons :              Build subdirectory with scons
-				Use scons_parameters option from setup.py
-				Use '--scons-ext-param=' for adding scons options from command line
-				Use '--scons-path=' to specify scons program path.
-				Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
+=== Distutils install subcommands ===
 
-Install sub command
-
-  install_external_data :    Install external data
-				Parameter '--external-prefix=' : base directory for external data 
-				if destination directory is not absolute
+  *//install_external_data// :    Install external data
+    * Use ''--external-prefix=''  to specify base directory for external data (if destination directory is not absolute) from the command line.
 
 
 
-  Nota : Scons is responsible to compile  external library. It does not interact with distutils. 
-	Scons is first executed, before any other distutils command. 
+//Nota 1// : Scons is responsible to compile  external library. It does not interact with distutils. 
+Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
 
-	 You can transmit parameters to scons with setup.py in order to specify destination directory
-         ex : external libraries can be put in src/lib
-              boost.python libraries must be put in the python_package hierarchy
-         However, final installation is managed by the distutils functions. 
+//Nota 2// : the command bdist_wininst is desactivated for the moment.
+This is because it is impossible with wininst python installer to install 3rd party data. Use simple bdist instead
 
-  Nota 2 : the command bdist_wininst is desactivated.
-          This is because it is impossible with wininst python installer to install 3rd party data.
-	   Use simple bdist_instead
+=== Setup function new parameters ===
 
-Setup new parameters :
+  * **scons_script** : list of scons script to execute (ex SConstruct).
+  * **scons_parameters** : list of strings to pass to scons as parameters.
+  * **namespace** : list of strings defining namespace.
+  * **external_data** : map with the form { destination directory :source directory } to install external data.
+Command line parameter ''--external-prefix='' is prepend to destination directory if the destination directory is not absolute.
+  * **add_env_path** : list of subdirectories to add to PATH environment variable (only for win32 os).
 
-  scons_dir : list of directory where to execute scons
-  scons_parameters : list of strings to pass to scons as parameters
-  namespace : list of strings defining namespace
-  external_data : map with the form { destination directory :source directory } to install external data.
-		 parameter 'external-prefix' is prepend to dest directory if dest is not absolute
-  add_env_path : list of subdirectories to add to PATH environment variable
-                      (only for nt os)
 
-Usage:
-------
+===== Installation =====
 
+
+=== Download ===
+
+DistX is available on the [[http://gforge.inria.fr/projects/openalea/|GForge repositery]]
+
+=== Requirements ===
+
+DistX has no particular requirement. 
+
+However, when using DistX, it can be usefull to use the OpenAlea base package which define the system configuration, in order to retrieve openalea directory prefix.
+
+
+=== Installation ===
+
+<code bash>
+python setup.py install
+</code>
+
+
+===== Quick Example =====
+
+<code python>
 #You can use distx in your setup.py as follow:
 
 from openalea.distx import setup 
@@ -111,5 +121,6 @@ if __name__ == '__main__':
 	  #ONLY FOR WINDOWS 
 	  #Add to PATH environment variable for openalea lib
 	  add_env_path=[pj(config.prefix_dir,'lib')]
-          
-"""
+</code>
+
+

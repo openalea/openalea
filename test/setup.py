@@ -73,9 +73,9 @@ setup(
     license=license,
     long_description=long_description,
     
-    #Define where to execute scons
+    #execute scons
     #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-    scons_dir = ['.'],
+    scons_script = ['SConstruct'],
     #scons parameters  
     scons_parameters = ['lib_dir=lib'],
       
