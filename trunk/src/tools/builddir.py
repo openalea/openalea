@@ -34,8 +34,9 @@ class BuildDir:
             prefix= env[ 'build_prefix' ]
         else:
             prefix= self.config.dir[ 0 ]
-
+        
         build= { 
+        'build_prefix': prefix,
         'build_bindir': pj( prefix, 'bin' ),
         'build_libdir' : pj( prefix, 'lib' ),
         'build_includedir' : pj( prefix, 'include' ) }
@@ -46,12 +47,12 @@ class BuildDir:
         # Creation of missing directories
         for dir in build:
             path= build[ dir ]
-            env[ dir ]= path
+            env[ dir ]= os.path.abspath(path)
             if not os.path.exists( path ):
                 os.makedirs(path)
 
         if not env[ 'with_build_dir' ]:
-            env[ 'build_dir' ]= pj( prefix, 'src' )
+            env[ 'build_dir' ]= pj( env[ 'build_prefix' ], 'src' )
 
 
 

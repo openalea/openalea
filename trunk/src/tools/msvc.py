@@ -20,14 +20,15 @@ class Msvc:
    def update( self, env ):
       """ Update the environment with specific flags """
 
+      env['MSVS_VERSION']= '6.0'
       t= Tool( 'msvc' )
       t( env )
 
       # /GR: enable C++ RTTI
-      CCFLAGS= ['/MD','/GR','/GX']
-      CPPPATH= [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
+      CCFLAGS= ['/MD','/GR','/EHsc']
+      #CPPPATH= [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
       CPPDEFINES= [ 'UNICODE' ]
-      LIBS= ['advapi32','uuid','stlport_vc6']
+      #LIBS= ['advapi32','uuid','stlport_vc6']
 
       if env["warnings"]:
          # TODO add warnings flags
@@ -55,16 +56,15 @@ class Msvc:
          # /Gy: separate functions for linker
          # /GF: enable read-only string pooling
          # /GA: enable for Windows Application
-         # /GB: optimize for blended model
          # /GR: enable C++ RTTI
-         CCFLAGS.extend(['/Gy','/GF','/GA','/GB' ])
+         CCFLAGS.extend(['/Gy','/GF','/GA' ])
          
          CPPDEFINES.append( 'NDEBUG' )
 
-      env.AppendUnique(CPPPATH = CPPPATH)
+      #env.AppendUnique(CPPPATH = CPPPATH)
       env.AppendUnique(CCFLAGS = CCFLAGS)
       env.AppendUnique(CPPDEFINES = CPPDEFINES)
-      env.AppendUnique( LIBS= LIBS )
+      #env.AppendUnique( LIBS= LIBS )
 
 
    def configure( self, config ):
