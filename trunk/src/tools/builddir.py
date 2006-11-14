@@ -4,7 +4,7 @@
 # Licence: GPL
 
 import os, sys
-from scons_util.config import *
+from sconsx.config import *
 
 
 class BuildDir:
@@ -51,7 +51,7 @@ class BuildDir:
                 os.makedirs(path)
 
         if not env[ 'with_build_dir' ]:
-            build[ 'build_dir' ]= pj( prefix, 'src' )
+            env[ 'build_dir' ]= pj( prefix, 'src' )
 
 
 

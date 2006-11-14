@@ -5,7 +5,7 @@
 # Licence: GPL
 
 import os, sys
-from scons_util.config import *
+from sconsx.config import *
 
 
 class Msvc:

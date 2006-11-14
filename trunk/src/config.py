@@ -165,7 +165,7 @@ platform= GetPlatform()
 
 # User Configuration class
 
-default_tools= [ 'compiler', 'builddir', 'install' ]
+default_tools= [ 'compiler', 'builddir' ]
 
 class Config( object ):
 
