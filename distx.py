@@ -115,10 +115,16 @@ from string import join, split
 import os,sys
 from distutils.command.bdist_wininst import bdist_wininst
 
-#GLOBAL PARAMETERS
+#Exceptions
+
+class SconsError(Exception):
+   """Scons subprocess Exception"""
+
+   def __str__(self):
+	return "Scons subprocess has failed."
 
 
-
+#####################################################"
 
 
 class distx_build(build):
@@ -151,12 +157,7 @@ class distx_build(build):
 
 
 
-class SconsError(Exception):
-   """Scons subprocess Exception"""
-
-   def __str__(self):
-	return "Scons subprocess has failed."
-
+##########################################################################
 
 
 class build_scons (Command):
@@ -296,7 +297,7 @@ class build_namespace (Command):
             
         
 
-
+#####################################################################################
 
 class distx_install(install):
     """Main install command which extend default install command with distx specific actions"""
@@ -411,6 +412,8 @@ class install_external_data(Command):
         return self.outfiles or []
         
 
+#########################################################################
+
 class distx_bdist_wininst (bdist_wininst):
     """Desactivate bdist_wininst"""
 
@@ -421,10 +424,11 @@ class distx_bdist_wininst (bdist_wininst):
         
     def finalize_options (self):
         bdist_wininst.finalize_options(self)
-        self.post_install_name=self.distribution.post_install_name
         self.set_undefined_options('install',
 				   ('external_prefix', 'external_prefix'),
                                   )
+        self.post_install_name=self.distribution.post_install_name
+
 
     def run(self):
         if(os.name!='nt') :
@@ -478,11 +482,52 @@ def copyalltree (src, dst):
             shutil.copyfile(src_name, dst_name)
             file_created(dst_name)
 
+def add_env_var(newvar):
+    "Update any environment variable persistently by changing windows registry newvar is a string like 'var=value'"
+
+    try:
+        import _winreg 
+        import os, sys
+        from string import find
+
+    except Exception, e:
+        return
+    
+
+    def queryValue(qkey, qname):
+        qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
+        return qvalue
+
+    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+        
+    name, value = newvar.split('=')
+    #specific treatment for PATH variable
+    if name.upper() == 'PATH':
+            
+        actualpath = queryValue(key, name)
+	
+	listpath=actualpath.split(';')                
+        if(not value in listpath):
+            value= actualpath + ';' + value
+            print "ADD to PATH :", value
+        else :
+            value= actualpath
+            
+    if value:
+        _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
+        
+
+    _winreg.CloseKey(key)    
+    _winreg.CloseKey(reg)                        
 
 """
 
+        #write header
         outscript.write(base_script_str)
 
+        #write external data installer
     	for (dest, src) in external_data.items():
         
             # define destination directory
@@ -492,10 +537,17 @@ def copyalltree (src, dst):
         
             normal_install_dir=change_root(sys.prefix, dest)
             final_install_dir=dest
+            #we move from c:\python24\dir to c:\dir directory 
             outscript.write("copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir, final_install_dir))
             outscript.write("remove_tree(r\'%s\')\n"%(normal_install_dir))
             outscript.write("os.removedirs(os.path.dirname(os.path.abspath(r\'%s\')))\n"%(normal_install_dir))
            
+
+        #add environment variable
+        if(self.distribution.add_env_path):
+            for p in self.distribution.add_env_path:
+                outscript.write('add_env_var(\"PATH=\"+ os.path.abspath(r\'%s\'))'%(p,))
+
 
         #Call initial postinstall _script
         if(initial_script):
@@ -510,20 +562,54 @@ def copyalltree (src, dst):
         return self.post_install_name
         
 
+##########################################################
+
+from distutils.util import get_platform
+from distutils.command.bdist_rpm import bdist_rpm
+
+class distx_bdist_rpm(bdist_rpm):
+    """bdist_rpm command"""
+
+    def finalize_options (self):
+        """Ensure architecture name"""
+        self.force_arch=os.uname()[4]
+        bdist_rpm.finalize_options (self)
         
+
+
+################################################################
+
 from distutils.command.sdist import sdist
 
+
 class distx_sdist (sdist):
-    """Desactivate sdist"""
+    """sdist command : add external data"""
+    
+    def add_defaults (self):
+        sdist.add_defaults(self)
+        self.filelist.extend(self.get_all_files(os.curdir))
+        
 
-    def run(self):
-        if self.distribution.has_external_data():
-            print """
+    def get_all_files(self, basedir):
 
-SDIST command doesn't work properly with external_data.
-Abording...
-"""
+        ldir=[]
+        for f in os.listdir(basedir):
+            if os.path.isdir(f):
+                ldir+=self.get_all_files( joindir(basedir,f))
+            else:
+                ldir.append(joindir(basedir, f) )
+                print joindir(basedir, f)
 
+        filter(os.path.isfile, ldir)
+        return ldir
+
+    def prune_file_list (self):
+        sdist.prune_file_list (self)
+        self.filelist.exclude_pattern(r'/(RCS|CVS|\.svn)/.*', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\~', is_regex=1)
+
+
+        
 class DistxDistribution(Distribution):
     """Main installation class
     Define association between command string and command classes
@@ -538,10 +624,11 @@ class DistxDistribution(Distribution):
 
         Distribution.__init__(self,attrs)
         
+        self.post_install_name=self.metadata.get_name()+'_postinstall_script.py'
         
         #add script if bdist_wininst command
         if('bdist_wininst' in attrs['script_args'] and os.name=='nt'):
-            self.post_install_name=self.metadata.get_name()+'_postinstall_script.py'
+            
 
             if(not hasattr(self, 'scripts') or not self.scripts or self.scripts==''):
                 self.scripts=[self.post_install_name]
@@ -556,6 +643,7 @@ class DistxDistribution(Distribution):
                           'build_namespace': build_namespace, 
                           'build':distx_build,
                           'bdist_wininst':distx_bdist_wininst,
+                          'bdist_rpm':distx_bdist_rpm,
                           'sdist':distx_sdist,
                          }
 
