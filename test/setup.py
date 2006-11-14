@@ -75,7 +75,7 @@ setup(
     
     #execute scons
     #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-    scons_script = ['SConstruct'],
+    scons_scripts = ['SConstruct'],
     #scons parameters  
     scons_parameters = ['lib_dir=lib'],
       
