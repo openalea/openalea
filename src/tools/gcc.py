@@ -1,4 +1,4 @@
-#!/usr/bin/gcc
+#!/usr/bin/python
 # Gcc configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL
@@ -15,17 +15,13 @@ class Gcc:
 
 
    def option(  self, opts ):
-
-      opts.Add( 'rpath', 'A list of paths to search for shared libraries')
-
+      pass
 
    def update( self, env ):
       """ Update the environment with specific flags """
 
       t= Tool( 'gcc' )
       t( env )
-
-      env.Append( RPATH= Split( '$rpath' ) )
 
       CXXFLAGS= []
       if env["warnings"]:
