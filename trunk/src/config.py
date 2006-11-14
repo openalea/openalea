@@ -5,29 +5,9 @@
 
 import os, sys
 import string
-#import environ
-
-import SCons.Util
-import SCons.Tool
-import SCons.Environment
-import SCons.SConf
-import SCons.Builder
-from SCons.Util import WhereIs
-import SCons.Node.FS
-import SCons.Options
-
-# SCons shorthand mappings
-Environment= SCons.Environment.Environment
-SConf= SCons.SConf.SConf
-Dir= SCons.Node.FS.Dir
-File= SCons.Node.FS.File
-Builder= SCons.Builder.Builder
-Tool= SCons.Tool.Tool
-Split= SCons.Util.Split
-Options= SCons.Options.Options
-PathOption= SCons.Options.PathOption
-BoolOption= SCons.Options.BoolOption
 pj= os.path.join
+
+from SCons.Script import *
 
 #----------------------------------
 # Errors
