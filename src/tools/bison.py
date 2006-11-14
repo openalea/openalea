@@ -4,7 +4,7 @@
 # Licence: GPL
 
 import os, sys, re
-from scons_util.config import *
+from sconsx.config import *
 
 
 class Bison:

@@ -4,7 +4,7 @@
 # Licence: GPL
 
 import os, sys
-from scons_util.config import *
+from sconsx.config import *
 from distutils.sysconfig import get_python_inc, get_config_var
 
 
