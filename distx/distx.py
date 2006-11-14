@@ -41,9 +41,6 @@ Install sub command
               boost.python libraries must be put in the python_package hierarchy
          However, final installation is managed by the distutils functions. 
 
-  Nota 2 : the command bdist_wininst is desactivated.
-          This is because it is impossible with wininst python installer to install 3rd party data.
-	   Use simple bdist_instead
 
 Setup new parameters :
 
@@ -144,9 +141,9 @@ class distx_build(build):
     
     
     sub_commands = []
-    sub_commands.extend(build.sub_commands)
     sub_commands.append(('build_scons', has_scons_scripts))
     sub_commands.append(('build_namespace', has_namespace))
+    sub_commands.extend(build.sub_commands)
 
     #define user options
     user_options = []
@@ -216,7 +213,7 @@ class build_scons (Command):
 		#join all parameters strings for setup.py scons_parameters list
                 param=join(self.scons_parameters, sep=' ') 
 		#build parameter
-		build_param='distutils_build_dir='+self.build_dir
+                build_param='python_build_dir=%s py_pkg_name=%s'%(self.build_dir, self.distribution.metadata.get_name())
 		#external parameters
 		externp=self.scons_ext_param
 	
@@ -594,11 +591,11 @@ class distx_sdist (sdist):
 
         ldir=[]
         for f in os.listdir(basedir):
-            if os.path.isdir(f):
-                ldir+=self.get_all_files( joindir(basedir,f))
-            else:
-                ldir.append(joindir(basedir, f) )
-                print joindir(basedir, f)
+           longf=joindir(basedir,f)
+           if os.path.isdir(longf):
+              ldir+=self.get_all_files( longf)
+           else:
+              ldir.append(os.path.normpath(longf))
 
         filter(os.path.isfile, ldir)
         return ldir
@@ -607,6 +604,15 @@ class distx_sdist (sdist):
         sdist.prune_file_list (self)
         self.filelist.exclude_pattern(r'/(RCS|CVS|\.svn)/.*', is_regex=1)
         self.filelist.exclude_pattern(r'.*\~', is_regex=1)
+        self.filelist.exclude_pattern(r'^(.+/)*\..*', is_regex=1)
+        self.filelist.exclude_pattern(r'build', is_regex=1)
+        self.filelist.exclude_pattern(r'dist', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.so$', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.dll$', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.pyc$', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.os$', is_regex=1)
+        
+
 
 
         

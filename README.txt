@@ -8,11 +8,13 @@
 
 **License** : Cecill-C
 
-**URL** : http://openalea.gforge.inria.fr
-
 ===== About =====
 
-DistX is an OpenAlea package which extends python Distutils library to facilitate package installation.
+DistX is an OpenAlea package which extends python Distutils library to facilitate package installation. It provides :
+  * **Scons** integration (external call).
+  * **Empty namespace** creation.
+  * **External data** installation (more complete than the distutils ''data_files''.
+  * **Windows PATH** variable modification.
 
 
 DistX defines new distutils extra commands :
@@ -23,7 +25,7 @@ DistX defines new distutils extra commands :
   *//build_namespace// : Create empty namespaces. 
       * Use ''namespace'' option from //setup.py//.
 
-   *//build_scons// : Run scons scripts
+   *//build_scons// : run scons scripts.
       * Use ''scons_scripts'' option from //setup.py//.
       * Use ''scons_parameter'' option from //setup.py//.
       *	Use ''--scons-ext-param='' for adding scons options from the command line.
@@ -38,20 +40,19 @@ Nota :Distutils build directory is automatically passed as a parameter nammed 'd
 
 
 
-//Nota 1// : Scons is responsible to compile  external library. It does not interact with distutils. 
+//Nota// : Scons is responsible to compile  external library. It does not interact with distutils. 
 Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
 
-//Nota 2// : the command bdist_wininst is desactivated for the moment.
-This is because it is impossible with wininst python installer to install 3rd party data. Use simple bdist instead
+
 
 === Setup function new parameters ===
 
-  * **scons_scripts** : list of scons script to execute (ex SConstruct).
-  * **scons_parameters** : list of strings to pass to scons as parameters.
-  * **namespace** : list of strings defining namespace.
+  * **scons_scripts** : list of scons script to execute (ex SConstr
+  * **scons_parameters** : list of strings to pass to scons as parameters
+  * **namespace** : list of strings defining namespace
   * **external_data** : map with the form { destination directory :source directory } to install external data.
 Command line parameter ''--external-prefix='' is prepend to destination directory if the destination directory is not absolute.
-  * **add_env_path** : list of subdirectories to add to PATH environment variable (only for win32 os).
+  * **add_env_path** : list of subdirectories to add to PATH environment variable (only for win32 os)
 
 
 ===== Installation =====
@@ -63,7 +64,7 @@ DistX is available on the [[http://gforge.inria.fr/projects/openalea/|GForge rep
 
 === Requirements ===
 
-DistX has no particular requirement. 
+DistX has no particular requirement (just Python and Scons if you use scons_build command).
 
 However, when using DistX, it can be usefull to use the OpenAlea base package which define the system configuration, in order to retrieve openalea directory prefix.
 
@@ -125,3 +126,4 @@ if __name__ == '__main__':
 </code>
 
 
+For a more complete exemple, see the [[packages:utilities:starter|starter]] package.
