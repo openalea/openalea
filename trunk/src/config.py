@@ -8,7 +8,16 @@ import string
 pj= os.path.join
 
 from SCons.Script import *
+from SCons.Options import PathOption, BoolOption, EnumOption, Options
+from SCons.Util import Split, WhereIs
+from SCons.Tool import Tool
+from SCons.SConf import SConf
+from SCons.Environment import Environment
+from SCons.Builder import Builder
+from SCons.Node.FS import Dir, File
+  	 
 
+ 
 #----------------------------------
 # Errors
 
