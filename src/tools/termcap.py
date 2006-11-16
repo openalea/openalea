@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# -*-python-*-
 # Termcap configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL

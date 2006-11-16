@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# -*-python-*-
 # Readline configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL

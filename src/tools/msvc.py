@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+# -*-python-*-
 # Msvc configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL
@@ -20,7 +19,7 @@ class Msvc:
    def update( self, env ):
       """ Update the environment with specific flags """
 
-      env['MSVS_VERSION']= '6.0'
+      #env['MSVS_VERSION']= '6.0'
       t= Tool( 'msvc' )
       t( env )
 
