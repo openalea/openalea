@@ -122,7 +122,51 @@ class SconsError(Exception):
 
 
 #####################################################"
+# Utility functions
 
+def add_env_var(newvar):
+    """Update any environment variable persistently by changing windows registry
+    newvar is a string like 'var=value'
+    """
+
+    try:
+        import _winreg 
+        import os, sys
+        from string import find
+
+    except Exception, e:
+        return
+    
+
+    def queryValue(qkey, qname):
+        qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
+        return qvalue
+
+    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+        
+    name, value = newvar.split('=')
+    #specific treatment for PATH variable
+    if name.upper() == 'PATH':
+            
+        actualpath = queryValue(key, name)
+	
+	listpath=actualpath.split(';')                
+        if(not value in listpath):
+            value= actualpath + ';' + value
+            print "ADD to PATH :", value
+        else :
+            value= actualpath
+            
+    if value:
+        _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
+        
+
+    _winreg.CloseKey(key)    
+    _winreg.CloseKey(reg)                        
+
+#################################################################
 
 class distx_build(build):
     """build command which extend default build command with distx specific actions"""
@@ -345,8 +389,6 @@ class install_external_data(Command):
         self.root=None
         self.force = 0
 
-        print 'install extern initialise'
-
     def finalize_options (self):
         self.set_undefined_options('install',
 				   ('external_prefix', 'external_prefix'),
@@ -418,14 +460,28 @@ class distx_bdist_wininst (bdist_wininst):
         bdist_wininst.initialize_options(self)
 	self.external_prefix = None
         self.install_script=None
+
+        name=self.distribution.metadata.get_name()
+        self.post_install_name=name+'_postinstall_script.py'
+
+        #add script if bdist_wininst command
+        if(os.name=='nt'):
+           if(not self.distribution.scripts or self.distribution.scripts=='') :
+              self.distribution.scripts=[self.post_install_name]
+           else:
+              self.scripts.append(self.post_install_name)
+
+        #change external prefix
+        cmdobj=self.distribution.get_command_obj('install_external_data')
+        cmdobj.external_prefix='__'+name+'__'+'bdist_wininst'
+
         
     def finalize_options (self):
         bdist_wininst.finalize_options(self)
         self.set_undefined_options('install',
 				   ('external_prefix', 'external_prefix'),
                                   )
-        self.post_install_name=self.distribution.post_install_name
-
+        
 
     def run(self):
         if(os.name!='nt') :
@@ -566,7 +622,7 @@ from distutils.command.bdist_rpm import bdist_rpm
 
 class distx_bdist_rpm(bdist_rpm):
     """bdist_rpm command"""
-
+    
     def finalize_options (self):
         """Ensure architecture name"""
         self.force_arch=os.uname()[4]
@@ -630,16 +686,7 @@ class DistxDistribution(Distribution):
 
         Distribution.__init__(self,attrs)
         
-        self.post_install_name=self.metadata.get_name()+'_postinstall_script.py'
         
-        #add script if bdist_wininst command
-        if('bdist_wininst' in attrs['script_args'] and os.name=='nt'):
-            
-
-            if(not hasattr(self, 'scripts') or not self.scripts or self.scripts==''):
-                self.scripts=[self.post_install_name]
-            else:
-                self.scripts.append(self.post_install_name)
                         
                 
                     
@@ -674,47 +721,6 @@ def setup(**attrs):
 
 
 
-def add_env_var(newvar):
-    """Update any environment variable persistently by changing windows registry
-    newvar is a string like 'var=value'
-    """
-
-    try:
-        import _winreg 
-        import os, sys
-        from string import find
-
-    except Exception, e:
-        return
-    
-
-    def queryValue(qkey, qname):
-        qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
-        return qvalue
-
-    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
-        
-    name, value = newvar.split('=')
-    #specific treatment for PATH variable
-    if name.upper() == 'PATH':
-            
-        actualpath = queryValue(key, name)
-	
-	listpath=actualpath.split(';')                
-        if(not value in listpath):
-            value= actualpath + ';' + value
-            print "ADD to PATH :", value
-        else :
-            value= actualpath
-            
-    if value:
-        _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-        
-
-    _winreg.CloseKey(key)    
-    _winreg.CloseKey(reg)                        
 
         
 
