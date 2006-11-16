@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Bison configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL

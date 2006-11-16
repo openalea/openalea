@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# -*-python-*-
 # Install configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# -*-python-*-
 # Compiler configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
 # Licence: GPL
