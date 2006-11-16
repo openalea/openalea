@@ -32,7 +32,13 @@ class MinGW:
       else:
          CXXFLAGS.extend(['-DNDEBUG', '-O2'])
 
+      LINKFLAGS=["-enable-stdcall-fixup",
+                 "-enable-auto-import",
+                 "-enable-runtime-pseudo-reloc",
+                 "-s"]
+
       env.AppendUnique(CXXFLAGS = CXXFLAGS)
+      env.AppendUnique(LINKFLAGS = LINKFLAGS )
 
 
    def configure( self, config ):
