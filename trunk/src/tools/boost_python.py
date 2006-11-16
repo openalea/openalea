@@ -15,10 +15,9 @@ class Boost_Python:
 
 
    def depends( self ):
-      deps= []
+      deps= ['python']
 
       if isinstance( platform, Posix ):
-         deps.append( 'python' )
          deps.append( 'pthread' )
 
       return deps
