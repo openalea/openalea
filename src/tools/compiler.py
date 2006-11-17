@@ -55,7 +55,7 @@ class Compiler:
       opts.Add( 'rpath', 'A list of paths to search for shared libraries')
 
       opts.Add( 'EXTRA_CXXFLAGS', 'Specific user flags for c++ compiler', '')
-      opts.Add( 'EXTRA_CXXDEFINES', 'Specific c++ defines', '')
+      opts.Add( 'EXTRA_CPPDEFINES', 'Specific c++ defines', '')
       opts.Add( 'EXTRA_LINKFLAGS', 'Specific user flags for c++ linker', '')
       opts.Add( 'EXTRA_CPPPATH', 'Specific user include path', '')
       opts.Add( 'EXTRA_LIBPATH', 'Specific user library path', '')
@@ -76,7 +76,7 @@ class Compiler:
 
       env.Append( RPATH= Split( '$rpath' ) )
       env.Append( CXXFLAGS= Split( env['EXTRA_CXXFLAGS'] ) )
-      env.Append( CXXDEFINES= Split( env['EXTRA_CXXDEFINES'] ) )
+      env.Append( CPPDEFINES= Split( env['EXTRA_CPPDEFINES'] ) )
       env.Append( LINKFLAGS= Split( env['EXTRA_LINKFLAGS'] ) )
       env.Append( CPPPATH= Split( env['EXTRA_CPPPATH'] ) )
       env.Append( LIBPATH= Split( env['EXTRA_LIBPATH'] ) )
