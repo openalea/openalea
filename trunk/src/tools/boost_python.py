@@ -25,6 +25,7 @@ class Boost_Python:
 
    def default( self ):
 
+      self._default[ 'libs_suffix' ]= ''
       if isinstance( platform, Win32 ):
          self._default[ 'include' ]= 'C:' + os.sep
          self._default[ 'lib' ]= 'C:' + os.sep
@@ -57,7 +58,10 @@ class Boost_Python:
 
          ( 'boost_defines', 
            'Boost_python defines', 
-           self._default[ 'defines' ] )
+           self._default[ 'defines' ] ),
+         ( 'boost_libs_suffix', 
+           'Boost_python library suffix name like -vc80-mt or -gcc', 
+           self._default[ 'libs_suffix' ] )
       )
 
 
@@ -66,9 +70,11 @@ class Boost_Python:
 
       env.AppendUnique( CPPPATH= [ env['boost_includes'] ] )
       env.AppendUnique( LIBPATH= [ env['boost_lib'] ] )
-      env.AppendUnique( LIBS= [ 'boost_python' ] )
       env.Append( CPPDEFINES= '$boost_defines' )
       env.Append( CPPFLAGS= '$boost_flags' )
+
+      boost_name= 'boost_python'+ env['boost_libs_suffix']
+      env.AppendUnique( LIBS= [ boost_name ] )
 
 
    def configure( self, config ):

@@ -70,7 +70,9 @@ class Compiler:
       self.config.add_tool(compiler_name)
       
       if isinstance( platform, Cygwin ):
-         env.AppendUnique( CXXFLAGS= '-DSYSTEM_IS__CYGWIN' )
+         env.AppendUnique( CPPDEFINES= 'SYSTEM_IS__CYGWIN' )
+      elif isinstance( platform, Win32 ):
+         env.AppendUnique( CPPDEFINES= 'WIN32' )
 
       env.Append( RPATH= Split( '$rpath' ) )
       env.Append( CXXFLAGS= Split( env['EXTRA_CXXFLAGS'] ) )
