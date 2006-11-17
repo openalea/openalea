@@ -1,61 +1,103 @@
 # -*- coding: iso-8859-15 -*-
 
 __doc__="""
-Module=distx.py
-Author=Samuel Dufour-Kowalski
-Licence=Cecill-C
+====== DistX ======
 
-Version:"0.1.0"
+**Authors** : Samuel Dufour-Kowalski / Christophe Pradal
 
-Description:
+**Institutes** : INRIA, CIRAD
 
-distx.py is a distutils extension which add some specific options and command to distribute
-OpenAlea packages.
+**Type** : Python package
 
-Distutils new extra sub commands :
+**Status** : Devel
 
-Build sub command:
+**License** : Cecill-C
 
-  build_namespace :  	     Create empty namespaces
-				No parameters
+**URL** : http://openalea.inria.gforge.fr
 
-  build_scons :              Run scons scripts
-				Use scons_scripts option from setup.py
-				Use scons_parameters option from setup.py
-				Use '--scons-ext-param=' for adding scons options from command line
-				Use '--scons-path=' to specify scons program path.
-				Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
+===== About =====
 
-Install sub command
-
-  install_external_data :    Install external data
-				Parameter '--external-prefix=' : base directory for external data 
-				if destination directory is not absolute
+DistX is an OpenAlea package which extends python Distutils library to facilitate package installation. It provides :
+  * **Scons** integration (external call).
+  * **Empty namespace** creation.
+  * **External data** installation (more complete than the distutils ''data_files''.
+  * **Windows PATH** variable modification.
 
 
+DistX defines new distutils extra commands :
 
-  Nota : Scons is responsible to compile  external library. It does not interact with distutils. 
-	Scons is first executed, before any other distutils command. 
-	 You can transmit parameters to scons with setup.py in order to specify destination directory
-         ex : external libraries can be put in src/lib
-              boost.python libraries must be put in the python_package hierarchy
-         However, final installation is managed by the distutils functions. 
+=== Distutils build subcommands ===
 
 
-Setup new parameters :
+  *//build_namespace// : Create empty namespaces. 
+      * Use ''namespace'' option from //setup.py//.
 
-  scons_scripts : list of script to execute with scons (SConstruct)
-  scons_parameters : list of strings to pass to scons as parameters
-  namespace : list of strings defining namespace
-  external_data : map with the form { destination directory :source directory } to install external data.
-		 parameter 'external-prefix' is prepend to dest directory if dest is not absolute
-  add_env_path : list of subdirectories to add to PATH environment variable
-                      (only for nt os)
+   *//build_scons// : run scons scripts.
+      * Use ''scons_scripts'' option from //setup.py//.
+      * Use ''scons_parameter'' option from //setup.py//.
+      *	Use ''--scons-ext-param='' for adding scons options from the command line.
+      * Use ''--scons-path='' to specify scons program path from the command line.
 
-Usage:
+Nota :Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
+
+=== Distutils install subcommands ===
+
+  *//install_external_data// :    Install external data
+    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
+
+//Nota// : Scons is responsible to compile  external library. It does not interact with distutils. 
+Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
+
+=== Distutils bdist command ===
+
+ Distx adapt ''bdist_wininst'' and ''bdist_rpm'' to external data and openalea
+
+  *//bdist_wininst// : create a windows installer
+    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
+    * Use ''--with-remote-oa-config'' to create an installer which will retrieve OpenAlea configuration when the package will be installed on a remote system. In case of the configuration, is not found, the installer will use the ''--external-prefix='' parameter.
+
+
+  *//bdist_rpm// : create a linux rpm.
+
+
+=== Setup function new parameters ===
+
+  * **scons_scripts** : list of scons script to execute (ex SConstr
+  * **scons_parameters** : list of strings to pass to scons as parameters
+  * **namespace** : list of strings defining namespace
+  * **external_data** : map with the form { destination directory :source directory } to install external data.
+Command line parameter ''--external-prefix='' is prepend to destination directory if the destination directory is not absolute.
+  * **add_env_path** : list of subdirectories to add to PATH environment variable (only for win32 os)
+
+
+===== Installation =====
+
+
+=== Download ===
+
+DistX is available on the [[http://gforge.inria.fr/projects/openalea/|GForge repositery]]
+
+=== Requirements ===
+
+DistX has no particular requirement (just Python and Scons if you use scons_build command).
+
+However, when using DistX, it can be usefull to use the OpenAlea base package which define the system configuration, in order to retrieve openalea directory prefix.
+
+
+=== Installation ===
+
+<code bash>
+python setup.py install
+</code>
+
+
+===== Quick Example =====
+
+<code python>
+#You can use distx in your setup.py as follow:
 
 from openalea.distx import setup 
-from openalea import config #retrive openalea config file
+from openalea import config #retrieve openalea config file
 from os.path import join as joindir
 
 packagename='my_openalea_package'
@@ -96,7 +138,25 @@ if __name__ == '__main__':
 	  #ONLY FOR WINDOWS 
 	  #Add to PATH environment variable for openalea lib
 	  add_env_path=[pj(config.prefix_dir,'lib')]
-          
+</code>
+
+== Build the package ==
+<code>python setup.py build</code>
+
+== Install the package ==
+<code>python setup.py install</code>
+
+== Create an Windows Installer ==
+<code>python setup.py bdist_wininst --with-remote-oa-config</code>
+
+== Create a RPM ==
+<code>python setup.py bdist_rpm</code>
+
+== Create a Source distribution ==
+<code>python setup.py sdist</code>
+
+
+
 """
 
 
@@ -110,7 +170,7 @@ from shutil import copytree
 from distutils.dir_util import mkpath
 from string import join, split
 import os,sys
-from distutils.command.bdist_wininst import bdist_wininst
+import distx_wininst
 
 #Exceptions
 
@@ -346,7 +406,7 @@ class distx_install(install):
     def initialize_options (self):
         install.initialize_options(self)
 	self.external_prefix = None
-	
+		
     def finalize_options (self):
 	install.finalize_options(self)
 
@@ -364,7 +424,7 @@ class distx_install(install):
     user_options = []
     user_options.extend(install.user_options)
     user_options.append( ('external-prefix=' , None, "Prefix directory to install external data..."))
-
+    
 
 
 
@@ -386,18 +446,28 @@ class install_external_data(Command):
     def initialize_options (self):
         self.external_prefix = None
         self.external_data= None
+        self.without_oa_config=None
         self.root=None
         self.force = 0
 
     def finalize_options (self):
         self.set_undefined_options('install',
-				   ('external_prefix', 'external_prefix'),
+                                   ('external_prefix', 'external_prefix'),
                                    ('root', 'root'),
                                    ('force', 'force'),
                                   )
-
+        
         self.external_data = self.distribution.external_data
-
+        # we use openalea external prefix if no prefix specified
+        if(not self.external_prefix):
+            try:
+                import openalea
+                print 'USE OpenAlea config for external_prefix.'
+                self.external_prefix=openalea.config.prefix_dir
+            except ImportError:
+                print "!!ERROR :  OpenAlea config not found. Use --external-prefix option instead\n";
+                sys.exit(1)
+            
         
 
     def run (self):
@@ -419,21 +489,27 @@ class install_external_data(Command):
         """Copy external Data from build directory to final directory"""
 
         print "Install external data", 
-	if(self.external_prefix and self.external_prefix!=""): print "with prefix : ", self.external_prefix
-	
-        self.external_prefix=convert_path(self.external_prefix)
-
+	if(self.external_prefix and self.external_prefix!=""):
+            self.external_prefix=os.path.normpath(self.external_prefix)
+            print "with prefix : ", self.external_prefix
+        
         self.outfiles = []
 
 	for (dest, src) in self.external_data.items():
 		try:
+                    
                     #define destination directory
 		    if(self.external_prefix and not os.path.isabs(dest)):
 	                    dest=joindir(self.external_prefix,dest)
 
+                    #dest=os.path.abspath(dest)
+                    dest=os.path.normpath(dest)
+                    
+                                   
                     #define root directory (for bdist)
                     if self.root : dest = change_root(self.root, dest)
-                    self.mkpath(dest)
+                    
+                    mkpath(dest)
 
                     self.outfiles+=self.copy_tree(src, dest)
 
@@ -451,168 +527,7 @@ class install_external_data(Command):
         return self.outfiles or []
         
 
-#########################################################################
 
-class distx_bdist_wininst (bdist_wininst):
-    """Desactivate bdist_wininst"""
-
-    def initialize_options (self):
-        bdist_wininst.initialize_options(self)
-	self.external_prefix = None
-        self.install_script=None
-
-        name=self.distribution.metadata.get_name()
-        self.post_install_name=name+'_postinstall_script.py'
-
-        #add script if bdist_wininst command
-        if(os.name=='nt'):
-           if(not self.distribution.scripts or self.distribution.scripts=='') :
-              self.distribution.scripts=[self.post_install_name]
-           else:
-              self.scripts.append(self.post_install_name)
-
-        #change external prefix
-        cmdobj=self.distribution.get_command_obj('install_external_data')
-        cmdobj.external_prefix='__'+name+'__'+'bdist_wininst'
-
-        
-    def finalize_options (self):
-        bdist_wininst.finalize_options(self)
-        self.set_undefined_options('install',
-				   ('external_prefix', 'external_prefix'),
-                                  )
-        
-
-    def run(self):
-        if(os.name!='nt') :
-            print "bdist_wininst : No NT OS\n"
-            return
-
-        if self.distribution.has_external_data():
-
-            scriptname=self.create_postinstall_script(self.install_script)
-            self.install_script=scriptname
-
-        bdist_wininst.run(self)
-
-
-    def create_postinstall_script(self, initial_script):
-        """Create a install script to place external data in the rigth place
-        @param initial_script : name of the initial postinstall script or None
-        @return the new post install script name
-        """
-
-        external_data=self.distribution.external_data
-        if(not external_data or len(external_data)==0): return
-
-        # open file to write
-        outscript=file(self.post_install_name, 'w')
-        
-        self.external_prefix=convert_path(self.external_prefix)
-        
-        
-
-        base_script_str="""
-import os
-import shutil
-from distutils.dir_util import remove_tree, mkpath
-
-def copyalltree (src, dst):
-    "Copy an entire directory tree 'src' to a new location 'dst'.  "
-    
-    names = os.listdir(src)
-    mkpath(dst)
-    directory_created(dst)
-            
-    for n in names:
-        src_name = os.path.join(src, n)
-        dst_name = os.path.join(dst, n)
-
-        if os.path.isdir(src_name):
-            copyalltree(src_name, dst_name)
-
-        else:
-            shutil.copyfile(src_name, dst_name)
-            file_created(dst_name)
-
-def add_env_var(newvar):
-    "Update any environment variable persistently by changing windows registry newvar is a string like 'var=value'"
-
-    try:
-        import _winreg 
-        import os, sys
-        from string import find
-
-    except Exception, e:
-        return
-    
-
-    def queryValue(qkey, qname):
-        qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
-        return qvalue
-
-    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
-        
-    name, value = newvar.split('=')
-    #specific treatment for PATH variable
-    if name.upper() == 'PATH':
-            
-        actualpath = queryValue(key, name)
-	
-	listpath=actualpath.split(';')                
-        if(not value in listpath):
-            value= actualpath + ';' + value
-            print "ADD to PATH :", value
-        else :
-            value= actualpath
-            
-    if value:
-        _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-        
-
-    _winreg.CloseKey(key)    
-    _winreg.CloseKey(reg)                        
-
-"""
-
-        #write header
-        outscript.write(base_script_str)
-
-        #write external data installer
-    	for (dest, src) in external_data.items():
-        
-            # define destination directory
-            if(self.external_prefix and not os.path.isabs(dest)):
-                    dest=joindir(self.external_prefix,dest)
-
-        
-            normal_install_dir=change_root(sys.prefix, dest)
-            final_install_dir=dest
-            #we move from c:\python24\dir to c:\dir directory 
-            outscript.write("copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir, final_install_dir))
-            outscript.write("remove_tree(r\'%s\')\n"%(normal_install_dir))
-            outscript.write("os.removedirs(os.path.dirname(os.path.abspath(r\'%s\')))\n"%(normal_install_dir))
-           
-
-        #add environment variable
-        if(self.distribution.add_env_path):
-            for p in self.distribution.add_env_path:
-                outscript.write('add_env_var(\"PATH=\"+ os.path.abspath(r\'%s\'))'%(p,))
-
-
-        #Call initial postinstall _script
-        if(initial_script):
-            try:
-                importname= split(initial_script, '.')[0]
-                outscript.write("import %s"%(importname,))
-            except Exception, e:
-                print '\n!! Warning !! Cannot include %s script in post install script.\n', e
-
-        outscript.close()
-
-        return self.post_install_name
         
 
 ##########################################################
@@ -669,8 +584,8 @@ class distx_sdist (sdist):
         self.filelist.exclude_pattern(r'.*\.os$', is_regex=1)
         
 
-
-
+# import extern class
+from distx_wininst import *
         
 class DistxDistribution(Distribution):
     """Main installation class

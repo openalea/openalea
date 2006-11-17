@@ -8,7 +8,7 @@ import sys
 try:
 	from openalea import config
 except ImportError:
-	print """"
+	print """
 ImportError : openalea.config not found. 
 Please install openalea package before.	
 http://openalea.gforge.inria.fr
@@ -18,7 +18,7 @@ http://openalea.gforge.inria.fr
 try:
 	from openalea.distx import setup
 except ImportError:
-	print """"
+	print """
 ImportError : openalea.distx package not found.
 Please install openalea.distx package before
 http://openalea.gforge.inria.fr
@@ -89,11 +89,11 @@ setup(
     package_data= { namespace+'.'+name : ['*.so', '*.dll', '*.pyd']},
                      
 
-    #copy shared data in default OpenAlea directory
-    #map of 'destination subdirectory' : 'source subdirectory'
-    external_data={pj(config.prefix_dir, 'external', name) : 'external', },
-    #external_data={pj('external', name) : 'external', },
-
+    # copy shared data in default OpenAlea directory
+    # map of 'destination subdirectory' : 'source subdirectory'
+    external_data={pj('external', name) : 'external', },
+    
+    
     #ONLY FOR WINDOWS 
     #Add to PATH environment variable for openalea lib
     add_env_path=[pj(config.prefix_dir,'lib')]

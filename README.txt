@@ -4,9 +4,13 @@
 
 **Institutes** : INRIA, CIRAD
 
-**Status** : Python package
+**Type** : Python package
+
+**Status** : Devel
 
 **License** : Cecill-C
+
+**URL** : http://openalea.inria.gforge.fr
 
 ===== About =====
 
@@ -36,13 +40,21 @@ Nota :Distutils build directory is automatically passed as a parameter nammed 'd
 === Distutils install subcommands ===
 
   *//install_external_data// :    Install external data
-    * Use ''--external-prefix=''  to specify base directory for external data (if destination directory is not absolute) from the command line.
-
-
+    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
 
 //Nota// : Scons is responsible to compile  external library. It does not interact with distutils. 
 Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
 
+=== Distutils bdist command ===
+
+ Distx adapt ''bdist_wininst'' and ''bdist_rpm'' to external data and openalea
+
+  *//bdist_wininst// : create a windows installer
+    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
+    * Use ''--with-remote-oa-config'' to create an installer which will retrieve OpenAlea configuration when the package will be installed on a remote system. In case of the configuration, is not found, the installer will use the ''--external-prefix='' parameter.
+
+
+  *//bdist_rpm// : create a linux rpm.
 
 
 === Setup function new parameters ===
@@ -125,5 +137,19 @@ if __name__ == '__main__':
 	  add_env_path=[pj(config.prefix_dir,'lib')]
 </code>
 
+== Build the package ==
+<code>python setup.py build</code>
 
-For a more complete exemple, see the [[packages:utilities:starter|starter]] package.
+== Install the package ==
+<code>python setup.py install</code>
+
+== Create an Windows Installer ==
+<code>python setup.py bdist_wininst --with-remote-oa-config</code>
+
+== Create a RPM ==
+<code>python setup.py bdist_rpm</code>
+
+== Create a Source distribution ==
+<code>python setup.py sdist</code>
+
+
