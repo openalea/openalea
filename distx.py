@@ -166,11 +166,12 @@ from distutils.command.build import build
 from distutils.dep_util import newer
 from distutils.util import convert_path, change_root
 from os.path import join as joindir
-from shutil import copytree
+from shutil import copytree, copyfile
 from distutils.dir_util import mkpath
 from string import join, split
 import os,sys
 import distx_wininst
+import re
 
 #Exceptions
 
@@ -427,7 +428,6 @@ class distx_install(install):
     
 
 
-
 class install_external_data(Command):
     """Sub Command which install external data"""
 
@@ -483,6 +483,27 @@ class install_external_data(Command):
 
 
 
+    def copy_data_tree (self, src, dst, exclude_pattern=["\.svn"]):
+       """Copy an entire directory tree 'src' to a new location 'dst'.
+       @param exclude_pattern : a list of pattern to exclude"""
+   
+       names = os.listdir(src)
+       mkpath(dst)
+
+
+       for p in exclude_pattern:
+          names=filter( lambda x: not(re.match(p, x)) , names)
+            
+       for n in names:
+          src_name = os.path.join(src, n)
+          dst_name = os.path.join(dst, n)
+                
+          if os.path.isdir(src_name):
+             copy_data_tree(src_name, dst_name, exclude_pattern)
+
+          else:
+             copyfile(src_name, dst_name)
+
   
 
     def copy_external_data (self):
@@ -511,7 +532,7 @@ class install_external_data(Command):
                     
                     mkpath(dest)
 
-                    self.outfiles+=self.copy_tree(src, dest)
+                    self.outfiles+=self.copy_data_tree(src, dest)
 
 		except Exception, i:
 			print i
