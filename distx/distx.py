@@ -420,7 +420,7 @@ class set_env_var (Command):
        name, value = newvar.split('=')
        #specific treatment for PATH variable
        if name.upper() == 'PATH':
-          
+          value=os.path.normpath(value)
           actualpath = queryValue(key, name)
           
           listpath=actualpath.split(';')                
