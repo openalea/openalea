@@ -106,14 +106,18 @@ from distutils.dir_util import remove_tree, mkpath
 
 def copyalltree (src, dst):
     "Copy an entire directory tree 'src' to a new location 'dst'.  "
-    
-    names = os.listdir(src)
+
+    try:
+        names = os.listdir(src)
+    except:
+        return
+        
     mkpath(dst)
     directory_created(dst)
             
     for n in names:
-        src_name = os.path.join(src, n)
-        dst_name = os.path.join(dst, n)
+        src_name = os.path.normpath(os.path.join(src, n))
+        dst_name = os.path.normpath(os.path.join(dst, n))
 
         if os.path.isdir(src_name):
             copyalltree(src_name, dst_name)
@@ -192,18 +196,20 @@ except:
             dest_with_prefix=os.path.join(external_prefix, dest)                
             normal_install_dir=change_root(sys.prefix, dest_with_prefix)
 
+            outscript.write('\ntry:\n')
             if(os.path.isabs(dest)):
-                outscript.write("copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir,dest))
+                outscript.write("   copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir,dest))
             else:
-                outscript.write("copyalltree(r\'%s\', os.path.join(final_prefix, r\'%s\'))\n"%(normal_install_dir,dest))
-            outscript.write("remove_tree(r\'%s\')\n"%(normal_install_dir))
-            outscript.write("os.removedirs(os.path.dirname(os.path.normpath(r\'%s\')))\n"%(normal_install_dir))
+                outscript.write("   copyalltree(r\'%s\', os.path.join(final_prefix, r\'%s\'))\n"%(normal_install_dir,dest))
+            outscript.write("   remove_tree(r\'%s\')\n"%(normal_install_dir))
+            outscript.write("   os.removedirs(os.path.dirname(os.path.normpath(r\'%s\')))\n"%(normal_install_dir))
+            outscript.write('except Exception, e: pass  \n\n')
            
 
         #add environment variable
-        if(self.distribution.add_env_path):
-            for p in self.distribution.add_env_path:
-                outscript.write('add_env_var(\"PATH=\"+ os.path.normpath(r\'%s\'))'%(p,))
+        if(self.distribution.set_env_var):
+            for p in self.distribution.set_env_var:
+                outscript.write('add_env_var(r\'%s\')'%(p,))
 
 
         #Call initial postinstall _script

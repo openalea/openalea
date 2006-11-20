@@ -303,7 +303,7 @@ class install_external_data(Command):
    
        names = os.listdir(src)
        mkpath(dst)
-
+       outfiles=[]
 
        for p in exclude_pattern:
           names=filter( lambda x: not(re.match(p, x)) , names)
@@ -313,11 +313,14 @@ class install_external_data(Command):
           dst_name = os.path.join(dst, n)
                 
           if os.path.isdir(src_name):
-             copy_data_tree(src_name, dst_name, exclude_pattern)
+             ret=copy_data_tree(src_name, dst_name, exclude_pattern)
+             outfiles+=ret
 
           else:
              copyfile(src_name, dst_name)
+             outfiles.append(src_name)
 
+       return outfiles
   
 
     def copy_external_data (self):
@@ -391,7 +394,7 @@ class set_env_var (Command):
              self.add_env_var(v)
 
 
-    def add_env_var(newvar):
+    def add_env_var(self, newvar):
        """Update any environment variable persistently by changing windows registry
        @param newvar : a string like 'var=value'
        if 'var' == 'PATH', then 'value' is added to Path
