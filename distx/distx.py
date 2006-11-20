@@ -313,7 +313,7 @@ class install_external_data(Command):
           dst_name = os.path.join(dst, n)
                 
           if os.path.isdir(src_name):
-             ret=copy_data_tree(src_name, dst_name, exclude_pattern)
+             ret=self.copy_data_tree(src_name, dst_name, exclude_pattern)
              outfiles+=ret
 
           else:
