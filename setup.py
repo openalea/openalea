@@ -20,7 +20,7 @@ version= '%s.%s.%s' % (major, minor, patch)
 
 # Description of the package 
 description= 'Distutils extension' #short description
-long_description= 'distx add functionalities to distutils (scons call, external data)...'
+long_description= 'DistX add functionalities to distutils (scons call, external data, windows path)...'
 
 # Author
 author= 'Samuel Dufour-Kowalski'

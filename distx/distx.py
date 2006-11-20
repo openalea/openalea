@@ -1,5 +1,6 @@
 # -*- coding: iso-8859-15 -*-
 
+__version__="0.1.0"
 __doc__="""
 ====== DistX ======
 
@@ -14,147 +15,6 @@ __doc__="""
 **License** : Cecill-C
 
 **URL** : http://openalea.inria.gforge.fr
-
-===== About =====
-
-DistX is an OpenAlea package which extends python Distutils library to facilitate package installation. It provides :
-  * **Scons** integration (external call).
-  * **Empty namespace** creation.
-  * **External data** installation (more complete than the distutils ''data_files''.
-  * **Windows PATH** variable modification.
-
-
-DistX defines new distutils extra commands :
-
-=== Distutils build subcommands ===
-
-
-  *//build_namespace// : Create empty namespaces. 
-      * Use ''namespace'' option from //setup.py//.
-
-   *//build_scons// : run scons scripts.
-      * Use ''scons_scripts'' option from //setup.py//.
-      * Use ''scons_parameter'' option from //setup.py//.
-      *	Use ''--scons-ext-param='' for adding scons options from the command line.
-      * Use ''--scons-path='' to specify scons program path from the command line.
-
-Nota :Distutils build directory is automatically passed as a parameter nammed 'distutils_build_dir'
-
-=== Distutils install subcommands ===
-
-  *//install_external_data// :    Install external data
-    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
-
-//Nota// : Scons is responsible to compile  external library. It does not interact with distutils. 
-Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
-
-=== Distutils bdist command ===
-
- Distx adapt ''bdist_wininst'' and ''bdist_rpm'' to external data and openalea
-
-  *//bdist_wininst// : create a windows installer
-    * Use ''--external-prefix='' from  the command line to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
-    * Use ''--with-remote-oa-config'' to create an installer which will retrieve OpenAlea configuration when the package will be installed on a remote system. In case of the configuration, is not found, the installer will use the ''--external-prefix='' parameter.
-
-
-  *//bdist_rpm// : create a linux rpm.
-
-
-=== Setup function new parameters ===
-
-  * **scons_scripts** : list of scons script to execute (ex SConstr
-  * **scons_parameters** : list of strings to pass to scons as parameters
-  * **namespace** : list of strings defining namespace
-  * **external_data** : map with the form { destination directory :source directory } to install external data.
-Command line parameter ''--external-prefix='' is prepend to destination directory if the destination directory is not absolute.
-  * **add_env_path** : list of subdirectories to add to PATH environment variable (only for win32 os)
-
-
-===== Installation =====
-
-
-=== Download ===
-
-DistX is available on the [[http://gforge.inria.fr/projects/openalea/|GForge repositery]]
-
-=== Requirements ===
-
-DistX has no particular requirement (just Python and Scons if you use scons_build command).
-
-However, when using DistX, it can be usefull to use the OpenAlea base package which define the system configuration, in order to retrieve openalea directory prefix.
-
-
-=== Installation ===
-
-<code bash>
-python setup.py install
-</code>
-
-
-===== Quick Example =====
-
-<code python>
-#You can use distx in your setup.py as follow:
-
-from openalea.distx import setup 
-from openalea import config #retrieve openalea config file
-from os.path import join as joindir
-
-packagename='my_openalea_package'
-namespace='openalea'
-
-if __name__ == '__main__':
-    setup(name=packagename,
-          version='1.0',
-          author='me',
-          ...
-
-          #Define where to execute scons
-          #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-          scons_scripts = ['SConstruct'],
-          #scons parameters  
-          scons_parameters = [ 'lib=lib'],
-      
-
-          #define empty namespace
-          namespace= [namespace],
-          #pure python  packages
-          packages= [namespace+'.'+my_openalea_package],
-          #python packages directory
-          package_dir= {namespace+'.'+my_openalea_package : joindir('src',my_openalea_package)},
-      
-          #add package platform libraries if any
-          package_data= { namespace+'.'+my_openalea_package : ['*.so', '*.pyd', '*.dll']},
-                     
-	  #copy shared data in default OpenAlea directory
-	  #map of 'destination subdirectory' : 'source subdirectory'
-	  external_data={pj(config.prefix_dir, 'doc', name) : 'doc',
-         	          pj(config.prefix_dir, 'examples', name): 'examples' ,
-                	   pj(config.prefix_dir, 'test', name): 'test',
-	                   pj(config.prefix_dir, 'include'):  pj('src', 'include'),
-        	           pj(config.prefix_dir,'lib'):  pj('src','lib'),
-        	           },
-
-	  #ONLY FOR WINDOWS 
-	  #Add to PATH environment variable for openalea lib
-	  add_env_path=[pj(config.prefix_dir,'lib')]
-</code>
-
-== Build the package ==
-<code>python setup.py build</code>
-
-== Install the package ==
-<code>python setup.py install</code>
-
-== Create an Windows Installer ==
-<code>python setup.py bdist_wininst --with-remote-oa-config</code>
-
-== Create a RPM ==
-<code>python setup.py bdist_rpm</code>
-
-== Create a Source distribution ==
-<code>python setup.py sdist</code>
-
 
 
 """
@@ -173,7 +33,8 @@ import os,sys
 import distx_wininst
 import re
 
-#Exceptions
+##################################################
+# Exceptions
 
 class SconsError(Exception):
    """Scons subprocess Exception"""
@@ -182,50 +43,7 @@ class SconsError(Exception):
 	return "Scons subprocess has failed."
 
 
-#####################################################"
-# Utility functions
 
-def add_env_var(newvar):
-    """Update any environment variable persistently by changing windows registry
-    newvar is a string like 'var=value'
-    """
-
-    try:
-        import _winreg 
-        import os, sys
-        from string import find
-
-    except Exception, e:
-        return
-    
-
-    def queryValue(qkey, qname):
-        qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
-        return qvalue
-
-    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
-        
-    name, value = newvar.split('=')
-    #specific treatment for PATH variable
-    if name.upper() == 'PATH':
-            
-        actualpath = queryValue(key, name)
-	
-	listpath=actualpath.split(';')                
-        if(not value in listpath):
-            value= actualpath + ';' + value
-            print "ADD to PATH :", value
-        else :
-            value= actualpath
-            
-    if value:
-        _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-        
-
-    _winreg.CloseKey(key)    
-    _winreg.CloseKey(reg)                        
 
 #################################################################
 
@@ -414,11 +232,15 @@ class distx_install(install):
     def has_external_data(self):
         return self.distribution.has_external_data()
 
+    def has_env_var(self):
+        return self.distribution.has_env_var()
+
     
     #define sub command
     sub_commands = []
     sub_commands.extend(install.sub_commands)
     sub_commands.append(('install_external_data', has_external_data))
+    sub_commands.append(('set_env_var', has_env_var))
 
 
     #define user options
@@ -446,7 +268,6 @@ class install_external_data(Command):
     def initialize_options (self):
         self.external_prefix = None
         self.external_data= None
-        self.without_oa_config=None
         self.root=None
         self.force = 0
 
@@ -474,13 +295,6 @@ class install_external_data(Command):
         """Run install command"""
         if self.external_data:
             self.copy_external_data()
-
-        #ADD ENVIRONMENT VARIABLES for windows
-        if('win' in sys.platform and self.distribution.add_env_path):
-
-            for p in self.distribution.add_env_path:
-                add_env_var("PATH="+ os.path.abspath(p))
-
 
 
     def copy_data_tree (self, src, dst, exclude_pattern=["\.svn"]):
@@ -548,6 +362,77 @@ class install_external_data(Command):
         return self.outfiles or []
         
 
+
+class set_env_var (Command):
+    """Set environment variable on windows platform"""
+    
+    description = "Set environment variable on windows platform"
+
+    
+    user_options=[] #No specific user options
+
+    def initialize_options (self):
+       self.set_env_var=None
+        
+    def finalize_options (self):
+        
+       self.set_env_var=self.distribution.set_env_var
+
+        
+    def run (self):
+
+       #ADD ENVIRONMENT VARIABLES for windows
+       if('win' in sys.platform ):
+
+#           for p in self.distribution.add_env_path:
+#                 add_env_var("PATH="+ os.path.abspath(p))
+
+          for v in self.set_env_var:
+             self.add_env_var(v)
+
+
+    def add_env_var(newvar):
+       """Update any environment variable persistently by changing windows registry
+       @param newvar : a string like 'var=value'
+       if 'var' == 'PATH', then 'value' is added to Path
+       """
+
+       try:
+          import _winreg 
+          import os, sys
+          from string import find
+
+       except Exception, e:
+          return
+    
+
+       def queryValue(qkey, qname):
+          qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
+          return qvalue
+
+       regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+       reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+       key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+        
+       name, value = newvar.split('=')
+       #specific treatment for PATH variable
+       if name.upper() == 'PATH':
+          
+          actualpath = queryValue(key, name)
+          
+          listpath=actualpath.split(';')                
+          if(not value in listpath):
+             value= actualpath + ';' + value
+             print "ADD to PATH :", value
+          else :
+             value= actualpath
+            
+          if value:
+             _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
+        
+
+       _winreg.CloseKey(key)    
+       _winreg.CloseKey(reg)                        
 
         
 
@@ -618,15 +503,13 @@ class DistxDistribution(Distribution):
         self.namespace=None
         self.scons_scripts  = None
         self.scons_parameters = None
-        self.add_env_path=None
+        self.set_env_var=None
 
         Distribution.__init__(self,attrs)
         
-        
-                        
-                
                     
         self.cmdclass = { 'install_external_data':install_external_data,
+                          'set_env_var' : set_env_var,
                           'install':distx_install,
                           'build_scons':build_scons,
                           'build_namespace': build_namespace, 
@@ -638,6 +521,9 @@ class DistxDistribution(Distribution):
 
     def has_external_data(self):
         return self.external_data and len(self.external_data.items()) > 0
+
+    def has_env_var(self):
+        return self.set_env_var and len(self.set_env_var) > 0
 
     def has_namespace(self):
         return self.namespace and len(self.namespace) > 0

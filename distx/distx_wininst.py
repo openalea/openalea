@@ -1,9 +1,15 @@
 # -*- coding: iso-8859-15 -*-
 
-#Author : Samuel Dufour-Kowalski
-#
-#Description : Package DistX
-#distx_bdist_wininst implementation which overide standard bdist_wininst command
+__version__=  "0.1.0"
+
+__doc__="""
+ Author : Samuel Dufour-Kowalski
+ License = Cecill-C
+ Description : DistX Package
+
+'distx_bdist_wininst' implementation which override standard bdist_wininst command
+
+"""
 
 
 import os,sys
@@ -14,21 +20,21 @@ from distutils.util import convert_path, change_root
 #########################################################################
 
 class distx_bdist_wininst (bdist_wininst):
-    """Desactivate bdist_wininst"""
+    """bdist_wininst extension for distx"""
 
     #define user options
     user_options = []
     user_options.extend(bdist_wininst.user_options)
     user_options.append( ('external-prefix=' , None, "Prefix directory to install external data."))
-    user_options.append( ('with-remote-oa-config' , None, "If set, windows installer will use openalea.config.prefix_dir instead of fixed directory for installing external data"))
+    user_options.append( ('with-remote-config' , None, "If set, windows installer will use openalea.config.prefix_dir instead of fixed directory for installing external data"))
 
-    boolean_options = ['with-remote-oa-config']
+    boolean_options = ['with-remote-config']
     
     def initialize_options (self):
         bdist_wininst.initialize_options(self)
 	self.external_prefix = None
         self.install_script=None
-        self.with_remote_oa_config=None
+        self.with_remote_config=None
 
         name=self.distribution.metadata.get_name()
         self.post_install_name=name+'_postinstall_script.py'
@@ -44,7 +50,7 @@ class distx_bdist_wininst (bdist_wininst):
     def finalize_options (self):
         bdist_wininst.finalize_options(self)
 
-        # we use openalea external prefix if no prefix specified
+        # we use local  openalea external prefix if no prefix specified
         if(not self.external_prefix):
             try:
                 import openalea
@@ -164,7 +170,7 @@ def add_env_var(newvar):
         outscript.write("final_prefix=r\'%s\'\n"%(os.path.normpath(external_prefix),))
         
             
-        if(self.with_remote_oa_config):
+        if(self.with_remote_config):
             oa_config_test="""
 try:
     from openalea import config

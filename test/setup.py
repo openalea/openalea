@@ -94,9 +94,8 @@ setup(
     external_data={pj('external', name) : 'external', },
     
     
-    #ONLY FOR WINDOWS 
-    #Add to PATH environment variable for openalea lib
-    add_env_path=[pj(config.prefix_dir,'lib')]
+    #Add to PATH environment variable for openalea lib on Windows platform
+    set_env_var=['PATH='+pj(config.prefix_dir,'lib')]
     
    
       )
