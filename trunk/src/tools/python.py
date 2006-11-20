@@ -49,11 +49,11 @@ class Python:
 
       if isinstance( platform, Win32 ):
          version= "%d%d"%sys.version_info[0:2]
-         python_lib= 'python' + version
+         pylib= 'python' + version
       else:
-         python_lib= 'python' + get_config_var( 'VERSION' )
+         pylib= 'python' + get_config_var( 'VERSION' )
 
-      env.AppendUnique( LIBS= python_lib )
+      env.AppendUnique( LIBS=[pylib] )
 
 
    def configure( self, config ):
