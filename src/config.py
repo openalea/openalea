@@ -246,7 +246,7 @@ def ALEAEnvironment( conf, *args, **kwds ):
     opts= conf.Options( *args, **kwds )
     env= Environment( options= opts )
     conf.Update(env)
-    env.Append( CPPPATH = '$build_includedir/$package_name' )
+    env.Append( CPPPATH = '$build_includedir' )
     env.Append( LIBPATH = '$build_libdir' )
     Default('build')
     return env
