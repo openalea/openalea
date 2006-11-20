@@ -1,10 +1,10 @@
 # -*-python-*-
 # Python configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: GPL
+# Licence: CECILL-C
 
 import os, sys
-from sconsx.config import *
+from openalea.sconsx.config import *
 from distutils.sysconfig import *
 pj= os.path.join
 

@@ -1,9 +1,10 @@
-#!/usr/bin/python
+# -*-python-*-
+
 # AMAPmod SCons build script
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: GPL
+# Licence: CECILL-C
 
-from path import path
+#from path import path
 from SCons.Script.SConscript import SConsEnvironment, DefaultEnvironmentCall
 import SCons.Builder
 import SCons.Action
@@ -11,12 +12,17 @@ import SCons.Node.FS
 
 Alias = DefaultEnvironmentCall( "Alias" )
 
+
 def ALEALibrary( env, target, source, *args, **kwds ):
   if env[ "static" ]:
     lib = env.StaticLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   else:
     lib = env.SharedLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   Alias( "build", lib )
+  # Bug on mingw with .exp
+  if env["compiler"]== "mingw":
+    lib= [l for l in lib if not str(l).endswith('.exp') ]
+    
   inst_lib = env.Install( "$libdir", lib )
   Alias( "install", inst_lib )
   return ( lib, inst_lib )
@@ -41,22 +47,22 @@ def ALEAWrapper( env, python_dir, target, source, *args, **kwds ):
   Alias( "build", wrap )
   return wrap
 
-def ALEAPython( env, python_dir, depends = [], *args, **kwds ):
-  p = path( env.Dir( python_dir ).srcnode() )
-  base = "$pythondir/$package_name"
-  base_py = len( path( python_dir ).abspath() )
-  fi = []
-  for d in depends:
-    real_d = "%s/%s" % ( str( env.Dir( python_dir ).srcnode() ), str( d ) )
-    fi.append( env.Install( base, d ) )
-  for f in p.walk():
-    fi.append( env.Install( "%s/%s" % ( base, f.parent[ base_py: ] ), str( f ) ) )
-  Alias( "install", fi )
-  return fi
+## def ALEAPython( env, python_dir, depends = [], *args, **kwds ):
+##   p = env.Dir( python_dir ).srcnode()
+##   base = "$pythondir/$package_name"
+##   base_py = len( path( python_dir ).abspath() )
+##   fi = []
+##   for d in depends:
+##     real_d = "%s/%s" % ( str( env.Dir( python_dir ).srcnode() ), str( d ) )
+##     fi.append( env.Install( base, d ) )
+##   for f in p.walk():
+##     fi.append( env.Install( "%s/%s" % ( base, f.parent[ base_py: ] ), str( f ) ) )
+##   Alias( "install", fi )
+##   return fi
 
 SConsEnvironment.ALEALibrary = ALEALibrary
 SConsEnvironment.ALEAIncludes = ALEAIncludes
 SConsEnvironment.ALEAProgram = ALEAProgram
 SConsEnvironment.ALEAWrapper = ALEAWrapper
-SConsEnvironment.ALEAPython = ALEAPython
+##SConsEnvironment.ALEAPython = ALEAPython
 

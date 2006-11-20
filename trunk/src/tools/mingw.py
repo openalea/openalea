@@ -1,10 +1,10 @@
 # -*-python-*-
 # MinGW configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: GPL
+# Licence: CECILL-C
 
 import os, sys
-from sconsx.config import *
+from openalea.sconsx.config import *
 
 
 class MinGW:
@@ -38,7 +38,7 @@ class MinGW:
                  "-s"]
 
       env.AppendUnique(CXXFLAGS = CXXFLAGS)
-      env.AppendUnique(LINKFLAGS = LINKFLAGS )
+      #env.AppendUnique(LINKFLAGS = LINKFLAGS )
 
 
    def configure( self, config ):
