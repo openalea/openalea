@@ -149,7 +149,7 @@ def add_env_var(newvar):
     name, value = newvar.split('=')
     #specific treatment for PATH variable
     if name.upper() == 'PATH':
-            
+        value=os.path.normpath(value)    
         actualpath = queryValue(key, name)
 	
 	listpath=actualpath.split(';')                
