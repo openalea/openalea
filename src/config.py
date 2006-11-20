@@ -1,7 +1,7 @@
-#!/usr/bin/python
+# -*-python-*-
 # AMAPmod SCons build script
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: GPL
+# Licence: CECILL-C
 
 import os, sys
 import string
@@ -241,3 +241,12 @@ class ALEAConfig( Config ):
       Config.Update( self, env )
       env[ "package_name" ] = self.package_name
 
+
+def ALEAEnvironment( conf, *args, **kwds ):
+    opts= conf.Options( *args, **kwds )
+    env= Environment( options= opts )
+    conf.Update(env)
+    env.Append( CPPPATH = '$build_includedir/$package_name' )
+    env.Append( LIBPATH = '$build_libdir' )
+    Default('build')
+    return env

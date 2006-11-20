@@ -1,9 +1,9 @@
 # Bison configure environment
 # Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: GPL
+# Licence: CECILL-C
 
 import os, sys, re
-from sconsx.config import *
+from openalea.sconsx.config import *
 
 
 class Bison:
