@@ -8,7 +8,7 @@
 
 **Status** : Pure Python Package
 
-**License** : LGPL 
+**License** : Cecill-C
 
 ===== About =====
 
