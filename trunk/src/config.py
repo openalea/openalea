@@ -248,5 +248,4 @@ def ALEAEnvironment( conf, *args, **kwds ):
     conf.Update(env)
     env.Append( CPPPATH = '$build_includedir' )
     env.Append( LIBPATH = '$build_libdir' )
-    Default('build')
     return env
