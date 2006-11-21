@@ -18,10 +18,10 @@ def ALEALibrary( env, target, source, *args, **kwds ):
     lib = env.StaticLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   else:
     lib = env.SharedLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
-  Alias( "build", lib )
   # Bug on mingw with .exp
   if env["compiler"]== "mingw":
     lib= [l for l in lib if not str(l).endswith('.exp') ]
+  Alias( "build", lib )
     
   inst_lib = env.Install( "$libdir", lib )
   Alias( "install", inst_lib )
@@ -29,7 +29,7 @@ def ALEALibrary( env, target, source, *args, **kwds ):
 
 def ALEAIncludes( env, target, includes, *args, **kwds ):
   inc = env.Install( "$build_includedir/$package_name", includes, *args, **kwds )
-  Alias( "build", inc )
+  env.Alias( "build", inc )
   inst_inc = env.Install( "$includedir/$package_name", includes, *args, **kwds )
   Alias( "install", inst_inc )
   return ( inc, inst_inc )
