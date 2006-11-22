@@ -297,7 +297,7 @@ class install_external_data(Command):
             self.copy_external_data()
 
 
-    def copy_data_tree (self, src, dst, exclude_pattern=["\.svn"]):
+    def copy_data_tree (self, src, dst, exclude_pattern=['(RCS|CVS|\.svn)', ".*\~"]):
        """Copy an entire directory tree 'src' to a new location 'dst'.
        @param exclude_pattern : a list of pattern to exclude"""
    
