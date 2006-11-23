@@ -1,3 +1,4 @@
+#!/usr/bin/python
 __doc__="""Create_config_gui create the openalea config. Base directory is choosen with a TKinter ui"""
 
 
@@ -51,7 +52,7 @@ class App(tk.Frame):
     
     def getPath(self):
         dirPath = tkFileDialog.askdirectory(initialdir=self.entrytxt.get(), mustexist=0)
-        self.entrytxt.set(dirPath)
+	if(dirPath and dirPath!='' and dirPath!='.'): self.entrytxt.set(dirPath)
 
     def onOk(self):
 
