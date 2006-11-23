@@ -1,23 +1,28 @@
-# -*- coding: iso-8859-15 -*-
+# -*- python -*-
+#
+#       OpenAlea.DistX:  Distutils extension
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#                       Christophe Pradal <christophe.prada@cirad.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
 
-__version__="0.1.0"
 __doc__="""
-====== DistX ======
-
-**Authors** : Samuel Dufour-Kowalski / Christophe Pradal
-
-**Institutes** : INRIA, CIRAD
-
-**Type** : Python package
-
-**Status** : Devel
-
-**License** : Cecill-C
-
-**URL** : http://openalea.inria.gforge.fr
-
-
+This module extends the distutils package and adds
+ -external scons call
+ -pure namespace
+ -external data installation
 """
+
+__license__= "Cecill-C"
+__revision__=" $Id $ "
 
 
 from distutils.core import Extension,Distribution,Command
