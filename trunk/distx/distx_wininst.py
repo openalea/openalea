@@ -1,17 +1,25 @@
-# -*- coding: iso-8859-15 -*-
-
-__license=""" $License$ """
-__version__=""" $Id$ """
-
-
+# -*- python -*-
+#
+#       OpenAlea.DistX:  Distutils extension
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#                       Christophe Pradal <christophe.prada@cirad.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
 
 __doc__="""
-Copyrigth: INRIA - CIRAD
-Contributors : Samuel Dufour-Kowalski, Christophe Pradal
-License : Cecill-C
-URL : http://openalea.inria.gforge.fr
+'distx_bdist_wininst' implementation which override standard bdist_wininst command
+"""
 
-Description : 'distx_bdist_wininst' implementation which override standard bdist_wininst command
+__license__= "Cecill-C"
+__revision__=" $Id $ "
 """
 
 
