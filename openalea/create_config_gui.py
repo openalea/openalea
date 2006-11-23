@@ -52,6 +52,7 @@ class App(tk.Frame):
     
     def getPath(self):
         dirPath = tkFileDialog.askdirectory(initialdir=self.entrytxt.get(), mustexist=0)
+        dirPath= os.path.normpath(dirPath)
 	if(dirPath and dirPath!='' and dirPath!='.'): self.entrytxt.set(dirPath)
 
     def onOk(self):
