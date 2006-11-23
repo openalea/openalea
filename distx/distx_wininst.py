@@ -1,14 +1,17 @@
 # -*- coding: iso-8859-15 -*-
 
-__version__=  "0.1.0"
+__license=""" $License$ """
+__version__=""" $Id$ """
+
+
 
 __doc__="""
- Author : Samuel Dufour-Kowalski
- License = Cecill-C
- Description : DistX Package
+Copyrigth: INRIA - CIRAD
+Contributors : Samuel Dufour-Kowalski, Christophe Pradal
+License : Cecill-C
+URL : http://openalea.inria.gforge.fr
 
-'distx_bdist_wininst' implementation which override standard bdist_wininst command
-
+Description : 'distx_bdist_wininst' implementation which override standard bdist_wininst command
 """
 
 
@@ -22,11 +25,12 @@ from distutils.util import convert_path, change_root
 class distx_bdist_wininst (bdist_wininst):
     """bdist_wininst extension for distx"""
 
-    #define user options
+    # Define user options
     user_options = []
     user_options.extend(bdist_wininst.user_options)
     user_options.append( ('external-prefix=' , None, "Prefix directory to install external data."))
-    user_options.append( ('with-remote-config' , None, "If set, windows installer will use openalea.config.prefix_dir instead of fixed directory for installing external data"))
+    user_options.append( ('with-remote-config' , None,
+                          "If set, windows installer will use openalea.config.prefix_dir instead of fixed directory for installing external data"))
 
     boolean_options = ['with-remote-config']
     
@@ -39,7 +43,7 @@ class distx_bdist_wininst (bdist_wininst):
         name=self.distribution.metadata.get_name()
         self.post_install_name=name+'_postinstall_script.py'
 
-        #add script if bdist_wininst command
+        # Add post-install script in the module script
         if(os.name=='nt'):
            if(not self.distribution.scripts or self.distribution.scripts=='') :
               self.distribution.scripts=[self.post_install_name]
@@ -50,7 +54,7 @@ class distx_bdist_wininst (bdist_wininst):
     def finalize_options (self):
         bdist_wininst.finalize_options(self)
 
-        # we use local  openalea external prefix if no prefix specified
+        # We use local openalea external prefix if no prefix specified
         if(not self.external_prefix):
             try:
                 import openalea
@@ -61,8 +65,6 @@ class distx_bdist_wininst (bdist_wininst):
     
         cmdobj=self.distribution.get_command_obj('install_external_data')
         cmdobj.external_prefix=self.external_prefix
-        
-
         
 
     def run(self):
@@ -87,7 +89,7 @@ class distx_bdist_wininst (bdist_wininst):
         external_data=self.distribution.external_data
         if(not external_data or len(external_data)==0): return
 
-        # open file to write
+        # Open file to write
         outscript=file(self.post_install_name, 'w')
 
         if(self.external_prefix):
@@ -167,10 +169,10 @@ def add_env_var(newvar):
     _winreg.CloseKey(reg)                        
 
 """
-        #write header
+        # Write header
         outscript.write(base_script_str)
 
-        # define destination directory
+        # Define destination directory
         outscript.write("final_prefix=r\'%s\'\n"%(os.path.normpath(external_prefix),))
         
             
@@ -185,17 +187,18 @@ except:
 """
             outscript.write(oa_config_test)
 
-        #display destination prefix
+        # Display destination prefix
         outscript.write("""if(final_prefix and final_prefix!=\'\') : print 'External data will be installed in ', final_prefix\n""")
 
-        #write external data installer
+        # Write external data installation script
     	for (dest, src) in external_data.items():
 
-            #normalize path
+            # Normalize path
             dest=os.path.normpath(dest)
             dest_with_prefix=os.path.join(external_prefix, dest)                
             normal_install_dir=change_root(sys.prefix, dest_with_prefix)
 
+            # Write move commands
             outscript.write('\ntry:\n')
             if(os.path.isabs(dest)):
                 outscript.write("   copyalltree(r\'%s\', r\'%s\')\n"%(normal_install_dir,dest))
@@ -206,13 +209,13 @@ except:
             outscript.write('except Exception, e: pass  \n\n')
            
 
-        #add environment variable
+        # Add environment variable
         if(self.distribution.set_env_var):
             for p in self.distribution.set_env_var:
                 outscript.write('add_env_var(r\'%s\')'%(p,))
 
 
-        #Call initial postinstall _script
+        # call initial postinstall _script
         if(initial_script):
             try:
                 importname= split(initial_script, '.')[0]
