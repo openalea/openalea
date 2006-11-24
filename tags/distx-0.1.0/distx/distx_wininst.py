@@ -55,7 +55,7 @@ class distx_bdist_wininst (bdist_wininst):
         self.post_install_name= name + '_postinstall_script.py'
 
         # Add post-install script in the module script
-        if( os.name == 'nt' ):
+        if( os.name == 'nt' and self.distribution.has_external_data()):
            if not bool(self.distribution.scripts):
               self.distribution.scripts= [self.post_install_name]
            else:
@@ -68,7 +68,7 @@ class distx_bdist_wininst (bdist_wininst):
         # We use local openalea external prefix if no prefix specified
         if( not self.external_prefix ):
             try:
-                import openalea
+                import openalea.config
                 self.external_prefix= openalea.config.prefix_dir
             except ImportError:
                 print "!!ERROR :  Local OpenAlea config not found.",
@@ -87,6 +87,7 @@ class distx_bdist_wininst (bdist_wininst):
         if self.distribution.has_external_data():
             scriptname= self.create_postinstall_script(self.install_script)
             self.install_script= scriptname
+
 
         bdist_wininst.run(self)
 
