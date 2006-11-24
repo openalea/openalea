@@ -1,3 +1,4 @@
+################################################################################
 # -*- python -*-
 #
 #       OpenAlea.DistX:  Distutils extension
@@ -13,33 +14,40 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
 __doc__="""
-This module extends the distutils package and adds
- -external scons call
- -pure namespace
- -external data installation
+This module extends the distutils package and adds:
+  - external scons call
+  - creation of a pure namespace ( python package with an empty __init__.py )
+  - may install data outside  python directories (e.g. lib, headers for shared libraries ).
+    Thus, we can share libraries between python packages (e.g. for common datastructures.)
+
+  Some ideas are taken from Twisted distutils extensions.
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id $ "
+__revision__=" $Id$ "
 
 
-from distutils.core import Extension,Distribution,Command
+import os
+from os.path import join as joindir
+import sys
+import re
+from string import join, split
+from shutil import copytree, copyfile
+
+from distutils.core import Extension, Distribution, Command
 from distutils.command.install import install
 from distutils.command.build import build
 from distutils.dep_util import newer
 from distutils.util import convert_path, change_root
-from os.path import join as joindir
-from shutil import copytree, copyfile
 from distutils.dir_util import mkpath
-from string import join, split
-import os,sys
-import distx_wininst
-import re
 
-##################################################
-# Exceptions
+from distx_wininst import *
+
+################################################################################
+# Define Exceptions
 
 class SconsError(Exception):
    """Scons subprocess Exception"""
@@ -48,19 +56,17 @@ class SconsError(Exception):
 	return "Scons subprocess has failed."
 
 
-
-
-#################################################################
+################################################################################
 
 class distx_build(build):
-    """distx_build command extends default build command with distx specific actions"""
-
+    """
+    Extends default build command with distx specific actions.
+    """
 
     def initialize_options (self):
         build.initialize_options(self)
-	self.scons_ext_param=""  # None value are not accepted
-	self.scons_path=None     # Scons path
-
+	self.scons_ext_param= ""  # None value are not accepted
+	self.scons_path= None     # Scons path
 
     def has_scons_scripts(self):
         return self.distribution.has_scons_scripts()
@@ -70,79 +76,94 @@ class distx_build(build):
     
     # Sub Commands
     sub_commands = []
-    sub_commands.append(('build_scons', has_scons_scripts))
-    sub_commands.append(('build_namespace', has_namespace))
-    sub_commands.extend(build.sub_commands)
+    sub_commands.append( ('build_scons', has_scons_scripts) )
+    sub_commands.append( ('build_namespace', has_namespace) )
+    sub_commands.extend( build.sub_commands )
 
     # User options
     user_options = []
-    user_options.extend(build.user_options)
-    user_options.append( ('scons-ext-param=' , None, "External parameters to pass to scons."))
-    user_options.append( ('scons-path=' , None, "Optional scons executable path. eg : C:\Python24 for windows."))
+    user_options.extend( build.user_options )
+    user_options.append( ( 'scons-ext-param=' ,
+                           None,
+                           'External parameters to pass to scons.' ) )
+    user_options.append( ( 'scons-path=',
+                           None,
+                           'Optional scons executable path.'
+                           'eg : C:\Python24\scons.bat for windows.' ) )
 
 
-
-
-##########################################################################
+################################################################################
 
 
 class build_scons (Command):
-    """build_scons command allows to call scons in a external process"""
+    """
+    Allows to call scons in an external process.
+    """
+
+    description = "Run SCons in an external process."
     
-    description = "Build subdirectory with scons"
-    
-    user_options=[('scons-ext-param=' , None, "External parameters to pass to scons."),
-		  ('scons-path=' , None, "Optional scons executable path. eg : C:\Python24\scons.bat for windows.")]
+    user_options=[( 'scons-ext-param=',
+                    None,
+                    'External parameters to pass to scons.' ),
+		  ( 'scons-path=',
+                    None,
+                    'Optional scons executable path. eg : C:\Python24\scons.bat for windows.' )]
+
 
     def initialize_options (self):
-        self.outfiles = None
-        self.scons_scripts=None    #scons directory
-        self.scons_parameters=None #scons parameters
-	self.build_dir=None        #build directory
-	self.scons_ext_param=None  #scons external parameters
-	self.scons_path=None
+        self.outfiles= None
+        self.scons_scripts= None    #scons directory
+        self.scons_parameters= None #scons parameters
+	self.build_dir= None        #build directory
+	self.scons_ext_param= None  #scons external parameters
+	self.scons_path= None
+
 
     def finalize_options (self):
         
         # Set default values
-        self.scons_scripts = self.distribution.scons_scripts
-        self.scons_parameters=self.distribution.scons_parameters
-        if(not self.scons_parameters) : self.scons_parameters="" 
+        self.scons_scripts= self.distribution.scons_scripts
+        self.scons_parameters= self.distribution.scons_parameters
+        if( not self.scons_parameters ):
+           self.scons_parameters= "" 
 
-        self.set_undefined_options('build',
-                                   ('build_lib', 'build_dir'),
-				   ('scons_ext_param', 'scons_ext_param'),
-                                   ('scons_path', 'scons_path'))
+        self.set_undefined_options( 'build',
+                                    ('build_lib', 'build_dir'),
+                                    ('scons_ext_param', 'scons_ext_param'),
+                                    ('scons_path', 'scons_path'))
+
 
     def get_source_files(self):
         return []
         
-    def run (self):
-        """ Run scons command with subprocess module if availaible"""
-        if not(self.scons_scripts) or len(self.scons_scripts)==0:
-            return
 
-        #cwd=os.getcwd() #get current directory
+    def run (self):
+        """
+        Run scons command with subprocess module if availaible.
+        """
+
+        if( not self.scons_scripts ):
+            return
 
         # try to import subprocess package
         try:
             import subprocess
-            subprocess_enabled=True
+            subprocess_enabled= True
         except ImportError:
-            subprocess_enabled=False
+            subprocess_enabled= False
             
-
         # run each scons script from setup.py
         for s in self.scons_scripts:
             try:
-                #os.chdir(d)
-                file_param='-f %s'%(s,)
+                # Join all the SCons parameters.
+                file_param='-f %s' % (s,)
                 
 		# Join all parameters strings from setup.py scons_parameters list
-                param=join(self.scons_parameters, sep=' ')
+                param= ' '.join( self.scons_parameters )
                 
 		# Integrated Build parameter
-                build_param='python_build_dir=%s py_pkg_name=%s'%(self.build_dir, self.distribution.metadata.get_name())
+                build_param='python_build_dir=%s ' % ( self.build_dir,)
+                build_param+='py_pkg_name=%s ' % ( self.distribution.metadata.get_name(),)
                 
 		# External parameters (from the command line)
 		externp=self.scons_ext_param
@@ -152,33 +173,36 @@ class build_scons (Command):
 		else:
 		    command='scons'
 
-		commandstr=command+' '+file_param+' '+build_param+' '+param+' '+externp
+                command_param= file_param + ' ' + build_param + ' ' + param + ' '+externp
+		commandstr= command + ' ' + command_param
                 
                 print commandstr
 
                 # Run SCons
-                if(subprocess_enabled):
-                   
-                    retval=subprocess.call(commandstr, shell=True)
+                if( subprocess_enabled ):
+                    retval= subprocess.call(commandstr, shell=True)
                 else:
-                   retval=os.system(commandstr)
+                    retval=os.system(commandstr)
 		    
                 # Test if command success with return value
-		if(retval!=0) : raise SconsError()
+		if( retval != 0 ) :
+                   raise SconsError()
 
             except SconsError, i:
-		print i, " Exiting..."
-		sys.exit()  
+		print i, " Failure..."
+		sys.exit(1)  
 
             except Exception, i:
-                print "!!Error : Cannot execute scons command:", i, "Exiting..."
-		sys.exit()
+                print "!! Error : Cannot execute scons command:", i,
+                print " Failure..."
+		sys.exit(1)
 
-        # Return to origin directory
-        #os.chdir(cwd)
+
 
 class build_namespace (Command):
-    """build_namespace command : Create an empty Namespace"""
+    """
+    Create an empty namespace.
+    """
     
     description = "Create empty namespaces"
 
@@ -190,48 +214,58 @@ class build_namespace (Command):
         self.namespace=None 
         self.build_dir=None
         self.outfiles =None
+
         
     def finalize_options (self):
-        
         # Set default values
         self.set_undefined_options('build',
                                    ('build_lib', 'build_dir'))
 
         self.namespace=self.distribution.namespace
 
+
     def get_source_files(self):
         return []
         
-    def run (self):
 
+    def run (self):
+        """
+        Create one or several namespaces and sub namespaces if any. 
+        """
         self.outfiles = []
         self.mkpath(self.build_dir)
 
-        if(not self.namespace): return
+        if(not self.namespace):
+            return
 
         for namespace in self.namespace:
-            namespacedir=self.build_dir+os.sep;
+            namespacedir= self.build_dir+os.sep;
 
             # Process composite namespace (ex : name.subname.subname)
             for subnamespace in split(namespace, '.'):
 
                 # Create directory
-                namespacedir+=subnamespace+os.sep
-                self.mkpath(namespacedir)
+                namespacedir+= subnamespace + os.sep
+                self.mkpath( namespacedir )
             
                 # Create __init__.py in each subnamespace
-                newfile=joindir(namespacedir, '__init__.py')
-                f=open(newfile, 'w')
-                self.outfiles.append(newfile)
-                f.write("#Automatically generated file. Do not edit this file !")
-                f.close()
+                newfile= joindir( namespacedir, '__init__.py' )
+                if not os.path.exists( newfile ):
+                   f= open( newfile, 'w' )
+                   f.write("# Automatically generated file.")
+                   f.close()
+                self.outfiles.append( newfile )
             
         
 
-#####################################################################################
+###############################################################################
+# Install commands
 
 class distx_install(install):
-    """Main install command which extend default install command with distx specific actions"""
+    """
+    Main install command which extends default install command with
+    distx specific actions.
+    """
     
     def initialize_options (self):
         install.initialize_options(self)
@@ -249,29 +283,35 @@ class distx_install(install):
     
     # Define sub command
     sub_commands = []
-    sub_commands.extend(install.sub_commands)
-    sub_commands.append(('install_external_data', has_external_data))
-    sub_commands.append(('set_env_var', has_env_var))
+    sub_commands.extend( install.sub_commands )
+    sub_commands.append( ( 'install_external_data', has_external_data ) )
+    sub_commands.append( ( 'set_env_var', has_env_var ) )
 
 
     # Define user options
     user_options = []
     user_options.extend(install.user_options)
-    user_options.append( ('external-prefix=' , None, "Prefix directory to install external data..."))
+    user_options.append( ('external-prefix=',
+                          None,
+                          'Prefix directory to install external data.') )
     
 
 
 class install_external_data(Command):
-    """install_external_data Command install external data (libraries, include, documentation...)"""
+    """
+    Install external data (libraries, includes, documentation, ...).
+    """
 
-    description = "Install external data"
+    description= "Install external data"
 
     # Specific user options
-    user_options = [
-	('external-prefix=' , None, "Prefix directory to install external data..."),
-        ('force', 'f', "force installation (overwrite existing files)"),
-        
-    ]
+    user_options= []
+    user_options.append(( 'external-prefix=',
+                          None,
+                          'Prefix directory to install external data.' ))
+    user_options.append(( 'force',
+                          'f',
+                          'Force installation (overwrite existing files).' ))
 
     boolean_options = ['force']
 
@@ -282,6 +322,7 @@ class install_external_data(Command):
         self.root=None
         self.force = 0
 
+
     def finalize_options (self):
         self.set_undefined_options('install',
                                    ('external_prefix', 'external_prefix'),
@@ -289,19 +330,18 @@ class install_external_data(Command):
                                    ('force', 'force'),
                                   )
         
-        self.external_data = self.distribution.external_data
+        self.external_data= self.distribution.external_data
 
         # We use openalea external prefix if no prefix specified
-        if(not self.external_prefix):
+        if( not self.external_prefix ):
             try:
                 import openalea
-                print 'USE OpenAlea config for external_prefix.'
-                self.external_prefix=openalea.config.prefix_dir
+                print 'INFO: Use OpenAlea prefix for external_prefix.'
+                self.external_prefix= openalea.config.prefix_dir
             except ImportError:
-                print "!!ERROR :  OpenAlea config not found. Use --external-prefix option instead\n";
+                print "!!ERROR: OpenAlea config not found. Use --external-prefix option instead.\n"
                 sys.exit(1)
             
-        
 
     def run (self):
         """Run install command"""
@@ -309,13 +349,15 @@ class install_external_data(Command):
             self.copy_external_data()
 
 
-    def copy_data_tree (self, src, dst, exclude_pattern=['(RCS|CVS|\.svn)', ".*\~"]):
-       """Copy an entire directory tree 'src' to a new location 'dst'.
-       @param exclude_pattern : a list of pattern to exclude"""
+    def copy_data_tree (self, src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
+       """
+       Copy an entire directory tree 'src' to a new location 'dst'.
+       @param exclude_pattern: a list of pattern to exclude.
+       """
    
-       names = os.listdir(src)
+       names= os.listdir(src)
        mkpath(dst)
-       outfiles=[]
+       outfiles= []
 
        for p in exclude_pattern:
           names=filter( lambda x: not(re.match(p, x)) , names)
@@ -336,37 +378,36 @@ class install_external_data(Command):
   
 
     def copy_external_data (self):
-        """Copy external Data from build directory to final directory"""
+        """
+        Copy external data to final directory.
+        """
+        print "Install external data ", 
 
-        print "Install external data", 
-	if(self.external_prefix and self.external_prefix!=""):
-            self.external_prefix=os.path.normpath(self.external_prefix)
+	if( self.external_prefix ):
+            self.external_prefix= os.path.normpath(self.external_prefix)
             print "with prefix : ", self.external_prefix
         
         self.outfiles = []
 
 	for (dest, src) in self.external_data.items():
-		try:
+            try:
                     
-                    # Define destination directory
-		    if(self.external_prefix and not os.path.isabs(dest)):
-	                    dest=joindir(self.external_prefix,dest)
+                # Define destination directory
+                if(self.external_prefix and not os.path.isabs(dest)):
+                    dest=joindir(self.external_prefix,dest)
 
-                    dest=os.path.normpath(dest)
-                    
+                dest=os.path.normpath(dest)
                                    
-                    # Define root directory (for bdist compatibility)
-                    if self.root : dest = change_root(self.root, dest)
+                # Define root directory (for bdist compatibility)
+                if self.root:
+                    dest= change_root(self.root, dest)
                     
-                    mkpath(dest)
+                mkpath(dest)
 
-                    self.outfiles+=self.copy_data_tree(src, dest)
+                self.outfiles+= self.copy_data_tree(src, dest)
 
-		except Exception, i:
-			print i
-
-
-
+             except Exception, i:
+                print i
 
 
     def get_inputs (self):
@@ -378,41 +419,43 @@ class install_external_data(Command):
 
 
 class set_env_var (Command):
-    """Set environment variable on windows platform"""
+    """
+    Set environment variable on windows platform.
+    set_env_var=[ 'PATH=C:\lib', 'FOO=C:\foo\' ]:
+      - Add C:\lib to PATH environment variable.
+      - For other variables, create or replace the value.
+    """
     
     description = "Set environment variable on windows platform"
     
     user_options=[]
 
     def initialize_options (self):
-       self.set_env_var=None
+       self.set_env_var= None
         
     def finalize_options (self):
-        
-       self.set_env_var=self.distribution.set_env_var
+       self.set_env_var= self.distribution.set_env_var
 
-        
+
     def run (self):
-       if('win' in sys.platform ):
-
+       if( 'win' in sys.platform ):
           for v in self.set_env_var:
              self.add_env_var(v)
 
 
     def add_env_var(self, newvar):
-       """Update any environment variable persistently by changing windows registry
+       """
+       Update any environment variable persistently by changing windows registry.
        @param newvar : a string like 'var=value'
-       if 'var' == 'PATH', then 'value' is added to Path
        """
 
+       from string import find
        try:
           import _winreg 
-          import os, sys
-          from string import find
 
-       except Exception, e:
+       except ImportError, e:
+          print "!!ERROR: Can not access to Windows registery."
           return
-    
 
        def queryValue(qkey, qname):
           qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
@@ -422,32 +465,30 @@ class set_env_var (Command):
        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
        key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
         
-       name, value = newvar.split('=')
+       name, value= newvar.split('=')
 
        # Specific treatment for PATH variable
        if name.upper() == 'PATH':
-          value=os.path.normpath(value)
-          actualpath = queryValue(key, name)
+          value= os.path.normpath(value)
+          actualpath= queryValue(key, name)
           
-          listpath=actualpath.split(';')                
-          if(not value in listpath):
+          listpath= actualpath.split(';')                
+          if not (value in listpath):
              value= actualpath + ';' + value
-             print "ADD to PATH :", value
+             print "ADD %s to PATH" % (value,)
           else :
              value= actualpath
             
           if value:
              _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-        
 
        _winreg.CloseKey(key)    
        _winreg.CloseKey(reg)                        
 
-        
+ 
 
-##########################################################
+################################################################################
 
-from distutils.util import get_platform
 from distutils.command.bdist_rpm import bdist_rpm
 
 class distx_bdist_rpm(bdist_rpm):
@@ -466,7 +507,9 @@ from distutils.command.sdist import sdist
 
 
 class distx_sdist (sdist):
-    """sdist command : add external data"""
+    """
+    Add external data in source distribution.
+    """
     
     def add_defaults (self):
         sdist.add_defaults(self)
@@ -474,20 +517,23 @@ class distx_sdist (sdist):
         
 
     def get_all_files(self, basedir):
-
-        ldir=[]
+        """
+        Return all the files under the base directory.
+        """
+        files= []
         for f in os.listdir(basedir):
-           longf=joindir(basedir,f)
-           if os.path.isdir(longf):
-              ldir+=self.get_all_files( longf)
+           f= joindir( basedir, f )
+           if os.path.isdir( f ):
+              files+= self.get_all_files( f )
            else:
-              ldir.append(os.path.normpath(longf))
+              files.append( os.path.normpath( f ) )
+        return dir
 
-        filter(os.path.isfile, ldir)
-        return ldir
 
     def prune_file_list (self):
-        """exclude files before generating MANIFEST"""
+        """
+        Exclude files before generating MANIFEST.
+        """
         sdist.prune_file_list (self)
         self.filelist.exclude_pattern(r'/(RCS|CVS|\.svn)/.*', is_regex=1)
         self.filelist.exclude_pattern(r'.*\~', is_regex=1)
@@ -496,52 +542,54 @@ class distx_sdist (sdist):
         self.filelist.exclude_pattern(r'dist', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.so$', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.dll$', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.pyd$', is_regex=1)
+        self.filelist.exclude_pattern(r'.*\.pyo$', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.pyc$', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.os$', is_regex=1)
         
 
-# Import extern class for bdist_wininst
-from distx_wininst import *
 
-        
+################################################################
+
 class DistxDistribution(Distribution):
-    """Main installation class
-    Define association between command string and command classes
-    and define setup extended parameters
     """
+    Main distribution class.
+    Defines association between command strings and command classes
+    and extend setup parameters.
+    """
+    
     def __init__(self,attrs=None):
-        self.external_data  = None
-        self.namespace=None
-        self.scons_scripts  = None
-        self.scons_parameters = None
-        self.set_env_var=None
+        self.external_data= None
+        self.namespace= None
+        self.scons_scripts= None
+        self.scons_parameters= None
+        self.set_env_var= None
 
         Distribution.__init__(self,attrs)
         
-                    
-        self.cmdclass = { 'install_external_data':install_external_data,
+        self.cmdclass = { 'install_external_data' : install_external_data,
                           'set_env_var' : set_env_var,
-                          'install':distx_install,
-                          'build_scons':build_scons,
-                          'build_namespace': build_namespace, 
-                          'build':distx_build,
-                          'bdist_wininst':distx_bdist_wininst,
-                          'bdist_rpm':distx_bdist_rpm,
-                          'sdist':distx_sdist,
+                          'install' : distx_install,
+                          'build_scons' : build_scons,
+                          'build_namespace' : build_namespace, 
+                          'build' : distx_build,
+                          'bdist_wininst' : distx_bdist_wininst,
+                          'bdist_rpm' : distx_bdist_rpm,
+                          'sdist' : distx_sdist,
                          }
 
     def has_external_data(self):
-        return self.external_data and len(self.external_data.items()) > 0
+        return bool(self.external_data)
 
     def has_env_var(self):
-        return self.set_env_var and len(self.set_env_var) > 0
+        return bool(self.set_env_var)
 
     def has_namespace(self):
-        return self.namespace and len(self.namespace) > 0
+        return bool(self.namespace)
 
 
     def has_scons_scripts(self):
-        return self.scons_scripts and len(self.scons_scripts) > 0
+        return bool(self.scons_scripts)
 
 
 def setup(**attrs):
@@ -549,10 +597,3 @@ def setup(**attrs):
     from distutils.core import setup
     attrs['distclass'] = DistxDistribution
     setup(**attrs)
-
-
-
-
-        
-
-    
