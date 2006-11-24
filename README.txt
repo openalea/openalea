@@ -1,14 +1,10 @@
-====== SConsX ======
+SConsX
+======
 
-**Authors** : Christophe Pradal, Samuel Dufour-Kowalski
+You can read an update version of this file on the OpenAlea Website
+(see http://openalea.gforge.inria.fr).
 
-**Contributors** : Pierre Barbier de Reuille
-
-**Institutes** : CIRAD, INRIA
-
-**Status** : Pure Python Package
-
-**License** : Cecill-C
+SConsX is a package of the OpenAlea project.
 
 ===== About =====
 
@@ -79,25 +75,17 @@ SConsX is available on the [[http://gforge.inria.fr/projects/openalea/|GForge re
 === Requirements ===
 
 There are two requirements:
-  * [[http://www.scons.org|SCons]]
-  * Optional: [[http://www.jorendorff.com/articles/python/path/|path.py]]
+  * SCons (http://www.scons.org) version >= 0.96.93
+  * OpenAlea.DistX 
 
 === Installation ===
 
-<code bash>
-python setup.py install
-</code>
+Extract the tarball, jump into the created directory and run :
 
-===== Future directions =====
+	python setup.py install
 
-  * Finalize high level functions for OpenAlea developpers that build automagically all the files in a specific location:
-    * **ALEALibrary**
-    * **ALEAWrapper**
-    * **ALEAProgram**
-    * **ALEAIncludes**
-    * **ALEAPython**
+For installation options, see :
 
-  * Submit this package to SCons users and developpers for improvement.
-  * Add more tools and more compilers.
+	python setup.py install --help
 
 
