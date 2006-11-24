@@ -51,6 +51,7 @@ setup(name= name,
       author= author,
       author_email= author_email,
       license=license,
+      namespace=[namespace],
       packages= [ "openalea.sconsx", "openalea.sconsx.tools" ],
       package_dir= { pkg_name : 'src'}
       )
