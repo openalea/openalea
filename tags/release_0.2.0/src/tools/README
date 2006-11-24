@@ -1,0 +1,36 @@
+# Scons tool
+
+Tools to add:
+
+compiler.py: specific flags (debug, warning, ...)
+install.py: install directory
+build.py: build directory
+
+tools:
+OK   + readline
+OK   + termcap
+OK   + pthread
+OK   + bison
+OK   + flex
+OK   + gnuplot
+OK   + openGL
+OK   + python
+OK   + boost
+OK   + qt
+   + pyste
+
+advanced tools:
+   + AMAPmod
+   + ALEA
+
+TODO
+
+* AMAPmod: Add help for real targets (aml, viewer, libaml)
+* Finish tools (lex, yacc)
+* update environ for each tools
+* test with AMAPmod
+* option_linux.py
+* create environ.py with install, debug, shared and so on. (dsp)
+* when AMAPmod compile on Linux, try on windows
+* option_windows.py
+* ...
