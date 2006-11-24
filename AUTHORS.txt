@@ -1,2 +1,2 @@
-Samuel Dufour-Kowalski
-Christophe Pradal
+Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+Christophe Pradal <christophe.pradal@cirad.fr>

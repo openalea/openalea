@@ -1,3 +1,2 @@
-14/11/06 : Add bdist_wininst capabilities
-13/11/06 : change scons_dir parameter to scons_scripts
-10/11/06 : First release
+20/11/06 : First tag 0.0.1
+10/11/06 : First implementation
