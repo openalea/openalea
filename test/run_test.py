@@ -18,7 +18,7 @@ os.system("rm -Rf build")
 os.system("python setup.py build_scons")
 raw_input()
 
-print "python setup.py build_scons --scons-ext-param='test=t test2=t2'"
+print "python setup.py build_scons --scons-ext-param=test=t test2=t2"
 os.system("rm -Rf build")
 os.system("python setup.py build_scons --scons-ext-param='test=t test2=t2'")
 raw_input()
