@@ -1,7 +1,25 @@
 # -*-python-*-
-# OpenAlea configure environment
-# Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: CECILL-C
+#--------------------------------------------------------------------------------
+#
+#       OpenAlea.SConsX: SCons extension package for building platform
+#                        independant packages.
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+#--------------------------------------------------------------------------------
+
+__doc__=""" OpenAlea configure environment. """
+__license__= "Cecill-C"
+__revision__="$Id: $"
 
 import os, sys
 from openalea.sconsx.config import *
@@ -37,14 +55,14 @@ class Alea:
 
       opts.Add( PathOption( 'openalea_lib', 'OpenAlea lib directory', 
                             self._default[ 'openalea_lib' ] ) )
-      opts.Add( PathOption( 'openalea_include', 'OpenAlea include directory', 
+      opts.Add( PathOption( 'openalea_includes', 'OpenAlea include directory', 
                             self._default[ 'openalea_include' ] ) )
 
 
    def update( self, env ):
       """ Update the environment with specific flags """
 
-      env.AppendUnique( CPPPATH= [ env['openalea_include'] ] )
+      env.AppendUnique( CPPPATH= [ env['openalea_includes'] ] )
       env.AppendUnique( LIBPATH= [ env['openalea_lib'] ] )
 
       #env.EnableALEALib= _EnableALEALib

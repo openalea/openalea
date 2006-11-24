@@ -1,8 +1,34 @@
 # -*-python-*-
+#--------------------------------------------------------------------------------
+#
+#       OpenAlea.SConsX: SCons extension package for building platform
+#                        independant packages.
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#                       Pierre Barbier de Reuille <pierre.barbier@sophia.inria.fr>
+#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+#--------------------------------------------------------------------------------
 
-# AMAPmod SCons build script
-# Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: CECILL-C
+__doc__="""
+This module add some facilities to simplify the SConscript files to
+the minimum.  It contains wrapper functions that extend the SCons
+environment and abstract the operating system.
+
+Each function defines or populate global aliases like build or install.
+"""
+
+__license__= "Cecill-C"
+__revision__="$Id: $"
+
 
 #from path import path
 from SCons.Script.SConscript import SConsEnvironment, DefaultEnvironmentCall
@@ -14,6 +40,11 @@ Alias = DefaultEnvironmentCall( "Alias" )
 
 
 def ALEALibrary( env, target, source, *args, **kwds ):
+  """
+  Build static or dynamic library depending on user flags.
+  Install the build library and associated files in specific directories.
+  Define 'build' and 'install' target.
+  """
   if env[ "static" ]:
     lib = env.StaticLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   else:
@@ -28,6 +59,10 @@ def ALEALibrary( env, target, source, *args, **kwds ):
   return ( lib, inst_lib )
 
 def ALEAIncludes( env, target, includes, *args, **kwds ):
+  """
+  Install the headers in the directory .../include/mypackage
+  Define 'build' and 'install' target.
+  """
   inc = env.Install( "$build_includedir/$package_name", includes, *args, **kwds )
   env.Alias( "build", inc )
   inst_inc = env.Install( "$includedir/$package_name", includes, *args, **kwds )
@@ -35,6 +70,9 @@ def ALEAIncludes( env, target, includes, *args, **kwds ):
   return ( inc, inst_inc )
 
 def ALEAProgram( env, target, source, *args, **kwds ):
+  """
+  Build a program and install it in local and system directories.
+  """
   bin = env.Program( "$build_bindir/%s" % ( target, ), source, *args, **kwds )
   Alias( "build", bin )
   inst_bin = env.Install( "$bindir", bin )
@@ -42,12 +80,18 @@ def ALEAProgram( env, target, source, *args, **kwds ):
   return ( bin, inst_bin )
 
 def ALEAWrapper( env, python_dir, target, source, *args, **kwds ):
+  """
+  Build a python wrapper and install it in a python package.
+  """
   real_target = "%s/%s" % ( str( env.Dir( python_dir ).srcnode() ), target )
   wrap = env.SharedLibrary( real_target, source, SHLIBPREFIX='', *args, **kwds )
   Alias( "build", wrap )
   return wrap
 
 ## def ALEAPython( env, python_dir, depends = [], *args, **kwds ):
+##   """
+##   Install recursively python package and data.
+##   """
 ##   p = env.Dir( python_dir ).srcnode()
 ##   base = "$pythondir/$package_name"
 ##   base_py = len( path( python_dir ).abspath() )

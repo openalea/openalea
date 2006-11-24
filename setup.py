@@ -27,7 +27,7 @@ Scons Configuration Utilities for OpenAlea.
 
 SConsX is a set of tools to enhance multi platform configuration,
 build and installation.
-This package extend scons with:
+This package extends scons with:
     * automatic dependency between tools,
     * default path for library depending on the platform ( Linux, Windows or Cygwin )
     * automatic option settings
