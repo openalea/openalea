@@ -1,7 +1,28 @@
-# -*-python-*-
-# AMAPmod SCons build script
-# Author: Christophe Pradal ( christophe.pradal@cirad.fr )
-# Licence: CECILL-C
+# -*- python -*-
+#--------------------------------------------------------------------------------
+#
+#       OpenAlea.SConsX: SCons extension package for building platform
+#                        independant packages.
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#                       Pierre Barbier de Reuille <pierre.barbier@sophia.inria.fr>
+#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+#--------------------------------------------------------------------------------
+
+__license__= "Cecill-C"
+__revision__="$Id: $"
+
+__doc__=""" See OpenAlea WebSite / Packages / SConsX """
+
 
 import os, sys
 import string
@@ -16,9 +37,7 @@ from SCons.Environment import Environment
 from SCons.Builder import Builder
 from SCons.Node.FS import Dir, File
   	 
-
- 
-#----------------------------------
+#--------------------------------------------------------------------------------
 # Errors
 
 class ToolNotFound( UserWarning ): 
@@ -27,11 +46,21 @@ class ToolNotFound( UserWarning ):
 class CircularDependency( Exception ):
     pass
 
-#----------------------------------
-# Utils
+
+#--------------------------------------------------------------------------------
+# Global Path settings
+
+tool_path= os.path.join( getLocalPath() , 'tools' )
+sys.path= [tool_path] + sys.path
+
+
+#--------------------------------------------------------------------------------
+# Utilitaries
 
 def import_tool( name, import_dir ):
-
+    """
+    Import a module based on its name from a list of directories.
+    """
     old_syspath= sys.path
 
     if tool_path not in sys.path: 
@@ -64,8 +93,9 @@ def getLocalPath():
    """ Return the absolute path of this package """
    return os.path.dirname( __file__ )
 
-#---------------------------------------
-# Method to compile bison and flex files
+
+#--------------------------------------------------------------------------------
+# Method to build bison and flex files for AMAPmod software
 
 def BisonFlex( env, bison, flex, prefix ):
   """ Smart autoscan function. """
@@ -90,14 +120,9 @@ def BisonFlex( env, bison, flex, prefix ):
   return targets
 
 
-#----------------------------------
-# Path setting
-
-tool_path= os.path.join( getLocalPath() , 'tools' )
-sys.path= [tool_path] + sys.path
 
 #----------------------------------
-# Platform
+# Platform class
 
 class Platform( object ):
    def __init__( self ):
@@ -127,8 +152,11 @@ class Win32( Platform ):
    def __init__( self ):
       self.name= "win32"
 
-# factory
+
 def GetPlatform():
+    """
+    Factory function returning the correct platform instance.
+    """
    osname = os.name.lower()
    pfname = sys.platform.lower()
 
@@ -146,12 +174,15 @@ def GetPlatform():
    elif(osname == "nt" and pfname== "win32"):
      return Win32()
    else:
-     raise "Unknown Platform (%s,%s)"%(osname,pfname)
+     raise "Unknown Platform (%s,%s)" % (osname,pfname)
 
 # Create a static instance ... 
 # ( very pythonic way, isn't it? )
+
 platform= GetPlatform()
 
+
+#--------------------------------------------------------------------------------
 # User Configuration class
 
 default_tools= [ 'compiler', 'builddir' ]
@@ -172,7 +203,10 @@ class Config( object ):
 
 
     def add_tool( self, tool ):
-        """ Add a tool. """
+        """
+        Add a specific tool and its dependencies recursively in the tool set.
+        Check the circular dependencies.
+        """
 
         if tool in self.tools:
             return
@@ -196,11 +230,11 @@ class Config( object ):
         """
         Add each tool options
         """
-
         opts= Options( *args, **kwds )
         self.UpdateOptions( opts )
 
         return opts
+
 
     def UpdateOptions( self, opts ):
         for tool in self.tools:
@@ -211,7 +245,6 @@ class Config( object ):
         """
         Configure each tools
         """
-
         # Create Configure
         self.conf= SConf( env, self.custom_tests )
 
@@ -232,14 +265,17 @@ class Config( object ):
             tool.update( env )
 
 
-class ALEAConfig( Config ):
-   def __init__( self, package_name, *args, **kwds ):
-      Config.__init__( self, *args, **kwds )
-      self.package_name = package_name
+#--------------------------------------------------------------------------------
+# Specific OpenAlea facilities.
 
-   def Update( self, env ):
-      Config.Update( self, env )
-      env[ "package_name" ] = self.package_name
+class ALEAConfig( Config ):
+    def __init__( self, package_name, *args, **kwds ):
+        Config.__init__( self, *args, **kwds )
+        self.package_name = package_name
+
+    def Update( self, env ):
+        Config.Update( self, env )
+        env[ "package_name" ] = self.package_name
 
 
 def ALEAEnvironment( conf, *args, **kwds ):
