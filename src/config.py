@@ -47,12 +47,6 @@ class CircularDependency( Exception ):
     pass
 
 
-#--------------------------------------------------------------------------------
-# Global Path settings
-
-tool_path= os.path.join( getLocalPath() , 'tools' )
-sys.path= [tool_path] + sys.path
-
 
 #--------------------------------------------------------------------------------
 # Utilitaries
@@ -92,6 +86,13 @@ def exist(s,path):
 def getLocalPath():
    """ Return the absolute path of this package """
    return os.path.dirname( __file__ )
+
+
+#--------------------------------------------------------------------------------
+# Global Path settings
+
+tool_path= os.path.join( getLocalPath() , 'tools' )
+sys.path= [tool_path] + sys.path
 
 
 #--------------------------------------------------------------------------------
@@ -157,24 +158,24 @@ def GetPlatform():
     """
     Factory function returning the correct platform instance.
     """
-   osname = os.name.lower()
-   pfname = sys.platform.lower()
+    osname = os.name.lower()
+    pfname = sys.platform.lower()
 
-   if osname == "posix" :
-     if pfname.find( "linux" ) >= 0 :
-         return Linux()
-     elif pfname.find( "cygwin" ) >= 0 :
-         return Cygwin()
-     elif pfname.find( "darwin" ) >= 0 :
-         return Darwin()
-     elif pfname.find( "irix" ) >= 0 :
-         return Irix()
-     else:
-         return Posix()
-   elif(osname == "nt" and pfname== "win32"):
-     return Win32()
-   else:
-     raise "Unknown Platform (%s,%s)" % (osname,pfname)
+    if osname == "posix" :
+        if pfname.find( "linux" ) >= 0 :
+            return Linux()
+        elif pfname.find( "cygwin" ) >= 0 :
+            return Cygwin()
+        elif pfname.find( "darwin" ) >= 0 :
+            return Darwin()
+        elif pfname.find( "irix" ) >= 0 :
+            return Irix()
+        else:
+            return Posix()
+    elif(osname == "nt" and pfname== "win32"):
+        return Win32()
+    else:
+        raise "Unknown Platform (%s,%s)" % (osname,pfname)
 
 # Create a static instance ... 
 # ( very pythonic way, isn't it? )

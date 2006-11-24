@@ -35,8 +35,8 @@ class Flex:
    def default( self ):
 
       if isinstance( platform, Win32 ):
-         self._default[ 'bin' ]= pj( 'C:\', 'Tools', 'Bin' )
-         self._default[ 'lib' ]= pj( 'C:\', 'Tools', 'Bin' )
+         self._default[ 'bin' ]= pj( 'C:\\', 'Tools', 'Bin' )
+         self._default[ 'lib' ]= pj( 'C:\\', 'Tools', 'Bin' )
       elif isinstance( platform, Posix ):
          self._default[ 'bin' ]= '/usr/bin'
          self._default[ 'lib' ]= '/usr/lib'
