@@ -247,10 +247,12 @@ class build_namespace (Command):
                 # Create directory
                 namespacedir+= subnamespace + os.sep
                 self.mkpath( namespacedir )
-            
+                print "creating %s" % (namespacedir,)
+                
                 # Create __init__.py in each subnamespace
                 newfile= joindir( namespacedir, '__init__.py' )
                 if not os.path.exists( newfile ):
+                   print "creating %s" % (newfile,)
                    f= open( newfile, 'w' )
                    f.write("# Automatically generated file.")
                    f.close()
@@ -372,7 +374,7 @@ class install_external_data(Command):
 
           else:
              copyfile(src_name, dst_name)
-             outfiles.append(src_name)
+             outfiles.append(dst_name)
 
        return outfiles
   
@@ -390,31 +392,32 @@ class install_external_data(Command):
         self.outfiles = []
 
 	for (dest, src) in self.external_data.items():
-            try:
+           try:
                     
-                # Define destination directory
-                if(self.external_prefix and not os.path.isabs(dest)):
-                    dest=joindir(self.external_prefix,dest)
+              # Define destination directory
+              if(self.external_prefix and not os.path.isabs(dest)):
+                 dest=joindir(self.external_prefix,dest)
 
-                dest=os.path.normpath(dest)
+              dest=os.path.normpath(dest)
                                    
-                # Define root directory (for bdist compatibility)
-                if self.root:
-                    dest= change_root(self.root, dest)
+              # Define root directory (for bdist compatibility)
+              if self.root:
+                 dest= change_root(self.root, dest)
                     
-                mkpath(dest)
+              mkpath(dest)
 
-                self.outfiles+= self.copy_data_tree(src, dest)
+              self.outfiles+= self.copy_data_tree(src, dest)
 
-             except Exception, i:
-                print i
+           except Exception, i:
+              print i
+
 
 
     def get_inputs (self):
-        return self.distribution.external_data or []
+        return self.distribution.external_data
 
     def get_outputs(self):
-        return self.outfiles or []
+        return self.outfiles
         
 
 
@@ -483,7 +486,11 @@ class set_env_var (Command):
              _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
 
        _winreg.CloseKey(key)    
-       _winreg.CloseKey(reg)                        
+       _winreg.CloseKey(reg)
+
+    def get_outputs(self):
+        return []
+
 
  
 
@@ -515,7 +522,6 @@ class distx_sdist (sdist):
         sdist.add_defaults(self)
         self.filelist.extend(self.get_all_files(os.curdir))
         
-
     def get_all_files(self, basedir):
         """
         Return all the files under the base directory.
@@ -527,7 +533,7 @@ class distx_sdist (sdist):
               files+= self.get_all_files( f )
            else:
               files.append( os.path.normpath( f ) )
-        return dir
+        return files
 
 
     def prune_file_list (self):
@@ -535,11 +541,11 @@ class distx_sdist (sdist):
         Exclude files before generating MANIFEST.
         """
         sdist.prune_file_list (self)
-        self.filelist.exclude_pattern(r'/(RCS|CVS|\.svn)/.*', is_regex=1)
+        self.filelist.exclude_pattern(r'(RCS|CVS|\.svn)/.*', is_regex=1)
         self.filelist.exclude_pattern(r'.*\~', is_regex=1)
         self.filelist.exclude_pattern(r'^(.+/)*\..*', is_regex=1)
-        self.filelist.exclude_pattern(r'build', is_regex=1)
-        self.filelist.exclude_pattern(r'dist', is_regex=1)
+        self.filelist.exclude_pattern(r'build.*/', is_regex=1)
+        self.filelist.exclude_pattern(r'dist/', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.so$', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.dll$', is_regex=1)
         self.filelist.exclude_pattern(r'.*\.pyd$', is_regex=1)

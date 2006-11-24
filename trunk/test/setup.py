@@ -32,7 +32,8 @@ from os.path import join as pj
 name= 'distx_tester'
 
 #openalea namespace
-namespace=config.namespace 
+namespace=config.namespace
+#namespace="mynamespace"
 
 # Package version policy
 # major.minor.patch
@@ -78,6 +79,8 @@ setup(
     scons_scripts = ['SConstruct'],
     #scons parameters  
     scons_parameters = ['lib_dir=lib'],
+
+    namespace=[namespace],
       
     #pure python  packages
     packages= [namespace+'.'+name],
