@@ -1,14 +1,15 @@
+# -*- python -*-
 import os, sys
 
-import scons_util
-from scons_util.config import *
+import openalea.sconsx
+from openalea.sconsx.config import *
 
 env= Environment()
 
-conf= Config( [ 'boost_python', 'opengl', 'qt', 'readline', 'termcap', 
+conf= Config( [ 'boost_python', 'opengl', 'qt', 
                 'bison', 'flex', 'gnuplot', 'install' ] )
 
-#print conf
+print conf
 
 # Set tools options
 opts= conf.Options( 'options.py', ARGUMENTS )
@@ -23,7 +24,10 @@ opts.Update(env)
 conf.Update( env )
 
 # Configure each tools
-conf.Configure( env )
+configure= ARGUMENTS.get('configure','0')
+
+if configure:
+    conf.Configure( env )	
 
 #X def configure( target= None, source= None, env= None ):
 #X     print target
