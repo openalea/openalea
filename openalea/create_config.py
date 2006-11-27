@@ -1,5 +1,23 @@
-"""
+# -*- coding: cp1252 -*-
+################################################################################
+# -*- python -*-
+#
+#       OpenAlea :  OpenAlea main package
+#
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#          http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+################################################################################
 
+__revision__=" $Id$ "
+__license__="Cecill-C"
+
+__doc__="""
 Create a python module which provide precise description of where
 files have to be or had been installed.
 Thus, the configuration is not hard coded, but depends on the
@@ -48,7 +66,7 @@ class Config(object):
     Platform independant configuration information and utilities.
     """
     namespace= 'openalea'
-    version= '0.0.2'
+    version= '0.1.0'
     
     lib_dir='lib'
     include_dir='include'
