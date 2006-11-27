@@ -1,4 +1,4 @@
-OpenAlea main package
+﻿OpenAlea main package
 ---------------------
 
 Authors : OpenAlea consortium
@@ -7,7 +7,7 @@ Institutes : INRIA, CIRAD
 
 Status : Python package
 
-License : LGPL
+License : Cecill-C
 About
 
 OpenAlea package defines :
@@ -20,12 +20,20 @@ This package is necessary to install other openalea packages, but doesn’t prov
 Requirements
 ------------
 
-OpenAlea have no requirement (it defines only basic configuration).
+Python >= 2.3
+
+OpenAlea have no other requirement (it defines only basic configuration).
 
 However, other packages will depend on this package.
 
-Installation
-------------
+
+Quick install
+-------------
+
+
+
+Custom install
+--------------
 
 The create_config.py script create system configuration file. 
 You can specify the OpenAlea directory with the --prefix option.
@@ -33,8 +41,10 @@ You can specify the OpenAlea directory with the --prefix option.
 python create_config.py [--prefix=openalea_dir]
 python setup.py install
 
-Quick Example
--------------
+
+
+How to use OpenAlea configuration
+------------------------
 
 from openalea import config 
  
