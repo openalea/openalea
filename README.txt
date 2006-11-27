@@ -1,4 +1,4 @@
-﻿OpenAlea main package
+OpenAlea main package
 ---------------------
 
 Authors : OpenAlea consortium
@@ -30,7 +30,7 @@ However, other packages will depend on this package.
 Quick install
 -------------
 
-
+Execute the install.py script. It will lauch a graphical dialog to configure OpenAlea and install it.
 
 Custom install
 --------------
