@@ -81,7 +81,8 @@ setup(
     scons_parameters = ['lib_dir=lib'],
 
     namespace=[namespace],
-      
+
+    
     #pure python  packages
     packages= [namespace+'.'+name],
     #python packages directory

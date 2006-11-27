@@ -68,12 +68,14 @@ class distx_build(build):
 	self.scons_ext_param= ""  # None value are not accepted
 	self.scons_path= None     # Scons path
 
+
     def has_scons_scripts(self):
         return self.distribution.has_scons_scripts()
     
+
     def has_namespace(self):
         return self.distribution.has_namespace()
-    
+
     # Sub Commands
     sub_commands = []
     sub_commands.append( ('build_scons', has_scons_scripts) )
@@ -90,6 +92,8 @@ class distx_build(build):
                            None,
                            'Optional scons executable path.'
                            'eg : C:\Python24\scons.bat for windows.' ) )
+
+    
 
 
 ################################################################################
@@ -209,13 +213,14 @@ class build_namespace (Command):
     # No specific user options
     user_options=[] 
 
+
     def initialize_options (self):
         # Namespace name
         self.namespace=None 
         self.build_dir=None
-        self.outfiles =None
-
+        self.outfiles=[]
         
+
     def finalize_options (self):
         # Set default values
         self.set_undefined_options('build',
@@ -225,8 +230,12 @@ class build_namespace (Command):
 
 
     def get_source_files(self):
-        return []
+       return []
         
+
+    def get_outputs(self):
+       return self.outfiles
+
 
     def run (self):
         """
@@ -254,16 +263,19 @@ class build_namespace (Command):
                 if not os.path.exists( newfile ):
                    print "creating %s" % (newfile,)
                    f= open( newfile, 'w' )
+                   f.write("# -*- python -*-")
                    f.write("# Automatically generated file.")
                    f.close()
                 self.outfiles.append( newfile )
+               
+    
             
         
 
 ###############################################################################
 # Install commands
 
-class distx_install(install):
+class distx_install (install):
     """
     Main install command which extends default install command with
     distx specific actions.
@@ -273,19 +285,27 @@ class distx_install(install):
         install.initialize_options(self)
 	self.external_prefix = None
 		
+
     def finalize_options (self):
 	install.finalize_options(self)
 
-    def has_external_data(self):
+
+    def has_namespace (self):
+        return self.distribution.has_namespace()
+
+
+    def has_external_data (self):
         return self.distribution.has_external_data()
 
-    def has_env_var(self):
+
+    def has_env_var (self):
         return self.distribution.has_env_var()
 
     
     # Define sub command
     sub_commands = []
     sub_commands.extend( install.sub_commands )
+    sub_commands.append( ( 'install_namespace', has_namespace ) )
     sub_commands.append( ( 'install_external_data', has_external_data ) )
     sub_commands.append( ( 'set_env_var', has_env_var ) )
 
@@ -296,7 +316,44 @@ class distx_install(install):
     user_options.append( ('external-prefix=',
                           None,
                           'Prefix directory to install external data.') )
+
+
+class install_namespace(Command):
+    """
+    Install pure namespace
+    """
     
+    description = "install namespace"
+
+    user_options = [('install-dir=', None, "directory to install namespaces to")]
+
+    boolean_options = []
+
+
+    def initialize_options (self):
+        self.install_dir = None
+        self.force = 0
+        self.build_dir = None
+        self.skip_build = None
+
+
+    def finalize_options (self):
+        self.set_undefined_options('build', ('build_lib', 'build_dir'))
+        self.set_undefined_options('install',
+                                   ('install_lib', 'install_dir'),
+                                   ('force', 'force'),
+                                   ('skip_build', 'skip_build'),
+                                  )
+
+    def run (self):
+        if not self.skip_build:
+            self.run_command('build_namespace')
+        
+        self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
+
+
+    def get_outputs(self):
+        return self.outfiles or []
 
 
 class install_external_data(Command):
@@ -416,6 +473,7 @@ class install_external_data(Command):
     def get_inputs (self):
         return self.distribution.external_data
 
+
     def get_outputs(self):
         return self.outfiles
         
@@ -436,6 +494,7 @@ class set_env_var (Command):
     def initialize_options (self):
        self.set_env_var= None
         
+
     def finalize_options (self):
        self.set_env_var= self.distribution.set_env_var
 
@@ -522,6 +581,7 @@ class distx_sdist (sdist):
         sdist.add_defaults(self)
         self.filelist.extend(self.get_all_files(os.curdir))
         
+
     def get_all_files(self, basedir):
         """
         Return all the files under the base directory.
@@ -576,7 +636,8 @@ class DistxDistribution(Distribution):
 
         Distribution.__init__(self,attrs)
         
-        self.cmdclass = { 'install_external_data' : install_external_data,
+        self.cmdclass = { 'install_namespace' : install_namespace,
+                          'install_external_data' : install_external_data,
                           'set_env_var' : set_env_var,
                           'install' : distx_install,
                           'build_scons' : build_scons,
@@ -587,11 +648,14 @@ class DistxDistribution(Distribution):
                           'sdist' : distx_sdist,
                          }
 
+
     def has_external_data(self):
         return bool(self.external_data)
 
+
     def has_env_var(self):
         return bool(self.set_env_var)
+
 
     def has_namespace(self):
         return bool(self.namespace)
