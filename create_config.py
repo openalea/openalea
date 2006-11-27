@@ -2,7 +2,7 @@
 ################################################################################
 # -*- python -*-
 #
-#       OpenAlea :  OpenAlea main package
+#       OpenAlea.Config :  OpenAlea configuration
 #
 #       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
 #

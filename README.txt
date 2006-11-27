@@ -1,5 +1,5 @@
-OpenAlea main package
----------------------
+﻿OpenAlea.Config package
+-----------------------
 
 Authors : OpenAlea consortium
 

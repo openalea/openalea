@@ -1,5 +1,5 @@
 """
-  OpenAlea. Copyright 2006 CIRAD, INRIA
+  OpenAlea.Config : Copyright 2006 CIRAD, INRIA
 """
 
 try:
@@ -16,13 +16,13 @@ except ImportError, e:
 
 from distutils.core import setup
 
-description= "OpenAlea namespace and base configuration"
+description= "OpenAlea namespace and configuration"
 author= "OpenAlea developpers team"
 url= "http://openalea.gforge.inria.fr"
 license="Cecill-C"
 
 setup(
-    name= config.namespace,
+    name= "OpenAlea.Config",
     version= config.version,
     description= description,
     author=author,

@@ -1,5 +1,5 @@
 """
-  OpenAlea. Copyright 2006 CIRAD, INRIA
+  OpenAlea.Config : Copyright 2006 CIRAD, INRIA
 
   This script is use to generate source distribution of OpenAlea
 """
@@ -7,13 +7,13 @@
 
 from distutils.core import setup
 
-description= "OpenAlea namespace and base configuration"
+description= "OpenAlea namespace creation and configuration"
 author= "OpenAlea developpers team"
 url= "http://openalea.gforge.inria.fr"
 license="Cecill-C"
 
 setup(
-    name= "OpenAlea",
+    name= "OpenAlea.Config",
     version= "0.1.0",
     description= description,
     author=author,
