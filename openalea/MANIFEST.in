@@ -1,0 +1,5 @@
+# include Meta Data
+include LICENSE.txt
+include README.txt
+include AUTHORS.txt
+include MANIFEST.in
