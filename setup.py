@@ -15,7 +15,7 @@ namespace='openalea'
 # beta: patch= patch + 'b' + 'number'
 major= '0'
 minor= '1'
-patch= '0'
+patch= '1'
 version= '%s.%s.%s' % (major, minor, patch)
 
 # Description of the package 

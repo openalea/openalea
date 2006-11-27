@@ -1,1 +1,3 @@
+# -*- python -*-
+
 from distx import *
