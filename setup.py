@@ -2,8 +2,12 @@
   OpenAlea.Config : Copyright 2006 CIRAD, INRIA
 """
 
+import sys
+old_path=sys.path
+sys.path=['.']
 try:
-  from  openalea import config
+  
+    from  openalea import config
 except ImportError, e:
     error= """Please, run the command:
     python create_config.py
@@ -13,6 +17,8 @@ except ImportError, e:
     python create_config.py --prefix=C:/openalea
     """
     raise Exception(error)
+
+sys.path= old_path
 
 from distutils.core import setup
 
