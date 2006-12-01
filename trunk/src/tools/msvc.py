@@ -42,7 +42,7 @@ class Msvc:
       t( env )
 
       # /GR: enable C++ RTTI
-      CCFLAGS= ['/MD','/GR','/EHsc']
+      CCFLAGS= ['/MT','/GR','/EHsc']
       #CPPPATH= [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
       CPPDEFINES= [ 'UNICODE' ]
       #LIBS= ['advapi32','uuid','stlport_vc6']

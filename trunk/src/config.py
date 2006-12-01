@@ -111,7 +111,8 @@ def BisonFlex( env, bison, flex, prefix ):
     bison_ext= ".cpp.h"
 
   ( bison_name, ext )= os.path.splitext( bison )
-  h= env.CXXFile( source= bison, target= [ bison_name+".cpp", bison_name + bison_ext ] )
+  h= env.CXXFile( source= bison,
+                  target= [ bison_name+".cpp", bison_name + bison_ext ] )
   targets.append( h[0] )
 
   ( flex_name, ext )= os.path.splitext( flex )
@@ -283,6 +284,6 @@ def ALEAEnvironment( conf, *args, **kwds ):
     opts= conf.Options( *args, **kwds )
     env= Environment( options= opts )
     conf.Update(env)
-    env.Append( CPPPATH = '$build_includedir' )
-    env.Append( LIBPATH = '$build_libdir' )
+    env.Prepend( CPPPATH = '$build_includedir' )
+    env.Prepend( LIBPATH = '$build_libdir' )
     return env

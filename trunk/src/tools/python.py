@@ -75,7 +75,7 @@ class Python:
 
 
    def configure( self, config ):
-      if not config.conf.CheckCHeader('Python.h','<>'):
+      if not config.conf.CheckCXXHeader('Python.h'):
          print "Error: Python.h not found, probably failure in automatic python detection"
          sys.exit(-1)
 

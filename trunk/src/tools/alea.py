@@ -53,10 +53,12 @@ class Alea:
       
       self.default()
 
-      opts.Add( PathOption( 'openalea_lib', 'OpenAlea lib directory', 
-                            self._default[ 'openalea_lib' ] ) )
-      opts.Add( PathOption( 'openalea_includes', 'OpenAlea include directory', 
-                            self._default[ 'openalea_include' ] ) )
+      opts.Add( 'openalea_lib',
+                'OpenAlea lib directory', 
+                self._default[ 'openalea_lib' ] )
+      opts.Add( 'openalea_includes',
+                'OpenAlea include directory', 
+                self._default[ 'openalea_include' ] )
 
 
    def update( self, env ):
