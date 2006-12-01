@@ -48,6 +48,9 @@ def ALEALibrary( env, target, source, *args, **kwds ):
   if env[ "static" ]:
     lib = env.StaticLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   else:
+    if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
+      kwds['SHLINKCOM']= [env['SHLINKCOM'], 
+        'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
     lib = env.SharedLibrary( "$build_libdir/%s" % ( target, ), source, *args, **kwds )
   # Bug on mingw with .exp
   if env["compiler"]== "mingw":
@@ -84,6 +87,9 @@ def ALEAWrapper( env, python_dir, target, source, *args, **kwds ):
   Build a python wrapper and install it in a python package.
   """
   real_target = "%s/%s" % ( str( env.Dir( python_dir ).srcnode() ), target )
+  if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
+    kwds['SHLINKCOM']= [env['SHLINKCOM'], 
+      'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
   wrap = env.SharedLibrary( real_target, source, SHLIBPREFIX='', *args, **kwds )
   Alias( "build", wrap )
   return wrap
