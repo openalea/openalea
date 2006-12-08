@@ -47,6 +47,12 @@ class QT:
 
       opts.Add( PathOption( 'QTDIR', 'QT directory', 
                 self._default[ 'QTDIR' ] ) )
+      opts.Add( ( 'QT_BINPATH', 'QT binaries path.', 
+                '$QTDIR/bin' ) )
+      opts.Add( ( 'QT_CPPPATH', 'QT includes path.', 
+                '$QTDIR/include' ) )
+      opts.Add( ( 'QT_LIBPATH', 'QT lib path.', 
+                '$QTDIR/lib' ) )
 
 
    def update( self, env ):
