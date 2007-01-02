@@ -33,6 +33,9 @@ class UnknownNodeError (Exception):
 class RecursionError (Exception):
     pass
 
+class InstantiationError(Exception):
+    pass
+
 ###############################################################################
 
 
@@ -242,12 +245,28 @@ class NodeFactory:
         if(self.module):
             exec("from %s import %s as tmpclass" %(self.module,self.nodeclass_name))
         
-        return tmpclass()
+            return tmpclass()
+        
+        raise InstantiationError()
     
 
-    def instantiate_widget(self, node):
+    def instantiate_widget(self, node, parent=None):
         """ Return the corresponding widget initialised with node """
-        return self.widgetclass(node)
+
+        if(self.module and self.self.widgetclass_name):
+            exec("from %s import %s as widgetclass" %(self.module, self.widgetclass_name))
+
+            return widgetclass(node, self, parent)
+        
+        else:
+            try:
+                # if no widget declared, we create a default one
+                from visualea.node_widget import NodeWidget
+                return NodeWidget(node, self, parent)
+            
+            except ImportError:
+                raise InstantiationError()
+
 
 
 ###############################################################################

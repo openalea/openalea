@@ -175,6 +175,17 @@ class SubGraphFactory(NodeFactory):
         self.num_output = v
 
 
+    def instantiate_widget(self, node, parent=None):
+        """ Return the corresponding widget initialised with node """
+
+        try:
+            from visualea.node_widget import SubGraphWidget
+            
+            return SubGraphWidget(node, self, parent)
+            
+        except ImportError:
+            raise InstantiationError()
+
 
 
 
