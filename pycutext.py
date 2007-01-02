@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.Visualea: OpenAlea graphical user interface
 #
 #       This code is inspired from PyCute3 (PyQWT)
 #
@@ -68,7 +68,7 @@ class PyCutExt(QTextEdit):
 
         # capture all interactive input/output 
         sys.stdout   = self
-        sys.stderr   = self
+        #sys.stderr   = self
         sys.stdin    = self
         # last line + last incomplete lines
         self.line    = QtCore.QString()
