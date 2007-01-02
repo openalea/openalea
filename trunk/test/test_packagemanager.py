@@ -20,14 +20,9 @@ __doc__= """
 Test the Package Manager
 """
 
+
+from aleacore.pkgmanager import PackageManager
 import os
-pj=os.path.join
-import sys
-sys.path.append(pj("..","src"))
-
-from pkgmanager import PackageManager
-
-
 import openalea
 
 # Test package manager configuration

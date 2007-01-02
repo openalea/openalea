@@ -2,12 +2,8 @@
 # Simple operations
 
 
-import os
-pj=os.path.join
-import sys
-sys.path.append(pj("..","src"))
 
-from core import Node
+from aleacore.core import Node
 
 # do import 
 

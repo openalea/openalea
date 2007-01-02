@@ -20,14 +20,10 @@ __doc__= """
 Test the subgraph module
 """
 
-import os
-pj=os.path.join
-import sys
-sys.path.append(pj("..","src"))
 
-from pkgmanager import PackageManager
-from subgraph import SubGraphFactory
-from core import Package
+from aleacore.pkgmanager import PackageManager
+from aleacore.subgraph import SubGraphFactory
+from aleacore.core import Package , RecursionError 
 
 def test_subgraph():
 
@@ -64,7 +60,6 @@ def test_subgraph():
 
 def test_recursion():
 
-    from core import RecursionError 
 
     pm = PackageManager ()
     pkg = Package("subgraph", {})

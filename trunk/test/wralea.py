@@ -4,15 +4,9 @@
 
 #from openalea.softbus.core import Package, NodeFactory
 
-import os
-pj=os.path.join
-import sys
-sys.path.append(pj("..","src"))
-
-from core import Package, NodeFactory
-from subgraph import SubGraphFactory
+from aleacore.core import Package, NodeFactory
+from aleacore.subgraph import SubGraphFactory
 from simpleop import Add, Value
-
 
 #register packages
 
