@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<openalea>
+	<wraleapath value="."/>
+	<wraleapath value="/usr/lib/python2.4/site-packages/openalea"/>
+	<package name="subgraph">
+		<institutes>
+			INRIA/CIRAD
+		</institutes>
+		<version>
+			0.0.1
+		</version>
+		<description>
+			Subgraphs.
+		</description>
+		<license>
+			CECILL-C
+		</license>
+		<authors>
+			SDK, CP
+		</authors>
+		<subgraph category="Subgraphs" name="sg1">
+			<description>
+				Subgraph Exemple
+			</description>
+			<doc>
+				
+			</doc>
+			<element factory_id="val" id="val3" package_id="simpleop"/>
+			<element factory_id="val" id="val2" package_id="simpleop"/>
+			<element factory_id="val" id="val1" package_id="simpleop"/>
+			<element factory_id="add" id="add0" package_id="simpleop"/>
+			<connect dst_id="val3" dst_port="0" src_id="add0" src_port="0"/>
+			<connect dst_id="add0" dst_port="0" src_id="val1" src_port="0"/>
+			<connect dst_id="add0" dst_port="1" src_id="val2" src_port="0"/>
+		</subgraph>
+	</package>
+	<package name="simpleop">
+		<institutes>
+			INRIA/CIRAD
+		</institutes>
+		<version>
+			0.0.1
+		</version>
+		<description>
+			Simple operations.
+		</description>
+		<license>
+			CECILL-C
+		</license>
+		<authors>
+			SDK, CP
+		</authors>
+		<nodefactory category="Operations" module="simpleop" name="add">
+			<description>
+				Addition
+			</description>
+			<doc>
+				 Generic Addition
+    Input 0 : First value to add
+    Input 1 : Second value to add
+    Output 0 : Addition result
+    
+			</doc>
+			<node class="Add"/>
+			<widget class="None"/>
+		</nodefactory>
+		<nodefactory category="Operations" module="simpleop" name="val">
+			<description>
+				Value
+			</description>
+			<doc>
+				 Variable
+    Input 0 : if connected, set the stored value
+    Ouput 0 : transmit the stored value
+    
+			</doc>
+			<node class="Value"/>
+			<widget class="None"/>
+		</nodefactory>
+	</package>
+</openalea>

@@ -1,0 +1,310 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>847</width>
+    <height>593</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>OpenAlea Software Bus</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <property name="margin" >
+     <number>9</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter_2" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QTabWidget" name="tabPackager" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="packageview" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>3</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <attribute name="title" >
+         <string>Package</string>
+        </attribute>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QTreeView" name="packageTreeView" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>3</hsizetype>
+             <vsizetype>7</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="dragEnabled" >
+            <bool>true</bool>
+           </property>
+           <property name="alternatingRowColors" >
+            <bool>true</bool>
+           </property>
+           <property name="rootIsDecorated" >
+            <bool>false</bool>
+           </property>
+           <property name="animated" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="categoryview" >
+        <attribute name="title" >
+         <string>Category</string>
+        </attribute>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QTreeView" name="categoryTreeView" >
+           <property name="dragEnabled" >
+            <bool>true</bool>
+           </property>
+           <property name="alternatingRowColors" >
+            <bool>true</bool>
+           </property>
+           <property name="rootIsDecorated" >
+            <bool>false</bool>
+           </property>
+           <property name="animated" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QSplitter" name="splitter" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>7</vsizetype>
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTabWidget" name="tabWorkspace" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>4</horstretch>
+          <verstretch>3</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="workspace1" >
+         <attribute name="title" >
+          <string>Root</string>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QGraphicsView" name="graphicsView" />
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>847</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_Help" />
+    <addaction name="separator" />
+    <addaction name="action_About" />
+   </widget>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Project" />
+    <addaction name="action_Open_Project" />
+    <addaction name="action_Save_Project" />
+    <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="action_Quit" />
+   </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Wralea</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="separator" />
+    <addaction name="action_Find" />
+    <addaction name="separator" />
+    <addaction name="action_New_Package" />
+    <addaction name="action_Remove_Package" />
+   </widget>
+   <widget class="QMenu" name="menu_Subgraph" >
+    <property name="title" >
+     <string>&amp;Subgraph</string>
+    </property>
+    <addaction name="action_New_subgraph" />
+    <addaction name="separator" />
+    <addaction name="action_Run_All" />
+    <addaction name="actionRun_seleted_Node" />
+    <addaction name="separator" />
+    <addaction name="actionRemove_Node" />
+   </widget>
+   <addaction name="menu_File" />
+   <addaction name="menu_Package" />
+   <addaction name="menu_Subgraph" />
+   <addaction name="menu_Python" />
+   <addaction name="menu_Help" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="action_About" >
+   <property name="text" >
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Help" >
+   <property name="text" >
+    <string>&amp;Help</string>
+   </property>
+  </action>
+  <action name="action_New_Project" >
+   <property name="text" >
+    <string>&amp;New Project</string>
+   </property>
+  </action>
+  <action name="action_Open_Project" >
+   <property name="text" >
+    <string>&amp;Open Project</string>
+   </property>
+  </action>
+  <action name="action_Save_Project" >
+   <property name="text" >
+    <string>&amp;Save Project</string>
+   </property>
+  </action>
+  <action name="actionSave_as" >
+   <property name="text" >
+    <string>Save Project &amp;as</string>
+   </property>
+  </action>
+  <action name="action_Quit" >
+   <property name="text" >
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_Find" >
+   <property name="text" >
+    <string>&amp;Find</string>
+   </property>
+  </action>
+  <action name="action_New_subgraph" >
+   <property name="text" >
+    <string>&amp;New subgraph</string>
+   </property>
+  </action>
+  <action name="action_New_Package" >
+   <property name="text" >
+    <string>&amp;Create Package</string>
+   </property>
+  </action>
+  <action name="action_Remove_Package" >
+   <property name="text" >
+    <string>&amp;Remove Package</string>
+   </property>
+  </action>
+  <action name="actionSystem_Search" >
+   <property name="text" >
+    <string>System &amp;Search</string>
+   </property>
+  </action>
+  <action name="action_Add_File" >
+   <property name="text" >
+    <string>&amp;Add File</string>
+   </property>
+  </action>
+  <action name="action_Auto_Search" >
+   <property name="text" >
+    <string>Auto &amp;Search</string>
+   </property>
+  </action>
+  <action name="action_Run_All" >
+   <property name="text" >
+    <string>&amp;Run All</string>
+   </property>
+  </action>
+  <action name="actionRun_seleted_Node" >
+   <property name="text" >
+    <string>Run &amp;seleted Node</string>
+   </property>
+  </action>
+  <action name="actionRemove_Node" >
+   <property name="text" >
+    <string>Remove Node</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
