@@ -29,11 +29,29 @@ import random
 from PyQt4 import QtCore, QtGui
 
 
-class SubGraphWidget(QtGui.QWidget):
-    
-    def __init__(self, parent=None):
+class NodeWidget(QtGui.QWidget):
+    """
+    Base class for all node widget
+    This class provides default dialog for editing declared parameters
+    """
+
+    def __init__(self, node, factory, parent=None):
+
         QtGui.QWidget.__init__(self, parent)
 
+        self.node = node
+        self.factory = factory
+
+    
+
+    
+class SubGraphWidget(NodeWidget):
+    """ Subgraph widget allowing to edit the network """
+    
+    def __init__(self, node, factory, parent=None):
+
+        NodeWidget.__init__(self, node, factory, parent)
+    
         self.piecePixmaps = []
         self.pieceRects = []
         self.highlightedRect = QtCore.QRect()
