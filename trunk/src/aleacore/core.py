@@ -173,6 +173,7 @@ class NodeFactory:
     A Node factory is able to create node on demand, and their associated widget.
     """
 
+    mimetype = "openalea/nodefactory"
 
     def __init__(self, name,
                  desc='', doc='',
@@ -260,6 +261,9 @@ class Package(dict):
 
     Meta informations are associated with a package.
     """
+
+    mimetype = "openalea/package"
+
 
     def __init__(self, name, metainfo) :
 	"""
