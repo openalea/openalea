@@ -84,7 +84,10 @@ class PkgModel (QAbstractItemModel) :
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
 
-        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
 
     def headerData(self, section, orientation, role):
         return QtCore.QVariant()
@@ -131,3 +134,55 @@ class PkgModel (QAbstractItemModel) :
             return len(parentItem)
         except:
             return 0
+
+
+
+
+class NodeTreeView(QtGui.QTreeView):
+    """ Specialized TreeView to display node in a tree which support Drag and Drop """
+    
+    def __init__(self, parent=None):
+        QtGui.QTreeView.__init__(self, parent)
+
+        self.setDragEnabled(True)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat("openalea/nodefactory"):
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat("openalea/nodefactory"):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+            event.ignore()
+
+    def startDrag(self, supportedActions):
+        item = self.currentIndex()
+
+        itemData = QtCore.QByteArray()
+        dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+        pixmap = QtGui.QPixmap(item.data(QtCore.Qt.DecorationRole))
+
+        dataStream << pixmap 
+
+        mimeData = QtCore.QMimeData()
+        
+        obj = item.internalPointer()
+        mimeData.setData(obj.mimetype, itemData)
+    
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+        drag.setPixmap(pixmap)
+
+        drag.start(QtCore.Qt.MoveAction)
+        

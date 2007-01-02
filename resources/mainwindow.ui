@@ -48,30 +48,6 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <item>
-          <widget class="QTreeView" name="packageTreeView" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>3</hsizetype>
-             <vsizetype>7</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="dragEnabled" >
-            <bool>true</bool>
-           </property>
-           <property name="alternatingRowColors" >
-            <bool>true</bool>
-           </property>
-           <property name="rootIsDecorated" >
-            <bool>false</bool>
-           </property>
-           <property name="animated" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="categoryview" >
@@ -85,22 +61,6 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <item>
-          <widget class="QTreeView" name="categoryTreeView" >
-           <property name="dragEnabled" >
-            <bool>true</bool>
-           </property>
-           <property name="alternatingRowColors" >
-            <bool>true</bool>
-           </property>
-           <property name="rootIsDecorated" >
-            <bool>false</bool>
-           </property>
-           <property name="animated" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </widget>
@@ -139,9 +99,6 @@
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item>
-           <widget class="QGraphicsView" name="graphicsView" />
-          </item>
          </layout>
         </widget>
        </widget>
