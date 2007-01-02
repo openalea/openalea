@@ -46,6 +46,8 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+        self.pkgmanager = pkgman
+        
         # python interpreter
 
         self.interpreterWidget = PyCutExt(locals=globals, parent=self.splitter)
@@ -60,10 +62,6 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
-        # workspace
-
-        self.root_subgraph = SubGraphWidget(self.workspace1)
-        self.vboxlayout2.addWidget(self.root_subgraph)
         # menu callbacks
 
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
@@ -92,3 +90,14 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.close()
 
 
+    def open_tabwidget(self, pkg_name, node_name):
+        """ Open a widget in the tab view"""
+
+        container = QtGui.QWidget()
+
+        pkg = self.pkgmanager[pkg_name]
+        factory = pkg[node_name]
+        node = factory.instantiate()
+        widget = factory.instantiate_widget(node, container)
+
+        self.tabWorkspace.addTab(container,"test")

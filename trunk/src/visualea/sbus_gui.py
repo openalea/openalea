@@ -29,6 +29,9 @@ from PyQt4 import QtCore
 from mainwindow import MainWindow
 
 from aleacore.pkgmanager import PackageManager
+from aleacore.core import Package
+from aleacore.subgraph import SubGraphFactory
+
 
 
 # Restore default signal handler for CTRL+C
@@ -52,11 +55,25 @@ def main(args):
 
 
 
+    # initilize package manager
     pkgman = PackageManager()
     pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
+    pkg_metainfo={}
+
+    pkg=Package("MySubgraphs", pkg_metainfo)
+
+    factory = SubGraphFactory(pkgman, name="Root",
+                                desc= "",
+                                cat = "",
+                                )
+
+    pkg.add_nodefactory(factory)
+    pkgman.add_package(pkg)
+
     
     win = MainWindow(pkgman, globals())
+    win.open_tabwidget("MySubgraphs", "Root")
     win.show()
     
     #    splash.finish(win);
