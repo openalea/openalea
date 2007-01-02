@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBusGui: OpenAlea software bus graphical user interface
+#       OpenAlea.Visualea: OpenAlea graphical user interface
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -19,7 +19,7 @@ Main Module for graphical interface
 """
 
 __license__= "GPL"
-__revision__=" $Id"
+__revision__=" $Id$"
 
 
 import sys
@@ -28,9 +28,12 @@ from PyQt4 import QtCore
 
 from mainwindow import MainWindow
 
-from pkgmanager import PackageManager
+from aleacore.pkgmanager import PackageManager
 from item_model import PkgModel
 
+
+# Restore default signal handler for CTRL+C
+import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def main(args):
@@ -51,7 +54,7 @@ def main(args):
 
 
     pkgman = PackageManager()
-    pkgman.init("../test/wralea.py")
+    pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     
     model = PkgModel(pkgman)

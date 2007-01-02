@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.Visualea: OpenAlea graphical user interface
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
-from core import NodeFactory, Package
+from aleacore.core import NodeFactory, Package
 
 import images_rc
 
