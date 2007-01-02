@@ -28,22 +28,43 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
+from item_model import NodeTreeView, PkgModel
+from subgraph_widget import SubGraphWidget
+
+
+
 class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
-    def __init__(self, model, globals=None, parent=None):
-
+    def __init__(self, pkgman, globals=None, parent=None):
+        """
+        @param pkgman : the package manager
+        @param globals : python interpreter globals
+        @param parent : parent window
+        """
 
         QtGui.QMainWindow.__init__(self, parent)
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+        # python interpreter
 
         self.interpreterWidget = PyCutExt(locals=globals, parent=self.splitter)
         self.interpreterWidget.setObjectName("interpreterWidget")
 
 
-        self.packageTreeView.setModel(model)
+        # package tree view
 
+        self.pkg_model = PkgModel(pkgman)
+
+        self.packageTreeView = NodeTreeView(self.packageview)
+        self.packageTreeView.setModel(self.pkg_model)
+        self.vboxlayout.addWidget(self.packageTreeView)
+
+        # workspace
+
+        self.root_subgraph = SubGraphWidget(self.workspace1)
+        self.vboxlayout2.addWidget(self.root_subgraph)
+        # menu callbacks
 
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
         self.connect(self.action_Help, SIGNAL("activated()"), self.help)

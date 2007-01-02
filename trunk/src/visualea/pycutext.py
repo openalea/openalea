@@ -169,6 +169,7 @@ class PyCutExt(QTextEdit):
         cursor.movePosition(QTextCursor.End)
         cursor.insertText(text)
         self.cursor_pos = cursor.position()
+        self.setTextCursor(cursor)
         self.ensureCursorVisible ()
 
 
@@ -243,7 +244,7 @@ class PyCutExt(QTextEdit):
                 cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
                 cursor.removeSelectedText()
             
-                self.point -= 1
+                self.point -= 1 
                 self.line.remove(self.point, 1)
 
         elif key == Qt.Key_Delete:
@@ -260,32 +261,36 @@ class PyCutExt(QTextEdit):
                 self.reading = 0
             else:
                 self.__run()
+                
         elif key == Qt.Key_Tab:
             self.__insertText(text)
         elif key == Qt.Key_Left:
-            if self.point:
+            if self.point : 
                 self.moveCursor(QTextCursor.Left)
-                self.point -= 1
+                self.point -= 1 
         elif key == Qt.Key_Right:
             if self.point < self.line.length():
                 self.moveCursor(QTextCursor.Right)
-                self.point += 1
+                self.point += 1 
 
         elif key == Qt.Key_Home:
             cursor = self.textCursor ()
             cursor.setPosition(self.cursor_pos)
             self.setTextCursor (cursor)
-            self.point = 0
+            self.point = 0 
 
         elif key == Qt.Key_End:
             self.moveCursor(QTextCursor.EndOfLine)
-            self.point = self.line.length()
+            self.point = self.line.length() 
+
         elif key == Qt.Key_Up:
+
             if len(self.history):
                 if self.pointer == 0:
                     self.pointer = len(self.history)
                 self.pointer -= 1
                 self.__recall()
+                
         elif key == Qt.Key_Down:
             if len(self.history):
                 self.pointer += 1
@@ -305,9 +310,14 @@ class PyCutExt(QTextEdit):
         Display the current item from the command history.
         """
         cursor = self.textCursor ()
-        cursor.select( QtGui.QTextCursor.BlockUnderCursor )
+        cursor.select( QtGui.QTextCursor.LineUnderCursor )
         cursor.removeSelectedText()
-        
+
+        if self.more:
+            self.write(sys.ps2)
+        else:
+            self.write(sys.ps1)
+            
 
         self.__clearLine()
         self.__insertText(self.history[self.pointer])

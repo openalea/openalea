@@ -29,7 +29,6 @@ from PyQt4 import QtCore
 from mainwindow import MainWindow
 
 from aleacore.pkgmanager import PackageManager
-from item_model import PkgModel
 
 
 # Restore default signal handler for CTRL+C
@@ -57,18 +56,12 @@ def main(args):
     pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     
-    model = PkgModel(pkgman)
-
-    
-    win = MainWindow(model, globals())
+    win = MainWindow(pkgman, globals())
     win.show()
     
     #    splash.finish(win);
     
     return app.exec_()
-
-
-
 
 
 
