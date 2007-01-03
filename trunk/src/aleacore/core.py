@@ -261,12 +261,22 @@ class NodeFactory:
         else:
             try:
                 # if no widget declared, we create a default one
-                from visualea.node_widget import NodeWidget
-                return NodeWidget(node, self, parent)
+                from visualea.node_widget import DefaultNodeWidget
+                return DefaultNodeWidget(node, self, parent)
             
             except ImportError:
                 raise InstantiationError()
 
+
+class NodeWidget:
+    """
+    Base class for all node widget
+    """
+
+    def __init__(self, node, factory):
+
+        self.node = node
+        self.factory = factory
 
 
 ###############################################################################

@@ -25,7 +25,7 @@ __revision__=" $Id$ "
 from core import NodeFactory
 from core import Node
 
-from core import RecursionError
+from core import RecursionError, InstantiationError
 
 ###############################################################################
 
