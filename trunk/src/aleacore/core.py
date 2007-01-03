@@ -268,6 +268,7 @@ class NodeFactory:
                 raise InstantiationError()
 
 
+
 class NodeWidget:
     """
     Base class for all node widget
