@@ -57,151 +57,146 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
-        #cene.setSceneRect(-200, -200, 400, 400)
+        #scene.setSceneRect(-200, -200, 400, 400)
         self.setScene(scene)
-        #elf.setCacheMode(QtGui.QGraphicsView.CacheBackground)
+        #self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-
-        node1 = GraphicalNode(self)
-        node2 = GraphicalNode(self)
-        node3 = GraphicalNode(self)
-        node4 = GraphicalNode(self)
-
-        node1.setPos(-200, -200)
-        node2.setPos(0, -200)
-        node3.setPos(200, -200)
-        node4.setPos(-200, 0)
-
-        e1 = Edge(node1, 0, node2, 0, None, scene)
-        e2 = Edge(node2, 1, node3, 1, None, scene)
-
-
+        self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.scale(0.8, 0.8)
-        self.setMinimumSize(400, 400)
+        #self.setMinimumSize(400, 400)
+
+        self.newedge = None
+        
 
     def wheelEvent(self, event):
         self.scaleView(math.pow(2.0, -event.delta() / 240.0))
 
-    def drawBackground(self, painter, rect):
-        pass
+    def mouseMoveEvent(self, event):
+        # update new edge position
+        if(self.newedge) :
+            self.newedge.setMousePoint(self.mapToScene(event.pos()))
+            event.ignore()
+        else:
+            QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
-    def itemMoved(self):
-        pass
+    def mouseReleaseEvent(self, event):
+
+        
+        if(self.newedge):
+            item = self.itemAt(event.pos())
+            if(item and isinstance(item, ConnectorIn)):
+                self.connect_node( self.newedge.connector(), item)
+            elif(item and isinstance(item, ConnectorOut)):
+                self.connect_node( item, self.newedge.connector())
+        
+            self.scene().removeItem(self.newedge)
+            self.newedge = None
+
+            
+        QtGui.QGraphicsView.mouseReleaseEvent(self, event)
+
+
+#     def itemMoved(self):
+#         pass
 
     def scaleView(self, scaleFactor):
-        factor = self.matrix().scale(scaleFactor, scaleFactor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
+        factor = self.matrix().scale(scaleFactor, scaleFactor)\
+                 .mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
 
         if factor < 0.07 or factor > 100:
             return
 
         self.scale(scaleFactor, scaleFactor)
 
-    
-# class SubgraphWidget(NodeWidget, QtGui.QGraphicsView):
-#     """ Subgraph widget allowing to edit the network """
-    
-#     def __init__(self, node, factory, parent=None):
+    def start_edge(self, connector):
+        """ Start to create an edge """
 
-#         NodeWidget.__init__(self, node, factory, parent)
-    
-#         self.piecePixmaps = []
-#         self.pieceRects = []
-#         self.highlightedRect = QtCore.QRect()
-#         self.inPlace = 0
+        self.newedge= SemiEdge(connector, None, self.scene())
 
-#         self.setAcceptDrops(True)
-
-#     def clear(self):
-#         self.piecePixmaps = []
-#         self.pieceRects = []
-#         self.highlightedRect = QtCore.QRect()
-#         self.inPlace = 0
-#         self.update()
-
-#     def dragEnterEvent(self, event):
-#         if event.mimeData().hasFormat("openalea/nodefactory"):
-#             event.accept()
-#         else:
-#             event.ignore()
-
-#     def dragLeaveEvent(self, event):
-#         updateRect = self.highlightedRect
-#         self.highlightedRect = QtCore.QRect()
-#         self.update(updateRect)
-#         event.accept()
-
-#     def dragMoveEvent(self, event):
-#         updateRect = self.highlightedRect.unite(self.targetSquare(event.pos()))
-
-#         if ( event.mimeData().hasFormat("openalea/nodefactory") ):
-#             self.highlightedRect = self.targetSquare(event.pos())
-#             event.setDropAction(QtCore.Qt.MoveAction)
-#             event.accept()
-#         else:
-#             self.highlightedRect = QtCore.QRect()
-#             event.ignore()
-
-#         self.update(updateRect)
-
-#     def dropEvent(self, event):
-
-#         if (event.mimeData().hasFormat("openalea/nodefactory")):
-#             pieceData = event.mimeData().data("openalea/nodefactory")
-#             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-#             square = self.targetSquare(event.pos())
-#             pixmap = QtGui.QPixmap()
-#             dataStream >> pixmap 
-
-#             self.piecePixmaps.append(pixmap)
-#             self.pieceRects.append(square)
-
-#             self.hightlightedRect = QtCore.QRect()
-#             self.update(square)
-
-#             event.setDropAction(QtCore.Qt.MoveAction)
-#             event.accept()
-
-#         else:
-#             self.highlightedRect = QtCore.QRect()
-#             event.ignore()
-
-
-
-#     def paintEvent(self, event):
-#         painter = QtGui.QPainter()
-#         painter.begin(self)
-#         painter.fillRect(event.rect(), QtCore.Qt.white)
-
-#         if self.highlightedRect.isValid():
-#             painter.setBrush(QtGui.QColor(255, 0, 0, 127))
-#             painter.setPen(QtCore.Qt.NoPen)
-#             painter.drawRect(self.highlightedRect.adjusted(0, 0, -1, -1))
-
-#         for i in range(len(self.pieceRects)):
-  
-#             painter.setBrush(QtGui.QColor(0, 0, 255, 127))
-#             painter.setPen(QtCore.Qt.NoPen)
-#             painter.drawRect(self.pieceRects[i].adjusted(0, 0, -1, -1))
-#             painter.drawPixmap(self.pieceRects[i], self.piecePixmaps[i])
-
-
-#         painter.end()
-
-
-#     def targetSquare(self, position):
-#         """ Return the rectangle associated to position """
         
-#         return QtCore.QRect(position.x()- 40/2, position.y()- 40/2, 40, 40)
+        
+
+    # subgraph edition
+
+    def add_graphicalnode(self, position, pkg_id, factory_id):
+        """
+        @param position : node position in the subgraph
+        @param pkg_id : package id string the factory is from 
+        @param factory_id : Factory id string 
+        @return the new GraphicalNode
+        """
+
+        gnode = GraphicalNode(self)
+        gnode.setPos(position)
+
+        return gnode
+
+    def connect_node(self, connector_src, connector_dst):
+        """
+        @return the new Edge
+        """
+
+        if(connector_dst.is_connected()):
+            return None
+        
+        edge = Edge(connector_src.parentItem(), connector_src.index(),
+                    connector_dst.parentItem(), connector_dst.index(),
+                    None, self.scene())
+
+        return edge
+
+
+    # Drag and Drop from TreeView support
+    
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat("openalea/nodefactory"):
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dragLeaveEvent(self, event):
+        event.accept()
+
+
+    def dragMoveEvent(self, event):
+        if ( event.mimeData().hasFormat("openalea/nodefactory") ):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dropEvent(self, event):
+
+        if (event.mimeData().hasFormat("openalea/nodefactory")):
+            pieceData = event.mimeData().data("openalea/nodefactory")
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+            
+            packageid = QtCore.QString()
+            factoryid = QtCore.QString()
+            
+            dataStream >> packageid >> factoryid
+
+            # Add new node
+            self.add_graphicalnode(self.mapToScene(event.pos()), str(packageid), str(factoryid))
+
+
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+
+        else:
+            event.ignore()
+
     
 
 
 
 class GraphicalNode(QtGui.QGraphicsItem):
     """ Represent a node in the subgraphwidget """
-
-    Type = QtGui.QGraphicsItem.UserType + 1
 
     def __init__(self, graphWidget, elt_id=0, ninput=2, noutput=2,  caption="Node"):
         """
@@ -219,7 +214,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.elt_id = elt_id
 
         self.graph = graphWidget
-        self.edgeList = []
         self.newPos = QtCore.QPointF()
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setZValue(1)
@@ -243,9 +237,9 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.connector_in = []
         self.connector_out = []
         for i in range(ninput):
-            self.connector_in.append(ConnectorIn(self, scene, i))
+            self.connector_in.append(ConnectorIn(self.graph, self, scene, i))
         for i in range(noutput):
-            self.connector_out.append(ConnectorOut(self, scene, i))
+            self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
 
     def get_input_connector(self, index):
         try:
@@ -260,9 +254,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
         except:
             return None
 
-    def type(self):
-        return self.Type
-
 
     def boundingRect(self):
         adjust = 2.0
@@ -276,11 +267,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
 
     def paint(self, painter, option, widget):
-
-        # Shadow
-#         painter.setPen(QtCore.Qt.NoPen)
-#         painter.setBrush(QtCore.Qt.darkGray)
-#         painter.drawRect(-7, -7, 20, 20)
 
         # Draw Box
         painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 100)))
@@ -301,7 +287,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
             for c in self.connector_out :
                 c.adjust()
                  
-            self.graph.itemMoved()
+            #self.graph.itemMoved()
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
@@ -313,6 +299,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.update()
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
 
+
 ################################################################################
 
 class Connector(QtGui.QGraphicsRectItem):
@@ -320,8 +307,9 @@ class Connector(QtGui.QGraphicsRectItem):
     WIDTH = 6
     HEIGHT = 4
 
-    def __init__(self, parent, scene, index):
+    def __init__(self, graphview, parent, scene, index):
         """
+        @param graphview : The SubGraphWidget
         @param parent : QGraphicsItem parent
         @param scene : QGrpahicsScene container
         @param index : connector index
@@ -331,41 +319,133 @@ class Connector(QtGui.QGraphicsRectItem):
         self.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 200)))
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
-        self.edge = None
+        self.mindex = index
+        self.graphview= graphview
 
-    def setEdge(self, edge):
-        self.edge = edge
+    def index(self):
+        return self.mindex
 
-    def adjust(self):
-        if(self.edge): self.edge.adjust()
+     
 
 class ConnectorIn(Connector):
     """ Input node connector """
 
-    def __init__(self, parent, scene, index):
+    def __init__(self, graphview, parent, scene, index):
 
-        Connector.__init__(self, parent, scene, index)
+        Connector.__init__(self, graphview, parent, scene, index)
+
+        self.edge = None
+
         self.setPos(index * self.WIDTH * 2, 0)
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
+
+    def set_edge(self, edge):
+        self.edge = edge
+
+    def is_connected(self):
+        return bool(self.edge)
+
+    def adjust(self):
+        if(self.edge): self.edge.adjust()
+
+    def mousePressEvent(self, event):
+        QtGui.QGraphicsItem.mousePressEvent(self, event)
+
+        if(not self.edge):
+            self.graphview.start_edge(self)
+    
 
 
 class ConnectorOut(Connector):
     """ Output node connector """
 
-    def __init__(self, parent, scene, index):
-        Connector.__init__(self, parent, scene, index)
+    def __init__(self, graphview, parent, scene, index):
+        Connector.__init__(self, graphview, parent, scene, index)
+        
         self.setPos(index * self.WIDTH * 2, parent.sizey - self.HEIGHT)
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
+
+        self.edge_list = []
+
+    def add_edge(self, edge):
+        self.edge_list.append(edge)
+
+    def adjust(self):
+        for e in self.edge_list:
+            e.adjust()
+
+
+    def mousePressEvent(self, event):
+        QtGui.QGraphicsItem.mousePressEvent(self, event)
+
+        self.graphview.start_edge(self)
 
 
 
 ################################################################################
 
+class AbstractEdge(QtGui.QGraphicsItem):
+    """
+    Base classe for edges
+    """
 
-class Edge(QtGui.QGraphicsItem):
-    """ An edget between two node """
+    def __init__(self, parent=None, scene=None):
+        QtGui.QGraphicsItem.__init__(self, parent, scene)
+
+        self.sourcePoint = QtCore.QPointF()
+        self.destPoint = QtCore.QPointF()
+
+
+    def boundingRect(self):
+
+        penWidth = 1
+        extra = (penWidth + 5) / 2.0
+
+        rect = QtCore.QRectF(self.sourcePoint,
+                             QtCore.QSizeF(self.destPoint.x() - self.sourcePoint.x(),
+                                           self.destPoint.y() - self.sourcePoint.y()))
+        
+        return rect.normalized().adjusted(-extra, -extra, extra, extra)
+
+    def paint(self, painter, option, widget):
+
+        # Draw the line itself.
+        line = QtCore.QLineF(self.sourcePoint, self.destPoint)
+
+        if line.length() == 0.0:
+            return
+
+        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1,
+                                  QtCore.Qt.SolidLine,
+                                  QtCore.Qt.RoundCap,
+                                  QtCore.Qt.RoundJoin))
+        painter.drawLine(line)
+
+
+class SemiEdge(AbstractEdge):
+    """
+    Represents an edge during its creation
+    It is connected to one connector only
+    """
+
+    def __init__(self, connector, parent=None, scene=None):
+        AbstractEdge.__init__(self, parent, scene)
+
+        self.connect = connector
+        self.sourcePoint = self.mapFromItem(connector, connector.rect().center())
+
+    def connector(self):
+        return self.connect
+
+    def setMousePoint(self, scene_point):
+        self.destPoint = scene_point
+        self.update()
     
-    Type = QtGui.QGraphicsItem.UserType + 2
+
+
+class Edge(AbstractEdge):
+    """ An edge between two graphical nodes """
+    
     
     def __init__(self, sourceNode, out_index, destNode, in_index, parent=None, scene=None):
         """
@@ -374,24 +454,20 @@ class Edge(QtGui.QGraphicsItem):
         @param destNode : destination GraphicalNode
         @param in_index : input connector index
         """
-        QtGui.QGraphicsItem.__init__(self, parent, scene)
+        AbstractEdge.__init__(self, parent, scene)
 
-        self.sourcePoint = QtCore.QPointF()
-        self.destPoint = QtCore.QPointF()
         self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
         src = sourceNode.get_output_connector(out_index)
-        if( src ) : src.setEdge(self)
+        if( src ) : src.add_edge(self)
 
         dst = destNode.get_input_connector(in_index)
-        if( dst ) : dst.setEdge(self)
+        if( dst ) : dst.set_edge(self)
 
         self.source = src
         self.dest = dst
         self.adjust()
 
-    def type(self):
-        return Edge.Type
 
     def adjust(self):
         if not self.source or not self.dest:
@@ -407,33 +483,5 @@ class Edge(QtGui.QGraphicsItem):
         self.sourcePoint = line.p1() 
         self.destPoint = line.p2() 
 
-    def boundingRect(self):
-        if not self.source or not self.dest:
-            return QtCore.QRectF()
-
-        penWidth = 1
-        extra = (penWidth + 5) / 2.0
-
-        rect = QtCore.QRectF(self.sourcePoint,
-                             QtCore.QSizeF(self.destPoint.x() - self.sourcePoint.x(),
-                                           self.destPoint.y() - self.sourcePoint.y()))
-        
-        return rect.normalized().adjusted(-extra, -extra, extra, extra)
-
-    def paint(self, painter, option, widget):
-        if not self.source or not self.dest:
-            return
-
-        # Draw the line itself.
-        line = QtCore.QLineF(self.sourcePoint, self.destPoint)
-
-        if line.length() == 0.0:
-            return
-
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1,
-                                  QtCore.Qt.SolidLine,
-                                  QtCore.Qt.RoundCap,
-                                  QtCore.Qt.RoundJoin))
-        painter.drawLine(line)
 
 
