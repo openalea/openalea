@@ -28,7 +28,7 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
-from item_model import NodeTreeView, PkgModel
+from node_treeview import NodeTreeView, PkgModel
 from subgraph_widget import SubGraphWidget
 
 
@@ -47,18 +47,17 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.setupUi(self)
 
         self.pkgmanager = pkgman
-        
+        self.tabWorkspace.removeTab(0)
+
         # python interpreter
 
         self.interpreterWidget = PyCutExt(locals=globals, parent=self.splitter)
-        self.interpreterWidget.setObjectName("interpreterWidget")
-
 
         # package tree view
 
         self.pkg_model = PkgModel(pkgman)
 
-        self.packageTreeView = NodeTreeView(self.packageview)
+        self.packageTreeView = NodeTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
@@ -68,6 +67,10 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.action_Help, SIGNAL("activated()"), self.help)
 
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
+
+        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"), self.close_workspace)
+
+        
 
 
     def about(self):
@@ -89,9 +92,14 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.close()
 
+    def close_workspace(self):
+        """ Close current workspace """
 
-    def open_tabwidget(self, pkg_name, node_name):
-        """ Open a widget in the tab view"""
+        self.tabWorkspace.removeTab( self.tabWorkspace.currentIndex())
+
+
+    def open_tabwidget_byname(self, pkg_name, node_name):
+        """ Open a widget in the tab view by its name """
 
         container = QtGui.QWidget()
 
@@ -100,4 +108,24 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         node = factory.instantiate()
         widget = factory.instantiate_widget(node, container)
 
-        self.tabWorkspace.addTab(container,"test")
+        vboxlayout = QtGui.QVBoxLayout(container)
+        vboxlayout.addWidget(widget)
+
+        index = self.tabWorkspace.addTab(container, node_name)
+        self.tabWorkspace.setCurrentIndex(index)
+
+
+    def open_tabwidget(self, factory):
+        """ Open a widget in the tab view """
+
+        container = QtGui.QWidget()
+
+        node = factory.instantiate()
+        widget = factory.instantiate_widget(node, container)
+
+        vboxlayout = QtGui.QVBoxLayout(container)
+        vboxlayout.addWidget(widget)
+
+        index = self.tabWorkspace.addTab(container, factory.get_id())
+        self.tabWorkspace.setCurrentIndex(index)
+

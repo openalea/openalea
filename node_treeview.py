@@ -141,14 +141,21 @@ class PkgModel (QAbstractItemModel) :
 class NodeTreeView(QtGui.QTreeView):
     """ Specialized TreeView to display node in a tree which support Drag and Drop """
     
-    def __init__(self, parent=None):
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
         QtGui.QTreeView.__init__(self, parent)
+
+        self.main_win = main_win
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
-
+        
+        
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.accept()
@@ -186,3 +193,11 @@ class NodeTreeView(QtGui.QTreeView):
 
         drag.start(QtCore.Qt.MoveAction)
         
+    def mouseDoubleClickEvent(self, event):
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        
+        if(isinstance(obj, NodeFactory)):
+            self.main_win.open_tabwidget(obj)
+            
