@@ -73,7 +73,7 @@ def main(args):
 
     
     win = MainWindow(pkgman, globals())
-    win.open_tabwidget("MySubgraphs", "Root")
+    win.open_tabwidget_byname("MySubgraphs", "Root")
     win.show()
     
     #    splash.finish(win);
