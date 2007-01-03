@@ -179,11 +179,18 @@ class NodeTreeView(QtGui.QTreeView):
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
         pixmap = QtGui.QPixmap(item.data(QtCore.Qt.DecorationRole))
 
-        dataStream << pixmap 
+        # put in the Mime Data pkg id and factory id
+        obj = item.internalPointer()
+
+        if(obj.mimetype == "openalea/nodefactory"):
+
+            factory_id = obj.get_id()
+            pkg_id = item.parent().internalPointer().get_id()
+            
+            dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
 
         mimeData = QtCore.QMimeData()
         
-        obj = item.internalPointer()
         mimeData.setData(obj.mimetype, itemData)
     
         drag = QtGui.QDrag(self)
