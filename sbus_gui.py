@@ -60,20 +60,17 @@ def main(args):
     pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     pkg_metainfo={}
-
     pkg=Package("MySubgraphs", pkg_metainfo)
 
-    factory = SubGraphFactory(pkgman, name="Root",
+    rootfactory = SubGraphFactory(pkgman, name="Root",
                                 desc= "",
                                 cat = "",
                                 )
 
-    pkg.add_nodefactory(factory)
+    pkg.add_nodefactory(rootfactory)
     pkgman.add_package(pkg)
 
-    
-    win = MainWindow(pkgman, globals())
-    win.open_widget_byname("MySubgraphs", "Root")
+    win = MainWindow(pkgman, rootfactory, globals())
     win.show()
     
     #    splash.finish(win);
