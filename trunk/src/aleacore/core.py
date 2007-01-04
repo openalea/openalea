@@ -164,6 +164,8 @@ class Node(object):
     def get_nb_input(self):
         return len(self.input_values)
     
+    def get_nb_output(self):
+        return len(self.output_values)
 
 
 ###############################################################################
@@ -253,7 +255,7 @@ class NodeFactory:
     def instantiate_widget(self, node, parent=None):
         """ Return the corresponding widget initialised with node """
 
-        if(self.module and self.self.widgetclass_name):
+        if(self.module and self.widgetclass_name):
             exec("from %s import %s as widgetclass" %(self.module, self.widgetclass_name))
 
             return widgetclass(node, self, parent)

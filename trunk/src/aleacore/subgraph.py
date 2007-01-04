@@ -56,6 +56,8 @@ class SubGraphFactory(NodeFactory):
         # ( dst_id , input_port ) : ( src_id, output_port )
         self.connections = {}
 
+        # Dictionnary which contains 2-uple (x,y) mapped by elt_id
+        self.elt_position = {}
 
         # Counter for generating id
         self.id_cpt = 0
@@ -121,8 +123,6 @@ class SubGraphFactory(NodeFactory):
         return subgraph
 
 
-
-
     def del_element(self, elt_id):
         """ Delete an element and its connection """
 
@@ -140,11 +140,12 @@ class SubGraphFactory(NodeFactory):
                 del(self.connections [ (dst_id, input_port) ])
         
 
-    def add_nodefactory(self, package_id, nodefactory_id):
+    def add_nodefactory(self, package_id, nodefactory_id, pos = None):
         """
         Add an element to the SubGraph
         @param package_id : the package id owning the nodefactory
         @param nodefactory_id : the nodefactory id
+        @param pos : (x,y) position
         Return the subgraph element ID
         """
 
@@ -152,7 +153,8 @@ class SubGraphFactory(NodeFactory):
         self.id_cpt += 1
 
         self.elt_factory[id] = (package_id, nodefactory_id)
-
+        self.elt_position[id] = pos
+        
         return id
 
         

@@ -69,33 +69,33 @@ def register_packages(pkgmanager):
                    'description' : 'Subgraphs.',
                    }
 
-    subgraphpackage=Package("subgraph", pkg_metainfo)
+    expackage=Package("Examples", pkg_metainfo)
 
     #We build a subgraph
 
-    sgfactory = SubGraphFactory(pkgmanager, name="sg1",
-                                desc= "Subgraph Exemple",
-                                cat = "Subgraphs",
+    sgfactory = SubGraphFactory(pkgmanager, name="ex1",
+                                desc= "Examples",
+                                cat = "Examples",
                                 )
 
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory ("simpleop", "add")
-    val1id = sgfactory.add_nodefactory ("simpleop", "val")
-    val2id = sgfactory.add_nodefactory ("simpleop", "val")
-    val3id = sgfactory.add_nodefactory ("simpleop", "val")
+    addid = sgfactory.add_nodefactory ("simpleop", "add", (200,200))
+    val1id = sgfactory.add_nodefactory ("simpleop", "val", (100,100))
+    val2id = sgfactory.add_nodefactory ("simpleop", "val", (300,100))
+    val3id = sgfactory.add_nodefactory ("simpleop", "val", (200,300))
 
     sgfactory.connect (val1id, 0, addid, 0)
     sgfactory.connect (val2id, 0, addid, 1)
     sgfactory.connect (addid, 0, val3id, 0)
 
-    subgraphpackage.add_nodefactory(sgfactory)
+    expackage.add_nodefactory(sgfactory)
 
 
     pkgmanager.add_package(oppackage)
-    pkgmanager.add_package(subgraphpackage)
+    pkgmanager.add_package(expackage)
 
-    return (oppackage, subgraphpackage)
+    return (oppackage, expackage)
 
         
 
