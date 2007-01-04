@@ -33,30 +33,40 @@ from aleacore.core import NodeWidget, RecursionError
 class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     """
     Default implementation of a NodeWidget
-    It provide a input box for each parameter
+    It displays the node contents
     """
 
-    def __init__(self, node, factory, parent=None):
+    def __init__(self, node, factory, mainwindow, parent=None):
 
-        NodeWidget.__init__(self, node, factory)
+        NodeWidget.__init__(self, node, factory, mainwindow)
         QtGui.QWidget.__init__(self, parent)
 
-    # to complete
+        self.label = QtGui.QLabel(self)
+        self.label.setText(self.get_node_contents())
+        
+
+    def get_node_contents(self):
+        """ Return a string representing the node internal dict """
+
+        str = self.factory.get_tip()
+        str += "\n"
+        for (key, value) in self.node.__dict__.items():
+            str += "%s : %s\n"%(key, value)
+        
+        return str
 
 
 class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Subgraph widget allowing to edit the network """
     
-    def __init__(self, node, factory, parent=None):
+    def __init__(self, node, factory, mainwindow, parent=None):
 
-        NodeWidget.__init__(self, node, factory)
+        NodeWidget.__init__(self, node, factory, mainwindow)
         QtGui.QGraphicsView.__init__(self, parent)
 
-        self.timerId = 0
 
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
-        #scene.setSceneRect(-200, -200, 400, 400)
         self.setScene(scene)
         #self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -65,10 +75,8 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.scale(0.8, 0.8)
-        #self.setMinimumSize(400, 400)
 
         self.newedge = None
-
         # dictionnary mapping elt_id and graphical items
         self.graphitem = {}
         
@@ -88,8 +96,11 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.add_graphical_connection(out_connector, in_connector)
 
 
+    # Mouse events
+
     def wheelEvent(self, event):
         self.scaleView(math.pow(2.0, -event.delta() / 240.0))
+
 
     def mouseMoveEvent(self, event):
         # update new edge position
@@ -98,6 +109,7 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             event.ignore()
         else:
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
+
 
     def mouseReleaseEvent(self, event):
         
@@ -110,13 +122,16 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
             self.scene().removeItem(self.newedge)
             self.newedge = None
-
             
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
 
-#     def itemMoved(self):
-#         pass
+    def itemMoved(self, item, newvalue):
+        """ function called when a node item has moved """
+        elt_id = item.elt_id
+        point = newvalue.toPointF()
+        self.factory.elt_position[elt_id] = (point.x(), point.y())
+    
 
     def scaleView(self, scaleFactor):
         factor = self.matrix().scale(scaleFactor, scaleFactor)\
@@ -178,14 +193,13 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
                     None, self.scene())
 
         return edge
-
         
 
     def add_node_to_factory(self, pkg_id, factory_id, position):
         """
-        @param position : node position in the subgraph
         @param pkg_id : package id string the factory is from 
-        @param factory_id : Factory id string 
+        @param factory_id : Factory id string
+        @param position : node position in the subgraph
         @return the new GraphicalNode
         """
 
@@ -194,7 +208,7 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # Try to instantiate
         if(not self.reinstantiate_node()):
             self.factory.del_element(eltid)
-            return
+            return None
             
         return self.add_graphical_node(eltid)
 
@@ -203,7 +217,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """
         @return the new Edge
         """
-
         if(connector_dst.is_connected()):
             return None
 
@@ -215,6 +228,15 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         return self.add_graphical_connection(connector_src, connector_dst)
 
 
+    def open_item(self, elt_id):
+        """ Open the widget of the item elt_id """
+
+        subnode = self.node.get_node_by_id(elt_id)
+        subfactory = subnode.factory
+
+        caption = "%s/%s"%(self.wcaption, elt_id)
+        self.mainwindow.open_widget( subfactory, subnode, caption)
+        
 
     # Drag and Drop from TreeView support
     
@@ -258,8 +280,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             event.ignore()
 
-    
-
 
 
 class GraphicalNode(QtGui.QGraphicsItem):
@@ -279,13 +299,21 @@ class GraphicalNode(QtGui.QGraphicsItem):
         QtGui.QGraphicsItem.__init__(self)
 
         self.elt_id = elt_id
-
+        
         self.graph = graphWidget
         self.newPos = QtCore.QPointF()
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
+            QtGui.QGraphicsItem.ItemIsMovable +
+            QtGui.QGraphicsItem.ItemIsSelectable))
         self.setZValue(1)
 
         self.caption = caption
+
+        # Set ToolTip
+        f =  self.graph.node.get_node_by_id(elt_id).factory
+        self.setToolTip( "Instance : %s\n"%(elt_id,) + f.get_tip())
+                
+
 
         # Font and box size
         self.font = self.graph.font()
@@ -296,8 +324,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.sizex = fm.width(self.caption)+ 20;
         self.sizey = 30
 
-
-        # Add to sene
+        # Add to scene
         scene.addItem(self)
 
         # Connectors
@@ -308,6 +335,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
         for i in range(noutput):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
 
+        
     def id(self):
         return self.elt_id
 
@@ -340,6 +368,11 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
         # Draw Box
         painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 100)))
+        if(self.isSelected()):
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 180)))
+        else:
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 100)))
+
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
         painter.drawRect(0, 0, self.sizex, self.sizey)
 
@@ -357,7 +390,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
             for c in self.connector_out :
                 c.adjust()
                  
-            #self.graph.itemMoved()
+            self.graph.itemMoved(self, value)
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
@@ -368,6 +401,10 @@ class GraphicalNode(QtGui.QGraphicsItem):
     def mouseReleaseEvent(self, event):
         self.update()
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
+
+    def mouseDoubleClickEvent(self, event):
+
+        self.graph.open_item(self.elt_id)
 
 
 ################################################################################

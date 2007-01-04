@@ -35,11 +35,12 @@ from subgraph_widget import SubGraphWidget
 
 class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
-    def __init__(self, pkgman, globals=None, parent=None):
+    def __init__(self, pkgman, rootsubgraph, globals=None, parent=None):
         """
         @param pkgman : the package manager
         @param globals : python interpreter globals
         @param parent : parent window
+        @param rootsubgraph : root SubGraphFactory 
         """
 
         QtGui.QMainWindow.__init__(self, parent)
@@ -47,6 +48,10 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.setupUi(self)
 
         self.pkgmanager = pkgman
+
+        # Dictionnary to map node with workspace tabs
+        self.node_tabindex = {} 
+
         self.tabWorkspace.removeTab(0)
 
         # python interpreter
@@ -57,7 +62,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.pkg_model = PkgModel(pkgman)
 
-        self.packageTreeView = NodeTreeView(self, self.packageview)
+        self.packageTreeView = NodeTreeView(self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
@@ -68,9 +73,13 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
 
-        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"), self.close_workspace)
+        self.connect(self.action_Close_current_workspace, SIGNAL("activated()")
+                     , self.close_workspace)
 
-        
+
+        # final init
+        self.root = rootsubgraph
+        self.open_widget(rootsubgraph)
 
 
     def about(self):
@@ -95,41 +104,47 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
     def close_workspace(self):
         """ Close current workspace """
 
-        self.tabWorkspace.removeTab( self.tabWorkspace.currentIndex())
+        cindex = self.tabWorkspace.currentIndex()
+        if(cindex == 0):
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "You cannot close Root workspace")
+            return
+        
+        self.tabWorkspace.removeTab( cindex )
+
+        for n in self.node_tabindex.keys():
+            if(self.node_tabindex[n] == cindex):
+                del(self.node_tabindex[n])
 
 
-    def open_widget_byname(self, pkg_name, node_name):
-        """ Open a widget in the tab view by its name """
-
-        container = QtGui.QWidget()
-
-        pkg = self.pkgmanager[pkg_name]
-        factory = pkg[node_name]
-        node = factory.instantiate()
-        widget = factory.instantiate_widget(node, container)
-
-        vboxlayout = QtGui.QVBoxLayout(container)
-        vboxlayout.addWidget(widget)
-
-        index = self.tabWorkspace.addTab(container, node_name)
-        self.tabWorkspace.setCurrentIndex(index)
-
-
-    def open_widget(self, factory, node = None):
+    def open_widget(self, factory, node = None, caption=""):
         """
         Open a widget giving the factory and an instance
         if node is null, a new instance is allocated
+        caption is append to the tab title
         """
 
         container = QtGui.QWidget()
 
         if ( node == None) :
             node = factory.instantiate()
-        widget = factory.instantiate_widget(node, container)
 
+        # Test if the node is already opened
+        elif( self.node_tabindex.has_key(node)):
+            self.tabWorkspace.setCurrentIndex(self.node_tabindex[node])
+            return
+            
+        widget = factory.instantiate_widget(node, self, container)
+        widget.wcaption = caption
+        
         vboxlayout = QtGui.QVBoxLayout(container)
         vboxlayout.addWidget(widget)
 
-        index = self.tabWorkspace.addTab(container, factory.get_id())
+        if(caption) : caption = " - %s "%(caption,)
+        
+        index = self.tabWorkspace.addTab(container, factory.get_id() + caption)
         self.tabWorkspace.setCurrentIndex(index)
+
+        self.node_tabindex[node] = index
+        
 

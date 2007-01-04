@@ -39,6 +39,7 @@ class PkgModel (QAbstractItemModel) :
         self.rootItem = pkgmanager
 
         self.parent_map = {}
+        self.row_map = {}
 
 
     def columnCount(self, parent):
@@ -94,38 +95,46 @@ class PkgModel (QAbstractItemModel) :
 
 
     def index(self, row, column, parent):
-        if not parent.isValid():
+
+        if (not parent.isValid()):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
 
         childItem = parentItem[ parentItem.keys()[row] ]
-        if childItem:
 
-            # save parent position
-            self.parent_map[ id(childItem) ] = (parentItem, row)
+        if (childItem):
+
+            # save parent and row
+            self.parent_map[ id(childItem) ] = parentItem
+            self.row_map[ id(childItem) ] = row
+                
             return self.createIndex(row, column, childItem)
         
         else:
             return QtCore.QModelIndex()
 
+
     def parent(self, index):
 
-        if not index.isValid():
+        if (not index.isValid()):
             return QtCore.QModelIndex()
 
         childItem = index.internalPointer()
         
-        (parentItem, row) = self.parent_map[ id(childItem) ]
-
-        if parentItem == self.rootItem:
+        parentItem = self.parent_map[ id(childItem) ]
+        
+        if (parentItem == self.rootItem):
             return QtCore.QModelIndex()
+        
+        else:
+            row = self.row_map[ id(parentItem) ]
+            return self.createIndex(row, 0, parentItem)
 
-        return self.createIndex(row, 0, parentItem)
 
     def rowCount(self, parent):
 
-        if not parent.isValid():
+        if (not parent.isValid()):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
@@ -141,19 +150,18 @@ class PkgModel (QAbstractItemModel) :
 class NodeTreeView(QtGui.QTreeView):
     """ Specialized TreeView to display node in a tree which support Drag and Drop """
     
-    def __init__(self, main_win, parent=None):
+    def __init__(self, parent=None):
         """
-        @param main_win : main window
         @param parent : parent widget
         """
         QtGui.QTreeView.__init__(self, parent)
 
-        self.main_win = main_win
-
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
-        self.setDropIndicatorShown(True)
+        h = self.header()
+        h.setVisible(False)
+        self.setHeader(h)
         
         
     def dragEnterEvent(self, event):
@@ -200,11 +208,11 @@ class NodeTreeView(QtGui.QTreeView):
 
         drag.start(QtCore.Qt.MoveAction)
         
-    def mouseDoubleClickEvent(self, event):
+#     def mouseDoubleClickEvent(self, event):
 
-        item = self.currentIndex()
-        obj =  item.internalPointer()
+#         item = self.currentIndex()
+#         obj =  item.internalPointer()
         
-        if(isinstance(obj, NodeFactory)):
-            self.main_win.open_widget(obj)
+#         if(isinstance(obj, NodeFactory)):
+#             self.main_win.open_widget(obj)
             
