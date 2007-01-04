@@ -247,12 +247,14 @@ class NodeFactory:
         if(self.module):
             exec("from %s import %s as tmpclass" %(self.module,self.nodeclass_name))
         
-            return tmpclass()
+            node = tmpclass()
+            node.factory = self
+            return node
         
         raise InstantiationError()
     
 
-    def instantiate_widget(self, node, parent=None):
+    def instantiate_widget(self, node, main_window, parent=None):
         """ Return the corresponding widget initialised with node """
 
         if(self.module and self.widgetclass_name):
@@ -264,7 +266,7 @@ class NodeFactory:
             try:
                 # if no widget declared, we create a default one
                 from visualea.node_widget import DefaultNodeWidget
-                return DefaultNodeWidget(node, self, parent)
+                return DefaultNodeWidget(node, self, main_window, parent)
             
             except ImportError:
                 raise InstantiationError()
@@ -276,10 +278,21 @@ class NodeWidget:
     Base class for all node widget
     """
 
-    def __init__(self, node, factory):
+    def __init__(self, node, factory, mainwindow):
 
         self.node = node
         self.factory = factory
+        self.mainwindow = mainwindow
+
+        self.widget_caption = ""
+
+    def set_caption(self, str):
+        self.widget_caption = str
+        
+    def get_caption(self):
+        return self.widget_caption
+
+    wcaption = property(get_caption, set_caption)
 
 
 ###############################################################################

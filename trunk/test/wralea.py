@@ -73,7 +73,7 @@ def register_packages(pkgmanager):
 
     #We build a subgraph
 
-    sgfactory = SubGraphFactory(pkgmanager, name="ex1",
+    sgfactory = SubGraphFactory(pkgmanager, name="SubGraphExample",
                                 desc= "Examples",
                                 cat = "Examples",
                                 )

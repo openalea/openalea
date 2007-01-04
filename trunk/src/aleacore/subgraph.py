@@ -74,23 +74,24 @@ class SubGraphFactory(NodeFactory):
         return SubGraphFactoryXmlWriter(self)
 
 
-    def instantiate(self, call_stack=[]):
+    def instantiate(self, call_stack=None):
         """ Create a SubGraph instance and allocate all elements
         This function overide default implementation of NodeFactory
 
         @param call_stack : the list of NodeFactory id already in recursion stack
         (in order to avoid infinite loop)
         """
-
+        
         # Test for infinite loop
+        if (not call_stack) : call_stack = []
         if ( self.get_id() in call_stack ):
             raise RecursionError()
 
         call_stack.append(self.get_id())
-                      
 
         new_df = SubGraph(self.num_input, self.num_output)
-
+        new_df.factory = self
+        
         # Instantiate the node with each factory
         for elt_id in self.elt_factory.keys():
 
@@ -149,7 +150,7 @@ class SubGraphFactory(NodeFactory):
         Return the subgraph element ID
         """
 
-        id = nodefactory_id + str(self.id_cpt)
+        id = "%s_%i"%( nodefactory_id, self.id_cpt)
         self.id_cpt += 1
 
         self.elt_factory[id] = (package_id, nodefactory_id)
@@ -177,13 +178,13 @@ class SubGraphFactory(NodeFactory):
         self.num_output = v
 
 
-    def instantiate_widget(self, node, parent=None):
+    def instantiate_widget(self, node, main_window, parent=None):
         """ Return the corresponding widget initialised with node """
 
         try:
             from visualea.node_widget import SubGraphWidget
             
-            return SubGraphWidget(node, self, parent)
+            return SubGraphWidget(node, self, main_window, parent)
             
         except ImportError:
             raise InstantiationError()
