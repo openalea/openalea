@@ -16,8 +16,7 @@
 #       This code is inspired from the puzzle QT4 example
 
 __doc__="""
-SubGraph widget inspired.
-
+Default Node Widget and Subgraph Widget
 """
 
 __license__= "GPL"
@@ -28,7 +27,7 @@ import sys
 import math
 
 from PyQt4 import QtCore, QtGui
-from aleacore.core import NodeWidget
+from aleacore.core import NodeWidget, RecursionError
 
 
 class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
@@ -69,7 +68,25 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         #self.setMinimumSize(400, 400)
 
         self.newedge = None
+
+        # dictionnary mapping elt_id and graphical items
+        self.graphitem = {}
         
+        # create items
+        for eltid in self.factory.elt_factory.keys():
+            self.add_graphical_node(eltid)
+
+        # create connections
+        for ((dst_id, in_port), (src_id, out_port)) in self.factory.connections.items():
+
+            srcitem = self.graphitem[src_id]
+            out_connector = srcitem.get_output_connector(out_port)
+
+            dstitem = self.graphitem[dst_id]
+            in_connector = dstitem.get_input_connector(in_port)
+
+            self.add_graphical_connection(out_connector, in_connector)
+
 
     def wheelEvent(self, event):
         self.scaleView(math.pow(2.0, -event.delta() / 240.0))
@@ -83,7 +100,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-
         
         if(self.newedge):
             item = self.itemAt(event.pos())
@@ -116,12 +132,56 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.newedge= SemiEdge(connector, None, self.scene())
 
-        
-        
-
+  
     # subgraph edition
 
-    def add_graphicalnode(self, position, pkg_id, factory_id):
+    def reinstantiate_node(self):
+        """ Return True if succeed """
+        try:
+            self.node = self.factory.instantiate()
+            return True
+        except RecursionError :
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "A Subgraph cannot be contained in itself.")
+            return False
+
+
+    def add_graphical_node(self, eltid):
+        """
+        Add the node graphical representation in the widget
+        @param eltid : element id in the factory
+        """
+
+        subnode = self.node.get_node_by_id(eltid)
+        
+        nin = subnode.get_nb_input()
+        nout = subnode.get_nb_output()
+        caption = self.factory.elt_factory[eltid][1]
+        position = self.factory.elt_position[eltid]
+
+        if(position) : (x,y) = position
+        else : (x,y) = (10,10)
+
+        gnode = GraphicalNode(self, eltid, nin, nout, caption )
+        gnode.setPos(QtCore.QPointF(x,y))
+
+        self.graphitem[eltid] = gnode
+        
+        return gnode
+
+
+    def add_graphical_connection(self, connector_src, connector_dst):
+        """ Return the new edge """
+        
+        edge = Edge(connector_src.parentItem(), connector_src.index(),
+                    connector_dst.parentItem(), connector_dst.index(),
+                    None, self.scene())
+
+        return edge
+
+        
+
+    def add_node_to_factory(self, pkg_id, factory_id, position):
         """
         @param position : node position in the subgraph
         @param pkg_id : package id string the factory is from 
@@ -129,11 +189,16 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         @return the new GraphicalNode
         """
 
-        gnode = GraphicalNode(self)
-        gnode.setPos(position)
+        eltid = self.factory.add_nodefactory(pkg_id, factory_id, (position.x(), position.y()))
 
-        return gnode
+        # Try to instantiate
+        if(not self.reinstantiate_node()):
+            self.factory.del_element(eltid)
+            return
+            
+        return self.add_graphical_node(eltid)
 
+    
     def connect_node(self, connector_src, connector_dst):
         """
         @return the new Edge
@@ -141,12 +206,14 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         if(connector_dst.is_connected()):
             return None
-        
-        edge = Edge(connector_src.parentItem(), connector_src.index(),
-                    connector_dst.parentItem(), connector_dst.index(),
-                    None, self.scene())
 
-        return edge
+        self.factory.connect(connector_src.parentItem().id(), connector_src.index(),
+                             connector_dst.parentItem().id(), connector_dst.index())
+
+        self.reinstantiate_node()
+        
+        return self.add_graphical_connection(connector_src, connector_dst)
+
 
 
     # Drag and Drop from TreeView support
@@ -182,7 +249,7 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             dataStream >> packageid >> factoryid
 
             # Add new node
-            self.add_graphicalnode(self.mapToScene(event.pos()), str(packageid), str(factoryid))
+            self.add_node_to_factory(str(packageid), str(factoryid), self.mapToScene(event.pos()))
 
 
             event.setDropAction(QtCore.Qt.MoveAction)
@@ -198,7 +265,7 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 class GraphicalNode(QtGui.QGraphicsItem):
     """ Represent a node in the subgraphwidget """
 
-    def __init__(self, graphWidget, elt_id=0, ninput=2, noutput=2,  caption="Node"):
+    def __init__(self, graphWidget, elt_id, ninput, noutput,  caption="Node"):
         """
         @param graphwidget : scene container
         @param elt_id : id in the subgraph
@@ -240,6 +307,9 @@ class GraphicalNode(QtGui.QGraphicsItem):
             self.connector_in.append(ConnectorIn(self.graph, self, scene, i))
         for i in range(noutput):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
+
+    def id(self):
+        return self.elt_id
 
     def get_input_connector(self, index):
         try:

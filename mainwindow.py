@@ -98,7 +98,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.tabWorkspace.removeTab( self.tabWorkspace.currentIndex())
 
 
-    def open_tabwidget_byname(self, pkg_name, node_name):
+    def open_widget_byname(self, pkg_name, node_name):
         """ Open a widget in the tab view by its name """
 
         container = QtGui.QWidget()
@@ -115,12 +115,16 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.tabWorkspace.setCurrentIndex(index)
 
 
-    def open_tabwidget(self, factory):
-        """ Open a widget in the tab view """
+    def open_widget(self, factory, node = None):
+        """
+        Open a widget giving the factory and an instance
+        if node is null, a new instance is allocated
+        """
 
         container = QtGui.QWidget()
 
-        node = factory.instantiate()
+        if ( node == None) :
+            node = factory.instantiate()
         widget = factory.instantiate_widget(node, container)
 
         vboxlayout = QtGui.QVBoxLayout(container)

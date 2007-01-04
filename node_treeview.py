@@ -206,5 +206,5 @@ class NodeTreeView(QtGui.QTreeView):
         obj =  item.internalPointer()
         
         if(isinstance(obj, NodeFactory)):
-            self.main_win.open_tabwidget(obj)
+            self.main_win.open_widget(obj)
             
