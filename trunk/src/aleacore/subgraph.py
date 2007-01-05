@@ -139,6 +139,8 @@ class SubGraphFactory(NodeFactory):
             
             if(src_id == elt_id or dst_id == elt_id ):
                 del(self.connections [ (dst_id, input_port) ])
+
+        self.notify_listeners()
         
 
     def add_nodefactory(self, package_id, nodefactory_id, pos = None):
@@ -155,10 +157,11 @@ class SubGraphFactory(NodeFactory):
 
         self.elt_factory[id] = (package_id, nodefactory_id)
         self.elt_position[id] = pos
+
+        self.notify_listeners()
         
         return id
 
-        
 
     def connect(self, elt_id_src, port_src, elt_id_dst, port_dst):
         """ Connect 2 elements :
@@ -169,6 +172,14 @@ class SubGraphFactory(NodeFactory):
         """
         
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
+
+        self.notify_listeners()
+        
+
+    def move_element(self, elt_id, position):
+        """ Move an element to a new position """
+
+        self.notify_listeners()
 
 
     def set_numinput(self, v):
@@ -184,7 +195,7 @@ class SubGraphFactory(NodeFactory):
         try:
             from visualea.node_widget import SubGraphWidget
             
-            return SubGraphWidget(node, self, main_window, parent)
+            return SubGraphWidget(node, main_window, parent)
             
         except ImportError:
             raise InstantiationError()

@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.AleaCore: OpenAlea Core
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -38,9 +38,10 @@ class InstantiationError(Exception):
 
 ###############################################################################
 
+from observer import Observed, AbstractListener
 
 
-class Node(object):
+class Node(Observed):
     """
     Base class for all Nodes.
     A Node is a callable object with typed inputs and outputs.
@@ -49,6 +50,7 @@ class Node(object):
     def __init__(self):
 
         # Effective values
+        Observed.__init__(self)
 
         self.input_values = []
         self.output_values = []
@@ -62,6 +64,10 @@ class Node(object):
         
         self.input_types = []
         self.output_types = []
+
+        # Parameters
+        
+        self.parameters = {}
         
 
     def __call__(self):
@@ -70,7 +76,22 @@ class Node(object):
         raise RuntimeError('Node function not implemented.')
 
 
-    # Functions used by the node implementation
+    # Node Parameters dictionnary functions
+
+    def __getitem__(self, key):
+        return self.parameters[key]
+
+    def __setitem__(self, key, val):
+        self.parameters[key] = val
+
+    def keys(self):
+        return self.parameters.keys()
+
+    def items(self):
+        return self.parameters.items()
+
+
+    # I/O Functions 
 
     def get_input(self, index):
         """
@@ -84,7 +105,11 @@ class Node(object):
 
         
         return ret
-        
+
+    def set_input(self, index, val):
+
+        self.input_values[index] = val
+
 
     def set_output(self, index, val):
         """
@@ -107,14 +132,7 @@ class Node(object):
         self.input_values = [None] * len( typelist )
         self.input_defaults = [None] * len( typelist )
 
-    def set_default_input(self, index, value):
-        """
-        Define the default value for an input port.
-        Port must before be created with define_inputs
-        """
-
-        self.input_defaults[index] = value
-
+   
     def define_outputs(self, typelist):
         """
         Create the input ports
@@ -127,23 +145,15 @@ class Node(object):
         self.output_types = typelist[:]
         self.output_values = [None] * len( typelist )
 
+    def set_default_input(self, index, value):
+        """
+        Define the default value for an input port.
+        Port must before be created with define_inputs
+        """
 
+        self.input_defaults[index] = value
 
-    # Functions used by the evaluator
-    def eval(self):
-        """ Evaluate the node """
-
-        inlist=[]
-        # generate input value list ( with defaults )
-        for i in range(len(self.input_values)):
-            inlist.append(self.get_input(i))
-
-        outlist = self.__call__(inlist)
-
-        for i in range( min ( len(outlist), len(self.output_values))):
-            self.output_values[i]=outlist[i]
-        
-    
+   
     def get_in_type(self, index):
 
         return self.input_types[index]
@@ -151,11 +161,6 @@ class Node(object):
     def get_out_type(self, index):
         
         return self.output_types[index]
-
-
-    def set_input(self, index, val):
-
-        self.input_values[index] = val
 
     def get_output(self, index):
 
@@ -167,13 +172,26 @@ class Node(object):
     def get_nb_output(self):
         return len(self.output_values)
 
+    # Functions used by the node evaluator
+    def eval(self):
+        """ Evaluate the node by calling __call__"""
+
+        inlist=[]
+        # generate input value list ( with defaults )
+        for i in range(len(self.input_values)):
+            inlist.append(self.get_input(i))
+
+        outlist = self.__call__(inlist)
+
+        for i in range( min ( len(outlist), len(self.output_values))):
+            self.output_values[i]=outlist[i]
+
+
 
 ###############################################################################
 
 
-
-
-class NodeFactory:
+class NodeFactory(Observed):
     """
     A Node factory is able to create node on demand, and their associated widget.
     """
@@ -210,6 +228,8 @@ class NodeFactory:
 	  - `widgetclass` : String
 	"""
 
+        Observed.__init__(self)
+        
         self.name = name
         self.description = desc
         self.doc = doc
@@ -266,26 +286,43 @@ class NodeFactory:
             try:
                 # if no widget declared, we create a default one
                 from visualea.node_widget import DefaultNodeWidget
-                return DefaultNodeWidget(node, self, main_window, parent)
+                return DefaultNodeWidget(node, main_window, parent)
             
             except ImportError:
                 raise InstantiationError()
 
 
+###############################################################################
 
-class NodeWidget:
+class NodeWidget(AbstractListener):
     """
     Base class for all node widget
     """
 
-    def __init__(self, node, factory, mainwindow):
+    def __init__(self, node, mainwindow):
 
         self.node = node
-        self.factory = factory
         self.mainwindow = mainwindow
 
         self.widget_caption = ""
 
+        # register to observed node and factory
+        self.initialise(node)
+        self.initialise(node.factory)
+            
+
+    def get_node(self):
+        return self.__node
+
+    def set_node(self, node):
+        self.__node = node
+
+    def get_factory(self):
+        return self.__node.factory
+
+    node = property(get_node, set_node)
+    factory = property(get_factory)
+    
     def set_caption(self, str):
         self.widget_caption = str
         
@@ -293,6 +330,13 @@ class NodeWidget:
         return self.widget_caption
 
     wcaption = property(get_caption, set_caption)
+
+    def notify(self):
+        """
+        This function is called by the Observed objects
+        and must be overloaded
+        """
+        pass
 
 
 ###############################################################################

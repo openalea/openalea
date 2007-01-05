@@ -46,35 +46,17 @@ class Value(Node):
         self.define_inputs([None])
         self.define_outputs([None])
 
-        self.val=0.
-        self.set_default_input(0, self.val)
+        self['val']=0.
 
-    def get_value(self):
-        return self.val
-
-    def set_value(self, v):
-        self.val=v
-        self.set_default_input(0, self.val)
-
-    value=property(get_value, set_value)
-
-#     def __call__(self):
-
-#         i0=self.get_input(0)
-        
-#         if(i0 != self.value ) :
-#             self.val = i0
-
-#         self.set_output(0, self.val )
-   
+        self.set_default_input(0, self['val'])
 
     def __call__(self, inputs=()):
         """ inputs is the list of input values """
         
         i0=inputs[0]
         
-        if(i0 != self.val ) :
-            self.value = i0
+        if(i0 != self['val'] ) :
+            self['val'] = i0
 
-        return ( self.value,  )
+        return ( self['val'],  )
         
