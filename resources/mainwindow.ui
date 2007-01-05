@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>OpenAlea Software Bus</string>
+   <string>VisuAlea</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >

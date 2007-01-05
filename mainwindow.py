@@ -31,6 +31,8 @@ from pycutext import PyCutExt
 from node_treeview import NodeTreeView, PkgModel
 from subgraph_widget import SubGraphWidget
 
+import config
+
 
 
 class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
@@ -73,10 +75,16 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
 
-        self.connect(self.action_Close_current_workspace, SIGNAL("activated()")
-                     , self.close_workspace)
+        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
+                     self.close_workspace)
 
+        self.connect(self.action_Auto_Search, SIGNAL("activated()"),
+                     self.find_wralea)
+        self.connect(self.action_Add_File, SIGNAL("activated()"),
+                     self.add_wralea)
+        
 
+        
         # final init
         self.root = rootsubgraph
         self.open_widget(rootsubgraph)
@@ -85,10 +93,12 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
     def about(self):
         """ Display About Dialog """
 
+        
         mess = QtGui.QMessageBox.about(self, "About Visualea",
-                                       "Visualea is part of the OpenAlea framework.\n\n"+
+                                       "Version %s\n\n"%(config.version) +
+                                       "VisuAlea is part of the OpenAlea framework.\n"+
                                        u"Copyright \xa9  2006 INRIA - CIRAD - INRA\n"+
-                                       "This Software is distributed under the GPL License\n\n"+
+                                       "This Software is distributed under the GPL License.\n\n"+
                                        
                                        "Visit http://openalea.gforge.inria.fr\n")
 
@@ -146,5 +156,16 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.tabWorkspace.setCurrentIndex(index)
 
         self.node_tabindex[node] = index
-        
 
+    def add_wralea(self):
+
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Add Wralea")
+        
+        self.pkgmanager.add_wralea(str(filename))
+        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+    
+    def find_wralea(self):
+
+        self.pkgmanager.find_and_register_packages()
+        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+    
