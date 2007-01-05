@@ -36,9 +36,9 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     It displays the node contents
     """
 
-    def __init__(self, node, factory, mainwindow, parent=None):
+    def __init__(self, node, mainwindow, parent=None):
 
-        NodeWidget.__init__(self, node, factory, mainwindow)
+        NodeWidget.__init__(self, node, mainwindow)
         QtGui.QWidget.__init__(self, parent)
 
         self.label = QtGui.QLabel(self)
@@ -50,20 +50,25 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
 
         str = self.factory.get_tip()
         str += "\n"
-        for (key, value) in self.node.__dict__.items():
+        for (key, value) in self.node.items():
             str += "%s : %s\n"%(key, value)
         
         return str
+
+    def notify(self):
+        """ Function called by observed objects """
+        
+        self.label.setText(self.get_node_contents())
+
 
 
 class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Subgraph widget allowing to edit the network """
     
-    def __init__(self, node, factory, mainwindow, parent=None):
+    def __init__(self, node, mainwindow, parent=None):
 
-        NodeWidget.__init__(self, node, factory, mainwindow)
+        NodeWidget.__init__(self, node, mainwindow)
         QtGui.QGraphicsView.__init__(self, parent)
-
 
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
@@ -77,9 +82,25 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.scale(0.8, 0.8)
 
         self.newedge = None
+
         # dictionnary mapping elt_id and graphical items
         self.graphitem = {}
+
+        self.rebuild_scene()
         
+
+    def clear_scene(self):
+        """ Remove all items from the scene """
+        
+        self.graphitem = {}
+        for i in self.scene().items():
+            del(i)
+        
+
+    def rebuild_scene(self):
+        """ Build the scene with graphic node and edget"""
+    
+        self.clear_scene()
         # create items
         for eltid in self.factory.elt_factory.keys():
             self.add_graphical_node(eltid)
@@ -130,8 +151,14 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ function called when a node item has moved """
         elt_id = item.elt_id
         point = newvalue.toPointF()
-        self.factory.elt_position[elt_id] = (point.x(), point.y())
-    
+        self.factory.move_element(elt_id, (point.x(), point.y()))
+
+
+    def notify(self):
+        """ Function called by observed objects """
+        
+        #self.rebuild_scene()
+
 
     def scaleView(self, scaleFactor):
         factor = self.matrix().scale(scaleFactor, scaleFactor)\
@@ -272,7 +299,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
             # Add new node
             self.add_node_to_factory(str(packageid), str(factoryid), self.mapToScene(event.pos()))
-
 
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()

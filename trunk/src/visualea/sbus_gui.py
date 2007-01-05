@@ -57,7 +57,7 @@ def main(args):
 
     # initilize package manager
     pkgman = PackageManager()
-    pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
+#    pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     pkg_metainfo={}
     pkg=Package("MySubgraphs", pkg_metainfo)

@@ -159,9 +159,7 @@ class NodeTreeView(QtGui.QTreeView):
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
-        h = self.header()
-        h.setVisible(False)
-        self.setHeader(h)
+        h = self.header().hide()
         
         
     def dragEnterEvent(self, event):
