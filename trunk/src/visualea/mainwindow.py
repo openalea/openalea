@@ -29,7 +29,6 @@ import ui_mainwindow
 from pycutext import PyCutExt
 
 from node_treeview import NodeTreeView, PkgModel
-from subgraph_widget import SubGraphWidget
 
 import config
 
