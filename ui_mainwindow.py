@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Jan  7 20:16:13 2007
+# Created: Mon Jan  8 11:01:18 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -97,14 +97,14 @@ class Ui_MainWindow(object):
         self.menu_Python = QtGui.QMenu(self.menubar)
         self.menu_Python.setObjectName("menu_Python")
 
+        self.menu_Workspace = QtGui.QMenu(self.menubar)
+        self.menu_Workspace.setObjectName("menu_Workspace")
+
         self.menu_Package = QtGui.QMenu(self.menubar)
         self.menu_Package.setObjectName("menu_Package")
 
         self.menu_Wralea_2 = QtGui.QMenu(self.menu_Package)
         self.menu_Wralea_2.setObjectName("menu_Wralea_2")
-
-        self.menu_Workspace = QtGui.QMenu(self.menubar)
-        self.menu_Workspace.setObjectName("menu_Workspace")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -167,19 +167,17 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionSave_as)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
-        self.menu_Wralea_2.addAction(self.action_Add_File)
-        self.menu_Wralea_2.addAction(self.action_Auto_Search)
-        self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
-        self.menu_Package.addSeparator()
-        self.menu_Package.addAction(self.action_Find)
-        self.menu_Package.addSeparator()
-        self.menu_Package.addAction(self.action_New_Package)
-        self.menu_Package.addAction(self.action_Remove_Package)
         self.menu_Workspace.addAction(self.action_Close_current_workspace)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.action_New_Network)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.action_Run)
+        self.menu_Wralea_2.addAction(self.action_Add_File)
+        self.menu_Wralea_2.addAction(self.action_Auto_Search)
+        self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.action_New_Package)
+        self.menu_Package.addAction(self.action_Remove_Package)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menu_Workspace.menuAction())
@@ -199,9 +197,9 @@ class Ui_MainWindow(object):
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Wralea", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Component", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Project.setText(QtGui.QApplication.translate("MainWindow", "&New Project", None, QtGui.QApplication.UnicodeUTF8))

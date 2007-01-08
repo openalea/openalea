@@ -27,6 +27,22 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QTextEdit, QTextCursor
 from PyQt4.QtCore import Qt
 
+
+class MultipleRedirection:
+    """ Dummy file which redirects stream to multiple file """
+
+    def __init__(self, files):
+        """ The stream is redirect to the file list 'files' """
+
+        self.files = files
+
+    def write(self, str):
+        """ Emulate write function """
+
+        for f in self.files:
+            f.write(str)
+            
+
 class PyCutExt(QTextEdit):
 
     """
@@ -68,8 +84,10 @@ class PyCutExt(QTextEdit):
 
         # capture all interactive input/output 
         sys.stdout   = self
-        #sys.stderr   = self
+        sys.stderr   = MultipleRedirection((sys.stderr, self))
         sys.stdin    = self
+
+        
         # last line + last incomplete lines
         self.line    = QtCore.QString()
         self.lines   = []

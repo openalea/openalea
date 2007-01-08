@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
-from aleacore.core import NodeFactory, Package
+from core.core import NodeFactory, Package
 
 import images_rc
 
@@ -150,11 +150,15 @@ class PkgModel (QAbstractItemModel) :
 class NodeTreeView(QtGui.QTreeView):
     """ Specialized TreeView to display node in a tree which support Drag and Drop """
     
-    def __init__(self, parent=None):
+    def __init__(self, main_win, parent=None):
         """
+        @param main_win : main window
         @param parent : parent widget
         """
+        
         QtGui.QTreeView.__init__(self, parent)
+
+        self.main_win = main_win
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -206,11 +210,11 @@ class NodeTreeView(QtGui.QTreeView):
 
         drag.start(QtCore.Qt.MoveAction)
         
-#     def mouseDoubleClickEvent(self, event):
+    def mouseDoubleClickEvent(self, event):
 
-#         item = self.currentIndex()
-#         obj =  item.internalPointer()
+        item = self.currentIndex()
+        obj =  item.internalPointer()
         
-#         if(isinstance(obj, NodeFactory)):
-#             self.main_win.open_widget(obj)
+        if(isinstance(obj, NodeFactory)):
+            self.main_win.open_widget_tab(obj)
             

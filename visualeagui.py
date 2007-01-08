@@ -28,9 +28,9 @@ from PyQt4 import QtCore
 
 from mainwindow import MainWindow
 
-from aleacore.pkgmanager import PackageManager
-from aleacore.core import Package
-from aleacore.subgraph import SubGraphFactory
+from core.pkgmanager import PackageManager
+from core.core import Package
+from core.subgraph import SubGraphFactory
 
 
 
@@ -60,7 +60,7 @@ def main(args):
 #    pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     pkg_metainfo={}
-    pkg=Package("MySubgraphs", pkg_metainfo)
+    pkg=Package("MyObjects", pkg_metainfo)
 
     rootfactory = SubGraphFactory(pkgman, name="Root",
                                 desc= "",
