@@ -140,24 +140,6 @@
      <string>P&amp;ython</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Wralea</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="separator" />
-    <addaction name="action_Find" />
-    <addaction name="separator" />
-    <addaction name="action_New_Package" />
-    <addaction name="action_Remove_Package" />
-   </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="title" >
      <string>&amp;Workspace</string>
@@ -167,6 +149,22 @@
     <addaction name="action_New_Network" />
     <addaction name="separator" />
     <addaction name="action_Run" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Component</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="separator" />
+    <addaction name="action_New_Package" />
+    <addaction name="action_Remove_Package" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />

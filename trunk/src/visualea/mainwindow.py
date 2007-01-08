@@ -50,8 +50,8 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.pkgmanager = pkgman
 
-        # Dictionnary to map node with workspace tabs
-        self.node_tabindex = {} 
+        # Dictionnary to map factory with workspace tabs
+        self.factory_tabindex = {} 
 
         self.tabWorkspace.removeTab(0)
 
@@ -63,7 +63,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.pkg_model = PkgModel(pkgman)
 
-        self.packageTreeView = NodeTreeView(self.packageview)
+        self.packageTreeView = NodeTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
@@ -86,7 +86,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         
         # final init
         self.root = rootsubgraph
-        self.open_widget(rootsubgraph)
+        self.open_widget_tab(rootsubgraph)
 
 
     def about(self):
@@ -121,28 +121,29 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         
         self.tabWorkspace.removeTab( cindex )
 
-        for n in self.node_tabindex.keys():
-            if(self.node_tabindex[n] == cindex):
-                del(self.node_tabindex[n])
+        for n in self.factory_tabindex.keys():
+            if(self.factory_tabindex[n] == cindex):
+                del(self.factory_tabindex[n])
 
 
-    def open_widget(self, factory, node = None, caption=""):
+    def open_widget_tab(self, factory, node = None, caption=""):
         """
-        Open a widget giving the factory and an instance
+        Open a widget in a tab giving the factory and an instance
         if node is null, a new instance is allocated
         caption is append to the tab title
         """
+
+        
+        # Test if the node is already opened
+        if( self.factory_tabindex.has_key(factory)):
+            self.tabWorkspace.setCurrentIndex(self.factory_tabindex[factory])
+            return
 
         container = QtGui.QWidget()
 
         if ( node == None) :
             node = factory.instantiate()
 
-        # Test if the node is already opened
-        elif( self.node_tabindex.has_key(node)):
-            self.tabWorkspace.setCurrentIndex(self.node_tabindex[node])
-            return
-            
         widget = factory.instantiate_widget(node, self, container)
         widget.wcaption = caption
         
@@ -154,7 +155,8 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         index = self.tabWorkspace.addTab(container, factory.get_id() + caption)
         self.tabWorkspace.setCurrentIndex(index)
 
-        self.node_tabindex[node] = index
+        self.factory_tabindex[factory] = index
+        
 
     def add_wralea(self):
 
