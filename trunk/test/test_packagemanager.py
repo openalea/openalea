@@ -21,7 +21,7 @@ Test the Package Manager
 """
 
 
-from aleacore.pkgmanager import PackageManager
+from core.pkgmanager import PackageManager
 import os
 import openalea
 

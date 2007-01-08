@@ -4,8 +4,8 @@
 
 #from openalea.softbus.core import Package, NodeFactory
 
-from aleacore.core import Package, NodeFactory
-from aleacore.subgraph import SubGraphFactory
+from core.core import Package, NodeFactory
+from core.subgraph import SubGraphFactory
 from simpleop import Add, Value
 
 #register packages

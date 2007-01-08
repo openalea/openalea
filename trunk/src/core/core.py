@@ -247,8 +247,8 @@ class NodeFactory(Observed):
         """ Return the node description """
 
         return "Name : %s\n"%(self.name,) +\
-               "Cat  : %s\n"%(self.category,) +\
-               "Desc : %s\n"%(self.description,) + \
+               "Category  : %s\n"%(self.category,) +\
+               "Description : %s\n"%(self.description,) + \
                "Doc  : %s\n"%(self.doc,)
 
     def get_xmlwriter(self):

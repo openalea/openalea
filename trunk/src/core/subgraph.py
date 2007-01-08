@@ -60,7 +60,7 @@ class SubGraphFactory(NodeFactory):
         self.elt_position = {}
 
         # Counter for generating id
-        self.id_cpt = 0
+        self.id_cpt = 1
 
         # I/O
         self.num_input = 0
@@ -193,7 +193,7 @@ class SubGraphFactory(NodeFactory):
         """ Return the corresponding widget initialised with node """
 
         try:
-            from visualea.node_widget import SubGraphWidget
+            from visualea.subgraph_widget import SubGraphWidget
             
             return SubGraphWidget(node, main_window, parent)
             
