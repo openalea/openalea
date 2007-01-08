@@ -277,6 +277,9 @@ class NodeFactory(Observed):
     def instantiate_widget(self, node, main_window, parent=None):
         """ Return the corresponding widget initialised with node """
 
+        if(node == None):
+            node = self.instantiate()
+
         if(self.module and self.widgetclass_name):
             exec("from %s import %s as widgetclass" %(self.module, self.widgetclass_name))
 

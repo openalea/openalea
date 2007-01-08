@@ -189,13 +189,21 @@ class SubGraphFactory(NodeFactory):
         self.num_output = v
 
 
-    def instantiate_widget(self, node, main_window, parent=None):
+    def instantiate_widget(self, node, main_window, parent):
         """ Return the corresponding widget initialised with node """
 
         try:
-            from visualea.subgraph_widget import SubGraphWidget
+            if(node == None):
+
+                node = self.instantiate()
+                
+                from visualea.subgraph_widget import EditSubGraphWidget
+                return EditSubGraphWidget(node, main_window, parent)
             
-            return SubGraphWidget(node, main_window, parent)
+            else:
+                from visualea.subgraph_widget import DisplaySubGraphWidget
+                return DisplaySubGraphWidget(node, main_window, parent)
+            
             
         except ImportError:
             raise InstantiationError()
