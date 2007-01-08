@@ -37,7 +37,7 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     It displays the node contents
     """
 
-    def __init__(self, node, mainwindow, parent=None):
+    def __init__(self, node, mainwindow, parent):
 
         NodeWidget.__init__(self, node, mainwindow)
         QtGui.QWidget.__init__(self, parent)

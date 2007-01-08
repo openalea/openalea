@@ -48,6 +48,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+
         self.pkgmanager = pkgman
 
         # Dictionnary to map factory with workspace tabs
@@ -110,6 +111,14 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.close()
 
+    def closeEvent(self, event):
+        """ Close All subwindows """
+        
+        for i in range(self.tabWorkspace.count()):
+            w = self.tabWorkspace.widget(i)
+            w.close()
+        event.accept()
+            
     def close_workspace(self):
         """ Close current workspace """
 
@@ -119,11 +128,15 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
                                              "You cannot close Root workspace")
             return
         
+        w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab( cindex )
-
+        w.close()
+        w.emit(QtCore.SIGNAL("close()"))
+        
         for n in self.factory_tabindex.keys():
             if(self.factory_tabindex[n] == cindex):
                 del(self.factory_tabindex[n])
+
 
 
     def open_widget_tab(self, factory, node = None, caption=""):
@@ -139,12 +152,10 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             self.tabWorkspace.setCurrentIndex(self.factory_tabindex[factory])
             return
 
-        container = QtGui.QWidget()
+        container = QtGui.QWidget(self)
+        container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        if ( node == None) :
-            node = factory.instantiate()
-
-        widget = factory.instantiate_widget(node, self, container)
+        widget = factory.instantiate_widget(node, self, parent=container)
         widget.wcaption = caption
         
         vboxlayout = QtGui.QVBoxLayout(container)
