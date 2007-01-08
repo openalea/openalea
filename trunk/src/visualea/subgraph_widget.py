@@ -31,7 +31,19 @@ from PyQt4 import QtCore, QtGui
 from core.core import NodeWidget, RecursionError
 
 
-class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
+
+class DisplaySubGraphWidget(NodeWidget, QtGui.QGraphicsView):
+    """ Subgraph widget allowing to edit the network """
+    
+    def __init__(self, node, mainwindow, parent=None):
+
+        NodeWidget.__init__(self, node, mainwindow)
+        QtGui.QGraphicsView.__init__(self, parent)
+
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        
+
+class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Subgraph widget allowing to edit the network """
     
     def __init__(self, node, mainwindow, parent=None):
@@ -60,15 +72,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.rebuild_scene()
         
-
-    def closeEvent(self, event):
-        """ Close all sub dialog and accept event """
-        
-        for d in self.node_dialog.values():
-            d.close()
-
-        event.accept()
-    
 
     def clear_scene(self):
         """ Remove all items from the scene """
@@ -244,7 +247,6 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def open_item(self, elt_id):
         """ Open the widget of the item elt_id """
 
-        
         # Test if the node is already opened
         if( self.node_dialog.has_key(elt_id)):
             self.node_dialog[elt_id].show()
@@ -259,8 +261,9 @@ class SubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         caption = "%s/%s"%(self.wcaption, elt_id)
 
         container = QtGui.QDialog(self)
+        container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             
-        widget = factory.instantiate_widget(node, self, container)
+        widget = factory.instantiate_widget(node, self.mainwindow, container)
         widget.wcaption = caption
         
         vboxlayout = QtGui.QVBoxLayout(container)
@@ -349,8 +352,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
         f =  self.graph.node.get_node_by_id(elt_id).factory
         self.setToolTip( "Instance : %s\n"%(elt_id,) + f.get_tip())
                 
-
-
         # Font and box size
         self.font = self.graph.font()
         self.font.setBold(True)
@@ -517,10 +518,8 @@ class ConnectorOut(Connector):
         for e in self.edge_list:
             e.adjust()
 
-
     def mousePressEvent(self, event):
         QtGui.QGraphicsItem.mousePressEvent(self, event)
-
         self.graphview.start_edge(self)
 
 
