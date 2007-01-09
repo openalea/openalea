@@ -69,11 +69,19 @@ class Node(Observed):
         
         self.parameters = {}
         
+        self.factory = None
+        
 
     def __call__(self):
         """ Call function. Must be overriden """
         
         raise RuntimeError('Node function not implemented.')
+
+    def get_factory(self):
+        return self.factory
+
+    def set_factory(self, f):
+        self.factory = f
 
 
     # Node Parameters dictionnary functions
@@ -311,7 +319,7 @@ class NodeWidget(AbstractListener):
 
         # register to observed node and factory
         self.initialise(node)
-        self.initialise(node.factory)
+        self.initialise(node.get_factory())
 
         self.node.register_listener(self)
             
@@ -323,7 +331,7 @@ class NodeWidget(AbstractListener):
         self.__node = node
 
     def get_factory(self):
-        return self.__node.factory
+        return self.__node.get_factory()
 
     node = property(get_node, set_node)
     factory = property(get_factory)

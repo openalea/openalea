@@ -59,13 +59,19 @@ class SubGraphFactory(NodeFactory):
         # Dictionnary which contains 2-uple (x,y) mapped by elt_id
         self.elt_position = {}
 
+        # Dictionnary which contains a short description of each element
+        self.elt_short_desc = {}
+
         # Counter for generating id
         self.id_cpt = 1
 
         # I/O
         self.num_input = 0
         self.num_output = 0
-
+        self.elt_position['in'] = ( 20,5 )
+        self.elt_position['out'] = ( 20,250 )
+        self.elt_short_desc['in'] = "Inputs"
+        self.elt_short_desc['out'] = "Outputs"
 
     def get_xmlwriter(self):
         """ Return an instance of a xml writer """
@@ -143,12 +149,13 @@ class SubGraphFactory(NodeFactory):
         self.notify_listeners()
         
 
-    def add_nodefactory(self, package_id, nodefactory_id, pos = None):
+    def add_nodefactory(self, package_id, nodefactory_id, pos = None, short_desc = None):
         """
         Add an element to the SubGraph
         @param package_id : the package id owning the nodefactory
         @param nodefactory_id : the nodefactory id
         @param pos : (x,y) position
+        @param short_desc : a short description of the node purpose
         Return the subgraph element ID
         """
 
@@ -157,6 +164,9 @@ class SubGraphFactory(NodeFactory):
 
         self.elt_factory[id] = (package_id, nodefactory_id)
         self.elt_position[id] = pos
+
+        if(short_desc == None) : short_desc = id
+        self.elt_short_desc[id] = short_desc
 
         self.notify_listeners()
         
@@ -172,14 +182,30 @@ class SubGraphFactory(NodeFactory):
         """
         
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
-
         self.notify_listeners()
         
 
-    def move_element(self, elt_id, position):
-        """ Move an element to a new position """
+    def get_position(self, elt_id):
+        """ Return the position of the element elt_id in a 2 uple (x,y)"""
+        return self.elt_position[elt_id]
 
+
+    def move_element(self, elt_id, position):
+        """ Move an element to a new position, position is 2 uples (x,y) """
+
+        self.elt_position[elt_id] = position
         self.notify_listeners()
+
+
+    def get_short_description(self, elt_id):
+        """ Return the description of an element """
+        return self.elt_short_desc[elt_id]
+        
+
+
+    def set_short_description(self, elt_id, desc):
+        """ Set the description of an element """
+        self.elt_short_desc[elt_id] = desc
 
 
     def set_numinput(self, v):
@@ -238,6 +264,7 @@ class SubGraph(Node):
         if(noutput>0) :
             self.define_outputs([None]*noutput)
             self.node_id['out'] = SubgraphOutput(self, noutput)
+
 
     def get_ids(self):
         """ Return the list of element id """
@@ -361,7 +388,7 @@ class SubgraphInput(Node):
         
     def __call__(self, inputs=()):
         return ()
-        
+
 
 class SubgraphOutput(Node):
     """
@@ -385,3 +412,5 @@ class SubgraphOutput(Node):
         
     def __call__(self, inputs=()):
         return ()
+
+    

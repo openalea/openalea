@@ -4,7 +4,6 @@
 
 
 from core.core import Node
-
 # do import 
 
 
@@ -48,14 +47,15 @@ class Value(Node):
 
         self['val']=0.
 
-        self.set_default_input(0, self['val'])
+        #self.set_default_input(0, self['val'])
+        
 
     def __call__(self, inputs=()):
         """ inputs is the list of input values """
         
         i0=inputs[0]
         
-        if(i0 != self['val'] ) :
+        if(i0 and i0 != self['val'] ) :
             self['val'] = i0
 
         return ( self['val'],  )

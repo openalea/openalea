@@ -37,8 +37,9 @@ def register_packages(pkgmanager):
                     desc= "Addition", # description
                     doc= Add.__doc__, # documentation string
                     cat = "Operations", # category
-                    module = "simpleop",
+                    nodemodule = "simpleop",
                     nodeclass = "Add", # Node
+                    widgetmodule = None,
                     widgetclass = None, # Widget
                     )
 
@@ -46,8 +47,9 @@ def register_packages(pkgmanager):
                     desc = "Value", # description
                     doc = Value.__doc__, # documentation string
                     cat  = "Operations", # category
-                    module = "simpleop",
+                    nodemodule = "simpleop",
                     nodeclass = "Value", # Node
+                    widgetmodule = None,
                     widgetclass = None, # Widget
                     )
 
@@ -80,10 +82,10 @@ def register_packages(pkgmanager):
 
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory ("simpleop", "add", (200,200))
-    val1id = sgfactory.add_nodefactory ("simpleop", "val", (100,100))
-    val2id = sgfactory.add_nodefactory ("simpleop", "val", (300,100))
-    val3id = sgfactory.add_nodefactory ("simpleop", "val", (200,300))
+    addid = sgfactory.add_nodefactory ("simpleop", "add", (200,200), "Addition")
+    val1id = sgfactory.add_nodefactory ("simpleop", "val", (100,100), "Input 1")
+    val2id = sgfactory.add_nodefactory ("simpleop", "val", (300,100), "Input 2")
+    val3id = sgfactory.add_nodefactory ("simpleop", "val", (200,300), "Result")
 
     sgfactory.connect (val1id, 0, addid, 0)
     sgfactory.connect (val2id, 0, addid, 1)
