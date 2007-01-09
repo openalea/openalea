@@ -4,7 +4,9 @@ import sys
 import os
 
 
-for (ui, dst) in [ ('mainwindow.ui', '../ui_mainwindow.py') ]:
+for (ui, dst) in [ ('mainwindow.ui', '../ui_mainwindow.py'),
+                   ('newgraph.ui', '../ui_newgraph.py'),
+                   ]:
     os.system("pyuic4 %s > %s "%(ui, dst))
 
 

@@ -32,6 +32,7 @@ from node_treeview import NodeTreeView, PkgModel
 
 import config
 
+from core.subgraph import SubGraphFactory
 
 
 class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
@@ -81,14 +82,16 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
                      self.close_workspace)
 
-        self.connect(self.action_Auto_Search, SIGNAL("activated()"),
-                     self.find_wralea)
-        self.connect(self.action_Add_File, SIGNAL("activated()"),
-                     self.add_wralea)
+        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.find_wralea)
+        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_wralea)
 
-        self.connect(self.action_Run, SIGNAL("activated()"),
-                     self.run)
-        
+        self.connect(self.action_Run, SIGNAL("activated()"), self.run)
+        self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
+                     self.contextMenuEvent)
+
+        self.connect(self.action_New_Network, SIGNAL("activated()"),
+                     self.new_graph)
+
 
         # final init
         self.root = rootsubgraph
@@ -196,3 +199,101 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         w = self.tabWorkspace.widget(cindex)
 
         self.index_nodewidget[cindex].node.eval()
+
+
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+
+        pos = self.tabWorkspace.mapFromGlobal(event.globalPos())
+        
+        tabBar = self.tabWorkspace.tabBar()
+        count = tabBar.count()
+
+        index = -1
+        for i in range(count):
+
+            if(tabBar.tabRect(i).contains(pos)):
+                index = i
+                break
+
+        # if no bar was hit, return
+        if (index<0) :  return 
+
+        # set hitted bar to front
+        self.tabWorkspace.setCurrentIndex(index)
+        
+        menu = QtGui.QMenu(self)
+
+        action = menu.addAction("Close")
+        self.connect(action, SIGNAL("activated()"), self.close_workspace)
+
+        menu.move(event.globalPos())
+        menu.show()
+
+    def new_graph(self):
+        """ Create a new graph """
+
+        # Get default package
+        pkg = self.pkgmanager["MyObjects"]
+
+        dialog = NewGraph(pkg)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            (name, nin, nout) = dialog.get_data()
+
+            newfactory = SubGraphFactory(self.pkgmanager, name=name,
+                                         desc= "",
+                                         cat = "",
+                                         )
+            
+            newfactory.set_numinput(nin)
+            newfactory.set_numoutput(nout)
+            
+            pkg.add_nodefactory(newfactory)
+            self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+
+        
+
+
+import ui_newgraph
+
+class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
+    """ New network dialog """
+    
+    def __init__(self, package, parent=None):
+        """
+        Constructor
+        @param pacakge : the package the graph will be added to
+        """
+
+        QtGui.QDialog.__init__(self, parent)
+        ui_newgraph.Ui_NewGraphDialog.__init__(self)
+        self.setupUi(self)
+
+        self.package = package
+
+    def accept(self):
+
+        # Test if name is correct
+        name = str(self.nameEdit.text())
+        if(self.package.has_key(name)):
+           mess = QtGui.QMessageBox.warning(self, "Error",
+                                            "The Name is already use")
+           return
+
+        
+        QtGui.QDialog.accept(self)
+
+    def get_data(self):
+        """
+        Return the dialog data in a tuple
+        (name, nin, nout)
+        """
+
+        return (str(self.nameEdit.text()), self.inBox.value(), self.outBox.value())
+    
+        
+
+

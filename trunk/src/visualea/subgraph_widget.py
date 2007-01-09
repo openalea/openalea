@@ -39,17 +39,19 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
         NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
 
-        factory = node.factory
         vboxlayout = QtGui.QVBoxLayout(self)
         
         for id in node.get_ids():
 
             subnode = node.get_node_by_id(id)
-            factory = subnode.factory
-                        
+            factory = subnode.get_factory()
+
+            if(not factory): continue
+            
             widget = factory.instantiate_widget(subnode, self)
 
-            groupbox = QtGui.QGroupBox(id, self)
+            caption = "%s ( %s )"%(node.get_factory().get_short_description(id), id)
+            groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
             layout.setSpacing(2)
@@ -103,9 +105,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node_dialog = {}
         
         self.graphitem = {}
-        for i in self.scene().items():
-            del(i)
-        
+
+        scene = self.scene()
+        del(scene)
+        scene = QtGui.QGraphicsScene(self)
+        scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
+        self.setScene(scene)
+       
 
     def rebuild_scene(self):
         """ Build the scene with graphic node and edget"""
@@ -116,6 +122,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # create items
         for eltid in self.factory.elt_factory.keys():
             self.add_graphical_node(eltid)
+
+        if(self.factory.num_input>0):
+            self.add_graphical_node('in')
+            
+        if(self.factory.num_output>0):
+            self.add_graphical_node('out')
 
         # create connections
         for ((dst_id, in_port), (src_id, out_port)) in self.factory.connections.items():
@@ -166,7 +178,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ function called when a node item has moved """
         elt_id = item.elt_id
         point = newvalue.toPointF()
+        
+        self.notification_enabled = False
         self.factory.move_element(elt_id, (point.x(), point.y()))
+        self.notification_enabled = True
 
 
     def notify(self):
@@ -187,7 +202,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def start_edge(self, connector):
         """ Start to create an edge """
 
-        self.newedge= SemiEdge(connector, None, self.scene())
+        self.newedge= SemiEdge(self, connector, None, self.scene())
 
   
     # subgraph edition
@@ -213,8 +228,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
-        caption = eltid
-        position = self.factory.elt_position[eltid]
+        shortdesc = self.factory.get_short_description(eltid)
+        caption = "%s ( %s )" %(shortdesc, eltid)
+        position = self.factory.get_position(eltid)
 
         if(position) : (x,y) = position
         else : (x,y) = (10,10)
@@ -230,7 +246,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def add_graphical_connection(self, connector_src, connector_dst):
         """ Return the new edge """
         
-        edge = Edge(connector_src.parentItem(), connector_src.index(),
+        edge = Edge(self, connector_src.parentItem(), connector_src.index(),
                     connector_dst.parentItem(), connector_dst.index(),
                     None, self.scene())
 
@@ -290,7 +306,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # We Create a new Dialog
         node = self.node.get_node_by_id(elt_id)
-        factory = node.factory
+        factory = node.get_factory()
 
         container = QtGui.QDialog(self)
         #container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -381,8 +397,13 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.caption = caption
 
         # Set ToolTip
-        f =  self.graph.node.get_node_by_id(elt_id).factory
-        self.setToolTip( "Instance : %s\n"%(elt_id,) + f.get_tip())
+        factory =  self.graph.node.get_node_by_id(elt_id).get_factory()
+        graphfactory = self.graph.node.get_factory()
+        if(factory) : 
+            self.setToolTip( "Instance : %s\n"%(elt_id,) +
+                             "Short description : %s\n"%(graphfactory.
+                                                         get_short_description(elt_id),)
+                             + factory.get_tip())
                 
         # Font and box size
         self.font = self.graph.font()
@@ -475,6 +496,60 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
         self.graph.open_item(self.elt_id)
 
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        menu = QtGui.QMenu(self.graph)
+
+        action = menu.addAction("Run")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.run_node)
+        
+        action = menu.addAction("Open Widget")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
+
+        action = menu.addAction("Edit")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_widget)
+
+        action = menu.addAction("Delete")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_node)
+        
+        action = menu.addAction("Enable in Widget")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
+        
+        action = menu.addAction("Set Description")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_description)
+
+        menu.move(event.screenPos())
+        menu.show()
+
+    def run_node(self):
+        """ Run the current node """
+        pass
+
+    def open_widget(self):
+        pass
+
+    def edit_widget(self):
+        pass
+
+    def delete_node(self):
+        pass
+
+    def enable_in_widget(self):
+        pass
+
+    def set_description(self):
+
+        factory =  self.graph.node.get_factory()
+        if(not factory): return
+
+        text = factory.get_short_description(self.elt_id)
+        if(not text) : text = ""
+        
+        (result, ok) = QtGui.QInputDialog.getText(self.graph, "Short Description", "",
+                                   QtGui.QLineEdit.Normal, text)
+        if(ok):
+            factory.set_short_description(self.elt_id, str(result))
 
 ################################################################################
 
@@ -563,9 +638,10 @@ class AbstractEdge(QtGui.QGraphicsItem):
     Base classe for edges
     """
 
-    def __init__(self, parent=None, scene=None):
+    def __init__(self, graphview, parent=None, scene=None):
         QtGui.QGraphicsItem.__init__(self, parent, scene)
 
+        self.graph = graphview
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
 
@@ -580,6 +656,27 @@ class AbstractEdge(QtGui.QGraphicsItem):
                                            self.destPoint.y() - self.sourcePoint.y()))
         
         return rect.normalized().adjusted(-extra, -extra, extra, extra)
+
+#     def shape(self):
+#         path = QtGui.QPainterPath()
+
+#         diffx = self.destPoint.x() - self.sourcePoint.x()
+#         diffy = self.destPoint.y() - self.sourcePoint.y()
+        
+#         pointlist = [ QtCore.QPointF(0 - 4, 0),
+#                       QtCore.QPointF(0 + 6, 0),
+#                       QtCore.QPointF(diffx + 6, diffy),
+#                       QtCore.QPointF(diffx - 6, diffy) ]
+        
+
+#         polygon = QtGui.QPolygonF(pointlist)
+#         for p in  pointlist:
+#             polygon.append(p)
+
+#         path.addPolygon (polygon)
+#         path.closeSubpath()
+#         return path
+
 
     def paint(self, painter, option, widget):
 
@@ -602,8 +699,8 @@ class SemiEdge(AbstractEdge):
     It is connected to one connector only
     """
 
-    def __init__(self, connector, parent=None, scene=None):
-        AbstractEdge.__init__(self, parent, scene)
+    def __init__(self, graphview, connector, parent=None, scene=None):
+        AbstractEdge.__init__(self, graphview, parent, scene)
 
         self.connect = connector
         self.sourcePoint = self.mapFromItem(connector, connector.rect().center())
@@ -621,14 +718,14 @@ class Edge(AbstractEdge):
     """ An edge between two graphical nodes """
     
     
-    def __init__(self, sourceNode, out_index, destNode, in_index, parent=None, scene=None):
+    def __init__(self, graphview, sourceNode, out_index, destNode, in_index, parent=None, scene=None):
         """
         @param sourceNode : source GraphicalNode
         @param out_index : output connector index
         @param destNode : destination GraphicalNode
         @param in_index : input connector index
         """
-        AbstractEdge.__init__(self, parent, scene)
+        AbstractEdge.__init__(self, graphview, parent, scene)
 
         self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
@@ -657,5 +754,18 @@ class Edge(AbstractEdge):
         self.sourcePoint = line.p1() 
         self.destPoint = line.p2() 
 
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        menu = QtGui.QMenu(self.graph)
+
+        menu.addAction("Delete connection")
+    
+        menu.move(event.screenPos())
+        menu.show()
 
 
+#     def mousePressEvent(self, event):
+#        QtGui.QGraphicsItem.mousePressEvent(self, event)
+#        print "MOUSE"
+        
