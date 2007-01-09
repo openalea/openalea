@@ -54,6 +54,9 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         # Dictionnary to map factory with workspace tabs
         self.factory_tabindex = {} 
 
+        # Dictionnat to map tab index with node widget
+        self.index_nodewidget = {}
+        
         self.tabWorkspace.removeTab(0)
 
         # python interpreter
@@ -82,9 +85,11 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
                      self.find_wralea)
         self.connect(self.action_Add_File, SIGNAL("activated()"),
                      self.add_wralea)
+
+        self.connect(self.action_Run, SIGNAL("activated()"),
+                     self.run)
         
 
-        
         # final init
         self.root = rootsubgraph
         self.open_widget_tab(rootsubgraph)
@@ -137,9 +142,10 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             if(self.factory_tabindex[n] == cindex):
                 del(self.factory_tabindex[n])
 
+        del(self.index_nodewidget[cindex])
 
 
-    def open_widget_tab(self, factory, node = None, caption=""):
+    def open_widget_tab(self, factory, node = None, caption=None):
         """
         Open a widget in a tab giving the factory and an instance
         if node is null, a new instance is allocated
@@ -155,18 +161,20 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        widget = factory.instantiate_widget(node, self, parent=container)
+        widget = factory.instantiate_widget(node, parent=container)
         widget.wcaption = caption
         
         vboxlayout = QtGui.QVBoxLayout(container)
         vboxlayout.addWidget(widget)
 
-        if(caption) : caption = " - %s "%(caption,)
+        if(not caption) : caption = factory.get_id()
         
-        index = self.tabWorkspace.addTab(container, factory.get_id() + caption)
+        index = self.tabWorkspace.addTab(container, caption)
         self.tabWorkspace.setCurrentIndex(index)
 
         self.factory_tabindex[factory] = index
+        
+        self.index_nodewidget[index] = widget
         
 
     def add_wralea(self):
@@ -181,3 +189,10 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.pkgmanager.find_and_register_packages()
         self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
     
+    def run(self):
+        """ Run the active workspace """
+
+        cindex = self.tabWorkspace.currentIndex()
+        w = self.tabWorkspace.widget(cindex)
+
+        self.index_nodewidget[cindex].node.eval()
