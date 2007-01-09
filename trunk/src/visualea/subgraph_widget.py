@@ -111,7 +111,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
-       
+
 
     def rebuild_scene(self):
         """ Build the scene with graphic node and edget"""
@@ -211,6 +211,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ Return True if succeed """
         try:
             self.node = self.factory.instantiate()
+            for d in self.node_dialog.values():
+                d.close()
+            
+            self.node_dialog = {}
             return True
         except RecursionError :
             mess = QtGui.QMessageBox.warning(self, "Error",
@@ -299,6 +303,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # Test if the node is already opened
         if( self.node_dialog.has_key(elt_id)):
+
+            print "OOOO"
             self.node_dialog[elt_id].show()
             self.node_dialog[elt_id].raise_()
             self.node_dialog[elt_id].activateWindow ()
