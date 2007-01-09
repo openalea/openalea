@@ -13,14 +13,13 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-#       This code is inspired from the puzzle QT4 example
 
 __doc__="""
 Default Node Widget and Subgraph Widget
 """
 
 __license__= "GPL"
-__revision__=" $Id $"
+__revision__=" $Id$ "
 
 
 
@@ -32,23 +31,41 @@ from core.core import NodeWidget, RecursionError
 
 
 
-class DisplaySubGraphWidget(NodeWidget, QtGui.QGraphicsView):
-    """ Subgraph widget allowing to edit the network """
+class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
+    """ Display subwidget contained in the subgraph """
     
-    def __init__(self, node, mainwindow, parent=None):
+    def __init__(self, node, parent=None):
 
-        NodeWidget.__init__(self, node, mainwindow)
-        QtGui.QGraphicsView.__init__(self, parent)
+        NodeWidget.__init__(self, node)
+        QtGui.QWidget.__init__(self, parent)
 
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        factory = node.factory
+        vboxlayout = QtGui.QVBoxLayout(self)
+        
+        for id in node.get_ids():
+
+            subnode = node.get_node_by_id(id)
+            factory = subnode.factory
+                        
+            widget = factory.instantiate_widget(subnode, self)
+
+            groupbox = QtGui.QGroupBox(id, self)
+            layout = QtGui.QVBoxLayout(groupbox)
+            layout.setMargin(3)
+            layout.setSpacing(2)
+
+            layout.addWidget(widget)
+            
+            vboxlayout.addWidget(groupbox)
+
         
 
 class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Subgraph widget allowing to edit the network """
     
-    def __init__(self, node, mainwindow, parent=None):
+    def __init__(self, node, parent=None):
 
-        NodeWidget.__init__(self, node, mainwindow)
+        NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
         scene = QtGui.QGraphicsScene(self)
@@ -63,6 +80,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.scale(0.8, 0.8)
 
         self.newedge = None
+
+        # Boolean to enable or diable notification
+        self.notification_enabled = True
+
 
         # dictionnary mapping elt_id and graphical items
         self.graphitem = {}
@@ -88,7 +109,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def rebuild_scene(self):
         """ Build the scene with graphic node and edget"""
-    
+
+        self.notification_enabled = False
+
         self.clear_scene()
         # create items
         for eltid in self.factory.elt_factory.keys():
@@ -104,6 +127,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             in_connector = dstitem.get_input_connector(in_port)
 
             self.add_graphical_connection(out_connector, in_connector)
+
+        self.notification_enabled = True
+
 
 
     # Mouse events
@@ -145,8 +171,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def notify(self):
         """ Function called by observed objects """
-        
-        #self.rebuild_scene()
+        if(self.notification_enabled):
+            self.rebuild_scene()
 
 
     def scaleView(self, scaleFactor):
@@ -219,13 +245,17 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         @return the new GraphicalNode
         """
 
+        self.notification_enabled = False
+
         eltid = self.factory.add_nodefactory(pkg_id, factory_id, (position.x(), position.y()))
 
         # Try to instantiate
         if(not self.reinstantiate_node()):
             self.factory.del_element(eltid)
+            self.notification_enabled = True
             return None
-            
+
+        self.notification_enabled = True
         return self.add_graphical_node(eltid)
 
     
@@ -236,10 +266,14 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if(connector_dst.is_connected()):
             return None
 
+        self.notification_enabled = False
+
         self.factory.connect(connector_src.parentItem().id(), connector_src.index(),
                              connector_dst.parentItem().id(), connector_dst.index())
 
         self.reinstantiate_node()
+        self.notification_enabled = True
+
         
         return self.add_graphical_connection(connector_src, connector_dst)
 
@@ -258,20 +292,18 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         node = self.node.get_node_by_id(elt_id)
         factory = node.factory
 
-        caption = "%s/%s"%(self.wcaption, elt_id)
-
         container = QtGui.QDialog(self)
-        container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        #container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             
-        widget = factory.instantiate_widget(node, self.mainwindow, container)
-        widget.wcaption = caption
+        widget = factory.instantiate_widget(node, container)
         
         vboxlayout = QtGui.QVBoxLayout(container)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+
         vboxlayout.addWidget(widget)
 
-        if(caption) : caption = " - %s "%(caption,)
-
-        container.setWindowTitle(factory.get_id() + caption)
+        container.setWindowTitle(factory.get_id())
 
         self.node_dialog[elt_id] = container
         
