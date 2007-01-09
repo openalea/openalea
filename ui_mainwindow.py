@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jan  8 11:01:18 2007
+# Created: Tue Jan  9 15:35:45 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -153,11 +153,11 @@ class Ui_MainWindow(object):
         self.action_Close_current_workspace = QtGui.QAction(MainWindow)
         self.action_Close_current_workspace.setObjectName("action_Close_current_workspace")
 
-        self.action_New_Network = QtGui.QAction(MainWindow)
-        self.action_New_Network.setObjectName("action_New_Network")
-
         self.action_Run = QtGui.QAction(MainWindow)
         self.action_Run.setObjectName("action_Run")
+
+        self.action_New_Network = QtGui.QAction(MainWindow)
+        self.action_New_Network.setObjectName("action_New_Network")
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
@@ -169,8 +169,6 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.action_Quit)
         self.menu_Workspace.addAction(self.action_Close_current_workspace)
         self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.action_New_Network)
-        self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Wralea_2.addAction(self.action_Add_File)
         self.menu_Wralea_2.addAction(self.action_Auto_Search)
@@ -178,6 +176,8 @@ class Ui_MainWindow(object):
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.action_New_Package)
         self.menu_Package.addAction(self.action_Remove_Package)
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.action_New_Network)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menu_Workspace.menuAction())
@@ -213,7 +213,7 @@ class Ui_MainWindow(object):
         self.actionSystem_Search.setText(QtGui.QApplication.translate("MainWindow", "System &Search", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Add File", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "Auto &Search", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "&Close current workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&New Network", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "&Close workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&New Network", None, QtGui.QApplication.UnicodeUTF8))
 

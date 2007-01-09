@@ -146,8 +146,6 @@
     </property>
     <addaction name="action_Close_current_workspace" />
     <addaction name="separator" />
-    <addaction name="action_New_Network" />
-    <addaction name="separator" />
     <addaction name="action_Run" />
    </widget>
    <widget class="QMenu" name="menu_Package" >
@@ -165,6 +163,8 @@
     <addaction name="separator" />
     <addaction name="action_New_Package" />
     <addaction name="action_Remove_Package" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -240,17 +240,17 @@
   </action>
   <action name="action_Close_current_workspace" >
    <property name="text" >
-    <string>&amp;Close current workspace</string>
-   </property>
-  </action>
-  <action name="action_New_Network" >
-   <property name="text" >
-    <string>&amp;New Network</string>
+    <string>&amp;Close workspace</string>
    </property>
   </action>
   <action name="action_Run" >
    <property name="text" >
     <string>&amp;Run </string>
+   </property>
+  </action>
+  <action name="action_New_Network" >
+   <property name="text" >
+    <string>&amp;New Network</string>
    </property>
   </action>
  </widget>

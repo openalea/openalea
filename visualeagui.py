@@ -69,7 +69,8 @@ def main(args):
 
     pkg.add_nodefactory(rootfactory)
     pkgman.add_package(pkg)
-
+    pkgman.find_and_register_packages()
+    
     win = MainWindow(pkgman, rootfactory, globals())
     win.show()
     
