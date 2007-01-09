@@ -189,7 +189,7 @@ class SubGraphFactory(NodeFactory):
         self.num_output = v
 
 
-    def instantiate_widget(self, node, main_window, parent):
+    def instantiate_widget(self, node, parent):
         """ Return the corresponding widget initialised with node """
 
         try:
@@ -198,11 +198,11 @@ class SubGraphFactory(NodeFactory):
                 node = self.instantiate()
                 
                 from visualea.subgraph_widget import EditSubGraphWidget
-                return EditSubGraphWidget(node, main_window, parent)
+                return EditSubGraphWidget(node, parent)
             
             else:
                 from visualea.subgraph_widget import DisplaySubGraphWidget
-                return DisplaySubGraphWidget(node, main_window, parent)
+                return DisplaySubGraphWidget(node, parent)
             
             
         except ImportError:
@@ -238,6 +238,14 @@ class SubGraph(Node):
         if(noutput>0) :
             self.define_outputs([None]*noutput)
             self.node_id['out'] = SubgraphOutput(self, noutput)
+
+    def get_ids(self):
+        """ Return the list of element id """
+        return self.node_id.keys()
+
+    def get_nodes(self):
+        """ Return the list of the subnodes """
+        return self.node_id.values()
 
 
     def get_node_by_id(self, id):

@@ -83,6 +83,7 @@ class Node(Observed):
 
     def __setitem__(self, key, val):
         self.parameters[key] = val
+        self.notify_listeners()
 
     def keys(self):
         return self.parameters.keys()
@@ -201,31 +202,29 @@ class NodeFactory(Observed):
     def __init__(self, name,
                  desc='', doc='',
                  cat='Default',
-                 module='',
+                 nodemodule='',
                  nodeclass=None,
+                 widgetmodule = None,
                  widgetclass=None):
 	"""
 	Create a node factory.
 	
-	 >>> n= NodeFactory('MyNode', 'This is my node', 'Data',
-                            'from data import mynode, mywidget',
-                             'mynode', 'mywidget')
-
-	:Parameters:
-	  - `name` : user name for the node (must be unique)
-	  - `desc` : description of the node
-          - `doc` : node description
-	  - `cat` : category of the node
-          - `module` : 'python module to import'
-	  - `nodeclass` :  node class name to be created
-	  - `widgetclass` : widget class name
+	@param name : user name for the node (must be unique)
+        @param desc : description of the node
+        @param doc : node description
+	@param cat : category of the node
+        @param nodemodule : 'python module to import for node'
+	@param nodeclass :  node class name to be created
+        @param widgetmodule : 'python module to import for widget'
+	@param widgetclass : widget class name
 	
-	  - `name` : String
-	  - `desc` : String
-	  - `cat` : String
-          - `module` : String
-	  - `nodeclass` : String
-	  - `widgetclass` : String
+	@type name : String
+	@type desc : String
+	@type cat : String
+        @type nodemodule : String
+	@type nodeclass : String
+        @type widgetmodule : String
+	@type widgetclass : String
 	"""
 
         Observed.__init__(self)
@@ -234,8 +233,9 @@ class NodeFactory(Observed):
         self.description = desc
         self.doc = doc
         self.category = cat
-        self.module = module
+        self.nodemodule = nodemodule
         self.nodeclass_name = nodeclass
+        self.widgetmodule = widgetmodule
         self.widgetclass_name = widgetclass
         
 
@@ -264,8 +264,8 @@ class NodeFactory(Observed):
         (in order to avoir infinite recursion)
         """
 
-        if(self.module):
-            exec("from %s import %s as tmpclass" %(self.module,self.nodeclass_name))
+        if(self.nodemodule):
+            exec("from %s import %s as tmpclass" %(self.nodemodule,self.nodeclass_name))
         
             node = tmpclass()
             node.factory = self
@@ -274,22 +274,25 @@ class NodeFactory(Observed):
         raise InstantiationError()
     
 
-    def instantiate_widget(self, node, main_window, parent=None):
+    def instantiate_widget(self, node, parent=None):
         """ Return the corresponding widget initialised with node """
 
         if(node == None):
             node = self.instantiate()
 
-        if(self.module and self.widgetclass_name):
-            exec("from %s import %s as widgetclass" %(self.module, self.widgetclass_name))
+        modulename = self.widgetmodule
+        if(not modulename) :   modulename = self.nodemodule
 
-            return widgetclass(node, self, parent)
+        if(modulename and self.widgetclass_name):
+            exec("from %s import %s as widgetclass" %(modulename, self.widgetclass_name))
+
+            return widgetclass(node, parent)
         
         else:
             try:
                 # if no widget declared, we create a default one
                 from visualea.node_widget import DefaultNodeWidget
-                return DefaultNodeWidget(node, main_window, parent)
+                return DefaultNodeWidget(node, parent)
             
             except ImportError:
                 raise InstantiationError()
@@ -299,19 +302,18 @@ class NodeFactory(Observed):
 
 class NodeWidget(AbstractListener):
     """
-    Base class for all node widget
+    Base class for all node widget classes
     """
 
-    def __init__(self, node, mainwindow):
+    def __init__(self, node):
 
         self.node = node
-        self.mainwindow = mainwindow
-
-        self.widget_caption = ""
 
         # register to observed node and factory
         self.initialise(node)
         self.initialise(node.factory)
+
+        self.node.register_listener(self)
             
 
     def get_node(self):
@@ -326,14 +328,6 @@ class NodeWidget(AbstractListener):
     node = property(get_node, set_node)
     factory = property(get_factory)
     
-    def set_caption(self, str):
-        self.widget_caption = str
-        
-    def get_caption(self):
-        return self.widget_caption
-
-    wcaption = property(get_caption, set_caption)
-
     def notify(self):
         """
         This function is called by the Observed objects
