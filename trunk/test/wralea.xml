@@ -2,7 +2,7 @@
 <openalea>
 	<wraleapath value="."/>
 	<wraleapath value="/usr/lib/python2.4/site-packages/openalea"/>
-	<package name="subgraph">
+	<package name="Examples">
 		<institutes>
 			INRIA/CIRAD
 		</institutes>
@@ -18,20 +18,20 @@
 		<authors>
 			SDK, CP
 		</authors>
-		<subgraph category="Subgraphs" name="sg1">
+		<subgraph category="Examples" name="SubGraphExample">
 			<description>
-				Subgraph Exemple
+				Examples
 			</description>
 			<doc>
 				
 			</doc>
-			<element factory_id="val" id="val3" package_id="simpleop"/>
-			<element factory_id="val" id="val2" package_id="simpleop"/>
-			<element factory_id="val" id="val1" package_id="simpleop"/>
-			<element factory_id="add" id="add0" package_id="simpleop"/>
-			<connect dst_id="val3" dst_port="0" src_id="add0" src_port="0"/>
-			<connect dst_id="add0" dst_port="0" src_id="val1" src_port="0"/>
-			<connect dst_id="add0" dst_port="1" src_id="val2" src_port="0"/>
+			<element factory_id="add" id="add_1" package_id="simpleop"/>
+			<element factory_id="val" id="val_4" package_id="simpleop"/>
+			<element factory_id="val" id="val_3" package_id="simpleop"/>
+			<element factory_id="val" id="val_2" package_id="simpleop"/>
+			<connect dst_id="add_1" dst_port="1" src_id="val_3" src_port="0"/>
+			<connect dst_id="val_4" dst_port="0" src_id="add_1" src_port="0"/>
+			<connect dst_id="add_1" dst_port="0" src_id="val_2" src_port="0"/>
 		</subgraph>
 	</package>
 	<package name="simpleop">
@@ -50,7 +50,7 @@
 		<authors>
 			SDK, CP
 		</authors>
-		<nodefactory category="Operations" module="simpleop" name="add">
+		<nodefactory category="Operations" name="add">
 			<description>
 				Addition
 			</description>
@@ -61,10 +61,10 @@
     Output 0 : Addition result
     
 			</doc>
-			<node class="Add"/>
-			<widget class="None"/>
+			<node class="Add" module="simpleop"/>
+			<widget class="None" module="None"/>
 		</nodefactory>
-		<nodefactory category="Operations" module="simpleop" name="val">
+		<nodefactory category="Operations" name="val">
 			<description>
 				Value
 			</description>
@@ -74,8 +74,8 @@
     Ouput 0 : transmit the stored value
     
 			</doc>
-			<node class="Value"/>
-			<widget class="None"/>
+			<node class="Value" module="simpleop"/>
+			<widget class="None" module="None"/>
 		</nodefactory>
 	</package>
 </openalea>

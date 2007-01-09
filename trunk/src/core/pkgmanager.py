@@ -39,7 +39,7 @@ class UnknowFileType(Exception):
 
 ###############################################################################
 
-class PackageManager(dict):
+class PackageManager(object):
     """
     The PackageManager registers, and provide packages in a dictionnary
     The package manager is a singleton
@@ -49,23 +49,20 @@ class PackageManager(dict):
 
     def __new__(cls):
         if cls.__instance is None:
-            cls.__instance = dict.__new__(cls)
+            cls.__instance = object.__new__(cls)
         return cls.__instance
 
     
     def __init__ (self):
 
-        # package dictionnary indexed by their name
-        dict.__init__(self)
-
-
         # list of path to search wralea file
         self.wraleapath = [ '.' ] + openalea.__path__
         
-
         # save system path
         self.old_syspath = sys.path[:]
         self.update_syspath()
+
+        self.pkgs = {}
 
 
     def init(self, filename=None):
@@ -95,6 +92,11 @@ class PackageManager(dict):
         else :
             return None
 
+
+    def clear(self):
+        """ Remove all packages """
+        self.pkgs = {}
+    
 
     # Sys Path Functions
     def add_wraleapath(self, new_path):
@@ -143,7 +145,7 @@ class PackageManager(dict):
     def find_wralea_files (self):
         """
         Find on the system all wralea.py, wralea.xml files
-        Return a list of pkg reader
+        Return a list of pkg readers
         """
 
         from tools.path import path
@@ -188,7 +190,6 @@ class PackageManager(dict):
         return reader
     
 
-
     def register_packages (self, pkgreader_list):
         """
         register a set of packages
@@ -204,18 +205,12 @@ class PackageManager(dict):
         
 
     def find_and_register_packages (self):
-
+        """ Find all wralea on the system and register them """
+        
         readerlist=self.find_wralea_files()
         self.register_packages(readerlist)
 
 
-    def get_package_names(self):
-        """ Return the names of all the packages in a list """
-
-        return self.keys()
-
-
-        
     def save_config (self, filename=None):
         """ Save configuration (package index and wralea paths)
         if filename is None, use default config file
@@ -227,9 +222,27 @@ class PackageManager(dict):
         writer = OpenAleaWriter(self)
         writer.write_config(filename)
 
-      
 
-        
+    # Dictionnary behaviour
+      
+    def __getitem__(self, key):
+        return self.pkgs[key]
+
+    def __setitem__(self, key, val):
+        self.pkgs[key] = val
+
+    def __len__(self):
+        return len(self.pkgs)
+
+    def keys(self):
+        return self.pkgs.keys()
+
+    def items(self):
+        return self.pkgs.items()
+
+    def values(self):
+        return self.pkgs.values()
+
 
 
 

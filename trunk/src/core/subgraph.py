@@ -31,7 +31,8 @@ from core import RecursionError, InstantiationError
 
 class SubGraphFactory(NodeFactory):
     """
-    The SubGraphFactory si able to create Subgraph instances
+    The SubGraphFactory is able to create Subgraph instances
+    Each node has an unique id : the element id (elt_id)
     """
     
     def __init__ (self, pkgmanager,  *args, **kargs):
@@ -41,7 +42,7 @@ class SubGraphFactory(NodeFactory):
         NodeFactory.__init__(self, *args, **kargs)
 
 
-        # The Package manager is needed to allocate nodefactory
+        # The Package Manager is needed to allocate nodefactory
         self.pkgmanager = pkgmanager
 
         # A SubGraph is composed by a set of element indexed by an elt_id
@@ -72,6 +73,7 @@ class SubGraphFactory(NodeFactory):
         self.elt_position['out'] = ( 20,250 )
         self.elt_short_desc['in'] = "Inputs"
         self.elt_short_desc['out'] = "Outputs"
+
 
     def get_xmlwriter(self):
         """ Return an instance of a xml writer """
@@ -124,14 +126,12 @@ class SubGraphFactory(NodeFactory):
         return new_df
 
 
-    def update_node(self, subgraph):
-        """ Correct a subgraph instance to fit with the factory """
-
-        return subgraph
-
-
     def del_element(self, elt_id):
-        """ Delete an element and its connection """
+        """
+        Delete an element and its connection
+        @param elt_id : the element id identifying the node
+
+        """
 
         try:
             del(self.elt_factory[elt_id])
@@ -156,7 +156,8 @@ class SubGraphFactory(NodeFactory):
         @param nodefactory_id : the nodefactory id
         @param pos : (x,y) position
         @param short_desc : a short description of the node purpose
-        Return the subgraph element ID
+
+        @return : the subgraph element ID ( elt_id )
         """
 
         id = "%s_%i"%( nodefactory_id, self.id_cpt)
@@ -216,11 +217,16 @@ class SubGraphFactory(NodeFactory):
 
 
     def instantiate_widget(self, node, parent):
-        """ Return the corresponding widget initialised with node """
+        """
+        Return the corresponding widget initialised with node
+        if node is None, the node is allocated and EditSubgraphWidget is returned
+        else a composite widget composed with the node sub widget is returned
+
+        """
 
         try:
             if(node == None):
-
+                
                 node = self.instantiate()
                 
                 from visualea.subgraph_widget import EditSubGraphWidget
@@ -240,6 +246,7 @@ class SubGraphFactory(NodeFactory):
 class SubGraph(Node):
     """
     The SubGraph is a container that interconnect different node between them
+    Each node is referenced by its id which is the same id as in the subgraph factory
     """
 
     def __init__(self, ninput=0, noutput=0):
@@ -256,7 +263,6 @@ class SubGraph(Node):
         self.connections = {}
 
         # I/O
-
         if(ninput>0):
             self.define_inputs([None]*ninput)
             self.node_id['in'] = SubgraphInput(self, ninput)
@@ -269,6 +275,7 @@ class SubGraph(Node):
     def get_ids(self):
         """ Return the list of element id """
         return self.node_id.keys()
+
 
     def get_nodes(self):
         """ Return the list of the subnodes """
@@ -284,14 +291,14 @@ class SubGraph(Node):
     def get_base_nodes(self):
         """ Return all the nodes without connected output """
 
-        with_output = {}
+        with_output = set()
         result = []
         
         for (src_node, outport) in self.connections.values():
-            with_output[src_node] = True
+            with_output.add(src_node)
 
         for n in self.node_id.values():
-            if(not with_output.has_key(n)):
+            if(not n in with_output):
                 result.append(n)
 
         return result
@@ -304,12 +311,11 @@ class SubGraph(Node):
         self.evaluated={}
 
         # get all the base nodes
-        if(node==None):
+        if(node == None):
             l = self.get_base_nodes()
 
             for n in l:
                 self.eval_node(n)
-
         else:
             self.eval_node(node)
 
@@ -324,10 +330,11 @@ class SubGraph(Node):
 
                 # test if the node has already be evaluated
                 if( not self.evaluated.has_key(node_src) ):
-                    self.eval_node(node_src)                   
+                    self.eval_node(node_src)
 
-                v=node_src.get_output(port_src)
+                v = node_src.get_output(port_src)
                 node.set_input(iport, v)
+                
             except KeyError :
                 node.set_input(iport, None)
             except Exception, e:
@@ -349,16 +356,22 @@ class SubGraph(Node):
         return ()
 
 
-    def add_node(self, id, node):
-        """ Add a node in the SubGraph """
+    def add_node(self, elt_id, node):
+        """
+        Add a node in the SubGraph
+        @param elt_id : element id
+        @param node : the node instance
+        """
         
-        self.node_id[id]=node
+        self.node_id[elt_id] = node
+        return
+
 
     def connect(self, node_src, port_src, node_dst, port_dst):
         """ Connect 2 elements :
-        @param node_id_src : source node
+        @param node_id_src : source node id
         @param port_src : source output port number
-        @param node_dst : destination node
+        @param node_dst : destination node id
         @param port_dst : destination input port number
         """
 

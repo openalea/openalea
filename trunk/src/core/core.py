@@ -111,19 +111,17 @@ class Node(Observed):
         ret=self.input_values[index]
         if ( ret == None ):
             return self.input_defaults[index]
-
         
         return ret
 
-    def set_input(self, index, val):
 
+    def set_input(self, index, val):
+        """ Define the input value for the specified index """
         self.input_values[index] = val
 
 
     def set_output(self, index, val):
-        """
-        Set the specified output port
-        """
+        """ Define the output value for the specified index """
 
         self.output_values[index] = val
 
@@ -153,6 +151,7 @@ class Node(Observed):
 
         self.output_types = typelist[:]
         self.output_values = [None] * len( typelist )
+
 
     def set_default_input(self, index, value):
         """
@@ -193,7 +192,7 @@ class Node(Observed):
         outlist = self.__call__(inlist)
 
         for i in range( min ( len(outlist), len(self.output_values))):
-            self.output_values[i]=outlist[i]
+            self.output_values[i] = outlist[i]
 
 
 
@@ -207,13 +206,15 @@ class NodeFactory(Observed):
 
     mimetype = "openalea/nodefactory"
 
-    def __init__(self, name,
-                 desc='', doc='',
-                 cat='Default',
-                 nodemodule='',
-                 nodeclass=None,
+    def __init__(self,
+                 name,
+                 desc = '',
+                 doc = '',
+                 cat = 'Default',
+                 nodemodule = '',
+                 nodeclass = None,
                  widgetmodule = None,
-                 widgetclass=None):
+                 widgetclass = None):
 	"""
 	Create a node factory.
 	
@@ -387,6 +388,7 @@ class Package(dict):
         """ Return the package id """
         return self.name
 
+
     def get_tip(self):
         """ Return the package description """
 
@@ -436,12 +438,4 @@ class Package(dict):
 
         
 
-
-        
-
-###############################################################################
-
-def pid(package):
-    """ Package id. """
-    return package.name
 

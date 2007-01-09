@@ -65,7 +65,7 @@ def test_add_py():
     simpleop = pkgman["simpleop"]
     assert simpleop
 
-    subgraph = pkgman["subgraph"]
+    subgraph = pkgman["Examples"]
     assert subgraph
 
     from simpleop import Add, Value
@@ -78,20 +78,20 @@ def test_add_py():
     assert valfactory != None
 
    
-    pkgman.save_config("test.xml")
+    pkgman.save_config("wralea.xml")
 
     
-
-def test_add_xml():
+    # Try to download wralea
 
     pkgman = PackageManager()
+    pkgman.clear()
     pkgman.add_wralea("wralea.xml")
 
     assert len(pkgman) == 2
 
     simpleop = pkgman["simpleop"]
     
-    subgraph = pkgman["subgraph"]
+    subgraph = pkgman["Examples"]
     assert subgraph
 
     pkgman.save_config("test.xml")

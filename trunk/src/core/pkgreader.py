@@ -122,8 +122,6 @@ class XmlPackageReader(PackageReader):
         self.__currentNode__ = None
         self.doc = None
 
-        print self.filename
-
 
     def __del__(self):
         """ Release DOM objects """
@@ -195,7 +193,6 @@ class XmlPackageReader(PackageReader):
                          "authors", "institute", "description", "publication"):
                 try:
                     value = self.getText(package.getElementsByTagName(info)[0])
-                    print value
                     metainfo[info] = value
                 except:
                     pass
@@ -226,10 +223,9 @@ class XmlPackageReader(PackageReader):
             attr = nodefactory.attributes
             try:
                 name = self.get_attribute(attr, "name")
-                module = self.get_attribute(attr, "module")
                 category = self.get_attribute(attr, "category")
             except:
-                raise FormatError("<nodefactory> must have name, module and category attributes")
+                raise FormatError("<nodefactory> must have name and category attributes")
 
             try: desc = self.getText(nodefactory.getElementsByTagName("description")[0])
             except: desc = "" 
@@ -240,19 +236,22 @@ class XmlPackageReader(PackageReader):
             try:
                 node = nodefactory.getElementsByTagName("node")[0]
                 nodename = self.get_attribute(node.attributes, "class")
-                print nodename
+                nodemodule = self.get_attribute(node.attributes, "module")
                 
                 widget = nodefactory.getElementsByTagName("widget")[0]
                 widgetname = self.get_attribute(widget.attributes, "class")
+                widgetmodule = self.get_attribute(widget.attributes, "module")
             except:
-                raise FormatError('<nodefactory> must have <node class="..."/> and <widget class="..."/>')
+                raise FormatError('<nodefactory> must have <node module= "..." class="..."/> ' +
+                                  'and <widget module="..." class="..."/>')
             
             nf = NodeFactory(name = name, 
                              desc = desc, 
                              doc = doc, 
                              cat  = category, 
-                             module = module,
-                             nodeclass = nodename, 
+                             nodemodule = nodemodule,
+                             nodeclass = nodename,
+                             widgetmodule = widgetmodule,
                              widgetclass = widgetname, 
                              )
 
@@ -369,7 +368,6 @@ class NodeFactoryXmlWriter(XmlWriter):
         nf_elt = newdoc.createElement ('nodefactory')
         nf_elt.setAttribute("name", nodefactory.name)
         nf_elt.setAttribute("category", nodefactory.category)
-        nf_elt.setAttribute("module", nodefactory.module )
     
         top_element.appendChild(nf_elt) 
 
@@ -384,10 +382,12 @@ class NodeFactoryXmlWriter(XmlWriter):
         nf_elt.appendChild(elt)
 
         elt = newdoc.createElement("node")
+        elt.setAttribute("module", str(nodefactory.nodemodule))
         elt.setAttribute("class", str(nodefactory.nodeclass_name))
         nf_elt.appendChild(elt)
         
         elt = newdoc.createElement("widget")
+        elt.setAttribute("module", str(nodefactory.widgetmodule))
         elt.setAttribute("class", str(nodefactory.widgetclass_name))
         nf_elt.appendChild(elt)
 

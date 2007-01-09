@@ -48,14 +48,14 @@ def test_subgraph():
 
     sg = sgfactory.instantiate()
 
-    sg.get_node_by_id(val1id).value = 2.
-    sg.get_node_by_id(val2id).value = 3.
+    sg.get_node_by_id(val1id)['val'] = 2.
+    sg.get_node_by_id(val2id)['val'] = 3.
 
     
     # evaluation
     sg()
 
-    assert sg.get_node_by_id(val3id).value == 5.
+    assert sg.get_node_by_id(val3id)['val'] == 5.
 
 
 def test_recursion():
@@ -123,12 +123,45 @@ def test_subgraphio():
         
     sg = sgfactory2.instantiate()
 
-    sg.get_node_by_id(val1id).value = 2.
-    sg.get_node_by_id(val2id).value = 3.
+    sg.get_node_by_id(val1id)['val'] = 2.
+    sg.get_node_by_id(val2id)['val'] = 3.
 
     
     # evaluation
     sg()
 
-    assert sg.get_node_by_id(val3id).value == 5.
+    assert sg.get_node_by_id(val3id)['val'] == 5.
+
+
+def test_addnode():
+    pm = PackageManager ()
+
+    pkg = pm.add_wralea ("wralea.py")
+
+    sgfactory = SubGraphFactory(pm, "testaddnode")
+
+    # build the subgraph factory
+    val1id = sgfactory.add_nodefactory ("simpleop", "val")
+    val2id = sgfactory.add_nodefactory ("simpleop", "val")
+
+    sgfactory.connect (val1id, 0, val2id, 0)
+
+
+    # allocate the subgraph
+
+    sg = sgfactory.instantiate()
+
+    sg.get_node_by_id(val1id)['val'] = 2.
+    sg()
+    assert sg.get_node_by_id(val2id)['val'] == 2.
+
+
+    # Add a new node
+    addid = sgfactory.add_nodefactory ("simpleop", "add")
+    sg.get_node_by_id(val1id)['val'] = 3.
+    sg()
+    assert sg.get_node_by_id(val2id)['val'] == 3.
+
+    
+
 
