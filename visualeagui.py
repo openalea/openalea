@@ -54,6 +54,7 @@ def main(args):
     #         filename=args[1]
 
 
+    from core.pkgmanager import PackageManager
 
     # initilize package manager
     pkgman = PackageManager()
@@ -70,8 +71,9 @@ def main(args):
     pkg.add_nodefactory(rootfactory)
     pkgman.add_package(pkg)
     pkgman.find_and_register_packages()
+
     
-    win = MainWindow(pkgman, rootfactory, globals())
+    win = MainWindow(pkgman, rootfactory, locals())
     win.show()
     
     #    splash.finish(win);

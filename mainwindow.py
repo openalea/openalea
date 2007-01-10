@@ -108,7 +108,8 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
                                        u"Copyright \xa9  2006 INRIA - CIRAD - INRA\n"+
                                        "This Software is distributed under the GPL License.\n\n"+
                                        
-                                       "Visit http://openalea.gforge.inria.fr\n")
+                                       "Visit http://openalea.gforge.inria.fr\n\n"
+                                       )
 
     def help(self):
         """ Display help """
