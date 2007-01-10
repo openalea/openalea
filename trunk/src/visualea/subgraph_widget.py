@@ -88,7 +88,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
         # dictionnary mapping elt_id and graphical items
-        self.graphitem = {}
+        self.graph_item = {}
         
         # dictionnary mapping elt_id with sub dialog
         self.node_dialog = {}
@@ -104,7 +104,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.node_dialog = {}
         
-        self.graphitem = {}
+        self.graph_item = {}
 
         scene = self.scene()
         del(scene)
@@ -132,10 +132,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # create connections
         for ((dst_id, in_port), (src_id, out_port)) in self.factory.connections.items():
 
-            srcitem = self.graphitem[src_id]
+            srcitem = self.graph_item[src_id]
             out_connector = srcitem.get_output_connector(out_port)
 
-            dstitem = self.graphitem[dst_id]
+            dstitem = self.graph_item[dst_id]
             in_connector = dstitem.get_input_connector(in_port)
 
             self.add_graphical_connection(out_connector, in_connector)
@@ -232,8 +232,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
+
         shortdesc = self.factory.get_short_description(eltid)
-        caption = "%s ( %s )" %(shortdesc, eltid)
+
+        factory_name = self.node.get_node_by_id(eltid).factory.get_id()
+        caption = "%s ( %s )" %(shortdesc, factory_name)
+
         position = self.factory.get_position(eltid)
 
         if(position) : (x,y) = position
@@ -242,7 +246,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         gnode = GraphicalNode(self, eltid, nin, nout, caption )
         gnode.setPos(QtCore.QPointF(x,y))
 
-        self.graphitem[eltid] = gnode
+        self.graph_item[eltid] = gnode
         
         return gnode
 
@@ -288,12 +292,11 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.notification_enabled = False
 
-        self.factory.connect(connector_src.parentItem().id(), connector_src.index(),
-                             connector_dst.parentItem().id(), connector_dst.index())
+        self.factory.connect(connector_src.parentItem().get_id(), connector_src.index(),
+                             connector_dst.parentItem().get_id(), connector_dst.index())
 
         self.reinstantiate_node()
         self.notification_enabled = True
-
         
         return self.add_graphical_connection(connector_src, connector_dst)
 
@@ -304,7 +307,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # Test if the node is already opened
         if( self.node_dialog.has_key(elt_id)):
 
-            print "OOOO"
             self.node_dialog[elt_id].show()
             self.node_dialog[elt_id].raise_()
             self.node_dialog[elt_id].activateWindow ()
@@ -330,7 +332,28 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node_dialog[elt_id] = container
         
         container.show()
+
+
+    def remove_graphical_node(self, elt_id):
+        """ Remove the graphical node item identified by elt_id """
+
+        item = self.graph_item[elt_id]
+        item.remove_connections()
+        self.scene().removeItem(item)
+
+
+    def remove_node(self, elt_id):
+        """ Remove node identified by elt_id """
+
+        self.notification_enabled = False
+
+        self.remove_graphical_node(elt_id)
+        self.factory.del_element(elt_id)
+
+        self.reinstantiate_node()
         
+        self.notification_enabled = True
+
 
     # Drag and Drop from TreeView support
     
@@ -432,7 +455,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
 
         
-    def id(self):
+    def get_id(self):
         return self.elt_id
 
     def get_input_connector(self, index):
@@ -448,6 +471,15 @@ class GraphicalNode(QtGui.QGraphicsItem):
         except:
             return None
 
+    def remove_connections(self):
+        """ Remove edge connected to this item """ 
+
+        for cin in self.connector_in:
+            self.scene().removeItem(cin.edge)
+        for cout in self.connector_out:
+            for e in cout.edge_list:
+                self.scene().removeItem(e)
+                
 
     def boundingRect(self):
         adjust = 2.0
@@ -513,8 +545,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
         action = menu.addAction("Open Widget")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
 
-        action = menu.addAction("Edit")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_widget)
+       #  action = menu.addAction("Edit")
+#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_widget)
 
         action = menu.addAction("Delete")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_node)
@@ -527,25 +559,35 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
         menu.move(event.screenPos())
         menu.show()
+        
 
     def run_node(self):
         """ Run the current node """
-        pass
+        cnode = self.graph.node.get_node_by_id(self.elt_id)
+        self.graph.node.eval_as_expression(cnode)
+
 
     def open_widget(self):
-        pass
+        """ Open widget in dialog """
+        self.graph.open_item(self.elt_id)
+
 
     def edit_widget(self):
         pass
 
+
     def delete_node(self):
-        pass
+        """ Remove current node """
+        self.graph.remove_node(self.elt_id)
+        
 
     def enable_in_widget(self):
         pass
 
-    def set_description(self):
 
+    def set_description(self):
+        """ Open a input dialog to set short description """
+        
         factory =  self.graph.node.get_factory()
         if(not factory): return
 
@@ -557,12 +599,13 @@ class GraphicalNode(QtGui.QGraphicsItem):
         if(ok):
             factory.set_short_description(self.elt_id, str(result))
 
+
 ################################################################################
 
 class Connector(QtGui.QGraphicsRectItem):
     """ A node connector """
-    WIDTH = 6
-    HEIGHT = 4
+    WIDTH = 10
+    HEIGHT = 6
 
     def __init__(self, graphview, parent, scene, index):
         """
