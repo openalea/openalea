@@ -60,8 +60,8 @@ class SubGraphFactory(NodeFactory):
         # Dictionnary which contains 2-uple (x,y) mapped by elt_id
         self.elt_position = {}
 
-        # Dictionnary which contains a short description of each element
-        self.elt_short_desc = {}
+        # Dictionnary which contains the caption of each element
+        self.elt_caption = {}
 
         # Counter for generating id
         self.id_cpt = 1
@@ -71,8 +71,8 @@ class SubGraphFactory(NodeFactory):
         self.num_output = 0
         self.elt_position['in'] = ( 20,5 )
         self.elt_position['out'] = ( 20,250 )
-        self.elt_short_desc['in'] = "Inputs"
-        self.elt_short_desc['out'] = "Outputs"
+        self.elt_caption['in'] = "Inputs"
+        self.elt_caption['out'] = "Outputs"
 
 
     def get_xmlwriter(self):
@@ -136,7 +136,7 @@ class SubGraphFactory(NodeFactory):
         try:
             del(self.elt_factory[elt_id])
             del(self.elt_position[elt_id])
-            del(self.elt_short_desc[elt_id])
+            del(self.elt_caption[elt_id])
         except:
             return
         
@@ -155,13 +155,13 @@ class SubGraphFactory(NodeFactory):
         self.notify_listeners()
         
 
-    def add_nodefactory(self, package_id, nodefactory_id, pos = None, short_desc = None):
+    def add_nodefactory(self, package_id, nodefactory_id, pos = None, caption = None):
         """
         Add an element to the SubGraph
         @param package_id : the package id owning the nodefactory
         @param nodefactory_id : the nodefactory id
         @param pos : (x,y) position
-        @param short_desc : a short description of the node purpose
+        @param caption : a short description of the node purpose
 
         @return : the subgraph element ID ( elt_id )
         """
@@ -172,8 +172,8 @@ class SubGraphFactory(NodeFactory):
         self.elt_factory[id] = (package_id, nodefactory_id)
         self.elt_position[id] = pos
 
-        if(short_desc == None) : short_desc = '...'
-        self.elt_short_desc[id] = short_desc
+        if(caption == None) : caption = '...'
+        self.elt_caption[id] = caption
 
         self.notify_listeners()
         
@@ -204,14 +204,14 @@ class SubGraphFactory(NodeFactory):
         self.notify_listeners()
 
 
-    def get_short_description(self, elt_id):
+    def get_caption(self, elt_id):
         """ Return the description of an element """
-        return self.elt_short_desc[elt_id]
+        return self.elt_caption[elt_id]
         
 
-    def set_short_description(self, elt_id, desc):
+    def set_caption(self, elt_id, desc):
         """ Set the description of an element """
-        self.elt_short_desc[elt_id] = desc
+        self.elt_caption[elt_id] = desc
         self.notify_listeners()
         
 

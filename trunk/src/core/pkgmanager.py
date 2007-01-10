@@ -52,10 +52,6 @@ class PackageManager(object):
             cls.__instance = object.__new__(cls)
         return cls.__instance
 
-    def t(self):
-        print self.__instance
-    t = classmethod(t)
-
     
     def __init__ (self):
 
