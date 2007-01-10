@@ -253,8 +253,9 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             (name, nin, nout) = dialog.get_data()
 
             newfactory = SubGraphFactory(self.pkgmanager, name=name,
-                                         desc= "",
-                                         cat = "",
+                                         description= "",
+                                         category = "",
+                                         documentation = ""
                                          )
             
             newfactory.set_numinput(nin)
