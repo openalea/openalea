@@ -58,14 +58,13 @@ def main(args):
 
     # initilize package manager
     pkgman = PackageManager()
-#    pkgman.init("/home/sdufour/openalea/aleacore/trunk/test/wralea.py")
 
     pkg_metainfo={}
     pkg=Package("MyObjects", pkg_metainfo)
 
     rootfactory = SubGraphFactory(pkgman, name="Root",
-                                desc= "",
-                                cat = "",
+                                description= "",
+                                category = "",
                                 )
 
     pkg.add_nodefactory(rootfactory)

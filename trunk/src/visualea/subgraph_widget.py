@@ -428,11 +428,12 @@ class GraphicalNode(QtGui.QGraphicsItem):
         # Set ToolTip
         factory =  self.graph.node.get_node_by_id(elt_id).get_factory()
         graphfactory = self.graph.node.get_factory()
+        doc = self.graph.node.get_node_by_id(elt_id).__doc__
+        
         if(factory) : 
             self.setToolTip( "Instance : %s\n"%(elt_id,) +
-                             "Caption : %s\n"%(graphfactory.
-                                               get_caption(elt_id),)
-                             + factory.get_tip())
+                             "Caption : %s\n"%(graphfactory.get_caption(elt_id),)+
+                             "Doc : \n %s"%(doc,))
                 
         # Font and box size
         self.font = self.graph.font()
