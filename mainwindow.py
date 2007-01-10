@@ -75,6 +75,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         # menu callbacks
 
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
+        self.connect(self.actionOpenAlea_Web, SIGNAL("activated()"), self.web)
         self.connect(self.action_Help, SIGNAL("activated()"), self.help)
 
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
@@ -113,12 +114,18 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def help(self):
         """ Display help """
-        pass
+        self.web()
+
+    def web(self):
+        """ Open OpenAlea website """
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.url))
+
 
     def quit(self):
         """ Quit Application """
 
         self.close()
+        
 
     def closeEvent(self, event):
         """ Close All subwindows """
@@ -128,6 +135,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             w.close()
         event.accept()
             
+
     def close_workspace(self):
         """ Close current workspace """
 
