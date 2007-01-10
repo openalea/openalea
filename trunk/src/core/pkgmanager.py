@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.Core: OpenAlea Core
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -27,6 +27,9 @@ __revision__=" $Id$ "
 import sys
 import os
 import openalea
+
+import library
+
 from pkgreader import OpenAleaWriter
 
 
@@ -56,7 +59,7 @@ class PackageManager(object):
     def __init__ (self):
 
         # list of path to search wralea file
-        self.wraleapath = [ '.' ] + openalea.__path__
+        self.wraleapath = [ '.' ] + openalea.__path__ + library.__path__
         
         # save system path
         self.old_syspath = sys.path[:]
@@ -188,27 +191,15 @@ class PackageManager(object):
         else : raise UnknowFileType()
 
         return reader
-    
 
-    def register_packages (self, pkgreader_list):
-        """
-        register a set of packages
-        @param pkgreader_list: list of pkgreader objects
-        @return : the list of created packages
-        """
-        retlist = []
-
-        for pkgreader in pkgreader_list:
-            retlist += pkgreader.get_packages(self)
-        
-        return retlist
-        
 
     def find_and_register_packages (self):
         """ Find all wralea on the system and register them """
         
         readerlist=self.find_wralea_files()
-        self.register_packages(readerlist)
+
+        for pkgreader in readerlist:
+            pkgreader.register_packages(self)
 
 
     def save_config (self, filename=None):

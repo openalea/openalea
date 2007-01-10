@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.AleaCore: OpenAlea Core 
+#       OpenAlea.Core: OpenAlea Core 
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #

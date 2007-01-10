@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.Core: OpenAlea Core
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -48,8 +48,8 @@ class PackageReader :
         self.filename = filename
 
 
-    def get_packages(self, pkgmanager):
-        """ Return a list of package object """
+    def register_packages(self, pkgmanager):
+        """ Register packages """
 
         # Function must be overloaded
         raise RuntimeError()
@@ -80,8 +80,8 @@ class PyPackageReader(PackageReader):
         return modulename
 
 
-    def get_packages(self, pkgmanager):
-        """ Return a list of package objects """
+    def register_packages(self, pkgmanager):
+        """ Execute Wralea.py """
 
         retlist = []
 
@@ -108,8 +108,6 @@ class PyPackageReader(PackageReader):
 
         if(oldsyspath):
             sys.path = oldsyspath
-
-        return ret
 
 
 
@@ -230,9 +228,6 @@ class XmlPackageReader(PackageReader):
             try: desc = self.getText(nodefactory.getElementsByTagName("description")[0])
             except: desc = "" 
 
-            try: doc = self.getText(nodefactory.getElementsByTagName("doc")[0])
-            except: doc = ""
-
             try:
                 node = nodefactory.getElementsByTagName("node")[0]
                 nodename = self.get_attribute(node.attributes, "class")
@@ -246,9 +241,8 @@ class XmlPackageReader(PackageReader):
                                   'and <widget module="..." class="..."/>')
             
             nf = NodeFactory(name = name, 
-                             desc = desc, 
-                             doc = doc, 
-                             cat  = category, 
+                             description = desc, 
+                             category  = category, 
                              nodemodule = nodemodule,
                              nodeclass = nodename,
                              widgetmodule = widgetmodule,
@@ -280,11 +274,8 @@ class XmlPackageReader(PackageReader):
             try: desc = self.getText(subgraph.getElementsByTagName("description")[0])
             except: desc = "" 
 
-            try: doc = self.getText(subgraph.getElementsByTagName("doc")[0])
-            except: doc = ""
-
-            sg = SubGraphFactory(pkgmanager, name = name, desc = desc, 
-                             doc = doc, cat  = category)
+            sg = SubGraphFactory(pkgmanager, name = name,
+                                 description = desc, category  = category)
 
             for element in subgraph.getElementsByTagName("element"):
                 attr = element.attributes
@@ -318,8 +309,8 @@ class XmlPackageReader(PackageReader):
             return factorylist
                 
 
-    def get_packages(self, pkgmanager):
-        """ Return a list of package object """
+    def register_packages(self, pkgmanager):
+        """ Read XML file and register package """
 
         from xml.dom.minidom import parse
         self.doc = parse(self.filename)
@@ -330,8 +321,7 @@ class XmlPackageReader(PackageReader):
         # Add package to the manager
         map(pkgmanager.add_package, pkglist)
 
-        return pkglist
-
+        
 
 
 ################################################################################
@@ -373,11 +363,6 @@ class NodeFactoryXmlWriter(XmlWriter):
 
         elt = newdoc.createElement("description")
         node = newdoc.createTextNode(nodefactory.description)
-        elt.appendChild(node)
-        nf_elt.appendChild(elt)
-
-        elt = newdoc.createElement("doc")
-        node = newdoc.createTextNode(nodefactory.doc)
         elt.appendChild(node)
         nf_elt.appendChild(elt)
 

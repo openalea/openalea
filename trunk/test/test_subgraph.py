@@ -28,16 +28,15 @@ from core.core import Package , RecursionError
 def test_subgraph():
 
     pm = PackageManager ()
-
-    pkg = pm.add_wralea ("wralea.py")
+    pm.init()
 
     sgfactory = SubGraphFactory(pm, "addition")
 
     # build the subgraph factory
-    addid = sgfactory.add_nodefactory ("simpleop", "add")
-    val1id = sgfactory.add_nodefactory ("simpleop", "val")
-    val2id = sgfactory.add_nodefactory ("simpleop", "val")
-    val3id = sgfactory.add_nodefactory ("simpleop", "val")
+    addid = sgfactory.add_nodefactory ("arithmetics", "add")
+    val1id = sgfactory.add_nodefactory ("arithmetics", "val")
+    val2id = sgfactory.add_nodefactory ("arithmetics", "val")
+    val3id = sgfactory.add_nodefactory ("arithmetics", "val")
 
     sgfactory.connect (val1id, 0, addid, 0)
     sgfactory.connect (val2id, 0, addid, 1)
@@ -62,6 +61,7 @@ def test_recursion():
 
 
     pm = PackageManager ()
+    pm.init()
     pkg = Package("subgraph", {})
 
     sgfactory1 = SubGraphFactory(pm, "graph1")
@@ -88,8 +88,7 @@ def test_recursion():
 def test_subgraphio():
 
     pm = PackageManager ()
-
-    pkg = pm.add_wralea ("wralea.py")
+    pm.init()
 
     pkg = Package("subgraph", {})
 
@@ -99,7 +98,7 @@ def test_subgraphio():
     sgfactory.set_numinput(2)
     sgfactory.set_numoutput(1)
         
-    addid = sgfactory.add_nodefactory ("simpleop", "add")
+    addid = sgfactory.add_nodefactory ("arithmetics", "add")
     
     sgfactory.connect ('in', 0, addid, 0)
     sgfactory.connect ('in', 1, addid, 1)
@@ -111,9 +110,9 @@ def test_subgraphio():
 
     sgfactory2 = SubGraphFactory(pm, "testio")
     addid = sgfactory2.add_nodefactory ("subgraph", "additionsg")
-    val1id = sgfactory2.add_nodefactory ("simpleop", "val")
-    val2id = sgfactory2.add_nodefactory ("simpleop", "val")
-    val3id = sgfactory2.add_nodefactory ("simpleop", "val")
+    val1id = sgfactory2.add_nodefactory ("arithmetics", "val")
+    val2id = sgfactory2.add_nodefactory ("arithmetics", "val")
+    val3id = sgfactory2.add_nodefactory ("arithmetics", "val")
 
     sgfactory2.connect (val1id, 0, addid, 0)
     sgfactory2.connect (val2id, 0, addid, 1)
@@ -135,14 +134,13 @@ def test_subgraphio():
 
 def test_addnode():
     pm = PackageManager ()
-
-    pkg = pm.add_wralea ("wralea.py")
+    pm.init()
 
     sgfactory = SubGraphFactory(pm, "testaddnode")
 
     # build the subgraph factory
-    val1id = sgfactory.add_nodefactory ("simpleop", "val")
-    val2id = sgfactory.add_nodefactory ("simpleop", "val")
+    val1id = sgfactory.add_nodefactory ("arithmetics", "val")
+    val2id = sgfactory.add_nodefactory ("arithmetics", "val")
 
     sgfactory.connect (val1id, 0, val2id, 0)
 
@@ -157,7 +155,7 @@ def test_addnode():
 
 
     # Add a new node
-    addid = sgfactory.add_nodefactory ("simpleop", "add")
+    addid = sgfactory.add_nodefactory ("arithmetics", "add")
     sg.get_node_by_id(val1id)['val'] = 3.
     sg()
     assert sg.get_node_by_id(val2id)['val'] == 3.

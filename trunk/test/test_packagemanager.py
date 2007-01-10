@@ -34,13 +34,14 @@ def test_config():
     pkgman.save_config("test.xml")
 
     assert(os.path.exists("test.xml"))
-
     os.remove("test.xml")
+
+
 
 def test_wraleapath():
 
     pkgman = PackageManager()
-    assert len ( pkgman.wraleapath ) == 2
+    assert len ( pkgman.wraleapath ) == 3
     pkgman.add_wraleapath("/usr/bin")
     pkgman.save_config("test.xml")
 
@@ -55,14 +56,13 @@ def test_wraleapath():
     os.remove("test.xml")
 
 
-def test_add_py():
+def test_load_pm():
     pkgman = PackageManager()
-    pkgman.add_wralea("wralea.py")
-
+    pkgman.init()
 
     assert len(pkgman) == 2
 
-    simpleop = pkgman["simpleop"]
+    simpleop = pkgman["arithmetics"]
     assert simpleop
 
     subgraph = pkgman["Examples"]
@@ -71,7 +71,6 @@ def test_add_py():
     from simpleop import Add, Value
     addfactory = simpleop.get_nodefactory('add')
     assert addfactory != None
-    assert addfactory.doc == Add.__doc__
     assert addfactory.instantiate()
 
     valfactory = simpleop.get_nodefactory('val')
@@ -89,7 +88,7 @@ def test_add_py():
 
     assert len(pkgman) == 2
 
-    simpleop = pkgman["simpleop"]
+    simpleop = pkgman["arithmetics"]
     
     subgraph = pkgman["Examples"]
     assert subgraph

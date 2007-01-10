@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.AleaCore: OpenAlea Core
+#       OpenAlea.Core: OpenAlea Core
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -52,23 +52,17 @@ class Node(Observed):
         # Effective values
         Observed.__init__(self)
 
-        self.input_values = []
-        self.output_values = []
-
-        # Default values
-
-        self.input_defaults = []
-        self.output_defaults = []
+        self.inputs = []
+        self.outputs = []
 
         # Types
-        
         self.input_types = []
         self.output_types = []
 
         # Parameters
-        
         self.parameters = {}
-        
+
+        # Factory
         self.factory = None
         
 
@@ -103,96 +97,50 @@ class Node(Observed):
     # I/O Functions 
 
     def get_input(self, index):
-        """
-        Return an input port value
-        Retun default value if not set
-        """
+        """ Return an input port value """
 
-        ret=self.input_values[index]
-        if ( ret == None ):
-            return self.input_defaults[index]
-        
-        return ret
+        return self.inputs[index]
 
 
     def set_input(self, index, val):
         """ Define the input value for the specified index """
-        self.input_values[index] = val
+        self.inputs[index] = val
 
 
     def set_output(self, index, val):
         """ Define the output value for the specified index """
-
-        self.output_values[index] = val
-
-
-    def define_inputs(self, typelist):
-        """
-        Create the input ports
-
-        @param : typelist is a list of interface objects
-        The size of the list define the numbre of inputs.
-        Use None if there is no type restriction
-        """
-
-        self.input_types = typelist[:]
-        self.input_values = [None] * len( typelist )
-        self.input_defaults = [None] * len( typelist )
-
-   
-    def define_outputs(self, typelist):
-        """
-        Create the input ports
-
-        @param : typelist is a list of interface objects
-        The size of the list define the numbre of inputs.
-        Use None if there is no type restriction
-        """
-
-        self.output_types = typelist[:]
-        self.output_values = [None] * len( typelist )
+        self.outputs[index] = val
 
 
-    def set_default_input(self, index, value):
-        """
-        Define the default value for an input port.
-        Port must before be created with define_inputs
-        """
-
-        self.input_defaults[index] = value
+    def get_output(self, index):
+        """ Return the output for the specified index """
+        return self.outputs[index]
 
    
     def get_in_type(self, index):
-
         return self.input_types[index]
-    
+
+
     def get_out_type(self, index):
-        
         return self.output_types[index]
 
-    def get_output(self, index):
-
-        return self.output_values[index]
 
     def get_nb_input(self):
-        return len(self.input_values)
+        return len(self.inputs)
+
     
     def get_nb_output(self):
-        return len(self.output_values)
+        return len(self.outputs)
 
+    
     # Functions used by the node evaluator
     def eval(self):
         """ Evaluate the node by calling __call__"""
 
-        inlist=[]
-        # generate input value list ( with defaults )
-        for i in range(len(self.input_values)):
-            inlist.append(self.get_input(i))
+        outlist = self.__call__(self.inputs)
 
-        outlist = self.__call__(inlist)
-
-        for i in range( min ( len(outlist), len(self.output_values))):
-            self.output_values[i] = outlist[i]
+        for i in range( min ( len(outlist), len(self.outputs))):
+            self.outputs[i] = outlist[i]
 
 
 
@@ -208,28 +156,27 @@ class NodeFactory(Observed):
 
     def __init__(self,
                  name,
-                 desc = '',
-                 doc = '',
-                 cat = 'Default',
+                 description = '',
+                 category = '',
                  nodemodule = '',
                  nodeclass = None,
                  widgetmodule = None,
-                 widgetclass = None):
+                 widgetclass = None,
+                 **kargs):
 	"""
 	Create a node factory.
 	
 	@param name : user name for the node (must be unique)
-        @param desc : description of the node
-        @param doc : node description
-	@param cat : category of the node
+        @param description : description of the node
+	@param category : category of the node
         @param nodemodule : 'python module to import for node'
 	@param nodeclass :  node class name to be created
         @param widgetmodule : 'python module to import for widget'
 	@param widgetclass : widget class name
 	
 	@type name : String
-	@type desc : String
-	@type cat : String
+	@type description : String
+	@type category : String
         @type nodemodule : String
 	@type nodeclass : String
         @type widgetmodule : String
@@ -239,9 +186,8 @@ class NodeFactory(Observed):
         Observed.__init__(self)
         
         self.name = name
-        self.description = desc
-        self.doc = doc
-        self.category = cat
+        self.description = description
+        self.category = category
         self.nodemodule = nodemodule
         self.nodeclass_name = nodeclass
         self.widgetmodule = widgetmodule
@@ -252,13 +198,14 @@ class NodeFactory(Observed):
         """ Return the node factory Id """
         return self.name
 
+
     def get_tip(self):
         """ Return the node description """
 
         return "Name : %s\n"%(self.name,) +\
                "Category  : %s\n"%(self.category,) +\
-               "Description : %s\n"%(self.description,) + \
-               "Doc  : %s\n"%(self.doc,)
+               "Description : %s\n"%(self.description,)
+
 
     def get_xmlwriter(self):
         """ Return an instance of a xml writer """
@@ -328,15 +275,20 @@ class NodeWidget(AbstractListener):
     def get_node(self):
         return self.__node
 
+
     def set_node(self, node):
         self.__node = node
+
 
     def get_factory(self):
         return self.__node.get_factory()
 
+
     node = property(get_node, set_node)
+
     factory = property(get_factory)
     
+
     def notify(self):
         """
         This function is called by the Observed objects

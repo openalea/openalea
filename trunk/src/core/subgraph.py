@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SoftwareBus: OpenAlea software bus
+#       OpenAlea.Core: OpenAlea Core
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -38,7 +38,7 @@ class SubGraphFactory(NodeFactory):
     def __init__ (self, pkgmanager,  *args, **kargs):
 
 
-        # Init parent (name, desc, doc, cat, node, widget=None)
+        # Init parent (name, description, category, doc, node, widget=None)
         NodeFactory.__init__(self, *args, **kargs)
 
 
@@ -74,6 +74,12 @@ class SubGraphFactory(NodeFactory):
         self.elt_caption['in'] = "Inputs"
         self.elt_caption['out'] = "Outputs"
 
+        # Documentation
+        try:
+            self.doc = kargs['doc']
+        except:
+            self.doc = ""
+
 
     def get_xmlwriter(self):
         """ Return an instance of a xml writer """
@@ -99,6 +105,7 @@ class SubGraphFactory(NodeFactory):
 
         new_df = SubGraph(self.num_input, self.num_output)
         new_df.factory = self
+        new_df.__doc__ = self.doc
         
         # Instantiate the node with each factory
         for elt_id in self.elt_factory.keys():
@@ -270,11 +277,13 @@ class SubGraph(Node):
 
         # I/O
         if(ninput>0):
-            self.define_inputs([None]*ninput)
+            self.inputs = [None]*ninput
+            self.input_types = self.inputs[:]
             self.node_id['in'] = SubgraphInput(self, ninput)
 
         if(noutput>0) :
-            self.define_outputs([None]*noutput)
+            self.outputs = [None]*noutput
+            self.output_types = self.outputs[:]
             self.node_id['out'] = SubgraphOutput(self, noutput)
 
 
@@ -405,7 +414,7 @@ class SubgraphInput(Node):
 
         Node.__init__(self)
         self.subgraph = subgraph
-        self.define_outputs([None]*size)
+        self.outputs = [None]*size
 
     def get_output(self, index):
         """ Redirect call """
@@ -428,7 +437,7 @@ class SubgraphOutput(Node):
         """
         Node.__init__(self)
         self.subgraph = subgraph
-        self.define_inputs([None]*size)
+        self.inputs = [None]*size
 
 
     def set_input(self, index, val):
