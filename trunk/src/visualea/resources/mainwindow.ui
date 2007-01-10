@@ -116,37 +116,10 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Help" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="action_Help" />
-    <addaction name="separator" />
-    <addaction name="action_About" />
-   </widget>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
-     <string>&amp;File</string>
-    </property>
-    <addaction name="action_New_Project" />
-    <addaction name="action_Open_Project" />
-    <addaction name="action_Save_Project" />
-    <addaction name="actionSave_as" />
-    <addaction name="separator" />
-    <addaction name="action_Quit" />
-   </widget>
    <widget class="QMenu" name="menu_Python" >
     <property name="title" >
      <string>P&amp;ython</string>
     </property>
-   </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Run" />
    </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
@@ -166,6 +139,34 @@
     <addaction name="separator" />
     <addaction name="action_New_Network" />
    </widget>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Project" />
+    <addaction name="action_Open_Project" />
+    <addaction name="action_Save_Project" />
+    <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="action_Quit" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Run" />
+   </widget>
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_Help" />
+    <addaction name="separator" />
+    <addaction name="action_About" />
+    <addaction name="actionOpenAlea_Web" />
+   </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
    <addaction name="menu_Workspace" />
@@ -182,20 +183,32 @@
    <property name="text" >
     <string>&amp;Help</string>
    </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
   </action>
   <action name="action_New_Project" >
    <property name="text" >
     <string>&amp;New Project</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="action_Open_Project" >
    <property name="text" >
     <string>&amp;Open Project</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Save_Project" >
    <property name="text" >
     <string>&amp;Save Project</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionSave_as" >
@@ -207,6 +220,9 @@
    <property name="text" >
     <string>&amp;Quit</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="action_Find" >
    <property name="text" >
@@ -217,10 +233,16 @@
    <property name="text" >
     <string>&amp;Create Package</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="action_Remove_Package" >
    <property name="text" >
     <string>&amp;Remove Package</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
    </property>
   </action>
   <action name="actionSystem_Search" >
@@ -247,10 +269,18 @@
    <property name="text" >
     <string>&amp;Run </string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="action_New_Network" >
    <property name="text" >
     <string>&amp;New Network</string>
+   </property>
+  </action>
+  <action name="actionOpenAlea_Web" >
+   <property name="text" >
+    <string>OpenAlea Web</string>
    </property>
   </action>
  </widget>
