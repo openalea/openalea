@@ -135,16 +135,22 @@ class SubGraphFactory(NodeFactory):
 
         try:
             del(self.elt_factory[elt_id])
+            del(self.elt_position[elt_id])
+            del(self.elt_short_desc[elt_id])
         except:
             return
-
+        
+        key_list = []
         # Delete the connection
         for (dst_id, input_port) in self.connections:
 
             (src_id, output_port) = self.connections[ (dst_id, input_port) ]
             
             if(src_id == elt_id or dst_id == elt_id ):
-                del(self.connections [ (dst_id, input_port) ])
+                key_list.append( (dst_id, input_port) )
+
+        for k in key_list:
+            del(self.connections[k])
 
         self.notify_listeners()
         
@@ -160,13 +166,13 @@ class SubGraphFactory(NodeFactory):
         @return : the subgraph element ID ( elt_id )
         """
 
-        id = "%s_%i"%( nodefactory_id, self.id_cpt)
+        id = "%s_%i"%(nodefactory_id, self.id_cpt)
         self.id_cpt += 1
 
         self.elt_factory[id] = (package_id, nodefactory_id)
         self.elt_position[id] = pos
 
-        if(short_desc == None) : short_desc = id
+        if(short_desc == None) : short_desc = '...'
         self.elt_short_desc[id] = short_desc
 
         self.notify_listeners()
@@ -203,14 +209,15 @@ class SubGraphFactory(NodeFactory):
         return self.elt_short_desc[elt_id]
         
 
-
     def set_short_description(self, elt_id, desc):
         """ Set the description of an element """
         self.elt_short_desc[elt_id] = desc
-
+        self.notify_listeners()
+        
 
     def set_numinput(self, v):
         self.num_input = v
+
         
     def set_numoutput(self, v):
         self.num_output = v
@@ -235,7 +242,6 @@ class SubGraphFactory(NodeFactory):
             else:
                 from visualea.subgraph_widget import DisplaySubGraphWidget
                 return DisplaySubGraphWidget(node, parent)
-            
             
         except ImportError:
             raise InstantiationError()
@@ -305,7 +311,10 @@ class SubGraph(Node):
 
     
     def eval_as_expression(self, node=None):
-        """ Evaluate the graph as an expression """
+        """
+        Evaluate a node
+        if node is None, then all the nodes without sons are evaluated
+        """
 
         # dict to keep trace of evaluated node
         self.evaluated={}
@@ -321,7 +330,11 @@ class SubGraph(Node):
 
 
     def eval_node(self, node):
-        """ Evaluate a Node """
+        """
+        Evaluate a particular Node
+        Do not call directly this function, use instead eval_as expression
+
+        """
 
         # evaluate the node inputs
         for iport in range(node.get_nb_input()):
