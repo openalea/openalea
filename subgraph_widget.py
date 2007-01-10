@@ -50,7 +50,7 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
             
             widget = factory.instantiate_widget(subnode, self)
 
-            caption = "%s ( %s )"%(node.get_factory().get_short_description(id), id)
+            caption = "%s ( %s )"%(node.get_factory().get_caption(id), id)
             groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
@@ -233,10 +233,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
 
-        shortdesc = self.factory.get_short_description(eltid)
+        caption = self.factory.get_caption(eltid)
 
         factory_name = self.node.get_node_by_id(eltid).factory.get_id()
-        caption = "%s ( %s )" %(shortdesc, factory_name)
+        caption = "%s ( %s )" %(caption, factory_name)
 
         position = self.factory.get_position(eltid)
 
@@ -430,8 +430,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
         graphfactory = self.graph.node.get_factory()
         if(factory) : 
             self.setToolTip( "Instance : %s\n"%(elt_id,) +
-                             "Short description : %s\n"%(graphfactory.
-                                                         get_short_description(elt_id),)
+                             "Caption : %s\n"%(graphfactory.
+                                               get_caption(elt_id),)
                              + factory.get_tip())
                 
         # Font and box size
@@ -554,8 +554,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
         action = menu.addAction("Enable in Widget")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
         
-        action = menu.addAction("Set Description")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_description)
+        action = menu.addAction("Edit Caption")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
 
         menu.move(event.screenPos())
         menu.show()
@@ -585,19 +585,19 @@ class GraphicalNode(QtGui.QGraphicsItem):
         pass
 
 
-    def set_description(self):
-        """ Open a input dialog to set short description """
+    def set_caption(self):
+        """ Open a input dialog to set node caption """
         
         factory =  self.graph.node.get_factory()
         if(not factory): return
 
-        text = factory.get_short_description(self.elt_id)
+        text = factory.get_caption(self.elt_id)
         if(not text) : text = ""
         
-        (result, ok) = QtGui.QInputDialog.getText(self.graph, "Short Description", "",
+        (result, ok) = QtGui.QInputDialog.getText(self.graph, "Node caption", "",
                                    QtGui.QLineEdit.Normal, text)
         if(ok):
-            factory.set_short_description(self.elt_id, str(result))
+            factory.set_caption(self.elt_id, str(result))
 
 
 ################################################################################
