@@ -32,7 +32,7 @@ from node_treeview import NodeTreeView, PkgModel
 
 import config
 
-from core.subgraph import SubGraphFactory
+from openalea.core.subgraph import SubGraphFactory
 
 
 class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :

@@ -28,9 +28,9 @@ from PyQt4 import QtCore
 
 from mainwindow import MainWindow
 
-from core.pkgmanager import PackageManager
-from core.core import Package
-from core.subgraph import SubGraphFactory
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.core import Package
+from openalea.core.subgraph import SubGraphFactory
 
 
 
@@ -54,7 +54,7 @@ def main(args):
     #         filename=args[1]
 
 
-    from core.pkgmanager import PackageManager
+    from openalea.core.pkgmanager import PackageManager
 
     # initilize package manager
     pkgman = PackageManager()
