@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 
 
 
-from core.core import Package
+from openalea.core.core import Package
 import arithmetics_factory
 
 def register_packages(pkgmanager):

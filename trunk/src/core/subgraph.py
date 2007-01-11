@@ -22,9 +22,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from core import NodeFactory
-from core import Node
-
+from core import NodeFactory, Node
 from core import RecursionError, InstantiationError
 
 ###############################################################################
@@ -243,11 +241,11 @@ class SubGraphFactory(NodeFactory):
                 
                 node = self.instantiate()
                 
-                from visualea.subgraph_widget import EditSubGraphWidget
+                from openalea.visualea.subgraph_widget import EditSubGraphWidget
                 return EditSubGraphWidget(node, parent)
             
             else:
-                from visualea.subgraph_widget import DisplaySubGraphWidget
+                from openalea.visualea.subgraph_widget import DisplaySubGraphWidget
                 return DisplaySubGraphWidget(node, parent)
             
         except ImportError:

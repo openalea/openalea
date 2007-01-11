@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 
 
 
-from core.core import NodeFactory
+from openalea.core.core import NodeFactory
 
 
 def define_factory(package):

@@ -247,7 +247,7 @@ class NodeFactory(Observed):
         else:
             try:
                 # if no widget declared, we create a default one
-                from visualea.node_widget import DefaultNodeWidget
+                from openalea.visualea.node_widget import DefaultNodeWidget
                 return DefaultNodeWidget(node, parent)
             
             except ImportError:
