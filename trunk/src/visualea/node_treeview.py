@@ -24,10 +24,9 @@ __revision__=" $Id$ "
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
-from core.core import NodeFactory, Package
+from openalea.core.core import NodeFactory, Package
 
 import images_rc
-
 
 
 class PkgModel (QAbstractItemModel) :
@@ -61,7 +60,7 @@ class PkgModel (QAbstractItemModel) :
             try:
                 if( len (item) ) : lenstr = " ( %i )"%(len(item),)
             except: pass
-            
+
             return QtCore.QVariant(str(item.get_id()) + lenstr)
 
         # Tool Tip
@@ -71,12 +70,14 @@ class PkgModel (QAbstractItemModel) :
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
 
-            if( isinstance( item, Package) ):
+            if( isinstance(item, Package) ):
                 return QVariant(QtGui.QPixmap(":/icons/package.png"))
-            elif( isinstance( item, NodeFactory) ):
-                return QVariant(QtGui.QPixmap(":/icons/node.png"))
-        
 
+            elif( isinstance( item, NodeFactory) ):
+               return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+            else:
+                return QVariant()
         
         else:
             return QtCore.QVariant()

@@ -27,7 +27,7 @@ import sys
 import math
 
 from PyQt4 import QtCore, QtGui
-from core.core import NodeWidget
+from openalea.core.core import NodeWidget
 
 
 import types
