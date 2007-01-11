@@ -46,7 +46,10 @@ class Add(Node):
     def __call__(self, inputs=() ):
         """ inputs is the list of input values """
 
-        return ( sum(inputs), )
+        try:
+            return ( sum(inputs), )
+        except:
+            return 0.
 
 
 class Value(Node):

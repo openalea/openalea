@@ -195,6 +195,21 @@ class SubGraphFactory(NodeFactory):
         
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
         self.notify_listeners()
+
+    def unconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
+        """ unconnect 2 elements :
+        @param elt_id_src : source element id
+        @param port_src : source output port number
+        @param elt_id_dst : destination element id
+        @param port_dst : destination input port number
+        """
+
+        try:
+            del(self.connections[ (elt_id_dst, port_dst) ])
+        except:
+            return
+        self.notify_listeners()
+
         
 
     def get_position(self, elt_id):
@@ -356,7 +371,8 @@ class SubGraph(Node):
                 node.set_input(iport, v)
                 
             except KeyError :
-                node.set_input(iport, None)
+                #node.set_input(iport, None)
+                pass
             except Exception, e:
                 print e
                 raise
