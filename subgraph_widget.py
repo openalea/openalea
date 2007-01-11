@@ -114,7 +114,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
     def rebuild_scene(self):
-        """ Build the scene with graphic node and edget"""
+        """ Build the scene with graphic node and edge"""
 
         self.notification_enabled = False
 
@@ -354,6 +354,28 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         self.notification_enabled = True
 
+
+    def remove_graphical_connection(self, src_connector, dst_connector):
+        """ Remove a graphical edge """
+
+        item = dst_connector.edge
+        dst_connector.set_edge(None)
+        src_connector.edge_list.remove(item)
+        self.scene().removeItem(item)
+
+
+    def remove_connection(self, connector_src, connector_dst):
+        """ Remove a connection """
+
+        self.notification_enabled = False
+
+        self.remove_graphical_connection(connector_src, connector_dst)
+        self.factory.unconnect(connector_src.parentItem().get_id(), connector_src.index(),
+                               connector_dst.parentItem().get_id(), connector_dst.index()) 
+
+        self.reinstantiate_node()
+        self.notification_enabled = True
+    
 
     # Drag and Drop from TreeView support
     
@@ -683,66 +705,31 @@ class ConnectorOut(Connector):
 
 ################################################################################
 
-class AbstractEdge(QtGui.QGraphicsItem):
+class AbstractEdge(QtGui.QGraphicsLineItem):
     """
     Base classe for edges
     """
 
     def __init__(self, graphview, parent=None, scene=None):
-        QtGui.QGraphicsItem.__init__(self, parent, scene)
+        QtGui.QGraphicsLineItem.__init__(self, parent, scene)
 
         self.graph = graphview
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
 
-
-    def boundingRect(self):
-
-        penWidth = 1
-        extra = (penWidth + 5) / 2.0
-
-        rect = QtCore.QRectF(self.sourcePoint,
-                             QtCore.QSizeF(self.destPoint.x() - self.sourcePoint.x(),
-                                           self.destPoint.y() - self.sourcePoint.y()))
-        
-        return rect.normalized().adjusted(-extra, -extra, extra, extra)
-
-#     def shape(self):
-#         path = QtGui.QPainterPath()
-
-#         diffx = self.destPoint.x() - self.sourcePoint.x()
-#         diffy = self.destPoint.y() - self.sourcePoint.y()
-        
-#         pointlist = [ QtCore.QPointF(0 - 4, 0),
-#                       QtCore.QPointF(0 + 6, 0),
-#                       QtCore.QPointF(diffx + 6, diffy),
-#                       QtCore.QPointF(diffx - 6, diffy) ]
-        
-
-#         polygon = QtGui.QPolygonF(pointlist)
-#         for p in  pointlist:
-#             polygon.append(p)
-
-#         path.addPolygon (polygon)
-#         path.closeSubpath()
-#         return path
-
-
-    def paint(self, painter, option, widget):
-
-        # Draw the line itself.
         line = QtCore.QLineF(self.sourcePoint, self.destPoint)
+        self.setLine(line)
 
-        if line.length() == 0.0:
-            return
-
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1,
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
                                   QtCore.Qt.SolidLine,
                                   QtCore.Qt.RoundCap,
                                   QtCore.Qt.RoundJoin))
-        painter.drawLine(line)
 
+    def update_line(self):
+        line = QtCore.QLineF(self.sourcePoint, self.destPoint)
+        self.setLine(line)
 
+    
 class SemiEdge(AbstractEdge):
     """
     Represents an edge during its creation
@@ -755,11 +742,14 @@ class SemiEdge(AbstractEdge):
         self.connect = connector
         self.sourcePoint = self.mapFromItem(connector, connector.rect().center())
 
+
     def connector(self):
         return self.connect
 
+
     def setMousePoint(self, scene_point):
         self.destPoint = scene_point
+        self.update_line()
         self.update()
     
 
@@ -802,20 +792,23 @@ class Edge(AbstractEdge):
             return
         self.prepareGeometryChange()
         self.sourcePoint = line.p1() 
-        self.destPoint = line.p2() 
+        self.destPoint = line.p2()
+        self.update_line()
+
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
         menu = QtGui.QMenu(self.graph)
 
-        menu.addAction("Delete connection")
-    
+        action = menu.addAction("Delete connection")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_edge)
+
+        
         menu.move(event.screenPos())
         menu.show()
 
 
-#     def mousePressEvent(self, event):
-#        QtGui.QGraphicsItem.mousePressEvent(self, event)
-#        print "MOUSE"
-        
+    def delete_edge(self):
+        self.graph.remove_connection(self.source, self.dest)
+    
