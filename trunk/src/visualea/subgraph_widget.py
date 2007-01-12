@@ -235,7 +235,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         caption = self.factory.get_caption(eltid)
 
-        factory_name = self.node.get_node_by_id(eltid).factory.get_id()
+        try:
+            factory_name = self.node.get_node_by_id(eltid).factory.get_id()
+        except:
+            # There is no factory associated to the node
+            factory_name = eltid
+            
         caption = "%s ( %s )" %(caption, factory_name)
 
         position = self.factory.get_position(eltid)
