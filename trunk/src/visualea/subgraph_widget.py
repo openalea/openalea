@@ -163,9 +163,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         if(self.newedge):
             item = self.itemAt(event.pos())
-            if(item and isinstance(item, ConnectorIn)):
+            if(item and isinstance(item, ConnectorIn) and
+               isinstance(self.newedge.connector(), ConnectorOut)):
+
                 self.connect_node( self.newedge.connector(), item)
-            elif(item and isinstance(item, ConnectorOut)):
+
+            elif(item and isinstance(item, ConnectorOut) and
+                 isinstance(self.newedge.connector(), ConnectorIn) ):
                 self.connect_node( item, self.newedge.connector())
         
             self.scene().removeItem(self.newedge)
@@ -482,6 +486,13 @@ class GraphicalNode(QtGui.QGraphicsItem):
         for i in range(noutput):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
 
+#         self.spin = QtGui.QSpinBox (graphWidget)
+#         self.spin.move(30,30)
+#         self.spin.show()
+        
+    def hoverMoveEvent(self, event):
+        print "HOVER"
+
         
     def get_id(self):
         return self.elt_id
@@ -539,6 +550,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
         painter.drawText(textRect, QtCore.Qt.AlignCenter, self.caption)
 
 
+
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemPositionChange:
             for c in self.connector_in :
@@ -547,6 +559,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
                 c.adjust()
                  
             self.graph.itemMoved(self, value)
+
+            #self.spin.move( self.graph.mapFromScene(value.toPointF()))
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
