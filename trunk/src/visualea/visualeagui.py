@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # -*- python -*-
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
@@ -26,7 +28,7 @@ import sys
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
-from mainwindow import MainWindow
+from openalea.visualea.mainwindow import MainWindow
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.core import Package
