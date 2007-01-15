@@ -268,7 +268,6 @@ class SubGraphFactory(NodeFactory):
 
 
 
-
 class SubGraph(Node):
     """
     The SubGraph is a container that interconnect different node between them

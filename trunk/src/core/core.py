@@ -221,13 +221,15 @@ class NodeFactory(Observed):
         """
 
         if(self.nodemodule):
-            exec("from %s import %s as tmpclass" %(self.nodemodule,self.nodeclass_name))
+            try:
+                exec("from %s import %s as tmpclass" %(self.nodemodule,self.nodeclass_name))
         
-            node = tmpclass()
-            node.factory = self
-            return node
-        
-        raise InstantiationError()
+                node = tmpclass()
+                node.factory = self
+                return node
+            
+            except ImportError:
+                raise InstantiationError()
     
 
     def instantiate_widget(self, node, parent=None):

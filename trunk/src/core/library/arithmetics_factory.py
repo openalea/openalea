@@ -70,7 +70,7 @@ def define_factory(package):
                       description= "Division", 
                       category = "Operations",
                       nodemodule = "arithmetics",
-                      nodeclass = "Add",
+                      nodeclass = "Div",
                       widgetmodule = None,
                       widgetclass = None,
                       )

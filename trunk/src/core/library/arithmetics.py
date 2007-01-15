@@ -27,31 +27,6 @@ __revision__=" $Id$ "
 from core.core import Node
 
 
-class Add(Node):
-    """ Generic Addition
-    Input 0 : First value to add
-    Input 1 : Second value to add
-    Output 0 : Addition result
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        # defines I/O
-        self.inputs = [0., 0.]
-        self.outputs = [0.]
-
-
-    def __call__(self, inputs=() ):
-        """ inputs is the list of input values """
-
-        try:
-            return ( sum(inputs), )
-        except:
-            return 0.
-
-
 class Value(Node):
     """ Variable
     Input 0 : if connected, set the stored value
@@ -78,3 +53,102 @@ class Value(Node):
 
         return ( self['val'],  )
         
+
+class Add(Node):
+    """ Generic Addition
+    Input 0 : First value to add
+    Input 1 : Second value to add
+    Output 0 : In0 + In1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.inputs = [0., 0.]
+        self.outputs = [0.]
+
+
+    def __call__(self, inputs=() ):
+        """ inputs is the list of input values """
+
+        try:
+            return ( sum(inputs), )
+        except:
+            return (0.,)
+
+
+class Mult(Node):
+    """ Generic Multiplication
+    Input 0 : First value 
+    Input 1 : Second value
+    Output 0 : In0 * In1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.inputs = [0., 0.]
+        self.outputs = [0.]
+
+
+    def __call__(self, inputs=() ):
+        """ inputs is the list of input values """
+
+        try:
+            return ( inputs[0] * inputs[1], )
+        except:
+            return (0.,)
+
+
+class Sub(Node):
+    """ Generic Addition
+    Input 0 : First value 
+    Input 1 : Second value 
+    Output 0 : In0 - In1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.inputs = [0., 0.]
+        self.outputs = [0.]
+
+
+    def __call__(self, inputs=() ):
+        """ inputs is the list of input values """
+
+        try:
+            return ( inputs[0] - inputs[1], )
+        except:
+            return (0.,)
+
+
+class Div(Node):
+    """ Generic Division
+    Input 0 : First value 
+    Input 1 : Second value
+    Output 0 : In0 / In1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.inputs = [0., 0.]
+        self.outputs = [0.]
+
+
+    def __call__(self, inputs=() ):
+        """ inputs is the list of input values """
+
+        try:
+            return ( inputs[0] / inputs[1], )
+        except:
+            return (0.,)
