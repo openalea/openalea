@@ -55,13 +55,6 @@ class Node(Observed):
         self.inputs = []
         self.outputs = []
 
-        # Types
-        self.input_types = []
-        self.output_types = []
-
-        # Parameters
-        self.parameters = {}
-
         # Factory
         self.factory = None
         
@@ -71,27 +64,11 @@ class Node(Observed):
         
         raise RuntimeError('Node function not implemented.')
 
+
+    # Accessor
+    
     def get_factory(self):
         return self.factory
-
-    def set_factory(self, f):
-        self.factory = f
-
-
-    # Node Parameters dictionnary functions
-
-    def __getitem__(self, key):
-        return self.parameters[key]
-
-    def __setitem__(self, key, val):
-        self.parameters[key] = val
-        self.notify_listeners()
-
-    def keys(self):
-        return self.parameters.keys()
-
-    def items(self):
-        return self.parameters.items()
 
 
     # I/O Functions 
@@ -117,14 +94,6 @@ class Node(Observed):
         return self.outputs[index]
 
    
-    def get_in_type(self, index):
-        return self.input_types[index]
-
-
-    def get_out_type(self, index):
-        return self.output_types[index]
-
-
     def get_nb_input(self):
         return len(self.inputs)
 
@@ -141,6 +110,13 @@ class Node(Observed):
 
         for i in range( min ( len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
+
+
+
+class Port:
+    """ Represents a node Port """
+
+    pass
 
 
 
@@ -256,6 +232,11 @@ class NodeFactory(Observed):
                 raise InstantiationError()
 
 
+#class Factory:
+   
+Factory = NodeFactory
+
+
 ###############################################################################
 
 class NodeWidget(AbstractListener):
@@ -270,8 +251,6 @@ class NodeWidget(AbstractListener):
         # register to observed node and factory
         self.initialise(node)
         self.initialise(node.get_factory())
-
-        self.node.register_listener(self)
             
 
     def get_node(self):
@@ -361,32 +340,32 @@ class Package(dict):
         return self.metainfo[key]
 
 
-    def add_nodefactory(self, nodefactory):
-        """ Add to the package a node factory """
-        self[ nodefactory.name ] = nodefactory
+    def add_factory(self, factory):
+        """ Add to the package a factory ( node or subgraph ) """
+        self[ factory.name ] = factory
 
 
-    def get_node_names(self):
-        """ Return all the names of the available nodes in a list"""
+    def get_names(self):
+        """ Return all the factory names  in a list"""
 
         return self.keys()
     
 
-    def get_nodefactory(self, id):
-        """ Return the node factory associated with id """
+    def get_factory(self, id):
+        """ Return the factory associated with id """
 
         try:
-            nodefactory = self[id]
+            factory = self[id]
         except KeyError:
             raise UnknownNodeError()
 
-        return nodefactory
+        return factory
 
 
-    def get_node_info(self, id):
-        """ Return the tuple (name, category, description, doc) for the node factory id """
+    def get_info(self, id):
+        """ Return the tuple (name, category, description, doc) for the factory id """
 
-        nf = self.get_nodefactory(id)
+        nf = self.get_factory(id)
 
         return (nf.name, nf.category, nf.description, nf.doc)
 

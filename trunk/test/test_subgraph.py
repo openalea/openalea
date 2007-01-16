@@ -21,9 +21,9 @@ Test the subgraph module
 """
 
 
-from core.pkgmanager import PackageManager
-from core.subgraph import SubGraphFactory
-from core.core import Package , RecursionError 
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.subgraph import SubGraphFactory
+from openalea.core.core import Package, RecursionError 
 
 def test_subgraph():
 

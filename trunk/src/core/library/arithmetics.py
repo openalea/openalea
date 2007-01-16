@@ -37,21 +37,23 @@ class Value(Node):
 
         Node.__init__(self)
 
-        self.inputs  = [None]
-        self.outputs  = [0.]
+        self.inputs  =   [
+            Port( name = "val", interface = None, default = 0.) ]
+        
+        self.outputs  =  [
+            Port( name = "Out", interface = None) ]
 
-        self['val'] = 0.
+        
 
-
-    def __call__(self, inputs=()):
+    def __call__(self, inputs):
         """ inputs is the list of input values """
         
-        i0=inputs[0]
+        i0 = inputs[0]
         
         if(i0 != None) :
-            self['val'] = i0
+            self.set_input(0, i0)
 
-        return ( self['val'],  )
+        return ( self.get_input(0),  )
         
 
 class Add(Node):
@@ -66,89 +68,91 @@ class Add(Node):
         Node.__init__(self)
 
         # defines I/O
-        self.inputs = [0., 0.]
-        self.outputs = [0.]
+        self.inputs  =   [
+            Port( name = "In 0", interface = None, default = 0.),
+            Port( name = "In 1", interface = None, default = 0.)
+            ]
+        
+        self.outputs  =  [
+            Port( name = "Out", interface = None) ]
 
 
-    def __call__(self, inputs=() ):
+    def __call__(self, values):
         """ inputs is the list of input values """
 
-        try:
-            return ( sum(inputs), )
-        except:
-            return (0.,)
+        return ( sum(values), )
+        
+
+# class Mult(Node):
+#     """ Generic Multiplication
+#     Input 0 : First value 
+#     Input 1 : Second value
+#     Output 0 : In0 * In1
+#     """
+
+#     def __init__(self):
+
+#         Node.__init__(self)
+
+#         # defines I/O
+#         self.inputs = [0., 0.]
+#         self.outputs = [0.]
 
 
-class Mult(Node):
-    """ Generic Multiplication
-    Input 0 : First value 
-    Input 1 : Second value
-    Output 0 : In0 * In1
-    """
+#     def __call__(self, inputs=() ):
+#         """ inputs is the list of input values """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        # defines I/O
-        self.inputs = [0., 0.]
-        self.outputs = [0.]
+#         try:
+#             return ( inputs[0] * inputs[1], )
+#         except:
+#             return (0.,)
 
 
-    def __call__(self, inputs=() ):
-        """ inputs is the list of input values """
+# class Sub(Node):
+#     """ Generic Addition
+#     Input 0 : First value 
+#     Input 1 : Second value 
+#     Output 0 : In0 - In1
+#     """
 
-        try:
-            return ( inputs[0] * inputs[1], )
-        except:
-            return (0.,)
+#     def __init__(self):
 
+#         Node.__init__(self)
 
-class Sub(Node):
-    """ Generic Addition
-    Input 0 : First value 
-    Input 1 : Second value 
-    Output 0 : In0 - In1
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        # defines I/O
-        self.inputs = [0., 0.]
-        self.outputs = [0.]
+#         # defines I/O
+#         self.inputs = [0., 0.]
+#         self.outputs = [0.]
 
 
-    def __call__(self, inputs=() ):
-        """ inputs is the list of input values """
+#     def __call__(self, inputs=() ):
+#         """ inputs is the list of input values """
 
-        try:
-            return ( inputs[0] - inputs[1], )
-        except:
-            return (0.,)
-
-
-class Div(Node):
-    """ Generic Division
-    Input 0 : First value 
-    Input 1 : Second value
-    Output 0 : In0 / In1
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        # defines I/O
-        self.inputs = [0., 0.]
-        self.outputs = [0.]
+#         try:
+#             return ( inputs[0] - inputs[1], )
+#         except:
+#             return (0.,)
 
 
-    def __call__(self, inputs=() ):
-        """ inputs is the list of input values """
+# class Div(Node):
+#     """ Generic Division
+#     Input 0 : First value 
+#     Input 1 : Second value
+#     Output 0 : In0 / In1
+#     """
 
-        try:
-            return ( inputs[0] / inputs[1], )
-        except:
-            return (0.,)
+#     def __init__(self):
+
+#         Node.__init__(self)
+
+#         # defines I/O
+#         self.inputs = [0., 0.]
+#         self.outputs = [0.]
+
+
+#     def __call__(self, inputs=() ):
+#         """ inputs is the list of input values """
+
+#         try:
+#             return ( inputs[0] / inputs[1], )
+#         except:
+#             return (0.,)

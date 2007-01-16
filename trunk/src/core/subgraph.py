@@ -111,7 +111,7 @@ class SubGraphFactory(NodeFactory):
             (package_id, factory_id) = self.elt_factory[elt_id]
 
             pkg = self.pkgmanager[package_id]
-            factory = pkg.get_nodefactory(factory_id)
+            factory = pkg.get_factory(factory_id)
 
             node = factory.instantiate(call_stack)
             new_df.add_node(elt_id, node)

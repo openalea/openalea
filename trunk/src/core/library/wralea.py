@@ -43,7 +43,9 @@ def register_packages(pkgmanager):
 
 
     package = Package("arithmetics", metainfo)
+    
     arithmetics_factory.define_factory(package)
+
     pkgmanager.add_package(package)
 
 

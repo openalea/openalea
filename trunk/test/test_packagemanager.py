@@ -21,20 +21,11 @@ Test the Package Manager
 """
 
 
-from core.pkgmanager import PackageManager
+from openalea.core.pkgmanager import PackageManager
 import os
 import openalea
 
 # Test package manager configuration
-
-def test_config():
-
-    #Empty Config
-    pkgman = PackageManager()
-    pkgman.save_config("test.xml")
-
-    assert(os.path.exists("test.xml"))
-    os.remove("test.xml")
 
 
 
@@ -43,32 +34,18 @@ def test_wraleapath():
     pkgman = PackageManager()
     assert len ( pkgman.wraleapath ) == 3
     pkgman.add_wraleapath("/usr/bin")
-    pkgman.save_config("test.xml")
 
-    pkgman=PackageManager()
-    import openalea
-    assert openalea.__path__[0] in pkgman.wraleapath
-    assert "." in pkgman.wraleapath
-    pkgman.add_wralea("test.xml")
-                      
     assert "/usr/bin" in pkgman.wraleapath
                       
-    os.remove("test.xml")
 
 
 def test_load_pm():
     pkgman = PackageManager()
     pkgman.init()
 
-    assert len(pkgman) == 2
-
     simpleop = pkgman["arithmetics"]
     assert simpleop
 
-    subgraph = pkgman["Examples"]
-    assert subgraph
-
-    from simpleop import Add, Value
     addfactory = simpleop.get_nodefactory('add')
     assert addfactory != None
     assert addfactory.instantiate()
@@ -77,30 +54,22 @@ def test_load_pm():
     assert valfactory != None
 
    
-    pkgman.save_config("wralea.xml")
 
-    
-    # Try to download wralea
+# def test_find_wralea():
+#      pkgman=PackageManager()
+#      pkgman.init()
 
-    pkgman = PackageManager()
-    pkgman.clear()
-    pkgman.add_wralea("wralea.xml")
+#      assert len(pkgman) == 2
+#      pkgman.save_config("test.xml")
 
-    assert len(pkgman) == 2
 
-    simpleop = pkgman["arithmetics"]
-    
-    subgraph = pkgman["Examples"]
-    assert subgraph
+# def test_config():
 
-    pkgman.save_config("test.xml")
+#     #Empty Config
+#     pkgman = PackageManager()
+#     pkgman.save_config("test.xml")
 
-def test_find_wralea():
-     pkgman=PackageManager()
-     pkgman.init()
-
-     assert len(pkgman) == 2
-     pkgman.save_config("test.xml")
-
+#     assert(os.path.exists("test.xml"))
+#     os.remove("test.xml")
 
 
