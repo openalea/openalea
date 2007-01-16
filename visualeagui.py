@@ -69,7 +69,7 @@ def main(args):
                                 category = "",
                                 )
 
-    pkg.add_nodefactory(rootfactory)
+    pkg.add_factory(rootfactory)
     pkgman.add_package(pkg)
     pkgman.find_and_register_packages()
 
