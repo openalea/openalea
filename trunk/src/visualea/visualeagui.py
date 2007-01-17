@@ -66,7 +66,7 @@ def main(args):
 
     rootfactory = SubGraphFactory(pkgman, name="Root",
                                 description= "",
-                                category = "",
+                                category = "Any",
                                 )
 
     pkg.add_factory(rootfactory)

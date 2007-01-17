@@ -28,7 +28,8 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
-from node_treeview import NodeTreeView, PkgModel
+from node_treeview import PackageTreeView, PkgModel
+from node_treeview import CategoryTreeView, CategoryModel
 
 import config
 
@@ -68,9 +69,18 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.pkg_model = PkgModel(pkgman)
 
-        self.packageTreeView = NodeTreeView(self, self.packageview)
+        self.packageTreeView = PackageTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
+
+        # category tree view
+
+        self.cat_model = CategoryModel(pkgman)
+
+        self.categoryTreeView = CategoryTreeView(self, self.categoryview)
+        self.categoryTreeView.setModel(self.cat_model)
+        self.vboxlayout1.addWidget(self.categoryTreeView)
+
 
         # menu callbacks
 
