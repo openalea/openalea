@@ -35,7 +35,7 @@ import config
 from openalea.core.subgraph import SubGraphFactory
 
 
-class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
+class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def __init__(self, pkgman, rootsubgraph, globals=None, parent=None):
         """
@@ -261,7 +261,7 @@ class MainWindow(  QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             newfactory.set_numinput(nin)
             newfactory.set_numoutput(nout)
             
-            pkg.add_nodefactory(newfactory)
+            pkg.add_factory(newfactory)
             self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
 
         
