@@ -116,7 +116,16 @@ class Node(Observed):
 class Port:
     """ Represents a node Port """
 
-    pass
+    def __init__(self, name, interface, default = None):
+        """
+        @param name : port identificateur
+        @param interface : type
+        @param default : 
+        """
+
+        self.name = name
+        self.inteface = interface
+        self.default = default
 
 
 
