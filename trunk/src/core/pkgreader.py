@@ -83,7 +83,8 @@ class PyPackageReader(PackageReader):
     def register_packages(self, pkgmanager):
         """ Execute Wralea.py """
 
-        retlist = []
+	print self.filename
+	retlist = []
 
         import sys, os
 
@@ -102,7 +103,7 @@ class PyPackageReader(PackageReader):
 
         exec('import %s as wralea') % (modulename)
 
-        
+        print modulename 
         # Call the function  in the wralea.py
         ret = wralea.register_packages( pkgmanager )
 
@@ -199,11 +200,11 @@ class XmlPackageReader(PackageReader):
 
             # Build the node factories and add them to the package
             nf_list = self.get_xml_nodefactory(package, pkgmanager)
-            if(nf_list) : map( pkg.add_nodefactory, nf_list)
+            if(nf_list) : map( pkg.add_factory, nf_list)
 
             # Build the subgraph factories and add them to the package
             sg_list = self.get_xml_subgraphfactory(package, pkgmanager)
-            if(sg_list) : map( pkg.add_nodefactory, sg_list)
+            if(sg_list) : map( pkg.add_factory, sg_list)
 
             packagelist.append(pkg)
 
