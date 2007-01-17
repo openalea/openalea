@@ -67,6 +67,8 @@ class PackageManager(object):
 
         self.pkgs = {}
 
+        self.category = {}
+
 
     def init(self, filename=None):
         """ Initialize package
@@ -129,6 +131,19 @@ class PackageManager(object):
         """ Add a package to the pkg manager """
 
         self[ package.get_id() ] = package
+        self.update_category(package)
+
+
+    # Category management
+
+    def update_category(self, package):
+        """ Update the category dictionnay with package contents """
+        
+        for nf in package.values():
+            try:
+                self.category[nf.category].append( (package.get_id(), nf) )
+            except KeyError:
+                self.category[nf.category] = [ (package.get_id(), nf) ]
 
 
     # Wralea functions
