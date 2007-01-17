@@ -25,6 +25,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
 from openalea.core.core import NodeFactory, Package
+from openalea.core.pkgmanager import PackageManager
+
 
 import images_rc
 
@@ -147,8 +149,146 @@ class PkgModel (QAbstractItemModel) :
 
 
 
+class CategoryModel (QAbstractItemModel) :
+    """ QT4 data model (model/view pattern) to view category """
 
-class NodeTreeView(QtGui.QTreeView):
+    def __init__(self, pkgmanager, parent=None):
+        
+        QAbstractItemModel.__init__(self, parent)
+        self.rootItem = pkgmanager
+
+        self.parent_map = {}
+        self.row_map = {}
+
+
+    def columnCount(self, parent):
+        return 1
+
+    
+    def data(self, index, role):
+        
+        if not index.isValid():
+            return QtCore.QVariant()
+
+        item = index.internalPointer()
+
+        # Text
+        if (role == QtCore.Qt.DisplayRole):
+
+            if( isinstance(item, tuple) ):
+
+                return QtCore.QVariant(str( item[1].get_id() ))
+
+            elif( isinstance(item, list) ):
+
+                parentitem = self.rootItem 
+                id = parentitem.category.keys()[index.row()]
+
+                lenstr = " ( %i )"%(len(item),)
+
+                
+                return QtCore.QVariant(str(id) + lenstr)
+
+        # Tool Tip
+        elif( role == QtCore.Qt.ToolTipRole ):
+            
+            if( isinstance(item, tuple) ):
+                return QtCore.QVariant(str(item[1].get_tip()))
+            else:
+                return QtCore.QVariant()
+
+        # Icon
+        elif( role == QtCore.Qt.DecorationRole ):
+
+            if( isinstance(item, list) ):
+                return QVariant(QtGui.QPixmap(":/icons/package.png"))
+
+            elif( isinstance(item, tuple) ):
+               return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+            else:
+                return QVariant()
+        
+        else:
+            return QtCore.QVariant()
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
+
+
+    def index(self, row, column, parent):
+
+        if (not parent.isValid()):
+            parentItem = self.rootItem
+        else:
+            parentItem = parent.internalPointer()
+
+
+        if( isinstance(parentItem, PackageManager)):
+            childItem = parentItem.category[ parentItem.category.keys()[row] ]
+
+        elif( isinstance(parentItem, list)):
+            childItem = parentItem[row]
+        else:
+            childItem = None
+        
+
+        if (childItem):
+
+            # save parent and row
+            self.parent_map[ id(childItem) ] = parentItem
+            self.row_map[ id(childItem) ] = row
+                
+            return self.createIndex(row, column, childItem)
+        
+        else:
+            return QtCore.QModelIndex()
+
+
+    def parent(self, index):
+
+        if (not index.isValid()):
+            return QtCore.QModelIndex()
+
+        childItem = index.internalPointer()
+        
+        parentItem = self.parent_map[ id(childItem) ]
+        
+        if (parentItem == self.rootItem):
+            return QtCore.QModelIndex()
+        
+        else:
+            row = self.row_map[ id(parentItem) ]
+            return self.createIndex(row, 0, parentItem)
+
+
+    def rowCount(self, parent):
+
+        if (not parent.isValid()):
+            parentItem = self.rootItem
+        else:
+            parentItem = parent.internalPointer()
+
+        if( isinstance(parentItem, PackageManager)):
+            return len(parentItem.category.keys())
+
+        elif( isinstance(parentItem, list)):
+            return len(parentItem)
+
+        else :
+            return 0
+
+
+class PackageTreeView(QtGui.QTreeView):
     """ Specialized TreeView to display node in a tree which support Drag and Drop """
     
     def __init__(self, main_win, parent=None):
@@ -190,19 +330,13 @@ class NodeTreeView(QtGui.QTreeView):
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
         pixmap = QtGui.QPixmap(item.data(QtCore.Qt.DecorationRole))
 
-        # put in the Mime Data pkg id and factory id
-        obj = item.internalPointer()
+        (pkg_id, factory_id, mimetype) = self.get_item_info(item)
 
-        if(obj.mimetype == "openalea/nodefactory"):
-
-            factory_id = obj.get_id()
-            pkg_id = item.parent().internalPointer().get_id()
-            
-            dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
+        dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
 
         mimeData = QtCore.QMimeData()
-        
-        mimeData.setData(obj.mimetype, itemData)
+
+        mimeData.setData(mimetype, itemData)
     
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
@@ -210,6 +344,7 @@ class NodeTreeView(QtGui.QTreeView):
         drag.setPixmap(pixmap)
 
         drag.start(QtCore.Qt.MoveAction)
+
         
     def mouseDoubleClickEvent(self, event):
 
@@ -218,4 +353,54 @@ class NodeTreeView(QtGui.QTreeView):
         
         if(isinstance(obj, NodeFactory)):
             self.main_win.open_widget_tab(obj)
+
+
+    def get_item_info(self, item):
+        """ Return (package_id, factory_id, mimetype) corresponding to item """
+        
+        # put in the Mime Data pkg id and factory id
+        obj = item.internalPointer()
+
+        if(obj.mimetype == "openalea/nodefactory"):
+
+            factory_id = obj.get_id()
+            pkg_id = item.parent().internalPointer().get_id()
             
+
+            return (pkg_id, factory_id, obj.mimetype)
+
+        return ("","","")
+        
+
+            
+
+class CategoryTreeView(PackageTreeView):
+    """ Specialized TreeView to display node in a tree which support Drag and Drop
+    classified by category
+    """
+    
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
+        
+        PackageTreeView.__init__(self, main_win, parent)
+
+    def get_item_info(self, item):
+        """ Return (package_id, factory_id, mimetype) corresponding to item """
+        
+        # put in the Mime Data pkg id and factory id
+        obj = item.internalPointer()
+
+        if(isinstance(obj, tuple)):
+           mimetype = obj[1].mimetype
+
+           (pkg_id, nodefactory) = obj
+           factory_id = obj[1].get_id()
+
+           return (pkg_id, factory_id, nodefactory.mimetype)
+
+        return ("","","openalea/others")
+        
+
