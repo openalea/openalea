@@ -26,50 +26,60 @@ __revision__=" $Id$ "
 
 from openalea.core.core import Node
 from openalea.core.interface import IFloat
+from openalea.core.interface import IFileStr
 
-
-class Value(Node):
-    """ Variable
-    Input 0 : if connected, set the stored value
-    Ouput 0 : transmit the stored value
+class LinearModel(Node):
+    """
+    Ax + B model 
+    Input 0 : x value
+    Ouput 0 : Ax + B
+    Parameters :
+        A : linear coefficient
+        B : intercept
     """
 
     def __init__(self):
 
         Node.__init__(self)
 
-        self.add_input( name = "val", interface = IFloat, value = 0.) 
-        self.add_output( name = "out", interface = IFloat) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( inputs[0], )
-        
-
-class Add(Node):
-    """ Generic Addition
-    Input 0 : First value to add
-    Input 1 : Second value to add
-    Output 0 : In0 + In1
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        # defines I/O
-        self.add_input( name = "In 0", interface = None, value = 0.)
-        self.add_input( name = "In 1", interface = None, value = 0.)
+        self.add_input( name = "X", interface = IFloat, value = 0.)
+        self.add_input( name = "A", interface = IFloat, value = 0.)
+        self.add_input( name = "B", interface = IFloat, value = 0.)
             
-        self.add_output( name = "Out", interface = None) 
+        self.add_output( name = "Y", interface = None) 
 
+        
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( sum(inputs),)
+        # We prefer here to get the value by key
+        x = self.get_input_by_key("X")
+        a = self.get_input_by_key("A")
+        b = self.get_input_by_key("B")
+
+        y = a*x + b
+
+        return ( y,  )
+
+
+class InputFile(Node):
+    """
+    A file path
+    Out :  the file path string
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "Filename", interface = IFileStr, value = "")
+        self.add_output( name = "Filename", interface = IFileStr)
+            
         
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( inputs(0),  )
 

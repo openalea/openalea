@@ -20,7 +20,7 @@ Wralea for Core.Library
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id$ "
+__revision__=" $Id: arithmetics_factory.py 219 2007-01-16 18:19:26Z dufourko $ "
 
 
 from openalea.core.core import Factory
@@ -31,29 +31,32 @@ def define_factory(package):
 
 
 
-    nf = Factory( name= "add", 
-                  description= "Addition", 
-                  category = "Operations", 
-                  nodemodule = "arithmetics",
-                  nodeclass = "Add",
+    nf = Factory( name= "linearmodel", 
+                  description= "Linear Model", 
+                  category = "Model", 
+                  nodemodule = "dummy_model",
+                  nodeclass = "LinearModel",
+                  
                   widgetmodule = None,
                   widgetclass = None,
+                  parameters = ["A", "B"],
+                  
                   )
 
 
     package.add_factory( nf )
 
-
-    nf = Factory( name = "val",
-                  description = "Value",
-                  category  = "Operations",
-                  nodemodule = "arithmetics",
-                  nodeclass = "Value",
+    nf = Factory( name= "inputfile", 
+                  description= "File name", 
+                  category = "Model", 
+                  nodemodule = "dummy_model",
+                  nodeclass = "InputFile",
+                  
                   widgetmodule = None,
                   widgetclass = None,
-                  parameters = ["val"]
+                  parameters = ["Filename"],
+                  
                   )
 
-                      
-    package.add_factory( nf )
 
+    package.add_factory( nf )

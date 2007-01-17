@@ -52,8 +52,18 @@ class Node(Observed):
         # Effective values
         Observed.__init__(self)
 
+        # Values
         self.inputs = []
         self.outputs = []
+
+        # Description
+        self.input_desc = []
+        self.output_desc = []
+        
+        
+        self.map_index_in = {}
+        self.map_index_out = {}
+        
 
         # Factory
         self.factory = None
@@ -70,9 +80,61 @@ class Node(Observed):
     def get_factory(self):
         return self.factory
 
+    # Declarations
+    def add_input(self, name, interface, value = None):
+        """ Create an input port """
 
-    # I/O Functions 
+        self.inputs.append( value )
+        self.input_desc.append( (name, interface) )
+        self.map_index_in[name]= len(self.inputs) - 1
 
+
+    def add_output(self, name, interface):
+        """ Create an output port """
+
+        self.outputs.append( None )
+        self.output_desc.append( (name, interface) )
+        self.map_index_out[name]= len(self.outputs) - 1
+
+
+    # I/O Functions
+    def get_input_interface_by_key(self, key):
+
+        index = self.map_index_in[key]
+        return self.input_desc[index][1]
+
+
+    def get_output_interface_by_key(self, key):
+
+        index = self.map_index_out[key]
+        return self.output_desc[index][1]
+
+    
+    def get_input_by_key(self, key):
+
+        index = self.map_index_in[key]
+        return self.inputs[index]
+
+
+    def set_input_by_key(self, key, val):
+
+        index = self.map_index_in[key]
+        self.inputs[index] =  val
+        self.notify_listeners()
+
+
+    def get_output_by_key(self, key):
+
+        index = self.map_index_out[key]
+        return self.outputs[index]
+
+
+    def set_output_by_key(self, key, val):
+
+        index = self.map_index_out[key]
+        self.outputs[index] =  val
+
+    
     def get_input(self, index):
         """ Return an input port value """
 
@@ -82,16 +144,17 @@ class Node(Observed):
     def set_input(self, index, val):
         """ Define the input value for the specified index """
         self.inputs[index] = val
-
-
-    def set_output(self, index, val):
-        """ Define the output value for the specified index """
-        self.outputs[index] = val
+        self.notify_listeners()
 
 
     def get_output(self, index):
         """ Return the output for the specified index """
         return self.outputs[index]
+
+
+    def set_output(self, index, val):
+        """ Define the output value for the specified index """
+        self.outputs[index] = val
 
    
     def get_nb_input(self):
@@ -108,24 +171,12 @@ class Node(Observed):
 
         outlist = self.__call__(self.inputs)
 
+        if(not isinstance(outlist, tuple) and
+           not isinstance(outlist, list)):
+            outlist = (outlist,)
+
         for i in range( min ( len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
-
-
-
-class Port:
-    """ Represents a node Port """
-
-    def __init__(self, name, interface, default = None):
-        """
-        @param name : port identificateur
-        @param interface : type
-        @param default : 
-        """
-
-        self.name = name
-        self.inteface = interface
-        self.default = default
 
 
 
@@ -147,6 +198,7 @@ class NodeFactory(Observed):
                  nodeclass = None,
                  widgetmodule = None,
                  widgetclass = None,
+                 parameters = [],
                  **kargs):
 	"""
 	Create a node factory.
@@ -158,6 +210,7 @@ class NodeFactory(Observed):
 	@param nodeclass :  node class name to be created
         @param widgetmodule : 'python module to import for widget'
 	@param widgetclass : widget class name
+        @param parameters : list of parameters name
 	
 	@type name : String
 	@type description : String
@@ -166,6 +219,7 @@ class NodeFactory(Observed):
 	@type nodeclass : String
         @type widgetmodule : String
 	@type widgetclass : String
+        @type parameters : list of string
 	"""
 
         Observed.__init__(self)
@@ -177,7 +231,7 @@ class NodeFactory(Observed):
         self.nodeclass_name = nodeclass
         self.widgetmodule = widgetmodule
         self.widgetclass_name = widgetclass
-        
+        self.parameters = parameters
 
     def get_id(self):
         """ Return the node factory Id """

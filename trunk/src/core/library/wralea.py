@@ -26,6 +26,7 @@ __revision__=" $Id$ "
 
 from openalea.core.core import Package
 import arithmetics_factory
+import dummy_model_fact
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -45,6 +46,7 @@ def register_packages(pkgmanager):
     package = Package("arithmetics", metainfo)
     
     arithmetics_factory.define_factory(package)
+    dummy_model_fact.define_factory(package)
 
     pkgmanager.add_package(package)
 
