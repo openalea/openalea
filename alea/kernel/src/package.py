@@ -99,19 +99,22 @@ class Package(object):
          widget_factories= [],
          directories= {'pkg':'','doc':'','test':'','example':'','lib':'','bin':'','setting':''}
          ):
-	"""
-	"""
+	      
+
+
+	      """
+	      """
         
-      self.name=name  
-    	self.system_name=system_name 
-    	self.version=version 
-    	self.legal_stuff=legal_stuff 
-    	self.node_factories=node_factories
-    	self.widget_factories= widget_factories
-    	self.directories=directories
-      self.node2widget= create_node2widget(widget_factories)
-      self.loaded= False
-      self.installed= False
+	      self.name=name  
+	      self.system_name=system_name 
+	      self.version=version 
+	      self.legal_stuff=legal_stuff 
+	      self.node_factories=node_factories
+	      self.widget_factories= widget_factories
+	      self.directories=directories
+	      self.node2widget= create_node2widget(widget_factories)
+	      self.loaded= False
+	      self.installed= False
     
     def get_nodes(self):
     	""" for now a composent is a name """
