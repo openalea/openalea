@@ -1,2 +1,2 @@
-
+from external import *
 
