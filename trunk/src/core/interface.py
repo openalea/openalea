@@ -43,3 +43,5 @@ class IStr(Interface):
 class IInt(Interface):
     pass
 
+class IBool(Interface):
+    pass
