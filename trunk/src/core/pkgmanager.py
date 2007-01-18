@@ -28,7 +28,7 @@ import sys
 import os
 import openalea
 
-import library
+import openalea.library as library
 
 from pkgreader import OpenAleaWriter
 
@@ -65,8 +65,10 @@ class PackageManager(object):
         self.old_syspath = sys.path[:]
         self.update_syspath()
 
+        # dictionnay of packages
         self.pkgs = {}
 
+        # dictionnay of category
         self.category = {}
 
 
@@ -141,9 +143,11 @@ class PackageManager(object):
         
         for nf in package.values():
             try:
-                self.category[nf.category].append( (package.get_id(), nf) )
+                self.category[nf.category].append( FactoryDesc(package, nf) )
             except KeyError:
-                self.category[nf.category] = [ (package.get_id(), nf) ]
+                newcategory = Category()
+                self.category[nf.category] = newcategory
+                newcategory.append( FactoryDesc(package, nf) )
 
 
     # Wralea functions
@@ -251,6 +255,15 @@ class PackageManager(object):
 
 
 
+class Category(list):
+    """ Annex class to sort NodeFactory by category """
+    pass
 
 
+class FactoryDesc:
+    """ Factory description """
 
+    def __init__(self, package, factory):
+
+        self.package = package
+        self.factory = factory
