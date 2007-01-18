@@ -196,7 +196,7 @@ class SubGraphFactory(NodeFactory):
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
         self.notify_listeners()
 
-    def unconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
+    def disconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
         """ unconnect 2 elements :
         @param elt_id_src : source element id
         @param port_src : source output port number
@@ -401,16 +401,38 @@ class SubGraph(Node):
         self.node_id[elt_id] = node
         return
 
+    def remove_node(self, elt_id):
+        """
+        remove a node from the SubGraph
+        @param elt_id : element id
+        """
+        
+        del self.node_id[elt_id]
+        return
+
 
     def connect(self, node_src, port_src, node_dst, port_dst):
         """ Connect 2 elements :
-        @param node_id_src : source node id
+        @param node_id_src : source node
         @param port_src : source output port number
-        @param node_dst : destination node id
+        @param node_dst : destination node
         @param port_dst : destination input port number
         """
 
         self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
+        
+    def disconnect(self, node_src, port_src, node_dst, port_dst):
+        """ Disconnect 2 elements :
+        @param node_id_src : source node
+        @param port_src : source output port number
+        @param node_dst : destination node
+        @param port_dst : destination input port number
+        """
+
+        try:
+            del(self.connections[ (elt_id_dst, port_dst) ])
+        except:
+            return
         
 
 
