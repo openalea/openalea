@@ -161,7 +161,7 @@ class PackageManager(object):
             return
         
         reader = self.get_pkgreader(filename)
-        return reader.get_packages(self)
+        return reader.register_packages(self)
         
     
     def find_wralea_files (self):
