@@ -63,7 +63,7 @@ class PackageManager(object):
         
         # save system path
         self.old_syspath = sys.path[:]
-        self.update_syspath()
+        #self.update_syspath()
 
         # dictionnay of packages
         self.pkgs = {}
@@ -111,17 +111,17 @@ class PackageManager(object):
         if(not new_path in self.wraleapath):
             self.wraleapath.append(new_path)
         
-        if(not new_path in sys.path):
-            sys.path.append(new_path)
+#         if(not new_path in sys.path):
+#             sys.path.append(new_path)
 
 
-    def update_syspath (self):
+#     def update_syspath (self):
 
-        self.recover_syspath()
+#         self.recover_syspath()
         
-        for p in self.wraleapath:
-            if(not p in sys.path):
-                sys.path.append(p)
+#         for p in self.wraleapath:
+#             if(not p in sys.path):
+#                 sys.path.append(p)
 
 
     def recover_syspath (self):

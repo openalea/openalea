@@ -91,7 +91,9 @@ class PyPackageReader(PackageReader):
         basename = os.path.basename(self.filename)
         basedir = os.path.abspath( os.path.dirname( self.filename ))
 
-
+        if(not basedir in sys.path):
+            sys.path.append(basedir)
+        
         modulename = self.filename_to_module(basename)
 
         (file, pathname, desc) = imp.find_module(modulename,  [basedir])
@@ -100,8 +102,6 @@ class PyPackageReader(PackageReader):
         wraleamodule.register_packages( pkgmanager )
         
         if(file) : file.close()
-
-        print modulename 
 
 
 
