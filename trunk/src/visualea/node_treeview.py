@@ -200,7 +200,7 @@ class CategoryModel (QAbstractItemModel) :
         elif( role == QtCore.Qt.DecorationRole ):
 
             if( isinstance(item, Category) ):
-                return QVariant(QtGui.QPixmap(":/icons/package.png"))
+                return QVariant(QtGui.QPixmap(":/icons/category.png"))
 
             elif( isinstance(item, FactoryDesc) ):
                return QVariant(QtGui.QPixmap(":/icons/node.png"))
