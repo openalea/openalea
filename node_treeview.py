@@ -25,7 +25,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
 from openalea.core.core import NodeFactory, Package
-from openalea.core.pkgmanager import PackageManager
+from openalea.core.pkgmanager import PackageManager, Category, FactoryDesc
 
 
 import images_rc
@@ -175,35 +175,34 @@ class CategoryModel (QAbstractItemModel) :
         # Text
         if (role == QtCore.Qt.DisplayRole):
 
-            if( isinstance(item, tuple) ):
+            if( isinstance(item, FactoryDesc) ):
 
-                return QtCore.QVariant(str( item[1].get_id() ))
+                return QtCore.QVariant(str( item.factory.get_id() ))
 
-            elif( isinstance(item, list) ):
+            elif( isinstance(item, Category) ):
 
                 parentitem = self.rootItem 
                 id = parentitem.category.keys()[index.row()]
 
                 lenstr = " ( %i )"%(len(item),)
-
                 
                 return QtCore.QVariant(str(id) + lenstr)
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
             
-            if( isinstance(item, tuple) ):
-                return QtCore.QVariant(str(item[1].get_tip()))
+            if( isinstance(item, FactoryDesc) ):
+                return QtCore.QVariant(str(item.factory.get_tip()))
             else:
                 return QtCore.QVariant()
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
 
-            if( isinstance(item, list) ):
+            if( isinstance(item, Category) ):
                 return QVariant(QtGui.QPixmap(":/icons/package.png"))
 
-            elif( isinstance(item, tuple) ):
+            elif( isinstance(item, FactoryDesc) ):
                return QVariant(QtGui.QPixmap(":/icons/node.png"))
 
             else:
@@ -236,7 +235,7 @@ class CategoryModel (QAbstractItemModel) :
         if( isinstance(parentItem, PackageManager)):
             childItem = parentItem.category[ parentItem.category.keys()[row] ]
 
-        elif( isinstance(parentItem, list)):
+        elif( isinstance(parentItem, Category)):
             childItem = parentItem[row]
         else:
             childItem = None
@@ -281,7 +280,7 @@ class CategoryModel (QAbstractItemModel) :
         if( isinstance(parentItem, PackageManager)):
             return len(parentItem.category.keys())
 
-        elif( isinstance(parentItem, list)):
+        elif( isinstance(parentItem, Category)):
             return len(parentItem)
 
         else :
@@ -369,7 +368,7 @@ class PackageTreeView(QtGui.QTreeView):
 
             return (pkg_id, factory_id, obj.mimetype)
 
-        return ("","","")
+        return ("","", "openalea/notype")
         
 
             
@@ -393,14 +392,14 @@ class CategoryTreeView(PackageTreeView):
         # put in the Mime Data pkg id and factory id
         obj = item.internalPointer()
 
-        if(isinstance(obj, tuple)):
-           mimetype = obj[1].mimetype
+        if(isinstance(obj, FactoryDesc)):
+           mimetype = obj.factory.mimetype
 
-           (pkg_id, nodefactory) = obj
-           factory_id = obj[1].get_id()
+           pkg_id = obj.package.get_id()
+           factory_id = obj.factory.get_id()
 
-           return (pkg_id, factory_id, nodefactory.mimetype)
+           return (pkg_id, factory_id, mimetype)
 
-        return ("","","openalea/others")
+        return ("","","openalea/notype")
         
 
