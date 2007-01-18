@@ -20,7 +20,7 @@ Wralea for Core.Library
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: arithmetics_factory.py 219 2007-01-16 18:19:26Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from openalea.core.external import *
