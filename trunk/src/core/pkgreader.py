@@ -28,7 +28,7 @@ from core import Package, NodeFactory
 from subgraph import SubGraphFactory
 import os
 import sys
-
+import imp
 
 class FormatError(Exception):
     def __init__(self, str):
@@ -91,24 +91,17 @@ class PyPackageReader(PackageReader):
         basename = os.path.basename(self.filename)
         basedir = os.path.abspath( os.path.dirname( self.filename ))
 
-        
-        if(not basedir in sys.path):
-            sys.path.append(basedir)
-            oldsyspath = sys.path[:]
-        else :
-            oldsyspath = None
-
 
         modulename = self.filename_to_module(basename)
 
-        exec('import %s as wralea') % (modulename)
+        (file, pathname, desc) = imp.find_module(modulename,  [basedir])
+        wraleamodule = imp.load_module(modulename, file, pathname, desc)
+
+        wraleamodule.register_packages( pkgmanager )
+        
+        if(file) : file.close()
 
         print modulename 
-        # Call the function  in the wralea.py
-        ret = wralea.register_packages( pkgmanager )
-
-        if(oldsyspath):
-            sys.path = oldsyspath
 
 
 
