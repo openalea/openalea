@@ -39,6 +39,7 @@ class InstantiationError(Exception):
 ###############################################################################
 
 from observer import Observed, AbstractListener
+import imp
 
 
 class Node(Observed):
@@ -261,9 +262,13 @@ class NodeFactory(Observed):
 
         if(self.nodemodule):
             try:
-                exec("from %s import %s as tmpclass" %(self.nodemodule,self.nodeclass_name))
-        
-                node = tmpclass()
+                (file, pathname, desc) = imp.find_module(self.nodemodule)
+                module = imp.load_module(self.nodemodule, file, pathname, desc)
+                if(file) : file.close()
+
+                classobj = module.__dict__[self.nodeclass_name]
+                node = classobj()
+                
                 node.factory = self
                 return node
             
@@ -281,7 +286,12 @@ class NodeFactory(Observed):
         if(not modulename) :   modulename = self.nodemodule
 
         if(modulename and self.widgetclass_name):
-            exec("from %s import %s as widgetclass" %(modulename, self.widgetclass_name))
+
+            (file, pathname, desc) = imp.find_module(modulename)
+            module = imp.load_module(modulename, file, pathname, desc)
+            if(file) : file.close()
+
+            widgetclass = module.__dict__[self.widgetclass_name]
 
             return widgetclass(node, parent)
         
