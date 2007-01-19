@@ -1,0 +1,4 @@
+#SConstruct
+
+
+print 'SConstruct TEST'
