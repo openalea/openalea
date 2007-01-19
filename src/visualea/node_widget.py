@@ -200,18 +200,17 @@ class FileNameNodeWidget(StrNodeWidget):
 
 class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     """
-    Default implementation of a NodeWidget
-    It displays the node contents
+    Default implementation of a NodeWidget.
+    It displays the node contents.
     """
 
     # Map between type and widget
-    type_map =    {
-        IFloat: FloatNodeWidget,
-        IInt : IntNodeWidget,
-        IStr : StrNodeWidget,
-        IFileStr: FileNameNodeWidget,
-        types.NoneType : None
-        }
+    type_map= {IFloat: FloatNodeWidget,
+               IInt : IntNodeWidget,
+               IStr : StrNodeWidget,
+               IFileStr: FileNameNodeWidget,
+               types.NoneType : None
+              }
     
 
     def __init__(self, node, parent):
@@ -225,13 +224,10 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(2)
 
-	for param in node.factory.parameters:
-	    param_type = node.get_input_interface_by_key(param) 
+        for param in node.factory.parameters:
+            param_type = node.get_input_interface_by_key(param) 
 
-            try:
-                wclass = self.type_map[param_type]
-            except:
-                wclass = None
+            wclass= self.type_map.get(param_type,None)
 
             if(wclass):
                 widget = wclass(node, self, param)
