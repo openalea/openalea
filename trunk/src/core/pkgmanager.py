@@ -28,7 +28,7 @@ import sys
 import os
 import openalea
 
-import openalea.library as library
+#import openalea.library as library
 
 from pkgreader import OpenAleaWriter
 
@@ -59,7 +59,7 @@ class PackageManager(object):
     def __init__ (self):
 
         # list of path to search wralea file
-        self.wraleapath = [ '.' ] + openalea.__path__ + library.__path__
+        self.wraleapath = [ '.' ] + openalea.__path__ #+ library.__path__
         
         # save system path
         self.old_syspath = sys.path[:]

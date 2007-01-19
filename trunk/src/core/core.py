@@ -273,7 +273,8 @@ class NodeFactory(Observed):
                 return node
             
             except ImportError:
-                raise InstantiationError()
+                #raise InstantiationError()
+                raise
     
 
     def instantiate_widget(self, node, parent=None):
@@ -302,7 +303,8 @@ class NodeFactory(Observed):
                 return DefaultNodeWidget(node, parent)
             
             except ImportError:
-                raise InstantiationError()
+                raise
+                #raise InstantiationError()
 
 
 #class Factory:

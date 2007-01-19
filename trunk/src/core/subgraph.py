@@ -108,13 +108,7 @@ class SubGraphFactory(NodeFactory):
         # Instantiate the node with each factory
         for elt_id in self.elt_factory.keys():
 
-            (package_id, factory_id) = self.elt_factory[elt_id]
-
-            pkg = self.pkgmanager[package_id]
-            factory = pkg.get_factory(factory_id)
-
-            node = factory.instantiate(call_stack)
-            new_df.add_node(elt_id, node)
+            self.instantiate_id(elt_id, new_df)
 
         # Create the connections
         for (dst_id, input_port) in self.connections:
@@ -131,7 +125,71 @@ class SubGraphFactory(NodeFactory):
         return new_df
 
 
-    def del_element(self, elt_id):
+    def instantiate_id(self, elt_id, subgraph, call_stack=None):
+        """ instantiate elt_id in subgraph
+        @param call_stack : a list of parent id (to avoid infinite recursion)
+        """
+
+        if(subgraph.node_id.has_key(elt_id)) :
+            return
+
+        (package_id, factory_id) = self.elt_factory[elt_id]
+        
+        pkg = self.pkgmanager[package_id]
+        factory = pkg.get_factory(factory_id)
+
+        node = factory.instantiate(call_stack)
+        subgraph.add_node(elt_id, node)
+
+    
+
+#     def update_subgraph(self, graph):
+#         """
+#         Adapt the subgraph to corresponf to the factory
+#         As this function call isntantiate, Exceptions can be raised. In this case
+#         the subgraph state is unknown
+#         """
+
+#         graph_ids = set(graph.node_id.keys())
+#         factory_ids = set(self.elt_factory.keys())
+
+#         # the ids not contained in the both list
+#         diff = graph_ids.symetric_difference(factory_ids)
+
+#         for id in diff :
+
+#             if(graph.node_id.has_key(id)):
+#                 graph.remove_node_by_id(id)
+                
+#             elif(self.elt_factory.has_key(id)):
+#                 (package_id, factory_id) = self.elt_factory[elt_id]
+
+#                 pkg = self.pkgmanager[package_id]
+#                 factory = pkg.get_factory(factory_id)
+
+#                 node = factory.instantiate([self.get_id()])
+#                 graph.add_node(elt_id, node)
+
+
+#         # Check connections
+
+#         # Add connections
+#         for (dst_id, input_port) in self.connections:
+
+#             if( not graph.connections.has_key((dst_node, input_port))):
+
+#                 (src_id, output_port) = self.connections[ (dst_id, input_port) ]
+#                 dst_node = graph.node_id[dst_id]
+#                 src_node = graph.node_id[src_id]
+#                 graph.connect(src_node, output_port, dst_node, input_port)
+
+#         # Remove connections
+
+#         # NOT COMPLETE !!
+
+
+
+    def remove_element(self, elt_id):
         """
         Delete an element and its connection
         @param elt_id : the element id identifying the node
@@ -158,7 +216,7 @@ class SubGraphFactory(NodeFactory):
             del(self.connections[k])
 
         self.notify_listeners()
-        
+
 
     def add_nodefactory(self, package_id, nodefactory_id, pos = None, caption = None):
         """
@@ -197,7 +255,8 @@ class SubGraphFactory(NodeFactory):
         self.notify_listeners()
 
     def disconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
-        """ unconnect 2 elements :
+        """
+        Disconnect 2 elements :
         @param elt_id_src : source element id
         @param port_src : source output port number
         @param elt_id_dst : destination element id
@@ -401,6 +460,7 @@ class SubGraph(Node):
         self.node_id[elt_id] = node
         return
 
+
     def remove_node(self, elt_id):
         """
         remove a node from the SubGraph
@@ -411,19 +471,47 @@ class SubGraph(Node):
         return
 
 
+    def remove_node_by_id(self, elt_id):
+        """
+        Remove a node identified by elt_id
+        """
+
+        node = self.node_id[elt_id]
+        del(self.node_id[elt_id])
+
+        for ((node_dst, port_dst), (node_src, port_src)) in self.connections.items():
+            if(node_dst == node or node_src == node):
+                del(self.connections[(node_dst, port_dst)])
+                
+
+
     def connect(self, node_src, port_src, node_dst, port_dst):
         """ Connect 2 elements :
-        @param node_id_src : source node
+        @param node_src : source node 
         @param port_src : source output port number
         @param node_dst : destination node
         @param port_dst : destination input port number
         """
 
         self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
+
+    
+    def connect_by_id(self, src_id, port_src, dst_id, port_dst):
+        """ Connect 2 elements :
+        @param src_id : source node id
+        @param port_src : source output port number
+        @param dst_id : destination node id
+        @param port_dst : destination input port number
+        """
         
+        node_dst = self.node_id[dst_id]
+        node_src = self.node_id[src_id]
+        self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
+
+
     def disconnect(self, node_src, port_src, node_dst, port_dst):
         """ Disconnect 2 elements :
-        @param node_id_src : source node
+        @param node_src : source node
         @param port_src : source output port number
         @param node_dst : destination node
         @param port_dst : destination input port number
@@ -434,6 +522,22 @@ class SubGraph(Node):
         except:
             return
         
+
+    def disconnect_by_id(self, src_id, port_src, dst_id, port_dst):
+        """ Deconnect 2 elements :
+        @param src_id : source node id
+        @param port_src : source output port number
+        @param dst_id : destination node id
+        @param port_dst : destination input port number
+        """
+
+        try:
+            node_dst = self.node_id[dst_id]
+            node_src = self.node_id[src_id]
+            del(self.connections[ (node_dst, port_dsr) ])
+        except:
+            return
+
 
 
 class SubgraphInput(Node):
