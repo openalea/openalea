@@ -352,13 +352,28 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         container.show()
 
 
+    def remove_selection(self):
+        """ Remove selected nodes """
+
+        # get the selected id
+        s = []
+        for id in self.graph_item.keys():
+            item = self.graph_item[id]
+            if(item.isSelected()):
+                s.append(id)
+
+        # remove the nodes
+        map(self.remove_node, s)
+
+
     def remove_graphical_node(self, elt_id):
         """ Remove the graphical node item identified by elt_id """
 
         item = self.graph_item[elt_id]
         item.remove_connections()
         self.scene().removeItem(item)
-
+        del(self.graph_item[elt_id])
+                
 
     def remove_node(self, elt_id):
         """ Remove node identified by elt_id """
@@ -368,7 +383,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.remove_graphical_node(elt_id)
         self.factory.remove_element(elt_id)
         self.node.remove_node_by_id(elt_id)
-        #self.reinstantiate_node()
         
         self.notification_enabled = True
 
@@ -439,6 +453,15 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             event.ignore()
 
+    # Keybord Event
+    def keyPressEvent(self, e):
+        """
+        Handle user input a key
+        """
+        key   = e.key()
+        if( key == QtCore.Qt.Key_Delete):
+            self.remove_selection()
+
 
 
 class GraphicalNode(QtGui.QGraphicsItem):
@@ -498,10 +521,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
         for i in range(noutput):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
 
-#         self.spin = QtGui.QSpinBox (graphWidget)
-#         self.spin.move(30,30)
-#         self.spin.show()
-        
+
     def hoverMoveEvent(self, event):
         print "HOVER"
 
@@ -522,14 +542,19 @@ class GraphicalNode(QtGui.QGraphicsItem):
         except:
             return None
 
+
     def remove_connections(self):
         """ Remove edge connected to this item """ 
 
         for cin in self.connector_in:
-            self.scene().removeItem(cin.edge)
+            if(cin.edge) :
+                cin.edge.remove_edge()
+                cin.edge = None
+                
         for cout in self.connector_out:
             for e in cout.edge_list:
-                self.scene().removeItem(e)
+                e.remove_edge()
+            cout.edge_list = []
                 
 
     def boundingRect(self):
@@ -833,13 +858,13 @@ class Edge(AbstractEdge):
         menu = QtGui.QMenu(self.graph)
 
         action = menu.addAction("Delete connection")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_edge)
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove_edge)
 
         
         menu.move(event.screenPos())
         menu.show()
 
 
-    def delete_edge(self):
+    def remove_edge(self):
         self.graph.remove_connection(self.source, self.dest)
     

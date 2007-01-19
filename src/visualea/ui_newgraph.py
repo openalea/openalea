@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newgraph.ui'
 #
-# Created: Thu Jan 18 14:59:37 2007
+# Created: Fri Jan 19 17:26:57 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,58 +13,74 @@ from PyQt4 import QtCore, QtGui
 class Ui_NewGraphDialog(object):
     def setupUi(self, NewGraphDialog):
         NewGraphDialog.setObjectName("NewGraphDialog")
-        NewGraphDialog.resize(QtCore.QSize(QtCore.QRect(0,0,372,229).size()).expandedTo(NewGraphDialog.minimumSizeHint()))
+        NewGraphDialog.resize(QtCore.QSize(QtCore.QRect(0,0,397,198).size()).expandedTo(NewGraphDialog.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(NewGraphDialog)
         self.vboxlayout.setMargin(9)
         self.vboxlayout.setSpacing(6)
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.label_4 = QtGui.QLabel(NewGraphDialog)
-        self.label_4.setObjectName("label_4")
-        self.vboxlayout.addWidget(self.label_4)
-
-        self.hboxlayout = QtGui.QHBoxLayout()
-        self.hboxlayout.setMargin(0)
-        self.hboxlayout.setSpacing(6)
-        self.hboxlayout.setObjectName("hboxlayout")
-
         self.label = QtGui.QLabel(NewGraphDialog)
         self.label.setObjectName("label")
-        self.hboxlayout.addWidget(self.label)
+        self.vboxlayout.addWidget(self.label)
 
-        self.nameEdit = QtGui.QLineEdit(NewGraphDialog)
-        self.nameEdit.setObjectName("nameEdit")
-        self.hboxlayout.addWidget(self.nameEdit)
-        self.vboxlayout.addLayout(self.hboxlayout)
+        self.gridlayout = QtGui.QGridLayout()
+        self.gridlayout.setMargin(0)
+        self.gridlayout.setSpacing(6)
+        self.gridlayout.setObjectName("gridlayout")
 
-        self.hboxlayout1 = QtGui.QHBoxLayout()
-        self.hboxlayout1.setMargin(0)
-        self.hboxlayout1.setSpacing(6)
-        self.hboxlayout1.setObjectName("hboxlayout1")
-
-        self.inBox = QtGui.QSpinBox(NewGraphDialog)
-        self.inBox.setObjectName("inBox")
-        self.hboxlayout1.addWidget(self.inBox)
+        self.label_4 = QtGui.QLabel(NewGraphDialog)
+        self.label_4.setObjectName("label_4")
+        self.gridlayout.addWidget(self.label_4,2,0,1,1)
 
         self.label_2 = QtGui.QLabel(NewGraphDialog)
         self.label_2.setObjectName("label_2")
-        self.hboxlayout1.addWidget(self.label_2)
-        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.gridlayout.addWidget(self.label_2,0,0,1,1)
 
-        self.hboxlayout2 = QtGui.QHBoxLayout()
-        self.hboxlayout2.setMargin(0)
-        self.hboxlayout2.setSpacing(6)
-        self.hboxlayout2.setObjectName("hboxlayout2")
+        self.label_6 = QtGui.QLabel(NewGraphDialog)
+        self.label_6.setObjectName("label_6")
+        self.gridlayout.addWidget(self.label_6,1,2,1,1)
 
-        self.outBox = QtGui.QSpinBox(NewGraphDialog)
-        self.outBox.setObjectName("outBox")
-        self.hboxlayout2.addWidget(self.outBox)
+        self.inBox = QtGui.QSpinBox(NewGraphDialog)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.inBox.sizePolicy().hasHeightForWidth())
+        self.inBox.setSizePolicy(sizePolicy)
+        self.inBox.setObjectName("inBox")
+        self.gridlayout.addWidget(self.inBox,0,3,1,1)
 
         self.label_3 = QtGui.QLabel(NewGraphDialog)
         self.label_3.setObjectName("label_3")
-        self.hboxlayout2.addWidget(self.label_3)
-        self.vboxlayout.addLayout(self.hboxlayout2)
+        self.gridlayout.addWidget(self.label_3,1,0,1,1)
+
+        self.descriptionEdit = QtGui.QLineEdit(NewGraphDialog)
+        self.descriptionEdit.setObjectName("descriptionEdit")
+        self.gridlayout.addWidget(self.descriptionEdit,2,1,1,1)
+
+        self.categoryEdit = QtGui.QLineEdit(NewGraphDialog)
+        self.categoryEdit.setObjectName("categoryEdit")
+        self.gridlayout.addWidget(self.categoryEdit,1,1,1,1)
+
+        self.outBox = QtGui.QSpinBox(NewGraphDialog)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.outBox.sizePolicy().hasHeightForWidth())
+        self.outBox.setSizePolicy(sizePolicy)
+        self.outBox.setObjectName("outBox")
+        self.gridlayout.addWidget(self.outBox,1,3,1,1)
+
+        self.nameEdit = QtGui.QLineEdit(NewGraphDialog)
+        self.nameEdit.setObjectName("nameEdit")
+        self.gridlayout.addWidget(self.nameEdit,0,1,1,1)
+
+        self.label_5 = QtGui.QLabel(NewGraphDialog)
+        self.label_5.setObjectName("label_5")
+        self.gridlayout.addWidget(self.label_5,0,2,1,1)
+        self.vboxlayout.addLayout(self.gridlayout)
 
         self.buttonBox = QtGui.QDialogButtonBox(NewGraphDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -76,14 +92,21 @@ class Ui_NewGraphDialog(object):
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),NewGraphDialog.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),NewGraphDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(NewGraphDialog)
+        NewGraphDialog.setTabOrder(self.nameEdit,self.categoryEdit)
+        NewGraphDialog.setTabOrder(self.categoryEdit,self.descriptionEdit)
+        NewGraphDialog.setTabOrder(self.descriptionEdit,self.inBox)
+        NewGraphDialog.setTabOrder(self.inBox,self.outBox)
+        NewGraphDialog.setTabOrder(self.outBox,self.buttonBox)
 
     def retranslateUi(self, NewGraphDialog):
         NewGraphDialog.setWindowTitle(QtGui.QApplication.translate("NewGraphDialog", "New Network", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("NewGraphDialog", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        self.label.setText(QtGui.QApplication.translate("NewGraphDialog", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:13pt; font-weight:600;\">New Network</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("NewGraphDialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("NewGraphDialog", "Inputs", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("NewGraphDialog", "Outputs", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:21pt;\">New Network</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("NewGraphDialog", "Description", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("NewGraphDialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("NewGraphDialog", "Nb Outputs", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("NewGraphDialog", "Category", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("NewGraphDialog", "Nb Inputs", None, QtGui.QApplication.UnicodeUTF8))
 
