@@ -66,7 +66,7 @@ def main(args):
 
     rootfactory = SubGraphFactory(pkgman, name="Workspace",
                                 description= "",
-                                category = "Unclassified",
+                                category = "",
                                 )
 
     pkg.add_factory(rootfactory)
