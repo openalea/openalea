@@ -16,7 +16,8 @@
 
 __doc__="""
 This module contains abstration to read and write configuration files.
-Configuration can be read from python files or XML files and written to xml file
+Configuration can be read from python files or XML files
+and written to xml file
 
 """
 
@@ -460,7 +461,8 @@ class OpenAleaWriter(XmlWriter):
     """ Class to write the whole system configuration """
 
     def __init__(self, pkgmanager):
-        """ Constructor:
+        """
+        Constructor:
         @param pkgmanager : a package manager instance
         """
         self.pmanager = pkgmanager

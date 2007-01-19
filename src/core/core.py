@@ -13,9 +13,11 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+###############################################################################
 
 __doc__="""
-This module defines all the base class for the OpenAlea Kernel (Node, Package...)
+This module defines all the base class for the OpenAlea Kernel
+(Node, Package...)
 """
 
 __license__= "Cecill-C"
@@ -186,7 +188,8 @@ class Node(Observed):
 
 class NodeFactory(Observed):
     """
-    A Node factory is able to create node on demand, and their associated widget.
+    A Node factory is able to create nodes on demand,
+    and their associated widgets.
     """
 
     mimetype = "openalea/nodefactory"
@@ -201,28 +204,29 @@ class NodeFactory(Observed):
                  widgetclass = None,
                  parameters = [],
                  **kargs):
-	"""
-	Create a node factory.
-	
-	@param name : user name for the node (must be unique)
+        
+        """
+        Create a node factory.
+        
+        @param name : user name for the node (must be unique)
         @param description : description of the node
-	@param category : category of the node
+        @param category : category of the node
         @param nodemodule : 'python module to import for node'
-	@param nodeclass :  node class name to be created
+        @param nodeclass :  node class name to be created
         @param widgetmodule : 'python module to import for widget'
-	@param widgetclass : widget class name
+        @param widgetclass : widget class name
         @param parameters : list of parameters name
-	
-	@type name : String
-	@type description : String
-	@type category : String
+        
+        @type name : String
+        @type description : String
+        @type category : String
         @type nodemodule : String
-	@type nodeclass : String
+        @type nodeclass : String
         @type widgetmodule : String
-	@type widgetclass : String
+        @type widgetclass : String
         @type parameters : list of string
-	"""
-
+        """
+        
         Observed.__init__(self)
         
         self.name = name
@@ -264,7 +268,8 @@ class NodeFactory(Observed):
             try:
                 (file, pathname, desc) = imp.find_module(self.nodemodule)
                 module = imp.load_module(self.nodemodule, file, pathname, desc)
-                if(file) : file.close()
+                if(file) :
+                    file.close()
 
                 classobj = module.__dict__[self.nodeclass_name]
                 node = classobj()
@@ -372,7 +377,7 @@ class Package(dict):
 	"""
         Create a Package
 
-        @param name : a unique string that will be used as an unique identifier for the package
+        @param name : a unique string used as a unique identifier for the package
         @param metainfo : a dictionnary for metainformation. Attended keys are :
             license : a string ex GPL, LGPL, Cecill, Cecill-C
             version : a string
@@ -410,7 +415,10 @@ class Package(dict):
 
 
     def get_metainfo(self, key):
-        """Return a meta information. See the standard key the __init__ function documentation"""
+        """
+        Return a meta information.
+        See the standard key the __init__ function documentation.
+        """
 
         return self.metainfo[key]
 
@@ -438,7 +446,9 @@ class Package(dict):
 
 
     def get_info(self, id):
-        """ Return the tuple (name, category, description, doc) for the factory id """
+        """
+        Return (name, category, description, doc) for the factory id.
+        """
 
         nf = self.get_factory(id)
 

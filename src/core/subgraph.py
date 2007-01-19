@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+###############################################################################
 
 __doc__="""
 This module defines the subgraph classes 
@@ -270,7 +271,6 @@ class SubGraphFactory(NodeFactory):
         self.notify_listeners()
 
         
-
     def get_position(self, elt_id):
         """ Return the position of the element elt_id in a 2 uple (x,y)"""
         return self.elt_position[elt_id]
