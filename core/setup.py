@@ -20,22 +20,14 @@ See http://openalea.gforge.inria.fr
 """
     sys.exit()
 
-try:
-    from openalea.distx import setup
-except ImportError:
-    print """
-ImportError : openalea.distx package not found.
-Please, first install the openalea.distx package.
-See http://openalea.gforge.inria.fr
-"""
-    sys.exit()
+from distutils.core import setup
 
 
 ##############
 # Setup script
 
 # Package name
-name= 'softbus'
+name= 'core'
 
 #openalea namespace
 namespace=config.namespace 
@@ -48,7 +40,7 @@ version= '0.1.0'
 # Description of the package
 
 # Short description
-description= 'OpenAlea software bus' 
+description= 'OpenAlea Component platform core.' 
 
 long_description= ''
 
@@ -82,12 +74,6 @@ setup(
     package_dir= { pkg_name : pj('src',name)},
 
                      
-    # copy shared data in default OpenAlea directory
-    # map of 'destination subdirectory' : 'source subdirectory'
-    external_data={pj('doc', name) : 'doc',
-                   pj('test', name) : 'test',
-                   },
-
     )
 
 
