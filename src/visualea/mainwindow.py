@@ -260,11 +260,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         ret = dialog.exec_()
 
         if(ret>0):
-            (name, nin, nout) = dialog.get_data()
+            (name, nin, nout, cat, desc) = dialog.get_data()
 
             newfactory = SubGraphFactory(self.pkgmanager, name=name,
-                                         description= "",
-                                         category = "",
+                                         description= desc,
+                                         category = cat,
                                          documentation = ""
                                          )
             
@@ -272,7 +272,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             newfactory.set_numoutput(nout)
             
             pkg.add_factory(newfactory)
+            self.pkgmanager.rebuild_category()
+            
             self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+            self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
 
         
 
@@ -299,20 +302,25 @@ class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         # Test if name is correct
         name = str(self.nameEdit.text())
         if(self.package.has_key(name)):
-           mess = QtGui.QMessageBox.warning(self, "Error",
+            mess = QtGui.QMessageBox.warning(self, "Error",
                                             "The Name is already use")
-           return
+            return
 
         
         QtGui.QDialog.accept(self)
 
+
     def get_data(self):
         """
         Return the dialog data in a tuple
-        (name, nin, nout)
+        (name, nin, nout, category, description)
         """
 
-        return (str(self.nameEdit.text()), self.inBox.value(), self.outBox.value())
+        name = str(self.nameEdit.text())
+        category = str(self.categoryEdit.text().toAscii())
+        description = str(self.categoryEdit.text().toAscii())
+
+        return (name, self.inBox.value(), self.outBox.value(), category, description)
     
         
 
