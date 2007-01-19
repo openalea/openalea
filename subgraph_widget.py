@@ -517,9 +517,9 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.connector_in = []
         self.connector_out = []
         for i in range(ninput):
-            self.connector_in.append(ConnectorIn(self.graph, self, scene, i))
+            self.connector_in.append(ConnectorIn(self.graph, self, scene, i,ninput))
         for i in range(noutput):
-            self.connector_out.append(ConnectorOut(self.graph, self, scene, i))
+            self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput))
 
 
     def hoverMoveEvent(self, event):
@@ -709,13 +709,14 @@ class Connector(QtGui.QGraphicsRectItem):
 class ConnectorIn(Connector):
     """ Input node connector """
 
-    def __init__(self, graphview, parent, scene, index):
+    def __init__(self, graphview, parent, scene, index, n):
 
         Connector.__init__(self, graphview, parent, scene, index)
 
         self.edge = None
 
-        self.setPos(index * self.WIDTH * 2, 0)
+        width= parent.sizex / float(n+1)
+        self.setPos((index+1) * width, 0)
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
     def set_edge(self, edge):
@@ -738,10 +739,11 @@ class ConnectorIn(Connector):
 class ConnectorOut(Connector):
     """ Output node connector """
 
-    def __init__(self, graphview, parent, scene, index):
+    def __init__(self, graphview, parent, scene, index, n):
         Connector.__init__(self, graphview, parent, scene, index)
         
-        self.setPos(index * self.WIDTH * 2, parent.sizey - self.HEIGHT)
+        width= parent.sizex / float(n+1)
+        self.setPos((index+1) * width, parent.sizey - self.HEIGHT)
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
         self.edge_list = []
