@@ -1,2 +1,0 @@
-# -*- python -*-
-from distx import *
