@@ -73,6 +73,8 @@ class PyCutExt(QTextEdit):
         QTextEdit.__init__(self, parent)
         self.interpreter = Interpreter(locals)
 
+        self.colorizer = SyntaxColor()
+
         # session log
         self.log = log or ''
 
@@ -140,6 +142,7 @@ class PyCutExt(QTextEdit):
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
         self.write(sys.ps1)
+        
 
     def moveCursor(self, operation, mode=QTextCursor.MoveAnchor):
         """
@@ -149,6 +152,7 @@ class PyCutExt(QTextEdit):
         cursor = self.textCursor()
         cursor.movePosition(operation, mode)
         self.setTextCursor(cursor)
+        
 
     def flush(self):
         """
@@ -156,11 +160,13 @@ class PyCutExt(QTextEdit):
         """
         pass
 
+
     def isatty(self):
         """
         Simulate stdin, stdout, and stderr.
         """
         return 1
+    
 
     def readline(self):
         """
@@ -175,6 +181,7 @@ class PyCutExt(QTextEdit):
             return '\n'
         else:
             return str(self.line) 
+
     
     def write(self, text):
         """
@@ -184,11 +191,21 @@ class PyCutExt(QTextEdit):
         # so work around QTextEdit's policy for handling newline characters.
 
         cursor = self.textCursor()
+
         cursor.movePosition(QTextCursor.End)
+
+        pos1 = cursor.position()
         cursor.insertText(text)
+
         self.cursor_pos = cursor.position()
         self.setTextCursor(cursor)
         self.ensureCursorVisible ()
+
+        # Set the format
+        cursor.setPosition(pos1, QTextCursor.KeepAnchor)
+        format = cursor.charFormat()
+        format.setForeground( QtGui.QBrush(QtGui.QColor(0,0,0)))
+        cursor.setCharFormat(format)
 
 
     def writelines(self, text):
@@ -196,6 +213,7 @@ class PyCutExt(QTextEdit):
         Simulate stdin, stdout, and stderr.
         """
         map(self.write, text)
+
 
     def fakeUser(self, lines):
         """
@@ -206,6 +224,7 @@ class PyCutExt(QTextEdit):
             self.write(self.line)
             self.write('\n')
             self.__run()
+
             
     def __run(self):
         """
@@ -231,6 +250,7 @@ class PyCutExt(QTextEdit):
             self.write(sys.ps1)
             self.lines = []
         self.__clearLine()
+
         
     def __clearLine(self):
         """
@@ -238,16 +258,20 @@ class PyCutExt(QTextEdit):
         """
         self.line.truncate(0)
         self.point = 0
+
         
     def __insertText(self, text):
         """
         Insert text at the current cursor position.
         """
 
-        cursor = self.textCursor()
-        cursor.insertText(text)
         self.line.insert(self.point, text)
         self.point += text.length()
+
+        cursor = self.textCursor()
+        cursor.insertText(text)
+        self.color_line()
+
 
     def keyPressEvent(self, e):
         """
@@ -273,7 +297,6 @@ class PyCutExt(QTextEdit):
             self.line.remove(self.point, 1)
             
         elif key == Qt.Key_Return or key == Qt.Key_Enter:
-
             self.write('\n')
             if self.reading:
                 self.reading = 0
@@ -323,6 +346,7 @@ class PyCutExt(QTextEdit):
         else:
             e.ignore()
 
+
     def __recall(self):
         """
         Display the current item from the command history.
@@ -356,12 +380,67 @@ class PyCutExt(QTextEdit):
         if e.button() == Qt.LeftButton:
             self.moveCursor(QTextCursor.End)
             
-        return
 
     def contentsContextMenuEvent(self,ev):
         """
         Suppress the right button context menu.
         """
-        return
+        pass
+
+    
+    def color_line(self):
+        """ Color the current line """
+        
+        cursor = self.textCursor()
+        cursor.movePosition(QTextCursor.StartOfLine)
+
+        newpos = cursor.position()
+        pos = -1
+        
+        while(newpos != pos):
+            cursor.movePosition(QTextCursor.NextWord)
+
+            pos = newpos
+            newpos = cursor.position()
+
+            cursor.select(QTextCursor.WordUnderCursor)
+            word = str(cursor.selectedText ().toAscii())
+
+            if(not word) : continue
+            
+            (R,G,B) = self.colorizer.get_color(word)
+            
+            format = cursor.charFormat()
+            format.setForeground( QtGui.QBrush(QtGui.QColor(R,G,B)))
+            cursor.setCharFormat(format)
+            
+
+
+
+
+class SyntaxColor:
+    """ Allow to color python keywords """
+
+    keywords = set(["and", "del", "from", "not", "while",
+                "as", "elif", "global", "or", "with",
+                "assert", "else", "if", "pass", "yield",
+                "break", "except", "import", "print",
+                "class", "exec", "in", "raise",              
+                "continue", "finally", "is", "return",
+                "def", "for", "lambda", "try"])
+
+    def __init__(self):
+        pass
+        
+
+    def get_color(self, word):
+        """ Return a color tuple (R,G,B) depending of the string word """
+
+        if(word.strip() in self.keywords):
+            return (255,0,0)
+        else:
+            return (0,0,0)
+        
+
 
 

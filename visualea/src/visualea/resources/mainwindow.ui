@@ -116,33 +116,6 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
-     <string>&amp;File</string>
-    </property>
-    <addaction name="action_New_Project" />
-    <addaction name="action_Open_Project" />
-    <addaction name="action_Save_Project" />
-    <addaction name="actionSave_as" />
-    <addaction name="separator" />
-    <addaction name="action_Quit" />
-   </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Import</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-     <addaction name="actionSearch_Path" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="separator" />
-    <addaction name="action_New_Network" />
-   </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="title" >
      <string>&amp;Workspace</string>
@@ -167,6 +140,33 @@
      <string>P&amp;ython</string>
     </property>
     <addaction name="action_Execute_script" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+     <addaction name="actionSearch_Path" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
+   </widget>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Project" />
+    <addaction name="action_Open_Project" />
+    <addaction name="action_Save_Project" />
+    <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="action_Quit" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -277,6 +277,9 @@
   <action name="action_New_Network" >
    <property name="text" >
     <string>&amp;New Network</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionOpenAlea_Web" >
