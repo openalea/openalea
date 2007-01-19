@@ -64,9 +64,9 @@ def main(args):
     pkg_metainfo={}
     pkg=Package("MyObjects", pkg_metainfo)
 
-    rootfactory = SubGraphFactory(pkgman, name="Root",
+    rootfactory = SubGraphFactory(pkgman, name="Workspace",
                                 description= "",
-                                category = "Any",
+                                category = "Unclassified",
                                 )
 
     pkg.add_factory(rootfactory)
