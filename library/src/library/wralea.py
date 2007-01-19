@@ -23,7 +23,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core.external import *
+from openalea.core import *
 
 import arithmetics_factory
 import dummy_model_fact
