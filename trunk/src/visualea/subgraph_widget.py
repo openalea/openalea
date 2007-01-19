@@ -220,6 +220,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             
             self.node_dialog = {}
             return True
+        
         except RecursionError :
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "A Subgraph cannot be contained in itself.")
@@ -283,7 +284,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         eltid = self.factory.add_nodefactory(pkg_id, factory_id, (position.x(), position.y()))
 
         # Try to instantiate
-        if(not self.reinstantiate_node()):
+        try:
+            self.factory.instantiate_id(eltid, self.node, [self.factory.get_id()])
+
+        except RecursionError:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "A Subgraph cannot be contained in itself.")
+            
             self.factory.del_element(eltid)
             self.notification_enabled = True
             return None
@@ -303,8 +310,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.factory.connect(connector_src.parentItem().get_id(), connector_src.index(),
                              connector_dst.parentItem().get_id(), connector_dst.index())
+        self.node.connect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
+                                connector_dst.parentItem().get_id(), connector_dst.index())
 
-        self.reinstantiate_node()
+        #self.reinstantiate_node()
         self.notification_enabled = True
         
         return self.add_graphical_connection(connector_src, connector_dst)
@@ -357,9 +366,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.notification_enabled = False
 
         self.remove_graphical_node(elt_id)
-        self.factory.del_element(elt_id)
-
-        self.reinstantiate_node()
+        self.factory.remove_element(elt_id)
+        self.node.remove_node_by_id(elt_id)
+        #self.reinstantiate_node()
         
         self.notification_enabled = True
 
@@ -379,10 +388,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.notification_enabled = False
 
         self.remove_graphical_connection(connector_src, connector_dst)
-        self.factory.unconnect(connector_src.parentItem().get_id(), connector_src.index(),
+        self.factory.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
 
-        self.reinstantiate_node()
+        self.node.disconnect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
+                               connector_dst.parentItem().get_id(), connector_dst.index()) 
+
+        #self.reinstantiate_node()
         self.notification_enabled = True
     
 
