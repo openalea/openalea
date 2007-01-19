@@ -142,12 +142,24 @@ class PackageManager(object):
         """ Update the category dictionnay with package contents """
         
         for nf in package.values():
+
+            if(not nf.category) : nf.category = "Unclassified"
+
             try:
                 self.category[nf.category].append( FactoryDesc(package, nf) )
             except KeyError:
                 newcategory = Category()
                 self.category[nf.category] = newcategory
                 newcategory.append( FactoryDesc(package, nf) )
+
+
+    def rebuild_category(self):
+        """ Rebuild all the category """
+
+        self.category = {}
+        for p in self.values():
+            self.update_category(p)
+        
 
 
     # Wralea functions
