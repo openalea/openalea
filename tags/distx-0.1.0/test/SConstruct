@@ -1,4 +1,0 @@
-#SConstruct
-
-
-print 'SConstruct TEST'
