@@ -69,12 +69,3 @@ def register_packages(pkgmanager):
     plot_tools_nodes_factory.define_factory(package2)
 
     pkgmanager.add_package(package2)
-
-
-
-
-        
-
-
-
-    

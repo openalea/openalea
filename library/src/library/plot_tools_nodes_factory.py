@@ -27,11 +27,11 @@ def define_factory(package):
     nf = Factory( name= "plot2D", 
                       description= "Plot a list of 2D plotable objects", 
                       category = "Tools", 
-                      nodemodule = "utils_nodes",
+                      nodemodule = "plot_tools_nodes",
                       nodeclass = "plot2D",
                       widgetmodule = None,
                       widgetclass = None, 
-                      parameters = [ 'title', 'xlabel', 'ylabel' ]
+                      #parameters = [ 'title', 'xlabel', 'ylabel' ]
                       )
 
     package.add_factory( nf )

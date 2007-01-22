@@ -39,9 +39,9 @@ class plot2D( Node ):
 
         #defines I/O
         self.add_input( name='plotObjList', interface=Node )
-        self.add_input( name='title', interface=IStr )
-        self.add_input( name='xlabel', interface=IStr )
-        self.add_input( name='ylabel', interface=IStr )
+        self.add_input( name='title', interface=IStr, value='MyPlot' )
+        self.add_input( name='xlabel', interface=IStr, value='x-axis' )
+        self.add_input( name='ylabel', interface=IStr, value='y-axis' )
 
     def __call__( self, inputs=() ):
-        utils.plot2D( self.get_input_by_key( 'plotObjList' ), self.get_input_by_key( 'title' ), self.get_input_by_key( 'xlabel' ), self.get_input_by_key( 'ylabel' ) )
+        plot_tools.plot2D( self.get_input_by_key( 'plotObjList' ), self.get_input_by_key( 'title' ), self.get_input_by_key( 'xlabel' ), self.get_input_by_key( 'ylabel' ) )
