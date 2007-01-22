@@ -60,3 +60,19 @@ def define_factory(package):
 
 
     package.add_factory( nf )
+
+
+    nf = Factory( name= "bool", 
+                  description= "boolean", 
+                  category = "Model", 
+                  nodemodule = "dummy_model",
+                  nodeclass = "Bool",
+                  
+                  widgetmodule = None,
+                  widgetclass = None,
+                  parameters = ["Bool"],
+                  
+                  )
+
+
+    package.add_factory( nf )
