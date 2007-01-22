@@ -116,16 +116,6 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="actionExport_as_Application" />
-   </widget>
    <widget class="QMenu" name="menu_Help" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -141,22 +131,6 @@
     </property>
     <addaction name="action_Execute_script" />
    </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Import</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-     <addaction name="actionSearch_Path" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="separator" />
-    <addaction name="action_New_Network" />
-   </widget>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
      <string>&amp;File</string>
@@ -167,6 +141,31 @@
     <addaction name="actionSave_as" />
     <addaction name="separator" />
     <addaction name="action_Quit" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="actionExport_as_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -290,11 +289,6 @@
   <action name="actionExport_as_Application" >
    <property name="text" >
     <string>Export as Application</string>
-   </property>
-  </action>
-  <action name="actionSearch_Path" >
-   <property name="text" >
-    <string>Search &amp;Path</string>
    </property>
   </action>
   <action name="action_Execute_script" >
