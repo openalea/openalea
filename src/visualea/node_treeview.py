@@ -25,7 +25,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 
 from openalea.core.core import NodeFactory, Package
-from openalea.core.pkgmanager import PackageManager, Category, FactoryDesc
+from openalea.core.pkgmanager import PackageManager, Category
 
 
 import images_rc
@@ -74,6 +74,9 @@ class PkgModel (QAbstractItemModel) :
 
             if( isinstance(item, Package) ):
                 return QVariant(QtGui.QPixmap(":/icons/package.png"))
+
+            elif( isinstance(item, Category) ):
+                return QVariant(QtGui.QPixmap(":/icons/category.png"))
 
             elif( isinstance( item, NodeFactory) ):
                return QVariant(QtGui.QPixmap(":/icons/node.png"))
@@ -149,80 +152,13 @@ class PkgModel (QAbstractItemModel) :
 
 
 
-class CategoryModel (QAbstractItemModel) :
+class CategoryModel (PkgModel) :
     """ QT4 data model (model/view pattern) to view category """
 
     def __init__(self, pkgmanager, parent=None):
         
-        QAbstractItemModel.__init__(self, parent)
-        self.rootItem = pkgmanager
-
-        self.parent_map = {}
-        self.row_map = {}
-
-
-    def columnCount(self, parent):
-        return 1
-
+        PkgModel.__init__(self, pkgmanager, parent)
     
-    def data(self, index, role):
-        
-        if not index.isValid():
-            return QtCore.QVariant()
-
-        item = index.internalPointer()
-
-        # Text
-        if (role == QtCore.Qt.DisplayRole):
-
-            if( isinstance(item, FactoryDesc) ):
-
-                return QtCore.QVariant(str( item.factory.get_id() ))
-
-            elif( isinstance(item, Category) ):
-
-                parentitem = self.rootItem 
-                id = parentitem.category.keys()[index.row()]
-
-                lenstr = " ( %i )"%(len(item),)
-                
-                return QtCore.QVariant(str(id) + lenstr)
-
-        # Tool Tip
-        elif( role == QtCore.Qt.ToolTipRole ):
-            
-            if( isinstance(item, FactoryDesc) ):
-                return QtCore.QVariant(str(item.factory.get_tip()))
-            else:
-                return QtCore.QVariant()
-
-        # Icon
-        elif( role == QtCore.Qt.DecorationRole ):
-
-            if( isinstance(item, Category) ):
-                return QVariant(QtGui.QPixmap(":/icons/category.png"))
-
-            elif( isinstance(item, FactoryDesc) ):
-               return QVariant(QtGui.QPixmap(":/icons/node.png"))
-
-            else:
-                return QVariant()
-        
-        else:
-            return QtCore.QVariant()
-
-    def flags(self, index):
-        if not index.isValid():
-            return QtCore.Qt.ItemIsEnabled
-
-        return QtCore.Qt.ItemIsEnabled | \
-               QtCore.Qt.ItemIsSelectable | \
-               QtCore.Qt.ItemIsDragEnabled
-
-
-    def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
-
 
     def index(self, row, column, parent):
 
@@ -230,7 +166,6 @@ class CategoryModel (QAbstractItemModel) :
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
-
 
         if( isinstance(parentItem, PackageManager)):
             childItem = parentItem.category[ parentItem.category.keys()[row] ]
@@ -242,7 +177,6 @@ class CategoryModel (QAbstractItemModel) :
         
 
         if (childItem):
-
             # save parent and row
             self.parent_map[ id(childItem) ] = parentItem
             self.row_map[ id(childItem) ] = row
@@ -251,23 +185,6 @@ class CategoryModel (QAbstractItemModel) :
         
         else:
             return QtCore.QModelIndex()
-
-
-    def parent(self, index):
-
-        if (not index.isValid()):
-            return QtCore.QModelIndex()
-
-        childItem = index.internalPointer()
-        
-        parentItem = self.parent_map[ id(childItem) ]
-        
-        if (parentItem == self.rootItem):
-            return QtCore.QModelIndex()
-        
-        else:
-            row = self.row_map[ id(parentItem) ]
-            return self.createIndex(row, 0, parentItem)
 
 
     def rowCount(self, parent):
@@ -285,6 +202,7 @@ class CategoryModel (QAbstractItemModel) :
 
         else :
             return 0
+
 
 
 class PackageTreeView(QtGui.QTreeView):
@@ -369,52 +287,13 @@ class PackageTreeView(QtGui.QTreeView):
         if(obj.mimetype == "openalea/nodefactory"):
 
             factory_id = obj.get_id()
-            pkg_id = item.parent().internalPointer().get_id()
+            pkg_id = obj.package.get_id()
             
-
             return (pkg_id, factory_id, obj.mimetype)
 
         return ("","", "openalea/notype")
         
 
-            
 
-class CategoryTreeView(PackageTreeView):
-    """ Specialized TreeView to display node in a tree which support Drag and Drop
-    classified by category
-    """
-    
-    def __init__(self, main_win, parent=None):
-        """
-        @param main_win : main window
-        @param parent : parent widget
-        """
-        
-        PackageTreeView.__init__(self, main_win, parent)
 
-    def get_item_info(self, item):
-        """ Return (package_id, factory_id, mimetype) corresponding to item """
-        
-        # put in the Mime Data pkg id and factory id
-        obj = item.internalPointer()
-
-        if(isinstance(obj, FactoryDesc)):
-           mimetype = obj.factory.mimetype
-
-           pkg_id = obj.package.get_id()
-           factory_id = obj.factory.get_id()
-
-           return (pkg_id, factory_id, mimetype)
-
-        return ("","","openalea/notype")
-
-    def mouseDoubleClickEvent(self, event):
-
-        item = self.currentIndex()
-        obj =  item.internalPointer()
-        
-        if(isinstance(obj, FactoryDesc)):
-            self.main_win.open_widget_tab(obj.factory)
-
-        
 
