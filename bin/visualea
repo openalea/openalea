@@ -1,0 +1,4 @@
+#!/usr/bin/python
+import os
+os.chdir("../visualea/src/visualea")
+execfile("visualeagui.py")
