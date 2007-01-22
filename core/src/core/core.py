@@ -83,6 +83,7 @@ class Node(Observed):
     def get_factory(self):
         return self.factory
 
+
     # Declarations
     def add_input(self, name, interface, value = None):
         """ Create an input port """
@@ -238,6 +239,9 @@ class NodeFactory(Observed):
         self.widgetclass_name = widgetclass
         self.parameters = parameters
 
+        self.package = None
+
+
     def get_id(self):
         """ Return the node factory Id """
         return self.name
@@ -313,7 +317,6 @@ class NodeFactory(Observed):
 
 
 #class Factory:
-   
 Factory = NodeFactory
 
 
@@ -431,7 +434,9 @@ class Package(dict):
 
     def add_factory(self, factory):
         """ Add to the package a factory ( node or subgraph ) """
+
         self[ factory.name ] = factory
+        factory.package = self
 
 
     def get_names(self):
@@ -451,14 +456,6 @@ class Package(dict):
         return factory
 
 
-    def get_info(self, id):
-        """
-        Return (name, category, description, doc) for the factory id.
-        """
-
-        nf = self.get_factory(id)
-
-        return (nf.name, nf.category, nf.description, nf.doc)
 
         
 
