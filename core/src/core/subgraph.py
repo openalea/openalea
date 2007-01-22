@@ -49,7 +49,7 @@ class SubGraphFactory(NodeFactory):
         # Each element will generate an node instance in the real SubGraph
 
         # Dict mapping elt_id with its corresponding factory
-        # the factory is represented by a tuple ( package_id, factory_id )
+        # the factory is identified by its unique id (package_id, factory_id)
         self.elt_factory = {}
 
         # Dictionnary which contains tuples describing connection
@@ -210,6 +210,7 @@ class SubGraphFactory(NodeFactory):
         
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
         self.notify_listeners()
+
 
     def disconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
         """
