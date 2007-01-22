@@ -107,7 +107,9 @@ class PkgModel (QAbstractItemModel) :
         else:
             parentItem = parent.internalPointer()
 
-        childItem = parentItem[ parentItem.keys()[row] ]
+        l = parentItem.values()
+        l.sort((lambda x,y : cmp(x.get_id(), y.get_id())))
+        childItem = l[row]
 
         if (childItem):
 
@@ -168,10 +170,14 @@ class CategoryModel (PkgModel) :
             parentItem = parent.internalPointer()
 
         if( isinstance(parentItem, PackageManager)):
-            childItem = parentItem.category[ parentItem.category.keys()[row] ]
+            l = parentItem.category.values()
+            l.sort(key = Category.get_id)
+            childItem = l[row]
 
         elif( isinstance(parentItem, Category)):
-            childItem = parentItem[row]
+            l= list(parentItem)
+            l.sort(key = NodeFactory.get_id)
+            childItem = l[row]
         else:
             childItem = None
         
