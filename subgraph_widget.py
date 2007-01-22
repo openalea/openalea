@@ -291,7 +291,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "A Subgraph cannot be contained in itself.")
             
-            self.factory.del_element(eltid)
+            self.factory.remove_element(eltid)
             self.notification_enabled = True
             return None
 
