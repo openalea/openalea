@@ -1,3 +1,26 @@
+# -*- python -*-
+#
+#       OpenAlea.Core: OpenAlea Graph 
+#
+#       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+
+__doc__="""
+This module give a standard implementation of Graph interface
+"""
+
+__license__= "Cecill-C"
+__revision__=" $Id: observer.py 229 2007-01-22 10:17:17Z tyvokka $ "
+
+###############################################################################
 class InvalidEdge (Exception) :
 	"""exception raised when a wrong edge id is provided"""
 	def __init__ (self, arg) :
