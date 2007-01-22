@@ -79,7 +79,7 @@ class InputFile(Node):
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( inputs(0),  )
+        return ( inputs[0],  )
 
 
 class Bool(Node):
@@ -100,4 +100,4 @@ class Bool(Node):
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( inputs(0),  )
+        return ( inputs[0],  )
