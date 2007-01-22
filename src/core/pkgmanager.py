@@ -105,24 +105,12 @@ class PackageManager(object):
         self.pkgs = {}
     
 
-    # Sys Path Functions
+    # Path Functions
     def add_wraleapath(self, new_path):
 
         if(not new_path in self.wraleapath):
             self.wraleapath.append(new_path)
         
-#         if(not new_path in sys.path):
-#             sys.path.append(new_path)
-
-
-#     def update_syspath (self):
-
-#         self.recover_syspath()
-        
-#         for p in self.wraleapath:
-#             if(not p in sys.path):
-#                 sys.path.append(p)
-
 
     def recover_syspath (self):
         sys.path=self.old_syspath
@@ -146,11 +134,13 @@ class PackageManager(object):
             if(not nf.category) : nf.category = "Unclassified"
 
             try:
-                self.category[nf.category].append( FactoryDesc(package, nf) )
+                if(not (nf in self.category[nf.category])):
+                    self.category[nf.category].append( nf )
+                
             except KeyError:
-                newcategory = Category()
+                newcategory = Category(nf.category)
                 self.category[nf.category] = newcategory
-                newcategory.append( FactoryDesc(package, nf) )
+                newcategory.append( nf )
 
 
     def rebuild_category(self):
@@ -269,13 +259,14 @@ class PackageManager(object):
 
 class Category(list):
     """ Annex class to sort NodeFactory by category """
-    pass
+
+    def __init__(self, category_name):
+        self.category = category_name
+
+    def get_id(self):
+        return self.category
+
+    def get_tip(self):
+        return ""
 
 
-class FactoryDesc:
-    """ Factory description """
-
-    def __init__(self, package, factory):
-
-        self.package = package
-        self.factory = factory
