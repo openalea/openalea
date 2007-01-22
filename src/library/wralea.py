@@ -66,7 +66,7 @@ def register_packages(pkgmanager):
 
     package2 = Package("PlotTools", metainfo)
 
-    plot_tools_nodes_factory.define_factory(package1)
+    plot_tools_nodes_factory.define_factory(package2)
 
     pkgmanager.add_package(package2)
 

@@ -39,7 +39,6 @@ def define_factory(package):
                   
                   widgetmodule = None,
                   widgetclass = None,
-                  parameters = ["A", "B"],
                   
                   )
 
@@ -55,8 +54,7 @@ def define_factory(package):
                   
                   widgetmodule = None,
                   widgetclass = None,
-                  parameters = ["Filename"],
-                  
+                 
                   )
 
 
@@ -71,7 +69,6 @@ def define_factory(package):
                   
                   widgetmodule = None,
                   widgetclass = None,
-                  parameters = ["Bool"],
                   
                   )
 
@@ -87,7 +84,6 @@ def define_factory(package):
                   nodeclass = "Float",
                   widgetmodule = None,
                   widgetclass = None,
-                  parameters = ["val"]
                   )
 
                       
