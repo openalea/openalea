@@ -289,6 +289,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         filename = QtGui.QFileDialog.getOpenFileName(
             self, "Python Script", "Python script (*.py)")
 
+        filename = str(filename)
+        if(not filename) : return
+        
         file = open(filename, 'r')
         sources = file.read()
         self.interpreterWidget.get_interpreter().runsource(sources, str(filename))

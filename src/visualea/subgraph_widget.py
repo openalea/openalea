@@ -151,6 +151,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
     def mouseMoveEvent(self, event):
+        
         # update new edge position
         if(self.newedge) :
             self.newedge.setMousePoint(self.mapToScene(event.pos()))
@@ -158,7 +159,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
-
+                      
+              
     def mouseReleaseEvent(self, event):
         
         if(self.newedge):
@@ -246,7 +248,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             # There is no factory associated to the node
             factory_name = eltid
             
-        caption = "%s ( %s )" %(caption, factory_name)
+        caption = "%s ( %s )" %(factory_name, caption)
 
         position = self.factory.get_position(eltid)
 
@@ -602,9 +604,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
                  
             self.graph.itemMoved(self, value)
 
-            #self.spin.move( self.graph.mapFromScene(value.toPointF()))
-
         return QtGui.QGraphicsItem.itemChange(self, change, value)
+
 
     def mousePressEvent(self, event):
         self.update()
@@ -615,8 +616,11 @@ class GraphicalNode(QtGui.QGraphicsItem):
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
 
     def mouseDoubleClickEvent(self, event):
-
         self.graph.open_item(self.elt_id)
+
+    def mouseMoveEvent(self, event):
+        QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -635,8 +639,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
         action = menu.addAction("Delete")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_node)
         
-        action = menu.addAction("Enable in Widget")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
+#         action = menu.addAction("Enable in Widget")
+#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
         
         action = menu.addAction("Edit Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
@@ -684,6 +688,10 @@ class GraphicalNode(QtGui.QGraphicsItem):
             factory.set_caption(self.elt_id, str(result))
 
 
+
+
+
+
 ################################################################################
 
 class Connector(QtGui.QGraphicsEllipseItem):
@@ -718,9 +726,12 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
 
-
     def index(self):
         return self.mindex
+
+    def mouseMoveEvent(self, event):
+        QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+
 
      
 
