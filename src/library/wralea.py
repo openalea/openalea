@@ -40,6 +40,7 @@ def register_packages(pkgmanager):
                'authors' : 'SDK, CP',
                'institutes' : 'INRIA/CIRAD',
                'description' : 'Arithmetic nodes.',
+               'url' : 'http://openalea.gforge.inria.fr'
                }
 
 

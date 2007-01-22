@@ -81,3 +81,23 @@ class InputFile(Node):
 
         return ( inputs(0),  )
 
+
+class Bool(Node):
+    """
+    Boolean value
+    Out :  the value
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "Bool", interface = IBool, value = False)
+        self.add_output( name = "Bool", interface = IBool)
+            
+        
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( inputs(0),  )
