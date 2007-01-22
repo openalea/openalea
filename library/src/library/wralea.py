@@ -27,6 +27,7 @@ from openalea.core import *
 
 import arithmetics_factory
 import simple_models_factory
+import plot_tools_nodes_factory
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -52,10 +53,22 @@ def register_packages(pkgmanager):
     
     pkgmanager.add_package(package1)
 
+    #plot tools
 
 
+    metainfo={ 'version' : '0.0.1',
+               'license' : 'CECILL-C',
+               'authors' : 'OpenAlea Consortium',
+               'institutes' : 'INRIA/CIRAD',
+               'description' : 'Base plot library.',
+               'url' : 'http://openalea.gforge.inria.fr'
+               }
 
-        
+    package2 = Package("PlotTools", metainfo)
+
+    plot_tools_nodes_factory.define_factory(package1)
+
+    pkgmanager.add_package(package2)
 
 
 
