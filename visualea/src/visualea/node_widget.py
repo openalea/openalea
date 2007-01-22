@@ -280,13 +280,11 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(2)
 
-        for param in node.factory.parameters:
-            param_type = node.get_input_interface_by_key(param) 
-
-            wclass= self.type_map.get(param_type,None)
+        for (name, interface) in node.input_desc:
+            wclass= self.type_map.get(interface,None)
 
             if(wclass):
-                widget = wclass(node, self, param)
+                widget = wclass(node, self, name)
                 vboxlayout.addWidget(widget)
                 self.widgets.append(widget)
 
@@ -297,12 +295,30 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
 
             vboxlayout.addWidget(label)
 
+        self.update_input_state()
+
+
 
 
     def notify(self):
         """ Function called by observed objects """
-        
+
+        # Notify all subwidgets
         def call_notify(p) :
             p.notify()
             
         map(call_notify, self.widgets)
+        self.update_input_state()
+
+
+    def update_input_state(self):
+        """ Update subwidget depending of the node input state """
+
+        for w in self.widgets:
+            i = self.node.get_input_index(w.param_str)
+            state = self.node.get_input_state(i)
+
+            if(state == "connected"):
+                w.setEnabled(False)
+            else:
+                w.setEnabled(True)
