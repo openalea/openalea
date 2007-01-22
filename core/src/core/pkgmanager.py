@@ -120,8 +120,10 @@ class PackageManager(object):
     def add_package(self, package):
         """ Add a package to the pkg manager """
 
-        self[ package.get_id() ] = package
-        self.update_category(package)
+        if( not self.pkgs.has_key(package.get_id())):
+            self[ package.get_id() ] = package
+            self.update_category(package)
+
 
 
     # Category management
@@ -135,12 +137,12 @@ class PackageManager(object):
 
             try:
                 if(not (nf in self.category[nf.category])):
-                    self.category[nf.category].append( nf )
+                    self.category[nf.category].add( nf )
                 
             except KeyError:
                 newcategory = Category(nf.category)
                 self.category[nf.category] = newcategory
-                newcategory.append( nf )
+                newcategory.add( nf )
 
 
     def rebuild_category(self):
@@ -257,7 +259,7 @@ class PackageManager(object):
 
 
 
-class Category(list):
+class Category(set):
     """ Annex class to sort NodeFactory by category """
 
     def __init__(self, category_name):

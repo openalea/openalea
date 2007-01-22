@@ -175,6 +175,8 @@ class Node(Observed):
 
         outlist = self.__call__(self.inputs)
 
+        if(not outlist) : return
+        
         if(not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
             outlist = (outlist,)
