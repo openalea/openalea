@@ -26,7 +26,7 @@ __revision__=" $Id$ "
 from openalea.core import *
 
 import arithmetics_factory
-import dummy_model_fact
+import simple_models_factory
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -34,22 +34,25 @@ def register_packages(pkgmanager):
     This function is called by the package manager when it is updated
     """
 
+    # Arithmetics
 
     metainfo={ 'version' : '0.0.1',
                'license' : 'CECILL-C',
-               'authors' : 'SDK, CP',
+               'authors' : 'OpenAlea Consortium',
                'institutes' : 'INRIA/CIRAD',
-               'description' : 'Arithmetic nodes.',
+               'description' : 'Base library.',
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
 
-    package = Package("arithmetics", metainfo)
-    
-    arithmetics_factory.define_factory(package)
-    dummy_model_fact.define_factory(package)
+    package1 = Package("Library", metainfo)
 
-    pkgmanager.add_package(package)
+    arithmetics_factory.define_factory(package1)
+    simple_models_factory.define_factory(package1)
+    
+    pkgmanager.add_package(package1)
+
+
 
 
         

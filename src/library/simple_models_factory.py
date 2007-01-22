@@ -34,7 +34,7 @@ def define_factory(package):
     nf = Factory( name= "linearmodel", 
                   description= "Linear Model", 
                   category = "Model", 
-                  nodemodule = "dummy_model",
+                  nodemodule = "simple_models",
                   nodeclass = "LinearModel",
                   
                   widgetmodule = None,
@@ -45,11 +45,12 @@ def define_factory(package):
 
 
     package.add_factory( nf )
+    
 
     nf = Factory( name= "inputfile", 
                   description= "File name", 
-                  category = "Model", 
-                  nodemodule = "dummy_model",
+                  category = "Data Types", 
+                  nodemodule = "simple_models",
                   nodeclass = "InputFile",
                   
                   widgetmodule = None,
@@ -64,8 +65,8 @@ def define_factory(package):
 
     nf = Factory( name= "bool", 
                   description= "boolean", 
-                  category = "Model", 
-                  nodemodule = "dummy_model",
+                  category = "Data Types", 
+                  nodemodule = "simple_models",
                   nodeclass = "Bool",
                   
                   widgetmodule = None,
@@ -75,4 +76,19 @@ def define_factory(package):
                   )
 
 
+    package.add_factory( nf )
+
+
+
+    nf = Factory( name = "float",
+                  description = "Float Value",
+                  category  = "Data Types",
+                  nodemodule = "simple_models",
+                  nodeclass = "Float",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  parameters = ["val"]
+                  )
+
+                      
     package.add_factory( nf )

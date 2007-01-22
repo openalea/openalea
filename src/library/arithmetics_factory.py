@@ -44,16 +44,3 @@ def define_factory(package):
     package.add_factory( nf )
 
 
-    nf = Factory( name = "val",
-                  description = "Value",
-                  category  = "Operations",
-                  nodemodule = "arithmetics",
-                  nodeclass = "Value",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  parameters = ["val"]
-                  )
-
-                      
-    package.add_factory( nf )
-
