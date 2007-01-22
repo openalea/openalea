@@ -491,10 +491,12 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
         self.caption = caption
 
+        subnode = self.graph.node.get_node_by_id(elt_id)
+        
         # Set ToolTip
-        factory =  self.graph.node.get_node_by_id(elt_id).get_factory()
+        factory =  subnode.get_factory()
         graphfactory = self.graph.node.get_factory()
-        doc = self.graph.node.get_node_by_id(elt_id).__doc__
+        doc = subnode.__doc__
         
         if(factory) : 
             self.setToolTip( "Instance : %s\n"%(elt_id,) +
@@ -517,15 +519,18 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.connector_in = []
         self.connector_out = []
         for i in range(ninput):
-            self.connector_in.append(ConnectorIn(self.graph, self, scene, i,ninput))
+            (name, interface) = subnode.input_desc[i]
+            if(interface): interface = str(interface).split('.')[-1]
+            tip = "%s (%s)"%(name, interface)
+            self.connector_in.append(ConnectorIn(self.graph, self, scene, i, ninput, tip))
+            
         for i in range(noutput):
-            self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput))
+            (name, interface) = subnode.output_desc[i]
+            if(interface): interface = str(interface).split('.')[-1]
+            tip = "%s (%s)"%(name, interface)
+            self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput, tip))
 
 
-    def hoverMoveEvent(self, event):
-        print "HOVER"
-
-        
     def get_id(self):
         return self.elt_id
 
@@ -681,12 +686,12 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
 ################################################################################
 
-class Connector(QtGui.QGraphicsRectItem):
+class Connector(QtGui.QGraphicsEllipseItem):
     """ A node connector """
-    WIDTH = 10
-    HEIGHT = 6
+    WIDTH = 12
+    HEIGHT = 8
 
-    def __init__(self, graphview, parent, scene, index):
+    def __init__(self, graphview, parent, scene, index, tooltip=""):
         """
         @param graphview : The SubGraphWidget
         @param parent : QGraphicsItem parent
@@ -695,11 +700,24 @@ class Connector(QtGui.QGraphicsRectItem):
         """
         QtGui.QGraphicsItem.__init__(self, parent, scene)
         
-        self.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 200)))
-        self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
         self.mindex = index
         self.graphview= graphview
+
+        self.setToolTip(tooltip)
+        self.setRect(0, 0, self.WIDTH, self.HEIGHT)
+
+        gradient = QtGui.QRadialGradient(-3, -3, 10)
+        gradient.setCenter(3, 3)
+        gradient.setFocalPoint(3, 3)
+        gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
+        gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+        
+
+        self.setBrush(QtGui.QBrush(gradient))
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
+
+
 
     def index(self):
         return self.mindex
@@ -709,15 +727,14 @@ class Connector(QtGui.QGraphicsRectItem):
 class ConnectorIn(Connector):
     """ Input node connector """
 
-    def __init__(self, graphview, parent, scene, index, n):
+    def __init__(self, graphview, parent, scene, index, ntotal, tooltip):
 
-        Connector.__init__(self, graphview, parent, scene, index)
+        Connector.__init__(self, graphview, parent, scene, index, tooltip)
 
         self.edge = None
 
-        width= parent.sizex / float(n+1)
-        self.setPos((index+1) * width, 0)
-        self.setRect(0, 0, self.WIDTH, self.HEIGHT)
+        width= parent.sizex / float(ntotal+1)
+        self.setPos((index+1) * width, - self.HEIGHT/2)
 
     def set_edge(self, edge):
         self.edge = edge
@@ -739,12 +756,12 @@ class ConnectorIn(Connector):
 class ConnectorOut(Connector):
     """ Output node connector """
 
-    def __init__(self, graphview, parent, scene, index, n):
-        Connector.__init__(self, graphview, parent, scene, index)
+    def __init__(self, graphview, parent, scene, index, ntotal, tooltip):
+        Connector.__init__(self, graphview, parent, scene, index, tooltip)
         
-        width= parent.sizex / float(n+1)
-        self.setPos((index+1) * width, parent.sizey - self.HEIGHT)
-        self.setRect(0, 0, self.WIDTH, self.HEIGHT)
+        width= parent.sizex / float(ntotal+1)
+        self.setPos((index+1) * width, parent.sizey - self.HEIGHT/2)
+        
 
         self.edge_list = []
 
