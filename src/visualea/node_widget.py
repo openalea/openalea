@@ -236,7 +236,7 @@ class IFileStrWidget(IStrWidget):
         @param parameter_str : the parameter key the widget is associated to
         """
 
-        StrNodeWidget.__init__(self, node, parent, parameter_str)
+        IStrWidget.__init__(self, node, parent, parameter_str)
 
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
