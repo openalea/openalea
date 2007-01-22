@@ -383,6 +383,7 @@ class Package(dict):
             version : a string
             authors : a string
             institutes : a string
+            url : a string
             description : a string for the package description
             publication : optional string for publications
             
@@ -411,6 +412,9 @@ class Package(dict):
         try: str+= "Institutes : %s\n"%(self.metainfo['institutes'],)
         except : pass 
 
+        try: str+= "URL : %s\n"%(self.metainfo['url'],)
+        except : pass 
+
         return str
 
 
@@ -419,8 +423,10 @@ class Package(dict):
         Return a meta information.
         See the standard key the __init__ function documentation.
         """
-
-        return self.metainfo[key]
+        try:
+            return self.metainfo[key]
+        except:
+            return ""
 
 
     def add_factory(self, factory):
