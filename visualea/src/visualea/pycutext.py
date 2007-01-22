@@ -109,22 +109,22 @@ class PyCutExt(QTextEdit):
         self.setLineWrapMode(QTextEdit.NoWrap)
         #self.setCaption('Python Shell')
 
-        # font
-        if os.name == 'posix':
-            font = QtGui.QFont("Fixed", 8)
-        elif os.name == 'nt' or os.name == 'dos':
-            font = QtGui.QFont("Courier New", 8)
-        else:
-            raise SystemExit, "FIXME for 'os2', 'mac', 'ce' or 'riscos'"
-        font.setFixedPitch(1)
-        self.setFont(font)
+#         # font
+#         if os.name == 'posix':
+#             font = QtGui.QFont("Fixed", 8)
+#         elif os.name == 'nt' or os.name == 'dos':
+#             font = QtGui.QFont("Courier New", 8)
+#         else:
+#             raise SystemExit, "FIXME for 'os2', 'mac', 'ce' or 'riscos'"
+#         font.setFixedPitch(1)
+#         self.setFont(font)
 
-        # geometry
-        height = 40*QtGui.QFontMetrics(font).lineSpacing()
-        request = QtCore.QSize(600, height)
-        if parent is not None:
-            request = request.boundedTo(parent.size())
-        self.resize(request)
+#         # geometry
+#         height = 40*QtGui.QFontMetrics(font).lineSpacing()
+#         request = QtCore.QSize(600, height)
+#         if parent is not None:
+#             request = request.boundedTo(parent.size())
+#         self.resize(request)
 
         # interpreter prompt.
         try:
@@ -142,6 +142,12 @@ class PyCutExt(QTextEdit):
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
         self.write(sys.ps1)
+        
+
+    def get_interpreter(self):
+        """ Return the interpreter object """
+
+        return self.interpreter
         
 
     def moveCursor(self, operation, mode=QTextCursor.MoveAnchor):
@@ -285,6 +291,7 @@ class PyCutExt(QTextEdit):
                 cursor = self.textCursor()
                 cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
                 cursor.removeSelectedText()
+                self.color_line()
             
                 self.point -= 1 
                 self.line.remove(self.point, 1)
@@ -293,6 +300,7 @@ class PyCutExt(QTextEdit):
             cursor = self.textCursor()
             cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
             cursor.removeSelectedText()
+            self.color_line()
                         
             self.line.remove(self.point, 1)
             
@@ -436,10 +444,28 @@ class SyntaxColor:
     def get_color(self, word):
         """ Return a color tuple (R,G,B) depending of the string word """
 
-        if(word.strip() in self.keywords):
-            return (255,0,0)
+        stripped = word.strip()
+        
+        if(stripped in self.keywords):
+            return (255, 132,0) # orange
+        
+        elif(self.is_python_string(stripped)):
+            return (61, 120, 9) # dark green
+        
         else:
             return (0,0,0)
+
+    def is_python_string(self, str):
+        """ Return True if str is enclosed by a string mark """
+
+        return (
+            (str.startswith("'''") and str.endswith("'''")) or
+            (str.startswith('"""') and str.endswith('"""')) or
+            (str.startswith("'") and str.endswith("'")) or
+            (str.startswith('"') and str.endswith('"')) 
+            )
+            
+        
         
 
 

@@ -28,13 +28,13 @@ import math
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.core import NodeWidget
-from openalea.core.interface import IFileStr, IFloat, IInt, IStr
+from openalea.core.interface import *
 
 
 import types
 
 
-class FloatNodeWidget(QtGui.QWidget, NodeWidget):
+class IFloatWidget(QtGui.QWidget, NodeWidget):
     """
     Float spin box widget
     """
@@ -58,6 +58,8 @@ class FloatNodeWidget(QtGui.QWidget, NodeWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QDoubleSpinBox (self)
+        self.spin.setRange(-2**15, 2**15)
+
         hboxlayout.addWidget(self.spin)
 
         self.spin.setValue(self.node.get_input_by_key(self.param_str))
@@ -79,7 +81,7 @@ class FloatNodeWidget(QtGui.QWidget, NodeWidget):
         self.spin.setValue(v)
         
 
-class IntNodeWidget(QtGui.QWidget, NodeWidget):
+class IIntWidget(QtGui.QWidget, NodeWidget):
     """
     integer spin box widget
     """
@@ -104,6 +106,8 @@ class IntNodeWidget(QtGui.QWidget, NodeWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QSpinBox (self)
+        self.spin.setRange(-2**15, 2**15)
+
         hboxlayout.addWidget(self.spin)
 
         self.spin.setValue(self.node.get_input_by_key(self.param_str))
@@ -126,7 +130,58 @@ class IntNodeWidget(QtGui.QWidget, NodeWidget):
         self.spin.setValue(v)
 
 
-class StrNodeWidget(QtGui.QWidget, NodeWidget):
+
+class IBoolWidget(QtGui.QWidget, NodeWidget):
+    """
+    integer spin box widget
+    """
+
+    def __init__(self, node, parent, parameter_str):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        """
+
+        NodeWidget.__init__(self, node)
+        QtGui.QWidget.__init__(self, parent)
+
+        self.param_str = parameter_str
+
+        hboxlayout = QtGui.QHBoxLayout(self)
+        hboxlayout.setMargin(3)
+        hboxlayout.setSpacing(5)
+
+        self.checkbox = QtGui.QCheckBox (parameter_str, self)
+
+        hboxlayout.addWidget(self.checkbox)
+
+        self.notify()
+        self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
+
+        
+    def stateChanged(self, state):
+
+        if(state == QtCore.Qt.Checked):
+            self.node.set_input_by_key(self.param_str, True)
+        else:
+            self.node.set_input_by_key(self.param_str, False)
+            
+        
+        
+    def notify(self):
+        """ Notification sent by node """
+
+        try:
+            ischecked = bool(self.node.get_input_by_key(self.param_str))
+        except:
+            ischecked = False
+
+        if(ischecked):
+            self.checkbox.setCheckState(QtCore.Qt.Checked)
+        else:
+            self.checkbox.setCheckState(QtCore.Qt.Unchecked)
+
+
+class IStrWidget(QtGui.QWidget, NodeWidget):
     """
     Line Edit widget
     """
@@ -171,7 +226,7 @@ class StrNodeWidget(QtGui.QWidget, NodeWidget):
         
 
 
-class FileNameNodeWidget(StrNodeWidget):
+class IFileStrWidget(IStrWidget):
     """
     File name Line Edit Widget
     """
@@ -205,10 +260,11 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     """
 
     # Map between type and widget
-    type_map= {IFloat: FloatNodeWidget,
-               IInt : IntNodeWidget,
-               IStr : StrNodeWidget,
-               IFileStr: FileNameNodeWidget,
+    type_map= {IFloat: IFloatWidget,
+               IInt : IIntWidget,
+               IStr : IStrWidget,
+               IFileStr: IFileStrWidget,
+               IBool : IBoolWidget,
                types.NoneType : None
               }
     

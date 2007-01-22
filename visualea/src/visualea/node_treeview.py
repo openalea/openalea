@@ -353,6 +353,12 @@ class PackageTreeView(QtGui.QTreeView):
         if(isinstance(obj, NodeFactory)):
             self.main_win.open_widget_tab(obj)
 
+        if(isinstance(obj, Package)):
+            # Display URL
+            urlstr = obj.get_metainfo('url')
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
+
+            
 
     def get_item_info(self, item):
         """ Return (package_id, factory_id, mimetype) corresponding to item """
@@ -401,5 +407,14 @@ class CategoryTreeView(PackageTreeView):
            return (pkg_id, factory_id, mimetype)
 
         return ("","","openalea/notype")
+
+    def mouseDoubleClickEvent(self, event):
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        
+        if(isinstance(obj, FactoryDesc)):
+            self.main_win.open_widget_tab(obj.factory)
+
         
 
