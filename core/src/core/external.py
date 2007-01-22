@@ -8,4 +8,9 @@ __revision__=" $Id$"
 
 
 from core import Node,DataFlow
+from gui import GUINode
+from node_library import EmptyNode,GUIEmptyNode,\
+					DataFlowNode,GUIDataFlowNode,\
+					FuncNode,GUIFuncNode,\
+					DataNode,GUIDataNode
 
