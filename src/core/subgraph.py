@@ -127,7 +127,9 @@ class SubGraphFactory(NodeFactory):
 
 
     def instantiate_id(self, elt_id, subgraph, call_stack=None):
-        """ instantiate elt_id in subgraph
+        """
+        Partial instantiation
+        instantiate only elt_id in subgraph
         @param call_stack : a list of parent id (to avoid infinite recursion)
         """
 
@@ -141,52 +143,6 @@ class SubGraphFactory(NodeFactory):
 
         node = factory.instantiate(call_stack)
         subgraph.add_node(elt_id, node)
-
-    
-
-#     def update_subgraph(self, graph):
-#         """
-#         Adapt the subgraph to corresponf to the factory
-#         As this function call isntantiate, Exceptions can be raised. In this case
-#         the subgraph state is unknown
-#         """
-
-#         graph_ids = set(graph.node_id.keys())
-#         factory_ids = set(self.elt_factory.keys())
-
-#         # the ids not contained in the both list
-#         diff = graph_ids.symetric_difference(factory_ids)
-
-#         for id in diff :
-
-#             if(graph.node_id.has_key(id)):
-#                 graph.remove_node_by_id(id)
-                
-#             elif(self.elt_factory.has_key(id)):
-#                 (package_id, factory_id) = self.elt_factory[elt_id]
-
-#                 pkg = self.pkgmanager[package_id]
-#                 factory = pkg.get_factory(factory_id)
-
-#                 node = factory.instantiate([self.get_id()])
-#                 graph.add_node(elt_id, node)
-
-
-#         # Check connections
-
-#         # Add connections
-#         for (dst_id, input_port) in self.connections:
-
-#             if( not graph.connections.has_key((dst_node, input_port))):
-
-#                 (src_id, output_port) = self.connections[ (dst_id, input_port) ]
-#                 dst_node = graph.node_id[dst_id]
-#                 src_node = graph.node_id[src_id]
-#                 graph.connect(src_node, output_port, dst_node, input_port)
-
-#         # Remove connections
-
-#         # NOT COMPLETE !!
 
 
 
