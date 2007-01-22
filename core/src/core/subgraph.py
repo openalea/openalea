@@ -452,6 +452,8 @@ class SubGraph(Node):
 
         self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
 
+        node_dst.set_input_state(port_dst, "connected")
+
     
     def connect_by_id(self, src_id, port_src, dst_id, port_dst):
         """ Connect 2 elements :
@@ -464,6 +466,9 @@ class SubGraph(Node):
         node_dst = self.node_id[dst_id]
         node_src = self.node_id[src_id]
         self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
+
+        node_dst.set_input_state(port_dst, "connected")
+
 
 
     def disconnect(self, node_src, port_src, node_dst, port_dst):
@@ -478,6 +483,9 @@ class SubGraph(Node):
             del(self.connections[ (elt_id_dst, port_dst) ])
         except:
             return
+
+        node_dst.set_input_state(port_dst, "disconnected")
+
         
 
     def disconnect_by_id(self, src_id, port_src, dst_id, port_dst):
@@ -491,9 +499,12 @@ class SubGraph(Node):
         try:
             node_dst = self.node_id[dst_id]
             node_src = self.node_id[src_id]
-            del(self.connections[ (node_dst, port_dsr) ])
+            del(self.connections[ (node_dst, port_dst) ])
         except:
             return
+
+        node_dst.set_input_state(port_dst, "disconnected")
+
 
 
 

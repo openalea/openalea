@@ -59,14 +59,16 @@ class Node(Observed):
         self.inputs = []
         self.outputs = []
 
-        # Description
+        # Description (list of tuple (name, interface))
         self.input_desc = []
         self.output_desc = []
         
         
         self.map_index_in = {}
         self.map_index_out = {}
-        
+
+        # Input states : "connected", "hidden"
+        self.input_states = []
 
         # Factory
         self.factory = None
@@ -90,6 +92,7 @@ class Node(Observed):
 
         self.inputs.append( value )
         self.input_desc.append( (name, interface) )
+        self.input_states.append(None)
         self.map_index_in[name]= len(self.inputs) - 1
 
 
@@ -160,13 +163,31 @@ class Node(Observed):
         """ Define the output value for the specified index """
         self.outputs[index] = val
 
-   
+
+    def get_input_state(self, index):
+        return self.input_states[index]
+
+    
+    def set_input_state(self, index, state):
+        """ Set the state of the input index (state is a string) """
+
+        self.input_states[index] = state
+        self.notify_listeners()
+
+
+
+    def get_input_index(self, key):
+        """ Return the index of input identified by key """
+        return self.map_index_in[key]
+    
+        
     def get_nb_input(self):
         return len(self.inputs)
 
     
     def get_nb_output(self):
         return len(self.outputs)
+
 
     
     # Functions used by the node evaluator
@@ -205,7 +226,6 @@ class NodeFactory(Observed):
                  nodeclass = None,
                  widgetmodule = None,
                  widgetclass = None,
-                 parameters = [],
                  **kargs):
         
         """
@@ -218,7 +238,6 @@ class NodeFactory(Observed):
         @param nodeclass :  node class name to be created
         @param widgetmodule : 'python module to import for widget'
         @param widgetclass : widget class name
-        @param parameters : list of parameters name
         
         @type name : String
         @type description : String
@@ -227,7 +246,6 @@ class NodeFactory(Observed):
         @type nodeclass : String
         @type widgetmodule : String
         @type widgetclass : String
-        @type parameters : list of string
         """
         
         Observed.__init__(self)
@@ -239,7 +257,6 @@ class NodeFactory(Observed):
         self.nodeclass_name = nodeclass
         self.widgetmodule = widgetmodule
         self.widgetclass_name = widgetclass
-        self.parameters = parameters
 
         self.package = None
 
