@@ -100,6 +100,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
                      self.contextMenuEvent)
 
+        self.connect(self.action_Execute_script, SIGNAL("activated()"),
+                     self.exec_python_script)
+
+
         self.connect(self.action_New_Network, SIGNAL("activated()"),
                      self.new_graph)
 
@@ -250,6 +254,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         menu.move(event.globalPos())
         menu.show()
 
+
     def new_graph(self):
         """ Create a new graph """
 
@@ -279,6 +284,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         
 
+    def exec_python_script(self):
+        """ Choose a python source and execute it """
+            
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, "Python Script", "Python script (*.py)")
+
+        file = open(filename, 'r')
+        sources = file.read()
+        self.interpreterWidget.get_interpreter().runsource(sources, str(filename))
+        
+       
 
 import ui_newgraph
 
