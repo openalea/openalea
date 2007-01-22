@@ -28,8 +28,7 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
-from node_treeview import PackageTreeView, PkgModel
-from node_treeview import CategoryTreeView, CategoryModel
+from node_treeview import PackageTreeView, PkgModel, CategoryModel
 
 import config
 
@@ -77,7 +76,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.cat_model = CategoryModel(pkgman)
 
-        self.categoryTreeView = CategoryTreeView(self, self.categoryview)
+        self.categoryTreeView = PackageTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout1.addWidget(self.categoryTreeView)
 
@@ -277,7 +276,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             newfactory.set_numoutput(nout)
             
             pkg.add_factory(newfactory)
-            self.pkgmanager.rebuild_category()
+            self.pkgmanager.add_package(pkg)
             
             self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
             self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
