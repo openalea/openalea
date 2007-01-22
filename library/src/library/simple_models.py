@@ -101,3 +101,24 @@ class Bool(Node):
         """ inputs is the list of input values """
 
         return ( inputs[0],  )
+
+
+class Float(Node):
+    """ Variable
+    Input 0 : The stored value
+    Ouput 0 : Transmit the stored value
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "val", interface = IFloat, value = 0.) 
+        self.add_output( name = "out", interface = IFloat) 
+
+        
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        
+        return ( inputs[0], )

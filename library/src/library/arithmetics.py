@@ -27,25 +27,6 @@ __revision__=" $Id$ "
 from openalea.core.external import *
 
 
-class Value(Node):
-    """ Variable
-    Input 0 : if connected, set the stored value
-    Ouput 0 : transmit the stored value
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "val", interface = IFloat, value = 0.) 
-        self.add_output( name = "out", interface = IFloat) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( inputs[0], )
         
 
 class Add(Node):
