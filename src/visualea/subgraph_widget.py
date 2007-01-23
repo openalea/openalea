@@ -247,8 +247,11 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         except:
             # There is no factory associated to the node
             factory_name = eltid
-            
-        caption = "%s ( %s )" %(factory_name, caption)
+
+        if(caption):
+            caption = "%s ( %s )" %(factory_name, caption)
+        else:
+            caption = "%s" %(factory_name,)
 
         position = self.factory.get_position(eltid)
 
@@ -577,16 +580,26 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
     def paint(self, painter, option, widget):
 
+        # Shadow
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(QtGui.QColor(0,0,0, 80))
+        painter.drawRoundRect(3, 3, self.sizex, self.sizey)
+
         # Draw Box
-        painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 100)))
         if(self.isSelected()):
-            painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 180)))
+            color = QtGui.QColor(120, 120, 120, 180)
         else:
-            painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 100)))
+            color = QtGui.QColor(200, 200, 200, 100)
 
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
-        painter.drawRect(0, 0, self.sizex, self.sizey)
+        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
+        gradient.setColorAt(0.0, color)
+        gradient.setColorAt(1.0, QtGui.QColor(0, 0, 255, 200))
+        painter.setBrush(QtGui.QBrush(gradient))
+        
+        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
+        painter.drawRoundRect(0, 0, self.sizex, self.sizey)
 
+        
         # Draw Text
         textRect = QtCore.QRectF(0, 0, self.sizex, self.sizey)
         painter.setFont(self.font)
@@ -745,7 +758,7 @@ class ConnectorIn(Connector):
         self.edge = None
 
         width= parent.sizex / float(ntotal+1)
-        self.setPos((index+1) * width, - self.HEIGHT/2)
+        self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
 
     def set_edge(self, edge):
         self.edge = edge
@@ -771,7 +784,7 @@ class ConnectorOut(Connector):
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
         
         width= parent.sizex / float(ntotal+1)
-        self.setPos((index+1) * width, parent.sizey - self.HEIGHT/2)
+        self.setPos((index+1) * width - self.WIDTH/2., parent.sizey - self.HEIGHT/2)
         
 
         self.edge_list = []
