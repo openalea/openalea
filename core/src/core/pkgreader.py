@@ -40,7 +40,7 @@ class FormatError(Exception):
 # READERS
 
 
-class PackageReader :
+class PackageReader(object):
     """ Default base class (define the interface) """
 
     def __init__(self, filename):
@@ -325,7 +325,7 @@ class XmlPackageReader(PackageReader):
 
 
 
-class XmlWriter:
+class XmlWriter(object):
     """ base class for all XML Writer """
 
     def fill_structure(self, newdoc, top_element):

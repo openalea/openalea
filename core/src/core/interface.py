@@ -26,7 +26,7 @@
 # """
     
 
-class Interface:
+class Interface(object):
     pass
 
 class IFileStr(Interface):
