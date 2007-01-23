@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 ###############################################################################
 
 
-class Observed:
+class Observed(object):
     """ Observed Object """
 
     def __init__(self):
@@ -42,7 +42,7 @@ class Observed:
             l.notify()
 
 
-class AbstractListener :
+class AbstractListener(object):
     """ Listener base class """
     
     def initialise (self, observed):
