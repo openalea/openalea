@@ -192,7 +192,6 @@ class SubGraphFactory(NodeFactory):
         self.elt_factory[id] = (package_id, nodefactory_id)
         self.elt_position[id] = pos
 
-        if(caption == None) : caption = '...'
         self.elt_caption[id] = caption
 
         self.notify_listeners()
