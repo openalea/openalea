@@ -39,9 +39,10 @@ class IFloatWidget(QtGui.QWidget, NodeWidget):
     Float spin box widget
     """
 
-    def __init__(self, node, parent, parameter_str):
+    def __init__(self, node, parent, parameter_str, interface):
         """
         @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
         """
 
         NodeWidget.__init__(self, node)
@@ -58,7 +59,7 @@ class IFloatWidget(QtGui.QWidget, NodeWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QDoubleSpinBox (self)
-        self.spin.setRange(-2**15, 2**15)
+        self.spin.setRange(interface.min, interface.max)
 
         hboxlayout.addWidget(self.spin)
 
@@ -86,9 +87,10 @@ class IIntWidget(QtGui.QWidget, NodeWidget):
     integer spin box widget
     """
 
-    def __init__(self, node, parent, parameter_str):
+    def __init__(self, node, parent, parameter_str, interface):
         """
         @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
         """
 
         NodeWidget.__init__(self, node)
@@ -106,7 +108,7 @@ class IIntWidget(QtGui.QWidget, NodeWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QSpinBox (self)
-        self.spin.setRange(-2**15, 2**15)
+        self.spin.setRange(interface.max, interface.max)
 
         hboxlayout.addWidget(self.spin)
 
@@ -136,9 +138,10 @@ class IBoolWidget(QtGui.QWidget, NodeWidget):
     integer spin box widget
     """
 
-    def __init__(self, node, parent, parameter_str):
+    def __init__(self, node, parent, parameter_str, interface):
         """
         @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
         """
 
         NodeWidget.__init__(self, node)
@@ -164,7 +167,6 @@ class IBoolWidget(QtGui.QWidget, NodeWidget):
             self.node.set_input_by_key(self.param_str, True)
         else:
             self.node.set_input_by_key(self.param_str, False)
-            
         
         
     def notify(self):
@@ -186,9 +188,10 @@ class IStrWidget(QtGui.QWidget, NodeWidget):
     Line Edit widget
     """
 
-    def __init__(self, node, parent, parameter_str):
+    def __init__(self, node, parent, parameter_str, interface):
         """
         @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
         """
 
         NodeWidget.__init__(self, node)
@@ -231,12 +234,13 @@ class IFileStrWidget(IStrWidget):
     File name Line Edit Widget
     """
 
-    def __init__(self, node, parent, parameter_str):
+    def __init__(self, node, parent, parameter_str, interface):
         """
         @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
         """
 
-        IStrWidget.__init__(self, node, parent, parameter_str)
+        IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
@@ -248,10 +252,131 @@ class IFileStrWidget(IStrWidget):
         result = QtGui.QFileDialog.getOpenFileName(self, "Select File", QtCore.QDir.homePath() )
     
         if(result):
-            self.subwidget.setText(str(self.node.get_input_by_key(self.param_str)))
             self.node.set_input_by_key(self.param_str, str(result))
-        
             
+        
+class IEnumStrWidget(QtGui.QWidget, NodeWidget):
+    """ String Enumeration widget """
+    
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        NodeWidget.__init__(self, node)
+        QtGui.QWidget.__init__(self, parent)
+
+        self.param_str = parameter_str
+
+        self.hboxlayout = QtGui.QHBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QComboBox(self)
+
+        # map between string and combobox index
+        self.map_index = {}
+        for s in  interface.enum:
+            self.subwidget.addItem(s)
+            self.map_index[s] = self.subwidget.count() - 1
+        
+        self.hboxlayout.addWidget(self.subwidget)
+
+        self.connect(self.subwidget, QtCore.SIGNAL("currentIndexChanged(const QString & text)"), self.valueChanged)
+
+        
+    def valueChanged(self, newval):
+
+        self.node.set_input_by_key(self.param_str, str(newval))
+        
+        
+    def notify(self):
+        """ Notification sent by node """
+
+        str = str(self.node.get_input_by_key(self.param_str))
+        try:
+            index = self.map_index[str]
+        except :
+            index = -1
+
+        self.subwidget.setCurrentIndex(index)
+
+
+
+class IRGBColorWidget(QtGui.QWidget, NodeWidget):
+    """ RGB Color Widget """
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        NodeWidget.__init__(self, node)
+        QtGui.QWidget.__init__(self, parent)
+
+        self.param_str = parameter_str
+
+        self.hboxlayout = QtGui.QHBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.colorwidget = QtGui.QWidget(self)
+        self.colorwidget.setAutoFillBackground(True)
+
+        self.colorwidget.setMinimumSize(QtCore.QSize(50,50))
+        self.colorwidget.setBackgroundRole(QtGui.QPalette.Window)
+        self.notify()
+        
+        self.hboxlayout.addWidget(self.colorwidget)
+
+
+        self.button = QtGui.QPushButton("...", self)
+        self.hboxlayout.addWidget(self.button)
+
+        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+
+    def button_clicked(self):
+        
+        try:
+            (r,g,b) = self.node.get_input_by_key(self.param_str)
+            oldcolor = QtGui.QColor(r,g,b)
+        except:
+            oldcolor = QtCore.Qt.White                                        
+        
+        color = QtGui.QColorDialog.getColor(oldcolor, self)
+    
+        if(color):
+            self.node.set_input_by_key(self.param_str, (color.red(), color.green(), color.blue()))
+
+    def notify(self):
+        """ Notification sent by node """
+
+        try:
+            (r,g,b) = self.node.get_input_by_key(self.param_str)
+        except:
+            (r,g,b) = (0,0,0)
+        
+        palette = self.colorwidget.palette()
+        palette.setColor(QtGui.QPalette.Window, QtGui.QColor(r,g,b))
+        self.colorwidget.setPalette(palette)
+        self.colorwidget.update()
+        
+  
+
+   
 
 class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
     """
@@ -265,6 +390,8 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
                IStr : IStrWidget,
                IFileStr: IFileStrWidget,
                IBool : IBoolWidget,
+               IEnumStr : IEnumStrWidget,
+               IRGBColor : IRGBColorWidget,
                types.NoneType : None
               }
     
@@ -281,10 +408,14 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
         vboxlayout.setSpacing(2)
 
         for (name, interface) in node.input_desc:
-            wclass= self.type_map.get(interface,None)
+
+            if(type(interface) == types.ClassType):
+                interface = interface()
+            
+            wclass= self.type_map.get(interface.__class__,None)
 
             if(wclass):
-                widget = wclass(node, self, name)
+                widget = wclass(node, self, name, interface)
                 vboxlayout.addWidget(widget)
                 self.widgets.append(widget)
 
@@ -296,8 +427,6 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
             vboxlayout.addWidget(label)
 
         self.update_input_state()
-
-
 
 
     def notify(self):
