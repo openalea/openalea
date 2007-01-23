@@ -14,7 +14,7 @@ Factory for utils_nodes simplify the wralea file
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 
 
