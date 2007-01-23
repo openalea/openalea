@@ -28,13 +28,9 @@ import sys
 import os
 import openalea
 
-#import openalea.library as library
-
-from pkgreader import OpenAleaWriter
 
 
 # Exceptions 
-
 
 class UnknowFileType(Exception):
     pass
@@ -59,7 +55,7 @@ class PackageManager(object):
     def __init__ (self):
 
         # list of path to search wralea file
-        self.wraleapath = [ '.' ] + openalea.__path__ #+ library.__path__
+        self.wraleapath = [ '.' ] + openalea.__path__
         
         # save system path
         self.old_syspath = sys.path[:]
@@ -103,6 +99,8 @@ class PackageManager(object):
     def clear(self):
         """ Remove all packages """
         self.pkgs = {}
+        self.recover_syspath()
+        self.wraleapath = [ '.' ] + openalea.__path__ 
     
 
     # Path Functions
@@ -123,7 +121,9 @@ class PackageManager(object):
         if( not self.pkgs.has_key(package.get_id())):
             self[ package.get_id() ] = package
             self.update_category(package)
-
+        else:
+            self[ package.get_id() ] = package
+            #self.rebuild_category()
 
 
     # Category management
@@ -152,7 +152,6 @@ class PackageManager(object):
         for p in self.values():
             self.update_category(p)
         
-
 
     # Wralea functions
     def add_wralea(self, filename):
@@ -223,18 +222,6 @@ class PackageManager(object):
 
         for pkgreader in readerlist:
             pkgreader.register_packages(self)
-
-
-    def save_config (self, filename=None):
-        """ Save configuration (package index and wralea paths)
-        if filename is None, use default config file
-        """
-
-        if(filename == None):
-            filename = self.get_config_file()
-
-        writer = OpenAleaWriter(self)
-        writer.write_config(filename)
 
 
     # Dictionnary behaviour

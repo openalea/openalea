@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newgraph.ui'
 #
-# Created: Mon Jan 22 19:24:51 2007
+# Created: Tue Jan 23 18:51:57 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!

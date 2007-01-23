@@ -83,8 +83,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.newedge = None
 
-        # Boolean to enable or diable notification
-        self.notification_enabled = True
+        # notification is enabled if the queue is empty
+        self.notification_enabled = []
 
 
         # dictionnary mapping elt_id and graphical items
@@ -94,18 +94,17 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node_dialog = {}
 
         self.rebuild_scene()
-        
+
 
     def clear_scene(self):
         """ Remove all items from the scene """
 
         for d in self.node_dialog.values():
             d.close()
+            d.release_listeners()
 
         self.node_dialog = {}
-        
         self.graph_item = {}
-
         scene = self.scene()
         del(scene)
         scene = QtGui.QGraphicsScene(self)
@@ -115,8 +114,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
-
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
 
         self.clear_scene()
         # create items
@@ -140,7 +138,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
             self.add_graphical_connection(out_connector, in_connector)
 
-        self.notification_enabled = True
+        self.notification_enabled.pop()
 
 
 
@@ -159,8 +157,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
-                      
-              
+
     def mouseReleaseEvent(self, event):
         
         if(self.newedge):
@@ -185,14 +182,15 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         elt_id = item.elt_id
         point = newvalue.toPointF()
         
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
         self.factory.move_element(elt_id, (point.x(), point.y()))
-        self.notification_enabled = True
+        self.notification_enabled.pop()
 
 
     def notify(self):
         """ Function called by observed objects """
-        if(self.notification_enabled):
+
+        if(len(self.notification_enabled)==0):
             self.rebuild_scene()
 
 
@@ -212,22 +210,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
   
     # subgraph edition
-
-    def reinstantiate_node(self):
-        """ Return True if succeed """
-        try:
-            self.node = self.factory.instantiate()
-            for d in self.node_dialog.values():
-                d.close()
-            
-            self.node_dialog = {}
-            return True
-        
-        except RecursionError :
-            mess = QtGui.QMessageBox.warning(self, "Error",
-                                             "A Subgraph cannot be contained in itself.")
-            return False
-
 
     def add_graphical_node(self, eltid):
         """
@@ -259,8 +241,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else : (x,y) = (10,10)
 
         gnode = GraphicalNode(self, eltid, nin, nout, caption )
-        gnode.setPos(QtCore.QPointF(x,y))
 
+        gnode.setPos(QtCore.QPointF(x,y))
         self.graph_item[eltid] = gnode
         
         return gnode
@@ -284,7 +266,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         @return the new GraphicalNode
         """
 
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
 
         eltid = self.factory.add_nodefactory(pkg_id, factory_id, (position.x(), position.y()))
 
@@ -297,10 +279,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
                                              "A Subgraph cannot be contained in itself.")
             
             self.factory.remove_element(eltid)
-            self.notification_enabled = True
+            self.notification_enabled.pop()
             return None
 
-        self.notification_enabled = True
+        self.notification_enabled.pop()
         return self.add_graphical_node(eltid)
 
     
@@ -311,15 +293,14 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if(connector_dst.is_connected()):
             return None
 
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
 
         self.factory.connect(connector_src.parentItem().get_id(), connector_src.index(),
                              connector_dst.parentItem().get_id(), connector_dst.index())
         self.node.connect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
                                 connector_dst.parentItem().get_id(), connector_dst.index())
 
-        #self.reinstantiate_node()
-        self.notification_enabled = True
+        self.notification_enabled.pop()
         
         return self.add_graphical_connection(connector_src, connector_dst)
 
@@ -374,6 +355,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_graphical_node(self, elt_id):
         """ Remove the graphical node item identified by elt_id """
 
+        # close dialog
+        try:
+            self.node_dialog[elt_id].close()
+            self.node_dialog[elt_id].release_listeners()
+        except KeyError:
+            pass
+        
         item = self.graph_item[elt_id]
         item.remove_connections()
         self.scene().removeItem(item)
@@ -383,13 +371,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_node(self, elt_id):
         """ Remove node identified by elt_id """
 
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
 
         self.remove_graphical_node(elt_id)
         self.factory.remove_element(elt_id)
         self.node.remove_node_by_id(elt_id)
         
-        self.notification_enabled = True
+        self.notification_enabled.pop()
 
 
     def remove_graphical_connection(self, src_connector, dst_connector):
@@ -404,7 +392,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_connection(self, connector_src, connector_dst):
         """ Remove a connection """
 
-        self.notification_enabled = False
+        self.notification_enabled.append(False)
 
         self.remove_graphical_connection(connector_src, connector_dst)
         self.factory.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
@@ -413,8 +401,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node.disconnect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
 
-        #self.reinstantiate_node()
-        self.notification_enabled = True
+        self.notification_enabled.pop()
     
 
     # Drag and Drop from TreeView support
@@ -568,8 +555,8 @@ class GraphicalNode(QtGui.QGraphicsItem):
                 
 
     def boundingRect(self):
-        adjust = 2.0
-        return QtCore.QRectF(0 - adjust, 0 - adjust,
+        adjust = 4.0
+        return QtCore.QRectF(0 , 0,
                              self.sizex + adjust, self.sizey + adjust)
 
     def shape(self):
@@ -579,7 +566,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
 
     def paint(self, painter, option, widget):
-
         # Shadow
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(QtGui.QColor(0,0,0, 80))
@@ -598,14 +584,12 @@ class GraphicalNode(QtGui.QGraphicsItem):
         
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
         painter.drawRoundRect(0, 0, self.sizex, self.sizey)
-
         
         # Draw Text
         textRect = QtCore.QRectF(0, 0, self.sizex, self.sizey)
         painter.setFont(self.font)
         painter.setPen(QtCore.Qt.black)
         painter.drawText(textRect, QtCore.Qt.AlignCenter, self.caption)
-
 
 
     def itemChange(self, change, value):
@@ -702,9 +686,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
 
 
-
-
-
 ################################################################################
 
 class Connector(QtGui.QGraphicsEllipseItem):
@@ -746,7 +727,6 @@ class Connector(QtGui.QGraphicsEllipseItem):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
 
 
-     
 
 class ConnectorIn(Connector):
     """ Input node connector """
@@ -855,9 +835,9 @@ class SemiEdge(AbstractEdge):
 
 class Edge(AbstractEdge):
     """ An edge between two graphical nodes """
-    
-    
-    def __init__(self, graphview, sourceNode, out_index, destNode, in_index, parent=None, scene=None):
+        
+    def __init__(self, graphview, sourceNode, out_index, destNode, in_index,
+                 parent=None, scene=None):
         """
         @param sourceNode : source GraphicalNode
         @param out_index : output connector index

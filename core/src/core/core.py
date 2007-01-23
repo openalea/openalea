@@ -74,7 +74,7 @@ class Node(Observed):
         self.factory = None
         
 
-    def __call__(self):
+    def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         
         raise RuntimeError('Node function not implemented.')
@@ -305,7 +305,7 @@ class NodeFactory(Observed):
                 raise
     
 
-    def instantiate_widget(self, node, parent=None):
+    def instantiate_widget(self, node, parent=None, edit = False):
         """ Return the corresponding widget initialised with node """
 
         if(node == None):
@@ -353,7 +353,17 @@ class NodeWidget(AbstractListener):
         # register to observed node and factory
         self.initialise(node)
         self.initialise(node.get_factory())
-            
+
+
+    def release_listeners(self):
+        """
+        Unregister this object in observed instance
+        This function must be called before widget destruction !! 
+        """
+
+        self.node.unregister_listener(self)
+        self.node.get_factory().unregister_listener(self)
+
 
     def get_node(self):
         return self.__node
@@ -378,6 +388,8 @@ class NodeWidget(AbstractListener):
         and must be overloaded
         """
         pass
+
+
 
 
 ###############################################################################

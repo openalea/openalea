@@ -56,3 +56,7 @@ class plotObject:
         self.linestyle = linestyle
         self.marker = marker
         self.color = color
+
+    def __call__(self, inputs = ()):
+
+        pass
