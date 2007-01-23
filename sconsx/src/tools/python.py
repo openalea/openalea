@@ -40,10 +40,7 @@ class Python:
       if isinstance( platform, Win32 ):
          self._default[ 'lib' ]= pj(PREFIX,"libs")
       else:
-         try:
-            self._default[ 'lib' ]= get_config_vars('LIBPL')
-         except:
-            self._default[ 'lib' ]= '/usr/lib'
+         self._default[ 'lib' ]= '/usr/lib'
 
 
    def option(  self, opts ):
