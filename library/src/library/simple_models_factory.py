@@ -60,6 +60,20 @@ def define_factory(package):
 
     package.add_factory( nf )
 
+    nf = Factory( name= "string", 
+                  description= "String", 
+                  category = "Data Types", 
+                  nodemodule = "simple_models",
+                  nodeclass = "String",
+                  
+                  widgetmodule = None,
+                  widgetclass = None,
+                 
+                  )
+
+
+    package.add_factory( nf )
+
 
     nf = Factory( name= "bool", 
                   description= "boolean", 
@@ -76,7 +90,6 @@ def define_factory(package):
     package.add_factory( nf )
 
 
-
     nf = Factory( name = "float",
                   description = "Float Value",
                   category  = "Data Types",
@@ -87,4 +100,30 @@ def define_factory(package):
                   )
 
                       
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "enumTest",
+                  description = "String Enumeration",
+                  category  = "Data Types",
+                  nodemodule = "simple_models",
+                  nodeclass = "EnumTest",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+                      
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "rgb",
+                  description = "RGB tuple",
+                  category  = "Data Types",
+                  nodemodule = "simple_models",
+                  nodeclass = "RGB",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    
     package.add_factory( nf )

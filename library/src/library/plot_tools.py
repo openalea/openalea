@@ -18,7 +18,7 @@ plot_tools nodes
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: utils_nodes.py $ "
+__revision__=" $Id$ "
 
 
 

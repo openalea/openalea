@@ -122,3 +122,63 @@ class Float(Node):
         """ inputs is the list of input values """
         
         return ( inputs[0], )
+
+
+class String(Node):
+    """ String Variable
+    Input 0 : The stored value
+    Ouput 0 : Transmit the stored value
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "str", interface = IStr, value = "") 
+        self.add_output( name = "str", interface = IStr) 
+        
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        
+        return ( inputs[0], )
+
+
+class EnumTest(Node):
+    """
+    String enumeration Test
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "val", interface = IEnumStr(["enum1", "enum2", "enum3"]), value = "enum1") 
+        self.add_output( name = "out", interface = IStr) 
+
+        
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        
+        return ( inputs[0], )
+
+
+class RGB(Node):
+    """
+    RGB Color
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "rgb", interface = IRGBColor, value = (0,0,0)) 
+        self.add_output( name = "rgb", interface = IStr) 
+
+        
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        
+        return ( inputs[0], )

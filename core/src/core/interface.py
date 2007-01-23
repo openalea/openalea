@@ -30,18 +30,46 @@ class Interface:
     pass
 
 class IFileStr(Interface):
-    pass
-
-class IFloat(Interface):
+    """ File Path interface """
     pass
 
 
 class IStr(Interface):
+    """ String interface """
     pass
+
+
+class IFloat(Interface):
+    """ Float interface """
+    
+    def __init__(self, min = -2*15, max = 2**15):
+
+        self.min = min
+        self.max = max
+    
 
 
 class IInt(Interface):
-    pass
+    """ Int interface """
+    
+    def __init__(self, min = -2*15, max = 2**15):
+
+        self.min = min
+        self.max = max
+
 
 class IBool(Interface):
+    """ Bool interface """
+    pass
+
+
+class IEnumStr(Interface):
+    """ String enumeration """
+
+    def __init__(self, enum = []):
+        self.enum = enum
+
+
+class IRGBColor(Interface):
+    """ RGB Color """
     pass
