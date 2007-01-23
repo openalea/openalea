@@ -44,18 +44,23 @@ class PackageReader(object):
     """ Default base class (define the interface) """
 
     def __init__(self, filename):
-        """ """
+        """ filename : the file path to read"""
         
         self.filename = filename
 
-
     def register_packages(self, pkgmanager):
-        """ Register packages """
+        """ Load packages in pkgmanager """
 
         # Function must be overloaded
         raise RuntimeError()
 
+    def load_session(self, session):
+        """ Load session data """
 
+        # Function must be overloaded
+        raise RuntimeError()
+
+        
 
 class PyPackageReader(PackageReader):
     """ Read package as a Python file """
@@ -145,8 +150,8 @@ class XmlPackageReader(PackageReader):
 
 	if self.__currentNode__ == None:
             self.__currentNode__ = self.doc.documentElement
-
         return self.__currentNode__
+
 
     def get_xml_wraleapath(self, pkgmanager):
         """ parse Xml to retrieve wraleapath
@@ -183,7 +188,7 @@ class XmlPackageReader(PackageReader):
             metainfo = {}
 
             for info in ("license", "version",
-                         "authors", "institute", "description", "publication"):
+                         "authors", "institute", "description", "publication", "url"):
                 try:
                     value = self.getText(package.getElementsByTagName(info)[0])
                     metainfo[info] = value
@@ -249,14 +254,12 @@ class XmlPackageReader(PackageReader):
         return factorylist
 
 
-
-
     def get_xml_subgraphfactory(self, xmlnode, pkgmanager):
         """ Parse Xml to retrieve subgraphfactory info """
 
         factorylist = []
         map_id = {} # mapping between xml id and subgraph id
-        
+
         for subgraph in xmlnode.getElementsByTagName("subgraph"):
             
             attr = subgraph.attributes
@@ -270,9 +273,10 @@ class XmlPackageReader(PackageReader):
             except: desc = "" 
 
             sg = SubGraphFactory(pkgmanager, name = name,
-                                 description = desc, category  = category)
+                                 description = desc, category = category)
 
             for element in subgraph.getElementsByTagName("element"):
+
                 attr = element.attributes
                 try:
                     package_id = self.get_attribute(attr, "package_id")
@@ -281,8 +285,20 @@ class XmlPackageReader(PackageReader):
                 except:
                     raise FormatError("<element> must have package_id and factory_id attributes")
 
+                caption = ""
+                posx = 0
+                posy = 0
+                try:
+                    posx = float(self.get_attribute(attr, "posx"))
+                    posy = float(self.get_attribute(attr, "posy"))
+                except :
+                    pass
+                try : 
+                    caption = self.get_attribute(attr, "caption")
+                except:
+                    pass
 
-                elt_id =  sg.add_nodefactory(package_id, factory_id)
+                elt_id =  sg.add_nodefactory(package_id, factory_id, (posx, posy), caption)
 
                 map_id[id] = elt_id
 
@@ -294,23 +310,23 @@ class XmlPackageReader(PackageReader):
                     dst_id = self.get_attribute(attr, "dst_id")
                     dst_port = self.get_attribute(attr, "dst_port")
                 except:
-                    raise FormatError("<connect> must have src_id, src_port, dst_id, dst_port attributes")
+                    raise FormatError(
+                        "<connect> must have src_id, src_port, dst_id, dst_port attributes")
                 
 
                 sg.connect (map_id[src_id], int(src_port), map_id[dst_id], int(dst_port) )
 
             factorylist.append(sg)
 
-            return factorylist
+        return factorylist
                 
 
     def register_packages(self, pkgmanager):
-        """ Read XML file and register package """
+        """ Read XML file and register package in pkgmanager"""
 
         from xml.dom.minidom import parse
         self.doc = parse(self.filename)
 
-        self.get_xml_wraleapath(pkgmanager)
         pkglist = self.get_xml_packages(pkgmanager)
 
         # Add package to the manager
@@ -330,8 +346,26 @@ class XmlWriter(object):
 
     def fill_structure(self, newdoc, top_element):
         """ Fill XML structure in newdoc with top_element as Root """
-
         raise RuntimeError()
+
+
+    def write_config(self, filename):
+        """ Write configuration on filename """
+
+        from xml.dom.minidom import getDOMImplementation
+
+        impl = getDOMImplementation()
+
+        newdoc = impl.createDocument(None, "openalea", None)
+        top_element = newdoc.documentElement
+
+        self.fill_structure(newdoc, top_element)
+
+        f = open(filename, 'w')
+        f.write(newdoc.toprettyxml())
+        f.close()
+
+
 
 class NodeFactoryXmlWriter(XmlWriter):
     """ Class to write a node factory to XML """
@@ -410,6 +444,14 @@ class SubGraphFactoryXmlWriter(XmlWriter):
             elt.setAttribute("package_id", package_id)
             elt.setAttribute("factory_id", factory_id)
             elt.setAttribute("id", id)
+
+            (posx, posy) = factory.elt_position[id]
+            elt.setAttribute("posx", str(posx))
+            elt.setAttribute("posy", str(posy))
+
+            caption = factory.elt_caption[id]
+            if(caption): elt.setAttribute("caption", caption)
+
             sg_elt.appendChild(elt)
 
         for ( (dst_id, dst_port), (src_id, src_port) ) in factory.connections.items():
@@ -449,52 +491,45 @@ class PackageXmlWriter(XmlWriter):
             elt.appendChild(node)
             pkg_elt.appendChild(elt)
 
-        for n in package.get_node_names():
-            nf = package.get_nodefactory(n)
+        for n in package.get_names():
+            nf = package.get_factory(n)
 
             writer = nf.get_xmlwriter()
             writer.fill_structure(newdoc, pkg_elt)
 
 
 
-class OpenAleaWriter(XmlWriter):
-    """ Class to write the whole system configuration """
+class SessionWriter(XmlWriter):
+    """ Class to write the Session"""
 
-    def __init__(self, pkgmanager):
+    def __init__(self, session):
         """
         Constructor:
-        @param pkgmanager : a package manager instance
+        @param session : a session instance
         """
-        self.pmanager = pkgmanager
+        self.session = session
+        
 
     def fill_structure(self, newdoc, top_element):
         """ Fill XML structure in newdoc with top_element as Root """
 
-        for path in self.pmanager.wraleapath:
-            elt = newdoc.createElement('wraleapath')
-            elt.setAttribute("value", str(path))
-            top_element.appendChild(elt) 
+#         for path in self.pmanager.wraleapath:
+#             elt = newdoc.createElement('wraleapath')
+#             elt.setAttribute("value", str(path))
+#             top_element.appendChild(elt) 
 
-        # for each package object
-        for p in self.pmanager.values():
-            writer= PackageXmlWriter(p)
-            writer.fill_structure(newdoc, top_element)
-            
+#         # for each package object
+#         for p in self.pmanager.values():
+#             writer= PackageXmlWriter(p)
+#             writer.fill_structure(newdoc, top_element)
 
-        
-    def write_config(self, filename):
-        """ Write configuration on filename """
+        # Save User package
 
-        from xml.dom.minidom import getDOMImplementation
+        user_pkg = self.session.user_pkg
+        writer = PackageXmlWriter(user_pkg)
+        writer.fill_structure(newdoc, top_element)
 
-        impl = getDOMImplementation()
+        # Save Workspaces Data
 
-        newdoc = impl.createDocument(None, "openalea", None)
-        top_element = newdoc.documentElement
-
-        self.fill_structure(newdoc, top_element)
-
-        f = open(filename, 'w')
-        f.write(newdoc.toprettyxml())
-        f.close()
+     
 

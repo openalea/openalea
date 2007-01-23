@@ -258,19 +258,20 @@ class SubGraphFactory(NodeFactory):
         self.num_output = v
 
 
-    def instantiate_widget(self, node, parent):
+    def instantiate_widget(self, node, parent, edit = False):
         """
         Return the corresponding widget initialised with node
-        if node is None, the node is allocated and EditSubgraphWidget is returned
+        if node is None, the node is allocated
+        if edit is True, return an  EditSubgraphWidget 
         else a composite widget composed with the node sub widget is returned
 
         """
 
-        try:
-            if(node == None):
-                
+        if(node == None):
                 node = self.instantiate()
-                
+
+        try:
+            if(edit):
                 from openalea.visualea.subgraph_widget import EditSubGraphWidget
                 return EditSubGraphWidget(node, parent)
             
