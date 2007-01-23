@@ -125,33 +125,6 @@
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
    </widget>
-   <widget class="QMenu" name="menu_Python" >
-    <property name="title" >
-     <string>P&amp;ython</string>
-    </property>
-    <addaction name="action_Execute_script" />
-   </widget>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
-     <string>&amp;File</string>
-    </property>
-    <addaction name="action_New_Project" />
-    <addaction name="action_Open_Project" />
-    <addaction name="action_Save_Project" />
-    <addaction name="actionSave_as" />
-    <addaction name="separator" />
-    <addaction name="action_Quit" />
-   </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="actionExport_as_Application" />
-   </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
      <string>&amp;Package</string>
@@ -166,6 +139,33 @@
     <addaction name="menu_Wralea_2" />
     <addaction name="separator" />
     <addaction name="action_New_Network" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="actionExport_as_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+    <addaction name="action_Execute_script" />
+   </widget>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Session" />
+    <addaction name="action_Open_Session" />
+    <addaction name="action_Save_Session" />
+    <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="action_Quit" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -187,46 +187,12 @@
     <string>F1</string>
    </property>
   </action>
-  <action name="action_New_Project" >
-   <property name="text" >
-    <string>&amp;New Project</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+N</string>
-   </property>
-  </action>
-  <action name="action_Open_Project" >
-   <property name="text" >
-    <string>&amp;Open Project</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="action_Save_Project" >
-   <property name="text" >
-    <string>&amp;Save Project</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionSave_as" >
-   <property name="text" >
-    <string>Save Project &amp;as</string>
-   </property>
-  </action>
   <action name="action_Quit" >
    <property name="text" >
     <string>&amp;Quit</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="action_Find" >
-   <property name="text" >
-    <string>&amp;Find</string>
    </property>
   </action>
   <action name="action_New_Package" >
@@ -294,6 +260,35 @@
   <action name="action_Execute_script" >
    <property name="text" >
     <string>&amp;Execute script</string>
+   </property>
+  </action>
+  <action name="action_New_Session" >
+   <property name="text" >
+    <string>&amp;New Session</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_Open_Session" >
+   <property name="text" >
+    <string>&amp;Open Session</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Save_Session" >
+   <property name="text" >
+    <string>&amp;Save Session</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_as" >
+   <property name="text" >
+    <string>Save &amp;as</string>
    </property>
   </action>
  </widget>

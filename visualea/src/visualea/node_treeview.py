@@ -275,7 +275,8 @@ class PackageTreeView(QtGui.QTreeView):
         obj =  item.internalPointer()
         
         if(isinstance(obj, NodeFactory)):
-            self.main_win.open_widget_tab(obj)
+            node = self.main_win.session.add_workspace(obj)
+            self.main_win.open_widget_tab(obj, node)
 
         if(isinstance(obj, Package)):
             # Display URL

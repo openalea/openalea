@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jan 22 19:24:50 2007
+# Created: Tue Jan 23 18:51:57 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -91,20 +91,20 @@ class Ui_MainWindow(object):
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
 
-        self.menu_Python = QtGui.QMenu(self.menubar)
-        self.menu_Python.setObjectName("menu_Python")
-
-        self.menu_File = QtGui.QMenu(self.menubar)
-        self.menu_File.setObjectName("menu_File")
-
-        self.menu_Workspace = QtGui.QMenu(self.menubar)
-        self.menu_Workspace.setObjectName("menu_Workspace")
-
         self.menu_Package = QtGui.QMenu(self.menubar)
         self.menu_Package.setObjectName("menu_Package")
 
         self.menu_Wralea_2 = QtGui.QMenu(self.menu_Package)
         self.menu_Wralea_2.setObjectName("menu_Wralea_2")
+
+        self.menu_Workspace = QtGui.QMenu(self.menubar)
+        self.menu_Workspace.setObjectName("menu_Workspace")
+
+        self.menu_Python = QtGui.QMenu(self.menubar)
+        self.menu_Python.setObjectName("menu_Python")
+
+        self.menu_File = QtGui.QMenu(self.menubar)
+        self.menu_File.setObjectName("menu_File")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -117,23 +117,8 @@ class Ui_MainWindow(object):
         self.action_Help = QtGui.QAction(MainWindow)
         self.action_Help.setObjectName("action_Help")
 
-        self.action_New_Project = QtGui.QAction(MainWindow)
-        self.action_New_Project.setObjectName("action_New_Project")
-
-        self.action_Open_Project = QtGui.QAction(MainWindow)
-        self.action_Open_Project.setObjectName("action_Open_Project")
-
-        self.action_Save_Project = QtGui.QAction(MainWindow)
-        self.action_Save_Project.setObjectName("action_Save_Project")
-
-        self.actionSave_as = QtGui.QAction(MainWindow)
-        self.actionSave_as.setObjectName("actionSave_as")
-
         self.action_Quit = QtGui.QAction(MainWindow)
         self.action_Quit.setObjectName("action_Quit")
-
-        self.action_Find = QtGui.QAction(MainWindow)
-        self.action_Find.setObjectName("action_Find")
 
         self.action_New_Package = QtGui.QAction(MainWindow)
         self.action_New_Package.setObjectName("action_New_Package")
@@ -167,27 +152,39 @@ class Ui_MainWindow(object):
 
         self.action_Execute_script = QtGui.QAction(MainWindow)
         self.action_Execute_script.setObjectName("action_Execute_script")
+
+        self.action_New_Session = QtGui.QAction(MainWindow)
+        self.action_New_Session.setObjectName("action_New_Session")
+
+        self.action_Open_Session = QtGui.QAction(MainWindow)
+        self.action_Open_Session.setObjectName("action_Open_Session")
+
+        self.action_Save_Session = QtGui.QAction(MainWindow)
+        self.action_Save_Session.setObjectName("action_Save_Session")
+
+        self.actionSave_as = QtGui.QAction(MainWindow)
+        self.actionSave_as.setObjectName("actionSave_as")
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
         self.menu_Help.addAction(self.actionOpenAlea_Web)
-        self.menu_Python.addAction(self.action_Execute_script)
-        self.menu_File.addAction(self.action_New_Project)
-        self.menu_File.addAction(self.action_Open_Project)
-        self.menu_File.addAction(self.action_Save_Project)
-        self.menu_File.addAction(self.actionSave_as)
-        self.menu_File.addSeparator()
-        self.menu_File.addAction(self.action_Quit)
-        self.menu_Workspace.addAction(self.action_Close_current_workspace)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.action_Run)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.actionExport_as_Application)
         self.menu_Wralea_2.addAction(self.action_Add_File)
         self.menu_Wralea_2.addAction(self.action_Auto_Search)
         self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.action_New_Network)
+        self.menu_Workspace.addAction(self.action_Close_current_workspace)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_Run)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.actionExport_as_Application)
+        self.menu_Python.addAction(self.action_Execute_script)
+        self.menu_File.addAction(self.action_New_Session)
+        self.menu_File.addAction(self.action_Open_Session)
+        self.menu_File.addAction(self.action_Save_Session)
+        self.menu_File.addAction(self.actionSave_as)
+        self.menu_File.addSeparator()
+        self.menu_File.addAction(self.action_Quit)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menu_Workspace.menuAction())
@@ -205,24 +202,16 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_New_Project.setText(QtGui.QApplication.translate("MainWindow", "&New Project", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_New_Project.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Open_Project.setText(QtGui.QApplication.translate("MainWindow", "&Open Project", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Open_Project.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Save_Project.setText(QtGui.QApplication.translate("MainWindow", "&Save Project", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Save_Project.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save Project &as", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Quit.setText(QtGui.QApplication.translate("MainWindow", "&Quit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Quit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Find.setText(QtGui.QApplication.translate("MainWindow", "&Find", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Package.setText(QtGui.QApplication.translate("MainWindow", "&Create Package", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Package.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Remove_Package.setText(QtGui.QApplication.translate("MainWindow", "&Remove Package", None, QtGui.QApplication.UnicodeUTF8))
@@ -237,4 +226,11 @@ class Ui_MainWindow(object):
         self.actionOpenAlea_Web.setText(QtGui.QApplication.translate("MainWindow", "OpenAlea Web", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExport_as_Application.setText(QtGui.QApplication.translate("MainWindow", "Export as Application", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Execute_script.setText(QtGui.QApplication.translate("MainWindow", "&Execute script", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_New_Session.setText(QtGui.QApplication.translate("MainWindow", "&New Session", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_New_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Open_Session.setText(QtGui.QApplication.translate("MainWindow", "&Open Session", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Open_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Save_Session.setText(QtGui.QApplication.translate("MainWindow", "&Save Session", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Save_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save &as", None, QtGui.QApplication.UnicodeUTF8))
 
