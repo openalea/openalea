@@ -378,7 +378,7 @@ class IRGBColorWidget(QtGui.QWidget, NodeWidget):
 
    
 
-class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
+class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     """
     Default implementation of a NodeWidget.
     It displays the node contents.
@@ -409,7 +409,7 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
 
         for (name, interface) in node.input_desc:
 
-            if(type(interface) == types.ClassType):
+            if(type(interface) == types.TypeType):
                 interface = interface()
             
             wclass= self.type_map.get(interface.__class__,None)
@@ -428,7 +428,7 @@ class DefaultNodeWidget(QtGui.QWidget, NodeWidget):
 
         self.update_input_state()
 
-
+    
     def notify(self):
         """ Function called by observed objects """
 

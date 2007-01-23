@@ -31,9 +31,7 @@ from PyQt4 import QtCore
 from openalea.visualea.mainwindow import MainWindow
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.core import Package
-from openalea.core.subgraph import SubGraphFactory
-
+from openalea.core.session import Session
 
 
 # Restore default signal handler for CTRL+C
@@ -61,20 +59,10 @@ def main(args):
     # initilize package manager
     pkgman = PackageManager()
 
-    pkg_metainfo={}
-    pkg=Package("MyObjects", pkg_metainfo)
-
-    rootfactory = SubGraphFactory(pkgman, name="Workspace",
-                                description= "",
-                                category = "",
-                                )
-
-    pkg.add_factory(rootfactory)
-    pkgman.add_package(pkg)
-    pkgman.find_and_register_packages()
+    session = Session(pkgman)
 
     
-    win = MainWindow(pkgman, rootfactory, locals())
+    win = MainWindow(pkgman, session, locals())
     win.show()
     
     #    splash.finish(win);
