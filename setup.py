@@ -29,7 +29,7 @@ author= 'OpenAlea consortium'
 author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 
 url= 'http://openalea.gforge.inria.fr'
-license= 'Cecill-C' 
+license= 'Cecill' 
 
 
 setup(
