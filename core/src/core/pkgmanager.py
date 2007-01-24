@@ -122,7 +122,7 @@ class PackageManager(object):
 
         if( not self.pkgs.has_key(package.get_id())):
             self[ package.get_id() ] = package
-            self.update_category(package)
+            #self.update_category(package)
 
 
     # Category management

@@ -90,7 +90,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # dictionnary mapping elt_id and graphical items
         self.graph_item = {}
         
-        # dictionnary mapping elt_id with sub dialog
+        # dictionnary mapping elt_id with tupel (dialog, widget)
         self.node_dialog = {}
 
         self.rebuild_scene()
@@ -99,9 +99,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def clear_scene(self):
         """ Remove all items from the scene """
 
-        for d in self.node_dialog.values():
+        for (d,w) in self.node_dialog.values():
             d.close()
-            d.release_listeners()
+            w.release_listeners()
 
         self.node_dialog = {}
         self.graph_item = {}
@@ -311,9 +311,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # Test if the node is already opened
         if( self.node_dialog.has_key(elt_id)):
 
-            self.node_dialog[elt_id].show()
-            self.node_dialog[elt_id].raise_()
-            self.node_dialog[elt_id].activateWindow ()
+            (d,w) = self.node_dialog[elt_id]
+            d.show()
+            d.raise_()
+            d.activateWindow ()
             return
 
         # We Create a new Dialog
@@ -333,7 +334,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         container.setWindowTitle(factory.get_id())
 
-        self.node_dialog[elt_id] = container
+        self.node_dialog[elt_id] = ( container, widget )
         
         container.show()
 
@@ -357,8 +358,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # close dialog
         try:
-            self.node_dialog[elt_id].close()
-            self.node_dialog[elt_id].release_listeners()
+            (dialog, widget) = self.node_dialog[elt_id]
+            widget.release_listeners()
+            dialog.close()
         except KeyError:
             pass
         
