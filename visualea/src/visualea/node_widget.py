@@ -108,7 +108,7 @@ class IIntWidget(QtGui.QWidget, NodeWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QSpinBox (self)
-        self.spin.setRange(interface.max, interface.max)
+        self.spin.setRange(interface.min, interface.max)
 
         hboxlayout.addWidget(self.spin)
 
