@@ -54,15 +54,9 @@ def main(args):
     #         filename=args[1]
 
 
-    from openalea.core.pkgmanager import PackageManager
-
-    # initilize package manager
-    pkgman = PackageManager()
-
-    session = Session(pkgman)
-
+    session = Session()
     
-    win = MainWindow(pkgman, session, locals())
+    win = MainWindow(session.pkgmanager, session, locals())
     win.show()
     
     #    splash.finish(win);
