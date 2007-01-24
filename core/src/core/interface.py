@@ -42,7 +42,7 @@ class IStr(Interface):
 class IFloat(Interface):
     """ Float interface """
     
-    def __init__(self, min = -2*15, max = 2**15):
+    def __init__(self, min = -2.**15, max = 2.**15):
 
         self.min = min
         self.max = max
@@ -52,7 +52,7 @@ class IFloat(Interface):
 class IInt(Interface):
     """ Int interface """
     
-    def __init__(self, min = -2*15, max = 2**15):
+    def __init__(self, min = -2**15, max = 2**15):
 
         self.min = min
         self.max = max
@@ -73,3 +73,4 @@ class IEnumStr(Interface):
 class IRGBColor(Interface):
     """ RGB Color """
     pass
+
