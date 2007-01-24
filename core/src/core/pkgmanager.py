@@ -80,26 +80,28 @@ class PackageManager(object):
             self.add_wralea(filename)
 
         
-    def get_config_file (self):
-        """ Return the system config file """
+#     def get_configfile (self):
+#         """ Return the system config file """
 
-        envhome = ''
-        if 'HOME' in os.environ:
-            envhome = os.environ['HOME']
-        elif 'HOMEDRIVE' in os.environ and 'HOMEPATH' in os.environ:
-            envhome = os.path.join(os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
+#         envhome = ''
+#         if 'HOME' in os.environ:
+#             envhome = os.environ['HOME']
+#         elif 'HOMEDRIVE' in os.environ and 'HOMEPATH' in os.environ:
+#             envhome = os.path.join(os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
 
-        if envhome:
-            return os.path.join(envhome, '.openalea.xml')
+#         if envhome:
+#             return os.path.join(envhome, '.openalea.xml')
 
-        else :
-            return None
+#         else :
+#             return None
 
 
     def clear(self):
         """ Remove all packages """
         self.pkgs = {}
         self.recover_syspath()
+        self.category = {}
+
         self.wraleapath = [ '.' ] + openalea.__path__ 
     
 
@@ -121,9 +123,6 @@ class PackageManager(object):
         if( not self.pkgs.has_key(package.get_id())):
             self[ package.get_id() ] = package
             self.update_category(package)
-        else:
-            self[ package.get_id() ] = package
-            #self.rebuild_category()
 
 
     # Category management

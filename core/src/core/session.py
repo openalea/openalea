@@ -24,6 +24,7 @@ __revision__=" $Id$ "
 
 from openalea.core.core import Package
 from openalea.core.subgraph import SubGraphFactory
+from openalea.core.pkgmanager import PackageManager
 
 from pkgreader import SessionWriter, XmlPackageReader
 
@@ -36,35 +37,12 @@ class Session:
 
     USR_PKG_NAME = "MyObjects"
 
-    def __init__(self, pkgmanager):
+    def __init__(self):
 
-        self.session_filename = None
-        
-        # map between (pkg_id, node_id) : node_instance
-        self.workspaces = {}
-        
-        self.pkgmanager = pkgmanager
-        # init pkgmanager
-        pkgmanager.clear()
-        pkgmanager.find_and_register_packages()
+        self.pkgmanager = PackageManager()
+        self.clear()
 
-
-        # Create user package
-        pkg_metainfo = {}
-        pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
-        self.user_pkg = pkg
-
-        rootfactory = SubGraphFactory(pkgmanager, name="Workspace",
-                                      description= "",
-                                      category = "",
-                                      )
-        
-        pkg.add_factory(rootfactory)
-        pkgmanager.add_package(pkg)
-
-        
-
-
+       
     def add_workspace(self, factory):
         """
         Instanciate a new node
@@ -92,7 +70,30 @@ class Session:
     def clear(self):
         """ Reinit Session """
 
-        self.__init__(self.pkgmanager)
+        self.session_filename = None
+
+        # map between (pkg_id, node_id) : node_instance
+        self.workspaces = {}
+
+
+        # init pkgmanager
+        self.pkgmanager.clear()
+        self.pkgmanager.find_and_register_packages()
+
+
+        # Create user package
+        pkg_metainfo = {}
+        pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
+        self.user_pkg = pkg
+
+        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
+                                      description= "",
+                                      category = "",
+                                      )
+        
+        pkg.add_factory(rootfactory)
+        self.pkgmanager.add_package(pkg)
+
         
 
     def load(self, filename):

@@ -96,7 +96,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         # final init
         self.session = session
-        self.new_session()
+        workspace_factory = self.session.user_pkg['Workspace']
+        node = self.session.add_workspace(workspace_factory)
+        self.open_widget_tab(workspace_factory, node)
 
 
     def about(self):
@@ -139,11 +141,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ Close current workspace """
 
         cindex = self.tabWorkspace.currentIndex()
-        #         if(cindex == 0):
-#             mess = QtGui.QMessageBox.warning(self, "Error",
-#                                              "You cannot close Root workspace")
-#             return
-
         # Update session
         factory = self.index_nodewidget[cindex].node.factory
         self.session.close_workspace(factory)
@@ -166,6 +163,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
     def update_tabwidget(self):
         """ open tab widget """
 
+        # open tab widgets
+        for (factory, node) in self.session.workspaces.items():
+            self.open_widget_tab(factory, node)
+
         # Close unnecessary tab
         for i in range(len(self.index_nodewidget)-1, -1, -1):
             widget = self.index_nodewidget[i]
@@ -173,9 +174,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             if(not self.session.workspaces.has_key(f)):
                 self.close_tab_workspace(i)
 
-        # open tab widgets
-        for (factory, node) in self.session.workspaces.items():
-            self.open_widget_tab(factory, node)
 
 
     def open_widget_tab(self, factory, node = None, caption=None):
@@ -312,6 +310,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.session.clear()
         self.session.add_workspace(self.session.user_pkg['Workspace'])
         self.update_tabwidget()
+
         self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
         self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
 
