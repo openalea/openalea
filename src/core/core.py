@@ -358,7 +358,7 @@ class NodeWidget(AbstractListener):
     def release_listeners(self):
         """
         Unregister this object in observed instance
-        This function must be called before widget destruction !! 
+        !! This function must be called before widget destruction !! 
         """
 
         self.node.unregister_listener(self)
