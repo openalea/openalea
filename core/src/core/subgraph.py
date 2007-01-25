@@ -305,14 +305,14 @@ class SubGraph(Node):
 
         # I/O
         if(ninput>0):
-            self.inputs = [None]*ninput
-            self.input_types = self.inputs[:]
             self.node_id['in'] = SubgraphInput(self, ninput)
+            for i in range(ninput):
+                self.add_input( "in%i"%(i,), interface = None, value = None)
 
         if(noutput>0) :
-            self.outputs = [None]*noutput
-            self.output_types = self.outputs[:]
             self.node_id['out'] = SubgraphOutput(self, noutput)
+            for i in range(noutput):
+                self.add_output( "out%i"%(i,), interface = None)
 
 
     def get_ids(self):
@@ -354,7 +354,7 @@ class SubGraph(Node):
         """
 
         # dict to keep trace of evaluated node
-        self.evaluated={}
+        self.evaluated = {}
 
         # get all the base nodes
         if(node == None):
@@ -379,11 +379,16 @@ class SubGraph(Node):
                 (node_src, port_src)=self.connections[(node, iport)]
 
                 # test if the node has already be evaluated
-                if( not self.evaluated.has_key(node_src) ):
-                    self.eval_node(node_src)
+                try:
+                    modif = self.evaluated[node_src]
+                except:
+                    # Recursive evaluation
+                    modif = self.eval_node(node_src)
 
-                v = node_src.get_output(port_src)
-                node.set_input(iport, v)
+                # Set new input only if necessary
+                if(modif):
+                    v = node_src.get_output(port_src)
+                    node.set_input(iport, v)
                 
             except KeyError :
                 #node.set_input(iport, None)
@@ -392,19 +397,21 @@ class SubGraph(Node):
                 print e
                 raise
 
-
         # evaluate the node itself
-        node.eval()
+        calculated =  node.eval()
+        self.evaluated[node] = calculated
         
-        self.evaluated[node]=True
+        return calculated
+
+
+    def eval(self):
+        """
+        Main evaluation function
+        Return True if the node has been calculated
+        """
         
-
-    def __call__(self, inputs=()):
-        """ Main evaluation function"""
-
         self.eval_as_expression()
-
-        return ()
+        return True
 
 
     def add_node(self, elt_id, node):

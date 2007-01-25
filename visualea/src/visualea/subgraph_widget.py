@@ -459,8 +459,9 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.remove_selection()
 
 
+from openalea.core.observer import AbstractListener
 
-class GraphicalNode(QtGui.QGraphicsItem):
+class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the subgraphwidget """
 
     def __init__(self, graphWidget, elt_id, ninput, noutput,  caption="Node"):
@@ -475,7 +476,6 @@ class GraphicalNode(QtGui.QGraphicsItem):
         scene = graphWidget.scene()
 
         QtGui.QGraphicsItem.__init__(self)
-
         self.elt_id = elt_id
         
         self.graph = graphWidget
@@ -488,6 +488,11 @@ class GraphicalNode(QtGui.QGraphicsItem):
         self.caption = caption
 
         subnode = self.graph.node.get_node_by_id(elt_id)
+
+        # Record item as a listener for the subnode
+        self.ismodified = True
+        self.initialise(subnode)
+
         
         # Set ToolTip
         factory =  subnode.get_factory()
@@ -527,8 +532,18 @@ class GraphicalNode(QtGui.QGraphicsItem):
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput, tip))
 
 
+    def notify(self, sender, event):
+        """ Notification sended by the node associated to the item """
+
+        if(self.ismodified != sender.modified):
+            self.ismodified = sender.modified
+            self.update()
+            QtGui.QApplication.processEvents()
+
+
     def get_id(self):
         return self.elt_id
+    
 
     def get_input_connector(self, index):
         try:
@@ -575,15 +590,22 @@ class GraphicalNode(QtGui.QGraphicsItem):
         painter.setBrush(QtGui.QColor(0,0,0, 80))
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
 
+
         # Draw Box
         if(self.isSelected()):
             color = QtGui.QColor(120, 120, 120, 180)
         else:
             color = QtGui.QColor(200, 200, 200, 100)
 
+        if(self.ismodified):
+            secondcolor = QtGui.QColor(255, 0, 0, 200)
+        else:
+            secondcolor = QtGui.QColor(0, 0, 255, 200)
+            
+        
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)
         gradient.setColorAt(0.0, color)
-        gradient.setColorAt(1.0, QtGui.QColor(0, 0, 255, 200))
+        gradient.setColorAt(1.0, secondcolor)
         painter.setBrush(QtGui.QBrush(gradient))
         
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
@@ -618,6 +640,7 @@ class GraphicalNode(QtGui.QGraphicsItem):
 
     def mouseDoubleClickEvent(self, event):
         self.graph.open_item(self.elt_id)
+        self.run_node()
 
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
