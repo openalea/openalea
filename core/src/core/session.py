@@ -126,3 +126,42 @@ class Session:
 
         self.session_filename = filename
             
+
+
+class workspace(object):
+    """
+    A workspace contain a node
+    and has threaded execution capabilities
+    """
+
+
+    def __init__(self, node):
+
+        self.node = node
+        self.is_running = False
+
+    def single_run(self):
+        """
+        Run the node one time
+        start_id, is the subnode id to execute (if any)
+        """
+
+        if(not self.is_running):
+            self.node.eval()
+
+    def start_continuous_execution(self):
+        """ Continuous execution """
+
+        if(not self.is_running):
+            # Start the thread
+            
+            self.is_running = True
+
+    def stop_continuous_execution(self):
+
+        if(self.is_running):
+            # Stop the thread
+            
+            self.is_running = False
+        
+        
