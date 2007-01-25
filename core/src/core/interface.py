@@ -74,3 +74,10 @@ class IRGBColor(Interface):
     """ RGB Color """
     pass
 
+class IFunction(Interface):
+    """ Function interface """
+    pass
+
+class ISequence(Interface):
+    """ Sequence interface (list, tuple, ...) """
+    pass
