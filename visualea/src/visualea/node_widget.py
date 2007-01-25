@@ -25,6 +25,7 @@ __revision__=" $Id$"
 
 import sys
 import math
+import os
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.core import NodeWidget
@@ -261,6 +262,7 @@ class IFileStrWidget(IStrWidget):
 
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
+        self.last_result= QtCore.QDir.homePath()
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
 
@@ -272,6 +274,7 @@ class IFileStrWidget(IStrWidget):
     
         if(result):
             self.node.set_input_by_key(self.param_str, str(result))
+            self.last_result= result
             
         
 class IEnumStrWidget(IInterfaceWidget):
@@ -310,7 +313,6 @@ class IEnumStrWidget(IInterfaceWidget):
 
         
     def valueChanged(self, newval):
-
         self.node.set_input_by_key(self.param_str, str(newval))
         
         
