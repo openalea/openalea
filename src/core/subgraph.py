@@ -172,7 +172,7 @@ class SubGraphFactory(NodeFactory):
         for k in key_list:
             del(self.connections[k])
 
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
 
 
     def add_nodefactory(self, package_id, nodefactory_id, pos = None, caption = None):
@@ -194,7 +194,7 @@ class SubGraphFactory(NodeFactory):
 
         self.elt_caption[id] = caption
 
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
         
         return id
 
@@ -208,7 +208,7 @@ class SubGraphFactory(NodeFactory):
         """
         
         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
 
 
     def disconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
@@ -224,7 +224,7 @@ class SubGraphFactory(NodeFactory):
             del(self.connections[ (elt_id_dst, port_dst) ])
         except:
             return
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
 
         
     def get_position(self, elt_id):
@@ -236,7 +236,7 @@ class SubGraphFactory(NodeFactory):
         """ Move an element to a new position, position is 2 uples (x,y) """
 
         self.elt_position[elt_id] = position
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
 
 
     def get_caption(self, elt_id):
@@ -247,7 +247,7 @@ class SubGraphFactory(NodeFactory):
     def set_caption(self, elt_id, desc):
         """ Set the description of an element """
         self.elt_caption[elt_id] = desc
-        self.notify_listeners()
+        self.notify_listeners(("factory_modified",))
         
 
     def set_numinput(self, v):
