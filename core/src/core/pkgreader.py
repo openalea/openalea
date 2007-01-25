@@ -89,7 +89,6 @@ class PyPackageReader(PackageReader):
     def register_packages(self, pkgmanager):
         """ Execute Wralea.py """
 
-	print self.filename
 	retlist = []
 
         import sys, os
