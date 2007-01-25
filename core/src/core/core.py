@@ -200,16 +200,21 @@ class Node(Observed):
     
     # Functions used by the node evaluator
     def eval(self):
-        """ Evaluate the node by calling __call__"""
+        """
+        Evaluate the node by calling __call__
+        Return True if the node has been calculated
+        """
 
         # lazy evaluation
         if(not self.modified):
-            return
+            return False
 
         self.modified = False
+        
         outlist = self.__call__(self.inputs)
+        self.notify_listeners( ("status_modified",self.modified) )
 
-        if(not outlist) : return
+        if(not outlist) : return True
         
         if(not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
@@ -217,6 +222,8 @@ class Node(Observed):
 
         for i in range( min ( len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
+
+        return True
 
 
 
