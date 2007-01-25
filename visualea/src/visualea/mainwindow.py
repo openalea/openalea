@@ -135,7 +135,15 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             w = self.tabWorkspace.widget(i)
             w.close()
         event.accept()
-            
+
+
+    def reinit_treeview(self):
+        """ Reinitialise package and category views """
+        self.cat_model.clear()
+        self.pkg_model.clear()
+        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+        self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+
 
     def close_workspace(self):
         """ Close current workspace """
@@ -214,13 +222,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         filename = QtGui.QFileDialog.getOpenFileName(self, "Add Wralea")
         self.pkgmanager.add_wralea(str(filename))
-        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+        self.reinit_treeview()
 
     
     def find_wralea(self):
 
         self.pkgmanager.find_and_register_packages()
-        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+        self.reinit_treeview()
+
     
     def run(self):
         """ Run the active workspace """
@@ -264,7 +273,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ Create a new graph """
 
         # Get default package
-        pkg = self.pkgmanager["MyObjects"]
+        pkg = self.session.user_pkg
 
         dialog = NewGraph(pkg)
         ret = dialog.exec_()
@@ -284,8 +293,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             pkg.add_factory(newfactory)
             self.pkgmanager.add_package(pkg)
 
-            self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
-            self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+            self.reinit_treeview()
 
             node = self.session.add_workspace(newfactory)
             self.open_widget_tab(newfactory, node)
@@ -310,9 +318,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.session.clear()
         self.session.add_workspace(self.session.user_pkg['Workspace'])
         self.update_tabwidget()
+        self.reinit_treeview()
 
-        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
-        self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
+        
 
         
     def open_session(self):
@@ -325,6 +333,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.session.load(filename)
         self.update_tabwidget()
+        self.reinit_treeview()
 
         
     def save_session(self):
@@ -344,7 +353,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.session.save(filename)
 
-        
+
         
 
         
