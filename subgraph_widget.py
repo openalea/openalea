@@ -187,10 +187,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.notification_enabled.pop()
 
 
-    def notify(self):
+    def notify(self, sender, event):
         """ Function called by observed objects """
 
-        if(len(self.notification_enabled)==0):
+        if(event
+           and event[0] == "factory_modified"
+           and len(self.notification_enabled)==0):
             self.rebuild_scene()
 
 
