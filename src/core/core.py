@@ -202,6 +202,11 @@ class Node(Observed):
     def eval(self):
         """ Evaluate the node by calling __call__"""
 
+        # lazy evaluation
+        if(not self.modified):
+            return
+
+        self.modified = False
         outlist = self.__call__(self.inputs)
 
         if(not outlist) : return
