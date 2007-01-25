@@ -303,8 +303,9 @@ class IEnumStrWidget(IInterfaceWidget):
         
         self.hboxlayout.addWidget(self.subwidget)
 
+        
         self.connect(self.subwidget,
-                     QtCore.SIGNAL("currentIndexChanged(const QString & text)"),
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.valueChanged)
 
         
@@ -316,9 +317,9 @@ class IEnumStrWidget(IInterfaceWidget):
     def notify(self, sender, event):
         """ Notification sent by node """
 
-        str = str(self.node.get_input_by_key(self.param_str))
+        strvalue = str(self.node.get_input_by_key(self.param_str))
         try:
-            index = self.map_index[str]
+            index = self.map_index[strvalue]
         except :
             index = -1
 
