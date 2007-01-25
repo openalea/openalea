@@ -120,9 +120,9 @@ class PackageManager(object):
     def add_package(self, package):
         """ Add a package to the pkg manager """
 
-        if( not self.pkgs.has_key(package.get_id())):
-            self[ package.get_id() ] = package
-            #self.update_category(package)
+        #if( not self.pkgs.has_key(package.get_id())):
+        self[ package.get_id() ] = package
+        self.update_category(package)
 
 
     # Category management
