@@ -50,7 +50,7 @@ class GUINode (UI.GUINode) :
 		"""
 		return self._node.description
 	
-	def representation (self) :
+	def edit_representation (self) :
 		"""
 		return the widget associated to the node
 		and used to modify node properties
@@ -61,6 +61,13 @@ class GUINode (UI.GUINode) :
 		"""
 		return the small widget associated to the node
 		used to represent the node in the dataflow
+		"""
+		return None
+	
+	def icon_representation (self) :
+		"""
+		return a small visual representation (an icon)
+		used to summarize the node
 		"""
 		return None
 	

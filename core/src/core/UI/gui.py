@@ -65,6 +65,13 @@ class GUINode (object) :
 		"""
 		raise RuntimeError()
 	
+	def icon_representation (self) :
+		"""
+		return a small visual representation (an icon)
+		used to summarize the node
+		"""
+		raise RuntimeError()
+	
 	def color (self, interface) :
 		"""
 		return a color for a special interface type
