@@ -70,6 +70,9 @@ class Node(Observed):
         # Input states : "connected", "hidden"
         self.input_states = []
 
+        # Node State
+        self.modified = True
+
         # Factory
         self.factory = None
         
@@ -79,11 +82,17 @@ class Node(Observed):
         
         raise RuntimeError('Node function not implemented.')
 
-
     # Accessor
     
     def get_factory(self):
         return self.factory
+
+
+    # Status
+    def unvalidate_input(self, input_index):
+        """ Unvalidate , and notify listeners """
+        self.modified = True
+        self.notify_listeners( ("input_modified",input_index) )
 
 
     # Declarations
@@ -127,8 +136,8 @@ class Node(Observed):
 
         index = self.map_index_in[key]
         self.inputs[index] =  val
-        self.notify_listeners()
-
+        self.unvalidate_input(index)
+        
 
     def get_output_by_key(self, key):
 
@@ -151,7 +160,7 @@ class Node(Observed):
     def set_input(self, index, val):
         """ Define the input value for the specified index """
         self.inputs[index] = val
-        self.notify_listeners()
+        self.unvalidate_input(index)
 
 
     def get_output(self, index):
@@ -172,8 +181,7 @@ class Node(Observed):
         """ Set the state of the input index (state is a string) """
 
         self.input_states[index] = state
-        self.notify_listeners()
-
+        self.unvalidate_input(index)
 
 
     def get_input_index(self, key):
@@ -382,7 +390,7 @@ class NodeWidget(AbstractListener):
     factory = property(get_factory)
     
 
-    def notify(self):
+    def notify(self, sender, event):
         """
         This function is called by the Observed objects
         and must be overloaded
