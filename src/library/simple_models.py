@@ -28,12 +28,12 @@ from openalea.core.external import *
 
 class LinearModel(Node):
     """
-    Ax + B model 
-    Input 0 : x value
-    Ouput 0 : Ax + B
-    Parameters :
-        A : linear coefficient
-        B : intercept
+Ax + B model 
+Input 0 : x value
+Ouput 0 : Ax + B
+Parameters :
+  A : linear coefficient
+  B : intercept
     """
 
     def __init__(self):
@@ -63,8 +63,8 @@ class LinearModel(Node):
 
 class InputFile(Node):
     """
-    A file path
-    Out :  the file path string
+A file path
+Out :  the file path string
     """
 
     def __init__(self):
@@ -84,8 +84,8 @@ class InputFile(Node):
 
 class Bool(Node):
     """
-    Boolean value
-    Out :  the value
+Boolean value
+Out :  the value
     """
 
     def __init__(self):
@@ -104,9 +104,10 @@ class Bool(Node):
 
 
 class Float(Node):
-    """ Variable
-    Input 0 : The stored value
-    Ouput 0 : Transmit the stored value
+    """
+Variable
+Input 0 : The stored value
+Ouput 0 : Transmit the stored value
     """
 
     def __init__(self):
@@ -125,9 +126,10 @@ class Float(Node):
 
 
 class String(Node):
-    """ String Variable
-    Input 0 : The stored value
-    Ouput 0 : Transmit the stored value
+    """
+String Variable
+Input 0 : The stored value
+Ouput 0 : Transmit the stored value
     """
 
     def __init__(self):
@@ -146,7 +148,7 @@ class String(Node):
 
 class EnumTest(Node):
     """
-    String enumeration Test
+String enumeration Test
     """
 
     def __init__(self):
@@ -166,7 +168,7 @@ class EnumTest(Node):
 
 class RGB(Node):
     """
-    RGB Color
+RGB Color
     """
 
     def __init__(self):
@@ -182,3 +184,27 @@ class RGB(Node):
         """ inputs is the list of input values """
         
         return ( inputs[0], )
+
+class Map( Node ):
+    """Map(function, sequence) -> list
+
+Apply a function on a sequence.
+Input:
+  function
+  sequence (iterable)
+Output:
+  sequence
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "f", interface = IFunction ) 
+        self.add_input( name = "seq", interface = ISequence ) 
+        self.add_output( name = "list", interface = ISequence ) 
+
+
+    def __call__(self, inputs):
+        return ( map(*inputs), )
+    

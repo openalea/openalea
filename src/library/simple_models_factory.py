@@ -127,3 +127,12 @@ def define_factory(package):
 
     
     package.add_factory( nf )
+
+    nf = Factory( name = "map",
+                  description = "Apply a function on a sequence",
+                  category  = "Function",
+                  nodemodule = "simple_models",
+                  nodeclass = "Map",
+                  )
+    
+    package.add_factory( nf )
