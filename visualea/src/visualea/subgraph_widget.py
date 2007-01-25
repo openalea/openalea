@@ -86,7 +86,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # notification is enabled if the queue is empty
         self.notification_enabled = []
 
-
         # dictionnary mapping elt_id and graphical items
         self.graph_item = {}
         
@@ -189,7 +188,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def notify(self, sender, event):
         """ Function called by observed objects """
-
+        
         if(event
            and event[0] == "factory_modified"
            and len(self.notification_enabled)==0):
@@ -225,7 +224,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         nout = subnode.get_nb_output()
 
         caption = self.factory.get_caption(eltid)
-
         try:
             factory_name = self.node.get_node_by_id(eltid).factory.get_id()
         except:
@@ -322,7 +320,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # We Create a new Dialog
         node = self.node.get_node_by_id(elt_id)
         factory = node.get_factory()
-
+        if(not factory) : return
+        
         container = QtGui.QDialog(self)
         #container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             

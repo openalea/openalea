@@ -92,8 +92,8 @@ class IFloatWidget(IInterfaceWidget):
 
         hboxlayout.addWidget(self.spin)
 
-        self.spin.setValue(self.node.get_input_by_key(self.param_str))
-
+        self.notify(None,None)
+        
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
 
         
@@ -107,6 +107,8 @@ class IFloatWidget(IInterfaceWidget):
             v = float(self.node.get_input_by_key(self.param_str))
         except:
             v = 0.
+            print "FLOAT SPIN : cannot set value : ", self.node.get_input_by_key(self.param_str)
+
             
         self.spin.setValue(v)
         
@@ -138,7 +140,7 @@ class IIntWidget(IInterfaceWidget):
 
         hboxlayout.addWidget(self.spin)
 
-        self.spin.setValue(self.node.get_input_by_key(self.param_str))
+        self.notify(None,None)
 
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 
@@ -155,6 +157,8 @@ class IIntWidget(IInterfaceWidget):
             v = int(self.node.get_input_by_key(self.param_str))
         except:
             v = 0
+            print "INT SPIN : cannot set value : ", self.node.get_input_by_key(self.param_str)
+
         self.spin.setValue(v)
 
 
