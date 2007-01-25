@@ -37,9 +37,9 @@ class Observed(object):
     def unregister_listener(self, listener):
         self.listeners.discard(listener)
 
-    def notify_listeners(self):
+    def notify_listeners(self, event=None):
         for l in self.listeners :
-            l.notify()
+            l.notify(self, event=None)
 
 
 class AbstractListener(object):
@@ -49,7 +49,7 @@ class AbstractListener(object):
         observed.register_listener(self)
 
 
-    def notify (self):
+    def notify (self, sender, event=None):
         raise RuntimeError()
 
     
