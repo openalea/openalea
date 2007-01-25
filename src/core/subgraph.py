@@ -236,7 +236,7 @@ class SubGraphFactory(NodeFactory):
         """ Move an element to a new position, position is 2 uples (x,y) """
 
         self.elt_position[elt_id] = position
-        self.notify_listeners(("factory_modified",))
+        self.notify_listeners( ("factory_modified",) )
 
 
     def get_caption(self, elt_id):
@@ -404,14 +404,15 @@ class SubGraph(Node):
         return calculated
 
 
-    def eval(self):
+    def __call__(self, inputs):
         """
         Main evaluation function
         Return True if the node has been calculated
         """
         
         self.eval_as_expression()
-        return True
+#        return True
+        return ()
 
 
     def add_node(self, elt_id, node):
@@ -528,16 +529,17 @@ class SubgraphInput(Node):
 
         Node.__init__(self)
         self.subgraph = subgraph
-        self.outputs = [None]*size
+        for i in range(size):
+            self.add_output("out%i"%(i,), interface = None)
+
 
     def get_output(self, index):
         """ Redirect call """
 
         return self.subgraph.get_input(index)
         
-    def __call__(self, inputs=()):
-        return ()
-
+    def eval(self):
+        return True
 
 class SubgraphOutput(Node):
     """
@@ -551,15 +553,21 @@ class SubgraphOutput(Node):
         """
         Node.__init__(self)
         self.subgraph = subgraph
-        self.inputs = [None]*size
+        
+        for i in range(size):
+            self.add_input("in%i"%(i,), interface = None, value = None)
 
 
     def set_input(self, index, val):
         """ Redirect call """
+
         self.subgraph.set_output(index, val)
 
         
-    def __call__(self, inputs=()):
-        return ()
+    def eval(self):
+        #the node must be always calculated
+        return True
+
+    
 
     

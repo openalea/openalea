@@ -39,7 +39,7 @@ class Observed(object):
 
     def notify_listeners(self, event=None):
         for l in self.listeners :
-            l.notify(self, event=None)
+            l.notify(self, event)
 
 
 class AbstractListener(object):
