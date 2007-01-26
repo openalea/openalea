@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 
 
 from openalea.core.external import *
-
+from operator import *
 
 class LinearModel(Node):
     """
@@ -79,7 +79,7 @@ Out :  the file path string
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( inputs[0],  )
+        return ( str(inputs[0]),  )
 
 
 class Bool(Node):
@@ -100,7 +100,26 @@ Out :  the value
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( inputs[0],  )
+        return ( bool(inputs[0]),  )
+
+
+class Int(Node):
+    """
+Variable
+Input 0 : The stored value
+Ouput 0 : Transmit the stored value
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "val", interface = IInt, value = 0) 
+        self.add_output( name = "out", interface = IInt) 
+
+    def __call__(self, inputs):
+        
+        return ( int(inputs[0]), )
 
 
 class Float(Node):
@@ -122,7 +141,7 @@ Ouput 0 : Transmit the stored value
     def __call__(self, inputs):
         """ inputs is the list of input values """
         
-        return ( inputs[0], )
+        return ( float(inputs[0]), )
 
 
 class String(Node):
@@ -143,7 +162,7 @@ Ouput 0 : Transmit the stored value
     def __call__(self, inputs):
         """ inputs is the list of input values """
         
-        return ( inputs[0], )
+        return ( str(inputs[0]), )
 
 
 class EnumTest(Node):
@@ -185,6 +204,8 @@ RGB Color
         
         return ( inputs[0], )
 
+#//////////////////////////////////////////////////////////////////////////////
+
 class Map( Node ):
     """Map(function, sequence) -> list
 
@@ -206,5 +227,114 @@ Output:
 
 
     def __call__(self, inputs):
-        return ( map(*inputs), )
+        f= self.get_input_by_key("f")
+        seq= self.get_input_by_key("seq")
+        return ( map(f,seq), )
+
+#//////////////////////////////////////////////////////////////////////////////
+
+class Filter( Node ):
+    """Filter(function, sequence) -> list
+
+Apply a function on a sequence.
+Input:
+  function
+  sequence (iterable)
+Output:
+  sequence
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "f", interface = IFunction ) 
+        self.add_input( name = "seq", interface = ISequence ) 
+        self.add_output( name = "list", interface = ISequence ) 
+
+
+    def __call__(self, inputs):
+        f= self.get_input_by_key("f")
+        seq= self.get_input_by_key("seq")
+        return ( filter(f,seq), )
+
+#//////////////////////////////////////////////////////////////////////////////
+
+class Generator( Node ):
+    """h(x) = f(x) op g(x)
+
+Create a function generator.
+Input:
+  f: function
+  op: operator (==, +, -, <, <=, >, >=, and, or,... )
+  f: function
+Output:
+  h: function
+    """
+    op_name= ["<","<=","==","!=",">=",">","+","-","*","/","is","is not","and",
+              "or","%","**"]
+    op_val=  [lt , le , eq , ne , ge , gt,add,sub,mul,div, is_, is_not , and_,
+              or_ ,mod, pow]
+
+    op_dict= dict(zip(op_name,op_val))
     
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "f", interface = IFunction ) 
+        self.add_input( name = "op", interface = IEnumStr(self.op_name),value= "==" ) 
+        self.add_input( name = "g", interface = IFunction ) 
+        self.add_output( name = "h", interface = IFunction ) 
+
+
+    def __call__(self, inputs):
+
+        f= self.get_input_by_key("f")
+        op_key= self.get_input_by_key("op")
+        g= self.get_input_by_key("g")
+
+        op= self.op_dict[op_key]
+        
+        binop= None
+        
+        if not (f and g):
+            return (binop,)
+        
+        if callable(f) and callable(g):
+            binop= lambda x: op(f(x),g(x))
+        elif callable(f): 
+            binop= lambda x: op(f(x),g)
+        elif callable(g): 
+            binop= lambda x: op(f,g(x))
+        else:
+            binop= lambda x: op(f,g)
+
+        return (binop,)
+
+#//////////////////////////////////////////////////////////////////////////////
+
+class Range( Node ):
+    """range(start= 0, stop, step= 1) -> list of integers
+
+Return an arithmetic sequence of integers
+Input:
+  start: int
+  stop: int
+  step: int
+Output:
+  list of integers
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "start", interface = IInt, value= 0 ) 
+        self.add_input( name = "stop", interface = IInt, value= 1 ) 
+        self.add_input( name = "step", interface = IInt, value= 1 ) 
+        self.add_output( name = "list", interface = ISequence ) 
+
+
+    def __call__(self, inputs):
+        return ( range(*inputs), )
