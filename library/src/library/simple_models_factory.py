@@ -103,6 +103,17 @@ def define_factory(package):
     package.add_factory( nf )
 
 
+    nf = Factory( name = "int",
+                  description = "Int Value",
+                  category  = "Data Types",
+                  nodemodule = "simple_models",
+                  nodeclass = "Int",
+                  )
+
+                      
+    package.add_factory( nf )
+
+
     nf = Factory( name = "enumTest",
                   description = "String Enumeration",
                   category  = "Data Types",
@@ -133,6 +144,33 @@ def define_factory(package):
                   category  = "Function",
                   nodemodule = "simple_models",
                   nodeclass = "Map",
+                  )
+    
+    package.add_factory( nf )
+
+    nf = Factory( name = "filter",
+                  description = "Apply a function on a sequence and return only true values",
+                  category  = "Function",
+                  nodemodule = "simple_models",
+                  nodeclass = "Filter",
+                  )
+    
+    package.add_factory( nf )
+
+    nf = Factory( name = "f(x) op g(x)",
+                  description = "Create a function h: x-> f(x) op g(x)",
+                  category  = "Function",
+                  nodemodule = "simple_models",
+                  nodeclass = "Generator",
+                  )
+    
+    package.add_factory( nf )
+
+    nf = Factory( name = "range",
+                  description = "Return an arithmetic progression of integers",
+                  category  = "Function",
+                  nodemodule = "simple_models",
+                  nodeclass = "Range",
                   )
     
     package.add_factory( nf )
