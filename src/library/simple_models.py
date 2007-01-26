@@ -222,14 +222,17 @@ Output:
         Node.__init__(self)
 
         self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence ) 
+        self.add_input( name = "seq", interface = ISequence, value= [] ) 
         self.add_output( name = "list", interface = ISequence ) 
 
 
     def __call__(self, inputs):
         f= self.get_input_by_key("f")
         seq= self.get_input_by_key("seq")
-        return ( map(f,seq), )
+        if f and seq:
+            return ( map(f,seq), )
+        else:
+            return ( [], )
 
 #//////////////////////////////////////////////////////////////////////////////
 
@@ -256,7 +259,10 @@ Output:
     def __call__(self, inputs):
         f= self.get_input_by_key("f")
         seq= self.get_input_by_key("seq")
-        return ( filter(f,seq), )
+        if f and seq:
+            return ( filter(f,seq), )
+        else:
+            return ( [], )
 
 #//////////////////////////////////////////////////////////////////////////////
 
