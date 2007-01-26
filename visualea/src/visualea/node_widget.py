@@ -274,7 +274,7 @@ class IFileStrWidget(IStrWidget):
 
     def button_clicked(self):
         
-        result = QtGui.QFileDialog.getOpenFileName(self, "Select File", QtCore.QDir.homePath() )
+        result = QtGui.QFileDialog.getOpenFileName(self, "Select File", self.last_result )
     
         if(result):
             self.node.set_input_by_key(self.param_str, str(result))
@@ -438,6 +438,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
                 widget = wclass(node, self, name, interface)
                 vboxlayout.addWidget(widget)
                 self.widgets.append(widget)
+            else:
+                self.widgets.append(None)
 
         # If there is no subwidget, add the name
         if( len(self.widgets) == 0):
@@ -453,5 +455,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         if(event and event[0] == "input_modified"):
             input_index = event[1]
 
-            self.widgets[input_index].notify(sender, event)
-            self.widgets[input_index].update_state()
+            widget= self.widgets[input_index]
+            if widget: 
+                self.widgets[input_index].notify(sender, event)
+                self.widgets[input_index].update_state()
