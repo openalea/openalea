@@ -344,3 +344,23 @@ Output:
 
     def __call__(self, inputs):
         return ( range(*inputs), )
+
+#//////////////////////////////////////////////////////////////////////////////
+
+class Len( Node ):
+    __doc__= len.__doc__
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input ( name = "object", interface = None, value= [] ) 
+        self.add_output( name = "n", interface = None ) 
+
+    def __call__(self, inputs):
+        obj= self.get_input_by_key("object")
+        if callable(obj):
+            f= lambda x: len(obj(x))
+        else:
+            f= len(obj)
+        return ( f, )

@@ -174,3 +174,12 @@ def define_factory(package):
                   )
     
     package.add_factory( nf )
+
+    nf = Factory( name = "len",
+                  description = "Return the number of items of a sequence or mapping.",
+                  category  = "Function",
+                  nodemodule = "simple_models",
+                  nodeclass = "Len",
+                  )
+    
+    package.add_factory( nf )
