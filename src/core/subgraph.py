@@ -411,7 +411,6 @@ class SubGraph(Node):
         """
         
         self.eval_as_expression()
-#        return True
         return ()
 
 
@@ -459,7 +458,6 @@ class SubGraph(Node):
         """
 
         self.connections[ (node_dst, port_dst) ] = (node_src, port_src)
-
         node_dst.set_input_state(port_dst, "connected")
 
     
