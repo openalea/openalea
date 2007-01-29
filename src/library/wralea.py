@@ -27,6 +27,7 @@ from openalea.core import *
 
 import arithmetics_factory
 import simple_models_factory
+import python_function_factory
 import plot_tools_nodes_factory
 
 def register_packages(pkgmanager):
@@ -50,6 +51,7 @@ def register_packages(pkgmanager):
 
     arithmetics_factory.define_factory(package1)
     simple_models_factory.define_factory(package1)
+    python_function_factory.define_factory(package1)
     
     pkgmanager.add_package(package1)
 
