@@ -268,11 +268,24 @@ class XmlPackageReader(PackageReader):
             except :
                 raise FormatError("<subgraph> must have name and category attributes")
 
+            # inputs and outputs
+            try:
+                ninput = int(self.get_attribute(attr, "num_input"))
+                noutput = int(self.get_attribute(attr, "num_output"))
+            except :
+                ninput = 0
+                noutput = 0
+            
+
+            # description
             try: desc = self.getText(subgraph.getElementsByTagName("description")[0])
             except: desc = "" 
 
             sg = SubGraphFactory(pkgmanager, name = name,
                                  description = desc, category = category)
+            sg.set_numinput(ninput)
+            sg.set_numoutput(noutput)
+            
 
             for element in subgraph.getElementsByTagName("element"):
 
@@ -425,6 +438,8 @@ class SubGraphFactoryXmlWriter(XmlWriter):
         sg_elt = newdoc.createElement ('subgraph')
         sg_elt.setAttribute("name", factory.name)
         sg_elt.setAttribute("category", factory.category)
+        sg_elt.setAttribute("num_input", str(factory.num_input))
+        sg_elt.setAttribute("num_output", str(factory.num_output))
         top_element.appendChild(sg_elt) 
 
         elt = newdoc.createElement('description')
