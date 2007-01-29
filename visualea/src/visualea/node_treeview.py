@@ -42,9 +42,11 @@ class PkgModel (QAbstractItemModel) :
         self.parent_map = {}
         self.row_map = {}
 
-    def clear(self):
+        
+    def reset(self):
         self.parent_map = {}
         self.row_map = {}
+        QAbstractItemModel.reset(self)
 
 
     def columnCount(self, parent):

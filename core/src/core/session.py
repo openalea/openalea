@@ -42,6 +42,15 @@ class Session:
         self.pkgmanager = PackageManager()
         self.clear()
 
+
+        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
+                                      description= "",
+                                      category = "",
+                                      )
+        
+        self.user_pkg.add_factory(rootfactory)
+
+
        
     def add_workspace(self, factory):
         """
@@ -86,12 +95,6 @@ class Session:
         pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
         self.user_pkg = pkg
 
-        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
-                                      description= "",
-                                      category = "",
-                                      )
-        
-        pkg.add_factory(rootfactory)
         self.pkgmanager.add_package(pkg)
 
         
