@@ -139,11 +139,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def reinit_treeview(self):
         """ Reinitialise package and category views """
-        self.cat_model.clear()
-        self.pkg_model.clear()
-        self.packageTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
-        self.categoryTreeView.model().emit(QtCore.SIGNAL("layoutChanged()"))
 
+        self.cat_model.reset()
+        self.pkg_model.reset()
+        
 
     def close_workspace(self):
         """ Close current workspace """
@@ -321,8 +320,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.reinit_treeview()
 
         
-
-        
     def open_session(self):
 
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -353,8 +350,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.session.save(filename)
 
-
-        
 
         
        
