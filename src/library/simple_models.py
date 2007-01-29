@@ -222,7 +222,7 @@ Output:
         Node.__init__(self)
 
         self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence, value= [] ) 
+        self.add_input( name = "seq", interface = ISequence ) 
         self.add_output( name = "list", interface = ISequence ) 
 
 
@@ -259,6 +259,7 @@ Output:
     def __call__(self, inputs):
         f= self.get_input_by_key("f")
         seq= self.get_input_by_key("seq")
+
         if f and seq:
             return ( filter(f,seq), )
         else:
@@ -359,6 +360,8 @@ class Len( Node ):
 
     def __call__(self, inputs):
         obj= self.get_input_by_key("object")
+
+        f= None
         if callable(obj):
             f= lambda x: len(obj(x))
         else:
