@@ -34,6 +34,7 @@ license="Cecill-C"
 
 # Add postinstall script if generate windows installer
 if('win' in sys.platform
+         and len(sys.argv)>1
          and sys.argv[1]=='bdist_wininst'):
     scriptname = 'oac_postinstall.py'
     sys.argv.append('--install-script=%s'%(scriptname,))
