@@ -28,6 +28,8 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
+from openalea.core.session import Session
+
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
 
 import config
@@ -314,7 +316,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def new_session(self):
 
-        self.session.clear()
+        self.session = Session()
         self.session.add_workspace(self.session.user_pkg['Workspace'])
         self.update_tabwidget()
         self.reinit_treeview()
