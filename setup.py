@@ -4,7 +4,8 @@
 
 
 # To generate the windows installer
-#   python setup.py bdist_wininst --install-script=finalize_setup.py
+#   python setup.py bdist_wininst --install-script=oac_postinstall.py
+
 
 import sys
 old_path=sys.path
@@ -31,6 +32,16 @@ author= "OpenAlea developers team"
 url= "http://openalea.gforge.inria.fr"
 license="Cecill-C"
 
+# Add postinstall script if generate windows installer
+if('win' in sys.platform
+         and sys.argv[1]=='bdist_wininst'):
+    scriptname = 'oac_postinstall.py'
+    sys.argv.append('--install-script=%s'%(scriptname,))
+    scripts=[scriptname]
+else :
+    scripts=[]
+
+# Distutils Setup function
 d = setup(
     name= "OpenAlea.Config",
     version= version.version,
@@ -38,12 +49,13 @@ d = setup(
     author=author,
     url=url,
     license=license,
+    scripts=scripts,
 
-    #pure python  packages
     packages= [config.namespace],
     )
 
 
+# Post installtion
 if('install' in d.commands):
 
     import oac_postinstall
