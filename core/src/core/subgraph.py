@@ -108,8 +108,7 @@ class SubGraphFactory(NodeFactory):
         
         # Instantiate the node with each factory
         for elt_id in self.elt_factory.keys():
-
-            self.instantiate_id(elt_id, new_df)
+            self.instantiate_id(elt_id, new_df, call_stack)
 
         # Create the connections
         for (dst_id, input_port) in self.connections:
@@ -354,7 +353,7 @@ class SubGraph(Node):
         """
 
         # dict to keep trace of evaluated node
-        self.evaluated = {}
+        self.evaluated = set()
 
         # get all the base nodes
         if(node == None):
@@ -379,39 +378,44 @@ class SubGraph(Node):
                 (node_src, port_src)=self.connections[(node, iport)]
 
                 # test if the node has already be evaluated
-                try:
-                    modif = self.evaluated[node_src]
-                except:
+                if(not node_src in  self.evaluated):
                     # Recursive evaluation
-                    modif = self.eval_node(node_src)
+                    self.eval_node(node_src)
 
-                # Set new input only if necessary
-                if(modif):
-                    v = node_src.get_output(port_src)
-                    node.set_input(iport, v)
+                # copy the data
+                v = node_src.get_output(port_src)
+                node.set_input(iport, v)
                 
             except KeyError :
-                #node.set_input(iport, None)
                 pass
             except Exception, e:
                 print e
                 raise
 
         # evaluate the node itself
-        calculated =  node.eval()
-        self.evaluated[node] = calculated
-        
-        return calculated
+        node.eval()
+        self.evaluated.add(node)
 
-
-    def __call__(self, inputs):
+                
+    # Functions used by the node evaluator
+    def eval(self):
         """
-        Main evaluation function
+        Evaluate the subgraph
         Return True if the node has been calculated
         """
-        
+
+        self.eval_as_expression()
+        return True
+
+
+    def __call__(self, inputs=()):
+        """
+        Evaluate the subgraph
+        """
+
         self.eval_as_expression()
         return ()
+
 
 
     def add_node(self, elt_id, node):
