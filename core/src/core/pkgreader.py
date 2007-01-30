@@ -25,6 +25,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
+from xml.dom.minidom import parse
 from core import Package, NodeFactory
 from subgraph import SubGraphFactory
 import os
@@ -54,7 +55,7 @@ class PackageReader(object):
         # Function must be overloaded
         raise RuntimeError()
 
-    def load_session(self, session):
+    def register_session(self, session):
         """ Load session data """
 
         # Function must be overloaded
@@ -331,18 +332,51 @@ class XmlPackageReader(PackageReader):
             factorylist.append(sg)
 
         return factorylist
+
+    def get_workspaces(self, session, pkgmanager):
+        """ Read the workspace informations in the xml document """
+
+        for workspace in self.get_root_element().getElementsByTagName("workspace"):
+
+            attr = workspace.attributes
+            try:
+                pkg_id = self.get_attribute(attr, "pkg_id")
+                factory_id = self.get_attribute(attr, "factory_id")
+            except:
+                raise FormatError("<workspac> must have pkg_id and factory_id attributes")
+
+            try:
+                pkg = pkgmanager[pkg_id]
+                factory = pkg[factory_id]
+                session.add_workspace(factory)
+            except:
+                raise
+
                 
 
     def register_packages(self, pkgmanager):
         """ Read XML file and register package in pkgmanager"""
 
-        from xml.dom.minidom import parse
         self.doc = parse(self.filename)
 
         pkglist = self.get_xml_packages(pkgmanager)
 
         # Add package to the manager
         map(pkgmanager.add_package, pkglist)
+        
+        del(self.doc)
+        self.doc = None
+
+
+    def register_session(self, session):
+        """ Read Session data """
+        self.doc = parse(self.filename)
+
+        self.get_workspaces(session, session.pkgmanager)
+
+        del(self.doc)
+        self.doc = None
+
 
         
 
@@ -544,6 +578,12 @@ class SessionWriter(XmlWriter):
         writer.fill_structure(newdoc, top_element)
 
         # Save Workspaces Data
-
+        for factory in self.session.workspaces:
+            pkg_id = factory.package.get_id()
+            factory_id = factory.get_id()
+            workspace_elt = newdoc.createElement('workspace')
+            workspace_elt.setAttribute("pkg_id", pkg_id)
+            workspace_elt.setAttribute("factory_id", factory_id)
+            top_element.appendChild(workspace_elt) 
      
 
