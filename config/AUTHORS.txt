@@ -1,2 +1,6 @@
+OpenAlea Consortium
+
+Developers:
+
 Samuel Dufour-Kowalski
 Christophe Pradal
