@@ -173,7 +173,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ open tab widget """
 
         # open tab widgets
-        for (factory, node) in self.session.workspaces.items():
+        for (factory, node) in litems:
             self.open_widget_tab(factory, node)
 
         # Close unnecessary tab
