@@ -133,8 +133,8 @@ def main():
 
     print "Setting environment variables"
 
-    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.prefix_dir,)])
-    set_win_env(['PATH=%s'%(config.prefix_dir,)])
+    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.lib_dir,)])
+    set_win_env(['PATH=%s'%(config.lib_dir,)])
 
 if (__name__ == '__main__'):
     main()
