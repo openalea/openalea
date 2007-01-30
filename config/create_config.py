@@ -74,6 +74,7 @@ class Config(object):
 
     doc_dir='doc'
     test_dir='test'
+    share_dir='share'
     setting_dir= ""    
 
     header= '# OpenAlea config file generated on %s'%( time.asctime(),)
@@ -90,6 +91,7 @@ bin_dir= r'%s'
 
 doc_dir=r'%s'
 test_dir=r'%s'
+share_dir=r'%s'
 setting_dir=r'%s'     
 
 """%( self.header, self.namespace, self.version,
@@ -99,6 +101,7 @@ setting_dir=r'%s'
       pj(self.prefix_dir, self.bin_dir),
       pj(self.prefix_dir, self.doc_dir),
       pj(self.prefix_dir, self.test_dir),
+      pj(self.prefix_dir, self.share_dir),
       pj(self.prefix_dir, self.setting_dir))
             
     def write(self, fn):

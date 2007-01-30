@@ -23,11 +23,11 @@ sys.path= old_path
 from distutils.core import setup
 
 description= "OpenAlea namespace and configuration"
-author= "OpenAlea developpers team"
+author= "OpenAlea developers team"
 url= "http://openalea.gforge.inria.fr"
 license="Cecill-C"
 
-setup(
+d = setup(
     name= "OpenAlea.Config",
     version= config.version,
     description= description,
@@ -37,7 +37,37 @@ setup(
 
     #pure python  packages
     packages= [config.namespace],
-
     )
+
+
+if(not 'install' in d.commands): sys.exit(0)
+
+# create directories
+print "Creating directories:"
+
+import os
+
+dirs = (config.prefix_dir,
+        config.lib_dir, 
+        config.include_dir,
+        config.doc_dir,
+        config.share_dir,
+        config.bin_dir,
+        config.test_dir)
+	
+for directory in dirs:
+    try:
+        print directory
+        os.mkdir(directory)
+    except Exception, e:
+        print e
+
+print "Setting environment variables"
+
+import varenv
+
+varenv.set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.prefix_dir,)])
+varenv.set_win_env(['PATH=%s'%(config.prefix_dir,)])
+
 
 
