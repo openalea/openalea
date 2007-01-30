@@ -90,9 +90,7 @@ class PyPackageReader(PackageReader):
     def register_packages(self, pkgmanager):
         """ Execute Wralea.py """
 
-	retlist = []
-
-        import sys, os
+        retlist = []
 
         basename = os.path.basename(self.filename)
         basedir = os.path.abspath( os.path.dirname( self.filename ))
@@ -107,7 +105,8 @@ class PyPackageReader(PackageReader):
 
         wraleamodule.register_packages( pkgmanager )
         
-        if(file) : file.close()
+        if(file) :
+            file.close()
 
 
 
@@ -266,6 +265,7 @@ class XmlPackageReader(PackageReader):
             try:
                 name = self.get_attribute(attr, "name")
                 category = self.get_attribute(attr, "category")
+
             except :
                 raise FormatError("<subgraph> must have name and category attributes")
 
@@ -279,8 +279,11 @@ class XmlPackageReader(PackageReader):
             
 
             # description
-            try: desc = self.getText(subgraph.getElementsByTagName("description")[0])
-            except: desc = "" 
+            try:
+                description= subgraph.getElementsByTagName("description")[0]
+                desc = self.getText(description)
+            except:
+                desc = "" 
 
             sg = SubGraphFactory(pkgmanager, name = name,
                                  description = desc, category = category)
@@ -311,7 +314,10 @@ class XmlPackageReader(PackageReader):
                 except:
                     pass
 
-                elt_id =  sg.add_nodefactory(package_id, factory_id, (posx, posy), caption)
+                elt_id = sg.add_nodefactory( package_id,
+                                             factory_id,
+                                             (posx, posy),
+                                             caption)
 
                 map_id[id] = elt_id
 
@@ -326,9 +332,12 @@ class XmlPackageReader(PackageReader):
                     raise FormatError(
                         "<connect> must have src_id, src_port, dst_id, dst_port attributes")
                 
-
-                sg.connect (map_id[src_id], int(src_port), map_id[dst_id], int(dst_port) )
-
+                try:
+                    sg.connect (map_id[src_id], int(src_port), map_id[dst_id], int(dst_port) )
+                except:
+                    raise FormatError(
+                        "<connect> must have valid defined elements")
+                
             factorylist.append(sg)
 
         return factorylist

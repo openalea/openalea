@@ -9,7 +9,7 @@ openalea_dir= os.path.join(get_python_lib(),'openalea')
 pkg_dirs = [ "core/src",
              "visualea/src",
              "library/src",
-	     "../openalea_packages",
+             "../openalea_packages",
              openalea_dir
              ]
 
