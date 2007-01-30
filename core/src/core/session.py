@@ -40,6 +40,10 @@ class Session:
     def __init__(self):
 
         self.pkgmanager = PackageManager()
+
+        # map factory : node_instance
+        self.workspaces = {}
+
         self.clear()
 
 
@@ -81,7 +85,7 @@ class Session:
 
         self.session_filename = None
 
-        # map between (pkg_id, node_id) : node_instance
+        # map factory : node_instance
         self.workspaces = {}
 
 
@@ -106,11 +110,11 @@ class Session:
         
         reader = XmlPackageReader(filename)
         reader.register_packages(self.pkgmanager)
-        #reader.register_session(self)
+        reader.register_session(self)
 
         self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
 
-        self.add_workspace(self.user_pkg['Workspace'])
+        #self.add_workspace(self.user_pkg['Workspace'])
         
         self.session_filename = filename
                 
