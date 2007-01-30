@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+###############################################################################
 
 __doc__="""
 This module defines the package manager.
@@ -28,13 +29,10 @@ import sys
 import os
 import openalea
 
-
-
 # Exceptions 
 
 class UnknowFileType(Exception):
     pass
-
 
 ###############################################################################
 
@@ -163,7 +161,11 @@ class PackageManager(object):
             return
         
         reader = self.get_pkgreader(filename)
-        return reader.register_packages(self)
+        if reader: 
+            return reader.register_packages(self)
+        else:
+            print "Unable to load pakahe %s."%(filename,)
+            return None
         
     
     def find_wralea_files (self):
@@ -174,28 +176,22 @@ class PackageManager(object):
 
         from tools.path import path
 
-        readers = {}
-
+        wralea_files= set()
         for wp in self.wraleapath:
 
-            if(not os.path.isdir(wp)): continue
+            if(not os.path.isdir(wp)):
+                continue
             
-            filelist = []
-            p = path(wp)
+            p= path(wp).abspath()
 
             # search for wralea.py
-            map(filelist.append, p.walkfiles("wralea.py"))
-            map(filelist.append, p.walkfiles("wralea.xml"))
+            wralea_files.update( p.walkfiles("wralea.py") )
+            wralea_files.update( p.walkfiles("wralea.xml") )
 
-            for f in filelist:
-
-                # avoid doublons
-                if(not readers.has_key(f)):
-                    print "find %s" % (f,)
-                    reader = self.get_pkgreader(f)
-                    readers[f] = reader
-
-        return readers.values()
+        for f in wralea_files:
+            print "find %s" % f
+            
+        return map( self.get_pkgreader, wralea_files)
 
 
     def get_pkgreader(self, filename):
@@ -208,8 +204,8 @@ class PackageManager(object):
             reader = PyPackageReader(filename)
         elif(filename.endswith('.xml')):
             reader = XmlPackageReader(filename)
-
-        else : raise UnknowFileType()
+        else :
+            raise UnknowFileType()
 
         return reader
 
