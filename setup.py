@@ -46,6 +46,6 @@ d = setup(
 
 if('install' in d.commands):
 
-    import finalize_setup    
-    finalize_setup.main()
+    import oac_postinstall
+    oac_postinstall.main()
 
