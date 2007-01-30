@@ -1,9 +1,9 @@
 ################################################################################
 # -*- python -*-
 #
-#       OpenAlea.DistX:   
+#       OpenAlea.Config:   
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or (c) or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -16,16 +16,15 @@
 #
 ################################################################################
 
-__doc__="""
-Environment variable functions
-"""
+__license__ = "Cecill-C"
+__revision__ =" $Id$ "
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__doc__ = """ Script to finalize OpenAlea setup """
 
 
 import os
 import sys
+
 
 def set_lsb_env(name, vars):
     """
@@ -109,3 +108,33 @@ def set_win_env(vars):
         _winreg.CloseKey(reg)
 
 
+def main():
+    from  openalea import config
+    
+    # create directories
+    print "Creating directories:"
+
+    import os
+
+    dirs = (config.prefix_dir,
+            config.lib_dir, 
+            config.include_dir,
+            config.doc_dir,
+            config.share_dir,
+            config.bin_dir,
+            config.test_dir)
+	
+    for directory in dirs:
+        try:
+            print directory
+            os.mkdir(directory)
+        except Exception, e:
+            print e
+
+    print "Setting environment variables"
+
+    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.prefix_dir,)])
+    set_win_env(['PATH=%s'%(config.prefix_dir,)])
+
+if (__name__ == '__main__'):
+    main()

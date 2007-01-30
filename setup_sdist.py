@@ -6,21 +6,24 @@
 
 
 from distutils.core import setup
+import version
 
 description= "OpenAlea namespace creation and configuration"
 author= "OpenAlea developers team"
 url= "http://openalea.gforge.inria.fr"
 license="Cecill-C"
 
+
+
 setup(
     name= "OpenAlea.Config",
-    version= "0.1.0",
+    version= version.version,
     description= description,
     author=author,
     url=url,
     license=license,
 
-    scripts=["install.py", "create_config.py", "setup.py"]
+    scripts=["install.py", "create_config.py", "setup.py", "finalize_setup.py"]
 
     )
 
