@@ -124,8 +124,11 @@ setup(
 
     
 
-    #Add to PATH environment variable for openalea lib on Windows platform
-    set_env_var=['PATH='+os.path.normpath(pj(config.prefix_dir,'lib'))]
+#     #Add environment variables for windows platform
+#     set_win_var=['PATH='+os.path.normpath(pj(config.prefix_dir,'lib'))]
+#     #Add environment variables for lsb platform
+#     set_lsb_var=['LD_LIBRARY_PATH='+os.path.normpath(pj(config.prefix_dir,'lib'))]
+
 
     )
 
