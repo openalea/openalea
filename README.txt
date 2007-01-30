@@ -1,28 +1,25 @@
-====== DistX ======
+====== OpenAlea.DistX ======
 
-Authors : Samuel Dufour-Kowalski / Christophe Pradal
+**Authors** : Samuel Dufour-Kowalski / Christophe Pradal
 
-Institutes : INRIA, CIRAD
+**Institutes** : INRIA, CIRAD
 
-Type : Python package
+**Type** : Python package
 
-Status : Devel
+**Status** : Stable
 
-License : Cecill-C
+**License** : Cecill-C
 
-URL : http://openalea.inria.gforge.fr
+**URL** : http://openalea.inria.gforge.fr
 
 ===== About =====
 
-DistX is an OpenAlea package which extends python Distutils library :
-http://docs.python.org/lib/module-distutils.html|Distutils  
+DistX is an OpenAlea package which extends python [[http://docs.python.org/lib/module-distutils.html|Distutils]] library to facilitate package installation in the OpenAlea framework. It provides :
 
-It provides :
-
-  * Scons integration (external call).
-  * Empty namespace creation.
-  * External data installation (more complete than the distutils ''data_files'').
-  * Windows environment variable modification.
+  * **Scons** integration (external call).
+  * **Empty namespace** creation.
+  * **External data** installation (more complete than the distutils ''data_files'').
+  * **Environment variable** modification on Windows and LSB compatible linux distribution.
 
 DistX doesn't change the standard distutils behaviour. It adds only new functionnality. 
 
@@ -32,62 +29,71 @@ DistX doesn't change the standard distutils behaviour. It adds only new function
 
 === Download ===
 
-DistX is available on http://gforge.inria.fr/projects/openalea/
+DistX is available on the GForge repository : [[http://gforge.inria.fr/frs/?group_id=79&release_id=782|OpenAlea.DistX]]
 
 === Requirements ===
 
   * Python >=2.4, 
-  * Scons (if you want use scons_build command),
+  * [[packages:compilation_installation:config:config|OpenAlea.Config]] which define the OpenAlea configuration.
+  * Scons (if you use scons_build command),
+
 
 === Installation ===
 
+== Binary install == 
+
+Lauch the windows installer on Windows system or use the ''rpm'' command on Linux system.
+
+== Source Package ==
+
+<code bash>
 python setup.py install
+</code>
 
 
 ===== Using DistX =====
 
-DistX has the same bahviour than Distutils. Please refer to Distutils documentation (http://docs.python.org/inst/inst.html)
+DistX has the same bahviour than Distutils. Please refer to the [[http://docs.python.org/inst/inst.html|Distutils user documentation]]
 
 == Install a source package (with openalea configuration detection) ==
-
-python setup.py install
+<code>python setup.py install</code>
 
 == Install a source package (with a specific destination for external data) ==
-
-
+<code>
 python setup.py install --external-prefix=/opt/openalea 
 python setup.py install --external-prefix=D:\openalea 
+</code>
 
 == Build a source package ==
-
-python setup.py build
+<code>python setup.py build</code>
 
 == Other commands ==
 
 To get command help, type :
-
+<code>
 python setup.py --help-command
-
+</code>
 //or//
-
+<code>
 python setup.py cmd-name --help
-
+</code>
 
 
 
 ===== Distributing your package with DistX ====
 
+Before using DistX as a  developper, have a look to the [[http://docs.python.org/dist/dist.html|distutils developer documention]].
 == Create a Windows Installer (with the detection of the openalea configuration) ==
 
-python setup.py bdist_wininst --with-remote-config 
+<code>python setup.py bdist_wininst --with-remote-config </code>
 
 == Create a RPM for linux==
 
-python setup.py bdist_rpm
+<code>python setup.py bdist_rpm</code>
 
 == Create a Source distribution ==
 
-python setup.py sdist
+<code>python setup.py sdist</code>
 
 === Writing your setup.py script===
 
@@ -134,10 +140,12 @@ if __name__ == '__main__':
         	           },
 
           #Add to PATH environment variable for openalea lib on Windows platform
-          set_env_var=['PATH='+pj(config.prefix_dir,'lib')]
+          set_win_var=['PATH='+pj(config.prefix_dir,'lib')]
+          set_lsb_var=['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib')]
 </code>
 
 
+For a more complete exemple, see the [[packages:utilities:starter|starter]] package.
 
 ===== Technical description =====
 
@@ -145,32 +153,34 @@ if __name__ == '__main__':
 
 DistX defines new distutils extra commands (available from the command lines) :
 
-  * install : Install the package. In addition to the default behaviour, ''install'' command call the ''install_external_data'' command.
+  *//install// : Install the package. In addition to the default behaviour, ''install'' command call the ''install_external_data'' command.
       * Use ''--external-prefix='' to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea directory.
 
-  * install_namespace : Install pure namespaces.
+  *//install_namespace// : Install pure namespaces.
       * Use ''install-dir='' to specify the directory to install namespaces to.
 
-  * install_external_data  :    Install data outside the python layout distribution.
+  *//install_external_data// :    Install data outside the python layout distribution.
       * Use ''--external-prefix='' to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea directory.
 
-  * set_env_var  : Set windows environment variables.
+  *//set_win_var// : Set windows environment variables.
+
+  *//set_lsb_var// : Set environment variables on LSB compatible linux distributions. 
 
 
-  * build  : Build the package. In addition to the default behaviour, ''buil'' command call the ''build_namespace'' and ''build_scons'' command.
+  *//build// : Build the package. In addition to the default behaviour, ''buil'' command call the ''build_namespace'' and ''build_scons'' command.
 
-  * build_namespace  : Create empty namespaces. 
+  *//build_namespace// : Create empty namespaces. 
 
-  * build_scons  : Run scons scripts to build platform dependant library.
+  *//build_scons// : Run scons scripts to build platform dependant library.
       *	Use ''--scons-ext-param='' to pass to scons particular options.
       * Use ''--scons-path='' to specify scons program path.
 
-  * bdist_wininst  : Create a windows installer
+  *//bdist_wininst// : Create a windows installer
       * Use ''--external-prefix='' to specify default base directory for external data. If not set, the system will try to use ''openalea.config.prefix_dir'' which is the openalea data directory.
       * Use ''--with-remote-config'' to create an installer which will retrieve OpenAlea configuration when the package is installed on a remote system. When the configuration is not found on the remote system, the installer will use ''--external-prefix'' value.
 
 
-  * bdist_rpm  : create a linux rpm.
+  *//bdist_rpm// : create a linux rpm.
 
 
 
@@ -182,9 +192,11 @@ DistX add optional parameters to pass to setup in the ''setup.py'' script.
 
       * ''scons_scripts'' : a list of string. Scons is called  for each script name in the list (ex : SConstruct).
       * ''scons_parameter'' a list of string. The strings are joined and passed as parameter to scons.
-          * Nota 1  : Distutils build directory is automatically passed as a parameter named 'distutils_build_dir'.
-          * Nota 2  : Scons is responsible to compile external library. It does not interact with distutils. Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
+          *//Nota 1// : Distutils build directory is automatically passed as a parameter named 'distutils_build_dir'.
+          *//Nota 2// : Scons is responsible to compile external library. It does not interact with distutils. Scons is first executed, before any other distutils command. You can transmit parameters to scons with setup.py in order to specify destination directory.  However, final installation is managed by the distutils functions. 
 
       * ''external_data'' : dictionnary with the form { destination directory : source directory }. Each source directory is copied to destination directory.
 
-      * ''set_env_var'' : list of string with the form ''VAR=VALUE''. If ''VAR'' is ''PATH'', ''VALUE'' is added to the PATH variable. In other case, the variable ''VAR'' is REPLACED by ''VALUE''. This parameter is only used on Windows platform.
+      * ''set_win_var'' : list of string with the form ''VAR=VALUE''. If ''VAR'' is ''PATH'', ''VALUE'' is added to the PATH variable. In other case, the variable ''VAR'' is REPLACED by ''VALUE''. This parameter is only used on Windows platform.
+
+      * ''set_lsb_var'' : list of string with the form ''VAR=VALUE''. If ''VAR'' is ''LD_LIBRARY_PATH'', ''VALUE'' is added to the variable. In other case, the variable ''VAR'' is REPLACED by ''VALUE''. This parameter is only used on Posix platform.

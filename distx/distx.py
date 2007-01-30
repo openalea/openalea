@@ -65,8 +65,8 @@ class distx_build(build):
 
     def initialize_options (self):
         build.initialize_options(self)
-	self.scons_ext_param= ""  # None value are not accepted
-	self.scons_path= None     # Scons path
+	self.scons_ext_param = ""  # None value are not accepted
+	self.scons_path = None     # Scons path
 
 
     def has_scons_scripts(self):
@@ -106,7 +106,7 @@ class build_scons (Command):
 
     description = "Run SCons in an external process."
     
-    user_options=[( 'scons-ext-param=',
+    user_options =[( 'scons-ext-param=',
                     None,
                     'External parameters to pass to scons.' ),
 		  ( 'scons-path=',
@@ -115,21 +115,21 @@ class build_scons (Command):
 
 
     def initialize_options (self):
-        self.outfiles= None
-        self.scons_scripts= None    #scons directory
-        self.scons_parameters= None #scons parameters
-	self.build_dir= None        #build directory
-	self.scons_ext_param= None  #scons external parameters
-	self.scons_path= None
+        self.outfiles = None
+        self.scons_scripts = None    #scons directory
+        self.scons_parameters = None #scons parameters
+	self.build_dir = None        #build directory
+	self.scons_ext_param = None  #scons external parameters
+	self.scons_path = None
 
 
     def finalize_options (self):
         
         # Set default values
-        self.scons_scripts= self.distribution.scons_scripts
-        self.scons_parameters= self.distribution.scons_parameters
+        self.scons_scripts = self.distribution.scons_scripts
+        self.scons_parameters = self.distribution.scons_parameters
         if( not self.scons_parameters ):
-           self.scons_parameters= "" 
+           self.scons_parameters = "" 
 
         self.set_undefined_options( 'build',
                                     ('build_lib', 'build_dir'),
@@ -152,41 +152,41 @@ class build_scons (Command):
         # try to import subprocess package
         try:
             import subprocess
-            subprocess_enabled= True
+            subprocess_enabled = True
         except ImportError:
-            subprocess_enabled= False
+            subprocess_enabled = False
             
         # run each scons script from setup.py
         for s in self.scons_scripts:
             try:
                 # Join all the SCons parameters.
-                file_param='-f %s' % (s,)
+                file_param = '-f %s' % (s,)
                 
 		# Join all parameters strings from setup.py scons_parameters list
-                param= ' '.join( self.scons_parameters )
+                param = ' '.join( self.scons_parameters )
                 
 		# Integrated Build parameter
-                build_param='python_build_dir=%s ' % ( self.build_dir,)
-                build_param+='py_pkg_name=%s ' % ( self.distribution.metadata.get_name(),)
+                build_param = 'python_build_dir=%s ' % ( self.build_dir,)
+                build_param += 'py_pkg_name=%s ' % ( self.distribution.metadata.get_name(),)
                 
 		# External parameters (from the command line)
-		externp=self.scons_ext_param
+		externp =self.scons_ext_param
 	
 		if(self.scons_path):
-		    command=self.scons_path
+		    command = self.scons_path
 		else:
-		    command='scons'
+		    command = 'scons'
 
-                command_param= file_param + ' ' + build_param + ' ' + param + ' '+externp
-		commandstr= command + ' ' + command_param
+                command_param = file_param + ' ' + build_param + ' ' + param + ' '+externp
+		commandstr = command + ' ' + command_param
                 
                 print commandstr
 
                 # Run SCons
                 if( subprocess_enabled ):
-                    retval= subprocess.call(commandstr, shell=True)
+                    retval = subprocess.call(commandstr, shell=True)
                 else:
-                    retval=os.system(commandstr)
+                    retval =os.system(commandstr)
 		    
                 # Test if command success with return value
 		if( retval != 0 ) :
@@ -211,14 +211,14 @@ class build_namespace (Command):
     description = "Create empty namespaces"
 
     # No specific user options
-    user_options=[] 
+    user_options = [] 
 
 
     def initialize_options (self):
         # Namespace name
-        self.namespace=None 
-        self.build_dir=None
-        self.outfiles=[]
+        self.namespace = None 
+        self.build_dir = None
+        self.outfiles = []
         
 
     def finalize_options (self):
@@ -226,7 +226,7 @@ class build_namespace (Command):
         self.set_undefined_options('build',
                                    ('build_lib', 'build_dir'))
 
-        self.namespace=self.distribution.namespace
+        self.namespace =self.distribution.namespace
 
 
     def get_source_files(self):
@@ -248,21 +248,21 @@ class build_namespace (Command):
             return
 
         for namespace in self.namespace:
-            namespacedir= self.build_dir+os.sep;
+            namespacedir = self.build_dir+os.sep;
 
             # Process composite namespace (ex : name.subname.subname)
             for subnamespace in split(namespace, '.'):
 
                 # Create directory
-                namespacedir+= subnamespace + os.sep
+                namespacedir += subnamespace + os.sep
                 self.mkpath( namespacedir )
                 print "creating %s" % (namespacedir,)
                 
                 # Create __init__.py in each subnamespace
-                newfile= joindir( namespacedir, '__init__.py' )
+                newfile = joindir( namespacedir, '__init__.py' )
                 if not os.path.exists( newfile ):
                    print "creating %s" % (newfile,)
-                   f= open( newfile, 'w' )
+                   f = open( newfile, 'w' )
                    f.write("# -*- python -*-")
                    f.write("# Automatically generated file.")
                    f.close()
@@ -298,8 +298,11 @@ class distx_install (install):
         return self.distribution.has_external_data()
 
 
-    def has_env_var (self):
-        return self.distribution.has_env_var()
+    def has_win_var (self):
+        return self.distribution.has_win_var()
+
+    def has_lsb_var (self):
+        return self.distribution.has_lsb_var()
 
     
     # Define sub command
@@ -307,7 +310,8 @@ class distx_install (install):
     sub_commands.extend( install.sub_commands )
     sub_commands.append( ( 'install_namespace', has_namespace ) )
     sub_commands.append( ( 'install_external_data', has_external_data ) )
-    sub_commands.append( ( 'set_env_var', has_env_var ) )
+    sub_commands.append( ( 'set_win_var', has_win_var ) )
+    sub_commands.append( ( 'set_lsb_var', has_lsb_var ) )
 
 
     # Define user options
@@ -361,10 +365,10 @@ class install_external_data(Command):
     Install external data (libraries, includes, documentation, ...).
     """
 
-    description= "Install external data"
+    description = "Install external data"
 
     # Specific user options
-    user_options= []
+    user_options = []
     user_options.append(( 'external-prefix=',
                           None,
                           'Prefix directory to install external data.' ))
@@ -377,8 +381,8 @@ class install_external_data(Command):
 
     def initialize_options (self):
         self.external_prefix = None
-        self.external_data= None
-        self.root=None
+        self.external_data = None
+        self.root = None
         self.force = 0
 
 
@@ -389,7 +393,7 @@ class install_external_data(Command):
                                    ('force', 'force'),
                                   )
         
-        self.external_data= self.distribution.external_data
+        self.external_data = self.distribution.external_data
 
         # We use openalea external prefix if no prefix specified
         if( not self.external_prefix ):
@@ -414,20 +418,20 @@ class install_external_data(Command):
        @param exclude_pattern: a list of pattern to exclude.
        """
    
-       names= os.listdir(src)
+       names = os.listdir(src)
        mkpath(dst)
-       outfiles= []
+       outfiles = []
 
        for p in exclude_pattern:
-          names=filter( lambda x: not(re.match(p, x)) , names)
+          names = filter( lambda x: not(re.match(p, x)) , names)
             
        for n in names:
           src_name = os.path.join(src, n)
           dst_name = os.path.join(dst, n)
                 
           if os.path.isdir(src_name):
-             ret=self.copy_data_tree(src_name, dst_name, exclude_pattern)
-             outfiles+=ret
+             ret = self.copy_data_tree(src_name, dst_name, exclude_pattern)
+             outfiles += ret
 
           else:
              copyfile(src_name, dst_name)
@@ -453,17 +457,17 @@ class install_external_data(Command):
                     
               # Define destination directory
               if(self.external_prefix and not os.path.isabs(dest)):
-                 dest=joindir(self.external_prefix,dest)
+                 dest = joindir(self.external_prefix,dest)
 
               dest=os.path.normpath(dest)
                                    
               # Define root directory (for bdist compatibility)
               if self.root:
-                 dest= change_root(self.root, dest)
+                 dest = change_root(self.root, dest)
                     
               mkpath(dest)
 
-              self.outfiles+= self.copy_data_tree(src, dest)
+              self.outfiles += self.copy_data_tree(src, dest)
 
            except Exception, i:
               print i
@@ -476,79 +480,63 @@ class install_external_data(Command):
 
     def get_outputs(self):
         return self.outfiles
-        
 
 
-class set_env_var (Command):
+import varenv
+
+class set_lsb_var (Command):
+    """
+    Set environment variable on ldb compatible platform.
+    set_lsb_var=[ 'LD_LIBRARY_PATH=/usr/foo', 'FOO=bar' ]:
+      - Add /usr/foo to LD_LIRABRY_PATH environment variable.
+      - For other variables, create or replace the value.
+    """
+    
+    description = "Set environment variable on lsb compatible platform"
+    
+    user_options = []
+
+    def initialize_options (self):
+       self.set_lsb_var = None
+
+    def finalize_options (self):
+       self.set_lsb_var = self.distribution.set_lsb_var
+
+
+    def get_outputs(self):
+        return []
+
+
+    def run (self):
+       varenv.set_lsb_env(self.distribution.get_name(), self.set_lsb_var)
+
+
+class set_win_var (Command):
     """
     Set environment variable on windows platform.
-    set_env_var=[ 'PATH=C:\lib', 'FOO=C:\foo\' ]:
+    set_win_var=[ 'PATH=C:\lib', 'FOO=C:\foo\' ]:
       - Add C:\lib to PATH environment variable.
       - For other variables, create or replace the value.
     """
     
     description = "Set environment variable on windows platform"
     
-    user_options=[]
+    user_options = []
 
     def initialize_options (self):
-       self.set_env_var= None
-        
+       self.set_win_var = None
+
 
     def finalize_options (self):
-       self.set_env_var= self.distribution.set_env_var
+       self.set_win_var = self.distribution.set_win_var
 
-
-    def run (self):
-       if( 'win' in sys.platform ):
-          for v in self.set_env_var:
-             self.add_env_var(v)
-
-
-    def add_env_var(self, newvar):
-       """
-       Update any environment variable persistently by changing windows registry.
-       @param newvar : a string like 'var=value'
-       """
-
-       from string import find
-       try:
-          import _winreg 
-
-       except ImportError, e:
-          print "!!ERROR: Can not access to Windows registery."
-          return
-
-       def queryValue(qkey, qname):
-          qvalue, type_id = _winreg.QueryValueEx(qkey, qname)
-          return qvalue
-
-       regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-       reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-       key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
-        
-       name, value= newvar.split('=')
-
-       # Specific treatment for PATH variable
-       if name.upper() == 'PATH':
-          value= os.path.normpath(value)
-          actualpath= queryValue(key, name)
-          
-          listpath= actualpath.split(';')                
-          if not (value in listpath):
-             value= actualpath + ';' + value
-             print "ADD %s to PATH" % (value,)
-          else :
-             value= actualpath
-            
-          if value:
-             _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-
-       _winreg.CloseKey(key)    
-       _winreg.CloseKey(reg)
 
     def get_outputs(self):
         return []
+
+
+    def run (self):
+       varenv.set_win_env(self.set_win_var)
 
 
  
@@ -588,9 +576,9 @@ class distx_sdist (sdist):
         """
         files= []
         for f in os.listdir(basedir):
-           f= joindir( basedir, f )
+           f = joindir( basedir, f )
            if os.path.isdir( f ):
-              files+= self.get_all_files( f )
+              files += self.get_all_files( f )
            else:
               files.append( os.path.normpath( f ) )
         return files
@@ -628,17 +616,19 @@ class DistxDistribution(Distribution):
     """
     
     def __init__(self,attrs=None):
-        self.external_data= None
-        self.namespace= None
-        self.scons_scripts= None
-        self.scons_parameters= None
-        self.set_env_var= None
+        self.external_data = None
+        self.namespace = None
+        self.scons_scripts = None
+        self.scons_parameters = None
+        self.set_win_var = None
+        self.set_lsb_var = None
 
         Distribution.__init__(self,attrs)
         
         self.cmdclass = { 'install_namespace' : install_namespace,
                           'install_external_data' : install_external_data,
-                          'set_env_var' : set_env_var,
+                          'set_win_var' : set_win_var,
+                          'set_lsb_var' : set_lsb_var,
                           'install' : distx_install,
                           'build_scons' : build_scons,
                           'build_namespace' : build_namespace, 
@@ -653,8 +643,12 @@ class DistxDistribution(Distribution):
         return bool(self.external_data)
 
 
-    def has_env_var(self):
-        return bool(self.set_env_var)
+    def has_win_var(self):
+        return bool(self.set_win_var)
+
+
+    def has_lsb_var(self):
+        return bool(self.set_lsb_var)
 
 
     def has_namespace(self):
@@ -669,4 +663,4 @@ def setup(**attrs):
     "Setup overloaded"
     from distutils.core import setup
     attrs['distclass'] = DistxDistribution
-    setup(**attrs)
+    return setup(**attrs)
