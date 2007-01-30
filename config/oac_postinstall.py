@@ -19,7 +19,7 @@
 __license__ = "Cecill-C"
 __revision__ =" $Id$ "
 
-__doc__ = """ Script to finalize OpenAlea setup """
+__doc__ = """ Script to finalize OpenAlea.Config setup """
 
 
 import os
