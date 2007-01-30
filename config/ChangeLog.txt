@@ -1,3 +1,5 @@
-27/11/06 : rename to OpenAlea.Config
-09/11/06
-* First release
+30/01/07 : Version 0.1.1
+    Add directory creation and environment variable setup
+    
+27/11/06 : Rename to OpenAlea.Config
+09/11/06 : First release

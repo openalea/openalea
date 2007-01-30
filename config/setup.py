@@ -2,11 +2,14 @@
   OpenAlea.Config : Copyright 2006 CIRAD, INRIA
 """
 
+
+# To generate the windows installer
+#   python setup.py bdist_wininst --install-script=finalize_setup.py
+
 import sys
 old_path=sys.path
 sys.path=['.']
 try:
-  
     from  openalea import config
 except ImportError, e:
     error= """Please, run the command:
@@ -21,6 +24,7 @@ except ImportError, e:
 sys.path= old_path
 
 from distutils.core import setup
+import version
 
 description= "OpenAlea namespace and configuration"
 author= "OpenAlea developers team"
@@ -29,7 +33,7 @@ license="Cecill-C"
 
 d = setup(
     name= "OpenAlea.Config",
-    version= config.version,
+    version= version.version,
     description= description,
     author=author,
     url=url,
@@ -40,34 +44,8 @@ d = setup(
     )
 
 
-if(not 'install' in d.commands): sys.exit(0)
+if('install' in d.commands):
 
-# create directories
-print "Creating directories:"
-
-import os
-
-dirs = (config.prefix_dir,
-        config.lib_dir, 
-        config.include_dir,
-        config.doc_dir,
-        config.share_dir,
-        config.bin_dir,
-        config.test_dir)
-	
-for directory in dirs:
-    try:
-        print directory
-        os.mkdir(directory)
-    except Exception, e:
-        print e
-
-print "Setting environment variables"
-
-import varenv
-
-varenv.set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.prefix_dir,)])
-varenv.set_win_env(['PATH=%s'%(config.prefix_dir,)])
-
-
+    import finalize_setup    
+    finalize_setup.main()
 

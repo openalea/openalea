@@ -54,6 +54,7 @@ import sys
 import os
 import time
 from optparse import OptionParser
+import version
 
 def pj(*args):
     if args[-1] == "":
@@ -66,7 +67,7 @@ class Config(object):
     Platform independant configuration information and utilities.
     """
     namespace= 'openalea'
-    version= '0.1.0'
+    version= version.version
     
     lib_dir='lib'
     include_dir='include'
