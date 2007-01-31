@@ -137,6 +137,7 @@ class XmlPackageReader(PackageReader):
         @param attr dict : minidom attribute dictionnary
         @param name : name of the attribute (string)
         """
+        
         return attr_dict[name].value.encode('ascii')
 
     def getText(self, xmlnode):

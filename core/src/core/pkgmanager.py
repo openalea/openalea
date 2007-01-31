@@ -39,15 +39,16 @@ class UnknowFileType(Exception):
 class PackageManager(object):
     """
     The PackageManager registers, and provide packages in a dictionnary
-    The package manager is a singleton
     """
 
-    __instance = None
+#     # The package manager is a singleton
 
-    def __new__(cls):
-        if cls.__instance is None:
-            cls.__instance = object.__new__(cls)
-        return cls.__instance
+#     __instance = None
+
+#     def __new__(cls):
+#         if cls.__instance is None:
+#             cls.__instance = object.__new__(cls)
+#         return cls.__instance
 
     
     def __init__ (self):
