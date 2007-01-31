@@ -25,7 +25,7 @@ setup(
     url=url,
     license=license,
 
-    scripts=["install.py", "create_config.py", "setup.py", "oac_postinstall.py"]
+    scripts=["install.py", "version.py", "create_config.py", "setup.py", "oac_postinstall.py"]
 
     )
 
