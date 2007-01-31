@@ -144,7 +144,6 @@ class SubGraphFactory(NodeFactory):
         subgraph.add_node(elt_id, node)
 
 
-
     def remove_element(self, elt_id):
         """
         Delete an element and its connection
@@ -380,6 +379,7 @@ class SubGraph(Node):
                 # test if the node has already be evaluated
                 if(not node_src in  self.evaluated):
                     # Recursive evaluation
+                    self.evaluated.add(node_src)
                     self.eval_node(node_src)
 
                 # copy the data
@@ -394,8 +394,7 @@ class SubGraph(Node):
 
         # evaluate the node itself
         node.eval()
-        self.evaluated.add(node)
-
+        
                 
     # Functions used by the node evaluator
     def eval(self):
