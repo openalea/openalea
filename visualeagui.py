@@ -30,12 +30,14 @@ from PyQt4 import QtCore
 
 from openalea.visualea.mainwindow import MainWindow
 
-from openalea.core.pkgmanager import PackageManager
 from openalea.core.session import Session
+
 
 
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
 
 
 def main(args):
@@ -55,8 +57,8 @@ def main(args):
 
 
     session = Session()
-    
-    win = MainWindow(session.pkgmanager, session, locals())
+
+    win = MainWindow(session.pkgmanager, session)
     win.show()
     
     #    splash.finish(win);
