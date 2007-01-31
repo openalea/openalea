@@ -1,8 +1,10 @@
 """
   OpenAlea.Config : Copyright 2006 CIRAD, INRIA
-
-  This script is use to generate source distribution of OpenAlea.Config
+  
 """
+
+#  This script is only used to generate source distribution of OpenAlea.Config
+#  Use setup.py to generate bdist_wininst 
 
 
 from distutils.core import setup
