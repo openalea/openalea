@@ -23,7 +23,8 @@ setup(
     url=url,
     license=license,
 
-    scripts=["install.py", "create_config.py", "setup.py", "oac_postinstall.py"]
+    scripts=["ChangeLog.txt",
+             "install.py", "create_config.py", "setup.py", "oac_postinstall.py"]
 
     )
 
