@@ -43,17 +43,7 @@ class Session:
 
         # map factory : node_instance
         self.workspaces = {}
-
         self.clear()
-
-
-        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
-                                      description= "",
-                                      category = "",
-                                      )
-        
-        self.user_pkg.add_factory(rootfactory)
-
 
        
     def add_workspace(self, factory):
@@ -99,7 +89,15 @@ class Session:
         pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
         self.user_pkg = pkg
 
+        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
+                                      description= "",
+                                      category = "",
+                                      )
+        
+        self.user_pkg.add_factory(rootfactory)
+
         self.pkgmanager.add_package(pkg)
+
 
         
 
@@ -132,43 +130,53 @@ class Session:
         writer.write_config(filename)
 
         self.session_filename = filename
+
+
+    def new_network(self, name, nin, nout, category, description):
+        """ Create a new graph in the user package """
+        pass
+    
+                    
             
 
 
 class workspace(object):
     """
-    A workspace contain a node
-    and has threaded execution capabilities
+    Abstraction to represent a couple node/factory
+    The user manipulates workspace without knowing if he
+    interacts with the node (data) or the factory (description)
+    or with a subgraph
+
+    Workspaces provide the same functions for subgraph and for
+    simple node. If graph operation occurs on simple node, an exception
+    will be raised
     """
 
+    def __init__(self, factory, node):
 
-    def __init__(self, node):
-
+        self.factory = factory
         self.node = node
-        self.is_running = False
 
-    def single_run(self):
+    # Subgraph Operations
+    def add_node(self, **kargs):
         """
-        Run the node one time
-        start_id, is the subnode id to execute (if any)
+        @param pkg : package name
+        @param category : category name
+        @param name : factory id
+        @param factory : factory instance
+
+        @return : element id
         """
+        pass
 
-        if(not self.is_running):
-            self.node.eval()
+    def connect(src_id, src_port, dst_id, dst_port):
+        pass
 
-    def start_continuous_execution(self):
-        """ Continuous execution """
+    # Node Operations
+    def set_input(self, index, obj):
+        pass
 
-        if(not self.is_running):
-            # Start the thread
-            
-            self.is_running = True
-
-    def stop_continuous_execution(self):
-
-        if(self.is_running):
-            # Stop the thread
-            
-            self.is_running = False
+    def run(self, elt_id = None):
+        pass
         
-        
+    
