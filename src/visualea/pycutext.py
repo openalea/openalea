@@ -22,7 +22,6 @@ __license__= "GPL"
 __revision__=" $Id$"
 
 import os, sys
-from code import InteractiveInterpreter as Interpreter
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QTextEdit, QTextCursor
 from PyQt4.QtCore import Qt
@@ -54,25 +53,23 @@ class PyCutExt(QTextEdit):
 
     """
     
-    def __init__(self, locals=None, log='', parent=None):
+    def __init__(self, interpreter, message="", log='', parent=None):
         """Constructor.
+        @param interpreter : InteractiveInterpreter in which
+        the code will be executed
 
-        The optional 'locals' argument specifies the dictionary in
-        which code will be executed; it defaults to a newly created
-        dictionary with key "__name__" set to "__console__" and key
-        "__doc__" set to None.
-
-        The optional 'log' argument specifies the file in which the
-        interpreter session is to be logged.
+        @param message : welcome message string
         
-        The optional 'parent' argument specifies the parent widget.
+        @param 'log' : specifies the file in which the
+        interpreter session is to be logged.
+
+        @param  'parent' : specifies the parent widget.
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
 
         QTextEdit.__init__(self, parent)
-        self.interpreter = Interpreter(locals)
-
+        self.interpreter = interpreter
         self.colorizer = SyntaxColor()
 
         # session log
@@ -141,6 +138,7 @@ class PyCutExt(QTextEdit):
                    (sys.version, sys.platform))
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
+        self.write(message+'\n\n')
         self.write(sys.ps1)
         
 
