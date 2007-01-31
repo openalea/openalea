@@ -66,9 +66,9 @@ def ALEAIncludes( env, target, includes, *args, **kwds ):
   Install the headers in the directory .../include/mypackage
   Define 'build' and 'install' target.
   """
-  inc = env.Install( "$build_includedir/$package_name", includes, *args, **kwds )
+  inc = env.Install( "$build_includedir/%s" % ( target, ), includes, *args, **kwds )
   env.Alias( "build", inc )
-  inst_inc = env.Install( "$includedir/$package_name", includes, *args, **kwds )
+  inst_inc = env.Install( "$includedir/%s" % ( target, ), includes, *args, **kwds )
   Alias( "install", inst_inc )
   return ( inc, inst_inc )
 
