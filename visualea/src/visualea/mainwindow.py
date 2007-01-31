@@ -28,7 +28,9 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
-from openalea.core.session import Session
+
+from code import InteractiveInterpreter as Interpreter
+from openalea.core import cli
 
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
 
@@ -39,11 +41,10 @@ from openalea.core.subgraph import SubGraphFactory
 
 class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
-    def __init__(self, pkgman, session, globals=None, parent=None):
+    def __init__(self, pkgman, session, parent=None):
         """
         @param pkgman : the package manager
         @param session : user session
-        @param globals : python interpreter globals
         @param parent : parent window
         """
 
@@ -59,7 +60,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.tabWorkspace.removeTab(0)
 
         # python interpreter
-        self.interpreterWidget = PyCutExt(locals=globals, parent=self.splitter)
+        interpreter = Interpreter()
+        cli.init_interpreter(interpreter, session)
+        self.interpreterWidget = PyCutExt(interpreter, cli.get_welcome_msg(), parent=self.splitter)
 
         # package tree view
         self.pkg_model = PkgModel(pkgman)
@@ -173,7 +176,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ open tab widget """
 
         # open tab widgets
-        for (factory, node) in litems:
+        for (factory, node) in self.session.workspaces.items():
             self.open_widget_tab(factory, node)
 
         # Close unnecessary tab
@@ -182,7 +185,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             f = widget.node.factory
             if(not self.session.workspaces.has_key(f)):
                 self.close_tab_workspace(i)
-
 
 
     def open_widget_tab(self, factory, node = None, caption=None):
@@ -316,7 +318,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def new_session(self):
 
-        self.session = Session()
+        self.session.clear()
         self.session.add_workspace(self.session.user_pkg['Workspace'])
         self.update_tabwidget()
         self.reinit_treeview()
