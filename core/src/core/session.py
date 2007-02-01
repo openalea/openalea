@@ -41,31 +41,20 @@ class Session:
 
         self.pkgmanager = PackageManager()
 
-        # map factory : node_instance
-        self.workspaces = {}
+        self.workspaces = []
         self.clear()
 
        
-    def add_workspace(self, factory):
-        """
-        Instanciate a new node
-        Return node_instance
-        """
+    def add_workspace(self, node):
 
-        # We open only one workspace by factory
-        # To avoid synchronisation between them
-        if(self.workspaces.has_key(factory)):
-            return self.workspaces[factory]
-        
-        node = factory.instantiate()
-        self.workspaces[factory] = node
+        self.workspaces.append(node)
 
         return node
 
 
-    def close_workspace(self, factory):
+    def close_workspace(self, index):
         try:
-            del(self.workspaces[factory])
+            del(self.workspaces[index])
         except:
             pass
 
@@ -75,9 +64,7 @@ class Session:
 
         self.session_filename = None
 
-        # map factory : node_instance
-        self.workspaces = {}
-
+        self.workspaces = []
 
         # init pkgmanager
         self.pkgmanager.clear()
@@ -111,8 +98,6 @@ class Session:
         reader.register_session(self)
 
         self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
-
-        #self.add_workspace(self.user_pkg['Workspace'])
         
         self.session_filename = filename
                 
