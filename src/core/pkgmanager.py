@@ -216,8 +216,10 @@ class PackageManager(object):
         
         readerlist=self.find_wralea_files()
 
-        for pkgreader in readerlist:
-            pkgreader.register_packages(self)
+        [x.register_packages(self) for x in readerlist]
+#         for pkgreader in readerlist:
+#             pkgreader.register_packages(self)
+
 
 
     # Dictionnary behaviour
