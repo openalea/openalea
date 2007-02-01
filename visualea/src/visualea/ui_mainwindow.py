@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Jan 23 18:51:57 2007
+# Created: Thu Feb  1 17:40:18 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -97,14 +97,14 @@ class Ui_MainWindow(object):
         self.menu_Wralea_2 = QtGui.QMenu(self.menu_Package)
         self.menu_Wralea_2.setObjectName("menu_Wralea_2")
 
-        self.menu_Workspace = QtGui.QMenu(self.menubar)
-        self.menu_Workspace.setObjectName("menu_Workspace")
-
         self.menu_Python = QtGui.QMenu(self.menubar)
         self.menu_Python.setObjectName("menu_Python")
 
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
+
+        self.menu_Workspace = QtGui.QMenu(self.menubar)
+        self.menu_Workspace.setObjectName("menu_Workspace")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -164,6 +164,9 @@ class Ui_MainWindow(object):
 
         self.actionSave_as = QtGui.QAction(MainWindow)
         self.actionSave_as.setObjectName("actionSave_as")
+
+        self.action_Export_to_Factory = QtGui.QAction(MainWindow)
+        self.action_Export_to_Factory.setObjectName("action_Export_to_Factory")
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
@@ -173,11 +176,6 @@ class Ui_MainWindow(object):
         self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.action_New_Network)
-        self.menu_Workspace.addAction(self.action_Close_current_workspace)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.action_Run)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.actionExport_as_Application)
         self.menu_Python.addAction(self.action_Execute_script)
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
@@ -185,6 +183,12 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionSave_as)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
+        self.menu_Workspace.addAction(self.action_Close_current_workspace)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_Run)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_Export_to_Factory)
+        self.menu_Workspace.addAction(self.actionExport_as_Application)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menu_Workspace.menuAction())
@@ -204,9 +208,9 @@ class Ui_MainWindow(object):
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
@@ -233,4 +237,6 @@ class Ui_MainWindow(object):
         self.action_Save_Session.setText(QtGui.QApplication.translate("MainWindow", "&Save Session", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Save_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save &as", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Export to Factory", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Export_to_Factory.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
 

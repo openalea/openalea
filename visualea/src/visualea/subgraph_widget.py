@@ -14,6 +14,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+
 __doc__="""
 Default Node Widget and Subgraph Widget
 """
@@ -117,17 +118,11 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.clear_scene()
         # create items
-        for eltid in self.factory.elt_factory.keys():
+        for eltid in self.node.node_id.keys():
             self.add_graphical_node(eltid)
 
-        if(self.factory.num_input>0):
-            self.add_graphical_node('in')
-            
-        if(self.factory.num_output>0):
-            self.add_graphical_node('out')
-
         # create connections
-        for ((dst_id, in_port), (src_id, out_port)) in self.factory.connections.items():
+        for ((dst_id, in_port), (src_id, out_port)) in self.node.connections.items():
 
             srcitem = self.graph_item[src_id]
             out_connector = srcitem.get_output_connector(out_port)
@@ -164,11 +159,19 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             if(item and isinstance(item, ConnectorIn) and
                isinstance(self.newedge.connector(), ConnectorOut)):
 
+                self.notification_enabled.append(False)
                 self.connect_node( self.newedge.connector(), item)
+                self.add_graphical_connection( self.newedge.connector(), item)
+                self.notification_enabled.pop()
+
 
             elif(item and isinstance(item, ConnectorOut) and
                  isinstance(self.newedge.connector(), ConnectorIn) ):
+
+                self.notification_enabled.append(False)
                 self.connect_node( item, self.newedge.connector())
+                self.add_graphical_connection( item, self.newedge.connector())
+                self.notification_enabled.pop()
         
             self.scene().removeItem(self.newedge)
             self.newedge = None
@@ -182,18 +185,24 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         point = newvalue.toPointF()
         
         self.notification_enabled.append(False)
-        self.factory.move_element(elt_id, (point.x(), point.y()))
+        self.node.set_data(elt_id, 'posx', point.x())
+        self.node.set_data(elt_id, 'posy', point.y())
         self.notification_enabled.pop()
 
 
     def notify(self, sender, event):
         """ Function called by observed objects """
-        
-        if(event
-           and event[0] == "factory_modified"
-           and len(self.notification_enabled)==0):
-            self.rebuild_scene()
 
+        if(len(self.notification_enabled)>0): return
+        if(not event): return
+        print event[0]
+        if( event[0] == "connection_modified"):
+            pass
+        elif( event[0] == "subgraph_modified"):
+            pass
+        elif( event[0] == "data_modified"):
+            pass
+        
 
     def scaleView(self, scaleFactor):
         factor = self.matrix().scale(scaleFactor, scaleFactor)\
@@ -203,6 +212,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             return
 
         self.scale(scaleFactor, scaleFactor)
+
 
     def start_edge(self, connector):
         """ Start to create an edge """
@@ -215,7 +225,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def add_graphical_node(self, eltid):
         """
         Add the node graphical representation in the widget
-        @param eltid : element id in the factory
+        @param eltid : element id 
         """
 
         subnode = self.node.get_node_by_id(eltid)
@@ -223,22 +233,14 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
 
-        caption = self.factory.get_caption(eltid)
+        caption = self.node.get_data(eltid, 'caption')
+
         try:
-            factory_name = self.node.get_node_by_id(eltid).factory.get_id()
-        except:
-            # There is no factory associated to the node
-            factory_name = eltid
-
-        if(caption):
-            caption = "%s ( %s )" %(factory_name, caption)
-        else:
-            caption = "%s" %(factory_name,)
-
-        position = self.factory.get_position(eltid)
-
-        if(position) : (x,y) = position
-        else : (x,y) = (10,10)
+            x = self.node.node_data[eltid]['posx']
+            y = self.node.node_data[eltid]['posy']
+        except Exception,e:
+            print e
+            (x,y) = (10,10)
 
         gnode = GraphicalNode(self, eltid, nin, nout, caption )
 
@@ -257,52 +259,18 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         return edge
         
-
-    def add_node_to_factory(self, pkg_id, factory_id, position):
-        """
-        @param pkg_id : package id string the factory is from 
-        @param factory_id : Factory id string
-        @param position : node position in the subgraph
-        @return the new GraphicalNode
-        """
-
-        self.notification_enabled.append(False)
-
-        eltid = self.factory.add_nodefactory(pkg_id, factory_id, (position.x(), position.y()))
-
-        # Try to instantiate
-        try:
-            self.factory.instantiate_id(eltid, self.node, [self.factory.get_id()])
-
-        except RecursionError:
-            mess = QtGui.QMessageBox.warning(self, "Error",
-                                             "A Subgraph cannot be contained in itself.")
-            
-            self.factory.remove_element(eltid)
-            self.notification_enabled.pop()
-            return None
-
-        self.notification_enabled.pop()
-        return self.add_graphical_node(eltid)
-
     
     def connect_node(self, connector_src, connector_dst):
         """
-        @return the new Edge
+        Convenience function
+        Connect the node in the subgraph
         """
+        
         if(connector_dst.is_connected()):
             return None
 
-        self.notification_enabled.append(False)
-
-        self.factory.connect(connector_src.parentItem().get_id(), connector_src.index(),
-                             connector_dst.parentItem().get_id(), connector_dst.index())
-        self.node.connect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
+        self.node.connect(connector_src.parentItem().get_id(), connector_src.index(),
                                 connector_dst.parentItem().get_id(), connector_dst.index())
-
-        self.notification_enabled.pop()
-        
-        return self.add_graphical_connection(connector_src, connector_dst)
 
 
     def open_item(self, elt_id):
@@ -377,8 +345,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.notification_enabled.append(False)
 
         self.remove_graphical_node(elt_id)
-        self.factory.remove_element(elt_id)
-        self.node.remove_node_by_id(elt_id)
+        self.node.remove_node(elt_id)
         
         self.notification_enabled.pop()
 
@@ -398,10 +365,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.notification_enabled.append(False)
 
         self.remove_graphical_connection(connector_src, connector_dst)
-        self.factory.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
-                               connector_dst.parentItem().get_id(), connector_dst.index()) 
-
-        self.node.disconnect_by_id(connector_src.parentItem().get_id(), connector_src.index(),
+        self.node.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
 
         self.notification_enabled.pop()
@@ -427,6 +391,35 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             event.ignore()
 
+            
+    def add_new_node(self, package_id, factory_id, position):
+        """ convenience function """
+
+        self.notification_enabled.append(False)
+
+        # Add new node
+        pkgmanager = self.node.factory.pkgmanager
+        pkg = pkgmanager[str(package_id)]
+        factory = pkg.get_factory(str(factory_id))
+        
+        position = self.mapToScene(position)
+            
+        try:
+            newnode = factory.instantiate([self.node.factory.get_id()])
+        except RecursionError:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                                 "A Subgraph cannot be contained in itself.")
+            self.notification_enabled.pop()
+            return
+
+        kdata = { 'posx' : position.x(),
+                  'posy' : position.y(),
+                  'caption' : factory_id }
+            
+        newid = self.node.add_node(newnode, kdata=kdata)
+        self.add_graphical_node(newid)
+        self.notification_enabled.pop()
+
 
     def dropEvent(self, event):
 
@@ -434,13 +427,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             pieceData = event.mimeData().data("openalea/nodefactory")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
             
-            packageid = QtCore.QString()
-            factoryid = QtCore.QString()
+            package_id = QtCore.QString()
+            factory_id = QtCore.QString()
             
-            dataStream >> packageid >> factoryid
+            dataStream >> package_id >> factory_id
 
-            # Add new node
-            self.add_node_to_factory(str(packageid), str(factoryid), self.mapToScene(event.pos()))
+            self.add_new_node(package_id, factory_id, event.pos())
 
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
@@ -492,16 +484,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.ismodified = True
         self.initialise(subnode)
 
-        
         # Set ToolTip
-        factory =  subnode.get_factory()
-        graphfactory = self.graph.node.get_factory()
-        doc = subnode.__doc__
-        
-        if(factory) : 
-            self.setToolTip( "Instance : %s\n"%(elt_id,) +
-                             "Caption : %s\n"%(graphfactory.get_caption(elt_id),)+
-                             "Doc : \n %s"%(doc,))
+        self.setToolTip( "Instance : %s\n"%(elt_id,) +
+                         "Doc : \n %s"%(subnode.__doc__,))
                 
         # Font and box size
         self.font = self.graph.font()
@@ -674,8 +659,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
     def run_node(self):
         """ Run the current node """
-        cnode = self.graph.node.get_node_by_id(self.elt_id)
-        self.graph.node.eval_as_expression(cnode)
+        self.graph.node.eval_as_expression(self.elt_id)
 
 
     def open_widget(self):
@@ -698,17 +682,18 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
     def set_caption(self):
         """ Open a input dialog to set node caption """
-        
-        factory =  self.graph.node.get_factory()
-        if(not factory): return
 
-        text = factory.get_caption(self.elt_id)
-        if(not text) : text = ""
+        pass
+#         factory =  self.graph.node.get_factory()
+#         if(not factory): return
+
+#         text = factory.get_caption(self.elt_id)
+#         if(not text) : text = ""
         
-        (result, ok) = QtGui.QInputDialog.getText(self.graph, "Node caption", "",
-                                   QtGui.QLineEdit.Normal, text)
-        if(ok):
-            factory.set_caption(self.elt_id, str(result))
+#         (result, ok) = QtGui.QInputDialog.getText(self.graph, "Node caption", "",
+#                                    QtGui.QLineEdit.Normal, text)
+#         if(ok):
+#             factory.set_caption(self.elt_id, str(result))
 
 
 

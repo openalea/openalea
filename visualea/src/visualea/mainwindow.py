@@ -98,12 +98,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.action_Save_Session, SIGNAL("activated()"), self.save_session)
         self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
 
-
+        self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
+        
         # final init
         self.session = session
         workspace_factory = self.session.user_pkg['Workspace']
-        node = self.session.add_workspace(workspace_factory)
-        self.open_widget_tab(workspace_factory, node)
+        node = workspace_factory.instantiate()
+        self.session.add_workspace(node)
+        self.open_widget_tab(node)
 
 
     def about(self):
@@ -153,11 +155,33 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ Close current workspace """
 
         cindex = self.tabWorkspace.currentIndex()
-        # Update session
-        factory = self.index_nodewidget[cindex].node.factory
-        self.session.close_workspace(factory)
 
-        self.close_tab_workspace(cindex)
+        subgraph = self.index_nodewidget[cindex].node
+
+        # Generate factory if user want
+        try :
+            modified = subgraph.graph_modified
+        except:
+            modified = False
+            
+        if(modified):
+
+            ret = QtGui.QMessageBox.question(self, "Close Workspace",
+                                             "Subgraph has been modified.\n"+
+                                             "Do you want to report changes to factory ?\n",
+                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+            
+            if(ret == QtGui.QMessageBox.Yes):
+                subgraph.to_factory(subgraph.factory)
+        
+
+        # Update session
+        try:
+            factory = self.index_nodewidget[cindex].node.factory
+            self.session.close_workspace(factory)
+            self.close_tab_workspace(cindex)
+        except:
+            pass
         
 
     def close_tab_workspace(self, cindex):
@@ -176,18 +200,22 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ open tab widget """
 
         # open tab widgets
-        for (factory, node) in self.session.workspaces.items():
-            self.open_widget_tab(factory, node)
-
-        # Close unnecessary tab
-        for i in range(len(self.index_nodewidget)-1, -1, -1):
+        for i in range(len(self.session.workspaces)):
+            node = self.session.workspaces[i]
             widget = self.index_nodewidget[i]
-            f = widget.node.factory
-            if(not self.session.workspaces.has_key(f)):
+            if(node != widget.node):
                 self.close_tab_workspace(i)
+            
+            self.open_widget_tab(node, pos = i)
+
+        for i in range( len(self.session.workspaces),
+                        len(self.index_nodewidget)):
+            self.close_tab_workspace(i)
+
+            
 
 
-    def open_widget_tab(self, factory, node = None, caption=None):
+    def open_widget_tab(self, node, caption=None, pos = -1):
         """
         Open a widget in a tab giving the factory and an instance
         if node is null, a new instance is allocated
@@ -198,9 +226,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
             f = widget.node.factory
-            if(factory == f):
+            if(node.factory == f):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
+
+        factory = node.factory
 
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -214,7 +244,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         if(not caption) : caption = factory.get_id()
         
-        index = self.tabWorkspace.addTab(container, caption)
+        index = self.tabWorkspace.insertTab(pos, container, caption)
         self.tabWorkspace.setCurrentIndex(index)
         self.index_nodewidget.append(widget)
 
@@ -238,9 +268,15 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ Run the active workspace """
 
         cindex = self.tabWorkspace.currentIndex()
-        w = self.tabWorkspace.widget(cindex)
-
         self.index_nodewidget[cindex].node.eval()
+        
+
+    def export_to_factory(self):
+        """ Export current workspace subgraph to its factory """
+
+        cindex = self.tabWorkspace.currentIndex()
+        subgraph = self.index_nodewidget[cindex].node
+        subgraph.to_factory(subgraph.factory)
 
 
     def contextMenuEvent(self, event):
@@ -267,6 +303,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         action = menu.addAction("Close")
         self.connect(action, SIGNAL("activated()"), self.close_workspace)
+
+        action = menu.addAction("Run")
+        self.connect(action, SIGNAL("activated()"), self.run)
+
+        action = menu.addAction("Export to Factory")
+        self.connect(action, SIGNAL("activated()"), self.export_to_factory)
 
         menu.move(event.globalPos())
         menu.show()
@@ -298,8 +340,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
             self.reinit_treeview()
 
-            node = self.session.add_workspace(newfactory)
-            self.open_widget_tab(newfactory, node)
+            node = newfactory.instantiate()
+            self.session.add_workspace(node)
+            self.open_widget_tab(node)
         
 
     def exec_python_script(self):
@@ -310,16 +353,16 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         filename = str(filename)
         if(not filename) : return
-        
+
         file = open(filename, 'r')
-        sources = file.read()
-        self.interpreterWidget.get_interpreter().runsource(sources, str(filename))
+        for sourceline in file:
+            self.interpreterWidget.get_interpreter().runsource(sourceline, filename)
 
 
     def new_session(self):
 
         self.session.clear()
-        self.session.add_workspace(self.session.user_pkg['Workspace'])
+        self.session.add_workspace(self.session.user_pkg['Workspace'].instantiate())
         self.update_tabwidget()
         self.reinit_treeview()
 
@@ -353,9 +396,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         if(not filename) : return
 
         self.session.save(filename)
-
-
-        
+       
        
 
 import ui_newgraph

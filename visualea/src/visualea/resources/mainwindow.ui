@@ -140,16 +140,6 @@
     <addaction name="separator" />
     <addaction name="action_New_Network" />
    </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="actionExport_as_Application" />
-   </widget>
    <widget class="QMenu" name="menu_Python" >
     <property name="title" >
      <string>P&amp;ython</string>
@@ -166,6 +156,17 @@
     <addaction name="actionSave_as" />
     <addaction name="separator" />
     <addaction name="action_Quit" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="action_Export_to_Factory" />
+    <addaction name="actionExport_as_Application" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -289,6 +290,14 @@
   <action name="actionSave_as" >
    <property name="text" >
     <string>Save &amp;as</string>
+   </property>
+  </action>
+  <action name="action_Export_to_Factory" >
+   <property name="text" >
+    <string>&amp;Export to Factory</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>
