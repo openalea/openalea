@@ -110,9 +110,18 @@ def ALEAWrapper( env, python_dir, target, source, *args, **kwds ):
 ##   Alias( "install", fi )
 ##   return fi
 
+def ALEAGlob( env, pattern, dir = '.' ):
+    import os, fnmatch
+    files = []
+    for file in os.listdir( env.Dir(dir).srcnode().abspath ):
+        if fnmatch.fnmatch(file, pattern) :
+            files.append( os.path.join( dir, file ) )
+    return files
+
 SConsEnvironment.ALEALibrary = ALEALibrary
 SConsEnvironment.ALEAIncludes = ALEAIncludes
 SConsEnvironment.ALEAProgram = ALEAProgram
 SConsEnvironment.ALEAWrapper = ALEAWrapper
+SConsEnvironment.ALEAGlob = ALEAGlob
 ##SConsEnvironment.ALEAPython = ALEAPython
 
