@@ -373,7 +373,7 @@ class NodeWidget(AbstractListener):
 
         # register to observed node and factory
         self.initialise(node)
-        self.initialise(node.get_factory())
+        #self.initialise(node.get_factory())
 
 
     def release_listeners(self):
@@ -383,7 +383,7 @@ class NodeWidget(AbstractListener):
         """
 
         self.node.unregister_listener(self)
-        self.node.get_factory().unregister_listener(self)
+        #self.node.get_factory().unregister_listener(self)
 
 
     def get_node(self):
@@ -393,14 +393,13 @@ class NodeWidget(AbstractListener):
     def set_node(self, node):
         self.__node = node
 
-
-    def get_factory(self):
-        return self.__node.get_factory()
-
-
     node = property(get_node, set_node)
 
-    factory = property(get_factory)
+
+    # def get_factory(self):
+#         return self.__node.get_factory()
+
+#     factory = property(get_factory)
     
 
     def notify(self, sender, event):
