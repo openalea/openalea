@@ -457,5 +457,5 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
             widget= self.widgets[input_index]
             if widget: 
-                self.widgets[input_index].notify(sender, event)
-                self.widgets[input_index].update_state()
+                widget.notify(sender, event)
+                widget.update_state()
