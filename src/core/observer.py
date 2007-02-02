@@ -24,6 +24,10 @@ __revision__=" $Id$ "
 ###############################################################################
 
 
+import weakref
+
+
+
 class Observed(object):
     """ Observed Object """
 
@@ -32,14 +36,20 @@ class Observed(object):
         self.listeners = set()
 
     def register_listener(self, listener):
-        self.listeners.add(listener)
+
+        wr = weakref.ref(listener, self.unregister_listener)
+        self.listeners.add(wr)
     
     def unregister_listener(self, listener):
         self.listeners.discard(listener)
 
     def notify_listeners(self, event=None):
-        for l in self.listeners :
+        for wr in self.listeners :
+            l = wr()
             l.notify(self, event)
+
+    def __del__(self):
+        print self.listeners
 
 
 class AbstractListener(object):
@@ -48,8 +58,10 @@ class AbstractListener(object):
     def initialise (self, observed):
         observed.register_listener(self)
 
-
     def notify (self, sender, event=None):
         raise RuntimeError()
 
     
+
+    
+
