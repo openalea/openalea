@@ -242,6 +242,13 @@ class PackageManager(object):
     def values(self):
         return self.pkgs.values()
 
+    # Convenience functions
+    def get_node(self, pkg_id, factory_id):
+        """ Return a node instance giving a pkg_id and a factory_id """
+        pkg = self[pkg_id]
+        factory = pkg[factory_id]
+        return factory.instantiate()
+
 
 
 class Category(set):

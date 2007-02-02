@@ -118,8 +118,10 @@ Ouput 0 : Transmit the stored value
         self.add_output( name = "out", interface = IInt) 
 
     def __call__(self, inputs):
-        
-        return ( int(inputs[0]), )
+
+        v = int(inputs[0])
+        self.set_caption(str(v))
+        return ( v, )
 
 
 class Float(Node):
