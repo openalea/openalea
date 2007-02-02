@@ -93,6 +93,7 @@ class Node(Observed):
         self.caption = newcaption
         self.notify_listeners( ("caption_modified",) )
 
+
     # Status
     def unvalidate_input(self, input_index):
         """ Unvalidate , and notify listeners """
@@ -381,15 +382,18 @@ class NodeWidget(AbstractListener):
         self.initialise(node)
         #self.initialise(node.get_factory())
 
+    def __del__(self):
+        print 'DESTROY WIDGET'
 
-    def release_listeners(self):
-        """
-        Unregister this object in observed instance
-        !! This function must be called before widget destruction !! 
-        """
+#     def release_listeners(self):
+#         """
+#         Unregister this object in observed instance
+#         !! This function must be called before widget destruction !! 
+#         """
 
-        self.node.unregister_listener(self)
-        #self.node.get_factory().unregister_listener(self)
+#         self.node.unregister_listener(self)
+#         #self.node.get_factory().unregister_listener(self)
+
 
 
     def get_node(self):
