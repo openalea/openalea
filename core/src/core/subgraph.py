@@ -72,6 +72,28 @@ class SubGraphFactory(NodeFactory):
             self.doc = ""
 
 
+    def add_nodefactory(self, elt_id, (pkg_id, factory_id)):
+        """
+        Add a node description to the factory
+        @param elt_id : element id
+        @param pkg_id, factory_id : factory description
+        """
+
+        self.elt_factory[elt_id] = (pkg_id, factory_id)
+        self.elt_data[elt_id] = {}
+
+
+    def add_connection(self, src_id, port_src, dst_id, port_dst):
+        """ Connect 2 elements :
+        @param src_id : source node id
+        @param port_src : source output port number
+        @param dst_id : destination node id
+        @param port_dst : destination input port number
+        """
+
+        self.connections[(dst_id, port_dst)] = (src_id, port_src)
+
+
     def get_xmlwriter(self):
         """ Return an instance of a xml writer """
 
@@ -153,7 +175,6 @@ class SubGraphFactory(NodeFactory):
 
         if(node == None):
                 node = self.instantiate()
-
         try:
             if(edit):
                 from openalea.visualea.subgraph_widget import EditSubGraphWidget
@@ -221,13 +242,13 @@ class SubGraph(Node):
         sgfactory.elt_data = {}
         
         # Create node if necessary
-        for id in self.node_id.keys():
+        for nid in self.node_id.keys():
 
-            node = self.node_id[id]
+            node = self.node_id[nid]
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
 
-            sgfactory.elt_factory[id] = (pkg_id, factory_id)
+            sgfactory.elt_factory[nid] = (pkg_id, factory_id)
 
         # Data
         sgfactory.elt_data = self.node_data
@@ -263,9 +284,9 @@ class SubGraph(Node):
         for (src_id, outport) in self.connections.values():
             with_output.add(src_id)
 
-        for id in self.node_id.keys():
-            if(not id in with_output):
-                result.append(id)
+        for nid in self.node_id.keys():
+            if(not nid in with_output):
+                result.append(nid)
 
         return result
 
@@ -283,28 +304,27 @@ class SubGraph(Node):
         if(node_id == None):
             l = self.get_base_nodes()
 
-            for id in l:
-                self.eval_node(id)
+            for nid in l:
+                self.eval_node(nid)
         else:
             self.eval_node(node_id)
 
 
-    def eval_node(self, id):
+    def eval_node(self, elt_id):
         """
-        Evaluate a particular Node identified by id
+        Evaluate a particular Node identified by elt_id
         Do not call directly this function, use instead eval_as expression
-
         """
 
         try:
-            node = self.node_id[id]
+            node = self.node_id[elt_id]
         except:
             raise
 
         # evaluate the node inputs
         for iport in range(node.get_nb_input()):
             try:
-                (id_src, port_src)=self.connections[(id, iport)]
+                (id_src, port_src)=self.connections[(elt_id, iport)]
 
                 # test if the node has already be evaluated
                 if(not id_src in  self.evaluated):
@@ -362,7 +382,7 @@ class SubGraph(Node):
 
         if(not elt_id):
             elt_id = "%s_%i"%(node.factory.get_id(), self.id_cpt)
-        
+
         self.node_id[elt_id] = node
         self.node_data[elt_id] = kdata
         
@@ -419,34 +439,33 @@ class SubGraph(Node):
         """
 
         try:
-            del(self.connections[ (dst_id, dst_id) ])
-            self.notify_listeners(("connection_modified",))
+            del(self.connections[ (dst_id, port_dst) ])
         except:
             return
 
+        node_dst = self.node_id[dst_id]
         node_dst.set_input_state(port_dst, "disconnected")
+        self.notify_listeners(("connection_modified",))
         self.graph_modified = True
 
 
-    def set_data(self, id, key, val):
+    def set_data(self, elt_id, key, val):
         """ Define a data for node id """
 
         try:
-            self.node_data[id][key] = val
+            self.node_data[elt_id][key] = val
             self.notify_listeners(("data_modified",))
             self.graph_modified = True
         except:
             pass
 
 
-    def get_data(self, id, key):
+    def get_data(self, elt_id, key):
         """ Return the data key for node id """
         
-        return self.node_data[id][key]
+        return self.node_data[elt_id][key]
 
         
-
-
 
 
 class SubgraphInput(Node):
@@ -502,85 +521,3 @@ class SubgraphOutput(Node):
         return True
 
     
-
-
-# OLD SUBGRAPH FACTORY FUNCTIONS
-
-#         def remove_element(self, elt_id):
-#         """
-#         Delete an element and its connection
-#         @param elt_id : the element id identifying the node
-
-#         """
-
-#         try:
-#             del(self.elt_factory[elt_id])
-#             del(self.elt_data[elt_id])
-#         except:
-#             return
-        
-#         key_list = []
-
-#         # Delete the connection
-#         for (dst_id, input_port) in self.connections:
-
-#             (src_id, output_port) = self.connections[ (dst_id, input_port) ]
-            
-#             if(src_id == elt_id or dst_id == elt_id ):
-#                 key_list.append( (dst_id, input_port) )
-
-#         for k in key_list:
-#             del(self.connections[k])
-
-#         self.notify_listeners(("factory_modified",))
-
-
-#     def add_nodefactory(self, package_id, nodefactory_id, kdata = None):
-#         """
-#         Add an element to the SubGraph
-#         @param package_id : the package id owning the nodefactory
-#         @param nodefactory_id : the nodefactory id
-#         @param kdata : data dictionnary to associate to element
-
-#         @return : the subgraph element ID ( elt_id )
-#         """
-
-#         id = "%s_%i"%(nodefactory_id, self.id_cpt)
-#         self.id_cpt += 1
-
-#         self.elt_factory[id] = (package_id, nodefactory_id)
-#         self.elt_data[id] = kdata
-
-#         self.notify_listeners(("factory_modified",))
-        
-#         return id
-
-
-#     def connect(self, elt_id_src, port_src, elt_id_dst, port_dst):
-#         """ Connect 2 elements :
-#         @param elt_id_src : source element id
-#         @param port_src : source output port number
-#         @param elt_id_dst : destination element id
-#         @param port_dst : destination input port number
-#         """
-        
-#         self.connections[ (elt_id_dst, port_dst) ] = (elt_id_src, port_src)
-#         self.notify_listeners(("factory_modified",))
-
-
-#     def disconnect(self, elt_id_src, port_src, elt_id_dst, port_dst):
-#         """
-#         Disconnect 2 elements :
-#         @param elt_id_src : source element id
-#         @param port_src : source output port number
-#         @param elt_id_dst : destination element id
-#         @param port_dst : destination input port number
-#         """
-
-#         try:
-#             del(self.connections[ (elt_id_dst, port_dst) ])
-#         except:
-#             return
-#         self.notify_listeners(("factory_modified",))
-
-
