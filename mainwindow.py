@@ -29,8 +29,8 @@ import ui_mainwindow
 from pycutext import PyCutExt
 
 
-from code import InteractiveInterpreter as Interpreter
 from openalea.core import cli
+from code import InteractiveInterpreter as Interpreter
 
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
 
@@ -157,7 +157,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         cindex = self.tabWorkspace.currentIndex()
 
         subgraph = self.index_nodewidget[cindex].node
-
         # Generate factory if user want
         try :
             modified = subgraph.graph_modified
@@ -202,17 +201,18 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         # open tab widgets
         for i in range(len(self.session.workspaces)):
             node = self.session.workspaces[i]
-            widget = self.index_nodewidget[i]
-            if(node != widget.node):
-                self.close_tab_workspace(i)
+
+            try:
+                widget = self.index_nodewidget[i]
+                if(node != widget.node):
+                    self.close_tab_workspace(i)
+            except: pass
             
             self.open_widget_tab(node, pos = i)
 
         for i in range( len(self.session.workspaces),
                         len(self.index_nodewidget)):
             self.close_tab_workspace(i)
-
-            
 
 
     def open_widget_tab(self, node, caption=None, pos = -1):
@@ -354,9 +354,19 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         filename = str(filename)
         if(not filename) : return
 
+        import code
         file = open(filename, 'r')
-        for sourceline in file:
-            self.interpreterWidget.get_interpreter().runsource(sourceline, filename)
+        
+        sources = ''
+        compiled = None
+        
+        for line in file:
+            sources += line
+            compiled = code.compile_command(sources, filename)
+
+            if(compiled):
+                self.interpreterWidget.get_interpreter().runcode(compiled)
+                sources = ''
 
 
     def new_session(self):
@@ -379,16 +389,38 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.update_tabwidget()
         self.reinit_treeview()
 
-        
+
+    def export_subgraph(self):
+        """ Export all open subgraph to there factory"""
+
+        ret = QtGui.QMessageBox.question(self, "Export",
+                                         "Subgraphs has been modified.\n"+
+                                         "Do you want to report changes to factory ?\n",
+                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+
+        if(ret == QtGui.QMessageBox.No): return
+
+        for widget in self.index_nodewidget:
+
+            subgraph = widget.node
+            try:
+                subgraph.to_factory(subgraph.factory)
+            except:
+                pass
+
+
     def save_session(self):
 
         if(not self.session.session_filename):
             self.save_as()
-        self.session.save(self.session.session_filename)
+        else :
+            self.export_subgraph()
+            self.session.save(self.session.session_filename)
 
         
     def save_as(self):
 
+        self.export_subgraph()
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "OpenAlea Session",  QtCore.QDir.homePath(), "XML file (*.xml)")
 
