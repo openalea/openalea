@@ -81,6 +81,7 @@ class SubGraphFactory(NodeFactory):
 
         self.elt_factory[elt_id] = (pkg_id, factory_id)
         self.elt_data[elt_id] = {}
+        self.elt_data[elt_id]['caption'] = factory_id
 
 
     def add_connection(self, src_id, port_src, dst_id, port_dst):

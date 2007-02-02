@@ -51,7 +51,6 @@ class Node(Observed):
 
     def __init__(self):
 
-        # Effective values
         Observed.__init__(self)
 
         # Values
@@ -74,6 +73,9 @@ class Node(Observed):
 
         # Factory
         self.factory = None
+
+        # Caption
+        self.caption = ''
         
 
     def __call__(self, inputs = ()):
@@ -86,6 +88,10 @@ class Node(Observed):
     def get_factory(self):
         return self.factory
 
+
+    def set_caption(self, newcaption):
+        self.caption = newcaption
+        self.notify_listeners( ("caption_modified",) )
 
     # Status
     def unvalidate_input(self, input_index):
