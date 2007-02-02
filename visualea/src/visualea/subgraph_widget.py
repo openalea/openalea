@@ -99,11 +99,17 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def clear_scene(self):
         """ Remove all items from the scene """
 
+        # Close Dialog
         for (d,w) in self.node_dialog.values():
             d.close()
             w.release_listeners()
 
         self.node_dialog = {}
+
+        # Close items
+        for item in self.graph_item.values():
+            item.release_listeners()
+            
         self.graph_item = {}
         scene = self.scene()
         del(scene)
@@ -195,13 +201,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         if(len(self.notification_enabled)>0): return
         if(not event): return
-        print event[0]
+
         if( event[0] == "connection_modified"):
-            pass
+            self.rebuild_scene()
         elif( event[0] == "subgraph_modified"):
-            pass
+            self.rebuild_scene()
         elif( event[0] == "data_modified"):
-            pass
+            self.rebuild_scene()
         
 
     def scaleView(self, scaleFactor):
@@ -233,13 +239,15 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
 
-        caption = self.node.get_data(eltid, 'caption')
+        try:
+            caption = self.node.get_data(eltid, 'caption')
+        except:
+            caption = str(subnode.__class__)
 
         try:
-            x = self.node.node_data[eltid]['posx']
-            y = self.node.node_data[eltid]['posy']
-        except Exception,e:
-            print e
+            x = self.node.get_data(eltid, 'posx')
+            y = self.node.get_data(eltid, 'posy')
+        except:
             (x,y) = (10,10)
 
         gnode = GraphicalNode(self, eltid, nin, nout, caption )
@@ -334,6 +342,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             pass
         
         item = self.graph_item[elt_id]
+        item.release_listeners()
         item.remove_connections()
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
@@ -467,9 +476,11 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         scene = graphWidget.scene()
 
         QtGui.QGraphicsItem.__init__(self)
+
         self.elt_id = elt_id
-        
         self.graph = graphWidget
+        self.subnode = self.graph.node.get_node_by_id(elt_id)
+
         self.newPos = QtCore.QPointF()
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsMovable +
@@ -478,15 +489,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         self.caption = caption
 
-        subnode = self.graph.node.get_node_by_id(elt_id)
-
         # Record item as a listener for the subnode
         self.ismodified = True
-        self.initialise(subnode)
+        self.initialise(self.subnode)
 
         # Set ToolTip
         self.setToolTip( "Instance : %s\n"%(elt_id,) +
-                         "Doc : \n %s"%(subnode.__doc__,))
+                         "Doc : \n %s"%(self.subnode.__doc__,))
                 
         # Font and box size
         self.font = self.graph.font()
@@ -504,13 +513,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.connector_in = []
         self.connector_out = []
         for i in range(ninput):
-            (name, interface) = subnode.input_desc[i]
+            (name, interface) = self.subnode.input_desc[i]
             if(interface): interface = str(interface).split('.')[-1]
             tip = "%s (%s)"%(name, interface)
             self.connector_in.append(ConnectorIn(self.graph, self, scene, i, ninput, tip))
             
         for i in range(noutput):
-            (name, interface) = subnode.output_desc[i]
+            (name, interface) = self.subnode.output_desc[i]
             if(interface): interface = str(interface).split('.')[-1]
             tip = "%s (%s)"%(name, interface)
             self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput, tip))
@@ -523,6 +532,15 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             self.ismodified = sender.modified
             self.update()
             QtGui.QApplication.processEvents()
+
+
+    def release_listeners(self):
+        """
+        Unregister this object in observed instance
+        !! This function must be called before widget destruction !! 
+        """
+
+        self.subnode.unregister_listener(self)
 
 
     def get_id(self):
@@ -599,7 +617,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         textRect = QtCore.QRectF(0, 0, self.sizex, self.sizey)
         painter.setFont(self.font)
         painter.setPen(QtCore.Qt.black)
-        painter.drawText(textRect, QtCore.Qt.AlignCenter, self.caption)
+        painter.drawText(textRect, QtCore.Qt.AlignCenter,
+                         "%s %s"%(self.caption, self.subnode.caption))
 
 
     def itemChange(self, change, value):
