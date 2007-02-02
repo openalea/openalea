@@ -111,17 +111,43 @@ def ALEAWrapper( env, python_dir, target, source, *args, **kwds ):
 ##   return fi
 
 def ALEAGlob( env, pattern, dir = '.' ):
-    import os, fnmatch
+    import os, fnmatch, glob
     files = []
-    for file in os.listdir( env.Dir(dir).srcnode().abspath ):
-        if fnmatch.fnmatch(file, pattern) :
-            files.append( os.path.join( dir, file ) )
+    dirs = []
+    is_multidirs= False
+    if '*' in dir:
+        here= env.Dir('.').srcnode().abspath
+        d= os.path.join(here,dir)
+        dirs= filter(os.path.isdir,glob.glob(d))
+        is_multidirs= True
+    else: 
+        here= env.Dir(dir).srcnode().abspath
+        dirs= [here]
+
+    for d in dirs: 
+        for file in os.listdir( d ):
+            if fnmatch.fnmatch(file, pattern) :
+                if is_multidirs:
+                    files.append( os.path.join( os.path.basename(d), file ) )
+                else:
+                    files.append( os.path.join( dir, file ) )
     return files
+
+def ALEAGlobDir( env, pattern, dir = '.' ):
+    import os, fnmatch, glob
+
+    here= env.Dir(dir).srcnode().abspath
+    d= os.path.join(here,pattern)
+    dirs= filter(os.path.isdir,glob.glob(d))
+    dirs= map( lambda d: d.replace(here,dir), dirs )
+
+    return dirs
 
 SConsEnvironment.ALEALibrary = ALEALibrary
 SConsEnvironment.ALEAIncludes = ALEAIncludes
 SConsEnvironment.ALEAProgram = ALEAProgram
 SConsEnvironment.ALEAWrapper = ALEAWrapper
 SConsEnvironment.ALEAGlob = ALEAGlob
+SConsEnvironment.ALEAGlobDir = ALEAGlobDir
 ##SConsEnvironment.ALEAPython = ALEAPython
 
