@@ -102,13 +102,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # Close Dialog
         for (d,w) in self.node_dialog.values():
             d.close()
-            w.release_listeners()
+            #w.release_listeners()
 
         self.node_dialog = {}
 
-        # Close items
-        for item in self.graph_item.values():
-            item.release_listeners()
+#         # Close items
+#         for item in self.graph_item.values():
+#             item.release_listeners()
             
         self.graph_item = {}
         scene = self.scene()
@@ -336,13 +336,14 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # close dialog
         try:
             (dialog, widget) = self.node_dialog[elt_id]
-            widget.release_listeners()
+            #widget.release_listeners()
             dialog.close()
+            del(self.node_dialog[elt_id])
         except KeyError:
             pass
         
         item = self.graph_item[elt_id]
-        item.release_listeners()
+        #item.release_listeners()
         item.remove_connections()
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
@@ -534,13 +535,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             QtGui.QApplication.processEvents()
 
 
-    def release_listeners(self):
-        """
-        Unregister this object in observed instance
-        !! This function must be called before widget destruction !! 
-        """
+#     def release_listeners(self):
+#         """
+#         Unregister this object in observed instance
+#         !! This function must be called before widget destruction !! 
+#         """
 
-        self.subnode.unregister_listener(self)
+#         self.subnode.unregister_listener(self)
 
 
     def get_id(self):
