@@ -132,18 +132,30 @@ class XmlPackageReader(PackageReader):
         if(self.doc): self.doc.unlink()
         self.doc = parse(filename)
 
-    def get_attribute(self, attr_dict, name):
+    def get_attribute(self, attr_dict, name, default):
         """ Return the ascii string of an attribute
         @param attr dict : minidom attribute dictionnary
         @param name : name of the attribute (string)
+        @param default : default value if attribute does not exist
         """
-        
-        return attr_dict[name].value.encode('ascii')
 
-    def getText(self, xmlnode):
-        """ Return the text of an xmlnode"""
-        val = xmlnode.childNodes[0].nodeValue
-        return val.strip()
+        try:
+            return attr_dict[name].value.encode('ascii')
+        except:
+            return default
+
+    def getText(self, xmlnode, default):
+        """
+        Return the text of an xmlnode
+        @param xmlnode
+        @param default : default value
+        """
+
+        try:
+            val = xmlnode.childNodes[0].nodeValue
+            return val.strip()
+        except:
+            return default
 
  
     def get_root_element(self):
@@ -161,13 +173,10 @@ class XmlPackageReader(PackageReader):
         for path in self.get_root_element().getElementsByTagName("wraleapath"):
 
             attr = path.attributes
-            try:
-                value = self.get_attribute(attr, "value")
-            except:
-                raise FormatError("<wraleapath> must have value attribute")
+            value = self.get_attribute(attr, "value", None)
 
-
-            pkgmanager.add_wraleapath(value)
+            if(value):
+                pkgmanager.add_wraleapath(value)
 
 
     def get_xml_packages(self, pkgmanager):
@@ -180,20 +189,19 @@ class XmlPackageReader(PackageReader):
         for package in self.get_root_element().getElementsByTagName("package"):
 
             attr = package.attributes
-            try:
-                name = self.get_attribute(attr, "name")
-            except:
+            name = self.get_attribute(attr, "name", None)
+            if(not name):
                 raise FormatError("<package> must have name attribute")
 
             metainfo = {}
 
             for info in ("license", "version",
                          "authors", "institute", "description", "publication", "url"):
+
                 try:
-                    value = self.getText(package.getElementsByTagName(info)[0])
-                    metainfo[info] = value
-                except:
-                    pass
+                    value = self.getText(package.getElementsByTagName(info)[0], None)
+                    if(value) : metainfo[info] = value
+                except : pass
 
             pkg = Package(name, metainfo)
 
@@ -219,26 +227,25 @@ class XmlPackageReader(PackageReader):
         for nodefactory in xmlnode.getElementsByTagName("nodefactory"):
 
             attr = nodefactory.attributes
-            try:
-                name = self.get_attribute(attr, "name")
-                category = self.get_attribute(attr, "category")
-            except:
+            name = self.get_attribute(attr, "name", None)
+            category = self.get_attribute(attr, "category", None)
+            
+            if(not name or not category):
                 raise FormatError("<nodefactory> must have name and category attributes")
 
-            try: desc = self.getText(nodefactory.getElementsByTagName("description")[0])
-            except: desc = "" 
+            desc = self.getText(nodefactory.getElementsByTagName("description")[0], "")
 
-            try:
-                node = nodefactory.getElementsByTagName("node")[0]
-                nodename = self.get_attribute(node.attributes, "class")
-                nodemodule = self.get_attribute(node.attributes, "module")
+            node = nodefactory.getElementsByTagName("node")[0]
+
+            nodename = self.get_attribute(node.attributes, "class", None)
+            nodemodule = self.get_attribute(node.attributes, "module", None)
                 
-                widget = nodefactory.getElementsByTagName("widget")[0]
-                widgetname = self.get_attribute(widget.attributes, "class")
-                widgetmodule = self.get_attribute(widget.attributes, "module")
-            except:
-                raise FormatError('<nodefactory> must have <node module= "..." class="..."/> ' +
-                                  'and <widget module="..." class="..."/>')
+            widget = nodefactory.getElementsByTagName("widget")[0]
+            widgetname = self.get_attribute(widget.attributes, "class", None)
+            widgetmodule = self.get_attribute(widget.attributes, "module", None)
+
+            if(not nodename or not nodemodule):
+                raise FormatError('<nodefactory> must have <node module= "..." class="..."/> ')
             
             nf = NodeFactory(name = name, 
                              description = desc, 
@@ -258,33 +265,23 @@ class XmlPackageReader(PackageReader):
         """ Parse Xml to retrieve subgraphfactory info """
 
         factorylist = []
-        map_id = {} # mapping between xml id and subgraph id
 
         for subgraph in xmlnode.getElementsByTagName("subgraph"):
             
             attr = subgraph.attributes
-            try:
-                name = self.get_attribute(attr, "name")
-                category = self.get_attribute(attr, "category")
+            name = self.get_attribute(attr, "name", None)
+            category = self.get_attribute(attr, "category", None)
 
-            except :
+            if(not name or not category):
                 raise FormatError("<subgraph> must have name and category attributes")
 
             # inputs and outputs
-            try:
-                ninput = int(self.get_attribute(attr, "num_input"))
-                noutput = int(self.get_attribute(attr, "num_output"))
-            except :
-                ninput = 0
-                noutput = 0
+            ninput = int(self.get_attribute(attr, "num_input", 0))
+            noutput = int(self.get_attribute(attr, "num_output", 0))
             
-
             # description
-            try:
-                description= subgraph.getElementsByTagName("description")[0]
-                desc = self.getText(description)
-            except:
-                desc = "" 
+            description= subgraph.getElementsByTagName("description")[0]
+            desc = self.getText(description, '')
 
             sg = SubGraphFactory(pkgmanager, name = name,
                                  description = desc, category = category)
@@ -295,53 +292,45 @@ class XmlPackageReader(PackageReader):
             for element in subgraph.getElementsByTagName("element"):
 
                 attr = element.attributes
-                try:
-                    package_id = self.get_attribute(attr, "package_id")
-                    factory_id = self.get_attribute(attr, "factory_id")
-                    id = self.get_attribute(attr, "id")
-                except:
-                    raise FormatError("<element> must have package_id and factory_id attributes")
 
-                caption = ""
-                posx = 0
-                posy = 0
-                try:
-                    posx = float(self.get_attribute(attr, "posx"))
-                    posy = float(self.get_attribute(attr, "posy"))
-                except :
-                    pass
-                try : 
-                    caption = self.get_attribute(attr, "caption")
-                except:
-                    pass
+                package_id = self.get_attribute(attr, "package_id", None)
+                factory_id = self.get_attribute(attr, "factory_id", None)
+                elt_id = self.get_attribute(attr, "id", None)
 
-                elt_id = sg.add_nodefactory( package_id,
-                                             factory_id,
-                                             (posx, posy),
-                                             caption)
+                if(not package_id or not factory_id or not elt_id): continue
 
-                map_id[id] = elt_id
+                sg.add_nodefactory(elt_id, (package_id, factory_id))
 
+                for data_element in element.getElementsByTagName("data"):
+
+                    attr = data_element.attributes
+                    key = self.get_attribute(attr, "key", None)
+                    value = self.get_attribute(attr, "value", None)
+
+                    try: value = float(value)
+                    except : pass
+                    
+                    if(key and value):
+                        sg.elt_data[elt_id][key] = value
+                
             for connection in subgraph.getElementsByTagName("connect"):
                 attr = connection.attributes
+
+                src_id = self.get_attribute(attr, "src_id", None)
+                src_port = self.get_attribute(attr, "src_port", None)
+                dst_id = self.get_attribute(attr, "dst_id", None)
+                dst_port = self.get_attribute(attr, "dst_port", None)
+
                 try:
-                    src_id = self.get_attribute(attr, "src_id")
-                    src_port = self.get_attribute(attr, "src_port")
-                    dst_id = self.get_attribute(attr, "dst_id")
-                    dst_port = self.get_attribute(attr, "dst_port")
-                except:
-                    raise FormatError(
-                        "<connect> must have src_id, src_port, dst_id, dst_port attributes")
-                
-                try:
-                    sg.connect (map_id[src_id], int(src_port), map_id[dst_id], int(dst_port) )
-                except:
-                    raise FormatError(
-                        "<connect> must have valid defined elements")
+                    sg.add_connection (src_id, int(src_port), dst_id, int(dst_port) )
+                except Exception, e:
+                    print e
+                    raise FormatError("Invalid <connect>")
                 
             factorylist.append(sg)
 
         return factorylist
+
 
     def get_workspaces(self, session, pkgmanager):
         """ Read the workspace informations in the xml document """
@@ -349,18 +338,16 @@ class XmlPackageReader(PackageReader):
         for workspace in self.get_root_element().getElementsByTagName("workspace"):
 
             attr = workspace.attributes
-            try:
-                pkg_id = self.get_attribute(attr, "pkg_id")
-                factory_id = self.get_attribute(attr, "factory_id")
-            except:
-                raise FormatError("<workspac> must have pkg_id and factory_id attributes")
-
+            pkg_id = self.get_attribute(attr, "pkg_id", None)
+            factory_id = self.get_attribute(attr, "factory_id", None)
+            
             try:
                 pkg = pkgmanager[pkg_id]
                 factory = pkg[factory_id]
-                session.add_workspace(factory)
+                node = factory.instantiate()
+                session.add_workspace(node)
             except:
-                raise
+                raise FormatError("Invalid <workspace>")
 
                 
 
@@ -380,6 +367,7 @@ class XmlPackageReader(PackageReader):
 
     def register_session(self, session):
         """ Read Session data """
+        
         self.doc = parse(self.filename)
 
         self.get_workspaces(session, session.pkgmanager)
@@ -503,12 +491,14 @@ class SubGraphFactoryXmlWriter(XmlWriter):
             elt.setAttribute("factory_id", factory_id)
             elt.setAttribute("id", id)
 
-            (posx, posy) = factory.elt_position[id]
-            elt.setAttribute("posx", str(posx))
-            elt.setAttribute("posy", str(posy))
+            # Write Data
+            for key in factory.elt_data[id].keys():
 
-            caption = factory.elt_caption[id]
-            if(caption): elt.setAttribute("caption", caption)
+                value = factory.elt_data[id][key]
+                data_elt = newdoc.createElement('data')
+                data_elt.setAttribute("key", key)
+                data_elt.setAttribute("value", str(value))
+                elt.appendChild(data_elt)
 
             sg_elt.appendChild(elt)
 
@@ -588,7 +578,8 @@ class SessionWriter(XmlWriter):
         writer.fill_structure(newdoc, top_element)
 
         # Save Workspaces Data
-        for factory in self.session.workspaces:
+        for node in self.session.workspaces:
+            factory = node.factory
             pkg_id = factory.package.get_id()
             factory_id = factory.get_id()
             workspace_elt = newdoc.createElement('workspace')
