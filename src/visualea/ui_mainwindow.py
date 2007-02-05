@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Feb  5 14:50:47 2007
+# Created: Mon Feb  5 19:20:51 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,14 +54,14 @@ class Ui_MainWindow(object):
         self.vboxlayout1.setObjectName("vboxlayout1")
         self.tabPackager.addTab(self.categoryview,"")
 
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName("tab")
+        self.datapoolview = QtGui.QWidget()
+        self.datapoolview.setObjectName("datapoolview")
 
-        self.vboxlayout2 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout2 = QtGui.QVBoxLayout(self.datapoolview)
         self.vboxlayout2.setMargin(9)
         self.vboxlayout2.setSpacing(6)
         self.vboxlayout2.setObjectName("vboxlayout2")
-        self.tabPackager.addTab(self.tab,"")
+        self.tabPackager.addTab(self.datapoolview,"")
 
         self.splitter = QtGui.QSplitter(self.splitter_2)
 
@@ -222,7 +222,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "VisuAlea", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.packageview), QtGui.QApplication.translate("MainWindow", "Package", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabPackager.setTabText(self.tabPackager.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Data Pool", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabPackager.setTabText(self.tabPackager.indexOf(self.datapoolview), QtGui.QApplication.translate("MainWindow", "Data Pool", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
