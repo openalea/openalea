@@ -191,7 +191,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         w.close()
         w.emit(QtCore.SIGNAL("close()"))
         
-        self.index_nodewidget[cindex].release_listeners()
+        #self.index_nodewidget[cindex].release_listeners()
         del(self.index_nodewidget[cindex])
 
 
