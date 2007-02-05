@@ -48,8 +48,8 @@ class Observed(object):
             l = wr()
             l.notify(self, event)
 
-    def __del__(self):
-        print self.listeners
+#     def __del__(self):
+#         print 'destroy observed', self
 
 
 class AbstractListener(object):
@@ -60,8 +60,9 @@ class AbstractListener(object):
 
     def notify (self, sender, event=None):
         raise RuntimeError()
-
     
+#     def __del__(self):
+#         print 'destroy listener', self
 
     
 

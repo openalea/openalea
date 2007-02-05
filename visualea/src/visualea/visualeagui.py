@@ -29,10 +29,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from openalea.visualea.mainwindow import MainWindow
-
 from openalea.core.session import Session
-
-
 
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -59,6 +56,10 @@ def main(args):
     session = Session()
 
     win = MainWindow(session.pkgmanager, session)
+
+    # icon
+    icon = app.setWindowIcon(QtGui.QIcon(":/icons/arbreicon.png"))
+    
     win.show()
     
     #    splash.finish(win);

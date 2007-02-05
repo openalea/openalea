@@ -44,6 +44,7 @@ class Session(Observed):
         self.pkgmanager = PackageManager()
 
         self.workspaces = []
+        self.datapool = DataPool()
         self.clear()
 
        
@@ -68,6 +69,8 @@ class Session(Observed):
         self.session_filename = None
 
         self.workspaces = []
+        
+        self.datapool.clear()
 
         # init pkgmanager
         self.pkgmanager.clear()
@@ -126,3 +129,7 @@ class Session(Observed):
         pass
     
     
+
+class DataPool(dict):
+    """ Dictionnary of user data """
+    pass
