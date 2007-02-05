@@ -51,7 +51,7 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
             
             widget = factory.instantiate_widget(subnode, self)
 
-            caption = "%s"%(node.get_data(id, 'caption'))
+            caption = "%s"%(subnode.internal_data['caption'])
             groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
@@ -180,15 +180,15 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
 
-    def itemMoved(self, item, newvalue):
-        """ function called when a node item has moved """
-        elt_id = item.elt_id
-        point = newvalue.toPointF()
+#     def itemMoved(self, item, newvalue):
+#         """ function called when a node item has moved """
+#         elt_id = item.elt_id
+#         point = newvalue.toPointF()
         
-        self.notification_enabled.append(False)
-        self.node.set_data(elt_id, 'posx', point.x())
-        self.node.set_data(elt_id, 'posy', point.y())
-        self.notification_enabled.pop()
+#         self.notification_enabled.append(False)
+#         self.node.set_data(elt_id, 'posx', point.x())
+#         self.node.set_data(elt_id, 'posy', point.y())
+#         self.notification_enabled.pop()
 
 
     def notify(self, sender, event):
@@ -200,8 +200,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if( event[0] == "connection_modified"):
             self.rebuild_scene()
         elif( event[0] == "subgraph_modified"):
-            self.rebuild_scene()
-        elif( event[0] == "data_modified"):
             self.rebuild_scene()
         
 
@@ -234,20 +232,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
 
-        try:
-            caption = self.node.get_data(eltid, 'caption')
-        except:
-            caption = str(subnode.__class__)
+        gnode = GraphicalNode(self, eltid, nin, nout)
 
-        try:
-            x = self.node.get_data(eltid, 'posx')
-            y = self.node.get_data(eltid, 'posy')
-        except:
-            (x,y) = (10,10)
-
-        gnode = GraphicalNode(self, eltid, nin, nout, caption )
-
-        gnode.setPos(QtCore.QPointF(x,y))
         self.graph_item[eltid] = gnode
         
         return gnode
@@ -417,11 +403,10 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.notification_enabled.pop()
             return
 
-        kdata = { 'posx' : position.x(),
-                  'posy' : position.y(),
-                  'caption' : factory_id }
-
-        newid = self.node.add_node(newnode, kdata=kdata)
+        newnode.set_data('posx', position.x())
+        newnode.set_data('posy', position.y())
+        
+        newid = self.node.add_node(newnode)
         self.add_graphical_node(newid)
         self.notification_enabled.pop()
                 
@@ -460,7 +445,7 @@ from openalea.core.observer import AbstractListener
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the subgraphwidget """
 
-    def __init__(self, graphview, elt_id, ninput, noutput,  caption="Node"):
+    def __init__(self, graphview, elt_id, ninput, noutput):
         """
         @param graphview : EditSubGraphWidget container
         @param elt_id : id in the subgraph
@@ -473,40 +458,44 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         QtGui.QGraphicsItem.__init__(self)
 
+        # members
         self.elt_id = elt_id
         self.graphview = graphview
         self.subnode = self.graphview.node.get_node_by_id(elt_id)
-
-        self.newPos = QtCore.QPointF()
-        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
-            QtGui.QGraphicsItem.ItemIsMovable +
-            QtGui.QGraphicsItem.ItemIsSelectable))
-        self.setZValue(1)
+        self.connector_in = []
+        self.connector_out = []
+        self.sizey = 32
+        self.sizex = 20
 
 
         # Record item as a listener for the subnode
         self.ismodified = True
         self.initialise(self.subnode)
 
-        # Set ToolTip
-        self.setToolTip( "Instance : %s\n"%(elt_id,) +
-                         "Doc : \n %s"%(self.subnode.__doc__,))
+        
 
-        self.caption = caption
+        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
+            QtGui.QGraphicsItem.ItemIsMovable +
+            QtGui.QGraphicsItem.ItemIsSelectable))
+        self.setZValue(1)
+
+        
+        # Set ToolTip
+        self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
+                         "Instance : %s\n"%(elt_id,) +
+                         "Doc : \n %s"%(self.subnode.__doc__,))
 
         # Font and box size
         self.font = self.graphview.font()
         self.font.setBold(True)
         self.font.setPointSize(10)
 
-        self.calcul_size()
+        self.adjust_size()
 
         # Add to scene
         scene.addItem(self)
 
         # Connectors
-        self.connector_in = []
-        self.connector_out = []
         for i in range(ninput):
             (name, interface) = self.subnode.input_desc[i]
             if(interface): interface = str(interface).split('.')[-1]
@@ -519,21 +508,44 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             tip = "%s (%s)"%(name, interface)
             self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
 
+        # Set Position
+        try:
+            x = self.subnode.internal_data['posx']
+            y = self.subnode.internal_data['posy']
+        except:
+            (x,y) = (10,10)
+        self.setPos(QtCore.QPointF(x,y))
 
-    def calcul_size(self):
+
+    def adjust_size(self):
         """ Calcul the box size """
 
         fm = QtGui.QFontMetrics(self.font);
+        newsizex = fm.width(self.get_caption()) + 20;
         
-        self.sizex = fm.width("%s %s"%(self.caption, self.subnode.caption))+ 20;
-        self.sizey = 32
+        if(newsizex > self.sizex):
+
+            self.sizex = newsizex
+            for i in range(len(self.connector_in)):
+                c = self.connector_in[i]
+                c.adjust_position(self, i, len(self.connector_in))
+            for i in range(len(self.connector_out)):
+                c = self.connector_out[i]
+                c.adjust_position(self, i, len(self.connector_out))
+
+
+
+    def get_caption(self):
+        """ Return the node caption (convenience)"""
+        
+        return self.subnode.internal_data['caption']
 
 
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
 
         if(event and event[0] == "caption_modified"):
-            self.calcul_size()
+            self.adjust_size()
             self.update()
             QtGui.QApplication.processEvents()
            
@@ -620,17 +632,23 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         painter.setFont(self.font)
         painter.setPen(QtCore.Qt.black)
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
-                         "%s %s"%(self.caption, self.subnode.caption))
+                         self.get_caption())
 
 
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemPositionChange:
-            for c in self.connector_in :
-                c.adjust()
-            for c in self.connector_out :
-                c.adjust()
-                 
-            self.graphview.itemMoved(self, value)
+        """ Callback when item has been modified (move...) """
+
+        if (change == QtGui.QGraphicsItem.ItemPositionChange):
+            
+            [ c.adjust() for c in self.connector_in ]
+            [ c.adjust() for c in self.connector_out ]
+
+            point = value.toPointF()
+        
+            self.subnode.set_data('posx', point.x())
+            self.subnode.set_data('posy', point.y())
+         
+            #self.graphview.itemMoved(self, value)
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
@@ -697,10 +715,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def set_caption(self):
         """ Open a input dialog to set node caption """
 
-        n = self.graphview.node.get_node_by_id(self.elt_id)
-
+        n = self.subnode
         (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Node caption", "",
-                                   QtGui.QLineEdit.Normal, n.caption)
+                                   QtGui.QLineEdit.Normal, n.internal_data['caption'])
         if(ok):
             n.set_caption(str(result))
         
@@ -758,8 +775,8 @@ class ConnectorIn(Connector):
 
         self.edge = None
 
-        width= parent.sizex / float(ntotal+1)
-        self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
+        self.adjust_position(parent, index, ntotal)
+
 
     def set_edge(self, edge):
         self.edge = edge
@@ -769,6 +786,12 @@ class ConnectorIn(Connector):
 
     def adjust(self):
         if(self.edge): self.edge.adjust()
+
+    
+    def adjust_position(self, parentitem, index, ntotal):
+        width= parentitem.sizex / float(ntotal+1)
+        self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
+
 
     def mousePressEvent(self, event):
         QtGui.QGraphicsItem.mousePressEvent(self, event)
@@ -784,18 +807,23 @@ class ConnectorOut(Connector):
     def __init__(self, graphview, parent, scene, index, ntotal, tooltip):
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
         
-        width= parent.sizex / float(ntotal+1)
-        self.setPos((index+1) * width - self.WIDTH/2., parent.sizey - self.HEIGHT/2)
-        
-
+        self.adjust_position(parent, index, ntotal)
         self.edge_list = []
+        
 
     def add_edge(self, edge):
         self.edge_list.append(edge)
+        
 
     def adjust(self):
         for e in self.edge_list:
             e.adjust()
+
+    def adjust_position(self, parentitem, index, ntotal):
+            
+        width= parentitem.sizex / float(ntotal+1)
+        self.setPos((index+1) * width - self.WIDTH/2., parentitem.sizey - self.HEIGHT/2)
+
 
     def mousePressEvent(self, event):
         QtGui.QGraphicsItem.mousePressEvent(self, event)
