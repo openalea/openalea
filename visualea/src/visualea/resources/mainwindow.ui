@@ -63,6 +63,22 @@
          </property>
         </layout>
        </widget>
+       <widget class="QWidget" name="tab" >
+        <attribute name="title" >
+         <string>Data Pool</string>
+        </attribute>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QListView" name="datapool_listView" />
+         </item>
+        </layout>
+       </widget>
       </widget>
       <widget class="QSplitter" name="splitter" >
        <property name="sizePolicy" >
@@ -125,21 +141,6 @@
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
    </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Import</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="separator" />
-    <addaction name="action_New_Network" />
-   </widget>
    <widget class="QMenu" name="menu_Python" >
     <property name="title" >
      <string>P&amp;ython</string>
@@ -167,6 +168,21 @@
     <addaction name="separator" />
     <addaction name="action_Export_to_Factory" />
     <addaction name="actionExport_as_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
