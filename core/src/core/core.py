@@ -74,8 +74,9 @@ class Node(Observed):
         # Factory
         self.factory = None
 
-        # Caption
-        self.caption = ''
+        self.caption = ""
+         # # Internal Data (caption...)
+#          self.internal_data = {}
         
 
     def __call__(self, inputs = ()):
@@ -90,6 +91,7 @@ class Node(Observed):
 
 
     def set_caption(self, newcaption):
+        #self.internal_data['caption'] = newcaption
         self.caption = newcaption
         self.notify_listeners( ("caption_modified",) )
 
@@ -378,22 +380,8 @@ class NodeWidget(AbstractListener):
 
         self.node = node
 
-        # register to observed node and factory
+        # register to observed node
         self.initialise(node)
-        #self.initialise(node.get_factory())
-
-    def __del__(self):
-        print 'DESTROY WIDGET'
-
-#     def release_listeners(self):
-#         """
-#         Unregister this object in observed instance
-#         !! This function must be called before widget destruction !! 
-#         """
-
-#         self.node.unregister_listener(self)
-#         #self.node.get_factory().unregister_listener(self)
-
 
 
     def get_node(self):
@@ -405,12 +393,6 @@ class NodeWidget(AbstractListener):
 
     node = property(get_node, set_node)
 
-
-    # def get_factory(self):
-#         return self.__node.get_factory()
-
-#     factory = property(get_factory)
-    
 
     def notify(self, sender, event):
         """
