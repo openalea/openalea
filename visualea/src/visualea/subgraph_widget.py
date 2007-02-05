@@ -51,7 +51,7 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
             
             widget = factory.instantiate_widget(subnode, self)
 
-            caption = "%s ( %s )"%(node.get_factory().get_caption(id), id)
+            caption = "%s"%(node.get_data(id, 'caption'))
             groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
@@ -98,20 +98,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def clear_scene(self):
         """ Remove all items from the scene """
-
-#         # Close Dialog
-#         for (d,w) in self.node_dialog.values():
-#             d.close()
-#             d.destroy()
-            #w.release_listeners()
-
-        #self.node_dialog = {}
-
+        
         # Close items
         for eltid in self.graph_item.keys():
             self.remove_graphical_node(eltid)
 
         self.graph_item = {}
+        self.node_dialog = {}
         
         scene = self.scene()
         del(scene)
@@ -183,7 +176,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
             self.scene().removeItem(self.newedge)
             self.newedge = None
-            
+
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
 
@@ -431,8 +424,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         newid = self.node.add_node(newnode, kdata=kdata)
         self.add_graphical_node(newid)
         self.notification_enabled.pop()
-        
-        
+                
 
     def dropEvent(self, event):
 
@@ -468,22 +460,22 @@ from openalea.core.observer import AbstractListener
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the subgraphwidget """
 
-    def __init__(self, graphWidget, elt_id, ninput, noutput,  caption="Node"):
+    def __init__(self, graphview, elt_id, ninput, noutput,  caption="Node"):
         """
-        @param graphwidget : scene container
+        @param graphview : EditSubGraphWidget container
         @param elt_id : id in the subgraph
         @param ninput : number of input
         @param noutput : number of output
         @param caption : box text
         """
 
-        scene = graphWidget.scene()
+        scene = graphview.scene()
 
         QtGui.QGraphicsItem.__init__(self)
 
         self.elt_id = elt_id
-        self.graph = graphWidget
-        self.subnode = self.graph.node.get_node_by_id(elt_id)
+        self.graphview = graphview
+        self.subnode = self.graphview.node.get_node_by_id(elt_id)
 
         self.newPos = QtCore.QPointF()
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
@@ -491,7 +483,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             QtGui.QGraphicsItem.ItemIsSelectable))
         self.setZValue(1)
 
-        self.caption = caption
 
         # Record item as a listener for the subnode
         self.ismodified = True
@@ -500,15 +491,15 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         # Set ToolTip
         self.setToolTip( "Instance : %s\n"%(elt_id,) +
                          "Doc : \n %s"%(self.subnode.__doc__,))
-                
+
+        self.caption = caption
+
         # Font and box size
-        self.font = self.graph.font()
+        self.font = self.graphview.font()
         self.font.setBold(True)
         self.font.setPointSize(10)
-        fm = QtGui.QFontMetrics(self.font);
-        
-        self.sizex = fm.width(self.caption)+ 20;
-        self.sizey = 30
+
+        self.calcul_size()
 
         # Add to scene
         scene.addItem(self)
@@ -520,31 +511,37 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             (name, interface) = self.subnode.input_desc[i]
             if(interface): interface = str(interface).split('.')[-1]
             tip = "%s (%s)"%(name, interface)
-            self.connector_in.append(ConnectorIn(self.graph, self, scene, i, ninput, tip))
+            self.connector_in.append(ConnectorIn(self.graphview, self, scene, i, ninput, tip))
             
         for i in range(noutput):
             (name, interface) = self.subnode.output_desc[i]
             if(interface): interface = str(interface).split('.')[-1]
             tip = "%s (%s)"%(name, interface)
-            self.connector_out.append(ConnectorOut(self.graph, self, scene, i, noutput, tip))
+            self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
+
+
+    def calcul_size(self):
+        """ Calcul the box size """
+
+        fm = QtGui.QFontMetrics(self.font);
+        
+        self.sizex = fm.width("%s %s"%(self.caption, self.subnode.caption))+ 20;
+        self.sizey = 32
 
 
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
 
-        if(self.ismodified != sender.modified):
-            self.ismodified = sender.modified
+        if(event and event[0] == "caption_modified"):
+            self.calcul_size()
             self.update()
             QtGui.QApplication.processEvents()
-
-
-#     def release_listeners(self):
-#         """
-#         Unregister this object in observed instance
-#         !! This function must be called before widget destruction !! 
-#         """
-
-#         self.subnode.unregister_listener(self)
+           
+        elif(self.ismodified != sender.modified):
+            self.ismodified = sender.modified
+            
+            self.update()
+            QtGui.QApplication.processEvents()
 
 
     def get_id(self):
@@ -584,6 +581,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         return QtCore.QRectF(0 , 0,
                              self.sizex + adjust, self.sizey + adjust)
 
+
     def shape(self):
         path = QtGui.QPainterPath()
         path.addRect(0, 0, self.sizex, self.sizey)
@@ -591,17 +589,17 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
 
     def paint(self, painter, option, widget):
+        
         # Shadow
         painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(QtGui.QColor(0,0,0, 80))
+        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
-
 
         # Draw Box
         if(self.isSelected()):
-            color = QtGui.QColor(120, 120, 120, 180)
+            color = QtGui.QColor(180, 180, 180, 180)
         else:
-            color = QtGui.QColor(200, 200, 200, 100)
+            color = QtGui.QColor(255, 255, 255, 100)
 
         if(self.ismodified):
             secondcolor = QtGui.QColor(255, 0, 0, 200)
@@ -632,7 +630,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             for c in self.connector_out :
                 c.adjust()
                  
-            self.graph.itemMoved(self, value)
+            self.graphview.itemMoved(self, value)
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
@@ -646,7 +644,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
 
     def mouseDoubleClickEvent(self, event):
-        self.graph.open_item(self.elt_id)
+        self.graphview.open_item(self.elt_id)
         self.run_node()
 
     def mouseMoveEvent(self, event):
@@ -656,16 +654,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
-        menu = QtGui.QMenu(self.graph)
+        menu = QtGui.QMenu(self.graphview)
 
         action = menu.addAction("Run")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.run_node)
         
         action = menu.addAction("Open Widget")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
-
-       #  action = menu.addAction("Edit")
-#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_widget)
 
         action = menu.addAction("Delete")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_node)
@@ -682,21 +677,17 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
     def run_node(self):
         """ Run the current node """
-        self.graph.node.eval_as_expression(self.elt_id)
+        self.graphview.node.eval_as_expression(self.elt_id)
 
 
     def open_widget(self):
         """ Open widget in dialog """
-        self.graph.open_item(self.elt_id)
-
-
-    def edit_widget(self):
-        pass
+        self.graphview.open_item(self.elt_id)
 
 
     def delete_node(self):
         """ Remove current node """
-        self.graph.remove_node(self.elt_id)
+        self.graphview.remove_node(self.elt_id)
         
 
     def enable_in_widget(self):
@@ -706,17 +697,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def set_caption(self):
         """ Open a input dialog to set node caption """
 
-        pass
-#         factory =  self.graph.node.get_factory()
-#         if(not factory): return
+        n = self.graphview.node.get_node_by_id(self.elt_id)
 
-#         text = factory.get_caption(self.elt_id)
-#         if(not text) : text = ""
+        (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Node caption", "",
+                                   QtGui.QLineEdit.Normal, n.caption)
+        if(ok):
+            n.set_caption(str(result))
         
-#         (result, ok) = QtGui.QInputDialog.getText(self.graph, "Node caption", "",
-#                                    QtGui.QLineEdit.Normal, text)
-#         if(ok):
-#             factory.set_caption(self.elt_id, str(result))
+        
 
 
 
@@ -729,16 +717,16 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
     def __init__(self, graphview, parent, scene, index, tooltip=""):
         """
-        @param graphview : The SubGraphWidget
+        @param graphview : EditSubGraphWidget container
         @param parent : QGraphicsItem parent
-        @param scene : QGrpahicsScene container
+        @param scene : QGraphicsScene container
         @param index : connector index
         """
-        QtGui.QGraphicsItem.__init__(self, parent, scene)
         
+        QtGui.QGraphicsItem.__init__(self, parent, scene)
 
         self.mindex = index
-        self.graphview= graphview
+        self.graphview = graphview
 
         self.setToolTip(tooltip)
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
@@ -749,7 +737,6 @@ class Connector(QtGui.QGraphicsEllipseItem):
         gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
         gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
         
-
         self.setBrush(QtGui.QBrush(gradient))
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
@@ -786,7 +773,7 @@ class ConnectorIn(Connector):
     def mousePressEvent(self, event):
         QtGui.QGraphicsItem.mousePressEvent(self, event)
 
-        if(not self.edge):
+        if(not self.edge and (event.buttons() & QtCore.Qt.LeftButton)):
             self.graphview.start_edge(self)
     
 
@@ -812,7 +799,25 @@ class ConnectorOut(Connector):
 
     def mousePressEvent(self, event):
         QtGui.QGraphicsItem.mousePressEvent(self, event)
-        self.graphview.start_edge(self)
+        
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            self.graphview.start_edge(self)
+
+
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        menu = QtGui.QMenu(self.graphview)
+
+        action = menu.addAction("Send to Pool")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.send_to_pool)
+        
+        menu.move(event.screenPos())
+        menu.show()
+
+    def send_to_pool(self):
+        pass
+
 
 
 
@@ -916,7 +921,6 @@ class Edge(AbstractEdge):
 
         action = menu.addAction("Delete connection")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove_edge)
-
         
         menu.move(event.screenPos())
         menu.show()

@@ -99,6 +99,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
 
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
+        self.connect(self.actionExport_to_Application, SIGNAL("activated()"), self.export_to_application)
         
         # final init
         self.session = session
@@ -260,6 +261,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
     
     def find_wralea(self):
 
+        self.pkgmanager
         self.pkgmanager.find_and_register_packages()
         self.reinit_treeview()
 
@@ -277,6 +279,13 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         cindex = self.tabWorkspace.currentIndex()
         subgraph = self.index_nodewidget[cindex].node
         subgraph.to_factory(subgraph.factory)
+
+
+    def export_to_application(self):
+        """ Export current workspace subgraph to an Application """
+
+        mess = QtGui.QMessageBox.warning(self, "Error",
+                                         "This functionality is not yet implemented")
 
 
     def contextMenuEvent(self, event):
@@ -307,7 +316,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         action = menu.addAction("Run")
         self.connect(action, SIGNAL("activated()"), self.run)
 
-        action = menu.addAction("Export to Factory")
+        action = menu.addAction("Apply changes")
         self.connect(action, SIGNAL("activated()"), self.export_to_factory)
 
         menu.move(event.globalPos())
@@ -395,7 +404,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         ret = QtGui.QMessageBox.question(self, "Export",
                                          "Subgraphs has been modified.\n"+
-                                         "Do you want to report changes to factory ?\n",
+                                         "Do you want to report changes to Package Manager ?\n",
                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
 
         if(ret == QtGui.QMessageBox.No): return

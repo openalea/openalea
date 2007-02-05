@@ -456,13 +456,13 @@ class SyntaxColor:
     def is_python_string(self, str):
         """ Return True if str is enclosed by a string mark """
 
-        return (
-            (str.startswith("'''") and str.endswith("'''")) or
-            (str.startswith('"""') and str.endswith('"""')) or
-            (str.startswith("'") and str.endswith("'")) or
-            (str.startswith('"') and str.endswith('"')) 
-            )
-            
+#         return (
+#             (str.startswith("'''") and str.endswith("'''")) or
+#             (str.startswith('"""') and str.endswith('"""')) or
+#             (str.startswith("'") and str.endswith("'")) or
+#             (str.startswith('"') and str.endswith('"')) 
+#             )
+        return False
         
         
 

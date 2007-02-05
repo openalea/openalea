@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Feb  1 17:40:18 2007
+# Created: Mon Feb  5 14:50:47 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,6 +54,15 @@ class Ui_MainWindow(object):
         self.vboxlayout1.setObjectName("vboxlayout1")
         self.tabPackager.addTab(self.categoryview,"")
 
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+
+        self.vboxlayout2 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout2.setMargin(9)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
+        self.tabPackager.addTab(self.tab,"")
+
         self.splitter = QtGui.QSplitter(self.splitter_2)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
@@ -76,10 +85,10 @@ class Ui_MainWindow(object):
         self.workspace1 = QtGui.QWidget()
         self.workspace1.setObjectName("workspace1")
 
-        self.vboxlayout2 = QtGui.QVBoxLayout(self.workspace1)
-        self.vboxlayout2.setMargin(9)
-        self.vboxlayout2.setSpacing(6)
-        self.vboxlayout2.setObjectName("vboxlayout2")
+        self.vboxlayout3 = QtGui.QVBoxLayout(self.workspace1)
+        self.vboxlayout3.setMargin(9)
+        self.vboxlayout3.setSpacing(6)
+        self.vboxlayout3.setObjectName("vboxlayout3")
         self.tabWorkspace.addTab(self.workspace1,"")
         self.hboxlayout.addWidget(self.splitter_2)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -91,17 +100,17 @@ class Ui_MainWindow(object):
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
 
-        self.menu_Package = QtGui.QMenu(self.menubar)
-        self.menu_Package.setObjectName("menu_Package")
-
-        self.menu_Wralea_2 = QtGui.QMenu(self.menu_Package)
-        self.menu_Wralea_2.setObjectName("menu_Wralea_2")
-
         self.menu_Python = QtGui.QMenu(self.menubar)
         self.menu_Python.setObjectName("menu_Python")
 
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
+
+        self.menu_Package = QtGui.QMenu(self.menubar)
+        self.menu_Package.setObjectName("menu_Package")
+
+        self.menu_Wralea_2 = QtGui.QMenu(self.menu_Package)
+        self.menu_Wralea_2.setObjectName("menu_Wralea_2")
 
         self.menu_Workspace = QtGui.QMenu(self.menubar)
         self.menu_Workspace.setObjectName("menu_Workspace")
@@ -147,9 +156,6 @@ class Ui_MainWindow(object):
         self.actionOpenAlea_Web = QtGui.QAction(MainWindow)
         self.actionOpenAlea_Web.setObjectName("actionOpenAlea_Web")
 
-        self.actionExport_as_Application = QtGui.QAction(MainWindow)
-        self.actionExport_as_Application.setObjectName("actionExport_as_Application")
-
         self.action_Execute_script = QtGui.QAction(MainWindow)
         self.action_Execute_script.setObjectName("action_Execute_script")
 
@@ -167,15 +173,19 @@ class Ui_MainWindow(object):
 
         self.action_Export_to_Factory = QtGui.QAction(MainWindow)
         self.action_Export_to_Factory.setObjectName("action_Export_to_Factory")
+
+        self.actionExport_to_Application = QtGui.QAction(MainWindow)
+        self.actionExport_to_Application.setObjectName("actionExport_to_Application")
+
+        self.actionClear_Data_Pool = QtGui.QAction(MainWindow)
+        self.actionClear_Data_Pool.setObjectName("actionClear_Data_Pool")
+
+        self.actionFind_Node = QtGui.QAction(MainWindow)
+        self.actionFind_Node.setObjectName("actionFind_Node")
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
         self.menu_Help.addAction(self.actionOpenAlea_Web)
-        self.menu_Wralea_2.addAction(self.action_Add_File)
-        self.menu_Wralea_2.addAction(self.action_Auto_Search)
-        self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
-        self.menu_Package.addSeparator()
-        self.menu_Package.addAction(self.action_New_Network)
         self.menu_Python.addAction(self.action_Execute_script)
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
@@ -183,12 +193,20 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionSave_as)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
-        self.menu_Workspace.addAction(self.action_Close_current_workspace)
-        self.menu_Workspace.addSeparator()
+        self.menu_Wralea_2.addAction(self.action_Add_File)
+        self.menu_Wralea_2.addAction(self.action_Auto_Search)
+        self.menu_Package.addAction(self.menu_Wralea_2.menuAction())
+        self.menu_Package.addAction(self.actionFind_Node)
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.action_New_Network)
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.actionClear_Data_Pool)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_Close_current_workspace)
         self.menu_Workspace.addAction(self.action_Export_to_Factory)
-        self.menu_Workspace.addAction(self.actionExport_as_Application)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.actionExport_to_Application)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menu_Workspace.menuAction())
@@ -204,12 +222,13 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "VisuAlea", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.packageview), QtGui.QApplication.translate("MainWindow", "Package", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabPackager.setTabText(self.tabPackager.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Data Pool", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
@@ -228,7 +247,6 @@ class Ui_MainWindow(object):
         self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&New Network", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Network.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpenAlea_Web.setText(QtGui.QApplication.translate("MainWindow", "OpenAlea Web", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExport_as_Application.setText(QtGui.QApplication.translate("MainWindow", "Export as Application", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Execute_script.setText(QtGui.QApplication.translate("MainWindow", "&Execute script", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Session.setText(QtGui.QApplication.translate("MainWindow", "&New Session", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
@@ -237,6 +255,10 @@ class Ui_MainWindow(object):
         self.action_Save_Session.setText(QtGui.QApplication.translate("MainWindow", "&Save Session", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Save_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save &as", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Export to Factory", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Apply Changes", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Export_to_Factory.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExport_to_Application.setText(QtGui.QApplication.translate("MainWindow", "Export to Application", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClear_Data_Pool.setText(QtGui.QApplication.translate("MainWindow", "Clear Data Pool", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFind_Node.setText(QtGui.QApplication.translate("MainWindow", "Find Node", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFind_Node.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
 
