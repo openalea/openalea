@@ -165,7 +165,7 @@ class PackageManager(object):
         if reader: 
             return reader.register_packages(self)
         else:
-            print "Unable to load pakahe %s."%(filename,)
+            print "Unable to load package %s."%(filename,)
             return None
         
     
@@ -217,8 +217,8 @@ class PackageManager(object):
         readerlist=self.find_wralea_files()
 
         [x.register_packages(self) for x in readerlist]
-#         for pkgreader in readerlist:
-#             pkgreader.register_packages(self)
+
+        self.rebuild_category()
 
 
 
