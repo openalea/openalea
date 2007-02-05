@@ -74,9 +74,9 @@ class Node(Observed):
         # Factory
         self.factory = None
 
-        self.caption = ""
-         # # Internal Data (caption...)
-#          self.internal_data = {}
+        # Internal Data (caption...)
+        self.internal_data = {}
+        self.internal_data['caption'] = str(self.__class__.__name__)
         
 
     def __call__(self, inputs = ()):
@@ -90,10 +90,15 @@ class Node(Observed):
         return self.factory
 
 
+    # Internal data accessor
     def set_caption(self, newcaption):
-        #self.internal_data['caption'] = newcaption
-        self.caption = newcaption
+        self.internal_data['caption'] = newcaption
         self.notify_listeners( ("caption_modified",) )
+
+
+    def set_data(self, key, value):
+        self.internal_data[key] = value
+        self.notify_listeners( ("data_modified",) )
 
 
     # Status

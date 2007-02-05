@@ -285,8 +285,8 @@ class XmlPackageReader(PackageReader):
 
             sg = SubGraphFactory(pkgmanager, name = name,
                                  description = desc, category = category)
-            sg.set_numinput(ninput)
-            sg.set_numoutput(noutput)
+            sg.set_nb_input(ninput)
+            sg.set_nb_output(noutput)
             
 
             for element in subgraph.getElementsByTagName("element"):
@@ -299,8 +299,7 @@ class XmlPackageReader(PackageReader):
 
                 if(not package_id or not factory_id or not elt_id): continue
 
-                sg.add_nodefactory(elt_id, (package_id, factory_id))
-
+                kdata = {}
                 for data_element in element.getElementsByTagName("data"):
 
                     attr = data_element.attributes
@@ -311,7 +310,10 @@ class XmlPackageReader(PackageReader):
                     except : pass
                     
                     if(key and value):
-                        sg.elt_data[elt_id][key] = value
+                        kdata[key] = value
+
+                sg.add_nodefactory(elt_id, (package_id, factory_id), kdata)
+
                 
             for connection in subgraph.getElementsByTagName("connect"):
                 attr = connection.attributes
@@ -470,8 +472,8 @@ class SubGraphFactoryXmlWriter(XmlWriter):
         sg_elt = newdoc.createElement ('subgraph')
         sg_elt.setAttribute("name", factory.name)
         sg_elt.setAttribute("category", factory.category)
-        sg_elt.setAttribute("num_input", str(factory.num_input))
-        sg_elt.setAttribute("num_output", str(factory.num_output))
+        sg_elt.setAttribute("num_input", str(factory.nb_input))
+        sg_elt.setAttribute("num_output", str(factory.nb_output))
         top_element.appendChild(sg_elt) 
 
         elt = newdoc.createElement('description')
