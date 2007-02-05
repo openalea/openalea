@@ -23,6 +23,7 @@ __revision__=" $Id$ "
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
+from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.core import NodeFactory, Package
 from openalea.core.pkgmanager import PackageManager, Category
@@ -310,4 +311,138 @@ class PackageTreeView(QtGui.QTreeView):
 
 
 
+class DataPoolModel (QAbstractListModel) :
+    """ QT4 data model (model/view pattern) to support Data Pool """
 
+    def __init__(self, datapool, parent=None):
+        
+        QAbstractListModel.__init__(self, parent)
+        self.datapool = datapool
+
+        
+    def reset(self):
+        QAbstractItemModel.reset(self)
+
+    
+    def data(self, index, role):
+        
+        if (not index.isValid()):
+            return QVariant()
+
+        if (index.row() >= len(self.datapool.keys())):
+            return QVariant()
+
+        if (role == QtCore.Qt.DisplayRole):
+            l = self.datapool.keys()
+            l.sort()
+            return self.datapool[l[row]]
+     
+        else:
+            return QVariant()
+
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
+
+
+    def rowCount(self, parent):
+        return len(self.datapool.keys())
+
+
+class DataPoolListView(QtGui.QListView):
+    """ Specialized QListView to display data pool contents """
+    
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
+        
+        QtGui.QListView.__init__(self, parent)
+
+        self.main_win = main_win
+
+        self.setDragEnabled(True)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+        
+        
+#     def dragEnterEvent(self, event):
+#         if event.mimeData().hasFormat("openalea/nodefactory"):
+#             event.accept()
+#         else:
+#             event.ignore()
+
+#     def dragMoveEvent(self, event):
+#         if event.mimeData().hasFormat("openalea/nodefactory"):
+#             event.setDropAction(QtCore.Qt.MoveAction)
+#             event.accept()
+#         else:
+#             event.ignore()
+
+#     def dropEvent(self, event):
+#             event.ignore()
+
+#     def startDrag(self, supportedActions):
+#         item = self.currentIndex()
+
+#         itemData = QtCore.QByteArray()
+#         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+#         pixmap = QtGui.QPixmap(item.data(QtCore.Qt.DecorationRole))
+
+#         (pkg_id, factory_id, mimetype) = self.get_item_info(item)
+
+#         dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
+
+#         mimeData = QtCore.QMimeData()
+
+#         mimeData.setData(mimetype, itemData)
+    
+#         drag = QtGui.QDrag(self)
+#         drag.setMimeData(mimeData)
+#         drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+#         drag.setPixmap(pixmap)
+
+#         drag.start(QtCore.Qt.MoveAction)
+
+        
+#     def mouseDoubleClickEvent(self, event):
+
+#         item = self.currentIndex()
+#         obj =  item.internalPointer()
+        
+#         if(isinstance(obj, NodeFactory)):
+#             node = obj.instantiate()
+#             self.main_win.session.add_workspace(node)
+#             self.main_win.open_widget_tab(node)
+
+#         if(isinstance(obj, Package)):
+#             # Display URL
+#             urlstr = obj.get_metainfo('url')
+#             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
+
+            
+
+#     def get_item_info(self, item):
+#         """ Return (package_id, factory_id, mimetype) corresponding to item """
+        
+#         # put in the Mime Data pkg id and factory id
+#         obj = item.internalPointer()
+
+#         if(obj.mimetype == "openalea/nodefactory"):
+
+#             factory_id = obj.get_id()
+#             pkg_id = obj.package.get_id()
+            
+#             return (pkg_id, factory_id, obj.mimetype)
+
+#         return ("","", "openalea/notype")

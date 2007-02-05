@@ -33,6 +33,7 @@ from openalea.core import cli
 from code import InteractiveInterpreter as Interpreter
 
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
+from node_treeview import DataPoolListView, DataPoolModel
 
 import config
 
@@ -75,6 +76,13 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.categoryTreeView = PackageTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout1.addWidget(self.categoryTreeView)
+
+        # data pool list view
+        self.datapool_model = DataPoolModel(session.datapool)
+        self.datapoolListView = DataPoolListView(self, self.datapoolview)
+        self.datapoolListView.setModel(self.datapool_model)
+        self.vboxlayout2.addWidget(self.datapoolListView)
+
 
         # menu callbacks
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
@@ -341,8 +349,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
                                          documentation = ""
                                          )
             
-            newfactory.set_numinput(nin)
-            newfactory.set_numoutput(nout)
+            newfactory.set_nb_input(nin)
+            newfactory.set_nb_output(nout)
             
             pkg.add_factory(newfactory)
             self.pkgmanager.add_package(pkg)

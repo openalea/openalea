@@ -63,7 +63,7 @@
          </property>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab" >
+       <widget class="QWidget" name="datapoolview" >
         <attribute name="title" >
          <string>Data Pool</string>
         </attribute>
