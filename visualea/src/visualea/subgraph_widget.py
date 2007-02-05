@@ -99,18 +99,20 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def clear_scene(self):
         """ Remove all items from the scene """
 
-        # Close Dialog
-        for (d,w) in self.node_dialog.values():
-            d.close()
+#         # Close Dialog
+#         for (d,w) in self.node_dialog.values():
+#             d.close()
+#             d.destroy()
             #w.release_listeners()
 
-        self.node_dialog = {}
+        #self.node_dialog = {}
 
-#         # Close items
-#         for item in self.graph_item.values():
-#             item.release_listeners()
-            
+        # Close items
+        for eltid in self.graph_item.keys():
+            self.remove_graphical_node(eltid)
+
         self.graph_item = {}
+        
         scene = self.scene()
         del(scene)
         scene = QtGui.QGraphicsScene(self)
@@ -120,6 +122,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
+
         self.notification_enabled.append(False)
 
         self.clear_scene()
@@ -139,7 +142,6 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.add_graphical_connection(out_connector, in_connector)
 
         self.notification_enabled.pop()
-
 
 
     # Mouse events
@@ -336,14 +338,14 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # close dialog
         try:
             (dialog, widget) = self.node_dialog[elt_id]
-            #widget.release_listeners()
             dialog.close()
+            dialog.destroy()
+            
             del(self.node_dialog[elt_id])
         except KeyError:
             pass
         
         item = self.graph_item[elt_id]
-        #item.release_listeners()
         item.remove_connections()
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
@@ -425,11 +427,12 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         kdata = { 'posx' : position.x(),
                   'posy' : position.y(),
                   'caption' : factory_id }
-            
+
         newid = self.node.add_node(newnode, kdata=kdata)
         self.add_graphical_node(newid)
         self.notification_enabled.pop()
-
+        
+        
 
     def dropEvent(self, event):
 
