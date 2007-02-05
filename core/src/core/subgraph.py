@@ -59,11 +59,8 @@ class SubGraphFactory(NodeFactory):
         self.elt_data = {}
 
         # I/O
-        self.num_input = 0
-        self.num_output = 0
-
-        self.elt_data['in'] = { 'posx':20, 'posy':5, 'caption':'Inputs' }
-        self.elt_data['out'] = { 'posx':20, 'posy':250, 'caption':'Outputs' }
+        self.nb_input = 0
+        self.nb_output = 0
 
         # Documentation
         try:
@@ -72,16 +69,16 @@ class SubGraphFactory(NodeFactory):
             self.doc = ""
 
 
-    def add_nodefactory(self, elt_id, (pkg_id, factory_id)):
+    def add_nodefactory(self, elt_id, (pkg_id, factory_id), kdata):
         """
         Add a node description to the factory
         @param elt_id : element id
         @param pkg_id, factory_id : factory description
+        @param kdata : data dictionnary
         """
 
         self.elt_factory[elt_id] = (pkg_id, factory_id)
-        self.elt_data[elt_id] = {}
-        self.elt_data[elt_id]['caption'] = factory_id
+        self.elt_data[elt_id] = kdata
 
 
     def add_connection(self, src_id, port_src, dst_id, port_dst):
@@ -117,7 +114,7 @@ class SubGraphFactory(NodeFactory):
 
         call_stack.append(self.get_id())
 
-        new_df = SubGraph(self.num_input, self.num_output)
+        new_df = SubGraph(self.nb_input, self.nb_output)
         new_df.factory = self
         new_df.__doc__ = self.doc
         
@@ -128,10 +125,8 @@ class SubGraphFactory(NodeFactory):
         # Create the connections
         new_df.connections = self.connections.copy()
 
-        # Copy data
-        new_df.node_data = self.elt_data.copy()
-
         self.graph_modified = False
+
         # Set call stack to its original state
         call_stack.pop()
         
@@ -154,15 +149,16 @@ class SubGraphFactory(NodeFactory):
         factory = pkg.get_factory(factory_id)
 
         node = factory.instantiate(call_stack)
+        node.internal_data = self.elt_data[elt_id].copy()
         subgraph.add_node(node, elt_id)
 
         
-    def set_numinput(self, v):
-        self.num_input = v
+    def set_nb_input(self, v):
+        self.nb_input = v
 
         
-    def set_numoutput(self, v):
-        self.num_output = v
+    def set_nb_output(self, v):
+        self.nb_output = v
 
 
     def instantiate_widget(self, node, parent, edit = False):
@@ -193,12 +189,8 @@ class SubGraphFactory(NodeFactory):
 ################################################################################
 
 class SubGraph(Node):
-    """
-    The SubGraph is a container that interconnect
-    different node instances between them.
-    Each node is referenced by its id which is the same id
-    as in the subgraph factory
-    """
+    """ The SubGraph is a container that interconnect \
+    different node instances between them. """
 
     def __init__(self, ninput=0, noutput=0):
         """ ninput and noutput are the number of inputs and outputs """
@@ -211,10 +203,6 @@ class SubGraph(Node):
         # Dictionnary which contains tuples describing connection
         # ( dst_id , input_port ) : ( src_id, output_port )
         self.connections = {}
-
-        # Map between node and a subdictionnary which contains
-        # node data relative to the subgraph (x, y, caption...)
-        self.node_data = {}
 
         # Counter for generating id
         self.id_cpt = 1
@@ -241,18 +229,22 @@ class SubGraph(Node):
 
         sgfactory.elt_factory = {}
         sgfactory.elt_data = {}
+
+        sgfactory.set_nb_input( self.get_nb_input())
+        sgfactory.set_nb_output( self.get_nb_output())
+            
         
         # Create node if necessary
         for nid in self.node_id.keys():
-
+            if(nid == 'in' or nid == 'out') : continue
+            
             node = self.node_id[nid]
+            kdata = node.internal_data
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
 
-            sgfactory.elt_factory[nid] = (pkg_id, factory_id)
+            sgfactory.add_nodefactory(nid, (pkg_id, factory_id), kdata)
 
-        # Data
-        sgfactory.elt_data = self.node_data
 
         # Create connections
         sgfactory.connections = self.connections
@@ -369,14 +361,13 @@ class SubGraph(Node):
         return ()
 
 
-    def add_node(self, node, elt_id = None, kdata = {}):
+    def add_node(self, node, elt_id = None):
         """
         Add a node in the SubGraph with a particular id
         if id is None, autogenrate one
         
         @param node : the node instance
         @param elt_id : element id
-        @param kdata : element data dict
 
         @param return the id
         """
@@ -385,7 +376,6 @@ class SubGraph(Node):
             elt_id = "%s_%i"%(node.factory.get_id(), self.id_cpt)
 
         self.node_id[elt_id] = node
-        self.node_data[elt_id] = kdata
         
         self.id_cpt += 1
         self.notify_listeners(("subgraph_modified",))
@@ -401,7 +391,6 @@ class SubGraph(Node):
         """
         
         del self.node_id[elt_id]
-        del self.node_data[elt_id]
 
         for ((id_dst, port_dst), (id_src, port_src)) in self.connections.items():
             if(id_dst == elt_id or id_src == id):
@@ -450,29 +439,9 @@ class SubGraph(Node):
         self.graph_modified = True
 
 
-    def set_data(self, elt_id, key, val):
-        """ Define a data for node id """
-
-        try:
-            self.node_data[elt_id][key] = val
-            self.notify_listeners(("data_modified",))
-            self.graph_modified = True
-        except:
-            pass
-
-
-    def get_data(self, elt_id, key):
-        """ Return the data key for node id """
-        
-        return self.node_data[elt_id][key]
-
-        
-
 
 class SubgraphInput(Node):
-    """
-    Define a dummy node to represent subgraph input
-    """
+    """Dummy node to represent subgraph inputs"""
 
     def __init__(self, subgraph, size):
         """
@@ -485,19 +454,23 @@ class SubgraphInput(Node):
         for i in range(size):
             self.add_output("out%i"%(i,), interface = None)
 
+        self.internal_data['posx'] = 20
+        self.internal_data['posy'] = 5
+
 
     def get_output(self, index):
         """ Redirect call """
 
         return self.subgraph.get_input(index)
         
+
     def eval(self):
         return True
 
+
+
 class SubgraphOutput(Node):
-    """
-    Define a dummy node to represent subgraph output
-    """
+    """Dummy node to represent subgraph outputs"""
 
     def __init__(self, subgraph, size):
         """
@@ -510,6 +483,9 @@ class SubgraphOutput(Node):
         for i in range(size):
             self.add_input("in%i"%(i,), interface = None, value = None)
 
+        self.internal_data['posx'] = 20
+        self.internal_data['posy'] = 250
+        
 
     def set_input(self, index, val):
         """ Redirect call """
