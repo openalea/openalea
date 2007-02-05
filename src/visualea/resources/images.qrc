@@ -3,5 +3,6 @@
         <file>node.png</file>
         <file>package.png</file>
 	<file>category.png</file>
+	<file>arbreicon.png</file>
     </qresource>
 </RCC>

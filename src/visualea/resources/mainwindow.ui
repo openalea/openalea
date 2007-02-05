@@ -74,9 +74,6 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <item>
-          <widget class="QListView" name="datapool_listView" />
-         </item>
         </layout>
        </widget>
       </widget>
@@ -158,17 +155,6 @@
     <addaction name="separator" />
     <addaction name="action_Quit" />
    </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="action_Export_to_Factory" />
-    <addaction name="actionExport_as_Application" />
-   </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
      <string>&amp;Package</string>
@@ -181,8 +167,25 @@
      <addaction name="action_Auto_Search" />
     </widget>
     <addaction name="menu_Wralea_2" />
+    <addaction name="actionFind_Node" />
     <addaction name="separator" />
     <addaction name="action_New_Network" />
+    <addaction name="separator" />
+    <addaction name="actionClear_Data_Pool" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="windowIcon" >
+     <iconset/>
+    </property>
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="action_Export_to_Factory" />
+    <addaction name="separator" />
+    <addaction name="actionExport_to_Application" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -269,11 +272,6 @@
     <string>OpenAlea Web</string>
    </property>
   </action>
-  <action name="actionExport_as_Application" >
-   <property name="text" >
-    <string>Export as Application</string>
-   </property>
-  </action>
   <action name="action_Execute_script" >
    <property name="text" >
     <string>&amp;Execute script</string>
@@ -310,10 +308,28 @@
   </action>
   <action name="action_Export_to_Factory" >
    <property name="text" >
-    <string>&amp;Export to Factory</string>
+    <string>&amp;Apply Changes</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionExport_to_Application" >
+   <property name="text" >
+    <string>Export to Application</string>
+   </property>
+  </action>
+  <action name="actionClear_Data_Pool" >
+   <property name="text" >
+    <string>Clear Data Pool</string>
+   </property>
+  </action>
+  <action name="actionFind_Node" >
+   <property name="text" >
+    <string>Find Node</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>
