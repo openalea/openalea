@@ -309,8 +309,6 @@ class PackageTreeView(QtGui.QTreeView):
         return ("","", "openalea/notype")
         
 
-
-
 class DataPoolModel (QAbstractListModel) :
     """ QT4 data model (model/view pattern) to support Data Pool """
 
@@ -341,8 +339,21 @@ class DataPoolModel (QAbstractListModel) :
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
-
             return QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
+
+        # Tool Tip
+        elif( role == QtCore.Qt.ToolTipRole ):
+            l = self.datapool.keys()
+            l.sort()
+            name = l[index.row()]
+            tipstr = "%s\n\n"%(str(self.datapool[name]),)
+            tipstr +="Dir :\n  "
+            tip = filter( lambda x : not x.startswith('__'),
+                          dir(self.datapool[name]))
+            tipstr += '\n  '.join(tip)
+
+            return QtCore.QVariant(str(tipstr))
+
 
      
         else:
