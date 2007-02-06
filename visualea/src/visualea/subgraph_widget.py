@@ -584,7 +584,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                 cin.edge = None
                 
         for cout in self.connector_out:
-            for e in cout.edge_list:
+            for e in cout.edge_list[:]:
                 e.remove_edge()
             cout.edge_list = []
                 
@@ -820,6 +820,7 @@ class ConnectorIn(Connector):
             data_key = QtCore.QString()
             
             dataStream >> data_key
+            data_key = str(data_key)
 
             from openalea.core.session import DataPool
             datapool = DataPool()  # Singleton
