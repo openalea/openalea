@@ -47,12 +47,4 @@ def define_factory(package):
     
 
 
-    nf = Factory( name = "range",
-                  description = "Return an arithmetic progression of integers",
-                  category  = "Sequence",
-                  nodemodule = "simple_models",
-                  nodeclass = "Range",
-                  )
-    
-    package.add_factory( nf )
 

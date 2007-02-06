@@ -39,8 +39,8 @@ def define_factory(package):
                   widgetclass = None,
                   )
 
-    
     package.add_factory( nf )
+
 
     nf = Factory( name = "setitem",
                   description = "Python __setitem__",
@@ -51,8 +51,21 @@ def define_factory(package):
                   widgetclass = None,
                   )
 
-    
     package.add_factory( nf )
+
+
+    nf = Factory( name = "delitem",
+                  description = "Python __delitem__",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "DelItem",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+
 
     nf = Factory( name = "append",
                   description = "Python append",
@@ -62,6 +75,118 @@ def define_factory(package):
                   widgetmodule = None,
                   widgetclass = None,
                   )
-
     
     package.add_factory( nf )
+
+
+    nf = Factory( name = "keys",
+                  description = "Python keys()",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Keys",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+    
+    nf = Factory( name = "values",
+                  description = "Python values()",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Values",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+    
+    nf = Factory( name = "items",
+                  description = "Python items()",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Items",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+
+
+    nf = Factory( name = "sort",
+                  description = "Sort List",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "SortList",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "reverse",
+                  description = "Reverse List",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "ReverseList",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "range",
+                  description = "Return an arithmetic progression of integers",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Range",
+                  )
+    
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "map",
+                  description = "Apply a function on a sequence",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Map",
+                  )
+    
+    package.add_factory( nf )
+    
+
+    nf = Factory( name = "filter",
+                  description = "Apply a function on a sequence and return only true values",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Filter",
+                  )
+    
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "reduce",
+                  description = "Apply a function of two arguments cumulatively to the items of a sequence",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Reduce",
+                  )
+    
+    package.add_factory( nf )
+
+
+    nf = Factory( name = "len",
+                  description = "Return the number of items of a sequence or mapping.",
+                  category  = "Python",
+                  nodemodule = "python",
+                  nodeclass = "Len",
+                  )
+    
+    package.add_factory( nf )
+
+

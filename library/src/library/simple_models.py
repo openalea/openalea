@@ -62,30 +62,6 @@ Parameters :
 
 #//////////////////////////////////////////////////////////////////////////////
 
-class Range( Node ):
-    """range(start= 0, stop, step= 1) -> list of integers
-
-Return an arithmetic sequence of integers
-Input:
-  start: int
-  stop: int
-  step: int
-Output:
-  list of integers
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "start", interface = IInt, value= 0 ) 
-        self.add_input( name = "stop", interface = IInt, value= 1 ) 
-        self.add_input( name = "step", interface = IInt, value= 1 ) 
-        self.add_output( name = "list", interface = ISequence ) 
-
-
-    def __call__(self, inputs):
-        return ( range(*inputs), )
 
 #//////////////////////////////////////////////////////////////////////////////
 

@@ -63,64 +63,6 @@ Parameters :
 
 #//////////////////////////////////////////////////////////////////////////////
 
-class Map( Node ):
-    """Map(function, sequence) -> list
-
-Apply a function on a sequence.
-Input:
-  function
-  sequence (iterable)
-Output:
-  sequence
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence ) 
-        self.add_output( name = "list", interface = ISequence ) 
-
-
-    def __call__(self, inputs):
-        f= self.get_input_by_key("f")
-        seq= self.get_input_by_key("seq")
-        if f and seq:
-            return ( map(f,seq), )
-        else:
-            return ( [], )
-
-#//////////////////////////////////////////////////////////////////////////////
-
-class Filter( Node ):
-    """Filter(function, sequence) -> list
-
-Apply a function on a sequence.
-Input:
-  function
-  sequence (iterable)
-Output:
-  sequence
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence ) 
-        self.add_output( name = "list", interface = ISequence ) 
-
-
-    def __call__(self, inputs):
-        f= self.get_input_by_key("f")
-        seq= self.get_input_by_key("seq")
-
-        if f and seq:
-            return ( filter(f,seq), )
-        else:
-            return ( [], )
 
 #//////////////////////////////////////////////////////////////////////////////
 
@@ -177,23 +119,3 @@ Output:
         return (binop,)
 
 #//////////////////////////////////////////////////////////////////////////////
-
-class Len( Node ):
-    __doc__= len.__doc__
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input ( name = "object", interface = None, value= [] ) 
-        self.add_output( name = "n", interface = None ) 
-
-    def __call__(self, inputs):
-        obj= self.get_input_by_key("object")
-
-        f= None
-        if callable(obj):
-            f= lambda x: len(obj(x))
-        else:
-            f= len(obj)
-        return ( f, )
