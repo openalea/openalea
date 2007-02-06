@@ -30,14 +30,16 @@ def init_interpreter(interpreter, session):
     (import, variables...)
     """
     interpreter.runsource("from openalea.core.cli import *")
-    interpreter.locals['__session__'] = session
-    interpreter.locals['__pmanager__'] = session.pkgmanager
+    interpreter.locals['session'] = session
+    interpreter.locals['pmanager'] = session.pkgmanager
+    interpreter.locals['datapool'] = session.datapool
 
 def get_welcome_msg():
     """ Return a welcome message """
 
-    return " __session__ = current Session instance.\n"+\
-           " __pmanager__ = current  PackageManager instance."
+    return " session = Session instance.\n"+\
+           " pmanager = PackageManager instance.\n"+\
+           " datapool = DataPool instance."
 
 
 
