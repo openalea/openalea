@@ -4,5 +4,6 @@
         <file>package.png</file>
 	<file>category.png</file>
 	<file>arbreicon.png</file>
+	<file>ccmime.png</file>
     </qresource>
 </RCC>

@@ -153,6 +153,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
 
+    def mousePressEvent(self, event):
+
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            QtGui.QGraphicsView.mousePressEvent(self, event)
+
+
+
     def mouseReleaseEvent(self, event):
         
         if(self.newedge):
@@ -368,11 +375,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.accept()
         else:
-            event.ignore()
-
-
-    def dragLeaveEvent(self, event):
-        event.accept()
+            QtGui.QGraphicsView.dragEnterEvent(self, event)
 
 
     def dragMoveEvent(self, event):
@@ -380,7 +383,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
-            event.ignore()
+            QtGui.QGraphicsView.dragMoveEvent(self, event)
 
             
     def add_new_node(self, package_id, factory_id, position):
@@ -428,7 +431,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
             event.accept()
 
         else:
-            event.ignore()
+            QtGui.QGraphicsView.dropEvent(self, event)
 
     # Keybord Event
     def keyPressEvent(self, e):
@@ -471,8 +474,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         # Record item as a listener for the subnode
         self.ismodified = True
         self.initialise(self.subnode)
-
-        
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsMovable +
@@ -720,9 +721,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                                    QtGui.QLineEdit.Normal, n.internal_data['caption'])
         if(ok):
             n.set_caption(str(result))
-        
-        
-
 
 
 ################################################################################
@@ -776,7 +774,7 @@ class ConnectorIn(Connector):
         self.edge = None
 
         self.adjust_position(parent, index, ntotal)
-
+        self.setAcceptDrops(True)
 
     def set_edge(self, edge):
         self.edge = edge
@@ -798,7 +796,42 @@ class ConnectorIn(Connector):
 
         if(not self.edge and (event.buttons() & QtCore.Qt.LeftButton)):
             self.graphview.start_edge(self)
-    
+            
+
+    # Drag and Drop from TreeView support
+    def dragEnterEvent(self, event):
+        event.setAccepted(event.mimeData().hasFormat("openalea/data_instance"))
+
+
+    def dragMoveEvent(self, event):
+        if ( event.mimeData().hasFormat("openalea/data_instance") ):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+            
+    def dropEvent(self, event):
+
+        if (event.mimeData().hasFormat("openalea/data_instance")):
+            pieceData = event.mimeData().data("openalea/data_instance")
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+            
+            data_key = QtCore.QString()
+            
+            dataStream >> data_key
+
+            from openalea.core.session import DataPool
+            datapool = DataPool()  # Singleton
+
+            node = self.parentItem().subnode
+            data = node.set_input(self.mindex, datapool[data_key])
+
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+
+        else:
+            event.ignore()
 
 
 class ConnectorOut(Connector):
@@ -826,10 +859,11 @@ class ConnectorOut(Connector):
 
 
     def mousePressEvent(self, event):
-        QtGui.QGraphicsItem.mousePressEvent(self, event)
-        
+
         if (event.buttons() & QtCore.Qt.LeftButton):
             self.graphview.start_edge(self)
+        
+        QtGui.QGraphicsItem.mousePressEvent(self, event)
 
 
     def contextMenuEvent(self, event):
@@ -842,9 +876,20 @@ class ConnectorOut(Connector):
         
         menu.move(event.screenPos())
         menu.show()
+        
 
     def send_to_pool(self):
-        pass
+
+        (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Data Pool", "Instance name",
+                                                      QtGui.QLineEdit.Normal, )
+        if(ok):
+            from openalea.core.session import DataPool
+            datapool = DataPool()  # Singleton
+
+            self.parentItem().run_node()
+            node = self.parentItem().subnode
+            data = node.get_output(self.mindex)
+            datapool[result] = data
 
 
 
