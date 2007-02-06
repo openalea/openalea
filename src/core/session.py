@@ -160,7 +160,9 @@ class DataPool(Observed):
             pass
 
     def clear(self):
-        return self.data.clear()
+        ret = self.data.clear()
+        self.notify_listeners(('pool_modified',))
+        return ret
 
     def __getitem__(self, key):
         return self.data[key]
