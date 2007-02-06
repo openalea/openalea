@@ -622,6 +622,7 @@ class DistxDistribution(Distribution):
         self.scons_parameters = None
         self.set_win_var = None
         self.set_lsb_var = None
+        self.set_env_var = None # Deprecated
 
         Distribution.__init__(self,attrs)
         
