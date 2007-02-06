@@ -107,7 +107,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
 
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
-        self.connect(self.actionExport_to_Application, SIGNAL("activated()"), self.export_to_application)
+        self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
+                     self.export_to_application)
+        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"),
+                     self.clear_data_pool)
         
         # final init
         self.session = session
@@ -445,6 +448,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         if(not filename) : return
 
         self.session.save(filename)
+
+    def clear_data_pool(self):
+
+        self.session.datapool.clear()
        
        
 
