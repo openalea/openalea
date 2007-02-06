@@ -49,6 +49,7 @@ class Session(Observed):
 
        
     def add_workspace(self, node):
+        """ Add a workspace to the session """
 
         self.workspaces.append(node)
         self.notify_listeners()
@@ -56,6 +57,7 @@ class Session(Observed):
 
 
     def close_workspace(self, index):
+        """ Close workspace at index """
         try:
             del(self.workspaces[index])
             self.notify_listeners()
@@ -128,8 +130,53 @@ class Session(Observed):
         """ Create a new graph in the user package """
         pass
     
-    
 
-class DataPool(dict):
+from openalea.core.singleton import Singleton
+
+class DataPool(Observed):
     """ Dictionnary of user data """
-    pass
+
+    __metaclass__ = Singleton
+
+    def __init__(self):
+
+        Observed.__init__(self)
+        self.data = {}
+
+        
+    def add_data(self, key, instance):
+        """ Add an instance referenced by key to the data pool """
+
+        self.data[key] = instance
+        self.notify_listeners(('pool_modified',))
+
+    def remove_data(self, key):
+        """ Remove the instance identified by key """
+
+        try:
+            del(self.data[key])
+            self.notify_listeners(('pool_modified',))
+        except:
+            pass
+
+    def clear(self):
+        return self.data.clear()
+
+    def __getitem__(self, key):
+        return self.data[key]
+    
+    def __setitem__(self, key, val):
+        self.data[key] = val
+        self.notify_listeners(('pool_modified',))
+
+    def __len__(self):
+        return len(self.data)
+
+    def keys(self):
+        return self.data.keys()
+
+    def items(self):
+        return self.data.items()
+
+    def values(self):
+        return self.data.values()

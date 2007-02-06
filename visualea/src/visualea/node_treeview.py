@@ -27,7 +27,7 @@ from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.core import NodeFactory, Package
 from openalea.core.pkgmanager import PackageManager, Category
-
+from openalea.core.observer import AbstractListener
 
 import images_rc
 
@@ -335,7 +335,9 @@ class DataPoolModel (QAbstractListModel) :
         if (role == QtCore.Qt.DisplayRole):
             l = self.datapool.keys()
             l.sort()
-            return self.datapool[l[row]]
+            name = l[index.row()]
+            classname = self.datapool[name].__class__
+            return QVariant("%s (%s)"%(name, classname))
      
         else:
             return QVariant()
@@ -358,91 +360,76 @@ class DataPoolModel (QAbstractListModel) :
         return len(self.datapool.keys())
 
 
-class DataPoolListView(QtGui.QListView):
+
+class DataPoolListView(QtGui.QListView, AbstractListener):
     """ Specialized QListView to display data pool contents """
     
-    def __init__(self, main_win, parent=None):
+    def __init__(self, main_win, datapool, parent=None):
         """
         @param main_win : main window
+        @param datapool : datapool instance
         @param parent : parent widget
         """
         
         QtGui.QListView.__init__(self, parent)
+        AbstractListener.__init__(self)
 
         self.main_win = main_win
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
+
+        AbstractListener.initialise(self, datapool)
+
+
+    def notify(self, sender, event):
+        """ Notification by observed """
+        self.reset()
         
         
-#     def dragEnterEvent(self, event):
-#         if event.mimeData().hasFormat("openalea/nodefactory"):
-#             event.accept()
-#         else:
-#             event.ignore()
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat("openalea/data_instance"):
+            event.accept()
+        else:
+            event.ignore()
 
-#     def dragMoveEvent(self, event):
-#         if event.mimeData().hasFormat("openalea/nodefactory"):
-#             event.setDropAction(QtCore.Qt.MoveAction)
-#             event.accept()
-#         else:
-#             event.ignore()
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat("openalea/data_instance"):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
 
-#     def dropEvent(self, event):
-#             event.ignore()
+    def dropEvent(self, event):
+        
+        event.ignore()
 
-#     def startDrag(self, supportedActions):
-#         item = self.currentIndex()
 
-#         itemData = QtCore.QByteArray()
-#         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-#         pixmap = QtGui.QPixmap(item.data(QtCore.Qt.DecorationRole))
+    def startDrag(self, supportedActions):
 
-#         (pkg_id, factory_id, mimetype) = self.get_item_info(item)
+        item = self.currentIndex()
 
-#         dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
+        itemData = QtCore.QByteArray()
+        dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+        pixmap = QtGui.QPixmap(":/icons/ccmime.png")
 
-#         mimeData = QtCore.QMimeData()
+        l = self.model().datapool.keys()
+        l.sort()
+        name = l[item.row()]
 
-#         mimeData.setData(mimetype, itemData)
+
+        dataStream << QtCore.QString(name)
+
+        mimeData = QtCore.QMimeData()
+
+        mimeData.setData("openalea/data_instance", itemData)
     
-#         drag = QtGui.QDrag(self)
-#         drag.setMimeData(mimeData)
-#         drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
-#         drag.setPixmap(pixmap)
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+        drag.setPixmap(pixmap)
 
-#         drag.start(QtCore.Qt.MoveAction)
+        drag.start(QtCore.Qt.MoveAction)
 
-        
-#     def mouseDoubleClickEvent(self, event):
-
-#         item = self.currentIndex()
-#         obj =  item.internalPointer()
-        
-#         if(isinstance(obj, NodeFactory)):
-#             node = obj.instantiate()
-#             self.main_win.session.add_workspace(node)
-#             self.main_win.open_widget_tab(node)
-
-#         if(isinstance(obj, Package)):
-#             # Display URL
-#             urlstr = obj.get_metainfo('url')
-#             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
-
-            
-
-#     def get_item_info(self, item):
-#         """ Return (package_id, factory_id, mimetype) corresponding to item """
-        
-#         # put in the Mime Data pkg id and factory id
-#         obj = item.internalPointer()
-
-#         if(obj.mimetype == "openalea/nodefactory"):
-
-#             factory_id = obj.get_id()
-#             pkg_id = obj.package.get_id()
-            
-#             return (pkg_id, factory_id, obj.mimetype)
-
-#         return ("","", "openalea/notype")
+       
