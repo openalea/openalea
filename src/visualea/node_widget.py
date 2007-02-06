@@ -420,6 +420,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
+        self.setMinimumSize(100, 20)
 
         self.widgets = []
 
@@ -427,6 +428,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(2)
 
+        empty = True
         for (name, interface) in node.input_desc:
 
             if(type(interface) == types.TypeType):
@@ -438,13 +440,15 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
                 widget = wclass(node, self, name, interface)
                 vboxlayout.addWidget(widget)
                 self.widgets.append(widget)
+                empty = False
             else:
                 self.widgets.append(None)
 
         # If there is no subwidget, add the name
-        if( len(self.widgets) == 0):
+        if( empty):
             label = QtGui.QLabel(self)
-            label.setText(self.node.factory.description)
+            label.setText(self.node.__class__.__name__+
+                          " (No Widget available)")
 
             vboxlayout.addWidget(label)
 
