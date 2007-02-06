@@ -889,7 +889,7 @@ class ConnectorOut(Connector):
             self.parentItem().run_node()
             node = self.parentItem().subnode
             data = node.get_output(self.mindex)
-            datapool[result] = data
+            datapool[str(result)] = data
 
 
 
