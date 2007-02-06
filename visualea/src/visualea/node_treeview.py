@@ -338,6 +338,12 @@ class DataPoolModel (QAbstractListModel) :
             name = l[index.row()]
             classname = self.datapool[name].__class__
             return QVariant("%s (%s)"%(name, classname))
+
+        # Icon
+        elif( role == QtCore.Qt.DecorationRole ):
+
+            return QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
+
      
         else:
             return QVariant()
