@@ -79,7 +79,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
-        self.datapoolListView = DataPoolListView(self, self.datapoolview)
+        self.datapoolListView = DataPoolListView(self, session.datapool, self.datapoolview)
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout2.addWidget(self.datapoolListView)
 
@@ -235,7 +235,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
             f = widget.node.factory
-            if(node.factory == f):
+            if(node.factory is f):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
 
