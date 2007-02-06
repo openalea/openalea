@@ -16,14 +16,14 @@
 
 
 __doc__="""
-Arithmetic nodes
+Models nodes
 """
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core.external import *
+from openalea.core import *
 from operator import *
 
 class LinearModel(Node):
@@ -59,153 +59,6 @@ Parameters :
         y = a*x + b
 
         return ( y,  )
-
-
-class InputFile(Node):
-    """
-A file path
-Out :  the file path string
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "Filename", interface = IFileStr, value = "")
-        self.add_output( name = "Filename", interface = IFileStr)
-            
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        return ( str(inputs[0]),  )
-
-
-class Bool(Node):
-    """
-Boolean value
-Out :  the value
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "Bool", interface = IBool, value = False)
-        self.add_output( name = "Bool", interface = IBool)
-            
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        return ( bool(inputs[0]),  )
-
-
-class Int(Node):
-    """
-Variable
-Input 0 : The stored value
-Ouput 0 : Transmit the stored value
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "val", interface = IInt, value = 0) 
-        self.add_output( name = "out", interface = IInt) 
-
-    def __call__(self, inputs):
-
-        v = int(inputs[0])
-        self.set_caption(str(v))
-        return ( v, )
-
-
-class Float(Node):
-    """
-Variable
-Input 0 : The stored value
-Ouput 0 : Transmit the stored value
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "val", interface = IFloat, value = 0.) 
-        self.add_output( name = "out", interface = IFloat) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( float(inputs[0]), )
-
-
-class String(Node):
-    """
-String Variable
-Input 0 : The stored value
-Ouput 0 : Transmit the stored value
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "str", interface = IStr, value = "") 
-        self.add_output( name = "str", interface = IStr) 
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( str(inputs[0]), )
-
-
-class EnumTest(Node):
-    """
-String enumeration Test
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "val", interface = IEnumStr(["enum1", "enum2", "enum3"]), value = "enum1") 
-        self.add_output( name = "out", interface = IStr) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( inputs[0], )
-
-
-class RGB(Node):
-    """
-RGB Color
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "rgb", interface = IRGBColor, value = (0,0,0)) 
-        self.add_output( name = "rgb", interface = IStr) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
-        return ( inputs[0], )
-
 
 #//////////////////////////////////////////////////////////////////////////////
 

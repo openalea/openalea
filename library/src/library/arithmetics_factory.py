@@ -43,4 +43,39 @@ def define_factory(package):
 
     package.add_factory( nf )
 
+    nf = Factory( name= "sub", 
+                  description= "Soustraction", 
+                  category = "Operations", 
+                  nodemodule = "arithmetics",
+                  nodeclass = "Sub",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "mult", 
+                  description= "Multiplication", 
+                  category = "Operations", 
+                  nodemodule = "arithmetics",
+                  nodeclass = "Mult",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "div", 
+                  description= "Division", 
+                  category = "Operations", 
+                  nodemodule = "arithmetics",
+                  nodeclass = "Div",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+
+    package.add_factory( nf )
 

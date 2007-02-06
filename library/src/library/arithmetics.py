@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 
 
 
-from openalea.core.external import *
+from openalea.core import *
 
 
         
@@ -50,6 +50,70 @@ class Add(Node):
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( sum(inputs),)
+        return ( inputs[0] + inputs[1], )
         
 
+class Sub(Node):
+    """ Generic Soustraction
+    Output 0 : Input 0 - Input 1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.add_input( name = "In 0", interface = None, value = 0.)
+        self.add_input( name = "In 1", interface = None, value = 0.)
+            
+        self.add_output( name = "Out", interface = None) 
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( inputs[0]- inputs[1], )
+
+
+class Mult(Node):
+    """ Generic Multiplication
+    Output 0 : Input 0 * Input 1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.add_input( name = "In 0", interface = None, value = 1.)
+        self.add_input( name = "In 1", interface = None, value = 1.)
+            
+        self.add_output( name = "Out", interface = None) 
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( inputs[0] * inputs[1], )
+
+
+class Div(Node):
+    """ Generic Division
+    Output 0 : Input 0 / Input 1
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        # defines I/O
+        self.add_input( name = "In 0", interface = None, value = 1.)
+        self.add_input( name = "In 1", interface = None, value = 1.)
+            
+        self.add_output( name = "Out", interface = None) 
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( inputs[0] / inputs[1], )

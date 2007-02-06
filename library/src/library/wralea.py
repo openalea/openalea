@@ -27,8 +27,11 @@ from openalea.core import *
 
 import arithmetics_factory
 import simple_models_factory
+import data_factory
 import python_function_factory
+import python_factory
 import plot_tools_nodes_factory
+
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -36,7 +39,7 @@ def register_packages(pkgmanager):
     This function is called by the package manager when it is updated
     """
 
-    # Arithmetics
+    # Base Library
 
     metainfo={ 'version' : '0.0.1',
                'license' : 'CECILL-C',
@@ -51,9 +54,13 @@ def register_packages(pkgmanager):
 
     arithmetics_factory.define_factory(package1)
     simple_models_factory.define_factory(package1)
+    data_factory.define_factory(package1)
+    python_factory.define_factory(package1)
     python_function_factory.define_factory(package1)
     
     pkgmanager.add_package(package1)
+
+
 
     #plot tools
 
