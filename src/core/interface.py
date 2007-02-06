@@ -81,3 +81,7 @@ class IFunction(Interface):
 class ISequence(Interface):
     """ Sequence interface (list, tuple, ...) """
     pass
+
+class IDict(Interface):
+    """ Dictionary interface """
+    pass
