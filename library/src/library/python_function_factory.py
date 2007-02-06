@@ -29,6 +29,71 @@ from openalea.core.external import *
 def define_factory(package):
     """ Define factories for arithmetics nodes """
 
+    nf = Factory( name= "ifelse", 
+                  description= "Condition", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "IfElse",
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name= "==", 
+                  description= "Equality test", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "Equal",
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name= ">", 
+                  description= "Greater than test", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "Greater",
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name= ">=", 
+                  description= "greater or Equal test", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "GreaterOrEqual",
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "and", 
+                  description= "Boolean And", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "And",
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "or", 
+                  description= "Boolean Or", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "Or",
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "not", 
+                  description= "Boolean Not", 
+                  category = "Condition", 
+                  nodemodule = "python_function",
+                  nodeclass = "Not",
+                  )
+
+    package.add_factory( nf )
 
 
     nf = Factory( name= "ax+b", 
