@@ -31,9 +31,8 @@ import openalea
 
 def test_session():
 
-    pkgman = PackageManager()
-
-    session = Session(pkgman)
+    session = Session()
+    pkgman = session.pkgmanager
 
     # user package is created
     assert pkgman.pkgs.has_key(Session.USR_PKG_NAME)
@@ -49,30 +48,22 @@ def test_session():
     session.load('savesession.xml')
     assert pkgman.pkgs.has_key(Session.USR_PKG_NAME)
     assert session.user_pkg.has_key('Workspace')
-    
-def test_load():
 
     
-    pkgman = PackageManager()
-    session = Session(pkgman)
-    
-    session.load('testsave.xml')
-
-    assert len(session.user_pkg.keys())==2
 
 
 def test_save():
-    pkgman = PackageManager()
-    session = Session(pkgman)
     
-    sgfactory = SubGraphFactory(pkgman, name="SubGraphExample",
+    session = Session()
+    
+    sgfactory = SubGraphFactory(session.pkgmanager, name="SubGraphExample",
                                 description= "Examples",
                                 category = "Examples",
                                 )
 
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory ("Library", "add", (200,200))
+    addid = sgfactory.add_nodefactory ('add1', ("Library", "add"))
     session.user_pkg.add_factory(sgfactory)
 
     session.save('testsave2.xml')
@@ -82,8 +73,5 @@ def test_save():
     
     assert len(session.user_pkg.keys())==2
 
-    
 
-test_session()
-test_load()
-test_save()
+

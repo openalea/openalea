@@ -170,7 +170,7 @@ class PackageManager(object):
         @return : a list of pkgreader instances
         """
 
-        from tools.path import path
+        from path import path
 
         wralea_files= set()
         for wp in self.wraleapath:
