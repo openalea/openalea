@@ -39,19 +39,19 @@ class QT:
         qt_bin= '$QTDIR/bin'
         qt_inc= '$QTDIR/include'
 
-        if not qtdir:
+        if not qt_dir:
             if isinstance( platform, Win32 ):
-                qtdir= pj('C:','QT')
+                qt_dir= pj('C:','QT')
             elif isinstance( platform, Posix ):
-                qtdir= pj( '/usr', 'lib', 'qt3' )
-                if not exists( pj( qtdir, bin ) ):
+                qt_dir= pj( '/usr', 'lib', 'qt3' )
+                if not exists( pj( qt_dir, bin ) ):
                     # Use LSB spec
-                    qtdir= None
+                    qt_dir= None
                     qt_bin= '/usr/bin'
                     qt_inc= '/usr/include/qt3'
                     qt_lib= '/usr/lib'
 
-        self._default[ "QTDIR" ]= qtdir
+        self._default[ "QTDIR" ]= qt_dir
         self._default[ "QT_BINPATH" ]= qt_bin
         self._default[ "QT_CPPPATH" ]= qt_inc
         self._default[ "QT_LIBPATH" ]= qt_lib
