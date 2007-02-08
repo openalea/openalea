@@ -57,21 +57,21 @@ class QT:
         self._default[ "QT_LIBPATH" ]= qt_lib
 
 
-   def option(  self, opts ):
+    def option(  self, opts ):
 
-      self.default()
+        self.default()
 
-      opts.Add( ( 'QTDIR', 'QT directory', 
-                self._default[ 'QTDIR' ] ) )
-      opts.Add( ( 'QT_BINPATH', 'QT binaries path.', 
-                self._default[ 'QT_BINPATH' ] ) )
-      opts.Add( ( 'QT_CPPPATH', 'QT includes path.', 
-                self._default[ 'QT_CPPPATH' ] ) )
-      opts.Add( ( 'QT_LIBPATH', 'QT lib path.', 
-                self._default[ 'QT_LIBPATH' ] ) )
+        opts.Add( ( 'QTDIR', 'QT directory', 
+                    self._default[ 'QTDIR' ] ) )
+        opts.Add( ( 'QT_BINPATH', 'QT binaries path.', 
+                    self._default[ 'QT_BINPATH' ] ) )
+        opts.Add( ( 'QT_CPPPATH', 'QT includes path.', 
+                    self._default[ 'QT_CPPPATH' ] ) )
+        opts.Add( ( 'QT_LIBPATH', 'QT lib path.', 
+                    self._default[ 'QT_LIBPATH' ] ) )
 
 
-   def update( self, env ):
+    def update( self, env ):
       """ Update the environment with specific flags """
 
       t= Tool( 'qt' )
@@ -93,7 +93,7 @@ class QT:
       if isinstance( platform, Win32 ):
          env.AppendUnique( CPPDEFINES= ['QT_DLL'] )
 
-   def configure( self, config ):
+    def configure( self, config ):
       if not config.conf.CheckLibWithHeader( 'qt-mt', 
                 [ 'qapplication.h', 'qgl.h', 'qthread.h' ], 
                 'c++', 
