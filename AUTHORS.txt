@@ -1,3 +1,6 @@
-Christophe Pradal <christophe.pradal@cirad.fr>
-Pierre Barbier de Reuille <pierre.barbier@sophia.inria.fr>
-Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+Authors:
+  Christophe Pradal <christophe.pradal@cirad.fr>
+
+Contributors:
+  Pierre Barbier de Reuille <pierre.barbier@sophia.inria.fr>
+  Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
