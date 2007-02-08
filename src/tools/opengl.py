@@ -36,7 +36,8 @@ class OpenGL:
    def default( self ):
 
         if isinstance( platform, Win32 ):
-            MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
+            #MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
+            MVSdir = r'C:\Program Files\Microsoft Platform SDK'
             self._default[ 'include' ]= pj( MVSdir, 'Include' )
             self._default[ 'lib' ]= pj( MVSdir, 'Lib' )
         elif isinstance( platform, Posix ):
