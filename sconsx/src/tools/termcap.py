@@ -34,7 +34,7 @@ class Termcap:
    def default( self ):
       if isinstance( platform, Posix ):
          self._default[ 'include' ]= pj('/usr','include')
-         self._default[ 'lib' ]= pj(  '/usr', 'lib' )
+         self._default[ 'lib' ]= pj( '/usr', 'lib' )
 
 
    def option(  self, opts ):
