@@ -69,7 +69,7 @@ class SubGraphFactory(NodeFactory):
             self.doc = ""
 
 
-    def add_nodefactory(self, elt_id, (pkg_id, factory_id), kdata):
+    def add_nodefactory(self, elt_id, (pkg_id, factory_id), kdata = {}):
         """
         Add a node description to the factory
         @param elt_id : element id
@@ -79,6 +79,8 @@ class SubGraphFactory(NodeFactory):
 
         self.elt_factory[elt_id] = (pkg_id, factory_id)
         self.elt_data[elt_id] = kdata
+
+        return elt_id
 
 
     def add_connection(self, src_id, port_src, dst_id, port_dst):
@@ -288,8 +290,8 @@ class SubGraph(Node):
     
     def eval_as_expression(self, node_id=None):
         """
-        Evaluate a node
-        if node is None, then all the nodes without sons are evaluated
+        Evaluate a node_id
+        if node_id is None, then all the nodes without sons are evaluated
         """
 
         # dict to keep trace of evaluated node

@@ -38,3 +38,5 @@ In a python interpreter :
 
    import openalea.core
    help(openalea.core)
+
+See Website : http://openalea.gforge.inria.fr
