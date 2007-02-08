@@ -19,7 +19,9 @@ from distutils.core import setup
 name= 'core'
 namespace=config.namespace 
 pkg_name= namespace + '.' + name
-version= '0.1.0' 
+
+import version as versionmodule
+version = versionmodule.version
 
 description= 'OpenAlea Component platform core.' 
 long_description= ''

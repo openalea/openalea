@@ -13,7 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-###############################################################################
+
 
 __doc__="""
 This module defines all the base class for the OpenAlea Kernel
@@ -23,7 +23,6 @@ This module defines all the base class for the OpenAlea Kernel
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-###############################################################################
 
 
 # Exceptions
@@ -87,23 +86,26 @@ class Node(Observed):
     # Accessor
     
     def get_factory(self):
+        """ Return the factory of the node (if any) """
         return self.factory
 
 
     # Internal data accessor
     def set_caption(self, newcaption):
+        """ Define the node caption """
         self.internal_data['caption'] = newcaption
         self.notify_listeners( ("caption_modified",) )
 
 
     def set_data(self, key, value):
+        """ Set internal node data """
         self.internal_data[key] = value
         self.notify_listeners( ("data_modified",) )
 
 
     # Status
     def unvalidate_input(self, input_index):
-        """ Unvalidate , and notify listeners """
+        """ Unvalidate node and notify listeners """
         self.modified = True
         self.notify_listeners( ("input_modified",input_index) )
 
@@ -128,38 +130,38 @@ class Node(Observed):
 
     # I/O Functions
     def get_input_interface_by_key(self, key):
-
+        """ Return the interface of an input port """
         index = self.map_index_in[key]
         return self.input_desc[index][1]
 
 
     def get_output_interface_by_key(self, key):
-
+        """ Return the interface of an output port """
         index = self.map_index_out[key]
         return self.output_desc[index][1]
 
     
     def get_input_by_key(self, key):
-
+        """ Return the input value for the specified port name (key)"""
         index = self.map_index_in[key]
         return self.inputs[index]
 
 
     def set_input_by_key(self, key, val):
-
+        """ Set the input value for the specified port name (key)"""
         index = self.map_index_in[key]
         self.inputs[index] =  val
         self.unvalidate_input(index)
         
 
     def get_output_by_key(self, key):
-
+        """ Return the output value for the specified port name (key)"""
         index = self.map_index_out[key]
         return self.outputs[index]
 
 
     def set_output_by_key(self, key, val):
-
+        """ Set the output value for the specified port name (key)"""
         index = self.map_index_out[key]
         self.outputs[index] =  val
 
@@ -184,7 +186,7 @@ class Node(Observed):
 
 
     def set_output(self, index, val):
-        """ Define the output value for the specified index """
+        """ Set the output value for the specified index """
         self.outputs[index] = val
 
 
@@ -205,10 +207,12 @@ class Node(Observed):
     
         
     def get_nb_input(self):
+        """ Return the nb of input ports """
         return len(self.inputs)
 
     
     def get_nb_output(self):
+        """ Return the nb of output ports """
         return len(self.outputs)
 
 
@@ -378,11 +382,11 @@ Factory = NodeFactory
 
 class NodeWidget(AbstractListener):
     """
-    Base class for all node widget classes
+    Base class for all node widget classes.
     """
 
     def __init__(self, node):
-
+        """ Init the widget with the associated node """
         self.node = node
 
         # register to observed node
@@ -390,10 +394,12 @@ class NodeWidget(AbstractListener):
 
 
     def get_node(self):
+        """ Return the associated node """
         return self.__node
 
 
     def set_node(self, node):
+        """ Define the associated node """
         self.__node = node
 
     node = property(get_node, set_node)
@@ -472,7 +478,7 @@ class Package(dict):
     def get_metainfo(self, key):
         """
         Return a meta information.
-        See the standard key the __init__ function documentation.
+        See the standard key in the __init__ function documentation.
         """
         try:
             return self.metainfo[key]
@@ -488,7 +494,7 @@ class Package(dict):
 
 
     def get_names(self):
-        """ Return all the factory names  in a list"""
+        """ Return all the factory names in a list """
 
         return self.keys()
     

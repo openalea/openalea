@@ -111,7 +111,7 @@ class PyPackageReader(PackageReader):
 
 
 class XmlPackageReader(PackageReader):
-    """ Read package as a XML file """
+    """ Read package from a XML file """
 
     def __init__(self, filename):
         PackageReader.__init__(self, filename)
@@ -262,7 +262,7 @@ class XmlPackageReader(PackageReader):
 
 
     def get_xml_subgraphfactory(self, xmlnode, pkgmanager):
-        """ Parse Xml to retrieve subgraphfactory info """
+        """ Parse XML data to retrieve subgraphfactory info """
 
         factorylist = []
 
@@ -515,7 +515,7 @@ class SubGraphFactoryXmlWriter(XmlWriter):
 
 
 class PackageXmlWriter(XmlWriter):
-    """ Class to write a subgraph to XML """
+    """ Class to write a Package to XML """
 
     def __init__(self, package):
         """ Constructor :
@@ -550,7 +550,7 @@ class PackageXmlWriter(XmlWriter):
 
 
 class SessionWriter(XmlWriter):
-    """ Class to write the Session"""
+    """ Class to write the Session in a XML structure """
 
     def __init__(self, session):
         """

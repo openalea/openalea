@@ -123,7 +123,9 @@ class SubGraphFactory(NodeFactory):
             self.instantiate_id(elt_id, new_df, call_stack)
 
         # Create the connections
-        new_df.connections = self.connections.copy()
+        for (( dst_id , iport), ( src_id, oport )) in self.connections.items():
+            #new_df.connections = self.connections.copy()
+            new_df.connect(src_id, oport, dst_id, iport)
 
         self.graph_modified = False
 
