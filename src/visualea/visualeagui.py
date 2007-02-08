@@ -9,9 +9,9 @@
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
 #
-#       Distributed under the GPL License.
+#       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
-#           http://www.gnu.org/licenses/gpl.txt
+#           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
@@ -20,7 +20,7 @@ __doc__="""
 Main Module for graphical interface
 """
 
-__license__= "GPL"
+__license__= "CeCILL v2"
 __revision__=" $Id$"
 
 

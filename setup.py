@@ -20,7 +20,10 @@ name= 'visualea'
 namespace=config.namespace 
 pkg_name= namespace + '.' + name
 
-version= '0.1.0' 
+sys.path.append("src")
+import visualea.metainfo as metainfo
+
+version= metainfo.version
 
 description= 'OpenAlea GUI.' 
 long_description= ''
@@ -28,7 +31,7 @@ long_description= ''
 author= 'OpenAlea consortium'
 author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 
-url= 'http://openalea.gforge.inria.fr'
+url= metainfo.url
 license= 'Cecill' 
 
 
