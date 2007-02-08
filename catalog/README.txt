@@ -1,15 +1,15 @@
-OpenAlea.NodeLibrary
---------------------
+OpenAlea.Catalog
+----------------
 
-Provides common nodes.
+OpenAlea.Catalog groups libraries of nodes useable in Visualea
+
 
 License
 -------
 
-OpenAlea.NodeLibrary is released under a Cecill-C License.
+OpenAlea.Catalog is released under a Cecill-C License.
 
 See LICENSE.txt
-
 Nota : Cecill-C license is a LGPL compatible license.
 
 
@@ -25,3 +25,9 @@ Installation
 ------------
 
 python setup.py install
+
+
+Documentation
+-------------
+
+See the web site : http://openalea.gforge.inria.fr
