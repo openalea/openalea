@@ -24,6 +24,7 @@ __revision__="$Id: $"
 import os, sys
 from openalea.sconsx.config import *
 
+exists= os.path.exists
 
 class OpenGL:
    def __init__( self, config ):
@@ -34,13 +35,17 @@ class OpenGL:
 
    def default( self ):
 
-      if isinstance( platform, Win32 ):
-         MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
-         self._default[ 'include' ]= pj( MVSdir, 'Include' )
-         self._default[ 'lib' ]= pj( MVSdir, 'Lib' )
-      elif isinstance( platform, Posix ):
-         self._default[ 'include' ]= '/usr/X11R6/include'
-         self._default[ 'lib' ]= '/usr/X11R6/lib'
+        if isinstance( platform, Win32 ):
+            MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
+            self._default[ 'include' ]= pj( MVSdir, 'Include' )
+            self._default[ 'lib' ]= pj( MVSdir, 'Lib' )
+        elif isinstance( platform, Posix ):
+            if exists ( '/usr/include/GL/gl.h' ):
+                self._default[ 'include' ]= '/usr/include'
+                self._default[ 'lib' ]= '/usr/lib'
+            else: 
+                self._default[ 'include' ]= '/usr/X11R6/include'
+                self._default[ 'lib' ]= '/usr/X11R6/lib'
 
 
    def option(  self, opts ):

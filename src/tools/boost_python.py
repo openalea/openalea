@@ -76,6 +76,7 @@ class Boost_Python:
          ( 'boost_defines', 
            'Boost_python defines', 
            self._default[ 'defines' ] ),
+
          ( 'boost_libs_suffix', 
            'Boost_python library suffix name like -vc80-mt or -gcc', 
            self._default[ 'libs_suffix' ] )

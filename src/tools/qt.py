@@ -1,20 +1,20 @@
 # -*-python-*-
-#--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #
-#       OpenAlea.SConsX: SCons extension package for building platform
-#                        independant packages.
+#   OpenAlea.SConsX: SCons extension package for building platform
+#                    independant packages.
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#   Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#   File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #
-#       Distributed under the Cecill-C License.
-#       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#   Distributed under the Cecill-C License.
+#   See accompanying file LICENSE.txt or copy at
+#       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
-#--------------------------------------------------------------------------------
+#   OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+#-------------------------------------------------------------------------------
 
 __doc__=""" QT configure environment. """
 __license__= "Cecill-C"
@@ -23,36 +23,52 @@ __revision__="$Id: $"
 import os, sys
 from openalea.sconsx.config import *
 
+exists= os.path.exists
+
 class QT:
-   def __init__( self, config ):
-      self.name= 'qt'
-      self.config= config
-      self._default= {}
+    def __init__( self, config ):
+        self.name= 'qt'
+        self.config= config
+        self._default= {}
 
 
-   def default( self ):
+    def default( self ):
 
-      qtdir= os.getenv( "QTDIR" )
-      if not qtdir:
-         if isinstance( platform, Win32 ):
-            qtdir= pj('C:','QT')
-         elif isinstance( platform, Posix ):
-            qtdir= pj( '/usr', 'lib', 'qt3' )
-      self._default[ "QTDIR" ]= qtdir
+        qt_dir= os.getenv( "QTDIR" )
+        qt_lib= '$QTDIR/lib'
+        qt_bin= '$QTDIR/bin'
+        qt_inc= '$QTDIR/include'
+
+        if not qtdir:
+            if isinstance( platform, Win32 ):
+                qtdir= pj('C:','QT')
+            elif isinstance( platform, Posix ):
+                qtdir= pj( '/usr', 'lib', 'qt3' )
+                if not exists( pj( qtdir, bin ) ):
+                    # Use LSB spec
+                    qtdir= None
+                    qt_bin= '/usr/bin'
+                    qt_inc= '/usr/include/qt3'
+                    qt_lib= '/usr/lib'
+
+        self._default[ "QTDIR" ]= qtdir
+        self._default[ "QT_BINPATH" ]= qt_bin
+        self._default[ "QT_CPPPATH" ]= qt_inc
+        self._default[ "QT_LIBPATH" ]= qt_lib
 
 
    def option(  self, opts ):
 
       self.default()
 
-      opts.Add( PathOption( 'QTDIR', 'QT directory', 
+      opts.Add( ( 'QTDIR', 'QT directory', 
                 self._default[ 'QTDIR' ] ) )
       opts.Add( ( 'QT_BINPATH', 'QT binaries path.', 
-                '$QTDIR/bin' ) )
+                self._default[ 'QT_BINPATH' ] ) )
       opts.Add( ( 'QT_CPPPATH', 'QT includes path.', 
-                '$QTDIR/include' ) )
+                self._default[ 'QT_CPPPATH' ] ) )
       opts.Add( ( 'QT_LIBPATH', 'QT lib path.', 
-                '$QTDIR/lib' ) )
+                self._default[ 'QT_LIBPATH' ] ) )
 
 
    def update( self, env ):
@@ -66,16 +82,13 @@ class QT:
       else:
          qt_lib='qt-mt' 
       
-      multithread= exist( qt_lib , pj( env['QTDIR'], 'lib' ) )
+      multithread= exist( qt_lib , env['QT_LIBPATH'] )
       if multithread:
          env.AppendUnique( CPPDEFINES= ['QT_THREAD_SUPPORT'] )
          env.Replace( QT_LIB= qt_lib )
 
       if isinstance( platform, Win32 ):
          env.AppendUnique( CPPDEFINES= ['QT_DLL'] )
-      elif isinstance( platform, Cygwin ):
-         env['QT_CPPPATH']='/usr/include/qt3'
-
 
    def configure( self, config ):
       if not config.conf.CheckLibWithHeader( 'qt-mt', 
@@ -86,9 +99,6 @@ class QT:
          print """Error: QT not found ! 
                   Please, install QT and try again."""
          sys.exit( -1 )
-
-      #TODO: Check qgl & qthread support
-
 
 
 def create( config ):
