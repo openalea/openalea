@@ -2,7 +2,7 @@ SConsX
 ======
 
 You can read an update version of this file on the OpenAlea Website
-(see http://openalea.gforge.inria.fr).
+(see http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:compilation_installation:sconsx:sconsx).
 
 SConsX is a package of the OpenAlea project.
 
