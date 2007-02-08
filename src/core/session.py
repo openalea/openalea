@@ -16,7 +16,7 @@
 ###############################################################################
 
 __doc__="""
-This module defines the session classes
+This module defines the session and datapool classes
 """
 
 __license__= "Cecill-C"
@@ -32,8 +32,8 @@ from openalea.core.observer import Observed
 
 class Session(Observed):
     """
-    A session is composed by different workspaces, and a user package
-    A session is persistant
+    A session is composed by different workspaces, and an user package.
+    A session can be saved on disk.
     """
 
     USR_PKG_NAME = "MyObjects"
@@ -49,7 +49,7 @@ class Session(Observed):
 
        
     def add_workspace(self, node):
-        """ Add a workspace to the session """
+        """ Open a new workspace to the session containing a node """
 
         self.workspaces.append(node)
         self.notify_listeners()
@@ -65,7 +65,7 @@ class Session(Observed):
             pass
 
 
-    def clear(self):
+    def clear(self, create_workspace = True):
         """ Reinit Session """
 
         self.session_filename = None
@@ -84,12 +84,14 @@ class Session(Observed):
         pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
         self.user_pkg = pkg
 
-        rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
-                                      description= "",
-                                      category = "",
-                                      )
+
+        if(create_workspace):
+            rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
+                                          description= "",
+                                          category = "",
+                                          )
         
-        self.user_pkg.add_factory(rootfactory)
+            self.user_pkg.add_factory(rootfactory)
 
         self.pkgmanager.add_package(pkg)
         self.notify_listeners()
@@ -97,9 +99,9 @@ class Session(Observed):
         
 
     def load(self, filename):
-        """ load session data from filename """
+        """ Load session data from filename """
 
-        self.clear()
+        self.clear(False)
         
         reader = XmlPackageReader(filename)
         reader.register_packages(self.pkgmanager)
@@ -114,7 +116,7 @@ class Session(Observed):
     def save(self, filename = None):
         """
         Save session in filename
-        user_pkg  and workspaces data are saved
+        user_pkg and workspaces data are saved
         """
 
         if(filename == None):
@@ -126,15 +128,15 @@ class Session(Observed):
         self.session_filename = filename
 
 
-    def new_network(self, name, nin, nout, category, description):
-        """ Create a new graph in the user package """
-        pass
+#     def new_network(self, name, nin, nout, category, description):
+#         """ Create a new graph in the user package """
+#         pass
     
 
 from openalea.core.singleton import Singleton
 
 class DataPool(Observed):
-    """ Dictionnary of user data """
+    """ Dictionnary of session data """
 
     __metaclass__ = Singleton
 
