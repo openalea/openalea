@@ -82,9 +82,7 @@ class QT:
       else:
          qt_lib='qt-mt' 
       
-      libpath= env['QT_LIBPATH'] 
-      if '$QTDIR' in libpath:
-         libpath.replace('$QTDIR',env['QTDIR'] )
+      libpath= str( env.subst( env[ 'QT_LIBPATH' ] ) )
       multithread= exist( qt_lib , libpath )
       if multithread:
          env.AppendUnique( CPPDEFINES= ['QT_THREAD_SUPPORT'] )
