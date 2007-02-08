@@ -7,9 +7,9 @@
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
 #
-#       Distributed under the GPL License.
+#       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
-#           http://www.gnu.org/licenses/gpl.txt
+#           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
@@ -18,7 +18,7 @@ __doc__="""
 QT4 Main window 
 """
 
-__license__= "GPL"
+__license__= "CeCILL v2"
 __revision__=" $Id$ "
 
 
@@ -35,12 +35,14 @@ from code import InteractiveInterpreter as Interpreter
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
 from node_treeview import DataPoolListView, DataPoolModel
 
-import config
+import metainfo
 
 from openalea.core.subgraph import SubGraphFactory
+from openalea.core.observer import AbstractListener
 
-
-class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
+class MainWindow(QtGui.QMainWindow,
+                 ui_mainwindow.Ui_MainWindow,
+                 AbstractListener) :
 
     def __init__(self, pkgman, session, parent=None):
         """
@@ -50,10 +52,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """
 
         QtGui.QMainWindow.__init__(self, parent)
+        AbstractListener.__init__(self)
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
         self.pkgmanager = pkgman
+
+        # Set observer
+        self.initialise(session)
 
         # Array to map tab index with node widget
         self.index_nodewidget = []
@@ -124,7 +130,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         """ Display About Dialog """
         
         mess = QtGui.QMessageBox.about(self, "About Visualea",
-                                       "Version %s\n\n"%(config.version) +
+                                       "Version %s\n\n"%(metainfo.version) +
                                        "VisuAlea is part of the OpenAlea framework.\n"+
                                        u"Copyright \xa9  2006 INRIA - CIRAD - INRA\n"+
                                        "This Software is distributed under the GPL License.\n\n"+
@@ -138,13 +144,22 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
     def web(self):
         """ Open OpenAlea website """
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.url))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(metainfo.url))
 
 
     def quit(self):
         """ Quit Application """
 
         self.close()
+
+
+    def notify(self, sender, event):
+        """ Notification from observed """
+
+        if(type(sender) == type(self.session)):
+            self.update_tabwidget()
+            self.reinit_treeview()
+
         
 
     def closeEvent(self, event):
@@ -205,7 +220,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         
         #self.index_nodewidget[cindex].release_listeners()
         del(self.index_nodewidget[cindex])
-
+      
 
     def update_tabwidget(self):
         """ open tab widget """
@@ -222,8 +237,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
             
             self.open_widget_tab(node, pos = i)
 
-        for i in range( len(self.session.workspaces),
-                        len(self.index_nodewidget)):
+        removelist = range( len(self.session.workspaces),
+                        len(self.index_nodewidget))
+        removelist.reverse()
+        
+        for i in removelist:
             self.close_tab_workspace(i)
 
 
@@ -393,8 +411,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
 
         self.session.clear()
         self.session.add_workspace(self.session.user_pkg['Workspace'].instantiate())
-        self.update_tabwidget()
-        self.reinit_treeview()
 
         
     def open_session(self):
@@ -406,8 +422,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow) :
         if(not filename) : return
 
         self.session.load(filename)
-        self.update_tabwidget()
-        self.reinit_treeview()
 
 
     def export_subgraph(self):

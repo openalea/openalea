@@ -2,24 +2,27 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       This code is inspired from PyCute3 (PyQWT)
+#       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
-#       Distributed under the GPL License.
+#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#                       Christophe Pradal <christophe.prada@cirad.fr>
+#
+#       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
-#           ...
+#           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-__doc__="""
-This module extends PyCute in PyQt4. PyCute is a python interpreter Widget.
 
-PyCute is part of QWT.
-The original code has been found on http://gerard.vermeulen.free.fr
+__doc__="""
+This module implements a QT4 python interpreter widget.
+It is inspired bu PyCute : http://gerard.vermeulen.free.fr
 """
 
-__license__= "GPL"
+__license__= "CeCILL V2"
 __revision__=" $Id$"
+
 
 import os, sys
 from PyQt4 import QtCore, QtGui
