@@ -44,9 +44,9 @@ class QT:
                 qt_dir= pj('C:','QT')
             elif isinstance( platform, Posix ):
                 qt_dir= pj( '/usr', 'lib', 'qt3' )
-                if not exists( pj( qt_dir, bin ) ):
+                if not exists( pj( qt_dir, 'bin' ) ):
                     # Use LSB spec
-                    qt_dir= None
+                    qt_dir= '/usr'
                     qt_bin= '/usr/bin'
                     qt_inc= '/usr/include/qt3'
                     qt_lib= '/usr/lib'
@@ -82,7 +82,10 @@ class QT:
       else:
          qt_lib='qt-mt' 
       
-      multithread= exist( qt_lib , env['QT_LIBPATH'] )
+      libpath= env['QT_LIBPATH'] 
+      if '$QTDIR' in libpath:
+         libpath.replace('$QTDIR',env['QTDIR'] )
+      multithread= exist( qt_lib , libpath )
       if multithread:
          env.AppendUnique( CPPDEFINES= ['QT_THREAD_SUPPORT'] )
          env.Replace( QT_LIB= qt_lib )
