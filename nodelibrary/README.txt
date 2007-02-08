@@ -1,7 +1,7 @@
 OpenAlea.NodeLibrary
--------------
+--------------------
 
-Provides common nodes
+Provides common nodes.
 
 License
 -------
