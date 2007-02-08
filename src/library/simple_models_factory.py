@@ -23,7 +23,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core.external import *
+from openalea.core import *
 
 
 def define_factory(package):
@@ -46,105 +46,5 @@ def define_factory(package):
     package.add_factory( nf )
     
 
-    nf = Factory( name= "inputfile", 
-                  description= "File name", 
-                  category = "Data Types", 
-                  nodemodule = "simple_models",
-                  nodeclass = "InputFile",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                 
-                  )
 
-
-    package.add_factory( nf )
-
-    nf = Factory( name= "string", 
-                  description= "String", 
-                  category = "Data Types", 
-                  nodemodule = "simple_models",
-                  nodeclass = "String",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                 
-                  )
-
-
-    package.add_factory( nf )
-
-
-    nf = Factory( name= "bool", 
-                  description= "boolean", 
-                  category = "Data Types", 
-                  nodemodule = "simple_models",
-                  nodeclass = "Bool",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                  
-                  )
-
-
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "float",
-                  description = "Float Value",
-                  category  = "Data Types",
-                  nodemodule = "simple_models",
-                  nodeclass = "Float",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-                      
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "int",
-                  description = "Int Value",
-                  category  = "Data Types",
-                  nodemodule = "simple_models",
-                  nodeclass = "Int",
-                  )
-
-                      
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "enumTest",
-                  description = "String Enumeration",
-                  category  = "Data Types",
-                  nodemodule = "simple_models",
-                  nodeclass = "EnumTest",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-                      
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "rgb",
-                  description = "RGB tuple",
-                  category  = "Data Types",
-                  nodemodule = "simple_models",
-                  nodeclass = "RGB",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-    
-    package.add_factory( nf )
-
-    nf = Factory( name = "range",
-                  description = "Return an arithmetic progression of integers",
-                  category  = "Sequence",
-                  nodemodule = "simple_models",
-                  nodeclass = "Range",
-                  )
-    
-    package.add_factory( nf )
 

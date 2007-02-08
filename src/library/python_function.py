@@ -61,68 +61,173 @@ Parameters :
         return ( f,  )
 
 
-#//////////////////////////////////////////////////////////////////////////////
+class IfElse(Node):
+    """
+    Conditional expression
+    In[0] : Boolean value
+    In[1] : Value 1
+    In[2] : Value 2
 
-class Map( Node ):
-    """Map(function, sequence) -> list
-
-Apply a function on a sequence.
-Input:
-  function
-  sequence (iterable)
-Output:
-  sequence
+    Out[0]: If In[0] is True return Value 1 else Value 2
     """
 
     def __init__(self):
 
         Node.__init__(self)
 
-        self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence ) 
-        self.add_output( name = "list", interface = ISequence ) 
-
+        self.add_input( name = "Cond", interface = IBool, value = True)
+        self.add_input( name = "Expr1", interface = None, value = None)
+        self.add_input( name = "Expr2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = None) 
+        
 
     def __call__(self, inputs):
-        f= self.get_input_by_key("f")
-        seq= self.get_input_by_key("seq")
-        if f and seq:
-            return ( map(f,seq), )
+
+        c = self.get_input_by_key("Cond")
+
+        if (bool(c)):
+            return (self.get_input_by_key("Expr1"),)
         else:
-            return ( [], )
+            return (self.get_input_by_key("Expr2"),)
 
-#//////////////////////////////////////////////////////////////////////////////
 
-class Filter( Node ):
-    """Filter(function, sequence) -> list
-
-Apply a function on a sequence.
-Input:
-  function
-  sequence (iterable)
-Output:
-  sequence
+class Equal(Node):
+    """
+    Equality test
+    Out[0] = In[0] == In[1]
     """
 
     def __init__(self):
 
         Node.__init__(self)
 
-        self.add_input( name = "f", interface = IFunction ) 
-        self.add_input( name = "seq", interface = ISequence ) 
-        self.add_output( name = "list", interface = ISequence ) 
-
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = IBool) 
+        
 
     def __call__(self, inputs):
-        f= self.get_input_by_key("f")
-        seq= self.get_input_by_key("seq")
 
-        if f and seq:
-            return ( filter(f,seq), )
-        else:
-            return ( [], )
+        v1 = self.get_input_by_key("V1")
+        v2 = self.get_input_by_key("V2")
+        
+        return (v1 == v2,)
 
-#//////////////////////////////////////////////////////////////////////////////
+        
+class Greater(Node):
+    """
+    Binary test
+    Out[0] = In[0] > In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input_by_key("V1")
+        v2 = self.get_input_by_key("V2")
+        
+        return (v1 > v2,)
+    
+
+class GreaterOrEqual(Node):
+    """
+    Binary test
+    Out[0] = In[0] >= In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input_by_key("V1")
+        v2 = self.get_input_by_key("V2")
+        
+        return (v1 >= v2,)
+
+
+class And(Node):
+    """
+    Binary test
+    Out[0] = In[0] and In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_input( name = "V2", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input_by_key("V1")
+        v2 = self.get_input_by_key("V2")
+        return (v1 and v2,)
+
+
+class Or(Node):
+    """
+    Binary test
+    Out[0] = In[0] or In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_input( name = "V2", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input_by_key("V1")
+        v2 = self.get_input_by_key("V2")
+        return (v1 or v2,)
+
+
+class Not(Node):
+    """
+    Binary test
+    Out[0] = not In[0]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input_by_key("V1")
+        return (not v1, )
+
+
 
 class Generator( Node ):
     """h(x) = f(x) op g(x)
@@ -176,24 +281,3 @@ Output:
 
         return (binop,)
 
-#//////////////////////////////////////////////////////////////////////////////
-
-class Len( Node ):
-    __doc__= len.__doc__
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input ( name = "object", interface = None, value= [] ) 
-        self.add_output( name = "n", interface = None ) 
-
-    def __call__(self, inputs):
-        obj= self.get_input_by_key("object")
-
-        f= None
-        if callable(obj):
-            f= lambda x: len(obj(x))
-        else:
-            f= len(obj)
-        return ( f, )

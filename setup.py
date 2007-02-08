@@ -17,11 +17,11 @@ from distutils.core import setup
 
 
 # Package name
-name= 'library'
+name= 'nodelibrary'
 
 namespace=config.namespace 
 pkg_name= namespace + '.' + name
-version= '0.1.0' 
+version= '0.1.0b' 
 description= 'OpenAlea Component platform library.' 
 
 long_description= ''
