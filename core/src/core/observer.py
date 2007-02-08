@@ -36,14 +36,21 @@ class Observed(object):
         self.listeners = set()
 
     def register_listener(self, listener):
+        """ Add listener to list of listeners """
 
         wr = weakref.ref(listener, self.unregister_listener)
         self.listeners.add(wr)
     
     def unregister_listener(self, listener):
+        """ Remove listener from the list of listeners """
         self.listeners.discard(listener)
 
     def notify_listeners(self, event=None):
+        """
+        Send a notification to all listeners
+        @param event : an object to pass to the notify function
+        """
+        
         for wr in self.listeners :
             l = wr()
             l.notify(self, event)
@@ -56,9 +63,15 @@ class AbstractListener(object):
     """ Listener base class """
     
     def initialise (self, observed):
+        """ Register self as a listener to observed """
         observed.register_listener(self)
 
     def notify (self, sender, event=None):
+        """
+        This function is called by observed object
+        @param sender : the observed object which send notification
+        @param event : the data associated to the notification
+        """
         raise RuntimeError()
     
 #     def __del__(self):

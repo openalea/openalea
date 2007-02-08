@@ -38,7 +38,7 @@ class plot2D( Node ):
         Node.__init__( self )
 
         #defines I/O
-        self.add_input( name='plotObjList', interface=Node )
+        self.add_input( name='plotObjList', interface=None )
         self.add_input( name='title', interface=IStr, value='MyPlot' )
         self.add_input( name='xlabel', interface=IStr, value='x-axis' )
         self.add_input( name='ylabel', interface=IStr, value='y-axis' )

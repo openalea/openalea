@@ -38,19 +38,10 @@ class UnknowFileType(Exception):
 
 class PackageManager(object):
     """
-    The PackageManager registers, and provide packages in a dictionnary
+    The PackageManager is a Dictionary of Packages
+    It can locate OpenAlea packages on the system (with wralea)
     """
 
-#     # The package manager is a singleton
-
-#     __instance = None
-
-#     def __new__(cls):
-#         if cls.__instance is None:
-#             cls.__instance = object.__new__(cls)
-#         return cls.__instance
-
-    
     def __init__ (self):
 
         # list of path to search wralea file
@@ -106,12 +97,16 @@ class PackageManager(object):
 
     # Path Functions
     def add_wraleapath(self, new_path):
-
+        """
+        Add a search pat for wralea files
+        @param new_path : a path string
+        """
         if(not new_path in self.wraleapath):
             self.wraleapath.append(new_path)
         
 
     def recover_syspath (self):
+        """ Restore the initial sys path """
         sys.path=self.old_syspath
 
     # Accessors
@@ -153,12 +148,12 @@ class PackageManager(object):
 
     # Wralea functions
     def add_wralea(self, filename):
-        """ Execute a wralea file
+        """ Execute a wralea file 
         Return the registered packages
         """
 
         if(not os.path.exists(filename)):
-            print "%s does not exists."%(filename,)
+            print "Wralea : %s does not exists."%(filename,)
             return
         
         reader = self.get_pkgreader(filename)
@@ -172,7 +167,7 @@ class PackageManager(object):
     def find_wralea_files (self):
         """
         Find on the system all wralea.py, wralea.xml files
-        Return a list of pkg readers
+        @return : a list of pkgreader instances
         """
 
         from tools.path import path
@@ -190,7 +185,7 @@ class PackageManager(object):
             wralea_files.update( p.walkfiles("wralea.xml") )
 
         for f in wralea_files:
-            print "find %s" % f
+            print "Package Manager : found %s" % f
             
         return map( self.get_pkgreader, wralea_files)
 
@@ -219,7 +214,6 @@ class PackageManager(object):
         [x.register_packages(self) for x in readerlist]
 
         self.rebuild_category()
-
 
 
     # Dictionnary behaviour
