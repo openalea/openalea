@@ -41,6 +41,8 @@ class Session(Observed):
     def __init__(self):
 
         Observed.__init__(self)
+
+        # Instantiate a Package Manager
         self.pkgmanager = PackageManager()
 
         self.workspaces = []

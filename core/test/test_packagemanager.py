@@ -32,7 +32,7 @@ import openalea
 def test_wraleapath():
 
     pkgman = PackageManager()
-    assert len ( pkgman.wraleapath ) == 3
+    assert openalea.__path__[0] in  pkgman.wraleapath
     pkgman.add_wraleapath("/usr/bin")
 
     assert "/usr/bin" in pkgman.wraleapath
@@ -43,33 +43,17 @@ def test_load_pm():
     pkgman = PackageManager()
     pkgman.init()
 
-    simpleop = pkgman["arithmetics"]
+    simpleop = pkgman["Library"]
     assert simpleop
 
-    addfactory = simpleop.get_nodefactory('add')
+    addfactory = simpleop.get_factory('add')
     assert addfactory != None
     assert addfactory.instantiate()
 
-    valfactory = simpleop.get_nodefactory('val')
+    valfactory = simpleop.get_factory('float')
     assert valfactory != None
 
    
 
-# def test_find_wralea():
-#      pkgman=PackageManager()
-#      pkgman.init()
-
-#      assert len(pkgman) == 2
-#      pkgman.save_config("test.xml")
-
-
-# def test_config():
-
-#     #Empty Config
-#     pkgman = PackageManager()
-#     pkgman.save_config("test.xml")
-
-#     assert(os.path.exists("test.xml"))
-#     os.remove("test.xml")
-
-
+def test_category():
+    pass
