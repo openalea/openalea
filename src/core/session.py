@@ -137,52 +137,46 @@ class Session(Observed):
 
 from openalea.core.singleton import Singleton
 
-class DataPool(Observed):
+def notify_decorator(f):
+    
+    def wrapped(self, *args, **kargs):
+        ret = f(self, *args, **kargs)
+        self.notify_listeners(('pool_modified',))
+        return ret
+    wrapped.__doc__ = f.__doc__
+
+    return wrapped
+
+
+class DataPool(Observed, dict):
     """ Dictionnary of session data """
 
     __metaclass__ = Singleton
 
+
     def __init__(self):
 
         Observed.__init__(self)
-        self.data = {}
+        dict.__init__(self)
+        
+        DataPool.__setitem__ = notify_decorator(dict.__setitem__)
+        DataPool.__delitem__ = notify_decorator(dict.__delitem__)
+        DataPool.clear = notify_decorator(dict.__setitem__)
 
+        
         
     def add_data(self, key, instance):
         """ Add an instance referenced by key to the data pool """
 
-        self.data[key] = instance
+        self[key] = instance
         self.notify_listeners(('pool_modified',))
 
     def remove_data(self, key):
         """ Remove the instance identified by key """
 
         try:
-            del(self.data[key])
+            del(self[key])
             self.notify_listeners(('pool_modified',))
         except:
             pass
 
-    def clear(self):
-        ret = self.data.clear()
-        self.notify_listeners(('pool_modified',))
-        return ret
-
-    def __getitem__(self, key):
-        return self.data[key]
-    
-    def __setitem__(self, key, val):
-        self.data[key] = val
-        self.notify_listeners(('pool_modified',))
-
-    def __len__(self):
-        return len(self.data)
-
-    def keys(self):
-        return self.data.keys()
-
-    def items(self):
-        return self.data.items()
-
-    def values(self):
-        return self.data.values()
