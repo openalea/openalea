@@ -1,0 +1,6 @@
+09/02/07 : First release for testing purpose.
+	 - GUI in PyQT4
+	 - Package manager view by package / category
+	 - Build/Edit graph
+	 - Simple python interpreter
+	 - Dataflow view
