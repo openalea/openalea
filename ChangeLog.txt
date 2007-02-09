@@ -1,5 +1,5 @@
 09/02/06 : version 0.1.0 = First release for development purpose.
 	 - Node / Factory / Package / Interface definitions
 	 - Package manager (Discovering wralea.py)
-	 - Graph construction and evalution
+	 - Graph construction and evaluation
 	 - Session management and Persitence in XML
