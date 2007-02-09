@@ -33,10 +33,17 @@ class Qhull:
 
    def default( self ):
 
-      self._default[ 'libs_suffix' ]= ''
+      self._default[ 'libs_suffix' ]= '$compiler_libs_suffix'
+
       if isinstance( platform, Win32 ):
-         self._default[ 'include' ]= 'C:' + os.sep
-         self._default[ 'lib' ]= 'C:' + os.sep
+         try:
+            import openalea.config as conf
+            self._default[ 'include' ]= conf.include_dir
+            self._default[ 'lib' ]= conf.lib_dir
+
+         except ImportError, e:
+            self._default[ 'include' ]= 'C:' + os.sep
+            self._default[ 'lib' ]= 'C:' + os.sep
 
       elif isinstance( platform, Posix ):
          self._default[ 'include' ]= '/usr/include'
@@ -57,7 +64,7 @@ class Qhull:
            self._default[ 'lib' ] ),
 
          ( 'qhull_libs_suffix', 
-           'Qhull library suffix name like -vc80 or -mingw', 
+           'Qhull library suffix name like -vc80 or -mgw', 
            self._default[ 'libs_suffix' ] )
       )
 
