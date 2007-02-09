@@ -41,3 +41,5 @@ In a python interpreter :
    help(openalea.core)
 
 See Website : http://openalea.gforge.inria.fr
+
+Api documentation : http://openalea.gforge.inria.fr/doc/openalea/core
