@@ -23,9 +23,6 @@ Test the subgraph module
 libraryname = "Library"
 
 
-import init_test
-
-
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.subgraph import SubGraphFactory, SubGraph
 from openalea.core.core import Package, RecursionError 
