@@ -42,12 +42,19 @@ class Boost_Python:
 
    def default( self ):
 
-      self._default[ 'libs_suffix' ]= ''
+      self._default[ 'libs_suffix' ]= '$compiler_libs_suffix'
+
       if isinstance( platform, Win32 ):
-         self._default[ 'include' ]= 'C:' + os.sep
-         self._default[ 'lib' ]= 'C:' + os.sep
          self._default[ 'flags' ]= ''
          self._default[ 'defines' ]= ''
+         try:
+            import openalea.config as conf
+            self._default[ 'include' ]= conf.include_dir
+            self._default[ 'lib' ]= conf.lib_dir
+
+         except ImportError, e:
+            self._default[ 'include' ]= 'C:' + os.sep
+            self._default[ 'lib' ]= 'C:' + os.sep
 
       elif isinstance( platform, Posix ):
          self._default[ 'include' ]= '/usr/include'

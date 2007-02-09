@@ -40,12 +40,15 @@ class Compiler:
 
       if isinstance( platform, Posix ):
          compilers= ['gcc']
+         libs_suffix= ''
       elif isinstance( platform, Win32 ):
          compilers= ['msvc', 'mingw']
+         libs_suffix= '-vc80'
       else:
          raise "Add a compiler support for your os !!!"
 
       self._default[ 'compilers' ]= compilers
+      self._default[ 'libs_suffix' ]= libs_suffix
 
 
    def option(  self, opts ):
@@ -68,7 +71,9 @@ class Compiler:
                            'compiler tool used for the build',
                            default_compiler,
                            compilers ) )
-                           
+      opts.Add( 'compiler_libs_suffix', 
+                'Library suffix name like -vc80 or -mgw',
+                self._default['libs_suffix'] )
                            
       opts.Add( 'rpath', 'A list of paths to search for shared libraries')
 
@@ -91,6 +96,9 @@ class Compiler:
          env.AppendUnique( CPPDEFINES= 'SYSTEM_IS__CYGWIN' )
       elif isinstance( platform, Win32 ):
          env.AppendUnique( CPPDEFINES= 'WIN32' )
+         libs_suffix= env['compiler_libs_suffix']
+         if compiler_name == 'mingw' and '-vc' in libs_suffix:
+            env['compiler_libs_suffix']= '-mgw'
 
       env.Append( RPATH= Split( '$rpath' ) )
       env.Append( CXXFLAGS= Split( env['EXTRA_CXXFLAGS'] ) )
