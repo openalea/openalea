@@ -56,4 +56,17 @@ def test_load_pm():
    
 
 def test_category():
-    pass
+    pkgman = PackageManager()
+
+    pkgman.init()
+    pkgman.find_and_register_packages()
+
+    # test if factory are dedoubled
+    for cat in pkgman.category.values():
+        s = set()
+        for factory in  cat:
+            assert not factory.get_id() in s
+            s.add(factory.get_id())
+                
+            
+
