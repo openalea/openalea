@@ -45,7 +45,7 @@ class PackageManager(object):
     def __init__ (self):
 
         # list of path to search wralea file
-        self.wraleapath = [ '.' ] + openalea.__path__
+        self.wraleapath = openalea.__path__
         
         # save system path
         self.old_syspath = sys.path[:]
@@ -76,7 +76,7 @@ class PackageManager(object):
         self.recover_syspath()
         self.category = {}
 
-        self.wraleapath = [ '.' ] + openalea.__path__ 
+        self.wraleapath = openalea.__path__ 
     
 
     # Path Functions
@@ -105,7 +105,7 @@ class PackageManager(object):
 
     # Category management
     def update_category(self, package):
-        """ Update the category dictionnay with package contents """
+        """ Update the category dictionary with package contents """
         
         for nf in package.values():
 
