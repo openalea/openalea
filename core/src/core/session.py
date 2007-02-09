@@ -161,7 +161,7 @@ class DataPool(Observed, dict):
         
         DataPool.__setitem__ = notify_decorator(dict.__setitem__)
         DataPool.__delitem__ = notify_decorator(dict.__delitem__)
-        DataPool.clear = notify_decorator(dict.__setitem__)
+        DataPool.clear = notify_decorator(dict.clear)
 
         
         
