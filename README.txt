@@ -1,7 +1,7 @@
 OpenAlea.Catalog
 ----------------
 
-OpenAlea.Catalog groups libraries of nodes useable in Visualea
+OpenAlea.Catalog groups libraries of logical components for common use.
 
 
 License
