@@ -1,6 +1,4 @@
 # include Meta Data
-include LICENSE.txt
-include README.txt
-include AUTHORS.txt
 include MANIFEST.in
-include ChangeLog.txt
+include *.txt
+include *.py
