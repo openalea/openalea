@@ -34,6 +34,10 @@ author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url= metainfo.url
 license= 'Cecill v2' 
 
+if sys.platform == 'win32':
+    script='scripts/visualea.py' 
+else:
+    script='scripts/visualea' 
 
 setup(
     name=name,
@@ -47,7 +51,7 @@ setup(
 
     packages= [ pkg_name ],
     package_dir= { pkg_name : pj('src',name)},
-    scripts=['scripts/visualea']
+    scripts=[script]
     
     )
 
