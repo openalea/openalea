@@ -1,8 +1,8 @@
 OpenAlea.Visualea
 ----------------
 
-OpenAlea.Visualea is an application that allow to use OpenAlea packages 
-and to build dataflow graph graphically.
+OpenAlea.Visualea is an application that allows to use OpenAlea packages 
+and to build dataflow graphically.
 
 License
 -------
@@ -10,7 +10,6 @@ License
 OpenAlea.Visualea is released under a Cecill v2 license.
 
 See LICENSE.txt
-
 Nota : Cecill v2 license is a GPL compatible license.
 
 
