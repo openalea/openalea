@@ -32,7 +32,7 @@ author= 'OpenAlea consortium'
 author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 
 url= metainfo.url
-license= 'Cecill' 
+license= 'Cecill v2' 
 
 
 setup(
