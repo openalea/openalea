@@ -1,9 +1,10 @@
 OpenAlea.Core
 -------------
 
-OpenAlea.Core provides :
-   - OpenAlea Package Manager
-   - DataFlow construction
+OpenAlea.Core is able to :
+   - Distover and manage packages and logical components
+   - build and evaluate dataflow
+   - Generate final applications
 
 It doesn't include any GUI interface (See OpenAlea.Visualea for that).
 
