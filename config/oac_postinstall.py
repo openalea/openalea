@@ -66,7 +66,8 @@ def set_win_env(vars):
     @param vars : ['VAR1=VAL1', 'VAR2=VAL2', 'PATH=SOMEPATH' ]
     """
 
-    if(not 'win' in sys.platform ): return
+    if((not 'win' in sys.platform) and (sys.platform != 'cygwin')):
+        return
     
     for newvar in vars:
 

@@ -67,7 +67,8 @@ def set_win_env(vars):
     @param vars : ['VAR1=VAL1', 'VAR2=VAL2', 'PATH=SOMEPATH' ]
     """
 
-    if(not 'win' in sys.platform ): return
+    if((not 'win' in sys.platform) and (sys.platform != 'cygwin')):
+        return
     
     for newvar in vars:
 
@@ -77,7 +78,7 @@ def set_win_env(vars):
             import _winreg 
 
         except ImportError, e:
-            print "!!ERROR: Can not access to Windows registery."
+            print "!!ERROR: Can not access to Windows registry."
             return
 
         def queryValue(qkey, qname):
