@@ -108,19 +108,8 @@ def run_install():
 
     commandstr= sys.executable + ' setup.py install'
 
-    # Try to import subprocess package
-    try:
-        import subprocess
-        subprocess_enabled= True
-    except ImportError:
-        subprocess_enabled= False
-
-    if(subprocess_enabled):
-        # Subprocess call
-        retval= subprocess.call(commandstr, shell=True)
-    else:
-        # Standard os.system command
-        retval= os.system(commandstr)
+    # Standard os.system command
+    retval= os.system(commandstr)
 
     return retval
 		    
