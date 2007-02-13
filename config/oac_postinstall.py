@@ -76,7 +76,7 @@ def set_win_env(vars):
             import _winreg 
 
         except ImportError, e:
-            print "!!ERROR: Can not access to Windows registery."
+            print "!!ERROR: Can not access to Windows registry."
             return
 
         def queryValue(qkey, qname):
@@ -133,9 +133,12 @@ def main():
 
     print "Setting environment variables"
 
-    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.prefix_dir,),
+    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.lib_dir,),
+                             'LD_LIBRARY_PATH=%s'%(config.bin_dir,),
                              'OPENALEADIR=%s'%(config.prefix_dir,)])
-    set_win_env(['PATH=%s'%(config.prefix_dir,),
+    
+    set_win_env(['PATH=%s'%(config.lib_dir,),
+                 'PATH=%s'%(config.bin_dir,),
                  'OPENALEADIR=%s'%(config.prefix_dir,)])
 
 if (__name__ == '__main__'):
