@@ -1,61 +1,41 @@
+OpenAlea.Config
+---------------
+
+OpenAlea.Config is the base package to configure OpenAlea installation directory
+and environment variables.
+
+
+License
+-------
+
+OpenAlea.Config is released under a Cecill-C License.
+
+See LICENSE.txt
+Nota : Cecill-C license is a LGPL compatible license.
+
+
+Dependances
+-----------
+
+Python >= 2.4   (See http://www.python.org)
+
+
+Installation
+------------
+
+python install.py
+
+
+Documentation
+-------------
+
+See the web site : http://openalea.gforge.inria.fr
+
 ====== OpenAlea.Config ======
 
-Authors : OpenAlea consortium
-Institutes : INRIA, CIRAD, INRA
-Type : Pure Python package
-Status : Stable
-License : Cecill-C
 
-===== About =====
-
-OpenAlea.Config package configure the system in order to install OpenAlea packages. Particulary, 
-it define the directory where the packages will be installed and adapt your environment to share dynamic libraries.
-
-**This package is necessary to install other openalea packages, but doesn't provide any user functionality.**
-
-===== Installation =====
-
-
-OpenAlea is available here : http://gforge.inria.fr/projects/openalea
-
-
-=== Requirements ===
-
-  * Python >=2.3  : http://www.python.org/download
-
-
-
-=== Binary Installer  ===
-
-If you download a binary package (rpm or win32.exe), simply run the installer. 
-In this case, the OpenAlea directory cannot be customised. The default OpenAlea installation
-directory will be :
-
-  * ''c:\openalea'' for windows systems.
-  * ''/usr/local/openalea/'' for linux systems.
-
-If you want to use an other directory, please use the source distribution.
-
-
-
-=== Source Distribution  ===
-
-In the case of a source distribution, first uncompress the archive file. 
-
-  * Graphically, the ''install.py'' script display a dialog which create the configuration and install the package. Simply double click on the script to lauch it.
-
-  * Or in a console, the ''create_config.py'' script create system configuration file. You can specify the OpenAlea directory with the ''--prefix'' option.
-
-  python create_config.py --prefix=c:/openalea
-  python setup.py install
-
-or
-
-  python create_config.py --prefix=/usr/local
-  python setup.py install
-
-
-===== Technical description =====
+Technical description
+---------------------
 
 OpenAlea.Config provides :
 
@@ -65,7 +45,7 @@ OpenAlea.Config provides :
   * It sets enviroment variable on your system.
 
 
-===== Quick Example =====
+Quick Example :
 
   from openalea import config 
 
