@@ -30,7 +30,7 @@ import sys
 def set_lsb_env(name, vars):
     """
     Write a sh script in /etc/profile.d which set some environment variable
-    LIBRARY_PATH is processes particulary in order to avoid overwrite
+    LIBRARY_PATH and PATH are processed particulary in order to avoid overwriting
     @param name : file name string without extension
     @param vars : ['VAR1=VAL1', 'VAR2=VAL2', 'LIBRARY_PATH=SOMEPATH' ]
     """
@@ -47,17 +47,20 @@ def set_lsb_env(name, vars):
 
         name, value = newvar.split('=')
 
-        if(name == "LD_LIBRARY_PATH" and value):
-            filehandle.write('if [ -z "$LD_LIBRARY_PATH" ]; then\n')
-            filehandle.write('  export LD_LIBRARY_PATH=%s\n'%(value,))
+        if(((name == "LD_LIBRARY_PATH") or (name== "PATH")) and value):
+            filehandle.write('if [ -z "$%s" ]; then\n'%(name))
+            filehandle.write('  export %s=%s\n'%(name, value,))
             filehandle.write('else\n')
-            filehandle.write('  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%s\n'%(value,))
+            filehandle.write('  export %s=$%s:%s\n'%(name, name, value,))
             filehandle.write('fi\n\n')
         
         elif(name and value):
             filehandle.write("export %s=%s\n\n"%(name, value))
             
     filehandle.close()
+    cmdstr = "source %s"%(filename)
+    print "executing :", cmdstr
+    os.system(cmdstr)
 
 
 
