@@ -53,5 +53,5 @@ setup(name= name,
       license=license,
       namespace=[namespace],
       packages= [ "openalea.sconsx", "openalea.sconsx.tools" ],
-      package_dir= { pkg_name : 'src'}
+      package_dir= { pkg_name : pj('src',name)},
       )
