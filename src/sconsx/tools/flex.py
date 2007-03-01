@@ -36,10 +36,11 @@ class Flex:
 
       if isinstance( platform, Win32 ):
          self._default[ 'bin' ]= pj( 'C:\\', 'Tools', 'Bin' )
-         self._default[ 'lib' ]= pj( 'C:\\', 'Tools', 'Bin' )
+         self._default[ 'include' ]= pj( 'C:\\', 'Tools', 'Include' )
       elif isinstance( platform, Posix ):
          self._default[ 'bin' ]= '/usr/bin'
          self._default[ 'lib' ]= '/usr/lib'
+         self._default[ 'include' ]= '/usr/include'
 
 
    def option(  self, opts ):
@@ -48,8 +49,11 @@ class Flex:
 
       opts.Add( 'flex_bin', 'Flex binary path', 
                 self._default[ 'bin' ] )
-      opts.Add( 'flex_lib', 'Flex library path',
-                self._default[ 'lib' ] )
+      if not isinstance( platform, Win32 ):
+          opts.Add( 'flex_lib', 'Flex lib path', 
+                    self._default[ 'lib' ] )
+      opts.Add( 'flex_include', 'Flex include path',
+                self._default[ 'include' ] )
 
 
    def update( self, env ):
@@ -57,8 +61,8 @@ class Flex:
 
       if not isinstance( platform, Win32 ):
          env.AppendUnique( LIBS= [ 'm', 'fl' ] )
-         
-      env.AppendUnique( LIBPATH= [ env['flex_lib'] ] )
+         env.AppendUnique( LIBPATH= [ env['flex_lib'] ] )
+      env.AppendUnique( CPPPATH= [ env['flex_include'] ] )
 
       t= Tool( 'lex', toolpath=[ getLocalPath() ] )
       t( env )
