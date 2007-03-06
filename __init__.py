@@ -15,14 +15,20 @@ pkg_dirs = [ "core/src",
              ]
 
  
-for subdir in  pkg_dirs:
-    
+for subdir in  pkg_dirs:    
     for p in __path__:
         newpath = os.path.join(p, os.path.normpath(subdir))
  
         if(os.path.isdir(newpath)):
             __path__.append( newpath )
             break
+
+try:
+    import vplants
+    __path__ += vplants.__path__
+except:
+    pass
+
 
 del get_python_lib
 del openalea_dir
