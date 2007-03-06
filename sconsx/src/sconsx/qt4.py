@@ -43,6 +43,7 @@ import SCons.Defaults
 import SCons.Scanner
 import SCons.Tool
 import SCons.Util
+from SCons.Script.SConscript import SConsEnvironment
 
 class ToolQtWarning(SCons.Warnings.Warning):
 	pass
@@ -360,9 +361,11 @@ def generate(env):
 					 LIBPATH=["$QT4_LIBPATH"],
 					 LIBS=['$QT4_LIB'])
 	
-	import new
-	method = new.instancemethod(enable_modules, env, SCons.Environment)
-	env.EnableQt4Modules=method
+	#import new
+	#method = new.instancemethod(enable_modules, env, SCons.Environment)
+	#env.EnableQt4Modules=method
+	SConsEnvironment.EnableQt4Modules = enable_modules
+
 
 def enable_modules(self, modules, debug=False) :
 	import sys
