@@ -56,6 +56,7 @@ class MinGW:
                  "-s"]
 
       env.AppendUnique(CXXFLAGS = CXXFLAGS)
+      env.Replace(RCINCPREFIX = '--include-dir=')
       #env.AppendUnique(LINKFLAGS = LINKFLAGS )
 
 
