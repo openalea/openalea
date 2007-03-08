@@ -3,7 +3,7 @@
 #
 #       OpenAlea.DistX:   
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or C or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -23,7 +23,9 @@ import os
 import sys
  
 def CreateWinShortCut(Name, Target, Arguments = "",
-                      StartIn = "", Icon = "", Description = ""):
+                      StartIn = "", Icon = "", Description = "",
+                      MenuGroup = "OpenAlea"):
+    
     """ Create windows shortcut
     @param Name : link name
     @param Target : executable file path (ex : Pythonroot + pythonw.exe)
@@ -31,6 +33,7 @@ def CreateWinShortCut(Name, Target, Arguments = "",
     @param StartIn : execution path (same as python module path)
     @param Icon : icon path (ex Pythonroot + '\\py.ico')
     @param Description : ...
+    @param MenuGroup : Menu group entry
 
     ex :
     	TempDir = os.environ["TEMP"]
@@ -48,45 +51,40 @@ def CreateWinShortCut(Name, Target, Arguments = "",
 
     if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
         return
-   
-    from win32com.shell import shell
+    
+    try:
+        from win32com.shell import shell, shellcon
+    except:
+        print "ERROR : pywin32 is not installed. Cannot create shortcut."
+        return
+    
     import win32api
     import pythoncom
 
-    WinRoot = os.environ["windir"]
-    Path = WinRoot    + "\\Profiles\\All Users\\Desktop\\%s.lnk"%(Name)
-    Icon = (Icon, 0)
+    MenuRoot = shell.SHGetFolderPath(0, shellcon.CSIDL_COMMON_PROGRAMS, 0, 0)
+    MenuRoot = MenuRoot + "\\" + MenuGroup + "\\"
+    
+    if(not os.path.isdir(MenuRoot)):
+        os.mkdir(MenuRoot)
+    
+    Path =   MenuRoot + "\\%s.lnk"%(Name)
+    Icon = (Icon, 0) 
     
     # Get the shell interface.
     sh = pythoncom.CoCreateInstance(shell.CLSID_ShellLink, None, \
         pythoncom.CLSCTX_INPROC_SERVER, shell.IID_IShellLink)
- 
-    # Get an IPersist interface
-    persist = sh.QueryInterface(pythoncom.IID_IPersistFile)
  
     # Set the data
     sh.SetPath(Target)
     sh.SetDescription(Description)
     sh.SetArguments(Arguments)
     sh.SetWorkingDirectory(StartIn)
-    sh.SetIconLocation(Icon[0],Icon[1])
+    if(Icon[0]):
+        sh.SetIconLocation(Icon[0],Icon[1])
  
     # Save the link itself.
-    persist.Save(Path, 1)
-
+    sh.QueryInterface(pythoncom.IID_IPersistFile).Save(Path,0)
  
-# if __name__ == "__main__":
-# 	TempDir = os.environ["TEMP"]
- 
-# 	Name        =  "New Link"
-# 	Target      =  Pythonroot + "pythonw.exe "
-# 	Arguments   =  TempDir + "\\test.py"
-# 	StartIn     =  TempDir
-# 	Icon        =  Pythonroot + "\\py.ico"
-# 	Description = "New Link"
- 
-# 	CreateWinShortCut(Path,Target,Arguments,StartIn,Icon,Description)
-
 
 
 def CreateFDShortCut(Name, Exec, Version,
