@@ -626,6 +626,13 @@ class DistxDistribution(Distribution):
         self.set_env_var = None # Deprecated
 
         Distribution.__init__(self,attrs)
+
+        if(self.set_env_var != None):
+           print "DistX Warning : set_env_var parameter is Deprecated !!\n"
+           print "Use instead set_win_var and set_lsb_var parameters !!\n"
+
+        if(set_win_var == None and set_env_var != None):
+           self.set_win_var = self.set_env_var
         
         self.cmdclass = { 'install_namespace' : install_namespace,
                           'install_external_data' : install_external_data,
