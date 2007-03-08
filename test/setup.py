@@ -100,7 +100,7 @@ setup(
     set_lsb_var = ['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib'), 'TEST=montest'],
 
     # Add shortcut
-    win_shortcut = {'name':name, 'target' : '', 'arguments':'', 'startin':'', 'icon':''},
+    win_shortcut = {'name':name, 'target' : 'c:\\python24\pythonw.exe', 'arguments':'', 'startin':'c:\\python24', 'icon':''},
     freedesk_shortcut = { 'name':name, 'target':'python', 'icon':'' },
     
    
