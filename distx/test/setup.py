@@ -74,30 +74,34 @@ setup(
     license=license,
     long_description=long_description,
     
-    #execute scons
-    #scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
+    # Execute scons
+    # Scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
     scons_scripts = ['SConstruct'],
-    #scons parameters  
+    # Scons parameters  
     scons_parameters = ['lib_dir=lib'],
 
     namespace=[namespace],
     
-    #pure python  packages
-    packages= [namespace+'.'+name],
-    #python packages directory
-    package_dir= {namespace+'.'+name : pj('src',name)},
+    # Pure python  packages
+    packages = [namespace+'.'+name],
+    # Python packages directory
+    package_dir = {namespace+'.'+name : pj('src',name)},
       
-    #add package platform libraries if any
-    package_data= { namespace+'.'+name : ['*.so', '*.dll', '*.pyd']},
+    # Add package platform libraries if any
+    package_data = { namespace+'.'+name : ['*.so', '*.dll', '*.pyd']},
 
-    # copy shared data in default OpenAlea directory
-    # map of 'destination subdirectory' : 'source subdirectory'
-    external_data={pj('external', name) : 'external', },
+    # Copy shared data in default OpenAlea directory
+    # Map of 'destination subdirectory' : 'source subdirectory'
+    external_data = {pj('external', name) : 'external', },
     
     
-    #Add to PATH environment variable for openalea lib on Windows platform
-    set_win_var=['PATH='+pj(config.prefix_dir,'lib')],
-    set_lsb_var=['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib'), 'TEST=montest']
+    # Add to PATH environment variable for openalea lib on Windows platform
+    set_win_var = ['PATH='+pj(config.prefix_dir,'lib')],
+    set_lsb_var = ['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib'), 'TEST=montest'],
+
+    # Add shortcut
+    win_shortcut = {'name':name, 'target' : '', 'arguments':'', 'startin':'', 'icon':''},
+    freedesk_shortcut = { 'name':name, 'target':'python', 'icon':'' },
     
    
       )
