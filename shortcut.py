@@ -96,7 +96,7 @@ def CreateFDShortCut(Name, Exec, Version,
     @param Exec : Command to execute
     @param Version
     @param Icon : Icon name
-    @Description : ...
+    @param Description : ...
     """
 
     if(not 'posix' in os.name): return
@@ -112,11 +112,12 @@ def CreateFDShortCut(Name, Exec, Version,
     deskfile.write('Name=%s\n'%(Name))
     deskfile.write('Comment=%s\n'%(Description))
     deskfile.write('TryExec=%s\n'%(Exec))
-    deskfile.write('Exec=%s %F\n'%(Exec))
+    deskfile.write('Exec=%s %s\n'%(Exec, '%F'))
     deskfile.write('Icon=%s\n'%(Icon))
     #deskfile.write('MimeType=image/x-foo;\n')
 
     deskfile.close()
 
-    os.system('desktop-file-install %s --vendor="openalea" --add-category="OpenAlea"')
+    os.system('desktop-file-install %s \
+    --vendor="openalea" --add-category="OpenAlea"'%(deskfilename))
 
