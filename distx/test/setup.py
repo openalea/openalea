@@ -81,17 +81,14 @@ setup(
     scons_parameters = ['lib_dir=lib'],
 
     namespace=[namespace],
-
     
     #pure python  packages
     packages= [namespace+'.'+name],
     #python packages directory
     package_dir= {namespace+'.'+name : pj('src',name)},
-
       
     #add package platform libraries if any
     package_data= { namespace+'.'+name : ['*.so', '*.dll', '*.pyd']},
-                     
 
     # copy shared data in default OpenAlea directory
     # map of 'destination subdirectory' : 'source subdirectory'
