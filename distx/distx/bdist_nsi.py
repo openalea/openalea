@@ -67,7 +67,7 @@ class distx_bdist_nsi (Command):
 			bdist_base = self.get_finalized_command('bdist').bdist_base
 			self.bdist_dir = os.path.join(bdist_base, 'nsi')
 		if not self.target_version:
-			self.target_version = ""
+			self.target_version = sys.winver
 		if self.distribution.has_ext_modules():
 			short_version = sys.version[:3]
 			if self.target_version and self.target_version != short_version:
@@ -79,6 +79,11 @@ class distx_bdist_nsi (Command):
 		self.set_undefined_options('bdist',
 					   ('dist_dir', 'dist_dir'),
 					   ('nsis_dir', 'nsis_dir'))
+
+		# Create dist 
+		if( not os.path.isdir(self.dist_dir) ):
+                    os.mkdir(self.dist_dir)
+		
 
 	# finalize_options()
 
@@ -136,17 +141,18 @@ class distx_bdist_nsi (Command):
 				nsiscript=nsiscript.replace('@'+name+'@',data)
 
 		# License
-		license = filter(lambda x : os.path.exists(x),
+		licensefile = filter(lambda x : os.path.exists(x),
 				 ['license', 'license.txt',
 				'license.TXT', 'LICENSE.TXT'])
 		
-		if license:
-			license = license[0]
-			lic=lic + "\n\nLicense:\n" + open(license,'r').read()
-			
+		if licensefile:
+			licensefile = licensefile[0]
+			lic = lic + "\n\nLicense:\n" + open(licensefile,'r').read()
+
 		if lic != "":
 			lic="Infos:\n" +lic
-			licfile=open(os.path.join(self.bdist_dir, license),'wt')
+			
+			licfile=open(os.path.join(self.bdist_dir, 'license'),'wt')
 			licfile.write(lic)
 			licfile.close()
 				
@@ -188,10 +194,11 @@ class distx_bdist_nsi (Command):
 		b=zlib.decompress(base64.decodestring(WIZARD_BITMAP))
 		wizardbitmapfile.write(b)
 		wizardbitmapfile.close()
-		
+
+		# Copy Python file
 		files=[]
 		
-		os.path.walk(self.bdist_dir+os.sep+'_python',self.visit,files)
+		os.path.walk(self.bdist_dir+os.sep+'_python',self.visit,(files, '_python'))
 		
 		_f=[]
 		_d=[]
@@ -211,9 +218,32 @@ class distx_bdist_nsi (Command):
 				_fd.append('    Delete "$INSTDIR\\'+each[1]+'o'+'\"\n')
 				_fd.append('    Delete "$INSTDIR\\'+each[1]+'c'+'\"\n')
 			_fd.append('    Delete "$INSTDIR\\'+each[1]+'\"\n')
+		
+
+		# Copy OpenAlea files
+		files=[]
+                os.path.walk(self.bdist_dir+os.sep+'openalea',self.visit,(files, 'openalea'))
+		
+		
+		for each in files:
+			if lastdir != each[0]:
+				_f.append('  SetOutPath "$OPENALEADIR\%s"\n' % each[0])
+				lastdir=each[0]
+				if each[0] not in ['Lib\\site-packages','Scripts','Include','']:
+					_d.insert(0,'    RMDir "$OPENALEADIR\\'+each[0]+'\"\n')
+			_f.append('  File "openalea\\'+each[1]+'\"\n')
+			
+			if (each[1][len(each[1])-3:].lower() == ".py"):
+				_fc.append('"'+each[1]+'",\n')
+				_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'o'+'\"\n')
+				_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'c'+'\"\n')
+			_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'\"\n')
+
+			
 		nsiscript=nsiscript.replace('@_files@',''.join(_f))
 		nsiscript=nsiscript.replace('@_deletefiles@',''.join(_fd))
 		nsiscript=nsiscript.replace('@_deletedirs@',''.join(_d))
+
 		
 		
 		if (not self.no_target_compile) or (not self.no_target_optimize):
@@ -241,12 +271,20 @@ class distx_bdist_nsi (Command):
 				
 			
 	def visit(self,arg,dir,fil):
+                """ callback function in walk
+                fill a list with relative file name
+                @param arg : 2uple (output, srcdir)
+                """
+                (output, srcdir) = arg
 		for each in fil:
-			if not os.path.isdir(dir+os.sep+each):
-				f=str(dir+os.sep+each)[
-					len(self.bdist_dir+os.sep+'_python'+os.sep):]
+			if not os.path.isdir(dir + os.sep + each):
+				f=str(dir + os.sep + each)[
+					len(self.bdist_dir + os.sep + srcdir + os.sep):]
 				
-				arg.append([os.path.dirname(f),f])
+				output.append([os.path.dirname(f),f])
+
+
+				
 				
 	def compile(self):
 		try:
@@ -386,6 +424,7 @@ ShowUnInstDetails show
 Function .onInit
 	!insertmacro MUI_LANGDLL_DISPLAY
 	Call CheckPython
+	Call CheckOpenAleaPath
 FunctionEnd
 
 !ifdef PRODUCT_PYTHONVERSION
@@ -422,17 +461,6 @@ Function GetPythonPath
 FunctionEnd
 !endif
 
-Function GetOpenAleaPath
-	Push $R0
-	ClearErrors
-	ReadEnvStr $R0 OPENALEADIR
-	IfErrors lbl_na
-	Goto lbl_end
-	lbl_na:
-	StrCpy $R0 "c:\openalea"
-	lbl_end:
-	Pop $R0
-FunctionEnd
 
 Section "main" SEC01
 	SectionIn 1 32 RO
@@ -471,6 +499,17 @@ lbl_ok:
 	!else
 	Call GetPythonPath
 	!endif
+FunctionEnd
+
+Function CheckOpenAleaPath
+	ClearErrors
+	Var /GLOBAL OPENALEADIR
+	ReadEnvStr $OPENALEADIR "OPENALEADIR"
+	IfErrors lbl_na
+	Goto lbl_end
+	lbl_na:
+	StrCpy $OPENALEADIR "c:\openalea"
+	lbl_end:
 FunctionEnd
 
 Function .onVerifyInstDir
