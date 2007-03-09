@@ -20,7 +20,7 @@ from distutils.dir_util import create_tree, remove_tree
 from distutils.errors import *
 from distutils.spawn import spawn
 
-class bdist_nsi (Command):
+class distx_bdist_nsi (Command):
 
 	description = "create an executable installer for MS Windows"
 
@@ -76,14 +76,21 @@ class bdist_nsi (Command):
 			self.target_version = short_version
 		if self.nsis_dir is None:
 			self.nsis_dir=""
-		self.set_undefined_options('bdist', ('dist_dir', 'dist_dir'),('nsis_dir', 'nsis_dir'))
+		self.set_undefined_options('bdist',
+					   ('dist_dir', 'dist_dir'),
+					   ('nsis_dir', 'nsis_dir'))
 
 	# finalize_options()
 
 
 	def run (self):
-		if (sys.platform != "win32" and (self.distribution.has_ext_modules() or self.distribution.has_c_libraries())):
-				raise DistutilsPlatformError ("This distribution contains extensions and/or C libraries; must be compiled on a Windows 32 platform")
+		if (sys.platform != "win32" and
+		    (self.distribution.has_ext_modules()
+		     or self.distribution.has_c_libraries())):
+
+			raise DistutilsPlatformError (
+				"This distribution contains extensions and/or C libraries;\
+				must be compiled on a Windows 32 platform")
 		
 		
 		self.run_command('build')
@@ -127,13 +134,19 @@ class bdist_nsi (Command):
 			if data:
 				lic = lic + ("\n    %s: %s" % (string.capitalize(name), data))
 				nsiscript=nsiscript.replace('@'+name+'@',data)
-				
-		if os.path.exists('license'):
-			lic=lic + "\n\nLicense:\n" + open('license','r').read()
+
+		# License
+		license = filter(lambda x : os.path.exists(x),
+				 ['license', 'license.txt',
+				'license.TXT', 'LICENSE.TXT'])
+		
+		if license:
+			license = license[0]
+			lic=lic + "\n\nLicense:\n" + open(license,'r').read()
 			
 		if lic != "":
 			lic="Infos:\n" +lic
-			licfile=open(os.path.join(self.bdist_dir,'license'),'wt')
+			licfile=open(os.path.join(self.bdist_dir, license),'wt')
 			licfile.write(lic)
 			licfile.close()
 				
@@ -142,11 +155,16 @@ class bdist_nsi (Command):
 			os.makedirs(distdir)
 			
 		if self.target_version:
-			installer_path = os.path.join(distdir, "%s.win32-py%s.exe" % (self.distribution.get_fullname(), self.target_version))
+			installer_path = os.path.join(
+				distdir,
+				"%s.win32-py%s.exe" % (self.distribution.get_fullname(),
+						       self.target_version))
 		else:
-			installer_path = os.path.join(distdir, "%s.win32.exe" % self.distribution.get_fullname())                
+			installer_path = os.path.join(
+				distdir,
+				"%s.win32.exe" % self.distribution.get_fullname())                
 				
-		nsiscript=nsiscript.replace('@installer_path@',installer_path)
+		nsiscript = nsiscript.replace('@installer_path@',installer_path)
 		
 		haspythonversion=";"
 		if self.target_version.upper() not in ["","ANY"]:
@@ -225,14 +243,18 @@ class bdist_nsi (Command):
 	def visit(self,arg,dir,fil):
 		for each in fil:
 			if not os.path.isdir(dir+os.sep+each):
-				f=str(dir+os.sep+each)[len(self.bdist_dir+os.sep+'_python'+os.sep):]
+				f=str(dir+os.sep+each)[
+					len(self.bdist_dir+os.sep+'_python'+os.sep):]
+				
 				arg.append([os.path.dirname(f),f])
 				
 	def compile(self):
 		try:
-			spawn([os.path.join(self.nsis_dir,'makensis.exe'),os.path.join(self.bdist_dir,'setup.nsi')])
+			spawn([os.path.join(self.nsis_dir,'makensis.exe'),
+			       os.path.join(self.bdist_dir,'setup.nsi')])
 		except:
-			print "Error: makensis executable not found, add NSIS directory to the path or specify it with --nsis-dir"
+			print "Error: makensis executable not found, \
+			add NSIS directory to the path or specify it with --nsis-dir"
 			
 				
 					  
@@ -400,6 +422,17 @@ Function GetPythonPath
 FunctionEnd
 !endif
 
+Function GetOpenAleaPath
+	Push $R0
+	ClearErrors
+	ReadEnvStr $R0 OPENALEADIR
+	IfErrors lbl_na
+	Goto lbl_end
+	lbl_na:
+	StrCpy $R0 "c:\openalea"
+	lbl_end:
+	Pop $R0
+FunctionEnd
 
 Section "main" SEC01
 	SectionIn 1 32 RO
