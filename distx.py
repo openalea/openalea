@@ -4,7 +4,7 @@
 #
 #       OpenAlea.DistX:  Distutils extension
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or C or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -46,7 +46,7 @@ from distutils.util import convert_path, change_root
 from distutils.dir_util import mkpath
 
 from distx_wininst import *
-from bdist_nsis import *
+from bdist_nsi import distx_bdist_nsi
 
 ################################################################################
 # Define Exceptions
@@ -735,7 +735,7 @@ class DistxDistribution(Distribution):
                           'build_namespace' : build_namespace, 
                           'build' : distx_build,
                           'bdist_wininst' : distx_bdist_wininst,
-                          'bdist_nsis' : distx_bdist_nsis,
+                          'bdist_nsi' : distx_bdist_nsi,
                           'bdist_rpm' : distx_bdist_rpm,
                           'sdist' : distx_sdist,
                          }
