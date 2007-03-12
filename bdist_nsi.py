@@ -79,10 +79,9 @@ class distx_bdist_nsi (Command):
 						"target version can only be" + short_version
 			self.target_version = short_version
 		if self.nsis_dir is None:
-			self.nsis_dir=""
+			self.nsis_dir="c:\Program Files\NSIS"
 		self.set_undefined_options('bdist',
 					   ('dist_dir', 'dist_dir'),
-					   ('nsis_dir', 'nsis_dir'),
                                            )
 
 		cmdobj= self.distribution.get_command_obj('install_external_data')
@@ -111,8 +110,10 @@ class distx_bdist_nsi (Command):
                 # Get shortcut and var info
                 shortcuts = self.distribution.win_shortcuts
                 envvar = self.distribution.set_win_var
+		winreg = self.distribution.winreg
                 self.distribution.win_shortcuts = None
                 self.distribution.set_win_var = None
+		self.distribution.set_win_var = None
                 
 		install = self.reinitialize_command('install', reinit_subcommands=1)
 		install.root = self.bdist_dir
@@ -134,7 +135,7 @@ class distx_bdist_nsi (Command):
 		self.announce("installing to %s" % self.bdist_dir)
 		self.run_command('install')
 
-		self.build_nsi(shortcuts, envvar)
+		self.build_nsi(shortcuts, envvar, winreg)
 		
 		if not self.keep_temp:
 			remove_tree(self.bdist_dir, self.verbose, self.dry_run)        
@@ -142,15 +143,27 @@ class distx_bdist_nsi (Command):
 	# run()
 
 	
-	def build_nsi(self, shortcuts, envvar):
+	def build_nsi(self, shortcuts, envvar, winreg):
                 """
-                @param shortcut
-                @param envvar
+                @param shortcut : list of Shortcut objects
+                @param envvar : list of string (VAR=VALUE)
+		@pram winreg : list (key, subkey, name, value)
                 """
 
+		_define = []
 		if(not shortcuts): shortcuts = []
 		if(not envvar): envvar = []
-		
+		if(not winreg): winreg = []
+
+		if(len(shortcuts)) :
+			_define.append('!define SHORTCUT\n')
+		if(len(envvar)) :
+			_define.append('!define ENVVAR\n')
+		if(len(winreg)) :
+			_define.append('!define WINREG\n')
+
+
+
 		nsiscript = NSIDATA
 		metadata = self.distribution.metadata
 		lic=""
@@ -243,7 +256,7 @@ class distx_bdist_nsi (Command):
 		files=[]
 		directories=[]
 		os.path.walk(self.bdist_dir+os.sep+'_python',self.visit,(files, directories, '_python'))
-		
+		if(len(files)) : _define.append('!define PYTHON_LIB\n')
 		for each in files:
 			if lastdir != each[0]:
 				_f.append('  SetOutPath "$INSTDIR\%s"\n' % each[0])
@@ -263,7 +276,8 @@ class distx_bdist_nsi (Command):
 		files=[]
 		directories=[]
                 os.path.walk(self.bdist_dir+os.sep+'_openalea',self.visit,(files, directories, '_openalea'))
-				
+
+		if(len(files)) : _define.append('!define OPENALEA_LIB\n')
 		for each in files:
 			if lastdir != each[0]:
 				_f.append('  SetOutPath "$OPENALEADIR\%s"\n' % each[0])
@@ -325,12 +339,24 @@ class distx_bdist_nsi (Command):
                     _unenvvar.append('Push "%s"\n'%(value))
                     _unenvvar.append('Call un.RemoveFromEnvVar\n')
             
-
-
 		nsiscript=nsiscript.replace('@_setenvvar@',''.join(_setenvvar))
                 nsiscript=nsiscript.replace('@_unenvvar@',''.join(_unenvvar))
 
-                # Write a generate installer 
+		# Windows registery
+		_setwinreg = []
+		_unwinreg = []
+		for (key, subkey, name, value) in winreg:
+			_setwinreg.append('WriteRegStr %s "%s" "%s" "%s"\n'%(
+				key, subkey, name, value))
+			_unwinreg.append('DeleteRegKey %s "%s" "%s"\n'%(
+				key, subkey, name))
+
+		nsiscript=nsiscript.replace('@_setwinreg@',''.join(_setwinreg))
+                nsiscript=nsiscript.replace('@_unwinreg@',''.join(_unwinreg))
+
+		
+                # Write a generate installer
+		nsiscript=nsiscript.replace('@_define@',''.join(_define))
 		nsifile=open(os.path.join(self.bdist_dir,'setup.nsi'),'wt')
 		nsifile.write(nsiscript)
 		nsifile.close()
@@ -395,10 +421,7 @@ NSIDATA="""\
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
-!define PYTHON_LIB
-!define OPENALEA_LIB
-!define SHORTCUT
-!define ENVVAR
+@_define@
 !define ALL_USERS
 
 Var "OPENALEADIR"
@@ -543,7 +566,13 @@ Section "Environment variables"
 @_setenvvar@
 SectionEnd
 !endif
- 
+
+!ifdef WINREF
+Section "Registery"
+@_setwinreg@
+SectionEnd
+!endif
+
 
 Function CheckPython
 	!ifdef PRODUCT_PYTHONVERSION
@@ -601,11 +630,14 @@ Section Uninstall
 @_deletedirs@
 @_unshortcut@
 @_unenvvar@
+@_unwinreg@
 	DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 	SetAutoClose true
 SectionEnd
 
 ; Environment variable manipulation
+
+!ifdef ENVVAR
 
 !ifndef _AddToPath_nsh
 !define _AddToPath_nsh
@@ -622,7 +654,8 @@ SectionEnd
     !define WriteEnvStr_RegKey 'HKCU "Environment"'
   !endif
 !endif
- 
+
+
 ; AddToEnvVar - Adds the given value to the given environment var
 ;        Input - head of the stack $0 environement variable $1=value to add
 ;        Note - Win9x systems requires reboot
@@ -872,6 +905,7 @@ FunctionEnd
 !insertmacro StrStr "un."
  
 !endif ; _AddToPath_nsh
+!endif ; ENVVAR
 """
 
 HEADER_BITMAP="""\
