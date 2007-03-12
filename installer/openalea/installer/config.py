@@ -49,6 +49,7 @@ import os
 import sys
 import time
 from os.path import join as pj
+from os.path import normpath as np
 
 class Config(object):
     """
@@ -79,17 +80,17 @@ bin_dir = r'%s'
 doc_dir = r'%s'
 test_dir = r'%s'
 share_dir = r'%s'
-setting_dir = r'%s'     
+setting_dir = r'%s' 
 
 """%( self.header, self.namespace, 
-      self.prefix_dir,
-      pj(self.prefix_dir, self.lib_dir),
-      pj(self.prefix_dir, self.include_dir),
-      pj(self.prefix_dir, self.bin_dir),
-      pj(self.prefix_dir, self.doc_dir),
-      pj(self.prefix_dir, self.test_dir),
-      pj(self.prefix_dir, self.share_dir),
-      pj(self.prefix_dir, self.setting_dir))
+      np(self.prefix_dir),
+      np(pj(self.prefix_dir, self.lib_dir)),
+      np(pj(self.prefix_dir, self.include_dir)),
+      np(pj(self.prefix_dir, self.bin_dir)),
+      np(pj(self.prefix_dir, self.doc_dir)),
+      np(pj(self.prefix_dir, self.test_dir)),
+      np(pj(self.prefix_dir, self.share_dir)),
+      np(pj(self.prefix_dir, self.setting_dir)))
             
     def write(self, fn):
         """ Write config file `fn`. """
