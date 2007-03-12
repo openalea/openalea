@@ -45,6 +45,7 @@ from distutils.dep_util import newer
 from distutils.util import convert_path, change_root
 from distutils.dir_util import mkpath
 
+from build_py import build_py as distx_build_py
 from distx_wininst import *
 from bdist_nsi import distx_bdist_nsi
 
@@ -74,7 +75,6 @@ class distx_build(build):
     def has_scons_scripts(self):
         return self.distribution.has_scons_scripts()
     
-
     def has_namespace(self):
         return self.distribution.has_namespace()
 
@@ -286,19 +286,15 @@ class distx_install (install):
     def initialize_options (self):
         install.initialize_options(self)
 	self.external_prefix = None
-		
 
     def finalize_options (self):
 	install.finalize_options(self)
 
-
     def has_namespace (self):
         return self.distribution.has_namespace()
 
-
     def has_external_data (self):
         return self.distribution.has_external_data()
-
 
     def has_win_var (self):
         return self.distribution.has_win_var()
@@ -329,7 +325,8 @@ class distx_install (install):
     user_options.extend(install.user_options)
     user_options.append( ('external-prefix=',
                           None,
-                          'Prefix directory to install external data.') )
+                          'Prefix directory to install external data.'),
+                         )
 
 
 class install_namespace(Command):
@@ -551,7 +548,7 @@ class set_win_var (Command):
 
 
 # Shortcut
-import shortcut
+import shortcut as shortcut_py
 
 class freedesk_shortcut (Command):
     """
@@ -565,69 +562,61 @@ class freedesk_shortcut (Command):
        self.freedesk_shortcut = None
 
     def finalize_options (self):
-       self.freedesk_shortcut = self.distribution.freedesk_shortcut
+       self.shortcuts = self.distribution.freedesk_shortcuts
 
     def get_outputs(self):
         return []
 
     def run (self):
+       for shortcut in self.shortcuts:
 
-       defname = self.distribution.metadata.get_name()
-       name = self.freedesk_shortcut.setdefault('name', defname)
-       version = self.distribution.metadata.get_version()
-       icon = self.freedesk_shortcut.setdefault('icon', '')
-       defdesc = self.distribution.metadata.get_description()
-       description = self.freedesk_shortcut.setdefault('description', defdesc)
-       
-       try:
-          target = self.freedesk_shortcut['target']
-       except:
-          print "ERROR : freedesk_shortcut has no target parameter"
-          return
-
-       shortcut.CreateFDShortCut(name, target, version,
-                       icon, description)
+           shortcut.fill_with_metadata(self.distribution.metadata)
+           if(not shortcut.target):
+               print "ERROR : shortcut has no target parameter."
+               return
+            
+           shortcut_py.CreateFDShortCut(shortcut.name,
+                                     shortcut.target,
+                                     shortcut.arguments,
+                                     shortcut.version,
+                                     shortcut.icon,
+                                     shortcut.description,
+                                     shortcut.group)
 
 
 class win_shortcut (Command):
-    """
-    """
     
     description = "Add a shortcut on Win32 compatible system"
     
     user_options = []
 
     def initialize_options (self):
-       self.win_shortcut = None
+       self.shortcuts = None
 
     def finalize_options (self):
-       self.freedesk_shortcut = self.distribution.win_shortcut
+       self.shortcuts = self.distribution.win_shortcuts
 
     def get_outputs(self):
-        return []
+       return []
 
     def run (self):
-       defname = self.distribution.metadata.get_name()
-       name = self.freedesk_shortcut.setdefault('name', defname)
-       icon = self.freedesk_shortcut.setdefault('icon', '')
-       defdesc = self.distribution.metadata.get_description()
-       description = self.freedesk_shortcut.setdefault('description', defdesc)
-       arg = self.freedesk_shortcut.setdefault('arguments', '')
-       startin = self.freedesk_shortcut.setdefault('startin', '')
-       
-       try:
-          target = self.freedesk_shortcut['target']
-       except:
-          print "ERROR : win_shortcut has no target parameter"
-          return
+        
+       for shortcut in self.shortcuts:
 
-       shortcut.CreateWinShortCut(name, target, arg,
-                      startin, icon, description)
+           shortcut.fill_with_metadata(self.distribution.metadata)
+           if(not shortcut.target):
+               print "ERROR : shortcut has no target parameter."
+               return
+
+           shortcut_py.CreateWinShortCut(shortcut.name, shortcut.target,
+                                      shortcut.arguments,
+                                      os.path.dirname(shortcut.target),
+                                      shortcut.icon,
+                                      shortcut.description,
+                                      shortcut.group)
 
 
 
-
- 
 
 ################################################################################
 
@@ -704,16 +693,22 @@ class DistxDistribution(Distribution):
     """
     
     def __init__(self,attrs=None):
+
+        have_package_data = hasattr(self, "package_data")
+        if not have_package_data:
+            self.package_data = {}
+            
         self.external_data = None
         self.namespace = None
         self.scons_scripts = None
         self.scons_parameters = None
+        self.include_package_lib = True
         self.set_win_var = None
         self.set_lsb_var = None
         self.set_env_var = None # Deprecated
 
-        self.win_shortcut = None
-        self.freedesk_shortcut = None
+        self.win_shortcuts = []
+        self.freedesk_shortcuts = []
 
         Distribution.__init__(self,attrs)
 
@@ -734,10 +729,11 @@ class DistxDistribution(Distribution):
                           'build_scons' : build_scons,
                           'build_namespace' : build_namespace, 
                           'build' : distx_build,
-                          'bdist_wininst' : distx_bdist_wininst,
+                          'bdist_wininst' : distx_bdist_nsi,
                           'bdist_nsi' : distx_bdist_nsi,
                           'bdist_rpm' : distx_bdist_rpm,
                           'sdist' : distx_sdist,
+                          'build_py': distx_build_py
                          }
 
 
@@ -751,10 +747,10 @@ class DistxDistribution(Distribution):
        return bool(self.set_lsb_var)
 
     def has_win_shortcut(self):
-       return bool(self.win_shortcut)
+       return bool(self.win_shortcuts)
 
     def has_freedesk_shortcut(self):
-        return bool(self.freedesk_shortcut)
+        return bool(self.freedesk_shortcuts)
 
     def has_namespace(self):
         return bool(self.namespace)
