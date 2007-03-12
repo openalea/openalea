@@ -81,7 +81,7 @@ setup(
     freedesk_shortcuts = [Shortcut ( name = name, target = 'python', arguments = '', group = 'OpenAlea', icon='' )],
 
     # Windows registery (list of (key, subkey, name, value))
-    winreg = [ ('key', 'subkey', 'name', 'value') ]
+    winreg = [ ('HKCR', '.aaa', '', 'AAAA FILE') ]
    
       )
 

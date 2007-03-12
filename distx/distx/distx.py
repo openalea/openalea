@@ -640,16 +640,34 @@ class distx_winreg (Command):
        if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
           return
        try:
-          import _winreg 
-
+          import _winreg
+      
        except ImportError, e:
           print "!!ERROR: Can not access to Windows registry."
           return
 
-       for (key, subkey, name, value) in self.winreg:
+       keymap = { 'HKEY_CLASSES_ROOT': _winreg.HKEY_CLASSES_ROOT,
+                  'HKEY_CURRENT_CONFIG': _winreg.HKEY_CURRENT_CONFIG,
+                  'HKEY_CURRENT_USER': _winreg.HKEY_CURRENT_USER,
+                  'HKEY_DYN_DATA': _winreg.HKEY_DYN_DATA,
+                  'HKEY_LOCAL_MACHINE': _winreg.HKEY_LOCAL_MACHINE,
+                  'HKEY_PERFORMANCE_DATA': _winreg.HKEY_PERFORMANCE_DATA,
+                  'HKEY_USERS' :_winreg.HKEY_USERS,
+                  'HKCR': _winreg.HKEY_CLASSES_ROOT,
+                  'HKCC': _winreg.HKEY_CURRENT_CONFIG,
+                  'HKCU': _winreg.HKEY_CURRENT_USER,
+                  'HKDD': _winreg.HKEY_DYN_DATA,
+                  'HKLM': _winreg.HKEY_LOCAL_MACHINE,
+                  'HKPD': _winreg.HKEY_PERFORMANCE_DATA,
+                  'HKU' :_winreg.HKEY_USERS,                                  
+                  }
 
-          if(name and value):
-             _winreg.SetValue(key, subkey, name, value)
+       for (key, subkey, name, value) in self.winreg:
+          if(name) : subkey += '/' + name
+          try:
+              _winreg.SetValue(keymap[key], subkey, _winreg.REG_SZ, value)
+          except:
+              print "Cannot set %s/%s/%s registery key"%(key, subkey, name)
 
 
 

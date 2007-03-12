@@ -567,7 +567,7 @@ Section "Environment variables"
 SectionEnd
 !endif
 
-!ifdef WINREF
+!ifdef WINREG
 Section "Registery"
 @_setwinreg@
 SectionEnd
@@ -620,7 +620,7 @@ Section -Post
 SectionEnd
 
 Section Uninstall
-
+       SetShellVarContext all
        !ifdef OPENALEA_LIB
        Call un.CheckOpenAleaPath
        !endif
