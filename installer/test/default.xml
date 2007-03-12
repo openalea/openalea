@@ -1,0 +1,18 @@
+<openalea_distribution type="developer" version="0.0">
+
+  <package name="pyqt4" version="4.1.1">
+    <authors> </authors>
+    <copyright> Riverbank computing </copyright>
+    <license> GPL </license>
+    <description> QT4 wrappers </description>
+   
+    <dependance name=qt4 version="4.2.2"/>
+  
+    <resource platform='win32' type='exe' url=http://openalea.gforge.inria.fr/>
+    <resource platform='posix' type='rpm' url=http://openalea.gforge.inria.fr/>
+    <resource platform='posix' type='deb' url=http://openalea.gforge.inria.fr/>
+    <resource platform='all' type='py_src' url=http://openalea.gforge.inria.fr/>
+    
+  </package>
+
+</openalea_distribution
