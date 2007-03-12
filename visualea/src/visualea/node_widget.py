@@ -396,6 +396,78 @@ class IRGBColorWidget(IInterfaceWidget):
         
   
 
+class ITuple3Widget(IInterfaceWidget):
+    """
+    tuple3 spin box widget
+    """
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+        
+        hboxlayout = QtGui.QHBoxLayout(self)
+        hboxlayout.setMargin(3)
+        hboxlayout.setSpacing(5)
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        hboxlayout.addWidget(self.label)
+
+        self.spin1 = QtGui.QDoubleSpinBox (self)
+        self.spin1.setRange(interface.min, interface.max)
+
+        hboxlayout.addWidget(self.spin1)
+
+        self.spin2 = QtGui.QDoubleSpinBox (self)
+        self.spin2.setRange(interface.min, interface.max)
+
+        hboxlayout.addWidget(self.spin2)
+
+        self.spin3 = QtGui.QDoubleSpinBox (self)
+        self.spin3.setRange(interface.min, interface.max)
+
+        hboxlayout.addWidget(self.spin3)
+
+        self.notify(None,None)
+       
+        self.connect(self.spin1, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged1)
+        self.connect(self.spin2, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged2)
+        self.connect(self.spin3, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged3)
+
+        
+    def valueChanged1(self, newval):
+		(v1,v2,v3) = self.node.get_input_by_key(self.param_str)
+		self.node.set_input_by_key(self.param_str, (newval,v2,v3))
+        
+    def valueChanged2(self, newval):
+		(v1,v2,v3) = self.node.get_input_by_key(self.param_str)
+		self.node.set_input_by_key(self.param_str, (v1,newval,v3))
+        
+    def valueChanged3(self, newval):
+		(v1,v2,v3) = self.node.get_input_by_key(self.param_str)
+		self.node.set_input_by_key(self.param_str, (v1,v2,newval))
+        
+    def widget_clicked(self,event):
+		self.node.set_input_by_key(self.param_str, (self.spin1.getValue(), 
+													self.spin2.getValue(), 
+													self.spin3.getValue()))
+            
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        try:
+            (v1,v2,v3) = self.node.get_input_by_key(self.param_str)
+        except:
+            (v1,v2,v3) = (0.,0.,0.)
+            
+        self.spin1.setValue(v1)
+        self.spin2.setValue(v2)
+        self.spin3.setValue(v3)
+        
+
    
 
 class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
@@ -412,6 +484,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
                IBool : IBoolWidget,
                IEnumStr : IEnumStrWidget,
                IRGBColor : IRGBColorWidget,
+               ITuple3 : ITuple3Widget,
                types.NoneType : None
               }
     

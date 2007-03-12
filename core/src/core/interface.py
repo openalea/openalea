@@ -71,6 +71,11 @@ class IRGBColor(Interface):
     """ RGB Color """
     pass
 
+class ITuple3(Interface):
+    """ Tuple3 """
+    def __init__(self):
+        pass
+
 class IFunction(Interface):
     """ Function interface """
     pass
