@@ -346,9 +346,9 @@ class distx_bdist_nsi (Command):
 		_setwinreg = []
 		_unwinreg = []
 		for (key, subkey, name, value) in winreg:
-			_setwinreg.append('WriteRegStr %s "%s" "%s" "%s"\n'%(
+			_setwinreg.append('WriteRegStr %s `%s` `%s` `%s`\n'%(
 				key, subkey, name, value))
-			_unwinreg.append('DeleteRegKey %s "%s" "%s"\n'%(
+			_unwinreg.append('DeleteRegKey %s `%s` `%s`\n'%(
 				key, subkey, name))
 
 		nsiscript=nsiscript.replace('@_setwinreg@',''.join(_setwinreg))
