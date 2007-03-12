@@ -147,6 +147,10 @@ class distx_bdist_nsi (Command):
                 @param shortcut
                 @param envvar
                 """
+
+		if(not shortcuts): shortcuts = []
+		if(not envvar): envvar = []
+		
 		nsiscript = NSIDATA
 		metadata = self.distribution.metadata
 		lic=""
