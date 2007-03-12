@@ -29,6 +29,7 @@ import sys
 import os
 import openalea
 
+
 # Exceptions 
 
 class UnknowFileType(Exception):
@@ -45,7 +46,7 @@ class PackageManager(object):
     def __init__ (self):
 
         # list of path to search wralea file
-        self.wraleapath = openalea.__path__
+        self.wraleapath = list(openalea.__path__)
         
         # save system path
         self.old_syspath = sys.path[:]
@@ -77,12 +78,11 @@ class PackageManager(object):
         self.category = {}
 
         self.wraleapath = openalea.__path__ 
-    
 
     # Path Functions
     def add_wraleapath(self, new_path):
         """
-        Add a search pat for wralea files
+        Add a search path for wralea files
         @param new_path : a path string
         """
         if(not new_path in self.wraleapath):
