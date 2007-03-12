@@ -309,6 +309,22 @@ class distx_bdist_nsi (Command):
                 nsiscript=nsiscript.replace('@_unshortcut@',''.join(_unshcut))
                                   
 		# Environment variables
+		_setenvvar = []
+		_unenvvar = []
+		for v in envvar:
+                    name, value = v.split('=')
+                    _setenvvar.append('Push "%s"\n'%(name))
+                    _setenvvar.append('Push "%s"\n'%(value))
+                    _setenvvar.append('Call AddToEnvVar\n')
+
+                    _unenvvar.append('Push "%s"\n'%(name))
+                    _unenvvar.append('Push "%s"\n'%(value))
+                    _unenvvar.append('Call un.RemoveFromEnvVar\n')
+            
+
+
+		nsiscript=nsiscript.replace('@_setenvvar@',''.join(_setenvvar))
+                nsiscript=nsiscript.replace('@_unenvvar@',''.join(_unenvvar))
 
                 # Write a generate installer 
 		nsifile=open(os.path.join(self.bdist_dir,'setup.nsi'),'wt')
@@ -378,6 +394,8 @@ NSIDATA="""\
 !define PYTHON_LIB
 !define OPENALEA_LIB
 !define SHORTCUT
+!define ENVVAR
+!define ALL_USERS
 
 Var "OPENALEADIR"
 
@@ -491,8 +509,6 @@ Section "main" SEC01
 	SetOutPath $INSTDIR
 @_files@
 	
-	
-
 	!ifdef MISC_COMPILE
 	SetOutPath "$TEMP\_python\${PRODUCT_NAME}_${PRODUCT_VERSION}"
 	File "bytecompil.py"
@@ -517,6 +533,13 @@ Section "Start Menu Shortcuts"
   
 SectionEnd
 !endif
+
+!ifdef ENVVAR
+Section "Environment variables"
+@_setenvvar@
+SectionEnd
+!endif
+ 
 
 Function CheckPython
 	!ifdef PRODUCT_PYTHONVERSION
@@ -573,10 +596,278 @@ Section Uninstall
 @_deletefiles@
 @_deletedirs@
 @_unshortcut@
+@_unenvvar@
 	DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 	SetAutoClose true
 SectionEnd
 
+; Environment variable manipulation
+
+!ifndef _AddToPath_nsh
+!define _AddToPath_nsh
+ 
+!verbose 3
+!include "WinMessages.NSH"
+!verbose 4
+ 
+!ifndef WriteEnvStr_RegKey
+  !ifdef ALL_USERS
+    !define WriteEnvStr_RegKey \
+       'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+  !else
+    !define WriteEnvStr_RegKey 'HKCU "Environment"'
+  !endif
+!endif
+ 
+; AddToEnvVar - Adds the given value to the given environment var
+;        Input - head of the stack $0 environement variable $1=value to add
+;        Note - Win9x systems requires reboot
+ 
+Function AddToEnvVar
+ 
+  Exch $1 ; $1 has environment variable value
+  Exch
+  Exch $0 ; $0 has environment variable name
+ 
+  DetailPrint "Adding $1 to $0"
+  Push $2
+  Push $3
+  Push $4
+ 
+ 
+  ReadEnvStr $2 $0
+  Push "$2;"
+  Push "$1;"
+  Call StrStr
+  Pop $3
+  StrCmp $3 "" "" AddToEnvVar_done
+ 
+  Push "$2;"
+  Push "$1\\;"
+  Call StrStr
+  Pop $3
+  StrCmp $3 "" "" AddToEnvVar_done
+  
+ 
+  Call IsNT
+  Pop $2
+  StrCmp $2 1 AddToEnvVar_NT
+    ; Not on NT
+    StrCpy $2 $WINDIR 2
+    FileOpen $2 "$2\\autoexec.bat" a
+    FileSeek $2 -1 END
+    FileReadByte $2 $3
+    IntCmp $3 26 0 +2 +2 
+      FileSeek $2 -1 END 
+    FileWrite $2 "$\\r$\\nSET $0=%$0%;$4$\\r$\\n"
+    FileClose $2
+    SetRebootFlag true
+    Goto AddToEnvVar_done
+ 
+  AddToEnvVar_NT:
+    ReadRegStr $2 ${WriteEnvStr_RegKey} $0
+    StrCpy $3 $2 1 -1 
+    StrCmp $3 ";" 0 +2 
+      StrCpy $2 $2 -1 
+    StrCmp $2 "" AddToEnvVar_NTdoIt
+      StrCpy $1 "$2;$1"
+    AddToEnvVar_NTdoIt:
+      WriteRegExpandStr ${WriteEnvStr_RegKey} $0 $1
+      SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+ 
+  AddToEnvVar_done:
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $0
+    Pop $1
+ 
+FunctionEnd
+ 
+; RemoveFromEnvVar - Remove a given value from a environment var
+;     Input: head of the stack
+ 
+Function un.RemoveFromEnvVar
+ 
+  Exch $1 ; $1 has environment variable value
+  Exch
+  Exch $0 ; $0 has environment variable name
+ 
+  DetailPrint "Removing $1 from $0"
+  Push $2
+  Push $3
+  Push $4
+  Push $5
+  Push $6
+  Push $7
+ 
+  IntFmt $7 "%c" 26 # DOS EOF
+ 
+  Call un.IsNT
+  Pop $2
+  StrCmp $2 1 unRemoveFromEnvVar_NT
+    ; Not on NT
+    StrCpy $2 $WINDIR 2
+    FileOpen $2 "$2\autoexec.bat" r
+    GetTempFileName $5
+    FileOpen $3 $5 w
+    GetFullPathName /SHORT $1 $1
+    StrCpy $1 "SET $0=%$0%;$1"
+    Goto unRemoveFromEnvVar_dosLoop
+ 
+    unRemoveFromEnvVar_dosLoop:
+      FileRead $2 $4
+      StrCpy $6 $4 1 -1 # read last char
+      StrCmp $6 $7 0 +2 # if DOS EOF
+        StrCpy $4 $4 -1 # remove DOS EOF so we can compare
+      StrCmp $4 "$1$\\r$\\n" unRemoveFromEnvVar_dosLoopRemoveLine
+      StrCmp $4 "$1$\\n" unRemoveFromEnvVar_dosLoopRemoveLine
+      StrCmp $4 "$1" unRemoveFromEnvVar_dosLoopRemoveLine
+      StrCmp $4 "" unRemoveFromEnvVar_dosLoopEnd
+      FileWrite $3 $4
+      Goto unRemoveFromEnvVar_dosLoop
+      unRemoveFromEnvVar_dosLoopRemoveLine:
+        SetRebootFlag true
+        Goto unRemoveFromEnvVar_dosLoop
+ 
+    unRemoveFromEnvVar_dosLoopEnd:
+      FileClose $3
+      FileClose $2
+      StrCpy $2 $WINDIR 2
+      Delete "$2\\autoexec.bat"
+      CopyFiles /SILENT $5 "$2\\autoexec.bat"
+      Delete $5
+      Goto unRemoveFromEnvVar_done
+ 
+  unRemoveFromEnvVar_NT:
+    ReadRegStr $2 ${WriteEnvStr_RegKey} $0
+    StrCpy $6 $2 1 -1 # copy last char
+    StrCmp $6 ";" +2 # if last char != ;
+      StrCpy $2 "$2;" # append ;
+    Push $2
+    Push "$1;"
+    Call un.StrStr ; Find `$1;` in $2
+    Pop $3 ; pos of our dir
+    StrCmp $3 "" unRemoveFromEnvVar_done
+      ; else, it is in path
+      # $1 - path to add
+      # $2 - path var
+      StrLen $4 "$1;"
+      StrLen $5 $3
+      StrCpy $6 $2 -$5 # $6 is now the part before the path to remove
+      StrCpy $7 $3 "" $4 # $7 is now the part after the path to remove
+      StrCpy $4 $6$7
+ 
+      StrCpy $6 $4 1 -1 # copy last char
+      StrCmp $6 ";" 0 +2 # if last char == ;
+      StrCpy $4 $4 -1 # remove last char
+ 
+      WriteRegExpandStr ${WriteEnvStr_RegKey} $0 $4
+ 
+      ; delete reg value if null
+      StrCmp $4 "" 0 +2 # if null delete reg
+      DeleteRegValue ${WriteEnvStr_RegKey} $0
+ 
+      SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+ 
+  unRemoveFromEnvVar_done:
+    Pop $7
+    Pop $6
+    Pop $5
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Pop $0
+FunctionEnd
+ 
+ 
+ 
+ 
+!ifndef IsNT_KiCHiK
+!define IsNT_KiCHiK
+ 
+###########################################
+#            Utility Functions            #
+###########################################
+ 
+; IsNT
+; no input
+; output, top of the stack = 1 if NT or 0 if not
+;
+; Usage:
+;   Call IsNT
+;   Pop $R0
+;  ($R0 at this point is 1 or 0)
+ 
+!macro IsNT un
+Function ${un}IsNT
+  Push $0
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+  StrCmp $0 "" 0 IsNT_yes
+  ; we are not NT.
+  Pop $0
+  Push 0
+  Return
+ 
+  IsNT_yes:
+    ; NT!!!
+    Pop $0
+    Push 1
+FunctionEnd
+!macroend
+!insertmacro IsNT ""
+!insertmacro IsNT "un."
+ 
+!endif ; IsNT_KiCHiK
+ 
+; StrStr
+; input, top of stack = string to search for
+;        top of stack-1 = string to search in
+; output, top of stack (replaces with the portion of the string remaining)
+; modifies no other variables.
+;
+; Usage:
+;   Push "this is a long ass string"
+;   Push "ass"
+;   Call StrStr
+;   Pop $R0
+;  ($R0 at this point is "ass string")
+ 
+!macro StrStr un
+Function ${un}StrStr
+Exch $R1 ; st=haystack,old$R1, $R1=needle
+  Exch    ; st=old$R1,haystack
+  Exch $R2 ; st=old$R1,old$R2, $R2=haystack
+  Push $R3
+  Push $R4
+  Push $R5
+  StrLen $R3 $R1
+  StrCpy $R4 0
+  ; $R1=needle
+  ; $R2=haystack
+  ; $R3=len(needle)
+  ; $R4=cnt
+  ; $R5=tmp
+  loop:
+    StrCpy $R5 $R2 $R3 $R4
+    StrCmp $R5 $R1 done
+    StrCmp $R5 "" done
+    IntOp $R4 $R4 + 1
+    Goto loop
+done:
+  StrCpy $R1 $R2 "" $R4
+  Pop $R5
+  Pop $R4
+  Pop $R3
+  Pop $R2
+  Exch $R1
+FunctionEnd
+!macroend
+!insertmacro StrStr ""
+!insertmacro StrStr "un."
+ 
+!endif ; _AddToPath_nsh
 """
 
 HEADER_BITMAP="""\
