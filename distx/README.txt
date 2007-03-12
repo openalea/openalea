@@ -135,7 +135,9 @@ if __name__ == '__main__':
           # Add shortcuts
           win_shortcuts = [Shortcut( name=name, target='c:\\python24\pythonw.exe', arguments='', group='OpenAlea', icon =''), ],
           freedesk_shortcuts = [Shortcut ( name = name, target = 'python', arguments = '', group = 'OpenAlea', icon='' )],
-
+          
+	  # Windows registery (key, subkey, name, value)
+	  winreg = [('key', 'subkey', 'name', 'value')],
 
 
 For a more complete exemple, see the Starter package.
@@ -180,6 +182,7 @@ DistX defines new distutils extra commands (available from the command lines) :
   
   win_shortcut : Create menu shorcuts on Windows systems.
 
+  winreg : Add key in windows registery
   
   
   build : Build the package. In addition to the default behaviour, ''buil'' command call the ''build_namespace'' and ''build_scons'' command.
@@ -225,5 +228,6 @@ DistX add optional parameters to pass to setup in the ''setup.py'' script.
                                  
       * ''win_shortcuts'' : list of Shortcut objects. A Shortcut oject is initialised with :
                             name (link name), target (full executable path), arguments, group (menu category), icon (full path)
-                                 
+      
+      * ''winreg'' : list of 4uples (key, subkey, name, value) defining the keys to add.
            

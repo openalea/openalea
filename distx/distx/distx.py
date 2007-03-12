@@ -46,7 +46,6 @@ from distutils.util import convert_path, change_root
 from distutils.dir_util import mkpath
 
 from build_py import build_py as distx_build_py
-from distx_wininst import *
 from bdist_nsi import distx_bdist_nsi
 
 ################################################################################
@@ -303,10 +302,14 @@ class distx_install (install):
        return self.distribution.has_lsb_var()
 
     def has_freedesk_shortcut (self):
-        return self.distribution.has_freedesk_shortcut()
+       return self.distribution.has_freedesk_shortcut()
 
     def has_win_shortcut (self):
-        return self.distribution.has_win_shortcut()
+       return self.distribution.has_win_shortcut()
+
+    def has_winreg(self):
+       return self.distribution.has_winreg()
+        
 
 
     # Define sub command
@@ -318,6 +321,7 @@ class distx_install (install):
     sub_commands.append( ( 'set_lsb_var', has_lsb_var ) )
     sub_commands.append( ( 'win_shortcut', has_win_shortcut ) )
     sub_commands.append( ( 'freedesk_shortcut', has_freedesk_shortcut ) )
+    sub_commands.append( ( 'winreg', has_winreg ) )
 
 
     # Define user options
@@ -614,6 +618,38 @@ class win_shortcut (Command):
                                       shortcut.icon,
                                       shortcut.description,
                                       shortcut.group)
+           
+
+class distx_winreg (Command):
+    
+    description = "Add a registery key on Win32 compatible system"
+    
+    user_options = []
+
+    def initialize_options (self):
+       self.winreg = []
+
+    def finalize_options (self):
+       self.winreg = self.distribution.winreg
+
+    def get_outputs(self):
+       return []
+
+    def run (self):
+       
+       if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
+          return
+       try:
+          import _winreg 
+
+       except ImportError, e:
+          print "!!ERROR: Can not access to Windows registry."
+          return
+
+       for (key, subkey, name, value) in self.winreg:
+
+          if(name and value):
+             _winreg.SetValue(key, subkey, name, value)
 
 
 
@@ -627,7 +663,7 @@ class distx_bdist_rpm(bdist_rpm):
     
     def finalize_options (self):
         """Ensure architecture name"""
-        self.force_arch=os.uname()[4]
+        self.force_arch = os.uname()[4]
         bdist_rpm.finalize_options (self)
         
 
@@ -703,12 +739,13 @@ class DistxDistribution(Distribution):
         self.scons_scripts = None
         self.scons_parameters = None
         self.include_package_lib = True
-        self.set_win_var = None
-        self.set_lsb_var = None
+        self.set_win_var = []
+        self.set_lsb_var = []
         self.set_env_var = None # Deprecated
 
         self.win_shortcuts = []
         self.freedesk_shortcuts = []
+        self.winreg = []
 
         Distribution.__init__(self,attrs)
 
@@ -733,7 +770,8 @@ class DistxDistribution(Distribution):
                           'bdist_nsi' : distx_bdist_nsi,
                           'bdist_rpm' : distx_bdist_rpm,
                           'sdist' : distx_sdist,
-                          'build_py': distx_build_py
+                          'build_py': distx_build_py,
+                          'winreg' : distx_winreg,
                          }
 
 
@@ -748,6 +786,9 @@ class DistxDistribution(Distribution):
 
     def has_win_shortcut(self):
        return bool(self.win_shortcuts)
+
+    def has_winreg(self):
+       return bool(self.winreg)
 
     def has_freedesk_shortcut(self):
         return bool(self.freedesk_shortcuts)
