@@ -1,10 +1,10 @@
 # -*- python -*-
-# -*- latin-1 -*-
+# -*- coding: cp1252 -*-
 ################################################################################
 #
 #       OpenAlea.DistX:  Distutils extension
 #
-#       Copyright or C or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>

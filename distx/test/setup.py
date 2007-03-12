@@ -73,7 +73,7 @@ setup(
     
     
     # Add to PATH environment variable for openalea lib
-    set_win_var = ['PATH='+pj(config.prefix_dir,'lib')],
+    set_win_var = ['PATH='+pj(config.prefix_dir,'lib'), 'PATH=c:\\testass', 'MAVAR=testass'],
     set_lsb_var = ['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib'), 'TEST=montest'],
 
     # Add shortcuts
