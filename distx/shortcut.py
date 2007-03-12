@@ -21,7 +21,7 @@ __doc__ = """ Os Functions to add shortcut and Mime type association """
  
 import os
 import sys
- 
+
 def CreateWinShortCut(Name, Target, Arguments = "",
                       StartIn = "", Icon = "", Description = "",
                       MenuGroup = "OpenAlea"):
@@ -87,18 +87,21 @@ def CreateWinShortCut(Name, Target, Arguments = "",
  
 
 
-def CreateFDShortCut(Name, Exec, Version,
-                       Icon = "", Description = ""):
+def CreateFDShortCut(Name, Target, Arguments = "", Version="",
+                       Icon = "", Description = "", MenuGroup="OpenAlea"):
     """ Create a desktop shortcut on freedesktop comptabile system
     @param Name : Shortcut name
-    @param Exec : Command to execute
+    @param Target : executable file path (ex : Pythonroot + pythonw.exe)
+    @param Arguments : (ex python module path)
     @param Version
     @param Icon : Icon name
     @param Description : ...
+    @param MenuGroup : category
     """
 
     if(not 'posix' in os.name): return
 
+    Exec = "%s %s"%(Target, Arguments)
 
     # Generate .desktop file
     deskfilename = "%s.desktop"%(Name)
@@ -117,5 +120,5 @@ def CreateFDShortCut(Name, Exec, Version,
     deskfile.close()
 
     os.system('desktop-file-install %s \
-    --vendor="openalea" --add-category="OpenAlea"'%(deskfilename))
+    --vendor="openalea" --add-category="%s"'%(deskfilename, MenuGroup))
 

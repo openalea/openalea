@@ -41,11 +41,14 @@ class distx_bdist_nsi (Command):
 						"directory to put final built distributions in"),
 					('nsis-dir=', 'n',
 						"directory of nsis compiler"),
+                                        ('external-prefix=', None,
+                                                "Prefix directory to install external data." ),
 					]
 
 	boolean_options = ['keep-temp', 'no-target-compile', 'no-target-optimize',
 						'skip-build']
 
+        
 	def initialize_options (self):
 		self.bdist_dir = None
 		self.keep_temp = 0
@@ -58,7 +61,8 @@ class distx_bdist_nsi (Command):
 		self.title = None
 		self.plat_name = None
 		self.format = None
-
+                self.external_prefix= None
+                
 	# initialize_options()
 
 
@@ -78,11 +82,15 @@ class distx_bdist_nsi (Command):
 			self.nsis_dir=""
 		self.set_undefined_options('bdist',
 					   ('dist_dir', 'dist_dir'),
-					   ('nsis_dir', 'nsis_dir'))
+					   ('nsis_dir', 'nsis_dir'),
+                                           )
+
+		cmdobj= self.distribution.get_command_obj('install_external_data')
+                cmdobj.external_prefix= '_openalea'
 
 		# Create dist 
 		if( not os.path.isdir(self.dist_dir) ):
-                    os.mkdir(self.dist_dir)
+                     os.mkdir(self.dist_dir)
 		
 
 	# finalize_options()
@@ -100,6 +108,12 @@ class distx_bdist_nsi (Command):
 		
 		self.run_command('build')
 
+                # Get shortcut and var info
+                shortcuts = self.distribution.win_shortcuts
+                envvar = self.distribution.set_win_var
+                self.distribution.win_shortcuts = None
+                self.distribution.set_win_var = None
+                
 		install = self.reinitialize_command('install', reinit_subcommands=1)
 		install.root = self.bdist_dir
 		install.warn_dir = 0
@@ -107,7 +121,6 @@ class distx_bdist_nsi (Command):
 		install.compile = 0
 		install.optimize = 0
 		
-
 		for key in ('purelib', 'platlib', 'headers', 'scripts', 'data'):
 			if key in ['purelib','platlib'] and sys.version > "2.2":
 				value = '_python/Lib/site-packages'
@@ -121,7 +134,7 @@ class distx_bdist_nsi (Command):
 		self.announce("installing to %s" % self.bdist_dir)
 		self.run_command('install')
 
-		self.build_nsi()
+		self.build_nsi(shortcuts, envvar)
 		
 		if not self.keep_temp:
 			remove_tree(self.bdist_dir, self.verbose, self.dry_run)        
@@ -129,7 +142,11 @@ class distx_bdist_nsi (Command):
 	# run()
 
 	
-	def build_nsi(self):
+	def build_nsi(self, shortcuts, envvar):
+                """
+                @param shortcut
+                @param envvar
+                """
 		nsiscript = NSIDATA
 		metadata = self.distribution.metadata
 		lic=""
@@ -159,7 +176,8 @@ class distx_bdist_nsi (Command):
 		distdir=os.path.join('..','..','..',self.dist_dir)
 		if not os.path.exists(distdir):
 			os.makedirs(distdir)
-			
+
+		# Target File name
 		if self.target_version:
 			installer_path = os.path.join(
 				distdir,
@@ -195,16 +213,33 @@ class distx_bdist_nsi (Command):
 		wizardbitmapfile.write(b)
 		wizardbitmapfile.close()
 
-		# Copy Python file
-		files=[]
-		
-		os.path.walk(self.bdist_dir+os.sep+'_python',self.visit,(files, '_python'))
-		
+		# OpenAlea dir for external data
+		if(not self.external_prefix):
+         		nsiscript=nsiscript.replace('@_get_openalea_dir@',
+                                                    '    ClearErrors\n' + \
+                                                    '    ReadEnvStr $OPENALEADIR "OPENALEADIR"\n' + \
+	                                            '    IfErrors lbl_na\n' + \
+	                                            '    Goto lbl_end\n' + \
+	                                            '    lbl_na:\n'+ \
+                                                    '    StrCpy $OPENALEADIR "c:\openalea"\n' +\
+	                                            '    lbl_end:\n')
+                else:
+                        nsiscript=nsiscript.replace('@_get_openalea_dir@',
+                                                    '    StrCpy $OPENALEADIR "%s"\n'%(self.external_prefix))
+                
+                # File NSIS template with file to install
 		_f=[]
 		_d=[]
 		_fd=[]
 		_fc=[]
 		lastdir=""
+		
+
+		# Copy Python file
+		files=[]
+		directories=[]
+		os.path.walk(self.bdist_dir+os.sep+'_python',self.visit,(files, directories, '_python'))
+		
 		for each in files:
 			if lastdir != each[0]:
 				_f.append('  SetOutPath "$INSTDIR\%s"\n' % each[0])
@@ -222,30 +257,27 @@ class distx_bdist_nsi (Command):
 
 		# Copy OpenAlea files
 		files=[]
-                os.path.walk(self.bdist_dir+os.sep+'openalea',self.visit,(files, 'openalea'))
-		
-		
+		directories=[]
+                os.path.walk(self.bdist_dir+os.sep+'_openalea',self.visit,(files, directories, '_openalea'))
+				
 		for each in files:
 			if lastdir != each[0]:
 				_f.append('  SetOutPath "$OPENALEADIR\%s"\n' % each[0])
 				lastdir=each[0]
-				if each[0] not in ['Lib\\site-packages','Scripts','Include','']:
-					_d.insert(0,'    RMDir "$OPENALEADIR\\'+each[0]+'\"\n')
-			_f.append('  File "openalea\\'+each[1]+'\"\n')
-			
-			if (each[1][len(each[1])-3:].lower() == ".py"):
-				_fc.append('"'+each[1]+'",\n')
-				_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'o'+'\"\n')
-				_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'c'+'\"\n')
+			_f.append('  File "_openalea\\'+each[1]+'\"\n')
 			_fd.append('    Delete "$OPENALEADIR\\'+each[1]+'\"\n')
 
+		directories.reverse()
+		for each in directories:
+                        _d.append('    RMDir "$OPENALEADIR\\'+each+'\"\n')
+                _d.append('    RMDir "$OPENALEADIR "\n')
 			
 		nsiscript=nsiscript.replace('@_files@',''.join(_f))
 		nsiscript=nsiscript.replace('@_deletefiles@',''.join(_fd))
 		nsiscript=nsiscript.replace('@_deletedirs@',''.join(_d))
 
 		
-		
+		# Python file compilation
 		if (not self.no_target_compile) or (not self.no_target_optimize):
 			bytecompilscript=BYTECOMPILE_DATA.replace('@py_files@',''.join(_fc))
 			bytecompilfile=open(os.path.join(self.bdist_dir,'bytecompil.py'),'wt')
@@ -261,8 +293,24 @@ class distx_bdist_nsi (Command):
 		if not self.no_target_optimize:
 			nsiscript=nsiscript.replace('@optimize@','')
 		else:
-			nsiscript=nsiscript.replace('@optimize@',';')	
+			nsiscript=nsiscript.replace('@optimize@',';')
 
+		# Start menu entry
+		_shcut = []
+		_unshcut = []
+		for sh in shortcuts:
+		    _shcut.append('    CreateDirectory "$SMPROGRAMS\%s"\n'%(sh.group))
+		    _shcut.append('    CreateShortCut "$SMPROGRAMS\%s\%s.lnk" "%s" "%s" "%s" 0 "" "" "%s"\n'\
+                        %(sh.group, sh.name, sh.target, sh.arguments, sh.icon, sh.description))
+                    _unshcut.append('    Delete "$SMPROGRAMS\%s\%s.lnk"\n'%(sh.group, sh.name))
+                    _unshcut.append('    RMDir "$SMPROGRAMS\%s"\n'%(sh.group,))
+                                  
+                nsiscript=nsiscript.replace('@_shortcut@',''.join(_shcut))
+                nsiscript=nsiscript.replace('@_unshortcut@',''.join(_unshcut))
+                                  
+		# Environment variables
+
+                # Write a generate installer 
 		nsifile=open(os.path.join(self.bdist_dir,'setup.nsi'),'wt')
 		nsifile.write(nsiscript)
 		nsifile.close()
@@ -273,15 +321,20 @@ class distx_bdist_nsi (Command):
 	def visit(self,arg,dir,fil):
                 """ callback function in walk
                 fill a list with relative file name
-                @param arg : 2uple (output, srcdir)
+                @param arg : 3uples (output_files, output_directories, srcdir)
                 """
-                (output, srcdir) = arg
+                (output_files, output_directories,  srcdir) = arg
 		for each in fil:
 			if not os.path.isdir(dir + os.sep + each):
 				f=str(dir + os.sep + each)[
 					len(self.bdist_dir + os.sep + srcdir + os.sep):]
 				
-				output.append([os.path.dirname(f),f])
+				output_files.append([os.path.dirname(f),f])
+			else:
+                                f=str(dir + os.sep + each)[
+					len(self.bdist_dir + os.sep + srcdir + os.sep):]
+				
+                                output_directories.append(f)
 
 
 				
@@ -322,6 +375,12 @@ NSIDATA="""\
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
+!define PYTHON_LIB
+!define OPENALEA_LIB
+!define SHORTCUT
+
+Var "OPENALEADIR"
+
 @haspythonversion@!define PRODUCT_PYTHONVERSION "@pythonversion@"
 @compile@!define MISC_COMPILE "1"
 @optimize@!define MISC_OPTIMIZE "1"
@@ -349,7 +408,7 @@ NSIDATA="""\
 ; Components page
 ;!insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
-!insertmacro MUI_PAGE_DIRECTORY
+;!insertmacro MUI_PAGE_DIRECTORY
 ; Start menu page
 
 !define MUI_STARTMENUPAGE_NODISABLE
@@ -367,46 +426,6 @@ NSIDATA="""\
 
 ; Language files
 	!insertmacro MUI_LANGUAGE "English"
-	!insertmacro MUI_LANGUAGE "French"
-	!insertmacro MUI_LANGUAGE "German"
-	!insertmacro MUI_LANGUAGE "Spanish"
-	!insertmacro MUI_LANGUAGE "SimpChinese"
-	!insertmacro MUI_LANGUAGE "TradChinese"
-	!insertmacro MUI_LANGUAGE "Japanese"
-	!insertmacro MUI_LANGUAGE "Korean"
-	!insertmacro MUI_LANGUAGE "Italian"
-	!insertmacro MUI_LANGUAGE "Dutch"
-	!insertmacro MUI_LANGUAGE "Danish"
-	!insertmacro MUI_LANGUAGE "Swedish"
-	!insertmacro MUI_LANGUAGE "Norwegian"
-	!insertmacro MUI_LANGUAGE "Finnish"
-	!insertmacro MUI_LANGUAGE "Greek"
-	!insertmacro MUI_LANGUAGE "Russian"
-	!insertmacro MUI_LANGUAGE "Portuguese"
-	!insertmacro MUI_LANGUAGE "PortugueseBR"
-	!insertmacro MUI_LANGUAGE "Polish"
-	!insertmacro MUI_LANGUAGE "Ukrainian"
-	!insertmacro MUI_LANGUAGE "Czech"
-	!insertmacro MUI_LANGUAGE "Slovak"
-	!insertmacro MUI_LANGUAGE "Croatian"
-	!insertmacro MUI_LANGUAGE "Bulgarian"
-	!insertmacro MUI_LANGUAGE "Hungarian"
-	!insertmacro MUI_LANGUAGE "Thai"
-	!insertmacro MUI_LANGUAGE "Romanian"
-	!insertmacro MUI_LANGUAGE "Latvian"
-	!insertmacro MUI_LANGUAGE "Macedonian"
-	!insertmacro MUI_LANGUAGE "Estonian"
-	!insertmacro MUI_LANGUAGE "Turkish"
-	!insertmacro MUI_LANGUAGE "Lithuanian"
-	!insertmacro MUI_LANGUAGE "Catalan"
-	!insertmacro MUI_LANGUAGE "Slovenian"
-	!insertmacro MUI_LANGUAGE "Serbian"
-	!insertmacro MUI_LANGUAGE "SerbianLatin"
-	!insertmacro MUI_LANGUAGE "Arabic"
-	!insertmacro MUI_LANGUAGE "Farsi"
-	!insertmacro MUI_LANGUAGE "Hebrew"
-	!insertmacro MUI_LANGUAGE "Indonesian"
-
 ; MUI end ------
 
 
@@ -422,9 +441,13 @@ ShowUnInstDetails show
 
 
 Function .onInit
-	!insertmacro MUI_LANGDLL_DISPLAY
+;	!insertmacro MUI_LANGDLL_DISPLAY
+	!ifdef PYTHON_LIB
 	Call CheckPython
+	!endif
+	!ifdef OPENALEA_LIB
 	Call CheckOpenAleaPath
+	!endif
 FunctionEnd
 
 !ifdef PRODUCT_PYTHONVERSION
@@ -485,6 +508,16 @@ Section "main" SEC01
 	
 SectionEnd
 
+; Optional section (can be disabled by the user)
+!ifdef SHORTCUT
+Section "Start Menu Shortcuts"
+   SetShellVarContext all
+
+@_shortcut@
+  
+SectionEnd
+!endif
+
 Function CheckPython
 	!ifdef PRODUCT_PYTHONVERSION
 	Push $9
@@ -501,22 +534,25 @@ lbl_ok:
 	!endif
 FunctionEnd
 
-Function CheckOpenAleaPath
-	ClearErrors
-	Var /GLOBAL OPENALEADIR
-	ReadEnvStr $OPENALEADIR "OPENALEADIR"
-	IfErrors lbl_na
-	Goto lbl_end
-	lbl_na:
-	StrCpy $OPENALEADIR "c:\openalea"
-	lbl_end:
-FunctionEnd
-
+!ifdef PYTHON_LIB
 Function .onVerifyInstDir
+        
 	IfFileExists $INSTDIR\python.exe goodpath
-		Abort 
+		Abort
+	
 	goodpath:
 FunctionEnd
+!endif
+
+;Retrieve OpenAlea dir path
+Function CheckOpenAleaPath
+@_get_openalea_dir@	
+FunctionEnd
+
+Function un.CheckOpenAleaPath
+@_get_openalea_dir@
+FunctionEnd
+
 
 Section -Post
   WriteUninstaller "$INSTDIR\${PRODUCT_NAME}_uninst.exe"
@@ -526,10 +562,17 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
+
 Section Uninstall
+
+       !ifdef OPENALEA_LIB
+       Call un.CheckOpenAleaPath
+       !endif
+	
 	Delete "$INSTDIR\${PRODUCT_NAME}_uninst.exe"
 @_deletefiles@
 @_deletedirs@
+@_unshortcut@
 	DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 	SetAutoClose true
 SectionEnd

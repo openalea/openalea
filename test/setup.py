@@ -4,67 +4,47 @@
 
 #Check dependencies
 import sys
+from os.path import join as pj
 
 try:
 	from openalea import config
+	namespace = config.namespace
+
 except ImportError:
 	print """
 ImportError : openalea.config not found. 
-Please install openalea package before.	
-http://openalea.gforge.inria.fr
+see http://openalea.gforge.inria.fr
 """
-	sys.exit()
+	namespace = 'openalea'
 
 try:
-	from openalea.distx import setup
+	from openalea.distx import setup, find_packages, find_package_dir, Shortcut
 except ImportError:
 	print """
 ImportError : openalea.distx package not found.
-Please install openalea.distx package before
-http://openalea.gforge.inria.fr
+See http://openalea.gforge.inria.fr
 """
         sys.exit()
-
-from os.path import join as pj
 
 
 # Package name
 name= 'distx_tester'
 
-#openalea namespace
-namespace=config.namespace
-#namespace="mynamespace"
-
-# Package version policy
-# major.minor.patch
-# alpha: patch + 'a'+ 'number'
-# beta: patch= patch + 'b' + 'number'
-major= '0'
-minor= '0'
-patch= '1a1'
-version= '%s.%s.%s' % (major, minor, patch)
+# Package version 
+version= '0.0.1a' 
 
 # Description of the package 
 description= 'DistX test package.' #short description
 long_description= 'DistX test package'
-
-# Author
 author= 'Samuel Dufour-Kowalski'
 author_email= 'samuel.dufour@sophia.inria.fr'
-
-# URL
 url= 'http://gforge.inria.fr/projects/openalea/'
-
-# License: License for the template package.
-# Please, choose an OpenSource license for distribution of your package.
 license= 'Cecill-C' #LGPL compatible INRIA licence
 
-# For other meta-information, please read the Python distutils documentation.
 
 #MAIN SETUP
 setup(
 
-    #META DATA
     name=name,
     version=version,
     description=description,
@@ -77,31 +57,28 @@ setup(
     # Execute scons
     # Scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
     scons_scripts = ['SConstruct'],
-    # Scons parameters  
     scons_parameters = ['lib_dir=lib'],
 
     namespace=[namespace],
-    
-    # Pure python  packages
-    packages = [namespace+'.'+name],
-    # Python packages directory
-    package_dir = {namespace+'.'+name : pj('src',name)},
+
+    packages = find_packages(where = 'src', namespace = namespace),
+    package_dir = find_package_dir(where = 'src', namespace = namespace),
       
     # Add package platform libraries if any
-    package_data = { namespace+'.'+name : ['*.so', '*.dll', '*.pyd']},
-
+    include_package_lib = True,
+    
     # Copy shared data in default OpenAlea directory
     # Map of 'destination subdirectory' : 'source subdirectory'
     external_data = {pj('external', name) : 'external', },
     
     
-    # Add to PATH environment variable for openalea lib on Windows platform
+    # Add to PATH environment variable for openalea lib
     set_win_var = ['PATH='+pj(config.prefix_dir,'lib')],
     set_lsb_var = ['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib'), 'TEST=montest'],
 
-    # Add shortcut
-    win_shortcut = {'name':name, 'target' : 'c:\\python24\pythonw.exe', 'arguments':'', 'startin':'c:\\python24', 'icon':''},
-    freedesk_shortcut = { 'name':name, 'target':'python', 'icon':'' },
+    # Add shortcuts
+    win_shortcuts = [Shortcut( name=name, target='c:\\python24\pythonw.exe', arguments='', group='OpenAlea', icon =''), ],
+    freedesk_shortcuts = [Shortcut ( name = name, target = 'python', arguments = '', group = 'OpenAlea', icon='' )],
     
    
       )
