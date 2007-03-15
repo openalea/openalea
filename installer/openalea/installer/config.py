@@ -15,9 +15,7 @@
 ################################################################################
 
 
-__doc__ = """o
-
-penAlea Configuration functions"
+__doc__ = """openAlea Configuration functions
 Create a python module which provide precise description of where
 files have to be or had been installed.
 Thus, the configuration is not hard coded, but depends on the
@@ -184,14 +182,44 @@ def install_config(tmp_dir, namespace):
     remove_tree(tmp_dir)
     
 
-def set_environ():
-    """ set the system environment """
+def finalize_config():
+    from  openalea import config
+    
+    # create directories
+    print "Creating directories:"
+    dirs = (config.prefix_dir,
+            config.lib_dir, 
+            config.include_dir,
+            config.doc_dir,
+            config.share_dir,
+            config.bin_dir,
+            config.test_dir)
+	
+    for directory in dirs:
+        try:
+            print directory
+            os.mkdir(directory)
+        except Exception, e:
+            print e
+
+    from installer.setenvvar import set_lsb_env, set_win_env
+    
+    print "Setting environment variables"
+
+    set_lsb_env('openalea', ['LD_LIBRARY_PATH=%s'%(config.lib_dir,),
+                             'PATH=%s'%(config.bin_dir,),
+                             'OPENALEADIR=%s'%(config.prefix_dir,)])
+    
+    set_win_env(['PATH=%s'%(config.lib_dir,),
+                 'PATH=%s'%(config.bin_dir,),
+                 'OPENALEADIR=%s'%(config.prefix_dir,)])
 
 
 def start():
+    """ Configure OpenAlea """
     ns = create_config('tmp')
     install_config('tmp', ns)
-    set_environ()
+    finalize_config()
 
 
 
