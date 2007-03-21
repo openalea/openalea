@@ -489,7 +489,11 @@ class Package(dict):
     def add_factory(self, factory):
         """ Add to the package a factory ( node or subgraph ) """
 
-        self[ factory.name ] = factory
+        if(self.has_key(factory.name)):
+            print "Factory %s already defined. Ignored !"%(factory.name,)
+            return
+        
+        self[factory.name] = factory
         factory.package = self
 
 
