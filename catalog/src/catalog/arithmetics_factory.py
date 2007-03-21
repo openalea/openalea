@@ -23,7 +23,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core.external import *
+from openalea.core import *
 
 
 def define_factory(package):
@@ -148,6 +148,30 @@ def define_factory(package):
                   category = "Operations", 
                   nodemodule = "arithmetics",
                   nodeclass = "Max",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "randint", 
+                  description= "Random integer", 
+                  category = "Operations", 
+                  nodemodule = "arithmetics",
+                  nodeclass = "RandInt",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "print", 
+                  description= "Console output", 
+                  category = "Operations", 
+                  nodemodule = "arithmetics",
+                  nodeclass = "Print",
                   widgetmodule = None,
                   widgetclass = None,
                   )

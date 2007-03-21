@@ -8,3 +8,7 @@ __revision__=" $Id$"
 
 from core import Package, Factory, Node
 from interface import *
+
+
+# Convenience functions
+
