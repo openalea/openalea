@@ -89,9 +89,9 @@ class PackageManager(object):
             self.wraleapath.append(new_path)
         
 
-    def recover_syspath (self):
+    def recover_syspath(self):
         """ Restore the initial sys path """
-        sys.path=self.old_syspath
+        sys.path = self.old_syspath
 
     # Accessors
 
@@ -99,7 +99,7 @@ class PackageManager(object):
         """ Add a package to the pkg manager """
 
         #if( not self.pkgs.has_key(package.get_id())):
-        self[ package.get_id() ] = package
+        self[package.get_id()] = package
         self.update_category(package)
 
 
