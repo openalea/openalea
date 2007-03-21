@@ -252,6 +252,174 @@ class IStrWidget(IInterfaceWidget):
         self.subwidget.setText(str(self.node.get_input_by_key(self.param_str)))
         
 
+class ISequenceWidget(IInterfaceWidget):
+    """
+    List edit widget
+    """
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.hboxlayout = QtGui.QVBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QListWidget (self)
+        self.hboxlayout.addWidget(self.subwidget)
+
+        self.button = QtGui.QPushButton("Add Item", self)
+        self.hboxlayout.addWidget(self.button)
+
+        self.update_list()
+        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+                     self.itemclick)
+        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
+                     self.itemchanged)
+        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        
+
+    def update_list(self):
+
+        seq = self.node.get_input_by_key(self.param_str)
+        self.subwidget.clear()
+        for elt in seq :
+            item = QtGui.QListWidgetItem(str(elt))
+            item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
+                          QtCore.Qt.ItemIsSelectable)
+            self.subwidget.addItem(item)
+
+    def button_clicked(self):
+        seq = self.node.get_input_by_key(self.param_str)
+        seq.append(None)
+        self.update_list()
+        
+    def itemclick(self, item):
+        self.subwidget.editItem(item)
+
+    def itemchanged(self, item):
+        text = item.text()
+        i = self.subwidget.currentRow()
+        seq = self.node.get_input_by_key(self.param_str)
+        
+        try:
+            obj = eval(str(text))
+            seq[i] = obj
+            item.setText(str(obj))
+        except :
+            item.setText(text)
+            seq[i] = str(text)
+            
+    def keyPressEvent(self, e):
+        key   = e.key()
+        seq = self.node.get_input_by_key(self.param_str)
+        if( key == QtCore.Qt.Key_Delete):
+            selectlist = self.subwidget.selectedItems()
+            for i in selectlist:
+                row = self.subwidget.row(i)
+                self.subwidget.takeItem(row)
+                del(seq[row-1])
+
+
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        self.update_list()
+
+
+class IDictWidget(IInterfaceWidget):
+    """
+    List edit widget
+    """
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.hboxlayout = QtGui.QVBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QListWidget (self)
+        self.hboxlayout.addWidget(self.subwidget)
+
+        self.button = QtGui.QPushButton("Add Item", self)
+        self.hboxlayout.addWidget(self.button)
+
+        self.update_list()
+        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+                     self.itemclick)
+        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
+                     self.itemchanged)
+        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        
+
+    def update_list(self):
+
+        seq = self.node.get_input_by_key(self.param_str)
+        self.subwidget.clear()
+        for elt in seq :
+            item = QtGui.QListWidgetItem(str(elt))
+            item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
+                          QtCore.Qt.ItemIsSelectable)
+            self.subwidget.addItem(item)
+
+    def button_clicked(self):
+        seq = self.node.get_input_by_key(self.param_str)
+        seq.append(None)
+        self.update_list()
+        
+    def itemclick(self, item):
+        self.subwidget.editItem(item)
+
+    def itemchanged(self, item):
+        text = item.text()
+        i = self.subwidget.currentRow()
+        seq = self.node.get_input_by_key(self.param_str)
+        
+        try:
+            obj = eval(str(text))
+            seq[i] = obj
+            item.setText(str(obj))
+        except :
+            item.setText(text)
+            seq[i] = str(text)
+            
+    def keyPressEvent(self, e):
+        key   = e.key()
+        seq = self.node.get_input_by_key(self.param_str)
+        if( key == QtCore.Qt.Key_Delete):
+            selectlist = self.subwidget.selectedItems()
+            for i in selectlist:
+                row = self.subwidget.row(i)
+                self.subwidget.takeItem(row)
+                del(seq[row-1])
+
+
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        self.update_list()
+
+        
 
 class IFileStrWidget(IStrWidget):
     """
@@ -363,11 +531,6 @@ class IRGBColorWidget(IInterfaceWidget):
         self.hboxlayout.addWidget(self.colorwidget)
 
 
-#         self.button = QtGui.QPushButton("...", self)
-#         self.hboxlayout.addWidget(self.button)
-
-#         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
-
     def widget_clicked(self,event):
         
         try:
@@ -412,6 +575,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
                IBool : IBoolWidget,
                IEnumStr : IEnumStrWidget,
                IRGBColor : IRGBColorWidget,
+               IDict : IDictWidget,
+               ISequence : ISequenceWidget,
                types.NoneType : None
               }
     
