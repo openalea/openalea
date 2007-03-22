@@ -174,9 +174,9 @@ class Node(Observed):
     def set_input(self, index, val):
         """ Define the input value for the specified index """
 
-        #        if(self.inputs[index] != val):
-        self.inputs[index] = val
-        self.unvalidate_input(index)
+        if(self.inputs[index] != val):
+            self.inputs[index] = val
+            self.unvalidate_input(index)
 
 
     def get_output(self, index):

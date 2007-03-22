@@ -23,6 +23,8 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
+from copy import copy
+
 from core import NodeFactory, Node
 from core import RecursionError, InstantiationError
 
@@ -311,6 +313,7 @@ class SubGraph(Node):
         """
         Evaluate a particular Node identified by elt_id
         Do not call directly this function, use instead eval_as expression
+        Return True if the node has been executed
         """
 
         try:
@@ -333,7 +336,7 @@ class SubGraph(Node):
                 node_src = self.node_id[id_src]
                 
                 v = node_src.get_output(port_src)
-                node.set_input(iport, v)
+                node.set_input(iport, copy(v))
                 
             except KeyError :
                 pass
@@ -342,7 +345,7 @@ class SubGraph(Node):
                 raise
 
         # evaluate the node itself
-        node.eval()
+        return node.eval()
         
                 
     # Functions used by the node evaluator
