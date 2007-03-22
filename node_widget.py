@@ -30,39 +30,12 @@ import os
 from PyQt4 import QtCore, QtGui
 from openalea.core.core import NodeWidget
 from openalea.core.interface import *
-
-
 import types
 
-
-class IInterfaceWidget(QtGui.QWidget):
-    """ Base class for widget associated to an interface """
-
-    def __init__(self, node, parent, parameter_str, interface):
-        """
-        @param parameter_str : the parameter key the widget is associated to
-        @param interface : instance of interface object
-        """
-        
-        QtGui.QWidget.__init__(self, parent)
-        self.node = node
-        self.param_str = parameter_str
+   
 
 
-    def update_state(self):
-        """ Enable or disable widget depending of connection status """
-
-        i = self.node.get_input_index(self.param_str)
-        state = self.node.get_input_state(i)
-        
-        if(state == "connected"):
-            self.setEnabled(False)
-        else:
-            self.setEnabled(True)
-    
-
-
-class IFloatWidget(IInterfaceWidget):
+class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
     """
     Float spin box widget
     """
@@ -72,7 +45,7 @@ class IFloatWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
         
         hboxlayout = QtGui.QHBoxLayout(self)
@@ -109,7 +82,7 @@ class IFloatWidget(IInterfaceWidget):
         self.spin.setValue(v)
         
 
-class IIntWidget(IInterfaceWidget):
+class IIntWidget(IInterfaceWidget, QtGui.QWidget):
     """
     integer spin box widget
     """
@@ -119,7 +92,7 @@ class IIntWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         hboxlayout = QtGui.QHBoxLayout(self)
@@ -159,7 +132,7 @@ class IIntWidget(IInterfaceWidget):
 
 
 
-class IBoolWidget(IInterfaceWidget):
+class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
     """
     integer spin box widget
     """
@@ -169,7 +142,8 @@ class IBoolWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-
+        
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         hboxlayout = QtGui.QHBoxLayout(self)
@@ -206,7 +180,7 @@ class IBoolWidget(IInterfaceWidget):
             self.checkbox.setCheckState(QtCore.Qt.Unchecked)
 
 
-class IStrWidget(IInterfaceWidget):
+class IStrWidget(IInterfaceWidget, QtGui.QWidget):
     """
     Line Edit widget
     """
@@ -217,6 +191,7 @@ class IStrWidget(IInterfaceWidget):
         @param interface : instance of interface object
         """
 
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.hboxlayout = QtGui.QHBoxLayout(self)
@@ -248,7 +223,7 @@ class IStrWidget(IInterfaceWidget):
         self.subwidget.setText(str(self.node.get_input_by_key(self.param_str)))
         
 
-class ISequenceWidget(IInterfaceWidget):
+class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     """
     List edit widget
     """
@@ -258,6 +233,8 @@ class ISequenceWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
+
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.gridlayout = QtGui.QGridLayout(self)
@@ -390,7 +367,7 @@ class ISequenceWidget(IInterfaceWidget):
         self.update_list()
 
 
-class IDictWidget(IInterfaceWidget):
+class IDictWidget(IInterfaceWidget, QtGui.QWidget):
     """
     List edit widget
     """
@@ -400,7 +377,8 @@ class IDictWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-
+        
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.hboxlayout = QtGui.QVBoxLayout(self)
@@ -446,7 +424,6 @@ class IDictWidget(IInterfaceWidget):
         """ Rebuild the list """
         
         dic = self.node.get_input_by_key(self.param_str)
-        print dic
         self.subwidget.clear()
         self.rowkey = []
         try:
@@ -516,7 +493,7 @@ class IDictWidget(IInterfaceWidget):
 
         
 
-class IFileStrWidget(IStrWidget):
+class IFileStrWidget(IStrWidget, QtGui.QWidget):
     """
     File name Line Edit Widget
     """
@@ -527,6 +504,7 @@ class IFileStrWidget(IStrWidget):
         @param interface : instance of interface object
         """
 
+        QtGui.QWidget.__init__(self, parent)
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.last_result= QtCore.QDir.homePath()
@@ -544,7 +522,7 @@ class IFileStrWidget(IStrWidget):
             self.last_result= result
             
         
-class IEnumStrWidget(IInterfaceWidget):
+class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
     """ String Enumeration widget """
     
     def __init__(self, node, parent, parameter_str, interface):
@@ -553,6 +531,7 @@ class IEnumStrWidget(IInterfaceWidget):
         @param interface : instance of interface object
         """
 
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
                 
         self.hboxlayout = QtGui.QHBoxLayout(self)
@@ -596,7 +575,7 @@ class IEnumStrWidget(IInterfaceWidget):
 
 
 
-class IRGBColorWidget(IInterfaceWidget):
+class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
     """ RGB Color Widget """
 
     def __init__(self, node, parent, parameter_str, interface):
@@ -605,6 +584,7 @@ class IRGBColorWidget(IInterfaceWidget):
         @param interface : instance of interface object
         """
 
+        QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.hboxlayout = QtGui.QHBoxLayout(self)
@@ -654,6 +634,21 @@ class IRGBColorWidget(IInterfaceWidget):
         
   
 
+# Map between type and widget
+InterfaceMapper().update(
+    {IFloat: IFloatWidget,
+     IInt : IIntWidget,
+     IStr : IStrWidget,
+     IFileStr: IFileStrWidget,
+     IBool : IBoolWidget,
+     IEnumStr : IEnumStrWidget,
+     IRGBColor : IRGBColorWidget,
+     IDict : IDictWidget,
+     ISequence : ISequenceWidget,
+     types.NoneType : None
+     }
+    )
+
    
 
 class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
@@ -662,19 +657,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     It displays the node contents.
     """
 
-    # Map between type and widget
-    type_map= {IFloat: IFloatWidget,
-               IInt : IIntWidget,
-               IStr : IStrWidget,
-               IFileStr: IFileStrWidget,
-               IBool : IBoolWidget,
-               IEnumStr : IEnumStrWidget,
-               IRGBColor : IRGBColorWidget,
-               IDict : IDictWidget,
-               ISequence : ISequenceWidget,
-               types.NoneType : None
-              }
-    
+    type_map = InterfaceMapper()
 
     def __init__(self, node, parent):
 
