@@ -35,7 +35,7 @@ from openalea.core.interface import *
 import types
 
 
-class IInterfaceWidget(QtGui.QWidget, NodeWidget):
+class IInterfaceWidget(QtGui.QWidget):
     """ Base class for widget associated to an interface """
 
     def __init__(self, node, parent, parameter_str, interface):
@@ -44,12 +44,9 @@ class IInterfaceWidget(QtGui.QWidget, NodeWidget):
         @param interface : instance of interface object
         """
         
-        NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
-
+        self.node = node
         self.param_str = parameter_str
-
-        self.update_state()
 
 
     def update_state(self):
@@ -62,7 +59,6 @@ class IInterfaceWidget(QtGui.QWidget, NodeWidget):
             self.setEnabled(False)
         else:
             self.setEnabled(True)
-
     
 
 
@@ -262,50 +258,106 @@ class ISequenceWidget(IInterfaceWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QVBoxLayout(self)
+        self.gridlayout = QtGui.QGridLayout(self)
+        self.gridlayout.setMargin(3)
+        self.gridlayout.setSpacing(5)
 
-        self.hboxlayout.setMargin(3)
-        self.hboxlayout.setSpacing(5)
+        self.button = QtGui.QPushButton("Add Item", self)
+        self.gridlayout.addWidget(self.button,2,0,1,2)
 
+        self.buttonplus = QtGui.QPushButton(" + ", self)
+        self.gridlayout.addWidget(self.buttonplus,3,1,1,1)
+
+        self.buttonmoins = QtGui.QPushButton(" - ", self)
+        self.gridlayout.addWidget(self.buttonmoins,3,0,1,1)
 
         self.label = QtGui.QLabel(self)
         self.label.setText(parameter_str)
-        self.hboxlayout.addWidget(self.label)
+        self.gridlayout.addWidget(self.label,0,0,1,1)
 
         self.subwidget = QtGui.QListWidget (self)
-        self.hboxlayout.addWidget(self.subwidget)
+        self.gridlayout.addWidget(self.subwidget,1,0,1,2)
 
-        self.button = QtGui.QPushButton("Add Item", self)
-        self.hboxlayout.addWidget(self.button)
-
-        self.update_list()
         self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
         self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
                      self.itemchanged)
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
+        self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
+
+        self.update_list()
+
+
+    def update_state(self):
+        """ Enable or disable widget depending of its state """
         
+        i = self.node.get_input_index(self.param_str)
+        state = self.node.get_input_state(i)
+        
+        self.connected = (state == "connected")
+        self.buttonplus.setVisible(not self.connected)
+        self.buttonmoins.setVisible(not self.connected)
+        self.button.setVisible(not self.connected)
+
+        for i in range(self.subwidget.count()):
+            item = self.subwidget.item(i)
+            if(self.connected):
+                item.setFlags(QtCore.Qt.ItemIsSelectable)
+            else:
+                item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
+                              QtCore.Qt.ItemIsSelectable)
+            
 
     def update_list(self):
+        """ Rebuild the list """
 
         seq = self.node.get_input_by_key(self.param_str)
         self.subwidget.clear()
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                          QtCore.Qt.ItemIsSelectable)
+                              QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
+            
 
     def button_clicked(self):
         seq = self.node.get_input_by_key(self.param_str)
         seq.append(None)
         self.update_list()
+
+
+    def buttonplus_clicked(self):
+        seq = self.node.get_input_by_key(self.param_str)
+        row = self.subwidget.currentRow()
+        val = seq[row]
+        del(seq[row])
+        row = (row + 1) % (len(seq) + 1)
+        seq.insert(row, val)
+        self.update_list()
+        self.subwidget.setCurrentRow(row)
         
+
+    def buttonmoins_clicked(self):
+        seq = self.node.get_input_by_key(self.param_str)
+        row = self.subwidget.currentRow ()
+        val = seq[row]
+        del(seq[row])
+        row -= 1
+        if(row < 0):
+            row = len(seq) 
+            seq.append(val)
+        else:
+            seq.insert(row, val)
+        self.update_list()
+        self.subwidget.setCurrentRow(row)
+
+
     def itemclick(self, item):
         self.subwidget.editItem(item)
+
 
     def itemchanged(self, item):
         text = item.text()
@@ -319,9 +371,11 @@ class ISequenceWidget(IInterfaceWidget):
         except :
             item.setText(text)
             seq[i] = str(text)
+
             
     def keyPressEvent(self, e):
-        key   = e.key()
+        if(self.connected): return
+        key = e.key()
         seq = self.node.get_input_by_key(self.param_str)
         if( key == QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
@@ -354,7 +408,6 @@ class IDictWidget(IInterfaceWidget):
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
-
         self.label = QtGui.QLabel(self)
         self.label.setText(parameter_str)
         self.hboxlayout.addWidget(self.label)
@@ -368,43 +421,83 @@ class IDictWidget(IInterfaceWidget):
         self.update_list()
         self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
-        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
-                     self.itemchanged)
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+
+
+    def update_state(self):
+        """ Enable or disable widget depending of its state """
         
+        i = self.node.get_input_index(self.param_str)
+        state = self.node.get_input_state(i)
+        
+        self.connected = (state == "connected")
+        self.button.setVisible(not self.connected)
+
+        for i in range(self.subwidget.count()):
+            item = self.subwidget.item(i)
+            if(self.connected):
+                item.setFlags(QtCore.Qt.ItemIsSelectable)
+            else:
+                item.setFlags(QtCore.Qt.ItemIsEnabled|
+                              QtCore.Qt.ItemIsSelectable)
+
 
     def update_list(self):
-
-        seq = self.node.get_input_by_key(self.param_str)
+        """ Rebuild the list """
+        
+        dic = self.node.get_input_by_key(self.param_str)
+        print dic
         self.subwidget.clear()
-        for elt in seq :
-            item = QtGui.QListWidgetItem(str(elt))
-            item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                          QtCore.Qt.ItemIsSelectable)
-            self.subwidget.addItem(item)
+        self.rowkey = []
+        try:
+            for (key,elt) in dic.items() :
+                item = QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
+                item.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
+                self.subwidget.addItem(item)
+                self.rowkey.append(key)
+        except Exception, e:
+            print e
+
 
     def button_clicked(self):
-        seq = self.node.get_input_by_key(self.param_str)
-        seq.append(None)
+        """ Add add an element in the dictionary """
+        dic = self.node.get_input_by_key(self.param_str)
+        (text, ok) = QtGui.QInputDialog.getText(self, "Key", "Key", )
+        if (not ok or text.isEmpty()):
+            return
+
+        try:
+            key = eval(str(text))
+        except:
+            key = str(text)
+
+        dic[key] = None
         self.update_list()
         
-    def itemclick(self, item):
-        self.subwidget.editItem(item)
 
-    def itemchanged(self, item):
+    def itemclick(self, item):
+        if(self.connected): return
         text = item.text()
         i = self.subwidget.currentRow()
-        seq = self.node.get_input_by_key(self.param_str)
-        
+        dic = self.node.get_input_by_key(self.param_str)
+        key = self.rowkey[i]
+
+        (text, ok) = QtGui.QInputDialog.getText(self, "Value", "Value")
+        if (not ok or text.isEmpty()):
+            return
+
         try:
             obj = eval(str(text))
-            seq[i] = obj
-            item.setText(str(obj))
+            dic[key] = obj
+            item.setText("%s : %s"%(str(key), str(obj)))
         except :
             item.setText(text)
-            seq[i] = str(text)
+            dic[key] = str(text)
+            item.setText("%s : %s"%(str(key), str(text)))
+
             
     def keyPressEvent(self, e):
+        if(self.connected): return
         key   = e.key()
         seq = self.node.get_input_by_key(self.param_str)
         if( key == QtCore.Qt.Key_Delete):
@@ -412,7 +505,9 @@ class IDictWidget(IInterfaceWidget):
             for i in selectlist:
                 row = self.subwidget.row(i)
                 self.subwidget.takeItem(row)
-                del(seq[row-1])
+                key = self.rowkey[row - 1]
+                del(seq[key])
+                del(self.rowkey[row - 1])
 
 
     def notify(self, sender, event):
@@ -603,6 +698,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
             if(wclass):
                 widget = wclass(node, self, name, interface)
+                widget.update_state()
                 vboxlayout.addWidget(widget)
                 self.widgets.append(widget)
                 empty = False
