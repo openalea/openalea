@@ -137,6 +137,7 @@ class Session(Observed):
 
 from openalea.core.singleton import Singleton
 
+# Decorator to add notification to function
 def notify_decorator(f):
     
     def wrapped(self, *args, **kargs):
