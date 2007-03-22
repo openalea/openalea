@@ -256,6 +256,7 @@ class RandInt(Node):
         b = self.get_input_by_key("b")
         
         rand = random.randint(a,b)
+        self.modified = True
         return (rand, )
 
 
@@ -272,4 +273,5 @@ class Print(Node):
 
         for i in inputs:
             print i
+        self.modified = True
         
