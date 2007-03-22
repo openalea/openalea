@@ -150,8 +150,7 @@ class Node(Observed):
     def set_input_by_key(self, key, val):
         """ Set the input value for the specified port name (key)"""
         index = self.map_index_in[key]
-        self.inputs[index] =  val
-        self.unvalidate_input(index)
+        self.set_input(index, val)
         
 
     def get_output_by_key(self, key):
@@ -175,9 +174,9 @@ class Node(Observed):
     def set_input(self, index, val):
         """ Define the input value for the specified index """
 
-        if(self.inputs[index] != val):
-            self.inputs[index] = val
-            self.unvalidate_input(index)
+        #        if(self.inputs[index] != val):
+        self.inputs[index] = val
+        self.unvalidate_input(index)
 
 
     def get_output(self, index):
