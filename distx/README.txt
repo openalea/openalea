@@ -85,7 +85,6 @@ Before using DistX as a developper, have a look to the Distutils developer docum
 === Writing your setup.py script===
 
 # You can use distx in your setup.py as follow:
-
 from openalea.distx import setup, find_packages, find_package_dir, Shortcut 
 from openalea import config #retrieve openalea config file
 from os.path import join as joindir
@@ -94,35 +93,35 @@ packagename = 'my_openalea_package'
 namespace = 'openalea'
 
 if __name__ == '__main__':
-    setup(name = packagename,
-          version = '1.0',
-          author = 'me',
-          description = '',
-          url = '',
-          license = '',
+    setup(name=packagename,
+          version='1.0',
+          author='me',
+          description='',
+          url='',
+          license='',
           ...
 
           # Define where to execute scons
           # Scons is responsible to put compiled library in the write place ( lib/, package/, etc...)
-          scons_scripts = ['SConstruct'],
+          scons_scripts=['SConstruct'],
           # Scons parameters  
-          scons_parameters = [ 'build_prefix=build-scons'],
+          scons_parameters=[ 'build_prefix=build-scons'],
       
 
           # Define empty namespace
-          namespace= [namespace],
+          namespace=[namespace],
         
           # Packages
           packages= find_packages(where= 'src', namespace = namespace),
-          package_dir= find_packae_dir(where='src', namespace = namespace), 
+          package_dir=find_package_dir(where='src', namespace = namespace), 
       
           # Add package platform libraries if any
-          include_package_lib = True,
+          include_package_lib=True,
                     
 	      # Copy shared data in default OpenAlea directory
 	      # Map of 'destination subdirectory' : 'source subdirectory'
 	      external_data={ pj('doc', packagename) : 'doc',
-            	          pj('examples', packagename): 'examples' ,
+            	              pj('examples', packagename): 'examples' ,
                 	      pj('test', packagename): 'test',
 	                      pj('include'):  pj('src', 'include'),
         	              pj('lib'):  pj('src','lib'),
@@ -137,8 +136,8 @@ if __name__ == '__main__':
           freedesk_shortcuts = [Shortcut ( name = name, target = 'python', arguments = '', group = 'OpenAlea', icon='' )],
           
 	  # Windows registery (key, subkey, name, value)
-	  winreg = [('key', 'subkey', 'name', 'value')],
-
+	  winreg=[('key', 'subkey', 'name', 'value')],
+)
 
 For a more complete exemple, see the Starter package.
 
