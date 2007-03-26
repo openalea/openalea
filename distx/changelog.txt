@@ -1,9 +1,11 @@
+26/03/07 : Tag version 0.2. 
+
 12/03/07 : Replace bdist_wininst with bdist_nsi
-           Add find_packages and find_package_dir convenience function
+           Add find_packages and find_package_dir functions
            Add shortcuts creation for windows platform and free desktop compatible systems
            Platform dependant library (dll, so) in python package are included by default
            
-     /07 : Version 0.2 : Add set_win_var and set_lsb_var commands for environment variables 
+06/02/07 : Add set_win_var and set_lsb_var commands for environment variables 
 
 27/11/06 : Version 0.1.1 Add namespace installation command for rpm compatibility 
 20/11/06 : First tag 0.1.0

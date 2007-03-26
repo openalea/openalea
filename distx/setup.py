@@ -6,24 +6,23 @@ import sys
 import distx
 
 # Package name
-name= 'distx'
-namespace='openalea'
+name = 'distx'
+namespace ='openalea'
 
-version= '0.2.0'
+version = '0.2.0'
 
-description= 'Distutils extension' 
-long_description= 'DistX add functionalities to distutils (scons call, external data, windows path)...'
+description = 'Distutils extension' 
+long_description = 'DistX add functionalities to distutils (scons call, external data, windows path)...'
 
-author= 'Samuel Dufour-Kowalski'
-author_email= 'samuel.dufour@sophia.inria.fr'
-url= 'http://gforge.inria.fr'
+author = 'Samuel Dufour-Kowalski'
+author_email = 'samuel.dufour@sophia.inria.fr'
+url = 'http://gforge.inria.fr'
 
-license= 'Cecill-C' #LGPL compatible INRIA licence
+license = 'Cecill-C' #LGPL compatible INRIA licence
 
 from distx import setup
 
 setup(
-
     name=name,
     version=version,
     description=description,
@@ -33,13 +32,11 @@ setup(
     license=license,
     long_description=long_description,
     
-    namespace= [namespace],
+    namespace=[namespace],
 
     #pure python  packages
-    packages= [namespace+'.'+name],
-    package_dir= {namespace+'.'+name : name},
-    
-   
+    packages=[namespace+'.'+name],
+    package_dir={namespace+'.'+name : name},
 )
 
 
