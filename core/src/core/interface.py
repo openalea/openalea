@@ -163,6 +163,11 @@ class IInterfaceWidget(object):
 
 # Functions from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/204197
 # They resolv metaclass conflicts
+# Title: SOLVING THE METACLASS CONFLICT
+# Submitter: Michele Simionato (other recipes)
+# Last Updated: 2005/04/11
+# Version no: 1.4
+# Category: OOP
 
 ################################################################################
 
