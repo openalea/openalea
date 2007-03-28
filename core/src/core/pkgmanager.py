@@ -226,6 +226,18 @@ class PackageManager(object):
         factory = pkg[factory_id]
         return factory.instantiate()
 
+    def search_node(self, search_str):
+        """ Return a list of Factory corresponding to search_str """
+
+        ret = []
+
+        ret = [ factory \
+                for pkg in self.values() \
+                for factory  in pkg.values() \
+                if(search_str in factory.name)]
+            
+        return ret
+
 
 
 class Category(set):
