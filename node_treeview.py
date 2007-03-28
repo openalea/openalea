@@ -450,4 +450,117 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
 
         drag.start(QtCore.Qt.MoveAction)
 
+
+       
+class SearchModel (QAbstractListModel) :
+    """ QT4 data model (model/view pattern) to support Search result"""
+
+    def __init__(self, parent=None):
+        
+        QAbstractListModel.__init__(self, parent)
+        self.searchresult = []
+
+    def set_results(self, results):
+        """ Set the search results : results is a list of factory """
+        self.searchresult = results
+        self.reset()
+
+        
+    def reset(self):
+        QAbstractItemModel.reset(self)
+
+    
+    def data(self, index, role):
+        
+        if (not index.isValid()):
+            return QVariant()
+
+        if (index.row() >= len(self.searchresult)):
+            return QVariant()
+
+        if (role == QtCore.Qt.DisplayRole):
+            nodefactory = self.searchresult[index.row()]
+            #return QVariant(str(nodefactory.name))
+            return QVariant(str(nodefactory))
+
+        # Icon
+        elif( role == QtCore.Qt.DecorationRole ):
+            return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+        # Tool Tip
+        elif( role == QtCore.Qt.ToolTipRole ):
+             return QtCore.QVariant(str(item.get_tip()))
+     
+        else:
+            return QVariant()
+
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
+
+
+    def rowCount(self, parent):
+        return len(self.searchresult)
+
+
+
+class SearchListView(QtGui.QListView, AbstractListener):
+    """ Specialized QListView to display search results """
+    
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
+        
+        QtGui.QListView.__init__(self, parent)
+        AbstractListener.__init__(self)
+
+        self.main_win = main_win
+
+        self.setDragEnabled(True)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+
+
+    def notify(self, sender, event):
+        """ Notification by observed """
+        self.reset()
+        
+        
+    def startDrag(self, supportedActions):
+        pass
+#         item = self.currentIndex()
+
+#         itemData = QtCore.QByteArray()
+#         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+#         pixmap = QtGui.QPixmap(":/icons/node.png")
+
+#         l = self.model().datapool.keys()
+#         l.sort()
+#         name = l[item.row()]
+
+
+#         dataStream << QtCore.QString(name)
+
+#         mimeData = QtCore.QMimeData()
+
+#         mimeData.setData("openalea/data_instance", itemData)
+    
+#         drag = QtGui.QDrag(self)
+#         drag.setMimeData(mimeData)
+#         drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+#         drag.setPixmap(pixmap)
+
+#         drag.start(QtCore.Qt.MoveAction)
+
        

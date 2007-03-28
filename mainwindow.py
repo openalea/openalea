@@ -34,6 +34,7 @@ from code import InteractiveInterpreter as Interpreter
 
 from node_treeview import PackageTreeView, PkgModel, CategoryModel
 from node_treeview import DataPoolListView, DataPoolModel
+from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
@@ -83,11 +84,18 @@ class MainWindow(QtGui.QMainWindow,
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout1.addWidget(self.categoryTreeView)
 
+        # search list view
+        self.search_model = SearchModel()
+        self.searchListView = SearchListView(self, self.searchview)
+        self.searchListView.setModel(self.search_model)
+        self.vboxlayout2.addWidget(self.searchListView)
+
+
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
         self.datapoolListView = DataPoolListView(self, session.datapool, self.datapoolview)
         self.datapoolListView.setModel(self.datapool_model)
-        self.vboxlayout2.addWidget(self.datapoolListView)
+        self.vboxlayout3.addWidget(self.datapoolListView)
 
 
         # menu callbacks
@@ -117,6 +125,10 @@ class MainWindow(QtGui.QMainWindow,
                      self.export_to_application)
         self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"),
                      self.clear_data_pool)
+        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"),
+                     self.search_node)
+
+        
         
         # final init
         self.session = session
@@ -466,7 +478,11 @@ class MainWindow(QtGui.QMainWindow,
     def clear_data_pool(self):
 
         self.session.datapool.clear()
-       
+
+    def search_node(self):
+        """ Activated when search line edit is validated """
+
+        self.search_model.set_results([str(self.search_lineEdit.text())])
        
 
 import ui_newgraph
