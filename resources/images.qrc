@@ -7,5 +7,6 @@
 	<file>ccmime.png</file>
 	<file>search.png</file>	
         <file>datapool.png</file>	
+	<file>splash.png</file>
     </qresource>
 </RCC>
