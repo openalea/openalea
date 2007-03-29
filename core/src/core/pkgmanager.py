@@ -234,9 +234,10 @@ class PackageManager(object):
         ret = [ factory \
                 for pkg in self.values() \
                 for factory  in pkg.values() \
-                if(search_str in factory.name.upper() or
+                if(search_str in pkg.name.upper() or
+                   search_str in factory.name.upper() or
                    search_str in factory.description.upper() or
-                   search_str in factory.category.upper() )]
+                   search_str in factory.category.upper()) ]
             
         return ret
 
