@@ -501,7 +501,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.font.setBold(True)
         self.font.setPointSize(10)
 
-        self.adjust_size()
 
         # Add to scene
         scene.addItem(self)
@@ -527,12 +526,19 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             (x,y) = (10,10)
         self.setPos(QtCore.QPointF(x,y))
 
+        self.adjust_size()
+
 
     def adjust_size(self):
-        """ Calcul the box size """
+        """ Compute the box size """
 
         fm = QtGui.QFontMetrics(self.font);
         newsizex = fm.width(self.get_caption()) + 20;
+        # when the text is small but there are lots of ports, 
+        # add more space.
+        nb_ports= max(len(self.connector_in),len(self.connector_out))
+        print nb_ports
+        newsizex= max( nb_ports * Connector.WIDTH * 2, newsizex)
         
         if(newsizex > self.sizex):
 
