@@ -274,9 +274,13 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # Test if the node is already opened
         if( self.node_dialog.has_key(elt_id)):
-
             (d,w) = self.node_dialog[elt_id]
-            d.show()
+
+            if w.is_empty():
+                d.hide()
+            else:
+                d.show()
+
             d.raise_()
             d.activateWindow ()
             return
@@ -284,7 +288,8 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # We Create a new Dialog
         node = self.node.get_node_by_id(elt_id)
         factory = node.get_factory()
-        if(not factory) : return
+        if(not factory) : 
+            return
         
         container = QtGui.QDialog(self)
         #container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -300,8 +305,11 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         container.setWindowTitle(factory.get_id())
 
         self.node_dialog[elt_id] = ( container, widget )
-        
-        container.show()
+        if widget.is_empty():
+            container.hide()
+        else:
+            container.show()
+
 
 
     def remove_selection(self):
