@@ -39,6 +39,7 @@ class Add(Node):
 
         Node.__init__(self)
 
+        self.set_caption('+')
         # defines I/O
         self.add_input(name="In 0", interface=None, value=0.)
         self.add_input(name="In 1", interface=None, value=0.)
@@ -62,6 +63,7 @@ class Sub(Node):
 
         Node.__init__(self)
 
+        self.set_caption('-')
         # defines I/O
         self.add_input(name="In 0", interface=None, value=0.)
         self.add_input(name="In 1", interface=None, value=0.)
@@ -84,6 +86,7 @@ class Mult(Node):
 
         Node.__init__(self)
 
+        self.set_caption('*')
         # defines I/O
         self.add_input(name="In 0", interface=None, value=1.)
         self.add_input(name="In 1", interface=None, value=1.)
@@ -106,6 +109,7 @@ class Div(Node):
 
         Node.__init__(self)
 
+        self.set_caption('/')
         # defines I/O
         self.add_input(name="In 0", interface=None, value=1.)
         self.add_input(name="In 1", interface=None, value=1.)
@@ -168,6 +172,8 @@ class Pow(Node):
     def __init__(self):
 
         Node.__init__(self)
+
+        self.set_caption('**')
 
         self.add_input(name="x", interface=None, value=0)
         self.add_input(name="y", interface=None, value=0) 
