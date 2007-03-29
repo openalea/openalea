@@ -57,6 +57,7 @@ Out :  the value
 
         Node.__init__(self)
 
+        self.set_caption(str(False))
         self.add_input( name = "Bool", interface = IBool, value = False)
         self.add_output( name = "Bool", interface = IBool)
             
@@ -64,8 +65,9 @@ Out :  the value
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-
-        return ( bool(inputs[0]),  )
+        res= bool(inputs[0])
+        self.set_caption(str(res))
+        return ( res,  )
 
 
 class Int(Node):
@@ -79,6 +81,7 @@ Ouput 0 : Transmit the stored value
 
         Node.__init__(self)
 
+        self.set_caption(str(0))
         self.add_input( name = "val", interface = IInt, value = 0) 
         self.add_output( name = "out", interface = IInt) 
 
@@ -100,6 +103,7 @@ Ouput 0 : Transmit the stored value
 
         Node.__init__(self)
 
+        self.set_caption(str(0.0))
         self.add_input( name = "val", interface = IFloat, value = 0.) 
         self.add_output( name = "out", interface = IFloat) 
 
@@ -107,8 +111,9 @@ Ouput 0 : Transmit the stored value
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        
-        return ( float(inputs[0]), )
+        res= float(inputs[0])
+        self.set_caption('%.1f'%res)
+        return ( res, )
 
 
 class String(Node):
