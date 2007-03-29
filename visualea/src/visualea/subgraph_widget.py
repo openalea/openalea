@@ -490,9 +490,11 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         
         # Set ToolTip
+        doc= self.subnode.__doc__.split('\n')
+        doc= '\n'.join(doc)
         self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
                          "Instance : %s\n"%(elt_id,) +
-                         "Doc : \n %s"%(self.subnode.__doc__,))
+                         "Documentation : \n%s"%(doc,))
 
         # Font and box size
         self.font = self.graphview.font()
