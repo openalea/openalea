@@ -491,6 +491,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         
         # Set ToolTip
         doc= self.subnode.__doc__.split('\n')
+        doc= [x.strip() for x in doc] 
         doc= '\n'.join(doc)
         self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
                          "Instance : %s\n"%(elt_id,) +
@@ -537,7 +538,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         # when the text is small but there are lots of ports, 
         # add more space.
         nb_ports= max(len(self.connector_in),len(self.connector_out))
-        print nb_ports
         newsizex= max( nb_ports * Connector.WIDTH * 2, newsizex)
         
         if(newsizex > self.sizex):
