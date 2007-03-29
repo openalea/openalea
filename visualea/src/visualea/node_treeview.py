@@ -217,10 +217,154 @@ class CategoryModel (PkgModel) :
         else :
             return 0
 
+       
+
+class DataPoolModel (QAbstractListModel) :
+    """ QT4 data model (model/view pattern) to support Data Pool """
+
+    def __init__(self, datapool, parent=None):
+        
+        QAbstractListModel.__init__(self, parent)
+        self.datapool = datapool
+
+        
+    def reset(self):
+        QAbstractItemModel.reset(self)
+
+    
+    def data(self, index, role):
+        
+        if (not index.isValid()):
+            return QVariant()
+
+        if (index.row() >= len(self.datapool.keys())):
+            return QVariant()
+
+        if (role == QtCore.Qt.DisplayRole):
+            l = self.datapool.keys()
+            l.sort()
+            name = l[index.row()]
+            classname = self.datapool[name].__class__
+            return QVariant("%s (%s)"%(name, classname))
+
+        # Icon
+        elif( role == QtCore.Qt.DecorationRole ):
+            return QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
+
+        # Tool Tip
+        elif( role == QtCore.Qt.ToolTipRole ):
+            l = self.datapool.keys()
+            l.sort()
+            name = l[index.row()]
+            tipstr = "%s\n\n"%(str(self.datapool[name]),)
+            tipstr +="Dir :\n  "
+            tip = filter( lambda x : not x.startswith('__'),
+                          dir(self.datapool[name]))
+            tipstr += '\n  '.join(tip)
+
+            return QtCore.QVariant(str(tipstr))
+     
+        else:
+            return QVariant()
 
 
-class PackageTreeView(QtGui.QTreeView):
-    """ Specialized TreeView to display node in a tree which support Drag and Drop """
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
+
+
+    def rowCount(self, parent):
+        return len(self.datapool.keys())
+    
+
+class SearchModel (QAbstractListModel) :
+    """ QT4 data model (model/view pattern) to support Search result"""
+
+    def __init__(self, parent=None):
+        
+        QAbstractListModel.__init__(self, parent)
+        self.searchresult = []
+
+    def set_results(self, results):
+        """ Set the search results : results is a list of factory """
+        self.searchresult = results
+        self.reset()
+
+        
+    def reset(self):
+        QAbstractItemModel.reset(self)
+        
+
+    def index(self, row, column, parent):
+
+        if (row < len(self.searchresult)):
+
+            factory = self.searchresult[row]
+            return self.createIndex(row, column, factory)
+        
+        else:
+            return QtCore.QModelIndex()
+
+
+    
+    def data(self, index, role):
+        
+        if (not index.isValid()):
+            return QVariant()
+
+        if (index.row() >= len(self.searchresult)):
+            return QVariant()
+
+        if (role == QtCore.Qt.DisplayRole):
+            nodefactory = self.searchresult[index.row()]
+            return QVariant(str(nodefactory.name))
+
+        # Icon
+        elif( role == QtCore.Qt.DecorationRole ):
+            return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+        # Tool Tip
+        elif( role == QtCore.Qt.ToolTipRole ):
+            nodefactory = self.searchresult[index.row()]
+            return QtCore.QVariant(str(nodefactory.get_tip()))
+     
+        else:
+            return QVariant()
+
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.ItemIsEnabled
+
+        return QtCore.Qt.ItemIsEnabled | \
+               QtCore.Qt.ItemIsSelectable | \
+               QtCore.Qt.ItemIsDragEnabled
+
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
+
+
+    def rowCount(self, parent):
+        return len(self.searchresult)
+
+
+################################################################################
+# Views
+
+class NodeFactoryView(object):
+    """
+    Base class for all view which display node factories
+    Implements Drag and Drop facilities
+    """
     
     def __init__(self, main_win, parent=None):
         """
@@ -228,14 +372,15 @@ class PackageTreeView(QtGui.QTreeView):
         @param parent : parent widget
         """
         
-        QtGui.QTreeView.__init__(self, parent)
-
         self.main_win = main_win
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
-        h = self.header().hide()
+        try:
+            h = self.header().hide()
+        except:
+            pass
         
         
     def dragEnterEvent(self, event):
@@ -244,6 +389,7 @@ class PackageTreeView(QtGui.QTreeView):
         else:
             event.ignore()
 
+
     def dragMoveEvent(self, event):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.setDropAction(QtCore.Qt.MoveAction)
@@ -251,10 +397,13 @@ class PackageTreeView(QtGui.QTreeView):
         else:
             event.ignore()
 
+
     def dropEvent(self, event):
             event.ignore()
 
+
     def startDrag(self, supportedActions):
+        
         item = self.currentIndex()
 
         itemData = QtCore.QByteArray()
@@ -308,76 +457,35 @@ class PackageTreeView(QtGui.QTreeView):
             return (pkg_id, factory_id, obj.mimetype)
 
         return ("","", "openalea/notype")
-        
 
-class DataPoolModel (QAbstractListModel) :
-    """ QT4 data model (model/view pattern) to support Data Pool """
 
-    def __init__(self, datapool, parent=None):
-        
-        QAbstractListModel.__init__(self, parent)
-        self.datapool = datapool
 
-        
-    def reset(self):
-        QAbstractItemModel.reset(self)
+class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
+    """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """
 
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
+
+        QtGui.QTreeView.__init__(self, parent)
+        NodeFactoryView.__init__(self, main_win, parent)
+
+
+
+class SearchListView(NodeFactoryView, QtGui.QListView):
+    """ Specialized QListView to display search results with Drag and Drop support """
     
-    def data(self, index, role):
+    def __init__(self, main_win, parent=None):
+        """
+        @param main_win : main window
+        @param parent : parent widget
+        """
+
+        QtGui.QListView.__init__(self, parent)
+        NodeFactoryView.__init__(self, main_win, parent)
         
-        if (not index.isValid()):
-            return QVariant()
-
-        if (index.row() >= len(self.datapool.keys())):
-            return QVariant()
-
-        if (role == QtCore.Qt.DisplayRole):
-            l = self.datapool.keys()
-            l.sort()
-            name = l[index.row()]
-            classname = self.datapool[name].__class__
-            return QVariant("%s (%s)"%(name, classname))
-
-        # Icon
-        elif( role == QtCore.Qt.DecorationRole ):
-            return QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
-
-        # Tool Tip
-        elif( role == QtCore.Qt.ToolTipRole ):
-            l = self.datapool.keys()
-            l.sort()
-            name = l[index.row()]
-            tipstr = "%s\n\n"%(str(self.datapool[name]),)
-            tipstr +="Dir :\n  "
-            tip = filter( lambda x : not x.startswith('__'),
-                          dir(self.datapool[name]))
-            tipstr += '\n  '.join(tip)
-
-            return QtCore.QVariant(str(tipstr))
-
-
-     
-        else:
-            return QVariant()
-
-
-    def flags(self, index):
-        if not index.isValid():
-            return QtCore.Qt.ItemIsEnabled
-
-        return QtCore.Qt.ItemIsEnabled | \
-               QtCore.Qt.ItemIsSelectable | \
-               QtCore.Qt.ItemIsDragEnabled
-
-
-    def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
-
-
-    def rowCount(self, parent):
-        return len(self.datapool.keys())
-
-
 
 class DataPoolListView(QtGui.QListView, AbstractListener):
     """ Specialized QListView to display data pool contents """
@@ -450,4 +558,8 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
 
         drag.start(QtCore.Qt.MoveAction)
 
+
        
+
+
+

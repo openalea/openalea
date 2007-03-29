@@ -12,6 +12,9 @@
   <property name="windowTitle" >
    <string>VisuAlea</string>
   </property>
+  <property name="windowIcon" >
+   <iconset resource="images.qrc" >:/icons/arbreicon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
     <property name="margin" >
@@ -41,6 +44,9 @@
         <attribute name="title" >
          <string>Package</string>
         </attribute>
+        <attribute name="icon" >
+         <iconset resource="images.qrc" >:/icons/package.png</iconset>
+        </attribute>
         <layout class="QVBoxLayout" >
          <property name="margin" >
           <number>9</number>
@@ -54,6 +60,9 @@
         <attribute name="title" >
          <string>Category</string>
         </attribute>
+        <attribute name="icon" >
+         <iconset resource="images.qrc" >:/icons/category.png</iconset>
+        </attribute>
         <layout class="QVBoxLayout" >
          <property name="margin" >
           <number>9</number>
@@ -63,9 +72,31 @@
          </property>
         </layout>
        </widget>
+       <widget class="QWidget" name="searchview" >
+        <attribute name="title" >
+         <string>Search</string>
+        </attribute>
+        <attribute name="icon" >
+         <iconset resource="images.qrc" >:/icons/search.png</iconset>
+        </attribute>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="search_lineEdit" />
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="datapoolview" >
         <attribute name="title" >
          <string>Data Pool</string>
+        </attribute>
+        <attribute name="icon" >
+         <iconset resource="images.qrc" >:/icons/datapool.png</iconset>
         </attribute>
         <layout class="QVBoxLayout" >
          <property name="margin" >
@@ -138,12 +169,6 @@
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
    </widget>
-   <widget class="QMenu" name="menu_Python" >
-    <property name="title" >
-     <string>P&amp;ython</string>
-    </property>
-    <addaction name="action_Execute_script" />
-   </widget>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
      <string>&amp;File</string>
@@ -172,6 +197,12 @@
     <addaction name="action_New_Network" />
     <addaction name="separator" />
     <addaction name="actionClear_Data_Pool" />
+   </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+    <addaction name="action_Execute_script" />
    </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="windowIcon" >
@@ -333,6 +364,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="images.qrc" />
+ </resources>
  <connections/>
 </ui>

@@ -43,9 +43,9 @@ def main(args):
 
 
     #splash screen
-    # pix=QtGui.QPixmap(":/splash/icons/splash.png")
-    #     splash = QtGui.QSplashScreen(pix)
-    #     splash.show()
+    pix=QtGui.QPixmap(":/icons/splash.png")
+    splash = QtGui.QSplashScreen(pix)
+    splash.show()
     
     #    filename=None
     #     #parse command line
@@ -62,7 +62,7 @@ def main(args):
     
     win.show()
     
-    #    splash.finish(win);
+    splash.finish(win);
     
     return app.exec_()
 

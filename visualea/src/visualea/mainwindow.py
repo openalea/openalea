@@ -32,8 +32,9 @@ from pycutext import PyCutExt
 from openalea.core import cli
 from code import InteractiveInterpreter as Interpreter
 
-from node_treeview import PackageTreeView, PkgModel, CategoryModel
+from node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
 from node_treeview import DataPoolListView, DataPoolModel
+from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
@@ -73,21 +74,28 @@ class MainWindow(QtGui.QMainWindow,
 
         # package tree view
         self.pkg_model = PkgModel(pkgman)
-        self.packageTreeView = PackageTreeView(self, self.packageview)
+        self.packageTreeView = NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
         # category tree view
         self.cat_model = CategoryModel(pkgman)
-        self.categoryTreeView = PackageTreeView(self, self.categoryview)
+        self.categoryTreeView = NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout1.addWidget(self.categoryTreeView)
+
+        # search list view
+        self.search_model = SearchModel()
+        self.searchListView = SearchListView(self, self.searchview)
+        self.searchListView.setModel(self.search_model)
+        self.vboxlayout2.addWidget(self.searchListView)
+
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
         self.datapoolListView = DataPoolListView(self, session.datapool, self.datapoolview)
         self.datapoolListView.setModel(self.datapool_model)
-        self.vboxlayout2.addWidget(self.datapoolListView)
+        self.vboxlayout3.addWidget(self.datapoolListView)
 
 
         # menu callbacks
@@ -106,6 +114,8 @@ class MainWindow(QtGui.QMainWindow,
                      self.exec_python_script)
         self.connect(self.action_New_Network, SIGNAL("activated()"),
                      self.new_graph)
+        self.connect(self.actionFind_Node, SIGNAL("activated()"),
+                     self.find_node)
 
         self.connect(self.action_New_Session, SIGNAL("activated()"), self.new_session)
         self.connect(self.action_Open_Session, SIGNAL("activated()"), self.open_session)
@@ -117,6 +127,10 @@ class MainWindow(QtGui.QMainWindow,
                      self.export_to_application)
         self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"),
                      self.clear_data_pool)
+        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"),
+                     self.search_node)
+
+        
         
         # final init
         self.session = session
@@ -466,9 +480,23 @@ class MainWindow(QtGui.QMainWindow,
     def clear_data_pool(self):
 
         self.session.datapool.clear()
-       
+
+    def search_node(self):
+        """ Activated when search line edit is validated """
+
+        results = self.pkgmanager.search_node(str(self.search_lineEdit.text()))
+        self.search_model.set_results(results)
+
+    def find_node(self):
+        """ Find node Command """
+
+        i = self.tabPackager.indexOf(self.searchview)
+        self.tabPackager.setCurrentIndex(i)
+        self.search_lineEdit.setFocus()
        
 
+
+################################################################################
 import ui_newgraph
 
 class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
