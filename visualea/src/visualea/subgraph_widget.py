@@ -453,6 +453,18 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 from openalea.core.observer import AbstractListener
 
+def port_name( name, interface ):
+    iname= 'Any'
+    if interface:
+        try:
+            iname= interface.__name__
+        except AttributeError:
+            try:
+                iname= interface.__class__.__name__
+            except AttributeError:
+                iname= str(interface)
+    return '%s(%s)'%(name,iname)
+    
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the subgraphwidget """
 
@@ -490,12 +502,17 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         
         # Set ToolTip
-        doc= self.subnode.__doc__.split('\n')
-        doc= [x.strip() for x in doc] 
-        doc= '\n'.join(doc)
-        self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
-                         "Instance : %s\n"%(elt_id,) +
-                         "Documentation : \n%s"%(doc,))
+        doc= self.subnode.__doc__
+        if doc:
+            doc= doc.split('\n')
+            doc= [x.strip() for x in doc] 
+            doc= '\n'.join(doc)
+            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
+                             "Instance : %s\n"%(elt_id,) +
+                             "Documentation : \n%s"%(doc,))
+        else:
+            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
+                             "Instance : %s\n"%(elt_id,) )
 
         # Font and box size
         self.font = self.graphview.font()
@@ -508,15 +525,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         # Connectors
         for i in range(ninput):
-            (name, interface) = self.subnode.input_desc[i]
-            if(interface): interface = str(interface).split('.')[-1]
-            tip = "%s (%s)"%(name, interface)
+            name, interface = self.subnode.input_desc[i]
+            tip= port_name(name,interface)
             self.connector_in.append(ConnectorIn(self.graphview, self, scene, i, ninput, tip))
             
         for i in range(noutput):
-            (name, interface) = self.subnode.output_desc[i]
-            if(interface): interface = str(interface).split('.')[-1]
-            tip = "%s (%s)"%(name, interface)
+            name, interface = self.subnode.output_desc[i]
+            tip= port_name(name,interface)
             self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
 
         # Set Position
