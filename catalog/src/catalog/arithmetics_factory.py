@@ -31,7 +31,7 @@ def define_factory(package):
 
 
 
-    nf = Factory( name= "add", 
+    nf = Factory( name= "+", 
                   description= "Addition", 
                   category = "Operations", 
                   nodemodule = "arithmetics",
@@ -43,7 +43,7 @@ def define_factory(package):
 
     package.add_factory( nf )
 
-    nf = Factory( name= "sub", 
+    nf = Factory( name= "-", 
                   description= "Soustraction", 
                   category = "Operations", 
                   nodemodule = "arithmetics",
@@ -55,7 +55,7 @@ def define_factory(package):
 
     package.add_factory( nf )
 
-    nf = Factory( name= "mult", 
+    nf = Factory( name= "*", 
                   description= "Multiplication", 
                   category = "Operations", 
                   nodemodule = "arithmetics",
@@ -68,7 +68,7 @@ def define_factory(package):
     package.add_factory( nf )
 
 
-    nf = Factory( name= "div", 
+    nf = Factory( name= "/", 
                   description= "Division", 
                   category = "Operations", 
                   nodemodule = "arithmetics",
@@ -106,7 +106,7 @@ def define_factory(package):
     package.add_factory( nf )
 
 
-    nf = Factory( name= "pow", 
+    nf = Factory( name= "**", 
                   description= "Power", 
                   category = "Operations", 
                   nodemodule = "arithmetics",
