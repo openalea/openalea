@@ -386,7 +386,7 @@ class NodeWidget(AbstractListener):
 
     def __init__(self, node):
         """ Init the widget with the associated node """
-        self.node = node
+        self.__node = node
 
         # register to observed node
         self.initialise(node)
@@ -411,7 +411,8 @@ class NodeWidget(AbstractListener):
         """
         pass
 
-
+    def is_empty( self ):
+        return False
 
 
 ###############################################################################
