@@ -23,7 +23,6 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from copy import copy
 
 from core import NodeFactory, Node
 from core import RecursionError, InstantiationError
@@ -336,7 +335,7 @@ class SubGraph(Node):
                 node_src = self.node_id[id_src]
                 
                 v = node_src.get_output(port_src)
-                node.set_input(iport, copy(v))
+                node.set_input(iport, v)
                 
             except KeyError :
                 pass
