@@ -38,6 +38,7 @@ from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
+from openalea.core.core import UserFactory
 from openalea.core.subgraph import SubGraphFactory
 from openalea.core.observer import AbstractListener
 
@@ -112,8 +113,6 @@ class MainWindow(QtGui.QMainWindow,
                      self.contextMenuEvent)
         self.connect(self.action_Execute_script, SIGNAL("activated()"),
                      self.exec_python_script)
-        self.connect(self.action_New_Network, SIGNAL("activated()"),
-                     self.new_graph)
         self.connect(self.actionFind_Node, SIGNAL("activated()"),
                      self.find_node)
 
@@ -130,7 +129,11 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"),
                      self.search_node)
 
-        
+        self.connect(self.action_New_Network, SIGNAL("activated()"),
+                     self.new_graph)
+        self.connect(self.actionNew_Python_Node, SIGNAL("activated()"),
+                     self.new_python_node)
+                
         
         # final init
         self.session = session
@@ -263,7 +266,7 @@ class MainWindow(QtGui.QMainWindow,
         """
         Open a widget in a tab giving the factory and an instance
         if node is null, a new instance is allocated
-        caption is append to the tab title
+        caption is append to the tab titleself.action_New_Network
         """
         
         # Test if the node is already opened
@@ -372,7 +375,7 @@ class MainWindow(QtGui.QMainWindow,
         # Get default package
         pkg = self.session.user_pkg
 
-        dialog = NewGraph(pkg)
+        dialog = NewGraph("New Dataflow", pkg, self.pkgmanager.category.keys())
         ret = dialog.exec_()
 
         if(ret>0):
@@ -381,7 +384,6 @@ class MainWindow(QtGui.QMainWindow,
             newfactory = SubGraphFactory(self.pkgmanager, name=name,
                                          description= desc,
                                          category = cat,
-                                         documentation = ""
                                          )
             
             newfactory.set_nb_input(nin)
@@ -395,6 +397,30 @@ class MainWindow(QtGui.QMainWindow,
             node = newfactory.instantiate()
             self.session.add_workspace(node)
             self.open_widget_tab(node)
+
+
+    def new_python_node(self):
+        """ Create a new node """
+
+        # Get default package
+        pkg = self.session.user_pkg
+
+        dialog = NewGraph("New Python Node", pkg, self.pkgmanager.category.keys())
+        ret = dialog.exec_()
+
+        if(ret>0):
+            (name, nin, nout, cat, desc) = dialog.get_data()
+
+            newfactory = UserFactory(name=name,
+                                     description= desc,
+                                     category = cat,
+                                     )
+            
+            pkg.add_factory(newfactory)
+            self.pkgmanager.add_package(pkg)
+
+            self.reinit_treeview()
+
         
 
     def exec_python_script(self):
@@ -499,10 +525,10 @@ class MainWindow(QtGui.QMainWindow,
 ################################################################################
 import ui_newgraph
 
-class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
+class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
     
-    def __init__(self, package, parent=None):
+    def __init__(self, title, package, categories, parent=None):
         """
         Constructor
         @param pacakge : the package the graph will be added to
@@ -510,9 +536,13 @@ class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         QtGui.QDialog.__init__(self, parent)
         ui_newgraph.Ui_NewGraphDialog.__init__(self)
+        self.setWindowTitle(title)
+
         self.setupUi(self)
 
         self.package = package
+        self.categoryEdit.addItems(categories)
+
 
     def accept(self):
 
@@ -534,8 +564,8 @@ class NewGraph(  QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         """
 
         name = str(self.nameEdit.text())
-        category = str(self.categoryEdit.text().toAscii())
-        description = str(self.categoryEdit.text().toAscii())
+        category = str(self.categoryEdit.currentText().toAscii())
+        description = str(self.descriptionEdit.text().toAscii())
 
         return (name, self.inBox.value(), self.outBox.value(), category, description)
     

@@ -304,7 +304,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         container.setWindowTitle(factory.get_id())
 
-        self.node_dialog[elt_id] = ( container, widget )
+        self.node_dialog[elt_id] = (container, widget)
         if widget.is_empty():
             container.hide()
         else:

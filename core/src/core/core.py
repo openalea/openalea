@@ -40,7 +40,7 @@ class InstantiationError(Exception):
 
 from observer import Observed, AbstractListener
 import imp
-
+import os
 
 class Node(Observed):
     """
@@ -291,13 +291,18 @@ class NodeFactory(Observed):
         self.name = name
         self.description = description
         self.category = category
-        self.nodemodule = nodemodule
+        self.nodemodule_name = nodemodule
         self.nodeclass_name = nodeclass
-        self.widgetmodule = widgetmodule
+        self.widgetmodule_name = widgetmodule
         self.widgetclass_name = widgetclass
 
         self.package = None
 
+        # Cache
+        self.nodeclass = None
+        self.nodemodule = None
+        self.nodemodule_path = None
+        
 
     def get_id(self):
         """ Return the node factory Id """
@@ -317,31 +322,50 @@ class NodeFactory(Observed):
 
         from pkgreader import NodeFactoryXmlWriter
         return NodeFactoryXmlWriter(self)
-        
 
+
+    def force_reload(self):
+        """ Force to reload module """
+        
+        if(self.nodemodule) : del(self.nodemodule)
+        self.nodemodule = None
+
+
+    def get_node_module(self):
+        """ Return the associated module """
+
+        if(self.nodemodule and self.nodemodule_path):
+            return self.nodemodule
+
+        if(self.nodemodule_name):
+            try:
+                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+                self.nodemodule_path = pathname
+                self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+                
+                if(file) :
+                    file.close()
+                return self.nodemodule
+                
+            except ImportError:
+                #raise InstantiationError()
+                raise
+        else :
+            raise ImportError()
+
+    
     def instantiate(self, call_stack=[]):
         """ Return a node instance
         @param call_stack : the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
 
-        if(self.nodemodule):
-            try:
-                (file, pathname, desc) = imp.find_module(self.nodemodule)
-                module = imp.load_module(self.nodemodule, file, pathname, desc)
-                if(file) :
-                    file.close()
-
-                classobj = module.__dict__[self.nodeclass_name]
-                node = classobj()
-                
-                node.factory = self
-                return node
-            
-            except ImportError:
-                #raise InstantiationError()
-                raise
-    
+        module = self.get_node_module()
+        classobj = module.__dict__[self.nodeclass_name]
+        node = classobj()
+        node.factory = self
+        return node
+                    
 
     def instantiate_widget(self, node, parent=None, edit = False):
         """ Return the corresponding widget initialised with node """
@@ -349,8 +373,8 @@ class NodeFactory(Observed):
         if(node == None):
             node = self.instantiate()
 
-        modulename = self.widgetmodule
-        if(not modulename) :   modulename = self.nodemodule
+        modulename = self.widgetmodule_name
+        if(not modulename) :   modulename = self.nodemodule_name
 
         if(modulename and self.widgetclass_name):
 
@@ -375,6 +399,68 @@ class NodeFactory(Observed):
 
 #class Factory:
 Factory = NodeFactory
+
+
+class UserFactory(NodeFactory):
+    """ Node Factory created by a user """
+
+    def __init__(self, **kargs):
+
+        NodeFactory.__init__(self, **kargs)
+
+        # get local openalea dir
+        from openalea.core.pkgmanager import get_wralea_home_dir
+        localdir = get_wralea_home_dir()
+
+        # create a module
+
+        template = 'from openalea.core import *\n'+\
+                   '\n'+\
+                   'class %s(Node):\n'%(self.name)+\
+                   '    """  Doc... """ \n'+\
+                   '\n'+\
+                   '    def __init__(self):\n'+\
+                   '        Node.__init__(self)\n'+\
+                   '        self.add_input( name = "X", interface = None, value = None)\n'+\
+                   '        self.add_output( name = "Y", interface = None) \n'+\
+                   '\n'+\
+                   '\n'+\
+                   '    def __call__(self, inputs):\n'+\
+                   '        return inputs\n'
+        
+        self.nodemodule_path = os.path.join(localdir, "%s.py"%(self.name))
+        self.nodemodule_name = self.name
+        self.nodeclass_name = self.name
+
+        file = open(self.nodemodule_path, 'w')
+        file.write(template)
+        file.close()
+
+
+    def get_node_module(self):
+        """ Return the associated module """
+
+        if(self.nodemodule):
+            return self.nodemodule
+
+        if(self.nodemodule_name):
+            try:
+                file = open(self.nodemodule_path, 'r')
+                self.nodemodule = imp.load_module(self.nodemodule_name,
+                                                  file, self.nodemodule_path,
+                                                  ('.py','U',1))
+                
+                if(file) :
+                    file.close()
+                return self.nodemodule
+                
+            except ImportError:
+                #raise InstantiationError()
+                raise
+        else :
+            raise ImportError()
+
+                 
 
 
 ###############################################################################
