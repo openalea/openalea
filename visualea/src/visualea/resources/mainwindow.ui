@@ -180,24 +180,6 @@
     <addaction name="separator" />
     <addaction name="action_Quit" />
    </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Import</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="actionFind_Node" />
-    <addaction name="separator" />
-    <addaction name="action_New_Network" />
-    <addaction name="separator" />
-    <addaction name="actionClear_Data_Pool" />
-   </widget>
    <widget class="QMenu" name="menu_Python" >
     <property name="title" >
      <string>P&amp;ython</string>
@@ -217,6 +199,25 @@
     <addaction name="action_Export_to_Factory" />
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="actionFind_Node" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
+    <addaction name="actionNew_Python_Node" />
+    <addaction name="separator" />
+    <addaction name="actionClear_Data_Pool" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -361,6 +362,11 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionNew_Python_Node" >
+   <property name="text" >
+    <string>New Python Node</string>
    </property>
   </action>
  </widget>
