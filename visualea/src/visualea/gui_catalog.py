@@ -19,7 +19,7 @@ Catalog of InterfaceWidgets
 """
 
 __license__= "CeCILL V2"
-__revision__=" $Id: gui_catalog.py 427 2007-03-27 16:52:46Z dufourko $"
+__revision__=" $Id$"
 
 
 

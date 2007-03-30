@@ -273,7 +273,7 @@ class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ Open the widget of the item elt_id """
 
         # Test if the node is already opened
-        if( self.node_dialog.has_key(elt_id)):
+        if(self.node_dialog.has_key(elt_id)):
             (d,w) = self.node_dialog[elt_id]
 
             if w.is_empty():
