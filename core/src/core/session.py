@@ -130,9 +130,6 @@ class Session(Observed):
         self.session_filename = filename
 
 
-#     def new_network(self, name, nin, nout, category, description):
-#         """ Create a new graph in the user package """
-#         pass
     
 
 from openalea.core.singleton import Singleton
