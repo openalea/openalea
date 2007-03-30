@@ -216,7 +216,7 @@ class Dict(Node):
 
 class Tuple2(Node):
     """
-    Python 2 Uple generator
+    Python 2 tuple generator
     """
 
     def __init__(self):
@@ -231,3 +231,27 @@ class Tuple2(Node):
         """ inputs is the list of input values """
         
         return ( (inputs[0], inputs[1]), )
+
+class List9(Node):
+    """
+    Python list with 8 entries.
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+        self.add_input( name = "i0", interface = None)
+        self.add_input( name = "i1", interface = None)
+        self.add_input( name = "i2", interface = None)
+        self.add_input( name = "i3", interface = None)
+        self.add_input( name = "i4", interface = None)
+        self.add_input( name = "i5", interface = None)
+        self.add_input( name = "i6", interface = None)
+        self.add_input( name = "i7", interface = None)
+        self.add_input( name = "i8", interface = None)
+        self.add_output( name = "list", interface = ISequence) 
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        l= filter(None,inputs)
+        return ( l, )

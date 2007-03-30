@@ -160,3 +160,16 @@ def define_factory(package):
 
     
     package.add_factory( nf )
+
+    nf = Factory( name = "list9",
+                  description = "Create a list with lots of elements.",
+                  category  = "Data Types",
+                  nodemodule = "data",
+                  nodeclass = "List9",
+                  widgetmodule = None,
+                  widgetclass = None,
+                  )
+
+    
+    package.add_factory( nf )
+
