@@ -459,6 +459,50 @@ class NodeFactoryView(object):
         return ("","", "openalea/notype")
 
 
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        
+        if(isinstance(obj, NodeFactory)):
+            menu = QtGui.QMenu(self)
+            action = menu.addAction("Edit Node Sources")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_source)
+
+            menu.move(event.globalPos())
+            menu.show()
+
+
+    def edit_source(self):
+        """ Display the source of a Node """
+        
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        if(not isinstance(obj, NodeFactory)):
+            return
+
+        # Open Code editor dialog
+        import code_editor
+        dialog = QtGui.QDialog(self)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget = code_editor.NodeCodeEditor(dialog)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        
+        vboxlayout = QtGui.QVBoxLayout(dialog)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+        vboxlayout.addWidget(widget)
+
+        dialog.setWindowTitle(obj.get_id())
+        
+        widget.edit_class(obj)
+        dialog.show()
+
+        
+  
+
+
 
 class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """
