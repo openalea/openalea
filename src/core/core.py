@@ -401,15 +401,13 @@ class NodeFactory(Observed):
 
         module = self.get_node_module()
 
-        import inspect
-        try:
-            # get the code
-            cl = module.__dict__[self.nodeclass_name]
-            return inspect.getsource(cl)
-        except:
-            return None
+        import inspect, linecache
+        # get the code
+        linecache.checkcache(self.nodemodule_path)
+        cl = module.__dict__[self.nodeclass_name]
+        return inspect.getsource(cl)
 
-
+        
     def apply_new_src(self, newsrc):
         """
         Execute new src

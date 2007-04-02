@@ -96,18 +96,19 @@ def test_srcedit():
     src = factory.get_node_src()
     assert src
 
-    src = src.replace("return inputs", "return sum(inputs)")
-    assert src
+    newsrc = src.replace("return inputs", "return sum(inputs)")
+    assert newsrc
 
-    factory.apply_new_src(src)
+    factory.apply_new_src(newsrc)
     node2 = factory.instantiate()
     assert node2( (1,2,3) ) == 6
 
-    factory.save_new_src(src)
+    factory.save_new_src(newsrc)
 
-    file = open('testmodule.py')
-    print file.readlines()
-    file.close()
+    src = factory.get_node_src()
+    print src
+
+    return
     
     # Reinit src
     pm = PackageManager()
@@ -122,6 +123,8 @@ def test_srcedit():
     assert node( (1,2,3) ) == 6 
 
 
+setup_func()
+test_srcedit()
     
 
     
