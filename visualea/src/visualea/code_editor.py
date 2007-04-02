@@ -34,10 +34,8 @@ class NodeCodeEditor(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.src = None
-        self.textedit = QtGui.QTextEdit(self)
-        self.textedit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
-        self.textedit.setMinimumWidth(500)
-        self.textedit.setMinimumHeight(400)
+        self.textedit = self.get_editor()
+
         vboxlayout = QtGui.QVBoxLayout(self)
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(5)
@@ -57,6 +55,45 @@ class NodeCodeEditor(QtGui.QWidget):
         self.connect(self.but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
         self.connect(self.but2, QtCore.SIGNAL("clicked()"), self.save_changes)
 
+    def get_editor(self):
+        """
+        Return an editor object based on QScintilla if available.
+        Else, return a standard editor.
+        """
+
+        try:
+            from PyQt4.Qsci import QsciScintilla
+            from PyQt4.Qsci import QsciLexerPython
+            
+            textedit = QsciScintilla()
+            textedit.setLexer(QsciLexerPython())
+            textedit.setMinimumWidth(500)
+            textedit.setMinimumHeight(400)
+
+            
+        except:
+            textedit = QtGui.QTextEdit(self)
+            textedit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+            textedit.setMinimumWidth(500)
+            textedit.setMinimumHeight(400)
+
+        return textedit
+
+    def setText(self, str):
+        """ Set the text of the editor """
+
+        try:
+            self.textedit.setText(str)
+        except:
+            self.textedit.setPlainText(str)
+
+    def text():
+        """ Return editor text """
+        try:
+            return self.textedit.text()
+        except:
+            return self.textedit.toPlainText()
+        
 
     def edit_class(self, nodefactory):
         """
@@ -65,18 +102,18 @@ class NodeCodeEditor(QtGui.QWidget):
         self.factory = nodefactory
         try:
             self.src = nodefactory.get_node_src()
-            self.textedit.setPlainText(self.src)
+            self.textedit.setText(self.src)
             self.label.setText("Module : " + self.factory.nodemodule_path)
         except:
             self.src = None
             self.but1.setEnabled(False)
             self.but2.setEnabled(False)
-            self.textedit.setPlainText(" Sources are not available...")
+            self.textedit.setText(" Sources are not available...")
             
 
     def apply_changes(self):
         
-        self.src = str(self.textedit.toPlainText())
+        self.src = str(self.text())
         self.factory.apply_new_src(self.src)
 
 
@@ -91,7 +128,7 @@ class NodeCodeEditor(QtGui.QWidget):
         if(ret == QtGui.QMessageBox.No): return
 
         module_name = self.factory.nodemodule_name
-        newsrc = str(self.textedit.toPlainText())
+        newsrc = str(self.text())
 
         self.factory.save_new_src(newsrc)
 
