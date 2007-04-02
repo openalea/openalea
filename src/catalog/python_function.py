@@ -104,7 +104,6 @@ class Equal(Node):
 
         self.add_input( name = "V1", interface = None, value = None)
         self.add_input( name = "V2", interface = None, value = None)
-            
         self.add_output( name = "Result", interface = IBool) 
         
 
