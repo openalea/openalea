@@ -54,6 +54,7 @@ class NodeCodeEditor(QtGui.QWidget):
 
         self.connect(self.but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
         self.connect(self.but2, QtCore.SIGNAL("clicked()"), self.save_changes)
+        
 
     def get_editor(self):
         """
@@ -62,8 +63,7 @@ class NodeCodeEditor(QtGui.QWidget):
         """
 
         try:
-            from PyQt4.Qsci import QsciScintilla
-            from PyQt4.Qsci import QsciLexerPython
+            from PyQt4.Qsci import QsciScintilla, QsciLexerPython
             
             textedit = QsciScintilla()
             textedit.setLexer(QsciLexerPython())
@@ -86,6 +86,7 @@ class NodeCodeEditor(QtGui.QWidget):
             self.textedit.setText(str)
         except:
             self.textedit.setPlainText(str)
+
 
     def text():
         """ Return editor text """

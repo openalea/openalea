@@ -67,9 +67,7 @@ class PyPackageReader(PackageReader):
     """ Read package as a Python file """
 
     def __init__(self, filename):
-        """ 
-        Filename must be relative to a python sys path
-        """
+        """  Filename is a wralea.py file """
         
         PackageReader.__init__(self, filename)
 
@@ -107,6 +105,16 @@ class PyPackageReader(PackageReader):
         
         if(file) :
             file.close()
+
+
+class PyPackageWriter(object):
+    """ Write a wralea python file """
+
+    def __init__(self, package):
+        """ Package to write """
+
+    def write_to_file(self, filename):
+        pass
 
 
 
