@@ -20,7 +20,7 @@ This module defines the singleton metaclass
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: session.py 334 2007-02-05 15:28:27Z dufourko $ "
+__revision__=" $Id$ "
 
 
 class Singleton(type):
