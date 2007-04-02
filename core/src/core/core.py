@@ -316,44 +316,7 @@ class NodeFactory(Observed):
                "Category  : %s\n"%(self.category,) +\
                "Description : %s\n"%(self.description,)
 
-
-    def get_xmlwriter(self):
-        """ Return an instance of a xml writer """
-
-        from pkgreader import NodeFactoryXmlWriter
-        return NodeFactoryXmlWriter(self)
-
-
-    def force_reload(self):
-        """ Force to reload module """
-        
-        if(self.nodemodule) : del(self.nodemodule)
-        self.nodemodule = None
-
-
-    def get_node_module(self):
-        """ Return the associated module """
-
-        if(self.nodemodule and self.nodemodule_path):
-            return self.nodemodule
-
-        if(self.nodemodule_name):
-            try:
-                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
-                self.nodemodule_path = pathname
-                self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
-                
-                if(file) :
-                    file.close()
-                return self.nodemodule
-                
-            except ImportError:
-                #raise InstantiationError()
-                raise
-        else :
-            raise ImportError()
-
-    
+       
     def instantiate(self, call_stack=[]):
         """ Return a node instance
         @param call_stack : the list of NodeFactory id already in call stack
@@ -395,6 +358,100 @@ class NodeFactory(Observed):
             except ImportError:
                 raise
                 #raise InstantiationError()
+                
+
+    def get_xmlwriter(self):
+        """ Return an instance of a xml writer """
+
+        from pkgreader import NodeFactoryXmlWriter
+        return NodeFactoryXmlWriter(self)
+
+
+    def get_node_module(self):
+        """
+        Return the python module object (if available)
+        Raise an Import Error if no module is associated
+        """
+
+        if(self.nodemodule and self.nodemodule_path):
+            return self.nodemodule
+
+        if(self.nodemodule_name):
+            try:
+                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+                self.nodemodule_path = pathname
+                self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+                
+                if(file) :
+                    file.close()
+                return self.nodemodule
+                
+            except ImportError:
+                #raise InstantiationError()
+                raise
+        else :
+            raise ImportError()
+    
+
+    def get_node_src(self):
+        """
+        Return a string containing the node src
+        Return None if src is not available
+        """
+
+        module = self.get_node_module()
+
+        import inspect
+        try:
+            # get the code
+            cl = module.__dict__[self.nodeclass_name]
+            return inspect.getsource(cl)
+        except:
+            return None
+
+
+    def apply_new_src(self, newsrc):
+        """
+        Execute new src
+        """
+
+        module = self.get_node_module()
+        # Run src
+        exec newsrc in module.__dict__
+
+
+    def save_new_src(self, newsrc):
+        
+        module = self.get_node_module()
+        nodesrc = self.get_node_src()
+        
+        # Run src
+        exec newsrc in module.__dict__
+
+        # get the module code
+        import inspect
+        modulesrc = inspect.getsource(module)
+
+        # Pass if no modications
+        if(nodesrc == newsrc) : return
+        
+        # replace old code with new one
+        modulesrc = modulesrc.replace(nodesrc, newsrc)
+
+        # write file
+        file = open(self.nodemodule_path, 'w')
+        file.write(modulesrc)
+        file.close()
+
+        # unload module
+        if(self.nodemodule) : del(self.nodemodule)
+        self.nodemodule = None
+
+        # Recompile
+        import py_compile
+        py_compile.compile(self.nodemodule_path)
+        
+        
 
 
 #class Factory:
@@ -409,7 +466,6 @@ class UserFactory(NodeFactory):
         NodeFactory.__init__(self, **kargs)
 
         # get local openalea dir
-        from openalea.core.pkgmanager import get_wralea_home_dir
         localdir = get_wralea_home_dir()
 
         # create a module
