@@ -500,9 +500,6 @@ class NodeFactoryView(object):
         dialog.show()
 
         
-  
-
-
 
 class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """

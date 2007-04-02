@@ -22,8 +22,6 @@ __license__= "CeCILL V2"
 __revision__=" $Id$"
 
 
-
-
 from PyQt4 import QtCore, QtGui
 
 
@@ -34,7 +32,6 @@ class NodeCodeEditor(QtGui.QWidget):
     def __init__(self, parent):
         
         QtGui.QWidget.__init__(self, parent)
-        
 
         self.src = None
         self.textedit = QtGui.QTextEdit(self)
@@ -47,15 +44,18 @@ class NodeCodeEditor(QtGui.QWidget):
         hboxlayout = QtGui.QHBoxLayout()
         hboxlayout.setMargin(3)
         hboxlayout.setSpacing(5)
-        but1 = QtGui.QPushButton("Apply changes", self)
-        but2 = QtGui.QPushButton("Save changes", self)
-        hboxlayout.addWidget(but1)
-        hboxlayout.addWidget(but2)
+        self.but1 = QtGui.QPushButton("Apply changes", self)
+        self.but2 = QtGui.QPushButton("Save changes", self)
+        hboxlayout.addWidget(self.but1)
+        hboxlayout.addWidget(self.but2)
         vboxlayout.addLayout(hboxlayout)
         vboxlayout.addWidget(self.textedit)
 
-        self.connect(but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
-        self.connect(but2, QtCore.SIGNAL("clicked()"), self.save_changes)
+        self.label = QtGui.QLabel("")
+        vboxlayout.addWidget(self.label)
+
+        self.connect(self.but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
+        self.connect(self.but2, QtCore.SIGNAL("clicked()"), self.save_changes)
 
 
     def edit_class(self, nodefactory):
@@ -63,25 +63,21 @@ class NodeCodeEditor(QtGui.QWidget):
         Open class source in editor,
         """
         self.factory = nodefactory
-        self.module = nodefactory.get_node_module()
-
-        import inspect
         try:
-            # get the code
-            self.cl = self.module.__dict__[nodefactory.nodeclass_name]
-            self.src = inspect.getsource(self.cl)
+            self.src = nodefactory.get_node_src()
             self.textedit.setPlainText(self.src)
+            self.label.setText("Module : " + self.factory.nodemodule_path)
         except:
-            self.textedit.setPlainText(" Sources are not available...")
             self.src = None
+            self.but1.setEnabled(False)
+            self.but2.setEnabled(False)
+            self.textedit.setPlainText(" Sources are not available...")
             
 
     def apply_changes(self):
+        
         self.src = str(self.textedit.toPlainText())
-
-        # Run src
-        exec self.src in self.module.__dict__
-             
+        self.factory.apply_new_src(self.src)
 
 
     def save_changes(self):
@@ -97,20 +93,7 @@ class NodeCodeEditor(QtGui.QWidget):
         module_name = self.factory.nodemodule_name
         newsrc = str(self.textedit.toPlainText())
 
-        # Run src
-        exec newsrc in self.module.__dict__
-
-        # get the module code
-        import inspect
-        modulesrc = inspect.getsource(self.module)
-        # replace old code with new one
-        modulesrc = modulesrc.replace(self.src, newsrc)
-        print modulesrc
-        # write file
-        file = open(self.factory.nodemodule_path, 'w')
-        file.write(modulesrc)
-        file.close()
-        self.factory.force_reload()
+        self.factory.save_new_src(newsrc)
 
 
 
