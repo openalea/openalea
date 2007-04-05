@@ -249,6 +249,10 @@ class PackageManager(object):
     def values(self):
         return self.pkgs.values()
 
+    def has_key(self, *args):
+        return self.pkgs.has_key(*args)
+
+
     # Convenience functions
     def get_node(self, pkg_id, factory_id):
         """ Return a node instance giving a pkg_id and a factory_id """
