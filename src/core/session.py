@@ -22,11 +22,10 @@ This module defines the session and datapool classes
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from openalea.core.core import Package
-from openalea.core.subgraph import SubGraphFactory
-from openalea.core.pkgmanager import PackageManager
-
-from pkgreader import SessionWriter, XmlPackageReader
+from core import Package
+from subgraph import SubGraphFactory
+from pkgmanager import PackageManager
+from usernode import UserPackage
 
 from openalea.core.observer import Observed
 
@@ -36,7 +35,7 @@ class Session(Observed):
     A session can be saved on disk.
     """
 
-    USR_PKG_NAME = "My Packages"
+    USR_PKG_NAME = "My Package"
 
     def __init__(self):
 
@@ -47,9 +46,7 @@ class Session(Observed):
 
         # Create user package if needed
         if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
-            pkg_metainfo = {}
-            pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
-            self.pkgmanager.add_package(pkg)
+            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
 
         self.workspaces = []
@@ -107,12 +104,6 @@ class Session(Observed):
 
         self.clear(False)
         
-        reader = XmlPackageReader(filename)
-        reader.register_packages(self.pkgmanager)
-        reader.register_session(self)
-
-        self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
-        
         self.session_filename = filename
         self.notify_listeners()
                 
@@ -126,8 +117,6 @@ class Session(Observed):
         if(filename == None):
             filename = self.session_filename
 
-        writer = SessionWriter(self)
-        writer.write_config(filename)
 
         self.session_filename = filename
 
