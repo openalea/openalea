@@ -36,7 +36,7 @@ def test_instantiate_subgraph():
     sgfactory = SubGraphFactory(pm, "addition")
 
     # build the subgraph factory
-    addid = sgfactory.add_nodefactory ('add1', (libraryname, "add"))
+    addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
     val1id = sgfactory.add_nodefactory ('f1', (libraryname, "float")) 
     val2id = sgfactory.add_nodefactory ('f2', (libraryname, "float"))
     val3id = sgfactory.add_nodefactory ('f3', (libraryname, "float"))
@@ -134,7 +134,7 @@ def test_subgraphio():
     sgfactory.set_nb_input(2)
     sgfactory.set_nb_output(1)
         
-    addid = sgfactory.add_nodefactory ('add1', (libraryname, "add"))
+    addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
     
     sgfactory.add_connection ('in', 0, addid, 0)
     sgfactory.add_connection ('in', 1, addid, 1)
@@ -193,7 +193,7 @@ def test_addnode():
 
 
     # Add a new node
-    addid = sgfactory.add_nodefactory ('add1', (libraryname, "add"))
+    addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
     
     sg = sgfactory.instantiate()
     sg.get_node_by_id(val1id).set_input(0, 3.)

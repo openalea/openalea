@@ -52,7 +52,7 @@ def get_openalea_home_dir(name='.openalea'):
 
 
 
-def get_wralea_home_dir(name='wralea' ):
+def get_wralea_home_dir(name='wralea'):
     """
     Return the openalea wralea home dirextory
     If it doesn't exist, create it

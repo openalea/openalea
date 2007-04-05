@@ -36,6 +36,15 @@ class SubGraphFactory(NodeFactory):
     """
     
     def __init__ (self, pkgmanager,  *args, **kargs):
+        """
+        Subgraph Factory accept more optional parameters :
+        nin : number of inputs
+        nout : number of outputs
+        doc : documentation
+        elt_factory : map of elements with its corresponding factory
+        elt_connections : map of ( dst_id , input_port ) : ( src_id, output_port )
+        elt_data : Dictionnary which contains associated data
+        """
 
         # Init parent (name, description, category, doc, node, widget=None)
         NodeFactory.__init__(self, *args, **kargs)
@@ -50,24 +59,21 @@ class SubGraphFactory(NodeFactory):
 
         # Dict mapping elt_id with its corresponding factory
         # the factory is identified by its unique id (package_id, factory_id)
-        self.elt_factory = {}
+        self.elt_factory = kargs.get("elt_factory", {})
 
         # Dictionnary which contains tuples describing connection
         # ( dst_id , input_port ) : ( src_id, output_port )
-        self.connections = {}
+        self.connections = kargs.get("elt_connections", {})
 
-        # Dictionnary which contains dictionnary2-uple (x,y) mapped by elt_id
-        self.elt_data = {}
+        # Dictionnary which contains associated data
+        self.elt_data =  kargs.get("elt_data", {})
 
         # I/O
-        self.nb_input = 0
-        self.nb_output = 0
+        self.nb_input = kargs.get("nbin", 0)
+        self.nb_output = kargs.get("nbout", 0)
 
         # Documentation
-        try:
-            self.doc = kargs['doc']
-        except:
-            self.doc = ""
+        self.doc = kargs.get('doc', "")
 
 
     def add_nodefactory(self, elt_id, (pkg_id, factory_id), kdata = {}):
@@ -95,11 +101,11 @@ class SubGraphFactory(NodeFactory):
         self.connections[(dst_id, port_dst)] = (src_id, port_src)
 
 
-    def get_xmlwriter(self):
-        """ Return an instance of a xml writer """
+    def get_writer(self):
+        """ Return the writer class """
 
-        from pkgreader import SubGraphFactoryXmlWriter
-        return SubGraphFactoryXmlWriter(self)
+        from persistence import PySGFactoryWriter
+        return PySGFactoryWriter(self)
 
 
     def instantiate(self, call_stack=None):
