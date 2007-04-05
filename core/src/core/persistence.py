@@ -30,13 +30,9 @@ import sys
 import imp
 import string
 
-class FormatError(Exception):
-    def __init__(self, str):
-        Exception.__init__(self, str)
 
 ################################################################################
 
-# READERS
 
 
 class PackageReader(object):
@@ -60,7 +56,7 @@ class PackageReader(object):
         raise RuntimeError()
 
 
-class PackageWriter(object)
+class PackageWriter(object):
     """ Default base class (define the interface) """
 
     def __init__(self):
@@ -109,63 +105,25 @@ class PyPackageReader(PackageReader):
         modulename = self.filename_to_module(basename)
 
         (file, pathname, desc) = imp.find_module(modulename,  [basedir])
-        wraleamodule = imp.load_module(modulename, file, pathname, desc)
 
-        wraleamodule.register_packages( pkgmanager )
+        try:
+            wraleamodule = imp.load_module(modulename, file, pathname, desc)
+            wraleamodule.register_packages(pkgmanager) 
+
+        except Exception, e:
+            print '%s is invalid :'%(self.filename,), e
+
         
         if(file) :
             file.close()
+
+        
 
 
 class PyPackageWriter(object):
     """ Write a wralea python file """
 
-    def __init__(self, package):
-        """ Package to write """
-
-        self.package = package
-
-    def get_factory_str(self):
-        """ Return a string with all factory declaration """
-
-        # generate code for each factory
-        result_str = ""
-        for f in  package.values():
-            fstr = string.Template(factory_tpl)
-            fstr.safe_subtitute(NAME=f.name,
-                                DESCRIPTION=f.description,
-                                CATEGORY=f.category, 
-                                NODEMODULE=f.nodemodule_name,
-                                NODECLASS=f.nodeclass_name,
-                                WIDGETMODULE=f.widgetmodule_name,
-                                WIDGETCLASS=f.widgetclass_name,
-            result_str += fstr
-
-        return result_str
-
-
-    def get_package_str(self):
-        """ Return a string with the package declaration """
-
-        fstr = self.get_factory_str()
-        
-        pstr = string.Template(pkg_tpl)
-        pstr.safe_subtitute(**self.package.metainfo)
-        pstr.safe_subtitute(PKGNAME = self.package.name)
-        pstr.safe_subtitute(FACTORY_DECLARATION = fstr)
-
-        return pstr
-
-
-    def write(self, filehandle):
-        """ Write package data to file hnalde in python """
-
-
-        
-
-
-
-wralea_tpl = """
+    wralea_tpl = """
 # This file has been generated at $TIME
 
 from openalea.core import *
@@ -176,58 +134,159 @@ def register_packages(pkgmanager):
 
 """
 
-pkg_tpl = """
+    pkg_tpl = """
 
-    metainfo= dict(version="$VERSION",
-                   license="$LICENSE",
-                   authors="$AUTHORS",
-                   institutes="$INSTITUTES",
-                   description="$DESCRIPTION",
-                   url="$URL"
-               }
+    metainfo = $METAINFO 
 
-    package = Package( $PKGNAME, metainfo)
+    pkg = Package("$PKGNAME", metainfo)
 
     $FACTORY_DECLARATION
     
-    pkgmanager.add_package(package)
+    pkgmanager.add_package(pkg)
 
 """
 
-factory_tpl = """
+    def __init__(self, package):
+        """ Package to write """
 
-    nf = Factory( name= "$NAME", 
-                  description= "$DESCRIPTION", 
-                  category = "$CATEGORY", 
-                  nodemodule = "$NODEMODULE",
-                  nodeclass = "$NODECLASS",
-                  widgetmodule = "$WIDGETMODULE",
-                  widgetclass = "$WIDGETCLASS",
-                  )
-
-    package.add_factory( nf )
-
-
-"""
-
-
-
-
-
-
-# class SessionWriter(XmlWriter):
-#     """ Class to write the Session in a XML structure """
-
-#     def __init__(self, session):
-#         """
-#         Constructor:
-#         @param session : a session instance
-#         """
-#         self.session = session
+        self.package = package
         
 
-#     def fill_structure(self, newdoc, top_element):
-#         """ Fill XML structure in newdoc with top_element as Root """
+    def get_factories_str(self):
+        """ Return a string with all factory declaration """
 
-     
+        # generate code for each factory
+        result_str = ""
+        for f in  self.package.values():
+            writer = f.get_writer()
+            if(writer):
+                result_str += str(writer)
+            
+        return result_str
+
+
+    def get_package_str(self):
+        """ Return a string with the package declaration """
+
+        fstr = self.get_factories_str()
+        pstr = string.Template(self.pkg_tpl)
+        
+        result = pstr.safe_substitute(PKGNAME=self.package.name,
+                                      METAINFO=repr(self.package.metainfo),
+                                      FACTORY_DECLARATION=fstr,
+                                      )
+
+        return result
+
+
+    def write(self, filehandler):
+        """ Write package description to file handler """
+
+        pstr = self.get_package_str()
+        wtpl = string.Template(self.wralea_tpl)
+        result = wtpl.safe_substitute(PKG_DECLARATION=pstr)
+        filehandler.write(result)
+        
+
+    def write_wralea(self):
+        """ Write a wralea file in user home directory """
+
+        from openalea.core import get_wralea_home_dir
+
+        filename = "%s_wralea.py"%(self.package.name,)
+        directory = get_wralea_home_dir()
+        fullfilename = os.path.join(directory, filename)
+        
+        handler = open(fullfilename, 'w')
+
+        self.write(handler)
+
+        handler.close()
+
+
+
+
+class PyNodeFactoryWriter(object):
+    """ NodeFactory python Writer """
+
+    nodefactory_tpl = """
+
+    nf = Factory(name="$NAME", 
+                 description="$DESCRIPTION", 
+                 category="$CATEGORY", 
+                 nodemodule="$NODEMODULE",
+                 nodeclass="$NODECLASS",
+                 widgetmodule="$WIDGETMODULE",
+                 widgetclass="$WIDGETCLASS",
+                 )
+
+    pkg.add_factory( nf )
+
+"""
+
+    def __init__(self, factory):
+        self.factory = factory
+
+    def __repr__(self):
+        """ Return the python string representation """
+        f = self.factory
+        fstr = string.Template(self.nodefactory_tpl)
+        result = fstr.safe_substitute(NAME=f.name,
+                                      DESCRIPTION=f.description,
+                                      CATEGORY=f.category, 
+                                      NODEMODULE=f.nodemodule_name,
+                                      NODECLASS=f.nodeclass_name,
+                                      WIDGETMODULE=f.widgetmodule_name,
+                                      WIDGETCLASS=f.widgetclass_name,)
+        return result
+           
+
+
+class PySGFactoryWriter(object):
+    """ SubGraphFactory python Writer """
+
+    sgfactory_tpl = """
+
+    nf = SubGraphFactory(pkgmanager,
+                         name="$NAME", 
+                         description="$DESCRIPTION", 
+                         category="$CATEGORY",
+                         doc="$DOC",
+                         nin=$NIN,
+                         nout=$NOUT,
+                         elt_factory=$ELT_FACTORY,
+                         elt_connections=$ELT_CONNECTIONS,
+                         elt_data=$ELT_DATA,
+                         )
+
+    pkg.add_factory( nf )
+
+"""
+
+    def __init__(self, factory):
+        self.factory = factory
+
+    def __repr__(self):
+        """ Return the python string representation """
+        f = self.factory
+        fstr = string.Template(self.sgfactory_tpl)
+        result = fstr.safe_substitute(NAME=f.name,
+                                      DESCRIPTION=f.description,
+                                      CATEGORY=f.category,
+                                      DOC=f.doc,
+                                      NIN=f.nb_input,
+                                      NOUT=f.nb_output,
+                                      ELT_FACTORY=repr(f.elt_factory),
+                                      ELT_CONNECTIONS=repr(f.connections),
+                                      ELT_DATA=repr(f.elt_data),
+                                      )
+        return result
+
+
+
+
+
+
+
+
 
