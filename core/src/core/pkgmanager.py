@@ -184,13 +184,11 @@ class PackageManager(object):
     def get_pkgreader(self, filename):
         """ Return the pkg reader corresponding to the filename """
 
-        from pkgreader import XmlPackageReader, PyPackageReader
+        from persistence import PyPackageReader
 
         reader = None
         if(filename.endswith('.py')):
             reader = PyPackageReader(filename)
-        elif(filename.endswith('.xml')):
-            reader = XmlPackageReader(filename)
         else :
             raise UnknowFileType()
 
@@ -206,6 +204,30 @@ class PackageManager(object):
 
         self.rebuild_category()
 
+
+    def create_user_package(self, name, metainfo):
+        """
+        Create a new package in the user space
+        and register it
+        """
+
+        # Create directory
+        from openalea.core import  get_wralea_home_dir
+        path = os.path.join(get_wralea_home_dir(), name)
+        
+        if(not os.path.isdir(path)):
+            os.mkdir(path)
+
+        # Create new Package and its wralea
+        from usernode import UserPackage
+        p = UserPackage(name, metainfo, path)
+        p.write()
+
+        # Register package
+        self.add_wralea(p.wralea_path)
+
+        return p
+       
 
     # Dictionnary behaviour
       
