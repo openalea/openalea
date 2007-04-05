@@ -38,7 +38,6 @@ from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
-from openalea.core.core import UserFactory
 from openalea.core.subgraph import SubGraphFactory
 from openalea.core.observer import AbstractListener
 
