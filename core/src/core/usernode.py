@@ -20,7 +20,7 @@ Classes to create user package and Node
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: core.py 450 2007-04-05 10:19:28Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from core import Package, NodeFactory
