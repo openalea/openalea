@@ -36,7 +36,7 @@ class Session(Observed):
     A session can be saved on disk.
     """
 
-    USR_PKG_NAME = "MyObjects"
+    USR_PKG_NAME = "My Packages"
 
     def __init__(self):
 
@@ -44,6 +44,13 @@ class Session(Observed):
 
         # Instantiate a Package Manager
         self.pkgmanager = PackageManager()
+
+        # Create user package if needed
+        if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
+            pkg_metainfo = {}
+            pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
+            self.pkgmanager.add_package(pkg)
+
 
         self.workspaces = []
         self.datapool = DataPool()
@@ -81,13 +88,9 @@ class Session(Observed):
         self.pkgmanager.find_and_register_packages()
 
 
-        # Create user package
-        pkg_metainfo = {}
-        pkg = Package(self.USR_PKG_NAME, pkg_metainfo)
-        self.user_pkg = pkg
+        self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
 
-
-        if(create_workspace):
+        if(create_workspace and not self.user_pkg.has_key('Workspace')):
             rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
                                           description= "",
                                           category = "",
@@ -95,7 +98,6 @@ class Session(Observed):
         
             self.user_pkg.add_factory(rootfactory)
 
-        self.pkgmanager.add_package(pkg)
         self.notify_listeners()
 
         
