@@ -138,7 +138,7 @@ def register_packages(pkgmanager):
 
     metainfo = $METAINFO 
 
-    pkg = Package("$PKGNAME", metainfo)
+    pkg = UserPackage("$PKGNAME", metainfo, __file__)
 
     $FACTORY_DECLARATION
     
@@ -188,20 +188,25 @@ def register_packages(pkgmanager):
         filehandler.write(result)
         
 
-    def write_wralea(self):
-        """ Write a wralea file in user home directory """
-
-        from openalea.core import get_wralea_home_dir
+    def write_wralea(self, directory):
+        """
+        Write a wralea file in user home directory
+        Return the filename created
+        """
 
         filename = "%s_wralea.py"%(self.package.name,)
-        directory = get_wralea_home_dir()
         fullfilename = os.path.join(directory, filename)
-        
         handler = open(fullfilename, 'w')
 
         self.write(handler)
 
         handler.close()
+
+        # Recompile
+        import py_compile
+        py_compile.compile(fullfilename)
+
+        return fullfilename
 
 
 
@@ -259,7 +264,7 @@ class PySGFactoryWriter(object):
                          elt_data=$ELT_DATA,
                          )
 
-    pkg.add_factory( nf )
+    pkg.add_factory(nf)
 
 """
 

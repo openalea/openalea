@@ -8,6 +8,7 @@ __revision__=" $Id$"
 
 from core import Package, Factory, Node
 from subgraph import SubGraphFactory, SubGraph
+from usernode import UserPackage
 from interface import *
 
 
