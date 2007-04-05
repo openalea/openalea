@@ -23,7 +23,8 @@ Test the subgraph module
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.subgraph import SubGraphFactory
-from openalea.core.core import Package, UserFactory
+from openalea.core.core import Factory
+
 
 libraryname = "Library"
 
@@ -59,14 +60,11 @@ def test_subgraphwriter():
                }
 
 
-    package1 = Package("TestPackage", metainfo)
-
+    package1 = pm.create_user_package("TestPackage", metainfo)
     package1.add_factory(sgfactory)
 
-    writer = package1.get_writer()
+    package1.write()
     
-    writer.write_wralea()
-
     pm.init()
 
     newsg = pm.get_node('TestPackage', 'addition')
@@ -87,15 +85,6 @@ def test_nodewriter():
     pm = PackageManager ()
     pm.init()
 
-    myfactory = UserFactory(name="mynode",
-                            description="descr",
-                            category='test',
-                            nodemodule = 'mynode',
-                            nodeclass = 'mynode'
-                            )
-
-    
-
     # Package
     metainfo = { 'version' : '0.0.1',
                'license' : 'CECILL-C',
@@ -105,22 +94,18 @@ def test_nodewriter():
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
+    package1 = pm.create_user_package("TestPackage", metainfo)
 
-    package1 = Package("TestPackage", metainfo)
-
-    package1.add_factory(myfactory)
-
-    writer = package1.get_writer()
+    nf = package1.create_user_factory(name="mynode",
+                                 category='test',
+                                 description="descr",
+                                 )
     
-    writer.write_wralea()
-
+    package1.write()
+    
     pm.init()
 
     newsg = pm.get_node('TestPackage', 'mynode')
 
-    sg = myfactory.instantiate()
 
 
-
-
-test_nodewriter()
