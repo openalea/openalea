@@ -58,8 +58,7 @@ class Node(Observed):
 
         # Description (list of tuple (name, interface))
         self.input_desc = []
-        self.output_desc = []
-        
+        self.output_desc = []        
         
         self.map_index_in = {}
         self.map_index_out = {}
@@ -456,64 +455,6 @@ class NodeFactory(Observed):
 Factory = NodeFactory
 
 
-class UserFactory(NodeFactory):
-    """ Node Factory created by a user """
-
-    def __init__(self, **kargs):
-
-        NodeFactory.__init__(self, **kargs)
-
-        # get local openalea dir
-        from openalea.core import get_wralea_home_dir
-        localdir = get_wralea_home_dir()
-
-        # create a module
-
-        template = 'from openalea.core import *\n'+\
-                   '\n'+\
-                   'class %s(Node):\n'%(self.name)+\
-                   '    """  Doc... """ \n'+\
-                   '\n'+\
-                   '    def __init__(self):\n'+\
-                   '        Node.__init__(self)\n'+\
-                   '        self.add_input( name = "X", interface = None, value = None)\n'+\
-                   '        self.add_output( name = "Y", interface = None) \n'+\
-                   '\n'+\
-                   '\n'+\
-                   '    def __call__(self, inputs):\n'+\
-                   '        return inputs\n'
-        
-        self.nodemodule_path = os.path.join(localdir, "%s.py"%(self.name))
-        self.nodemodule_name = self.name
-        self.nodeclass_name = self.name
-
-        file = open(self.nodemodule_path, 'w')
-        file.write(template)
-        file.close()
-
-
-    def get_node_module(self):
-        """ Return the associated module """
-
-        if(self.nodemodule):
-            return self.nodemodule
-
-        if(self.nodemodule_name):
-            try:
-                file = open(self.nodemodule_path, 'r')
-                self.nodemodule = imp.load_module(self.nodemodule_name,
-                                                  file, self.nodemodule_path,
-                                                  ('.py','U',1))
-                
-                if(file) :
-                    file.close()
-                return self.nodemodule
-                
-            except ImportError:
-                #raise InstantiationError()
-                raise
-        else :
-            raise ImportError()
 
                  
 
@@ -654,12 +595,7 @@ class Package(dict):
 
         return factory
     
-
-    def get_writer(self):
-        """ Return the writer class """
-
-        from persistence import PyPackageWriter
-        return PyPackageWriter(self)
+        
 
 
 
