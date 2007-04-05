@@ -88,7 +88,7 @@ class NodeCodeEditor(QtGui.QWidget):
             self.textedit.setPlainText(str)
 
 
-    def text():
+    def getText():
         """ Return editor text """
         try:
             return self.textedit.text()
@@ -114,7 +114,7 @@ class NodeCodeEditor(QtGui.QWidget):
 
     def apply_changes(self):
         
-        self.src = str(self.text())
+        self.src = str(self.getText())
         self.factory.apply_new_src(self.src)
 
 
@@ -129,7 +129,7 @@ class NodeCodeEditor(QtGui.QWidget):
         if(ret == QtGui.QMessageBox.No): return
 
         module_name = self.factory.nodemodule_name
-        newsrc = str(self.text())
+        newsrc = str(self.getText())
 
         self.factory.save_new_src(newsrc)
 
