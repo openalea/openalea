@@ -99,9 +99,13 @@ class PyPackageReader(PackageReader):
         modulename = self.filename_to_module(basename)
 
         (file, pathname, desc) = imp.find_module(modulename,  [basedir])
-        wraleamodule = imp.load_module(modulename, file, pathname, desc)
 
-        wraleamodule.register_packages( pkgmanager )
+        try:
+            wraleamodule = imp.load_module(modulename, file, pathname, desc)
+            wraleamodule.register_packages(pkgmanager) 
+
+        except Exception, e:
+            print '%s is invalid :'%(self.filename,), e
         
         if(file) :
             file.close()

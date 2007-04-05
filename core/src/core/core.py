@@ -360,11 +360,11 @@ class NodeFactory(Observed):
                 #raise InstantiationError()
                 
 
-    def get_xmlwriter(self):
-        """ Return an instance of a xml writer """
+    def get_writer(self):
+        """ Return the writer class """
 
-        from pkgreader import NodeFactoryXmlWriter
-        return NodeFactoryXmlWriter(self)
+        from persistence import PyNodeFactoryWriter
+        return PyNodeFactoryWriter(self)
 
 
     def get_node_module(self):
@@ -464,6 +464,7 @@ class UserFactory(NodeFactory):
         NodeFactory.__init__(self, **kargs)
 
         # get local openalea dir
+        from openalea.core import get_wralea_home_dir
         localdir = get_wralea_home_dir()
 
         # create a module
@@ -652,6 +653,13 @@ class Package(dict):
             raise UnknownNodeError()
 
         return factory
+    
+
+    def get_writer(self):
+        """ Return the writer class """
+
+        from persistence import PyPackageWriter
+        return PyPackageWriter(self)
 
 
 
