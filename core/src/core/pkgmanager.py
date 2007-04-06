@@ -227,6 +227,12 @@ class PackageManager(object):
         self.add_wralea(p.wralea_path)
 
         return p
+
+    def get_user_packages(self):
+        """ Return the list of user packages """
+
+        from usernode import UserPackage
+        return filter(lambda x: isinstance(x, UserPackage), self.pkgs.values())
        
 
     # Dictionnary behaviour
