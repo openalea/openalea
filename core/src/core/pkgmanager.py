@@ -230,6 +230,9 @@ class PackageManager(object):
         Return the created package
         """
 
+        if(self.pkgs.has_key(name)):
+            return
+
         # Create directory
         if(not path):
             from openalea.core import  get_wralea_home_dir
