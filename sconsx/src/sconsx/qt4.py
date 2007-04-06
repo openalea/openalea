@@ -452,7 +452,8 @@ def enable_modules(self, modules, debug=False) :
 
 
 def exists(env):
-	return _detect(env)
+	return True
+        #return _detect(env)
 
 
 
