@@ -188,14 +188,9 @@ def register_packages(pkgmanager):
         filehandler.write(result)
         
 
-    def write_wralea(self, directory):
-        """
-        Write a wralea file in user home directory
-        Return the filename created
-        """
+    def write_wralea(self, fullfilename):
+        """ Write the wralea.py in the specified filename """
 
-        filename = "%s_wralea.py"%(self.package.name,)
-        fullfilename = os.path.join(directory, filename)
         handler = open(fullfilename, 'w')
 
         self.write(handler)
@@ -206,7 +201,6 @@ def register_packages(pkgmanager):
         import py_compile
         py_compile.compile(fullfilename)
 
-        return fullfilename
 
 
 

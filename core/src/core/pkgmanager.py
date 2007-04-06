@@ -62,7 +62,7 @@ class PackageManager(object):
 
     def get_default_wraleapath(self):
         """ Return a list wralea path """
-        from openalea.core import get_wralea_home_dir
+        from openalea.core import  get_wralea_home_dir
         return list(openalea.__path__) + [get_wralea_home_dir()]
 
 
@@ -84,17 +84,29 @@ class PackageManager(object):
         self.recover_syspath()
         self.category = {}
 
-        self.wraleapath = self.get_default_wraleapath()
+        #self.wraleapath = self.get_default_wraleapath()
         
 
     # Path Functions
-    def add_wraleapath(self, new_path):
+    def add_wraleapath(self, path):
         """
         Add a search path for wralea files
-        @param new_path : a path string
+        @param path : a path string
         """
-        if(not new_path in self.wraleapath):
-            self.wraleapath.append(new_path)
+        
+        if(not os.path.isdir(path)): return
+        
+        for p in self.wraleapath:
+            common = os.path.commonprefix((p,path))
+            # the path is already in wraleapth
+            if(common == p): return
+            # the new path is more generic, we keep it
+            if(common == path):
+                self.wraleapath.remove(p)
+                self.wraleapath.append(path)
+                return
+        # the path is absent
+        self.wraleapath.append(path)
         
 
     def recover_syspath(self):
@@ -143,9 +155,16 @@ class PackageManager(object):
         Return the registered packages
         """
 
-        if(not os.path.exists(filename)):
+        filename = os.path.abspath(filename)
+        
+        if(not os.path.exists(filename) or
+           not os.path.isfile(filename)):
             print "Wralea : %s does not exists."%(filename,)
             return
+
+        # Update wralea path if necessary
+        path = os.path.dirname(filename)
+        self.add_wraleapath(path)
         
         reader = self.get_pkgreader(filename)
         if reader: 
@@ -205,15 +224,16 @@ class PackageManager(object):
         self.rebuild_category()
 
 
-    def create_user_package(self, name, metainfo):
+    def create_user_package(self, name, metainfo, path=None):
         """
-        Create a new package in the user space
-        and register it
+        Create a new package in the user space and register it
+        Return the created package
         """
 
         # Create directory
-        from openalea.core import  get_wralea_home_dir
-        path = os.path.join(get_wralea_home_dir(), name)
+        if(not path):
+            from openalea.core import  get_wralea_home_dir
+            path = os.path.join(get_wralea_home_dir(), name)
         
         if(not os.path.isdir(path)):
             os.mkdir(path)
@@ -224,9 +244,10 @@ class PackageManager(object):
         p.write()
 
         # Register package
-        self.add_wralea(p.wralea_path)
+        self.add_wralea(p.get_wralea_path())
 
         return p
+
 
     def get_user_packages(self):
         """ Return the list of user packages """

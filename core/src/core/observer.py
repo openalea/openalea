@@ -64,7 +64,8 @@ class AbstractListener(object):
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
-        observed.register_listener(self)
+        if(observed):
+            observed.register_listener(self)
 
     def notify (self, sender, event=None):
         """
