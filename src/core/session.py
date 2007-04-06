@@ -44,9 +44,6 @@ class Session(Observed):
         # Instantiate a Package Manager
         self.pkgmanager = PackageManager()
 
-        # Create user package if needed
-        if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
-            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
         self.workspaces = []
         self.datapool = DataPool()
@@ -82,7 +79,10 @@ class Session(Observed):
         # init pkgmanager
         self.pkgmanager.clear()
         self.pkgmanager.find_and_register_packages()
-
+        
+        # Create user package if needed
+        if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
+            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
         self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
 
