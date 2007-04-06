@@ -5,103 +5,103 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
-    <height>198</height>
+    <width>424</width>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string/>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
     <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item>
-    <layout class="QGridLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <item row="2" column="0" >
-      <widget class="QLabel" name="label_4" >
-       <property name="text" >
-        <string>Description</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="label_2" >
-       <property name="text" >
-        <string>Name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2" >
-      <widget class="QLabel" name="label_6" >
-       <property name="text" >
-        <string>Nb Outputs</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" >
-      <widget class="QSpinBox" name="inBox" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>0</hsizetype>
-         <vsizetype>0</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" >
-      <widget class="QLabel" name="label_3" >
-       <property name="text" >
-        <string>Category</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" >
-      <widget class="QLineEdit" name="descriptionEdit" />
-     </item>
-     <item row="1" column="3" >
-      <widget class="QSpinBox" name="outBox" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>0</hsizetype>
-         <vsizetype>0</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" >
-      <widget class="QLineEdit" name="nameEdit" />
-     </item>
-     <item row="0" column="2" >
-      <widget class="QLabel" name="label_5" >
-       <property name="text" >
-        <string>Nb Inputs</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1" >
-      <widget class="QComboBox" name="categoryEdit" >
-       <property name="editable" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="0" column="1" >
+    <widget class="QComboBox" name="packageBox" />
    </item>
-   <item>
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Package</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" >
+    <widget class="QLabel" name="label_5" >
+     <property name="text" >
+      <string>Nb Inputs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" >
+    <widget class="QSpinBox" name="inBox" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>0</hsizetype>
+       <vsizetype>0</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3" >
+    <widget class="QSpinBox" name="outBox" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>0</hsizetype>
+       <vsizetype>0</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2" >
+    <widget class="QLabel" name="label_6" >
+     <property name="text" >
+      <string>Nb Outputs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QLineEdit" name="nameEdit" />
+   </item>
+   <item row="2" column="1" >
+    <widget class="QComboBox" name="categoryEdit" >
+     <property name="editable" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" >
+    <widget class="QLineEdit" name="descriptionEdit" />
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>Category</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_4" >
+     <property name="text" >
+      <string>Description</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
