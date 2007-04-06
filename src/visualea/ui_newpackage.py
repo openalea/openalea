@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newpackage.ui'
 #
-# Created: Fri Apr  6 11:45:11 2007
+# Created: Fri Apr  6 14:32:14 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,14 +69,9 @@ class Ui_NewPackageDialog(object):
         self.label_3.setObjectName("label_3")
         self.gridlayout.addWidget(self.label_3,2,0,1,1)
 
-        self.intitutesEdit = QtGui.QLineEdit(NewPackageDialog)
-        self.intitutesEdit.setObjectName("intitutesEdit")
-        self.gridlayout.addWidget(self.intitutesEdit,5,1,1,1)
-
-        self.licenseBox = QtGui.QComboBox(NewPackageDialog)
-        self.licenseBox.setEditable(True)
-        self.licenseBox.setObjectName("licenseBox")
-        self.gridlayout.addWidget(self.licenseBox,3,1,1,1)
+        self.institutesEdit = QtGui.QLineEdit(NewPackageDialog)
+        self.institutesEdit.setObjectName("institutesEdit")
+        self.gridlayout.addWidget(self.institutesEdit,5,1,1,1)
 
         self.urlEdit = QtGui.QLineEdit(NewPackageDialog)
         self.urlEdit.setObjectName("urlEdit")
@@ -93,6 +88,10 @@ class Ui_NewPackageDialog(object):
         self.label_5 = QtGui.QLabel(NewPackageDialog)
         self.label_5.setObjectName("label_5")
         self.gridlayout.addWidget(self.label_5,4,0,1,1)
+
+        self.licenseEdit = QtGui.QLineEdit(NewPackageDialog)
+        self.licenseEdit.setObjectName("licenseEdit")
+        self.gridlayout.addWidget(self.licenseEdit,3,1,1,1)
         self.vboxlayout.addLayout(self.gridlayout)
 
         self.buttonBox = QtGui.QDialogButtonBox(NewPackageDialog)
@@ -105,6 +104,14 @@ class Ui_NewPackageDialog(object):
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),NewPackageDialog.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),NewPackageDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(NewPackageDialog)
+        NewPackageDialog.setTabOrder(self.nameEdit,self.descriptionEdit)
+        NewPackageDialog.setTabOrder(self.descriptionEdit,self.versionEdit)
+        NewPackageDialog.setTabOrder(self.versionEdit,self.authorsEdit)
+        NewPackageDialog.setTabOrder(self.authorsEdit,self.institutesEdit)
+        NewPackageDialog.setTabOrder(self.institutesEdit,self.urlEdit)
+        NewPackageDialog.setTabOrder(self.urlEdit,self.pathEdit)
+        NewPackageDialog.setTabOrder(self.pathEdit,self.pathButton)
+        NewPackageDialog.setTabOrder(self.pathButton,self.buttonBox)
 
     def retranslateUi(self, NewPackageDialog):
         NewPackageDialog.setWindowTitle(QtGui.QApplication.translate("NewPackageDialog", "Package", None, QtGui.QApplication.UnicodeUTF8))

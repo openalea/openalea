@@ -28,7 +28,7 @@ import sys
 import math
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.core import NodeWidget, RecursionError
+from openalea.core.core import FactoryWidget, NodeWidget, RecursionError
 
 
 
@@ -63,11 +63,14 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
 
         
 
-class EditSubGraphWidget(NodeWidget, QtGui.QGraphicsView):
+class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
     """ Subgraph widget allowing to edit the network """
     
-    def __init__(self, node, parent=None):
+    def __init__(self, factory, parent=None):
 
+        node = factory.instantiate()
+
+        FactoryWidget.__init__(self, factory)
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 

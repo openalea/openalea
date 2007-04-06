@@ -124,16 +124,12 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
         self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
                      self.export_to_application)
-        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"),
-                     self.clear_data_pool)
-        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"),
-                     self.search_node)
-        self.connect(self.action_New_Network, SIGNAL("activated()"),
-                     self.new_graph)
-        self.connect(self.actionNew_Python_Node, SIGNAL("activated()"),
-                     self.new_python_node)
-        self.connect(self.actionNew_Package, SIGNAL("activated()"),
-                     self.new_package)
+        self.connect(self.actionShow_Pool, SIGNAL("activated()"), self.show_pool)
+        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"), self.clear_data_pool)
+        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
+        self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
+        self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
+        self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
 #         self.connect(self.action_Delete, SIGNAL("activated()"),
 #                      self.delete_selection)
 #         self.connect(self.action_Edit_sources, SIGNAL("activated()"),
@@ -142,9 +138,8 @@ class MainWindow(QtGui.QMainWindow,
         # final init
         self.session = session
         workspace_factory = self.session.user_pkg['Workspace']
-        node = workspace_factory.instantiate()
-        self.session.add_workspace(node)
-        self.open_widget_tab(node)
+        self.session.add_workspace(workspace_factory)
+        self.open_widget_tab(workspace_factory)
 
 
     def about(self):
@@ -179,7 +174,7 @@ class MainWindow(QtGui.QMainWindow,
 
         if(type(sender) == type(self.session)):
             self.update_tabwidget()
-            self.reinit_treeview()
+            #self.reinit_treeview()
 
         
 
@@ -204,15 +199,14 @@ class MainWindow(QtGui.QMainWindow,
 
         cindex = self.tabWorkspace.currentIndex()
 
-        subgraph = self.index_nodewidget[cindex].node
-        # Generate factory if user want
         try :
+            subgraph = self.index_nodewidget[cindex].node
             modified = subgraph.graph_modified
         except:
             modified = False
             
         if(modified):
-
+            # Generate factory if user want
             ret = QtGui.QMessageBox.question(self, "Close Workspace",
                                              "Subgraph has been modified.\n"+
                                              "Do you want to report changes to factory ?\n",
@@ -224,7 +218,7 @@ class MainWindow(QtGui.QMainWindow,
 
         # Update session
         try:
-            factory = self.index_nodewidget[cindex].node.factory
+            factory = self.index_nodewidget[cindex].factory
             self.session.close_workspace(factory)
             self.close_tab_workspace(cindex)
         except:
@@ -248,15 +242,15 @@ class MainWindow(QtGui.QMainWindow,
 
         # open tab widgets
         for i in range(len(self.session.workspaces)):
-            node = self.session.workspaces[i]
+            factory = self.session.workspaces[i]
 
             try:
                 widget = self.index_nodewidget[i]
-                if(node != widget.node):
+                if(factory != widget.factory):
                     self.close_tab_workspace(i)
             except: pass
             
-            self.open_widget_tab(node, pos = i)
+            self.open_widget_tab(factory, pos = i)
 
         removelist = range( len(self.session.workspaces),
                         len(self.index_nodewidget))
@@ -266,27 +260,24 @@ class MainWindow(QtGui.QMainWindow,
             self.close_tab_workspace(i)
 
 
-    def open_widget_tab(self, node, caption=None, pos = -1):
+    def open_widget_tab(self, factory, caption=None, pos = -1):
         """
         Open a widget in a tab giving the factory and an instance
-        if node is null, a new instance is allocated
-        caption is append to the tab titleself.action_New_Network
+        caption is append to the tab title
         """
         
         # Test if the node is already opened
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
-            f = widget.node.factory
-            if(node.factory is f):
+            f = widget.factory
+            if(factory is f):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
-
-        factory = node.factory
 
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        widget = factory.instantiate_widget(node, parent=container, edit=True)
+        widget = factory.edit_widget(parent=container)
         widget.wcaption = caption
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -378,7 +369,7 @@ class MainWindow(QtGui.QMainWindow,
 
         pkgs = self.pkgmanager.get_user_packages()
         
-        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys())
+        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys(), self)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -393,13 +384,13 @@ class MainWindow(QtGui.QMainWindow,
             newfactory.set_nb_output(nout)
             
             pkg.add_factory(newfactory)
+            pkg.write()
             self.pkgmanager.add_package(pkg)
 
             self.reinit_treeview()
 
-            node = newfactory.instantiate()
-            self.session.add_workspace(node)
-            self.open_widget_tab(node)
+            self.session.add_workspace(newfactory)
+            self.open_widget_tab(newfactory)
 
 
     def new_python_node(self):
@@ -408,7 +399,7 @@ class MainWindow(QtGui.QMainWindow,
         # Get default package
         pkgs = self.pkgmanager.get_user_packages()
 
-        dialog = NewGraph("New Python Node", pkgs, self.pkgmanager.category.keys())
+        dialog = NewGraph("New Python Node", pkgs, self.pkgmanager.category.keys(), self)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -426,7 +417,14 @@ class MainWindow(QtGui.QMainWindow,
     def new_package(self):
         """ Create a new user package """
 
-        pass
+        dialog = NewPackage(self.pkgmanager.keys(), parent = self)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            (name, metainfo, path) = dialog.get_data()
+
+            self.pkgmanager.create_user_package(name, metainfo, path)
+            self.reinit_treeview()
         
 
     def exec_python_script(self):
@@ -508,9 +506,17 @@ class MainWindow(QtGui.QMainWindow,
         if(not filename) : return
 
         self.session.save(filename)
+        
 
+    def show_pool(self):
+        """ Show the data pool """
+
+        i = self.tabPackager.indexOf(self.datapoolview)
+        self.tabPackager.setCurrentIndex(i)
+        
 
     def clear_data_pool(self):
+        """ Clear the data pool """
 
         self.session.datapool.clear()
 

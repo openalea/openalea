@@ -175,12 +175,6 @@
     </property>
     <addaction name="action_Execute_script" />
    </widget>
-   <widget class="QMenu" name="menuDataPool" >
-    <property name="title" >
-     <string>&amp;DataPool</string>
-    </property>
-    <addaction name="actionClear_Data_Pool" />
-   </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
      <string>&amp;Package Manager</string>
@@ -226,6 +220,13 @@
     <addaction name="action_Export_to_Factory" />
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
+   </widget>
+   <widget class="QMenu" name="menuDataPool" >
+    <property name="title" >
+     <string>&amp;DataPool</string>
+    </property>
+    <addaction name="actionShow_Pool" />
+    <addaction name="actionClear_Data_Pool" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -391,6 +392,14 @@
   <action name="action_Edit_sources" >
    <property name="text" >
     <string>&amp;Edit</string>
+   </property>
+  </action>
+  <action name="actionShow_Pool" >
+   <property name="text" >
+    <string>Show Pool</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

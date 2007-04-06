@@ -27,6 +27,7 @@ from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.core import NodeFactory, Package
+from openalea.core.subgraph import SubGraphFactory
 from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
@@ -78,15 +79,18 @@ class PkgModel (QAbstractItemModel) :
             return QtCore.QVariant(str(item.get_tip()))
 
         # Icon
-        elif( role == QtCore.Qt.DecorationRole ):
+        elif(role == QtCore.Qt.DecorationRole):
 
-            if( isinstance(item, Package) ):
+            if(isinstance(item, Package)):
                 return QVariant(QtGui.QPixmap(":/icons/package.png"))
 
-            elif( isinstance(item, Category) ):
+            elif(isinstance(item, Category)):
                 return QVariant(QtGui.QPixmap(":/icons/category.png"))
 
-            elif( isinstance( item, NodeFactory) ):
+            elif( isinstance(item, SubGraphFactory)):
+               return QVariant(QtGui.QPixmap(":/icons/diagram.png"))
+           
+            elif( isinstance(item, NodeFactory)):
                return QVariant(QtGui.QPixmap(":/icons/node.png"))
 
             else:
@@ -119,17 +123,12 @@ class PkgModel (QAbstractItemModel) :
         l.sort((lambda x,y : cmp(x.get_id(), y.get_id())))
         childItem = l[row]
 
-        if (childItem):
-
-            # save parent and row
-            self.parent_map[ id(childItem) ] = parentItem
-            self.row_map[ id(childItem) ] = row
-                
-            return self.createIndex(row, column, childItem)
+        # save parent and row
+        self.parent_map[id(childItem)] = parentItem
+        self.row_map[id(childItem)] = row
         
-        else:
-            return QtCore.QModelIndex()
-
+        return self.createIndex(row, column, childItem)
+        
 
     def parent(self, index):
 
@@ -138,13 +137,13 @@ class PkgModel (QAbstractItemModel) :
 
         childItem = index.internalPointer()
         
-        parentItem = self.parent_map[ id(childItem) ]
+        parentItem = self.parent_map[id(childItem)]
         
         if (parentItem == self.rootItem):
             return QtCore.QModelIndex()
         
         else:
-            row = self.row_map[ id(parentItem) ]
+            row = self.row_map[id(parentItem)]
             return self.createIndex(row, 0, parentItem)
 
 
@@ -155,6 +154,7 @@ class PkgModel (QAbstractItemModel) :
         else:
             parentItem = parent.internalPointer()
 
+        
         try:
             return len(parentItem)
         except:
@@ -430,13 +430,14 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
-        
-        if(isinstance(obj, NodeFactory)):
-            node = obj.instantiate()
-            self.main_win.session.add_workspace(node)
-            self.main_win.open_widget_tab(node)
 
-        if(isinstance(obj, Package)):
+        if(isinstance(obj, SubGraphFactory)):
+            self.edit_node()
+
+        elif(isinstance(obj, NodeFactory)):
+            self.instantiate_node()
+            
+        elif(isinstance(obj, Package)):
             # Display URL
             urlstr = obj.get_metainfo('url')
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
@@ -467,39 +468,53 @@ class NodeFactoryView(object):
         
         if(isinstance(obj, NodeFactory)):
             menu = QtGui.QMenu(self)
-            action = menu.addAction("Edit Node Sources")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_source)
+            action = menu.addAction("Instantiate")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.instantiate_node)
+
+            action = menu.addAction("Edit")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_node)
 
             menu.move(event.globalPos())
             menu.show()
 
 
-    def edit_source(self):
-        """ Display the source of a Node """
-        
+    def instantiate_node(self):
+        """ Instantiate Node : open a dialog """
+
         item = self.currentIndex()
         obj =  item.internalPointer()
         if(not isinstance(obj, NodeFactory)):
             return
 
         # Open Code editor dialog
-        import code_editor
         dialog = QtGui.QDialog(self)
         dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget = code_editor.NodeCodeEditor(dialog)
         dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        
+
+        node = obj.instantiate()
+        widget = obj.instantiate_widget(node, parent=dialog)
+                
         vboxlayout = QtGui.QVBoxLayout(dialog)
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(5)
         vboxlayout.addWidget(widget)
 
         dialog.setWindowTitle(obj.get_id())
-        
-        widget.edit_class(obj)
         dialog.show()
 
+
+    def edit_node(self):
+        """ Edit Node in tab workspace"""
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
         
+        if(isinstance(obj, NodeFactory)):
+            self.main_win.session.add_workspace(obj)
+            self.main_win.open_widget_tab(obj)
+
+        
+       
 
 class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """
