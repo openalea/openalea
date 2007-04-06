@@ -19,12 +19,12 @@ QT4 Main window
 """
 
 __license__= "CeCILL v2"
-__revision__=" $Id: mainwindow.py 453 2007-04-05 16:53:45Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from PyQt4 import QtCore, QtGui
 import ui_newgraph
-
+import os
 
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
@@ -56,7 +56,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         # Test if name is correct
         name = str(self.nameEdit.text())
-        if(self.get_package().has_key(name)):
+        if(not name or self.get_package().has_key(name)):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                             "The Name is already use")
             return
@@ -90,29 +90,65 @@ import ui_newpackage
 
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
-
     
-    def __init__(self, parent=None):
+    def __init__(self, pkgs, name="", metainfo={}, parent=None):
+        """ pkgs : list of existing package name """
         
         QtGui.QDialog.__init__(self, parent)
         ui_newpackage.Ui_NewPackageDialog.__init__(self)
+        self.setupUi(self)
 
+        self.pkgs = pkgs
+        self.connect(self.pathButton, QtCore.SIGNAL("clicked()"), self.path_clicked)
+
+        from openalea.core import get_wralea_home_dir
+        self.pathEdit.setText(get_wralea_home_dir())
+
+
+    def path_clicked(self):
+
+        # Test Path
+        path = str(self.pathEdit.text())
+        result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", path)
+    
+        if(result):
+            self.pathEdit.setText(result)
+        
 
     def accept(self):
 
         # Test if name is correct
+        name = str(self.nameEdit.text())
+        if(not name or name in self.pkgs):
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                            "The Name is already use")
+            return
+
+        # Test Path
+        path = str(self.pathEdit.text())
+        if(not os.path.isdir(path)):
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "Invalid Path")
+            return
+
         QtGui.QDialog.accept(self)
 
 
     def get_data(self):
         """
-        Return the dialog data in a dictionnary
+        Return a tuple (name, metainfo, path)
+        metainfo is a dictionnary
         """
-
-#         name = str(self.nameEdit.text())
-#         category = str(self.categoryEdit.currentText().toAscii())
-#         description = str(self.descriptionEdit.text().toAscii())
+        name = str(self.nameEdit.text())
+        path = str(self.pathEdit.text())
+        metainfo = dict(
+            description=str(self.descriptionEdit.text()),
+            version=str(self.versionEdit.text()),
+            license=str(self.licenseEdit.text()),
+            authors=str(self.authorsEdit.text()),
+            institutes=str(self.institutesEdit.text()),
+            url=str(self.urlEdit.text()),
+            )
         
-#         return (name, self.inBox.value(), self.outBox.value(), self.get_package(),
-#                 category, description)
+        return (name, metainfo, path)
    

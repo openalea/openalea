@@ -14,6 +14,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+
 __doc__="""
 Python code editor
 """
@@ -24,24 +25,26 @@ __revision__=" $Id$"
 
 from PyQt4 import QtCore, QtGui
 
+from openalea.core.core import FactoryWidget
 
 
-class NodeCodeEditor(QtGui.QWidget):
+class NodeCodeEditor(FactoryWidget, QtGui.QWidget):
     """ Default node editor """
 
-    def __init__(self, parent):
+    def __init__(self, factory, parent=None):
         
         QtGui.QWidget.__init__(self, parent)
+        FactoryWidget.__init__(self, factory)
 
         self.src = None
         self.textedit = self.get_editor()
 
         vboxlayout = QtGui.QVBoxLayout(self)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
+        vboxlayout.setMargin(1)
+        vboxlayout.setSpacing(1)
         hboxlayout = QtGui.QHBoxLayout()
-        hboxlayout.setMargin(3)
-        hboxlayout.setSpacing(5)
+        hboxlayout.setMargin(1)
+        hboxlayout.setSpacing(1)
         self.but1 = QtGui.QPushButton("Apply changes", self)
         self.but2 = QtGui.QPushButton("Save changes", self)
         hboxlayout.addWidget(self.but1)
@@ -54,6 +57,8 @@ class NodeCodeEditor(QtGui.QWidget):
 
         self.connect(self.but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
         self.connect(self.but2, QtCore.SIGNAL("clicked()"), self.save_changes)
+
+        self.edit_class(factory)
         
 
     def get_editor(self):
@@ -67,15 +72,15 @@ class NodeCodeEditor(QtGui.QWidget):
             
             textedit = QsciScintilla()
             textedit.setLexer(QsciLexerPython())
-            textedit.setMinimumWidth(500)
-            textedit.setMinimumHeight(400)
+            textedit.setMinimumWidth(200)
+            textedit.setMinimumHeight(200)
 
             
         except:
             textedit = QtGui.QTextEdit(self)
             textedit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
-            textedit.setMinimumWidth(500)
-            textedit.setMinimumHeight(400)
+            textedit.setMinimumWidth(200)
+            textedit.setMinimumHeight(200)
 
         return textedit
 
@@ -97,15 +102,14 @@ class NodeCodeEditor(QtGui.QWidget):
         
 
     def edit_class(self, nodefactory):
-        """
-        Open class source in editor,
-        """
-        self.factory = nodefactory
+        """ Open class source in editor """
+        
         try:
             self.src = nodefactory.get_node_src()
             self.textedit.setText(self.src)
             self.label.setText("Module : " + self.factory.nodemodule_path)
-        except:
+        except Exception, e:
+            print e
             self.src = None
             self.but1.setEnabled(False)
             self.but2.setEnabled(False)

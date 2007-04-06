@@ -6,6 +6,7 @@
 	<file>arbreicon.png</file>
 	<file>ccmime.png</file>
 	<file>search.png</file>	
+	<file>diagram.png</file>	
         <file>datapool.png</file>	
 	<file>splash.png</file>
     </qresource>
