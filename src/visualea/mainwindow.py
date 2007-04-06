@@ -28,7 +28,6 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from pycutext import PyCutExt
 
-
 from openalea.core import cli
 from code import InteractiveInterpreter as Interpreter
 
@@ -40,6 +39,8 @@ import metainfo
 
 from openalea.core.subgraph import SubGraphFactory
 from openalea.core.observer import AbstractListener
+
+from dialogs import NewGraph, NewPackage
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
@@ -127,13 +128,17 @@ class MainWindow(QtGui.QMainWindow,
                      self.clear_data_pool)
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"),
                      self.search_node)
-
         self.connect(self.action_New_Network, SIGNAL("activated()"),
                      self.new_graph)
         self.connect(self.actionNew_Python_Node, SIGNAL("activated()"),
                      self.new_python_node)
-                
-        
+        self.connect(self.actionNew_Package, SIGNAL("activated()"),
+                     self.new_package)
+#         self.connect(self.action_Delete, SIGNAL("activated()"),
+#                      self.delete_selection)
+#         self.connect(self.action_Edit_sources, SIGNAL("activated()"),
+#                      self.edit_sources)
+
         # final init
         self.session = session
         workspace_factory = self.session.user_pkg['Workspace']
@@ -371,15 +376,14 @@ class MainWindow(QtGui.QMainWindow,
     def new_graph(self):
         """ Create a new graph """
 
-        # Get default package
-        pkg = self.session.user_pkg
-
-        dialog = NewGraph("New Dataflow", pkg, self.pkgmanager.category.keys())
+        pkgs = self.pkgmanager.get_user_packages()
+        
+        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys())
         ret = dialog.exec_()
 
         if(ret>0):
-            (name, nin, nout, cat, desc) = dialog.get_data()
-
+            (name, nin, nout, pkg, cat, desc) = dialog.get_data()
+            
             newfactory = SubGraphFactory(self.pkgmanager, name=name,
                                          description= desc,
                                          category = cat,
@@ -402,24 +406,27 @@ class MainWindow(QtGui.QMainWindow,
         """ Create a new node """
 
         # Get default package
-        pkg = self.session.user_pkg
+        pkgs = self.pkgmanager.get_user_packages()
 
-        dialog = NewGraph("New Python Node", pkg, self.pkgmanager.category.keys())
+        dialog = NewGraph("New Python Node", pkgs, self.pkgmanager.category.keys())
         ret = dialog.exec_()
 
         if(ret>0):
-            (name, nin, nout, cat, desc) = dialog.get_data()
+            (name, nin, nout, pkg, cat, desc) = dialog.get_data()
 
-            newfactory = UserFactory(name=name,
-                                     description= desc,
-                                     category = cat,
-                                     )
+            pkg.create_user_factory(name=name,
+                                    description= desc,
+                                    category = cat,
+                                    )
             
-            pkg.add_factory(newfactory)
             self.pkgmanager.add_package(pkg)
-
             self.reinit_treeview()
 
+
+    def new_package(self):
+        """ Create a new user package """
+
+        pass
         
 
     def exec_python_script(self):
@@ -502,15 +509,18 @@ class MainWindow(QtGui.QMainWindow,
 
         self.session.save(filename)
 
+
     def clear_data_pool(self):
 
         self.session.datapool.clear()
+
 
     def search_node(self):
         """ Activated when search line edit is validated """
 
         results = self.pkgmanager.search_node(str(self.search_lineEdit.text()))
         self.search_model.set_results(results)
+        
 
     def find_node(self):
         """ Find node Command """
@@ -519,55 +529,5 @@ class MainWindow(QtGui.QMainWindow,
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
        
-
-
-################################################################################
-import ui_newgraph
-
-class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
-    """ New network dialog """
-    
-    def __init__(self, title, package, categories, parent=None):
-        """
-        Constructor
-        @param pacakge : the package the graph will be added to
-        """
-
-        QtGui.QDialog.__init__(self, parent)
-        ui_newgraph.Ui_NewGraphDialog.__init__(self)
-        self.setWindowTitle(title)
-
-        self.setupUi(self)
-
-        self.package = package
-        self.categoryEdit.addItems(categories)
-
-
-    def accept(self):
-
-        # Test if name is correct
-        name = str(self.nameEdit.text())
-        if(self.package.has_key(name)):
-            mess = QtGui.QMessageBox.warning(self, "Error",
-                                            "The Name is already use")
-            return
-
-        
-        QtGui.QDialog.accept(self)
-
-
-    def get_data(self):
-        """
-        Return the dialog data in a tuple
-        (name, nin, nout, category, description)
-        """
-
-        name = str(self.nameEdit.text())
-        category = str(self.categoryEdit.currentText().toAscii())
-        description = str(self.descriptionEdit.text().toAscii())
-
-        return (name, self.inBox.value(), self.outBox.value(), category, description)
-    
-        
 
 

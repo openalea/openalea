@@ -169,6 +169,39 @@
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
    </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+    <addaction name="action_Execute_script" />
+   </widget>
+   <widget class="QMenu" name="menuDataPool" >
+    <property name="title" >
+     <string>&amp;DataPool</string>
+    </property>
+    <addaction name="actionClear_Data_Pool" />
+   </widget>
+   <widget class="QMenu" name="menu_Package" >
+    <property name="title" >
+     <string>&amp;Package Manager</string>
+    </property>
+    <widget class="QMenu" name="menu_Wralea_2" >
+     <property name="title" >
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="action_Add_File" />
+     <addaction name="action_Auto_Search" />
+    </widget>
+    <addaction name="menu_Wralea_2" />
+    <addaction name="actionFind_Node" />
+    <addaction name="separator" />
+    <addaction name="action_New_Network" />
+    <addaction name="actionNew_Python_Node" />
+    <addaction name="actionNew_Package" />
+    <addaction name="separator" />
+    <addaction name="action_Delete" />
+    <addaction name="action_Edit_sources" />
+   </widget>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
      <string>&amp;File</string>
@@ -179,12 +212,6 @@
     <addaction name="actionSave_as" />
     <addaction name="separator" />
     <addaction name="action_Quit" />
-   </widget>
-   <widget class="QMenu" name="menu_Python" >
-    <property name="title" >
-     <string>P&amp;ython</string>
-    </property>
-    <addaction name="action_Execute_script" />
    </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="windowIcon" >
@@ -200,27 +227,9 @@
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
    </widget>
-   <widget class="QMenu" name="menu_Package" >
-    <property name="title" >
-     <string>&amp;Package</string>
-    </property>
-    <widget class="QMenu" name="menu_Wralea_2" >
-     <property name="title" >
-      <string>&amp;Import</string>
-     </property>
-     <addaction name="action_Add_File" />
-     <addaction name="action_Auto_Search" />
-    </widget>
-    <addaction name="menu_Wralea_2" />
-    <addaction name="actionFind_Node" />
-    <addaction name="separator" />
-    <addaction name="action_New_Network" />
-    <addaction name="actionNew_Python_Node" />
-    <addaction name="separator" />
-    <addaction name="actionClear_Data_Pool" />
-   </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
+   <addaction name="menuDataPool" />
    <addaction name="menu_Workspace" />
    <addaction name="menu_Python" />
    <addaction name="menu_Help" />
@@ -293,7 +302,7 @@
   </action>
   <action name="action_New_Network" >
    <property name="text" >
-    <string>&amp;New Network</string>
+    <string>New &amp;Graph</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+G</string>
@@ -366,7 +375,22 @@
   </action>
   <action name="actionNew_Python_Node" >
    <property name="text" >
-    <string>New Python Node</string>
+    <string>New Python &amp;Node</string>
+   </property>
+  </action>
+  <action name="actionNew_Package" >
+   <property name="text" >
+    <string>New &amp;Package</string>
+   </property>
+  </action>
+  <action name="action_Delete" >
+   <property name="text" >
+    <string>&amp;Delete</string>
+   </property>
+  </action>
+  <action name="action_Edit_sources" >
+   <property name="text" >
+    <string>&amp;Edit</string>
    </property>
   </action>
  </widget>
