@@ -46,8 +46,14 @@ class UserPackage(Package):
         self.path = path
         if(not os.path.isdir(self.path)):
            self.path = os.path.dirname(self.path)
+           
         # wralea.py full path
-        self.wralea_path = None             
+        self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(name))
+
+
+    def get_wralea_path(self):
+        """ Return the full path of the wralea.py (if set) """
+        return self.wralea_path
 
 
     def write(self):
@@ -59,7 +65,7 @@ class UserPackage(Package):
         if(not os.path.isdir(self.path)):
             os.mkdir(self.path)
 
-        self.wralea_path = writer.write_wralea(self.path)
+        writer.write_wralea(self.wralea_path)
         
 
     def create_user_factory(self, name, category, description):
@@ -103,8 +109,8 @@ class UserPackage(Package):
                               )
 
         self.add_factory(factory)
+        self.write()
         
         return factory
-
 
 

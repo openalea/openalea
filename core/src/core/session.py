@@ -48,19 +48,18 @@ class Session(Observed):
         if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
             self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
-
         self.workspaces = []
         self.datapool = DataPool()
         self.clear()
 
        
-    def add_workspace(self, node):
-        """ Open a new workspace to the session containing a node """
+    def add_workspace(self, factory):
+        """ Open a new workspace in the session"""
 
-        self.workspaces.append(node)
+        self.workspaces.append(factory)
         self.notify_listeners()
-        return node
-
+        return factory
+    
 
     def close_workspace(self, index):
         """ Close workspace at index """

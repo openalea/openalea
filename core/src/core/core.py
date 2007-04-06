@@ -329,7 +329,7 @@ class NodeFactory(Observed):
         return node
                     
 
-    def instantiate_widget(self, node, parent=None, edit = False):
+    def instantiate_widget(self, node, parent=None):
         """ Return the corresponding widget initialised with node """
 
         if(node == None):
@@ -337,7 +337,7 @@ class NodeFactory(Observed):
 
         modulename = self.widgetmodule_name
         if(not modulename) :   modulename = self.nodemodule_name
-
+        
         if(modulename and self.widgetclass_name):
 
             (file, pathname, desc) = imp.find_module(modulename)
@@ -345,19 +345,29 @@ class NodeFactory(Observed):
             if(file) : file.close()
 
             widgetclass = module.__dict__[self.widgetclass_name]
-
             return widgetclass(node, parent)
-        
+
+        # if no widget declared, we create a default one
         else:
             try:
-                # if no widget declared, we create a default one
+                
                 from openalea.visualea.node_widget import DefaultNodeWidget
                 return DefaultNodeWidget(node, parent)
             
             except ImportError:
                 raise
-                #raise InstantiationError()
-                
+
+
+    def edit_widget(self, parent=None):
+        """ Return the widget to edit the factory """
+        try:
+            
+            from openalea.visualea.code_editor import NodeCodeEditor
+            return NodeCodeEditor(self, parent)
+            
+        except ImportError:
+            raise
+            
 
     def get_writer(self):
         """ Return the writer class """
@@ -456,14 +466,12 @@ Factory = NodeFactory
 
 
 
-                 
-
 
 ###############################################################################
 
 class NodeWidget(AbstractListener):
     """
-    Base class for all node widget classes.
+    Base class for node instance widgets.
     """
 
     def __init__(self, node):
@@ -495,6 +503,15 @@ class NodeWidget(AbstractListener):
 
     def is_empty( self ):
         return False
+        
+
+class FactoryWidget(object):
+    """ Base class for factory widgets."""
+
+    def __init__(self, factory):
+        """ Init the widget with the associated node """
+        self.factory = factory
+
 
 
 ###############################################################################
