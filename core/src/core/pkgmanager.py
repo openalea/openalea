@@ -233,7 +233,7 @@ class PackageManager(object):
         # Create directory
         if(not path):
             from openalea.core import  get_wralea_home_dir
-            path = os.path.join(get_wralea_home_dir(), name)
+            path = get_wralea_home_dir()
         
         if(not os.path.isdir(path)):
             os.mkdir(path)
