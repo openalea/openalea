@@ -74,7 +74,8 @@ class UserPackage(Package):
         writer.write_wralea(self.wralea_path)
         
 
-    def create_user_factory(self, name, category, description):
+    def create_user_factory(self, name, category, description,
+                            nbin, nbout):
         """
         Return a new user factory
         This function create a new python module in the package directory
@@ -93,17 +94,28 @@ class UserPackage(Package):
                    '\n'+\
                    '    def __init__(self):\n'+\
                    '        Node.__init__(self)\n'+\
-                   '        self.add_input( name = "X", interface = None, value = None)\n'+\
-                   '        self.add_output( name = "Y", interface = None) \n'+\
+                   '$INS'+\
+                   '$OUTS'+\
                    '\n'+\
                    '\n'+\
                    '    def __call__(self, inputs):\n'+\
                    '        return inputs\n'
+
+        inlist = ""
+        outlist = ""
+        for i in range(nbin):
+            inlist += "        self.add_input(name = 'IN%i', interface = None, value = None)\n"%(i)
+        for i in range(nbout):
+            outlist += "        self.add_output(name = 'OUT%i', interface = None)\n"%(i)
         
+        import string
+        template = string.Template(template)
+        nodecode = template.safe_substitute(INS=inlist, OUTS=outlist )
+                
         module_path = os.path.join(localdir, "%s.py"%(name))
         
         file = open(module_path, 'w')
-        file.write(template)
+        file.write(nodecode)
         file.close()
 
         # Register the factory
