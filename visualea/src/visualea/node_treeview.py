@@ -434,15 +434,10 @@ class NodeFactoryView(object):
         if(isinstance(obj, SubGraphFactory)):
             self.edit_node()
 
-        elif(isinstance(obj, NodeFactory)):
-            self.instantiate_node()
+        else:
+            self.open_node()
             
-        elif(isinstance(obj, Package)):
-            # Display URL
-            urlstr = obj.get_metainfo('url')
-            QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
-
-            
+           
 
     def get_item_info(self, item):
         """ Return (package_id, factory_id, mimetype) corresponding to item """
@@ -465,42 +460,59 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
+        menu = None
         
         if(isinstance(obj, NodeFactory)):
             menu = QtGui.QMenu(self)
-            action = menu.addAction("Instantiate")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.instantiate_node)
+            action = menu.addAction("Open")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
 
             action = menu.addAction("Edit")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_node)
 
+            
+        elif(isinstance(obj, Package)):
+            menu = QtGui.QMenu(self)
+            action = menu.addAction("Open URL")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+
+
+        if(menu):
             menu.move(event.globalPos())
             menu.show()
 
 
-    def instantiate_node(self):
+
+
+    def open_node(self):
         """ Instantiate Node : open a dialog """
 
         item = self.currentIndex()
         obj =  item.internalPointer()
-        if(not isinstance(obj, NodeFactory)):
-            return
-
-        # Open Code editor dialog
-        dialog = QtGui.QDialog(self)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-        node = obj.instantiate()
-        widget = obj.instantiate_widget(node, parent=dialog)
+        
+        if(isinstance(obj, NodeFactory)):
+        
+            # Open Code editor dialog
+            dialog = QtGui.QDialog(self)
+            dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            
+            node = obj.instantiate()
+            widget = obj.instantiate_widget(node, parent=dialog)
                 
-        vboxlayout = QtGui.QVBoxLayout(dialog)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
-        vboxlayout.addWidget(widget)
+            vboxlayout = QtGui.QVBoxLayout(dialog)
+            vboxlayout.setMargin(3)
+            vboxlayout.setSpacing(5)
+            vboxlayout.addWidget(widget)
 
-        dialog.setWindowTitle(obj.get_id())
-        dialog.show()
+            dialog.setWindowTitle(obj.get_id())
+            dialog.show()
+
+        elif(isinstance(obj, Package)):
+            # Display URL
+            urlstr = obj.get_metainfo('url')
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
+
 
 
     def edit_node(self):
@@ -512,6 +524,7 @@ class NodeFactoryView(object):
         if(isinstance(obj, NodeFactory)):
             self.main_win.session.add_workspace(obj)
             self.main_win.open_widget_tab(obj)
+
 
         
        

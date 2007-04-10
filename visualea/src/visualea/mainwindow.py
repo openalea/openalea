@@ -130,10 +130,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
         self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
-#         self.connect(self.action_Delete, SIGNAL("activated()"),
-#                      self.delete_selection)
-#         self.connect(self.action_Edit_sources, SIGNAL("activated()"),
-#                      self.edit_sources)
 
         # final init
         self.session = session
@@ -406,8 +402,10 @@ class MainWindow(QtGui.QMainWindow,
             (name, nin, nout, pkg, cat, desc) = dialog.get_data()
 
             pkg.create_user_factory(name=name,
-                                    description= desc,
-                                    category = cat,
+                                    description=desc,
+                                    category=cat,
+                                    nbin=nin,
+                                    nbout=nout,
                                     )
             
             self.pkgmanager.add_package(pkg)
@@ -536,4 +534,6 @@ class MainWindow(QtGui.QMainWindow,
         self.search_lineEdit.setFocus()
        
 
+
+        
 
