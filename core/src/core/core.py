@@ -40,7 +40,9 @@ class InstantiationError(Exception):
 
 from observer import Observed, AbstractListener
 import imp
-import os
+import inspect
+import os, sys
+
 
 class Node(Observed):
     """
@@ -218,7 +220,7 @@ class Node(Observed):
     # Functions used by the node evaluator
     def eval(self):
         """
-        Evaluate the node by calling __call__
+        Evaluate the node by calling __call__python inspect performance issue
         Return True if the node has been calculated
         """
 
@@ -263,30 +265,27 @@ class NodeFactory(Observed):
                  nodeclass = None,
                  widgetmodule = None,
                  widgetclass = None,
+                 search_path = [],
                  **kargs):
         
         """
         Create a node factory.
         
-        @param name : user name for the node (must be unique)
-        @param description : description of the node
-        @param category : category of the node
-        @param nodemodule : 'python module to import for node'
-        @param nodeclass :  node class name to be created
-        @param widgetmodule : 'python module to import for widget'
-        @param widgetclass : widget class name
+        @param name : user name for the node (must be unique) (String)
+        @param description : description of the node (String)
+        @param category : category of the node (String)
+        @param nodemodule : python module to import for node (String)
+        @param nodeclass :  node class name to be created (String)
+        @param widgetmodule : python module to import for widget (String)
+        @param widgetclass : widget class name (String)
+
+        @param seach_path (opt) : list of directories where to search for module
         
-        @type name : String
-        @type description : String
-        @type category : String
-        @type nodemodule : String
-        @type nodeclass : String
-        @type widgetmodule : String
-        @type widgetclass : String
         """
         
         Observed.__init__(self)
-        
+
+        # Factory info
         self.name = name
         self.description = description
         self.category = category
@@ -300,7 +299,16 @@ class NodeFactory(Observed):
         # Cache
         self.nodeclass = None
         self.nodemodule = None
+
+        # Module path
         self.nodemodule_path = None
+        self.search_path = search_path
+        
+        # Context directory
+        # inspect.stack()[1][1] is the caller python module
+        caller_dir = os.path.dirname(os.path.abspath(inspect.stack()[1][1]))
+        if(not caller_dir in self.search_path):
+            self.search_path.append(caller_dir)
         
 
     def get_id(self):
@@ -387,7 +395,8 @@ class NodeFactory(Observed):
 
         if(self.nodemodule_name):
             try:
-                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+                (file, pathname, desc) = imp.find_module(self.nodemodule_name,
+                                                         self.search_path + sys.path)
                 self.nodemodule_path = pathname
                 self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
                 
@@ -410,7 +419,7 @@ class NodeFactory(Observed):
 
         module = self.get_node_module()
 
-        import inspect, linecache
+        import linecache
         # get the code
         linecache.checkcache(self.nodemodule_path)
         cl = module.__dict__[self.nodeclass_name]

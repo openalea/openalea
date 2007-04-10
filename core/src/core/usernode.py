@@ -38,14 +38,20 @@ class FactoryExistsError(Exception):
 class UserPackage(Package):
     """ Package user editable and persistent """
 
-    def __init__(self, name, metainfo, path):
-        """ @param path : directory where to store wralea and module """
+    def __init__(self, name, metainfo, path=None):
+        """ @param path : directory where to store wralea and module files """
         
         Package.__init__(self, name, metainfo)
+
         # package directory
-        self.path = path
-        if(not os.path.isdir(self.path)):
-           self.path = os.path.dirname(self.path)
+        if(not path):
+            import inspect
+            self.path = os.path.dirname(
+                os.path.abspath(inspect.stack()[1][1]))
+        else:    
+            self.path = path
+            if(not os.path.isdir(self.path)):
+                self.path = os.path.dirname(self.path)
            
         # wralea.py full path
         self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(name))
@@ -106,6 +112,7 @@ class UserPackage(Package):
                               description=description,
                               nodemodule=name,
                               nodeclass=name,
+                              search_path = [localdir]
                               )
 
         self.add_factory(factory)
