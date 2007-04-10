@@ -4,8 +4,8 @@
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
-#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#                       Christophe Pradal <christophe.prada@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -42,6 +42,7 @@ from observer import Observed, AbstractListener
 import imp
 import inspect
 import os, sys
+import types
 
 
 class Node(Observed):
@@ -50,7 +51,12 @@ class Node(Observed):
     A Node is a callable object with typed inputs and outputs.
     """
 
-    def __init__(self):
+    def __init__(self, inputs=(), outputs=(), func_call=None):
+        """
+        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
+        @param outputs   : list of dict(name='X', interface=IFloat)
+        @param func_call : A function
+        """
 
         Observed.__init__(self)
 
@@ -77,15 +83,23 @@ class Node(Observed):
         # Internal Data (caption...)
         self.internal_data = {}
         self.internal_data['caption'] = str(self.__class__.__name__)
-        
 
+        # Process in and out
+        for d in inputs:
+            self.add_input(**d)
+        for d in outputs:
+            self.add_output(**d)
+
+        self.func_call = func_call
+
+            
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
-        
-        raise RuntimeError('Node function not implemented.')
 
+        if(self.func_call):
+            return self.func_call(*inputs)
+                
     # Accessor
-    
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
@@ -296,6 +310,9 @@ class NodeFactory(Observed):
 
         self.package = None
 
+        self.inputs = kargs.get('inputs', ())
+        self.outputs = kargs.get('outputs', ())
+
         # Cache
         self.nodeclass = None
         self.nodemodule = None
@@ -329,10 +346,27 @@ class NodeFactory(Observed):
         @param call_stack : the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
-
+        
         module = self.get_node_module()
         classobj = module.__dict__[self.nodeclass_name]
-        node = classobj()
+
+        # If class is not a Node, create a Node class
+        if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
+
+            # Check inputs and outputs
+            if(not self.inputs) : self.inputs = get_inputs_desc(classobj)
+            if(not self.outputs) : self.outputs = (dict(name="out", interface=None),)
+
+            # instantiate if we have a class
+            if(type(classobj) == types.TypeType or
+               type(classobj) == types.ClassType):
+                classobj = classobj()
+            
+            node = Node(self.inputs, self.outputs, classobj)
+            node.set_caption(self.name)
+            
+        else:
+            node = classobj()
         node.factory = self
         return node
                     
@@ -348,7 +382,8 @@ class NodeFactory(Observed):
         
         if(modulename and self.widgetclass_name):
 
-            (file, pathname, desc) = imp.find_module(modulename)
+            (file, pathname, desc) = imp.find_module(modulename,
+                                                     self.search_path + sys.path)
             module = imp.load_module(modulename, file, pathname, desc)
             if(file) : file.close()
 
@@ -394,21 +429,19 @@ class NodeFactory(Observed):
             return self.nodemodule
 
         if(self.nodemodule_name):
-            try:
-                (file, pathname, desc) = imp.find_module(self.nodemodule_name,
-                                                         self.search_path + sys.path)
-                self.nodemodule_path = pathname
-                self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+            
+            (file, pathname, desc) = imp.find_module(self.nodemodule_name,
+                                                     self.search_path + sys.path)
+            self.nodemodule_path = pathname
+            self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
                 
-                if(file) :
-                    file.close()
-                return self.nodemodule
+            if(file) : file.close()
+            return self.nodemodule
                 
-            except ImportError:
-                #raise InstantiationError()
-                raise
         else :
-            raise ImportError()
+            # By default use __builtin module
+            import __builtin__
+            return __builtin__
     
 
     def get_node_src(self):
@@ -468,7 +501,6 @@ class NodeFactory(Observed):
         py_compile.compile(self.nodemodule_path)
         
         
-
 
 #class Factory:
 Factory = NodeFactory
@@ -622,6 +654,32 @@ class Package(dict):
         return factory
     
         
+
+
+################################################################################
+
+# Utility functions
+
+def get_inputs_desc(f):
+    """ Return the list of dict(name='name', interface=None, value=None) correcponding
+    to the function parameters"""
+
+    try:
+        if(not isinstance(f, types.FunctionType)):
+            f = f.__call__.im_func
+        
+        varnames = f.func_code.co_varnames
+        defaults = f.func_defaults
+    except:
+        return ()
+      
+    args= []
+    for i,name in enumerate(varnames):
+        interface = None
+        cur_default = None
+        args.append(dict(name=name, interface=interface, value=cur_default))
+
+    return args
 
 
 
