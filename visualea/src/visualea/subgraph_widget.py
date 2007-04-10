@@ -458,17 +458,19 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
 from openalea.core.observer import AbstractListener
 
 def port_name( name, interface ):
-    iname= 'Any'
-    if interface:
+    """ Return the port name str """
+    iname = 'Any'
+    if(interface):
         try:
-            iname= interface.__name__
+            iname = interface.__name__
         except AttributeError:
             try:
-                iname= interface.__class__.__name__
+                iname = interface.__class__.__name__
             except AttributeError:
-                iname= str(interface)
+                iname = str(interface)
     return '%s(%s)'%(name,iname)
     
+
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the subgraphwidget """
 
@@ -568,7 +570,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             for i in range(len(self.connector_out)):
                 c = self.connector_out[i]
                 c.adjust_position(self, i, len(self.connector_out))
-
 
 
     def get_caption(self):
