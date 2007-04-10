@@ -167,8 +167,9 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         
         if(self.newedge):
             item = self.itemAt(event.pos())
-            if(item and isinstance(item, ConnectorIn) and
-               isinstance(self.newedge.connector(), ConnectorOut)):
+            if(item and isinstance(item, ConnectorIn)
+               and isinstance(self.newedge.connector(), ConnectorOut)
+               and not item.is_connected() ):
 
                 self.notification_enabled.append(False)
                 self.connect_node( self.newedge.connector(), item)
