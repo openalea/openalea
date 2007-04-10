@@ -99,8 +99,13 @@ class PyPackageReader(PackageReader):
         basename = os.path.basename(self.filename)
         basedir = os.path.abspath( os.path.dirname( self.filename ))
 
+        # Update sys.path if necessary
         if(not basedir in sys.path):
             sys.path.append(basedir)
+            syspath_updated = True
+        else :
+            syspath_updated = False            
+            
         
         modulename = self.filename_to_module(basename)
 
@@ -116,6 +121,10 @@ class PyPackageReader(PackageReader):
         
         if(file) :
             file.close()
+
+        # Recover syspath
+        if(syspath_updated):
+         sys.path.remove(basedir)
 
         
 
@@ -138,7 +147,7 @@ def register_packages(pkgmanager):
 
     metainfo = $METAINFO 
 
-    pkg = UserPackage("$PKGNAME", metainfo, __file__)
+    pkg = UserPackage("$PKGNAME", metainfo)
 
     $FACTORY_DECLARATION
     
