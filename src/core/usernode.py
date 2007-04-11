@@ -87,41 +87,37 @@ class UserPackage(Package):
         localdir = self.path
 
         # Create the module file
-        template = 'from openalea.core import *\n'+\
-                   '\n'+\
-                   'class %s(Node):\n'%(name)+\
+        template = 'class %s(object):\n'%(name)+\
                    '    """  Doc... """ \n'+\
                    '\n'+\
                    '    def __init__(self):\n'+\
-                   '        Node.__init__(self)\n'+\
-                   '$INS'+\
-                   '$OUTS'+\
+                   '        pass\n'+\
                    '\n'+\
                    '\n'+\
-                   '    def __call__(self, inputs):\n'+\
-                   '        return inputs\n'
+                   '    def __call__(self, *inputs):\n'+\
+                   '        return None\n'
 
-        inlist = ""
-        outlist = ""
-        for i in range(nbin):
-            inlist += "        self.add_input(name = 'IN%i', interface = None, value = None)\n"%(i)
-        for i in range(nbout):
-            outlist += "        self.add_output(name = 'OUT%i', interface = None)\n"%(i)
-        
-        import string
-        template = string.Template(template)
-        nodecode = template.safe_substitute(INS=inlist, OUTS=outlist )
                 
         module_path = os.path.join(localdir, "%s.py"%(name))
         
         file = open(module_path, 'w')
-        file.write(nodecode)
+        file.write(template)
         file.close()
+
+        inputs = []
+        outputs = []
+        for i in range(nbin):
+            inputs.append(dict(name="IN%i"%(i), interface=None, value=None))
+        for i in range(nbout):
+            outputs.append(dict(name="OUT%i"%(i), interface=None))
+            
 
         # Register the factory
         factory = NodeFactory(name=name,
                               category=category,
                               description=description,
+                              inputs=inputs,
+                              outputs=outputs,
                               nodemodule=name,
                               nodeclass=name,
                               search_path = [localdir]
