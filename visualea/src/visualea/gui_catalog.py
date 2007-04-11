@@ -70,6 +70,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
     def valueChanged(self, newval):
 
         self.node.set_input_by_key(self.param_str, newval)
+
         
     def notify(self, sender, event):
         """ Notification sent by node """
@@ -319,22 +320,26 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         seq = self.node.get_input_by_key(self.param_str)
         seq.append(None)
         self.update_list()
+        self.node.unvalidate_input_by_key(self.param_str, False)    
 
 
     def buttonplus_clicked(self):
         seq = self.node.get_input_by_key(self.param_str)
         row = self.subwidget.currentRow()
+        if(row<0): return
         val = seq[row]
         del(seq[row])
         row = (row + 1) % (len(seq) + 1)
         seq.insert(row, val)
         self.update_list()
         self.subwidget.setCurrentRow(row)
+        self.node.unvalidate_input_by_key(self.param_str, False)    
         
 
     def buttonmoins_clicked(self):
         seq = self.node.get_input_by_key(self.param_str)
         row = self.subwidget.currentRow ()
+        if(row<0): return
         val = seq[row]
         del(seq[row])
         row -= 1
@@ -343,15 +348,18 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             seq.append(val)
         else:
             seq.insert(row, val)
+
         self.update_list()
         self.subwidget.setCurrentRow(row)
-
+        self.node.unvalidate_input_by_key(self.param_str, False)
+        
 
     def itemclick(self, item):
         self.subwidget.editItem(item)
 
 
     def itemchanged(self, item):
+        
         text = item.text()
         i = self.subwidget.currentRow()
         seq = self.node.get_input_by_key(self.param_str)
@@ -363,7 +371,9 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         except :
             item.setText(text)
             seq[i] = str(text)
-
+            
+        self.node.unvalidate_input_by_key(self.param_str, False)    
+            
             
     def keyPressEvent(self, e):
         if(self.connected): return
@@ -375,6 +385,8 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
                 row = self.subwidget.row(i)
                 self.subwidget.takeItem(row)
                 del(seq[row-1])
+        self.node.unvalidate_input_by_key(self.param_str, False)    
+
 
 
     def notify(self, sender, event):
@@ -467,6 +479,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
             key = str(text)
 
         dic[key] = None
+        self.node.unvalidate_input_by_key(self.param_str, False)
         self.update_list()
         
 
@@ -490,6 +503,8 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
             dic[key] = str(text)
             item.setText("%s : %s"%(str(key), str(text)))
 
+        self.node.unvalidate_input_by_key(self.param_str, False)
+
             
     def keyPressEvent(self, e):
         if(self.connected): return
@@ -503,6 +518,8 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
                 key = self.rowkey[row - 1]
                 del(seq[key])
                 del(self.rowkey[row - 1])
+
+            self.node.unvalidate_input_by_key(self.param_str, False)
 
 
     def notify(self, sender, event):
