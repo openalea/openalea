@@ -37,7 +37,7 @@ from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
-from openalea.core.subgraph import SubGraphFactory
+from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage
@@ -196,20 +196,20 @@ class MainWindow(QtGui.QMainWindow,
         cindex = self.tabWorkspace.currentIndex()
 
         try :
-            subgraph = self.index_nodewidget[cindex].node
-            modified = subgraph.graph_modified
+            graph = self.index_nodewidget[cindex].node
+            modified = graph.graph_modified
         except:
             modified = False
             
         if(modified):
             # Generate factory if user want
             ret = QtGui.QMessageBox.question(self, "Close Workspace",
-                                             "Subgraph has been modified.\n"+
+                                             "Graph has been modified.\n"+
                                              "Do you want to report changes to factory ?\n",
                                              QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
             if(ret == QtGui.QMessageBox.Yes):
-                subgraph.to_factory(subgraph.factory)
+                graph.to_factory(graph.factory)
         
 
         # Update session
@@ -311,15 +311,15 @@ class MainWindow(QtGui.QMainWindow,
         
 
     def export_to_factory(self):
-        """ Export current workspace subgraph to its factory """
+        """ Export current workspace composite node to its factory """
 
         cindex = self.tabWorkspace.currentIndex()
-        subgraph = self.index_nodewidget[cindex].node
-        subgraph.to_factory(subgraph.factory)
+        graph = self.index_nodewidget[cindex].node
+        graph.to_factory(graph.factory)
 
 
     def export_to_application(self):
-        """ Export current workspace subgraph to an Application """
+        """ Export current workspace composite node to an Application """
 
         mess = QtGui.QMessageBox.warning(self, "Error",
                                          "This functionality is not yet implemented")
@@ -371,7 +371,7 @@ class MainWindow(QtGui.QMainWindow,
         if(ret>0):
             (name, nin, nout, pkg, cat, desc) = dialog.get_data()
             
-            newfactory = SubGraphFactory(self.pkgmanager, name=name,
+            newfactory = CompositeNodeFactory(self.pkgmanager, name=name,
                                          description= desc,
                                          category = cat,
                                          )
@@ -466,11 +466,11 @@ class MainWindow(QtGui.QMainWindow,
         self.session.load(filename)
 
 
-    def export_subgraph(self):
-        """ Export all open subgraph to there factory"""
+    def export_graph(self):
+        """ Export all open graph to there factory"""
 
         ret = QtGui.QMessageBox.question(self, "Export",
-                                         "Subgraphs has been modified.\n"+
+                                         "Graphs have been modified.\n"+
                                          "Do you want to report changes to Package Manager ?\n",
                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
 
@@ -478,9 +478,9 @@ class MainWindow(QtGui.QMainWindow,
 
         for widget in self.index_nodewidget:
 
-            subgraph = widget.node
+            graph = widget.node
             try:
-                subgraph.to_factory(subgraph.factory)
+                graph.to_factory(graph.factory)
             except:
                 pass
 
@@ -490,13 +490,13 @@ class MainWindow(QtGui.QMainWindow,
         if(not self.session.session_filename):
             self.save_as()
         else :
-            self.export_subgraph()
+            self.export_graph()
             self.session.save(self.session.session_filename)
 
         
     def save_as(self):
 
-        self.export_subgraph()
+        self.export_graph()
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "OpenAlea Session",  QtCore.QDir.homePath(), "XML file (*.xml)")
 

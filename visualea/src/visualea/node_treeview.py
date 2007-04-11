@@ -27,7 +27,7 @@ from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.core import NodeFactory, Package
-from openalea.core.subgraph import SubGraphFactory
+from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
@@ -87,7 +87,7 @@ class PkgModel (QAbstractItemModel) :
             elif(isinstance(item, Category)):
                 return QVariant(QtGui.QPixmap(":/icons/category.png"))
 
-            elif( isinstance(item, SubGraphFactory)):
+            elif( isinstance(item, CompositeNodeFactory)):
                return QVariant(QtGui.QPixmap(":/icons/diagram.png"))
            
             elif( isinstance(item, NodeFactory)):
@@ -432,7 +432,7 @@ class NodeFactoryView(object):
         item = self.currentIndex()
         obj =  item.internalPointer()
 
-        if(isinstance(obj, SubGraphFactory)):
+        if(isinstance(obj, CompositeNodeFactory)):
             self.edit_node()
 
         else:
@@ -576,7 +576,7 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
 
-        AbstractListener.initialise(self, datapool)
+        self.initialise(datapool)
 
 
     def notify(self, sender, event):
