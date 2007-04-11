@@ -572,7 +572,7 @@ class Package(dict):
 
 
     def __init__(self, name, metainfo) :
-	"""
+    """
         Create a Package
 
         @param name : a unique string used as a unique identifier for the package
@@ -585,7 +585,7 @@ class Package(dict):
             description : a string for the package description
             publication : optional string for publications
             
-	"""
+    """
 
         dict.__init__(self)
         

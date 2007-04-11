@@ -26,8 +26,6 @@ __revision__=" $Id$ "
 
 import weakref
 
-
-
 class Observed(object):
     """ Observed Object """
 
@@ -50,10 +48,10 @@ class Observed(object):
         Send a notification to all listeners
         @param event : an object to pass to the notify function
         """
-        
-        for wr in self.listeners :
-            l = wr()
-            l.notify(self, event)
+        [ ref().notify( self, event ) for ref in self.listeners ]
+        #for wr in self.listeners :
+        #    l = wr()
+        #    l.notify(self, event)
 
 #     def __del__(self):
 #         print 'destroy observed', self
@@ -64,8 +62,8 @@ class AbstractListener(object):
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
-        if(observed):
-            observed.register_listener(self)
+        assert observed
+        observed.register_listener(self)
 
     def notify (self, sender, event=None):
         """
@@ -73,7 +71,7 @@ class AbstractListener(object):
         @param sender : the observed object which send notification
         @param event : the data associated to the notification
         """
-        raise RuntimeError()
+        raise NotImplementedError()
     
 #     def __del__(self):
 #         print 'destroy listener', self
