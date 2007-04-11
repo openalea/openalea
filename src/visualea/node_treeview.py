@@ -98,6 +98,7 @@ class PkgModel (QAbstractItemModel) :
         
         else:
             return QtCore.QVariant()
+        
 
     def flags(self, index):
         if not index.isValid():

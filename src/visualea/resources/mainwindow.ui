@@ -169,26 +169,6 @@
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
    </widget>
-   <widget class="QMenu" name="menu_Python" >
-    <property name="title" >
-     <string>P&amp;ython</string>
-    </property>
-    <addaction name="action_Execute_script" />
-   </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="windowIcon" >
-     <iconset/>
-    </property>
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="action_Export_to_Factory" />
-    <addaction name="separator" />
-    <addaction name="actionExport_to_Application" />
-   </widget>
    <widget class="QMenu" name="menuDataPool" >
     <property name="title" >
      <string>&amp;DataPool</string>
@@ -230,6 +210,34 @@
     <addaction name="actionFind_Node" />
     <addaction name="separator" />
     <addaction name="menuCreate" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="windowIcon" >
+     <iconset/>
+    </property>
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <widget class="QMenu" name="menuSelection" >
+     <property name="title" >
+      <string>Selection</string>
+     </property>
+     <addaction name="actionCreate_New_Graph" />
+     <addaction name="action_Delete_2" />
+    </widget>
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="menuSelection" />
+    <addaction name="action_Export_to_Factory" />
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="actionExport_to_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+    <addaction name="action_Execute_script" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -408,6 +416,16 @@
   <action name="action_OpenNode" >
    <property name="text" >
     <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="action_Delete_2" >
+   <property name="text" >
+    <string>&amp;Delete</string>
+   </property>
+  </action>
+  <action name="actionCreate_New_Graph" >
+   <property name="text" >
+    <string>Create New Graph</string>
    </property>
   </action>
  </widget>
