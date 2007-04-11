@@ -16,7 +16,7 @@
 
 
 __doc__="""
-Default Node Widget and Subgraph Widget
+Composite Node Widgets
 """
 
 __license__= "CeCILL v2"
@@ -32,8 +32,8 @@ from openalea.core.core import FactoryWidget, NodeWidget, RecursionError
 
 
 
-class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
-    """ Display subwidget contained in the subgraph """
+class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
+    """ Display widgets contained in the graph """
     
     def __init__(self, node, parent=None):
 
@@ -63,8 +63,8 @@ class DisplaySubGraphWidget(NodeWidget, QtGui.QWidget):
 
         
 
-class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
-    """ Subgraph widget allowing to edit the network """
+class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
+    """ Graph widget allowing to edit the network """
     
     def __init__(self, factory, parent=None):
 
@@ -210,7 +210,7 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
 
         if( event[0] == "connection_modified"):
             self.rebuild_scene()
-        elif( event[0] == "subgraph_modified"):
+        elif( event[0] == "graph_modified"):
             self.rebuild_scene()
         
 
@@ -230,7 +230,7 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         self.newedge= SemiEdge(self, connector, None, self.scene())
 
   
-    # subgraph edition
+    # graph edition
 
     def add_graphical_node(self, eltid):
         """
@@ -263,7 +263,7 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
     def connect_node(self, connector_src, connector_dst):
         """
         Convenience function
-        Connect the node in the subgraph
+        Connect the node in the graph
         """
         
         if(connector_dst.is_connected()):
@@ -414,7 +414,7 @@ class EditSubGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
             newnode = factory.instantiate([self.node.factory.get_id()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(self, "Error",
-                                                 "A Subgraph cannot be contained in itself.")
+                                                 "A graph cannot be contained in itself.")
             self.notification_enabled.pop()
             return
 
@@ -472,12 +472,12 @@ def port_name( name, interface ):
     
 
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
-    """ Represent a node in the subgraphwidget """
+    """ Represent a node in the graphwidget """
 
     def __init__(self, graphview, elt_id, ninput, noutput):
         """
-        @param graphview : EditSubGraphWidget container
-        @param elt_id : id in the subgraph
+        @param graphview : EditGraphWidget container
+        @param elt_id : id in the graph
         @param ninput : number of input
         @param noutput : number of output
         @param caption : box text
@@ -768,7 +768,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
     def __init__(self, graphview, parent, scene, index, tooltip=""):
         """
-        @param graphview : EditSubGraphWidget container
+        @param graphview : EditGraphWidget container
         @param parent : QGraphicsItem parent
         @param scene : QGraphicsScene container
         @param index : connector index
