@@ -128,17 +128,11 @@ class PackageManager(object):
         """ Update the category dictionary with package contents """
         
         for nf in package.values():
+            if not nf.category): 
+                nf.category = "Unclassified"
 
-            if(not nf.category) : nf.category = "Unclassified"
-
-            try:
-                if(not (nf in self.category[nf.category])):
-                    self.category[nf.category].add( nf )
-                
-            except KeyError:
-                newcategory = Category(nf.category)
-                self.category[nf.category] = newcategory
-                newcategory.add( nf )
+            self.category.setdefault( nf.category, 
+                                      Category( nf.category ) ).add( nf )
 
 
     def rebuild_category(self):

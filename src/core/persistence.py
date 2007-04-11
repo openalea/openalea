@@ -47,26 +47,20 @@ class PackageReader(object):
         """ Load packages in pkgmanager """
 
         # Function must be overloaded
-        raise RuntimeError()
+        raise NotImplementedError()
 
     def register_session(self, session):
         """ Load session data """
 
         # Function must be overloaded
-        raise RuntimeError()
+        raise NotImplementedError()
 
 
 class PackageWriter(object):
     """ Default base class (define the interface) """
 
-    def __init__(self):
-        pass
-
     def write(self, filehandle):
         """ Write data to filehandle """
-        pass
-    
-    
     
 
 class PyPackageReader(PackageReader):
@@ -132,7 +126,8 @@ class PyPackageReader(PackageReader):
 class PyPackageWriter(object):
     """ Write a wralea python file """
 
-    wralea_tpl = """
+    wralea_template =\
+"""
 # This file has been generated at $TIME
 
 from openalea.core import *
@@ -143,7 +138,8 @@ def register_packages(pkgmanager):
 
 """
 
-    pkg_tpl = """
+    pkg_template = \
+"""
 
     metainfo = $METAINFO 
 
@@ -178,7 +174,7 @@ def register_packages(pkgmanager):
         """ Return a string with the package declaration """
 
         fstr = self.get_factories_str()
-        pstr = string.Template(self.pkg_tpl)
+        pstr = string.Template(self.pkg_template)
         
         result = pstr.safe_substitute(PKGNAME=self.package.name,
                                       METAINFO=repr(self.package.metainfo),
@@ -192,7 +188,7 @@ def register_packages(pkgmanager):
         """ Write package description to file handler """
 
         pstr = self.get_package_str()
-        wtpl = string.Template(self.wralea_tpl)
+        wtpl = string.Template(self.wralea_template)
         result = wtpl.safe_substitute(PKG_DECLARATION=pstr)
         filehandler.write(result)
         
@@ -217,7 +213,7 @@ def register_packages(pkgmanager):
 class PyNodeFactoryWriter(object):
     """ NodeFactory python Writer """
 
-    nodefactory_tpl = """
+    nodefactory_template = """
 
     nf = Factory(name="$NAME", 
                  description="$DESCRIPTION", 
@@ -240,7 +236,7 @@ class PyNodeFactoryWriter(object):
     def __repr__(self):
         """ Return the python string representation """
         f = self.factory
-        fstr = string.Template(self.nodefactory_tpl)
+        fstr = string.Template(self.nodefactory_template)
         result = fstr.safe_substitute(NAME=f.name,
                                       DESCRIPTION=f.description,
                                       CATEGORY=f.category, 
@@ -257,7 +253,7 @@ class PyNodeFactoryWriter(object):
 class PySGFactoryWriter(object):
     """ SubGraphFactory python Writer """
 
-    sgfactory_tpl = """
+    sgfactory_template = """
 
     nf = SubGraphFactory(pkgmanager,
                          name="$NAME", 
@@ -281,7 +277,7 @@ class PySGFactoryWriter(object):
     def __repr__(self):
         """ Return the python string representation """
         f = self.factory
-        fstr = string.Template(self.sgfactory_tpl)
+        fstr = string.Template(self.sgfactory_template)
         result = fstr.safe_substitute(NAME=f.name,
                                       DESCRIPTION=f.description,
                                       CATEGORY=f.category,
