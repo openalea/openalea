@@ -133,7 +133,6 @@ class SubGraphFactory(NodeFactory):
 
         # Create the connections
         for (( dst_id , iport), ( src_id, oport )) in self.connections.items():
-            #new_df.connections = self.connections.copy()
             new_df.connect(src_id, oport, dst_id, iport)
 
         self.graph_modified = False
@@ -239,21 +238,29 @@ class SubGraph(Node):
                 self.add_output( "out%i"%(i,), interface = None)
 
 
-    def to_factory(self, sgfactory):
+    def to_factory(self, sgfactory, listid=None, nbin=-1, nbout=-1):
         """
         Update subgraph factory to fit with the subgraph
+        listid is a list of element to export. If None, select all id
+        nbin and nbout are the number of in and out. If -1, parameters
+        are discarded.
         """
 
         sgfactory.elt_factory = {}
         sgfactory.elt_data = {}
 
-        sgfactory.set_nb_input( self.get_nb_input())
-        sgfactory.set_nb_output( self.get_nb_output())
-            
+        if(nbin<0) : nbin = self.get_nb_input()
+        if(nbout<0) : nbout = self.get_nb_output()
+
+        sgfactory.set_nb_input(nbin)
+        sgfactory.set_nb_output(nbout)
+
         
         # Create node if necessary
         for nid in self.node_id.keys():
             if(nid == 'in' or nid == 'out') : continue
+            if(listid != None and
+               (not nid in listid)) : continue
             
             node = self.node_id[nid]
             kdata = node.internal_data
@@ -264,10 +271,18 @@ class SubGraph(Node):
 
 
         # Create connections
-        sgfactory.connections = self.connections
+        if(listid == None):
+            sgfactory.connections = self.connections
+        else:
+            for ((dst_id, port_dst),
+                 (src_id, port_src)) in self.connections.items():
+                if(dst_id in listid and src_id in list_id):
+                    sgfactory.connections[(dst_id, port_dst)] = \
+                                                   (src_id, port_src)
+               
 
         self.graph_modified = False
-            
+
 
     def get_ids(self):
         """ Return the list of element id """
