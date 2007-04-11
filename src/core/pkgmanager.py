@@ -24,11 +24,11 @@ It stores the packages and nodes informations
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
+import openalea
 import sys
 import os
-import openalea
-
+from package import UserPackage, PyPackageReader
+from setting import get_userpkg_dir
 
 # Exceptions 
 
@@ -62,8 +62,11 @@ class PackageManager(object):
 
     def get_default_wraleapath(self):
         """ Return a list wralea path """
-        from openalea.core import  get_wralea_home_dir
-        return list(openalea.__path__) + [get_wralea_home_dir()]
+        
+        l = list(openalea.__path__)
+        l.append(get_userpkg_dir())
+        return l
+    
 
 
     def init(self, filename=None):
@@ -95,9 +98,10 @@ class PackageManager(object):
         """
         
         if(not os.path.isdir(path)): return
-        
+
+        # Ensure to add a non existing path
         for p in self.wraleapath:
-            common = os.path.commonprefix((p,path))
+            common = os.path.commonprefix((p, path))
             # the path is already in wraleapth
             if(common == p): return
             # the new path is more generic, we keep it
@@ -128,7 +132,7 @@ class PackageManager(object):
         """ Update the category dictionary with package contents """
         
         for nf in package.values():
-            if not nf.category): 
+            if not nf.category: 
                 nf.category = "Unclassified"
 
             self.category.setdefault( nf.category, 
@@ -197,8 +201,6 @@ class PackageManager(object):
     def get_pkgreader(self, filename):
         """ Return the pkg reader corresponding to the filename """
 
-        from persistence import PyPackageReader
-
         reader = None
         if(filename.endswith('.py')):
             reader = PyPackageReader(filename)
@@ -229,14 +231,12 @@ class PackageManager(object):
 
         # Create directory
         if(not path):
-            from openalea.core import  get_wralea_home_dir
-            path = get_wralea_home_dir()
+            path = get_userpkg_dir()
         
         if(not os.path.isdir(path)):
             os.mkdir(path)
 
         # Create new Package and its wralea
-        from usernode import UserPackage
         p = UserPackage(name, metainfo, path)
         p.write()
 
@@ -249,7 +249,6 @@ class PackageManager(object):
     def get_user_packages(self):
         """ Return the list of user packages """
 
-        from usernode import UserPackage
         return filter(lambda x: isinstance(x, UserPackage), self.pkgs.values())
        
 

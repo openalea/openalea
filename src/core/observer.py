@@ -49,12 +49,7 @@ class Observed(object):
         @param event : an object to pass to the notify function
         """
         [ ref().notify( self, event ) for ref in self.listeners ]
-        #for wr in self.listeners :
-        #    l = wr()
-        #    l.notify(self, event)
 
-#     def __del__(self):
-#         print 'destroy observed', self
 
 
 class AbstractListener(object):
@@ -62,7 +57,7 @@ class AbstractListener(object):
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
-        assert observed
+        assert observed != None
         observed.register_listener(self)
 
     def notify (self, sender, event=None):
@@ -73,8 +68,6 @@ class AbstractListener(object):
         """
         raise NotImplementedError()
     
-#     def __del__(self):
-#         print 'destroy listener', self
 
     
 
