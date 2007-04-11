@@ -224,6 +224,8 @@ class PyNodeFactoryWriter(object):
                  category="$CATEGORY", 
                  nodemodule="$NODEMODULE",
                  nodeclass="$NODECLASS",
+                 inputs=$LISTIN,
+                 outputs=$LISTOUT,
                  widgetmodule="$WIDGETMODULE",
                  widgetclass="$WIDGETCLASS",
                  )
@@ -244,6 +246,8 @@ class PyNodeFactoryWriter(object):
                                       CATEGORY=f.category, 
                                       NODEMODULE=f.nodemodule_name,
                                       NODECLASS=f.nodeclass_name,
+                                      LISTIN=str(f.inputs),
+                                      LISTOUT=str(f.outputs),
                                       WIDGETMODULE=f.widgetmodule_name,
                                       WIDGETCLASS=f.widgetclass_name,)
         return result
