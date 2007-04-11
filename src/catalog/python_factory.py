@@ -34,9 +34,7 @@ def define_factory(package):
                   description = "Python __getitem__",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "GetItem",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "getitem",
                   )
 
     package.add_factory( nf )
@@ -46,9 +44,7 @@ def define_factory(package):
                   description = "Python __setitem__",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "SetItem",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "setitem",
                   )
 
     package.add_factory( nf )
@@ -58,9 +54,7 @@ def define_factory(package):
                   description = "Python __delitem__",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "DelItem",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "delitem",
                   )
 
     package.add_factory( nf )
@@ -71,9 +65,7 @@ def define_factory(package):
                   description = "Python append",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Append",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "append",
                   )
     
     package.add_factory( nf )
@@ -83,9 +75,7 @@ def define_factory(package):
                   description = "Python keys()",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Keys",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "keys",
                   )
 
     package.add_factory( nf )
@@ -95,9 +85,7 @@ def define_factory(package):
                   description = "Python values()",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Values",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "values",
                   )
 
     package.add_factory( nf )
@@ -107,44 +95,18 @@ def define_factory(package):
                   description = "Python items()",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Items",
-                  widgetmodule = None,
-                  widgetclass = None,
+                  nodeclass = "items",
                   )
 
     package.add_factory( nf )
 
-
-
-    nf = Factory( name = "sort",
-                  description = "Sort List",
-                  category  = "Python",
-                  nodemodule = "python",
-                  nodeclass = "SortList",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "reverse",
-                  description = "Reverse List",
-                  category  = "Python",
-                  nodemodule = "python",
-                  nodeclass = "ReverseList",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-    package.add_factory( nf )
 
 
     nf = Factory( name = "range",
                   description = "Return an arithmetic progression of integers",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Range",
+                  nodeclass = "pyrange",
                   )
     
     package.add_factory( nf )
@@ -154,7 +116,7 @@ def define_factory(package):
                   description = "Apply a function on a sequence",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Map",
+                  nodeclass = "pymap",
                   )
     
     package.add_factory( nf )
@@ -164,7 +126,7 @@ def define_factory(package):
                   description = "Apply a function on a sequence and return only true values",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Filter",
+                  nodeclass = "pyfilter",
                   )
     
     package.add_factory( nf )
@@ -174,7 +136,7 @@ def define_factory(package):
                   description = "Apply a function of two arguments cumulatively to the items of a sequence",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Reduce",
+                  nodeclass = "pyreduce",
                   )
     
     package.add_factory( nf )
@@ -184,7 +146,7 @@ def define_factory(package):
                   description = "Return the number of items of a sequence or mapping.",
                   category  = "Python",
                   nodemodule = "python",
-                  nodeclass = "Len",
+                  nodeclass = "pylen",
                   )
     
     package.add_factory( nf )
