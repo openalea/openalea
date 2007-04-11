@@ -121,10 +121,16 @@ class Node(Observed):
 
 
     # Status
-    def unvalidate_input(self, input_index):
+    def unvalidate_input(self, input_index, notification=True):
         """ Unvalidate node and notify listeners """
         self.modified = True
-        self.notify_listeners( ("input_modified",input_index) )
+        if(notification):
+            self.notify_listeners( ("input_modified",input_index) )
+
+
+    def unvalidate_input_by_key(self, key, notification=True):
+        index = self.map_index_out[key]
+        self.unvalidate_input(index, notification)
 
 
     # Declarations
