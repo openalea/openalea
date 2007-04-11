@@ -24,6 +24,7 @@ __revision__=" $Id$ "
 
 
 import types
+import inspect
 
 class Signature(object):
     """ Instrospect function objects """
@@ -41,16 +42,20 @@ def get_parameters(f):
     try:
         # if f is a class
         if(not isinstance(f, types.FunctionType)):
-            f = f.__call__.im_func
-            varnames = f.func_code.co_varnames
+            specs = inspect.getargspec(f.__call__)
+            varnames = specs[0]
             varnames = varnames[1:]
-            defaults = f.func_defaults
+            defaults = specs[3]
             
         # f is a function
         else:
-            varnames = f.func_code.co_varnames
+            specs = inspect.getargspec(f)
+            varnames = specs[0]
             defaults = f.func_defaults
-    except:
+            defaults = specs[3]
+
+    except Exception, e:
+        print e
         return ()
       
     args= []
