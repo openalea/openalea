@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newgraph.ui'
 #
-# Created: Tue Apr 10 11:51:31 2007
+# Created: Tue Apr 10 23:36:37 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -91,7 +91,9 @@ class Ui_NewGraphDialog(object):
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),NewGraphDialog.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),NewGraphDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(NewGraphDialog)
-        NewGraphDialog.setTabOrder(self.nameEdit,self.descriptionEdit)
+        NewGraphDialog.setTabOrder(self.packageBox,self.nameEdit)
+        NewGraphDialog.setTabOrder(self.nameEdit,self.categoryEdit)
+        NewGraphDialog.setTabOrder(self.categoryEdit,self.descriptionEdit)
         NewGraphDialog.setTabOrder(self.descriptionEdit,self.inBox)
         NewGraphDialog.setTabOrder(self.inBox,self.outBox)
         NewGraphDialog.setTabOrder(self.outBox,self.buttonBox)

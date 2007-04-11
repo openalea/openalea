@@ -93,7 +93,7 @@ class NodeCodeEditor(FactoryWidget, QtGui.QWidget):
             self.textedit.setPlainText(str)
 
 
-    def getText():
+    def getText(self):
         """ Return editor text """
         try:
             return self.textedit.text()

@@ -95,7 +95,7 @@ class Node(Observed):
             
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
-
+        
         if(self.func_call):
             return self.func_call(*inputs)
                 
@@ -350,16 +350,17 @@ class NodeFactory(Observed):
         module = self.get_node_module()
         classobj = module.__dict__[self.nodeclass_name]
 
-        # If class is not a Node, create a Node class
+        # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
             # Check inputs and outputs
             if(not self.inputs) : self.inputs = get_inputs_desc(classobj)
             if(not self.outputs) : self.outputs = (dict(name="out", interface=None),)
 
-            # instantiate if we have a class
-            if(type(classobj) == types.TypeType or
-               type(classobj) == types.ClassType):
+            # Check and Instantiate if we have a functor class
+            if((type(classobj) == types.TypeType)
+               or (type(classobj) == types.ClassType)):
+
                 classobj = classobj()
             
             node = Node(self.inputs, self.outputs, classobj)
@@ -381,7 +382,7 @@ class NodeFactory(Observed):
         if(not modulename) :   modulename = self.nodemodule_name
         
         if(modulename and self.widgetclass_name):
-
+            # load module
             (file, pathname, desc) = imp.find_module(modulename,
                                                      self.search_path + sys.path)
             module = imp.load_module(modulename, file, pathname, desc)
@@ -429,7 +430,7 @@ class NodeFactory(Observed):
             return self.nodemodule
 
         if(self.nodemodule_name):
-            
+            # load module
             (file, pathname, desc) = imp.find_module(self.nodemodule_name,
                                                      self.search_path + sys.path)
             self.nodemodule_path = pathname
@@ -604,12 +605,12 @@ class Package(dict):
         """ Return the package description """
 
         str= "Package : %s\n"%(self.name,)
-        try: str+= "Description : %s\n"%(self.metainfo['description'],)
+        try: str += "Description : %s\n"%(self.metainfo['description'],)
         except : pass
-        try: str+= "Institutes : %s\n"%(self.metainfo['institutes'],)
+        try: str += "Institutes : %s\n"%(self.metainfo['institutes'],)
         except : pass 
 
-        try: str+= "URL : %s\n"%(self.metainfo['url'],)
+        try: str += "URL : %s\n"%(self.metainfo['url'],)
         except : pass 
 
         return str
@@ -665,11 +666,17 @@ def get_inputs_desc(f):
     to the function parameters"""
 
     try:
+        # if f is a class
         if(not isinstance(f, types.FunctionType)):
             f = f.__call__.im_func
-        
-        varnames = f.func_code.co_varnames
-        defaults = f.func_defaults
+            varnames = f.func_code.co_varnames
+            varnames = varnames[1:]
+            defaults = f.func_defaults
+            
+        # f is a function
+        else:
+            varnames = f.func_code.co_varnames
+            defaults = f.func_defaults
     except:
         return ()
       
