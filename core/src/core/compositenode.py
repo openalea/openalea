@@ -16,28 +16,39 @@
 ###############################################################################
 
 __doc__="""
-This module defines the subgraph classes 
+A CompositeNode is a Node that contains other nodes connected in a directed graph.
+A CompositeNodeFactory instance is a factory that build CompositeNode instances.
+Different instances of the same factory can coexist and can be modified in a
+dataflow. 
 """
+
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
+import string
 
-
-from core import NodeFactory, Node
-from core import RecursionError, InstantiationError
+from node import NodeFactory, Node
+from node import RecursionError, InstantiationError
 
 ###############################################################################
 
-class SubGraphFactory(NodeFactory):
+class DirectedGraph(object):
+    """ Directed graph implementation """
+
+    def __init__(self):
+        pass
+
+
+class CompositeNodeFactory(NodeFactory, DirectedGraph):
     """
-    The SubGraphFactory is able to create Subgraph instances
+    The CompositeNodeFactory is able to create CompositeNode instances
     Each node has an unique id : the element id (elt_id)
     """
-    
+
     def __init__ (self, pkgmanager,  *args, **kargs):
         """
-        Subgraph Factory accept more optional parameters :
+        CompositeNodeFactory accept more optional parameters :
         nin : number of inputs
         nout : number of outputs
         doc : documentation
@@ -48,14 +59,14 @@ class SubGraphFactory(NodeFactory):
 
         # Init parent (name, description, category, doc, node, widget=None)
         NodeFactory.__init__(self, *args, **kargs)
-
+        DirectedGraph.__init__(self)
 
         # The Package Manager is needed to allocate nodefactory
         self.pkgmanager = pkgmanager
 
-        # A SubGraph is composed by a set of element indexed by an elt_id
+        # A CompositeNode is composed by a set of element indexed by an elt_id
         # Each element is associated to NodeFactory
-        # Each element will generate an node instance in the real SubGraph
+        # Each element will generate an node instance in the real CompositeNode
 
         # Dict mapping elt_id with its corresponding factory
         # the factory is identified by its unique id (package_id, factory_id)
@@ -104,12 +115,11 @@ class SubGraphFactory(NodeFactory):
     def get_writer(self):
         """ Return the writer class """
 
-        from persistence import PySGFactoryWriter
-        return PySGFactoryWriter(self)
+        return PyCNFactoryWriter(self)
 
 
     def instantiate(self, call_stack=None):
-        """ Create a SubGraph instance and allocate all elements
+        """ Create a CompositeNode instance and allocate all elements
         This function overide default implementation of NodeFactory
 
         @param call_stack : the list of NodeFactory id already in recursion stack
@@ -123,7 +133,7 @@ class SubGraphFactory(NodeFactory):
 
         call_stack.append(self.get_id())
 
-        new_df = SubGraph(self.nb_input, self.nb_output)
+        new_df = CompositeNode(self.nb_input, self.nb_output)
         new_df.factory = self
         new_df.__doc__ = self.doc
         
@@ -143,14 +153,14 @@ class SubGraphFactory(NodeFactory):
         return new_df
 
 
-    def instantiate_id(self, elt_id, subgraph, call_stack=None):
+    def instantiate_id(self, elt_id, graph, call_stack=None):
         """
         Partial instantiation
-        instantiate only elt_id in subgraph
+        instantiate only elt_id in CompositeNode
         @param call_stack : a list of parent id (to avoid infinite recursion)
         """
 
-        if(subgraph.node_id.has_key(elt_id)) :
+        if(graph.node_id.has_key(elt_id)) :
             return
 
         (package_id, factory_id) = self.elt_factory[elt_id]
@@ -160,7 +170,7 @@ class SubGraphFactory(NodeFactory):
 
         node = factory.instantiate(call_stack)
         node.internal_data = self.elt_data[elt_id].copy()
-        subgraph.add_node(node, elt_id)
+        graph.add_node(node, elt_id)
 
         
     def set_nb_input(self, v):
@@ -182,8 +192,8 @@ class SubGraphFactory(NodeFactory):
         if(node == None):
                 node = self.instantiate()
         try:
-            from openalea.visualea.subgraph_widget import DisplaySubGraphWidget
-            return DisplaySubGraphWidget(node, parent)
+            from openalea.visualea.compositenode_widget import DisplayGraphWidget
+            return DisplayGraphWidget(node, parent)
 
         except ImportError:
             raise
@@ -193,8 +203,8 @@ class SubGraphFactory(NodeFactory):
         """ Return the widget to edit the factory """
         try:
 
-            from openalea.visualea.subgraph_widget import EditSubGraphWidget
-            return EditSubGraphWidget(self, parent)
+            from openalea.visualea.compositenode_widget import EditGraphWidget
+            return EditGraphWidget(self, parent)
             
         except ImportError:
             raise
@@ -204,14 +214,18 @@ class SubGraphFactory(NodeFactory):
 
 ################################################################################
 
-class SubGraph(Node):
-    """ The SubGraph is a container that interconnect \
-    different node instances between them. """
+class CompositeNode(Node, DirectedGraph):
+    """
+    The CompositeNode is a container that interconnect 
+    different node instances between them in directed graph.
+    """
+
 
     def __init__(self, ninput=0, noutput=0):
         """ ninput and noutput are the number of inputs and outputs """
 
         Node.__init__(self)
+        DirectedGraph.__init__(self)
 
         # Node list indexed by its id
         self.node_id = {}
@@ -223,24 +237,24 @@ class SubGraph(Node):
         # Counter for generating id
         self.id_cpt = 1
 
-        # subgraph modification status
+        # graph modification status
         self.graph_modified = False
 
         # I/O
         if(ninput>0):
-            self.node_id['in'] = SubgraphInput(self, ninput)
+            self.node_id['in'] = CompositeNodeInput(self, ninput)
             for i in range(ninput):
                 self.add_input( "in%i"%(i,), interface = None, value = None)
 
         if(noutput>0) :
-            self.node_id['out'] = SubgraphOutput(self, noutput)
+            self.node_id['out'] = CompositeNodeOutput(self, noutput)
             for i in range(noutput):
                 self.add_output( "out%i"%(i,), interface = None)
 
 
     def to_factory(self, sgfactory, listid=None, nbin=-1, nbout=-1):
         """
-        Update subgraph factory to fit with the subgraph
+        Update CompositeNodeFactory to fit with the graph
         listid is a list of element to export. If None, select all id
         nbin and nbout are the number of in and out. If -1, parameters
         are discarded.
@@ -272,7 +286,7 @@ class SubGraph(Node):
 
         # Create connections
         if(listid == None):
-            sgfactory.connections = self.connections
+            sgfactory.connections = self.connections.copy()
         else:
             for ((dst_id, port_dst),
                  (src_id, port_src)) in self.connections.items():
@@ -377,7 +391,7 @@ class SubGraph(Node):
     # Functions used by the node evaluator
     def eval(self):
         """
-        Evaluate the subgraph
+        Evaluate the graph
         Return True if the node has been calculated
         """
 
@@ -387,7 +401,7 @@ class SubGraph(Node):
 
     def __call__(self, inputs=()):
         """
-        Evaluate the subgraph
+        Evaluate the graph
         """
 
         self.eval_as_expression()
@@ -396,7 +410,7 @@ class SubGraph(Node):
 
     def add_node(self, node, elt_id = None):
         """
-        Add a node in the SubGraph with a particular id
+        Add a node in the Graph with a particular id
         if id is None, autogenrate one
         
         @param node : the node instance
@@ -411,7 +425,7 @@ class SubGraph(Node):
         self.node_id[elt_id] = node
         
         self.id_cpt += 1
-        self.notify_listeners(("subgraph_modified",))
+        self.notify_listeners(("graph_modified",))
         self.graph_modified = True
 
         return elt_id        
@@ -419,7 +433,7 @@ class SubGraph(Node):
 
     def remove_node(self, elt_id):
         """
-        remove a node from the SubGraph
+        remove a node from the graph
         @param elt_id : element id
         """
         
@@ -429,7 +443,7 @@ class SubGraph(Node):
             if(id_dst == elt_id or id_src == id):
                 del(self.connections[(id_dst, port_dst)])
 
-        self.notify_listeners(("subgraph_modified",))
+        self.notify_listeners(("graph_modified",))
         self.graph_modified = True
 
                
@@ -473,17 +487,17 @@ class SubGraph(Node):
 
 
 
-class SubgraphInput(Node):
-    """Dummy node to represent subgraph inputs"""
+class CompositeNodeInput(Node):
+    """Dummy node to represent the composite node inputs"""
 
-    def __init__(self, subgraph, size):
+    def __init__(self, graph, size):
         """
-        Subgraph is the owner of the object
+        Graph is the owner of the object
         Size is the number of port
         """
 
         Node.__init__(self)
-        self.subgraph = subgraph
+        self.graph = graph
         for i in range(size):
             self.add_output("out%i"%(i,), interface = None)
 
@@ -494,7 +508,7 @@ class SubgraphInput(Node):
     def get_output(self, index):
         """ Redirect call """
 
-        return self.subgraph.get_input(index)
+        return self.graph.get_input(index)
         
 
     def eval(self):
@@ -502,16 +516,16 @@ class SubgraphInput(Node):
 
 
 
-class SubgraphOutput(Node):
-    """Dummy node to represent subgraph outputs"""
+class CompositeNodeOutput(Node):
+    """Dummy node to represent the composite node outputs"""
 
-    def __init__(self, subgraph, size):
+    def __init__(self, graph, size):
         """
-        Subgraph is the owner of the object
+        Graph is the owner of the object
         Size is the number of port
         """
         Node.__init__(self)
-        self.subgraph = subgraph
+        self.graph = graph
         
         for i in range(size):
             self.add_input("in%i"%(i,), interface = None, value = None)
@@ -523,11 +537,59 @@ class SubgraphOutput(Node):
     def set_input(self, index, val):
         """ Redirect call """
 
-        self.subgraph.set_output(index, val)
+        self.graph.set_output(index, val)
 
         
     def eval(self):
         #the node must be always calculated
         return True
+
+
+################################################################################
+
+class PyCNFactoryWriter(object):
+    """ CompositeNodeFactory python Writer """
+
+    sgfactory_template = """
+
+    nf = CompositeNodeFactory(pkgmanager,
+                              name="$NAME", 
+                              description="$DESCRIPTION", 
+                              category="$CATEGORY",
+                              doc="$DOC",
+                              nin=$NIN,
+                              nout=$NOUT,
+                              elt_factory=$ELT_FACTORY,
+                              elt_connections=$ELT_CONNECTIONS,
+                              elt_data=$ELT_DATA,
+                         )
+
+    pkg.add_factory(nf)
+
+"""
+
+    def __init__(self, factory):
+        self.factory = factory
+        
+
+    def __repr__(self):
+        """ Return the python string representation """
+        f = self.factory
+        fstr = string.Template(self.sgfactory_template)
+        result = fstr.safe_substitute(NAME=f.name,
+                                      DESCRIPTION=f.description,
+                                      CATEGORY=f.category,
+                                      DOC=f.doc,
+                                      NIN=f.nb_input,
+                                      NOUT=f.nb_output,
+                                      ELT_FACTORY=repr(f.elt_factory),
+                                      ELT_CONNECTIONS=repr(f.connections),
+                                      ELT_DATA=repr(f.elt_data),
+                                      )
+        return result
+
+
+
+
 
     

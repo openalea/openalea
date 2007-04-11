@@ -22,10 +22,9 @@ This module defines the session and datapool classes
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from core import Package
-from subgraph import SubGraphFactory
+from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
-from usernode import UserPackage
+from package import Package, UserPackage
 
 from openalea.core.observer import Observed
 
@@ -87,7 +86,7 @@ class Session(Observed):
         self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
 
         if(create_workspace and not self.user_pkg.has_key('Workspace')):
-            rootfactory = SubGraphFactory(self.pkgmanager, name="Workspace",
+            rootfactory = CompositeNodeFactory(self.pkgmanager, name="Workspace",
                                           description= "",
                                           category = "",
                                           )

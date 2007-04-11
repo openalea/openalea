@@ -6,9 +6,9 @@ __license__= "Cecill-C"
 __revision__=" $Id$"
 
 
-from core import Package, Factory, Node
-from subgraph import SubGraphFactory, SubGraph
-from usernode import UserPackage
+from package import Package, UserPackage
+from node import Factory, Node
+from compositenode import CompositeNodeFactory, CompositeNode
 from interface import *
 
 
