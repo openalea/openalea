@@ -114,7 +114,9 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>packageBox</tabstop>
   <tabstop>nameEdit</tabstop>
+  <tabstop>categoryEdit</tabstop>
   <tabstop>descriptionEdit</tabstop>
   <tabstop>inBox</tabstop>
   <tabstop>outBox</tabstop>
