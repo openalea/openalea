@@ -28,7 +28,7 @@ import os
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.core import NodeWidget
-from openalea.core.interface import InterfaceMapper
+from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from gui_catalog import *
 import types
   
@@ -41,7 +41,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     It displays the node contents.
     """
 
-    type_map = InterfaceMapper()
+    type_map = InterfaceWidgetMap()
 
     def __init__(self, node, parent):
 
@@ -58,7 +58,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         self.empty = True
         for (name, interface) in node.input_desc:
 
-            if(type(interface) == types.TypeType):
+            if(type(interface) == IInterfaceMetaClass):
                 interface = interface()
             
             wclass= self.type_map.get(interface.__class__,None)
