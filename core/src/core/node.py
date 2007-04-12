@@ -49,8 +49,9 @@ class InstantiationError(Exception):
 
 class Node(Observed):
     """
-    Base class for all Nodes.
-    A Node is a callable object with typed inputs and outputs.
+    A Node is the atomic entity in a dataflow.
+    It is a callable object with typed inputs and outputs.
+    Inputs and Outpus are indexed by their position or by a name (str)
     """
 
     def __init__(self, inputs=(), outputs=(), func_call=None):
@@ -58,6 +59,8 @@ class Node(Observed):
         @param inputs    : list of dict(name='X', interface=IFloat, value=0)
         @param outputs   : list of dict(name='X', interface=IFloat)
         @param func_call : A function
+
+        Nota : if IO names are not a string, they will be converted to with str()
         """
 
         Observed.__init__(self)
@@ -121,104 +124,74 @@ class Node(Observed):
 
 
     # Status
-    def unvalidate_input(self, input_index, notification=True):
+    def unvalidate_input(self, index_key):
         """ Unvalidate node and notify listeners """
         self.modified = True
-        if(notification):
-            self.notify_listeners( ("input_modified",input_index) )
-
-
-    def unvalidate_input_by_key(self, key, notification=True):
-        index = self.map_index_out[key]
-        self.unvalidate_input(index, notification)
+        index = self.map_index_in[index_key]
+        self.notify_listeners( ("input_modified", index) )
 
 
     # Declarations
     def add_input(self, name, interface, value = None):
         """ Create an input port """
-
+        name = str(name) #force to have a string
         self.inputs.append( value )
         self.input_desc.append( (name, interface) )
         self.input_states.append(None)
-        self.map_index_in[name]= len(self.inputs) - 1
+        index = len(self.inputs) - 1
+        self.map_index_in[name] = index 
+        self.map_index_in[index]= index 
 
 
     def add_output(self, name, interface):
         """ Create an output port """
-
+        name = str(name) #force to have a string
         self.outputs.append( None )
         self.output_desc.append( (name, interface) )
-        self.map_index_out[name]= len(self.outputs) - 1
+        index =  len(self.outputs) - 1
+        self.map_index_out[name] = index
+        self.map_index_out[index]= index 
 
 
     # I/O Functions
-    def get_input_interface_by_key(self, key):
-        """ Return the interface of an input port """
-        index = self.map_index_in[key]
-        return self.input_desc[index][1]
-
-
-    def get_output_interface_by_key(self, key):
-        """ Return the interface of an output port """
-        index = self.map_index_out[key]
-        return self.output_desc[index][1]
-
-    
-    def get_input_by_key(self, key):
-        """ Return the input value for the specified port name (key)"""
-        index = self.map_index_in[key]
-        return self.inputs[index]
-
-
-    def set_input_by_key(self, key, val):
-        """ Set the input value for the specified port name (key)"""
-        index = self.map_index_in[key]
-        self.set_input(index, val)
-        
-
-    def get_output_by_key(self, key):
-        """ Return the output value for the specified port name (key)"""
-        index = self.map_index_out[key]
-        return self.outputs[index]
-
-
-    def set_output_by_key(self, key, val):
-        """ Set the output value for the specified port name (key)"""
-        index = self.map_index_out[key]
-        self.outputs[index] =  val
-
-    
-    def get_input(self, index):
+   
+    def get_input(self, index_key):
         """ Return an input port value """
-
+        
+        index = self.map_index_in[index_key]
         return self.inputs[index]
 
 
-    def set_input(self, index, val):
-        """ Define the input value for the specified index """
-
+    def set_input(self, index_key, val):
+        """ Define the input value for the specified index/key """
+        
+        index = self.map_index_in[index_key]
         if(self.inputs[index] != val):
             self.inputs[index] = val
             self.unvalidate_input(index)
 
 
-    def get_output(self, index):
-        """ Return the output for the specified index """
+    def get_output(self, index_key):
+        """ Return the output for the specified index/key """
+        index = self.map_index_out[index_key]
         return self.outputs[index]
 
 
-    def set_output(self, index, val):
-        """ Set the output value for the specified index """
+    def set_output(self, index_key, val):
+        """ Set the output value for the specified index/key """
+        index = self.map_index_out[index_key]
         self.outputs[index] = val
 
 
-    def get_input_state(self, index):
+    def get_input_state(self, index_key):
+        index = self.map_index_in[index_key]
         return self.input_states[index]
 
     
-    def set_input_state(self, index, state):
-        """ Set the state of the input index (state is a string) """
-
+    def set_input_state(self, index_key, state):
+        """ Set the state of the input index/key (state is a string) """
+        
+        index = self.map_index_in[index_key]
         self.input_states[index] = state
         self.unvalidate_input(index)
 
@@ -236,7 +209,6 @@ class Node(Observed):
     def get_nb_output(self):
         """ Return the nb of output ports """
         return len(self.outputs)
-
 
     
     # Functions used by the node evaluator
