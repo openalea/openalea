@@ -72,12 +72,9 @@ def append(obj, val):
     return (obj,)
 
 
-def pyrange(start, stop, step):
+def pyrange(start=0, stop=0, step=1):
     """ range(start, stop, step) """
 
-    if(start == None): start = 0
-    if(stop == None): stop = 0
-    if(step == None): step = 1
     return (range(start, stop, step),)
 
 

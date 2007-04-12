@@ -23,8 +23,10 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-import types
 import inspect
+import types
+from interface import TypeInterfaceMap
+
 
 class Signature(object):
     """ Instrospect function objects """
@@ -32,7 +34,8 @@ class Signature(object):
     def __init__(self, func):
         """ func is a function object or a functor class """
 
-    
+
+
 
 def get_parameters(f):
     """ Return the list of
@@ -57,12 +60,22 @@ def get_parameters(f):
     except Exception, e:
         print e
         return ()
-      
+
+    if(defaults == None): defaults = []
+    if(varnames == None): varnames = []
+    
     args= []
-    for i,name in enumerate(varnames):
-        interface = None
-        cur_default = None
-        args.append(dict(name=name, interface=interface, value=cur_default))
+    nv = len(varnames)
+    nd = len(defaults)
+    # parse args without default value
+    for i,name in enumerate(varnames[:nv - nd]):
+        args.append(dict(name=name, interface=None, value=None))
+
+    # parse args with default value
+    for i,name in enumerate(varnames[nv - nd:]):
+        v = defaults[i]
+        interface = TypeInterfaceMap().get(type(v),None)
+        args.append(dict(name=name, interface=interface, value=v))
 
     return args
 

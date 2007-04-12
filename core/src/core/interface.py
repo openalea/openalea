@@ -22,24 +22,76 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 from metaclass import make_metaclass
+from singleton import Singleton
+import types
+
+# Dictionary to map Interface with corresponding python type
+
+class TypeInterfaceMap(dict):
+
+    """
+    Singleton class to map Interface with standard python type
+    InterfaceWidgetMap inherits from dict class
+    """
+    
+    __metaclass__ = Singleton
+
+    def __init__(self, *args):
+        dict.__init__(self, *args)
+
+    def declare_interface(self, type, interface):
+        """
+        Declare an interface and its optional widget
+        @param interface : IInterface class object
+        @param type : Python type
+        """
+
+        if(not self.has_key(type)):
+            self[type] = interface
+
+
+class IInterfaceMetaClass(type):
+    """
+    IInterface Metaclass
+    Allow to register corresponding python type
+    """
+    
+    def __init__(cls,name,bases,dic):
+        super(IInterfaceMetaClass,cls).__init__(name,bases,dic)
+        if(cls.__pytype__):
+            TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
+
+
+
+################################################################################
+
+# Defaults interfaces
 
 
 class IInterface(object):
     """ Abstract base class for all interfaces """
-    pass
-
-class IFileStr(IInterface):
-    """ File Path interface """
-    pass
+    __metaclass__ = IInterfaceMetaClass
+    __pytype__ = None
+    
 
 
 class IStr(IInterface):
     """ String interface """
+    
+    __pytype__ = types.StringType
+    
+
+
+class IFileStr(IStr):
+    """ File Path interface """
     pass
+
 
 
 class IFloat(IInterface):
     """ Float interface """
+
+    __pytype__ = types.FloatType
     
     def __init__(self, min = -2.**24, max = 2.**24):
 
@@ -49,6 +101,8 @@ class IFloat(IInterface):
 
 class IInt(IInterface):
     """ Int interface """
+
+    __pytype__ = types.IntType
     
     def __init__(self, min = -2**24, max = 2**24):
 
@@ -58,10 +112,11 @@ class IInt(IInterface):
 
 class IBool(IInterface):
     """ Bool interface """
-    pass
+
+    __pytype__ = types.BooleanType
 
 
-class IEnumStr(IInterface):
+class IEnumStr(IStr):
     """ String enumeration """
 
     def __init__(self, enum = []):
@@ -72,33 +127,37 @@ class IRGBColor(IInterface):
     """ RGB Color """
     pass
 
+
 class ITuple3(IInterface):
     """ Tuple3 """
     def __init__(self):
         pass
 
+
 class IFunction(IInterface):
     """ Function interface """
-    pass
+    __pytype__ = types.FunctionType
+
 
 class ISequence(IInterface):
     """ Sequence interface (list, tuple, ...) """
-    pass
+    __pytype__ = types.ListType
+    
 
 class IDict(IInterface):
     """ Dictionary interface """
-    pass
+    __pytype__ = types.DictType
+
 
 
 
 # Dictionary to map Interface with corresponding widget
 
-from openalea.core.singleton import Singleton
 
-class InterfaceMapper(dict):
+class InterfaceWidgetMap(dict):
     """
     Singleton class to map Interface with InterfaceWidget
-    InterfaceMapper inherits from dict class
+    InterfaceWidgetMap inherits from dict class
     """
     
     __metaclass__ = Singleton
@@ -117,14 +176,14 @@ class InterfaceMapper(dict):
 
 
 
+# Base class for interface widget
 class IWidgetMetaClass(type):
     """ InterfaceWidget Metaclass """
     
     def __init__(cls,name,bases,dic):
         super(IWidgetMetaClass,cls).__init__(name,bases,dic)
         if(cls.__interface__):
-            InterfaceMapper().declare_interface(cls.__interface__, cls)
-
+            InterfaceWidgetMap().declare_interface(cls.__interface__, cls)
 
 
 class IInterfaceWidget(object):
@@ -158,5 +217,11 @@ class IInterfaceWidget(object):
                 self.setEnabled(True)
         except:
             pass
+
+
+
+
+
+
 
 
