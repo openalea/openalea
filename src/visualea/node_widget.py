@@ -88,9 +88,10 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             input_index = event[1]
 
             widget= self.widgets[input_index]
-            if widget: 
+            if widget and not widget.is_notification_locked: 
                 widget.notify(sender, event)
                 widget.update_state()
+                
 
     def is_empty(self):
         return bool(self.empty)

@@ -66,20 +66,19 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
         
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
 
-        
-    def valueChanged(self, newval):
 
-        self.node.set_input_by_key(self.param_str, newval)
+    @lock_notify      
+    def valueChanged(self, newval):
+        self.node.set_input(self.param_str, newval)
 
         
     def notify(self, sender, event):
         """ Notification sent by node """
         try:
-            v = float(self.node.get_input_by_key(self.param_str))
+            v = float(self.node.get_input(self.param_str))
         except:
             v = 0.
-            print "FLOAT SPIN : cannot set value : ", self.node.get_input_by_key(self.param_str)
-
+            print "FLOAT SPIN : cannot set value : ", self.node.get_input(self.param_str)
             
         self.spin.setValue(v)
         
@@ -119,20 +118,19 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 
-        
+    @lock_notify      
     def valueChanged(self, newval):
-
-        self.node.set_input_by_key(self.param_str, newval)
+        self.node.set_input(self.param_str, newval)
         
         
     def notify(self, sender, event):
         """ Notification sent by node """
 
         try:
-            v = int(self.node.get_input_by_key(self.param_str))
+            v = int(self.node.get_input(self.param_str))
         except:
             v = 0
-            print "INT SPIN : cannot set value : ", self.node.get_input_by_key(self.param_str)
+            print "INT SPIN : cannot set value : ", self.node.get_input(self.param_str)
 
         self.spin.setValue(v)
 
@@ -166,20 +164,20 @@ class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(node, None)
         self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
 
-        
+    @lock_notify      
     def stateChanged(self, state):
 
         if(state == QtCore.Qt.Checked):
-            self.node.set_input_by_key(self.param_str, True)
+            self.node.set_input(self.param_str, True)
         else:
-            self.node.set_input_by_key(self.param_str, False)
+            self.node.set_input(self.param_str, False)
         
         
     def notify(self, sender, event):
         """ Notification sent by node """
 
         try:
-            ischecked = bool(self.node.get_input_by_key(self.param_str))
+            ischecked = bool(self.node.get_input(self.param_str))
         except:
             ischecked = False
 
@@ -220,20 +218,20 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.subwidget = QtGui.QLineEdit (self)
         self.hboxlayout.addWidget(self.subwidget)
 
-        self.subwidget.setText(str(self.node.get_input_by_key(self.param_str)))
+        self.subwidget.setText(str(self.node.get_input(self.param_str)))
 
         self.connect(self.subwidget, QtCore.SIGNAL("textChanged(QString)"), self.valueChanged)
 
-        
-    def valueChanged(self, newval):
 
-        self.node.set_input_by_key(self.param_str, str(newval))
+    @lock_notify      
+    def valueChanged(self, newval):
+        self.node.set_input(self.param_str, str(newval))
         
         
     def notify(self, sender, event):
         """ Notification sent by node """
 
-        self.subwidget.setText(str(self.node.get_input_by_key(self.param_str)))
+        self.subwidget.setText(str(self.node.get_input(self.param_str)))
         
 
 class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
@@ -302,29 +300,38 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             else:
                 item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
                               QtCore.Qt.ItemIsSelectable)
-            
 
+    def notify(self, sender, event):
+        print 'notify'
+        """ Notification sent by node """
+        self.update_list()
+
+    
     def update_list(self):
         """ Rebuild the list """
-
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         self.subwidget.clear()
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                              QtCore.Qt.ItemIsSelectable)
+                          QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
+
             
-
+    @lock_notify      
     def button_clicked(self):
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         seq.append(None)
-        self.update_list()
-        self.node.unvalidate_input_by_key(self.param_str, False)    
+        item = QtGui.QListWidgetItem(str(None))
+        item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
+                      QtCore.Qt.ItemIsSelectable)
+        self.subwidget.addItem(item)
+        self.node.unvalidate_input(self.param_str)    
 
 
+    @lock_notify      
     def buttonplus_clicked(self):
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         row = self.subwidget.currentRow()
         if(row<0): return
         val = seq[row]
@@ -333,11 +340,12 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         seq.insert(row, val)
         self.update_list()
         self.subwidget.setCurrentRow(row)
-        self.node.unvalidate_input_by_key(self.param_str, False)    
+        self.node.unvalidate_input(self.param_str)
         
-
+        
+    @lock_notify      
     def buttonmoins_clicked(self):
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         row = self.subwidget.currentRow ()
         if(row<0): return
         val = seq[row]
@@ -351,18 +359,21 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.update_list()
         self.subwidget.setCurrentRow(row)
-        self.node.unvalidate_input_by_key(self.param_str, False)
+        self.node.unvalidate_input(self.param_str)
         
 
     def itemclick(self, item):
         self.subwidget.editItem(item)
 
 
+    @lock_notify      
     def itemchanged(self, item):
+
+        print self.notify_lock
         
         text = item.text()
         i = self.subwidget.currentRow()
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         
         try:
             obj = eval(str(text))
@@ -372,26 +383,23 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             item.setText(text)
             seq[i] = str(text)
             
-        self.node.unvalidate_input_by_key(self.param_str, False)    
+        self.node.unvalidate_input(self.param_str)
+        
             
-            
+    @lock_notify      
     def keyPressEvent(self, e):
         if(self.connected): return
         key = e.key()
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         if( key == QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
                 self.subwidget.takeItem(row)
                 del(seq[row-1])
-        self.node.unvalidate_input_by_key(self.param_str, False)    
+        self.node.unvalidate_input(self.param_str)    
 
 
-
-    def notify(self, sender, event):
-        """ Notification sent by node """
-        self.update_list()
 
 
 class IDictWidget(IInterfaceWidget, QtGui.QWidget):
@@ -449,11 +457,16 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
                 item.setFlags(QtCore.Qt.ItemIsEnabled|
                               QtCore.Qt.ItemIsSelectable)
 
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        self.update_list()
+
+
 
     def update_list(self):
         """ Rebuild the list """
         
-        dic = self.node.get_input_by_key(self.param_str)
+        dic = self.node.get_input(self.param_str)
         self.subwidget.clear()
         self.rowkey = []
         try:
@@ -465,10 +478,10 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         except Exception, e:
             print e
 
-
+    @lock_notify      
     def button_clicked(self):
         """ Add add an element in the dictionary """
-        dic = self.node.get_input_by_key(self.param_str)
+        dic = self.node.get_input(self.param_str)
         (text, ok) = QtGui.QInputDialog.getText(self, "Key", "Key", )
         if (not ok or text.isEmpty()):
             return
@@ -479,15 +492,15 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
             key = str(text)
 
         dic[key] = None
-        self.node.unvalidate_input_by_key(self.param_str, False)
+        self.node.unvalidate_input(self.param_str)
         self.update_list()
         
-
+    @lock_notify      
     def itemclick(self, item):
         if(self.connected): return
         text = item.text()
         i = self.subwidget.currentRow()
-        dic = self.node.get_input_by_key(self.param_str)
+        dic = self.node.get_input(self.param_str)
         key = self.rowkey[i]
 
         (text, ok) = QtGui.QInputDialog.getText(self, "Value", "Value")
@@ -503,13 +516,14 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
             dic[key] = str(text)
             item.setText("%s : %s"%(str(key), str(text)))
 
-        self.node.unvalidate_input_by_key(self.param_str, False)
+        self.node.unvalidate_input(self.param_str)
 
-            
+        
+    @lock_notify      
     def keyPressEvent(self, e):
         if(self.connected): return
         key   = e.key()
-        seq = self.node.get_input_by_key(self.param_str)
+        seq = self.node.get_input(self.param_str)
         if( key == QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
@@ -519,12 +533,8 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
                 del(seq[key])
                 del(self.rowkey[row - 1])
 
-            self.node.unvalidate_input_by_key(self.param_str, False)
+            self.node.unvalidate_input(self.param_str)
 
-
-    def notify(self, sender, event):
-        """ Notification sent by node """
-        self.update_list()
 
         
 
@@ -557,7 +567,7 @@ class IFileStrWidget(IStrWidget, QtGui.QWidget):
         result = QtGui.QFileDialog.getOpenFileName(self, "Select File", self.last_result )
     
         if(result):
-            self.node.set_input_by_key(self.param_str, str(result))
+            self.node.set_input(self.param_str, str(result))
             self.last_result= result
             
         
@@ -600,15 +610,16 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.valueChanged)
 
-        
+
+    @lock_notify      
     def valueChanged(self, newval):
-        self.node.set_input_by_key(self.param_str, str(newval))
+        self.node.set_input(self.param_str, str(newval))
         
         
     def notify(self, sender, event):
         """ Notification sent by node """
 
-        strvalue = str(self.node.get_input_by_key(self.param_str))
+        strvalue = str(self.node.get_input(self.param_str))
         try:
             index = self.map_index[strvalue]
         except :
@@ -651,11 +662,11 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         
         self.hboxlayout.addWidget(self.colorwidget)
 
-
+    @lock_notify      
     def widget_clicked(self,event):
         
         try:
-            (r,g,b) = self.node.get_input_by_key(self.param_str)
+            (r,g,b) = self.node.get_input(self.param_str)
             oldcolor = QtGui.QColor(r,g,b)
         except:
             oldcolor = QtCore.Qt.White                                        
@@ -663,13 +674,14 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         color = QtGui.QColorDialog.getColor(oldcolor, self)
     
         if(color):
-            self.node.set_input_by_key(self.param_str, (color.red(), color.green(), color.blue()))
+            self.node.set_input(self.param_str, (color.red(), color.green(), color.blue()))
+
 
     def notify(self, sender, event):
         """ Notification sent by node """
 
         try:
-            (r,g,b) = self.node.get_input_by_key(self.param_str)
+            (r,g,b) = self.node.get_input(self.param_str)
         except:
             (r,g,b) = (0,0,0)
         
