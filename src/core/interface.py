@@ -202,6 +202,13 @@ class IInterfaceWidget(object):
         self.node = node
         self.param_str = parameter_str
 
+        # Lock state: if locked, notification must be disabled
+        self.notify_lock = False
+
+    def is_notification_locked(self):
+        """ Return lock state """
+        return self.notify_lock
+
 
     def update_state(self):
         """ Enable or disable widget depending of connection status """
@@ -219,9 +226,21 @@ class IInterfaceWidget(object):
             pass
 
 
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        pass
 
 
+# Decorator function to protect against infinite notification
+def lock_notify(method):
 
+    def wrapped(self, *args, **kwargs):
+        self.notify_lock = True
+        result = method(self, *args, **kwargs)
+        self.notify_lock = False
+        return result
+    
 
+    return wrapped
 
 
