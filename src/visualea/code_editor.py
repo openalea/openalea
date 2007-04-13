@@ -25,17 +25,15 @@ __revision__=" $Id$"
 
 from PyQt4 import QtCore, QtGui
 
-from openalea.core.core import FactoryWidget
 
-
-class NodeCodeEditor(FactoryWidget, QtGui.QWidget):
+class NodeCodeEditor(QtGui.QWidget):
     """ Default node editor """
 
     def __init__(self, factory, parent=None):
         
         QtGui.QWidget.__init__(self, parent)
-        FactoryWidget.__init__(self, factory)
 
+        self.factory = factory
         self.src = None
         self.textedit = self.get_editor()
 
