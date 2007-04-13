@@ -42,6 +42,8 @@ from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage
 
+
+
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  AbstractListener) :
@@ -195,22 +197,22 @@ class MainWindow(QtGui.QMainWindow,
 
         cindex = self.tabWorkspace.currentIndex()
 
-        try :
+        # Try to save factory if widget is a graph
+        try:
             graph = self.index_nodewidget[cindex].node
             modified = graph.graph_modified
+            if(modified):
+                # Generate factory if user want
+                ret = QtGui.QMessageBox.question(self, "Close Workspace",
+                                                 "Graph has been modified.\n"+
+                                                 "Do you want to report changes to factory ?\n",
+                                                 QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+            
+                if(ret == QtGui.QMessageBox.Yes):
+                    self.export_to_factory(graph)
         except:
-            modified = False
-            
-        if(modified):
-            # Generate factory if user want
-            ret = QtGui.QMessageBox.question(self, "Close Workspace",
-                                             "Graph has been modified.\n"+
-                                             "Do you want to report changes to factory ?\n",
-                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
-            if(ret == QtGui.QMessageBox.Yes):
-                graph.to_factory(graph.factory)
-        
+            pass
+           
 
         # Update session
         try:
@@ -310,12 +312,15 @@ class MainWindow(QtGui.QMainWindow,
         self.index_nodewidget[cindex].node.eval()
         
 
-    def export_to_factory(self):
+    def export_to_factory(self, graph):
         """ Export current workspace composite node to its factory """
 
-        cindex = self.tabWorkspace.currentIndex()
-        graph = self.index_nodewidget[cindex].node
+        if(not graph):
+            cindex = self.tabWorkspace.currentIndex()
+            graph = self.index_nodewidget[cindex].node
+            
         graph.to_factory(graph.factory)
+        graph.factory.package.write()
 
 
     def export_to_application(self):
@@ -480,7 +485,7 @@ class MainWindow(QtGui.QMainWindow,
 
             graph = widget.node
             try:
-                graph.to_factory(graph.factory)
+                self.export_to_factory(graph)
             except:
                 pass
 
