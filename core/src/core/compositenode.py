@@ -28,7 +28,7 @@ __revision__=" $Id$ "
 
 import string
 
-from node import NodeFactory, Node
+from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
 
 ###############################################################################
@@ -40,7 +40,7 @@ class DirectedGraph(object):
         pass
 
 
-class CompositeNodeFactory(NodeFactory, DirectedGraph):
+class CompositeNodeFactory(AbstractFactory, DirectedGraph):
     """
     The CompositeNodeFactory is able to create CompositeNode instances
     Each node has an unique id : the element id (elt_id)
@@ -58,7 +58,7 @@ class CompositeNodeFactory(NodeFactory, DirectedGraph):
         """
 
         # Init parent (name, description, category, doc, node, widget=None)
-        NodeFactory.__init__(self, *args, **kargs)
+        AbstractFactory.__init__(self, *args, **kargs)
         DirectedGraph.__init__(self)
 
         # The Package Manager is needed to allocate nodefactory
