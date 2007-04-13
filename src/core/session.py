@@ -16,17 +16,21 @@
 ###############################################################################
 
 __doc__="""
-This module defines the session and datapool classes
+Session regroups all the data which can be stored between different executions
+of the system.
 """
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
+
 from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
 from package import Package, UserPackage
+from observer import Observed
+from datapool import DataPool
 
-from openalea.core.observer import Observed
+
 
 class Session(Observed):
     """
@@ -121,50 +125,4 @@ class Session(Observed):
 
 
     
-
-from openalea.core.singleton import Singleton
-
-# Decorator to add notification to function
-def notify_decorator(f):
-    
-    def wrapped(self, *args, **kargs):
-        ret = f(self, *args, **kargs)
-        self.notify_listeners(('pool_modified',))
-        return ret
-    wrapped.__doc__ = f.__doc__
-
-    return wrapped
-
-
-class DataPool(Observed, dict):
-    """ Dictionnary of session data """
-
-    __metaclass__ = Singleton
-
-
-    def __init__(self):
-
-        Observed.__init__(self)
-        dict.__init__(self)
-        
-        DataPool.__setitem__ = notify_decorator(dict.__setitem__)
-        DataPool.__delitem__ = notify_decorator(dict.__delitem__)
-        DataPool.clear = notify_decorator(dict.clear)
-
-        
-        
-    def add_data(self, key, instance):
-        """ Add an instance referenced by key to the data pool """
-
-        self[key] = instance
-        self.notify_listeners(('pool_modified',))
-
-    def remove_data(self, key):
-        """ Remove the instance identified by key """
-
-        try:
-            del(self[key])
-            self.notify_listeners(('pool_modified',))
-        except:
-            pass
 
