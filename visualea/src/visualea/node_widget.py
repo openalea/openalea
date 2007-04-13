@@ -27,7 +27,7 @@ import sys
 import os
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.core import NodeWidget
+from openalea.core.node import NodeWidget
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from gui_catalog import *
 import types

@@ -26,7 +26,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
-from openalea.core.core import NodeFactory, Package
+from openalea.core.node import NodeFactory
+from openalea.core.package import Package
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
