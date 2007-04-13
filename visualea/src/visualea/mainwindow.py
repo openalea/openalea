@@ -135,9 +135,17 @@ class MainWindow(QtGui.QMainWindow,
 
         # final init
         self.session = session
-        workspace_factory = self.session.user_pkg['Workspace']
-        self.session.add_workspace(workspace_factory)
-        self.open_widget_tab(workspace_factory)
+        wfactory = self.session.user_pkg['Workspace']
+        self.open_compositenode(wfactory)
+        
+        
+
+    def open_compositenode(self, factory):
+        """ open a  composite node editor """
+        node = factory.instantiate()
+
+        self.open_widget_tab(node, factory=factory)
+        self.session.add_workspace(node, notify=False)
 
 
     def about(self):
@@ -210,18 +218,17 @@ class MainWindow(QtGui.QMainWindow,
             
                 if(ret == QtGui.QMessageBox.Yes):
                     self.export_to_factory(graph)
-        except:
+
+        except Exception, e:
             pass
-           
 
         # Update session
         try:
-            factory = self.index_nodewidget[cindex].factory
-            self.session.close_workspace(factory)
+            node = self.index_nodewidget[cindex].node
+            self.session.close_workspace(node, False)
             self.close_tab_workspace(cindex)
-        except:
+        except Exception, e:
             pass
-        
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
@@ -231,25 +238,26 @@ class MainWindow(QtGui.QMainWindow,
         w.close()
         w.emit(QtCore.SIGNAL("close()"))
         
-        #self.index_nodewidget[cindex].release_listeners()
         del(self.index_nodewidget[cindex])
       
 
     def update_tabwidget(self):
         """ open tab widget """
 
+        print "update tabwidget"
         # open tab widgets
-        for i in range(len(self.session.workspaces)):
-            factory = self.session.workspaces[i]
+        for (i, node) in enumerate(self.session.workspaces):
 
             try:
                 widget = self.index_nodewidget[i]
-                if(factory != widget.factory):
+                if(node != widget.node):
                     self.close_tab_workspace(i)
-            except: pass
-            
-            self.open_widget_tab(factory, pos = i)
+                    self.open_widget_tab(node, factory=node.factory, pos = i)
 
+            except Exception, e:
+                print e
+                pass
+            
         removelist = range( len(self.session.workspaces),
                         len(self.index_nodewidget))
         removelist.reverse()
@@ -258,24 +266,24 @@ class MainWindow(QtGui.QMainWindow,
             self.close_tab_workspace(i)
 
 
-    def open_widget_tab(self, factory, caption=None, pos = -1):
+    def open_widget_tab(self, node, factory, caption=None, pos = -1):
         """
-        Open a widget in a tab giving the factory and an instance
+        Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
         """
-        
-        # Test if the node is already opened
+
+                # Test if the node is already opened
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
-            f = widget.factory
-            if(factory is f):
+            n = widget.node
+            if(node is n):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
 
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        widget = factory.edit_widget(parent=container)
+        widget = factory.instantiate_widget(node, parent=container, edit=True)
         widget.wcaption = caption
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -312,7 +320,7 @@ class MainWindow(QtGui.QMainWindow,
         self.index_nodewidget[cindex].node.eval()
         
 
-    def export_to_factory(self, graph):
+    def export_to_factory(self, graph=None):
         """ Export current workspace composite node to its factory """
 
         if(not graph):
@@ -389,9 +397,7 @@ class MainWindow(QtGui.QMainWindow,
             self.pkgmanager.add_package(pkg)
 
             self.reinit_treeview()
-
-            self.session.add_workspace(newfactory)
-            self.open_widget_tab(newfactory)
+            self.open_compositenode(newfactory)
 
 
     def new_python_node(self):

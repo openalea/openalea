@@ -136,6 +136,7 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
         new_df = CompositeNode(self.nb_input, self.nb_output)
         new_df.factory = self
         new_df.__doc__ = self.doc
+        new_df.set_caption(self.get_id())
         
         # Instantiate the node with each factory
         for elt_id in self.elt_factory.keys():
@@ -181,33 +182,22 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
         self.nb_output = v
 
 
-    def instantiate_widget(self, node, parent):
+    def instantiate_widget(self, node=None, parent=None, edit=False):
         """
         Return the corresponding widget initialised with node
         if node is None, the node is allocated
         else a composite widget composed with the node sub widget is returned
 
         """
-
-        if(node == None):
-                node = self.instantiate()
-        try:
-            from openalea.visualea.compositenode_widget import DisplayGraphWidget
-            return DisplayGraphWidget(node, parent)
-
-        except ImportError:
-            raise
-
-
-    def edit_widget(self, parent=None):
-        """ Return the widget to edit the factory """
-        try:
-
+        if(edit):
             from openalea.visualea.compositenode_widget import EditGraphWidget
-            return EditGraphWidget(self, parent)
+            return EditGraphWidget(node, parent)
             
-        except ImportError:
-            raise
+
+        if(node == None):  node = self.instantiate()
+
+        from openalea.visualea.compositenode_widget import DisplayGraphWidget
+        return DisplayGraphWidget(node, parent)
 
 
 
