@@ -505,8 +505,7 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         
         if(isinstance(obj, NodeFactory)):
-            node = obj.instantiate()
-            widget = obj.instantiate_widget(node)
+            widget = obj.instantiate_widget()
             self.open_dialog(widget, obj.get_id())
         
 
@@ -524,11 +523,10 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         
         if(isinstance(obj, CompositeNodeFactory)):
-            self.main_win.session.add_workspace(obj)
-            self.main_win.open_widget_tab(obj)
+            self.main_win.open_compositenode(obj)
 
         elif(isinstance(obj, NodeFactory)):
-            widget = obj.edit_widget()
+            widget = obj.instantiate_widget(edit=True)
             self.open_dialog(widget, obj.get_id())
 
         

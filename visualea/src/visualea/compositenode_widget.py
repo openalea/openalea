@@ -28,7 +28,7 @@ import sys
 import math
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.core import FactoryWidget, NodeWidget, RecursionError
+from openalea.core.node import NodeWidget, RecursionError
 from openalea.core.observer import lock_notify
 
 
@@ -63,14 +63,13 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
 
         
 
-class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
+class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Graph widget allowing to edit the network """
     
-    def __init__(self, factory, parent=None):
+    def __init__(self, node=None, parent=None):
 
-        node = factory.instantiate()
-
-        FactoryWidget.__init__(self, factory)
+        if(node == None): node = factory.instantiate()
+        
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
@@ -490,9 +489,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         # Set ToolTip
         doc= self.subnode.__doc__
         if doc:
-            doc= doc.split('\n')
-            doc= [x.strip() for x in doc] 
-            doc= '\n'.join(doc)
+            doc = doc.split('\n')
+            doc = [x.strip() for x in doc] 
+            doc = '\n'.join(doc)
             self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
                              "Instance : %s\n"%(elt_id,) +
                              "Documentation : \n%s"%(doc,))
