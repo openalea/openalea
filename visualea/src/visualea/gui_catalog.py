@@ -28,7 +28,7 @@ import os
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.interface import *
-   
+from openalea.core.observer import lock_notify         
 
 
 class IFloatWidget(IInterfaceWidget, QtGui.QWidget):

@@ -48,17 +48,26 @@ class Observed(object):
         Send a notification to all listeners
         @param event : an object to pass to the notify function
         """
-        [ ref().notify( self, event ) for ref in self.listeners ]
+        [ ref().notify( self, event ) for ref in self.listeners
+          if(not ref().is_notification_locked())]
 
 
 
 class AbstractListener(object):
     """ Listener base class """
+
+    # Flag to avoid notification
+    notify_lock = []
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
         assert observed != None
         observed.register_listener(self)
+
+
+    def is_notification_locked(self):
+        return len(self.notify_lock)>0
+        
 
     def notify (self, sender, event=None):
         """
@@ -67,7 +76,20 @@ class AbstractListener(object):
         @param event : the data associated to the notification
         """
         raise NotImplementedError()
+
+
+# Decorator function to protect an AbstractListener against notification
+def lock_notify(method):
+
+    def wrapped(self, *args, **kwargs):
+        self.notify_lock.append(True)
+        result = method(self, *args, **kwargs)
+        self.notify_lock.pop()
+        return result
     
+
+    return wrapped
+
 
     
 
