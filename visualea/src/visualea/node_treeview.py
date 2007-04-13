@@ -427,19 +427,6 @@ class NodeFactoryView(object):
         drag.start(QtCore.Qt.MoveAction)
 
         
-    def mouseDoubleClickEvent(self, event):
-
-        item = self.currentIndex()
-        obj =  item.internalPointer()
-
-        if(isinstance(obj, CompositeNodeFactory)):
-            self.edit_node()
-
-        else:
-            self.open_node()
-            
-           
-
     def get_item_info(self, item):
         """ Return (package_id, factory_id, mimetype) corresponding to item """
         
@@ -483,6 +470,32 @@ class NodeFactoryView(object):
             menu.show()
 
 
+    def open_dialog(self, widget, title):
+        """ Open a widget in a dialog box """
+
+        # Open Code editor dialog
+        dialog = QtGui.QDialog(self)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.setParent(dialog)
+                
+        vboxlayout = QtGui.QVBoxLayout(dialog)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+        vboxlayout.addWidget(widget)
+
+        dialog.setWindowTitle(title)
+        dialog.show()
+        
+
+    def mouseDoubleClickEvent(self, event):
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+
+        if(isinstance(obj, CompositeNodeFactory)):
+            self.edit_node()
+        else:
+            self.open_node()
 
 
     def open_node(self):
@@ -492,22 +505,10 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         
         if(isinstance(obj, NodeFactory)):
-        
-            # Open Code editor dialog
-            dialog = QtGui.QDialog(self)
-            dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            
             node = obj.instantiate()
-            widget = obj.instantiate_widget(node, parent=dialog)
-                
-            vboxlayout = QtGui.QVBoxLayout(dialog)
-            vboxlayout.setMargin(3)
-            vboxlayout.setSpacing(5)
-            vboxlayout.addWidget(widget)
-
-            dialog.setWindowTitle(obj.get_id())
-            dialog.show()
+            widget = obj.instantiate_widget(node)
+            self.open_dialog(widget, obj.get_id())
+        
 
         elif(isinstance(obj, Package)):
             # Display URL
@@ -522,10 +523,13 @@ class NodeFactoryView(object):
         item = self.currentIndex()
         obj =  item.internalPointer()
         
-        if(isinstance(obj, NodeFactory)):
+        if(isinstance(obj, CompositeNodeFactory)):
             self.main_win.session.add_workspace(obj)
             self.main_win.open_widget_tab(obj)
 
+        elif(isinstance(obj, NodeFactory)):
+            widget = obj.edit_widget()
+            self.open_dialog(widget, obj.get_id())
 
         
        

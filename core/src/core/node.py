@@ -54,11 +54,11 @@ class Node(Observed):
     Inputs and Outpus are indexed by their position or by a name (str)
     """
 
-    def __init__(self, inputs=(), outputs=(), func_call=None):
+    def __init__(self, inputs=(), outputs=(), func=None):
         """
         @param inputs    : list of dict(name='X', interface=IFloat, value=0)
         @param outputs   : list of dict(name='X', interface=IFloat)
-        @param func_call : A function
+        @param func : A function
 
         Nota : if IO names are not a string, they will be converted to with str()
         """
@@ -95,14 +95,14 @@ class Node(Observed):
         for d in outputs:
             self.add_output(**d)
 
-        self.func_call = func_call
+        self.func = func
 
             
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         
-        if(self.func_call):
-            return self.func_call(*inputs)
+        if(self.func):
+            return self.func(*inputs)
                 
     # Accessor
     def get_factory(self):
@@ -242,8 +242,90 @@ class Node(Observed):
 
 ###############################################################################
 
+###############################################################################
 
-class NodeFactory(Observed):
+
+class AbstractFactory(Observed):
+    """
+    Abstract Factory is Factory base class
+    """
+
+    mimetype = "openalea/factory"
+
+    def __init__(self,
+                 name,
+                 description = '',
+                 category = '',
+                 inputs = (),
+                 outputs = (),
+                 **kargs):
+        
+        """
+        Create a factory.
+        
+        @param name : user name for the node (must be unique) (String)
+        @param description : description of the node (String)
+        @param category : category of the node (String)
+        @param inputs : inputs description
+        @param outputs : outputs description
+
+        Nota : inputs and outputs parameters are list of dictionnary such
+        inputs = (dict(name='x', interface=IInt, value=0,)
+        outputs = (dict(name='y', interface=IInt)
+        """
+        
+        Observed.__init__(self)
+
+        # Factory info
+        self.name = name
+        self.description = description
+        self.category = category
+
+        self.package = None
+
+        self.inputs = kargs.get('inputs', ())
+        self.outputs = kargs.get('outputs', ())
+
+
+    def get_id(self):
+        """ Return the node factory Id """
+        return self.name
+
+
+    def get_tip(self):
+        """ Return the node description """
+
+        return "Name : %s\n"%(self.name,) +\
+               "Category  : %s\n"%(self.category,) +\
+               "Description : %s\n"%(self.description,)
+
+       
+    def instantiate(self, call_stack=[]):
+        """ Return a node instance
+        @param call_stack : the list of NodeFactory id already in call stack
+        (in order to avoir infinite recursion)
+        """
+        raise NotImplementedError()
+    
+
+    def instantiate_widget(self, node, parent=None):
+        """ Return the corresponding widget initialised with node """
+        raise NotImplementedError()
+
+    
+
+    def edit_widget(self, parent=None):
+        """ Return the widget to edit the factory """
+        raise NotImplementedError()
+
+
+    def get_writer(self):
+        """ Return the writer class """
+        raise NotImplementedError()
+    
+
+
+class NodeFactory(AbstractFactory):
     """
     A Node factory is able to create nodes on demand,
     and their associated widgets.
@@ -255,6 +337,8 @@ class NodeFactory(Observed):
                  name,
                  description = '',
                  category = '',
+                 inputs = (),
+                 outputs = (),
                  nodemodule = '',
                  nodeclass = None,
                  widgetmodule = None,
@@ -272,26 +356,25 @@ class NodeFactory(Observed):
         @param nodeclass :  node class name to be created (String)
         @param widgetmodule : python module to import for widget (String)
         @param widgetclass : widget class name (String)
-
+        @param inputs : inputs description
+        @param outputs : outputs description
         @param seach_path (opt) : list of directories where to search for module
+        
+        Nota : inputs and outputs parameters are list of dictionnary such
+        inputs = (dict(name='x', interface=IInt, value=0,)
+        outputs = (dict(name='y', interface=IInt)
+
         
         """
         
-        Observed.__init__(self)
+        AbstractFactory.__init__(self, name, description, category,
+                                 inputs, outputs, **kargs)
 
         # Factory info
-        self.name = name
-        self.description = description
-        self.category = category
         self.nodemodule_name = nodemodule
         self.nodeclass_name = nodeclass
         self.widgetmodule_name = widgetmodule
         self.widgetclass_name = widgetclass
-
-        self.package = None
-
-        self.inputs = kargs.get('inputs', ())
-        self.outputs = kargs.get('outputs', ())
 
         # Cache
         self.nodeclass = None
@@ -307,18 +390,6 @@ class NodeFactory(Observed):
         if(not caller_dir in self.search_path):
             self.search_path.append(caller_dir)
         
-
-    def get_id(self):
-        """ Return the node factory Id """
-        return self.name
-
-
-    def get_tip(self):
-        """ Return the node description """
-
-        return "Name : %s\n"%(self.name,) +\
-               "Category  : %s\n"%(self.category,) +\
-               "Description : %s\n"%(self.description,)
 
        
     def instantiate(self, call_stack=[]):
