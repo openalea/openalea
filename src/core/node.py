@@ -250,7 +250,7 @@ class AbstractFactory(Observed):
     Abstract Factory is Factory base class
     """
 
-    mimetype = "openalea/factory"
+    mimetype = "openalea/nodefactory"
 
     def __init__(self,
                  name,
@@ -308,17 +308,11 @@ class AbstractFactory(Observed):
         raise NotImplementedError()
     
 
-    def instantiate_widget(self, node, parent=None):
-        """ Return the corresponding widget initialised with node """
+    def instantiate_widget(self, node=None, parent=None, edit=False):
+        """ Return the corresponding widget initialised with node"""
         raise NotImplementedError()
 
     
-
-    def edit_widget(self, parent=None):
-        """ Return the widget to edit the factory """
-        raise NotImplementedError()
-
-
     def get_writer(self):
         """ Return the writer class """
         raise NotImplementedError()
@@ -330,8 +324,6 @@ class NodeFactory(AbstractFactory):
     A Node factory is able to create nodes on demand,
     and their associated widgets.
     """
-
-    mimetype = "openalea/nodefactory"
 
     def __init__(self,
                  name,
@@ -423,11 +415,17 @@ class NodeFactory(AbstractFactory):
         return node
                     
 
-    def instantiate_widget(self, node, parent=None):
+    def instantiate_widget(self, node=None, parent=None, edit=False):
         """ Return the corresponding widget initialised with node """
 
-        if(node == None):
-            node = self.instantiate()
+        # Code Editor
+        if(edit):
+            from openalea.visualea.code_editor import NodeCodeEditor
+            return NodeCodeEditor(self, parent)
+
+
+        # Node Widget
+        if(node == None): node = self.instantiate()
 
         modulename = self.widgetmodule_name
         if(not modulename) :   modulename = self.nodemodule_name
@@ -444,24 +442,12 @@ class NodeFactory(AbstractFactory):
 
         # if no widget declared, we create a default one
         else:
-            try:
-                
-                from openalea.visualea.node_widget import DefaultNodeWidget
-                return DefaultNodeWidget(node, parent)
+            from openalea.visualea.node_widget import DefaultNodeWidget
+            return DefaultNodeWidget(node, parent)
             
-            except ImportError:
-                raise
-
 
     def edit_widget(self, parent=None):
         """ Return the widget to edit the factory """
-        try:
-            
-            from openalea.visualea.code_editor import NodeCodeEditor
-            return NodeCodeEditor(self, parent)
-            
-        except ImportError:
-            raise
             
 
     def get_writer(self):
@@ -596,13 +582,6 @@ class NodeWidget(AbstractListener):
     def is_empty( self ):
         return False
         
-
-class FactoryWidget(object):
-    """ Base class for factory widgets."""
-
-    def __init__(self, factory):
-        """ Init the widget with the associated node """
-        self.factory = factory
 
 
 ################################################################################

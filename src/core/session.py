@@ -31,6 +31,7 @@ from openalea.core.observer import Observed
 class Session(Observed):
     """
     A session is composed by different workspaces, and an user package.
+    A workspace is an open node
     A session can be saved on disk.
     """
 
@@ -43,25 +44,25 @@ class Session(Observed):
         # Instantiate a Package Manager
         self.pkgmanager = PackageManager()
 
-
         self.workspaces = []
         self.datapool = DataPool()
         self.clear()
 
        
-    def add_workspace(self, factory):
+    def add_workspace(self, compositenode, notify=True):
         """ Open a new workspace in the session"""
 
-        self.workspaces.append(factory)
-        self.notify_listeners()
-        return factory
+        if(compositenode not in self.workspaces):
+            self.workspaces.append(compositenode)
+            if(notify): self.notify_listeners()
+        return compositenode
     
 
-    def close_workspace(self, index):
+    def close_workspace(self, index, notify=True):
         """ Close workspace at index """
         try:
             del(self.workspaces[index])
-            self.notify_listeners()
+            if(notify) : self.notify_listeners()
         except:
             pass
 
