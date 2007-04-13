@@ -17,25 +17,26 @@
 
 
 __doc__= """
-Test the subgraph module
+Test the composite node module
 """
 
 libraryname = "Library"
 
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.subgraph import SubGraphFactory, SubGraph
+from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 from openalea.core.core import Package, RecursionError 
 
-def test_instantiate_subgraph():
-    """ Subgraph factory to subgraph instantiation """
-    
+
+# Test instantiation
+def test_instantiate_compositenode():
+       
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = SubGraphFactory(pm, "addition")
+    sgfactory = CompositeNodeFactory(pm, "addition")
 
-    # build the subgraph factory
+    # build the compositenode factory
     addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
     val1id = sgfactory.add_nodefactory ('f1', (libraryname, "float")) 
     val2id = sgfactory.add_nodefactory ('f2', (libraryname, "float"))
@@ -46,26 +47,26 @@ def test_instantiate_subgraph():
     sgfactory.add_connection (addid, 0, val3id, 0)
 
 
-    # allocate the subgraph
-
+    # allocate the compositenode
     sg = sgfactory.instantiate()
 
     sg.get_node_by_id(val1id).set_input(0, 2.)
     sg.get_node_by_id(val2id).set_input(0, 3.)
 
-        # evaluation
+    # evaluation
     sg()
 
     assert sg.get_node_by_id(val3id).get_input(0) == 5.
 
 
+# Test conversion Composite Node to its Factory
 def test_to_factory():
-    """ Create a subgraph, generate its factory and reintantiate it """
+    """ Create a compositenode, generate its factory and reintantiate it """
 
     pm = PackageManager ()
     pm.init()
 
-    sg = SubGraph()
+    sg = CompositeNode()
 
     n1 = pm.get_node(libraryname, "float")
     n2 = pm.get_node(libraryname, "float")
@@ -78,7 +79,7 @@ def test_to_factory():
     sg()
     assert n2.get_input(0) == 34.
 
-    sgfactory = SubGraphFactory(pm, "factorytest")
+    sgfactory = CompositeNodeFactory(pm, "factorytest")
     sg.to_factory(sgfactory)
 
     sg2 = sgfactory.instantiate()
@@ -93,15 +94,15 @@ def test_to_factory():
     
     
 
+# Test Recursion detection
 def test_recursion_factory():
-
 
     pm = PackageManager ()
     pm.init()
-    pkg = Package("subgraph", {})
+    pkg = Package("compositenode", {})
 
-    sgfactory1 = SubGraphFactory(pm, "graph1")
-    sgfactory2 = SubGraphFactory(pm,  "graph2")
+    sgfactory1 = CompositeNodeFactory(pm, "graph1")
+    sgfactory2 = CompositeNodeFactory(pm,  "graph2")
 
     map (pkg.add_factory, (sgfactory1, sgfactory2))
 
@@ -109,10 +110,10 @@ def test_recursion_factory():
 
     pm.add_package(pkg)
     
-    # build the subgraph factory
+    # build the compositenode factory
 
-    sgfactory1.add_nodefactory ('g1', ("subgraph", "graph2"))
-    sgfactory2.add_nodefactory ('g2', ("subgraph", "graph1"))
+    sgfactory1.add_nodefactory ('g1', ("compositenode", "graph2"))
+    sgfactory2.add_nodefactory ('g2', ("compositenode", "graph1"))
 
     try:
         sg = sgfactory1.instantiate ()
@@ -121,16 +122,17 @@ def test_recursion_factory():
         assert True
         
 
-def test_subgraphio():
+# Test IO
+def test_compositenodeio():
 
     pm = PackageManager ()
     pm.init()
 
-    pkg = Package("subgraph", {})
+    pkg = Package("compositenode", {})
 
-    # create a subgraph with 2 in and 1 out
-    # the subgraph does an addition
-    sgfactory = SubGraphFactory(pm, "additionsg")
+    # create a compositenode with 2 in and 1 out
+    # the compositenode does an addition
+    sgfactory = CompositeNodeFactory(pm, "additionsg")
     sgfactory.set_nb_input(2)
     sgfactory.set_nb_output(1)
         
@@ -144,8 +146,8 @@ def test_subgraphio():
     pm.add_package(pkg)
 
 
-    sgfactory2 = SubGraphFactory(pm, "testio")
-    addid = sgfactory2.add_nodefactory ('g1', ("subgraph", "additionsg"))
+    sgfactory2 = CompositeNodeFactory(pm, "testio")
+    addid = sgfactory2.add_nodefactory ('g1', ("compositenode", "additionsg"))
     val1id = sgfactory2.add_nodefactory('f1', (libraryname, "float"))
     val2id = sgfactory2.add_nodefactory('f2', (libraryname, "float"))
     val3id = sgfactory2.add_nodefactory('f3', (libraryname, "float"))
@@ -154,7 +156,7 @@ def test_subgraphio():
     sgfactory2.add_connection (val2id, 0, addid, 1)
     sgfactory2.add_connection (addid, 0, val3id, 0)
 
-    # allocate the subgraph
+    # allocate the compositenode
         
     sg = sgfactory2.instantiate()
 
@@ -168,22 +170,22 @@ def test_subgraphio():
     assert sg.get_node_by_id(val3id).get_input(0) == 5.
 
 
-
+# Test  node addition
 def test_addnode():
 
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = SubGraphFactory(pm, "testaddnode")
+    sgfactory = CompositeNodeFactory(pm, "testaddnode")
 
-    # build the subgraph factory
+    # build the compositenode factory
     val1id = sgfactory.add_nodefactory ('f1', (libraryname, "float"))
     val2id = sgfactory.add_nodefactory ('f2', (libraryname, "float"))
 
     sgfactory.add_connection (val1id, 0, val2id, 0)
 
 
-    # allocate the subgraph
+    # allocate the compositenode
 
     sg = sgfactory.instantiate()
 
@@ -201,14 +203,15 @@ def test_addnode():
     assert sg.get_node_by_id(val2id).get_input(0) == 3.
 
 
+# Test multiple out connection
 def test_multi_out_eval():
 
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = SubGraphFactory(pm, "testlazyeval")
+    sgfactory = CompositeNodeFactory(pm, "testlazyeval")
 
-    # build the subgraph factory
+    # build the compositenode factory
     val1id = sgfactory.add_nodefactory('s1', (libraryname, "string"))
     val2id = sgfactory.add_nodefactory('s2', (libraryname, "string"))
     val3id = sgfactory.add_nodefactory('s3', (libraryname, "string"))
@@ -217,7 +220,7 @@ def test_multi_out_eval():
     sgfactory.add_connection (val1id, 0, val3id, 0)
 
 
-    # allocate the subgraph
+    # allocate the compositenode
     sg = sgfactory.instantiate()
 
     sg.get_node_by_id(val1id).set_input(0,"teststring")
@@ -235,13 +238,3 @@ def test_multi_out_eval():
 
 
 
-# def test_lazy_eval():
-#     pass
-
-
-# test_subgraph()
-# test_recursion()
-# test_subgraphio()
-# test_addnode()
-# test_multi_out_eval()
-# test_lazy_eval()

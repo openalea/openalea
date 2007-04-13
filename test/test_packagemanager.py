@@ -46,7 +46,7 @@ def test_load_pm():
     simpleop = pkgman["Library"]
     assert simpleop
 
-    addfactory = simpleop.get_factory('add')
+    addfactory = simpleop.get_factory('int')
     assert addfactory != None
     assert addfactory.instantiate()
 
@@ -67,6 +67,18 @@ def test_category():
         for factory in  cat:
             assert not factory.get_id() in s
             s.add(factory.get_id())
+
+
+def test_search():
+    pkgman = PackageManager()
+    pkgman.add_wralea("test_wralea.py")
+
+    assert pkgman.has_key('Test')
+
+    res = pkgman.search_node("sum")
+    assert len(res) == 1
+    assert "sum" in res[0].name
+
                 
             
 

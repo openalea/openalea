@@ -45,3 +45,39 @@ def register_packages(pkgmanager):
     
     pkgmanager.add_package(package1)
 
+
+
+
+from openalea.core.pkgmanager import PackageManager
+
+def test_register():
+
+    pkgmanager = PackageManager()
+
+    register_packages(pkgmanager)
+
+    assert "Test" in  pkgmanager.keys()
+
+    pkg = pkgmanager["Test"]
+
+    assert "sum" in pkg.keys()
+    assert "userclass" in pkg.keys()
+    assert "userfunc" in pkg.keys()
+
+    fact = pkg["sum"]
+    node = fact.instantiate()
+    assert (node.get_nb_input() == 1) and (node.get_nb_output() == 1)
+    
+    fact = pkg["userfunc"]
+    node = fact.instantiate()
+    assert (node.get_nb_input() == 2) and (node.get_nb_output() == 1)
+
+    fact = pkg["userclass"]
+    node = fact.instantiate()
+    assert (node.get_nb_input() == 2) and (node.get_nb_output() == 1)
+
+    
+    
+    
+
+
