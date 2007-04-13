@@ -23,6 +23,7 @@ __revision__=" $Id$ "
 
 from metaclass import make_metaclass
 from singleton import Singleton
+from observer import AbstractListener
 import types
 
 # Dictionary to map Interface with corresponding python type
@@ -186,7 +187,8 @@ class IWidgetMetaClass(type):
             InterfaceWidgetMap().declare_interface(cls.__interface__, cls)
 
 
-class IInterfaceWidget(object):
+
+class IInterfaceWidget(AbstractListener):
     """ Base class for widget associated to an interface """
 
     __metaclass__ = IWidgetMetaClass
@@ -201,13 +203,6 @@ class IInterfaceWidget(object):
   
         self.node = node
         self.param_str = parameter_str
-
-        # Lock state: if locked, notification must be disabled
-        self.notify_lock = False
-
-    def is_notification_locked(self):
-        """ Return lock state """
-        return self.notify_lock
 
 
     def update_state(self):
@@ -230,17 +225,5 @@ class IInterfaceWidget(object):
         """ Notification sent by node """
         pass
 
-
-# Decorator function to protect against infinite notification
-def lock_notify(method):
-
-    def wrapped(self, *args, **kwargs):
-        self.notify_lock = True
-        result = method(self, *args, **kwargs)
-        self.notify_lock = False
-        return result
-    
-
-    return wrapped
 
 
