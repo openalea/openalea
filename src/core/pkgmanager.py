@@ -227,7 +227,7 @@ class PackageManager(object):
         """
 
         if(self.pkgs.has_key(name)):
-            return
+            return self.pkgs[name]
 
         # Create directory
         if(not path):
