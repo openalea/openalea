@@ -135,7 +135,7 @@ class Abs(Node):
 
     def __call__(self, inputs):
         
-        obj = self.get_input_by_key("object")
+        obj = self.get_input("object")
 
         f = None
         if callable(obj):
@@ -159,8 +159,8 @@ class Cmp(Node):
 
     def __call__(self, inputs):
         
-        x = self.get_input_by_key("x")
-        y = self.get_input_by_key("y")
+        x = self.get_input("x")
+        y = self.get_input("y")
         
         f = cmp(x,y)
         return (f, )
@@ -181,8 +181,8 @@ class Pow(Node):
 
     def __call__(self, inputs):
         
-        x = self.get_input_by_key("x")
-        y = self.get_input_by_key("y")
+        x = self.get_input("x")
+        y = self.get_input("y")
         
         f = pow(x,y)
         return (f, )
@@ -201,8 +201,8 @@ class Round( Node ):
 
     def __call__(self, inputs):
         
-        x = self.get_input_by_key("x")
-        n = self.get_input_by_key("n")
+        x = self.get_input("x")
+        n = self.get_input("n")
         
         f = round(x,n)
         return ( f, )
@@ -220,7 +220,7 @@ class Min(Node):
 
     def __call__(self, inputs):
         
-        s = self.get_input_by_key("s")
+        s = self.get_input("s")
         
         f = min(s)
         return (f, )
@@ -238,7 +238,7 @@ class Max(Node):
 
     def __call__(self, inputs):
         
-        s = self.get_input_by_key("s")
+        s = self.get_input("s")
         
         f = max(s)
         return (f, )
@@ -258,8 +258,8 @@ class RandInt(Node):
     def __call__(self, inputs):
         
         import random
-        a = self.get_input_by_key("a")
-        b = self.get_input_by_key("b")
+        a = self.get_input("a")
+        b = self.get_input("b")
         
         rand = random.randint(a,b)
         self.modified = True

@@ -52,9 +52,9 @@ Parameters :
         """ inputs is the list of input values """
 
         # We prefer here to get the value by key
-        x = self.get_input_by_key("X")
-        a = self.get_input_by_key("A")
-        b = self.get_input_by_key("B")
+        x = self.get_input("X")
+        a = self.get_input("A")
+        b = self.get_input("B")
 
         y = a*x + b
 

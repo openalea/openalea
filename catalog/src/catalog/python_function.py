@@ -53,8 +53,8 @@ Parameters :
         """ inputs is the list of input values """
 
         # We prefer here to get the value by key
-        a = self.get_input_by_key("A")
-        b = self.get_input_by_key("B")
+        a = self.get_input("A")
+        b = self.get_input("B")
 
         f = lambda x: a*x + b
 
@@ -84,12 +84,12 @@ class IfElse(Node):
 
     def __call__(self, inputs):
 
-        c = self.get_input_by_key("Cond")
+        c = self.get_input("Cond")
 
         if (bool(c)):
-            return (self.get_input_by_key("Expr1"),)
+            return (self.get_input("Expr1"),)
         else:
-            return (self.get_input_by_key("Expr2"),)
+            return (self.get_input("Expr2"),)
 
 
 class Equal(Node):
@@ -109,8 +109,8 @@ class Equal(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
-        v2 = self.get_input_by_key("V2")
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
         
         return (v1 == v2,)
 
@@ -133,8 +133,8 @@ class Greater(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
-        v2 = self.get_input_by_key("V2")
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
         
         return (v1 > v2,)
     
@@ -157,8 +157,8 @@ class GreaterOrEqual(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
-        v2 = self.get_input_by_key("V2")
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
         
         return (v1 >= v2,)
 
@@ -180,8 +180,8 @@ class And(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
-        v2 = self.get_input_by_key("V2")
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
         return (v1 and v2,)
 
 
@@ -202,8 +202,8 @@ class Or(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
-        v2 = self.get_input_by_key("V2")
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
         return (v1 or v2,)
 
 
@@ -223,7 +223,7 @@ class Not(Node):
 
     def __call__(self, inputs):
 
-        v1 = self.get_input_by_key("V1")
+        v1 = self.get_input("V1")
         return (not v1, )
 
 
@@ -258,9 +258,9 @@ Output:
 
     def __call__(self, inputs):
 
-        f= self.get_input_by_key("f")
-        op_key= self.get_input_by_key("op")
-        g= self.get_input_by_key("g")
+        f= self.get_input("f")
+        op_key= self.get_input("op")
+        g= self.get_input("g")
 
         op= self.op_dict[op_key]
         
