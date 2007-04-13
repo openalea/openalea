@@ -29,7 +29,7 @@ import math
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.core import FactoryWidget, NodeWidget, RecursionError
-
+from openalea.core.observer import lock_notify
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -87,9 +87,6 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
 
         self.newedge = None
 
-        # notification is enabled if the queue is empty
-        self.notification_enabled = []
-
         # dictionnary mapping elt_id and graphical items
         self.graph_item = {}
         
@@ -116,10 +113,9 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         self.setScene(scene)
 
 
+    @lock_notify      
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
-
-        self.notification_enabled.append(False)
 
         self.clear_scene()
         # create items
@@ -136,8 +132,6 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
             in_connector = dstitem.get_input_connector(in_port)
 
             self.add_graphical_connection(out_connector, in_connector)
-
-        self.notification_enabled.pop()
 
 
     # Mouse events
@@ -162,7 +156,7 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
             QtGui.QGraphicsView.mousePressEvent(self, event)
 
 
-
+    @lock_notify
     def mouseReleaseEvent(self, event):
         
         if(self.newedge):
@@ -171,19 +165,15 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
                and isinstance(self.newedge.connector(), ConnectorOut)
                and not item.is_connected() ):
 
-                self.notification_enabled.append(False)
                 self.connect_node( self.newedge.connector(), item)
                 self.add_graphical_connection( self.newedge.connector(), item)
-                self.notification_enabled.pop()
 
 
             elif(item and isinstance(item, ConnectorOut) and
                  isinstance(self.newedge.connector(), ConnectorIn) ):
 
-                self.notification_enabled.append(False)
                 self.connect_node( item, self.newedge.connector())
                 self.add_graphical_connection( item, self.newedge.connector())
-                self.notification_enabled.pop()
         
             self.scene().removeItem(self.newedge)
             self.newedge = None
@@ -205,7 +195,6 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
     def notify(self, sender, event):
         """ Function called by observed objects """
 
-        if(len(self.notification_enabled)>0): return
         if(not event): return
 
         if( event[0] == "connection_modified"):
@@ -349,15 +338,12 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         del(self.graph_item[elt_id])
                 
 
+    @lock_notify      
     def remove_node(self, elt_id):
         """ Remove node identified by elt_id """
 
-        self.notification_enabled.append(False)
-
         self.remove_graphical_node(elt_id)
         self.node.remove_node(elt_id)
-        
-        self.notification_enabled.pop()
 
 
     def remove_graphical_connection(self, src_connector, dst_connector):
@@ -369,16 +355,13 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         self.scene().removeItem(item)
 
 
+    @lock_notify
     def remove_connection(self, connector_src, connector_dst):
         """ Remove a connection """
-
-        self.notification_enabled.append(False)
 
         self.remove_graphical_connection(connector_src, connector_dst)
         self.node.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
-
-        self.notification_enabled.pop()
     
 
     # Drag and Drop from TreeView support
@@ -397,11 +380,10 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
         else:
             QtGui.QGraphicsView.dragMoveEvent(self, event)
 
-            
+
+    @lock_notify
     def add_new_node(self, package_id, factory_id, position):
         """ convenience function """
-
-        self.notification_enabled.append(False)
 
         # Add new node
         pkgmanager = self.node.factory.pkgmanager
@@ -412,18 +394,16 @@ class EditGraphWidget(FactoryWidget, NodeWidget, QtGui.QGraphicsView):
             
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
+            newnode.set_data('posx', position.x())
+            newnode.set_data('posy', position.y())
+        
+            newid = self.node.add_node(newnode)
+            self.add_graphical_node(newid)
+
         except RecursionError:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
-            self.notification_enabled.pop()
-            return
 
-        newnode.set_data('posx', position.x())
-        newnode.set_data('posy', position.y())
-        
-        newid = self.node.add_node(newnode)
-        self.add_graphical_node(newid)
-        self.notification_enabled.pop()
                 
 
     def dropEvent(self, event):
