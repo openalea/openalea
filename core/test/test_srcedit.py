@@ -33,7 +33,7 @@ def setup_func():
            """
 from openalea.core import *
 
-class MyNode(Node):
+class MyNode:
 
     def __init__(self):
         pass
@@ -43,7 +43,7 @@ class MyNode(Node):
         return inputs
 """
 
-    file = open("testmodule.py", 'w')
+    file = open("mymodule.py", 'w')
     file.write(modsrc)
     file.close()
 
@@ -60,7 +60,7 @@ def register_packages(pkgmanager):
     f = Factory( name= "test",
                  category = "",
                  description = "",
-                 nodemodule = "testmodule",
+                 nodemodule = "mymodule",
                  nodeclass = "MyNode",
                  
                  )
@@ -70,7 +70,7 @@ def register_packages(pkgmanager):
     pkgmanager.add_package(package1)
 """
 
-    file = open("test_wralea.py", 'w')
+    file = open("my_wralea.py", 'w')
     file.write(wraleasrc)
     file.close()
 
@@ -91,7 +91,7 @@ def test_srcedit():
     factory = pm['TEST']['test']
 
     node1 = factory.instantiate()
-    assert node1( (1,2,3) ) == (1,2,3)
+    assert node1.func( (1,2,3) ) == (1,2,3)
     
     src = factory.get_node_src()
     assert src
@@ -101,7 +101,7 @@ def test_srcedit():
 
     factory.apply_new_src(newsrc)
     node2 = factory.instantiate()
-    assert node2( (1,2,3) ) == 6
+    assert node2.func( (1,2,3) ) == 6
 
     factory.save_new_src(newsrc)
 
@@ -120,11 +120,12 @@ def test_srcedit():
 
     node = factory.instantiate()
 
-    assert node( (1,2,3) ) == 6 
+    assert node( ((1,2,3),) ) == 6
 
+    os.remove('mymodule.py')
+    os.remove('my_wralea.py')
+    
 
-setup_func()
-test_srcedit()
     
 
     

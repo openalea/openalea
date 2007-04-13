@@ -22,24 +22,24 @@ Test the subgraph module
 
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.subgraph import SubGraphFactory
-from openalea.core.core import Factory
-
+from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.node import Factory
+import os
 
 libraryname = "Library"
 
 
-def test_subgraphwriter():
+def test_compositenodewriter():
 
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = SubGraphFactory(pm, "addition")
+    sgfactory = CompositeNodeFactory(pm, "addition")
 
     sgfactory.set_nb_input(3)
     sgfactory.set_nb_input(4)
     
-    # build the subgraph factory
+    # build the compositenode factory
     addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
     val1id = sgfactory.add_nodefactory ('f1', (libraryname, "float")) 
     val2id = sgfactory.add_nodefactory ('f2', (libraryname, "float"))
@@ -60,14 +60,14 @@ def test_subgraphwriter():
                }
 
 
-    package1 = pm.create_user_package("TestPackage", metainfo)
+    package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
 
     package1.write()
     
     pm.init()
 
-    newsg = pm.get_node('TestPackage', 'addition')
+    newsg = pm.get_node('MyPackage', 'addition')
 
     sg = sgfactory.instantiate()
 
@@ -85,6 +85,7 @@ def test_nodewriter():
     pm = PackageManager ()
     pm.init()
 
+
     # Package
     metainfo = { 'version' : '0.0.1',
                'license' : 'CECILL-C',
@@ -94,18 +95,30 @@ def test_nodewriter():
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
-    package1 = pm.create_user_package("TestPackage", metainfo)
+    package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
+
+    assert package1 != None
 
     nf = package1.create_user_factory(name="mynode",
-                                 category='test',
-                                 description="descr",
-                                 )
+                                      category='test',
+                                      description="descr",
+                                      nbin=0, nbout=0
+                                      )
+
     
     package1.write()
     
     pm.init()
 
-    newsg = pm.get_node('TestPackage', 'mynode')
+    newsg = pm.get_node('MyPackage', 'mynode')
+
+    os.remove("MyPackage_wralea.py")
+    os.remove("MyPackage_wralea.pyc")
+    os.remove("mynode.py")
+    os.remove("mynode.pyc")
+
+    
+
 
 
 
