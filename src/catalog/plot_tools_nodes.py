@@ -44,4 +44,4 @@ class plot2D( Node ):
         self.add_input( name='ylabel', interface=IStr, value='y-axis' )
 
     def __call__( self, inputs=() ):
-        plot_tools.plot2D( self.get_input_by_key( 'plotObjList' ), self.get_input_by_key( 'title' ), self.get_input_by_key( 'xlabel' ), self.get_input_by_key( 'ylabel' ) )
+        plot_tools.plot2D( self.get_input( 'plotObjList' ), self.get_input( 'title' ), self.get_input( 'xlabel' ), self.get_input( 'ylabel' ) )
