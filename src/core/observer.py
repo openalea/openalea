@@ -39,9 +39,11 @@ class Observed(object):
         wr = weakref.ref(listener, self.unregister_listener)
         self.listeners.add(wr)
     
+
     def unregister_listener(self, listener):
         """ Remove listener from the list of listeners """
         self.listeners.discard(listener)
+
 
     def notify_listeners(self, event=None):
         """
@@ -50,6 +52,15 @@ class Observed(object):
         """
         [ ref().notify( self, event ) for ref in self.listeners
           if(not ref().is_notification_locked())]
+
+
+    def __getstate__(self):
+        """ Pickle function """
+
+        odict = self.__dict__.copy() 
+        odict['listeners'] = set()
+        return odict
+
 
 
 

@@ -52,13 +52,13 @@ class DataPool(Observed, dict):
         DataPool.__delitem__ = notify_decorator(dict.__delitem__)
         DataPool.clear = notify_decorator(dict.clear)
 
-        
-        
+                
     def add_data(self, key, instance):
         """ Add an instance referenced by key to the data pool """
 
         self[key] = instance
         self.notify_listeners(('pool_modified',))
+
 
     def remove_data(self, key):
         """ Remove the instance identified by key """
@@ -68,4 +68,5 @@ class DataPool(Observed, dict):
             self.notify_listeners(('pool_modified',))
         except:
             pass
+
 
