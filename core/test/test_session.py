@@ -38,50 +38,52 @@ def add_user_class(datapool):
     
 def test_save_datapool():
     
-    session = Session()
-    datapool = session.datapool
+    asession = Session()
+    datapool = asession.datapool
 
     datapool['i'] = [1,2,3]
 
     add_user_class(datapool)
-    session.save('test.pic')
+    asession.save('test.pic')
 
-    session.datapool.clear()
-    session.load('test.pic')
+    asession.datapool.clear()
+    asession.load('test.pic')
     
-    assert session.datapool['i'] == [1,2,3]
+    assert asession.datapool['i'] == [1,2,3]
     os.remove('test.pic')
+
 
 
 def test_save_workspace():
     
-    session = Session()
+    asession = Session()
 
-    sgfactory = CompositeNodeFactory(session.pkgmanager, name="SubGraphExample",
+    import sys
+    
+    sgfactory = CompositeNodeFactory(asession.pkgmanager, name="SubGraphExample",
                                 description= "Examples",
                                 category = "Examples",
                                 )
-
     # build the subgraph factory
 
     addid = sgfactory.add_nodefactory ('i', ("Library", "int"))
     instance = sgfactory.instantiate()
+
     instance.node_id['i'].set_input(0,3)
 
-    session.add_workspace(instance)
+    asession.add_workspace(instance)
 
-    session.save('test.pic')
+    asession.save('test.pic')
 
-    session.workspaces = []
-    session.load('test.pic')
+    asession.workspaces = []
+    asession.load('test.pic')
 
-    i = session.workspaces[0]
-    assert isinstance(i, CompositeNode)
+    i = asession.workspaces[0]
+    assert type(i) == type(instance)
     assert i.node_id['i'].get_input(0) == 3
     os.remove('test.pic')
 
 
-test_save_workspace()
 
 
 

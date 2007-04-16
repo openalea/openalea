@@ -33,6 +33,7 @@ class Observed(object):
 
         self.listeners = set()
 
+
     def register_listener(self, listener):
         """ Add listener to list of listeners """
 

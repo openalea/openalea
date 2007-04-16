@@ -24,7 +24,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-import os
+import os, sys
 from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
 from package import Package, UserPackage
@@ -116,7 +116,6 @@ class Session(Observed):
         d = shelve.open(self.session_filename)
 
         # modules
-        import sys
         modules_path = []
         for m in sys.modules.values():
             if hasattr(m, '__file__'):
@@ -162,7 +161,7 @@ class Session(Observed):
     def load_module(self, name, path):
 
         import imp
-
+        if(name in sys.modules.keys()) : return
         lastname = name.rsplit('.', 1)[-1]
         if(not os.path.isdir(path)):
             path = os.path.dirname(path)
