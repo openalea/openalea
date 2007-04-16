@@ -180,7 +180,7 @@ class MainWindow(QtGui.QMainWindow,
 
         if(type(sender) == type(self.session)):
             self.update_tabwidget()
-            #self.reinit_treeview()
+            self.reinit_treeview()
 
         
 
@@ -198,6 +198,8 @@ class MainWindow(QtGui.QMainWindow,
 
         self.cat_model.reset()
         self.pkg_model.reset()
+        self.datapool_model.reset()
+        self.search_model.reset()
         
 
     def close_workspace(self):
@@ -230,6 +232,7 @@ class MainWindow(QtGui.QMainWindow,
         except Exception, e:
             pass
 
+
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
         
@@ -244,24 +247,20 @@ class MainWindow(QtGui.QMainWindow,
     def update_tabwidget(self):
         """ open tab widget """
 
-        print "update tabwidget"
         # open tab widgets
         for (i, node) in enumerate(self.session.workspaces):
 
-            try:
+            if(i<len(self.index_nodewidget)):
                 widget = self.index_nodewidget[i]
                 if(node != widget.node):
                     self.close_tab_workspace(i)
-                    self.open_widget_tab(node, factory=node.factory, pos = i)
+            self.open_widget_tab(node, factory=node.factory, pos = i)
 
-            except Exception, e:
-                print e
-                pass
             
+        # close last tabs
         removelist = range( len(self.session.workspaces),
                         len(self.index_nodewidget))
         removelist.reverse()
-        
         for i in removelist:
             self.close_tab_workspace(i)
 
@@ -469,7 +468,7 @@ class MainWindow(QtGui.QMainWindow,
     def open_session(self):
 
         filename = QtGui.QFileDialog.getOpenFileName(
-            self, "OpenAlea Session", QtCore.QDir.homePath(), "XML file (*.xml)")
+            self, "OpenAlea Session", QtCore.QDir.homePath(), "Session file (*.oas)")
 
         filename = str(filename)
         if(not filename) : return
@@ -509,7 +508,7 @@ class MainWindow(QtGui.QMainWindow,
 
         self.export_graph()
         filename = QtGui.QFileDialog.getSaveFileName(
-            self, "OpenAlea Session",  QtCore.QDir.homePath(), "XML file (*.xml)")
+            self, "OpenAlea Session",  QtCore.QDir.homePath(), "session file (*.oas)")
 
         filename = str(filename)
         if(not filename) : return
