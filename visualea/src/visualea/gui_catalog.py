@@ -302,7 +302,6 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
                               QtCore.Qt.ItemIsSelectable)
 
     def notify(self, sender, event):
-        print 'notify'
         """ Notification sent by node """
         self.update_list()
 
@@ -369,8 +368,6 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     @lock_notify      
     def itemchanged(self, item):
 
-        print self.notify_lock
-        
         text = item.text()
         i = self.subwidget.currentRow()
         seq = self.node.get_input(self.param_str)
