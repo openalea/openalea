@@ -190,7 +190,7 @@ class PackageManager(object):
 
             # search for wralea.py
             wralea_files.update( p.walkfiles("*wralea.py") )
-            wralea_files.update( p.walkfiles("*wralea.xml") )
+            #wralea_files.update( p.walkfiles("*wralea.xml") )
 
         for f in wralea_files:
             print "Package Manager : found %s" % f
@@ -202,6 +202,7 @@ class PackageManager(object):
         """ Return the pkg reader corresponding to the filename """
 
         reader = None
+        print filename
         if(filename.endswith('.py')):
             reader = PyPackageReader(filename)
         else :
