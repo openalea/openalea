@@ -290,8 +290,8 @@ class AbstractFactory(Observed):
 
         self.package = None
 
-        self.inputs = kargs.get('inputs', ())
-        self.outputs = kargs.get('outputs', ())
+        self.inputs = inputs
+        self.outputs = outputs
 
 
     def get_id(self):
@@ -397,7 +397,6 @@ class NodeFactory(AbstractFactory):
         odict['nodemodule'] = None
         odict['nodeclass'] = None      
         return odict
-    
     
        
     def instantiate(self, call_stack=[]):
