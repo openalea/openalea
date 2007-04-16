@@ -210,6 +210,7 @@ class Node(Observed):
         """ Return the nb of output ports """
         return len(self.outputs)
 
+
     
     # Functions used by the node evaluator
     def eval(self):
@@ -237,6 +238,12 @@ class Node(Observed):
             self.outputs[i] = outlist[i]
 
         return True
+
+    #Shortcut for compatibility
+    get_input_by_key = get_input
+    set_input_by_key = set_input
+    get_output_by_key = get_output
+    set_output_by_key = set_output
 
 
 
@@ -381,8 +388,17 @@ class NodeFactory(AbstractFactory):
         caller_dir = os.path.dirname(os.path.abspath(inspect.stack()[1][1]))
         if(not caller_dir in self.search_path):
             self.search_path.append(caller_dir)
-        
 
+
+    def __getstate__(self):
+        """ Pickle function """
+        odict = self.__dict__.copy() 
+        odict['nodemodule_path'] = None
+        odict['nodemodule'] = None
+        odict['nodeclass'] = None      
+        return odict
+    
+    
        
     def instantiate(self, call_stack=[]):
         """ Return a node instance

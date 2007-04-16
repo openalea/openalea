@@ -24,11 +24,14 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
+import os
 from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
 from package import Package, UserPackage
 from observer import Observed
 from datapool import DataPool
+
+import shelve
 
 
 
@@ -101,6 +104,34 @@ class Session(Observed):
         self.notify_listeners()
 
         
+    def save(self, filename = None):
+        """
+        Save session in filename
+        user_pkg and workspaces data are saved
+        """
+
+        if(filename):
+            self.session_filename = filename
+
+        d = shelve.open(self.session_filename)
+
+        # modules
+        import sys
+        modules_path = []
+        for m in sys.modules.values():
+            if hasattr(m, '__file__'):
+                modules_path.append((m.__name__, os.path.abspath(m.__file__)))
+                                   
+        d['__modules__'] = modules_path
+
+        # datapool
+        d['datapool'] = self.datapool
+
+        # workspaces
+        d['workspaces'] = self.workspaces
+
+        d.close()
+
 
     def load(self, filename):
         """ Load session data from filename """
@@ -108,20 +139,42 @@ class Session(Observed):
         self.clear(False)
         
         self.session_filename = filename
+
+        d = shelve.open(self.session_filename)
+
+        # modules
+        modules = d['__modules__']
+
+        for name, path in modules:
+            self.load_module(name, path)
+
+        # datapool
+        self.datapool.update(d['datapool'])
+
+        # workspaces
+        workspaces = d['workspaces']
+        for n in  workspaces:
+            self.workspaces.append(n)
+
         self.notify_listeners()
-                
+        
 
-    def save(self, filename = None):
-        """
-        Save session in filename
-        user_pkg and workspaces data are saved
-        """
+    def load_module(self, name, path):
 
-        if(filename == None):
-            filename = self.session_filename
+        import imp
 
+        lastname = name.rsplit('.', 1)[-1]
+        if(not os.path.isdir(path)):
+            path = os.path.dirname(path)
 
-        self.session_filename = filename
+        try:
+            (file, filename, desc) = imp.find_module(lastname, [path])
+            imp.load_module(name, file, filename, desc)
+        except:
+            pass
+                                                 
+
+        
 
 
     
