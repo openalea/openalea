@@ -263,8 +263,8 @@ class AbstractFactory(Observed):
                  name,
                  description = '',
                  category = '',
-                 inputs = (),
-                 outputs = (),
+                 inputs = None,
+                 outputs = None,
                  **kargs):
         
         """
@@ -336,8 +336,8 @@ class NodeFactory(AbstractFactory):
                  name,
                  description = '',
                  category = '',
-                 inputs = (),
-                 outputs = (),
+                 inputs = None,
+                 outputs = None,
                  nodemodule = '',
                  nodeclass = None,
                  widgetmodule = None,
@@ -413,8 +413,8 @@ class NodeFactory(AbstractFactory):
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
             # Check inputs and outputs
-            if(not self.inputs) : self.inputs = get_parameters(classobj)
-            if(not self.outputs) : self.outputs = (dict(name="out", interface=None),)
+            if(self.inputs == None) : self.inputs = get_parameters(classobj)
+            if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
 
             # Check and Instantiate if we have a functor class
             if((type(classobj) == types.TypeType)
