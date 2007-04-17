@@ -26,7 +26,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
-from openalea.core.node import NodeFactory
+from openalea.core.node import NodeFactory, AbstractFactory
 from openalea.core.package import Package
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
@@ -186,7 +186,7 @@ class CategoryModel (PkgModel) :
 
         elif( isinstance(parentItem, Category)):
             l= list(parentItem)
-            l.sort(key = NodeFactory.get_id)
+            l.sort(key = AbstractFactory.get_id)
             childItem = l[row]
         else:
             childItem = None
