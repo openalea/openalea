@@ -378,6 +378,7 @@ class NodeFactory(AbstractFactory):
         # Cache
         self.nodeclass = None
         self.nodemodule = None
+        self.src_cache = None
 
         # Module path
         self.nodemodule_path = None
@@ -445,11 +446,15 @@ class NodeFactory(AbstractFactory):
         modulename = self.widgetmodule_name
         if(not modulename) :   modulename = self.nodemodule_name
         
-        if(modulename and self.widgetclass_name):
+        if(modulename != None and self.widgetclass_name != None):
             # load module
             (file, pathname, desc) = imp.find_module(modulename,
                                                      self.search_path + sys.path)
+
+            sys.path.append(os.path.dirname(pathname))
             module = imp.load_module(modulename, file, pathname, desc)
+            sys.path.pop()
+            
             if(file) : file.close()
 
             widgetclass = module.__dict__[self.widgetclass_name]
@@ -485,7 +490,10 @@ class NodeFactory(AbstractFactory):
             (file, pathname, desc) = imp.find_module(self.nodemodule_name,
                                                      self.search_path + sys.path)
             self.nodemodule_path = pathname
+
+            sys.path.append(os.path.dirname(pathname))
             self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+            sys.path.pop()
                 
             if(file) : file.close()
             return self.nodemodule
@@ -502,6 +510,9 @@ class NodeFactory(AbstractFactory):
         Return None if src is not available
         """
 
+        # Return cached source if any
+        if(self.src_cache) : return self.src_cache
+        
         module = self.get_node_module()
 
         import linecache
@@ -515,10 +526,12 @@ class NodeFactory(AbstractFactory):
         """
         Execute new src
         """
-
         module = self.get_node_module()
         # Run src
         exec newsrc in module.__dict__
+
+        # save the current newsrc
+        self.src_cache = newsrc
 
 
     def save_new_src(self, newsrc):
@@ -538,6 +551,7 @@ class NodeFactory(AbstractFactory):
         
         # replace old code with new one
         modulesrc = modulesrc.replace(nodesrc, newsrc)
+        
 
         # write file
         file = open(self.nodemodule_path, 'w')
@@ -547,7 +561,8 @@ class NodeFactory(AbstractFactory):
         # unload module
         if(self.nodemodule) : del(self.nodemodule)
         self.nodemodule = None
-
+        self.src_cache = None
+ 
         # Recompile
         import py_compile
         py_compile.compile(self.nodemodule_path)
