@@ -584,6 +584,7 @@ class NodeWidget(AbstractListener):
 
     def __init__(self, node):
         """ Init the widget with the associated node """
+        
         self.__node = node
 
         # register to observed node
