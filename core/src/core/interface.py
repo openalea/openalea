@@ -200,7 +200,6 @@ class IInterfaceWidget(AbstractListener):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-  
         self.node = node
         self.param_str = parameter_str
 

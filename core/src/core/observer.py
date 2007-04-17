@@ -51,13 +51,13 @@ class Observed(object):
         Send a notification to all listeners
         @param event : an object to pass to the notify function
         """
+
         [ ref().notify( self, event ) for ref in self.listeners
           if(not ref().is_notification_locked())]
 
 
     def __getstate__(self):
         """ Pickle function """
-
         odict = self.__dict__.copy() 
         odict['listeners'] = set()
         return odict
@@ -68,17 +68,17 @@ class Observed(object):
 class AbstractListener(object):
     """ Listener base class """
 
-    # Flag to avoid notification
-    notify_lock = []
+    notify_lock = None
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
         assert observed != None
         observed.register_listener(self)
+        if( self.notify_lock == None) : self.notify_lock = list()
 
 
     def is_notification_locked(self):
-        return len(self.notify_lock)>0
+        return self.notify_lock != None and len(self.notify_lock)>0
         
 
     def notify (self, sender, event=None):
@@ -94,9 +94,14 @@ class AbstractListener(object):
 def lock_notify(method):
 
     def wrapped(self, *args, **kwargs):
+
+        if(self.notify_lock == None) : self.notify_lock = list()
         self.notify_lock.append(True)
-        result = method(self, *args, **kwargs)
-        self.notify_lock.pop()
+        try:
+            result = method(self, *args, **kwargs)
+        finally:
+            self.notify_lock.pop()
+
         return result
     
 

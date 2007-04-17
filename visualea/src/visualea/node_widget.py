@@ -47,6 +47,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
+        
         self.setMinimumSize(100, 20)
 
         self.widgets = []
@@ -84,11 +85,13 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def notify(self, sender, event):
         """ Function called by observed objects """
 
+        
         if(event and event[0] == "input_modified"):
             input_index = event[1]
 
-            widget= self.widgets[input_index]
-            if widget and not widget.is_notification_locked(): 
+            widget = self.widgets[input_index]
+            if widget and not widget.is_notification_locked():
+
                 widget.notify(sender, event)
                 widget.update_state()
                 
