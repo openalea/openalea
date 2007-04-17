@@ -317,6 +317,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # remove the nodes
         map(self.remove_node, s)
 
+        # Remove other item
+
 
     def remove_graphical_node(self, elt_id):
         """ Remove the graphical node item identified by elt_id """
@@ -429,9 +431,82 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """
         Handle user input a key
         """
+        QtGui.QGraphicsView.keyPressEvent(self, e)
+        
         key   = e.key()
         if( key == QtCore.Qt.Key_Delete):
             self.remove_selection()
+
+
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        if(self.itemAt(event.pos())):
+           QtGui.QGraphicsView.contextMenuEvent(self, event)
+           return
+
+        menu = QtGui.QMenu(self)
+        action = menu.addAction("Add Annotation")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.add_annotation)
+        
+        menu.move(event.globalPos())
+        menu.show()
+        event.accept()
+
+
+    def add_annotation(self):
+        """ Add text annotation """
+
+        item = Annotation(self.scene(), self.mapToScene(
+            self.mapFromGlobal(self.cursor().pos())))
+
+        
+
+class Annotation(QtGui.QGraphicsTextItem):
+    """ Text annotation on the data flow """
+    
+    def __init__(self, scene, pos):
+
+        QtGui.QGraphicsTextItem.__init__(self)
+
+        self.setPlainText("Comments...")
+
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setPos(pos)
+
+        self.setTextInteractionFlags(QtCore.Qt.TextEditable)
+        self.setSelected(True)
+        self.setFocus()
+
+        cursor = self.textCursor()
+        cursor.select(QtGui.QTextCursor.Document)
+        self.setTextCursor(cursor)
+
+        font = self.font()
+        font.setBold(True)
+        font.setPointSize(12)
+
+        self.setFont(font)
+        scene.addItem(self)
+        
+        
+    def mouseDoubleClickEvent(self, event):
+
+        self.setTextInteractionFlags(QtCore.Qt.TextEditable)
+        self.setSelected(True)
+        self.setFocus()
+        cursor = self.textCursor()
+        cursor.select(QtGui.QTextCursor.Document)
+        self.setTextCursor(cursor)
+        
+
+    def focusOutEvent(self, event):
+        
+        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        QtGui.QGraphicsTextItem.focusOutEvent(self, event)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
+        
 
 
 from openalea.core.observer import AbstractListener
@@ -707,6 +782,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         menu.move(event.screenPos())
         menu.show()
+
+        event.accept()
         
 
     def run_node(self):
@@ -892,6 +969,8 @@ class ConnectorOut(Connector):
         
         menu.move(event.screenPos())
         menu.show()
+
+        event.accept()
         
 
     def send_to_pool(self):
@@ -1013,6 +1092,8 @@ class Edge(AbstractEdge):
         
         menu.move(event.screenPos())
         menu.show()
+
+        event.accept()
 
 
     def remove_edge(self):

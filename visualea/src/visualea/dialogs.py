@@ -23,6 +23,7 @@ __revision__=" $Id$ "
 
 
 from PyQt4 import QtCore, QtGui
+from openalea.core.setting import get_userpkg_dir
 import ui_newgraph
 import os
 
@@ -101,8 +102,7 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.pkgs = pkgs
         self.connect(self.pathButton, QtCore.SIGNAL("clicked()"), self.path_clicked)
 
-        from openalea.core import get_wralea_home_dir
-        self.pathEdit.setText(get_wralea_home_dir())
+        self.pathEdit.setText(get_userpkg_dir())
 
 
     def path_clicked(self):
