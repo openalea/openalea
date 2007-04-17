@@ -164,6 +164,7 @@ class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(node, None)
         self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
 
+
     @lock_notify      
     def stateChanged(self, state):
 
@@ -659,7 +660,7 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         
         self.hboxlayout.addWidget(self.colorwidget)
 
-    @lock_notify      
+
     def widget_clicked(self,event):
         
         try:
