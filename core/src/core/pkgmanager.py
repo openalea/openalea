@@ -65,6 +65,7 @@ class PackageManager(object):
         
         l = list(openalea.__path__)
         l.append(get_userpkg_dir())
+        l.append(".")
         return l
     
 
