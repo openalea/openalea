@@ -331,6 +331,10 @@ class CompositeNode(Node, DirectedGraph):
 
         # get all the base nodes
         if(node_id == None):
+            #invalidate of all nodes
+            for nid,node in self.node_id.iteritems():
+                node.modified=True
+            #search of leaves
             l = self.get_base_nodes()
 
             for nid in l:
