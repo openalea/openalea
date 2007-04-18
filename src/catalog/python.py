@@ -67,9 +67,10 @@ def items(obj):
 
 def append(obj, val):
     """ call append(val) on obj """
-
-    ret = obj.append(val)
-    return (obj,)
+	print obj
+    ret = list(obj)
+    ret.append(val)
+    return (ret,)
 
 
 def pyrange(start=0, stop=0, step=1):
