@@ -65,9 +65,8 @@ def items(obj):
     return (ret,)
 
 
-def append(obj, val):
+def append(obj=[], val=None):
     """ call append(val) on obj """
-	print obj
     ret = list(obj)
     ret.append(val)
     return (ret,)
