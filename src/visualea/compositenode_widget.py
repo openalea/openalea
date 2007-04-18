@@ -318,6 +318,9 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         map(self.remove_node, s)
 
         # Remove other item
+        items = self.scene().selectedItems()
+        for i in items :
+            self.scene().removeItem(i)
 
 
     def remove_graphical_node(self, elt_id):
@@ -457,6 +460,12 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def add_annotation(self):
         """ Add text annotation """
 
+        version = QtCore.PYQT_VERSION
+        if(version <= 262401):
+            mess = QtGui.QMessageBox.warning(None, "Error",
+                                             "This function need PyQT >= 4.2")
+            return 
+
         item = Annotation(self.scene(), self.mapToScene(
             self.mapFromGlobal(self.cursor().pos())))
 
@@ -475,13 +484,13 @@ class Annotation(QtGui.QGraphicsTextItem):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setPos(pos)
 
-        self.setTextInteractionFlags(QtCore.Qt.TextEditable)
-        self.setSelected(True)
-        self.setFocus()
+#         self.setTextInteractionFlags(QtCore.Qt.TextEditable)
+#         self.setSelected(True)
+#         self.setFocus()
 
-        cursor = self.textCursor()
-        cursor.select(QtGui.QTextCursor.Document)
-        self.setTextCursor(cursor)
+#         cursor = self.textCursor()
+#         cursor.select(QtGui.QTextCursor.Document)
+#         self.setTextCursor(cursor)
 
         font = self.font()
         font.setBold(True)
@@ -489,6 +498,7 @@ class Annotation(QtGui.QGraphicsTextItem):
 
         self.setFont(font)
         scene.addItem(self)
+        
         
         
     def mouseDoubleClickEvent(self, event):
@@ -1010,6 +1020,22 @@ class AbstractEdge(QtGui.QGraphicsLineItem):
                                   QtCore.Qt.SolidLine,
                                   QtCore.Qt.RoundCap,
                                   QtCore.Qt.RoundJoin))
+
+    def shape(self):
+
+        path = QtGui.QPainterPath()
+        
+
+        dp = QtCore.QPointF(20,0)
+        p1 = QtCore.QPointF(self.sourcePoint) - dp
+        p2 = QtCore.QPointF(self.sourcePoint) + dp
+        p3 = QtCore.QPointF(self.destPoint) + dp
+        p4 = QtCore.QPointF(self.destPoint) - dp
+        poly = QtGui.QPolygonF([p1,p2,p3,p4])
+        
+        path.addPolygon(poly)
+        return path
+        
 
     def update_line(self):
         line = QtCore.QLineF(self.sourcePoint, self.destPoint)
