@@ -38,8 +38,19 @@ import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def main(args):
-    
+
+       
     app = QtGui.QApplication(args)
+
+    # Check Version
+    version = int(QtCore.QT_VERSION_STR.replace('.', ''))
+    if(version < 420):
+
+        mess = QtGui.QMessageBox.warning(None, "Error",
+                                         "Visualea need QT library >=4.2")
+
+        return 
+ 
 
 
     #splash screen
