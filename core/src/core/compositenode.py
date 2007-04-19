@@ -30,17 +30,30 @@ import string
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
+from openalea.graph import Graph
 
 ###############################################################################
+class DirectedGraphProperty(Graph):
+    """ Directed graph with properties on edges and vertices """
 
-class DirectedGraph(object):
-    """ Directed graph implementation """
-
-    def __init__(self):
-        pass
+    def __init__(self, graph=None):
+        Graph.__init__( self, graph )
 
 
-class CompositeNodeFactory(AbstractFactory, DirectedGraph):
+class DataFlow( DirectedGraphProperty ):
+    """
+    A DataFlow is a directed graph with properties on edges and vertices.
+    Vertex properties contain nodes or node factories.
+    Edge properties contain connections on ports between two nodes or node factories.
+    Add the notion of ports to the edges of a Directgraph
+    It is useful to exports graph mangement methods from node classes
+    """
+
+    def __init__( self, graph=None ):
+        DirectedGraphProperty.__init__( self, graph )
+
+
+class CompositeNodeFactory(AbstractFactory, DataFlow):
     """
     The CompositeNodeFactory is able to create CompositeNode instances
     Each node has an unique id : the element id (elt_id)
@@ -59,7 +72,7 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
 
         # Init parent (name, description, category, doc, node, widget=None)
         AbstractFactory.__init__(self, *args, **kargs)
-        DirectedGraph.__init__(self)
+        DataFlow.__init__(self)
 
         # The Package Manager is needed to allocate nodefactory
         self.pkgmanager = pkgmanager
@@ -70,35 +83,80 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
 
         # Dict mapping elt_id with its corresponding factory
         # the factory is identified by its unique id (package_id, factory_id)
-        self.elt_factory = kargs.get("elt_factory", {})
+        elt_factory = kargs.get("elt_factory", {})
 
         # Dictionnary which contains tuples describing connection
         # ( dst_id , input_port ) : ( src_id, output_port )
-        self.connections = kargs.get("elt_connections", {})
+        connections = kargs.get("elt_connections", {})
 
         # Dictionnary which contains associated data
-        self.elt_data =  kargs.get("elt_data", {})
+        elt_data =  kargs.get("elt_data", {})
+
+        # mapping between edge_id and ( input_port, output_port )
+        # accessor through source_port & target_port
+        self._edge_ports= {}
+
+        # mapping between vertex_name and vertex_id
+        # temp hack
+        #self._vid2name= {}
+        #self._name2vid= {}
+
 
         # I/O
         self.nb_input = kargs.get("nbin", 0)
         self.nb_output = kargs.get("nbout", 0)
 
+        self.id_in= self.add_vertex()
+        self.id_out= self.add_vertex()
+
         # Documentation
         self.doc = kargs.get('doc', "")
 
+        name2vid= {self.id_in:self.id_in, self.id_out:self.id_out}
+        self.elt_factory= {}
+        self.elt_data= {}
 
-    def add_nodefactory(self, elt_id, (pkg_id, factory_id), kdata = {}):
+        for ( dst_id, dst_port ), ( src_id, src_port ) in connections.iteritems():
+            # Create 2 vertices if they do not exist
+            
+            
+            # src_vid= name2vid.setdefault( src_id, self.add_vertex() )
+            # dst_vid= name2vid.setdefault( dst_id, self.add_vertex() )
+            # this code is not used because self.add_vertex() is evaluted even
+            # if name2vid[ id  ] is defined 
+            if src_id in name2vid:
+                src_vid= name2vid[ src_id ]
+            else: 
+                src_vid= self.add_vertex()
+                name2vid[ src_id ]= src_vid
+            if dst_id in name2vid:
+                dst_vid= name2vid[ dst_id ]
+            else: 
+                dst_vid= self.add_vertex()
+                name2vid[ dst_id ]= dst_vid
+
+            
+            self.elt_factory.setdefault( src_vid, elt_factory[src_id] )
+            self.elt_factory.setdefault( dst_vid, elt_factory[dst_id] )
+            self.elt_data.setdefault( src_vid, elt_data[src_id] )
+            self.elt_data.setdefault( dst_vid, elt_data[dst_id] )
+
+            eid= self.add_edge( edge= ( src_vid, dst_vid ) )
+            self._edge_ports[ eid ]= ( src_port, dst_port )
+
+
+    def add_nodefactory(self, (pkg_id, factory_id), kdata = {}):
         """
         Add a node description to the factory
         @param elt_id : element id
         @param pkg_id, factory_id : factory description
         @param kdata : data dictionnary
         """
+        vid= self.add_vertex()
+        self.elt_factory[vid] = (pkg_id, factory_id)
+        self.elt_data[vid] = kdata
 
-        self.elt_factory[elt_id] = (pkg_id, factory_id)
-        self.elt_data[elt_id] = kdata
-
-        return elt_id
+        return vid
 
 
     def add_connection(self, src_id, port_src, dst_id, port_dst):
@@ -109,7 +167,14 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
         @param port_dst : destination input port number
         """
 
-        self.connections[(dst_id, port_dst)] = (src_id, port_src)
+        # src_vid= self._name2vid.setdefault( src_id, self.add_vertex() )
+        # dst_vid= self._name2vid.setdefault( dst_id, self.add_vertex() )
+        # self._vid2name[ src_vid ]=src_id
+        # self._vid2name[ dst_vid ]=dst_id
+
+        eid= self.add_edge( edge= ( src_id, dst_id ) )
+        self._edge_ports[ eid ]= ( port_src, port_dst )
+        #self.connections[(dst_id, port_dst)] = (src_id, port_src)
 
 
     def get_writer(self):
@@ -139,39 +204,46 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
         new_df.set_caption(self.get_id())
         
         # Instantiate the node with each factory
-        for elt_id in self.elt_factory.keys():
-            self.instantiate_id(elt_id, new_df, call_stack)
+        fid2id= {}
+        fid2id[ self.id_in ] = new_df.id_in
+        fid2id[ self.id_out ] = new_df.id_out
+
+        for vid in self.elt_factory:
+            fid2id[ vid ]= self.instantiate_id(vid, new_df, call_stack)
 
         # Create the connections
-        for (( dst_id , iport), ( src_id, oport )) in self.connections.items():
-            new_df.connect(src_id, oport, dst_id, iport)
+        for eid in self.edges():
+            src_port, dst_port= self._edge_ports[ eid ]
+            src_id= fid2id[ self.source( eid ) ]
+            dst_id= fid2id[ self.target( eid ) ]
+            new_df.connect(src_id, src_port, dst_id, dst_port)
+        
+        #for (( dst_id , iport), ( src_id, oport )) in self.connections.items():
+        #    new_df.connect(src_id, oport, dst_id, iport)
 
         self.graph_modified = False
 
         # Set call stack to its original state
         call_stack.pop()
-        
+
+        new_df._factory_id_mapping( fid2id )
         return new_df
 
 
-    def instantiate_id(self, elt_id, graph, call_stack=None):
+    def instantiate_id(self, elt_id, composite_node, call_stack=None):
         """
         Partial instantiation
         instantiate only elt_id in CompositeNode
         @param call_stack : a list of parent id (to avoid infinite recursion)
         """
 
-        if(graph.node_id.has_key(elt_id)) :
-            return
-
         (package_id, factory_id) = self.elt_factory[elt_id]
         
         pkg = self.pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
-
         node = factory.instantiate(call_stack)
         node.internal_data = self.elt_data[elt_id].copy()
-        graph.add_node(node, elt_id)
+        return composite_node.add_node(node)
 
         
     def set_nb_input(self, v):
@@ -199,12 +271,16 @@ class CompositeNodeFactory(AbstractFactory, DirectedGraph):
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
         return DisplayGraphWidget(node, parent)
 
-
+    def connections( self ):
+        connect= {}
+        for eid, ( src_port, dst_port ) in self._edge_ports.iteritems():
+            connect[(self.target( eid ), dst_port )]=( self.source( eid ), src_port )
+        return connect
 
 
 ################################################################################
 
-class CompositeNode(Node, DirectedGraph):
+class CompositeNode(Node, DataFlow):
     """
     The CompositeNode is a container that interconnect 
     different node instances between them in directed graph.
@@ -215,7 +291,7 @@ class CompositeNode(Node, DirectedGraph):
         """ ninput and noutput are the number of inputs and outputs """
 
         Node.__init__(self)
-        DirectedGraph.__init__(self)
+        DataFlow.__init__(self)
 
         # Node list indexed by its id
         self.node_id = {}
@@ -223,24 +299,38 @@ class CompositeNode(Node, DirectedGraph):
         # Dictionnary which contains tuples describing connection
         # ( dst_id , input_port ) : ( src_id, output_port )
         self.connections = {}
+        self._edge_ports= {}
 
         # Counter for generating id
-        self.id_cpt = 1
+        #self.id_cpt = 1
 
         # graph modification status
         self.graph_modified = False
 
+        self.id_in= self.add_vertex()
+        self.id_out= self.add_vertex()
+
         # I/O
+        self.node_id[self.id_in] = CompositeNodeInput(self, ninput)
         if(ninput>0):
-            self.node_id['in'] = CompositeNodeInput(self, ninput)
             for i in range(ninput):
                 self.add_input( "in%i"%(i,), interface = None, value = None)
 
+        self.node_id[self.id_out] = CompositeNodeOutput(self, noutput)
         if(noutput>0) :
-            self.node_id['out'] = CompositeNodeOutput(self, noutput)
             for i in range(noutput):
                 self.add_output( "out%i"%(i,), interface = None)
 
+        # contains the mapping between the factory ids and the
+        # current ids.
+        self._factory_id_to_id= {}
+
+    def _factory_id_mapping( self, mapping ):
+        """
+        Protected function used to set the mapping between 
+        the factory and the instance self
+        """
+        self._factory_id_to_id= mapping
 
     def to_factory(self, sgfactory, listid=None, nbin=-1, nbout=-1):
         """
@@ -250,47 +340,60 @@ class CompositeNode(Node, DirectedGraph):
         are discarded.
         """
 
-        sgfactory.elt_factory = {}
-        sgfactory.elt_data = {}
+#        sgfactory.elt_factory = {}
+#        sgfactory.elt_data = {}
 
         if(nbin<0) : nbin = self.get_nb_input()
         if(nbout<0) : nbout = self.get_nb_output()
 
+        # TODO : compositeNode should not access directly to CompositeNodeFactory members
+        # this should be refactored
         sgfactory.set_nb_input(nbin)
         sgfactory.set_nb_output(nbout)
 
         
         # Create node if necessary
-        for nid in self.node_id.keys():
-            if(nid == 'in' or nid == 'out') : continue
-            if(listid != None and
-               (not nid in listid)) : continue
+        sgvid= {} # mapping between vid and sgvid used to rebuild edges
+        for vid in self.vertices():
+            if(vid == self.id_in or vid == self.id_out) : 
+                continue
+            if(listid != None and (not vid in listid)): 
+                continue
             
-            node = self.node_id[nid]
+            node = self.node_id[vid]
             kdata = node.internal_data
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
 
-            sgfactory.add_nodefactory(nid, (pkg_id, factory_id), kdata)
-
+            sgvid[ vid ] = sgfactory.add_nodefactory((pkg_id, factory_id), kdata)
+            
 
         # Create connections
-        if(listid == None):
-            sgfactory.connections = self.connections.copy()
-        else:
-            for ((dst_id, port_dst),
-                 (src_id, port_src)) in self.connections.items():
-                if(dst_id in listid and src_id in list_id):
-                    sgfactory.connections[(dst_id, port_dst)] = \
-                                                   (src_id, port_src)
-               
+        edges= set() # filtering vid that should not be included in factory
+        for vid in sgvid :
+            def valid_edge( eid ):
+                return self.source( eid ) in sgvid and self.target( eid ) in sgvid
+            edges.update( filter(  valid_edge, self.edges(vid) ) )
+
+        # rebuilding edges with the good edges 
+        for eid in edges:
+            src_sgvid= sgvid[ self.source( eid ) ]
+            dst_sgvid= sgvid[ self.target( eid ) ]
+            src_port, dst_port= self._edge_ports[ eid ]
+            sgeid= sgfactory.add_connection( src_sgvid, src_port, dst_sgvid, dst_port )
 
         self.graph_modified = False
 
 
     def get_ids(self):
         """ Return the list of element id """
-        return self.node_id.keys()
+        #TODO: deprecated
+        vids= set( self.vertices() )
+        if self.factory.nb_input == 0: 
+            vids.remove( self.id_in )
+        if self.factory.nb_output == 0:
+            vids.remove( self.id_out )
+        return vids
 
 
     def get_nodes(self):
@@ -305,24 +408,14 @@ class CompositeNode(Node, DirectedGraph):
 
 
     def get_base_nodes(self):
-        """ Return all the nodes without connected output """
+        """ Return all the node ids without connected output """
 
-        with_output = set()
-        result = []
-        
-        for (src_id, outport) in self.connections.values():
-            with_output.add(src_id)
-
-        for nid in self.node_id.keys():
-            if(not nid in with_output):
-                result.append(nid)
-
-        return result
+        return filter( lambda x: self.nb_out_edges( x )==0, self.vertices() )
 
     
-    def eval_as_expression(self, node_id=None):
+    def eval_as_expression(self, vtx_id=None):
         """
-        Evaluate a node_id
+        Evaluate a vtx_id
         if node_id is None, then all the nodes without sons are evaluated
         """
 
@@ -330,58 +423,45 @@ class CompositeNode(Node, DirectedGraph):
         self.evaluated = set()
 
         # get all the base nodes
-        if(node_id == None):
-            #invalidate of all nodes
-            for nid,node in self.node_id.iteritems():
-                node.modified=True
-            #search of leaves
-            l = self.get_base_nodes()
+        if(vtx_id == None):
+            for node in self.node_id.values():
+                node.modified= True
 
-            for nid in l:
-                self.eval_node(nid)
+            outputs = self.get_base_nodes()
+
+            for vid in outputs:
+                self.eval_node(vid)
         else:
-            self.eval_node(node_id)
+            self.node_id[ vtx_id ].modified= True
+            self.eval_node(vtx_id)
 
 
-    def eval_node(self, elt_id):
+    def eval_node(self, vtx_id):
         """
-        Evaluate a particular Node identified by elt_id
+        Evaluate a particular Node identified by vtx_id
         Do not call directly this function, use instead eval_as expression
         Return True if the node has been executed
         """
+        assert vtx_id in self
 
-        try:
-            node = self.node_id[elt_id]
-        except:
-            raise
+        node = self.node_id[vtx_id]
 
         # evaluate the node inputs
-        for iport in range(node.get_nb_input()):
-            try:
-                (id_src, port_src)=self.connections[(elt_id, iport)]
+        for in_eid in self.in_edges( vtx_id ):
+            port_src, port_dst= self._edge_ports[ in_eid ]
+            vid_src= self.source( in_eid )
 
-                # test if the node has already be evaluated
-                if(not id_src in  self.evaluated):
-                    # Recursive evaluation
-                    self.evaluated.add(id_src)
-                    self.eval_node(id_src)
-
-                # copy the data
-                node_src = self.node_id[id_src]
-                
-                v = node_src.get_output(port_src)
-                node.set_input(iport, v)
-                
-            except KeyError :
-                pass
-            except Exception, e:
-                print e
-                raise
+            if vid_src not in self.evaluated:
+                self.eval_node(vid_src)
+                self.evaluated.add( vid_src )
+            
+            node_src = self.node_id[vid_src]
+            v = node_src.get_output(port_src)
+            node.set_input(port_dst, v)
 
         # evaluate the node itself
         return node.eval()
-        
-                
+
     # Functions used by the node evaluator
     def eval(self):
         """
@@ -402,7 +482,7 @@ class CompositeNode(Node, DirectedGraph):
         return ()
 
 
-    def add_node(self, node, elt_id = None):
+    def add_node(self, node, vtx_id = None):
         """
         Add a node in the Graph with a particular id
         if id is None, autogenrate one
@@ -412,30 +492,30 @@ class CompositeNode(Node, DirectedGraph):
 
         @param return the id
         """
-
-        if(not elt_id):
-            elt_id = "%s_%i"%(node.factory.get_id(), self.id_cpt)
-
-        self.node_id[elt_id] = node
         
-        self.id_cpt += 1
+        vid= vtx_id
+        if ( vtx_id not in self ) or ( not vtx_id ):
+            vid= self.add_vertex( vtx_id )
+
+        self.node_id[vid] = node
+        
+        #self.id_cpt += 1
         self.notify_listeners(("graph_modified",))
         self.graph_modified = True
 
-        return elt_id        
+        return vid        
 
 
-    def remove_node(self, elt_id):
+    def remove_node(self, vtx_id):
         """
         remove a node from the graph
         @param elt_id : element id
         """
         
-        del self.node_id[elt_id]
-
-        for ((id_dst, port_dst), (id_src, port_src)) in self.connections.items():
-            if(id_dst == elt_id or id_src == id):
-                del(self.connections[(id_dst, port_dst)])
+        del self.node_id[vtx_id]
+        for id in self.neighbors( vtx_id ):
+            del self._edge_ports[ id ]
+        self.remove_vertex( vtx_id )
 
         self.notify_listeners(("graph_modified",))
         self.graph_modified = True
@@ -450,10 +530,10 @@ class CompositeNode(Node, DirectedGraph):
         @param port_dst : destination input port number
         """
 
-        if(self.node_id.has_key(src_id) and
-           self.node_id.has_key(dst_id)):
-            
-            self.connections[(dst_id, port_dst)] = (src_id, port_src)
+        if self.has_vertex( src_id ) and self.has_vertex( dst_id ):
+            eid = self.add_edge( ( src_id, dst_id ) )
+            self._edge_ports[eid] = ( port_src, port_dst )
+            #self.connections[(dst_id, port_dst)] = (src_id, port_src)
 
             node_dst = self.node_id[dst_id]
             node_dst.set_input_state(port_dst, "connected")
@@ -470,7 +550,17 @@ class CompositeNode(Node, DirectedGraph):
         """
 
         try:
-            del(self.connections[ (dst_id, port_dst) ])
+            eid_src = set ( self.out_edges( src_id ) )
+            eid_dst = set ( self.in_edges ( dst_id ) ) 
+            common_eid= eid_src.intersection( eid_dst )
+            assert len( common_eid )
+            for id in common_eid:
+                if ( port_src, port_dst == self.source( id ), self.target( id ) ):
+                    eid= id
+                    break
+            self.remove_edge( eid )
+            del self._edge_ports[ eid ]
+            # del(self.connections[ (dst_id, port_dst) ])
         except:
             return
 
@@ -479,7 +569,12 @@ class CompositeNode(Node, DirectedGraph):
         self.notify_listeners(("connection_modified",))
         self.graph_modified = True
 
-
+    def factory_id_to_id( self, factory_id ):
+        """ 
+        Returns the current id of a node corresponding to the factory_id that creates it.
+        """
+        
+        return self._factory_id_to_id[factory_id]
 
 class CompositeNodeInput(Node):
     """Dummy node to represent the composite node inputs"""
@@ -577,7 +672,7 @@ class PyCNFactoryWriter(object):
                                       NIN=f.nb_input,
                                       NOUT=f.nb_output,
                                       ELT_FACTORY=repr(f.elt_factory),
-                                      ELT_CONNECTIONS=repr(f.connections),
+                                      ELT_CONNECTIONS=repr(f.connections()),
                                       ELT_DATA=repr(f.elt_data),
                                       )
         return result

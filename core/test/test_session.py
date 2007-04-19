@@ -66,10 +66,10 @@ def test_save_workspace():
                                 )
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory ('i', ("Library", "int"))
+    addid = sgfactory.add_nodefactory (("Library", "int"))
     instance = sgfactory.instantiate()
 
-    instance.node_id['i'].set_input(0,3)
+    instance.node_id[addid].set_input(0,3)
 
     asession.add_workspace(instance)
 
@@ -80,7 +80,7 @@ def test_save_workspace():
 
     i = asession.workspaces[0]
     assert type(i) == type(instance)
-    assert i.node_id['i'].get_input(0) == 3
+    assert i.node_id[addid].get_input(0) == 3
     os.remove('test.pic')
 
 
