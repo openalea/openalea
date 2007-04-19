@@ -448,7 +448,11 @@ class NodeFactory(AbstractFactory):
             node.set_caption(self.name)
             
         else:
-            node = classobj(self.inputs, self.outputs)
+            try:
+                node = classobj(self.inputs, self.outputs)
+            except TypeError:
+                node = classobj()
+                
         node.factory = self
         return node
                     
