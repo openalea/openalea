@@ -26,7 +26,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
-from pycutext import PyCutExt
+from shell import get_shell_class
 
 from openalea.core import cli
 from code import InteractiveInterpreter as Interpreter
@@ -73,7 +73,10 @@ class MainWindow(QtGui.QMainWindow,
         # python interpreter
         interpreter = Interpreter()
         cli.init_interpreter(interpreter, session)
-        self.interpreterWidget = PyCutExt(interpreter, cli.get_welcome_msg(), parent=self.splitter)
+        shellclass = get_shell_class()
+        self.interpreterWidget = shellclass(interpreter,
+                                            cli.get_welcome_msg(),
+                                            parent=self.splitter)
 
         # package tree view
         self.pkg_model = PkgModel(pkgman)
