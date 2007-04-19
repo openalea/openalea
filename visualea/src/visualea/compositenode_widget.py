@@ -118,19 +118,34 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.clear_scene()
         # create items
-        for eltid in self.node.node_id.keys():
+        ids= self.node.get_ids()
+        #for eltid in self.node.node_id.keys():
+        for eltid in ids:
             self.add_graphical_node(eltid)
 
         # create connections
-        for ((dst_id, in_port), (src_id, out_port)) in self.node.connections.items():
+        dataflow= self.node
+        for eid in dataflow.edges():
+            src_id, dst_id= dataflow.source( eid ), dataflow.target( eid )
+            src_port, dst_port= dataflow._edge_ports[ eid ]
+            
+            src_item = self.graph_item[src_id]
+            dst_item = self.graph_item[dst_id]
 
-            srcitem = self.graph_item[src_id]
-            out_connector = srcitem.get_output_connector(out_port)
+            src_connector = src_item.get_output_connector(src_port)
+            dst_connector = dst_item.get_input_connector(dst_port)
 
-            dstitem = self.graph_item[dst_id]
-            in_connector = dstitem.get_input_connector(in_port)
+            self.add_graphical_connection(src_connector, dst_connector)
 
-            self.add_graphical_connection(out_connector, in_connector)
+        # for ((dst_id, in_port), (src_id, out_port)) in self.node.connections.items():
+
+        #     srcitem = self.graph_item[src_id]
+        #     out_connector = srcitem.get_output_connector(out_port)
+
+        #     dstitem = self.graph_item[dst_id]
+        #     in_connector = dstitem.get_input_connector(in_port)
+
+        #     self.add_graphical_connection(out_connector, in_connector)
 
 
     # Mouse events
