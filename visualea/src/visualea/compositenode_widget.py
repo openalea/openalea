@@ -572,7 +572,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         
         # Set ToolTip
-        doc= self.subnode.__doc__
+        if self.subnode.func is None :
+            doc= self.subnode.__doc__
+        else :
+            doc=self.subnode.func.__doc__
         if doc:
             doc = doc.split('\n')
             doc = [x.strip() for x in doc] 
