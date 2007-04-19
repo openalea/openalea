@@ -46,7 +46,6 @@ class InstantiationError(Exception):
 ###############################################################################
 
 
-
 class Node(Observed):
     """
     A Node is the atomic entity in a dataflow.
@@ -54,11 +53,10 @@ class Node(Observed):
     Inputs and Outpus are indexed by their position or by a name (str)
     """
 
-    def __init__(self, inputs=(), outputs=(), func=None):
+    def __init__(self, inputs=(), outputs=()):
         """
         @param inputs    : list of dict(name='X', interface=IFloat, value=0)
         @param outputs   : list of dict(name='X', interface=IFloat)
-        @param func : A function
 
         Nota : if IO names are not a string, they will be converted to with str()
         """
@@ -90,20 +88,20 @@ class Node(Observed):
         self.internal_data['caption'] = str(self.__class__.__name__)
 
         # Process in and out
-        for d in inputs:
-            self.add_input(**d)
-        for d in outputs:
-            self.add_output(**d)
+        if(inputs):
+            for d in inputs:
+                self.add_input(**d)
+        if(outputs):
+            for d in outputs:
+                print d
+                self.add_output(**d)
 
-        self.func = func
 
-            
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         
-        if(self.func):
-            return self.func(*inputs)
-                
+        raise NotImplementedError()
+
     # Accessor
     def get_factory(self):
         """ Return the factory of the node (if any) """
@@ -249,6 +247,30 @@ class Node(Observed):
 
 ###############################################################################
 
+class FuncNode(Node):
+    """ Node with external function or function """
+
+    def __init__(self, inputs, outputs, func):
+        """
+        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
+        @param outputs   : list of dict(name='X', interface=IFloat)
+        @param func : A function
+        """
+
+        Node.__init__(self, inputs, outputs)
+        self.func = func
+        self.__doc__ = func.__doc__
+
+
+    def __call__(self, inputs = ()):
+        """ Call function. Must be overriden """
+        
+        if(self.func):
+            return self.func(*inputs)
+
+
+    
+
 ###############################################################################
 
 
@@ -274,7 +296,7 @@ class AbstractFactory(Observed):
         @param description : description of the node (String)
         @param category : category of the node (String)
         @param inputs : inputs description
-        @param outputs : outputs description
+        @param outputs : outputs description, value=0
 
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
@@ -362,8 +384,6 @@ class NodeFactory(AbstractFactory):
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
-
-        
         """
         
         AbstractFactory.__init__(self, name, description, category,
@@ -380,7 +400,7 @@ class NodeFactory(AbstractFactory):
         self.nodemodule = None
         self.src_cache = None
 
-        # Module path
+        # Module path, value=0
         self.nodemodule_path = None
         self.search_path = search_path
         
@@ -409,6 +429,7 @@ class NodeFactory(AbstractFactory):
         module = self.get_node_module()
         classobj = module.__dict__[self.nodeclass_name]
 
+        
         # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
@@ -416,17 +437,18 @@ class NodeFactory(AbstractFactory):
             if(self.inputs == None) : self.inputs = get_parameters(classobj)
             if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
 
+ 
             # Check and Instantiate if we have a functor class
             if((type(classobj) == types.TypeType)
                or (type(classobj) == types.ClassType)):
 
                 classobj = classobj()
             
-            node = Node(self.inputs, self.outputs, classobj)
+            node = FuncNode(self.inputs, self.outputs, classobj)
             node.set_caption(self.name)
             
         else:
-            node = classobj()
+            node = classobj(self.inputs, self.outputs)
         node.factory = self
         return node
                     
