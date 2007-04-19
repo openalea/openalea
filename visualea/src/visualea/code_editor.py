@@ -66,15 +66,24 @@ class NodeCodeEditor(QtGui.QWidget):
         """
 
         try:
-            from PyQt4.Qsci import QsciScintilla, QsciLexerPython
+            from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
             
-            textedit = QsciScintilla()
-            textedit.setLexer(QsciLexerPython())
-            textedit.setMinimumWidth(200)
-            textedit.setMinimumHeight(200)
+            textedit = QsciScintilla(self)
+            textedit.setAutoIndent(True)
+            textedit.setAutoCompletionThreshold(2)
+            textedit.setAutoCompletionSource(QsciScintilla.AcsDocument)
 
+            # API
+            lex = QsciLexerPython(textedit)
+            textedit.setLexer(lex)
+
+#             apis = QsciAPIs(lex)
+#             apis.prepare()
             
-        except:
+            textedit.setMinimumWidth(250)
+            textedit.setMinimumHeight(250)
+            
+        except ImportError:
             textedit = QtGui.QTextEdit(self)
             textedit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
             textedit.setMinimumWidth(200)
@@ -115,7 +124,7 @@ class NodeCodeEditor(QtGui.QWidget):
             
 
     def apply_changes(self):
-        
+
         self.src = str(self.getText())
         self.factory.apply_new_src(self.src)
 
