@@ -137,19 +137,9 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
             self.add_graphical_connection(src_connector, dst_connector)
 
-        # for ((dst_id, in_port), (src_id, out_port)) in self.node.connections.items():
-
-        #     srcitem = self.graph_item[src_id]
-        #     out_connector = srcitem.get_output_connector(out_port)
-
-        #     dstitem = self.graph_item[dst_id]
-        #     in_connector = dstitem.get_input_connector(in_port)
-
-        #     self.add_graphical_connection(out_connector, in_connector)
 
 
     # Mouse events
-
     def wheelEvent(self, event):
         self.scaleView(math.pow(2.0, -event.delta() / 240.0))
 
@@ -587,10 +577,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         
         # Set ToolTip
-        if self.subnode.func is None :
-            doc= self.subnode.__doc__
-        else :
-            doc=self.subnode.func.__doc__
+        doc= self.subnode.__doc__
         if doc:
             doc = doc.split('\n')
             doc = [x.strip() for x in doc] 
