@@ -244,7 +244,6 @@ class PackageManager(object):
 
         # Register package
         self.add_wralea(p.get_wralea_path())
-
         return p
 
 

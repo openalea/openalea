@@ -40,10 +40,10 @@ def test_compositenodewriter():
     sgfactory.set_nb_input(4)
     
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ('add1', (libraryname, "+"))
-    val1id = sgfactory.add_nodefactory ('f1', (libraryname, "float")) 
-    val2id = sgfactory.add_nodefactory ('f2', (libraryname, "float"))
-    val3id = sgfactory.add_nodefactory ('f3', (libraryname, "float"))
+    addid = sgfactory.add_nodefactory ((libraryname, "+"))
+    val1id = sgfactory.add_nodefactory ((libraryname, "float")) 
+    val2id = sgfactory.add_nodefactory ((libraryname, "float"))
+    val3id = sgfactory.add_nodefactory ((libraryname, "float"))
 
     sgfactory.add_connection (val1id, 0, addid, 0)
     sgfactory.add_connection (val2id, 0, addid, 1)
@@ -63,6 +63,7 @@ def test_compositenodewriter():
     package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
 
+    print "package 1", package1
     package1.write()
     
     pm.init()

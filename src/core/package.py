@@ -338,7 +338,6 @@ def register_packages(pkgmanager):
             writer = f.get_writer()
             if(writer):
                 result_str += str(writer)
-            
         return result_str
 
 
