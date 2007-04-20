@@ -90,7 +90,7 @@ class SciShell(QsciScintilla):
         sys.stderr   = MultipleRedirection((sys.stderr, self))
         sys.stdin    = self
 
-        
+        self.reading = 0
         # interpreter prompt.
         try:
             sys.ps1
@@ -101,6 +101,7 @@ class SciShell(QsciScintilla):
         except AttributeError:
             sys.ps2 = "... "
 
+        #self.completionText = ""
         # Excecution Status
         self.more = False
         # Multi line execution Buffer
@@ -157,7 +158,17 @@ class SciShell(QsciScintilla):
         """
         Simulate stdin, stdout, and stderr.
         """
-        return ""
+        self.reading = 1
+        line, col = self.__getEndPos()
+        self.setCursorPosition(line, col)
+
+        buf = ""
+        
+        if len(buf) == 0:
+            return '\n'
+        else:
+            return buf
+
 
     def write(self, s):
         """
@@ -250,7 +261,6 @@ class SciShell(QsciScintilla):
         else:
             self.write(sys.ps1)
             self.execlines = []
-
         
     
     def __insertText(self, s):
@@ -271,7 +281,8 @@ class SciShell(QsciScintilla):
         line, col = self.__getEndPos()
         self.setCursorPosition(line, col)
         self.insert(s)
-        self.prline, self.prcol = self.getCursorPosition()
+        self.prline, self.prcol = self.__getEndPos()
+        self.setCursorPosition(self.prline, self.prcol)
 
         
     def __isCursorOnLastLine(self):
@@ -290,16 +301,21 @@ class SciShell(QsciScintilla):
         """
         txt = ev.text()
         key = ev.key()
+        
+        ctrl = ev.modifiers() & Qt.ControlModifier
 
-        if(self.keymap.has_key(key)):
+        if(ctrl):
+            QsciScintilla.keyPressEvent(self, ev)
+
+        elif(self.keymap.has_key(key)):
             self.keymap[key]()
 
         # See it is text to insert.
-        elif self.__isCursorOnLastLine() and txt.length():
+        elif self.__isCursorOnLastLine() and txt.length() :
 
             QsciScintilla.keyPressEvent(self, ev)
             self.incrementalSearchActive = True
-
+            
             if(txt == '.'):
                 self.__showDynCompletion()
 
@@ -372,6 +388,9 @@ class SciShell(QsciScintilla):
         if self.__isCursorOnLastLine():
             if self.isListActive():
                 self.SendScintilla(QsciScintilla.SCI_NEWLINE)
+            elif self.reading:
+                self.reading = 0
+       
             else:
                 self.incrementalSearchString = ""
                 self.incrementalSearchActive = False
@@ -381,6 +400,10 @@ class SciShell(QsciScintilla):
                 self.insert('\n')
                 self.__executeCommand(buf)
 
+        # add and run selection
+        else:
+            s= self.selectedText()
+            self.__insertTextAtEnd(s)
 
         
     def __QScintillaCharLeft(self, allLinesAllowed = False):
@@ -582,8 +605,7 @@ class SciShell(QsciScintilla):
             l = dir(obj)
             l = filter(lambda x : not x.startswith('__'), l)
             self.__showCompletions(l, text) 
-        except Exception, e:
-            print e
+        except : pass
         
 
     def __showCompletions(self, completions, text):
@@ -599,13 +621,13 @@ class SciShell(QsciScintilla):
             for comp in completions:
                 comps.append(comp)
             self.showUserList(1, comps)
-            self.completionText = text
+            #self.completionText = text
         else:
             txt = completions[0]
             if text != "":
                 txt = txt.replace(text, "")
             self.__insertText(txt)
-            self.completionText = ""
+            #self.completionText = ""
 
         
     def __completionListSelected(self, id, txt):
@@ -615,9 +637,16 @@ class SciShell(QsciScintilla):
         @param id the ID of the user list (should be 1) (integer)
         @param txt the selected text (QString)
         """
+
+         # Remove already written characters
+        line, col = self.__getEndPos()
+        self.setCursorPosition(line,col)
+        buf = unicode(self.text(line))
+        ind = len(buf) - buf.rfind(".") - 1
+
         if id == 1:
-            txt = unicode(txt)
-            if self.completionText != "":
-                txt = txt.replace(self.completionText, "")
+            txt = unicode(txt[ind:])
+            #if self.completionText != "":
+             #   txt = txt.replace(self.completionText, "")
             self.__insertText(txt)
-            self.completionText = ""
+            #self.completionText = ""
