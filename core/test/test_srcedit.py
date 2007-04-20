@@ -75,10 +75,20 @@ def register_packages(pkgmanager):
     file.close()
 
 
+def teardown_func():
+    """ Delete created files """
+    try:
+        os.remove("my_wralea.py")
+    except:
+        pass
+    try:
+        os.remove("mymodule.py")
+    except:
+        pass
 
 from nose import with_setup
 
-@with_setup(setup_func)
+@with_setup(setup_func,teardown_func)
 def test_srcedit():
     """ Test src edition """
     
@@ -122,8 +132,6 @@ def test_srcedit():
 
     assert node( ((1,2,3),) ) == 6
 
-    os.remove('mymodule.py')
-    os.remove('my_wralea.py')
     
 
     

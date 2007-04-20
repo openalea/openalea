@@ -474,7 +474,8 @@ class CompositeNode(Node, DataFlow):
             node.set_input(port_dst, v)
 
         # evaluate the node itself
-        return node.eval()
+        node.eval()
+        return True
 
     # Functions used by the node evaluator
     def eval(self):
