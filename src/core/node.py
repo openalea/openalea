@@ -226,7 +226,7 @@ class Node(Observed):
         outlist = self.__call__(self.inputs)
         self.notify_listeners( ("status_modified",self.modified) )
 
-        if(not outlist) : return True
+        #if(not outlist) : return True
         
         if(not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
