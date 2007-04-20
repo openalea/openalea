@@ -16,7 +16,9 @@
 
 
 __doc__="""
-Tree Item model for package manager
+Tree Item model for package manager.
+Only Package and Category objects are view as a tree item.
+Others are view as leaves.
 """
 
 __license__= "CeCILL v2"
@@ -150,18 +152,17 @@ class PkgModel (QAbstractItemModel) :
 
 
     def rowCount(self, parent):
+        type_as_tree= [PackageManager, Package, Category]
 
         if (not parent.isValid()):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
 
-        
-        try:
-            return len(parentItem)
-        except:
-            return 0
-
+        for treetype in type_as_tree:
+            if isinstance(parentItem,treetype):
+                return len(parentItem)
+        return 0
 
 
 class CategoryModel (PkgModel) :
