@@ -246,7 +246,10 @@ class MainWindow(QtGui.QMainWindow,
         
         del(self.index_nodewidget[cindex])
       
-
+    def current_view (self) :
+        cindex = self.tabWorkspace.currentIndex()
+        return self.index_nodewidget[cindex]
+    
     def update_tabwidget(self):
         """ open tab widget """
 
