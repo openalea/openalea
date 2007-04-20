@@ -94,8 +94,16 @@ def test_to_factory():
     sg2.get_node_by_id(e1).set_input(0, 3.)
     sg2()
     assert sg2.get_node_by_id(e2).get_input(0) == 3.
+
+    return pm, sg, sgfactory
     
+def test_to_factory2():
+    pm, sg, sgfactory= test_to_factory()
     
+    sg.to_factory( sgfactory )
+    sg2= sgfactory.instantiate()
+
+    assert len( sg )== len( sg2 )
     
 
 # Test Recursion detection

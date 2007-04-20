@@ -94,7 +94,6 @@ class Node(Observed):
                 self.add_input(**d)
         if(outputs):
             for d in outputs:
-                print d
                 self.add_output(**d)
 
 
