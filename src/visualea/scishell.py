@@ -25,10 +25,25 @@ __revision__=" $Id$"
 
 
 import os, sys
-from PyQt4 import QtCore, QtGui, Qsci
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
+
+from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
 
 
-from QSci import QsciScintilla, QsciLexerPython
+class MultipleRedirection:
+    """ Dummy file which redirects stream to multiple file """
+
+    def __init__(self, files):
+        """ The stream is redirect to the file list 'files' """
+
+        self.files = files
+
+    def write(self, str):
+        """ Emulate write function """
+
+        for f in self.files:
+            f.write(str)
 
 class SciShell(QsciScintilla):
 
@@ -53,33 +68,29 @@ class SciShell(QsciScintilla):
 
         # user interface setup
         self.setAutoIndent(True)
-        self.setAutoCompletionThreshold(-1)
+        self.setAutoCompletionThreshold(4)
         self.setAutoCompletionSource(QsciScintilla.AcsDocument)
         # Lexer
         self.setLexer(QsciLexerPython(self))
 
-
+        # Search
+        self.incrementalSearchString = ""
+        self.incrementalSearchActive = False
+        self.inRawMode = False
+        self.echoInput = True
+            
+        # Initialize history
+        self.historyLists = {}
+        self.maxHistoryEntries = 30
+        self.history = []
+        self.histidx = -1
+        
         # # capture all interactive input/output 
         sys.stdout   = self
         sys.stderr   = MultipleRedirection((sys.stderr, self))
         sys.stdin    = self
 
         
-        # last line + last incomplete lines
-        self.line    = QtCore.QString()
-        self.__lines   = []
-        # the cursor position in the last line
-        self.point   = 0
-        # flag: the interpreter needs more input to run the last lines. 
-        self.more    = 0
-        # flag: readline() is being used for e.g. raw_input() and input()
-        self.reading = 0
-        # history
-        self.history = []
-        self.pointer = 0
-        self.cursor_pos   = 0
-
-
         # interpreter prompt.
         try:
             sys.ps1
@@ -90,6 +101,11 @@ class SciShell(QsciScintilla):
         except AttributeError:
             sys.ps2 = "... "
 
+        # Excecution Status
+        self.more = False
+        # Multi line execution Buffer
+        self.execlines = []
+
         # interpreter banner
         self.write('The shell running Python %s on %s.\n' %
                    (sys.version, sys.platform))
@@ -99,56 +115,28 @@ class SciShell(QsciScintilla):
         self.write(sys.ps1)
 
 
-        ##
+        #self.standardCommands().clearKeys()
+        self.keymap = {
+            Qt.Key_Backspace : self.__QScintillaDeleteBack,
+            Qt.Key_Delete : self.__QScintillaDelete,
+            Qt.Key_Return : self.__QScintillaNewline,
+            Qt.Key_Enter : self.__QScintillaNewline,
+            Qt.Key_Tab : self.__QScintillaTab,
+            Qt.Key_Left : self.__QScintillaCharLeft,
+            Qt.Key_Right : self.__QScintillaCharRight,
+            Qt.Key_Up : self.__QScintillaLineUp,
+            Qt.Key_Down : self.__QScintillaLineDown,
+            Qt.Key_Home : self.__QScintillaVCHome,
+            Qt.Key_End : self.__QScintillaLineEnd,
+            }
 
-        self.supportedEditorCommands = {
-            #QsciScintilla.SCI_LINEDELETE   : self.__clearCurrentLine,
-            QsciScintilla.SCI_TAB          : self.__QScintillaTab,
-            QsciScintilla.SCI_NEWLINE      : self.__QScintillaNewline,
-            
-            QsciScintilla.SCI_DELETEBACK   : self.__QScintillaDeleteBack,
-            QsciScintilla.SCI_CLEAR        : self.__QScintillaDelete,
-            QsciScintilla.SCI_DELWORDLEFT  : self.__QScintillaDeleteWordLeft,
-            QsciScintilla.SCI_DELWORDRIGHT : self.__QScintillaDeleteWordRight,
-            QsciScintilla.SCI_DELLINELEFT  : self.__QScintillaDeleteLineLeft,
-            QsciScintilla.SCI_DELLINERIGHT : self.__QScintillaDeleteLineRight,
-            
-            QsciScintilla.SCI_CHARLEFT     : self.__QScintillaCharLeft,
-            QsciScintilla.SCI_CHARRIGHT    : self.__QScintillaCharRight,
-            QsciScintilla.SCI_WORDLEFT     : self.__QScintillaWordLeft,
-            QsciScintilla.SCI_WORDRIGHT    : self.__QScintillaWordRight,
-            QsciScintilla.SCI_VCHOME       : self.__QScintillaVCHome,
-            QsciScintilla.SCI_LINEEND      : self.__QScintillaLineEnd,
-            QsciScintilla.SCI_LINEUP       : self.__QScintillaLineUp,
-            QsciScintilla.SCI_LINEDOWN     : self.__QScintillaLineDown,
-            
-            #QsciScintilla.SCI_PAGEUP       : self.__QScintillaAutoCompletionCommand,
-            #QsciScintilla.SCI_PAGEDOWN     : self.__QScintillaAutoCompletionCommand,
-            #QsciScintilla.SCI_CANCEL       : self.__QScintillaAutoCompletionCommand,
-            
-            #QsciScintilla.SCI_CHARLEFTEXTEND  : self.__QScintillaCharLeftExtend,
-            #QsciScintilla.SCI_CHARRIGHTEXTEND : self.extendSelectionRight,
-            #QsciScintilla.SCI_WORDLEFTEXTEND  : self.__QScintillaWordLeftExtend,
-            #QsciScintilla.SCI_WORDRIGHTEXTEND : self.extendSelectionWordRight,
-            #QsciScintilla.SCI_VCHOMEEXTEND    : self.__QScintillaVCHomeExtend,
-            #QsciScintilla.SCI_LINEENDEXTEND   : self.extendSelectionToEOL,
-        }
-        
+        self.connect(self, QtCore.SIGNAL('userListActivated(int, const QString)'),
+                     self.__completionListSelected)
 
     def get_interpreter(self):
         """ Return the interpreter object """
 
         return self.interpreter
-        
-
-    def moveCursor(self, operation, mode=QTextCursor.MoveAnchor):
-        """
-        Convenience function to move the cursor
-        This function will be present in PyQT4.2
-        """
-        cursor = self.textCursor()
-        cursor.movePosition(operation, mode)
-        self.setTextCursor(cursor)
         
 
     def flush(self):
@@ -169,25 +157,7 @@ class SciShell(QsciScintilla):
         """
         Simulate stdin, stdout, and stderr.
         """
-        self.reading = 1
-        self.__clearLine()
-        self.moveCursor(QTextCursor.End)
-        while self.reading:
-            qApp.processOneEvent()
-        if self.line.length() == 0:
-            return '\n'
-        else:
-            return str(self.line) 
-
-
-    def __getEndPos(self):
-        """
-        Private method to return the line and column of the last character.
-        @return tuple of two values (int, int) giving the line and column
-        """
-        line = self.lines() - 1
-        return (line, self.lineLength(line))
-
+        return ""
 
     def write(self, s):
         """
@@ -197,68 +167,47 @@ class SciShell(QsciScintilla):
         line, col = self.__getEndPos()
         self.setCursorPosition(line, col)
         self.insert(s)
+
+        line, col = self.__getEndPos()
+        self.setCursorPosition(line, col)
+
         self.prline, self.prcol = self.getCursorPosition()
+
         self.ensureCursorVisible()
         self.ensureLineVisible(line)
 
+        
+    ###########################################
 
-    def writelines(self, text):
+    def __getEndPos(self):
         """
-        Simulate stdin, stdout, and stderr.
+        Private method to return the line and column of the last character.
+        
+        @return tuple of two values (int, int) giving the line and column
         """
-        map(self.write, text)
+        line = self.lines() - 1
+        return (line, self.lineLength(line))
 
-
-    def fakeUser(self, lines):
+    
+    def paste(self):
         """
-        Simulate a user: lines is a sequence of strings, (Python statements).
+        Reimplemented slot to handle the paste action.
         """
-        for line in lines:
-            self.line = QtCore.QString(line.rstrip())
-            self.write(self.line)
-            self.write('\n')
-            self.__run()
-
-            
-    def __run(self):
+        lines = unicode(QApplication.clipboard().text())
+        self.__executeLines(lines)
+        
+        
+    def __middleMouseButton(self):
         """
-        Append the last line to the history list, let the interpreter execute
-        the last line(s), and clean up accounting for the interpreter results:
-        (1) the interpreter succeeds
-        (2) the interpreter fails, finds no errors and wants more line(s)
-        (3) the interpreter fails, finds errors and writes them to sys.stderr
+        Private method to handle the middle mouse button press.
         """
-        self.pointer = 0
-        self.history.append(QtCore.QString(self.line))
-        try:
-            self.__lines.append(str(self.line))
-        except Exception,e:
-            print e
-
-        source = '\n'.join(self.__lines)
-        self.more = self.interpreter.runsource(source)
-
-        if self.more:
-            self.write(sys.ps2)
-        else:
-            self.write(sys.ps1)
-            self.__lines = []
-        self.__clearLine()
+        lines = unicode(QApplication.clipboard().text(QClipboard.Selection))
+        self.__executeLines(lines)
 
         
-    def __clearLine(self):
-        """
-        Clear input line buffer
-        """
-        self.line.truncate(0)
-        self.point = 0
-
-
-    ###########################################
     def __executeLines(self, lines):
         """
         Private method to execute a set of lines as multiple commands.
-        
         @param lines multiple lines of text to be executed as single
             commands (string)
         """
@@ -275,9 +224,6 @@ class SciShell(QsciScintilla):
             self.__insertTextAtEnd(line)
             if fullline:
                 self.__executeCommand(cmd)
-                if self.interruptCommandExecution: 
-                    self.__executeCommand("")
-                    break
 
                 
     def __executeCommand(self, cmd):
@@ -286,71 +232,28 @@ class SciShell(QsciScintilla):
         
         @param cmd command to be executed by debug client (string)
         """
-        if not self.inRawMode:
-            self.inCommandExecution = True
-            self.interruptCommandExecution = False
-            if not cmd:
-                cmd = ''
-            else:
-                if len(self.history) == self.maxHistoryEntries:
-                    del self.history[0]
-                self.history.append(QString(cmd))
-                self.histidx = -1
-            if cmd.startswith('start'):
-                if not self.passive:
-                    cmdList = cmd.split(None, 1)
-                    if len(cmdList) < 2:
-                        self.dbs.startClient(False) # same as reset
-                    else:
-                        language = cmdList[1]
-                        if not language in self.clientLanguages:
-                            language = cmdList[1].capitalize()
-                            if not language in self.clientLanguages:
-                                language = ""
-                        if language:
-                            self.dbs.startClient(False, language)
-                        else:
-                            # language not supported or typo
-                            self.__write(\
-                                self.trUtf8('Shell language "%1" not supported.\n')\
-                                    .arg(cmdList[1]))
-                            self.__clientStatement(False)
-                        return
-                    cmd = ''
-            elif cmd == 'languages':
-                s = '%s\n' % ', '.join(self.clientLanguages)
-                self.__write(s)
-                self.__clientStatement(False)
-                return
-            elif cmd == 'clear':
-                # Display the banner.
-                self.__getBanner()
-                if not self.passive:
-                    return
-                else:
-                    cmd = ''
-            elif cmd == 'reset':
-                self.dbs.startClient(False)
-                if self.passive:
-                    return
-                else:
-                    cmd = ''
-            
-            self.dbs.remoteStatement(cmd)
-            while self.inCommandExecution: QApplication.processEvents()
-        else:
-            if not self.echoInput:
-                cmd = unicode(self.buff)
-            self.inRawMode = False
-            self.echoInput = True
-            if not cmd:
-                cmd = ''
-            else:
-                cmd = str(cmd.replace(unicode(self.prompt), ""))
-            self.dbs.remoteRawInput(cmd)
 
+        if not cmd:  cmd = ''
+        else:
+            if len(self.history) == self.maxHistoryEntries:
+                del self.history[0]
+            self.history.append(QtCore.QString(cmd))
+            self.histidx = -1
+
+        # Execute command
+        self.execlines.append(str(cmd))
+        source = '\n'.join(self.execlines)
+        self.more = self.interpreter.runsource(source)
+
+        if self.more:
+            self.write(sys.ps2)
+        else:
+            self.write(sys.ps1)
+            self.execlines = []
+
+        
     
-    def __insertText(self, text):
+    def __insertText(self, s):
         """
         Insert text at the current cursor position.
         """
@@ -370,7 +273,7 @@ class SciShell(QsciScintilla):
         self.insert(s)
         self.prline, self.prcol = self.getCursorPosition()
 
-
+        
     def __isCursorOnLastLine(self):
         """
         Private method to check, if the cursor is on the last line.
@@ -387,69 +290,56 @@ class SciShell(QsciScintilla):
         """
         txt = ev.text()
         key = ev.key()
-        
+
+        if(self.keymap.has_key(key)):
+            self.keymap[key]()
+
         # See it is text to insert.
-        if self.__isCursorOnLastLine() and txt.length():
+        elif self.__isCursorOnLastLine() and txt.length():
+
             QsciScintilla.keyPressEvent(self, ev)
+            self.incrementalSearchActive = True
+
+            if(txt == '.'):
+                self.__showDynCompletion()
+
         else:
             ev.ignore()
 
 
-    def __QScintillaTab(self, cmd):
+    def __QScintillaTab(self):
         """
         Private method to handle the Tab key.
-        
-        @param cmd QScintilla command
         """
         if self.isListActive():
-            self.SendScintilla(cmd)
+            self.SendScintilla(QsciScintilla.SCI_TAB)
         elif self.__isCursorOnLastLine():
             line, index = self.getCursorPosition()
             buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
-            if self.inContinue and not buf[:index-len(sys.ps2)].strip():
-                self.SendScintilla(cmd)
-            elif self.racEnabled:
-                self.dbs.remoteCompletion(buf)
-                
-        
-    def __QScintillaLeftDeleteCommand(self, method):
-        """
-        Private method to handle a QScintilla delete command working to the left.
-        
-        @param method shell method to execute
-        """
-        if self.__isCursorOnLastLine():
-            line, col = self.getCursorPosition()
-            db = 0
-            ac = self.isListActive()
-            oldLength = self.text(line).length()
-            
-            if self.text(line).startsWith(sys.ps1):
-                if col > len(sys.ps1):
-                    method()
-                    db = 1
-            elif self.text(line).startsWith(sys.ps2):
-                if col > len(sys.ps2):
-                    method()
-                    db = 1
-            elif col > 0:
-                method()
-                db = 1
-            if db and ac and self.racEnabled and self.completionText:
-                delta = self.text(line).length() - oldLength
-                self.dbs.remoteCompletion(self.completionText[:delta])
+            if self.more and not buf[:index-len(sys.ps2)].strip():
+                self.SendScintilla(QsciScintilla.SCI_TAB)
+             
         
     def __QScintillaDeleteBack(self):
         """
         Private method to handle the Backspace key.
         """
-        self.__QScintillaLeftDeleteCommand(self.deleteBack)
-        
-    def __QScintillaDeleteWordLeft(self):
-        """
-        Private method to handle the Delete Word Left command.
-        """
-        self.__QScintillaLeftDeleteCommand(self.deleteWordLeft)
+        if self.__isCursorOnLastLine():
+            line, col = self.getCursorPosition()
+            ac = self.isListActive()
+            oldLength = self.text(line).length()
+            
+            if self.text(line).startsWith(sys.ps1):
+                if col > len(sys.ps1):
+                    self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
+                    
+            elif self.text(line).startsWith(sys.ps2):
+                if col > len(sys.ps2):
+                    self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
+
+            elif col > 0:
+                self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
+
         
     def __QScintillaDelete(self):
         """
@@ -460,45 +350,28 @@ class SciShell(QsciScintilla):
                 lineFrom, indexFrom, lineTo, indexTo = self.getSelection()
                 if self.text(lineFrom).startsWith(sys.ps1):
                     if indexFrom >= len(sys.ps1):
-                        self.delete()
+                        self.SendScintilla(QsciScintilla.SCI_CLEAR)
+
                 elif self.text(lineFrom).startsWith(sys.ps2):
                     if indexFrom >= len(sys.ps2):
-                        self.delete()
+                        self.SendScintilla(QsciScintilla.SCI_CLEAR)
+                        
                 elif indexFrom >= 0:
-                    self.delete()
+                    self.SendScintilla(QsciScintilla.SCI_CLEAR)
+                    
                 self.setSelection(lineTo, indexTo, lineTo, indexTo)
             else:
-                self.delete()
+                self.SendScintilla(QsciScintilla.SCI_CLEAR)
+
         
-    def __QScintillaDeleteLineLeft(self):
-        """
-        Private method to handle the Delete Line Left command.
-        """
-        if self.__isCursorOnLastLine():
-            if self.isListActive():
-                self.cancelList()
-            
-            line, col = self.getCursorPosition()
-            if self.text(line).startsWith(sys.ps1):
-                prompt = sys.ps1
-            elif self.text(line).startsWith(sys.ps2):
-                prompt = sys.ps2
-            else:
-                prompt = ""
-            
-            self.deleteLineLeft()
-            self.insertAt(prompt, line, 0)
-            self.setCursorPosition(line, len(prompt))
         
-    def __QScintillaNewline(self, cmd):
+    def __QScintillaNewline(self):
         """
         Private method to handle the Return key.
-        
-        @param cmd QScintilla command
         """
         if self.__isCursorOnLastLine():
             if self.isListActive():
-                self.SendScintilla(cmd)
+                self.SendScintilla(QsciScintilla.SCI_NEWLINE)
             else:
                 self.incrementalSearchString = ""
                 self.incrementalSearchActive = False
@@ -507,77 +380,43 @@ class SciShell(QsciScintilla):
                 buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
                 self.insert('\n')
                 self.__executeCommand(buf)
+
+
         
-    def __QScintillaLeftCommand(self, method, allLinesAllowed = False):
+    def __QScintillaCharLeft(self, allLinesAllowed = False):
         """
-        Private method to handle a QScintilla command working to the left.
+        Private method to handle the Cursor Left command.
+        """
         
-        @param method shell method to execute
-        """
         if self.__isCursorOnLastLine() or allLinesAllowed:
             line, col = self.getCursorPosition()
             if self.text(line).startsWith(sys.ps1):
                 if col > len(sys.ps1):
-                    method()
+                    self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
+                    
             elif self.text(line).startsWith(sys.ps2):
                 if col > len(sys.ps2):
-                    method()
+                    
+                    self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
             elif col > 0:
-                method()
-        
-    def __QScintillaCharLeft(self):
-        """
-        Private method to handle the Cursor Left command.
-        """
-        self.__QScintillaLeftCommand(self.moveCursorLeft)
-        
-    def __QScintillaWordLeft(self):
-        """
-        Private method to handle the Cursor Word Left command.
-        """
-        self.__QScintillaLeftCommand(self.moveCursorWordLeft)
-        
-    def __QScintillaRightCommand(self, method):
-        """
-        Private method to handle a QScintilla command working to the right.
-        
-        @param method shell method to execute
-        """
-        if self.__isCursorOnLastLine():
-            method()
+                
+                self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
+
         
     def __QScintillaCharRight(self):
         """
         Private method to handle the Cursor Right command.
         """
-        self.__QScintillaRightCommand(self.moveCursorRight)
-        
-    def __QScintillaWordRight(self):
-        """
-        Private method to handle the Cursor Word Right command.
-        """
-        self.__QScintillaRightCommand(self.moveCursorWordRight)
-        
-    def __QScintillaDeleteWordRight(self):
-        """
-        Private method to handle the Delete Word Right command.
-        """
-        self.__QScintillaRightCommand(self.deleteWordRight)
-        
-    def __QScintillaDeleteLineRight(self):
-        """
-        Private method to handle the Delete Line Right command.
-        """
-        self.__QScintillaRightCommand(self.deleteLineRight)
-        
-    def __QScintillaVCHome(self, cmd):
+        if self.__isCursorOnLastLine():
+            self.SendScintilla(QsciScintilla.SCI_CHARRIGHT)
+
+
+    def __QScintillaVCHome(self):
         """
         Private method to handle the Home key.
-        
-        @param cmd QScintilla command
         """
         if self.isListActive():
-            self.SendScintilla(cmd)
+            self.SendScintilla(QsciScintilla.SCI_VCHOME)
         elif self.__isCursorOnLastLine():
             line, col = self.getCursorPosition()
             if self.text(line).startsWith(sys.ps1):
@@ -587,26 +426,24 @@ class SciShell(QsciScintilla):
             else:
                 col = 0
             self.setCursorPosition(line, col)
+
         
-    def __QScintillaLineEnd(self, cmd):
+    def __QScintillaLineEnd(self):
         """
         Private method to handle the End key.
-        
-        @param cmd QScintilla command
         """
         if self.isListActive():
-            self.SendScintilla(cmd)
+            self.SendScintilla(QsciScintilla.SCI_LINEEND)
         elif self.__isCursorOnLastLine():
-            self.moveCursorToEOL()
+            self.SendScintilla(QsciScintilla.SCI_LINEEND)
+
         
-    def __QScintillaLineUp(self, cmd):
+    def __QScintillaLineUp(self):
         """
         Private method to handle the Up key.
-        
-        @param cmd QScintilla command
         """
         if self.isListActive():
-            self.SendScintilla(cmd)
+            self.SendScintilla(QsciScintilla.SCI_LINEUP)
         else:
             line, col = self.__getEndPos()
             buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
@@ -629,15 +466,14 @@ class SciShell(QsciScintilla):
                 if self.histidx > 0:
                     self.histidx = self.histidx - 1
                     self.__useHistory()
+
         
-    def __QScintillaLineDown(self, cmd):
+    def __QScintillaLineDown(self):
         """
         Private method to handle the Down key.
-        
-        @param cmd QScintilla command
         """
         if self.isListActive():
-            self.SendScintilla(cmd)
+            self.SendScintilla(QsciScintilla.SCI_LINEDOWN)
         else:
             line, col = self.__getEndPos()
             buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
@@ -657,16 +493,131 @@ class SciShell(QsciScintilla):
                 if self.histidx >= 0 and self.histidx < len(self.history):
                     self.histidx += 1
                     self.__useHistory()
-          
+  
 
+    def __useHistory(self):
+        """
+        Private method to display a command from the history.
+        """
+        if self.histidx < len(self.history):
+            cmd = self.history[self.histidx]
+        else:
+            cmd = QtCore.QString()
+            self.incrementalSearchString = ""
+            self.incrementalSearchActive = False
 
+        self.setCursorPosition(self.prline, self.prcol + len(self.more and sys.ps1 or sys.ps2))
+        self.setSelection(self.prline,self.prcol,\
+                          self.prline,self.lineLength(self.prline))
+        self.removeSelectedText()
+        self.__insertText(cmd)
 
         
-            
-
-
+    def __searchHistory(self, txt, startIdx = -1):
+        """
+        Private method used to search the history.
+        
+        @param txt text to match at the beginning (string or QString)
+        @param startIdx index to start search from (integer)
+        @return index of 
+        """
+        if startIdx == -1:
+            idx = 0
+        else:
+            idx = startIdx + 1
+        while idx < len(self.history) and \
+              not self.history[idx].startsWith(txt):
+            idx += 1
+        return idx
     
+        
+    def __rsearchHistory(self, txt, startIdx = -1):
+        """
+        Private method used to reverse search the history.
+        
+        @param txt text to match at the beginning (string or QString)
+        @param startIdx index to start search from (integer)
+        @return index of 
+        """
+        if startIdx == -1:
+            idx = len(self.history) - 1
+        else:
+            idx = startIdx - 1
+        while idx >= 0 and \
+              not self.history[idx].startsWith(txt):
+            idx -= 1
+        return idx
 
 
+    def focusNextPrevChild(self, next):
+        """
+        Reimplemented to stop Tab moving to the next window.
+        
+        While the user is entering a multi-line command, the movement to
+        the next window by the Tab key being pressed is suppressed.
+        
+        @param next next window
+        @return flag indicating the movement
+        """
+        if next and self.more:
+            return False
+    
+        return QsciScintilla.focusNextPrevChild(self,next)
 
 
+    def __showDynCompletion(self):
+        """
+        Display a completion list based on the last token
+        """
+
+        # get line
+        line, col = self.__getEndPos()
+        self.setCursorPosition(line,col)
+        buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+
+        text = buf.split()[-1][:-1]
+        try:
+            locals = self.interpreter.locals
+            obj = eval(text, globals(), self.interpreter.locals)
+            l = dir(obj)
+            l = filter(lambda x : not x.startswith('__'), l)
+            self.__showCompletions(l, text) 
+        except Exception, e:
+            print e
+        
+
+    def __showCompletions(self, completions, text):
+        """
+        Private method to display the possible completions.
+        """
+        if len(completions) == 0:
+            return
+        
+        if len(completions) > 1:
+            completions.sort()
+            comps = QtCore.QStringList()
+            for comp in completions:
+                comps.append(comp)
+            self.showUserList(1, comps)
+            self.completionText = text
+        else:
+            txt = completions[0]
+            if text != "":
+                txt = txt.replace(text, "")
+            self.__insertText(txt)
+            self.completionText = ""
+
+        
+    def __completionListSelected(self, id, txt):
+        """
+        Private slot to handle the selection from the completion list.
+        
+        @param id the ID of the user list (should be 1) (integer)
+        @param txt the selected text (QString)
+        """
+        if id == 1:
+            txt = unicode(txt)
+            if self.completionText != "":
+                txt = txt.replace(self.completionText, "")
+            self.__insertText(txt)
+            self.completionText = ""
