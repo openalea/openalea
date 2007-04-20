@@ -33,7 +33,8 @@ import string
 import types
 
 
-from signature import get_parameters
+#from signature import get_parameters
+import signature as sgn
 from observer import Observed, AbstractListener
 
 # Exceptions
@@ -434,8 +435,10 @@ class NodeFactory(AbstractFactory):
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
             # Check inputs and outputs
-            if(self.inputs == None) : self.inputs = get_parameters(classobj)
-            if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
+            if(not self.inputs) :
+                s = sgn.Signature(classobj)
+                self.inputs = s.get_parameters()
+            if(not self.outputs) : self.outputs = (dict(name="out", interface=None),)
 
  
             # Check and Instantiate if we have a functor class
