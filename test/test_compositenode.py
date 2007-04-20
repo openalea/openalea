@@ -54,13 +54,28 @@ def test_instantiate_compositenode():
     sg.get_node_by_id(id1).set_input(0, 2.)
     sg.get_node_by_id(id2).set_input(0, 3.)
 
-    print "vertices", list( sg.vertices() )
-    print "edges", list( sg.edges() )
-    print "nodes", sg.node_id
     # evaluation
     sg()
 
     assert sg.get_node_by_id(val3id).get_input(0) == 5.
+
+def test_compositenode_creation_without_edges():
+       
+    pm = PackageManager ()
+    pm.init()
+
+    sgfactory = CompositeNodeFactory(pm, "addition")
+
+    # build the compositenode factory
+    addid = sgfactory.add_nodefactory ( (libraryname, "+"))
+    val1id = sgfactory.add_nodefactory ( (libraryname, "float")) 
+    val2id = sgfactory.add_nodefactory ( (libraryname, "float"))
+    val3id = sgfactory.add_nodefactory ( (libraryname, "float"))
+
+    # allocate the compositenode
+    sg = sgfactory.instantiate()
+
+    assert len(sg) == 4+2
 
 
 # Test conversion Composite Node to its Factory
