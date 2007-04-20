@@ -274,5 +274,31 @@ def test_multi_out_eval():
     sg.eval_as_expression(val3id)
     assert sg.get_node_by_id(val3id).get_input(0) == "teststring2"
 
+def test_eval_bug():
 
+    pm= PackageManager()
+    pm.init()
+
+    name= 'jcd_test'
+
+    sgf= CompositeNodeFactory(pm, "test_eval")
+    cid = sgf.add_nodefactory((name,'cid'))
+    wid = sgf.add_nodefactory((name,'wid'))
+    eid = sgf.add_nodefactory((name,'eid'))
+    dbg = sgf.add_nodefactory((name,'dbg'))
+    dbg1 = sgf.add_nodefactory((name,'dbg'))
+    
+    sgf.add_connection( cid, 0, dbg, 0 )
+    sgf.add_connection( wid, 0, dbg1, 0 )
+    sg = sgf.instantiate()
+    sg()
+    
+    print sg.get_node_by_id(dbg).get_input(0)
+    print sg.get_node_by_id(dbg1).get_input(0)
+
+    assert sg.get_node_by_id(dbg).get_input(0) == 0
+    assert sg.get_node_by_id(dbg1).get_input(0) == 1
+
+    
+    
 
