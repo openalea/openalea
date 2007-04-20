@@ -274,6 +274,17 @@ def test_multi_out_eval():
     sg.eval_as_expression(val3id)
     assert sg.get_node_by_id(val3id).get_input(0) == "teststring2"
 
+from nose import with_setup
+from openalea.core.path import path
+
+def setup_func():
+    wralea= path('data')/'jcd_dec.py'
+    wralea.copy(path('data')/'jcd_wralea.py')
+def teardown_func():
+    wralea= path('data')
+    map(lambda f: f.remove(),wralea.glob('*wralea*'))
+
+@with_setup(setup_func,teardown_func)
 def test_eval_bug():
 
     pm= PackageManager()
