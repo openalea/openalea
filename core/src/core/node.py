@@ -448,7 +448,8 @@ class NodeFactory(AbstractFactory):
             
             node = FuncNode(self.inputs, self.outputs, classobj)
             node.set_caption(self.name)
-            
+
+        # Class inherits from Node
         else:
             try:
                 node = classobj(self.inputs, self.outputs)
