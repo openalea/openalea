@@ -52,6 +52,11 @@ class DataFlow( DirectedGraphProperty ):
     def __init__( self, graph=None ):
         DirectedGraphProperty.__init__( self, graph )
 
+    def __str__( self ):
+        s=[ "vertices: %s" % str( list( self.vertices() ) ) ]
+        s.append( "edges: %s" % str( self._edges) )
+        return '\n'.join( s )
+
 
 class CompositeNodeFactory(AbstractFactory, DataFlow):
     """
@@ -277,6 +282,8 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
             connect[(self.target( eid ), dst_port )]=( self.source( eid ), src_port )
         return connect
 
+        
+
 
 ################################################################################
 
@@ -339,9 +346,12 @@ class CompositeNode(Node, DataFlow):
         nbin and nbout are the number of in and out. If -1, parameters
         are discarded.
         """
-
-#        sgfactory.elt_factory = {}
-#        sgfactory.elt_data = {}
+        
+        # Clear the garph factory
+        sgfactory.clear()
+        sgfactory.elt_factory = {}
+        sgfactory.elt_data = {}
+        sgfactory._edge_ports = {}
 
         if(nbin<0) : nbin = self.get_nb_input()
         if(nbout<0) : nbout = self.get_nb_output()
@@ -350,6 +360,8 @@ class CompositeNode(Node, DataFlow):
         # this should be refactored
         sgfactory.set_nb_input(nbin)
         sgfactory.set_nb_output(nbout)
+        sgfactory.id_in= sgfactory.add_vertex(self.id_in)
+        sgfactory.id_out= sgfactory.add_vertex(self.id_out)
 
         
         # Create node if necessary
