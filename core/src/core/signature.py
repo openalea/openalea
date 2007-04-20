@@ -82,7 +82,6 @@ class Signature(object):
         return self.name
 
     def get_parameters(self):
-        print self.parameters
         return self.parameters
 
 
