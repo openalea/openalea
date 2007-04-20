@@ -120,32 +120,34 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         name2vid= {self.id_in:self.id_in, self.id_out:self.id_out}
         self.elt_factory= {}
         self.elt_data= {}
+        
+        # Create nodes & return vid
+        def add_only_new_vertex( id ):
+            # Be carefull: This code is not equivalent to
+            # vid= name2vid.setdefault( id, self.add_vertex() )
+            # because self.add_vertex() is evaluted even if
+            # name2vid[id] is defined 
+            if id in name2vid:
+                vid= name2vid[id]
+            else: 
+                vid= self.add_vertex()
+                name2vid[ id ]= vid
+            return vid
+
+        # Copy datastructure
+        for id in elt_factory:
+            vid= add_only_new_vertex(id)
+            self.elt_factory[vid]=elt_factory[id]
+
+        for id in elt_data:
+            vid= add_only_new_vertex(id)
+            self.elt_data[vid]=elt_data[id]
 
         for ( dst_id, dst_port ), ( src_id, src_port ) in connections.iteritems():
-            # Create 2 vertices if they do not exist
-            
-            
-            # src_vid= name2vid.setdefault( src_id, self.add_vertex() )
-            # dst_vid= name2vid.setdefault( dst_id, self.add_vertex() )
-            # this code is not used because self.add_vertex() is evaluted even
-            # if name2vid[ id  ] is defined 
-            if src_id in name2vid:
-                src_vid= name2vid[ src_id ]
-            else: 
-                src_vid= self.add_vertex()
-                name2vid[ src_id ]= src_vid
-            if dst_id in name2vid:
-                dst_vid= name2vid[ dst_id ]
-            else: 
-                dst_vid= self.add_vertex()
-                name2vid[ dst_id ]= dst_vid
 
+            src_vid= add_only_new_vertex(src_id)
+            dst_vid= add_only_new_vertex(dst_id)
             
-            self.elt_factory.setdefault( src_vid, elt_factory[src_id] )
-            self.elt_factory.setdefault( dst_vid, elt_factory[dst_id] )
-            self.elt_data.setdefault( src_vid, elt_data[src_id] )
-            self.elt_data.setdefault( dst_vid, elt_data[dst_id] )
-
             eid= self.add_edge( edge= ( src_vid, dst_vid ) )
             self._edge_ports[ eid ]= ( src_port, dst_port )
 
