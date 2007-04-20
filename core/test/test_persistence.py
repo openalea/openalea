@@ -63,12 +63,8 @@ def test_compositenodewriter():
     package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
 
-    print "package 1", package1
     package1.write()
     
-    pm.init()
-
-    newsg = pm.get_node('MyPackage', 'addition')
 
     sg = sgfactory.instantiate()
 
@@ -77,10 +73,20 @@ def test_compositenodewriter():
 
         # evaluation
     sg()
-
+    
     assert sg.get_node_by_id(val3id).get_input(0) == 5.
 
+    print "nb vertices", len( sg )
+    assert len( sg ) == 6
 
+    pm.init()
+    newsg = pm.get_node('MyPackage', 'addition')
+    print "nb vertices", len( newsg )
+    assert len( newsg ) == 6
+    
+    
+    
+    
 def test_nodewriter():
 
     pm = PackageManager ()
