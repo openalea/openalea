@@ -465,12 +465,18 @@ class NodeFactoryView(object):
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open URL")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+            action = menu.addAction("Reload")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.reload_package)
 
 
         if(menu):
             menu.move(event.globalPos())
             menu.show()
 
+
+    def reload_package(self):
+        """ Reload a package """
+        raise NotImplementedError()
 
     def open_dialog(self, widget, title):
         """ Open a widget in a dialog box """
@@ -496,7 +502,7 @@ class NodeFactoryView(object):
 
         if(isinstance(obj, CompositeNodeFactory)):
             self.edit_node()
-        else:
+        elif (not isinstance(obj, Package)):
             self.open_node()
 
 

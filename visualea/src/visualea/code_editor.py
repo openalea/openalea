@@ -126,7 +126,8 @@ class NodeCodeEditor(QtGui.QWidget):
     def apply_changes(self):
 
         self.src = str(self.getText())
-        self.factory.apply_new_src(self.src)
+        if(self.src != self.factory.get_node_src()):
+            self.factory.apply_new_src(self.src)
 
 
     def save_changes(self):

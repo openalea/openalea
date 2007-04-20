@@ -46,7 +46,6 @@ class MultipleRedirection:
             f.write(str)
 
 class SciShell(QsciScintilla):
-
     """
     SciShell is a Python shell based in QScintilla.
     """
