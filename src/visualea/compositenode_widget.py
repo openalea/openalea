@@ -83,6 +83,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+            
         self.scale(0.8, 0.8)
 
         self.newedge = None
@@ -139,11 +140,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.add_graphical_connection(src_connector, dst_connector)
 
 
-
     # Mouse events
-    def wheelEvent(self, event):
-        self.scaleView(math.pow(2.0, -event.delta() / 240.0))
-
 
     def mouseMoveEvent(self, event):
         
@@ -159,6 +156,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         if (event.buttons() & QtCore.Qt.LeftButton):
             QtGui.QGraphicsView.mousePressEvent(self, event)
+            
 
 
     @lock_notify
@@ -188,15 +186,19 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 #     def itemMoved(self, item, newvalue):
 #         """ function called when a node item has moved """
-#         elt_id = item.elt_id
-#         point = newvalue.toPointF()
+
+
+    def wheelEvent(self, event):
+        #self.centerOn(self.mapToScene(event.globalPos()))
+        self.scaleView(-event.delta() / 1200.0)
+        QtGui.QGraphicsView.wheelEvent(self, event)
         
-#         self.notification_enabled.append(False)
-#         self.node.set_data(elt_id, 'posx', point.x())
-#         self.node.set_data(elt_id, 'posy', point.y())
-#         self.notification_enabled.pop()
+    def scaleView(self, scaleFactor):
 
+        scaleFactor += 1
+        self.scale(scaleFactor, scaleFactor)
 
+    
     def notify(self, sender, event):
         """ Function called by observed objects """
 
@@ -206,16 +208,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.rebuild_scene()
         elif( event[0] == "graph_modified"):
             self.rebuild_scene()
-        
-
-    def scaleView(self, scaleFactor):
-        factor = self.matrix().scale(scaleFactor, scaleFactor)\
-                 .mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
-
-        if factor < 0.07 or factor > 100:
-            return
-
-        self.scale(scaleFactor, scaleFactor)
 
 
     def start_edge(self, connector):
@@ -437,15 +429,25 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     # Keybord Event
     def keyPressEvent(self, e):
-        """
-        Handle user input a key
-        """
+
         QtGui.QGraphicsView.keyPressEvent(self, e)
         
         key   = e.key()
         if( key == QtCore.Qt.Key_Delete):
             self.remove_selection()
 
+        elif(key == QtCore.Qt.Key_Space):
+            self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+
+
+    def keyReleaseEvent(self, e):
+
+        QtGui.QGraphicsView.keyReleaseEvent(self, e)
+        key   = e.key()
+        if(key == QtCore.Qt.Key_Space):
+            self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+
+    
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
