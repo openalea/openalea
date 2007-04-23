@@ -206,7 +206,6 @@ class PackageManager(object):
         """ Return the pkg reader corresponding to the filename """
 
         reader = None
-        print filename
         if(filename.endswith('.py')):
             reader = PyPackageReader(filename)
         else :
