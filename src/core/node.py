@@ -397,7 +397,6 @@ class NodeFactory(AbstractFactory):
 
         # Cache
         self.nodeclass = None
-        self.nodemodule = None
         self.src_cache = None
 
         # Module path, value=0
@@ -511,21 +510,25 @@ class NodeFactory(AbstractFactory):
         Raise an Import Error if no module is associated
         """
 
-        if(self.nodemodule and self.nodemodule_path):
-            return self.nodemodule
-
         if(self.nodemodule_name):
+
+            # Test if the module is already in sys.modules
+            if(self.nodemodule_name in sys.modules.keys()):
+                m = sys.modules[self.nodemodule_name]
+                self.nodemodule_path = m.__file__
+                return m
+            
             # load module
             (file, pathname, desc) = imp.find_module(self.nodemodule_name,
                                                      self.search_path + sys.path)
             self.nodemodule_path = pathname
 
             sys.path.append(os.path.dirname(pathname))
-            self.nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+            nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
             sys.path.pop()
                 
             if(file) : file.close()
-            return self.nodemodule
+            return nodemodule
                 
         else :
             # By default use __builtin module
@@ -588,8 +591,7 @@ class NodeFactory(AbstractFactory):
         file.close()
 
         # unload module
-        if(self.nodemodule) : del(self.nodemodule)
-        self.nodemodule = None
+        if(self.nodemodule_name in sys.modules.keys()) : del(sys.modules[self.nodemodule_name])
         self.src_cache = None
  
         # Recompile
