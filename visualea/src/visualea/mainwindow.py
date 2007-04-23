@@ -48,7 +48,7 @@ class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  AbstractListener) :
 
-    def __init__(self, pkgman, session, parent=None):
+    def __init__(self, session, parent=None):
         """
         @param pkgman : the package manager
         @param session : user session
@@ -60,7 +60,7 @@ class MainWindow(QtGui.QMainWindow,
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
-        self.pkgmanager = pkgman
+        self.pkgmanager = session.pkgmanager
 
         # Set observer
         self.initialise(session)
@@ -79,13 +79,13 @@ class MainWindow(QtGui.QMainWindow,
                                             parent=self.splitter)
 
         # package tree view
-        self.pkg_model = PkgModel(pkgman)
+        self.pkg_model = PkgModel(self.pkgmanager)
         self.packageTreeView = NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout.addWidget(self.packageTreeView)
 
         # category tree view
-        self.cat_model = CategoryModel(pkgman)
+        self.cat_model = CategoryModel(self.pkgmanager)
         self.categoryTreeView = NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout1.addWidget(self.categoryTreeView)
@@ -316,7 +316,6 @@ class MainWindow(QtGui.QMainWindow,
     
     def find_wralea(self):
 
-        self.pkgmanager
         self.pkgmanager.find_and_register_packages()
         self.reinit_treeview()
 
@@ -392,10 +391,10 @@ class MainWindow(QtGui.QMainWindow,
         if(ret>0):
             (name, nin, nout, pkg, cat, desc) = dialog.get_data()
             
-            newfactory = CompositeNodeFactory(self.pkgmanager, name=name,
-                                         description= desc,
-                                         category = cat,
-                                         )
+            newfactory = CompositeNodeFactory( name=name,
+                                               description= desc,
+                                               category = cat,
+                                               )
             
             newfactory.set_nb_input(nin)
             newfactory.set_nb_output(nout)

@@ -114,7 +114,7 @@ class Package(dict):
         if(self.has_key(factory.name)):
             print "Factory %s already defined. Ignored !"%(factory.name,)
             return
-        
+
         self[factory.name] = factory
         factory.package = self
 
