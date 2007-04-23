@@ -124,10 +124,11 @@ class Session(Observed):
 
         # modules
         modules_path = []
-        for m in sys.modules.values():
+        for k in sys.modules.keys():
+            m = sys.modules[k]
             if hasattr(m, '__file__'):
                 modules_path.append((m.__name__, os.path.abspath(m.__file__)))
-                                   
+                
         d['__modules__'] = modules_path
 
         # datapool
@@ -176,9 +177,8 @@ class Session(Observed):
         try:
             (file, filename, desc) = imp.find_module(lastname, [path])
             imp.load_module(name, file, filename, desc)
-        except:
+        except Exception, e:
             pass
-                                                 
 
         
 
