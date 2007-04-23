@@ -66,7 +66,7 @@ def main(args):
 
     session = Session()
 
-    win = MainWindow(session.pkgmanager, session)
+    win = MainWindow(session)
 
     # icon
     icon = app.setWindowIcon(QtGui.QIcon(":/icons/arbreicon.png"))

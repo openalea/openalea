@@ -29,6 +29,7 @@ import math
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.node import NodeWidget, RecursionError
+from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
 
 
@@ -395,7 +396,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ convenience function """
 
         # Add new node
-        pkgmanager = self.node.factory.pkgmanager
+        pkgmanager = PackageManager()
         pkg = pkgmanager[str(package_id)]
         factory = pkg.get_factory(str(factory_id))
         
