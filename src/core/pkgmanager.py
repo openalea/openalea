@@ -27,6 +27,7 @@ __revision__=" $Id$ "
 import openalea
 import sys
 import os
+from singleton import Singleton
 from package import UserPackage, PyPackageReader
 from setting import get_userpkg_dir
 
@@ -42,6 +43,8 @@ class PackageManager(object):
     The PackageManager is a Dictionary of Packages
     It can locate OpenAlea packages on the system (with wralea)
     """
+
+    __metaclass__ = Singleton
 
     def __init__ (self):
         

@@ -30,6 +30,7 @@ import string
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
+from pkgmanager import PackageManager
 from openalea.graph import Graph
 
 ###############################################################################
@@ -64,7 +65,7 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
     Each node has an unique id : the element id (elt_id)
     """
 
-    def __init__ (self, pkgmanager,  *args, **kargs):
+    def __init__ (self, *args, **kargs):
         """
         CompositeNodeFactory accept more optional parameters :
         nin : number of inputs
@@ -78,9 +79,6 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         # Init parent (name, description, category, doc, node, widget=None)
         AbstractFactory.__init__(self, *args, **kargs)
         DataFlow.__init__(self)
-
-        # The Package Manager is needed to allocate nodefactory
-        self.pkgmanager = pkgmanager
 
         # A CompositeNode is composed by a set of element indexed by an elt_id
         # Each element is associated to NodeFactory
@@ -245,8 +243,9 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         """
 
         (package_id, factory_id) = self.elt_factory[elt_id]
-        
-        pkg = self.pkgmanager[package_id]
+
+        pkgmanager = PackageManager()
+        pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
         node.internal_data = self.elt_data[elt_id].copy()
@@ -277,6 +276,7 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
 
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
         return DisplayGraphWidget(node, parent)
+
 
     def connections( self ):
         connect= {}
@@ -584,12 +584,15 @@ class CompositeNode(Node, DataFlow):
         self.notify_listeners(("connection_modified",))
         self.graph_modified = True
 
+
     def factory_id_to_id( self, factory_id ):
         """ 
         Returns the current id of a node corresponding to the factory_id that creates it.
         """
         
         return self._factory_id_to_id[factory_id]
+
+
 
 class CompositeNodeInput(Node):
     """Dummy node to represent the composite node inputs"""
@@ -656,8 +659,7 @@ class PyCNFactoryWriter(object):
 
     sgfactory_template = """
 
-    nf = CompositeNodeFactory(pkgmanager,
-                              name="$NAME", 
+    nf = CompositeNodeFactory(name="$NAME", 
                               description="$DESCRIPTION", 
                               category="$CATEGORY",
                               doc="$DOC",

@@ -34,7 +34,7 @@ def test_instantiate_compositenode():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory(pm, "addition")
+    sgfactory = CompositeNodeFactory("addition")
 
     # build the compositenode factory
     addid = sgfactory.add_nodefactory ( (libraryname, "+"))
@@ -128,8 +128,8 @@ def test_recursion_factory():
     pm.init()
     pkg = Package("compositenode", {})
 
-    sgfactory1 = CompositeNodeFactory(pm, "graph1")
-    sgfactory2 = CompositeNodeFactory(pm,  "graph2")
+    sgfactory1 = CompositeNodeFactory("graph1")
+    sgfactory2 = CompositeNodeFactory( "graph2")
 
     map (pkg.add_factory, (sgfactory1, sgfactory2))
 
@@ -159,7 +159,7 @@ def test_compositenodeio():
 
     # create a compositenode with 2 in and 1 out
     # the compositenode does an addition
-    sgfactory = CompositeNodeFactory(pm, "additionsg")
+    sgfactory = CompositeNodeFactory("additionsg")
     sgfactory.set_nb_input(2)
     sgfactory.set_nb_output(1)
         
@@ -181,7 +181,7 @@ def test_compositenodeio():
     pm.add_package(pkg)
 
 
-    sgfactory2 = CompositeNodeFactory(pm, "testio")
+    sgfactory2 = CompositeNodeFactory("testio")
     addid = sgfactory2.add_nodefactory ( ("compositenode", "additionsg"))
     val1id = sgfactory2.add_nodefactory( (libraryname, "float"))
     val2id = sgfactory2.add_nodefactory( (libraryname, "float"))
@@ -214,7 +214,7 @@ def test_addnode():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory(pm, "testaddnode")
+    sgfactory = CompositeNodeFactory("testaddnode")
 
     # build the compositenode factory
     val1id = sgfactory.add_nodefactory ( (libraryname, "float"))
@@ -247,7 +247,7 @@ def test_multi_out_eval():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory(pm, "testlazyeval")
+    sgfactory = CompositeNodeFactory("testlazyeval")
 
     # build the compositenode factory
     val1id = sgfactory.add_nodefactory( (libraryname, "string"))
@@ -292,7 +292,7 @@ def test_eval_bug():
 
     name= 'jcd_test'
 
-    sgf= CompositeNodeFactory(pm, "test_eval")
+    sgf= CompositeNodeFactory("test_eval")
     cid = sgf.add_nodefactory((name,'cid'))
     wid = sgf.add_nodefactory((name,'wid'))
     eid = sgf.add_nodefactory((name,'eid'))

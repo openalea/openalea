@@ -60,7 +60,7 @@ def test_save_workspace():
 
     import sys
     
-    sgfactory = CompositeNodeFactory(asession.pkgmanager, name="SubGraphExample",
+    sgfactory = CompositeNodeFactory(name="SubGraphExample",
                                 description= "Examples",
                                 category = "Examples",
                                 )
