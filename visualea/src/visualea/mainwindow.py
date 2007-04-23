@@ -504,17 +504,17 @@ class MainWindow(QtGui.QMainWindow,
 
 
     def save_session(self):
-
+        """ Save menu entry """
+        
         if(not self.session.session_filename):
             self.save_as()
         else :
-            self.export_graph()
             self.session.save(self.session.session_filename)
 
         
     def save_as(self):
-
-        self.export_graph()
+        """ Save as menu entry """
+        
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "OpenAlea Session",  QtCore.QDir.homePath(), "session file (*.oas)")
 
