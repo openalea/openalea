@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'newgraph.ui'
 #
-# Created: Tue Apr 10 23:36:37 2007
-#      by: PyQt4 UI code generator 4.1
+# Created: Mon Apr 23 18:35:37 2007
+#      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_NewGraphDialog(object):

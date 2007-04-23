@@ -155,6 +155,9 @@ class PyCutExt(QTextEdit):
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
         self.write(message+'\n\n')
+        self.write('This is the standard Shell.\n'+
+                   'Autocompletion is not available unless QScintilla is installed:\n'+
+                   'See http://www.riverbankcomputing.co.uk/qscintilla.\n\n')
         self.write(sys.ps1)
         
 
