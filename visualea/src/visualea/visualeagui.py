@@ -57,19 +57,24 @@ def main(args):
     pix=QtGui.QPixmap(":/icons/splash.png")
     splash = QtGui.QSplashScreen(pix)
     splash.show()
-    
-    #    filename=None
-    #     #parse command line
-    #     if(len(args)>1):
-    #         filename=args[1]
 
 
     session = Session()
+
 
     win = MainWindow(session)
 
     # icon
     icon = app.setWindowIcon(QtGui.QIcon(":/icons/arbreicon.png"))
+
+    #parse command line
+    if(len(args)>1):
+        filename = args[1]
+        try:
+            session.load(filename)
+        except Exception, e:
+            print e
+
     
     win.show()
     
