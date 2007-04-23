@@ -48,12 +48,18 @@ class Session(Observed):
 
         Observed.__init__(self)
 
-        # Instantiate a Package Manager
-        self.pkgmanager = PackageManager()
 
         self.workspaces = []
         self.datapool = DataPool()
         self.clear()
+
+
+    def get_pmanager(self):
+        """ Return the current package manager """
+        return PackageManager()
+
+    pkgmanager = property(get_pmanager)
+        
 
        
     def add_workspace(self, compositenode, notify=True):
@@ -84,20 +90,21 @@ class Session(Observed):
         self.datapool.clear()
 
         # init pkgmanager
-        self.pkgmanager.clear()
-        self.pkgmanager.find_and_register_packages()
+        pkgmanager = PackageManager()
+        pkgmanager.clear()
+        pkgmanager.find_and_register_packages()
         
         # Create user package if needed
-        if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
-            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
+        if(not pkgmanager.has_key(self.USR_PKG_NAME)):
+            pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
-        self.user_pkg = self.pkgmanager[self.USR_PKG_NAME]
+        self.user_pkg = pkgmanager[self.USR_PKG_NAME]
 
         if(create_workspace and not self.user_pkg.has_key('Workspace')):
-            rootfactory = CompositeNodeFactory(self.pkgmanager, name="Workspace",
-                                          description= "",
-                                          category = "",
-                                          )
+            rootfactory = CompositeNodeFactory(name="Workspace",
+                                               description= "",
+                                               category = "",
+                                               )
         
             self.user_pkg.add_factory(rootfactory)
 

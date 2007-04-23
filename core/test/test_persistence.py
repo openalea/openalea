@@ -34,7 +34,7 @@ def test_compositenodewriter():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory(pm, "addition")
+    sgfactory = CompositeNodeFactory("addition")
 
     sgfactory.set_nb_input(3)
     sgfactory.set_nb_input(4)
@@ -62,7 +62,8 @@ def test_compositenodewriter():
 
     package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
-
+    print package1.keys()
+    assert package1.has_key('addition')
     package1.write()
     
 
