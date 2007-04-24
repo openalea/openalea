@@ -99,7 +99,7 @@ class MainWindow(QtGui.QMainWindow,
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
-        self.datapoolListView = DataPoolListView(self, session.datapool, self.datapoolview)
+        self.datapoolListView = DataPoolListView(self, session.datapool, self.pooltab)
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout3.addWidget(self.datapoolListView)
 
@@ -129,7 +129,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
         self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
                      self.export_to_application)
-        self.connect(self.actionShow_Pool, SIGNAL("activated()"), self.show_pool)
         self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"), self.clear_data_pool)
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
         self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
@@ -522,13 +521,6 @@ class MainWindow(QtGui.QMainWindow,
         if(not filename) : return
 
         self.session.save(filename)
-        
-
-    def show_pool(self):
-        """ Show the data pool """
-
-        i = self.tabPackager.indexOf(self.datapoolview)
-        self.tabPackager.setCurrentIndex(i)
         
 
     def clear_data_pool(self):
