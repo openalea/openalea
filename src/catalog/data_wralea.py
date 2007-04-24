@@ -46,152 +46,148 @@ def register_packages(pkgmanager):
 
     package = Package("Catalog.Data", metainfo)
 
+    nf = Factory( name="inputfile", 
+                  description="File name", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="InputFile",
 
-    nf = Factory( name= "inputfile", 
-                  description= "File name", 
-                  category = "Data Types", 
-                  nodemodule = "data",
-                  nodeclass = "InputFile",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                 
+                  inputs=(dict(name='FileStr', interface=IFileStr, value=''),),
+                  outputs=(dict(name='FileStr', interface=IFileStr),)
                   )
 
     package.add_factory( nf )
 
 
-    nf = Factory( name= "string", 
-                  description= "String", 
-                  category = "Data Types", 
-                  nodemodule = "data",
-                  nodeclass = "String",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                 
-                  )
+    nf = Factory( name="string", 
+                  description="String", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="String",
 
+                  inputs=(dict(name="String", interface=IStr, value=''),),
+                  outputs=(dict(name="String", interface=IStr),),
+                  )
 
     package.add_factory( nf )
 
 
-    nf = Factory( name= "bool", 
-                  description= "boolean", 
-                  category = "Data Types", 
-                  nodemodule = "data",
-                  nodeclass = "Bool",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                  
+    nf = Factory( name="bool", 
+                  description="boolean", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="Bool",
+
+                  inputs=(dict(name="Bool", interface=IBool, value=False),),
+                  outputs=(dict(name="Bool", interface=IBool),),
                   )
 
 
     package.add_factory( nf )
 
 
-    nf = Factory( name = "float",
-                  description = "Float Value",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "Float",
-                  widgetmodule = None,
-                  widgetclass = None,
+    nf = Factory( name="float",
+                  description="Float Value",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="Float",
+
+                  inputs=(dict(name="Float", interface=IFloat, value=0.0),),
+                  outputs=(dict(name="Float", interface=IFloat),),
                   )
 
+    package.add_factory( nf )
+
+
+    nf = Factory( name="int",
+                  description="Int Value",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="Int",
+
+                  inputs=(dict(name="Int", interface=IInt, value=0),),
+                  outputs=(dict(name="Int", interface=IInt),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="enumTest",
+                  description="String Enumeration",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="EnumTest",
+
+                  inputs=(dict(name="Str", interface=IEnumStr(["enum1", "enum2", "enum3"]),
+                               value="enum1"),),
+                  outputs=(dict(name="Str", interface = IStr),),
+                  )
                       
     package.add_factory( nf )
 
 
-    nf = Factory( name = "int",
-                  description = "Int Value",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "Int",
+    nf = Factory( name="rgb",
+                  description="RGB tuple",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="RGB",
+
+                  inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0)),),
+                  outputs=(dict(name="RGB", interface = ISequence),),
                   )
-
-                      
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "enumTest",
-                  description = "String Enumeration",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "EnumTest",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-                      
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "rgb",
-                  description = "RGB tuple",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "RGB",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
     
     package.add_factory( nf )
 
 
     
-    nf = Factory( name = "list",
-                  description = "Python list",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "List",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
+    nf = Factory( name="list",
+                  description="Python list",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="List",
 
+                  inputs=(dict(name="List", interface=ISequence, value=[]),),
+                  outputs=(dict(name="List", interface = ISequence),),
+                  )
     
     package.add_factory( nf )
 
 
-    nf = Factory( name = "dict",
-                  description = "Python dictionary",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "Dict",
-                  widgetmodule = None,
-                  widgetclass = None,
+    nf = Factory( name="dict",
+                  description="Python dictionary",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="Dict",
+
+                  inputs=(dict(name="Dict", interface=IDict, value={}),),
+                  outputs=(dict(name="Dict", interface = IDict),),
                   )
 
+    package.add_factory( nf )
+
+
+    nf = Factory( name="Pair",
+                  description="Python 2-uple",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="Pair",
+                  inputs=(dict(name="IN0", interface=None,),
+                          dict(name="IN1", interface=None,),),
+                  outputs=(dict(name="OUT", interface = ISequence),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="list9",
+                  description="Create a list with lots of elements.",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="List9",
+                  )
     
     package.add_factory( nf )
 
 
-    nf = Factory( name = "tuple2",
-                  description = "Python 2 uple",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "Tuple2",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-    
-    package.add_factory( nf )
-
-    nf = Factory( name = "list9",
-                  description = "Create a list with lots of elements.",
-                  category  = "Data Types",
-                  nodemodule = "data",
-                  nodeclass = "List9",
-                  widgetmodule = None,
-                  widgetclass = None,
-                  )
-
-    
-    package.add_factory( nf )
-
-    
     pkgmanager.add_package(package)
 
