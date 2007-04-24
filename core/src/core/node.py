@@ -102,6 +102,13 @@ class Node(Observed):
         
         raise NotImplementedError()
 
+
+    def get_obj(self):
+        return self
+
+    obj = property(get_obj)
+
+
     # Accessor
     def get_factory(self):
         """ Return the factory of the node (if any) """
@@ -269,6 +276,10 @@ class FuncNode(Node):
             return self.func(*inputs)
 
 
+    def get_obj(self):
+        return self.func
+
+    obj = property(get_obj)
     
 
 ###############################################################################

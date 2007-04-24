@@ -245,11 +245,16 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         (package_id, factory_id) = self.elt_factory[elt_id]
 
         pkgmanager = PackageManager()
-        pkg = pkgmanager[package_id]
-        factory = pkg.get_factory(factory_id)
-        node = factory.instantiate(call_stack)
-        node.internal_data = self.elt_data[elt_id].copy()
-        return composite_node.add_node(node)
+        try:
+            pkg = pkgmanager[package_id]
+            factory = pkg.get_factory(factory_id)
+            node = factory.instantiate(call_stack)
+            node.internal_data = self.elt_data[elt_id].copy()
+            return composite_node.add_node(node)
+        
+        except KeyError:
+            # Cannot find the factory
+            return None
 
         
     def set_nb_input(self, v):
@@ -397,7 +402,7 @@ class CompositeNode(Node, DataFlow):
             sgeid= sgfactory.add_connection( src_sgvid, src_port, dst_sgvid, dst_port )
 
         self.graph_modified = False
-
+        
 
     def get_ids(self):
         """ Return the list of element id """
