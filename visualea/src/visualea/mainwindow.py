@@ -216,7 +216,8 @@ class MainWindow(QtGui.QMainWindow,
                 # Generate factory if user want
                 ret = QtGui.QMessageBox.question(self, "Close Workspace",
                                                  "Graph has been modified.\n"+
-                                                 "Do you want to report changes to factory ?\n",
+                                                 "Do you want to report modification "+
+                                                 "in the model ?\n",
                                                  QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
                 if(ret == QtGui.QMessageBox.Yes):
@@ -384,7 +385,7 @@ class MainWindow(QtGui.QMainWindow,
         action = menu.addAction("Run")
         self.connect(action, SIGNAL("activated()"), self.run)
 
-        action = menu.addAction("Apply changes")
+        action = menu.addAction("Export to Model")
         self.connect(action, SIGNAL("activated()"), self.export_to_factory)
 
         menu.move(event.globalPos())
@@ -473,25 +474,6 @@ class MainWindow(QtGui.QMainWindow,
         self.session.load(filename)
 
 
-    def export_graph(self):
-        """ Export all open graph to there factory"""
-
-        ret = QtGui.QMessageBox.question(self, "Export",
-                                         "Graphs have been modified.\n"+
-                                         "Do you want to report changes to Package Manager ?\n",
-                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-
-        if(ret == QtGui.QMessageBox.No): return
-
-        for widget in self.index_nodewidget:
-
-            graph = widget.node
-            try:
-                self.export_to_factory(graph)
-            except:
-                pass
-
-
     def save_session(self):
         """ Save menu entry """
         
@@ -505,7 +487,7 @@ class MainWindow(QtGui.QMainWindow,
         """ Save as menu entry """
         
         filename = QtGui.QFileDialog.getSaveFileName(
-            self, "OpenAlea Session",  QtCore.QDir.homePath(), "session file (*.oas)")
+            self, "OpenAlea Session",  QtCore.QDir.homePath(), "Session file (*.oas)")
 
         filename = str(filename)
         if(not filename) : return
