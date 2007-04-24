@@ -26,15 +26,30 @@ __revision__=" $Id$ "
 from openalea.core import *
 
 
-def define_factory(package):
-    """ Define factories for arithmetics nodes """
+
+def register_packages(pkgmanager):
+    """ Initialisation function
+    Return a list of package to include in the package manager.
+    This function is called by the package manager when it is updated
+    """
+
+    # Base Library
+
+    metainfo={ 'version' : '0.0.1',
+               'license' : 'CECILL-C',
+               'authors' : 'OpenAlea Consortium',
+               'institutes' : 'INRIA/CIRAD',
+               'description' : 'Base library.',
+               'url' : 'http://openalea.gforge.inria.fr'
+               }
 
 
-
+    package = Package("Catalog.Models", metainfo)
+    
     nf = Factory( name= "linearmodel", 
                   description= "Linear Model", 
-                  category = "Model", 
-                  nodemodule = "simple_models",
+                  category = "Models", 
+                  nodemodule = "models",
                   nodeclass = "LinearModel",
                   
                   widgetmodule = None,
@@ -44,7 +59,9 @@ def define_factory(package):
 
 
     package.add_factory( nf )
-    
 
+
+    
+    pkgmanager.add_package(package)
 
 

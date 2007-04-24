@@ -16,12 +16,42 @@
 
 
 __doc__="""
-Data Node
+Python Nodes
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: simple_models.py 331 2007-02-02 15:50:47Z dufourko $ "
+__revision__=" $Id$ "
 
+
+class IfElse(Node):
+    """
+    Conditional expression
+    In[0] : Boolean value
+    In[1] : Value 1
+    In[2] : Value 2
+
+    Out[0]: If In[0] is True return Value 1 else Value 2
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "Cond", interface = IBool, value = True)
+        self.add_input( name = "Expr1", interface = None, value = None)
+        self.add_input( name = "Expr2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = None) 
+        
+
+    def __call__(self, inputs):
+
+        c = self.get_input("Cond")
+
+        if (bool(c)):
+            return (self.get_input("Expr1"),)
+        else:
+            return (self.get_input("Expr2"),)
 
 
 def setitem(obj, key, value):
@@ -77,32 +107,6 @@ def pyrange(start=0, stop=0, step=1):
 
     return (range(start, stop, step),)
 
-
-def pymap(func, seq):
-    """ map(func, seq) """
-
-    if func and seq:
-        return ( map(func,seq), )
-    else:
-        return ( [], )
-
-
-def pyfilter(func, seq):
-    """ filter(func, seq) """
-
-    if func and seq:
-        return ( filter(func,seq), )
-    else:
-        return ( [], )
-
-
-def pyreduce(func, seq):
-    """ filter(func, seq) """
-
-    if func and seq:
-        return ( reduce(func,seq), )
-    else:
-        return ( [], )
 
 
 def pylen(obj):

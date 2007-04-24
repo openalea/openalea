@@ -16,7 +16,7 @@
 
 
 __doc__="""
-Arithmetic nodes
+Mathematics
 """
 
 __license__= "Cecill-C"
@@ -26,7 +26,141 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 
+
+class Equal(Node):
+    """
+    Equality test
+    Out[0] = In[0] == In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+        self.add_output( name = "Result", interface = IBool) 
         
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
+        
+        return (v1 == v2,)
+
+        
+class Greater(Node):
+    """
+    Binary test
+    Out[0] = In[0] > In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
+        
+        return (v1 > v2,)
+    
+
+class GreaterOrEqual(Node):
+    """
+    Binary test
+    Out[0] = In[0] >= In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = None, value = None)
+        self.add_input( name = "V2", interface = None, value = None)
+            
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
+        
+        return (v1 >= v2,)
+
+
+class And(Node):
+    """
+    Binary test
+    Out[0] = In[0] and In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_input( name = "V2", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
+        return (v1 and v2,)
+
+
+class Or(Node):
+    """
+    Binary test
+    Out[0] = In[0] or In[1]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_input( name = "V2", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        v2 = self.get_input("V2")
+        return (v1 or v2,)
+
+
+class Not(Node):
+    """
+    Binary test
+    Out[0] = not In[0]
+    """
+
+    def __init__(self):
+
+        Node.__init__(self)
+
+        self.add_input( name = "V1", interface = IBool, value = True)
+        self.add_output( name = "Result", interface = IBool) 
+        
+
+    def __call__(self, inputs):
+
+        v1 = self.get_input("V1")
+        return (not v1, )
+
 
 class Add(Node):
     """ Generic Addition

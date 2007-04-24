@@ -20,13 +20,32 @@ Wralea for Core.Library
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: simple_models_factory.py 302 2007-01-29 17:54:57Z pradal $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *
 
 
-def define_factory(package):
+
+def register_packages(pkgmanager):
+    """ Initialisation function
+    Return a list of package to include in the package manager.
+    This function is called by the package manager when it is updated
+    """
+
+    # Base Library
+
+    metainfo={ 'version' : '0.0.1',
+               'license' : 'CECILL-C',
+               'authors' : 'OpenAlea Consortium',
+               'institutes' : 'INRIA/CIRAD',
+               'description' : 'Base library.',
+               'url' : 'http://openalea.gforge.inria.fr'
+               }
+
+
+    package = Package("Catalog.Data", metainfo)
+
 
     nf = Factory( name= "inputfile", 
                   description= "File name", 
@@ -39,8 +58,8 @@ def define_factory(package):
                  
                   )
 
-
     package.add_factory( nf )
+
 
     nf = Factory( name= "string", 
                   description= "String", 
@@ -172,4 +191,7 @@ def define_factory(package):
 
     
     package.add_factory( nf )
+
+    
+    pkgmanager.add_package(package)
 

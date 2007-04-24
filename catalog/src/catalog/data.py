@@ -20,7 +20,7 @@ Data Node
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: simple_models.py 331 2007-02-02 15:50:47Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *
