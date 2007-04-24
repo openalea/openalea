@@ -37,10 +37,9 @@ from node_treeview import SearchListView, SearchModel
 
 import metainfo
 
-from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.observer import AbstractListener
 
-from dialogs import NewGraph, NewPackage
+from dialogs import NewGraph, NewPackage, FactorySelector
 
 
 
@@ -332,9 +331,22 @@ class MainWindow(QtGui.QMainWindow,
         if(not graph):
             cindex = self.tabWorkspace.currentIndex()
             graph = self.index_nodewidget[cindex].node
+
+        dialog = FactorySelector(self.pkgmanager, graph.factory, self)
+        ret = dialog.exec_()
+
+        if(ret == 0): return
+        
+        f = dialog.get_factory()
             
-        graph.to_factory(graph.factory)
-        graph.factory.package.write()
+        graph.to_factory(f)
+        try:
+            graph.factory.package.write()
+        except:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot write Graph model on disk. :\n"+
+                                             "You try to write in a System Package:\n")
+
 
 
     def export_to_application(self):
@@ -388,20 +400,7 @@ class MainWindow(QtGui.QMainWindow,
         ret = dialog.exec_()
 
         if(ret>0):
-            (name, nin, nout, pkg, cat, desc) = dialog.get_data()
-            
-            newfactory = CompositeNodeFactory( name=name,
-                                               description= desc,
-                                               category = cat,
-                                               )
-            
-            newfactory.set_nb_input(nin)
-            newfactory.set_nb_output(nout)
-            
-            pkg.add_factory(newfactory)
-            pkg.write()
-            self.pkgmanager.add_package(pkg)
-
+            newfactory = dialog.create_cnfactory(self.pkgmanager)
             self.reinit_treeview()
             self.open_compositenode(newfactory)
 
@@ -416,16 +415,7 @@ class MainWindow(QtGui.QMainWindow,
         ret = dialog.exec_()
 
         if(ret>0):
-            (name, nin, nout, pkg, cat, desc) = dialog.get_data()
-
-            pkg.create_user_factory(name=name,
-                                    description=desc,
-                                    category=cat,
-                                    nbin=nin,
-                                    nbout=nout,
-                                    )
-            
-            self.pkgmanager.add_package(pkg)
+            dialog.create_nodefactory(self.pkgmanager)
             self.reinit_treeview()
 
 

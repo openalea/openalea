@@ -24,8 +24,11 @@ __revision__=" $Id$ "
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.setting import get_userpkg_dir
+from openalea.core.compositenode import CompositeNodeFactory
 import ui_newgraph
 import os
+
+
 
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
@@ -84,8 +87,48 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         
         return (name, self.inBox.value(), self.outBox.value(), self.get_package(),
                 category, description)
-    
+
+
+    def create_cnfactory(self, pkgmanager):
+        """ Create, register and return a new CompositeNodeFactory """
         
+        (name, nin, nout, pkg, cat, desc) = self.get_data()
+            
+        newfactory = CompositeNodeFactory( name=name,
+                                           description= desc,
+                                           category = cat, )
+            
+        newfactory.set_nb_input(nin)
+        newfactory.set_nb_output(nout)
+            
+        pkg.add_factory(newfactory)
+        try:
+            pkg.write()
+        except:
+            print "Cannot Write CompositeNodeFactorty"
+                
+        pkgmanager.add_package(pkg)
+
+        return newfactory
+
+
+    def create_nodefactory(self, pkgmanager):
+        """ Create, register and return a NodeFactory """
+
+        (name, nin, nout, pkg, cat, desc) = self.get_data()
+
+        ret = pkg.create_user_factory(name=name,
+                                      description=desc,
+                                      category=cat,
+                                      nbin=nin,
+                                      nbout=nout,
+                                      )
+            
+        pkgmanager.add_package(pkg)
+
+        return ret
+
+
 
 import ui_newpackage
 
@@ -151,21 +194,26 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
             )
         
         return (name, metainfo, path)
-   
+
+
+
 
 import ui_tofactory
-from openalea.core.compositenode import CompositeNodeFactory
 
 class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
     """ New package dialog """
     
-    def __init__(self, pkgmanger, parent=None):
-        """ pkgmanager : package manager """
+    def __init__(self, pkgmanager, default_factory=None, parent=None):
+        """
+        pkgmanager : package manager
+        default_factory : default choice
+        """
         
         QtGui.QDialog.__init__(self, parent)
-        ui_tofactory.Ui_FactorySelector.Ui_NewPackageDialog.__init__(self)
+        ui_tofactory.Ui_FactorySelector.__init__(self)
         self.setupUi(self)
 
+        self.pkgmanager = pkgmanager
         self.factorymap = {}
         
         cfactories = []
@@ -175,18 +223,40 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
                 if(isinstance(f, CompositeNodeFactory)):
                    cfactories.append(f.name)
                    self.factorymap[f.name] = f
+                   
 
         self.comboBox.addItems(cfactories)
 
+        if(default_factory):
+            i = self.comboBox.findText(default_factory.name)
+            self.comboBox.setCurrentIndex(i)
+
         self.connect(self.newFactoryButton, QtCore.SIGNAL("clicked()"), self.new_factory)
-        
+
 
 
     def new_factory(self):
-        pass
+
+        pkgs = self.pkgmanager.get_user_packages()
+        
+        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys(), self)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            newfactory = dialog.create_cnfactory(self.pkgmanager)
+            self.comboBox.addItem(newfactory.name)
+            self.factorymap[newfactory.name] = newfactory
+            i = self.comboBox.findText(newfactory.name)
+            self.comboBox.setCurrentIndex(i)
+
+
         
 
-    def accept(self):
-        pass
+    def get_factory(self):
+        """ Return the selected factory """
+
+        text = self.comboBox.currentText()
+        return self.factorymap[str(text)]
+
         
    

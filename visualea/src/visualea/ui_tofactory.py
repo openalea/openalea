@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Tue Apr 24 10:41:16 2007
+# Created: Tue Apr 24 10:48:48 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_FactorySelector(object):
     def setupUi(self, FactorySelector):
         FactorySelector.setObjectName("FactorySelector")
-        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,320,147).size()).expandedTo(FactorySelector.minimumSizeHint()))
+        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,222,119).size()).expandedTo(FactorySelector.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(FactorySelector)
         self.vboxlayout.setMargin(9)
@@ -38,8 +38,10 @@ class Ui_FactorySelector(object):
         self.hboxlayout1.setSpacing(6)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
-        spacerItem = QtGui.QSpacerItem(171,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout1.addItem(spacerItem)
+        self.selectionBox = QtGui.QCheckBox(FactorySelector)
+        self.selectionBox.setEnabled(False)
+        self.selectionBox.setObjectName("selectionBox")
+        self.hboxlayout1.addWidget(self.selectionBox)
 
         self.newFactoryButton = QtGui.QPushButton(FactorySelector)
         self.newFactoryButton.setObjectName("newFactoryButton")
@@ -62,5 +64,6 @@ class Ui_FactorySelector(object):
     def retranslateUi(self, FactorySelector):
         FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Save as Model", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("FactorySelector", "Graph", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectionBox.setText(QtGui.QApplication.translate("FactorySelector", "Export selection", None, QtGui.QApplication.UnicodeUTF8))
         self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Graph", None, QtGui.QApplication.UnicodeUTF8))
 
