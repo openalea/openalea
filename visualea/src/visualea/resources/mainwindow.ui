@@ -26,7 +26,7 @@
     <item>
      <widget class="QSplitter" name="splitter_2" >
       <property name="orientation" >
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Vertical</enum>
       </property>
       <widget class="QTabWidget" name="tabPackager" >
        <property name="currentIndex" >
@@ -91,9 +91,14 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="datapoolview" >
+      </widget>
+      <widget class="QTabWidget" name="poolTabWidget" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="pooltab" >
         <attribute name="title" >
-         <string>Data Pool</string>
+         <string>DataPool</string>
         </attribute>
         <attribute name="icon" >
          <iconset resource="images.qrc" >:/icons/datapool.png</iconset>
@@ -108,43 +113,45 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QSplitter" name="splitter" >
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="splitter" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>7</hsizetype>
+        <vsizetype>7</vsizetype>
+        <horstretch>10</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTabWidget" name="tabWorkspace" >
        <property name="sizePolicy" >
         <sizepolicy>
          <hsizetype>7</hsizetype>
          <vsizetype>7</vsizetype>
-         <horstretch>10</horstretch>
-         <verstretch>0</verstretch>
+         <horstretch>4</horstretch>
+         <verstretch>3</verstretch>
         </sizepolicy>
        </property>
-       <property name="orientation" >
-        <enum>Qt::Vertical</enum>
+       <property name="currentIndex" >
+        <number>0</number>
        </property>
-       <widget class="QTabWidget" name="tabWorkspace" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>4</horstretch>
-          <verstretch>3</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="currentIndex" >
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="workspace1" >
-         <attribute name="title" >
-          <string>Root</string>
-         </attribute>
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-         </layout>
-        </widget>
+       <widget class="QWidget" name="workspace1" >
+        <attribute name="title" >
+         <string>Root</string>
+        </attribute>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+        </layout>
        </widget>
       </widget>
      </widget>
@@ -168,13 +175,6 @@
     <addaction name="separator" />
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
-   </widget>
-   <widget class="QMenu" name="menuDataPool" >
-    <property name="title" >
-     <string>&amp;DataPool</string>
-    </property>
-    <addaction name="actionShow_Pool" />
-    <addaction name="actionClear_Data_Pool" />
    </widget>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
@@ -211,6 +211,12 @@
     <addaction name="separator" />
     <addaction name="menuCreate" />
    </widget>
+   <widget class="QMenu" name="menu_Python" >
+    <property name="title" >
+     <string>P&amp;ython</string>
+    </property>
+    <addaction name="action_Execute_script" />
+   </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="windowIcon" >
      <iconset/>
@@ -233,11 +239,11 @@
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
    </widget>
-   <widget class="QMenu" name="menu_Python" >
+   <widget class="QMenu" name="menuDataPool" >
     <property name="title" >
-     <string>P&amp;ython</string>
+     <string>&amp;DataPool</string>
     </property>
-    <addaction name="action_Execute_script" />
+    <addaction name="actionClear_Data_Pool" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />

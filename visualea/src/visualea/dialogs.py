@@ -152,3 +152,41 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         
         return (name, metainfo, path)
    
+
+import ui_tofactory
+from openalea.core.compositenode import CompositeNodeFactory
+
+class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
+    """ New package dialog """
+    
+    def __init__(self, pkgmanger, parent=None):
+        """ pkgmanager : package manager """
+        
+        QtGui.QDialog.__init__(self, parent)
+        ui_tofactory.Ui_FactorySelector.Ui_NewPackageDialog.__init__(self)
+        self.setupUi(self)
+
+        self.factorymap = {}
+        
+        cfactories = []
+        # Get all composite node factories
+        for pkg in pkgmanager.values():
+            for f in pkg.values():
+                if(isinstance(f, CompositeNodeFactory)):
+                   cfactories.append(f.name)
+                   self.factorymap[f.name] = f
+
+        self.comboBox.addItems(cfactories)
+
+        self.connect(self.newFactoryButton, QtCore.SIGNAL("clicked()"), self.new_factory)
+        
+
+
+    def new_factory(self):
+        pass
+        
+
+    def accept(self):
+        pass
+        
+   

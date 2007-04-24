@@ -2,45 +2,65 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Mon Apr 23 18:35:38 2007
+# Created: Tue Apr 24 10:41:16 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(QtCore.QSize(QtCore.QRect(0,0,367,154).size()).expandedTo(Dialog.minimumSizeHint()))
+class Ui_FactorySelector(object):
+    def setupUi(self, FactorySelector):
+        FactorySelector.setObjectName("FactorySelector")
+        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,320,147).size()).expandedTo(FactorySelector.minimumSizeHint()))
 
-        self.label = QtGui.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(20,20,56,17))
+        self.vboxlayout = QtGui.QVBoxLayout(FactorySelector)
+        self.vboxlayout.setMargin(9)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
+
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
+
+        self.label = QtGui.QLabel(FactorySelector)
         self.label.setObjectName("label")
+        self.hboxlayout.addWidget(self.label)
 
-        self.comboBox = QtGui.QComboBox(Dialog)
-        self.comboBox.setGeometry(QtCore.QRect(90,10,211,26))
+        self.comboBox = QtGui.QComboBox(FactorySelector)
         self.comboBox.setObjectName("comboBox")
+        self.hboxlayout.addWidget(self.comboBox)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.buttonBox = QtGui.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(-40,100,341,32))
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
+
+        spacerItem = QtGui.QSpacerItem(171,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+
+        self.newFactoryButton = QtGui.QPushButton(FactorySelector)
+        self.newFactoryButton.setObjectName("newFactoryButton")
+        self.hboxlayout1.addWidget(self.newFactoryButton)
+        self.vboxlayout.addLayout(self.hboxlayout1)
+
+        self.buttonBox = QtGui.QDialogButtonBox(FactorySelector)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.NoButton|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
+        self.vboxlayout.addWidget(self.buttonBox)
 
-        self.newFactoryButton = QtGui.QPushButton(Dialog)
-        self.newFactoryButton.setGeometry(QtCore.QRect(220,50,80,27))
-        self.newFactoryButton.setObjectName("newFactoryButton")
+        self.retranslateUi(FactorySelector)
+        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),FactorySelector.accept)
+        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),FactorySelector.reject)
+        QtCore.QMetaObject.connectSlotsByName(FactorySelector)
+        FactorySelector.setTabOrder(self.comboBox,self.newFactoryButton)
+        FactorySelector.setTabOrder(self.newFactoryButton,self.buttonBox)
 
-        self.retranslateUi(Dialog)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),Dialog.accept)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),Dialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-        Dialog.setTabOrder(self.comboBox,self.newFactoryButton)
-        Dialog.setTabOrder(self.newFactoryButton,self.buttonBox)
-
-    def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Save as Model", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Graph", None, QtGui.QApplication.UnicodeUTF8))
-        self.newFactoryButton.setText(QtGui.QApplication.translate("Dialog", "New Graph", None, QtGui.QApplication.UnicodeUTF8))
+    def retranslateUi(self, FactorySelector):
+        FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Save as Model", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Graph", None, QtGui.QApplication.UnicodeUTF8))
+        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Graph", None, QtGui.QApplication.UnicodeUTF8))
 
