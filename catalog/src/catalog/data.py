@@ -32,19 +32,11 @@ A file path
 Out :  the file path string
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "Filename", interface = IFileStr, value = "")
-        self.add_output( name = "Filename", interface = IFileStr)
-            
-        
-
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
         return ( str(inputs[0]),  )
+
 
 
 class Bool(Node):
@@ -53,21 +45,17 @@ Boolean value
 Out :  the value
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
+    def __init__(self, ins, outs):
+        Node.__init__(self, ins, outs)
         self.set_caption(str(False))
-        self.add_input( name = "Bool", interface = IBool, value = False)
-        self.add_output( name = "Bool", interface = IBool)
-            
-        
+
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
         res= bool(inputs[0])
         self.set_caption(str(res))
         return ( res,  )
+
 
 
 class Int(Node):
@@ -77,16 +65,12 @@ Input 0 : The stored value
 Ouput 0 : Transmit the stored value
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
+    def __init__(self, ins, outs):
+        Node.__init__(self, ins, outs)
         self.set_caption(str(0))
-        self.add_input( name = "val", interface = IInt, value = 0) 
-        self.add_output( name = "out", interface = IInt) 
+
 
     def __call__(self, inputs):
-
         v = int(inputs[0])
         self.set_caption(str(v))
         return ( v, )
@@ -99,19 +83,14 @@ Input 0 : The stored value
 Ouput 0 : Transmit the stored value
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
+    def __init__(self, ins, outs):
+        Node.__init__(self, ins, outs)
         self.set_caption(str(0.0))
-        self.add_input( name = "val", interface = IFloat, value = 0.) 
-        self.add_output( name = "out", interface = IFloat) 
-
-        
+       
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        res= float(inputs[0])
+        res = float(inputs[0])
         self.set_caption('%.1f'%res)
         return ( res, )
 
@@ -123,18 +102,12 @@ Input 0 : The stored value
 Ouput 0 : Transmit the stored value
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "str", interface = IStr, value = "") 
-        self.add_output( name = "str", interface = IStr) 
-        
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        
         return ( str(inputs[0]), )
+
+
 
 
 class EnumTest(Node):
@@ -142,18 +115,7 @@ class EnumTest(Node):
 String enumeration Test
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "val", interface = IEnumStr(["enum1", "enum2", "enum3"]), value = "enum1") 
-        self.add_output( name = "out", interface = IStr) 
-
-        
-
     def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
         return ( inputs[0], )
 
 
@@ -162,18 +124,8 @@ class RGB(Node):
 RGB Color
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "rgb", interface = IRGBColor, value = (0,0,0)) 
-        self.add_output( name = "rgb", interface = IStr) 
-
-        
-
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        
         return ( inputs[0], )
 
 
@@ -201,36 +153,19 @@ class Dict(Node):
     Python Dictionary
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input( name = "dict", interface = IDict, value = {}) 
-        self.add_output( name = "dict", interface = IDict) 
-        
-
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        
         return ( inputs[0], )
 
 
-class Tuple2(Node):
+class Pair(Node):
     """
-    Python 2 tuple generator
+    Python 2-uple generator
     """
-
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input( name = "in0", interface = None, value = None)
-        self.add_input( name = "in1", interface = None, value = None) 
-        self.add_output( name = "tuple", interface = ISequence) 
-
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
-        
         return ( (inputs[0], inputs[1]), )
+
 
 class List9(Node):
     """
