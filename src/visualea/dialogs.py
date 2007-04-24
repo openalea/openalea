@@ -248,8 +248,6 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
             self.factorymap[newfactory.name] = newfactory
             i = self.comboBox.findText(newfactory.name)
             self.comboBox.setCurrentIndex(i)
-
-
         
 
     def get_factory(self):

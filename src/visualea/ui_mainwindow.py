@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Apr 24 10:48:47 2007
+# Created: Tue Apr 24 16:14:17 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -132,14 +132,14 @@ class Ui_MainWindow(object):
         self.menu_Python = QtGui.QMenu(self.menubar)
         self.menu_Python.setObjectName("menu_Python")
 
+        self.menuDataPool = QtGui.QMenu(self.menubar)
+        self.menuDataPool.setObjectName("menuDataPool")
+
         self.menu_Workspace = QtGui.QMenu(self.menubar)
         self.menu_Workspace.setObjectName("menu_Workspace")
 
         self.menuSelection = QtGui.QMenu(self.menu_Workspace)
         self.menuSelection.setObjectName("menuSelection")
-
-        self.menuDataPool = QtGui.QMenu(self.menubar)
-        self.menuDataPool.setObjectName("menuDataPool")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -252,6 +252,7 @@ class Ui_MainWindow(object):
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.menuCreate.menuAction())
         self.menu_Python.addAction(self.action_Execute_script)
+        self.menuDataPool.addAction(self.actionClear_Data_Pool)
         self.menuSelection.addAction(self.actionCreate_New_Graph)
         self.menuSelection.addAction(self.action_Delete_2)
         self.menu_Workspace.addAction(self.action_Run)
@@ -261,7 +262,6 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addAction(self.action_Close_current_workspace)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionExport_to_Application)
-        self.menuDataPool.addAction(self.actionClear_Data_Pool)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menuDataPool.menuAction())
@@ -288,9 +288,9 @@ class Ui_MainWindow(object):
         self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSelection.setTitle(QtGui.QApplication.translate("MainWindow", "Selection", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
@@ -316,7 +316,7 @@ class Ui_MainWindow(object):
         self.action_Save_Session.setText(QtGui.QApplication.translate("MainWindow", "&Save Session", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Save_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save &as", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Apply Changes", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Export to Model", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Export_to_Factory.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExport_to_Application.setText(QtGui.QApplication.translate("MainWindow", "Export to Application", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClear_Data_Pool.setText(QtGui.QApplication.translate("MainWindow", "Clear Data Pool", None, QtGui.QApplication.UnicodeUTF8))
