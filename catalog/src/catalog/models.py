@@ -23,45 +23,10 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core import *
-from operator import *
 
-class LinearModel(Node):
-    """
-Ax + B model 
-Input 0 : x value
-Ouput 0 : Ax + B
-Parameters :
-  A : linear coefficient
-  B : intercept
-    """
+def linearmodel(x=0., a=0., b=0.):
+    """ return a*x + b  """
+    
+    return a*x + b
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "X", interface = IFloat, value = 0.)
-        self.add_input( name = "A", interface = IFloat, value = 0.)
-        self.add_input( name = "B", interface = IFloat, value = 0.)
-            
-        self.add_output( name = "Y", interface = None) 
-
-        
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        # We prefer here to get the value by key
-        x = self.get_input("X")
-        a = self.get_input("A")
-        b = self.get_input("B")
-
-        y = a*x + b
-
-        return ( y,  )
-
-#//////////////////////////////////////////////////////////////////////////////
-
-
-#//////////////////////////////////////////////////////////////////////////////
 

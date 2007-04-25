@@ -485,16 +485,23 @@ class NodeFactory(AbstractFactory):
             from openalea.visualea.code_editor import NodeCodeEditor
             return NodeCodeEditor(self, parent)
 
-
         # Node Widget
         if(node == None): node = self.instantiate()
 
         modulename = self.widgetmodule_name
-        if(not modulename) :   modulename = self.nodemodule_name
+        if(not modulename) :
+            modulename = self.nodemodule_name
+
         
-        if(modulename != None and self.widgetclass_name != None):
+        # if no widget declared, we create a default one
+        if(not modulename or not self.widgetclass_name) :
+
+            from openalea.visualea.node_widget import DefaultNodeWidget
+            return DefaultNodeWidget(node, parent)
+        
+        else:
             # load module
-            (file, pathname, desc) = imp.find_module(modulename,
+            (file, pathname, desc) = imp.find_module(modulename,\
                                                      self.search_path + sys.path)
 
             sys.path.append(os.path.dirname(pathname))
@@ -506,10 +513,6 @@ class NodeFactory(AbstractFactory):
             widgetclass = module.__dict__[self.widgetclass_name]
             return widgetclass(node, parent)
 
-        # if no widget declared, we create a default one
-        else:
-            from openalea.visualea.node_widget import DefaultNodeWidget
-            return DefaultNodeWidget(node, parent)
             
 
     def edit_widget(self, parent=None):
@@ -673,15 +676,15 @@ class PyNodeFactoryWriter(object):
 
     nodefactory_template = """
 
-    nf = Factory(name="$NAME", 
-                 description="$DESCRIPTION", 
-                 category="$CATEGORY", 
-                 nodemodule="$NODEMODULE",
-                 nodeclass="$NODECLASS",
+    nf = Factory(name=$NAME, 
+                 description=$DESCRIPTION, 
+                 category=$CATEGORY, 
+                 nodemodule=$NODEMODULE,
+                 nodeclass=$NODECLASS,
                  inputs=$LISTIN,
                  outputs=$LISTOUT,
-                 widgetmodule="$WIDGETMODULE",
-                 widgetclass="$WIDGETCLASS",
+                 widgetmodule=$WIDGETMODULE,
+                 widgetclass=$WIDGETCLASS,
                  )
 
     pkg.add_factory( nf )
@@ -695,15 +698,15 @@ class PyNodeFactoryWriter(object):
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
-        result = fstr.safe_substitute(NAME=f.name,
-                                      DESCRIPTION=f.description,
-                                      CATEGORY=f.category, 
-                                      NODEMODULE=f.nodemodule_name,
-                                      NODECLASS=f.nodeclass_name,
-                                      LISTIN=str(f.inputs),
-                                      LISTOUT=str(f.outputs),
-                                      WIDGETMODULE=f.widgetmodule_name,
-                                      WIDGETCLASS=f.widgetclass_name,)
+        result = fstr.safe_substitute(NAME=repr(f.name),
+                                      DESCRIPTION=repr(f.description),
+                                      CATEGORY=repr(f.category), 
+                                      NODEMODULE=repr(f.nodemodule_name),
+                                      NODECLASS=repr(f.nodeclass_name),
+                                      LISTIN=repr(f.inputs),
+                                      LISTOUT=repr(f.outputs),
+                                      WIDGETMODULE=repr(f.widgetmodule_name),
+                                      WIDGETCLASS=repr(f.widgetclass_name),)
         return result
            
 

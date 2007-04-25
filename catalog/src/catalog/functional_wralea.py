@@ -33,67 +33,66 @@ def register_packages(pkgmanager):
     """
 
     # Base Library
-
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'OpenAlea Consortium',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
-               'url' : 'http://openalea.gforge.inria.fr'
-               }
+    metainfo = dict(version='0.0.1',
+                    license='CECILL-C',
+                    authors='OpenAlea Consortium',
+                    institutes='INRIA/CIRAD',
+                    description='Functional Node library.',
+                    url='http://openalea.gforge.inria.fr'
+                    )
 
 
     package = Package("Catalog.Functional", metainfo)
 
-    nf = Factory( name = "map",
-                  description = "Apply%p a function on a sequence",
-                  category  = "Functional",
-                  nodemodule = "functional",
-                  nodeclass = "pymap",
+    nf = Factory( name="map",
+                  description="Apply a function on a sequence",
+                  category="Functional",
+                  nodemodule="functional",
+                  nodeclass="pymap",
                   )
     
+    package.add_factory(nf)
+    
+
+    nf = Factory( name="filter",
+                  description="Apply a function on a sequence and return only true values",
+                  category="Functional",
+                  nodemodule="functional",
+                  nodeclass="pyfilter",
+                  )
+    
+    package.add_factory(nf)
+
+
+    nf = Factory( name="reduce",
+                  description="Apply a function of two arguments cumulatively to the items of a sequence",
+                  category="Functional",
+                  nodemodule="functional",
+                  nodeclass="pyreduce",
+                  )
+    
+    package.add_factory(nf)
+
+
+    nf = Factory( name="ax+b", 
+                  description="Linear function", 
+                  category="Functional", 
+                  nodemodule="functional",
+                  nodeclass="Linear",
+                  )
+
+
     package.add_factory( nf )
     
 
-    nf = Factory( name = "filter",
-                  description = "Apply a function on a sequence and return only true values",
-                  category  = "Functional",
-                  nodemodule = "functional",
-                  nodeclass = "pyfilter",
+    nf = Factory( name="f op g",
+                  description="Create a function h: x-> f(x) op g(x)",
+                  category="Functional",
+                  nodemodule="functional",
+                  nodeclass="Generator",
                   )
     
-    package.add_factory( nf )
-
-
-    nf = Factory( name = "reduce",
-                  description = "Apply a function of two arguments cumulatively to the items of a sequence",
-                  category  = "Functional",
-                  nodemodule = "functional",
-                  nodeclass = "pyreduce",
-                  )
-    
-    package.add_factory( nf )
-
-
-    nf = Factory( name= "ax+b", 
-                  description= "Linear function", 
-                  category = "Functional", 
-                  nodemodule = "functional",
-                  nodeclass = "Linear",
-                  )
-
-
-    package.add_factory( nf )
-    
-
-    nf = Factory( name = "f op g",
-                  description = "Create a function h: x-> f(x) op g(x)",
-                  category  = "Functional",
-                  nodemodule = "functional",
-                  nodeclass = "Generator",
-                  )
-    
-    package.add_factory( nf )
+    package.add_factory(nf)
 
 
     

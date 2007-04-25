@@ -34,31 +34,27 @@ def register_packages(pkgmanager):
     """
 
     # Base Library
-
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'OpenAlea Consortium',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
-               'url' : 'http://openalea.gforge.inria.fr'
-               }
+    metainfo = dict(version='0.0.1',
+                    license='CECILL-C',
+                    authors='OpenAlea Consortium',
+                    institutes='INRIA/CIRAD',
+                    description='Models.',
+                    url='http://openalea.gforge.inria.fr'
+                    )
 
 
     package = Package("Catalog.Models", metainfo)
+
     
-    nf = Factory( name= "linearmodel", 
-                  description= "Linear Model", 
-                  category = "Models", 
-                  nodemodule = "models",
-                  nodeclass = "LinearModel",
-                  
-                  widgetmodule = None,
-                  widgetclass = None,
-                  
+    nf = Factory( name="linearmodel", 
+                  description="Linear Model", 
+                  category="Models", 
+                  nodemodule="models",
+                  nodeclass="linearmodel",
                   )
 
 
-    package.add_factory( nf )
+    package.add_factory(nf)
 
 
     

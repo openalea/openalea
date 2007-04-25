@@ -70,13 +70,6 @@ def items(obj):
     return (ret,)
 
 
-def append(obj=[], val=None):
-    """ call append(val) on obj """
-    ret = list(obj)
-    ret.append(val)
-    return (ret,)
-
-
 def pyrange(start=0, stop=0, step=1):
     """ range(start, stop, step) """
 
@@ -98,3 +91,9 @@ def pylen(obj):
 def py_print(x):
     """ Print to the console"""
     print x
+
+
+def py_method(obj=None, name="", args=()):
+    """ call obj.name(*args) """
+    m = getattr(obj, name)
+    m(*args)
