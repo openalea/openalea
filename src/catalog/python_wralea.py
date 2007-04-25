@@ -88,17 +88,6 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-
-    nf = Factory( name="append",
-                  description="Python append",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="append",
-                  )
-    
-    package.add_factory(nf)
-
-
     nf = Factory( name="keys",
                   description="Python keys()",
                   category="Python",
@@ -156,6 +145,14 @@ def register_packages(pkgmanager):
                   outputs=(),
                   lazy=False,
                   )
+
+    nf = Factory( name="method", 
+                  description="Call object method", 
+                  category="Python", 
+                  nodemodule="python",
+                  nodeclass="py_method",
+                  )
+
 
     package.add_factory(nf)
 

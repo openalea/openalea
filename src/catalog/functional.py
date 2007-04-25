@@ -23,8 +23,6 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core import *
-from operator import *
 
 #//////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +52,10 @@ def pyreduce(func, seq):
     else:
         return ( [], )
 
-    
+
+
+from openalea.core import *
+from operator import *
 
 class Linear(Node):
     """
@@ -87,6 +88,7 @@ Parameters :
         f = lambda x: a*x + b
 
         return ( f,  )
+
 
 
 
