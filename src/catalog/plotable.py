@@ -14,38 +14,15 @@
 #
 
 __doc__="""
-plot_tools nodes
+Definition of plotable object
 """
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
-
-import pylab
-from matplotlib import rc
-rc( 'text', usetex=True )
-
 """
-:Abstract: Contain plot tools
+:Abstract: Contain definition of plotable object
 """
-
-##########################Plotting utils#######################################
-
-def plot2D( objList = None, title='MyPlot', xlabel='x-axis', ylabel='yaxis' ):
-    if objList == None :
-        pass
-    else :
-        legend =[]
-        for obj in objList :
-            pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color )
-            legend.append(r''+obj.legend )
-        pylab.legend( tuple( legend ), loc='best', shadow=True )
-        pylab.title( title )
-        pylab.xlabel( xlabel )
-        pylab.ylabel( ylabel )
-        pylab.show()
-
 
 class plotObject:
 
@@ -58,5 +35,4 @@ class plotObject:
         self.color = color
 
     def __call__(self, inputs = ()):
-
         pass

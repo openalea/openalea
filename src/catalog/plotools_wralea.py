@@ -4,8 +4,7 @@
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
-#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#       File author(s): David Da SILVA <david.da_silva@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -16,7 +15,7 @@
 
 
 __doc__="""
-Wralea for Core.Library 
+Wralea for Catalog.PlotTools 
 """
 
 __license__= "Cecill-C"
@@ -47,14 +46,17 @@ def register_packages(pkgmanager):
     package = Package("Catalog.PlotTools", metainfo)
 
     nf = Factory( name= "plot2D", 
-                      description= "Plot a list of 2D plotable objects", 
-                      category = "Tools", 
-                      nodemodule = "plot_tools_nodes",
-                      nodeclass = "plot2D",
-                      widgetmodule = None,
-                      widgetclass = None, 
-                      #parameters = [ 'title', 'xlabel', 'ylabel' ]
-                      )
+                  description= "Plot a list of 2D plotable objects", 
+                  category = "Tools", 
+                  nodemodule = "plotools",
+                  nodeclass = "plot2D",
+                  inputs= ( dict( name='plotObjList', interface=None ),
+                            dict( name='title', interface=IStr, value='MyPlot' ),
+                            dict( name='xlabel', interface=IStr, value='x-axis' ),
+                            dict( name='ylabel', interface=IStr, value='y-axis' ),
+                          ),
+
+                )
 
     package.add_factory( nf )
 
