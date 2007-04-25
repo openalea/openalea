@@ -38,7 +38,7 @@ def register_packages(pkgmanager):
                'license' : 'CECILL-C',
                'authors' : 'OpenAlea Consortium',
                'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
+               'description' : 'Catalog library.',
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
@@ -47,10 +47,10 @@ def register_packages(pkgmanager):
 
     nf = Factory( name= "plot2D", 
                   description= "Plot a list of 2D plotable objects", 
-                  category = "Tools", 
+                  category = "Vizualisation", 
                   nodemodule = "plotools",
                   nodeclass = "plot2D",
-                  inputs= ( dict( name='plotObjList', interface=None ),
+                  inputs= ( dict( name='plotObjList', interface=ISequence, value='[]' ),
                             dict( name='title', interface=IStr, value='MyPlot' ),
                             dict( name='xlabel', interface=IStr, value='x-axis' ),
                             dict( name='ylabel', interface=IStr, value='y-axis' ),

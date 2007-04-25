@@ -15,17 +15,12 @@
 
 
 __doc__="""
-utils nodes
+plotting tools
 """
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
-
-#from core.core import Node
-#from openalea.core.interface import IFloat
-#from openalea.core.interface import IStr
 from openalea.core import *
 #import plotable
 import pylab
@@ -46,15 +41,15 @@ class plot2D( Node ):
         xlabel=self.get_input( 'xlabel' )
         ylabel=self.get_input( 'ylabel' )
         if objList == None :
-            pass
+          pass
         else :
             legend =[]
-        for obj in objList :
-            pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color )
-            legend.append(r''+obj.legend )
-        pylab.legend( tuple( legend ), loc='best', shadow=True )
-        pylab.title( title )
-        pylab.xlabel( xlabel )
-        pylab.ylabel( ylabel )
-        pylab.show()
+            for obj in objList :
+                pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color )
+                legend.append(r''+obj.legend )
+            pylab.legend( tuple( legend ), loc='best', shadow=True )
+            pylab.title( title )
+            pylab.xlabel( xlabel )
+            pylab.ylabel( ylabel )
+            pylab.show()
 
