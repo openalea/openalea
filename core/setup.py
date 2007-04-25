@@ -18,7 +18,6 @@ from distutils.core import setup
 
 name= 'core'
 namespace=config.namespace 
-pkg_name= namespace + '.' + name
 
 import version as versionmodule
 version = versionmodule.version
@@ -44,9 +43,9 @@ setup(
     license=license,
     
 
-    packages= [ pkg_name, 'graph' ],
-    package_dir= { pkg_name : pj('src',name),
-                   'graph' : pj('src','graph') 
+    packages= [ 'openalea.core', 'openalea.graph' ],
+    package_dir= { 'openalea.core' : pj('src',name),
+                   'openalea.graph' : pj('src','graph') 
                   },
 
     )
