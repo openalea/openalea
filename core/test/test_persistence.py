@@ -23,10 +23,9 @@ Test the subgraph module
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory
-from openalea.core.node import Factory
+from openalea.core.node import Factory, gen_port_list
 import os
 
-libraryname = "Library"
 
 
 def test_compositenodewriter():
@@ -34,16 +33,17 @@ def test_compositenodewriter():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory("addition")
+    sgfactory = CompositeNodeFactory("addition",
+                                     inputs=gen_port_list(3),
+                                     outputs=gen_port_list(4),
+                                     )
 
-    sgfactory.set_nb_input(3)
-    sgfactory.set_nb_input(4)
     
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ((libraryname, "+"))
-    val1id = sgfactory.add_nodefactory ((libraryname, "float")) 
-    val2id = sgfactory.add_nodefactory ((libraryname, "float"))
-    val3id = sgfactory.add_nodefactory ((libraryname, "float"))
+    addid = sgfactory.add_nodefactory (("Catalog.Maths", "+"))
+    val1id = sgfactory.add_nodefactory (("Catalog.Data", "float")) 
+    val2id = sgfactory.add_nodefactory (("Catalog.Data", "float"))
+    val3id = sgfactory.add_nodefactory (("Catalog.Data", "float"))
 
     sgfactory.add_connection (val1id, 0, addid, 0)
     sgfactory.add_connection (val2id, 0, addid, 1)
@@ -110,7 +110,8 @@ def test_nodewriter():
     nf = package1.create_user_factory(name="mynode",
                                       category='test',
                                       description="descr",
-                                      nbin=0, nbout=0
+                                      inputs=(),
+                                      outputs=(),
                                       )
 
     

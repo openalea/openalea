@@ -177,7 +177,7 @@ class UserPackage(Package):
         
 
     def create_user_factory(self, name, category, description,
-                            nbin, nbout):
+                            inputs, outputs):
         """
         Return a new user factory
         This function create a new python module in the package directory
@@ -205,13 +205,6 @@ class UserPackage(Package):
         file = open(module_path, 'w')
         file.write(template)
         file.close()
-
-        inputs = []
-        outputs = []
-        for i in range(nbin):
-            inputs.append(dict(name="IN%i"%(i), interface=None, value=None))
-        for i in range(nbout):
-            outputs.append(dict(name="OUT%i"%(i), interface=None))
             
 
         # Register the factory

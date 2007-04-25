@@ -44,6 +44,18 @@ class RecursionError (Exception):
 class InstantiationError(Exception):
     pass
 
+
+##############################################################################
+
+def gen_port_list(size):
+    """ Generate a list of port description """
+    l = []
+    for i in range(size):
+        l.append(dict(name=str(i), interface=None, value=None))
+    return l
+
+
+
 ###############################################################################
 
 
@@ -150,7 +162,7 @@ class Node(Observed):
         self.map_index_in[index]= index 
 
 
-    def add_output(self, name, interface):
+    def add_output(self, name, interface, value=None):
         """ Create an output port """
         name = str(name) #force to have a string
         self.outputs.append( None )

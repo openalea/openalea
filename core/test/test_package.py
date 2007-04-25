@@ -1,6 +1,7 @@
 
 
 from openalea.core.package import *
+from openalea.core.node import gen_port_list
 import os
 
 def test_package():
@@ -37,7 +38,10 @@ def test_userpackage():
 
 
 
-    factory = package.create_user_factory("TestFact", "", "", 3,2)
+    factory = package.create_user_factory("TestFact", "", "",
+                                          gen_port_list(3),
+                                          gen_port_list(2))
+    
     assert os.path.curdir in factory.search_path
     assert len(factory.inputs)==3
     assert len(factory.outputs)==2

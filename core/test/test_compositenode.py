@@ -20,11 +20,11 @@ __doc__= """
 Test the composite node module
 """
 
-libraryname = "Library"
 
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
+from openalea.core.node import gen_port_list
 from openalea.core.core import Package, RecursionError 
 
 
@@ -37,10 +37,10 @@ def test_instantiate_compositenode():
     sgfactory = CompositeNodeFactory("addition")
 
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ( (libraryname, "+"))
-    val1id = sgfactory.add_nodefactory ( (libraryname, "float")) 
-    val2id = sgfactory.add_nodefactory ( (libraryname, "float"))
-    val3id = sgfactory.add_nodefactory ( (libraryname, "float"))
+    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
+    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float")) 
+    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    val3id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
 
     sgfactory.add_connection (val1id, 0, addid, 0)
     sgfactory.add_connection (val2id, 0, addid, 1)
@@ -67,11 +67,12 @@ def test_compositenode_creation_without_edges():
     sgfactory = CompositeNodeFactory(pm, "addition")
 
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ( (libraryname, "+"))
-    val1id = sgfactory.add_nodefactory ( (libraryname, "float")) 
-    val2id = sgfactory.add_nodefactory ( (libraryname, "float"))
-    val3id = sgfactory.add_nodefactory ( (libraryname, "float"))
+    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
+    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float")) 
+    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    val3id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
 
+    
     # allocate the compositenode
     sg = sgfactory.instantiate()
 
@@ -87,8 +88,8 @@ def test_to_factory():
 
     sg = CompositeNode()
 
-    n1 = pm.get_node(libraryname, "float")
-    n2 = pm.get_node(libraryname, "float")
+    n1 = pm.get_node("Catalog.Data", "float")
+    n2 = pm.get_node("Catalog.Data", "float")
     
     e1 = sg.add_node(n1)
     e2 = sg.add_node(n2)
@@ -159,11 +160,12 @@ def test_compositenodeio():
 
     # create a compositenode with 2 in and 1 out
     # the compositenode does an addition
-    sgfactory = CompositeNodeFactory("additionsg")
-    sgfactory.set_nb_input(2)
-    sgfactory.set_nb_output(1)
-        
-    addid = sgfactory.add_nodefactory ( (libraryname, "+"))
+    sgfactory = CompositeNodeFactory("additionsg",
+                                     inputs=gen_port_list(2),
+                                     outputs=gen_port_list(1),
+                                     )
+
+    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
     
     id_in, id_out= sgfactory.id_in, sgfactory.id_out
     sgfactory.add_connection (id_in, 0, addid, 0)
@@ -183,9 +185,9 @@ def test_compositenodeio():
 
     sgfactory2 = CompositeNodeFactory("testio")
     addid = sgfactory2.add_nodefactory ( ("compositenode", "additionsg"))
-    val1id = sgfactory2.add_nodefactory( (libraryname, "float"))
-    val2id = sgfactory2.add_nodefactory( (libraryname, "float"))
-    val3id = sgfactory2.add_nodefactory( (libraryname, "float"))
+    val1id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
+    val2id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
+    val3id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
 
     sgfactory2.add_connection (val1id, 0, addid, 0)
     sgfactory2.add_connection (val2id, 0, addid, 1)
@@ -217,8 +219,8 @@ def test_addnode():
     sgfactory = CompositeNodeFactory("testaddnode")
 
     # build the compositenode factory
-    val1id = sgfactory.add_nodefactory ( (libraryname, "float"))
-    val2id = sgfactory.add_nodefactory ( (libraryname, "float"))
+    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
 
     sgfactory.add_connection (val1id, 0, val2id, 0)
 
@@ -233,7 +235,7 @@ def test_addnode():
 
 
     # Add a new node
-    addid = sgfactory.add_nodefactory ( (libraryname, "+"))
+    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
     
     sg = sgfactory.instantiate()
     sg.get_node_by_id(val1id).set_input(0, 3.)
@@ -250,9 +252,9 @@ def test_multi_out_eval():
     sgfactory = CompositeNodeFactory("testlazyeval")
 
     # build the compositenode factory
-    val1id = sgfactory.add_nodefactory( (libraryname, "string"))
-    val2id = sgfactory.add_nodefactory( (libraryname, "string"))
-    val3id = sgfactory.add_nodefactory( (libraryname, "string"))
+    val1id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
+    val2id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
+    val3id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
 
     sgfactory.add_connection (val1id, 0, val2id, 0)
     sgfactory.add_connection (val1id, 0, val3id, 0)

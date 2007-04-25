@@ -43,7 +43,7 @@ def test_load_pm():
     pkgman = PackageManager()
     pkgman.init()
 
-    simpleop = pkgman["Library"]
+    simpleop = pkgman["Catalog.Data"]
     assert simpleop
 
     addfactory = simpleop.get_factory('int')
