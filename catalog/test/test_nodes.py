@@ -11,8 +11,9 @@ def test_init():
     pm.find_and_register_packages()
 
     for p in pm.keys():
-        if('Catalog' not in p): return
-        pkg = pm[p]
-        for factory in pkg.values():
-            factory.instantiate()
+        if('Catalog' in p): 
+            pkg = pm[p]
+            for factory in pkg.values():
+                factory.instantiate()
+
 
