@@ -66,7 +66,7 @@ def test_save_workspace():
                                 )
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory (("Library", "int"))
+    addid = sgfactory.add_nodefactory (("Catalog.Data", "int"))
     instance = sgfactory.instantiate()
 
     instance.node_id[addid].set_input(0,3)

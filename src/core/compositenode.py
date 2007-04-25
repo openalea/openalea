@@ -68,8 +68,8 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
     def __init__ (self, *args, **kargs):
         """
         CompositeNodeFactory accept more optional parameters :
-        nin : number of inputs
-        nout : number of outputs
+        inputs : list of dict(name = '', interface='', value='')
+        outputs : list of dict(name = '', interface='', value='')
         doc : documentation
         elt_factory : map of elements with its corresponding factory
         elt_connections : map of ( dst_id , input_port ) : ( src_id, output_port )
@@ -106,11 +106,11 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
 
 
         # I/O
-        self.nb_input = kargs.get("nbin", 0)
-        self.nb_output = kargs.get("nbout", 0)
-
         self.id_in= self.add_vertex()
         self.id_out= self.add_vertex()
+        
+        if(self.inputs==None) : self.inputs=()
+        if(self.outputs==None) : self.outputs=()
 
         # Documentation
         self.doc = kargs.get('doc', "")
@@ -203,7 +203,7 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
 
         call_stack.append(self.get_id())
 
-        new_df = CompositeNode(self.nb_input, self.nb_output)
+        new_df = CompositeNode(self.inputs, self.outputs)
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
@@ -257,14 +257,6 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
             return None
 
         
-    def set_nb_input(self, v):
-        self.nb_input = v
-
-        
-    def set_nb_output(self, v):
-        self.nb_output = v
-
-
     def instantiate_widget(self, node=None, parent=None, edit=False):
         """
         Return the corresponding widget initialised with node
@@ -301,10 +293,10 @@ class CompositeNode(Node, DataFlow):
     """
 
 
-    def __init__(self, ninput=0, noutput=0):
-        """ ninput and noutput are the number of inputs and outputs """
+    def __init__(self, inputs=(), outputs=()):
+        """ inputs and outputs are list of dict(name='', interface='', value='') """
 
-        Node.__init__(self)
+        Node.__init__(self, inputs, outputs)
         DataFlow.__init__(self)
 
         # Node list indexed by its id
@@ -325,15 +317,8 @@ class CompositeNode(Node, DataFlow):
         self.id_out= self.add_vertex()
 
         # I/O
-        self.node_id[self.id_in] = CompositeNodeInput(self, ninput)
-        if(ninput>0):
-            for i in range(ninput):
-                self.add_input( "in%i"%(i,), interface = None, value = None)
-
-        self.node_id[self.id_out] = CompositeNodeOutput(self, noutput)
-        if(noutput>0) :
-            for i in range(noutput):
-                self.add_output( "out%i"%(i,), interface = None)
+        self.node_id[self.id_in] = CompositeNodeInput(self, len(inputs))
+        self.node_id[self.id_out] = CompositeNodeOutput(self, len(outputs))
 
         # contains the mapping between the factory ids and the
         # current ids.
@@ -346,7 +331,8 @@ class CompositeNode(Node, DataFlow):
         """
         self._factory_id_to_id= mapping
 
-    def to_factory(self, sgfactory, listid=None, nbin=-1, nbout=-1):
+
+    def to_factory(self, sgfactory, listid=None):
         """
         Update CompositeNodeFactory to fit with the graph
         listid is a list of element to export. If None, select all id
@@ -360,13 +346,11 @@ class CompositeNode(Node, DataFlow):
         sgfactory.elt_data = {}
         sgfactory._edge_ports = {}
 
-        if(nbin<0) : nbin = self.get_nb_input()
-        if(nbout<0) : nbout = self.get_nb_output()
-
+    
         # TODO : compositeNode should not access directly to CompositeNodeFactory members
         # this should be refactored
-        sgfactory.set_nb_input(nbin)
-        sgfactory.set_nb_output(nbout)
+        sgfactory.inputs = self.inputs
+        sgfactory.outputs = self.outputs
         sgfactory.id_in= sgfactory.add_vertex(self.id_in)
         sgfactory.id_out= sgfactory.add_vertex(self.id_out)
 
@@ -408,9 +392,9 @@ class CompositeNode(Node, DataFlow):
         """ Return the list of element id """
         #TODO: deprecated
         vids= set( self.vertices() )
-        if self.factory.nb_input == 0: 
+        if len(self.factory.inputs==0): 
             vids.remove( self.id_in )
-        if self.factory.nb_output == 0:
+        if len(self.factory.outputs==0):
             vids.remove( self.id_out )
         return vids
 
@@ -664,12 +648,12 @@ class PyCNFactoryWriter(object):
 
     sgfactory_template = """
 
-    nf = CompositeNodeFactory(name="$NAME", 
-                              description="$DESCRIPTION", 
-                              category="$CATEGORY",
-                              doc="$DOC",
-                              nin=$NIN,
-                              nout=$NOUT,
+    nf = CompositeNodeFactory(name=$NAME, 
+                              description=$DESCRIPTION, 
+                              category=$CATEGORY,
+                              doc=$DOC,
+                              inputs=$INPUTS,
+                              outputs=$OUTPUTS,
                               elt_factory=$ELT_FACTORY,
                               elt_connections=$ELT_CONNECTIONS,
                               elt_data=$ELT_DATA,
@@ -687,12 +671,12 @@ class PyCNFactoryWriter(object):
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
-        result = fstr.safe_substitute(NAME=f.name,
-                                      DESCRIPTION=f.description,
-                                      CATEGORY=f.category,
-                                      DOC=f.doc,
-                                      NIN=f.nb_input,
-                                      NOUT=f.nb_output,
+        result = fstr.safe_substitute(NAME=repr(f.name),
+                                      DESCRIPTION=repr(f.description),
+                                      CATEGORY=repr(f.category),
+                                      DOC=repr(f.doc),
+                                      INPUTS=repr(f.inputs),
+                                      OUTPUTS=repr(f.outputs),
                                       ELT_FACTORY=repr(f.elt_factory),
                                       ELT_CONNECTIONS=repr(f.connections()),
                                       ELT_DATA=repr(f.elt_data),
