@@ -22,36 +22,11 @@ Python Nodes
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
+from openalea.core import *
 
-class IfElse(Node):
-    """
-    Conditional expression
-    In[0] : Boolean value
-    In[1] : Value 1
-    In[2] : Value 2
-
-    Out[0]: If In[0] is True return Value 1 else Value 2
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "Cond", interface = IBool, value = True)
-        self.add_input( name = "Expr1", interface = None, value = None)
-        self.add_input( name = "Expr2", interface = None, value = None)
-            
-        self.add_output( name = "Result", interface = None) 
-        
-
-    def __call__(self, inputs):
-
-        c = self.get_input("Cond")
-
-        if (bool(c)):
-            return (self.get_input("Expr1"),)
-        else:
-            return (self.get_input("Expr2"),)
+def py_ifelse(c=True,a=None,b=None):
+    """ Return a if c is true else b """
+    return bool(c) and a or b
 
 
 def setitem(obj, key, value):
@@ -120,3 +95,6 @@ def pylen(obj):
     return ( f, )
 
 
+def py_print(x):
+    """ Print to the console"""
+    print x
