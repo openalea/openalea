@@ -44,8 +44,10 @@ setup(
     license=license,
     
 
-    packages= [ pkg_name ],
-    package_dir= { pkg_name : pj('src',name)},
+    packages= [ pkg_name, 'graph' ],
+    package_dir= { pkg_name : pj('src',name),
+                   'graph' : pj('src','graph') 
+                  },
 
     )
 
