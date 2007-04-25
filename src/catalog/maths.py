@@ -58,37 +58,37 @@ def py_not(a):
 
 ################################################################################
 
-def py_add(a,b):
+def py_add(a=0.,b=0.):
     """ a + b """
     return a + b
 
 
-def py_sub(a,b):
+def py_sub(a=0.,b=0.):
     """ a - b """
     return a - b
 
 
-def py_mult(a,b):
+def py_mult(a=0.,b=0.):
     """ a * b """
     return a * b
 
 
-def py_div(a,b):
+def py_div(a=0.,b=1.):
     """ a / b """
     return a / b
 
 
-def py_abs(a):
+def py_abs(a=0.):
     """ abs(a) """
     return abs(a)
 
 
-def py_cmp(a,b):
+def py_cmp(a=0.,b=0.):
     """ cmp(a,b) """
     return cmp(a,b)
 
 
-def py_pow(a,b=1):
+def py_pow(a=0.,b=1):
     """ pow(a,b) """
     return pow(a,b)
 
