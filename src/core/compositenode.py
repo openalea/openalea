@@ -368,7 +368,7 @@ class CompositeNode(Node, DataFlow):
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
 
-            sgvid[ vid ] = sgfactory.add_nodefactory((pkg_id, factory_id), kdata)
+            sgvid[vid] = sgfactory.add_nodefactory((pkg_id, factory_id), kdata)
             
 
         # Create connections
@@ -380,9 +380,9 @@ class CompositeNode(Node, DataFlow):
 
         # rebuilding edges with the good edges 
         for eid in edges:
-            src_sgvid= sgvid[ self.source( eid ) ]
-            dst_sgvid= sgvid[ self.target( eid ) ]
-            src_port, dst_port= self._edge_ports[ eid ]
+            src_sgvid = sgvid[self.source(eid)]
+            dst_sgvid = sgvid[self.target(eid)]
+            src_port, dst_port = self._edge_ports[eid]
             sgeid= sgfactory.add_connection( src_sgvid, src_port, dst_sgvid, dst_port )
 
         self.graph_modified = False
@@ -392,9 +392,9 @@ class CompositeNode(Node, DataFlow):
         """ Return the list of element id """
         #TODO: deprecated
         vids= set( self.vertices() )
-        if len(self.factory.inputs==0): 
+        if len(self.factory.inputs)==0: 
             vids.remove( self.id_in )
-        if len(self.factory.outputs==0):
+        if len(self.factory.outputs)==0:
             vids.remove( self.id_out )
         return vids
 
