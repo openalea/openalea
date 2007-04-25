@@ -441,13 +441,23 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
     def keyReleaseEvent(self, e):
-
+        """ Key """
         QtGui.QGraphicsView.keyReleaseEvent(self, e)
         key   = e.key()
         if(key == QtCore.Qt.Key_Space):
             self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
 
-    
+
+    def event(self, event):
+        """ Main event handler """
+        
+        if (event.type() == QtCore.QEvent.ToolTip):
+            item = self.itemAt(event.pos())
+            if(item and isinstance(item, Connector)):
+                txt = item.update_tooltip()
+
+        return QtGui.QGraphicsView.event(self, event)
+ 
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -492,14 +502,6 @@ class Annotation(QtGui.QGraphicsTextItem):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setPos(pos)
 
-#         self.setTextInteractionFlags(QtCore.Qt.TextEditable)
-#         self.setSelected(True)
-#         self.setFocus()
-
-#         cursor = self.textCursor()
-#         cursor.select(QtGui.QTextCursor.Document)
-#         self.setTextCursor(cursor)
-
         font = self.font()
         font.setBold(True)
         font.setPointSize(12)
@@ -529,6 +531,7 @@ class Annotation(QtGui.QGraphicsTextItem):
 
 from openalea.core.observer import AbstractListener
 
+
 def port_name( name, interface ):
     """ Return the port name str """
     iname = 'Any'
@@ -541,6 +544,7 @@ def port_name( name, interface ):
             except AttributeError:
                 iname = str(interface)
     return '%s(%s)'%(name,iname)
+
     
 
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
@@ -659,7 +663,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             QtGui.QApplication.processEvents()
            
         elif(self.ismodified != sender.modified):
-            self.ismodified = sender.modified
+            self.ismodified = sender.modified or not sender.lazy
             
             self.update()
             QtGui.QApplication.processEvents()
@@ -853,7 +857,8 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.mindex = index
         self.graphview = graphview
 
-        self.setToolTip(tooltip)
+        self.base_tooltip = tooltip
+        self.update_tooltip()
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
         gradient = QtGui.QRadialGradient(-3, -3, 10)
@@ -868,6 +873,9 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
     def index(self):
         return self.mindex
+
+    def update_tooltip(self):
+        self.setToolTip(self.base_tooltip)
 
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
@@ -894,6 +902,12 @@ class ConnectorIn(Connector):
 
     def adjust(self):
         if(self.edge): self.edge.adjust()
+
+
+    def update_tooltip(self):
+        node = self.parentItem().subnode
+        data = node.get_input(self.mindex)
+        self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
 
     
     def adjust_position(self, parentitem, index, ntotal):
@@ -944,6 +958,8 @@ class ConnectorIn(Connector):
         else:
             event.ignore()
 
+            
+
 
 class ConnectorOut(Connector):
     """ Output node connector """
@@ -954,6 +970,11 @@ class ConnectorOut(Connector):
         self.adjust_position(parent, index, ntotal)
         self.edge_list = []
         
+    def update_tooltip(self):
+        node = self.parentItem().subnode
+        data = node.get_output(self.mindex)
+        self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
+
 
     def add_edge(self, edge):
         self.edge_list.append(edge)
