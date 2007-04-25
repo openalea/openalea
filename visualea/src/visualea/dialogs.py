@@ -36,7 +36,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     def __init__(self, title, packages, categories, parent=None):
         """
         Constructor
-        @param pacakges : the list of packages the graph can be added to
+        @param packages : the list of packages the graph can be added to
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -89,19 +89,34 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
                 category, description)
 
 
+    def get_port_lists(self, nbin, nout):
+        """ Return 2 list of inputs and outpus descriptor """
+        inputs = []
+        outputs = []
+        for i in range(nin):
+            inputs.append(dict(name="IN%i"%(i), interface=None, value=None))
+        for i in range(nout):
+            outputs.append(dict(name="OUT%i"%(i), interface=None))
+
+        return (inputs, outputs)
+
+
+
     def create_cnfactory(self, pkgmanager):
         """ Create, register and return a new CompositeNodeFactory """
         
         (name, nin, nout, pkg, cat, desc) = self.get_data()
-            
+
+        (inputs, outputs) = self.get_port_lists(nin, nout)
         newfactory = CompositeNodeFactory( name=name,
                                            description= desc,
-                                           category = cat, )
-            
-        newfactory.set_nb_input(nin)
-        newfactory.set_nb_output(nout)
+                                           category = cat,
+                                           inputs=inputs,
+                                           outputs=outputs,
+                                           )
             
         pkg.add_factory(newfactory)
+        
         try:
             pkg.write()
         except:
@@ -117,11 +132,12 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         (name, nin, nout, pkg, cat, desc) = self.get_data()
 
+        (inputs, outputs) = self.get_port_lists(nin, nout)
         ret = pkg.create_user_factory(name=name,
                                       description=desc,
                                       category=cat,
-                                      nbin=nin,
-                                      nbout=nout,
+                                      inputs=inputs,
+                                      outputs=outputs,
                                       )
             
         pkgmanager.add_package(pkg)
