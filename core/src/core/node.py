@@ -80,6 +80,8 @@ class Node(Observed):
 
         # Node State
         self.modified = True
+        # Lazy State : if False, disable lazy evaluation
+        self.lazy = True
 
         # Factory
         self.factory = None
@@ -225,7 +227,7 @@ class Node(Observed):
         """
 
         # lazy evaluation
-        if(not self.modified):
+        if(self.lazy and not self.modified):
             return False
 
         self.modified = False
@@ -298,6 +300,7 @@ class AbstractFactory(Observed):
                  category = '',
                  inputs = None,
                  outputs = None,
+                 lazy = True,
                  **kargs):
         
         """
@@ -308,6 +311,7 @@ class AbstractFactory(Observed):
         @param category : category of the node (String)
         @param inputs : inputs description
         @param outputs : outputs description, value=0
+        @param lazy : enable lazy evaluation (default = True)
 
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
@@ -325,6 +329,8 @@ class AbstractFactory(Observed):
 
         self.inputs = inputs
         self.outputs = outputs
+
+        self.lazy = lazy
 
 
     def get_id(self):
@@ -444,10 +450,10 @@ class NodeFactory(AbstractFactory):
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
             # Check inputs and outputs
-            if(not self.inputs) :
+            if(self.inputs == None) :
                 s = sgn.Signature(classobj)
                 self.inputs = s.get_parameters()
-            if(not self.outputs) : self.outputs = (dict(name="out", interface=None),)
+            if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
 
  
             # Check and Instantiate if we have a functor class
@@ -467,6 +473,7 @@ class NodeFactory(AbstractFactory):
                 node = classobj()
                 
         node.factory = self
+        node.lazy = self.lazy
         return node
                     
 
