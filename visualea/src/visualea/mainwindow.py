@@ -134,6 +134,12 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
 
+        self.connect(self.actionCreate_New_Graph, SIGNAL("activated()"), self.selection_to_graph)
+        self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
+
+        
+
+
         # final init
         self.session = session
         wfactory = self.session.user_pkg['Workspace']
@@ -239,7 +245,7 @@ class MainWindow(QtGui.QMainWindow,
         """ Close workspace indexed by cindex cindex is Node"""
         
         w = self.tabWorkspace.widget(cindex)
-        self.tabWorkspace.removeTab( cindex )
+        self.tabWorkspace.removeTab(cindex)
         w.close()
         w.emit(QtCore.SIGNAL("close()"))
         
@@ -333,7 +339,7 @@ class MainWindow(QtGui.QMainWindow,
             cindex = self.tabWorkspace.currentIndex()
             graph = self.index_nodewidget[cindex].node
 
-        dialog = FactorySelector(self.pkgmanager, graph.factory, self)
+        dialog = FactorySelector(graph.factory, self)
         ret = dialog.exec_()
 
         if(ret == 0): return
@@ -514,7 +520,31 @@ class MainWindow(QtGui.QMainWindow,
         i = self.tabPackager.indexOf(self.searchview)
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
-       
+
+
+    def selection_to_graph(self):
+        """ Delete selection in current workspace """
+        cindex = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[cindex]
+
+        try:
+            f = widget.export_selection()
+            if(f): self.open_compositenode(f)
+            
+        except AttributeError:
+            pass
+
+        
+
+    def delete_selection(self):
+        """ Delete selection in current workspace """
+        cindex = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[cindex]
+
+        try:
+            widget.remove_selection()
+        except AttributeError:
+            pass
 
 
         
