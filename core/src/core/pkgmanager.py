@@ -61,14 +61,33 @@ class PackageManager(object):
 
         # dictionnay of category
         self.category = {}
+
+
+    def apply_user_config(self, configparser):
+        """ Apply user config """
+
+        try:
+            str = configparser.get("pkgmanager", "path")
+            str.strip(']')
+            str.strip('[')
+
+            l = str.split(',')
         
+            for p in l:
+                self.add_wraleapath(os.path.abspath(p))
+                
+        except Exception,e:
+            print e
+            pass
+
+        print self.wraleapath
+
 
     def get_default_wraleapath(self):
         """ Return a list wralea path """
         
         l = list(openalea.__path__)
         l.append(get_userpkg_dir())
-        #l.append(".")
         return l
     
 
@@ -100,7 +119,7 @@ class PackageManager(object):
         Add a search path for wralea files
         @param path : a path string
         """
-        
+
         if(not os.path.isdir(path)): return
 
         # Ensure to add a non existing path
@@ -115,6 +134,7 @@ class PackageManager(object):
                 return
         # the path is absent
         self.wraleapath.append(path)
+        
         
 
     def recover_syspath(self):

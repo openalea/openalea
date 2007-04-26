@@ -54,15 +54,12 @@ class Session(Observed):
         self.datapool = DataPool()
         self.clear()
 
+        self.pkgmanager = PackageManager()
+
         # User config
-        config = Settings()
+        self.config = Settings()
+        self.pkgmanager.apply_user_config(self.config)
 
-
-    def get_pmanager(self):
-        """ Return the current package manager """
-        return PackageManager()
-
-    pkgmanager = property(get_pmanager)
         
 
        

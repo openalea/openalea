@@ -27,15 +27,26 @@ import os, sys
 from ConfigParser import SafeConfigParser
 
 
+# [pkgmanager]
+# path = '.', '/home/user/directory'
+
+
 class Settings(SafeConfigParser):
     """ Retrieve and set user configuration """
 
     def __init__(self):
-
+        SafeConfigParser.__init__(self)
         filename = 'openalea.cfg'
         home = get_openalea_home_dir()
-        configfile = os.path.join(home,filename)
-        self.read([configfile])
+        self.configfile = os.path.join(home,filename)
+        self.read([self.configfile])
+
+
+    def write_on_disk(self):
+        f = open(self.configfile, 'w')
+        self.write(f)
+        f.close()
+                
         
 
 
