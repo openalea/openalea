@@ -280,6 +280,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
         self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
 
+        self.updating = False
         self.update_list()
 
 
@@ -311,11 +312,13 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         """ Rebuild the list """
         seq = self.node.get_input(self.param_str)
         self.subwidget.clear()
+        self.updating = True
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
                           QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
+        self.updating = False
 
             
     @lock_notify      
@@ -368,10 +371,12 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
 
     @lock_notify      
     def itemchanged(self, item):
+        if(self.updating) : return
 
         text = item.text()
         i = self.subwidget.currentRow()
         seq = self.node.get_input(self.param_str)
+        print self.param_str
         
         try:
             obj = eval(str(text))
@@ -463,7 +468,6 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
 
     def update_list(self):
         """ Rebuild the list """
-        
         dic = self.node.get_input(self.param_str)
         self.subwidget.clear()
         self.rowkey = []
@@ -475,6 +479,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
                 self.rowkey.append(key)
         except Exception, e:
             print e
+
 
     @lock_notify      
     def button_clicked(self):
@@ -492,6 +497,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         dic[key] = None
         self.node.unvalidate_input(self.param_str)
         self.update_list()
+
         
     @lock_notify      
     def itemclick(self, item):

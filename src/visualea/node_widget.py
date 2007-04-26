@@ -61,18 +61,15 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
             name =desc['name']
             interface = desc.get('interface', None)
-            iwidget = desc.get('iwidget', True)
+            iwidget = desc.get('showwidget', True)
 
-            # test if widget is disabled
-            if(not iwidget): continue
-            
             # interface class or instance ?
             if(type(interface) == IInterfaceMetaClass):
                 interface = interface()
             
             wclass= self.type_map.get(interface.__class__,None)
 
-            if(wclass):
+            if(wclass and iwidget):
                 widget = wclass(node, self, name, interface)
                 widget.update_state()
                 vboxlayout.addWidget(widget)
