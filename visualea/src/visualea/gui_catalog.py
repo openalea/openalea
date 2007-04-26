@@ -307,12 +307,14 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         """ Notification sent by node """
         self.update_list()
 
-    
+
+    @lock_notify
     def update_list(self):
         """ Rebuild the list """
         seq = self.node.get_input(self.param_str)
-        self.subwidget.clear()
         self.updating = True
+
+        self.subwidget.clear()
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
@@ -376,7 +378,6 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         text = item.text()
         i = self.subwidget.currentRow()
         seq = self.node.get_input(self.param_str)
-        print self.param_str
         
         try:
             obj = eval(str(text))
@@ -385,8 +386,10 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         except :
             item.setText(text)
             seq[i] = str(text)
-            
+
+        print self.param_str, self.node
         self.node.unvalidate_input(self.param_str)
+        
         
             
     @lock_notify      

@@ -58,7 +58,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         self.empty = True
         for desc in node.input_desc:
-
+            print desc
             name =desc['name']
             interface = desc.get('interface', None)
             iwidget = desc.get('showwidget', True)
@@ -92,6 +92,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         if(event and event[0] == "input_modified"):
             input_index = event[1]
+            print "NODEWIDG", input_index, self.widgets
 
             widget = self.widgets[input_index]
             if widget and not widget.is_notification_locked():
