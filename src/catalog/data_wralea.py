@@ -166,7 +166,7 @@ def register_packages(pkgmanager):
     package.add_factory( nf )
 
 
-    nf = Factory( name="Pair",
+    nf = Factory( name="pair",
                   description="Python 2-uple",
                   category="Data Types",
                   nodemodule="data",
