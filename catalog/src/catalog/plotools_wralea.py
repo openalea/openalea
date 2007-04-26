@@ -50,7 +50,7 @@ def register_packages(pkgmanager):
                   category = "Vizualisation", 
                   nodemodule = "plotools",
                   nodeclass = "plot2D",
-                  inputs= ( dict( name='plotObjList', interface=ISequence, value='[]' ),
+                  inputs= ( dict( name='plotObjList', interface=None, value=None ),
                             dict( name='title', interface=IStr, value='MyPlot' ),
                             dict( name='xlabel', interface=IStr, value='x-axis' ),
                             dict( name='ylabel', interface=IStr, value='y-axis' ),
