@@ -73,13 +73,21 @@ class IInterface(object):
     """ Abstract base class for all interfaces """
     __metaclass__ = IInterfaceMetaClass
     __pytype__ = None
-    
+
+    @classmethod
+    def default(cls):
+        return None
+   
 
 
 class IStr(IInterface):
     """ String interface """
     
     __pytype__ = types.StringType
+
+    @classmethod
+    def default(cls):
+        return str()
     
 
 
@@ -98,6 +106,15 @@ class IFloat(IInterface):
 
         self.min = min
         self.max = max
+
+    @classmethod
+    def default(cls):
+        return 0.
+
+    def default(self):
+        return self.min
+    
+
     
 
 class IInt(IInterface):
@@ -116,6 +133,10 @@ class IBool(IInterface):
 
     __pytype__ = types.BooleanType
 
+    @classmethod
+    def default(cls):
+        return False
+
 
 class IEnumStr(IStr):
     """ String enumeration """
@@ -131,8 +152,10 @@ class IRGBColor(IInterface):
 
 class ITuple3(IInterface):
     """ Tuple3 """
-    def __init__(self):
-        pass
+
+    @classmethod
+    def default(cls):
+        return (None,None,None)
 
 
 class IFunction(IInterface):
@@ -143,11 +166,20 @@ class IFunction(IInterface):
 class ISequence(IInterface):
     """ Sequence interface (list, tuple, ...) """
     __pytype__ = types.ListType
+
+    @classmethod
+    def default(cls):
+        return list()
+
     
 
 class IDict(IInterface):
     """ Dictionary interface """
     __pytype__ = types.DictType
+
+    @classmethod
+    def default(cls):
+        return dict()
 
 
 

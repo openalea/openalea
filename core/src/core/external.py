@@ -8,9 +8,8 @@ __revision__=" $Id$"
 
 from package import Package, UserPackage
 from node import Factory, Node
-from compositenode import CompositeNodeFactory, CompositeNode
+from compositenode import CompositeNode, CompositeNodeFactory
 from interface import *
 
 
-# Convenience functions
 

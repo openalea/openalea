@@ -215,13 +215,14 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
 
 
 import ui_tofactory
+from openalea.core.pkgmanager import PackageManager
+
 
 class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
     """ New package dialog """
     
-    def __init__(self, pkgmanager, default_factory=None, parent=None):
+    def __init__(self, default_factory=None, parent=None):
         """
-        pkgmanager : package manager
         default_factory : default choice
         """
         
@@ -229,12 +230,12 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         ui_tofactory.Ui_FactorySelector.__init__(self)
         self.setupUi(self)
 
-        self.pkgmanager = pkgmanager
+        self.pkgmanager = PackageManager()
         self.factorymap = {}
         
         cfactories = []
         # Get all composite node factories
-        for pkg in pkgmanager.values():
+        for pkg in self.pkgmanager.values():
             for f in pkg.values():
                 if(isinstance(f, CompositeNodeFactory)):
                    cfactories.append(f.name)

@@ -57,8 +57,16 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         vboxlayout.setSpacing(2)
 
         self.empty = True
-        for (name, interface) in node.input_desc:
+        for desc in node.input_desc:
 
+            name =desc['name']
+            interface = desc.get('interface', None)
+            iwidget = desc.get('iwidget', True)
+
+            # test if widget is disabled
+            if(not iwidget): continue
+            
+            # interface class or instance ?
             if(type(interface) == IInterfaceMetaClass):
                 interface = interface()
             
@@ -85,7 +93,6 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def notify(self, sender, event):
         """ Function called by observed objects """
 
-        
         if(event and event[0] == "input_modified"):
             input_index = event[1]
 

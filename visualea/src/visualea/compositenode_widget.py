@@ -301,9 +301,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             container.show()
 
 
-
-    def remove_selection(self):
-        """ Remove selected nodes """
+    def get_selected_item(self):
+        """ Return the list id of the selected item """
 
         # get the selected id
         s = []
@@ -312,6 +311,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             if(item.isSelected()):
                 s.append(id)
 
+        return s
+
+
+    def remove_selection(self):
+        """ Remove selected nodes """
+
+        s = self.get_selected_item()
+        
         # remove the nodes
         map(self.remove_node, s)
 
@@ -319,6 +326,28 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         items = self.scene().selectedItems()
         for i in items :
             self.scene().removeItem(i)
+
+
+    def export_selection(self):
+        """
+        Export selected node in a new composite node
+        Return the created factory or None if canceled
+        """
+
+        s = self.get_selected_item()
+
+        # Get a composite node factory
+        from dialogs import FactorySelector
+
+        dialog = FactorySelector(self.node.factory, self)
+        ret = dialog.exec_()
+        if(ret == 0): return None
+        
+        factory = dialog.get_factory()
+        self.node.to_factory(factory, s)
+        self.remove_selection()
+
+        return factory
 
 
     def remove_graphical_node(self, elt_id):
@@ -406,6 +435,19 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
 
+
+    def add_graphical_annotation(self):
+        """ Add text annotation """
+
+        version = QtCore.PYQT_VERSION
+        if(version <= 262401):
+            mess = QtGui.QMessageBox.warning(None, "Error",
+                                             "This function need PyQT >= 4.2")
+            return 
+
+        item = Annotation(self.scene(), self.mapToScene(
+            self.mapFromGlobal(self.cursor().pos())))
+
                 
 
     def dropEvent(self, event):
@@ -468,24 +510,13 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         menu = QtGui.QMenu(self)
         action = menu.addAction("Add Annotation")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.add_annotation)
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.add_graphical_annotation)
         
         menu.move(event.globalPos())
         menu.show()
         event.accept()
 
 
-    def add_annotation(self):
-        """ Add text annotation """
-
-        version = QtCore.PYQT_VERSION
-        if(version <= 262401):
-            mess = QtGui.QMessageBox.warning(None, "Error",
-                                             "This function need PyQT >= 4.2")
-            return 
-
-        item = Annotation(self.scene(), self.mapToScene(
-            self.mapFromGlobal(self.cursor().pos())))
 
         
 
@@ -606,13 +637,17 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         scene.addItem(self)
 
         # Connectors
-        for i in range(ninput):
-            name, interface = self.subnode.input_desc[i]
+        for i,desc in enumerate(self.subnode.input_desc):
+            name = desc['name']
+            interface = desc.get('interface', None)
+            
             tip= port_name(name,interface)
             self.connector_in.append(ConnectorIn(self.graphview, self, scene, i, ninput, tip))
             
-        for i in range(noutput):
-            name, interface = self.subnode.output_desc[i]
+        for i,desc in enumerate(self.subnode.output_desc):
+            name = desc['name']
+            interface = desc.get('interface', None)
+
             tip= port_name(name,interface)
             self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
 
