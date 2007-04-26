@@ -131,26 +131,17 @@ RGB Color
 
 class List(Node):
     """
-    Python List
+Python List
     """
 
-    def __init__(self):
-
-        Node.__init__(self)
-
-        self.add_input( name = "list", interface = ISequence, value = []) 
-        self.add_output( name = "list", interface = ISequence) 
-
-   
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        
         return ( inputs[0], )
 
 
 class Dict(Node):
     """
-    Python Dictionary
+Python Dictionary
     """
 
     def __call__(self, inputs):
