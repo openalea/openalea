@@ -123,8 +123,8 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         def add_only_new_vertex( id ):
             # Be carefull: This code is not equivalent to
             # vid= name2vid.setdefault( id, self.add_vertex() )
-            # because self.add_vertex() is evaluted even if
-            # name2vid[id] is defined 
+            # because self.add_vertex() is evaluted even if name2vid[id] is defined
+            
             if id in name2vid:
                 vid= name2vid[id]
             else: 
@@ -317,12 +317,14 @@ class CompositeNode(Node, DataFlow):
         self.id_out= self.add_vertex()
 
         # I/O
-        self.node_id[self.id_in] = CompositeNodeInput(self, len(inputs))
-        self.node_id[self.id_out] = CompositeNodeOutput(self, len(outputs))
+        self.node_id[self.id_in] = CompositeNodeInput(self, inputs)
+        self.node_id[self.id_out] = CompositeNodeOutput(self, outputs)
 
         # contains the mapping between the factory ids and the
         # current ids.
         self._factory_id_to_id= {}
+
+
 
     def _factory_id_mapping( self, mapping ):
         """
@@ -347,12 +349,12 @@ class CompositeNode(Node, DataFlow):
         sgfactory._edge_ports = {}
 
     
-        # TODO : compositeNode should not access directly to CompositeNodeFactory members
-        # this should be refactored
+        # TODO : compositeNode should not access directly to CompositeNodeFactory member
+        # This should be corrected
         sgfactory.inputs = self.inputs
         sgfactory.outputs = self.outputs
-        sgfactory.id_in= sgfactory.add_vertex(self.id_in)
-        sgfactory.id_out= sgfactory.add_vertex(self.id_out)
+        sgfactory.id_in = sgfactory.add_vertex(self.id_in)
+        sgfactory.id_out = sgfactory.add_vertex(self.id_out)
 
         
         # Create node if necessary
@@ -374,28 +376,33 @@ class CompositeNode(Node, DataFlow):
         # Create connections
         edges= set() # filtering vid that should not be included in factory
         for vid in sgvid :
-            def valid_edge( eid ):
-                return self.source( eid ) in sgvid and self.target( eid ) in sgvid
-            edges.update( filter(  valid_edge, self.edges(vid) ) )
+            l = [x for x in self.edges(vid) if (self.source(x) in sgvid)\
+                                                and (self.target(x) in sgvid)]
+            edges.update(l)
 
         # rebuilding edges with the good edges 
         for eid in edges:
             src_sgvid = sgvid[self.source(eid)]
             dst_sgvid = sgvid[self.target(eid)]
             src_port, dst_port = self._edge_ports[eid]
-            sgeid= sgfactory.add_connection( src_sgvid, src_port, dst_sgvid, dst_port )
+            sgeid = sgfactory.add_connection(src_sgvid, src_port, dst_sgvid, dst_port)
 
         self.graph_modified = False
-        
+
+
+                
 
     def get_ids(self):
         """ Return the list of element id """
         #TODO: deprecated
-        vids= set( self.vertices() )
+        vids = set( self.vertices() )
+        
         if len(self.factory.inputs)==0: 
             vids.remove( self.id_in )
+
         if len(self.factory.outputs)==0:
             vids.remove( self.id_out )
+
         return vids
 
 
@@ -413,7 +420,7 @@ class CompositeNode(Node, DataFlow):
     def get_base_nodes(self):
         """ Return all the node ids without connected output """
 
-        return filter( lambda x: self.nb_out_edges( x )==0, self.vertices() )
+        return [ x for x in self.vertices() if self.nb_out_edges(x)==0]
 
     
     def eval_as_expression(self, vtx_id=None):
@@ -451,10 +458,11 @@ class CompositeNode(Node, DataFlow):
 
         # evaluate the node inputs
         for in_eid in self.in_edges( vtx_id ):
-            port_src, port_dst= self._edge_ports[ in_eid ]
-            vid_src= self.source( in_eid )
+            (port_src, port_dst) = self._edge_ports[in_eid]
+            # get parent
+            vid_src = self.source(in_eid)
 
-            if vid_src not in self.evaluated:
+            if(vid_src not in self.evaluated):
                 self.eval_node(vid_src)
                 self.evaluated.add( vid_src )
             
@@ -492,14 +500,14 @@ class CompositeNode(Node, DataFlow):
         if id is None, autogenrate one
         
         @param node : the node instance
-        @param elt_id : element id
+        @param vtx_id : element id
 
         @param return the id
         """
         
-        vid= vtx_id
+        vid = vtx_id
         if ( vtx_id not in self ) or ( not vtx_id ):
-            vid= self.add_vertex( vtx_id )
+            vid = self.add_vertex( vtx_id )
 
         self.node_id[vid] = node
         
@@ -513,13 +521,13 @@ class CompositeNode(Node, DataFlow):
     def remove_node(self, vtx_id):
         """
         remove a node from the graph
-        @param elt_id : element id
+        @param vtx_id : element id
         """
         
         del self.node_id[vtx_id]
-        for id in self.neighbors( vtx_id ):
-            del self._edge_ports[ id ]
-        self.remove_vertex( vtx_id )
+        for id in self.neighbors(vtx_id):
+            del self._edge_ports[id]
+        self.remove_vertex(vtx_id)
 
         self.notify_listeners(("graph_modified",))
         self.graph_modified = True
@@ -534,9 +542,10 @@ class CompositeNode(Node, DataFlow):
         @param port_dst : destination input port number
         """
 
-        if self.has_vertex( src_id ) and self.has_vertex( dst_id ):
-            eid = self.add_edge( ( src_id, dst_id ) )
-            self._edge_ports[eid] = ( port_src, port_dst )
+        if self.has_vertex(src_id) and self.has_vertex(dst_id):
+            
+            eid = self.add_edge((src_id, dst_id))
+            self._edge_ports[eid] = (port_src, port_dst)
             #self.connections[(dst_id, port_dst)] = (src_id, port_src)
 
             node_dst = self.node_id[dst_id]
@@ -554,16 +563,17 @@ class CompositeNode(Node, DataFlow):
         """
 
         try:
-            eid_src = set ( self.out_edges( src_id ) )
-            eid_dst = set ( self.in_edges ( dst_id ) ) 
-            common_eid= eid_src.intersection( eid_dst )
-            assert len( common_eid )
+            eid_src = set (self.out_edges(src_id))
+            eid_dst = set (self.in_edges (dst_id)) 
+            common_eid = eid_src.intersection(eid_dst)
+            assert len(common_eid)
+            
             for id in common_eid:
-                if ( port_src, port_dst == self.source( id ), self.target( id ) ):
-                    eid= id
+                if (port_src, port_dst == self.source(id), self.target(id)):
+                    eid = id
                     break
-            self.remove_edge( eid )
-            del self._edge_ports[ eid ]
+            self.remove_edge(eid)
+            del self._edge_ports[eid]
             # del(self.connections[ (dst_id, port_dst) ])
         except:
             return
@@ -586,16 +596,16 @@ class CompositeNode(Node, DataFlow):
 class CompositeNodeInput(Node):
     """Dummy node to represent the composite node inputs"""
 
-    def __init__(self, graph, size):
+    def __init__(self, graph, inputs):
         """
         Graph is the owner of the object
-        Size is the number of port
+        inputs : list of dict(name='', interface='', value'',...)
         """
 
         Node.__init__(self)
         self.graph = graph
-        for i in range(size):
-            self.add_output("out%i"%(i,), interface = None)
+        for d in inputs:
+            self.add_output(**d)
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 5
@@ -615,16 +625,16 @@ class CompositeNodeInput(Node):
 class CompositeNodeOutput(Node):
     """Dummy node to represent the composite node outputs"""
 
-    def __init__(self, graph, size):
+    def __init__(self, graph, outputs):
         """
         Graph is the owner of the object
-        Size is the number of port
+        outputs : list of dict(name='', interface='', value'',...)
         """
         Node.__init__(self)
         self.graph = graph
         
-        for i in range(size):
-            self.add_input("in%i"%(i,), interface = None, value = None)
+        for d in outputs:
+            self.add_input(**d)
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 250

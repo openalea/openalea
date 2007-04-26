@@ -22,7 +22,7 @@ def test_funcnode():
         assert True
 
 
-    n.add_input( 'a', None , 0)
+    n.add_input(name= 'a',inteface= None , value=0)
     assert n.get_nb_input() == 2
     assert n.get_nb_output() == 1
 
