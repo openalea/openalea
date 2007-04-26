@@ -148,7 +148,6 @@ class Node(Observed):
         """ Unvalidate node and notify listeners """
         self.modified = True
         index = self.map_index_in[index_key]
-        print "index",index
         self.notify_listeners( ("input_modified", index) )
 
 
@@ -205,13 +204,12 @@ class Node(Observed):
         
         index = self.map_index_in[index_key]
 
-        changed = True
         if(self.lazy):
             # Test if the inputs has changed
             try:
-                changed = (self.inputs[index] != val)
+                changed = bool(self.inputs[index] != val)
             except:
-                pass
+                changed = True
 
         if(changed):
             self.inputs[index] = val
