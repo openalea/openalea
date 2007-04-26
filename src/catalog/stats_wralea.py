@@ -50,8 +50,8 @@ def register_packages(pkgmanager):
                   category="Stat",
                   nodemodule="stats",
                   nodeclass="LinearRegression",
-                  inputs= ( dict( name = "X", interface=ISequence, value=[ 0.69314718,  1.79175949,  2.48490667,  3.17805386,  3.87120104] ),
-                            dict( name = "Y", interface=ISequence, value=[ 2.07944154,  2.7080502,   4.41884061,  5.58724866,  6.92264389] ),
+                  inputs= ( dict( name = "X", interface=None, value=None ),
+                            dict( name = "Y", interface=None, value=None ),
                             dict( name = "alpha", interface=IFloat, value=5. ),
                             dict( name = "origin", interface=IBool, value=False ),
                           ),
@@ -72,7 +72,7 @@ def register_packages(pkgmanager):
                             dict( name='pointColor', interface=IStr, value='dodgerblue' ),
                             dict( name='regLineStyle', interface=IStr, value='-' ),
                           ),
-                  outputs=( dict(name='plotObjList', interface=ISequence),
+                  outputs=( dict(name='plotObjList', interface=None),
                           ),
                   )
 
