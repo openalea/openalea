@@ -78,9 +78,6 @@ class PackageManager(object):
                 
         except Exception,e:
             print e
-            pass
-
-        print self.wraleapath
 
 
     def get_default_wraleapath(self):
