@@ -31,6 +31,7 @@ import inspect
 import os, sys
 import string
 import types
+from copy import copy
 
 
 #from signature import get_parameters
@@ -147,6 +148,7 @@ class Node(Observed):
         """ Unvalidate node and notify listeners """
         self.modified = True
         index = self.map_index_in[index_key]
+        print "index",index
         self.notify_listeners( ("input_modified", index) )
 
 
@@ -162,6 +164,8 @@ class Node(Observed):
         # default value
         if(interface and value==None):
             value = interface.default()
+
+        value = copy(value)
             
         name = str(name) #force to have a string
         self.inputs.append( value )

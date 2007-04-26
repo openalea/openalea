@@ -24,15 +24,19 @@ __revision__=" $Id$ "
 
 
 import os, sys
+from ConfigParser import SafeConfigParser
 
 
-class Settings(object):
+class Settings(SafeConfigParser):
     """ Retrieve and set user configuration """
 
     def __init__(self):
-        pass
 
-
+        filename = 'openalea.cfg'
+        home = get_openalea_home_dir()
+        configfile = os.path.join(home,filename)
+        self.read([configfile])
+        
 
 
 ################################################################################
