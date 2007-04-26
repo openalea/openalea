@@ -80,7 +80,7 @@ class Node(Observed):
         self.inputs = []
         self.outputs = []
 
-        # Description (list of tuple (name, interface))
+        # Description (list of dict (name=, interface=, ...))
         self.input_desc = []
         self.output_desc = []        
         
@@ -151,22 +151,37 @@ class Node(Observed):
 
 
     # Declarations
-    def add_input(self, name, interface, value = None):
+    def add_input(self, **kargs):
         """ Create an input port """
+
+        # Get parameters
+        name = str(kargs['name'])
+        interface = kargs.get('interface', None)
+        value = kargs.get('value', None)
+
+        # default value
+        if(interface and value==None):
+            value = interface.default()
+            
         name = str(name) #force to have a string
         self.inputs.append( value )
-        self.input_desc.append( (name, interface) )
+
+        self.input_desc.append(kargs)
+        
         self.input_states.append(None)
         index = len(self.inputs) - 1
         self.map_index_in[name] = index 
         self.map_index_in[index]= index 
 
 
-    def add_output(self, name, interface, value=None):
+    def add_output(self, **kargs):
         """ Create an output port """
-        name = str(name) #force to have a string
+
+        # Get parameters
+        name = str(kargs['name'])
         self.outputs.append( None )
-        self.output_desc.append( (name, interface) )
+        
+        self.output_desc.append(kargs)
         index =  len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index]= index 
@@ -185,7 +200,16 @@ class Node(Observed):
         """ Define the input value for the specified index/key """
         
         index = self.map_index_in[index_key]
-        if(self.inputs[index] != val):
+
+        changed = True
+        if(self.lazy):
+            # Test if the inputs has changed
+            try:
+                changed = (self.inputs[index] != val)
+            except:
+                pass
+
+        if(changed):
             self.inputs[index] = val
             self.unvalidate_input(index)
 
@@ -312,7 +336,7 @@ class AbstractFactory(Observed):
                  category = '',
                  inputs = None,
                  outputs = None,
-                 lazy = True,
+                 lazy = False,
                  **kargs):
         
         """
@@ -323,7 +347,7 @@ class AbstractFactory(Observed):
         @param category : category of the node (String)
         @param inputs : inputs description
         @param outputs : outputs description, value=0
-        @param lazy : enable lazy evaluation (default = True)
+        @param lazy : enable lazy evaluation (default = False)
 
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
