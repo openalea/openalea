@@ -146,8 +146,8 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="List",
 
-                  inputs=(dict(name="List", interface=ISequence, value=[]),),
-                  outputs=(dict(name="List", interface = ISequence),),
+                  inputs=(dict(name="List", interface=ISequence),),
+                  outputs=(dict(name="List", interface=ISequence),),
                   )
     
     package.add_factory( nf )
@@ -159,8 +159,8 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="Dict",
 
-                  inputs=(dict(name="Dict", interface=IDict, value={}),),
-                  outputs=(dict(name="Dict", interface = IDict),),
+                  inputs=(dict(name="Dict", interface=IDict),),
+                  outputs=(dict(name="Dict", interface=IDict),),
                   )
 
     package.add_factory( nf )

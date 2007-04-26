@@ -25,11 +25,13 @@ __revision__=" $Id$ "
 
 
 import os, sys
+
 from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
 from package import Package, UserPackage
 from observer import Observed
 from datapool import DataPool
+from setting import Settings
 
 import shelve
 
@@ -48,10 +50,12 @@ class Session(Observed):
 
         Observed.__init__(self)
 
-
         self.workspaces = []
         self.datapool = DataPool()
         self.clear()
+
+        # User config
+        config = Settings()
 
 
     def get_pmanager(self):
