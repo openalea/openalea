@@ -52,13 +52,15 @@ class Session(Observed):
 
         self.workspaces = []
         self.datapool = DataPool()
-        self.clear()
 
         self.pkgmanager = PackageManager()
 
         # User config
         self.config = Settings()
         self.pkgmanager.apply_user_config(self.config)
+
+        self.clear()
+
 
         
 
