@@ -336,7 +336,7 @@ class AbstractFactory(Observed):
                  category = '',
                  inputs = None,
                  outputs = None,
-                 lazy = False,
+                 lazy = True,
                  **kargs):
         
         """
