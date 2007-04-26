@@ -67,7 +67,10 @@ class LR2Plot( Node ):
         point_color=self.get_input_by_key( 'pointColor' )
         reg_x=rpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
         reg_y = reg_x*reg[ 'pente' ]+reg[ 'intercept' ]
-        reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+"x + "+str( round(reg[ 'intercept' ],3 ))+" $\pm$ "+str( round( reg[ 'ic' ],3 ) )+"    r2 = "+str( round( reg[ 'r2' ],3 ) )
+        reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
+                     "x + "+str( round(reg[ 'intercept' ],3 ))+ \
+                     " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
+                     "    r2 = "+str( round( reg[ 'r2' ],3 ) )
         reg_color='red'
         points = plotObject( x=reg[ 'x' ], y=reg[ 'y' ], legend=point_legend, linestyle=None, marker = point_marker, color=point_color )
         line = plotObject( x=reg_x, y=reg_y, legend=reg_legend, linestyle=reg_linestyle, marker=None, color=reg_color )

@@ -136,7 +136,8 @@ Python List
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        return ( inputs[0], )
+        import copy
+        return (copy.copy(inputs[0]), )
 
 
 class Dict(Node):
@@ -146,7 +147,8 @@ Python Dictionary
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        return ( inputs[0], )
+        import copy
+        return (copy.copy(inputs[0]), )
 
 
 class Pair(Node):
