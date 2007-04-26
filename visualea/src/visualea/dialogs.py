@@ -89,13 +89,13 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
                 category, description)
 
 
-    def get_port_lists(self, nbin, nout):
+    def get_port_lists(self, nbin, nbout):
         """ Return 2 list of inputs and outpus descriptor """
         inputs = []
         outputs = []
-        for i in range(nin):
+        for i in range(nbin):
             inputs.append(dict(name="IN%i"%(i), interface=None, value=None))
-        for i in range(nout):
+        for i in range(nbout):
             outputs.append(dict(name="OUT%i"%(i), interface=None))
 
         return (inputs, outputs)
