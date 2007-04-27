@@ -465,6 +465,8 @@ class NodeFactoryView(object):
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open URL")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+            action = menu.addAction("Infos")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
             action = menu.addAction("Reload")
             self.connect(action, QtCore.SIGNAL("activated()"), self.reload_package)
 
@@ -477,6 +479,10 @@ class NodeFactoryView(object):
     def reload_package(self):
         """ Reload a package """
         raise NotImplementedError()
+
+    def edit_package(self):
+        """ Edit package Metadata """
+        
 
     def open_dialog(self, widget, title):
         """ Open a widget in a dialog box """
