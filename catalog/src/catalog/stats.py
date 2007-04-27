@@ -72,8 +72,8 @@ class LR2Plot( Node ):
                      " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
                      "    r2 = "+str( round( reg[ 'r2' ],3 ) )
         reg_color='red'
-        points = plotObject( x=reg[ 'x' ], y=reg[ 'y' ], legend=point_legend, linestyle=None, marker = point_marker, color=point_color )
-        line = plotObject( x=reg_x, y=reg_y, legend=reg_legend, linestyle=reg_linestyle, marker=None, color=reg_color )
+        points = plotObject( x=reg[ 'x' ], y=reg[ 'y' ], legend=point_legend, linestyle='None', marker = point_marker, color=point_color )
+        line = plotObject( x=reg_x, y=reg_y, legend=reg_legend, linestyle=reg_linestyle, marker='None', color=reg_color )
         resseq = []
         resseq.append(points)
         resseq.append(line)

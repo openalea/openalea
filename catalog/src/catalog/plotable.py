@@ -29,10 +29,10 @@ class plotObject:
     def __init__( self, x, y, legend, linestyle, marker, color, ):
         self.x = x
         self.y = y
-        self.legend = legend
-        self.linestyle = linestyle
-        self.marker = marker
-        self.color = color
+        self.legend = str(legend)
+        self.linestyle = str(linestyle)
+        self.marker = str(marker)
+        self.color = str(color)
 
     def __call__(self, inputs = ()):
         pass
