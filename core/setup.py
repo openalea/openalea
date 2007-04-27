@@ -43,9 +43,10 @@ setup(
     license=license,
     
 
-    packages= [ 'openalea.core', 'openalea.graph' ],
+    packages= [ 'openalea.core', 'openalea.graph', 'openalea.graph.interface' ],
     package_dir= { 'openalea.core' : pj('src',name),
-                   'openalea.graph' : pj('src','graph') 
+                   'openalea.graph' : pj('src','graph'),
+                   'openalea.graph.interface' : pj('src','graph','interface') 
                   },
 
     )
