@@ -335,15 +335,22 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """
 
         s = self.get_selected_item()
-
+        
         # Get a composite node factory
         from dialogs import FactorySelector
 
         dialog = FactorySelector(self.node.factory, self)
+        if(s) : dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
+        
         ret = dialog.exec_()
         if(ret == 0): return None
-        
+
         factory = dialog.get_factory()
+
+        if(dialog.selectionBox.checkState() == QtCore.Qt.Unchecked):
+            s = None
+        
+        
         self.node.to_factory(factory, s)
         self.remove_selection()
 

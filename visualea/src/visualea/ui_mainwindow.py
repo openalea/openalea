@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Apr 24 16:14:17 2007
+# Created: Fri Apr 27 16:45:10 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -120,6 +120,9 @@ class Ui_MainWindow(object):
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
 
+        self.menu_Python = QtGui.QMenu(self.menubar)
+        self.menu_Python.setObjectName("menu_Python")
+
         self.menu_Package = QtGui.QMenu(self.menubar)
         self.menu_Package.setObjectName("menu_Package")
 
@@ -129,17 +132,11 @@ class Ui_MainWindow(object):
         self.menuCreate = QtGui.QMenu(self.menu_Package)
         self.menuCreate.setObjectName("menuCreate")
 
-        self.menu_Python = QtGui.QMenu(self.menubar)
-        self.menu_Python.setObjectName("menu_Python")
-
         self.menuDataPool = QtGui.QMenu(self.menubar)
         self.menuDataPool.setObjectName("menuDataPool")
 
         self.menu_Workspace = QtGui.QMenu(self.menubar)
         self.menu_Workspace.setObjectName("menu_Workspace")
-
-        self.menuSelection = QtGui.QMenu(self.menu_Workspace)
-        self.menuSelection.setObjectName("menuSelection")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -157,9 +154,6 @@ class Ui_MainWindow(object):
 
         self.action_New_Package = QtGui.QAction(MainWindow)
         self.action_New_Package.setObjectName("action_New_Package")
-
-        self.action_Remove_Package = QtGui.QAction(MainWindow)
-        self.action_Remove_Package.setObjectName("action_Remove_Package")
 
         self.actionSystem_Search = QtGui.QAction(MainWindow)
         self.actionSystem_Search.setObjectName("actionSystem_Search")
@@ -229,9 +223,6 @@ class Ui_MainWindow(object):
 
         self.action_Delete_2 = QtGui.QAction(MainWindow)
         self.action_Delete_2.setObjectName("action_Delete_2")
-
-        self.actionCreate_New_Graph = QtGui.QAction(MainWindow)
-        self.actionCreate_New_Graph.setObjectName("actionCreate_New_Graph")
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
@@ -242,6 +233,7 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionSave_as)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
+        self.menu_Python.addAction(self.action_Execute_script)
         self.menu_Wralea_2.addAction(self.action_Add_File)
         self.menu_Wralea_2.addAction(self.action_Auto_Search)
         self.menuCreate.addAction(self.actionNew_Package)
@@ -251,15 +243,12 @@ class Ui_MainWindow(object):
         self.menu_Package.addAction(self.actionFind_Node)
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.menuCreate.menuAction())
-        self.menu_Python.addAction(self.action_Execute_script)
         self.menuDataPool.addAction(self.actionClear_Data_Pool)
-        self.menuSelection.addAction(self.actionCreate_New_Graph)
-        self.menuSelection.addAction(self.action_Delete_2)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.menuSelection.menuAction())
         self.menu_Workspace.addAction(self.action_Export_to_Factory)
         self.menu_Workspace.addAction(self.action_Close_current_workspace)
+        self.menu_Workspace.addAction(self.action_Delete_2)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionExport_to_Application)
         self.menubar.addAction(self.menu_File.menuAction())
@@ -284,13 +273,12 @@ class Ui_MainWindow(object):
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuSelection.setTitle(QtGui.QApplication.translate("MainWindow", "Selection", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
@@ -298,7 +286,6 @@ class Ui_MainWindow(object):
         self.action_Quit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Package.setText(QtGui.QApplication.translate("MainWindow", "&Create Package", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Package.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Remove_Package.setText(QtGui.QApplication.translate("MainWindow", "&Remove Package", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSystem_Search.setText(QtGui.QApplication.translate("MainWindow", "System &Search", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Add File", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "Auto &Search", None, QtGui.QApplication.UnicodeUTF8))
@@ -330,6 +317,5 @@ class Ui_MainWindow(object):
         self.actionShow_Pool.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
         self.action_OpenNode.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Delete_2.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCreate_New_Graph.setText(QtGui.QApplication.translate("MainWindow", "Create New Graph", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

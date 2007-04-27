@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Tue Apr 24 16:14:18 2007
+# Created: Fri Apr 27 16:45:10 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,7 +43,6 @@ class Ui_FactorySelector(object):
         self.hboxlayout1.setObjectName("hboxlayout1")
 
         self.selectionBox = QtGui.QCheckBox(FactorySelector)
-        self.selectionBox.setEnabled(False)
         self.selectionBox.setObjectName("selectionBox")
         self.hboxlayout1.addWidget(self.selectionBox)
 
