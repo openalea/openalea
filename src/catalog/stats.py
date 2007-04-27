@@ -65,7 +65,7 @@ class LR2Plot( Node ):
         reg_linestyle=self.get_input_by_key( 'regLineStyle' )
         point_marker=self.get_input_by_key( 'pointMarker' )
         point_color=self.get_input_by_key( 'pointColor' )
-        reg_x=rpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
+        reg_x=pylab.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
         reg_y = reg_x*reg[ 'pente' ]+reg[ 'intercept' ]
         reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
                      "x + "+str( round(reg[ 'intercept' ],3 ))+ \

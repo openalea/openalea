@@ -35,21 +35,27 @@ class plot2D( Node ):
 
         Node.__init__( self, inputs, outputs )
 
+
     def __call__( self, inputs ):
         objList = self.get_input( 'plotObjList' )
         title=self.get_input( 'title' )
         xlabel=self.get_input( 'xlabel' )
         ylabel=self.get_input( 'ylabel' )
+        
+        
         if objList == None :
           pass
         else :
             legend =[]
             for obj in objList :
+        
                 pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color )
                 legend.append(r''+obj.legend )
+
+            pylab.show()
+
             pylab.legend( tuple( legend ), loc='best', shadow=True )
             pylab.title( title )
             pylab.xlabel( xlabel )
             pylab.ylabel( ylabel )
-            pylab.show()
 
