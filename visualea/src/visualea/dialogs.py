@@ -212,6 +212,21 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         return (name, metainfo, path)
 
 
+    def set_data(self, name, path, metainfo):
+        """ Set the dialog data """
+
+        self.nameEdit.setText(name)
+        self.pathEdit.setText(path)
+        
+        self.descriptionEdit.setText(metainfo.get('description', ''))
+        # self.versionEdit.setText(metainfo.get['version'])
+#         self.licenseEdit.setText(metainfo.get['license'])
+#         self.authorsEdit.setText(metainfo.get['authors'])
+#         self.institutesEdit.setText(metainfo.get['institutes'])
+#         self.urlEdit.setText(metainfo.get['url'])
+               
+
+
 
 
 import ui_tofactory

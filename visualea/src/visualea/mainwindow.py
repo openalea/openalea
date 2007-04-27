@@ -134,7 +134,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
 
-        self.connect(self.actionCreate_New_Graph, SIGNAL("activated()"), self.selection_to_graph)
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
 
         
@@ -216,8 +215,8 @@ class MainWindow(QtGui.QMainWindow,
 
         # Try to save factory if widget is a graph
         try:
-            graph = self.index_nodewidget[cindex].node
-            modified = graph.graph_modified
+            w = self.index_nodewidget[cindex]
+            modified = w.node.graph_modified
             if(modified):
                 # Generate factory if user want
                 ret = QtGui.QMessageBox.question(self, "Close Workspace",
@@ -227,7 +226,7 @@ class MainWindow(QtGui.QMainWindow,
                                                  QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
                 if(ret == QtGui.QMessageBox.Yes):
-                    self.export_to_factory(graph)
+                    self.export_to_factory(w)
 
         except Exception, e:
             pass
@@ -332,28 +331,25 @@ class MainWindow(QtGui.QMainWindow,
         self.index_nodewidget[cindex].node.eval()
         
 
-    def export_to_factory(self, graph=None):
+    def export_to_factory(self, widget=None):
         """ Export current workspace composite node to its factory """
 
-        if(not graph):
+        if(not widget):
             cindex = self.tabWorkspace.currentIndex()
-            graph = self.index_nodewidget[cindex].node
-
-        dialog = FactorySelector(graph.factory, self)
-        ret = dialog.exec_()
-
-        if(ret == 0): return
+            widget = self.index_nodewidget[cindex]
         
-        f = dialog.get_factory()
-            
-        graph.to_factory(f)
         try:
-            graph.factory.package.write()
-        except:
+            f = widget.export_selection()
+            if(not f) : return
+            if(f is not widget.node.factory):
+                self.open_compositenode(f)
+            f.package.write()
+
+        except AttributeError:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-
+            
 
 
     def export_to_application(self):
@@ -388,11 +384,11 @@ class MainWindow(QtGui.QMainWindow,
         action = menu.addAction("Close")
         self.connect(action, SIGNAL("activated()"), self.close_workspace)
 
-        action = menu.addAction("Run")
-        self.connect(action, SIGNAL("activated()"), self.run)
+#         action = menu.addAction("Run")
+#         self.connect(action, SIGNAL("activated()"), self.run)
 
-        action = menu.addAction("Export to Model")
-        self.connect(action, SIGNAL("activated()"), self.export_to_factory)
+#         action = menu.addAction("Export to Model")
+#         self.connect(action, SIGNAL("activated()"), self.export_to_factory)
 
         menu.move(event.globalPos())
         menu.show()
@@ -522,19 +518,6 @@ class MainWindow(QtGui.QMainWindow,
         self.search_lineEdit.setFocus()
 
 
-    def selection_to_graph(self):
-        """ Delete selection in current workspace """
-        cindex = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[cindex]
-
-        try:
-            f = widget.export_selection()
-            if(f): self.open_compositenode(f)
-            
-        except AttributeError:
-            pass
-
-        
 
     def delete_selection(self):
         """ Delete selection in current workspace """
