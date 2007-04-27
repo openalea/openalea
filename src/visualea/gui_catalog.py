@@ -280,7 +280,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
         self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
 
-        self.updating = False
+        self.updating = False # itemchanged protection
         self.update_list()
 
 
@@ -288,6 +288,9 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         """ Enable or disable widget depending of its state """
         
         i = self.node.get_input_index(self.param_str)
+        # do not call itemchanged
+        self.updating = True
+
         state = self.node.get_input_state(i)
         
         self.connected = (state == "connected")
@@ -302,6 +305,8 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             else:
                 item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
                               QtCore.Qt.ItemIsSelectable)
+        self.updating = False
+
 
     def notify(self, sender, event):
         """ Notification sent by node """
@@ -312,6 +317,8 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     def update_list(self):
         """ Rebuild the list """
         seq = self.node.get_input(self.param_str)
+        
+        # do not call itemchanged
         self.updating = True
 
         self.subwidget.clear()
@@ -387,7 +394,6 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             item.setText(text)
             seq[i] = str(text)
 
-        print self.param_str, self.node
         self.node.unvalidate_input(self.param_str)
         
         
