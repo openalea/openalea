@@ -266,12 +266,23 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         self.connect(self.newFactoryButton, QtCore.SIGNAL("clicked()"), self.new_factory)
 
 
+    def accept(self):
+
+        # Test if name is correct
+        text = self.comboBox.currentText()
+        if(not text):
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                            "Please choose a valid model.")
+            return
+
+        QtGui.QDialog.accept(self)
+
 
     def new_factory(self):
 
         pkgs = self.pkgmanager.get_user_packages()
         
-        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys(), self)
+        dialog = NewGraph("New Graph Model", pkgs, self.pkgmanager.category.keys(), self)
         ret = dialog.exec_()
 
         if(ret>0):
