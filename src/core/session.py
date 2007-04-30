@@ -49,68 +49,68 @@ class Session(Observed):
     def __init__(self):
 
         Observed.__init__(self)
-
+        
         self.workspaces = []
         self.datapool = DataPool()
 
         self.pkgmanager = PackageManager()
 
+        self.empty_cnode_factory = CompositeNodeFactory("Workspace", (), ())
+
+                
         # User config
         self.config = Settings()
         self.pkgmanager.apply_user_config(self.config)
 
         self.clear()
 
-
-        
-
        
-    def add_workspace(self, compositenode, notify=True):
-        """ Open a new workspace in the session"""
-
-        if(compositenode not in self.workspaces):
+    def add_workspace(self, compositenode=None, notify=True):
+        """
+        Open a new workspace in the session
+        if compositenode = None, create a new empty compositenode
+        """
+        
+        if(not compositenode):
+            compositenode = self.empty_cnode_factory.instantiate()
+            compositenode.set_caption("Workspace %i"%(self.ws_cpt))
+            self.ws_cpt += 1
             self.workspaces.append(compositenode)
-            if(notify): self.notify_listeners()
+
+        elif(compositenode not in self.workspaces):
+            self.workspaces.append(compositenode)
+
+        if(notify): self.notify_listeners()
+            
         return compositenode
     
 
     def close_workspace(self, index, notify=True):
         """ Close workspace at index """
-        try:
-            del(self.workspaces[index])
-            if(notify) : self.notify_listeners()
-        except:
-            pass
 
+        del(self.workspaces[index])
+        if(notify) : self.notify_listeners()
+        
 
     def clear(self, create_workspace = True):
         """ Reinit Session """
 
         self.session_filename = None
-
         self.workspaces = []
-        
         self.datapool.clear()
-
+        self.ws_cpt = 0  # empty workspace counter
+        
         # init pkgmanager
-        pkgmanager = PackageManager()
-        pkgmanager.clear()
-        pkgmanager.find_and_register_packages()
-        
+        self.pkgmanager.clear()
+        self.pkgmanager.find_and_register_packages()
+
         # Create user package if needed
-        if(not pkgmanager.has_key(self.USR_PKG_NAME)):
-            pkgmanager.create_user_package(self.USR_PKG_NAME, {})
+        if(not self.pkgmanager.has_key(self.USR_PKG_NAME)):
+            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
 
-        self.user_pkg = pkgmanager[self.USR_PKG_NAME]
-
-        if(create_workspace and not self.user_pkg.has_key('Workspace')):
-            rootfactory = CompositeNodeFactory(name="Workspace",
-                                               description= "",
-                                               category = "",
-                                               )
-        
-            self.user_pkg.add_factory(rootfactory)
-
+        if(create_workspace):
+            self.add_workspace()
+            
         self.notify_listeners()
 
         
