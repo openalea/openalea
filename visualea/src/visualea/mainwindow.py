@@ -135,14 +135,12 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
 
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
+        self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
 
         
-
-
         # final init
         self.session = session
-        wfactory = self.session.user_pkg['Workspace']
-        self.open_compositenode(wfactory)
+        session.notify_listeners()
         
         
 
@@ -232,13 +230,10 @@ class MainWindow(QtGui.QMainWindow,
             pass
 
         # Update session
-        try:
-            node = self.index_nodewidget[cindex].node
-            self.session.close_workspace(node, False)
-            self.close_tab_workspace(cindex)
-        except Exception, e:
-            pass
-
+        node = self.index_nodewidget[cindex].node
+        self.session.close_workspace(cindex, False)
+        self.close_tab_workspace(cindex)
+            
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
@@ -302,8 +297,7 @@ class MainWindow(QtGui.QMainWindow,
         vboxlayout = QtGui.QVBoxLayout(container)
         vboxlayout.addWidget(widget)
 
-        if(not caption) : caption = factory.get_id()
-        
+        if(not caption) : caption = node.internal_data['caption']
         index = self.tabWorkspace.insertTab(pos, container, caption)
         self.tabWorkspace.setCurrentIndex(index)
         self.index_nodewidget.append(widget)
@@ -394,12 +388,17 @@ class MainWindow(QtGui.QMainWindow,
         menu.show()
 
 
+    def new_workspace(self):
+        """ Create an empty workspace """
+        self.session.add_workspace()
+
+
     def new_graph(self):
         """ Create a new graph """
 
         pkgs = self.pkgmanager.get_user_packages()
         
-        dialog = NewGraph("New Dataflow", pkgs, self.pkgmanager.category.keys(), self)
+        dialog = NewGraph("New Graph Model", pkgs, self.pkgmanager.category.keys(), self)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -460,9 +459,7 @@ class MainWindow(QtGui.QMainWindow,
 
 
     def new_session(self):
-
         self.session.clear()
-        self.session.add_workspace(self.session.user_pkg['Workspace'].instantiate())
 
         
     def open_session(self):
