@@ -452,7 +452,7 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         menu = None
         
-        if(isinstance(obj, NodeFactory)):
+        if(isinstance(obj, AbstractFactory)):
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
@@ -518,7 +518,7 @@ class NodeFactoryView(object):
         item = self.currentIndex()
         obj =  item.internalPointer()
         
-        if(isinstance(obj, NodeFactory)):
+        if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget()
             self.open_dialog(widget, obj.get_id())
         

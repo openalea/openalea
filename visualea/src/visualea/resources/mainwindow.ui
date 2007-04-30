@@ -193,6 +193,29 @@
     </property>
     <addaction name="action_Execute_script" />
    </widget>
+   <widget class="QMenu" name="menuDataPool" >
+    <property name="title" >
+     <string>&amp;DataPool</string>
+    </property>
+    <addaction name="actionClear_Data_Pool" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="windowIcon" >
+     <iconset/>
+    </property>
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Run" />
+    <addaction name="separator" />
+    <addaction name="action_New_Empty_Workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Export_to_Factory" />
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="action_Delete_2" />
+    <addaction name="separator" />
+    <addaction name="actionExport_to_Application" />
+   </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
      <string>&amp;Package Manager</string>
@@ -216,27 +239,6 @@
     <addaction name="actionFind_Node" />
     <addaction name="separator" />
     <addaction name="menuCreate" />
-   </widget>
-   <widget class="QMenu" name="menuDataPool" >
-    <property name="title" >
-     <string>&amp;DataPool</string>
-    </property>
-    <addaction name="actionClear_Data_Pool" />
-   </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="windowIcon" >
-     <iconset/>
-    </property>
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="action_Export_to_Factory" />
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="action_Delete_2" />
-    <addaction name="separator" />
-    <addaction name="actionExport_to_Application" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -292,7 +294,7 @@
   </action>
   <action name="action_Close_current_workspace" >
    <property name="text" >
-    <string>&amp;Close workspace</string>
+    <string>&amp;Close Workspace</string>
    </property>
   </action>
   <action name="action_Run" >
@@ -305,7 +307,7 @@
   </action>
   <action name="action_New_Network" >
    <property name="text" >
-    <string>&amp;Graph</string>
+    <string>&amp;Graph Model</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+G</string>
@@ -411,7 +413,12 @@
   </action>
   <action name="action_Delete_2" >
    <property name="text" >
-    <string>&amp;Delete</string>
+    <string>&amp;Delete Selection</string>
+   </property>
+  </action>
+  <action name="action_New_Empty_Workspace" >
+   <property name="text" >
+    <string>&amp;New Empty Workspace</string>
    </property>
   </action>
  </widget>
