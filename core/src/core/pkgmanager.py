@@ -106,7 +106,6 @@ class PackageManager(object):
         self.pkgs = {}
         self.recover_syspath()
         self.category = {}
-
         #self.wraleapath = self.get_default_wraleapath()
         
 
