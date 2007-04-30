@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Fri Apr 27 16:45:10 2007
+# Created: Mon Apr 30 15:27:21 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,8 +66,8 @@ class Ui_FactorySelector(object):
 
     def retranslateUi(self, FactorySelector):
         FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Save as Model", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Graph :", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Graph Model :", None, QtGui.QApplication.UnicodeUTF8))
         self.selectionBox.setText(QtGui.QApplication.translate("FactorySelector", "Export selection", None, QtGui.QApplication.UnicodeUTF8))
-        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Graph", None, QtGui.QApplication.UnicodeUTF8))
+        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Graph Model", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

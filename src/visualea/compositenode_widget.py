@@ -67,10 +67,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
 class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     """ Graph widget allowing to edit the network """
     
-    def __init__(self, node=None, parent=None):
+    def __init__(self, node, parent=None):
 
-        if(node == None): node = factory.instantiate()
-        
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
