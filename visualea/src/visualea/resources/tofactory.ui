@@ -62,7 +62,7 @@
      <item>
       <widget class="QCheckBox" name="selectionBox" >
        <property name="text" >
-        <string>Export selection</string>
+        <string>Replace selection</string>
        </property>
       </widget>
      </item>

@@ -95,6 +95,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.rebuild_scene()
 
 
+    def set_node(self, node):
+        """ Define the associated node (overloaded) """
+        NodeWidget.set_node(self, node)
+        self.rebuild_scene()
+
+    node = property(NodeWidget.get_node, set_node)
+
+
     def clear_scene(self):
         """ Remove all items from the scene """
         
@@ -303,13 +311,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ Return the list id of the selected item """
 
         # get the selected id
-        s = []
-        for id in self.graph_item.keys():
-            item = self.graph_item[id]
-            if(item.isSelected()):
-                s.append(id)
-
-        return s
+        return [ id for id, item in self.graph_item.items() if item.isSelected()]
 
 
     def remove_selection(self):
@@ -326,19 +328,24 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.scene().removeItem(i)
 
 
-    def export_selection(self):
+    def export_to_factory(self, allow_selection=True):
         """
         Export selected node in a new composite node
         Return the created factory or None if canceled
         """
 
-        s = self.get_selected_item()
-        
         # Get a composite node factory
         from dialogs import FactorySelector
-
         dialog = FactorySelector(self.node.factory, self)
-        if(s) : dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
+
+        # Selection enabled
+        if(allow_selection):
+            s = self.get_selected_item()
+            if(s) : dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
+        else:
+            s = None
+            dialog.selectionBox.setEnabled(False)
+        
         
         ret = dialog.exec_()
         if(ret == 0): return None
@@ -346,14 +353,26 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         factory = dialog.get_factory()
 
         if(dialog.selectionBox.checkState() == QtCore.Qt.Unchecked):
-            s = None
-        
-        
-        self.node.to_factory(factory, s)
-        self.remove_selection()
+            self.node.to_factory(factory, None)
+            
+        else: # Replace selection by a new node
+            self.node.to_factory(factory, s)
+            pos = self.get_center_pos(s)
+            self.remove_selection()
+            self.add_new_node(factory, pos)
 
         return factory
 
+
+    def get_center_pos(self, items):
+        """ Return the center of items (items is the list of id) """
+
+        l = len(items)
+        sx = sum((self.graph_item[i].pos().x() for i in items))
+        sy = sum((self.graph_item[i].pos().y() for i in items))
+        return QtCore.QPointF( float(sx)/l, float(sy)/l )
+        
+        
 
     def remove_graphical_node(self, elt_id):
         """ Remove the graphical node item identified by elt_id """
@@ -418,16 +437,9 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
     @lock_notify
-    def add_new_node(self, package_id, factory_id, position):
+    def add_new_node(self, factory, position):
         """ convenience function """
-
-        # Add new node
-        pkgmanager = PackageManager()
-        pkg = pkgmanager[str(package_id)]
-        factory = pkg.get_factory(str(factory_id))
         
-        position = self.mapToScene(position)
-            
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
             newnode.set_data('posx', position.x())
@@ -466,7 +478,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             
             dataStream >> package_id >> factory_id
 
-            self.add_new_node(package_id, factory_id, event.pos())
+            # Add new node
+            pkgmanager = PackageManager()
+            pkg = pkgmanager[str(package_id)]
+            factory = pkg.get_factory(str(factory_id))
+
+            position = self.mapToScene(event.pos())
+                    
+            self.add_new_node(factory, position)
 
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()

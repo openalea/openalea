@@ -136,7 +136,7 @@ class MainWindow(QtGui.QMainWindow,
 
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
         self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
-
+        self.connect(self.actionReload_from_Model, SIGNAL("activated()"), self.reload_from_factory)
         
         # final init
         self.session = session
@@ -224,7 +224,7 @@ class MainWindow(QtGui.QMainWindow,
                                                  QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
                 if(ret == QtGui.QMessageBox.Yes):
-                    self.export_to_factory(w)
+                    self.export_to_factory(cindex, False)
 
         except Exception, e:
             pass
@@ -323,23 +323,47 @@ class MainWindow(QtGui.QMainWindow,
 
         cindex = self.tabWorkspace.currentIndex()
         self.index_nodewidget[cindex].node.eval()
+
+
+    def reload_from_factory(self, index=-1):
+        """ Reload a tab node givin its index"""
+
+        if(index<0): index = self.tabWorkspace.currentIndex()
+
+        widget = self.index_nodewidget[index]
+
+        newnode = widget.node.factory.instantiate()
+
+        widget.node = newnode
+        self.session.workspaces[index] = newnode
         
 
-    def export_to_factory(self, widget=None):
-        """ Export current workspace composite node to its factory """
+    def export_to_factory(self, index=-1, selection=True):
+        """
+        Export workspace index  to its factory
+        Selection (bool) : allow to export selection
+        """
 
-        if(not widget):
-            cindex = self.tabWorkspace.currentIndex()
-            widget = self.index_nodewidget[cindex]
+        if(index < 0): index = self.tabWorkspace.currentIndex()
+
+        widget = self.index_nodewidget[index]
         
         try:
-            f = widget.export_selection()
+            f = widget.export_to_factory(selection)
             if(not f) : return
-            if(f is not widget.node.factory):
-                self.open_compositenode(f)
+            
+#             if(f is not widget.node.factory):
+#                 self.open_compositenode(f)
+                
             f.package.write()
 
-        except AttributeError:
+            # reload tab if necessary
+            for (i,w) in enumerate(self.index_nodewidget):
+                if(w.node.factory == f): self.reload_from_factory(i)
+
+        except AttributeError, e:
+            print e
+            
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
