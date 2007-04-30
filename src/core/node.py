@@ -699,6 +699,7 @@ class NodeWidget(AbstractListener):
         and must be overloaded
         """
         pass
+    
 
     def is_empty( self ):
         return False
