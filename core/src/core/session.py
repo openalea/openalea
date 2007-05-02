@@ -31,7 +31,6 @@ from pkgmanager import PackageManager
 from package import Package, UserPackage
 from observer import Observed
 from datapool import DataPool
-from setting import Settings
 
 import shelve
 
@@ -57,10 +56,6 @@ class Session(Observed):
 
         self.empty_cnode_factory = CompositeNodeFactory("Workspace", (), ())
 
-                
-        # User config
-        self.config = Settings()
-        self.pkgmanager.apply_user_config(self.config)
 
         self.clear()
 
@@ -73,8 +68,7 @@ class Session(Observed):
         
         if(not compositenode):
             compositenode = self.empty_cnode_factory.instantiate()
-            compositenode.set_caption("Workspace %i"%(self.ws_cpt))
-            self.ws_cpt += 1
+            compositenode.set_caption("")
             self.workspaces.append(compositenode)
 
         elif(compositenode not in self.workspaces):
@@ -98,7 +92,6 @@ class Session(Observed):
         self.session_filename = None
         self.workspaces = []
         self.datapool.clear()
-        self.ws_cpt = 0  # empty workspace counter
         
         # init pkgmanager
         self.pkgmanager.clear()

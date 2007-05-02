@@ -42,7 +42,7 @@ class Settings(SafeConfigParser):
         self.read([self.configfile])
 
 
-    def write_on_disk(self):
+    def write_to_disk(self):
         f = open(self.configfile, 'w')
         self.write(f)
         f.close()

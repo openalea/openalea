@@ -136,6 +136,10 @@ class Node(Observed):
         self.internal_data['caption'] = newcaption
         self.notify_listeners( ("caption_modified",) )
 
+    def get_caption(self):
+        """ Return the node caption """
+        return self.internal_data.get('caption', "")
+       
 
     def set_data(self, key, value):
         """ Set internal node data """

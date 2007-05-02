@@ -29,7 +29,8 @@ import sys
 import os
 from singleton import Singleton
 from package import UserPackage, PyPackageReader
-from setting import get_userpkg_dir
+from setting import get_userpkg_dir, Settings
+
 
 # Exceptions 
 
@@ -50,8 +51,9 @@ class PackageManager(object):
         
 
         # list of path to search wralea file
-        self.wraleapath = self.get_default_wraleapath()
-        
+        self.wraleapath = set()
+        self.set_default_wraleapath()
+
         # save system path
         self.old_syspath = sys.path[:]
         #self.update_syspath()
@@ -62,32 +64,46 @@ class PackageManager(object):
         # dictionnay of category
         self.category = {}
 
+        self.read_config()
 
-    def apply_user_config(self, configparser):
-        """ Apply user config """
 
+    def read_config(self):
+        """ Read user config """
+
+        config = Settings()
+        
         try:
-            str = configparser.get("pkgmanager", "path")
+            str = config.get("pkgmanager", "path")
             str.strip(']')
             str.strip('[')
-
             l = str.split(',')
         
             for p in l:
                 self.add_wraleapath(os.path.abspath(p))
                 
-        except Exception,e:
-            print e
+        except:
+            pass
 
 
-    def get_default_wraleapath(self):
+    def write_config(self):
+        """ Write user config """
+        
+        config = Settings()
+        if(not config.has_section("pkgmanager")):
+            config.add_section("pkgmanager")
+        config.set("pkgmanager", "path", repr(list(self.wraleapath)))
+        
+        config.write_to_disk()
+
+
+    def set_default_wraleapath(self):
         """ Return a list wralea path """
         
         l = list(openalea.__path__)
-        l.append(get_userpkg_dir())
-        return l
-    
-
+        for p in l :
+            self.add_wraleapath(p)
+        self.add_wraleapath(get_userpkg_dir())
+        
 
     def init(self, filename=None):
         """ Initialize package
@@ -106,7 +122,6 @@ class PackageManager(object):
         self.pkgs = {}
         self.recover_syspath()
         self.category = {}
-        #self.wraleapath = self.get_default_wraleapath()
         
 
     # Path Functions
@@ -126,10 +141,10 @@ class PackageManager(object):
             # the new path is more generic, we keep it
             if(common == path):
                 self.wraleapath.remove(p)
-                self.wraleapath.append(path)
+                self.wraleapath.add(path)
                 return
         # the path is absent
-        self.wraleapath.append(path)
+        self.wraleapath.add(path)
         
         
 
@@ -155,8 +170,8 @@ class PackageManager(object):
             if not nf.category: 
                 nf.category = "Unclassified"
 
-            self.category.setdefault( nf.category, 
-                                      Category( nf.category ) ).add( nf )
+            self.category.setdefault(nf.category, 
+                                     Category(nf.category)).add(nf)
 
 
     def rebuild_category(self):
@@ -262,6 +277,7 @@ class PackageManager(object):
 
         # Register package
         self.add_wralea(p.get_wralea_path())
+        self.write_config()
         return p
 
 
