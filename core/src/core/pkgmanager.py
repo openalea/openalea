@@ -29,7 +29,7 @@ import sys
 import os
 from singleton import Singleton
 from package import UserPackage, PyPackageReader
-from setting import get_userpkg_dir, Settings
+from settings import get_userpkg_dir, Settings
 
 
 # Exceptions 
@@ -51,7 +51,6 @@ class PackageManager(object):
         
 
         # list of path to search wralea file
-        self.wraleapath = set()
         self.set_default_wraleapath()
 
         # save system path
@@ -74,31 +73,27 @@ class PackageManager(object):
         
         try:
             str = config.get("pkgmanager", "path")
-            str.strip(']')
-            str.strip('[')
-            l = str.split(',')
-        
+            l = eval(str)
+            
             for p in l:
                 self.add_wraleapath(os.path.abspath(p))
                 
-        except:
-            pass
+        except Exception, e:
+            print e
 
 
     def write_config(self):
         """ Write user config """
         
         config = Settings()
-        if(not config.has_section("pkgmanager")):
-            config.add_section("pkgmanager")
         config.set("pkgmanager", "path", repr(list(self.wraleapath)))
-        
         config.write_to_disk()
 
 
     def set_default_wraleapath(self):
         """ Return a list wralea path """
-        
+
+        self.wraleapath = set()
         l = list(openalea.__path__)
         for p in l :
             self.add_wraleapath(p)
@@ -217,7 +212,6 @@ class PackageManager(object):
 
         wralea_files= set()
         for wp in self.wraleapath:
-
             if(not os.path.isdir(wp)):
                 continue
             

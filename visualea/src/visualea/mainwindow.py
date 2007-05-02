@@ -39,7 +39,7 @@ import metainfo
 
 from openalea.core.observer import AbstractListener
 
-from dialogs import NewGraph, NewPackage, FactorySelector
+from dialogs import NewGraph, NewPackage, FactorySelector, PreferencesDialog
 
 
 
@@ -104,40 +104,54 @@ class MainWindow(QtGui.QMainWindow,
         self.vboxlayout3.addWidget(self.datapoolListView)
 
 
-        # menu callbacks
+        # Widgets
+        self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
+                     self.contextMenuEvent)
+        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
+
+
+        # Help Menu
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
         self.connect(self.actionOpenAlea_Web, SIGNAL("activated()"), self.web)
         self.connect(self.action_Help, SIGNAL("activated()"), self.help)
-        self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
-        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
-                     self.close_workspace)
-        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.find_wralea)
-        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_wralea)
-        self.connect(self.action_Run, SIGNAL("activated()"), self.run)
-        self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
-                     self.contextMenuEvent)
-        self.connect(self.action_Execute_script, SIGNAL("activated()"),
-                     self.exec_python_script)
-        self.connect(self.actionFind_Node, SIGNAL("activated()"),
-                     self.find_node)
+        self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
 
+
+        # File Menu
         self.connect(self.action_New_Session, SIGNAL("activated()"), self.new_session)
         self.connect(self.action_Open_Session, SIGNAL("activated()"), self.open_session)
         self.connect(self.action_Save_Session, SIGNAL("activated()"), self.save_session)
         self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
+        self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
 
-        self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
-        self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
-                     self.export_to_application)
-        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"), self.clear_data_pool)
-        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
+        # Package Manager Menu
+        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.find_wralea)
+        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_wralea)
+        self.connect(self.actionFind_Node, SIGNAL("activated()"),
+                     self.find_node)
         self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
         self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
 
+        # DataPool Menu
+        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"), self.clear_data_pool)
+
+        # Python Menu
+        self.connect(self.action_Execute_script, SIGNAL("activated()"),
+                     self.exec_python_script)
+
+        # WorkspaceMenu
+        self.connect(self.action_Run, SIGNAL("activated()"), self.run)
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
         self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
+        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
+                     self.close_workspace)
         self.connect(self.actionReload_from_Model, SIGNAL("activated()"), self.reload_from_factory)
+        self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
+        self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
+                     self.export_to_application)
+
+        
         
         # final init
         self.session = session
@@ -551,5 +565,9 @@ class MainWindow(QtGui.QMainWindow,
             pass
 
 
-        
+    def open_preferences(self):
+        """ Open Preference dialog """
+
+        dialog = PreferencesDialog(self)
+        ret = dialog.exec_()
 

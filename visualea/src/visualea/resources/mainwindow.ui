@@ -167,15 +167,6 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Help" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="action_Help" />
-    <addaction name="separator" />
-    <addaction name="action_About" />
-    <addaction name="actionOpenAlea_Web" />
-   </widget>
    <widget class="QMenu" name="menu_File" >
     <property name="title" >
      <string>&amp;File</string>
@@ -240,6 +231,16 @@
     <addaction name="action_Delete_2" />
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
+   </widget>
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_Help" />
+    <addaction name="separator" />
+    <addaction name="action_About" />
+    <addaction name="actionOpenAlea_Web" />
+    <addaction name="actionPreferences" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -428,6 +429,11 @@
   <action name="actionReload_from_Model" >
    <property name="text" >
     <string>Reload from Model</string>
+   </property>
+  </action>
+  <action name="actionPreferences" >
+   <property name="text" >
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

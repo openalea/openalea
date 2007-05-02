@@ -25,28 +25,43 @@ __revision__=" $Id$ "
 
 import os, sys
 from ConfigParser import SafeConfigParser
-
+from singleton import Singleton
 
 # [pkgmanager]
 # path = '.', '/home/user/directory'
 
 
-class Settings(SafeConfigParser):
+class Settings(object):
     """ Retrieve and set user configuration """
 
+    __metaclass__ = Singleton
+
     def __init__(self):
-        SafeConfigParser.__init__(self)
+        self.parser = SafeConfigParser()
+        
         filename = 'openalea.cfg'
         home = get_openalea_home_dir()
         self.configfile = os.path.join(home,filename)
-        self.read([self.configfile])
+        
+        self.parser.read([self.configfile])
 
 
     def write_to_disk(self):
         f = open(self.configfile, 'w')
-        self.write(f)
+        self.parser.write(f)
         f.close()
-                
+
+
+    def get(self, section, option):
+        
+        return self.parser.get(section, option)
+
+    def set(self, section, option, value):
+        if(not self.parser.has_section(section)):
+            self.add_section(section)
+
+        self.parser.set(section, option, value)
+
         
 
 
