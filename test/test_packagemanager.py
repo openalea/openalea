@@ -24,7 +24,7 @@ Test the Package Manager
 from openalea.core.pkgmanager import PackageManager
 import os
 import openalea
-
+from openalea.core.setting import Settings
 # Test package manager configuration
 
 
@@ -78,6 +78,25 @@ def test_search():
     res = pkgman.search_node("sum")
     assert len(res) == 1
     assert "sum" in res[0].name
+
+
+def test_write_config():
+    pkgman = PackageManager()
+    pkgman.add_wralea("test_wralea.py")
+    pkgman.write_config()
+    p = pkgman.wraleapath
+
+    s = Settings()
+    path = s.get("pkgmanager", "path")
+    paths = list(eval(path)) # path is a string
+    
+    assert set(paths) == set(p)
+
+        
+    
+    
+    
+    
 
 
 
