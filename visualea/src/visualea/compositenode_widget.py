@@ -31,7 +31,7 @@ from PyQt4 import QtCore, QtGui
 from openalea.core.node import NodeWidget, RecursionError
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
-
+from openalea.core.settings import Settings
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
     """ Display widgets contained in the graph """
@@ -71,6 +71,17 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
+
+        # Config
+        self.config = dict()
+        
+        # Read settings
+        try:
+            localsettings = Settings()
+            str = localsettings.get("UI", "DoubleClick")
+            self.config['DoubleClick'] = eval(str)
+        except:
+            self.config['DoubleClick'] = set(['open', 'run'])
 
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
@@ -834,8 +845,11 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
 
     def mouseDoubleClickEvent(self, event):
-        self.graphview.open_item(self.elt_id)
-        self.run_node()
+        if('open' in self.graphview.config['DoubleClick']):
+            self.graphview.open_item(self.elt_id)
+            
+        if('run' in self.graphview.config['DoubleClick']):
+            self.run_node()
 
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
