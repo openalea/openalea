@@ -25,8 +25,15 @@ __revision__=" $Id$ "
 from PyQt4 import QtCore, QtGui
 from openalea.core.setting import get_userpkg_dir
 from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.settings import Settings
+
 import ui_newgraph
 import os
+import ui_tofactory
+import ui_newpackage
+import ui_preferences
+
 
 
 
@@ -146,7 +153,6 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
 
 
-import ui_newpackage
 
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
@@ -229,8 +235,6 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
 
 
 
-import ui_tofactory
-from openalea.core.pkgmanager import PackageManager
 
 
 class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
@@ -301,3 +305,61 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
         
    
+
+
+class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
+    """ Preferences dialog """
+    
+    def __init__(self, parent):
+        
+        QtGui.QDialog.__init__(self, parent)
+        ui_preferences.Ui_Preferences.__init__(self)
+        self.setupUi(self)
+
+        # Read config
+        config = Settings()
+        
+        try:
+            str = config.get("pkgmanager", "path")
+            l = eval(str)
+            
+            for p in l:
+                self.pathList.addItem(p)
+        except:
+            pass
+
+        self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
+        self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
+
+
+    def add_search_path(self):
+        """ Package Manager : Add a path in the list """
+        result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
+    
+        if(result):
+            self.pathList.addItem(result)
+
+
+    def remove_search_path(self):
+        """ Package Manager : Remove a path in the list """
+
+        row = self.pathList.currentRow()
+        self.pathList.takeItem(row)
+        
+
+    def valid_search_path(self):
+        """ Set the search path in the package manager """
+
+        pkgmanager = PackageManager()
+        pkgmanager.set_default_wraleapath()
+        for i in xrange(self.pathList.count()):
+            path = self.pathList.item(i).text()
+            pkgmanager.add_wraleapath(os.path.abspath(str(path)))
+
+        pkgmanager.write_config()
+            
+
+    def accept(self):
+
+        self.valid_search_path()
+        QtGui.QDialog.accept(self)
