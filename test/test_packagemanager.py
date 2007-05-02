@@ -33,9 +33,12 @@ def test_wraleapath():
 
     pkgman = PackageManager()
     assert openalea.__path__[0] in  pkgman.wraleapath
-    pkgman.add_wraleapath("/usr/bin")
-
-    assert "/usr/bin" in pkgman.wraleapath
+    if(os.name == 'posix'):
+        pkgman.add_wraleapath("/usr/bin")
+        assert "/usr/bin" in pkgman.wraleapath
+    else:
+        pkgman.add_wraleapath("C:\\Windows")
+        assert "C:\\Windows" in pkgman.wraleapath
                       
 
 
