@@ -52,7 +52,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
             
             widget = factory.instantiate_widget(subnode, self)
 
-            caption = "%s"%(subnode.internal_data['caption'])
+            caption = "%s"%(subnode.get_catpion())
             groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
@@ -710,7 +710,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def get_caption(self):
         """ Return the node caption (convenience)"""
         
-        return self.subnode.internal_data['caption']
+        return self.subnode.get_caption()
 
 
     def notify(self, sender, event):
@@ -891,7 +891,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         n = self.subnode
         (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Node caption", "",
-                                   QtGui.QLineEdit.Normal, n.internal_data['caption'])
+                                   QtGui.QLineEdit.Normal, n.get_caption())
         if(ok):
             n.set_caption(str(result))
 
