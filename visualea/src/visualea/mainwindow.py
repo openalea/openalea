@@ -68,6 +68,7 @@ class MainWindow(QtGui.QMainWindow,
         self.index_nodewidget = []
 
         self.tabWorkspace.removeTab(0)
+        self.ws_cpt = 0
 
         # python interpreter
         interpreter = Interpreter()
@@ -148,8 +149,8 @@ class MainWindow(QtGui.QMainWindow,
         """ open a  composite node editor """
         node = factory.instantiate()
 
-        self.open_widget_tab(node, factory=factory)
         self.session.add_workspace(node, notify=False)
+        self.open_widget_tab(node, factory=factory)
 
 
     def about(self):
@@ -297,7 +298,10 @@ class MainWindow(QtGui.QMainWindow,
         vboxlayout = QtGui.QVBoxLayout(container)
         vboxlayout.addWidget(widget)
 
-        if(not caption) : caption = node.internal_data['caption']
+        if(not caption) :
+            i = self.session.workspaces.index(node)
+            caption = "Workspace %i - %s"%(i, node.get_caption())
+        
         index = self.tabWorkspace.insertTab(pos, container, caption)
         self.tabWorkspace.setCurrentIndex(index)
         self.index_nodewidget.append(widget)
@@ -352,14 +356,11 @@ class MainWindow(QtGui.QMainWindow,
             f = widget.export_to_factory(selection)
             if(not f) : return
             
-#             if(f is not widget.node.factory):
-#                 self.open_compositenode(f)
-                
             f.package.write()
 
             # reload tab if necessary
-            for (i,w) in enumerate(self.index_nodewidget):
-                if(w.node.factory == f): self.reload_from_factory(i)
+#             for (i,w) in enumerate(self.index_nodewidget):
+#                 if(w.node.factory == f): self.reload_from_factory(i)
 
         except AttributeError, e:
             print e
@@ -537,7 +538,6 @@ class MainWindow(QtGui.QMainWindow,
         i = self.tabPackager.indexOf(self.searchview)
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
-
 
 
     def delete_selection(self):
