@@ -469,10 +469,10 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
                 item.setFlags(QtCore.Qt.ItemIsEnabled|
                               QtCore.Qt.ItemIsSelectable)
 
+
     def notify(self, sender, event):
         """ Notification sent by node """
         self.update_list()
-
 
 
     def update_list(self):
@@ -551,7 +551,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
 
         
 
-class IFileStrWidget(IStrWidget, QtGui.QWidget):
+class IFileStrWidget(IStrWidget):
     """
     File name Line Edit Widget
     """
@@ -566,22 +566,23 @@ class IFileStrWidget(IStrWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.last_result= QtCore.QDir.homePath()
+        self.last_result = QtCore.QDir.homePath()
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
 
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
+
     def button_clicked(self):
         
-        result = QtGui.QFileDialog.getOpenFileName(self, "Select File", self.last_result )
+        result = QtGui.QFileDialog.getOpenFileName(self, "Select File", self.last_result)
     
         if(result):
             self.node.set_input(self.param_str, str(result))
-            self.last_result= result
+            self.last_result = result
+
             
         
 class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
