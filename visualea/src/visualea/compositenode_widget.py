@@ -72,17 +72,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
-        # Config
-        self.config = dict()
         
-        # Read settings
-        try:
-            localsettings = Settings()
-            str = localsettings.get("UI", "DoubleClick")
-            self.config['DoubleClick'] = eval(str)
-        except:
-            self.config['DoubleClick'] = set(['open', 'run'])
-
+        # Scene
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
@@ -106,6 +97,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.rebuild_scene()
 
 
+    # Node property 
     def set_node(self, node):
         """ Define the associated node (overloaded) """
         NodeWidget.set_node(self, node)
@@ -288,7 +280,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             else:
                 d.show()
 
-            d.raise_()
+            d.raise_ ()
             d.activateWindow ()
             return
 
@@ -840,15 +832,25 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.update()
         QtGui.QGraphicsItem.mousePressEvent(self, event)
 
+
     def mouseReleaseEvent(self, event):
         self.update()
         QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
 
+
     def mouseDoubleClickEvent(self, event):
-        if('open' in self.graphview.config['DoubleClick']):
+
+        # Read settings
+        try:
+            localsettings = Settings()
+            str = localsettings.get("UI", "DoubleClick")
+        except:
+            str = "['open', 'run']"
+
+        if('open' in str):
             self.graphview.open_item(self.elt_id)
             
-        if('run' in self.graphview.config['DoubleClick']):
+        if('run' in str):
             self.run_node()
 
     def mouseMoveEvent(self, event):

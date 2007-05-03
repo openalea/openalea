@@ -479,6 +479,7 @@ class NodeFactoryView(object):
     def reload_package(self):
         """ Reload a package """
         raise NotImplementedError()
+    
 
     def edit_package(self):
         """ Edit package Metadata """
