@@ -58,7 +58,7 @@ class Settings(object):
 
     def set(self, section, option, value):
         if(not self.parser.has_section(section)):
-            self.add_section(section)
+            self.parser.add_section(section)
 
         self.parser.set(section, option, value)
 
