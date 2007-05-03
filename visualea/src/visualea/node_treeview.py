@@ -34,6 +34,8 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
+from dialogs import EditPackage
+
 import images_rc
 
 
@@ -483,6 +485,13 @@ class NodeFactoryView(object):
 
     def edit_package(self):
         """ Edit package Metadata """
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+
+        dialog = EditPackage(obj, parent = self)
+        ret = dialog.exec_()
+
         
 
     def open_dialog(self, widget, title):

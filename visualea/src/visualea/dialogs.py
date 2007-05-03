@@ -157,7 +157,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
     
-    def __init__(self, pkgs, name="", metainfo={}, parent=None):
+    def __init__(self, pkgs, name="", parent=None):
         """ pkgs : list of existing package name """
         
         QtGui.QDialog.__init__(self, parent)
@@ -218,23 +218,58 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         return (name, metainfo, path)
 
 
+
+class EditPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
+    """ Edit package dialog """
+    
+    def __init__(self, package, parent=None):
+        """ package : package object to edit """
+        
+        QtGui.QDialog.__init__(self, parent)
+        ui_newpackage.Ui_NewPackageDialog.__init__(self)
+        self.setupUi(self)
+
+        path = None
+        if(hasattr(package, "path")):
+           path = package.path
+         
+        self.pathButton.setVisible(False)
+        self.nameEdit.setEnabled(False)
+        self.pathEdit.setEnabled(False)
+        
+        self.set_data(package.name, path, package.metainfo)
+        
+
+    def accept(self):
+
+        metainfo = dict(
+            description=str(self.descriptionEdit.text()),
+            version=str(self.versionEdit.text()),
+            license=str(self.licenseEdit.text()),
+            authors=str(self.authorsEdit.text()),
+            institutes=str(self.institutesEdit.text()),
+            url=str(self.urlEdit.text()),
+            )
+        
+        self.package.metainfo.update(metainfo)
+        
+        QtGui.QDialog.accept(self)
+
+
     def set_data(self, name, path, metainfo):
         """ Set the dialog data """
 
         self.nameEdit.setText(name)
-        self.pathEdit.setText(path)
+        if(path):
+            self.pathEdit.setText(path)
         
         self.descriptionEdit.setText(metainfo.get('description', ''))
-        # self.versionEdit.setText(metainfo.get['version'])
-#         self.licenseEdit.setText(metainfo.get['license'])
-#         self.authorsEdit.setText(metainfo.get['authors'])
-#         self.institutesEdit.setText(metainfo.get['institutes'])
-#         self.urlEdit.setText(metainfo.get['url'])
+        self.versionEdit.setText(metainfo.get('version', ''))
+        self.licenseEdit.setText(metainfo.get('license', ''))
+        self.authorsEdit.setText(metainfo.get('authors', ''))
+        self.institutesEdit.setText(metainfo.get('institutes', ''))
+        self.urlEdit.setText(metainfo.get('url', ''))
                
-
-
-
-
 
 
 class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
