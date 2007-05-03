@@ -318,7 +318,8 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         # Read config
         config = Settings()
-        
+
+        # pkgmanager
         try:
             str = config.get("pkgmanager", "path")
             l = eval(str)
@@ -327,6 +328,21 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
                 self.pathList.addItem(p)
         except:
             pass
+
+        # UI
+        try:
+            str = config.get("UI", "DoubleClick")
+            l = eval(str)
+            if("run" in l and "open" in l):
+                self.dbclickBox.setCurrentIndex(0)
+            elif("run" in l):
+                self.dbclickBox.setCurrentIndex(1)
+            elif("open" in l):
+                self.dbclickBox.setCurrentIndex(2)
+        except:
+            pass
+
+        
 
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
@@ -357,9 +373,21 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
             pkgmanager.add_wraleapath(os.path.abspath(str(path)))
 
         pkgmanager.write_config()
+
+
+    def valid_ui(self):
+        """ Valid UI Parameters """
+
+        d = [["run", "open"], ["run"], ["open"],]
+        index = self.dbclickBox.currentIndex()
+
+        config = Settings()
+        config.set("UI", "DoubleClick", repr(d[index]))
+        config.write_to_disk()
             
 
     def accept(self):
 
         self.valid_search_path()
+        self.valid_ui()
         QtGui.QDialog.accept(self)

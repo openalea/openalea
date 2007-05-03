@@ -240,6 +240,7 @@
     <addaction name="separator" />
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
+    <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
    <addaction name="menu_File" />
