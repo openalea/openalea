@@ -55,7 +55,9 @@ def test_save_datapool():
 
 
 def test_save_workspace():
-    
+    pm = PackageManager ()
+    pm.init()
+
     asession = Session()
 
     import sys
@@ -63,13 +65,15 @@ def test_save_workspace():
     sgfactory = CompositeNodeFactory(name="SubGraphExample",
                                 description= "Examples",
                                 category = "Examples",
-                                )
+                               )
+    sg= CompositeNode()
     # build the subgraph factory
 
-    addid = sgfactory.add_nodefactory (("Catalog.Data", "int"))
+    addid = sg.add_node (pm.get_node("Catalog.Data", "int"))
+    sg.to_factory(sgfactory)
     instance = sgfactory.instantiate()
 
-    instance.node_id[addid].set_input(0,3)
+    instance.actor(addid).set_input(0,3)
     asession.add_workspace(instance)
 
     asession.save('test.pic')

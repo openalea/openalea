@@ -22,34 +22,32 @@ Test the subgraph module
 
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.compositenode import CompositeNodeFactory,CompositeNode
 from openalea.core.node import Factory, gen_port_list
 import os
 
 
 
 def test_compositenodewriter():
-
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory("addition",
-                                     inputs=gen_port_list(3),
-                                     outputs=gen_port_list(4),
-                                     )
+    sg = CompositeNode(inputs=[dict(name="%d" % i) for i in xrange(3)],
+                       outputs=[dict(name="%d" % i) for i in xrange(4)],
+                      )
 
     
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory (("Catalog.Maths", "+"))
-    val1id = sgfactory.add_nodefactory (("Catalog.Data", "float")) 
-    val2id = sgfactory.add_nodefactory (("Catalog.Data", "float"))
-    val3id = sgfactory.add_nodefactory (("Catalog.Data", "float"))
+    addid = sg.add_node (pm.get_node("Catalog.Maths", "+"))
+    val1id = sg.add_node (pm.get_node("Catalog.Data", "float")) 
+    val2id = sg.add_node (pm.get_node("Catalog.Data", "float"))
+    val3id = sg.add_node (pm.get_node("Catalog.Data", "float"))
 
-    sgfactory.add_connection (val1id, 0, addid, 0)
-    sgfactory.add_connection (val2id, 0, addid, 1)
-    sgfactory.add_connection (addid, 0, val3id, 0)
-
-
+    sg.connect (val1id, 0, addid, 0)
+    sg.connect (val2id, 0, addid, 1)
+    sg.connect (addid, 0, val3id, 0)
+    sgfactory = CompositeNodeFactory("addition")
+    sg.to_factory(sgfactory)
     # Package
     metainfo={ 'version' : '0.0.1',
                'license' : 'CECILL-C',
@@ -69,13 +67,13 @@ def test_compositenodewriter():
 
     sg = sgfactory.instantiate()
 
-    sg.get_node_by_id(val1id).set_input(0, 2.)
-    sg.get_node_by_id(val2id).set_input(0, 3.)
+    sg.node(val1id).set_input(0, 2.)
+    sg.node(val2id).set_input(0, 3.)
 
         # evaluation
     sg()
     
-    assert sg.get_node_by_id(val3id).get_input(0) == 5.
+    assert sg.node(val3id).get_output(0) == 5.
 
     print "nb vertices", len( sg )
     assert len( sg ) == 6
