@@ -38,7 +38,7 @@ from algo.dataflow_evaluation import BrutEvaluation
 ###############################################################################
 
 
-class CompositeNodeFactory(AbstractFactory, DataFlow):
+class CompositeNodeFactory(AbstractFactory):
     """
     The CompositeNodeFactory is able to create CompositeNode instances
     Each node has an unique id : the element id (elt_id)
@@ -57,59 +57,28 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
 
         # Init parent (name, description, category, doc, node, widget=None)
         AbstractFactory.__init__(self, *args, **kargs)
-        DataFlow.__init__(self)
         # A CompositeNode is composed by a set of element indexed by an elt_id
         # Each element is associated to NodeFactory
         # Each element will generate an node instance in the real CompositeNode
 
         # Dict mapping elt_id with its corresponding factory
         # the factory is identified by its unique id (package_id, factory_id)
-        elt_factory = kargs.get("elt_factory", {})
+        self.elt_factory = kargs.get("elt_factory", {})
 
         # Dictionnary which contains tuples describing connection
-        # ( dst_id , input_port ) : ( src_id, output_port )
-        connections = kargs.get("elt_connections", {})
+        # ( source_vid , source_port ) : ( target_vid, target_port )
+        self.connections = kargs.get("elt_connections", {})
 
         # Dictionnary which contains associated data
-        elt_data =  kargs.get("elt_data", {})
-
-        # I/O
-        self.id_in=None
-        self.id_out=None
-        self.initialise_connector_nodes()
-        #construction par recopie
-        #a abandonner au profit d'une methode
-        for vid,factory_info in elt_factory.iteritems() :
-            ins,outs,factory=factory_info
-            data=elt_data.get(vid,{})
-            dum=self.add_vertex(vid)
-            for local_pid in ins :
-                self.add_in_port(vid,local_pid)
-            for local_pid in outs :
-                self.add_out_port(vid,local_pid)
-            self.set_actor(vid,(factory[0],factory[1],data))
-        for ( dst_id, dst_port ), ( src_id, src_port ) in connections.iteritems():
-            #creation des ports si necessaire
-            spid=self.out_port(src_id,src_port)
-            tpid=self.in_port(dst_id,dst_port)
-            self.connect(spid,tpid)
+        self.elt_data =  kargs.get("elt_data", {})
 
         # Documentation
         self.doc = kargs.get('doc', "")
 
-
-    def initialise_connector_nodes (self, vid_in=None, vid_out=None) :
-        if self.id_in is not None :
-            self.remove_vertex(self.id_in)
-        self.id_in=self.add_vertex(vid_in)
-        for local_pid in xrange(len(self.inputs)) :
-            self.add_out_port(self.id_in,local_pid)
-        
-        if self.id_out is not None :
-            self.remove_vertex(self.id_out)
-        self.id_out=self.add_vertex(vid_out)
-        for local_pid in xrange(len(self.outputs)) :
-            self.add_in_port(self.id_out,local_pid)
+    def clear (self) :
+        self.elt_factory={}
+        self.connections={}
+        self.elt_data={}
 
     def get_writer(self):
         """ Return the writer class """
@@ -131,18 +100,28 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
             raise RecursionError()
 
         call_stack.append(self.get_id())
-        new_df = CompositeNode(self.inputs, self.outputs,self.id_in,self.id_out)
+        id_in=None
+        id_out=None
+        for vid,factory in self.elt_factory.iteritems() :
+            if factory[0]=="_composite_node" and factory[1]=="_in" :
+                id_in=vid
+            if factory[0]=="_composite_node" and factory[1]=="_out" :
+                id_out=vid
+        if id_in is None or id_out is None :
+            raise UserWarning("there is no in or out")
+        new_df = CompositeNode(self.inputs,self.outputs,id_in,id_out)
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
         
         # Instantiate the node with each factory
-        for vid in (vid for vid in self.vertices() if vid not in [self.id_in,self.id_out]):
+        for vid in (vid for vid in self.elt_factory if vid not in (id_in,id_out)):
             new_df.add_node(self.instantiate_node(vid,call_stack),vid)
 
         # Create the connections
-        for eid in self.edges() :
-            DataFlow.connect(new_df,self.source_port(eid),self.target_port(eid))
+        for eid,link in self.connections.iteritems() :
+            source_vid,source_port,target_vid,target_port=link
+            new_df.connect(source_vid,source_port,target_vid,target_port)
 
         self.graph_modified = False
 
@@ -159,12 +138,12 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
         @param call_stack : a list of parent id (to avoid infinite recursion)
         """
 
-        package_id,factory_id,data=self.actor(vid)
+        package_id,factory_id=self.elt_factory[vid]
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
-        node.internal_data = data.copy()
+        node.internal_data = self.elt_data[vid].copy()
         return node
 
         
@@ -184,33 +163,6 @@ class CompositeNodeFactory(AbstractFactory, DataFlow):
 
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
         return DisplayGraphWidget(node, parent)
-
-    ##################################################
-    #
-    #		backward compatibility
-    #
-    ##################################################
-    def elt_factory (self) :
-        ret={}
-        for vid in (vid for vid in self.vertices() if vid not in (self.id_in,self.id_out)) :
-            ins=tuple(self.port(pid).local_pid for pid in self.in_ports(vid))
-            outs=tuple(self.port(pid).local_pid for pid in self.out_ports(vid))
-            factory=(self.actor(vid)[0],self.actor(vid)[1])
-            ret[vid]=(ins,outs,factory)
-        return ret
-
-    def elt_data (self) :
-        return dict( (vid,self.actor(vid)[2]) for vid in self.vertices() \
-                                                     if vid not in (self.id_in,self.id_out) )
-
-    def connections( self ):
-        connect= {}
-        for eid in self.edges() :
-            connect[(self.target( eid ), self.port(self.target_port(eid)).local_pid )] \
-                          =( self.source( eid ), self.port(self.source_port(eid)).local_pid )
-        return connect
-
-        
 
 
 ################################################################################
@@ -296,19 +248,28 @@ class CompositeNode(Node, DataFlow):
         nbin and nbout are the number of in and out. If -1, parameters
         are discarded.
         """
-        # Clear the graph factory
+        # Clear the factory
         sgfactory.clear()
+        # I / O
         sgfactory.inputs = [dict(val) for val in self.input_desc]
         sgfactory.outputs = [dict(val) for val in self.output_desc]
-        sgfactory.id_in=self.id_in
-        sgfactory.id_out=self.id_out
-        structural_copy(self,sgfactory)
+        #vertices
+        sgfactory.elt_factory[self.id_in]=("_composite_node","_in")
+        sgfactory.elt_factory[self.id_out]=("_composite_node","_out")
         for vid in (vid for vid in self.vertices() if vid not in [self.id_in,self.id_out]):
             node = self.actor(vid)
             kdata = node.internal_data
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
-            sgfactory.set_actor(vid, (pkg_id,factory_id,kdata) )
+            sgfactory.elt_factory[vid]=(pkg_id,factory_id)
+            sgfactory.elt_data[vid]=kdata
+
+        #edges
+        for eid in self.edges() :
+            source_port=self.port(self.source_port(eid)).local_pid
+            target_port=self.port(self.target_port(eid)).local_pid
+            sgfactory.connections[eid]=(self.source(eid),source_port,\
+                                        self.target(eid),target_port)
 
         self.graph_modified = False
 
@@ -466,9 +427,9 @@ class PyCNFactoryWriter(object):
                                       DOC=repr(f.doc),
                                       INPUTS=repr(f.inputs),
                                       OUTPUTS=repr(f.outputs),
-                                      ELT_FACTORY=repr(f.elt_factory()),
-                                      ELT_CONNECTIONS=repr(f.connections()),
-                                      ELT_DATA=repr(f.elt_data()),
+                                      ELT_FACTORY=repr(f.elt_factory),
+                                      ELT_CONNECTIONS=repr(f.connections),
+                                      ELT_DATA=repr(f.elt_data),
                                       )
         return result
 

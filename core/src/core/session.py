@@ -26,7 +26,7 @@ __revision__=" $Id$ "
 
 import os, sys
 
-from compositenode import CompositeNodeFactory
+from compositenode import CompositeNodeFactory,CompositeNode
 from pkgmanager import PackageManager
 from package import Package, UserPackage
 from observer import Observed
@@ -54,8 +54,10 @@ class Session(Observed):
 
         self.pkgmanager = PackageManager()
 
-        self.empty_cnode_factory = CompositeNodeFactory("Workspace", (), ())
 
+        self.empty_cnode_factory = CompositeNodeFactory("Workspace")
+        sg=CompositeNode()
+        sg.to_factory(self.empty_cnode_factory)
 
         self.clear()
 

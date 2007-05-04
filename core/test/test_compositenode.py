@@ -249,12 +249,11 @@ def test_addnode():
     sg = sgfactory.instantiate()
     sg.node(val1id).set_input(0, 3.)
     sg()
-    assert sg.node(val2id).get_output(0) == 3.
+    assert sg.node(addid).get_output(0) == 6.
 
 
 # Test multiple out connection
 def test_multi_out_eval():
-
     pm = PackageManager ()
     pm.init()
 
