@@ -37,6 +37,7 @@ from copy import copy
 #from signature import get_parameters
 import signature as sgn
 from observer import Observed, AbstractListener
+from actor import IActor
 
 # Exceptions
 class RecursionError (Exception):
@@ -60,7 +61,7 @@ def gen_port_list(size):
 ###############################################################################
 
 
-class Node(Observed):
+class Node(IActor,Observed):
     """
     A Node is the atomic entity in a dataflow.
     It is a callable object with typed inputs and outputs.
@@ -104,12 +105,10 @@ class Node(Observed):
         self.internal_data['caption'] = str(self.__class__.__name__)
 
         # Process in and out
-        if(inputs):
-            for d in inputs:
-                self.add_input(**d)
-        if(outputs):
-            for d in outputs:
-                self.add_output(**d)
+        for d in inputs:
+            self.add_input(**d)
+        for d in outputs:
+            self.add_output(**d)
 
 
     def __call__(self, inputs = ()):
@@ -196,17 +195,15 @@ class Node(Observed):
 
     # I/O Functions
    
-    def get_input(self, index_key):
-        """ Return an input port value """
-        
-        index = self.map_index_in[index_key]
-        return self.inputs[index]
-
-
-    def set_input(self, index_key, val):
+    def set_input(self, key, val=None, value_list=None):
         """ Define the input value for the specified index/key """
-        
-        index = self.map_index_in[index_key]
+        if val is None :
+            if len(value_list)==0 :
+                return
+            if len(value_list)>1 :
+                raise NotImplementedError
+            val=value_list[0]
+        index = self.map_index_in[key]
 
         if(self.lazy):
             # Test if the inputs has changed
@@ -219,18 +216,18 @@ class Node(Observed):
             self.inputs[index] = val
             self.unvalidate_input(index)
 
+    def output (self, key) :
+        return self.get_output(key)
+
+    def get_input (self, index_key) :
+        """ Return the output for the specified index/key """
+        index = self.map_index_in[index_key]
+        return self.inputs[index]
 
     def get_output(self, index_key):
         """ Return the output for the specified index/key """
         index = self.map_index_out[index_key]
         return self.outputs[index]
-
-
-    def set_output(self, index_key, val):
-        """ Set the output value for the specified index/key """
-        index = self.map_index_out[index_key]
-        self.outputs[index] = val
-
 
     def get_input_state(self, index_key):
         index = self.map_index_in[index_key]
@@ -245,11 +242,6 @@ class Node(Observed):
         self.unvalidate_input(index)
 
 
-    def get_input_index(self, key):
-        """ Return the index of input identified by key """
-        return self.map_index_in[key]
-    
-        
     def get_nb_input(self):
         """ Return the nb of input ports """
         return len(self.inputs)
@@ -288,11 +280,6 @@ class Node(Observed):
 
         return True
 
-    #Shortcut for compatibility
-    get_input_by_key = get_input
-    set_input_by_key = set_input
-    get_output_by_key = get_output
-    set_output_by_key = set_output
 
 
 
@@ -340,8 +327,8 @@ class AbstractFactory(Observed):
                  name,
                  description = '',
                  category = '',
-                 inputs = None,
-                 outputs = None,
+                 inputs = (),
+                 outputs = (),
                  lazy = True,
                  **kargs):
         
@@ -555,10 +542,6 @@ class NodeFactory(AbstractFactory):
             widgetclass = module.__dict__[self.widgetclass_name]
             return widgetclass(node, parent)
 
-            
-
-    def edit_widget(self, parent=None):
-        """ Return the widget to edit the factory """
             
 
     def get_writer(self):

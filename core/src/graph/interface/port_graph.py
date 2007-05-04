@@ -26,32 +26,57 @@ class IPortGraph (object):
 	Directed graph with connections between in_ports
 	of vertices and out_port of vertices
 	"""
+	####################################################
+	#
+	#		edge port view
+	#
+	####################################################
 	def source_port (self, eid) :
 		raise NotImplementedError
 	
 	def target_port (self, eid) :
 		raise NotImplementedError
-	
-	def out_ports (self, vid) :
+	####################################################
+	#
+	#		vertex port view
+	#
+	####################################################
+	def out_ports (self, vid=None) :
 		raise NotImplementedError
 	
-	def in_ports (self, vid) :
+	def in_ports (self, vid=None) :
+		raise NotImplementedError
+	
+	def ports (self, vid=None) :
 		raise NotImplementedError
 	####################################################
 	#
 	#		port view
 	#
 	####################################################
-	def port_edges (self, pid) :
+	def is_in_port (self, pid) :
 		raise NotImplementedError
 	
-	def port_neighbors (self, pid) :
+	def is_out_port (self, pid) :
 		raise NotImplementedError
 	
 	def vertex (self, pid) :
 		raise NotImplementedError
 	
-	def ports (self, vid=None) :
+	def port_neighbors (self, pid) :
+		raise NotImplementedError
+	
+	def port_edges (self, pid) :
+		raise NotImplementedError
+	####################################################
+	#
+	#		limited number of connections
+	#
+	####################################################
+	def capacity (self, pid) :
+		raise NotImplementedError
+	
+	def set_capacity (self, pid, capacity) :
 		raise NotImplementedError
 	####################################################
 	#
@@ -61,23 +86,26 @@ class IPortGraph (object):
 	def port (self, pid) :
 		raise NotImplementedError
 	
-	def out_port (self, lpid) :
+	def out_port (self, vid, local_pid) :
 		raise NotImplementedError
 	
-	def in_port (self, lpid) :
+	def in_port (self, vid, local_pid) :
 		raise NotImplementedError
 	#####################################################
 	#
 	#		mutable concept
 	#
 	#####################################################
-	def add_port (self, vid) :
+	def add_in_port (self, vid, local_pid, pid=None) :
+		raise NotImplementedError
+	
+	def add_out_port (self, vid, local_pid, pid=None) :
 		raise NotImplementedError
 	
 	def remove_port (self, pid) :
 		raise NotImplementedError
 	
-	def connect (self, source_id, out_port_id, target_id, in_port_id) :
+	def connect (self, source_pid, target_pid, eid=None) :
 		raise NotImplementedError
 	
 	def disconnect (self, eid) :
