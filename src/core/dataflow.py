@@ -34,12 +34,38 @@ class Port (object) :
 	a port is an entry point to a vertex
 	"""
 	def __init__ (self, vid, local_pid, is_out_port) :
-		self.vid=vid
-		self.local_pid=local_pid
-		self.is_out_port=is_out_port
+		#internal data to acces from dataflow
+		self._vid=vid
+		self._local_pid=local_pid
+		self._is_out_port=is_out_port
+		#external data
+		self._capacity=-1
 		self.description="port"
-		self.data_type=None
-		self.capacity=-1
+		self._interface=None
+	
+	def capacity (self) :
+		"""
+		maximum number of edges that can
+		be connected on this port
+		-1 mean an infinity of connections
+		:rtype: int
+		"""
+		return self._capacity
+	
+	def set_capacity (self, max_connections_nb) :
+		"""
+		set the maximum number of edges
+		that can be connected to port pid
+		set capacity to -1 to allow an infinity
+		of connections
+		"""
+		self._capacity=max_connections_nb
+	
+	def interface (self) :
+		return self._interface
+	
+	def set_interface (self, data_type) :
+		self._interface=data_type
 
 class DataFlow (PropertyGraph):
 	"""
@@ -124,7 +150,7 @@ class DataFlow (PropertyGraph):
 		is an in port of its vertex
 		:rtype: bool
 		"""
-		return not self._ports[pid].is_out_port
+		return not self._ports[pid]._is_out_port
 	
 	def is_out_port (self, pid) :
 		"""
@@ -132,14 +158,14 @@ class DataFlow (PropertyGraph):
 		is an out port of its vertex
 		:rtype: bool
 		"""
-		return self._ports[pid].is_out_port
+		return self._ports[pid]._is_out_port
 	
 	def vertex (self, pid) :
 		"""
 		return the id of the vertex which own the port
 		:rtype: vid
 		"""
-		return self._ports[pid].vid
+		return self._ports[pid]._vid
 	
 	def connected_ports (self, pid) :
 		"""
@@ -171,38 +197,25 @@ class DataFlow (PropertyGraph):
 					yield eid
 	####################################################
 	#
-	#		limited number of connections
-	#
-	####################################################
-	def capacity (self, pid) :
-		"""
-		maximum number of edges that can
-		be connected on this port
-		-1 mean an infinity of connections
-		:rtype: int
-		"""
-		return self._ports[pid].capacity
-	
-	def set_capacity (self, pid, capacity) :
-		"""
-		set the maximum number of edges
-		that can be connected to port pid
-		set capacity to -1 to allow an infinity
-		of connections
-		"""
-		self._ports[pid].capacity=capacity
-	####################################################
-	#
 	#		local port concept
 	#
 	####################################################
 	def port (self, pid) :
 		"""
+		port object specified by its global pid
+		"""
+		try :
+			return self._ports[pid]
+		except KeyError :
+			raise PortError("port %s don't exist" % str(pid))
+	
+	def local_id (self, pid) :
+		"""
 		local port identifier of a given port
 		specified by its global pid
 		"""
 		try :
-			return self._ports[pid]
+			return self._ports[pid]._local_pid
 		except KeyError :
 			raise PortError("port %s don't exist" % str(pid))
 	
@@ -212,7 +225,7 @@ class DataFlow (PropertyGraph):
 		:rtype: pid
 		"""
 		for pid in self.out_ports(vid) :
-			if self._ports[pid].local_pid==local_pid :
+			if self._ports[pid]._local_pid==local_pid :
 				return pid
 		raise PortError ("local pid '%s' does not exist" % str(local_pid))
 	
@@ -222,7 +235,7 @@ class DataFlow (PropertyGraph):
 		:rtype: pid
 		"""
 		for pid in self.in_ports(vid) :
-			if self._ports[pid].local_pid==local_pid :
+			if self._ports[pid]._local_pid==local_pid :
 				return pid
 		raise PortError ("local pid '%s' does not exist" % str(local_pid))
 	#####################################################
@@ -299,8 +312,8 @@ class DataFlow (PropertyGraph):
 		if not self.is_in_port(target_pid) :
 			raise PortError("target_pid %s is not an input port" % str(target_pid))
 		for pid in (source_pid,target_pid) :
-			if self.capacity(pid)!=-1 \
-				and len(list(self.connected_edges(pid)))>=self.capacity(pid) :
+			if self.port(pid).capacity()!=-1 \
+				and len(list(self.connected_edges(pid)))>=self.port(pid).capacity() :
 				raise PortError("capacity of port %s exceeded" % str(pid))
 		eid=self.add_edge( (self.vertex(source_pid),self.vertex(target_pid)),eid)
 		self.edge_property("_source_port")[eid]=source_pid

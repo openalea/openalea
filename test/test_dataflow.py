@@ -12,7 +12,7 @@ def test_dataflow():
 	
 	vid2=df.add_vertex()
 	pid21=df.add_out_port(vid2,"out")
-	df.set_capacity(pid21,1)
+	df.port(pid21).set_capacity(1)
 	
 	vid3=df.add_vertex()
 	pid31=df.add_in_port(vid3,"in1")
@@ -36,8 +36,8 @@ def test_dataflow():
 	assert df.vertex(pid11)==vid1
 	assert set(df.connected_ports(pid11))==set( (pid31,) )
 	assert set(df.connected_edges(pid21))==set( (eid2,) )
-	assert df.capacity(pid11)==-1
-	assert df.capacity(pid21)==1
+	assert df.port(pid11).capacity()==-1
+	assert df.port(pid21).capacity()==1
 	assert df.out_port(vid1,"out")==pid11
 	assert df.in_port(vid3,"in1")==pid31
 

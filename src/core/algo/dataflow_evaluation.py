@@ -41,8 +41,8 @@ class BrutEvaluation (object) :
 				nvid=df.vertex(npid)
 				if not evaluated[nvid] :
 					self.eval_vertex(nvid)
-				inputs.append(df.actor(nvid).get_output(df.port(npid).local_pid))
-			actor.set_input(df.port(pid).local_pid,value_list=inputs)
+				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
+			actor.set_input(df.local_id(pid),value_list=inputs)
 		#evalue le noeud
 		actor.eval()
 		evaluated[vid]=True

@@ -266,8 +266,8 @@ class CompositeNode(Node, DataFlow):
 
         #edges
         for eid in self.edges() :
-            source_port=self.port(self.source_port(eid)).local_pid
-            target_port=self.port(self.target_port(eid)).local_pid
+            source_port=self.local_id(self.source_port(eid))
+            target_port=self.local_id(self.target_port(eid))
             sgfactory.connections[eid]=(self.source(eid),source_port,\
                                         self.target(eid),target_port)
 
