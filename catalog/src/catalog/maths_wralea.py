@@ -108,6 +108,11 @@ def register_packages(pkgmanager):
     nf = Factory( name="+", 
                   description="Addition", 
                   category="Maths", 
+                  inputs=(dict(name='a', interface=None),
+                          dict(name='b', interface=None)
+                         ),
+                  outputs= (dict(name='out', interface=None),
+                           ),
                   nodemodule="maths",
                   nodeclass="py_add",
                   )

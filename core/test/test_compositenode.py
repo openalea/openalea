@@ -34,45 +34,47 @@ def test_instantiate_compositenode():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory("addition")
+    sg = CompositeNode()
 
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
-    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float")) 
-    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
-    val3id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    val1id = sg.add_node ( pm.get_node("Catalog.Data", "float")) 
+    val2id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
+    val3id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
 
-    sgfactory.add_connection (val1id, 0, addid, 0)
-    sgfactory.add_connection (val2id, 0, addid, 1)
-    sgfactory.add_connection (addid, 0, val3id, 0)
+    sg.connect (val1id, 0, addid, 0)
+    sg.connect (val2id, 0, addid, 1)
+    sg.connect (addid, 0, val3id, 0)
 
+    sgfactory = CompositeNodeFactory("addition")
+    sg.to_factory(sgfactory)
 
     # allocate the compositenode
     sg = sgfactory.instantiate()
-    id1= sg.factory_id_to_id( val1id )
-    id2= sg.factory_id_to_id( val2id )
-    sg.get_node_by_id(id1).set_input(0, 2.)
-    sg.get_node_by_id(id2).set_input(0, 3.)
+    sg.node(val1id).set_input(0, 2.)
+    sg.node(val2id).set_input(0, 3.)
 
     # evaluation
     sg()
 
-    assert sg.get_node_by_id(val3id).get_input(0) == 5.
+    assert sg.node(val3id).get_output(0) == 5.
 
 def test_compositenode_creation_without_edges():
        
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory(pm, "addition")
+    sg = CompositeNode()
 
     # build the compositenode factory
-    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
-    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float")) 
-    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
-    val3id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    val1id = sg.add_node ( pm.get_node("Catalog.Data", "float")) 
+    val2id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
+    val3id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
 
     
+    sgfactory = CompositeNodeFactory("addition")
+    sg.to_factory(sgfactory)
     # allocate the compositenode
     sg = sgfactory.instantiate()
 
@@ -97,32 +99,35 @@ def test_to_factory():
 
     n1.set_input(0,34.)
     sg()
-    assert n2.get_input(0) == 34.
+    assert n2.get_output(0) == 34.
 
-    sgfactory = CompositeNodeFactory(pm, "factorytest")
+    sgfactory = CompositeNodeFactory("factorytest")
     sg.to_factory(sgfactory)
 
     sg2 = sgfactory.instantiate()
 
-    assert len(sg2.node_id.keys()) == 2+2# two nodes + in/ou
+    assert len(sg2.vertices()) == 2+2# two nodes + in/ou
     assert len(sg2.edges()) == 1
 
-    sg2.get_node_by_id(e1).set_input(0, 3.)
+    sg2.node(e1).set_input(0, 3.)
     sg2()
-    assert sg2.get_node_by_id(e2).get_input(0) == 3.
+    assert sg2.node(e2).get_output(0) == 3.
 
     return pm, sg, sgfactory
     
 def test_to_factory2():
     pm, sg, sgfactory= test_to_factory()
-    
+
     sg.to_factory( sgfactory )
+
     sg2= sgfactory.instantiate()
 
     assert len( sg )== len( sg2 )
     
 
 # Test Recursion detection
+#A REVOIR L'ORDRE A CHANGE
+"""
 def test_recursion_factory():
 
     pm = PackageManager ()
@@ -130,7 +135,7 @@ def test_recursion_factory():
     pkg = Package("compositenode", {})
 
     sgfactory1 = CompositeNodeFactory("graph1")
-    sgfactory2 = CompositeNodeFactory( "graph2")
+    sgfactory2 = CompositeNodeFactory("graph2")
 
     map (pkg.add_factory, (sgfactory1, sgfactory2))
 
@@ -148,7 +153,7 @@ def test_recursion_factory():
         assert False
     except RecursionError:
         assert True
-        
+"""
 
 # Test IO
 def test_compositenodeio():
@@ -160,18 +165,19 @@ def test_compositenodeio():
 
     # create a compositenode with 2 in and 1 out
     # the compositenode does an addition
-    sgfactory = CompositeNodeFactory("additionsg",
-                                     inputs=gen_port_list(2),
-                                     outputs=gen_port_list(1),
-                                     )
+    sg = CompositeNode(inputs=(dict(name="in1",interface=None,value=None),\
+                              dict(name="in2",interface=None,value=None)),
+                      outputs=(dict(name="out",interface=None),),
+                      )
+    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
 
-    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
+    sg.connect (sg.id_in, 0, addid, 0)
+    sg.connect (sg.id_in, 1, addid, 1)
+    sg.connect (addid, 0, sg.id_out, 0)
     
-    id_in, id_out= sgfactory.id_in, sgfactory.id_out
-    sgfactory.add_connection (id_in, 0, addid, 0)
-    sgfactory.add_connection (id_in, 1, addid, 1)
-    sgfactory.add_connection (addid, 0, id_out, 0)
-    
+    sgfactory = CompositeNodeFactory("additionsg")
+    sg.to_factory(sgfactory)
+
     sg1= sgfactory.instantiate()
     sg1.set_input(0,2.)
     sg1.set_input(1,3.)
@@ -183,31 +189,29 @@ def test_compositenodeio():
     pm.add_package(pkg)
 
 
+    sg = CompositeNode()
+    addid = sg.add_node ( pm.get_node("compositenode", "additionsg"))
+    val1id = sg.add_node( pm.get_node("Catalog.Data", "float"))
+    val2id = sg.add_node( pm.get_node("Catalog.Data", "float"))
+    val3id = sg.add_node( pm.get_node("Catalog.Data", "float"))
+
+    sg.connect (val1id, 0, addid, 0)
+    sg.connect (val2id, 0, addid, 1)
+    sg.connect (addid, 0, val3id, 0)
+
     sgfactory2 = CompositeNodeFactory("testio")
-    addid = sgfactory2.add_nodefactory ( ("compositenode", "additionsg"))
-    val1id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
-    val2id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
-    val3id = sgfactory2.add_nodefactory( ("Catalog.Data", "float"))
-
-    sgfactory2.add_connection (val1id, 0, addid, 0)
-    sgfactory2.add_connection (val2id, 0, addid, 1)
-    sgfactory2.add_connection (addid, 0, val3id, 0)
-
+    sg.to_factory(sgfactory2)
     # allocate the compositenode
         
     sg = sgfactory2.instantiate()
-    id1= sg.factory_id_to_id( val1id )
-    id2= sg.factory_id_to_id( val2id )
-    sg.get_node_by_id(id1).set_input(0,2.)
-    sg.get_node_by_id(id2).set_input(0,3.)
+    sg.node(val1id).set_input(0,2.)
+    sg.node(val2id).set_input(0,3.)
 
     
     # evaluation
     sg()
     
-    id3= sg.factory_id_to_id( val3id )
-
-    assert sg.get_node_by_id(id3).get_input(0) == 5.
+    assert sg.node(val3id).get_output(0) == 5.
 
 
 # Test  node addition
@@ -216,31 +220,36 @@ def test_addnode():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory("testaddnode")
+    sg = CompositeNode()
 
     # build the compositenode factory
-    val1id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
-    val2id = sgfactory.add_nodefactory ( ("Catalog.Data", "float"))
+    val1id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
+    val2id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
 
-    sgfactory.add_connection (val1id, 0, val2id, 0)
+    sg.connect (val1id, 0, val2id, 0)
 
 
+    sgfactory = CompositeNodeFactory("testaddnode")
+    sg.to_factory(sgfactory)
     # allocate the compositenode
 
     sg = sgfactory.instantiate()
 
-    sg.get_node_by_id(val1id).set_input(0,2.)
+    sg.node(val1id).set_input(0,2.)
     sg()
-    assert sg.get_node_by_id(val2id).get_input(0) == 2.
+    assert sg.node(val2id).get_output(0) == 2.
 
 
     # Add a new node
-    addid = sgfactory.add_nodefactory ( ("Catalog.Maths", "+"))
+    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    sg.connect (val1id, 0, addid, 0)
+    sg.connect (val2id, 0, addid, 1)
     
+    sg.to_factory(sgfactory)
     sg = sgfactory.instantiate()
-    sg.get_node_by_id(val1id).set_input(0, 3.)
+    sg.node(val1id).set_input(0, 3.)
     sg()
-    assert sg.get_node_by_id(val2id).get_input(0) == 3.
+    assert sg.node(val2id).get_output(0) == 3.
 
 
 # Test multiple out connection
@@ -249,32 +258,34 @@ def test_multi_out_eval():
     pm = PackageManager ()
     pm.init()
 
-    sgfactory = CompositeNodeFactory("testlazyeval")
+    sg = CompositeNode()
 
     # build the compositenode factory
-    val1id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
-    val2id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
-    val3id = sgfactory.add_nodefactory( ("Catalog.Data", "string"))
+    val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
 
-    sgfactory.add_connection (val1id, 0, val2id, 0)
-    sgfactory.add_connection (val1id, 0, val3id, 0)
+    sg.connect (val1id, 0, val2id, 0)
+    sg.connect (val1id, 0, val3id, 0)
 
 
+    sgfactory = CompositeNodeFactory("testlazyeval")
+    sg.to_factory(sgfactory)
     # allocate the compositenode
     sg = sgfactory.instantiate()
 
-    sg.get_node_by_id(val1id).set_input(0,"teststring")
+    sg.node(val1id).set_input(0,"teststring")
     sg()
-    assert sg.get_node_by_id(val2id).get_input(0) == "teststring"
-    assert sg.get_node_by_id(val3id).get_input(0) == "teststring"
+    assert sg.node(val2id).get_output(0) == "teststring"
+    assert sg.node(val3id).get_output(0) == "teststring"
 
     #partial evaluation
-    sg.get_node_by_id(val1id).set_input(0, "teststring2")
+    sg.node(val1id).set_input(0, "teststring2")
     sg.eval_as_expression(val2id)
-    assert sg.get_node_by_id(val2id).get_input(0) == "teststring2"
+    assert sg.node(val2id).get_output(0) == "teststring2"
     
     sg.eval_as_expression(val3id)
-    assert sg.get_node_by_id(val3id).get_input(0) == "teststring2"
+    assert sg.node(val3id).get_output(0) == "teststring2"
 
 from nose import with_setup
 from openalea.core.path import path
@@ -294,23 +305,26 @@ def test_eval_bug():
 
     name= 'jcd_test'
 
-    sgf= CompositeNodeFactory("test_eval")
-    cid = sgf.add_nodefactory((name,'cid'))
-    wid = sgf.add_nodefactory((name,'wid'))
-    eid = sgf.add_nodefactory((name,'eid'))
-    dbg = sgf.add_nodefactory((name,'dbg'))
-    dbg1 = sgf.add_nodefactory((name,'dbg'))
+    sg= CompositeNode()
+    cid = sg.add_node(pm.get_node(name,'cid'))
+    wid = sg.add_node(pm.get_node(name,'wid'))
+    eid = sg.add_node(pm.get_node(name,'eid'))
+    dbg = sg.add_node(pm.get_node(name,'dbg'))
+    dbg1 = sg.add_node(pm.get_node(name,'dbg'))
     
-    sgf.add_connection( cid, 0, dbg, 0 )
-    sgf.add_connection( wid, 0, dbg1, 0 )
+    sg.connect( cid, 0, dbg, 0 )
+    sg.connect( wid, 0, dbg1, 0 )
+    sgf= CompositeNodeFactory("test_eval")
+    sg.to_factory(sgf)
+
     sg = sgf.instantiate()
     sg()
     
-    print sg.get_node_by_id(dbg).get_input(0)
-    print sg.get_node_by_id(dbg1).get_input(0)
+    print sg.node(dbg).get_output(0)
+    print sg.node(dbg1).get_output(0)
 
-    assert sg.get_node_by_id(dbg).get_input(0) == 0
-    assert sg.get_node_by_id(dbg1).get_input(0) == 1
+    assert sg.node(dbg).get_output(0) == 0
+    assert sg.node(dbg1).get_output(0) == 1
 
     
     

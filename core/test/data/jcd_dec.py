@@ -6,6 +6,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="dbg", 
                 description="debug", 
                 category="display", 
+                inputs=(dict(name='in', interface=None, value=None), ),
+                outputs=(dict(name='out', interface=None), ),
                 nodemodule="jcd_node",
                 nodeclass="DebugNode",
                 )

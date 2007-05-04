@@ -239,8 +239,8 @@ class IInterfaceWidget(AbstractListener):
     def update_state(self):
         """ Enable or disable widget depending of connection status """
 
-        i = self.node.get_input_index(self.param_str)
-        state = self.node.get_input_state(i)
+        #i = self.node.get_input_index(self.param_str)
+        state = self.node.get_input_state(self.param_str)
 
         # By default, disable the entire widget
         try:

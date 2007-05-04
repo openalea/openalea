@@ -1,20 +1,11 @@
-from openalea.core import Node
-
-class DebugNode (Node) :
+class DebugNode (object) :
     """
     visualea adapter to debug code
     """
-    def __init__ (self) :
-        Node.__init__(self)
-        self.add_input( name = "in", interface = None, value=None)
-        self.add_output( name = "out", interface = None)
-        #self.label="deb"
-        #self.set_caption(self.label)
-    
-    def __call__(self, inputs) :
+    def __call__(self, value) :
         #print self.label,inputs[0]
-        print "deb", inputs[0]
-        return inputs
+        print "deb",value
+        return value
 
 
 class CidNode (object) :

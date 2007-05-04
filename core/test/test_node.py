@@ -10,17 +10,10 @@ def test_funcnode():
     # Test Node creation
     inputs = ( dict(name='x', interface=None, value=None),)
     outputs = ( dict(name='y', interface=None),)
-    def func():
-        raise RuntimeError()
+    def func(*input_values):
+        return (input_values,)
     
     n = FuncNode( inputs, outputs, func)
-
-    try:
-        n()
-        assert False
-    except RuntimeError:
-        assert True
-
 
     n.add_input(name= 'a',inteface= None , value=0)
     assert n.get_nb_input() == 2
@@ -29,14 +22,12 @@ def test_funcnode():
 
     # Test IO and acess by key or index
     n.set_input(0, 1)
-    assert n.get_input('x') == 1
+    n.eval()
+    assert n.get_output('y') == (1,0)
 
     n.set_input('a', 'BB')
-    assert n.get_input(1) == 'BB'
-
-    
-    n.set_output(0, "A")
-    assert n.get_output('y') == "A"
+    n.eval()
+    assert n.get_output(0) == (1,'BB')
 
 
 
@@ -74,8 +65,6 @@ def test_node():
 
     # Test IO and acess by key or index
     n.set_input(0, 1)
-    assert n.get_input('x') == 1
-
     n.eval()
     assert n.get_output('y') == 1
 

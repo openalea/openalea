@@ -45,7 +45,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         
         for id in node.get_ids():
 
-            subnode = node.get_node_by_id(id)
+            subnode = node.node(id)
             factory = subnode.get_factory()
 
             if(not factory): continue
@@ -129,7 +129,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.clear_scene()
         # create items
-        ids= self.node.get_ids()
+        ids= self.node.vertices()
         #for eltid in self.node.node_id.keys():
         for eltid in ids:
             self.add_graphical_node(eltid)
@@ -233,7 +233,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         @param eltid : element id 
         """
 
-        subnode = self.node.get_node_by_id(eltid)
+        subnode = self.node.node(eltid)
         
         nin = subnode.get_nb_input()
         nout = subnode.get_nb_output()
@@ -285,7 +285,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             return
 
         # We Create a new Dialog
-        node = self.node.get_node_by_id(elt_id)
+        node = self.node.node(elt_id)
         factory = node.get_factory()
         if(not factory) : 
             return
@@ -624,7 +624,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         # members
         self.elt_id = elt_id
         self.graphview = graphview
-        self.subnode = self.graphview.node.get_node_by_id(elt_id)
+        self.subnode = self.graphview.node.node(elt_id)
         self.connector_in = []
         self.connector_out = []
         self.sizey = 32
