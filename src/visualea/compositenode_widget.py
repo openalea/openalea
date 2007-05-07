@@ -128,17 +128,17 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ Build the scene with graphic node and edge"""
 
         self.clear_scene()
+        
         # create items
-        ids= self.node.vertices()
-        #for eltid in self.node.node_id.keys():
+        ids = self.node.vertices()
         for eltid in ids:
             self.add_graphical_node(eltid)
 
         # create connections
-        dataflow= self.node
+        dataflow = self.node
         for eid in dataflow.edges():
-            src_id, dst_id= dataflow.source( eid ), dataflow.target( eid )
-            src_port, dst_port= dataflow._edge_ports[ eid ]
+            src_id, dst_id = dataflow.source( eid ), dataflow.target( eid )
+            src_port, dst_port = dataflow._edge_ports[ eid ]
             
             src_item = self.graph_item[src_id]
             dst_item = self.graph_item[dst_id]
