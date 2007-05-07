@@ -48,6 +48,7 @@ class InstantiationError(Exception):
 
 
 ##############################################################################
+# Convenience function
 
 def gen_port_list(size):
     """ Generate a list of port description """
@@ -117,10 +118,11 @@ class Node(IActor,Observed):
         raise NotImplementedError()
 
 
-    def get_obj(self):
+    def get_process_obj(self):
+        """ Return the procession obj """
         return self
 
-    obj = property(get_obj)
+    process_obj = property(get_process_obj)
 
 
     # Accessor
@@ -188,33 +190,39 @@ class Node(IActor,Observed):
         self.outputs.append( None )
         
         self.output_desc.append(kargs)
-        index =  len(self.outputs) - 1
+        index = len(self.outputs) - 1
         self.map_index_out[name] = index
-        self.map_index_out[index]= index 
+        self.map_index_out[index] = index 
 
 
     # I/O Functions
    
     def set_input(self, key, val=None, value_list=None):
         """ Define the input value for the specified index/key """
-        if val is None :
-            if len(value_list)==0 :
+
+        if (val is None) :
+
+            if (len(value_list) == 0):
                 return
-            if len(value_list)>1 :
+            if (len(value_list) > 1):
                 raise NotImplementedError
-            val=value_list[0]
+            
+            val = value_list[0]
+            
         index = self.map_index_in[key]
 
+        changed = True
         if(self.lazy):
             # Test if the inputs has changed
             try:
                 changed = bool(self.inputs[index] != val)
             except:
-                changed = True
+                pass
 
         if(changed):
             self.inputs[index] = val
             self.unvalidate_input(index)
+            
 
     def output (self, key) :
         return self.get_output(key)
@@ -307,10 +315,10 @@ class FuncNode(Node):
             return self.func(*inputs)
 
 
-    def get_obj(self):
+    def get_process_obj(self):
         return self.func
 
-    obj = property(get_obj)
+    process_obj = property(get_process_obj)
     
 
 ###############################################################################
