@@ -43,7 +43,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
 
         vboxlayout = QtGui.QVBoxLayout(self)
         
-        for id in node.get_ids():
+        for id in node.vertices():
 
             subnode = node.node(id)
             factory = subnode.get_factory()
@@ -52,7 +52,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
             
             widget = factory.instantiate_widget(subnode, self)
 
-            caption = "%s"%(subnode.get_catpion())
+            caption = "%s"%(subnode.get_caption())
             groupbox = QtGui.QGroupBox(caption, self)
             layout = QtGui.QVBoxLayout(groupbox)
             layout.setMargin(3)
@@ -95,7 +95,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node_dialog = {}
 
         self.rebuild_scene()
-
 
     # Node property 
     def set_node(self, node):
