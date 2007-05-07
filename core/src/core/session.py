@@ -54,10 +54,7 @@ class Session(Observed):
 
         self.pkgmanager = PackageManager()
 
-
         self.empty_cnode_factory = CompositeNodeFactory("Workspace")
-        sg=CompositeNode()
-        sg.to_factory(self.empty_cnode_factory)
 
         self.clear()
 

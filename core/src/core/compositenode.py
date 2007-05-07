@@ -74,11 +74,6 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Documentation
         self.doc = kargs.get('doc', "")
-
-        #vertices
-        self.elt_factory[self.id_in] = ("_composite_node","_in")
-        self.elt_factory[self.id_out] = ("_composite_node","_out")
-
         
 
     def clear (self) :
@@ -108,32 +103,22 @@ class CompositeNodeFactory(AbstractFactory):
 
         call_stack.append(self.get_id())
 
-        id_in = None
-        id_out = None
-        
-        for (vid,factory) in self.elt_factory.iteritems() :
-            
-            if(factory[0] == "_composite_node" and factory[1] == "_in"):
-                id_in = vid
-            if(factory[0] == "_composite_node" and factory[1] == "_out"):
-                id_out = vid
-        
-        if(id_in is None) or (id_out is None) :
-            raise UserWarning("CompositeNodeFactory has no in or out")
-        
-        new_df = CompositeNode(self.inputs, self.outputs, id_in, id_out)
+        new_df = CompositeNode(self.inputs, self.outputs)
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
         
         # Instantiate the node with each factory
-        for vid in (vid for vid in self.elt_factory if vid not in (id_in,id_out)):
+        for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
             new_df.add_node(n, vid)
 
         # Create the connections
         for eid,link in self.connections.iteritems() :
             (source_vid, source_port, target_vid, target_port) = link
+            # Replace id for in and out nodes
+            if(source_vid == '__in__') : source_vid = new_df.id_in
+            if(target_vid == '__out__') : target_vid = new_df.id_out
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
         self.graph_modified = False
@@ -186,7 +171,7 @@ class CompositeNode(Node, DataFlow):
     """
 
 
-    def __init__(self, inputs=(), outputs=(), id_in=None, id_out=None):
+    def __init__(self, inputs=(), outputs=()):
         """ Inputs and outputs are list of dict(name='', interface='', value='') """
 
         Node.__init__(self, inputs, outputs)
@@ -196,8 +181,8 @@ class CompositeNode(Node, DataFlow):
         self.graph_modified = False
 
         #I/O ports
-        self.id_in = self.add_node(CompositeNodeInput(inputs),id_in)
-        self.id_out = self.add_node(CompositeNodeOutput(outputs),id_out)
+        self.id_in = self.add_node(CompositeNodeInput(inputs))
+        self.id_out = self.add_node(CompositeNodeOutput(outputs))
 
 
     #######################################################
@@ -272,27 +257,40 @@ class CompositeNode(Node, DataFlow):
         # I / O
         sgfactory.inputs = [dict(val) for val in self.input_desc]
         sgfactory.outputs = [dict(val) for val in self.output_desc]
-        #vertices
-        sgfactory.elt_factory[self.id_in] = ("_composite_node","_in")
-        sgfactory.elt_factory[self.id_out] = ("_composite_node","_out")
 
-        # All vertice id except id_in and id_out
-        for vid in (vid for vid in self.vertices()
-                    if vid not in [self.id_in, self.id_out]):
+        if(listid is None): listid = set(self.vertices())
+
+        # Copy Connections
+        for eid in self.edges() :
+
+            src = self.source(eid)
+            tgt = self.target(eid)
+
+            if((src not in listid) or (tgt not in listid)) : continue
+            if(src == self.id_in) : src = '__in__'
+            if(tgt == self.id_out) : tgt = '__out__'
+            
+            source_port = self.local_id(self.source_port(eid))
+            target_port = self.local_id(self.target_port(eid))
+            sgfactory.connections[eid] = (src, source_port, tgt, target_port)
+
+
+        # Do not copy In and Out
+        if(self.id_in in listid): listid.remove(self.id_in)
+        if(self.id_out in listid): listid.remove(self.id_out)
+
+        # Copy node
+        for vid in listid:
             
             node = self.actor(vid)
             kdata = node.internal_data
+
             pkg_id = node.factory.package.get_id()
             factory_id = node.factory.get_id()
-            sgfactory.elt_factory[vid] = (pkg_id,factory_id)
-            sgfactory.elt_data[vid] = kdata
 
-        #edges
-        for eid in self.edges() :
-            source_port = self.local_id(self.source_port(eid))
-            target_port = self.local_id(self.target_port(eid))
-            sgfactory.connections[eid] = (self.source(eid),source_port,\
-                                             self.target(eid),target_port)
+            sgfactory.elt_factory[vid] = (pkg_id, factory_id)
+            sgfactory.elt_data[vid] = kdata
+            
 
         self.graph_modified = False
 
