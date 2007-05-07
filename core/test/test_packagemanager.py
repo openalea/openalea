@@ -59,6 +59,7 @@ def test_load_pm():
    
 
 def test_category():
+
     pkgman = PackageManager()
 
     pkgman.init()
@@ -73,6 +74,7 @@ def test_category():
 
 
 def test_search():
+
     pkgman = PackageManager()
     pkgman.add_wralea("test_wralea.py")
 
@@ -84,6 +86,7 @@ def test_search():
 
 
 def test_write_config():
+
     pkgman = PackageManager()
     pkgman.add_wralea("test_wralea.py")
     pkgman.write_config()
