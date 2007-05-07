@@ -124,11 +124,12 @@ class Node(IActor,Observed):
 
     process_obj = property(get_process_obj)
 
-
+    
     # Accessor
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
+
 
 
     # Internal data accessor

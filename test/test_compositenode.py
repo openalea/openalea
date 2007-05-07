@@ -115,7 +115,9 @@ def test_to_factory():
 
     return pm, sg, sgfactory
     
+
 def test_to_factory2():
+    
     pm, sg, sgfactory= test_to_factory()
 
     sg.to_factory( sgfactory )
@@ -154,6 +156,7 @@ def test_recursion_factory():
     except RecursionError:
         assert True
 """
+
 
 # Test IO
 def test_compositenodeio():
@@ -289,12 +292,15 @@ def test_multi_out_eval():
 from nose import with_setup
 from openalea.core.path import path
 
+
 def setup_func():
     wralea= path('data')/'jcd_dec.py'
     wralea.copy(path('data')/'jcd_wralea.py')
+
 def teardown_func():
     wralea= path('data')
     map(lambda f: f.remove(),wralea.glob('*wralea*'))
+
 
 @with_setup(setup_func,teardown_func)
 def test_eval_bug():
