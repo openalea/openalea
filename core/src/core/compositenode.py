@@ -77,9 +77,10 @@ class CompositeNodeFactory(AbstractFactory):
         
 
     def clear (self) :
-        self.elt_factory = {}
-        self.connections = {}
-        self.elt_data = {}
+
+        self.elt_factory.clear()
+        self.connections.clear()
+        self.elt_data.clear()
         
 
     def get_writer(self):

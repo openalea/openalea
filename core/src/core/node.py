@@ -228,10 +228,12 @@ class Node(IActor, Observed):
     def output (self, key) :
         return self.get_output(key)
 
+
     def get_input (self, index_key) :
         """ Return the output for the specified index/key """
         index = self.map_index_in[index_key]
         return self.inputs[index]
+
 
     def get_output(self, index_key):
         """ Return the output for the specified index/key """
