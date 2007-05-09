@@ -62,7 +62,7 @@ def gen_port_list(size):
 ###############################################################################
 
 
-class Node(IActor,Observed):
+class Node(IActor, Observed):
     """
     A Node is the atomic entity in a dataflow.
     It is a callable object with typed inputs and outputs.
