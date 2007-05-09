@@ -25,22 +25,23 @@ from openalea.core import *
 #import plotable
 import pylab
 from matplotlib import rc
-rc( 'text', usetex=True )
+rc('text', usetex=True )
 
-class plot2D( Node ):
+class plot2D(Node):
     """Generate a plot from 2D plotable object
     Input 0 : 2D plotable object list"""
 
     def __init__(self, inputs, outputs ):
 
-        Node.__init__( self, inputs, outputs )
+        Node.__init__(self, inputs, outputs)
 
 
     def __call__( self, inputs ):
-        objList = self.get_input( 'plotObjList' )
-        title=self.get_input( 'title' )
-        xlabel=self.get_input( 'xlabel' )
-        ylabel=self.get_input( 'ylabel' )
+        
+        objList = self.get_input('plotObjList')
+        title=self.get_input('title')
+        xlabel=self.get_input('xlabel')
+        ylabel=self.get_input('ylabel')
         
         
         if objList == None :
