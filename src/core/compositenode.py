@@ -233,8 +233,6 @@ class CompositeNode(Node, DataFlow):
         return ()
 
 
-
-
     #######################################################
     #
     #		CompositeNode as a dataflow
@@ -340,6 +338,7 @@ class CompositeNode(Node, DataFlow):
         @param dst_id : destination node id
         @param port_dst : destination input port number
         """
+        
         source_pid = self.out_port(src_id,port_src)
         target_pid = self.in_port(dst_id,port_dst)
         DataFlow.connect(self,source_pid,target_pid)
@@ -449,7 +448,6 @@ class PyCNFactoryWriter(object):
                               )
 
     pkg.add_factory(nf)
-
 """
 
     def __init__(self, factory):

@@ -76,12 +76,12 @@ def test_compositenodewriter():
     assert sg.node(val3id).get_output(0) == 5.
 
     print "nb vertices", len( sg )
-    assert len( sg ) == 6
+    assert len(sg) == 6
 
     pm.init()
     newsg = pm.get_node('MyPackage', 'addition')
     print "nb vertices", len( newsg )
-    assert len( newsg ) == 6
+    assert len(newsg) == 6
     
     
     
