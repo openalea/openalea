@@ -214,24 +214,6 @@
     <addaction name="separator" />
     <addaction name="menuCreate" />
    </widget>
-   <widget class="QMenu" name="menu_Workspace" >
-    <property name="windowIcon" >
-     <iconset/>
-    </property>
-    <property name="title" >
-     <string>&amp;Workspace</string>
-    </property>
-    <addaction name="action_Run" />
-    <addaction name="separator" />
-    <addaction name="action_New_Empty_Workspace" />
-    <addaction name="separator" />
-    <addaction name="action_Export_to_Factory" />
-    <addaction name="actionReload_from_Model" />
-    <addaction name="action_Close_current_workspace" />
-    <addaction name="action_Delete_2" />
-    <addaction name="separator" />
-    <addaction name="actionExport_to_Application" />
-   </widget>
    <widget class="QMenu" name="menu_Help" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -242,6 +224,25 @@
     <addaction name="actionOpenAlea_Web" />
     <addaction name="separator" />
     <addaction name="actionPreferences" />
+   </widget>
+   <widget class="QMenu" name="menu_Workspace" >
+    <property name="windowIcon" >
+     <iconset/>
+    </property>
+    <property name="title" >
+     <string>&amp;Workspace</string>
+    </property>
+    <addaction name="action_Run" />
+    <addaction name="actionConfigure_I_O" />
+    <addaction name="action_Delete_2" />
+    <addaction name="separator" />
+    <addaction name="action_New_Empty_Workspace" />
+    <addaction name="action_Close_current_workspace" />
+    <addaction name="separator" />
+    <addaction name="action_Export_to_Factory" />
+    <addaction name="actionReload_from_Model" />
+    <addaction name="separator" />
+    <addaction name="actionExport_to_Application" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -435,6 +436,11 @@
   <action name="actionPreferences" >
    <property name="text" >
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionConfigure_I_O" >
+   <property name="text" >
+    <string>Configure I/O</string>
    </property>
   </action>
  </widget>

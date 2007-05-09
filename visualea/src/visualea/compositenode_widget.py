@@ -338,12 +338,13 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         from dialogs import FactorySelector
         dialog = FactorySelector(self.node.factory, self)
 
+        s = self.get_selected_item()
+        allow_selection = allow_selection and bool(s)
+
         # Selection enabled
         if(allow_selection):
-            s = self.get_selected_item()
-            if(s) : dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
+            dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
         else:
-            s = None
             dialog.selectionBox.setEnabled(False)
         
         
