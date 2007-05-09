@@ -287,11 +287,10 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     def update_state(self):
         """ Enable or disable widget depending of its state """
         
-        i = self.node.get_input_index(self.param_str)
         # do not call itemchanged
         self.updating = True
 
-        state = self.node.get_input_state(i)
+        state = self.node.get_input_state(self.param_str)
         
         self.connected = (state == "connected")
         self.buttonplus.setVisible(not self.connected)
@@ -455,8 +454,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
     def update_state(self):
         """ Enable or disable widget depending of its state """
         
-        i = self.node.get_input_index(self.param_str)
-        state = self.node.get_input_state(i)
+        state = self.node.get_input_state(self.param_str)
         
         self.connected = (state == "connected")
         self.button.setVisible(not self.connected)
