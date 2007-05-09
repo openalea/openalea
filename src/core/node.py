@@ -485,17 +485,16 @@ class NodeFactory(AbstractFactory):
         module = self.get_node_module()
         classobj = module.__dict__[self.nodeclass_name]
 
+        # Check inputs and outputs
+        if(self.inputs == None) :
+            s = sgn.Signature(classobj)
+            self.inputs = s.get_parameters()
+        if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
+
         
         # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
 
-            # Check inputs and outputs
-            if(self.inputs == None) :
-                s = sgn.Signature(classobj)
-                self.inputs = s.get_parameters()
-            if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
-
- 
             # Check and Instantiate if we have a functor class
             if((type(classobj) == types.TypeType)
                or (type(classobj) == types.ClassType)):
