@@ -32,6 +32,7 @@ from openalea.core.node import NodeWidget, RecursionError
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
+from openalea.core.observer import AbstractListener
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
     """ Display widgets contained in the graph """
@@ -72,11 +73,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
-        
-        # Scene
-        scene = QtGui.QGraphicsScene(self)
-        scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
-        self.setScene(scene)
         #self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
@@ -96,6 +92,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         self.rebuild_scene()
 
+
     # Node property 
     def set_node(self, node):
         """ Define the associated node (overloaded) """
@@ -107,16 +104,17 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def clear_scene(self):
         """ Remove all items from the scene """
-        
-        # Close items
-        for eltid in self.graph_item.keys():
-            self.remove_graphical_node(eltid)
+            
 
-        self.graph_item = {}
+        # close dialog
+        for (dialog, widget) in self.node_dialog:
+            dialog.close()
+            dialog.destroy()
         self.node_dialog = {}
-        
-        scene = self.scene()
-        del(scene)
+
+        # Close items
+        self.graph_item = {}
+        # Scene
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
@@ -143,7 +141,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
             src_port = dataflow.local_id(dataflow.source_port(eid))
             tgt_port = dataflow.local_id(dataflow.target_port(eid))
-            print dataflow, src_port, tgt_port
             
             src_connector = src_item.get_output_connector(src_port)
             dst_connector = dst_item.get_input_connector(tgt_port)
@@ -168,7 +165,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if (event.buttons() & QtCore.Qt.LeftButton):
             QtGui.QGraphicsView.mousePressEvent(self, event)
             
-
 
     @lock_notify
     def mouseReleaseEvent(self, event):
@@ -329,8 +325,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # Remove other item
         items = self.scene().selectedItems()
-        for i in items :
-            self.scene().removeItem(i)
+        map(self.scene().removeItem, items)
 
 
     def export_to_factory(self, allow_selection=True):
@@ -379,8 +374,11 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         
 
-    def remove_graphical_node(self, elt_id):
-        """ Remove the graphical node item identified by elt_id """
+    
+
+    @lock_notify      
+    def remove_node(self, elt_id):
+        """ Remove node identified by elt_id """
 
         # close dialog
         try:
@@ -396,30 +394,20 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         item.remove_connections()
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
-                
 
-    @lock_notify      
-    def remove_node(self, elt_id):
-        """ Remove node identified by elt_id """
-
-        self.remove_graphical_node(elt_id)
         self.node.remove_node(elt_id)
 
-
-    def remove_graphical_connection(self, src_connector, dst_connector):
-        """ Remove a graphical edge """
-
-        item = dst_connector.edge
-        dst_connector.set_edge(None)
-        src_connector.edge_list.remove(item)
-        self.scene().removeItem(item)
 
 
     @lock_notify
     def remove_connection(self, connector_src, connector_dst):
         """ Remove a connection """
 
-        self.remove_graphical_connection(connector_src, connector_dst)
+        item = connector_dst.edge
+        connector_dst.set_edge(None)
+        connector_src.edge_list.remove(item)
+        self.scene().removeItem(item)
+
         self.node.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
     
@@ -589,7 +577,6 @@ class Annotation(QtGui.QGraphicsTextItem):
         
 
 
-from openalea.core.observer import AbstractListener
 
 
 def port_name( name, interface ):
@@ -620,7 +607,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         """
 
         scene = graphview.scene()
-
         QtGui.QGraphicsItem.__init__(self)
 
         # members
@@ -813,8 +799,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
             
-            [ c.adjust() for c in self.connector_in ]
-            [ c.adjust() for c in self.connector_out ]
+            for c in self.connector_in : c.adjust()
+            for c in self.connector_out : c.adjust()
 
             point = value.toPointF()
         

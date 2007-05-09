@@ -349,9 +349,7 @@ class MainWindow(QtGui.QMainWindow,
         if(index<0): index = self.tabWorkspace.currentIndex()
 
         widget = self.index_nodewidget[index]
-
         newnode = widget.node.factory.instantiate()
-
         widget.node = newnode
         self.session.workspaces[index] = newnode
         
@@ -363,7 +361,6 @@ class MainWindow(QtGui.QMainWindow,
         """
 
         if(index < 0): index = self.tabWorkspace.currentIndex()
-
         widget = self.index_nodewidget[index]
         
         try:
