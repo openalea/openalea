@@ -175,15 +175,37 @@ class CompositeNode(Node, DataFlow):
     def __init__(self, inputs=(), outputs=()):
         """ Inputs and outputs are list of dict(name='', interface='', value='') """
 
-        Node.__init__(self, inputs, outputs)
         DataFlow.__init__(self)
 
+        self.id_in = None
+        self.id_out = None
+        
+        Node.__init__(self, inputs, outputs)
+
+    
+     
         # graph modification status
         self.graph_modified = False
 
+
+
+    def set_io(self, inputs, outputs):
+        """
+        Define inputs and outputs
+        Inputs and outputs are list of dict(name='', interface='', value='') 
+        """
+
         #I/O ports
-        self.id_in = self.add_node(CompositeNodeInput(inputs))
-        self.id_out = self.add_node(CompositeNodeOutput(outputs))
+        if(self.id_in is None):
+            self.id_in = self.add_node(CompositeNodeInput(inputs))
+        if(self.id_out is None):
+            self.id_out = self.add_node(CompositeNodeOutput(outputs))
+
+        Node.set_io(self, inputs, outputs)
+
+        self.node(self.id_in).set_io((), inputs)
+        self.node(self.id_out).set_io(outputs, ())
+        
 
 
     #######################################################
