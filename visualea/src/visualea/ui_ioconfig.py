@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ioconfig.ui'
 #
-# Created: Wed May  9 16:59:22 2007
+# Created: Wed May  9 17:36:25 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_IOConfig(object):
     def setupUi(self, IOConfig):
         IOConfig.setObjectName("IOConfig")
-        IOConfig.resize(QtCore.QSize(QtCore.QRect(0,0,291,398).size()).expandedTo(IOConfig.minimumSizeHint()))
+        IOConfig.resize(QtCore.QSize(QtCore.QRect(0,0,291,528).size()).expandedTo(IOConfig.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(IOConfig)
         self.vboxlayout.setMargin(9)
@@ -27,6 +27,20 @@ class Ui_IOConfig(object):
         self.inTable.setObjectName("inTable")
         self.vboxlayout.addWidget(self.inTable)
 
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
+
+        self.addInput = QtGui.QPushButton(IOConfig)
+        self.addInput.setObjectName("addInput")
+        self.hboxlayout.addWidget(self.addInput)
+
+        self.delInput = QtGui.QPushButton(IOConfig)
+        self.delInput.setObjectName("delInput")
+        self.hboxlayout.addWidget(self.delInput)
+        self.vboxlayout.addLayout(self.hboxlayout)
+
         self.label_2 = QtGui.QLabel(IOConfig)
         self.label_2.setObjectName("label_2")
         self.vboxlayout.addWidget(self.label_2)
@@ -34,6 +48,20 @@ class Ui_IOConfig(object):
         self.outTable = QtGui.QTableWidget(IOConfig)
         self.outTable.setObjectName("outTable")
         self.vboxlayout.addWidget(self.outTable)
+
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.addOutput = QtGui.QPushButton(IOConfig)
+        self.addOutput.setObjectName("addOutput")
+        self.hboxlayout1.addWidget(self.addOutput)
+
+        self.delOutput = QtGui.QPushButton(IOConfig)
+        self.delOutput.setObjectName("delOutput")
+        self.hboxlayout1.addWidget(self.delOutput)
+        self.vboxlayout.addLayout(self.hboxlayout1)
 
         self.buttonBox = QtGui.QDialogButtonBox(IOConfig)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -48,8 +76,7 @@ class Ui_IOConfig(object):
 
     def retranslateUi(self, IOConfig):
         IOConfig.setWindowTitle(QtGui.QApplication.translate("IOConfig", "I/O Configuration", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("IOConfig", "Inputs\n"
-        "", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("IOConfig", "Inputs", None, QtGui.QApplication.UnicodeUTF8))
         self.inTable.clear()
         self.inTable.setColumnCount(2)
         self.inTable.setRowCount(0)
@@ -61,6 +88,8 @@ class Ui_IOConfig(object):
         headerItem1 = QtGui.QTableWidgetItem()
         headerItem1.setText(QtGui.QApplication.translate("IOConfig", "Interface", None, QtGui.QApplication.UnicodeUTF8))
         self.inTable.setHorizontalHeaderItem(1,headerItem1)
+        self.addInput.setText(QtGui.QApplication.translate("IOConfig", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.delInput.setText(QtGui.QApplication.translate("IOConfig", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("IOConfig", "Outputs", None, QtGui.QApplication.UnicodeUTF8))
         self.outTable.clear()
         self.outTable.setColumnCount(2)
@@ -73,4 +102,6 @@ class Ui_IOConfig(object):
         headerItem3 = QtGui.QTableWidgetItem()
         headerItem3.setText(QtGui.QApplication.translate("IOConfig", "Interface", None, QtGui.QApplication.UnicodeUTF8))
         self.outTable.setHorizontalHeaderItem(1,headerItem3)
+        self.addOutput.setText(QtGui.QApplication.translate("IOConfig", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.delOutput.setText(QtGui.QApplication.translate("IOConfig", "-", None, QtGui.QApplication.UnicodeUTF8))
 

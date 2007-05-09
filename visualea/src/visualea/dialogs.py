@@ -377,8 +377,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
-        
-
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
 
@@ -439,6 +437,8 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         ui_ioconfig.Ui_IOConfig.__init__(self)
         self.setupUi(self)
 
+        self.node = node
+
         self.inTable.setRowCount(len(node.input_desc))
         for i, d in enumerate(node.input_desc):
             self.inTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
@@ -451,6 +451,65 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
             self.outTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
 
 
+        self.connect(self.addInput, QtCore.SIGNAL("clicked()"), self.add_input)
+        self.connect(self.delInput, QtCore.SIGNAL("clicked()"), self.del_input)
+        self.connect(self.addOutput, QtCore.SIGNAL("clicked()"), self.add_output)
+        self.connect(self.delOutput, QtCore.SIGNAL("clicked()"), self.del_output)
+
+
     def accept(self):
+        """ Valid IO """
+
+        # build input dict
+        inputs = []
+        c = self.inTable.rowCount()
+        for i in xrange(c):
+            name = str(self.inTable.item(i,0).text())
+            interface_str = str(self.inTable.item(i,1).text())
+            try:
+                interface = eval(interface_str)
+            except:
+                interface = None
+            inputs.append(dict(name=name, interface=interface))
+            
+
+        # build output dict
+        outputs = []
+        c = self.outTable.rowCount()
+        for i in xrange(c):
+            name = str(self.outTable.item(i,0).text())
+            interface_str = str(self.outTable.item(i,1).text())
+            try:
+                interface = eval(interface_str)
+            except:
+                interface = None
+            outputs.append(dict(name=name, interface=interface))
+
+        self.node.set_io(inputs, outputs)
+        
         QtGui.QDialog.accept(self)
 
+
+    def add_input(self):
+        c = self.inTable.rowCount()
+        self.inTable.setRowCount(c+1)
+        self.inTable.setItem(c, 0, QtGui.QTableWidgetItem('IN%i'%(c+1,)))
+        self.inTable.setItem(c, 1, QtGui.QTableWidgetItem('None'))
+
+
+    def add_output(self):
+        c = self.outTable.rowCount()
+        self.outTable.setRowCount(c+1)
+        self.outTable.setItem(c, 0, QtGui.QTableWidgetItem('OUT%i'%(c+1,)))
+        self.outTable.setItem(c, 1, QtGui.QTableWidgetItem('None'))
+
+
+    def del_input(self):
+        c = self.inTable.rowCount()
+        self.inTable.setRowCount(c-1)
+
+
+    def del_output(self):
+        c = self.outTable.rowCount()
+        self.outTable.setRowCount(c-1)
+        

@@ -353,7 +353,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         factory = dialog.get_factory()
 
-        if(dialog.selectionBox.checkState() == QtCore.Qt.Unchecked):
+        if(dialog.selectionBox.checkState() == QtCore.Qt.Unchecked
+           or not s):
             self.node.to_factory(factory, None)
             
         else: # Replace selection by a new node
@@ -369,6 +370,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """ Return the center of items (items is the list of id) """
 
         l = len(items)
+        if(l == 0) : return QtCore.QPointF(30,30)
+        
         sx = sum((self.graph_item[i].pos().x() for i in items))
         sy = sum((self.graph_item[i].pos().y() for i in items))
         return QtCore.QPointF( float(sx)/l, float(sy)/l )
