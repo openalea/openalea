@@ -390,7 +390,11 @@ class MainWindow(QtGui.QMainWindow,
         widget = self.index_nodewidget[index]
 
         dialog = IOConfigDialog(widget.node, self)
-        dialog.exec_()
+        ret = dialog.exec_()
+
+        if(ret):
+            widget.rebuild_scene()
+        
 
             
     def export_to_application(self):
