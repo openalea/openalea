@@ -34,31 +34,31 @@ def register_packages(pkgmanager):
 
     # Base Library
 
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'OpenAlea Consortium',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'Catalog library.',
-               'url' : 'http://openalea.gforge.inria.fr'
-               }
+    metainfo = { 'version' : '0.0.1',
+                 'license' : 'CECILL-C',
+                 'authors' : 'OpenAlea Consortium',
+                 'institutes' : 'INRIA/CIRAD',
+                 'description' : 'Catalog library.',
+                 'url' : 'http://openalea.gforge.inria.fr'
+                 }
 
 
     package = Package("Catalog.PlotTools", metainfo)
 
     nf = Factory( name= "plot2D", 
-                  description= "Plot a list of 2D plotable objects", 
-                  category = "Vizualisation", 
-                  nodemodule = "plotools",
-                  nodeclass = "plot2D",
-                  inputs= ( dict( name='plotObjList', interface=ISequence, showwidget=True),
-                            dict( name='title', interface=IStr, value='MyPlot' ),
-                            dict( name='xlabel', interface=IStr, value='x-axis' ),
-                            dict( name='ylabel', interface=IStr, value='y-axis' ),
-                          ),
+                  description="Plot a list of 2D plotable objects", 
+                  category="Vizualisation", 
+                  nodemodule="plotools",
+                  nodeclass="plot2D",
+                  inputs=(dict(name='plotObjList', interface=ISequence, showwidget=True),
+                          dict(name='title', interface=IStr, value='MyPlot'),
+                            dict(name='xlabel', interface=IStr, value='x-axis'),
+                            dict(name='ylabel', interface=IStr, value='y-axis'),  ),
+                  outputs=()
 
                 )
 
-    package.add_factory( nf )
+    package.add_factory(nf)
 
 
     
