@@ -78,21 +78,8 @@ class Node(IActor, Observed):
         """
 
         Observed.__init__(self)
-
-        # Values
-        self.inputs = []
-        self.outputs = []
-
-        # Description (list of dict (name=, interface=, ...))
-        self.input_desc = []
-        self.output_desc = []        
+        self.set_io(inputs, outputs)
         
-        self.map_index_in = {}
-        self.map_index_out = {}
-
-        # Input states : "connected", "hidden"
-        self.input_states = []
-
         # Node State
         self.modified = True
         # Lazy State : if False, disable lazy evaluation
@@ -105,11 +92,6 @@ class Node(IActor, Observed):
         self.internal_data = {}
         self.internal_data['caption'] = str(self.__class__.__name__)
 
-        # Process in and out
-        for d in inputs:
-            self.add_input(**d)
-        for d in outputs:
-            self.add_output(**d)
 
 
     def __call__(self, inputs = ()):
@@ -158,6 +140,36 @@ class Node(IActor, Observed):
 
 
     # Declarations
+    def set_io(self, inputs, outputs):
+        """
+        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
+        @param outputs   : list of dict(name='X', interface=IFloat)
+        """
+
+        # Values
+        self.inputs = []
+        self.outputs = []
+
+        # Description (list of dict (name=, interface=, ...))
+        self.input_desc = []
+        self.output_desc = []        
+        
+        self.map_index_in = {}
+        self.map_index_out = {}
+
+        # Input states : "connected", "hidden"
+        self.input_states = []
+
+        # Process in and out
+        if(inputs):
+            for d in inputs:
+                self.add_input(**d)
+                
+        if(outputs):
+            for d in outputs:
+                self.add_output(**d)
+
+    
     def add_input(self, **kargs):
         """ Create an input port """
 
@@ -485,15 +497,15 @@ class NodeFactory(AbstractFactory):
         module = self.get_node_module()
         classobj = module.__dict__[self.nodeclass_name]
 
-        # Check inputs and outputs
-        if(self.inputs == None) :
-            s = sgn.Signature(classobj)
-            self.inputs = s.get_parameters()
-        if(self.outputs == None) : self.outputs = (dict(name="out", interface=None),)
-
-        
         # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
+
+            # Check inputs and outputs
+            if(self.inputs is None) :
+                s = sgn.Signature(classobj)
+                self.inputs = s.get_parameters()
+            if(self.outputs is None) : self.outputs = (dict(name="out", interface=None),)
+
 
             # Check and Instantiate if we have a functor class
             if((type(classobj) == types.TypeType)
