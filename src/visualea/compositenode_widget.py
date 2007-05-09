@@ -136,14 +136,17 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # create connections
         dataflow = self.node
         for eid in dataflow.edges():
-            src_id, dst_id = dataflow.source( eid ), dataflow.target( eid )
-            src_port, dst_port = dataflow._edge_ports[ eid ]
+            (src_id, dst_id) = dataflow.source(eid), dataflow.target(eid)
             
             src_item = self.graph_item[src_id]
             dst_item = self.graph_item[dst_id]
 
+            src_port = dataflow.local_id(dataflow.source_port(eid))
+            tgt_port = dataflow.local_id(dataflow.target_port(eid))
+            print dataflow, src_port, tgt_port
+            
             src_connector = src_item.get_output_connector(src_port)
-            dst_connector = dst_item.get_input_connector(dst_port)
+            dst_connector = dst_item.get_input_connector(tgt_port)
 
             self.add_graphical_connection(src_connector, dst_connector)
 
@@ -735,17 +738,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     
 
     def get_input_connector(self, index):
-        try:
-            return self.connector_in[index]
-        except:
-            return None
 
+        return self.connector_in[index]
+        
 
     def get_output_connector(self, index):
-        try:
-            return self.connector_out[index]
-        except:
-            return None
+
+        return self.connector_out[index]
 
 
     def remove_connections(self):
