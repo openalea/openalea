@@ -39,7 +39,7 @@ import metainfo
 
 from openalea.core.observer import AbstractListener
 
-from dialogs import NewGraph, NewPackage, FactorySelector, PreferencesDialog
+from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
 
 
 
@@ -146,6 +146,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
         self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
                      self.close_workspace)
+        self.connect(self.actionConfigure_I_O, SIGNAL("activated()"),
+                     self.configure_io)
         self.connect(self.actionReload_from_Model, SIGNAL("activated()"), self.reload_from_factory)
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
         self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
@@ -379,9 +381,18 @@ class MainWindow(QtGui.QMainWindow,
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
+
+
+    def configure_io(self, index=-1):
+        """ Configure workspace IO """
+
+        if(index < 0): index = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[index]
+
+        dialog = IOConfigDialog(widget.node, self)
+        dialog.exec_()
+
             
-
-
     def export_to_application(self):
         """ Export current workspace composite node to an Application """
 

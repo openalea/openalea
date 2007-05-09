@@ -33,7 +33,7 @@ import os
 import ui_tofactory
 import ui_newpackage
 import ui_preferences
-
+import ui_ioconfig
 
 
 
@@ -426,3 +426,31 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         self.valid_search_path()
         self.valid_ui()
         QtGui.QDialog.accept(self)
+
+
+
+class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
+    """ IO Configuration dialog """
+    
+    def __init__(self, node, parent=None):
+        """ node : the node IO to edit """
+        
+        QtGui.QDialog.__init__(self, parent)
+        ui_ioconfig.Ui_IOConfig.__init__(self)
+        self.setupUi(self)
+
+        self.inTable.setRowCount(len(node.input_desc))
+        for i, d in enumerate(node.input_desc):
+            self.inTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
+            self.inTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
+            
+
+        self.outTable.setRowCount(len(node.output_desc))
+        for i, d in enumerate(node.output_desc):
+            self.outTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
+            self.outTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
+
+
+    def accept(self):
+        QtGui.QDialog.accept(self)
+

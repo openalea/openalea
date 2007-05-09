@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu May  3 10:29:41 2007
+# Created: Wed May  9 17:03:17 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -132,11 +132,11 @@ class Ui_MainWindow(object):
         self.menuCreate = QtGui.QMenu(self.menu_Package)
         self.menuCreate.setObjectName("menuCreate")
 
-        self.menu_Workspace = QtGui.QMenu(self.menubar)
-        self.menu_Workspace.setObjectName("menu_Workspace")
-
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
+
+        self.menu_Workspace = QtGui.QMenu(self.menubar)
+        self.menu_Workspace.setObjectName("menu_Workspace")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -232,6 +232,9 @@ class Ui_MainWindow(object):
 
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName("actionPreferences")
+
+        self.actionConfigure_I_O = QtGui.QAction(MainWindow)
+        self.actionConfigure_I_O.setObjectName("actionConfigure_I_O")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -249,22 +252,23 @@ class Ui_MainWindow(object):
         self.menu_Package.addAction(self.actionFind_Node)
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.menuCreate.menuAction())
-        self.menu_Workspace.addAction(self.action_Run)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.action_New_Empty_Workspace)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.action_Export_to_Factory)
-        self.menu_Workspace.addAction(self.actionReload_from_Model)
-        self.menu_Workspace.addAction(self.action_Close_current_workspace)
-        self.menu_Workspace.addAction(self.action_Delete_2)
-        self.menu_Workspace.addSeparator()
-        self.menu_Workspace.addAction(self.actionExport_to_Application)
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.action_About)
         self.menu_Help.addAction(self.actionOpenAlea_Web)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.actionPreferences)
+        self.menu_Workspace.addAction(self.action_Run)
+        self.menu_Workspace.addAction(self.actionConfigure_I_O)
+        self.menu_Workspace.addAction(self.action_Delete_2)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_New_Empty_Workspace)
+        self.menu_Workspace.addAction(self.action_Close_current_workspace)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.action_Export_to_Factory)
+        self.menu_Workspace.addAction(self.actionReload_from_Model)
+        self.menu_Workspace.addSeparator()
+        self.menu_Workspace.addAction(self.actionExport_to_Application)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menuDataPool.menuAction())
@@ -291,8 +295,8 @@ class Ui_MainWindow(object):
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Wralea_2.setTitle(QtGui.QApplication.translate("MainWindow", "&Import", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
@@ -335,5 +339,6 @@ class Ui_MainWindow(object):
         self.action_New_Empty_Workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReload_from_Model.setText(QtGui.QApplication.translate("MainWindow", "Reload from Model", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionConfigure_I_O.setText(QtGui.QApplication.translate("MainWindow", "Configure I/O", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
