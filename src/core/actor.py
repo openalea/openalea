@@ -25,12 +25,36 @@ class IActor (object) :
 	"""
 	interface to emulate a function
 	"""
-	def eval (self) :
+	def inputs (self) :
+		"""
+		iterate on all input description
+		return iter of (input key,input interface)
+		"""
 		raise NotImplementedError
 	
-	def set_input (self, key, value_list) :
+	def outputs (self) :
+		"""
+		iterate on all output descriptions
+		return iter of (otuput key,output interface)
+		"""
+		raise NotImplementedError
+	
+	def eval (self) :
+		"""
+		function called after setting the input
+		to compute output values
+		"""
+		raise NotImplementedError
+	
+	def set_input (self, key, value) :
+		"""
+		set input specified by a key to value
+		"""
 		raise NotImplementedError
 	
 	def output (self, key) :
+		"""
+		get value computed for output
+		"""
 		raise NotImplementedError
 

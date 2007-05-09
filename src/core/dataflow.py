@@ -280,8 +280,20 @@ class DataFlow (PropertyGraph):
 		return actor associated to a given vertex
 		"""
 		return self.vertex_property("_actor")[vid]
-
 	
+	def add_actor (self, actor, vid=None) :
+		"""
+		create a vertex and the corresponding ports
+		and associate it with the given actor
+		return: vid
+		"""
+		vid=self.add_vertex(vid)
+		for key,interface in actor.inputs() :
+			self.add_in_port(vid,key)
+		for key,interface in actor.outputs() :
+			self.add_out_port(vid,key)
+		self.set_actor(vid,actor)
+		return vid
 	#####################################################
 	#
 	#		mutable concept
