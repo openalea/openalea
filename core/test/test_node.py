@@ -79,6 +79,7 @@ def test_factory():
                  )
                 
     n = f1.instantiate()
+    print n.get_nb_input()
     assert n.get_nb_input() == 0
     
     f2 = Factory( name = "MyFactory2",
