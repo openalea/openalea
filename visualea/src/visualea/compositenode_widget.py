@@ -318,13 +318,19 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_selection(self):
         """ Remove selected nodes """
 
+        # Ensure to not remove in and out node
+        self.graph_item[self.node.id_in].setSelected(False)
+        self.graph_item[self.node.id_out].setSelected(False)
+
         s = self.get_selected_item()
-        
+                    
         # remove the nodes
         map(self.remove_node, s)
 
         # Remove other item
         items = self.scene().selectedItems()
+
+        
         map(self.scene().removeItem, items)
 
 
@@ -360,8 +366,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else: # Replace selection by a new node
             self.node.to_factory(factory, s)
             pos = self.get_center_pos(s)
-            self.remove_selection()
-            self.add_new_node(factory, pos)
+            if(self.add_new_node(factory, pos)):
+                self.remove_selection()
 
         return factory
 
@@ -375,14 +381,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         sx = sum((self.graph_item[i].pos().x() for i in items))
         sy = sum((self.graph_item[i].pos().y() for i in items))
         return QtCore.QPointF( float(sx)/l, float(sy)/l )
-        
-        
-
     
 
     @lock_notify      
     def remove_node(self, elt_id):
         """ Remove node identified by elt_id """
+
+        if(elt_id == self.node.id_in) : return
+        if(elt_id == self.node.id_out) : return
 
         # close dialog
         try:
@@ -435,7 +441,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     @lock_notify
     def add_new_node(self, factory, position):
-        """ convenience function """
+        """ Convenience function : Return True if success"""
         
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
@@ -444,10 +450,12 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
             newid = self.node.add_node(newnode)
             self.add_graphical_node(newid)
+            return True
 
         except RecursionError:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
+            return False
 
 
     def add_graphical_annotation(self):
@@ -461,7 +469,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         item = Annotation(self.scene(), self.mapToScene(
             self.mapFromGlobal(self.cursor().pos())))
-
                 
 
     def dropEvent(self, event):
@@ -537,8 +544,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         menu.show()
         event.accept()
 
-
-
         
 
 class Annotation(QtGui.QGraphicsTextItem):
@@ -560,7 +565,6 @@ class Annotation(QtGui.QGraphicsTextItem):
 
         self.setFont(font)
         scene.addItem(self)
-        
         
         
     def mouseDoubleClickEvent(self, event):
@@ -864,6 +868,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         
         action = menu.addAction("Edit Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
+        
+        action = menu.addAction("Edit Code")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_code)
 
         menu.move(event.screenPos())
         menu.show()
@@ -898,6 +905,28 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                                    QtGui.QLineEdit.Normal, n.get_caption())
         if(ok):
             n.set_caption(str(result))
+
+
+    def edit_code(self):
+        """ Edit node code """
+
+        factory = self.subnode.factory
+        if(not factory) : return
+        widget = factory.instantiate_widget(node=self.subnode, edit=True)
+        
+         # Open Code editor dialog
+        dialog = QtGui.QDialog(self.graphview)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.setParent(dialog)
+                
+        vboxlayout = QtGui.QVBoxLayout(dialog)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+        vboxlayout.addWidget(widget)
+
+        dialog.setWindowTitle(self.subnode.get_caption())
+        dialog.show()
+       
 
 
 ################################################################################

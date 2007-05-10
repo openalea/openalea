@@ -154,17 +154,18 @@ class PkgModel (QAbstractItemModel) :
 
 
     def rowCount(self, parent):
-        type_as_tree= [PackageManager, Package, Category]
-
+        
         if (not parent.isValid()):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
 
-        for treetype in type_as_tree:
-            if isinstance(parentItem,treetype):
-                return len(parentItem)
-        return 0
+            
+        if isinstance(parentItem, AbstractFactory):
+                return 0
+
+        return len(parentItem)
+        
 
 
 class CategoryModel (PkgModel) :

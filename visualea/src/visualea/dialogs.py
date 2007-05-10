@@ -27,6 +27,7 @@ from openalea.core.setting import get_userpkg_dir
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings
+from openalea.core.interface import *
 
 import ui_newgraph
 import os
