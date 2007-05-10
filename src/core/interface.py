@@ -62,6 +62,9 @@ class IInterfaceMetaClass(type):
         if(cls.__pytype__):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
 
+    def __repr__(cls):
+        return cls.__name__
+
 
 
 ################################################################################
