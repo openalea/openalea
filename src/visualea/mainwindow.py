@@ -389,10 +389,13 @@ class MainWindow(QtGui.QMainWindow,
         if(index < 0): index = self.tabWorkspace.currentIndex()
         widget = self.index_nodewidget[index]
 
-        dialog = IOConfigDialog(widget.node, self)
+        dialog = IOConfigDialog(widget.node.input_desc,
+                                widget.node.output_desc,
+                                parent=self)
         ret = dialog.exec_()
 
         if(ret):
+            widget.node.set_io(dialog.inputs, dialog.outputs)
             widget.rebuild_scene()
         
 
