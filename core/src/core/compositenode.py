@@ -243,6 +243,10 @@ class CompositeNode(Node, DataFlow):
         """
 
         self.eval_as_expression()
+        
+        self.modified = False
+        self.notify_listeners( ("status_modified",self.modified) )
+        
         return True
 
 
@@ -347,7 +351,8 @@ class CompositeNode(Node, DataFlow):
         remove a node from the graph
         @param vtx_id : element id
         """
-        
+
+        if(vtx_id == self.id_in or vtx_id == self.id_out): return
         self.remove_vertex(vtx_id)
 
         self.notify_listeners(("graph_modified",))
@@ -414,6 +419,7 @@ class CompositeNodeInput(Node):
         """ Define input value """
         
         if(val is None):
+            if(len(value_list) == 0) : return
             if len(value_list)>1 :
                 raise NotImplementedError
             val=value_list[0]
