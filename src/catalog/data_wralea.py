@@ -188,6 +188,30 @@ def register_packages(pkgmanager):
     
     package.add_factory( nf )
 
+    nf = Factory( name="Pool Reader",
+                  description="Read data from data pool.",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="PoolReader",
+                  inputs = (dict(name='Key', interface=IStr),),
+                  outputs = (dict(name='Obj', interface=None),)
+                  )
+    
+    package.add_factory( nf )
+    
+
+    nf = Factory(name="Pool Writer",
+                 description="Read data from data pool.",
+                 category="Data Types",
+                 nodemodule="data",
+                 nodeclass="PoolWriter",
+                 inputs = (dict(name='Key', interface=IStr),
+                           dict(name='Obj', interface=None),),
+                 )
+
+    
+    package.add_factory( nf )
+
 
     pkgmanager.add_package(package)
 
