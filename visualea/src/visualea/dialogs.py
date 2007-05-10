@@ -63,6 +63,10 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         self.packageBox.addItems(pkgstr)
         self.categoryEdit.addItems(categories)
 
+        self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
+        self.inputs = ()
+        self.outputs = ()
+
 
     def accept(self):
 
@@ -75,6 +79,17 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         
         QtGui.QDialog.accept(self)
 
+
+    def edit_io(self):
+        """ Open IO Config Dialog """
+
+        dialog = IOConfigDialog(self.inputs, self.outputs, parent=self)
+        ret = dialog.exec_()
+
+        if(ret):
+            self.inputs = dialog.inputs
+            self.outputs = dialog.outputs
+            
 
     def get_package(self):
         """ Return the selected package """
@@ -93,34 +108,20 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         category = str(self.categoryEdit.currentText().toAscii())
         description = str(self.descriptionEdit.text().toAscii())
         
-        return (name, self.inBox.value(), self.outBox.value(), self.get_package(),
-                category, description)
-
-
-    def get_port_lists(self, nbin, nbout):
-        """ Return 2 list of inputs and outpus descriptor """
-        inputs = []
-        outputs = []
-        for i in range(nbin):
-            inputs.append(dict(name="IN%i"%(i), interface=None, value=None))
-        for i in range(nbout):
-            outputs.append(dict(name="OUT%i"%(i), interface=None))
-
-        return (inputs, outputs)
+        return (name, self.get_package(), category, description)
 
 
 
     def create_cnfactory(self, pkgmanager):
         """ Create, register and return a new CompositeNodeFactory """
         
-        (name, nin, nout, pkg, cat, desc) = self.get_data()
+        (name, pkg, cat, desc) = self.get_data()
 
-        (inputs, outputs) = self.get_port_lists(nin, nout)
         newfactory = CompositeNodeFactory( name=name,
                                            description= desc,
                                            category = cat,
-                                           inputs=inputs,
-                                           outputs=outputs,
+                                           inputs=self.inputs,
+                                           outputs=self.outputs,
                                            )
             
         pkg.add_factory(newfactory)
@@ -138,14 +139,13 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     def create_nodefactory(self, pkgmanager):
         """ Create, register and return a NodeFactory """
 
-        (name, nin, nout, pkg, cat, desc) = self.get_data()
+        (name, pkg, cat, desc) = self.get_data()
 
-        (inputs, outputs) = self.get_port_lists(nin, nout)
         ret = pkg.create_user_factory(name=name,
                                       description=desc,
                                       category=cat,
-                                      inputs=inputs,
-                                      outputs=outputs,
+                                      inputs=self.inputs,
+                                      outputs=self.outputs,
                                       )
             
         pkgmanager.add_package(pkg)
@@ -295,7 +295,6 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
                 if(isinstance(f, CompositeNodeFactory)):
                    cfactories.append(f.name)
                    self.factorymap[f.name] = f
-                   
 
         self.comboBox.addItems(cfactories)
 
@@ -431,23 +430,24 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
     """ IO Configuration dialog """
     
-    def __init__(self, node, parent=None):
+    def __init__(self, inputs=(), outputs=(), parent=None):
         """ node : the node IO to edit """
         
         QtGui.QDialog.__init__(self, parent)
         ui_ioconfig.Ui_IOConfig.__init__(self)
         self.setupUi(self)
 
-        self.node = node
+        self.inputs = inputs
+        self.outputs = outputs
 
-        self.inTable.setRowCount(len(node.input_desc))
-        for i, d in enumerate(node.input_desc):
+        self.inTable.setRowCount(len(inputs))
+        for i, d in enumerate(inputs):
             self.inTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
             self.inTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
             
 
-        self.outTable.setRowCount(len(node.output_desc))
-        for i, d in enumerate(node.output_desc):
+        self.outTable.setRowCount(len(outputs))
+        for i, d in enumerate(outputs):
             self.outTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
             self.outTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
 
@@ -462,7 +462,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         """ Valid IO """
 
         # build input dict
-        inputs = []
+        self.inputs = []
         c = self.inTable.rowCount()
         for i in xrange(c):
             name = str(self.inTable.item(i,0).text())
@@ -471,11 +471,11 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
                 interface = eval(interface_str)
             except:
                 interface = None
-            inputs.append(dict(name=name, interface=interface))
+            self.inputs.append(dict(name=name, interface=interface))
             
 
         # build output dict
-        outputs = []
+        self.outputs = []
         c = self.outTable.rowCount()
         for i in xrange(c):
             name = str(self.outTable.item(i,0).text())
@@ -484,9 +484,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
                 interface = eval(interface_str)
             except:
                 interface = None
-            outputs.append(dict(name=name, interface=interface))
-
-        self.node.set_io(inputs, outputs)
+            self.outputs.append(dict(name=name, interface=interface))
         
         QtGui.QDialog.accept(self)
 
