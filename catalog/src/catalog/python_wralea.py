@@ -48,12 +48,12 @@ def register_packages(pkgmanager):
 
 
     # Factories
-    nf = Factory( name="ifelse", 
-                  description="Condition", 
-                  category="Python", 
-                  nodemodule="python",
-                  nodeclass="IfElse",
-                  )
+    nf = Factory(name="ifelse", 
+                 description="Condition", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="IfElse",
+                 )
 
     package.add_factory(nf)
 
@@ -68,22 +68,22 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory( name="setitem",
-                  description="Python __setitem__",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="setitem",
-                  )
+    nf = Factory(name="setitem",
+                 description="Python __setitem__",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="setitem",
+                 )
 
     package.add_factory(nf)
 
 
-    nf = Factory( name="delitem",
-                  description="Python __delitem__",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="delitem",
-                  )
+    nf = Factory(name="delitem",
+                 description="Python __delitem__",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="delitem",
+                 )
 
     package.add_factory(nf)
 
@@ -98,60 +98,63 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     
-    nf = Factory( name="values",
-                  description="Python values()",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="values",
-                  )
+    nf = Factory(name="values",
+                 description="Python values()",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="values",
+                 )
 
     package.add_factory(nf)
 
     
-    nf = Factory( name="items",
-                  description="Python items()",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="items",
-                  )
+    nf = Factory(name="items",
+                 description="Python items()",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="items",
+                 )
 
     package.add_factory(nf)
 
-    nf = Factory( name="range",
-                  description="Return an arithmetic progression of integers",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="pyrange",
-                  )
+    nf = Factory(name="range",
+                 description="Return an arithmetic progression of integers",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="pyrange",
+                 )
     
     package.add_factory(nf)
 
 
-    nf = Factory( name="len",
-                  description="Return the number of items of a sequence or mapping.",
-                  category="Python",
-                  nodemodule="python",
-                  nodeclass="pylen",
-                  )
+    nf = Factory(name="len",
+                 description="Return the number of items of a sequence or mapping.",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="pylen",
+                 )
     
     package.add_factory(nf)
 
 
-    nf = Factory( name="print", 
-                  description="Console output", 
-                  category="Python", 
-                  nodemodule="python",
-                  nodeclass="py_print",
-                  outputs=(),
-                  lazy=False,
-                  )
+    nf = Factory(name="print", 
+                 description="Console output", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="py_print",
+                 outputs=(),
+                 lazy=False,
+                 )
 
-    nf = Factory( name="method", 
-                  description="Call object method", 
-                  category="Python", 
-                  nodemodule="python",
-                  nodeclass="py_method",
-                  )
+    package.add_factory(nf)
+
+
+    nf = Factory(name="method", 
+                 description="Call object method", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="py_method",
+                 )
 
 
     package.add_factory(nf)

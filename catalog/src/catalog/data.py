@@ -109,7 +109,6 @@ Ouput 0 : Transmit the stored value
 
 
 
-
 class EnumTest(Node):
     """
 String enumeration Test
@@ -183,3 +182,45 @@ class List9(Node):
         """ inputs is the list of input values """
         l= filter(None,inputs)
         return ( l, )
+
+
+from openalea.core.datapool import DataPool
+
+class PoolReader(Node):
+    """
+In : Name (String)
+Out : Object (Any)
+    """
+
+    def __init__(self, inputs, outputs):
+
+        Node.__init__(self, inputs, outputs)
+        self.pool = DataPool()
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        key = str(inputs[0])
+        obj = self.pool[key]
+        return (obj, )
+
+
+class PoolWriter(Node):
+    """
+In :  Name (String), Object (Any)
+    """
+
+    def __init__(self, inputs, outputs):
+
+        Node.__init__(self, inputs, outputs)
+        self.pool = DataPool()
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        key = str(inputs[0])
+        obj = str(inputs[1])
+        self.pool[key] = obj
+
