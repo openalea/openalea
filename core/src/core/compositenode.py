@@ -214,10 +214,10 @@ class CompositeNode(Node, DataFlow):
     #		pour bien faire il faudrait aussi reimplementer add_input et add_output
     #
     #######################################################
-    def set_input (self, index_key, val=None, value_list=None) :
+    def set_input (self, index_key, val=None) :
         """ Copy val into input node output ports """
 
-        self.node(self.id_in).set_input(index_key, val, value_list)
+        self.node(self.id_in).set_input(index_key, val)
         
 
     def get_output (self, index_key) :
@@ -415,15 +415,8 @@ class CompositeNodeInput(Node):
         self.internal_data['caption'] = "In"
 
 
-    def set_input (self, input_pid, val=None, value_list=None) :
+    def set_input (self, input_pid, val=None) :
         """ Define input value """
-        
-        if(val is None):
-            if(len(value_list) == 0) : return
-            if len(value_list)>1 :
-                raise NotImplementedError
-            val=value_list[0]
-            
         self.outputs[input_pid]=val
         
 
