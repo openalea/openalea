@@ -13,7 +13,7 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
 #       VPlants WebSite : https://gforge.inria.fr/projects/vplants/
-#
+
 
 __doc__="""
 This module provide an implementation of a dataflow
@@ -24,6 +24,7 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 from openalea.graph.property_graph import PropertyGraph,InvalidVertex,InvalidEdge
 from openalea.graph.id_generator import IdGenerator
+
 
 class PortError (Exception) :
 	pass
@@ -290,10 +291,13 @@ class DataFlow (PropertyGraph):
 		vid=self.add_vertex(vid)
 		for key,interface in actor.inputs() :
 			self.add_in_port(vid,key)
+			
 		for key,interface in actor.outputs() :
 			self.add_out_port(vid,key)
+			
 		self.set_actor(vid,actor)
 		return vid
+	
 	#####################################################
 	#
 	#		mutable concept

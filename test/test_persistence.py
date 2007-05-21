@@ -105,7 +105,7 @@ def test_nodewriter():
 
     assert package1 != None
 
-    nf = package1.create_user_factory(name="mynode",
+    nf = package1.create_user_node(name="mynode",
                                       category='test',
                                       description="descr",
                                       inputs=(),

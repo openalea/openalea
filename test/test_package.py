@@ -38,9 +38,9 @@ def test_userpackage():
 
 
 
-    factory = package.create_user_factory("TestFact", "", "",
-                                          gen_port_list(3),
-                                          gen_port_list(2))
+    factory = package.create_user_node("TestFact", "", "",
+                                       gen_port_list(3),
+                                       gen_port_list(2))
     
     assert os.path.curdir in factory.search_path
     assert len(factory.inputs)==3

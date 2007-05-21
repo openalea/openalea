@@ -26,7 +26,6 @@ __revision__=" $Id$ "
 
 
 import inspect
-from node import NodeFactory
 import os, sys
 import string
 import imp
@@ -53,7 +52,7 @@ class Package(dict):
     mimetype = "openalea/package"
 
 
-    def __init__(self, name, metainfo) :
+    def __init__(self, name, metainfo, path=None) :
         """
         Create a Package
 
@@ -65,7 +64,8 @@ class Package(dict):
             institutes : a string
             url : a string
             description : a string for the package description
-            publication : optional string for publications        
+            publication : optional string for publications
+        @param path : path where the package looks after module
         """
 
         dict.__init__(self)
@@ -136,6 +136,7 @@ class Package(dict):
         return factory
     
 
+
 ################################################################################
 
 class UserPackage(Package):
@@ -149,6 +150,7 @@ class UserPackage(Package):
         # package directory
         if(not path):
             import inspect
+            # get the path of the file which call this function
             self.path = os.path.dirname(
                 os.path.abspath(inspect.stack()[1][1]))
         else:    
@@ -169,19 +171,20 @@ class UserPackage(Package):
         """ Return the writer class """
 
         writer = PyPackageWriter(self)
-
         if(not os.path.isdir(self.path)):
             os.mkdir(self.path)
 
         writer.write_wralea(self.wralea_path)
-        
 
-    def create_user_factory(self, name, category, description,
+
+    # Convenience function
+    def create_user_node(self, name, category, description,
                             inputs, outputs):
         """
-        Return a new user factory
+        Return a new user node factory
         This function create a new python module in the package directory
-        The factory is added to the package """
+        The factory is added to the package
+        and the package is saved """
 
         if(self.has_key(name)):
             raise FactoryExistsError()
@@ -205,9 +208,10 @@ class UserPackage(Package):
         file = open(module_path, 'w')
         file.write(template)
         file.close()
-            
 
         # Register the factory
+        from node import NodeFactory
+
         factory = NodeFactory(name=name,
                               category=category,
                               description=description,
@@ -219,9 +223,43 @@ class UserPackage(Package):
                               )
 
         self.add_factory(factory)
-        self.write()
         
         return factory
+
+
+    # Convenience function
+    def create_user_compositenode(self, name, category, description,
+                                   inputs, outputs):
+        """
+        Return a new user composite node factory
+        and save the package
+        """
+
+        from compositenode import CompositeNodeFactory
+
+        newfactory = CompositeNodeFactory(name=name,
+                                          description= description,
+                                          category = category,
+                                          inputs=inputs,
+                                          outputs=outputs,
+                                          )
+        self.add_factory(newfactory)
+
+        return newfactory
+
+
+    def add_factory(self, factory):
+        """ Write change on disk """
+
+        Package.add_factory(self, factory)
+        self.write()
+
+
+    def __delitem__(self, key):
+        """ Write change on disk """
+        
+        Package.__delitem__(self, key)
+        self.write()
 
 
 
@@ -307,11 +345,10 @@ def register_packages(pkgmanager):
 """
 
     metainfo = $METAINFO 
-
     pkg = UserPackage("$PKGNAME", metainfo)
 
     $FACTORY_DECLARATION
-    
+
     pkgmanager.add_package(pkg)
 
 """

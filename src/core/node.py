@@ -142,6 +142,7 @@ class Node(IActor, Observed):
     # Declarations
     def set_io(self, inputs, outputs):
         """
+        Define the number of inputs and outputs
         @param inputs    : list of dict(name='X', interface=IFloat, value=0)
         @param outputs   : list of dict(name='X', interface=IFloat)
         """
@@ -210,18 +211,11 @@ class Node(IActor, Observed):
 
     # I/O Functions
    
-    def set_input(self, key, val=None, value_list=None):
-        """ Define the input value for the specified index/key """
+    def set_input(self, key, val=None):
+        """
+        Define the input value for the specified index/key
+        """
 
-        if (val is None) :
-
-            if (len(value_list) == 0):
-                return
-            if (len(value_list) > 1):
-                raise NotImplementedError
-            
-            val = value_list[0]
-            
         index = self.map_index_in[key]
 
         changed = True
@@ -670,7 +664,6 @@ class NodeFactory(AbstractFactory):
 
 #class Factory:
 Factory = NodeFactory
-
 
 
 

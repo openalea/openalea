@@ -289,12 +289,40 @@ def test_multi_out_eval():
     sg.eval_as_expression(val3id)
     assert sg.node(val3id).get_output(0) == "teststring2"
 
+
+# Test multiple out connection
+def test_multi_in_eval():
+    pm = PackageManager ()
+    pm.init()
+
+    sg = CompositeNode()
+
+    # build the compositenode factory
+    val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+
+    sg.connect (val1id, 0, val3id, 0)
+    sg.connect (val2id, 0, val3id, 0)
+
+
+    sgfactory = CompositeNodeFactory("testlazyeval")
+    sg.to_factory(sgfactory)
+    # allocate the compositenode
+    sg = sgfactory.instantiate()
+
+    sg.node(val1id).set_input(0,"teststring1")
+    sg.node(val2id).set_input(0,"teststring2")
+    sg()
+    assert sg.node(val3id).get_output(0) == "['teststring1', 'teststring2']"
+
+
 from nose import with_setup
 from openalea.core.path import path
 
 
 def setup_func():
-    wralea= path('data')/'jcd_dec.py'
+    wralea = path('data')/'jcd_dec.py'
     wralea.copy(path('data')/'jcd_wralea.py')
 
 def teardown_func():
