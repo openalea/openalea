@@ -143,6 +143,7 @@ class MainWindow(QtGui.QMainWindow,
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
+        self.connect(self.actionGroup_Selection, SIGNAL("activated()"), self.group_selection)
         self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
         self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
                      self.close_workspace)
@@ -354,34 +355,60 @@ class MainWindow(QtGui.QMainWindow,
         newnode = widget.node.factory.instantiate()
         widget.node = newnode
         self.session.workspaces[index] = newnode
+
+
+    def group_selection(self):
+        """ Replace selected nodes with a composite node """
+
+        index = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[index]
+
+        if(not widget.get_selected_item()) : return
+
+        # Create a new factory
+        dialog = NewGraph("New Composite Node", self.pkgmanager, self)
+        ret = dialog.exec_()
+
+        if(not ret): return
+        
+        factory = dialog.create_cnfactory(self.pkgmanager)
+        f = widget.group_selection(factory)
+
+        try:
+            factory.package.write()
+        except AttributeError, e:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot write Graph model on disk. :\n"+
+                                             "You try to write in a System Package:\n")
         
 
-    def export_to_factory(self, index=-1, selection=True):
+    def export_to_factory(self, index=-1):
         """
-        Export workspace index  to its factory
-        Selection (bool) : allow to export selection
+        Export workspace index to its factory
         """
 
         if(index < 0): index = self.tabWorkspace.currentIndex()
         widget = self.index_nodewidget[index]
-        
-        try:
-            f = widget.export_to_factory(selection)
-            if(not f) : return
-            
-            f.package.write()
 
-            # reload tab if necessary
-#             for (i,w) in enumerate(self.index_nodewidget):
-#                 if(w.node.factory == f): self.reload_from_factory(i)
+        # Get a composite node factory
+        dialog = FactorySelector(widget.node.factory, self)
+            
+        # Display Dialog
+        ret = dialog.exec_()
+        if(ret == 0): return None
+        factory = dialog.get_factory()
+
+        widget.node.to_factory(factory, None)
+
+        try:
+            factory.package.write()
 
         except AttributeError, e:
-            print e
-            
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-
+                   
+        
 
     def configure_io(self, index=-1):
         """ Configure workspace IO """
@@ -450,9 +477,7 @@ class MainWindow(QtGui.QMainWindow,
     def new_graph(self):
         """ Create a new graph """
 
-        pkgs = self.pkgmanager.get_user_packages()
-        
-        dialog = NewGraph("New Graph Model", pkgs, self.pkgmanager.category.keys(), self)
+        dialog = NewGraph("New Composite Node", self.pkgmanager, self)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -464,10 +489,8 @@ class MainWindow(QtGui.QMainWindow,
     def new_python_node(self):
         """ Create a new node """
 
-        # Get default package
-        pkgs = self.pkgmanager.get_user_packages()
 
-        dialog = NewGraph("New Python Node", pkgs, self.pkgmanager.category.keys(), self)
+        dialog = NewGraph("New Python Node", self.pkgmanager, self)
         ret = dialog.exec_()
 
         if(ret>0):

@@ -39,6 +39,28 @@ from dialogs import EditPackage
 import images_rc
 
 
+# Utilities function
+
+def get_icon(item):
+    """ Return Icon object depending of the type of item """
+    if(isinstance(item, Package)):
+        return QVariant(QtGui.QPixmap(":/icons/package.png"))
+
+    elif(isinstance(item, Category)):
+        return QVariant(QtGui.QPixmap(":/icons/category.png"))
+
+    elif( isinstance(item, CompositeNodeFactory)):
+        return QVariant(QtGui.QPixmap(":/icons/diagram.png"))
+           
+    elif( isinstance(item, NodeFactory)):
+        return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+    else:
+        return QVariant()
+
+
+# Qt4 Models/View classes
+
 class PkgModel (QAbstractItemModel) :
     """ QT4 data model (model/view pattern) to support pkgmanager """
 
@@ -85,22 +107,8 @@ class PkgModel (QAbstractItemModel) :
 
         # Icon
         elif(role == QtCore.Qt.DecorationRole):
-
-            if(isinstance(item, Package)):
-                return QVariant(QtGui.QPixmap(":/icons/package.png"))
-
-            elif(isinstance(item, Category)):
-                return QVariant(QtGui.QPixmap(":/icons/category.png"))
-
-            elif( isinstance(item, CompositeNodeFactory)):
-               return QVariant(QtGui.QPixmap(":/icons/diagram.png"))
-           
-            elif( isinstance(item, NodeFactory)):
-               return QVariant(QtGui.QPixmap(":/icons/node.png"))
-
-            else:
-                return QVariant()
-        
+            return get_icon(item)
+            
         else:
             return QtCore.QVariant()
         
@@ -319,7 +327,6 @@ class SearchModel (QAbstractListModel) :
         else:
             return QtCore.QModelIndex()
 
-
     
     def data(self, index, role):
         
@@ -329,18 +336,18 @@ class SearchModel (QAbstractListModel) :
         if (index.row() >= len(self.searchresult)):
             return QVariant()
 
+        item = self.searchresult[index.row()]
+
         if (role == QtCore.Qt.DisplayRole):
-            nodefactory = self.searchresult[index.row()]
-            return QVariant(str(nodefactory.name))
+            return QVariant(str(item.name))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
-            return QVariant(QtGui.QPixmap(":/icons/node.png"))
+            return get_icon(item)
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
-            nodefactory = self.searchresult[index.row()]
-            return QtCore.QVariant(str(nodefactory.get_tip()))
+            return QtCore.QVariant(str(item.get_tip()))
      
         else:
             return QVariant()
@@ -463,26 +470,23 @@ class NodeFactoryView(object):
             action = menu.addAction("Edit")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_node)
 
-            
+            action = menu.addAction("Remove")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
+
+
         elif(isinstance(obj, Package)):
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open URL")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+
             action = menu.addAction("Infos")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
-            action = menu.addAction("Reload")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.reload_package)
 
 
         if(menu):
             menu.move(event.globalPos())
             menu.show()
 
-
-    def reload_package(self):
-        """ Reload a package """
-        raise NotImplementedError()
-    
 
     def edit_package(self):
         """ Edit package Metadata """
@@ -492,7 +496,6 @@ class NodeFactoryView(object):
 
         dialog = EditPackage(obj, parent = self)
         ret = dialog.exec_()
-
         
 
     def open_dialog(self, widget, title):
@@ -554,6 +557,20 @@ class NodeFactoryView(object):
             widget = obj.instantiate_widget(edit=True)
             self.open_dialog(widget, obj.get_id())
 
+
+    def remove_node(self):
+        """ Remove the node from the package """
+        
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+
+        ret = QtGui.QMessageBox.question(self, "Remove Model",
+                                         "Remove %s?\n"%(obj.name,),
+                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+            
+        if(ret == QtGui.QMessageBox.Yes):
+            del(obj.package[obj.name])
+            self.main_win.reinit_treeview()
         
        
 
