@@ -239,6 +239,11 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         gnode = GraphicalNode(self, eltid, nin, nout)
 
         self.graph_item[eltid] = gnode
+
+        # do not display in and out node if not necessary
+        if(nin == 0 and nout == 0 and
+           (eltid == self.node.id_in or eltid == self.node.id_out)):
+            gnode.setVisible(False)
         
         return gnode
 
@@ -329,47 +334,23 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # Remove other item
         items = self.scene().selectedItems()
-
-        
+       
         map(self.scene().removeItem, items)
 
 
-    def export_to_factory(self, allow_selection=True):
+    def group_selection(self, factory):
         """
-        Export selected node in a new composite node
-        Return the created factory or None if canceled
+        Export selected node in factory
         """
-
-        # Get a composite node factory
-        from dialogs import FactorySelector
-        dialog = FactorySelector(self.node.factory, self)
 
         s = self.get_selected_item()
-        allow_selection = allow_selection and bool(s)
+        if(not s): return None
 
-        # Selection enabled
-        if(allow_selection):
-            dialog.selectionBox.setCheckState(QtCore.Qt.Checked)
-        else:
-            dialog.selectionBox.setEnabled(False)
+        self.node.to_factory(factory, s)
+        pos = self.get_center_pos(s)
         
-        
-        ret = dialog.exec_()
-        if(ret == 0): return None
-
-        factory = dialog.get_factory()
-
-        if(dialog.selectionBox.checkState() == QtCore.Qt.Unchecked
-           or not s):
-            self.node.to_factory(factory, None)
-            
-        else: # Replace selection by a new node
-            self.node.to_factory(factory, s)
-            pos = self.get_center_pos(s)
-            if(self.add_new_node(factory, pos)):
-                self.remove_selection()
-
-        return factory
+        if(self.add_new_node(factory, pos)):
+            self.remove_selection()
 
 
     def get_center_pos(self, items):
@@ -866,11 +847,11 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 #         action = menu.addAction("Enable in Widget")
 #         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
         
-        action = menu.addAction("Edit Caption")
+        action = menu.addAction("Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
         
-        action = menu.addAction("Edit Code")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_code)
+#         action = menu.addAction("Edit")
+#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_code)
 
         menu.move(event.screenPos())
         menu.show()
@@ -907,25 +888,25 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             n.set_caption(str(result))
 
 
-    def edit_code(self):
-        """ Edit node code """
+#     def edit_code(self):
+#         """ Edit node code """
 
-        factory = self.subnode.factory
-        if(not factory) : return
-        widget = factory.instantiate_widget(node=self.subnode, edit=True)
+#         factory = self.subnode.factory
+#         if(not factory) : return
+#         widget = factory.instantiate_widget(node=self.subnode, edit=True)
         
-         # Open Code editor dialog
-        dialog = QtGui.QDialog(self.graphview)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.setParent(dialog)
+#          # Open Code editor dialog
+#         dialog = QtGui.QDialog(self.graphview)
+#         dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+#         widget.setParent(dialog)
                 
-        vboxlayout = QtGui.QVBoxLayout(dialog)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
-        vboxlayout.addWidget(widget)
+#         vboxlayout = QtGui.QVBoxLayout(dialog)
+#         vboxlayout.setMargin(3)
+#         vboxlayout.setSpacing(5)
+#         vboxlayout.addWidget(widget)
 
-        dialog.setWindowTitle(self.subnode.get_caption())
-        dialog.show()
+#         dialog.setWindowTitle(self.subnode.get_caption())
+#         dialog.show()
        
 
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Thu May  3 10:29:42 2007
+# Created: Mon May 21 17:43:15 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_FactorySelector(object):
     def setupUi(self, FactorySelector):
         FactorySelector.setObjectName("FactorySelector")
-        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,355,194).size()).expandedTo(FactorySelector.minimumSizeHint()))
+        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,208,219).size()).expandedTo(FactorySelector.minimumSizeHint()))
         FactorySelector.setWindowIcon(QtGui.QIcon(":/icons/diagram.png"))
 
         self.vboxlayout = QtGui.QVBoxLayout(FactorySelector)
@@ -42,10 +42,6 @@ class Ui_FactorySelector(object):
         self.hboxlayout1.setSpacing(6)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.selectionBox = QtGui.QCheckBox(FactorySelector)
-        self.selectionBox.setObjectName("selectionBox")
-        self.hboxlayout1.addWidget(self.selectionBox)
-
         self.newFactoryButton = QtGui.QPushButton(FactorySelector)
         self.newFactoryButton.setObjectName("newFactoryButton")
         self.hboxlayout1.addWidget(self.newFactoryButton)
@@ -65,9 +61,8 @@ class Ui_FactorySelector(object):
         FactorySelector.setTabOrder(self.newFactoryButton,self.buttonBox)
 
     def retranslateUi(self, FactorySelector):
-        FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Save as Model", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Graph Model :", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectionBox.setText(QtGui.QApplication.translate("FactorySelector", "Replace selection", None, QtGui.QApplication.UnicodeUTF8))
-        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Graph Model", None, QtGui.QApplication.UnicodeUTF8))
+        FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Selector", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Composite Node :", None, QtGui.QApplication.UnicodeUTF8))
+        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Composite Node", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

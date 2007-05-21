@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newpackage.ui'
 #
-# Created: Thu May  3 10:29:42 2007
+# Created: Mon May 21 17:43:15 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
