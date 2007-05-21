@@ -278,7 +278,7 @@ class PackageManager(object):
     def get_user_packages(self):
         """ Return the list of user packages """
 
-        return filter(lambda x: isinstance(x, UserPackage), self.pkgs.values())
+        return [x for x in self.pkgs.values() if isinstance(x, UserPackage)]
        
 
     # Dictionnary behaviour

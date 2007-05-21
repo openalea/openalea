@@ -22,44 +22,52 @@ __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 class BrutEvaluation (object) :
-	"""
-	use a dataflow to compute a value
-	"""
+	""" Basic evaluation algorithm """
+	
 	def __init__ (self, dataflow) :
-		self._dataflow=dataflow
-		#a property to specify if the node has already been evaluated
-		self._evaluated={}
+
+		self._dataflow = dataflow
+		# a property to specify if the node has already been evaluated
+		self._evaluated = set()
+
 	
 	def eval_vertex (self, vid) :
-		df=self._dataflow
-		evaluated=self._evaluated
-		actor=df.actor(vid)
-		#evalue les entrees du noeud
+		""" Evaluate the vertex vid """
+		
+		df = self._dataflow
+		actor = df.actor(vid)
+		
+		# For each inputs
 		for pid in df.in_ports(vid) :
-			inputs=[]
-			for npid in df.connected_ports(pid) :
-				nvid=df.vertex(npid)
-				if not evaluated[nvid] :
+			inputs = []
+
+			cpt = 0 
+			# For each connected node
+			for npid in df.connected_ports(pid):
+				nvid = df.vertex(npid)
+				if nvid not in self._evaluated:
 					self.eval_vertex(nvid)
+
 				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
-			actor.set_input(df.local_id(pid),value_list=inputs)
-		#evalue le noeud
+				cpt += 1
+
+			# set input as a list or a simple value
+			if(cpt == 1) : inputs = inputs[0]
+			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
+			
+		# Eval the node
 		actor.eval()
-		evaluated[vid]=True
-		#retour
-		return
+		self._evaluated.add(vid)
+	
 	
 	def eval (self) :
-		"""
-		evaluate the whole dataflow starting from leaves
-		"""
-		df=self._dataflow
-		#remise a False de la propriete d'evaluation
-		for vid in df.vertices() :
-			self._evaluated[vid]=False
-		#evaluation a partir des feuilles
+		""" Evaluate the whole dataflow starting from leaves"""
+		df = self._dataflow
+		
+		# Unvalidate all the nodes
+		self._evaluated.clear()
+
+		# Eval from the leaf
 		for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0) :
 			self.eval_vertex(vid)
-		#retour
-		return
 

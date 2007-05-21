@@ -7,7 +7,7 @@ def register_packages(pkgmanager):
                'license' : 'CECILL-C',
                'authors' : 'OpenAlea Consortium',
                'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
+               'description' : 'TESTS.',
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
