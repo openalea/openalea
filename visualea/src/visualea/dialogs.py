@@ -41,10 +41,10 @@ import ui_ioconfig
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
     
-    def __init__(self, title, packages, categories, parent=None):
+    def __init__(self, title, pmanager, parent=None):
         """
         Constructor
-        @param packages : the list of packages the graph can be added to
+        pmanager : the package manager
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -52,6 +52,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         self.setWindowTitle(title)
 
         self.setupUi(self)
+
+        packages = pmanager.get_user_packages()
 
         pkgstr = []
         self.pkgmap = {}
@@ -61,7 +63,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.pkgmap[p.name] = p
 
         self.packageBox.addItems(pkgstr)
-        self.categoryEdit.addItems(categories)
+        self.categoryEdit.addItems(pmanager.category.keys())
 
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
         self.inputs = ()
@@ -117,19 +119,12 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         
         (name, pkg, cat, desc) = self.get_data()
 
-        newfactory = CompositeNodeFactory( name=name,
-                                           description= desc,
-                                           category = cat,
-                                           inputs=self.inputs,
-                                           outputs=self.outputs,
-                                           )
-            
-        pkg.add_factory(newfactory)
-        
-        try:
-            pkg.write()
-        except:
-            print "Cannot Write CompositeNodeFactorty"
+        newfactory = pkg.create_user_compositenode( name=name,
+                                                    description= desc,
+                                                    category = cat,
+                                                    inputs=self.inputs,
+                                                    outputs=self.outputs,
+                                                    )
                 
         pkgmanager.add_package(pkg)
 
@@ -141,12 +136,12 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         (name, pkg, cat, desc) = self.get_data()
 
-        ret = pkg.create_user_factory(name=name,
-                                      description=desc,
-                                      category=cat,
-                                      inputs=self.inputs,
-                                      outputs=self.outputs,
-                                      )
+        ret = pkg.create_user_node(name=name,
+                                   description=desc,
+                                   category=cat,
+                                   inputs=self.inputs,
+                                   outputs=self.outputs,
+                                   )
             
         pkgmanager.add_package(pkg)
 
@@ -239,6 +234,7 @@ class EditPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.pathEdit.setEnabled(False)
         
         self.set_data(package.name, path, package.metainfo)
+        self.package = package
         
 
     def accept(self):
@@ -253,6 +249,8 @@ class EditPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
             )
         
         self.package.metainfo.update(metainfo)
+        if(hasattr(self.package, 'write')):
+           self.package.write()           
         
         QtGui.QDialog.accept(self)
 
@@ -289,8 +287,8 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         self.factorymap = {}
         
         cfactories = []
-        # Get all composite node factories
-        for pkg in self.pkgmanager.values():
+        # Get all composite node factories in writable packages
+        for pkg in self.pkgmanager.get_user_packages():
             for f in pkg.values():
                 if(isinstance(f, CompositeNodeFactory)):
                    cfactories.append(f.name)
@@ -311,7 +309,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         text = self.comboBox.currentText()
         if(not text):
             mess = QtGui.QMessageBox.warning(self, "Error",
-                                            "Please choose a valid model.")
+                                            "Invalid Choice.")
             return
 
         QtGui.QDialog.accept(self)
@@ -319,9 +317,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
     def new_factory(self):
 
-        pkgs = self.pkgmanager.get_user_packages()
-        
-        dialog = NewGraph("New Graph Model", pkgs, self.pkgmanager.category.keys(), self)
+        dialog = NewGraph("New Composite Node", self.pkgmanager, self)
         ret = dialog.exec_()
 
         if(ret>0):

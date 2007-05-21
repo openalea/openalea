@@ -5,12 +5,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>355</width>
-    <height>194</height>
+    <width>208</width>
+    <height>219</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Save as Model</string>
+   <string>Selector</string>
   </property>
   <property name="windowIcon" >
    <iconset resource="images.qrc" >:/icons/diagram.png</iconset>
@@ -36,7 +36,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="text" >
-        <string>Graph Model :</string>
+        <string>Composite Node :</string>
        </property>
        <property name="scaledContents" >
         <bool>true</bool>
@@ -60,16 +60,9 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QCheckBox" name="selectionBox" >
-       <property name="text" >
-        <string>Replace selection</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="newFactoryButton" >
        <property name="text" >
-        <string>New Graph Model</string>
+        <string>New Composite Node</string>
        </property>
       </widget>
      </item>
