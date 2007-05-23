@@ -101,13 +101,15 @@ sys.path= [tool_path] + sys.path
 def BisonFlex( env, bison, flex, prefix ):
   """ Smart autoscan function. """
 
-  LEXFLAGS = env.get("LEXFLAGS")
-  YACCFLAGS = env.get("YACCFLAGS")
+  LEXFLAGS = env.get("LEXFLAGS")[:]
+  YACCFLAGS = env.get("YACCFLAGS")[:]
 
   if prefix :
      LEXFLAGS += ["-P"+prefix]
      YACCFLAGS +=  ["-p "+prefix]
-  
+
+  print LEXFLAGS
+  print YACCFLAGS
   
   targets=[]
   bison_ext= ".hpp"
