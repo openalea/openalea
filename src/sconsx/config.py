@@ -100,10 +100,14 @@ sys.path= [tool_path] + sys.path
 
 def BisonFlex( env, bison, flex, prefix ):
   """ Smart autoscan function. """
-  
+
+  LEXFLAGS = env.get("LEXFLAGS")
+  YACCFLAGS = env.get("YACCFLAGS")
+
   if prefix :
-     env.Append( LEXFLAGS="-P"+prefix)
-     env.Append( YACCFLAGS="-p "+prefix)
+     LEXFLAGS += ["-P"+prefix]
+     YACCFLAGS +=  ["-p "+prefix]
+  
   
   targets=[]
   bison_ext= ".hpp"
@@ -111,12 +115,17 @@ def BisonFlex( env, bison, flex, prefix ):
     bison_ext= ".cpp.h"
 
   ( bison_name, ext )= os.path.splitext( bison )
-  h= env.CXXFile( source= bison,
-                  target= [ bison_name+".cpp", bison_name + bison_ext ] )
+  h= env.CXXFile(source= bison,
+                 target= [ bison_name+".cpp", bison_name + bison_ext ],
+                 LEXFLAGS=LEXFLAGS,
+                 YACCFLAGS=YACCFLAGS)
   targets.append( h[0] )
 
-  ( flex_name, ext )= os.path.splitext( flex )
-  cpp= env.CXXFile( source= flex )
+  ( flex_name, ext ) = os.path.splitext( flex )
+  cpp= env.CXXFile( source=flex,
+                    LEXFLAGS=LEXFLAGS,
+                    YACCFLAGS=YACCFLAGS)
+
   targets.append( cpp )
 
   return targets
