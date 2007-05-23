@@ -108,13 +108,10 @@ def BisonFlex( env, bison, flex, prefix ):
      LEXFLAGS += ["-P"+prefix]
      YACCFLAGS +=  ["-p "+prefix]
 
-  print LEXFLAGS
-  print YACCFLAGS
-  
   targets=[]
   bison_ext= ".hpp"
   if not env[ "BISON_HPP" ]:
-    bison_ext= ".cpp.h"
+    bison_ext = ".cpp.h"
 
   ( bison_name, ext )= os.path.splitext( bison )
   h= env.CXXFile(source= bison,
@@ -124,7 +121,7 @@ def BisonFlex( env, bison, flex, prefix ):
   targets.append( h[0] )
 
   ( flex_name, ext ) = os.path.splitext( flex )
-  cpp= env.CXXFile( source=flex,
+  cpp = env.CXXFile( source=flex,
                     LEXFLAGS=LEXFLAGS,
                     YACCFLAGS=YACCFLAGS)
 
