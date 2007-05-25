@@ -3,7 +3,7 @@
 #
 #       PortGraph : graph package
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #
