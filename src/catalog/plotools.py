@@ -2,7 +2,7 @@
 #
 #       OpenAlea Library: OpenAlea Library module
 #
-#       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): David Da SILVA <david.da_silva@cirad.fr>
 #
