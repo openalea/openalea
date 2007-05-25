@@ -3,7 +3,7 @@
  *                                                                              
  *        OpenAlea.Starter: Example package                                     
  *                                                                              
- *        Copyright or © or Copr. 2006 INRIA - CIRAD - INRA                      
+ *        Copyright 2006 INRIA - CIRAD - INRA                      
  *                                                                              
  *        File author(s): Christophe Pradal <christophe.prada@cirad.fr>         
  *                        Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>

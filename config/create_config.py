@@ -4,7 +4,7 @@
 #
 #       OpenAlea.Config :  OpenAlea configuration
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
