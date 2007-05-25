@@ -4,7 +4,7 @@
 #       OpenAlea.SConsX: SCons extension package for building platform
 #                        independant packages.
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright 2005-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Pierre Barbier de Reuille <pierre.barbier@sophia.inria.fr>
@@ -29,6 +29,7 @@ Each function defines or populate global aliases like build or install.
 __license__= "Cecill-C"
 __revision__="$Id: $"
 
+import os
 
 #from path import path
 from SCons.Script.SConscript import SConsEnvironment, DefaultEnvironmentCall
@@ -71,6 +72,26 @@ def ALEAIncludes( env, target, includes, *args, **kwds ):
   inst_inc = env.Install( "$includedir/%s" % ( target, ), includes, *args, **kwds )
   Alias( "install", inst_inc )
   return ( inc, inst_inc )
+
+# def ALEAIncludes( env, target, includes, *args, **kwds ):
+#   """
+#   Install the headers in the directory .../include/mypackage
+#   Define 'build' and 'install' target.
+#   """
+#   # check recursive includes for installation
+#   bn = os.path.basename
+#   dn = os.path.dirname 
+#   pj = os.path.join
+#   inc, inst_inc= [], []
+#   for include in includes:
+#     print include
+#     d = dn(include)
+#     f = bn(include)
+#     inc += env.Install( "$build_includedir/%s" % ( pj(target,d), ), f, *args, **kwds )
+#     inst_inc += env.Install( "$includedir/%s" % ( target, ), includes, *args, **kwds )
+#   Alias( "build", inc )
+#   Alias( "install", inst_inc )
+#   return ( inc, inst_inc )
 
 def ALEAProgram( env, target, source, *args, **kwds ):
   """
