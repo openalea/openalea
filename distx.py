@@ -409,8 +409,8 @@ class install_external_data(Command):
         # We use openalea external prefix if no prefix specified
         if( not self.external_prefix ):
             try:
-                import openalea
-                self.external_prefix= openalea.config.prefix_dir
+                import openalea.config
+                self.external_prefix = openalea.config.prefix_dir
                 print 'INFO: Using OpenAlea prefix %s for external_prefix.' % (self.external_prefix,)
             except ImportError:
                 print "!!ERROR: OpenAlea config not found. Use --external-prefix option instead.\n"
