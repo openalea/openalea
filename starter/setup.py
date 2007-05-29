@@ -6,9 +6,8 @@
 
 #####################
 # Import dependencies
-
-import os, sys
-pj= os.path.join
+from os.path import join as pj
+import sys
 
 try:
     from openalea import config
@@ -21,7 +20,7 @@ See http://openalea.gforge.inria.fr
     sys.exit()
 
 try:
-    from openalea.distx import setup
+    from openalea.distx import setup, find_packages, find_package_dir, Shortcut
 except ImportError:
     print """
 ImportError : openalea.distx package not found.
@@ -46,16 +45,10 @@ pkg_name= namespace + '.' + name
 # major.minor.patch
 # alpha: patch + 'a'+ 'number'
 # beta: patch= patch + 'b' + 'number'
-major= '0'
-minor= '0'
-patch= '1a1'
-version= '%s.%s.%s' % (major, minor, patch)
+version= '0.0.1a1' 
 
-# Description of the package
-
-# Short description
+# Description
 description= 'Starter package for OpenAlea.' 
-
 long_description= '''
 The Starter package is a typical package example to help developper
 to create their own package, compatible with OpenAlea standards.
@@ -78,8 +71,6 @@ url= 'http://openalea.gforge.inria.fr'
 # LGPL compatible INRIA license
 license= 'Cecill-C' 
 
-# Scons build directory
-build_prefix= "build-scons"
 
 # For other meta-information, please read the Python distutils documentation.
 
@@ -98,20 +89,21 @@ setup(
     # Define what to execute with scons
     # scons is responsible to put compiled library in the write place
     # ( lib/, package/, etc...)
-    scons_scripts = ['SConstruct'],
+    scons_scripts=['SConstruct'],
 
-    # scons parameters  
-    scons_parameters = ["build","build_prefix="+build_prefix],
+    # Scons parameters  
+    scons_parameters=["build","build_prefix="+build_prefix],
     
+    # Packages
+    packages=find_packages(where= 'src', namespace=namespace),
+    package_dir=find_package_dir(where='src', namespace=namespace), 
 
-    # pure python  packages
-    packages= [ pkg_name ],
-    # python packages directory
-    package_dir= { pkg_name : pj('src',name)},
+    # Python packages directory
+    package_dir={pkg_name:pj('src',name)},
 
-    # add package platform libraries if any
-    package_data= { pkg_name : ['*.so', '*.dll', '*.pyd']},
-                     
+    # Add package platform libraries if any
+    include_package_lib=True,
+        
 
     # copy shared data in default OpenAlea directory
     # map of 'destination subdirectory' : 'source subdirectory'
@@ -123,12 +115,25 @@ setup(
                    },
 
     
-
-#     #Add environment variables for windows platform
-#     set_win_var=['PATH='+os.path.normpath(pj(config.prefix_dir,'lib'))]
-#     #Add environment variables for lsb platform
-#     set_lsb_var=['LD_LIBRARY_PATH='+os.path.normpath(pj(config.prefix_dir,'lib'))]
-
+#     # Add to PATH environment variable for openalea lib on Windows platform
+#     set_win_var=['PATH='+pj(config.prefix_dir,'lib')]
+#     set_lsb_var=['LD_LIBRARY_PATH='+pj(config.prefix_dir,'lib')]
+ 
+#     # Add shortcuts
+#     win_shortcuts=[Shortcut(name=name, 
+#                             target='c:\\python24\pythonw.exe', 
+#                             arguments='', 
+#                             group='OpenAlea', 
+#                             icon =''),],
+ 
+#     freedesk_shortcuts=[Shortcut( name=name, 
+#                                    target='python', 
+#                                    arguments='', 
+#                                    group='OpenAlea', 
+#                                    icon='' )],
+          
+#     # Windows registery (key, subkey, name, value)
+#     winreg=[('key', 'subkey', 'name', 'value')],
 
     )
 
