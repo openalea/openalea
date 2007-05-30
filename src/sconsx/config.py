@@ -110,7 +110,7 @@ def BisonFlex( env, bison, flex, prefix ):
 
   targets=[]
   bison_ext= ".hpp"
-  if not env[ "BISON_HPP" ]:
+  if not env.get("BISON_HPP"):
     bison_ext = ".cpp.h"
 
   ( bison_name, ext )= os.path.splitext( bison )
