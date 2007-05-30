@@ -24,7 +24,7 @@ Test the Package Manager
 from openalea.core.pkgmanager import PackageManager
 import os
 import openalea
-from openalea.core.setting import Settings
+from openalea.core.settings import Settings
 # Test package manager configuration
 
 
