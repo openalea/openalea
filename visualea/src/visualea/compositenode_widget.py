@@ -172,8 +172,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if(self.newedge):
             item = self.itemAt(event.pos())
             if(item and isinstance(item, ConnectorIn)
-               and isinstance(self.newedge.connector(), ConnectorOut)
-               and not item.is_connected() ):
+               and isinstance(self.newedge.connector(), ConnectorOut)):
 
                 self.connect_node( self.newedge.connector(), item)
                 self.add_graphical_connection( self.newedge.connector(), item)
@@ -264,9 +263,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         Connect the node in the graph
         """
         
-        if(connector_dst.is_connected()):
-            return None
-
         self.node.connect(connector_src.parentItem().get_id(), connector_src.index(),
                                 connector_dst.parentItem().get_id(), connector_dst.index())
 
@@ -391,13 +387,16 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
 
     @lock_notify
-    def remove_connection(self, connector_src, connector_dst):
+    def remove_connection(self, edge_item):
         """ Remove a connection """
 
-        item = connector_dst.edge
-        connector_dst.set_edge(None)
-        connector_src.edge_list.remove(item)
-        self.scene().removeItem(item)
+        connector_src = edge_item.source
+        connector_dst = edge_item.dest
+        
+        connector_src.edge_list.remove(edge_item)
+        connector_dst.edge_list.remove(edge_item)
+        
+        self.scene().removeItem(edge_item)
 
         self.node.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
                                connector_dst.parentItem().get_id(), connector_dst.index()) 
@@ -726,14 +725,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         """ Remove edge connected to this item """ 
 
         for cin in self.connector_in:
-            if(cin.edge) :
-                cin.edge.remove_edge()
-                cin.edge = None
+            for e in list(cin.edge_list):
+                e.remove_edge()
+            #cout.edge_list = []
                 
         for cout in self.connector_out:
-            for e in cout.edge_list[:]:
+            for e in list(cout.edge_list):
                 e.remove_edge()
-            cout.edge_list = []
+            #cout.edge_list = []
                 
 
     def boundingRect(self):
@@ -943,15 +942,36 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.setBrush(QtGui.QBrush(gradient))
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
+        self.edge_list = []
+
 
     def index(self):
         return self.mindex
 
+
+    def add_edge(self, edge):
+        self.edge_list.append(edge)
+        
+
+    def adjust(self):
+        for e in self.edge_list:
+            e.adjust()
+
+
     def update_tooltip(self):
         self.setToolTip(self.base_tooltip)
 
-    def mouseMoveEvent(self, event):
-        QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+
+#     def mouseMoveEvent(self, event):
+#         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+
+
+    def mousePressEvent(self, event):
+        if (event.buttons() & QtCore.Qt.LeftButton):
+            self.graphview.start_edge(self)
+        
+        QtGui.QGraphicsItem.mousePressEvent(self, event)
+
 
 
 
@@ -962,19 +982,8 @@ class ConnectorIn(Connector):
 
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
 
-        self.edge = None
-
         self.adjust_position(parent, index, ntotal)
         self.setAcceptDrops(True)
-
-    def set_edge(self, edge):
-        self.edge = edge
-
-    def is_connected(self):
-        return bool(self.edge)
-
-    def adjust(self):
-        if(self.edge): self.edge.adjust()
 
 
     def update_tooltip(self):
@@ -987,13 +996,6 @@ class ConnectorIn(Connector):
         width= parentitem.sizex / float(ntotal+1)
         self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
 
-
-    def mousePressEvent(self, event):
-        QtGui.QGraphicsItem.mousePressEvent(self, event)
-
-        if(not self.edge and (event.buttons() & QtCore.Qt.LeftButton)):
-            self.graphview.start_edge(self)
-            
 
     # Drag and Drop from TreeView support
     def dragEnterEvent(self, event):
@@ -1041,7 +1043,7 @@ class ConnectorOut(Connector):
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
         
         self.adjust_position(parent, index, ntotal)
-        self.edge_list = []
+
         
     def update_tooltip(self):
         node = self.parentItem().subnode
@@ -1049,26 +1051,10 @@ class ConnectorOut(Connector):
         self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
 
 
-    def add_edge(self, edge):
-        self.edge_list.append(edge)
-        
-
-    def adjust(self):
-        for e in self.edge_list:
-            e.adjust()
-
     def adjust_position(self, parentitem, index, ntotal):
             
         width= parentitem.sizex / float(ntotal+1)
         self.setPos((index+1) * width - self.WIDTH/2., parentitem.sizey - self.HEIGHT/2)
-
-
-    def mousePressEvent(self, event):
-
-        if (event.buttons() & QtCore.Qt.LeftButton):
-            self.graphview.start_edge(self)
-        
-        QtGui.QGraphicsItem.mousePressEvent(self, event)
 
 
     def contextMenuEvent(self, event):
@@ -1184,10 +1170,10 @@ class Edge(AbstractEdge):
         self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
         src = sourceNode.get_output_connector(out_index)
-        if( src ) : src.add_edge(self)
+        if(src) : src.add_edge(self)
 
         dst = destNode.get_input_connector(in_index)
-        if( dst ) : dst.set_edge(self)
+        if(dst) : dst.add_edge(self)
 
         self.source = src
         self.dest = dst
@@ -1225,5 +1211,5 @@ class Edge(AbstractEdge):
 
 
     def remove_edge(self):
-        self.graph.remove_connection(self.source, self.dest)
+        self.graph.remove_connection(self)
     
