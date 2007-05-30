@@ -23,7 +23,7 @@ __revision__=" $Id$ "
 
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.setting import get_userpkg_dir
+from openalea.core.settings import get_userpkg_dir
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings
