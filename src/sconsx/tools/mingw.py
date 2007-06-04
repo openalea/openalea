@@ -38,6 +38,11 @@ class MinGW:
    def update( self, env ):
       """ Update the environment with specific flags """
 
+      CCFLAGS = env['CCFLAGS']
+      if '/nologo' in CCFLAGS:
+        CCFLAGS.remove('/nologo') 
+        env['CCFLAGS'] = CCFLAGS
+
       t= Tool( 'mingw' )
       t( env )
 
