@@ -45,7 +45,8 @@ class MinGW:
 
       t= Tool( 'mingw' )
       t( env )
-
+     
+      env['RCCOM'] = '$RC $_CPPDEFFLAGS $RCINCFLAGS ${RCINCPREFIX}${SOURCE.dir} $RCFLAGS -i $SOURCE -o $TARGET'
       CXXFLAGS= []
       if env["warnings"]:
          CXXFLAGS += [ '-W', '-Wall' ]
