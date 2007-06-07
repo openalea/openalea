@@ -36,7 +36,9 @@ from os.path import join as joindir
 import sys
 import re
 from string import join, split
-from shutil import copytree, copyfile
+from shutil import copytree
+from shutil import copy 
+
 
 from distutils.core import Extension, Distribution, Command
 from distutils.command.install import install
@@ -445,7 +447,7 @@ class install_external_data(Command):
              outfiles += ret
 
           else:
-             copyfile(src_name, dst_name)
+             copy(src_name, dst_name)
              outfiles.append(dst_name)
 
        return outfiles
