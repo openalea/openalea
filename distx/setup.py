@@ -9,7 +9,7 @@ import distx
 name = 'distx'
 namespace ='openalea'
 
-version = '0.2.0'
+version = '0.2.1'
 
 description = 'Distutils extension' 
 long_description = 'DistX add functionalities to distutils (scons call, external data, windows path)...'
