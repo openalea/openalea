@@ -34,7 +34,8 @@ class BuildDir:
 
 
     def default( self ):
-        self._default[ 'build_prefix' ]= pj( self.config.dir[ 0 ], "build-" + platform.name ) 
+        #self._default[ 'build_prefix' ]= pj( self.config.dir[ 0 ], "build-" + platform.name ) 
+        self._default[ 'build_prefix' ]= pj( self.config.dir[ 0 ], "build-scons" ) 
 
     def option(  self, opts ):
 
