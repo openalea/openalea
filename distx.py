@@ -134,10 +134,10 @@ class build_scons (Command):
         if( not self.scons_parameters ):
            self.scons_parameters = "" 
 
-        self.set_undefined_options( 'build',
-                                    ('build_lib', 'build_dir'),
-                                    ('scons_ext_param', 'scons_ext_param'),
-                                    ('scons_path', 'scons_path'))
+        self.set_undefined_options('build',
+                                   ('build_lib', 'build_dir'),
+                                   ('scons_ext_param', 'scons_ext_param'),
+                                   ('scons_path', 'scons_path'))
 
 
     def get_source_files(self):
@@ -180,7 +180,7 @@ class build_scons (Command):
 		else:
 		    command = 'scons'
 
-                command_param = file_param + ' ' + build_param + ' ' + param + ' '+externp
+                command_param = file_param + ' ' + build_param + ' ' + param + ' ' + externp
 		commandstr = command + ' ' + command_param
                 
                 print commandstr
