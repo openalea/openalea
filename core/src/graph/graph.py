@@ -21,7 +21,7 @@ do not implement copy concept
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
+__revision__=" $Id$ "
 
 from interface.graph import InvalidEdge,InvalidVertex,IGraph,\
                     IVertexListGraph,IEdgeListGraph,\
