@@ -367,9 +367,10 @@ class CompositeNode(Node, DataFlow):
         @param port_dst : destination input port number
         """
         
-        source_pid = self.out_port(src_id,port_src)
-        target_pid = self.in_port(dst_id,port_dst)
-        DataFlow.connect(self,source_pid,target_pid)
+        source_pid = self.out_port(src_id, port_src)
+        target_pid = self.in_port(dst_id, port_dst)
+        DataFlow.connect(self, source_pid, target_pid)
+        
         self.actor(dst_id).set_input_state(port_dst, "connected")
         self.notify_listeners(("connection_modified",))
         self.graph_modified = True
@@ -383,8 +384,8 @@ class CompositeNode(Node, DataFlow):
         @param port_dst : destination input port number
         """
 
-        source_pid = self.out_port(src_id,port_src)
-        target_pid = self.in_port(dst_id,port_dst)
+        source_pid = self.out_port(src_id, port_src)
+        target_pid = self.in_port(dst_id, port_dst)
         for eid in self.connected_edges(source_pid) :
             if self.target_port(eid) == target_pid :
                 DataFlow.disconnect(self,eid)

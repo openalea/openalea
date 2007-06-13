@@ -16,11 +16,12 @@ Nota : Cecill v2 license is a GPL compatible license.
 Dependances
 -----------
 
-Python >= 2.4   (See http://www.python.org)
-Qt >= 4.2	(See http://www.trolltech.com)
-PyQt >= 4.1.1	(See http://www.riverbankcomputing.co.uk/pyqt/)
-OpenAlea.Config (See http://openalea.gforge.inria.fr)
-OpenAlea.Core   (See http://openalea.gforge.inria.fr)
+Python >= 2.4   : http://www.python.org
+Qt >= 4.2	: http://www.trolltech.com
+PyQt >= 4.2	: http://www.riverbankcomputing.co.uk/pyqt/
+QScintilla2	: http://www.riverbankcomputing.co.uk/qscintilla/
+OpenAlea.Config : http://openalea.gforge.inria.fr
+OpenAlea.Core   : http://openalea.gforge.inria.fr
 
 
 Installation
