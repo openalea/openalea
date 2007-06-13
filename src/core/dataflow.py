@@ -361,12 +361,13 @@ class DataFlow (PropertyGraph):
 
 		for pid in (source_pid,target_pid) :
 			if((self.port(pid).capacity() != -1) and 
-			   (len(list(self.connected_edges(pid)))>=self.port(pid).capacity())):
+			   (len(list(self.connected_edges(pid)))>= self.port(pid).capacity())):
 				raise PortError("capacity of port %s exceeded" % str(pid))
 
-		eid = self.add_edge( (self.vertex(source_pid),self.vertex(target_pid)),eid)
+		eid = self.add_edge((self.vertex(source_pid),self.vertex(target_pid)), eid)
 		self.edge_property("_source_port")[eid] = source_pid
 		self.edge_property("_target_port")[eid] = target_pid
+		
 		return eid
 
 	
