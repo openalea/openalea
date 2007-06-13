@@ -826,6 +826,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         if('run' in str):
             self.run_node()
 
+    @lock_notify
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
 
