@@ -1,4 +1,6 @@
-09/02/06 : First release for testing purpose
+13/06/07 : 0.2.0a release
+
+09/02/07 : First release for testing purpose
 	   Add some python builtins function
 	   Add Standard data constructor (list, dict, float...)
 	   Add binary operators

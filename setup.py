@@ -21,7 +21,7 @@ name= 'catalog'
 
 namespace=config.namespace 
 pkg_name= namespace + '.' + name
-version= '0.1.0' 
+version= '0.2.0a' 
 description= 'OpenAlea Logical Component Catalog.' 
 
 long_description= ''
