@@ -19,7 +19,7 @@ stats tools
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: utils_nodes.py $ "
+__revision__=" $Id$ "
 
 from openalea.core import *
 import rpy
