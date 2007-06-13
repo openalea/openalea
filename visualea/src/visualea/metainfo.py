@@ -1,5 +1,5 @@
 # Configuration file 
 
-version = "0.1.0"
+version = "0.2.0a"
 url = "http://openalea.gforge.inria.fr"
 

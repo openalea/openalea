@@ -1,3 +1,22 @@
+13/06/07 : Alpha release 0.2.0a. For this release, 
+Visualea has been refactorised since first prototype :
+	 - A lot of bug fixes.
+	 - New Workspace Management
+	 - Graph manipulation improved
+	 - Dynamic node code edition
+	 - QScintialla based python interpreter
+	 - Seach tab
+	 - Datapool view and manipulation
+	 - Multi inputs in a node
+	 - Export Dataflow as a Node
+	 - List/Dictionnary Widgets
+	 - Persistence (experimental)
+	 - Graph Annotations (experimental)
+	 - Preference dialog
+	 - Save configuration
+	 
+
+
 09/02/07 : First release for testing purpose.
 	 - GUI in PyQT4
 	 - Package manager view by package / category

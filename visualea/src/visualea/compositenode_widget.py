@@ -174,14 +174,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             if(item and isinstance(item, ConnectorIn)
                and isinstance(self.newedge.connector(), ConnectorOut)):
 
-                self.connect_node( self.newedge.connector(), item)
+                self.connect_node(self.newedge.connector(), item)
                 self.add_graphical_connection( self.newedge.connector(), item)
 
 
             elif(item and isinstance(item, ConnectorOut) and
                  isinstance(self.newedge.connector(), ConnectorIn) ):
 
-                self.connect_node( item, self.newedge.connector())
+                self.connect_node(item, self.newedge.connector())
                 self.add_graphical_connection( item, self.newedge.connector())
         
             self.scene().removeItem(self.newedge)
@@ -210,9 +210,10 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         if(not event): return
 
-        if( event[0] == "connection_modified"):
+        if(event[0] == "connection_modified"):
             self.rebuild_scene()
-        elif( event[0] == "graph_modified"):
+            
+        elif(event[0] == "graph_modified"):
             self.rebuild_scene()
 
 
