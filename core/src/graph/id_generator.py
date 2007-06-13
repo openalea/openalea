@@ -20,7 +20,7 @@ This module provide a generator for id numbers
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka-toufou $ "
+__revision__=" $Id$ "
 
 class IdGenerator(object) :
 	def __init__ (self) :
