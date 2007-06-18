@@ -41,16 +41,16 @@ class App(tk.Frame):
         tk.Frame.__init__(self, master, padx=40, pady=40)
         self.pack()
 
-        w= tk.Label(self, text="OpenAlea Configuration", font=("Helvetica", 22,"bold"))
+        w = tk.Label(self, text="OpenAlea Configuration", font=("Helvetica", 22,"bold"))
         w.pack(side=tk.TOP)
 
-        self.subframe= tk.Frame(self, padx=40, pady=40)
+        self.subframe = tk.Frame(self, padx=40, pady=40)
         self.subframe.pack()
         
-        w= tk.Label(self.subframe, text="\nChoose the OpenAlea base directory \n",justify=tk.LEFT)
+        w = tk.Label(self.subframe, text="\nChoose the OpenAlea base directory \n",justify=tk.LEFT)
         w.pack()
         
-        self.entrytxt= tk.StringVar()
+        self.entrytxt = tk.StringVar()
         self.entrytxt.set(self.config.prefix_dir)
         entry= tk.Entry(self.subframe, textvariable=self.entrytxt)
         entry.pack(side=tk.LEFT)
@@ -58,10 +58,10 @@ class App(tk.Frame):
         button= tk.Button(self.subframe, text="Choose Directory", command=self.getPath)
         button.pack(side=tk.LEFT)
 
-        ok= tk.Button(self, text="Next >>", command=self.onOk)
+        ok = tk.Button(self, text="Next >>", command=self.onOk)
         ok.pack(side=tk.RIGHT, fill = tk.BOTH,expand = tk.YES )
 
-        cancel= tk.Button(self, text="Cancel", command=self.onCancel)
+        cancel = tk.Button(self, text="Cancel", command=self.onCancel)
         cancel.pack(side=tk.LEFT, fill = tk.BOTH, expand = tk.YES)
 
 
@@ -69,17 +69,21 @@ class App(tk.Frame):
         """Initialise OpenAlea configuration"""
 
         # Get config object
-        self.config= config(None)
+        self.config = config(None)
 
     
     def getPath(self):
+        
         dirPath = tkFileDialog.askdirectory(initialdir=self.entrytxt.get(), mustexist=0)
-        dirPath= os.path.normpath(dirPath)
+        if(dirPath == ()): return
+        
+        dirPath = os.path.normpath(dirPath)
 	if(dirPath and dirPath!='' and dirPath!='.'): self.entrytxt.set(dirPath)
+        
 
     def onOk(self):
-        prefix=os.path.normpath(self.entrytxt.get())
-        self.config.prefix_dir=prefix
+        prefix = os.path.normpath(self.entrytxt.get())
+        self.config = config(prefix)
 
         # Create config file
         self.config.create_namespace()

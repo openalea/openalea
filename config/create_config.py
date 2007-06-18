@@ -80,7 +80,17 @@ class Config(object):
 
     header= '# OpenAlea config file generated on %s'%( time.asctime(),)
 
+
+    def __init__(self, prefix=None):
+        """ Constructor """
+
+        if(prefix) :
+            prefix = os.path.expanduser(prefix)
+            self.prefix_dir = os.path.abspath(prefix)
+
     def __str__(self):
+        """ String representation """
+        
         return """
 %s
 namespace= '%s'
@@ -135,9 +145,6 @@ class PosixConfig(Config):
     """
     prefix_dir='/usr/local/openalea'
 
-    def __init__(self, prefix= prefix_dir):
-        if(prefix):
-            self.prefix_dir= prefix
 
 class WindowsConfig(Config):
     """
@@ -145,15 +152,11 @@ class WindowsConfig(Config):
     """
     prefix_dir=pj('C:/', 'openalea')
     
-    def __init__(self, prefix= prefix_dir):
-        if(prefix):
-            self.prefix_dir= prefix
-    
 
-def config( prefix ):
+def config(prefix):
     """Return the config object for the local platform"""
     
-    platform= sys.platform
+    platform = sys.platform
     if 'win' in platform:
         return WindowsConfig(prefix)
     else:
@@ -171,9 +174,9 @@ def main():
                   help="OpenAlea prefix directory")
     (options, args)= parser.parse_args()
 
-    prefix= options.prefix
+    prefix = options.prefix
     if prefix: 
-        print " prefix= "+prefix
+        print " prefix = "+prefix
 
     #get config object
     conf=config(prefix)
