@@ -97,7 +97,7 @@ class Compiler:
       elif isinstance(platform, Win32):
          env.AppendUnique(CPPDEFINES = 'WIN32')
          libs_suffix = env['compiler_libs_suffix']
-         if compiler_name = 'mingw' and '-vc' in libs_suffix:
+         if compiler_name == 'mingw' and '-vc' in libs_suffix:
             env['compiler_libs_suffix'] = '-mgw'
 
       env.Append(RPATH=Split('$rpath'))

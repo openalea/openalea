@@ -66,7 +66,7 @@ class Bison:
          version = float(version_text.group(0))
          f.close()
 
-         if version > = 1.30:
+         if version >= 1.30:
             BISON_HPP =True
          else:
             BISON_HPP =False
