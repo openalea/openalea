@@ -38,8 +38,16 @@ class OpenGL:
         if isinstance( platform, Win32 ):
             #MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
             MVSdir = r'C:\Program Files\Microsoft Platform SDK'
-            self._default[ 'include' ]= pj( MVSdir, 'Include' )
-            self._default[ 'lib' ]= pj( MVSdir, 'Lib' )
+            self._default[ 'msvc_include' ]= pj( MVSdir, 'Include' )
+            self._default[ 'msvc_lib' ]= pj( MVSdir, 'Lib' )
+            
+            mgw_dir= r'C:\MinGW'
+            self._default[ 'mgw_include' ]= pj( mgw_dir, 'include' )
+            self._default[ 'mgw_lib' ]= pj( mgw_dir, 'iib' )
+            
+            self._default['include'] = self._default[ 'msvc_include' ]
+            self._default['lib'] = self._default[ 'msvc_lib' ]
+            
         elif isinstance( platform, Posix ):
             if exists ( '/usr/include/GL/gl.h' ):
                 self._default[ 'include' ]= '/usr/include'
@@ -52,7 +60,7 @@ class OpenGL:
    def option(  self, opts ):
 
       self.default()
-
+                
       opts.AddOptions( 
          PathOption( 'gl_includes', 'GL include files', 
           self._default[ 'include' ]),
@@ -64,6 +72,12 @@ class OpenGL:
 
    def update( self, env ):
       """ Update the environment with specific flags """
+      if env['compiler'] == 'mingw':
+        if env['gl_includes'] == self._default['msvc_include']:
+            env['gl_includes'] = self._default['mgw_include']
+        if env['gl_lib'] == self._default['msvc_lib']:
+            env['gl_lib'] = self._default['mgw_lib']
+
       env.AppendUnique( CPPPATH= [ env['gl_includes'] ] )
       env.AppendUnique( LIBPATH= [ env['gl_lib'] ] )
 
