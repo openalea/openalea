@@ -16,72 +16,72 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Readline configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Readline configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 import os, sys
 from openalea.sconsx.config import *
 
 
 class Readline:
-   def __init__( self, config ):
-      self.name= 'readline'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'readline'
+      self.config = config
+      self._default = {}
 
-   def depends( self ):
-       return [ "termcap" ]
+   def depends(self):
+       return ["termcap"]
 
-   def default( self ):
-      if isinstance( platform, Posix ):
+   def default(self):
+      if isinstance(platform, Posix):
          
-         self._default[ 'include' ]= '/usr/include'
-         self._default[ 'lib' ]= '/usr/lib'
-         if isinstance( platform, Cygwin ):
-            self._default[ 'include' ]= '/usr/include/readline'
+         self._default['include'] = '/usr/include'
+         self._default['lib'] = '/usr/lib'
+         if isinstance(platform, Cygwin):
+            self._default['include'] = '/usr/include/readline'
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
-      if isinstance( platform, Posix ):
-         opts.AddOptions( 
-            PathOption( 'readline_includes', 
+      if isinstance(platform, Posix):
+         opts.AddOptions(
+            PathOption('readline_includes', 
                         'readline include files', 
-                        self._default[ 'include' ] ),
+                        self._default['include']),
 
-            PathOption( 'readline_lib', 
+            PathOption('readline_lib', 
                         'readline libraries path', 
-                        self._default[ 'lib' ] ) 
-            )
+                        self._default['lib']) 
+           )
 
 
-   def update( self, env ):
-      if isinstance( platform, Posix ):
-         env.AppendUnique( CPPPATH= [ env['readline_includes'] ] )
-         env.AppendUnique( LIBPATH= [ env['readline_lib'] ] )
-         env.AppendUnique( LIBS= [ 'readline' ] )
+   def update(self, env):
+      if isinstance(platform, Posix):
+         env.AppendUnique(CPPPATH=[env['readline_includes']])
+         env.AppendUnique(LIBPATH=[env['readline_lib']])
+         env.AppendUnique(LIBS=['readline'])
 
 
-   def configure( self, config ):
-      if isinstance( platform, Posix ):
-         if not config.conf.CheckCHeader( [ 'stdio.h', 
+   def configure(self, config):
+      if isinstance(platform, Posix):
+         if not config.conf.CheckCHeader(['stdio.h', 
                                             'string.h', 
-                                            'readline/readline.h' ] ):
+                                            'readline/readline.h']):
             print """Error: readline.h not found !!!
             Please install readline and start again."""
             sys.exit(-1)
 
 
-def create( config ):
+def create(config):
    " Create readline tool "
-   readline= Readline( config )
+   readline = Readline(config)
 
    deps= readline.depends()
    for lib in deps:
-      config.add_tool( lib )
+      config.add_tool(lib)
 
    return readline
 

@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Pthread configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Pthread configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
@@ -26,51 +26,51 @@ from openalea.sconsx.config import *
 
 
 class Pthread:
-   def __init__( self, config ):
-      self.name= 'pthread'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'pthread'
+      self.config = config
+      self._default = {}
 
 
-   def default( self ):
+   def default(self):
 
-      self._default[ 'include' ]= '/usr/include'
-      self._default[ 'lib' ]= '/usr/lib'
+      self._default['include'] = '/usr/include'
+      self._default['lib'] = '/usr/lib'
 
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
-      opts.AddOptions( 
-         PathOption( 'pthread_includes', 'pthread include files', 
-                     self._default[ 'include' ] ),
-         PathOption( 'pthread_lib', 'pthread libraries path', 
-                     self._default[ 'lib' ] ) 
-      )
+      opts.AddOptions(
+         PathOption('pthread_includes', 'pthread include files', 
+                     self._default['include']),
+         PathOption('pthread_lib', 'pthread libraries path', 
+                     self._default['lib']) 
+     )
 
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      env.AppendUnique( CPPPATH= [ env['pthread_includes'] ] )
-      env.AppendUnique( LIBPATH= [ env['pthread_lib'] ] )
-      env.AppendUnique( LIBS= [ 'pthread' ] )
+      env.AppendUnique(CPPPATH=[env['pthread_includes']])
+      env.AppendUnique(LIBPATH=[env['pthread_lib']])
+      env.AppendUnique(LIBS=['pthread'])
 
 
 
-   def configure( self, config ):
+   def configure(self, config):
       if not config.conf.CheckCHeader('pthread.h'):
          print """Error: pthread.h not found !!!
          Please install pthread and start again."""
          sys.exit(-1)
 
 
-def create( config ):
+def create(config):
    " Create pthread tool "
-   pthread= Pthread( config )
+   pthread = Pthread(config)
 
    return pthread
 

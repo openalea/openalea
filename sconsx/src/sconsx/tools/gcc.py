@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Gcc configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Gcc configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 import os, sys
 from openalea.sconsx.config import *
@@ -26,38 +26,38 @@ from openalea.sconsx.config import *
 
 class Gcc:
 
-   def __init__( self, config ):
-      self.name= 'gcc'
-      self.config= config
+   def __init__(self, config):
+      self.name = 'gcc'
+      self.config = config
 
 
-   def option(  self, opts ):
+   def option( self, opts):
       pass
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      t= Tool( 'gcc' )
-      t( env )
+      t = Tool('gcc')
+      t(env)
 
-      CXXFLAGS= []
+      CXXFLAGS = []
       if env["warnings"]:
-         CXXFLAGS += [ '-W', '-Wall' ]
+         CXXFLAGS += ['-W', '-Wall']
 
       if env["debug"]:
          CXXFLAGS.extend(['-g'])
       else:
          CXXFLAGS.extend(['-DNDEBUG', '-O2'])
 
-      env.AppendUnique(CXXFLAGS = CXXFLAGS)
+      env.AppendUnique(CXXFLAGS=CXXFLAGS)
 
 
-   def configure( self, config ):
+   def configure(self, config):
       pass
 
-def create( config ):
+def create(config):
    " Create gcc tool "
-   gcc= Gcc( config )
+   gcc = Gcc(config)
 
    return gcc
 

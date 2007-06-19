@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Visual Studio C++ configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Visual Studio C++ configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
@@ -27,29 +27,29 @@ from openalea.sconsx.config import *
 
 class Msvc:
 
-   def __init__( self, config ):
-      self.name= 'msvc'
-      self.config= config
+   def __init__(self, config):
+      self.name = 'msvc'
+      self.config = config
 
-   def option(  self, opts ):
+   def option(self, opts):
       pass
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      #env['MSVS_VERSION']= '6.0'
-      t= Tool( 'msvc' )
-      t( env )
+      #env['MSVS_VERSION'] = '6.0'
+      t = Tool('msvc')
+      t(env)
 
       # /GR: enable C++ RTTI
-      CCFLAGS= ['/MD','/GR','/EHsc']
-      #CPPPATH= [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
-      CPPDEFINES= [ 'UNICODE' ]
-      #LIBS= ['advapi32','uuid','stlport_vc6']
+      CCFLAGS = ['/MD','/GR','/EHsc']
+      #CPPPATH = [r'C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\VC98\INCLUDE\STLPORT']
+      CPPDEFINES = ['UNICODE']
+      #LIBS = ['advapi32','uuid','stlport_vc6']
 
       if env["warnings"]:
          # TODO add warnings flags
-         CCFLAGS += [ '/W3' ]
+         CCFLAGS += ['/W3']
 
       if env["debug"]:
          # Optimization
@@ -63,7 +63,7 @@ class Msvc:
          # /Gm: enable minimal rebuild
          CCFLAGS.extend(['/GZ','/Gm'])
 
-         CPPDEFINES.append( '_DEBUG' )
+         CPPDEFINES.append('_DEBUG')
       else:
          # Optimization
          # /O2: maximum speed
@@ -74,22 +74,22 @@ class Msvc:
          # /GF: enable read-only string pooling
          # /GA: enable for Windows Application
          # /GR: enable C++ RTTI
-         CCFLAGS.extend(['/Gy','/GF','/GA' ])
+         CCFLAGS.extend(['/Gy','/GF','/GA'])
          
-         CPPDEFINES.append( 'NDEBUG' )
+         CPPDEFINES.append('NDEBUG')
 
-      #env.AppendUnique(CPPPATH = CPPPATH)
-      env.AppendUnique(CCFLAGS = CCFLAGS)
-      env.AppendUnique(CPPDEFINES = CPPDEFINES)
-      #env.AppendUnique( LIBS= LIBS )
+      #env.AppendUnique(CPPPATH=CPPPATH)
+      env.AppendUnique(CCFLAGS=CCFLAGS)
+      env.AppendUnique(CPPDEFINES=CPPDEFINES)
+      #env.AppendUnique(LIBS=LIBS)
 
 
-   def configure( self, config ):
+   def configure(self, config):
       pass
 
-def create( config ):
+def create(config):
    " Create msvc tool "
-   msvc= Msvc( config )
+   msvc = Msvc(config)
 
    return msvc
 

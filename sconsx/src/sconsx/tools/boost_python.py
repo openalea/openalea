@@ -16,105 +16,105 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Boost.Python configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Boost.Python configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 import os, sys
 from openalea.sconsx.config import *
 
 
 class Boost_Python:
-   def __init__( self, config ):
-      self.name= 'boost_python'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'boost_python'
+      self.config = config
+      self._default = {}
 
 
-   def depends( self ):
-      deps= ['python']
+   def depends(self):
+      deps = ['python']
 
-      if isinstance( platform, Posix ):
-         deps.append( 'pthread' )
+      if isinstance(platform, Posix):
+         deps.append('pthread')
 
       return deps
 
 
-   def default( self ):
+   def default(self):
 
-      self._default[ 'libs_suffix' ]= '$compiler_libs_suffix'
+      self._default['libs_suffix'] = '$compiler_libs_suffix'
 
-      if isinstance( platform, Win32 ):
-         self._default[ 'flags' ]= ''
-         self._default[ 'defines' ]= ''
+      if isinstance(platform, Win32):
+         self._default['flags'] = ''
+         self._default['defines'] = ''
          try:
             import openalea.config as conf
-            self._default[ 'include' ]= conf.include_dir
-            self._default[ 'lib' ]= conf.lib_dir
+            self._default['include'] = conf.include_dir
+            self._default['lib'] = conf.lib_dir
 
          except ImportError, e:
-            self._default[ 'include' ]= 'C:' + os.sep
-            self._default[ 'lib' ]= 'C:' + os.sep
+            self._default['include'] = 'C:' + os.sep
+            self._default['lib'] = 'C:' + os.sep
 
-      elif isinstance( platform, Posix ):
-         self._default[ 'include' ]= '/usr/include'
-         self._default[ 'lib' ]= '/usr/lib'
-         self._default[ 'flags' ]= '-ftemplate-depth-100'
-         self._default[ 'defines' ]= 'BOOST_PYTHON_DYNAMIC_LIB'
+      elif isinstance(platform, Posix):
+         self._default['include'] = '/usr/include'
+         self._default['lib'] = '/usr/lib'
+         self._default['flags'] = '-ftemplate-depth-100'
+         self._default['defines'] = 'BOOST_PYTHON_DYNAMIC_LIB'
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
-      opts.AddOptions( 
-         PathOption( 'boost_includes', 
+      opts.AddOptions(
+         PathOption('boost_includes', 
                      'Boost_python include files', 
-                     self._default[ 'include' ] ),
+                     self._default['include']),
 
-         PathOption( 'boost_lib', 
+         PathOption('boost_lib', 
                      'Boost_python libraries path', 
-                     self._default[ 'lib' ] ),
+                     self._default['lib']),
 
-         ( 'boost_flags', 
+         ('boost_flags', 
            'Boost_python compiler flags', 
-           self._default[ 'flags' ] ),
+           self._default['flags']),
 
-         ( 'boost_defines', 
+         ('boost_defines', 
            'Boost_python defines', 
-           self._default[ 'defines' ] ),
+           self._default['defines']),
 
-         ( 'boost_libs_suffix', 
+         ('boost_libs_suffix', 
            'Boost_python library suffix name like -vc80-mt or -gcc', 
-           self._default[ 'libs_suffix' ] )
-      )
+           self._default['libs_suffix'])
+     )
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      env.AppendUnique( CPPPATH= [ env['boost_includes'] ] )
-      env.AppendUnique( LIBPATH= [ env['boost_lib'] ] )
-      env.Append( CPPDEFINES= '$boost_defines' )
-      env.Append( CPPFLAGS= '$boost_flags' )
+      env.AppendUnique(CPPPATH=[env['boost_includes']])
+      env.AppendUnique(LIBPATH=[env['boost_lib']])
+      env.Append(CPPDEFINES='$boost_defines')
+      env.Append(CPPFLAGS='$boost_flags')
 
       boost_name= 'boost_python'+ env['boost_libs_suffix']
-      env.AppendUnique( LIBS= [ boost_name ] )
+      env.AppendUnique(LIBS=[boost_name])
 
 
-   def configure( self, config ):
-      if not config.conf.CheckCXXHeader( 'boost/python.hpp' ):
+   def configure(self, config):
+      if not config.conf.CheckCXXHeader('boost/python.hpp'):
          print "Error: boost.python headers not found."
-         sys.exit( -1 )
+         sys.exit(-1)
 
 
-def create( config ):
+def create(config):
    " Create boost tool "
-   boost= Boost_Python( config )
+   boost = Boost_Python(config)
 
    deps= boost.depends()
    for lib in deps:
-      config.add_tool( lib )
+      config.add_tool(lib)
 
    return boost
 

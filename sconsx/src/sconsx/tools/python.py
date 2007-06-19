@@ -16,70 +16,70 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Python configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Python configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
 from openalea.sconsx.config import *
 from distutils.sysconfig import *
-pj= os.path.join
+pj = os.path.join
 
 class Python:
-   def __init__( self, config ):
-      self.name= 'python'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'python'
+      self.config = config
+      self._default = {}
 
 
-   def default( self ):
+   def default(self):
 
-      self._default[ 'include' ]= get_python_inc(plat_specific=1)
+      self._default['include'] = get_python_inc(plat_specific=1)
 
-      if isinstance( platform, Win32 ):
-         self._default[ 'lib' ]= pj(PREFIX,"libs")
+      if isinstance(platform, Win32):
+         self._default['lib'] = pj(PREFIX,"libs")
       else:
-         self._default[ 'lib' ]= '/usr/lib'
+         self._default['lib'] = '/usr/lib'
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
       opts.AddOptions(
-         PathOption( 'python_includes', 'Python include files', 
-          self._default[ 'include' ]),
+         PathOption('python_includes', 'Python include files', 
+          self._default['include']),
 
-         PathOption( 'python_lib', 'Python library path', 
-         self._default[ 'lib' ] )
-         )
+         PathOption('python_lib', 'Python library path', 
+         self._default['lib'])
+        )
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      env.AppendUnique( CPPPATH= [ env['python_includes'] ] )
-      env.AppendUnique( LIBPATH= [ env['python_lib'] ] )
+      env.AppendUnique(CPPPATH=[env['python_includes']])
+      env.AppendUnique(LIBPATH=[env['python_lib']])
 
-      if isinstance( platform, Win32 ):
-         version= "%d%d"%sys.version_info[0:2]
-         pylib= 'python' + version
+      if isinstance(platform, Win32):
+         version = "%d%d"%sys.version_info[0:2]
+         pylib = 'python' + version
       else:
-         pylib= 'python' + get_config_var( 'VERSION' )
+         pylib = 'python' + get_config_var('VERSION')
 
-      env.AppendUnique( LIBS=[pylib] )
+      env.AppendUnique(LIBS=[pylib])
 
 
-   def configure( self, config ):
+   def configure(self, config):
       if not config.conf.CheckCXXHeader('Python.h'):
          print "Error: Python.h not found, probably failure in automatic python detection"
          sys.exit(-1)
 
 
-def create( config ):
+def create(config):
    " Create python tool "
-   python= Python( config )
+   python = Python(config)
 
    return python
 

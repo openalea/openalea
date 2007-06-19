@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Install configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Install configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
@@ -27,80 +27,80 @@ from openalea.sconsx.config import *
 
 class Install:
 
-    def __init__( self, config ):
-        self.name= 'install'
-        self.config= config
-        self._default= {}
+    def __init__(self, config):
+        self.name = 'install'
+        self.config = config
+        self._default = {}
 
 
-    def default( self ):
+    def default(self):
 
-        if isinstance( platform, Win32 ):
-            self._default[ 'prefix' ]= 'C:' + os.sep + 'local'
+        if isinstance(platform, Win32):
+            self._default['prefix'] = 'C:' + os.sep + 'local'
 
-        elif isinstance( platform, Posix ):
-            self._default[ 'prefix' ]= '/usr/local'
+        elif isinstance(platform, Posix):
+            self._default['prefix'] = '/usr/local'
 
 
 
-    def option(  self, opts ):
+    def option( self, opts):
         # TODO: check if dirs exist on windows
         self.default()
 
         # Installation Directories
-        opts.Add(PathOption( 'prefix', 
+        opts.Add(PathOption('prefix', 
                              'install architecture-independent files', 
-                             self._default[ 'prefix' ]))
+                             self._default['prefix']))
 
-        opts.Add(PathOption( 'exec_prefix', 
+        opts.Add(PathOption('exec_prefix', 
                              'install architecture-dependent files', 
                              '$prefix'))
 
         # Fine tunning of the installation directory
-        opts.Add(PathOption( 'bindir', 
+        opts.Add(PathOption('bindir', 
                              'user executables', 
-                             pj( '$prefix', 'bin' ) ))
+                             pj('$prefix', 'bin')))
 
-        opts.Add(PathOption( 'libdir', 
+        opts.Add(PathOption('libdir', 
                              'object code libraries', 
-                             pj( '$prefix', 'lib' ) ))
+                             pj('$prefix', 'lib')))
 
-        opts.Add(PathOption( 'includedir', 
+        opts.Add(PathOption('includedir', 
                              'header files', 
-                             pj( '$prefix', 'include' ) ))
+                             pj('$prefix', 'include')))
 
-        opts.Add(PathOption( 'datadir', 
+        opts.Add(PathOption('datadir', 
                              'data', 
-                             pj( '$prefix', 'share' ) ))
+                             pj('$prefix', 'share')))
 
         # Program & Library names
 
-        opts.Add( 'program_prefix', 
-                  'prepend prefix to installed program names', '' )
+        opts.Add('program_prefix', 
+                  'prepend prefix to installed program names', '')
 
-        opts.Add( 'program_suffix', 
-                  'append suffix to installed program names', '' )
+        opts.Add('program_suffix', 
+                  'append suffix to installed program names', '')
 
-        opts.Add( 'lib_prefix', 
-                  'prepend prefix to installed library names', '' )
+        opts.Add('lib_prefix', 
+                  'prepend prefix to installed library names', '')
 
-        opts.Add( 'lib_suffix', 
-                  'append suffix to installed library names', '' )
-
-
+        opts.Add('lib_suffix', 
+                  'append suffix to installed library names', '')
 
 
-    def update( self, env ):
+
+
+    def update(self, env):
         """ Update the environment with specific flags """
         pass
 
 
-    def configure( self, config ):
+    def configure(self, config):
         pass
 
-def create( config ):
+def create(config):
    " Create install tool "
 
-   install= Install( config )
+   install = Install(config)
    return install
 

@@ -16,82 +16,82 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Bison configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Bison configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 import os, sys, re
 from openalea.sconsx.config import *
 
 
 class Bison:
-   def __init__( self, config ):
-      self.name= 'bison'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'bison'
+      self.config = config
+      self._default = {}
 
 
-   def default( self ):
+   def default(self):
 
-         if isinstance( platform, Win32 ):
-            self._default[ 'bin' ]= r'C:\Tools\Bin'
-         elif isinstance( platform, Posix ):
-            self._default[ 'bin' ]= '/usr/bin'
+         if isinstance(platform, Win32):
+            self._default['bin'] = r'C:\Tools\Bin'
+         elif isinstance(platform, Posix):
+            self._default['bin'] = '/usr/bin'
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
-      opts.Add( 'bison_bin', 'Bison binary path', 
-                self._default[ 'bin' ] )
+      opts.Add('bison_bin', 'Bison binary path', 
+                self._default['bin'])
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
-      t= Tool( 'yacc', toolpath=[ getLocalPath() ] )
-      t( env )
+      t = Tool('yacc', toolpath=[getLocalPath()])
+      t(env)
 
-      env.Append( YACCFLAGS=[ '-d', '-v' ])
-      bison= env.WhereIs( 'bison', env[ 'bison_bin' ] )
-      env.Replace( YACC= bison )
+      env.Append(YACCFLAGS=['-d', '-v'])
+      bison = env.WhereIs('bison', env['bison_bin'])
+      env.Replace(YACC=bison)
 
       if bison:
-         f=os.popen(str(bison)+" --version")
-         l=f.readline()
-         l=l.split()
+         f =os.popen(str(bison)+" --version")
+         l =f.readline()
+         l =l.split()
          version_text = re.compile(r"\d+.\d+").match(l[-1])
          if version_text is None:
             raise UserWarning, "Unable to retrieve bison version number"
-         version= float( version_text.group(0) )
+         version = float(version_text.group(0))
          f.close()
 
-         if version >= 1.30:
-            BISON_HPP=True
+         if version > = 1.30:
+            BISON_HPP =True
          else:
-            BISON_HPP=False
+            BISON_HPP =False
 
-         env.Append( BISON_HPP= BISON_HPP )
+         env.Append(BISON_HPP=BISON_HPP)
          if BISON_HPP:
-            env.Append( CPPDEFINES=["BISON_HPP"] )
+            env.Append(CPPDEFINES =["BISON_HPP"])
 
 
 
-   def configure( self, config ):
-      b= WhereIs( "bison", config.conf.env[ 'bison_bin' ] )
+   def configure(self, config):
+      b = WhereIs("bison", config.conf.env['bison_bin'])
 
       if not b:
-        s="""
+        s ="""
         Warning !!! Bison not found !
         Please, install Bison and try again.
         """
         print s
-        sys.exit( -1 )
+        sys.exit(-1)
 
 
-def create( config ):
+def create(config):
    " Create bison tool "
-   bison= Bison( config )
+   bison = Bison(config)
 
    return bison
 

@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" MinGW configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ MinGW configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
@@ -27,15 +27,15 @@ from openalea.sconsx.config import *
 
 class MinGW:
 
-   def __init__( self, config ):
-      self.name= 'mingw'
-      self.config= config
+   def __init__(self, config):
+      self.name = 'mingw'
+      self.config = config
 
 
-   def option(  self, opts ):
+   def option(self, opts):
       pass
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
       CCFLAGS = env['CCFLAGS']
@@ -43,35 +43,35 @@ class MinGW:
         CCFLAGS.remove('/nologo') 
         env['CCFLAGS'] = CCFLAGS
 
-      t= Tool( 'mingw' )
-      t( env )
+      t = Tool('mingw')
+      t(env)
      
       env['RCCOM'] = '$RC $_CPPDEFFLAGS $RCINCFLAGS ${RCINCPREFIX}${SOURCE.dir} $RCFLAGS -i $SOURCE -o $TARGET'
-      CXXFLAGS= []
+      CXXFLAGS = []
       if env["warnings"]:
-         CXXFLAGS += [ '-W', '-Wall' ]
+         CXXFLAGS += ['-W', '-Wall']
 
       if env["debug"]:
          CXXFLAGS.extend(['-g'])
       else:
          CXXFLAGS.extend(['-DNDEBUG', '-O2'])
 
-      LINKFLAGS=["-enable-stdcall-fixup",
+      LINKFLAGS = ["-enable-stdcall-fixup",
                  "-enable-auto-import",
                  "-enable-runtime-pseudo-reloc",
                  "-s"]
 
-      env.AppendUnique(CXXFLAGS = CXXFLAGS)
-      env.Replace(RCINCPREFIX = '--include-dir=')
-      #env.AppendUnique(LINKFLAGS = LINKFLAGS )
+      env.AppendUnique(CXXFLAGS=CXXFLAGS)
+      env.Replace(RCINCPREFIX='--include-dir=')
+      #env.AppendUnique(LINKFLAGS=LINKFLAGS)
 
 
-   def configure( self, config ):
+   def configure(self, config):
       pass
 
-def create( config ):
+def create(config):
    " Create mingw tool "
-   mingw= MinGW( config )
+   mingw = MinGW(config)
 
    return mingw
 

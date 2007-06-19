@@ -16,9 +16,9 @@
 #
 #--------------------------------------------------------------------------------
 
-__doc__=""" Build directory configure environment. """
-__license__= "Cecill-C"
-__revision__="$Id: $"
+__doc__ = """ Build directory configure environment. """
+__license__ = "Cecill-C"
+__revision__ = "$Id: $"
 
 
 import os, sys
@@ -26,95 +26,95 @@ from openalea.sconsx.config import *
 
 class Compiler:
 
-   def __init__( self, config ):
-      self.name= 'compiler'
-      self.config= config
-      self._default= {}
+   def __init__(self, config):
+      self.name = 'compiler'
+      self.config = config
+      self._default = {}
 
 
-   def default( self ):
+   def default(self):
 
-      self._default[ 'debug' ]= False
-      self._default[ 'warnings' ]= False
-      self._default[ 'static' ]= False
+      self._default['debug'] = False
+      self._default['warnings'] = False
+      self._default['static'] = False
 
-      if isinstance( platform, Posix ):
-         compilers= ['gcc']
-         libs_suffix= ''
-      elif isinstance( platform, Win32 ):
-         compilers= ['msvc', 'mingw']
-         libs_suffix= '-vc80'
+      if isinstance(platform, Posix):
+         compilers = ['gcc']
+         libs_suffix = ''
+      elif isinstance(platform, Win32):
+         compilers = ['msvc', 'mingw']
+         libs_suffix = '-vc80'
       else:
          raise "Add a compiler support for your os !!!"
 
-      self._default[ 'compilers' ]= compilers
-      self._default[ 'libs_suffix' ]= libs_suffix
+      self._default['compilers'] = compilers
+      self._default['libs_suffix'] = libs_suffix
 
 
-   def option(  self, opts ):
+   def option( self, opts):
 
       self.default()
 
-      opts.Add( BoolOption( 'debug', 
-                            'compilation in a debug mode',
-                            self._default[ 'debug' ] ) )
-      opts.Add( BoolOption( 'warnings',
-                            'compilation with -Wall and similar',
-                            self._default[ 'warnings' ] ) )
-      opts.Add( BoolOption( 'static',
-                            '',
-                            self._default[ 'static' ] ) )
+      opts.Add(BoolOption('debug', 
+                          'compilation in a debug mode',
+                          self._default['debug']))
+      opts.Add(BoolOption('warnings',
+                          'compilation with -Wall and similar',
+                          self._default['warnings']))
+      opts.Add(BoolOption('static',
+                          '',
+                          self._default['static']))
 
-      compilers= self._default[ 'compilers' ]
-      default_compiler= compilers[0]
-      opts.Add( EnumOption('compiler',
-                           'compiler tool used for the build',
-                           default_compiler,
-                           compilers ) )
-      opts.Add( 'compiler_libs_suffix', 
-                'Library suffix name like -vc80 or -mgw',
-                self._default['libs_suffix'] )
+      compilers = self._default['compilers']
+      default_compiler = compilers[0]
+      opts.Add(EnumOption('compiler',
+                          'compiler tool used for the build',
+                          default_compiler,
+                          compilers))
+      opts.Add('compiler_libs_suffix', 
+               'Library suffix name like -vc80 or -mgw',
+               self._default['libs_suffix'])
                            
-      opts.Add( 'rpath', 'A list of paths to search for shared libraries')
+      opts.Add('rpath', 'A list of paths to search for shared libraries')
 
-      opts.Add( 'EXTRA_CXXFLAGS', 'Specific user flags for c++ compiler', '')
-      opts.Add( 'EXTRA_CPPDEFINES', 'Specific c++ defines', '')
-      opts.Add( 'EXTRA_LINKFLAGS', 'Specific user flags for c++ linker', '')
-      opts.Add( 'EXTRA_CPPPATH', 'Specific user include path', '')
-      opts.Add( 'EXTRA_LIBPATH', 'Specific user library path', '')
-      opts.Add( 'EXTRA_LIBS', 'Specific user libraries', '')
+      opts.Add('EXTRA_CXXFLAGS', 'Specific user flags for c++ compiler', '')
+      opts.Add('EXTRA_CPPDEFINES', 'Specific c++ defines', '')
+      opts.Add('EXTRA_LINKFLAGS', 'Specific user flags for c++ linker', '')
+      opts.Add('EXTRA_CPPPATH', 'Specific user include path', '')
+      opts.Add('EXTRA_LIBPATH', 'Specific user library path', '')
+      opts.Add('EXTRA_LIBS', 'Specific user libraries', '')
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
       # Set the compiler
-      compiler_name= env['compiler']
+      compiler_name = env['compiler']
       self.config.add_tool(compiler_name)
       
-      if isinstance( platform, Cygwin ):
-         env.AppendUnique( CPPDEFINES= 'SYSTEM_IS__CYGWIN' )
-      elif isinstance( platform, Win32 ):
-         env.AppendUnique( CPPDEFINES= 'WIN32' )
-         libs_suffix= env['compiler_libs_suffix']
-         if compiler_name == 'mingw' and '-vc' in libs_suffix:
-            env['compiler_libs_suffix']= '-mgw'
+      if isinstance(platform, Cygwin):
+         env.AppendUnique(CPPDEFINES = 'SYSTEM_IS__CYGWIN')
+      elif isinstance(platform, Win32):
+         env.AppendUnique(CPPDEFINES = 'WIN32')
+         libs_suffix = env['compiler_libs_suffix']
+         if compiler_name = 'mingw' and '-vc' in libs_suffix:
+            env['compiler_libs_suffix'] = '-mgw'
 
-      env.Append( RPATH= Split( '$rpath' ) )
-      env.Append( CXXFLAGS= Split( env['EXTRA_CXXFLAGS'] ) )
-      env.Append( CPPDEFINES= Split( env['EXTRA_CPPDEFINES'] ) )
-      env.Append( LINKFLAGS= Split( env['EXTRA_LINKFLAGS'] ) )
-      env.Append( CPPPATH= Split( env['EXTRA_CPPPATH'] ) )
-      env.Append( LIBPATH= Split( env['EXTRA_LIBPATH'] ) )
-      env.Append( LIBS= Split( env['EXTRA_LIBS'] ) )
+      env.Append(RPATH=Split('$rpath'))
+      env.Append(CXXFLAGS=Split(env['EXTRA_CXXFLAGS']))
+      env.Append(CPPDEFINES=Split(env['EXTRA_CPPDEFINES']))
+      env.Append(LINKFLAGS=Split(env['EXTRA_LINKFLAGS']))
+      env.Append(CPPPATH=Split(env['EXTRA_CPPPATH']))
+      env.Append(LIBPATH=Split(env['EXTRA_LIBPATH']))
+      env.Append(LIBS=Split(env['EXTRA_LIBS']))
 
 
-   def configure( self, config ):
+   def configure(self, config):
       pass
 
-def create( config ):
+def create(config):
    " Create compiler tool "
-   compiler= Compiler( config )
+   compiler = Compiler(config)
 
    return compiler
 
