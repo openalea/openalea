@@ -62,10 +62,10 @@ class OpenGL:
       self.default()
                 
       opts.AddOptions(
-         PathOption('gl_includes', 'GL include files', 
+         ('gl_includes', 'GL include files', 
           self._default['include']),
 
-         PathOption('gl_lib', 'GL library path', 
+         ('gl_lib', 'GL library path', 
          self._default['lib'])
         )
 
