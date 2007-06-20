@@ -173,7 +173,7 @@ class build_scons (Command):
                 build_param += 'py_pkg_name=%s ' % ( self.distribution.metadata.get_name(),)
                 
 		# External parameters (from the command line)
-		externp =self.scons_ext_param
+		externp = self.scons_ext_param
 	
 		if(self.scons_path):
 		    command = self.scons_path
