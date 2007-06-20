@@ -1,12 +1,12 @@
 13/06/07 : Alpha release 0.2.0a. For this release, 
 the core module has been refactorised.
 	 - A lot of bug fixes.
-	 - New node déclaration (without inheritence)
+	 - New node déclaration (without inheritance)
 	 - New graph data structure
 	 - New modular dataflow evaluation (lazy evaluation)
-	 - XML export has been replaced by Python code export for composite Node
-	 - Dynamic node reloading and code edition
-	 - Seach function
+	 - XML export has been replaced by Python code export for composite nodes
+	 - Dynamic reloading and code edition for node
+	 - Search function
 	 - Datapool class
 	 - New session class with persistence based on Pickle (experimental)
 
