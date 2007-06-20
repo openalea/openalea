@@ -13,7 +13,7 @@
    <string>VisuAlea</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="images.qrc" >:/icons/arbreicon.png</iconset>
+   <iconset resource="images.qrc" >:/icons/openalea_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >

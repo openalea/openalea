@@ -5,11 +5,11 @@ Visualea has been refactorised since first prototype :
 	 - Graph manipulation improved
 	 - Dynamic node code edition
 	 - QScintialla based python interpreter
-	 - Seach tab
+	 - Search tab
 	 - Datapool view and manipulation
 	 - Multi inputs in a node
 	 - Export Dataflow as a Node
-	 - List/Dictionnary Widgets
+	 - List/Dictionary Widgets
 	 - Persistence (experimental)
 	 - Graph Annotations (experimental)
 	 - Preference dialog
