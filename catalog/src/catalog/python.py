@@ -101,6 +101,15 @@ def py_fwrite(x="", filename="", mode="w"):
     f.close()
 
 
+def py_fread(filename=""):
+    """ Write to a file """
+
+    f = open(filename, 'r')
+    s = f.read()
+    f.close()
+    return s
+
+
 def py_method(obj=None, name="", args=()):
     """ call obj.name(*args) """
     m = getattr(obj, name)

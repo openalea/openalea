@@ -165,6 +165,19 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
+    nf = Factory(name="fread", 
+                 description="File input", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="py_fread",
+                 inputs=(dict(name="filename", interface=IFileStr),
+                         ),
+                 outputs=(dict(name="String", interface=IStr),),
+                 )
+
+    package.add_factory(nf)
+
+
     nf = Factory(name="method", 
                  description="Call object method", 
                  category="Python", 
