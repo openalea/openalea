@@ -52,7 +52,7 @@ setup(
 
     packages= [pkg_name],
     package_dir= {pkg_name : pj('src',name)},
-    scripts=[script]
+    scripts=[script],
     
     # Add shortcuts
     win_shortcuts=[ Shortcut( name=name, 
