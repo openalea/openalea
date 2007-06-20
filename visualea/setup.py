@@ -63,7 +63,7 @@ setup(
  
     freedesk_shortcuts=[ Shortcut( name=name, 
                                    target=sys.executable, 
-                                   arguments=pj(sys.prefix, 'bin', 'visualea'), , 
+                                   arguments=pj(sys.prefix, 'bin', 'visualea'), 
                                    group='OpenAlea', 
                                    icon='' )],
     )
