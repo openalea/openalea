@@ -109,16 +109,16 @@ def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
   Build a python wrapper and install it in a python package.
   """
   real_target = "%s/%s" % (str(env.Dir(python_dir).srcnode()), target)
+
+  if os.name == 'nt':
+    kwds['SHLIBSUFFIX']='.pyd'
+
   if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
     kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
       'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
-  if os.name == 'win32':
-    SHLIBSUFFIX = '.pyd'
-  else:
-    SHLIBSUFFIX = env['SHLIBSUFFIX']
 
   wrap = env.SharedLibrary(real_target, source, 
-                           SHLIBPREFIX='',SHLIBSUFFIX=SHLIBSUFFIX, 
+                           SHLIBPREFIX='',
                            *args, **kwds)
 
   Alias("build", wrap)
