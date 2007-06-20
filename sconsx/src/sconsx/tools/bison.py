@@ -18,7 +18,7 @@
 
 __doc__ = """ Bison configure environment. """
 __license__ = "Cecill-C"
-__revision__ = "$Id: $"
+__revision__ = "$Id$"
 
 import os, sys, re
 from openalea.sconsx.config import *
