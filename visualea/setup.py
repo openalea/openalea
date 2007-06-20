@@ -13,7 +13,8 @@ See http://openalea.gforge.inria.fr
 """
     sys.exit()
 
-from distutils.core import setup
+
+from openalea.distx import setup, find_packages, find_package_dir, Shortcut 
 
 
 name= 'visualea'
@@ -25,7 +26,7 @@ import visualea.metainfo as metainfo
 
 version= metainfo.version
 
-description= 'OpenAlea GUI.' 
+description= 'OpenAlea visual programming environment.' 
 long_description= ''
 
 author= 'OpenAlea consortium'
@@ -49,10 +50,22 @@ setup(
     url=url,
     license=license,
 
-    packages= [ pkg_name ],
-    package_dir= { pkg_name : pj('src',name)},
+    packages= [pkg_name],
+    package_dir= {pkg_name : pj('src',name)},
     scripts=[script]
     
+    # Add shortcuts
+    win_shortcuts=[ Shortcut( name=name, 
+                              target=sys.executable, 
+                              arguments=pj(sys.prefix, 'Scripts', 'visualea.py'), 
+                              group='OpenAlea', 
+                              icon =''), ],
+ 
+    freedesk_shortcuts=[ Shortcut( name=name, 
+                                   target=sys.executable, 
+                                   arguments=pj(sys.prefix, 'bin', 'visualea'), , 
+                                   group='OpenAlea', 
+                                   icon='' )],
     )
 
 
