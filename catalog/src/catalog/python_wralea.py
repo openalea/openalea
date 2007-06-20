@@ -149,6 +149,22 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
+    nf = Factory(name="fwrite", 
+                 description="File output", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="py_fwrite",
+                 inputs=(dict(name="x", interface=IStr),
+                         dict(name="filename", interface=IFileStr),
+                         dict(name="mode", interface=IStr, value="w"),
+                         ),
+                 outputs=(),
+                 lazy=False,
+                 )
+
+    package.add_factory(nf)
+
+
     nf = Factory(name="method", 
                  description="Call object method", 
                  category="Python", 

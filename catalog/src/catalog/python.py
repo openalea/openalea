@@ -89,8 +89,16 @@ def pylen(obj):
 
 
 def py_print(x):
-    """ Print to the console"""
+    """ Print to the console """
     print x
+
+
+def py_fwrite(x="", filename="", mode="w"):
+    """ Write to a file """
+
+    f = open(filename, mode)
+    f.write(x)
+    f.close()
 
 
 def py_method(obj=None, name="", args=()):
