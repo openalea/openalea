@@ -52,7 +52,7 @@ def register_packages(pkgmanager):
                  description="Condition", 
                  category="Python", 
                  nodemodule="python",
-                 nodeclass="IfElse",
+                 nodeclass="py_ifelse",
                  )
 
     package.add_factory(nf)

@@ -73,7 +73,7 @@ def set_lsb_env(name, vars):
     filehandle.write(exportstr)
             
     filehandle.close()
-    cmdstr = "source %s"%(filename)
+    cmdstr = "(echo $SHELL|grep bash>/dev/null)&&. %s||source %s"%(filename,filename)
     print "executing :", cmdstr
     os.system(cmdstr)
 
