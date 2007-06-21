@@ -39,7 +39,7 @@ def setitem(obj, key, value):
     return obj
 
 
-def getitem(obj=[1,2], key=None):
+def getitem(obj=[], key=None):
     """ call __getitem__ on obj"""
 
     try:
