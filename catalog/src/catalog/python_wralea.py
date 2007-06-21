@@ -63,6 +63,9 @@ def register_packages(pkgmanager):
                   category="Python",
                   nodemodule="python",
                   nodeclass="getitem",
+
+                  widgetclass="ListSelectorWidget",
+             
                   )
 
     package.add_factory(nf)

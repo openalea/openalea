@@ -187,22 +187,6 @@ def register_packages(pkgmanager):
                   )
 
 
-    nf = Factory( name="list_select",
-                  description="Select an element in a list.",
-                  category="Data Types",
-                  nodemodule="data",
-                  nodeclass="list_select",
-                  inputs = (dict(name='List', interface=ISequence),
-                            dict(name='Index', interface=IInt, value=0),),
-                  outputs = (dict(name='Obj', interface=None),),
-
-                  widgetmodule="data",
-                  widgetclass="ListSelectorWidget",
-                  
-                  )
-
-    
-    package.add_factory( nf )
 
     nf = Factory( name="Pool Reader",
                   description="Read data from data pool.",

@@ -52,8 +52,14 @@ class Observed(object):
         @param event : an object to pass to the notify function
         """
 
-        [ ref().notify( self, event ) for ref in self.listeners
-          if(not ref().is_notification_locked())]
+        for ref in self.listeners:
+            if(not ref().is_notification_locked()):
+                try:
+                    ref().notify(self, event)
+                except Exception, e:
+                    print "Warning : notification of %s failed"%(str(ref()),)
+                    print e
+          
 
 
     def __getstate__(self):
