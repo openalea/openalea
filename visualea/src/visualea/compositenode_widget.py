@@ -1081,7 +1081,7 @@ class ConnectorOut(Connector):
             from openalea.core.session import DataPool
             datapool = DataPool()  # Singleton
 
-            self.parentItem().run_node()
+            #self.parentItem().run_node()
             node = self.parentItem().subnode
             data = node.get_output(self.mindex)
             datapool[str(result)] = data
