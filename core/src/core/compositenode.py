@@ -231,6 +231,7 @@ class CompositeNode(Node, DataFlow):
         if node_id is None, then all the nodes without sons are evaluated
         """
 
+        self.node(vtx_id).modified = True
         algo = BrutEvaluation(self)
         algo.eval()
 
