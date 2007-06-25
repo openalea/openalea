@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Wed Jun 20 10:50:19 2007
+# Created: Mon Jun 25 16:22:18 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!

@@ -139,7 +139,8 @@ class MainWindow(QtGui.QMainWindow,
         # Python Menu
         self.connect(self.action_Execute_script, SIGNAL("activated()"),
                      self.exec_python_script)
-
+        self.connect(self.actionOpen_Console, SIGNAL("activated()"),
+                     self.open_python_console)
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
@@ -534,6 +535,12 @@ class MainWindow(QtGui.QMainWindow,
                 self.interpreterWidget.get_interpreter().runcode(compiled)
                 sources = ''
 
+
+    def open_python_console(self):
+        """ Open an independant window with a python console """
+
+        self.interpreterWidget.setFocus(QtCore.Qt.ShortcutFocusReason)
+        
 
     def new_session(self):
         self.session.clear()
