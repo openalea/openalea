@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os, sys
-import subprocess
 
 def check_system():
     """ Check system configuration and return environment variables dictionary"""
@@ -31,7 +30,7 @@ def check_system():
                 envv['PATH'] = "%s"%(conf.lib_dir,)
 
             elif (not conf.lib_dir in envv['PATH']) :
-                  envv['PATH'] += ";%s"%(conf.lib_dir,)
+                envv['PATH'] += ";%s"%(conf.lib_dir,)
                   
         except Exception, e:
             print e
@@ -44,5 +43,7 @@ def check_system():
 if( __name__ == "__main__"):
     envdict = check_system()
     
-    os.execle(sys.executable, sys.executable, '-c', 'import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)', envdict)
+    os.execle(sys.executable, sys.executable, '-c',
+              'import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)',
+              envdict)
 
