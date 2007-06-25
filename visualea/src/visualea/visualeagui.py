@@ -56,15 +56,17 @@ def main(args):
     pix=QtGui.QPixmap(":/icons/splash.png")
     splash = QtGui.QSplashScreen(pix)
     splash.show()
+    QtGui.QApplication.processEvents()
+    
+    
+    import time
+    time.sleep(1)
 
 
     session = Session()
 
 
     win = MainWindow(session)
-
-    # icon
-    icon = app.setWindowIcon(QtGui.QIcon(":/icons/arbreicon.png"))
 
     #parse command line
     if(len(args)>1):
