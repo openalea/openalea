@@ -21,7 +21,7 @@ def check_system():
         except Exception, e:
             print e
 
-    elif("win" in os.name):
+    elif("win" in sys.platform.lower()):
 
         try:
             import openalea.config as conf
