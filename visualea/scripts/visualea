@@ -30,7 +30,7 @@ def check_system():
                 envv['PATH'] = "%s"%(conf.lib_dir,)
 
             elif (not conf.lib_dir in envv['PATH']) :
-                  envv['PATH'] += ";%s"%(conf.lib_dir,)
+                envv['PATH'] += ";%s"%(conf.lib_dir,)
                   
         except Exception, e:
             print e
