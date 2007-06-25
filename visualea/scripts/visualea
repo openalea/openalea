@@ -35,12 +35,12 @@ def check_system():
         except Exception, e:
             print e
 
-
-        
     return envv
 
 
+
 if( __name__ == "__main__"):
+
     envdict = check_system()
     
     os.execle(sys.executable, sys.executable, '-c',
