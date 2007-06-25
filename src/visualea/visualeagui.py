@@ -24,7 +24,7 @@ __license__= "CeCILL v2"
 __revision__=" $Id$"
 
 
-import sys
+import sys, os
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
@@ -33,7 +33,6 @@ from openalea.core.session import Session
 
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
-
 
 
 
@@ -86,3 +85,4 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv)
+    
