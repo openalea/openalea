@@ -26,7 +26,6 @@ def check_system():
 
 if( __name__ == "__main__"):
     envdict = check_system()
-    prog_name = os.path.basename(sys.executable)
     
     os.execle(sys.executable, sys.executable, '-c', 'import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)', envdict)
 
