@@ -5,10 +5,11 @@ import subprocess
 
 def check_system():
     """ Check system configuration and return environment variables dictionary"""
-    
-    if("posix" in os.name):
 
-        envv = dict(os.environ)
+    envv = dict(os.environ)
+        
+    if(("posix" in os.name) and ("linux" in sys.platform.lower())):
+
         try:
             import openalea.config as conf
             
@@ -21,7 +22,23 @@ def check_system():
         except Exception, e:
             print e
 
-        return envv
+    elif("win" in os.name):
+
+        try:
+            import openalea.config as conf
+            
+            if(not envv.has_key('PATH')):
+                envv['PATH'] = "%s"%(conf.lib_dir,)
+
+            elif (not conf.lib_dir in envv['PATH']) :
+                  envv['PATH'] += ";%s"%(conf.lib_dir,)
+                  
+        except Exception, e:
+            print e
+
+
+        
+    return envv
 
 
 if( __name__ == "__main__"):
