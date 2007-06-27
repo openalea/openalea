@@ -181,12 +181,9 @@ class CompositeNode(Node, DataFlow):
         self.id_out = None
         
         Node.__init__(self, inputs, outputs)
-
-    
      
         # graph modification status
         self.graph_modified = False
-
 
 
     def set_io(self, inputs, outputs):
@@ -231,7 +228,7 @@ class CompositeNode(Node, DataFlow):
         if node_id is None, then all the nodes without sons are evaluated
         """
 
-        self.node(vtx_id).modified = True
+        if(vtx_id != None) : self.node(vtx_id).modified = True
         algo = BrutEvaluation(self)
         algo.eval()
 
