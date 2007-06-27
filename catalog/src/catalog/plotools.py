@@ -23,9 +23,11 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 #import plotable
-import pylab
-from matplotlib import rc
+from matplotlib import rc, rcParams
 rc('text', usetex=True )
+rcParams['backend'] = 'Qt4Agg'
+import pylab
+#pylab.hold(False)
 
 class plot2D(Node):
     """Generate a plot from 2D plotable object
@@ -42,7 +44,7 @@ class plot2D(Node):
         title=self.get_input('title')
         xlabel=self.get_input('xlabel')
         ylabel=self.get_input('ylabel')
-        
+        pylab.cla()
         
         if objList == None :
           pass
@@ -53,10 +55,10 @@ class plot2D(Node):
                 pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color )
                 legend.append(r''+obj.legend )
 
-            pylab.show()
 
             pylab.legend( tuple( legend ), loc='best', shadow=True )
             pylab.title( title )
             pylab.xlabel( xlabel )
             pylab.ylabel( ylabel )
-
+            #pylab.draw()
+            pylab.show()
