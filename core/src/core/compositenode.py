@@ -114,12 +114,21 @@ class CompositeNodeFactory(AbstractFactory):
             n = self.instantiate_node(vid, call_stack)
             new_df.add_node(n, vid)
 
+        # Set IO internal data
+        try:
+            new_df.node(new_df.id_in).internal_data = self.elt_data['__in__'].copy()
+            new_df.node(new_df.id_out).internal_data = self.elt_data['__out__'].copy()
+        except:
+            pass
+
         # Create the connections
         for eid,link in self.connections.iteritems() :
             (source_vid, source_port, target_vid, target_port) = link
+
             # Replace id for in and out nodes
-            if(source_vid == '__in__') : source_vid = new_df.id_in
+            if(source_vid == '__in__') :  source_vid = new_df.id_in
             if(target_vid == '__out__') : target_vid = new_df.id_out
+                
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
         self.graph_modified = False
@@ -193,27 +202,32 @@ class CompositeNode(Node, DataFlow):
         """
 
         #I/O ports
+        if(self.id_in is not None
+           and len(inputs) != self.node(self.id_in).get_nb_output()):
+            self.remove_vertex(self.id_in)
+            self.id_in = None
+
         if(self.id_in is None):
             self.id_in = self.add_node(CompositeNodeInput(inputs))
+
+            
+        if(self.id_out is not None
+           and len(outputs) != self.node(self.id_out).get_nb_input() ):
+            self.remove_vertex(self.id_out)
+            self.id_out = None
+
         if(self.id_out is None):
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
+
 
         Node.set_io(self, inputs, outputs)
 
         self.node(self.id_in).set_io((), inputs)
         self.node(self.id_out).set_io(outputs, ())
-        
 
 
-    #######################################################
-    #
-    #		vision du composite node as a node
-    #		pour bien faire il faudrait aussi reimplementer add_input et add_output
-    #
-    #######################################################
     def set_input (self, index_key, val=None) :
         """ Copy val into input node output ports """
-
         self.node(self.id_in).set_input(index_key, val)
         
 
@@ -258,28 +272,79 @@ class CompositeNode(Node, DataFlow):
         return ()
 
 
-    #######################################################
-    #
-    #		CompositeNode as a dataflow
-    #
-    #######################################################
-    def node (self, vid) :
+    def node (self, vid):
+        """ Convenience function """
         return self.actor(vid)
 
 
-    def to_factory(self, sgfactory, listid = None):
+    ############################################################################$
+
+    def compute_io(self, v_list=None):
+        """
+        Return (inputs, outputs, connections)
+        representing the free port of node
+        v_list is a vertex id list 
+        """
+
+        ins = []
+        outs = []
+        connections = []
+        
+        # For each input port
+        for pid in self.in_ports():
+            # if port is not connected
+            if(len(list(self.connected_edges(pid))) == 0):
+                vid = self.vertex(pid)
+                if(v_list and not vid in v_list) : continue
+                
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = n.input_desc[pname]
+                name = "in_" + desc['name'] + str(vid)
+
+                connections.append( ('__in__', len(ins), vid, pname) )
+                ins.append(dict(name=name, interface=desc['interface']))
+                
+                
+        # For each output port
+        for pid in self.out_ports():
+            # if port is not connected
+            if(len(list(self.connected_edges(pid))) == 0):
+                vid = self.vertex(pid)
+                if(v_list and not vid in v_list) : continue
+                
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = n.output_desc[pname]
+                name = "out_" + desc['name'] + str(vid)
+                
+                connections.append( (vid , pname, '__out__', len(outs)) )
+                outs.append(dict(name=name, interface=desc['interface']))
+
+
+        return (ins, outs, connections)
+
+
+
+    def to_factory(self, sgfactory, listid = None, auto_io=False):
         """
         Update CompositeNodeFactory to fit with the graph
-        listid is a list of element to export. If None, select all id
-        nbin and nbout are the number of in and out. If -1, parameters
-        are discarded.
+        listid is a list of element to export. If None, select all id.
+        if auto_io is true :  inputs and outputs are connected to the free
+        ports
         """
         
         # Clear the factory
         sgfactory.clear()
         # I / O
-        sgfactory.inputs = [dict(val) for val in self.input_desc]
-        sgfactory.outputs = [dict(val) for val in self.output_desc]
+        if(auto_io):
+            (ins, outs, sup_connect) = self.compute_io(listid)
+            sgfactory.inputs = ins
+            sgfactory.outputs = outs
+        else:
+            sgfactory.inputs = [dict(val) for val in self.input_desc]
+            sgfactory.outputs = [dict(val) for val in self.output_desc]
+            sup_connect = []
 
         if(listid is None): listid = set(self.vertices())
 
@@ -295,23 +360,29 @@ class CompositeNode(Node, DataFlow):
             
             source_port = self.local_id(self.source_port(eid))
             target_port = self.local_id(self.target_port(eid))
-            sgfactory.connections[eid] = (src, source_port, tgt, target_port)
+            sgfactory.connections[id(eid)] = (src, source_port, tgt, target_port)
 
-
-        # Do not copy In and Out
-        if(self.id_in in listid): listid.remove(self.id_in)
-        if(self.id_out in listid): listid.remove(self.id_out)
+        # Add supplementary connections
+        for e in  sup_connect:
+            sgfactory.connections[id(e)] = e
+            
 
         # Copy node
         for vid in listid:
-            
+
             node = self.actor(vid)
             kdata = node.internal_data
+                
+            # Do not copy In and Out
+            if(vid == self.id_in):  vid = "__in__"
+            elif(vid == self.id_out): vid = "__out__"                
+            else:
+                pkg_id = node.factory.package.get_id()
+                factory_id = node.factory.get_id()
+                sgfactory.elt_factory[vid] = (pkg_id, factory_id)
 
-            pkg_id = node.factory.package.get_id()
-            factory_id = node.factory.get_id()
 
-            sgfactory.elt_factory[vid] = (pkg_id, factory_id)
+            # Copy internal data
             sgfactory.elt_data[vid] = kdata
             
 

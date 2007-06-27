@@ -314,7 +314,9 @@ def test_multi_in_eval():
     sg.node(val1id).set_input(0,"teststring1")
     sg.node(val2id).set_input(0,"teststring2")
     sg()
-    assert sg.node(val3id).get_output(0) == "['teststring1', 'teststring2']"
+    assert (sg.node(val3id).get_output(0) == "['teststring1', 'teststring2']") or \
+           (sg.node(val3id).get_output(0) == "['teststring2', 'teststring1']")
+    
 
 
 from nose import with_setup
@@ -358,6 +360,56 @@ def test_eval_bug():
 
     assert sg.node(dbg).get_output(0) == 0
     assert sg.node(dbg1).get_output(0) == 1
+
+
+# Test set_io
+def test_change_io():
+    
+    ins = [dict(name="in1"), dict(name="in2")]
+    outs = [dict(name="out1"), dict(name="out2")]
+    sg = CompositeNode(ins, outs)
+    assert sg.get_nb_input() == 2
+    assert sg.get_nb_output() == 2
+
+    ins = [dict(name="in1")]
+    outs = [dict(name="out1"), dict(name="out2"), dict(name="out3")]
+
+    sg.set_io(ins, outs)
+    assert sg.get_nb_input() == 1
+    assert sg.get_nb_output() == 3
+
+
+# Test auto io
+def test_auto_io():
+    pm = PackageManager ()
+    pm.init()
+
+    sg = CompositeNode()
+
+    # build the compositenode factory
+    val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+
+    sg.connect (val1id, 0, val3id, 0)
+    sg.connect (val2id, 0, val3id, 0)
+
+    sgfactory = CompositeNodeFactory("testlautoio")
+    sg.to_factory(sgfactory, auto_io=True)
+
+    # allocate the compositenode
+    sg = sgfactory.instantiate()
+    assert sg.get_nb_input() == 2
+    assert sg.get_nb_output() == 1
+    sg.set_input(0, "to")
+    sg.set_input(1, "to")
+                 
+    sg()
+    res = sg.get_output(0)
+    assert ''.join(eval(res)) == "toto"
+    
+    
+
 
     
     

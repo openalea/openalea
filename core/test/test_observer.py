@@ -8,11 +8,12 @@ class NotifyException(Exception):
 
 
 destroyflag = False
-
+notified = False
 class mylistener(AbstractListener):
 
     def notify (self, *args):
-
+        global notified 
+        notified = True
         raise NotifyException()
 
 
@@ -41,12 +42,11 @@ def test_notification():
 
     l.initialise(o)
 
+    global notified 
+    notified = False
 
-    try:
-        o.notify_listeners()
-        assert False
-    except NotifyException:
-        assert True
+    o.notify_listeners()
+    assert notified == True
     
     
 

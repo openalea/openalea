@@ -113,9 +113,6 @@ class IFloat(IInterface):
     @classmethod
     def default(cls):
         return 0.
-
-    def default(self):
-        return self.min
     
 
     
