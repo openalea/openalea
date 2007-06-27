@@ -343,9 +343,11 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         s = self.get_selected_item()
         if(not s): return None
 
-        self.node.to_factory(factory, s)
-        pos = self.get_center_pos(s)
+        self.node.to_factory(factory, s, auto_io=True)
         
+        pos = self.get_center_pos(s)
+
+        # Instantiate the new node
         if(self.add_new_node(factory, pos)):
             self.remove_selection()
 

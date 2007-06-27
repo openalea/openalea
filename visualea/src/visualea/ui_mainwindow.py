@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jun 25 16:22:18 2007
+# Created: Wed Jun 27 16:59:22 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -114,26 +114,26 @@ class Ui_MainWindow(object):
         self.menubar.setGeometry(QtCore.QRect(0,0,847,25))
         self.menubar.setObjectName("menubar")
 
+        self.menu_File = QtGui.QMenu(self.menubar)
+        self.menu_File.setObjectName("menu_File")
+
         self.menuDataPool = QtGui.QMenu(self.menubar)
         self.menuDataPool.setObjectName("menuDataPool")
 
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
 
+        self.menu_Python = QtGui.QMenu(self.menubar)
+        self.menu_Python.setObjectName("menu_Python")
+
+        self.menu_Workspace = QtGui.QMenu(self.menubar)
+        self.menu_Workspace.setObjectName("menu_Workspace")
+
         self.menu_Package = QtGui.QMenu(self.menubar)
         self.menu_Package.setObjectName("menu_Package")
 
         self.menuCreate = QtGui.QMenu(self.menu_Package)
         self.menuCreate.setObjectName("menuCreate")
-
-        self.menu_Workspace = QtGui.QMenu(self.menubar)
-        self.menu_Workspace.setObjectName("menu_Workspace")
-
-        self.menu_Python = QtGui.QMenu(self.menubar)
-        self.menu_Python.setObjectName("menu_Python")
-
-        self.menu_File = QtGui.QMenu(self.menubar)
-        self.menu_File.setObjectName("menu_File")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -239,6 +239,12 @@ class Ui_MainWindow(object):
         self.actionOpen_Console = QtGui.QAction(MainWindow)
         self.actionOpen_Console.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionOpen_Console.setObjectName("actionOpen_Console")
+        self.menu_File.addAction(self.action_New_Session)
+        self.menu_File.addAction(self.action_Open_Session)
+        self.menu_File.addAction(self.action_Save_Session)
+        self.menu_File.addAction(self.actionSave_as)
+        self.menu_File.addSeparator()
+        self.menu_File.addAction(self.action_Quit)
         self.menuDataPool.addAction(self.actionClear_Data_Pool)
         self.menu_Help.addAction(self.action_Help)
         self.menu_Help.addSeparator()
@@ -246,14 +252,8 @@ class Ui_MainWindow(object):
         self.menu_Help.addAction(self.actionOpenAlea_Web)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.actionPreferences)
-        self.menuCreate.addAction(self.actionNew_Package)
-        self.menuCreate.addAction(self.action_New_Network)
-        self.menuCreate.addAction(self.actionNew_Python_Node)
-        self.menu_Package.addAction(self.action_Add_File)
-        self.menu_Package.addAction(self.action_Auto_Search)
-        self.menu_Package.addAction(self.actionFind_Node)
-        self.menu_Package.addSeparator()
-        self.menu_Package.addAction(self.menuCreate.menuAction())
+        self.menu_Python.addAction(self.action_Execute_script)
+        self.menu_Python.addAction(self.actionOpen_Console)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
         self.menu_Workspace.addAction(self.actionGroup_Selection)
@@ -266,14 +266,14 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addAction(self.actionReload_from_Model)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionExport_to_Application)
-        self.menu_Python.addAction(self.action_Execute_script)
-        self.menu_Python.addAction(self.actionOpen_Console)
-        self.menu_File.addAction(self.action_New_Session)
-        self.menu_File.addAction(self.action_Open_Session)
-        self.menu_File.addAction(self.action_Save_Session)
-        self.menu_File.addAction(self.actionSave_as)
-        self.menu_File.addSeparator()
-        self.menu_File.addAction(self.action_Quit)
+        self.menuCreate.addAction(self.actionNew_Package)
+        self.menuCreate.addAction(self.action_New_Network)
+        self.menuCreate.addAction(self.actionNew_Python_Node)
+        self.menu_Package.addAction(self.action_Add_File)
+        self.menu_Package.addAction(self.action_Auto_Search)
+        self.menu_Package.addAction(self.actionFind_Node)
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.menuCreate.menuAction())
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Package.menuAction())
         self.menubar.addAction(self.menuDataPool.menuAction())
@@ -294,13 +294,13 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.searchview), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.pooltab), QtGui.QApplication.translate("MainWindow", "DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
@@ -315,7 +315,6 @@ class Ui_MainWindow(object):
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&Composite Node", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_New_Network.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpenAlea_Web.setText(QtGui.QApplication.translate("MainWindow", "OpenAlea Web", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Execute_script.setText(QtGui.QApplication.translate("MainWindow", "&Execute script", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Session.setText(QtGui.QApplication.translate("MainWindow", "&New Session", None, QtGui.QApplication.UnicodeUTF8))
@@ -345,6 +344,7 @@ class Ui_MainWindow(object):
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConfigure_I_O.setText(QtGui.QApplication.translate("MainWindow", "Configure I/O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGroup_Selection.setText(QtGui.QApplication.translate("MainWindow", "Group Selection", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionGroup_Selection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Console.setText(QtGui.QApplication.translate("MainWindow", "Open &Console", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Console.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, QtGui.QApplication.UnicodeUTF8))
 

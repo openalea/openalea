@@ -167,6 +167,17 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Session" />
+    <addaction name="action_Open_Session" />
+    <addaction name="action_Save_Session" />
+    <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="action_Quit" />
+   </widget>
    <widget class="QMenu" name="menuDataPool" >
     <property name="title" >
      <string>&amp;DataPool</string>
@@ -184,23 +195,12 @@
     <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
-   <widget class="QMenu" name="menu_Package" >
+   <widget class="QMenu" name="menu_Python" >
     <property name="title" >
-     <string>&amp;Package Manager</string>
+     <string>P&amp;ython</string>
     </property>
-    <widget class="QMenu" name="menuCreate" >
-     <property name="title" >
-      <string>Create</string>
-     </property>
-     <addaction name="actionNew_Package" />
-     <addaction name="action_New_Network" />
-     <addaction name="actionNew_Python_Node" />
-    </widget>
-    <addaction name="action_Add_File" />
-    <addaction name="action_Auto_Search" />
-    <addaction name="actionFind_Node" />
-    <addaction name="separator" />
-    <addaction name="menuCreate" />
+    <addaction name="action_Execute_script" />
+    <addaction name="actionOpen_Console" />
    </widget>
    <widget class="QMenu" name="menu_Workspace" >
     <property name="windowIcon" >
@@ -222,23 +222,23 @@
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
    </widget>
-   <widget class="QMenu" name="menu_Python" >
+   <widget class="QMenu" name="menu_Package" >
     <property name="title" >
-     <string>P&amp;ython</string>
+     <string>&amp;Package Manager</string>
     </property>
-    <addaction name="action_Execute_script" />
-    <addaction name="actionOpen_Console" />
-   </widget>
-   <widget class="QMenu" name="menu_File" >
-    <property name="title" >
-     <string>&amp;File</string>
-    </property>
-    <addaction name="action_New_Session" />
-    <addaction name="action_Open_Session" />
-    <addaction name="action_Save_Session" />
-    <addaction name="actionSave_as" />
+    <widget class="QMenu" name="menuCreate" >
+     <property name="title" >
+      <string>Create</string>
+     </property>
+     <addaction name="actionNew_Package" />
+     <addaction name="action_New_Network" />
+     <addaction name="actionNew_Python_Node" />
+    </widget>
+    <addaction name="action_Add_File" />
+    <addaction name="action_Auto_Search" />
+    <addaction name="actionFind_Node" />
     <addaction name="separator" />
-    <addaction name="action_Quit" />
+    <addaction name="menuCreate" />
    </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
@@ -308,9 +308,6 @@
   <action name="action_New_Network" >
    <property name="text" >
     <string>&amp;Composite Node</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionOpenAlea_Web" >
@@ -442,6 +439,9 @@
   <action name="actionGroup_Selection" >
    <property name="text" >
     <string>Group Selection</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionOpen_Console" >
