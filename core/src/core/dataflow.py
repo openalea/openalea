@@ -40,40 +40,10 @@ class Port (object) :
 		self._vid = vid
 		self._local_pid = local_pid
 		self._is_out_port = is_out_port
-		#external data
-		self._capacity = -1
-		self.description = "port"
-		self._interface = None
 
-	
-	def capacity (self) :
-		"""
-		maximum number of edges that can
-		be connected on this port
-		-1 mean an infinity of connections
-		:rtype: int
-		"""
-		return self._capacity
-
-	
-	def set_capacity (self, max_connections_nb) :
-		"""
-		set the maximum number of edges
-		that can be connected to port pid
-		set capacity to -1 to allow an infinity
-		of connections
-		"""
-		self._capacity = max_connections_nb
-	
-	def interface (self) :
-		return self._interface
-	
-
-	def set_interface (self, data_type) :
-		self._interface = data_type
 		
 
-class DataFlow (PropertyGraph):
+class DataFlow(PropertyGraph):
 	"""
 	Directed graph with connections between in_ports
 	of vertices and out_port of vertices
@@ -84,9 +54,11 @@ class DataFlow (PropertyGraph):
 		PropertyGraph.__init__(self)
 		self._ports = {}
 		self._pid_generator = IdGenerator()
-		self.add_vertex_property("_ports")
+
 		self.add_edge_property("_source_port")
 		self.add_edge_property("_target_port")
+
+		self.add_vertex_property("_ports")
 		self.add_vertex_property("_actor")
 		
 	####################################################
@@ -206,7 +178,7 @@ class DataFlow (PropertyGraph):
 		to this port
 		:rtype: iter of eid
 		"""
-		vid=self.vertex(pid)
+		vid = self.vertex(pid)
 		if self.is_out_port(pid) :
 			for eid in self.out_edges(vid) :
 				if self.source_port(eid)==pid :
@@ -282,6 +254,7 @@ class DataFlow (PropertyGraph):
 		"""
 		return self.vertex_property("_actor")[vid]
 	
+	
 	def add_actor (self, actor, vid=None) :
 		"""
 		create a vertex and the corresponding ports
@@ -339,7 +312,7 @@ class DataFlow (PropertyGraph):
 		and all connections to this port
 		"""
 		for eid in list(self.connected_edges(pid)) :
-			self.disconnect(eid)
+			self.remove_edge(eid)
 		self.vertex_property("_ports")[self.vertex(pid)].remove(pid)
 		self._pid_generator.release_id(pid)
 		del self._ports[pid]
@@ -356,26 +329,15 @@ class DataFlow (PropertyGraph):
 		"""
 		if not self.is_out_port(source_pid) :
 			raise PortError("source_pid %s is not an output port" % str(source_pid))
+
 		if not self.is_in_port(target_pid) :
 			raise PortError("target_pid %s is not an input port" % str(target_pid))
 
-		for pid in (source_pid,target_pid) :
-			if((self.port(pid).capacity() != -1) and 
-			   (len(list(self.connected_edges(pid)))>= self.port(pid).capacity())):
-				raise PortError("capacity of port %s exceeded" % str(pid))
-
-		eid = self.add_edge((self.vertex(source_pid),self.vertex(target_pid)), eid)
+		eid = self.add_edge((self.vertex(source_pid), self.vertex(target_pid)), eid)
 		self.edge_property("_source_port")[eid] = source_pid
 		self.edge_property("_target_port")[eid] = target_pid
 		
 		return eid
-
-	
-	def disconnect (self, eid) :
-		"""
-		remove edge
-		"""
-		self.remove_edge(eid)
 
 	
 	def add_vertex (self, vid=None) :
@@ -400,3 +362,8 @@ class DataFlow (PropertyGraph):
 		PropertyGraph.clear(self)
 
 	clear.__doc__ = PropertyGraph.clear.__doc__
+
+
+
+
+	

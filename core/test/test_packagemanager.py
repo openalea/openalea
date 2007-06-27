@@ -80,9 +80,9 @@ def test_search():
 
     assert pkgman.has_key('Test')
 
-    res = pkgman.search_node("sum")
-    assert len(res) == 1
-    assert "sum" in res[0].name
+    res = pkgman.search_node("pr")
+    assert len(res) == 2
+    assert "print" in res[1].name
 
 
 def test_write_config():
