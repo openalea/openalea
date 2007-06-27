@@ -15,8 +15,8 @@ def check_system():
             if(not envv.has_key('LD_LIBRARY_PATH')):
                 envv['LD_LIBRARY_PATH'] = "%s"%(conf.lib_dir,)
 
-            elif (not conf.lib_dir in envv['LD_LIBRARY_PATH']) :
-                  envv['LD_LIBRARY_PATH'] += ":%s"%(conf.lib_dir,)
+            elif(not conf.lib_dir in envv['LD_LIBRARY_PATH']):
+                envv['LD_LIBRARY_PATH'] += ":%s"%(conf.lib_dir,)
                   
         except Exception, e:
             print e
@@ -29,7 +29,7 @@ def check_system():
             if(not envv.has_key('PATH')):
                 envv['PATH'] = "%s"%(conf.lib_dir,)
 
-            elif (not conf.lib_dir in envv['PATH']) :
+            elif(not conf.lib_dir in envv['PATH']):
                 envv['PATH'] += ";%s"%(conf.lib_dir,)
                   
         except Exception, e:

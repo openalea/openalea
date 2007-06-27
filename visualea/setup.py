@@ -14,9 +14,7 @@ See http://openalea.gforge.inria.fr
     sys.exit()
 
 
-from openalea.distx import setup, find_packages, find_package_dir, Shortcut 
-
-
+# Meta Informations
 name= 'visualea'
 namespace=config.namespace 
 pkg_name= namespace + '.' + name
@@ -40,6 +38,35 @@ if sys.platform == 'win32':
 else:
     script='scripts/visualea' 
 
+
+# Try to use DistX
+try:
+    from openalea.distx import setup, find_packages, find_package_dir, Shortcut
+
+    # Add shortcuts
+    win_shortcuts=[ Shortcut( name=name, 
+                              target=sys.executable, 
+                              arguments=pj(sys.prefix, 'Scripts', 'visualea.py'), 
+                              group='OpenAlea', 
+                              icon =''), ],
+ 
+    freedesk_shortcuts=[ Shortcut( name=name, 
+                                   target=sys.executable, 
+                                   arguments=pj(sys.prefix, 'bin', 'visualea'), 
+                                   group='OpenAlea', 
+                                   icon='' )],
+   
+except ImportError:
+    
+    from distutils.core import setup
+    win_shortcuts=None
+    freedesk_shortcuts=None
+
+
+################################################################################
+    
+
+
 setup(
     name=name,
     version=version,
@@ -55,17 +82,8 @@ setup(
     scripts=[script],
     
     # Add shortcuts
-    win_shortcuts=[ Shortcut( name=name, 
-                              target=sys.executable, 
-                              arguments=pj(sys.prefix, 'Scripts', 'visualea.py'), 
-                              group='OpenAlea', 
-                              icon =''), ],
- 
-    freedesk_shortcuts=[ Shortcut( name=name, 
-                                   target=sys.executable, 
-                                   arguments=pj(sys.prefix, 'bin', 'visualea'), 
-                                   group='OpenAlea', 
-                                   icon='' )],
+    win_shortcuts=win_shortcuts,
+    freedesk_shortcuts=freedesk_shortcuts,
     )
 
 
