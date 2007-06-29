@@ -33,8 +33,7 @@ from node import RecursionError, InstantiationError
 from pkgmanager import PackageManager
 from dataflow import DataFlow, InvalidEdge, PortError
 from algo.dataflow_copy import structural_copy
-from algo.dataflow_evaluation import BrutEvaluation
-
+from settings import Settings
 ###############################################################################
 
 
@@ -236,6 +235,28 @@ class CompositeNode(Node, DataFlow):
         return self.node(self.id_out).get_output(index_key)
     
 
+    def get_eval_algo(self):
+        """ Return the evaluation algo instance """
+
+        config = Settings()
+        
+        try:
+            str = config.get("eval", "type")
+
+            str = str.strip('"'); str = str.strip("'")
+
+            # import module
+            baseimp = "algo.dataflow_evaluation"
+            module = __import__(baseimp, globals(), locals(), [str])
+            classobj = module.__dict__[str]
+            return classobj(self)
+
+        except Exception, e:
+            print "Evaluation Algo Error", e
+            from  algo.dataflow_evaluation import SelectiveEvaluation
+            return SelectiveEvaluation(self)
+
+
     def eval_as_expression(self, vtx_id=None):
         """
         Evaluate a vtx_id
@@ -243,8 +264,8 @@ class CompositeNode(Node, DataFlow):
         """
 
         if(vtx_id != None) : self.node(vtx_id).modified = True
-        algo = BrutEvaluation(self)
-        algo.eval()
+        algo = self.get_eval_algo()
+        algo.eval(vtx_id)
 
 
     # Functions used by the node evaluator
@@ -293,33 +314,39 @@ class CompositeNode(Node, DataFlow):
         # For each input port
         for pid in self.in_ports():
             # if port is not connected
-            if(len(list(self.connected_edges(pid))) == 0):
-                vid = self.vertex(pid)
-                if(v_list and not vid in v_list) : continue
-                
-                pname = self.local_id(pid)
-                n = self.node(vid)
-                desc = n.input_desc[pname]
-                name = "in_" + desc['name'] + str(vid)
+            if(len(list(self.connected_edges(pid))) > 0):
+                continue
+                # TODO : Test if connected source_port not in v_list
 
-                connections.append( ('__in__', len(ins), vid, pname) )
-                ins.append(dict(name=name, interface=desc['interface']))
+            vid = self.vertex(pid)
+            if(v_list and not vid in v_list) : continue
+                
+            pname = self.local_id(pid)
+            n = self.node(vid)
+            desc = n.input_desc[pname]
+            name = "in_" + desc['name'] + str(vid)
+
+            connections.append( ('__in__', len(ins), vid, pname) )
+            ins.append(dict(name=name, interface=desc['interface']))
                 
                 
         # For each output port
         for pid in self.out_ports():
             # if port is not connected
-            if(len(list(self.connected_edges(pid))) == 0):
-                vid = self.vertex(pid)
-                if(v_list and not vid in v_list) : continue
+            if(len(list(self.connected_edges(pid))) > 0 ):
+                continue
+                # TODO : Test if connected target_port not in v_list
                 
-                pname = self.local_id(pid)
-                n = self.node(vid)
-                desc = n.output_desc[pname]
-                name = "out_" + desc['name'] + str(vid)
+            vid = self.vertex(pid)
+            if(v_list and not vid in v_list) : continue
                 
-                connections.append( (vid , pname, '__out__', len(outs)) )
-                outs.append(dict(name=name, interface=desc['interface']))
+            pname = self.local_id(pid)
+            n = self.node(vid)
+            desc = n.output_desc[pname]
+            name = "out_" + desc['name'] + str(vid)
+                
+            connections.append( (vid , pname, '__out__', len(outs)) )
+            outs.append(dict(name=name, interface=desc['interface']))
 
 
         return (ins, outs, connections)
@@ -457,7 +484,8 @@ class CompositeNode(Node, DataFlow):
         target_pid = self.in_port(dst_id, port_dst)
         for eid in self.connected_edges(source_pid) :
             if self.target_port(eid) == target_pid :
-                DataFlow.disconnect(self,eid)
+                #DataFlow.disconnect(self,eid)
+                self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
                 self.notify_listeners(("connection_modified",))
                 self.graph_modified = True

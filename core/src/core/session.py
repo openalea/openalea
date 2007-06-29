@@ -52,6 +52,10 @@ class Session(Observed):
         self.workspaces = []
         self.datapool = DataPool()
 
+        # Use dictionary
+        self.use_by_name = {}
+        self.use_by_interface = {}
+
         self.pkgmanager = PackageManager()
 
         self.empty_cnode_factory = CompositeNodeFactory("Workspace")
