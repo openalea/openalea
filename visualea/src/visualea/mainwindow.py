@@ -103,6 +103,10 @@ class MainWindow(QtGui.QMainWindow,
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout3.addWidget(self.datapoolListView)
 
+        # use view
+        self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
+        self.datapoolListView2.setModel(self.datapool_model)
+        self.vboxlayout5.addWidget(self.datapoolListView2)
 
         # Widgets
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
