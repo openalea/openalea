@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Jun 27 16:59:22 2007
+# Created: Fri Jun 29 10:54:02 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,6 +78,15 @@ class Ui_MainWindow(object):
         self.vboxlayout3.setSpacing(6)
         self.vboxlayout3.setObjectName("vboxlayout3")
         self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
+
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout4.setMargin(9)
+        self.vboxlayout4.setSpacing(6)
+        self.vboxlayout4.setObjectName("vboxlayout4")
+        self.poolTabWidget.addTab(self.tab,"")
         self.hboxlayout.addWidget(self.splitter_2)
 
         self.splitter = QtGui.QSplitter(self.centralwidget)
@@ -99,14 +108,14 @@ class Ui_MainWindow(object):
         self.tabWorkspace.setSizePolicy(sizePolicy)
         self.tabWorkspace.setObjectName("tabWorkspace")
 
-        self.workspace1 = QtGui.QWidget()
-        self.workspace1.setObjectName("workspace1")
+        self.usetab = QtGui.QWidget()
+        self.usetab.setObjectName("usetab")
 
-        self.vboxlayout4 = QtGui.QVBoxLayout(self.workspace1)
-        self.vboxlayout4.setMargin(9)
-        self.vboxlayout4.setSpacing(6)
-        self.vboxlayout4.setObjectName("vboxlayout4")
-        self.tabWorkspace.addTab(self.workspace1,"")
+        self.vboxlayout5 = QtGui.QVBoxLayout(self.usetab)
+        self.vboxlayout5.setMargin(9)
+        self.vboxlayout5.setSpacing(6)
+        self.vboxlayout5.setObjectName("vboxlayout5")
+        self.tabWorkspace.addTab(self.usetab,"")
         self.hboxlayout.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -293,7 +302,8 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.searchview), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.pooltab), QtGui.QApplication.translate("MainWindow", "DataPool", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.workspace1), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
+        self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Use", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.usetab), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
