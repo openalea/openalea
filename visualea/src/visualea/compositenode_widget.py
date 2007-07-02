@@ -33,8 +33,7 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
 from openalea.core.observer import AbstractListener
-
-import annotations as annotation
+import annotation
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
