@@ -34,6 +34,9 @@ from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
 from openalea.core.observer import AbstractListener
 
+import annotations as annotation
+
+
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
     """ Display widgets contained in the graph """
     
@@ -232,18 +235,32 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         """
 
         subnode = self.node.node(eltid)
-        
-        nin = subnode.get_nb_input()
-        nout = subnode.get_nb_output()
 
-        gnode = GraphicalNode(self, eltid, nin, nout)
+        # Annotation
+        if(subnode.__class__.__dict__.has_key("__graphitem__")):
 
+            # Test if Annotation is available
+            if("Annotation" in subnode.__graphitem__ and
+               not annotation.is_available()):
+                mess = QtGui.QMessageBox.warning(None, "Error",
+                                                 "This function need PyQT >= 4.2")
+                return None
+            else:                
+                classobj = eval(subnode.__graphitem__)
+                gnode = classobj(self, eltid)
+
+        # Standard Node
+        else:
+            nin = subnode.get_nb_input()
+            nout = subnode.get_nb_output()
+            gnode = GraphicalNode(self, eltid, nin, nout)
+
+            # do not display in and out nodes if not necessary
+            if(nin == 0 and nout == 0 and
+               (eltid == self.node.id_in or eltid == self.node.id_out)):
+                gnode.setVisible(False)
+ 
         self.graph_item[eltid] = gnode
-
-        # do not display in and out node if not necessary
-        if(nin == 0 and nout == 0 and
-           (eltid == self.node.id_in or eltid == self.node.id_out)):
-            gnode.setVisible(False)
         
         return gnode
 
@@ -441,19 +458,28 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             return False
 
 
-    def add_graphical_annotation(self):
+    @lock_notify
+    def add_graphical_annotation(self, position=None):
         """ Add text annotation """
 
-        version = QtCore.PYQT_VERSION
-        if(version <= 262401):
+        if(not annotation.is_available()):
             mess = QtGui.QMessageBox.warning(None, "Error",
                                              "This function need PyQT >= 4.2")
-            return 
+            return
 
-        item = Annotation(self.scene(), self.mapToScene(
-            self.mapFromGlobal(self.cursor().pos())))
-                
+        # Get Position from cursor
+        if(not position) :
+            position = self.mapToScene(
+            self.mapFromGlobal(self.cursor().pos()))
 
+        # Add new node
+        pkgmanager = PackageManager()
+        pkg = pkgmanager["System"]
+        factory = pkg.get_factory("annotation")
+
+        self.add_new_node(factory, position)
+        
+         
     def dropEvent(self, event):
 
         if (event.mimeData().hasFormat("openalea/nodefactory")):
@@ -529,46 +555,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         
 
-class Annotation(QtGui.QGraphicsTextItem):
-    """ Text annotation on the data flow """
-    
-    def __init__(self, scene, pos):
 
-        QtGui.QGraphicsTextItem.__init__(self)
-
-        self.setPlainText("Comments...")
-
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
-        self.setPos(pos)
-
-        font = self.font()
-        font.setBold(True)
-        font.setPointSize(12)
-
-        self.setFont(font)
-        scene.addItem(self)
-        
-        
-    def mouseDoubleClickEvent(self, event):
-
-        self.setTextInteractionFlags(QtCore.Qt.TextEditable)
-        self.setSelected(True)
-        self.setFocus()
-        cursor = self.textCursor()
-        cursor.select(QtGui.QTextCursor.Document)
-        self.setTextCursor(cursor)
-        
-
-    def focusOutEvent(self, event):
-        
-        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        QtGui.QGraphicsTextItem.focusOutEvent(self, event)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
-        
-
-
-
+# Utility function
 
 def port_name( name, interface ):
     """ Return the port name str """
