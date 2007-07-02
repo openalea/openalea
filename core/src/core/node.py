@@ -48,7 +48,7 @@ class InstantiationError(Exception):
 
 
 ##############################################################################
-# Convenience function
+# Utility function
 
 def gen_port_list(size):
     """ Generate a list of port description """
@@ -60,11 +60,28 @@ def gen_port_list(size):
 
 
 ###############################################################################
+class AbstractNode(IActor, Observed):
+    """ An AbstractNode is the atomic entity in a dataflow."""
+
+    def __init__(self):
+        """
+        Default Constructor
+        Create Internal Data dictionnary
+        """
+
+        Observed.__init__(self)
+        # Internal Data (caption...)
+        self.internal_data = {}
+
+    def set_data(self, key, value):
+        """ Set internal node data """
+        self.internal_data[key] = value
+        self.notify_listeners( ("data_modified",) )
 
 
-class Node(IActor, Observed):
+
+class Node(AbstractNode):
     """
-    A Node is the atomic entity in a dataflow.
     It is a callable object with typed inputs and outputs.
     Inputs and Outpus are indexed by their position or by a name (str)
     """
@@ -76,8 +93,8 @@ class Node(IActor, Observed):
 
         Nota : if IO names are not a string, they will be converted to with str()
         """
-
-        Observed.__init__(self)
+        
+        AbstractNode.__init__(self)
         self.set_io(inputs, outputs)
         
         # Node State
@@ -88,10 +105,8 @@ class Node(IActor, Observed):
         # Factory
         self.factory = None
 
-        # Internal Data (caption...)
-        self.internal_data = {}
+        # Default Caption
         self.internal_data['caption'] = str(self.__class__.__name__)
-
 
 
     def __call__(self, inputs = ()):
@@ -113,7 +128,6 @@ class Node(IActor, Observed):
         return self.factory
 
 
-
     # Internal data accessor
     def set_caption(self, newcaption):
         """ Define the node caption """
@@ -124,12 +138,6 @@ class Node(IActor, Observed):
         """ Return the node caption """
         return self.internal_data.get('caption', "")
        
-
-    def set_data(self, key, value):
-        """ Set internal node data """
-        self.internal_data[key] = value
-        self.notify_listeners( ("data_modified",) )
-
 
     # Status
     def unvalidate_input(self, index_key):
@@ -267,7 +275,6 @@ class Node(IActor, Observed):
     def get_nb_output(self):
         """ Return the nb of output ports """
         return len(self.outputs)
-
 
     
     # Functions used by the node evaluator
@@ -492,7 +499,7 @@ class NodeFactory(AbstractFactory):
         classobj = module.__dict__[self.nodeclass_name]
 
         # If class is not a Node, embed object in a Node class
-        if(not hasattr(classobj, 'mro') or not Node in classobj.mro()):
+        if(not hasattr(classobj, 'mro') or not AbstractNode in classobj.mro()):
 
             # Check inputs and outputs
             if(self.inputs is None) :
