@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Jul  3 11:59:07 2007
+# Created: Tue Jul  3 13:30:32 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,6 +86,10 @@ class Ui_MainWindow(object):
         self.vboxlayout4.setMargin(9)
         self.vboxlayout4.setSpacing(6)
         self.vboxlayout4.setObjectName("vboxlayout4")
+
+        self.tableWidget = QtGui.QTableWidget(self.tab)
+        self.tableWidget.setObjectName("tableWidget")
+        self.vboxlayout4.addWidget(self.tableWidget)
         self.poolTabWidget.addTab(self.tab,"")
         self.hboxlayout.addWidget(self.splitter_2)
 
@@ -302,6 +306,17 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.searchview), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.pooltab), QtGui.QApplication.translate("MainWindow", "DataPool", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget.clear()
+        self.tableWidget.setColumnCount(2)
+        self.tableWidget.setRowCount(0)
+
+        headerItem = QtGui.QTableWidgetItem()
+        headerItem.setText(QtGui.QApplication.translate("MainWindow", "Variable", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget.setHorizontalHeaderItem(0,headerItem)
+
+        headerItem1 = QtGui.QTableWidgetItem()
+        headerItem1.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget.setHorizontalHeaderItem(1,headerItem1)
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Use", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.usetab), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
