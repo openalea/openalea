@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -60,6 +60,34 @@
         <widget class="QListWidget" name="pathList" />
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4" >
+      <attribute name="title" >
+       <string>Dataflow</string>
+      </attribute>
+      <widget class="QLabel" name="label_3" >
+       <property name="geometry" >
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>56</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>Algorithm</string>
+       </property>
+      </widget>
+      <widget class="QListWidget" name="listAlgo" >
+       <property name="geometry" >
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>171</width>
+         <height>211</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_2" >
       <attribute name="title" >
