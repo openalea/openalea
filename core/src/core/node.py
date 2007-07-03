@@ -99,14 +99,14 @@ class Node(AbstractNode):
         
         # Node State
         self.modified = True
-        # Lazy State : if False, disable lazy evaluation
-        self.lazy = True
 
         # Factory
         self.factory = None
 
-        # Default Caption
+        # Internal Data
         self.internal_data['caption'] = str(self.__class__.__name__)
+        self.internal_data['lazy'] = True
+        self.internal_data['priority'] = 0
 
 
     def __call__(self, inputs = ()):
@@ -119,6 +119,8 @@ class Node(AbstractNode):
         """ Return the procession obj """
         return self
 
+
+    # property
     process_obj = property(get_process_obj)
 
     
@@ -137,7 +139,17 @@ class Node(AbstractNode):
     def get_caption(self):
         """ Return the node caption """
         return self.internal_data.get('caption', "")
-       
+
+    caption = property(get_caption, set_caption)
+
+    def get_lazy(self):
+        return self.internal_data["lazy"]
+
+    def set_lazy(self, v):
+        self.internal_data["lazy"] = v
+
+    lazy = property(get_lazy, set_lazy)
+
 
     # Status
     def unvalidate_input(self, index_key):
