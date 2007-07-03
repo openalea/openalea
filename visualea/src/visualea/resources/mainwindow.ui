@@ -123,6 +123,20 @@
          <property name="spacing" >
           <number>6</number>
          </property>
+         <item>
+          <widget class="QTableWidget" name="tableWidget" >
+           <column>
+            <property name="text" >
+             <string>Variable</string>
+            </property>
+           </column>
+           <column>
+            <property name="text" >
+             <string>Port</string>
+            </property>
+           </column>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
