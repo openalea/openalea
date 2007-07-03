@@ -34,6 +34,7 @@ import ui_tofactory
 import ui_newpackage
 import ui_preferences
 import ui_ioconfig
+import ui_tableedit
 
 
 
@@ -553,3 +554,49 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         c = self.outTable.rowCount()
         self.outTable.setRowCount(c-1)
         
+
+class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
+    """
+    Dictionnary editor
+    If accepted :
+      self.pdict contains the modified dictionary
+      self.modified_key  contains the list of modified key
+    """
+    
+    def __init__(self, pdict, parent):
+
+        QtGui.QDialog.__init__(self, parent)
+        ui_tableedit.Ui_TableEditor.__init__(self)
+        self.setupUi(self)
+
+        self.pdict = pdict.copy() # copy the dictionary
+        self.modified_key = [] # list of modified key
+
+        # Fill the table
+        self.tableWidget.setRowCount(len(pdict.keys()))
+        for (i, (k,v)) in enumerate(pdict.items()):
+
+            item = QtGui.QTableWidgetItem(str(k))
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(i, 0, item)
+            self.tableWidget.setItem(i, 1, QtGui.QTableWidgetItem(str(v)))
+        
+        
+    def accept(self):
+
+        # Check for modification in each row
+        for (i, (k,v)) in enumerate(self.pdict.items()):
+            keyitem = self.tableWidget.item(i, 0)
+            valueitem = self.tableWidget.item(i, 1)
+
+            if(str(keyitem.text()) != str(k)): continue
+            s = str(valueitem.text())
+            if(s != str(v)):
+                
+                self.modified_key.append(k)
+                try:
+                    self.pdict[k] = eval(s)
+                except:
+                    self.pdict[k] = s
+                    
+        QtGui.QDialog.accept(self)

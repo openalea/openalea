@@ -35,6 +35,8 @@ from openalea.core.settings import Settings
 from openalea.core.observer import AbstractListener
 import annotation
 
+from dialogs import DictEditor
+
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
     """ Display widgets contained in the graph """
@@ -685,7 +687,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
 
-        if(event and event[0] == "caption_modified"):
+        if(event and
+           event[0] == "caption_modified" or
+           event[0] == "data_modified"):
             self.adjust_size()
             self.update()
             QtGui.QApplication.processEvents()
@@ -839,6 +843,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         
         action = menu.addAction("Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
+
+        action = menu.addAction("Internals")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_internals)
+        
         
 #         action = menu.addAction("Edit")
 #         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_code)
@@ -847,8 +855,18 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         menu.show()
 
         event.accept()
-        
 
+
+    def set_internals(self):
+        """ Edit node internal data """
+        editor = DictEditor(self.subnode.internal_data, self.graphview)
+        ret = editor.exec_()
+
+        if(ret):
+            for k in editor.modified_key:
+                self.subnode.set_data(k, editor.pdict[k])
+            
+        
     def run_node(self):
         """ Run the current node """
         self.graphview.node.eval_as_expression(self.elt_id)

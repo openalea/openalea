@@ -10,6 +10,7 @@ for (ui, dst) in [ ('mainwindow.ui', '../ui_mainwindow.py'),
                    ('tofactory.ui', '../ui_tofactory.py'),
                    ('preferences.ui', '../ui_preferences.py'),
                    ('ioconfig.ui', '../ui_ioconfig.py'),
+                   ('tableedit.ui', '../ui_tableedit.py'),
                    ]:
     os.system("pyuic4 %s > %s "%(ui, dst))
 
