@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'preferences.ui'
 #
-# Created: Fri Jun 29 10:54:04 2007
+# Created: Tue Jul  3 11:19:09 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,6 +47,18 @@ class Ui_Preferences(object):
         self.gridlayout1.addWidget(self.pathList,0,1,3,1)
         self.tabWidget.addTab(self.tab,"")
 
+        self.tab_4 = QtGui.QWidget()
+        self.tab_4.setObjectName("tab_4")
+
+        self.label_3 = QtGui.QLabel(self.tab_4)
+        self.label_3.setGeometry(QtCore.QRect(20,20,56,17))
+        self.label_3.setObjectName("label_3")
+
+        self.listAlgo = QtGui.QListWidget(self.tab_4)
+        self.listAlgo.setGeometry(QtCore.QRect(20,40,171,211))
+        self.listAlgo.setObjectName("listAlgo")
+        self.tabWidget.addTab(self.tab_4,"")
+
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.tabWidget.addTab(self.tab_2,"")
@@ -76,7 +88,7 @@ class Ui_Preferences(object):
         self.gridlayout.addWidget(self.buttonBox,1,0,1,1)
 
         self.retranslateUi(Preferences)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),Preferences.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),Preferences.reject)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
@@ -87,6 +99,8 @@ class Ui_Preferences(object):
         self.addButton.setText(QtGui.QApplication.translate("Preferences", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Preferences", "Search Path", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Preferences", "Package Manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Preferences", "Algorithm", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("Preferences", "Dataflow", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Preferences", "Python Editor", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Preferences", "Double click on item", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))

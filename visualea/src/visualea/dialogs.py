@@ -372,6 +372,16 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
+        # Dataflow
+        try:
+            str = config.get("eval", "type")
+            str = str.strip('"')
+            eval_algo = str.strip("'")
+        except:
+            eval_algo = "SelectiveEvaluation"
+
+        self.update_eval_algo(eval_algo)
+
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
 
@@ -382,6 +392,31 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
     
         if(result):
             self.pathList.addItem(result)
+
+
+    def update_eval_algo(self, algo_str):
+        """ Search available evaluation algorithm
+        and select algo_str """
+
+        import openalea.core.algo.dataflow_evaluation as evalmodule
+        
+        # Search class obj in module
+        l = lambda x: isinstance(x, type) and evalmodule.AbstractEvaluation in x.mro()
+        classlist = filter(l, evalmodule.__dict__.values())
+        classlist.remove(evalmodule.AbstractEvaluation)
+        
+        selectitem = None
+        for c in classlist:
+            try:
+                item = QtGui.QListWidgetItem(c.__name__)
+                self.listAlgo.addItem(item)
+                if(c.__name__ == algo_str):
+                    selectitem = item
+            except:
+                pass
+            
+        if(selectitem):
+            self.listAlgo.setCurrentItem(selectitem)
 
 
     def remove_search_path(self):
@@ -412,12 +447,23 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config = Settings()
         config.set("UI", "DoubleClick", repr(d[index]))
         config.write_to_disk()
-            
+
+
+    def valid_dataflow(self):
+
+        item = self.listAlgo.currentItem()
+        algostr = str(item.text())
+        
+        config = Settings()
+        config.set("eval", "type", algostr)
+        config.write_to_disk()
+          
 
     def accept(self):
 
         self.valid_search_path()
         self.valid_ui()
+        self.valid_dataflow()
         QtGui.QDialog.accept(self)
 
 
