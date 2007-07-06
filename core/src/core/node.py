@@ -612,7 +612,7 @@ class NodeFactory(AbstractFactory):
             return nodemodule
                 
         else :
-            # By default use __builtin module
+            # By default use __builtin__ module
             import __builtin__
             return __builtin__
     
