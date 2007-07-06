@@ -182,6 +182,25 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
+    nf = Factory( name="cos", 
+                  description="Cosinus", 
+                  category="Maths",
+                  inputs=[dict(name='x', interface=IFloat)], 
+                  nodemodule="math",
+                  nodeclass="cos",
+                  )
+
+    package.add_factory(nf)
+
+    nf = Factory( name="sin", 
+                  description="Sinus", 
+                  category="Maths", 
+                  nodemodule="math",
+                  nodeclass="sin",
+                  )
+
+    package.add_factory(nf)
+
     nf = Factory( name="round", 
                   description="Round value", 
                   category="Maths", 

@@ -1,4 +1,11 @@
-13/06/07 : 0.2.0a release
+06/07/07 : 0.2.1a Alpha release
+           Use Qt4 backend for matplotlib (plot nodes)
+           Add widget for getitem node
+           Add fwrite and fread nodes
+           Add cos and sin nodes
+	   Bug fixes
+
+13/06/07 : 0.2.0a Alpha release
 
 09/02/07 : First release for testing purpose
 	   Add some python builtins function
