@@ -1,3 +1,14 @@
+06/07/07 : 0.2.1a Alpha release
+	   Add node property editor
+	   Add in preference dataflow algorithm configuration
+	   Annotations are now saved in dataflow (considered as a particular node)
+	   IO configuration now works
+	   Node group export and auto-connection works
+	   Setup PATH or LD_LIBRARY_PATH variable in starting script
+	   Change Splashscreen
+	   Bug fixes
+           
+
 13/06/07 : Alpha release 0.2.0a. For this release, 
 Visualea has been refactorised since first prototype :
 	 - A lot of bug fixes.
