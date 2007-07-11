@@ -28,9 +28,10 @@ setup(
 
     namespace_packages = ["openalea"],
     
-    packages = ['openalea.fakepackage', 'lib', 'include.fakepackage', 'openalea'],
+    packages = ['openalea.fakepackage', 'lib', 'test', 'include.fakepackage', 'openalea'],
     package_dir = { 'openalea.fakepackage':  pj('src','fakepackage'),
                     'lib' : pj(build_prefix,'lib'),
+                    'test' : pj(build_prefix,'lib'),
 		    'include.fakepackage' : pj(build_prefix,'include', 'fakepackage'),
 		    }, 
 		    
@@ -42,7 +43,7 @@ setup(
     # Specific options of openalea.deploy
     create_namespace = True,
 
-    shared_lib = ['lib'],
+    shared_lib = ['lib', 'test'],
     shared_include = ['include'],
     shared_data = [],
 
