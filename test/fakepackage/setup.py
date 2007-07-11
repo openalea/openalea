@@ -28,13 +28,14 @@ setup(
 
     namespace_packages = ["openalea"],
     
-    packages = find_packages('src') + ['lib', 'include'],
-    package_dir = { 'openalea.fakepackage':  'src/fakepackage',
+    packages = ['openalea.fakepackage', 'lib', 'include.fakepackage', 'openalea'],
+    package_dir = { 'openalea.fakepackage':  pj('src','fakepackage'),
                     'lib' : pj(build_prefix,'lib'),
-		    'include' : pj(build_prefix,'include'),
+		    'include.fakepackage' : pj(build_prefix,'include', 'fakepackage'),
 		    }, 
 		    
-    package_data = { '' : ['*'] },
+    package_data = { '' : ['*'],},
+    
     include_package_data = True,
     zip_safe= False,
 
