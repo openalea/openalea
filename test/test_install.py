@@ -30,14 +30,13 @@ def test_build():
 def test_get_eggs():
 
     from openalea.deploy import get_eggs
-
     assert len(set(get_eggs('openalea'))) == 2
+
 
 def test_get_shared_lib():
 
-    from openalea.deploy import get_shared_lib
-    print list(get_shared_lib("openalea.fakepackage"))
-    assert set(get_shared_lib("openalea.fakepackage")) == set(["lib", "test"])
+    from openalea.deploy import get_lib_dirs
+    assert set(get_lib_dirs("openalea.fakepackage")) == set(["lib", "test"])
 
 
 

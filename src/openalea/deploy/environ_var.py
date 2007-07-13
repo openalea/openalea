@@ -41,17 +41,16 @@ def set_lsb_env(name, vars):
     
     for newvar in vars:
 
-        name, value = newvar.split('=')
-
-        if(((name == "LD_LIBRARY_PATH") or (name== "PATH")) and value):
-            exportstr += 'if [ -z "$%s" ]; then\n'%(name)
-            exportstr += '  export %s=%s\n'%(name, value,)
+        vname, value = newvar.split('=')
+        if(((vname == "LD_LIBRARY_PATH") or (vname== "PATH")) and value):
+            exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
+            exportstr += '  export %s=%s\n'%(vname, value,)
             exportstr += 'else\n'
-            exportstr +='  export %s=$%s:%s\n'%(name, name, value,)
+            exportstr +='  export %s=$%s:%s\n'%(vname, vname, value,)
             exportstr += 'fi\n\n'
         
-        elif(name and value):
-            exportstr += 'export %s=%s\n\n'%(name, value)
+        elif(vname and value):
+            exportstr += 'export %s=%s\n\n'%(vname, value)
     
 
     filename = '/etc/profile.d/'+name+'.sh'

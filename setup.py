@@ -41,15 +41,11 @@ setup(
               "distutils.commands":[
                  "scons = openalea.deploy.command:scons",
                  "create_namespaces = openalea.deploy.command:create_namespaces",
-                 ],  },
-#     # Scripts
-#     entry_points = { 'console_scripts': [
-#                            'fake_script = openalea.fakepackage.amodule:console_script', ],
-#                      'gui_scripts': [
-#                            'fake_gui = openalea.fakepackage.amodule:gui_script',]},
+                 ],
+              'console_scripts': [
+                           'alea_install = openalea.deploy.alea_install:main', ],
+              },
 
-#      # Dependencies
-#      setup_requires = ['OpenAlea.Deploy'],
      #install_requires = [],
     
 )
