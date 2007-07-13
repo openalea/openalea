@@ -11,10 +11,20 @@ def test_build():
     """ Test the build command on fakepakage """
     command = "build"
     run_setup(command)
-    
-def test_intall():
-    """ Test the intall command on fakepakage """
-    run_setup("install")
+
+    fname = "fakepackage/OpenAlea.FakePackage.egg-info/lib_dirs.txt"
+    assert os.path.exists(fname)
+
+    f = open(fname, 'r')
+    assert f.read() == "test\nlib\n"
+
+    fname = "fakepackage/OpenAlea.FakePackage.egg-info/include_dirs.txt"
+    assert os.path.exists(fname)
+    f.close()
+
+    f = open(fname, 'r')
+    assert f.read() == "include\n"
+    f.close()
 
 
 def test_get_eggs():
@@ -26,8 +36,12 @@ def test_get_eggs():
 def test_get_shared_lib():
 
     from openalea.deploy import get_shared_lib
+    print list(get_shared_lib("openalea.fakepackage"))
+    assert set(get_shared_lib("openalea.fakepackage")) == set(["lib", "test"])
 
-    assert list(get_shared_lib("openalea.fakepackage")) == ["lib", "test"]
+
+
+
     
 
 

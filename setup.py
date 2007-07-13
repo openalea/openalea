@@ -26,16 +26,21 @@ setup(
 
     entry_points = {
               "distutils.setup_keywords": [
-                 "shared_lib = setuptools.dist:assert_string_list",
-                 "shared_include = setuptools.dist:assert_string_list",
-                 "shared_data = setuptools.dist:assert_string_list",
+                 "lib_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "include_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "scons_scripts = openalea.deploy.command:validate_scons_scripts",
+                 "scons_parameters = setuptools.dist:assert_string_list",
+                 "create_namespaces = openalea.deploy.command:validate_create_namespaces",
                  ],
               
               "egg_info.writers": [
-                 "shared_lib.txt = setuptools.command.egg_info:write_arg",
-                 "shared_include.txt = setuptools.command.egg_info:write_arg",
-                 "shared_data.txt = setuptools.command.egg_info:write_arg",
+                 "lib_dirs.txt = openalea.deploy.command:write_keys_arg",
+                 "include_dirs.txt = openalea.deploy.command:write_keys_arg",
+                 ],
 
+              "distutils.commands":[
+                 "scons = openalea.deploy.command:scons",
+                 "create_namespaces = openalea.deploy.command:create_namespaces",
                  ],  },
 #     # Scripts
 #     entry_points = { 'console_scripts': [

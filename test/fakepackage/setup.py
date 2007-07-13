@@ -1,10 +1,15 @@
-from setuptools import setup, find_packages
+import sys
+import os
 
+from setuptools import setup, find_packages
 from os.path import join as pj
 
 
-build_prefix = 'build-scons'
 
+
+build_prefix = "build-scons"
+
+# Setup function
 setup(
     # Metadata for PyPi
     name = "OpenAlea.FakePackage",
@@ -16,36 +21,25 @@ setup(
     keywords = '',
     url = '',
 
-    # namespace
-    # ! warning : Ensure you have the following code in the openalea.__init__.py
-    # try:
-    #     import pkg_resources
-    #     pkg_resources.declare_namespace(__name__)
-    # except ImportError:
-    #     import pkgutil
-    #     __path__ = pkgutil.extend_path(__path__, __name__)
+    # Scons
+    scons_scripts = ["SConstruct"],
+    scons_parameters = ["build_prefix=%s"%(build_prefix)],
 
-
+    # Packages
     namespace_packages = ["openalea"],
+    create_namespaces = True,
+    packages = ['openalea.fakepackage', ],
     
-    packages = ['openalea.fakepackage', 'lib', 'test', 'include.fakepackage', 'openalea'],
-    package_dir = { 'openalea.fakepackage':  pj('src','fakepackage'),
-                    'lib' : pj(build_prefix,'lib'),
-                    'test' : pj(build_prefix,'lib'),
-		    'include.fakepackage' : pj(build_prefix,'include', 'fakepackage'),
-		    }, 
+    package_dir = { 'openalea.fakepackage':  pj('src','fakepackage'), }, 
 		    
-    package_data = { '' : ['*'],},
-    
+    #package_data = {'' : ['*'],},
     include_package_data = True,
     zip_safe= False,
 
     # Specific options of openalea.deploy
-    create_namespace = True,
-
-    shared_lib = ['lib', 'test'],
-    shared_include = ['include'],
-    shared_data = [],
+    lib_dirs = {'lib' : pj(build_prefix, 'lib') ,
+                'test': pj(build_prefix, 'lib')},
+    include_dirs = { 'include' : pj(build_prefix, 'include') },
 
     # Scripts
     entry_points = { 'console_scripts': [
@@ -54,7 +48,7 @@ setup(
                            'fake_gui = openalea.fakepackage.amodule:gui_script',]},
 
      # Dependencies
-     setup_requires = ['OpenAlea.Deploy'],
+     setup_requires = ['openalea.deploy'],
      #install_requires = [],
     
 )

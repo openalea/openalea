@@ -1,3 +1,17 @@
+# -*- python -*-
+#
+#       OpenAlea.Core: OpenAlea Core
+#
+#       Copyright 2006 INRIA - CIRAD - INRA  
+#
+#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# 
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
 
 
 import pkg_resources
@@ -14,7 +28,7 @@ def get_shared_lib(pkg_name):
 
     dist = pkg_resources.get_distribution(pkg_name)
     try:
-        lstr = dist.get_metadata('shared_lib.txt')
+        lstr = dist.get_metadata('lib_dirs.txt')
     except:
         lstr = ""
         
@@ -25,8 +39,12 @@ def get_shared_include(pkg_name):
     """ Return a generator wich list the shared lib directory """
 
     dist = pkg_resources.get_distribution(pkg_name)
-    lstr = dist.get_metadata('shared_include.txt')
-    return pkg_resources.yield_lines(lstr)
+
+    try:
+        lstr = dist.get_metadata('include_dirs.txt')
+    except:
+        lstr = ""
+        return pkg_resources.yield_lines(lstr)
 
 
 
@@ -53,6 +71,6 @@ def get_shared_lib_dirs(namespace=None):
 
             full_location = pj(location, sh)
             yield full_location
+
+
         
-    
-    
