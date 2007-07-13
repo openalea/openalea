@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.Core: OpenAlea Core
+#       OpenAlea.Deploy: OpenAlea Deploy
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
@@ -14,6 +14,7 @@
 #
 
 
+
 import pkg_resources
 from os.path import join as pj
 
@@ -23,7 +24,7 @@ def get_base_dir(pkg_name):
     return pkg_resources.get_distribution(pkg_name).location
 
         
-def get_shared_lib(pkg_name):
+def get_lib_dirs(pkg_name):
     """ Return a generator wich list the shared lib directory """
 
     dist = pkg_resources.get_distribution(pkg_name)
@@ -35,7 +36,7 @@ def get_shared_lib(pkg_name):
     return pkg_resources.yield_lines(lstr)
 
 
-def get_shared_include(pkg_name):
+def get_include_dirs(pkg_name):
     """ Return a generator wich list the shared lib directory """
 
     dist = pkg_resources.get_distribution(pkg_name)
@@ -59,7 +60,7 @@ def get_eggs(namespace=None):
             yield project_name
 
 
-def get_shared_lib_dirs(namespace=None):
+def get_all_lib_dirs(namespace=None):
     """ Return the iterator of the directories corresponding to the shared lib """
 
     egg_names = get_eggs(namespace)
