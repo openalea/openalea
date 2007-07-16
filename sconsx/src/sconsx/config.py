@@ -37,7 +37,6 @@ from SCons.Environment import Environment
 from SCons.Builder import Builder
 from SCons.Node.FS import Dir, File
 
-from tools import EggLib
 
 #--------------------------------------------------------------------------------
 # Errors
@@ -237,11 +236,10 @@ class Config(object):
             t = mod.create(self)
         except:
             # Try to import EGG LIB
-            try:
-                t = EggLib(name, self)
-            except:
-                raise ToolNotFound()
-
+            mod = import_tool("egglib", self.dir)
+            t = mod.create(name, self)
+            
+            
         self._walk.pop()
         self.tools.append(t)
 

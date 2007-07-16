@@ -80,3 +80,6 @@ class EggLib:
       pass
 
 
+
+def create(name, config):
+   return EggLib(name, config)
