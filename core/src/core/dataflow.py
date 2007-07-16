@@ -22,8 +22,8 @@ This module provide an implementation of a dataflow
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from openalea.graph.property_graph import PropertyGraph,InvalidVertex,InvalidEdge
-from openalea.graph.id_generator import IdGenerator
+from openalea.core.graph.property_graph import PropertyGraph,InvalidVertex,InvalidEdge
+from openalea.core.graph.id_generator import IdGenerator
 
 
 class PortError (Exception) :
