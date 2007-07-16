@@ -42,6 +42,7 @@ def test_get_shared_lib():
 def test_get_shared_inc():
 
     from openalea.deploy import get_inc_dirs
+    print set(get_inc_dirs("openalea.fakepackage"))
     assert set(get_inc_dirs("openalea.fakepackage")) == set(["include"])
 
 

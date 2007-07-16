@@ -78,7 +78,6 @@ def copy_data_tree (src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
 
 def has_ext_modules(dist):
     """ Replacement function for has_ext_module """
-    print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     try:
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
