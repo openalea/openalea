@@ -31,7 +31,17 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="packageList" />
+     <widget class="QListWidget" name="packageList" >
+      <property name="selectionMode" >
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <property name="modelColumn" >
+       <number>0</number>
+      </property>
+      <property name="sortingEnabled" >
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" >
@@ -65,7 +75,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidget" />
+     <widget class="QTextEdit" name="logText" >
+      <property name="readOnly" >
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_2" >
@@ -81,7 +95,7 @@
         <hsizetype>7</hsizetype>
         <vsizetype>7</vsizetype>
         <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
+        <verstretch>4</verstretch>
        </sizepolicy>
       </property>
      </widget>
@@ -128,7 +142,6 @@
   <tabstop>packageList</tabstop>
   <tabstop>proceedButton</tabstop>
   <tabstop>refreshButton</tabstop>
-  <tabstop>listWidget</tabstop>
   <tabstop>locationList</tabstop>
   <tabstop>addLocButton</tabstop>
   <tabstop>removeLocButton</tabstop>

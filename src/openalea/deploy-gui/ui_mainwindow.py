@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jul 14 17:30:05 2007
+# Created: Mon Jul 16 15:08:02 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,6 +28,9 @@ class Ui_MainWindow(object):
         self.vboxlayout.addWidget(self.label)
 
         self.packageList = QtGui.QListWidget(self.centralwidget)
+        self.packageList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.packageList.setModelColumn(0)
+        self.packageList.setSortingEnabled(True)
         self.packageList.setObjectName("packageList")
         self.vboxlayout.addWidget(self.packageList)
 
@@ -49,9 +52,10 @@ class Ui_MainWindow(object):
         self.label_3.setObjectName("label_3")
         self.vboxlayout.addWidget(self.label_3)
 
-        self.listWidget = QtGui.QListWidget(self.centralwidget)
-        self.listWidget.setObjectName("listWidget")
-        self.vboxlayout.addWidget(self.listWidget)
+        self.logText = QtGui.QTextEdit(self.centralwidget)
+        self.logText.setReadOnly(True)
+        self.logText.setObjectName("logText")
+        self.vboxlayout.addWidget(self.logText)
 
         self.label_2 = QtGui.QLabel(self.centralwidget)
         self.label_2.setObjectName("label_2")
@@ -61,7 +65,7 @@ class Ui_MainWindow(object):
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(4)
         sizePolicy.setHeightForWidth(self.locationList.sizePolicy().hasHeightForWidth())
         self.locationList.setSizePolicy(sizePolicy)
         self.locationList.setObjectName("locationList")
@@ -95,8 +99,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.packageList,self.proceedButton)
         MainWindow.setTabOrder(self.proceedButton,self.refreshButton)
-        MainWindow.setTabOrder(self.refreshButton,self.listWidget)
-        MainWindow.setTabOrder(self.listWidget,self.locationList)
+        MainWindow.setTabOrder(self.refreshButton,self.locationList)
         MainWindow.setTabOrder(self.locationList,self.addLocButton)
         MainWindow.setTabOrder(self.addLocButton,self.removeLocButton)
 
