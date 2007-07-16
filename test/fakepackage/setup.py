@@ -50,7 +50,7 @@ setup(
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
-    dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
+    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
     #install_requires = [],
     
 )

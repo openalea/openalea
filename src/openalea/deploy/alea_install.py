@@ -1,7 +1,7 @@
 # Script which wrap easy install with some post-processing
 
 __requires__ = 'setuptools'
-import sys
+import sys, os
 
 
 def main(argv=None, **kw):

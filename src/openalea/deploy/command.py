@@ -20,6 +20,9 @@ Setuptools commands
 __license__= "Cecill-C"
 __revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
 
+
+
+
 import os, sys
 import shutil
 from os.path import join as pj
@@ -39,7 +42,7 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from openalea.deploy import get_all_lib_dirs
+from openalea.deploy import get_all_lib_dirs, OPENALEA_PI
 from openalea.deploy.environ_var import set_lsb_env, set_win_env
 
 
@@ -357,13 +360,12 @@ class alea_install(easy_install):
     - Environment variable
     - Postinstall Scripts
     """
-    OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 
     def finalize_options(self):
         easy_install.finalize_options(self)
 
         # Add openalea package link
-        self.find_links += [ self.OPENALEA_PI ]
+        self.find_links += [ OPENALEA_PI ]
 
     def run(self):
         easy_install.run(self)
@@ -397,8 +399,11 @@ class alea_install(easy_install):
         """ Call postinstall scripts """
 
         print "Post installation"
-        
-        lstr = dist.get_metadata("postinstall_scripts.txt")
+
+        try:
+            lstr = dist.get_metadata("postinstall_scripts.txt")
+        except:
+            lstr = []
 
         for s in pkg_resources.yield_lines(lstr):
             print "Executing %s"%(s)

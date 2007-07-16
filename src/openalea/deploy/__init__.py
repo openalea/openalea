@@ -27,6 +27,10 @@ import pkg_resources
 from os.path import join as pj
 
 
+OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
+
+
+
 def get_base_dir(pkg_name):
     """ Return the base directory of a pkg """
     return pkg_resources.get_distribution(pkg_name).location
@@ -85,6 +89,8 @@ def get_all_lib_dirs(namespace=None):
 
             full_location = pj(location, sh)
             yield full_location
+
+
 
 
         
