@@ -23,34 +23,39 @@ def get_base_dir(pkg_name):
     """ Return the base directory of a pkg """
     return pkg_resources.get_distribution(pkg_name).location
 
-        
-def get_lib_dirs(pkg_name):
-    """ Return a generator wich list the shared lib directory """
 
+def get_egg_info(pkg_name, info_key):
+    """ Return as a generator the egg-infos contained in info_key"""
+    
     dist = pkg_resources.get_distribution(pkg_name)
     try:
-        lstr = dist.get_metadata('lib_dirs.txt')
+        lstr = dist.get_metadata(info_key)
     except:
         lstr = ""
         
     return pkg_resources.yield_lines(lstr)
 
 
+def get_lib_dirs(pkg_name):
+    """ Return a generator which lists the shared lib directory """
+
+    return get_egg_info(pkg_name, 'lib_dirs.txt')
+
+
 def get_include_dirs(pkg_name):
-    """ Return a generator wich list the shared lib directory """
+    """ Return a generator which lists the shared lib directory """
 
-    dist = pkg_resources.get_distribution(pkg_name)
+    return get_egg_info(pkg_name, 'include_dirs.txt')
 
-    try:
-        lstr = dist.get_metadata('include_dirs.txt')
-    except:
-        lstr = ""
-        return pkg_resources.yield_lines(lstr)
 
+def get_postinstall_scripts(pkg_name):
+    """ Return a generator which lists the post_install scripts (as string) """
+
+    return get_egg_info(pkg_name, 'postinstall_scripts.txt')
 
 
 def get_eggs(namespace=None):
-    """ Return as an iterator the list of the name of all EGGS in
+    """ Return as a generator the list of the name of all EGGS in
     a particular namespace (optional) """
 
     env = pkg_resources.Environment()

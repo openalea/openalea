@@ -31,19 +31,23 @@ setup(
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
+                 "postinstall_scripts = setuptools.dist:assert_string_list",
                  ],
               
               "egg_info.writers": [
                  "lib_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "include_dirs.txt = openalea.deploy.command:write_keys_arg",
+                 "postinstall_scripts.txt = setuptools.command.egg_info:write_arg",
                  ],
 
               "distutils.commands":[
                  "scons = openalea.deploy.command:scons",
                  "create_namespaces = openalea.deploy.command:create_namespaces",
+                 "alea_install = openalea.deploy.command:alea_install",
                  ],
-              'console_scripts': [
-                           'alea_install = openalea.deploy.alea_install:main', ],
+              
+              "console_scripts": [
+                 "alea_install = openalea.deploy.alea_install:main", ],
               },
 
      #install_requires = [],

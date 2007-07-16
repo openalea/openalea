@@ -40,15 +40,17 @@ setup(
     lib_dirs = {'lib' : pj(build_prefix, 'lib') ,
                 'test': pj(build_prefix, 'lib')},
     include_dirs = { 'include' : pj(build_prefix, 'include') },
-
+    postinstall_scripts = ['openalea.fakepackage.postinstall',],
+    
     # Scripts
     entry_points = { 'console_scripts': [
                            'fake_script = openalea.fakepackage.amodule:console_script', ],
                      'gui_scripts': [
                            'fake_gui = openalea.fakepackage.amodule:gui_script',]},
 
-     # Dependencies
-     setup_requires = ['openalea.deploy'],
-     #install_requires = [],
+    # Dependencies
+    setup_requires = ['openalea.deploy'],
+    dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
+    #install_requires = [],
     
 )

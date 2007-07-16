@@ -60,10 +60,8 @@ def set_lsb_env(name, vars):
         print "ERROR : Cannot create /etc/profile.d/%s.sh"%(name)
         print "ERROR : Check if you have Root privileges, or if your " + \
               "system support this feature."
-        print "You can also add the following lines to your /etc/profile:\n\n"
-        print "# ---- OpenAlea configuration ----"
+        print "You can also add the following lines to your /etc/profile or your ~/bashrc :\n\n"
         print exportstr
-        print "# ---- End of OpenAlea configuration ----"
         return
     
     print "creating %s"%(filename,)

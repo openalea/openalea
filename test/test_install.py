@@ -39,6 +39,18 @@ def test_get_shared_lib():
     assert set(get_lib_dirs("openalea.fakepackage")) == set(["lib", "test"])
 
 
+def test_get_shared_include():
+
+    from openalea.deploy import get_include_dirs
+    assert set(get_include_dirs("openalea.fakepackage")) == set(["include"])
+
+
+def test_get_postinstall_scripts():
+
+    from openalea.deploy import get_postinstall_scripts
+    print list(get_postinstall_scripts("openalea.fakepackage"))
+    assert set(get_postinstall_scripts("openalea.fakepackage")) == \
+           set(["openalea.fakepackage.postinstall"])
 
 
     
