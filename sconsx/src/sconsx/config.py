@@ -36,7 +36,9 @@ from SCons.SConf import SConf
 from SCons.Environment import Environment
 from SCons.Builder import Builder
 from SCons.Node.FS import Dir, File
-  	 
+
+from tools import EggLib
+
 #--------------------------------------------------------------------------------
 # Errors
 
@@ -55,23 +57,25 @@ def import_tool(name, import_dir):
     """
     Import a module based on its name from a list of directories.
     """
-    old_syspath= sys.path
+    old_syspath = sys.path
 
     if tool_path not in sys.path: 
         sys.path.insert(0, tool_path)
     
-    sys.path= import_dir + sys.path
+    sys.path = import_dir + sys.path
 
     try:
-        mod= __import__(name)
+        mod = __import__(name)
     except ImportError:
-        sys.path= old_syspath
+        sys.path = old_syspath
         raise ToolNotFound(name)
 
-    sys.path= old_syspath
+    sys.path = old_syspath
 
     return mod
 
+   
+    
 
 def exist(s,path):
    """ Test if the file s exist in the path """
@@ -199,14 +203,15 @@ default_tools= ['compiler', 'builddir']
 
 class Config(object):
 
-    def __init__(self, tools= [], dir= []):
-        self.init_tools= default_tools + tools
-        self.tools= []
-        self.tools_dict= {}
-        self._walk= []
+    def __init__(self, tools=[], dir=[]):
+
+        self.init_tools = default_tools + tools
+        self.tools = []
+        self.tools_dict = {}
+        self._walk = []
         if not dir: 
-            self.dir= [os.getcwd()]
-        self.custom_tests= { }
+            self.dir = [os.getcwd()]
+        self.custom_tests = { }
 
         for t in self.init_tools:
             self.add_tool(t)
@@ -226,8 +231,16 @@ class Config(object):
 
         self._walk.append(tool)
 
-        mod= import_tool(tool, self.dir)
-        t= mod.create(self)
+        # Try to import SConsX tool
+        try:
+            mod = import_tool(tool, self.dir)
+            t = mod.create(self)
+        except:
+            # Try to import EGG LIB
+            try:
+                t = EggLib(name, self)
+            except:
+                raise ToolNotFound()
 
         self._walk.pop()
         self.tools.append(t)
@@ -236,11 +249,12 @@ class Config(object):
     def __str__(self):
         return str([t.name for t in self.tools])
 
+
     def Options(self, *args, **kwds):
         """
         Add each tool options
         """
-        opts= Options(*args, **kwds)
+        opts = Options(*args, **kwds)
         self.UpdateOptions(opts)
 
         return opts
@@ -256,12 +270,12 @@ class Config(object):
         Configure each tools
         """
         # Create Configure
-        self.conf= SConf(env, self.custom_tests)
+        self.conf = SConf(env, self.custom_tests)
 
         for tool in self.tools:
             tool.configure(self)
 
-        env= self.conf.Finish()
+        env = self.conf.Finish()
         return env
 
 
@@ -290,8 +304,8 @@ class ALEAConfig(Config):
 
 def ALEAEnvironment(conf, *args, **kwds):
     opts= conf.Options(*args, **kwds)
-    env= Environment(options= opts)
+    env= Environment(options=opts)
     conf.Update(env)
-    env.Prepend(CPPPATH = '$build_includedir')
-    env.Prepend(LIBPATH = '$build_libdir')
+    env.Prepend(CPPPATH='$build_includedir')
+    env.Prepend(LIBPATH='$build_libdir')
     return env
