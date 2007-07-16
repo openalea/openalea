@@ -18,7 +18,7 @@ def test_build():
     f = open(fname, 'r')
     assert f.read() == "test\nlib\n"
 
-    fname = "fakepackage/OpenAlea.FakePackage.egg-info/include_dirs.txt"
+    fname = "fakepackage/OpenAlea.FakePackage.egg-info/inc_dirs.txt"
     assert os.path.exists(fname)
     f.close()
 
@@ -39,10 +39,10 @@ def test_get_shared_lib():
     assert set(get_lib_dirs("openalea.fakepackage")) == set(["lib", "test"])
 
 
-def test_get_shared_include():
+def test_get_shared_inc():
 
-    from openalea.deploy import get_include_dirs
-    assert set(get_include_dirs("openalea.fakepackage")) == set(["include"])
+    from openalea.deploy import get_inc_dirs
+    assert set(get_inc_dirs("openalea.fakepackage")) == set(["include"])
 
 
 def test_get_postinstall_scripts():

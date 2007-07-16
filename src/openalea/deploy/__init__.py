@@ -14,6 +14,14 @@
 #
 
 
+__doc__="""
+Deployment utilities
+"""
+
+__license__= "Cecill-C"
+__revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
+
+
 
 import pkg_resources
 from os.path import join as pj
@@ -42,10 +50,10 @@ def get_lib_dirs(pkg_name):
     return get_egg_info(pkg_name, 'lib_dirs.txt')
 
 
-def get_include_dirs(pkg_name):
+def get_inc_dirs(pkg_name):
     """ Return a generator which lists the shared lib directory """
 
-    return get_egg_info(pkg_name, 'include_dirs.txt')
+    return get_egg_info(pkg_name, 'inc_dirs.txt')
 
 
 def get_postinstall_scripts(pkg_name):

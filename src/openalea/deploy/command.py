@@ -13,6 +13,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+__doc__="""
+Setuptools commands
+"""
+
+__license__= "Cecill-C"
+__revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
+
 import os, sys
 import shutil
 from os.path import join as pj
@@ -22,11 +29,15 @@ from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.easy_install import easy_install
 
 import setuptools.command.build_py
+from distutils.dist import Distribution
+
 import pkg_resources
 from distutils.errors import DistutilsSetupError
 from distutils.util import convert_path
 from distutils.dir_util import mkpath
+
 import re
+import new
 
 from openalea.deploy import get_all_lib_dirs
 from openalea.deploy.environ_var import set_lsb_env, set_win_env
@@ -65,10 +76,28 @@ def copy_data_tree (src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
 
 # Command overloading
 
+def has_ext_modules(dist):
+    """ Replacement function for has_ext_module """
+    print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    try:
+        return Distribution.has_ext_modules(dist) or \
+               (dist.scons_scripts or
+                dist.lib_dirs)
+    except:
+        return dist.has_ext_modules()
+
+
+def set_has_ext_modules(dist):
+    """ Set new function handler to dist object """
+    m = new.instancemethod(has_ext_modules, dist, Distribution)
+    dist.has_ext_modules = m
+    
+
+
 class build_py(old_build_py):
     """
     Enhanced 'build_py'
-    Add lib_dirs and include_dirs parameters to package parameter
+    Add lib_dirs and inc_dirs parameters to package parameter
     """
     def finalize_options(self):
         old_build_py.finalize_options(self)
@@ -76,7 +105,7 @@ class build_py(old_build_py):
     def run(self):
 
         # Add lib_dirs and include_dirs in packages
-        for d in (self.distribution.lib_dirs, self.distribution.include_dirs):
+        for d in (self.distribution.lib_dirs, self.distribution.inc_dirs):
             if(d):
                 
                 if(not os.path.exists(self.build_lib)):
@@ -98,12 +127,12 @@ class build_py(old_build_py):
 def validate_shared_dirs(dist, attr, value):
     """ Validation """
     try:
-        print value.keys(), value.values()
         assert_string_list(dist, attr, list(value.keys()))
         assert_string_list(dist, attr, list(value.values()))
 
         if(value): 
             setuptools.command.build_py.build_py = build_py
+            set_has_ext_modules(dist)
 
     except (TypeError,ValueError,AttributeError,AssertionError):
         raise DistutilsSetupError(
@@ -132,7 +161,8 @@ def validate_scons_scripts(dist, attr, value):
     assert_string_list(dist, attr, value)
     if(value): 
         setuptools.command.build_py.build_py = build_py
-
+        set_has_ext_modules(dist)
+        
 
 class SconsError(Exception):
    """Scons subprocess Exception"""

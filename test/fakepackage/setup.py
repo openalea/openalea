@@ -39,7 +39,7 @@ setup(
     # Specific options of openalea.deploy
     lib_dirs = {'lib' : pj(build_prefix, 'lib') ,
                 'test': pj(build_prefix, 'lib')},
-    include_dirs = { 'include' : pj(build_prefix, 'include') },
+    inc_dirs = { 'include' : pj(build_prefix, 'include') },
     postinstall_scripts = ['openalea.fakepackage.postinstall',],
     
     # Scripts
