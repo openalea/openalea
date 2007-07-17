@@ -3,21 +3,10 @@
 import os, sys
 pj= os.path.join
 
-try:
-    from openalea import config
-except ImportError:
-    print """
-ImportError : openalea.config not found. 
-Please install the openalea package before.	
-See http://openalea.gforge.inria.fr
-"""
-    sys.exit()
-
-from distutils.core import setup
 
 
 name= 'core'
-namespace=config.namespace 
+namespace='openalea'
 
 import version as versionmodule
 version = versionmodule.version
@@ -31,6 +20,7 @@ author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url= 'http://openalea.gforge.inria.fr'
 license= 'Cecill-C' 
 
+from setuptools import setup
 
 setup(
     name=name,
@@ -41,7 +31,10 @@ setup(
     author_email=author_email,
     url=url,
     license=license,
-    
+
+    package_namespace=['openalea'],
+    create_namespace=True,
+    zip_safe=False,
 
     packages= [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
                 'openalea.core.graph.interface' ],
@@ -51,6 +44,12 @@ setup(
                    'openalea.core.graph' : pj('src','core', 'graph'),
                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface') 
                   },
+
+    # Dependencies
+    setup_requires = ['openalea.deploy'],
+    install_requires = [],
+    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+    
 
     )
 
