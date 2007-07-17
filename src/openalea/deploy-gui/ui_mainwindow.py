@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jul 16 15:08:02 2007
+# Created: Tue Jul 17 16:01:20 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,8 +19,8 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
 
         self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
-        self.vboxlayout.setMargin(9)
         self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setMargin(9)
         self.vboxlayout.setObjectName("vboxlayout")
 
         self.label = QtGui.QLabel(self.centralwidget)
@@ -35,8 +35,8 @@ class Ui_MainWindow(object):
         self.vboxlayout.addWidget(self.packageList)
 
         self.hboxlayout = QtGui.QHBoxLayout()
-        self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setMargin(0)
         self.hboxlayout.setObjectName("hboxlayout")
 
         self.proceedButton = QtGui.QPushButton(self.centralwidget)
@@ -63,17 +63,17 @@ class Ui_MainWindow(object):
 
         self.locationList = QtGui.QListWidget(self.centralwidget)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(4)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.locationList.sizePolicy().hasHeightForWidth())
         self.locationList.setSizePolicy(sizePolicy)
         self.locationList.setObjectName("locationList")
         self.vboxlayout.addWidget(self.locationList)
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
-        self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
         self.addLocButton = QtGui.QPushButton(self.centralwidget)
@@ -106,7 +106,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "OpenAlea Installer", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Packages", None, QtGui.QApplication.UnicodeUTF8))
-        self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Proceed", None, QtGui.QApplication.UnicodeUTF8))
+        self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Install", None, QtGui.QApplication.UnicodeUTF8))
         self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Log", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Locations", None, QtGui.QApplication.UnicodeUTF8))
