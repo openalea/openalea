@@ -1,5 +1,7 @@
+
 # This file allow to use openalea packages without installing them.
 
+print "toto"
 import os
 import openalea
 from distutils.sysconfig import get_python_lib
@@ -21,7 +23,7 @@ for subdir in  pkg_dirs:
  
         if(os.path.isdir(newpath)):
             __path__.append( newpath )
-            break
+            
 
 try:
     import vplants
