@@ -19,7 +19,6 @@ pkg_dirs = [ "core/src",
 for subdir in  pkg_dirs:
     for p in __path__:
         newpath = os.path.abspath(os.path.join(p, os.path.normpath(subdir)))
-        print newpath
         if(os.path.isdir(newpath)):
             __path__.append(newpath)
             break
