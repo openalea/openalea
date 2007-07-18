@@ -3,7 +3,6 @@ import sys
 import os
 
 from setuptools import setup, find_packages
-from itertools import repeat
 from os.path import join as pj
 
 build_prefix = "build-scons"
@@ -14,7 +13,7 @@ build_prefix = "build-scons"
 # Setup script
 
 # Package name
-name = 'starter'
+name = 'OpenAlea.Starter'
 namespace = 'openalea'
 pkg_name= namespace + '.' + name
 
@@ -61,15 +60,14 @@ setup(
     # Packages
     namespace_packages = [namespace],
     create_namespaces = True,
-    packages =  map('.'.join, zip(repeat('openalea'), find_packages('src'))),
+    packages =  [ 'openalea.' + x for x in find_packages('src') ],
     package_dir = { 'openalea.starter':  pj('src','starter'),  }, 
 
     
     include_package_data = True,
     zip_safe= False,
 
-    lib_dirs = {'lib' : pj(build_prefix, 'lib') ,
-                'test': pj(build_prefix, 'lib')},
+    lib_dirs = {'lib' : pj(build_prefix, 'lib'), },
     inc_dirs = { 'include' : pj(build_prefix, 'include') },
     #postinstall_scripts = ['',],
 

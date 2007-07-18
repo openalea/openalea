@@ -47,8 +47,8 @@ class EggLib:
          from itertools import repeat
 
          bdir = get_base_dir(self.name)
-         dirs = map(lambda x : os.path.join(bdir, x), get_lib_dirs(self.name))
-         incs = map(lambda x : os.path.join(bdir, x), get_inc_dirs(self.name))
+         dirs = [os.path.join(bdir, x) for x in get_lib_dirs(self.name)]
+         incs = [os.path.join(bdir, x) for x in get_inc_dirs(self.name)]
          
          self._default[self.lib_key] = dirs
          self._default[self.include_key] = incs
