@@ -31,7 +31,7 @@ setup(
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
-                 "postinstall_scripts = setuptools.dist:assert_string_list",
+                 "postinstall_scripts = openalea.deploy.command:validate_postinstall_scripts",
                  ],
               
               "egg_info.writers": [
