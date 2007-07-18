@@ -29,9 +29,12 @@ from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
 from setuptools.command.build_py import build_py as old_build_py
+from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
 
 import setuptools.command.build_py
+import setuptools.command.install
+
 from distutils.dist import Distribution
 
 import pkg_resources
@@ -105,6 +108,9 @@ class build_py(old_build_py):
         old_build_py.finalize_options(self)
 
     def run(self):
+        # Run others commands
+        self.run_command("create_namespaces")
+        self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
         for d in (self.distribution.lib_dirs, self.distribution.inc_dirs):
@@ -117,23 +123,39 @@ class build_py(old_build_py):
                     copy_data_tree(dir, pj(self.build_lib, name))
 
                         
-        # Run others commands
-        self.run_command("create_namespaces")
-        self.run_command("scons")
         
         return old_build_py.run(self)
 
 
-# Shared directories
+
+# Validation functions
+
+def validate_create_namespaces(dist, attr, value):
+    """ Validation for create_namespaces keyword """
+    assert_bool(dist, attr, value)
+
+    if(value and dist.namespace_packages):
+        setuptools.command.build_py.build_py = build_py
+
+
+def validate_scons_scripts(dist, attr, value):
+    """ Validation for scons_scripts keyword """
+    assert_string_list(dist, attr, value)
+    if(value): 
+        setuptools.command.build_py.build_py = build_py
+        set_has_ext_modules(dist)
+
 
 def validate_shared_dirs(dist, attr, value):
-    """ Validation """
+    """ Validation for shared directories keywords"""
     try:
         assert_string_list(dist, attr, list(value.keys()))
         assert_string_list(dist, attr, list(value.values()))
 
-        if(value): 
+        if(value):
+            # Change commands
             setuptools.command.build_py.build_py = build_py
+            setuptools.command.install.install = install
             set_has_ext_modules(dist)
 
     except (TypeError,ValueError,AttributeError,AssertionError):
@@ -141,6 +163,20 @@ def validate_shared_dirs(dist, attr, value):
             "%r must be a dict of strings (got %r)" % (attr,value)
         )
     
+
+def validate_postinstall_scripts(dist, attr, value):
+    """ Validation for postinstall_scripts keyword"""
+    try:
+        assert_string_list(dist, attr, value)
+
+        if(value):
+            # Change commands
+            setuptools.command.install.install = install
+
+    except (TypeError,ValueError,AttributeError,AssertionError):
+        raise DistutilsSetupError(
+            "%r must be a list of strings (got %r)" % (attr,value)
+        )
 
 
 def write_keys_arg(cmd, basename, filename, force=False):
@@ -158,12 +194,6 @@ def write_keys_arg(cmd, basename, filename, force=False):
 
 # SCons Management
 
-def validate_scons_scripts(dist, attr, value):
-
-    assert_string_list(dist, attr, value)
-    if(value): 
-        setuptools.command.build_py.build_py = build_py
-        set_has_ext_modules(dist)
         
 
 class SconsError(Exception):
@@ -278,12 +308,6 @@ class scons(Command):
 
 # Namespace Creation
 
-def validate_create_namespaces(dist, attr, value):
-
-    assert_bool(dist, attr, value)
-
-    if(value and dist.namespace_packages):
-        setuptools.command.build_py.build_py = build_py
 
        
 
@@ -302,6 +326,14 @@ try:
 except ImportError:
     import pkgutil
     __path__ = pkgutil.extend_path(__path__, __name__)
+
+# Local setup for openalea subversion
+try:
+    from __init_path__ import set_path
+    set_path()
+except:
+    pass
+
 """
 
     user_options = []
@@ -354,6 +386,35 @@ except ImportError:
         
 # Installation
 
+
+class install(old_install):
+    """
+    Overload install command
+    Use alea_install instead of easy_install
+    """
+    def do_egg_install(self):
+
+        alea_install = self.distribution.get_command_class('alea_install')
+
+        cmd = alea_install(
+            self.distribution, args="x", root=self.root, record=self.record,
+        )
+        cmd.ensure_finalized()  # finalize before bdist_egg munges install cmd
+
+        self.run_command('bdist_egg')
+        args = [self.distribution.get_command_obj('bdist_egg').egg_output]
+
+        if setuptools.bootstrap_install_from:
+            # Bootstrap self-installation of setuptools
+            args.insert(0, setuptools.bootstrap_install_from)
+
+        cmd.args = args
+        cmd.run()
+        setuptools.bootstrap_install_from = None
+
+
+
+
 class alea_install(easy_install):
     """
     Overload easy_install to add
@@ -368,22 +429,35 @@ class alea_install(easy_install):
         self.find_links += [ OPENALEA_PI ]
 
     def run(self):
+
         easy_install.run(self)
 
         # Set environment
         self.set_env()
+        
 
     def set_env(self):
         """ Set environment variables """
 
         print "Setting environment variables"
-    
+
+        # Avoid local copy for setting environment variables
+        path = sys.path[:]
+        try:
+            sys.path.remove(os.path.abspath('.'))
+            pkg_resources.working_set = pkg_resources.WorkingSet()
+        except Exception, e:
+            print "ERROR : e"
+
         dirs = list(get_all_lib_dirs('openalea'))
         print "The following directories contains shared library :", '\n'.join(dirs), '\n'
 
         set_win_env(['OPENALEA_LIBS=%s'%(';'.join(dirs)), 'PATH=%OPENALEA_LIBS%'])
         set_lsb_env('openalea',
                     ['OPENALEA_LIBS=%s'%(':'.join(dirs)), 'LD_LIBRARY_PATH=$OPENALEA_LIBS'])
+
+        sys.path = path
+
 
 
     def process_distribution(self, requirement, dist, deps=True, *info):
