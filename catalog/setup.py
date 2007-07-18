@@ -1,38 +1,22 @@
-#Check dependencies
-
 import os, sys
-pj= os.path.join
+pj = os.path.join
 
-try:
-    from openalea import config
-except ImportError:
-    print """
-ImportError : openalea.config not found. 
-Please install the openalea package before.	
-See http://openalea.gforge.inria.fr
-"""
-    sys.exit()
-
-from distutils.core import setup
+from setuptools import setup
 
 
 # Package name
-name= 'catalog'
+name = 'OpenAlea.Catalog'
+namespace = 'openalea'
+pkg_name = 'openalea.catalog'
+version = '0.2.1a' 
+description = 'OpenAlea Logical Component Catalog.' 
+long_description = ''
 
-namespace=config.namespace 
-pkg_name= namespace + '.' + name
-version= '0.2.1a' 
-description= 'OpenAlea Logical Component Catalog.' 
+author = 'OpenAlea consortium'
+author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 
-long_description= ''
-
-author= 'OpenAlea consortium'
-author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-
-url= 'http://openalea.gforge.inria.fr'
-
-license= 'Cecill-C' 
-
+url = 'http://openalea.gforge.inria.fr'
+license = 'Cecill-C' 
 
 setup(
     name=name,
@@ -43,10 +27,19 @@ setup(
     author_email=author_email,
     url=url,
     license=license,
-    
-    packages= [ pkg_name ],
-    package_dir= { pkg_name : pj('src',name)},
 
+    namespace_packages=['openalea'],
+    create_namespaces=True,
+    zip_safe=False,
+
+    
+    packages=[pkg_name],
+    package_dir={pkg_name : pj('src', 'catalog')},
+
+    # Dependencies
+    setup_requires = ['openalea.deploy'],
+    install_requires = ['openalea.core'],
+    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
                      
     )
 
