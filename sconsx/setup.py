@@ -1,27 +1,18 @@
 # -*- python -*-
 
 import os, sys
+from setuptools import setup
 pj= os.path.join
 
-try:
-    from openalea.distx import setup
-except ImportError:
-    print """
-ImportError : openalea.distx package not found.
-Please, first install the openalea.distx package.
-See http://openalea.gforge.inria.fr
-"""
-    sys.exit()
 
+name = 'OpenAlea.SConsx'
+namespace = 'openalea'
+pkg_name = 'openalea.sconsx'
 
-name= 'sconsx'
-namespace= 'openalea'
-pkg_name= namespace + '.' + name
+version = '0.4.1'
 
-version= '0.4.1'
-
-description= 'Scons Extension to build multi-platform packages for OpenAlea and others.' 
-long_description= \
+description = 'Scons Extension to build multi-platform packages for OpenAlea and others.' 
+long_description = \
 """
 Scons Configuration Utilities for OpenAlea.
 
@@ -35,23 +26,32 @@ This package extends scons with:
 """
 
 # Author
-author= 'Christophe Pradal'
-author_email= 'christophe.pradal@cirad.fr'
+author = 'Christophe Pradal'
+author_email = 'christophe.pradal@cirad.fr'
 
 # URL
-url= 'http://openalea.gforge.inria.fr'
+url = 'http://openalea.gforge.inria.fr'
 
 # LGPL compatible INRIA license
-license= 'Cecill-C' 
+license = 'Cecill-C' 
 
-setup(name= name,
-      version= version,
-      description= description,
-      long_description= long_description,
-      author= author,
-      author_email= author_email,
-      license=license,
-      namespace=[namespace],
-      packages= [ "openalea.sconsx", "openalea.sconsx.tools" ],
-      package_dir= { pkg_name : pj('src',name)},
+setup(name = name,
+      version = version,
+      description = description,
+      long_description = long_description,
+      author = author,
+      author_email = author_email,
+      license = license,
+
+      namespace_packages = ['openalea'],
+      create_namespaces = True,
+      zip_safe = False,
+
+      packages = ["openalea.sconsx", "openalea.sconsx.tools"],
+      package_dir = { pkg_name : pj('src','sconsx')},
+
+      # Dependencies
+      setup_requires = ['openalea.deploy'],
+      install_requires = [],
+      dependency_links = ['http://openalea.gforge.inria.fr/pi'],
       )
