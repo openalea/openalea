@@ -1,0 +1,52 @@
+# -*-python-*-
+
+import os
+from openalea.sconsx import config, environ
+
+
+Config = config.Config
+ALEAConfig = config.ALEAConfig
+ALEAEnvironment = config.ALEAEnvironment
+
+pj = os.path.join
+
+name = 'fake'
+
+SConsignFile()
+
+
+options = Options('options.py', ARGUMENTS)
+
+cpp_conf = ALEAConfig(name, ['starter'])
+opt_conf = ALEAConfig(name, ['starter'])
+
+# Set all the common options for the package
+# TODO: Have a configure stage.
+# Fill the options from file option.py or cmd line args.
+opt_conf.UpdateOptions(options)
+
+opt_env = Environment(options=options)
+opt_conf.Update(opt_env)
+
+# Generate Help available with the cmd scons -h
+Help(options.GenerateHelpText(opt_env))
+
+
+# Set build directory
+prefix = opt_env['build_prefix']
+BuildDir(prefix, '.')
+
+
+cpp_env = ALEAEnvironment(cpp_conf, 'options.py', ARGUMENTS)
+
+# Build stage
+sources = "src/cpp/fake.cpp"
+target = "libfake"
+
+# Add defines to export symbols on Windows
+DEFINES = list(cpp_env['CPPDEFINES'])
+DEFINES.append('FAKE_DLL')
+
+# Build the library
+lib1 = cpp_env.ALEALibrary(target, sources, CPPDEFINES=DEFINES)
+
