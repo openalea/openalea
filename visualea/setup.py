@@ -1,70 +1,25 @@
-#Check dependencies
-
 import os, sys
-pj= os.path.join
-
-try:
-    from openalea import config
-except ImportError:
-    print """
-ImportError : openalea.config not found. 
-Please install the openalea package before.	
-See http://openalea.gforge.inria.fr
-"""
-    sys.exit()
+from setuptools import setup
+pj = os.path.join
 
 
 # Meta Informations
-name= 'visualea'
-namespace=config.namespace 
-pkg_name= namespace + '.' + name
+name = 'OpenAlea.Visualea'
+namespace = 'openalea'
+pkg_name = 'openalea.visualea'
 
 sys.path.append("src")
 import visualea.metainfo as metainfo
 
-version= metainfo.version
+version = metainfo.version
 
-description= 'OpenAlea visual programming environment.' 
-long_description= ''
+description = 'OpenAlea visual programming environment.' 
+long_description = ''
+author = 'OpenAlea consortium'
+author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
+url = metainfo.url
+license = 'Cecill v2' 
 
-author= 'OpenAlea consortium'
-author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-
-url= metainfo.url
-license= 'Cecill v2' 
-
-if sys.platform == 'win32':
-    script='scripts/visualea.py' 
-else:
-    script='scripts/visualea' 
-
-
-# Try to use DistX
-try:
-    from openalea.distx import setup, find_packages, find_package_dir, Shortcut
-
-    # Add shortcuts
-    win_shortcuts=[ Shortcut( name=name, 
-                              target=sys.executable, 
-                              arguments=pj(sys.prefix, 'Scripts', 'visualea.py'), 
-                              group='OpenAlea', 
-                              icon =''), ],
- 
-    freedesk_shortcuts=[ Shortcut( name=name, 
-                                   target=sys.executable, 
-                                   arguments=pj(sys.prefix, 'bin', 'visualea'), 
-                                   group='OpenAlea', 
-                                   icon='' )],
-   
-except ImportError:
-    
-    from distutils.core import setup
-    win_shortcuts=None
-    freedesk_shortcuts=None
-
-
-################################################################################
-    
 
 
 setup(
@@ -76,14 +31,26 @@ setup(
     author_email=author_email,
     url=url,
     license=license,
+    keywords='visual programming',
 
-    packages= [pkg_name],
-    package_dir= {pkg_name : pj('src',name)},
-    scripts=[script],
+    # Packages
+    namespace_packages = ["openalea"],
+    create_namespaces = True,
     
-    # Add shortcuts
-    win_shortcuts=win_shortcuts,
-    freedesk_shortcuts=freedesk_shortcuts,
+    packages = [pkg_name],
+    package_dir = {pkg_name : pj('src', 'visualea')},
+    include_package_data = True,
+    zip_safe = False,
+    
+    # Scripts
+    entry_points = { 'gui_scripts': [
+                           'visualea.py = openalea.visualea.visualea_script:start_gui',]},
+ 
+    # Dependencies
+    setup_requires = ['openalea.deploy'],
+    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+    install_requires = ['openalea.core'],
+ 
     )
 
 
