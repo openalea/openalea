@@ -1,22 +1,18 @@
 #Check dependencies
 
 import os, sys
-pj= os.path.join
+pj = os.path.join
 
-
-
-name= 'core'
-namespace='openalea'
+name = 'OpenAlea.Core'
+namespace = 'openalea'
 
 import version as versionmodule
 version = versionmodule.version
 
 description= 'OpenAlea Component platform core.' 
 long_description= ''
-
 author= 'OpenAlea consortium'
 author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-
 url= 'http://openalea.gforge.inria.fr'
 license= 'Cecill-C' 
 
@@ -32,14 +28,14 @@ setup(
     url=url,
     license=license,
 
-    package_namespace=['openalea'],
-    create_namespace=True,
+    namespace_packages = ['openalea'],
+    create_namespaces=True,
     zip_safe=False,
 
     packages= [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
                 'openalea.core.graph.interface' ],
     
-    package_dir= { 'openalea.core' : pj('src',name),
+    package_dir= { 'openalea.core' : pj('src','core'),
                    'openalea.core.algo' : pj('src','core', 'algo'),
                    'openalea.core.graph' : pj('src','core', 'graph'),
                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface') 
@@ -50,7 +46,6 @@ setup(
     install_requires = [],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
     
-
     )
 
 
