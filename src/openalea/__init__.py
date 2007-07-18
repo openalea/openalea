@@ -4,3 +4,10 @@ try:
 except ImportError:
     import pkgutil
     __path__ = pkgutil.extend_path(__path__, __name__)
+
+
+try:
+    from __init_path__ import set_path
+    set_path()
+except:
+    pass
