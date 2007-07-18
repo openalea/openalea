@@ -22,18 +22,18 @@ __doc__ = """ Os Functions to add shortcut and Mime type association """
 import os
 import sys
 
-def create_win_shortcut(Name, Target, Arguments = "",
-                      StartIn = "", Icon = "", Description = "",
-                      MenuGroup = "OpenAlea"):
+def create_win_shortcut(name, target, arguments = "",
+                        startin = "", icon = "", description = "",
+                        menugroup = "OpenAlea"):
     
     """ Create windows shortcut
-    @param Name : link name
-    @param Target : executable file path (ex : Pythonroot + pythonw.exe)
-    @param Arguments : (ex python module path)
-    @param StartIn : execution path (same as python module path)
-    @param Icon : icon path (ex Pythonroot + '\\py.ico')
-    @param Description : ...
-    @param MenuGroup : Menu group entry
+    @param name : link name
+    @param target : executable file path (ex : Pythonroot + pythonw.exe)
+    @param arguments : (ex python module path)
+    @param startin : execution path (same as python module path)
+    @param icon : icon path (ex Pythonroot + '\\py.ico')
+    @param description : ...
+    @param menugroup : Menu group entry
 
     ex :
     	TempDir = os.environ["TEMP"]
@@ -47,7 +47,9 @@ def create_win_shortcut(Name, Target, Arguments = "",
  
 	CreateWinShortCut(Path,Target,Arguments,StartIn,Icon,Description)
     """
-    
+
+    (Name, Target, Arguments, StartIn, Icon, Description, MenuGroup) = \
+           (name, target, arguments, startin, icon, description, menugroup)
 
     if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
         return
@@ -126,8 +128,8 @@ def set_win_reg(key, subkey, name, value):
 
 
 
-def create_fd_shortcut(Name, Target, Arguments = "", Version="",
-                       Icon = "", Description = "", MenuGroup="OpenAlea"):
+def create_fd_shortcut(name, target, arguments = "", version="",
+                       icon = "", description = "", menugroup="OpenAlea"):
     """ Create a desktop shortcut on freedesktop compatible system
     @param Name : Shortcut name
     @param Target : executable file path (ex : Pythonroot + pythonw.exe)
@@ -138,6 +140,9 @@ def create_fd_shortcut(Name, Target, Arguments = "", Version="",
     @param MenuGroup : category
     """
 
+    (Name, Target, Arguments, Version, Icon, Description, MenuGroup) = \
+               (name, target, arguments, version, icon, description, menugroup):
+            
     if(not 'posix' in os.name): return
 
     Exec = "%s %s"%(Target, Arguments)
