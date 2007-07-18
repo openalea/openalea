@@ -237,7 +237,7 @@ class Config(object):
         except:
             # Try to import EGG LIB
             mod = import_tool("egglib", self.dir)
-            t = mod.create(name, self)
+            t = mod.create(tool, self)
             
             
         self._walk.pop()

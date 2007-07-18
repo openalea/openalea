@@ -1,6 +1,4 @@
  
-
-
 try:
     import pkg_resources
     pkg_resources.declare_namespace(__name__)
@@ -10,5 +8,6 @@ except ImportError:
     __path__ = pkgutil.extend_path(__path__, __name__)
 
 
-import __init_path__
+from __init_path__ import set_path
+set_path()
 

@@ -1,7 +1,8 @@
 # -*-python-*-
 
-from openalea.sconsx import config, environ
 import os
+from openalea.sconsx import config, environ
+
 
 Config = config.Config
 ALEAConfig = config.ALEAConfig

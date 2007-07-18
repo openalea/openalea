@@ -33,8 +33,8 @@ class EggLib:
       self.config = config
       self._default = {}
 
-      self.lib_key = = "%s_lib"%(self.name)
-      self.include_key = = "%s_include"%(self.name)
+      self.lib_key = "%s_lib"%(self.name)
+      self.include_key = "%s_include"%(self.name)
       
       
       
@@ -43,13 +43,18 @@ class EggLib:
 
 
       try:
-         from openalea.deploy import get_include_dirs, get_lib_dirs
-      
-         self._default[self.lib_key] = get_lib_dirs(self.name)
-         self._default[self.include_key] = get_include_dirs(self.name)
+         from openalea.deploy import get_inc_dirs, get_lib_dirs, get_base_dir
+         from itertools import repeat
+
+         bdir = get_base_dir(self.name)
+         dirs = map(lambda x : os.path.join(bdir, x), get_lib_dirs(self.name))
+         incs = map(lambda x : os.path.join(bdir, x), get_inc_dirs(self.name))
+         
+         self._default[self.lib_key] = dirs
+         self._default[self.include_key] = incs
 
       except:
-         
+         print "Cannot find build parameters for %s"%(self.name,)
          self._default[self.lib_key] = ""
          self._default[self.include_key] = ""
       

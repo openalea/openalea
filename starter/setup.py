@@ -1,12 +1,10 @@
 
-
 import sys
 import os
 
 from setuptools import setup, find_packages
 from itertools import repeat
 from os.path import join as pj
-
 
 build_prefix = "build-scons"
 
