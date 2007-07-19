@@ -1,5 +1,5 @@
 """
-Script creating a valid OpenALEA package layout
+Script creating a valid OpenAlea package layout
 
 Usage:
   python layout.py PKG_NAME [ src_subdirs ]
@@ -15,98 +15,144 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-def main(argv=None):
+
+class PackageLayout(object):
     """
-    try:
-        try:
-            opts, args = getopt.getopt(argv[1:], "h", ["help"])
-        except getopt.error, msg:
-             raise Usage(msg)
-        # more code, unchanged
-    except Usage, err:
-        print >>sys.stderr, err.msg
-        print >>sys.stderr, "for help use --help"
-        return 2
+    Provide methods to build a standard layout package.
+    Creates standard directories, files.
+    May also build templae setup file and SConstruct.
     """
-    if argv is None:
-        argv = sys.argv
-
-    # Argument parsing
-    if len( argv ) < 2:
-        print """
-Usage:
-  python %s PKG_NAME [ src_subdirs ]
-""" % (argv[0],)
-    return 3 
-
-    name = argv[ 1 ]
-    src_subdirs = argv[ 2: ]
-
-    return create_layout(name, src_subdirs)
-
-
-def create_layout( name, src_subdirs ):
-
     good_name = re.compile( "[a-z_]{4,}" )
 
-    here = path.getcwd()
+    def __init__(self, name, dir = '.'):
+        self.name = name
+        self.dir = dir
+        self.pkg_dir = path(dir) / name
+        self.languages = ['python']
 
-    if not good_name.match( name ):
-        print "Error, package name %s is invalid" % ( name, )
-        return 1
+    def check_name(self):
+        """ Check correctness of pkg name. """
+        if not self.good_name.match( self.name ):
+            print "Error, package name %s is invalid" % ( name, )
+            return False
+        return True
 
-    pkg_dir = here / name
+    def mkdirs(self, dirs=None):
+        """ Create directories. """
+        if not dirs:
+            self.set_dirs()
+            dirs = self.dirs
 
-    print pkg_dir
+        for d in dirs:
+            if d.exists():
+                print " WARNING: Directory %s already exists ..." % (d,)
+                continue
 
-    if pkg_dir.exists():
-        print "Warning, the directory %s already exists" % ( pkg_dir, )
-        answer = raw_input("Do you want still to continue ? (y/n)\n")
-        if answer != "y":
-            return 2
-    else:
-        print "Creating %s ..." % ( pkg_dir, )
-        pkg_dir.mkdir(mode=755)
+            print "Creating %s ..." % ( d, )
+            try:
+                d.makedirs(mode=755)
+            except OSError, e:
+                if e.args[ 0 ] != 17:
+                    raise
+            
+    def mkfiles(self, files=None):
+        """ Create files on the disk. """
+        if not files:
+            self.set_files()
+            files = self.files
 
-    dirs = [
-    pkg_dir/"src",
-    pkg_dir/"src"/name,
-    pkg_dir/"src"/name/"wralea",
-    pkg_dir/"doc",
-    pkg_dir/"test",
-    pkg_dir/"example",
-    ]
+        for f in self.files:
+            print "Creating %s ..." % ( f, )
+            f.touch()
 
-    for d in src_subdirs:
-        dirs.append( ( pkg_dir/"src"/d ).normpath() )
+    def set_languages(self, cpp = False, c = False, fortran = False):
+        if cpp: 
+            self.languages.append('cpp')
+        if c:
+            self.languages.append('c')
+        if fortran:
+            self.languages.append('fortran')
 
-    for d in dirs:
-        print "Creating %s ..." % ( d, )
-        try:
-            d.mkdir(mode=755)
-        except OSError, e:
-            if e.args[ 0 ] != 17:
-                raise
+    def set_dirs(self,dirs=None):
+        if dirs:
+            self.dirs = [self.pkg_dir] + dirs
+        else:
+             self.dirs = [
+               self.pkg_dir,
+               self.pkg_dir/"src",
+               self.pkg_dir/"doc",
+               self.pkg_dir/"test",
+               self.pkg_dir/"example",
+               self.pkg_dir/"share",
+               ]
 
-    files = [
-    pkg_dir/"LICENSE.txt",
-    pkg_dir/"README.txt",
-    pkg_dir/"ChangeLog.txt",
-    pkg_dir/"AUTHORS.txt",
-    pkg_dir/"NEWS.txt",
-    pkg_dir/"TODO.txt",
-    pkg_dir/"src"/name/"__init__.py",
-    pkg_dir/"src"/name/"wralea"/"wralea.py",
-    ]
+        # alias
+        dirs = self.dirs
 
-    for f in files:
-        print "Creating %s ..." % ( f, )
-        f.touch()
+        if 'python' in self.languages:
+            dirs.extend([
+               self.pkg_dir/"src"/"openalea"/self.name,
+               self.pkg_dir/"src"/"openalea"/self.name/"wralea",
+               ])
+        if 'cpp' in self.languages:
+            dirs.extend([
+               self.pkg_dir/"src"/"cpp",
+               ])
+        if 'c' in self.languages:
+            dirs.extend([
+               self.pkg_dir/"src"/"c",
+               ])
+        if 'fortran' in self.languages:
+            dirs.extend([
+               self.pkg_dir/"src"/"fortran",
+               ])
 
-    # Write a sketch of the openalea wrapper file.
-    wralea_py = pkg_dir/"src"/name/"wralea"/"wralea.py"
-    
-    wralea_txt = """
+    def set_files(self):
+        self.files = [] 
+        self.files += self.legalfiles()
+        self.files += self.wraleafiles()
+        self.files += self.sconsfiles()
+        self.files += self.setupfiles()
+
+    def legalfiles(self):
+        return [
+        self.pkg_dir/"LICENSE.txt",
+        self.pkg_dir/"README.txt",
+        self.pkg_dir/"ChangeLog.txt",
+        self.pkg_dir/"AUTHORS.txt",
+        self.pkg_dir/"NEWS.txt",
+        self.pkg_dir/"TODO.txt",
+        ]
+
+    def wraleafiles(self):
+        return [
+        self.pkg_dir/"src"/"openalea"/self.name/"__init__.py",
+        self.pkg_dir/"src"/"openalea"/self.name/"wralea"/"wralea.py",
+        ]
+
+    def sconsfiles(self):
+        if 'cpp' in self.languages:
+            return [
+                    self.pkg_dir/"SConstruct",
+                   ]
+        else:
+            return []
+
+    def setupfiles(self):
+        return [
+        self.pkg_dir/"setup.py",
+        ]
+
+    def template_wralea(self):
+        files = self.wraleafiles()
+        for f in files:
+            if "wralea.py" in f:
+                break
+        if not f.exists():
+            self.mkfiles(files)
+            
+        wralea_py = f
+        wralea_txt = """
 from openalea.core import *
 
 def register_packages(pkgmanager):
@@ -132,15 +178,65 @@ def register_packages(pkgmanager):
 
     pkgmanager.add_package(package)
 
-""" % (name,)
+""" % (self.name,)
 
-    print "Creating a template version for %s ..." % ( wralea_py, )
-    f = open(wralea_py, "w")
-    f.write(wralea_txt)
-    f.close()
+        print "Creating a template version for %s ..." % ( wralea_py, )
+        f = open(wralea_py, "w")
+        f.write(wralea_txt)
+        f.close()
+
+        
+
+
+def create_layout( name, languages=[] ):
+
+    cpp = 'cpp' in languages
+    c = 'c' in languages
+    fortran = 'fortran' in languages
+
+    pkg = PackageLayout(name)
+    pkg.set_languages(cpp=cpp, c=c, fortran=fortran)
+
+    if not pkg.check_name():
+        print "Error, package name %s is invalid" % ( name, )
+        return 1
+
+    pkg.mkdirs()
+    pkg.mkfiles()
+    pkg.template_wralea()
 
     return 0
 
+def main(argv=None):
+    """
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        except getopt.error, msg:
+             raise Usage(msg)
+        # more code, unchanged
+    except Usage, err:
+        print >>sys.stderr, err.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
+    """
+    if argv is None:
+        argv = sys.argv
+
+    # Argument parsing
+    if len( argv ) < 2:
+        print """
+Usage:
+  python %s PKG_NAME [ c cpp fortran ]
+""" % (argv[0],)
+    return 3 
+
+    name = argv[ 1 ]
+    languages = argv[ 2: ]
+
+    return create_layout(name, languages)
+
+        
 if __name__ == "__main__":
     sys.exit(main())
 
