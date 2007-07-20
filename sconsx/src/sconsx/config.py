@@ -301,7 +301,10 @@ class ALEAConfig(Config):
 
 
 def ALEAEnvironment(conf, *args, **kwds):
-    opts= conf.Options(*args, **kwds)
+    if 'options' in kwds:
+        opts= kwds['options']
+    else:
+        opts= conf.Options(*args, **kwds)
     env= Environment(options=opts)
     conf.Update(env)
     env.Prepend(CPPPATH='$build_includedir')
