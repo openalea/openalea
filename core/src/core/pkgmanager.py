@@ -42,7 +42,7 @@ class UnknowFileType(Exception):
 class PackageManager(object):
     """
     The PackageManager is a Dictionary of Packages
-    It can locate OpenAlea packages on the system (with wralea)
+    It can locate OpenAlea packages on the system (with wralea).
     """
 
     __metaclass__ = Singleton
