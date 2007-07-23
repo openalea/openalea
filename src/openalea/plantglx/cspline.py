@@ -59,9 +59,6 @@ class CSpline:
         At Pi, the derivative is:
             D_i = P_(i-1)P_i / ||.|| + P_iP_(i+1) / ||.||
         """
-        if not self.dist:
-            self.distances()
-
         n = len(self.points)
         d0 = (self.points[1]-self.points[0])/ (2.*self.dist[0])
         dn = (self.points[-1]-self.points[-2])/ (2.*self.dist[-1])
@@ -125,6 +122,22 @@ class CSpline:
             for j in range( degree ):
                 self.kv.append( p )
         self.kv.append( param[ -1 ] )
+
+    def add_point( self, pt ):
+        if self.is_closed:
+            raise "Unable to add a point to a closed curve"
+
+        self.points.append(pt)
+        # TODO: Compute incrementally the curve.
+        self.nurbs = None
+            
+    def move_point( self, i, pt ):
+        if i >= len(self):
+            raise "Index %d out of range [0,%d[" % (i, len(self))
+
+        self.points[i] = pt
+        # TODO: Compute incrementally the curve.
+        self.nurbs = None
 
     def curve(self):
         """
