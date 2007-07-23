@@ -57,18 +57,18 @@ class CSpline:
         """
         Compute the derivatives based on the knots and the distance.
         At Pi, the derivative is:
-            D_i = P_(i-1)P_i / ||.|| + P_iP_(i+1) / ||.||
+            D_i = P_(i-1)P_i / 4||.|| + P_iP_(i+1) / 4||.||
         """
         n = len(self.points)
-        d0 = (self.points[1]-self.points[0])/ (2.*self.dist[0])
-        dn = (self.points[-1]-self.points[-2])/ (2.*self.dist[-1])
+        d0 = (self.points[1]-self.points[0])/ (4.*self.dist[0])
+        dn = (self.points[-1]-self.points[-2])/ (4.*self.dist[-1])
         if self.is_closed:
             d0 = dn = d0+dn
         self.der = [d0]
         
         for i in xrange(1,n-1):
             p, q, r = self.points[i-1], self.points[i], self.points[i+1]
-            dx1, dx2 = 2*self.dist[i-1], 2*self.dist[i]
+            dx1, dx2 = 4*self.dist[i-1], 4*self.dist[i]
             
             di = (q-p)/dx1+(r-q)/dx2
             self.der.append(di)
