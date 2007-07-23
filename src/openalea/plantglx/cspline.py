@@ -16,15 +16,22 @@ import openalea.plantgl.all as pgl
 
 __metaclass__ = type
 
+epsilon= 0.001
+
 class CSpline:
     """
     A CSpline interpolate a set of points.
     """
-    def __init__(self, points):
+    def __init__(self, points, is_closed=False):
         """
         Create a CSpline from a set of 2d or 3d points.
         """
         self.points = points
+        self.is_closed = is_closed
+        if is_closed:
+            if pgl.norm(points[-1]-points[0]) > epsilon:
+                self.points.append(points[0])
+ 
         if len(points) != 0:
             self.dim = len(points[0])
         else:
@@ -58,6 +65,8 @@ class CSpline:
         n = len(self.points)
         d0 = (self.points[1]-self.points[0])/ (2.*self.dist[0])
         dn = (self.points[-1]-self.points[-2])/ (2.*self.dist[-1])
+        if self.is_closed:
+            d0 = dn = d0+dn
         self.der = [d0]
         
         for i in xrange(1,n-1):
@@ -86,12 +95,12 @@ class CSpline:
         self.ctrl_pts.append(self.points[-1])
 
 
-    def bezier_kv(self, linear=False):
+    def bezier_kv(self, is_linear=False):
         """
         Compute a nurbs knot vector from Bezier control points.
         bezier_kv(linear=False) -> knot_vector
 
-        :param: linear indicate if the parametrization is linear or 
+        :param: is_linear indicate if the parametrization is linear or 
         pseudo curvilinear abscisse.
         """
         degree = 3
