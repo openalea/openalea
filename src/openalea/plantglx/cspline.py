@@ -108,7 +108,7 @@ class CSpline:
         nb_knots = degree + nb_pts
         p = 0.
         param = [p]
-        if linear:
+        if is_linear:
             param = range(nb_arc)
         else:
             dist = self.dist
