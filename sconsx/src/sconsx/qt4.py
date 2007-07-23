@@ -408,12 +408,22 @@ def enable_modules(self, modules, debug=False) :
 	debugSuffix = ''
 	if sys.platform == "linux2" :
 		if debug : debugSuffix = '_debug'
-		for module in modules :
-			if module not in pclessModules : continue
-			self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
-			self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4")])
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4",module)])
+		
+		self.AppendUnique(LIBPATH=["$QT4_LIBPATH"])
+		qt4_inc = self.subst('$QT4_CPPPATH')
+		if os.path.exists(os.path.join(qt4_inc,"qt4")):
+			self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH","qt4")])
+			for module in modules :
+				if module not in pclessModules : continue
+				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+				self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH","qt4",module)])
+		else:
+			#self.AppendUnique(CPPPATH=["$QT4_CPPPATH"])
+			for module in modules :
+				if module not in pclessModules : continue
+				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+				self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH",module)])
+				print self.subst("$QT4_CPPPATH")
 		pcmodules = [module+debugSuffix for module in modules if module not in pclessModules ]
 		self.ParseConfig('pkg-config %s --libs --cflags'% ' '.join(pcmodules))
 		return
