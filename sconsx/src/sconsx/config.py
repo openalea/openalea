@@ -303,6 +303,7 @@ class ALEAConfig(Config):
 def ALEAEnvironment(conf, *args, **kwds):
     if 'options' in kwds:
         opts= kwds['options']
+        conf.UpdateOptions(opts)
     else:
         opts= conf.Options(*args, **kwds)
     env= Environment(options=opts)
