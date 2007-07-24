@@ -29,3 +29,13 @@ def spline_crv(pts):
     spline = CSpline(pts)
     return spline.curve()
     
+
+def circle_pts(n, radius= 10):
+    import math
+    theta = 2*math.pi/n 
+    pts = [vec3(math.cos(i*theta),math.sin(i*theta),random.random())*radius for i in range(n)]
+    return pts
+
+if __name__ == '__main__':
+    pgl.Viewer.display(spline_curve(circle_pts))
+    raw_input("press enter to quit")

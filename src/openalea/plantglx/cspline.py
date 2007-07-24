@@ -18,6 +18,7 @@ __metaclass__ = type
 
 epsilon= 0.001
 
+
 class CSpline:
     """
     A CSpline interpolate a set of points.
@@ -59,38 +60,54 @@ class CSpline:
         At Pi, the derivative is:
             D_i = P_(i-1)P_i / 4||.|| + P_iP_(i+1) / 4||.||
         """
+        deriv = self._derivative1
+
         n = len(self.points)
-        d0 = (self.points[1]-self.points[0])/ (4.*self.dist[0])
-        dn = (self.points[-1]-self.points[-2])/ (4.*self.dist[-1])
+        d0 = (self.points[1]-self.points[0])/ (2.)
+        dn = (self.points[-1]-self.points[-2])/ (2.)
         if self.is_closed:
-            d0 = dn = d0+dn
+            d0 = dn = deriv(self.points[-1], self.points[0], self.points[1], self.dist[-1], self.dist[0])
+        
         self.der = [d0]
         
         for i in xrange(1,n-1):
             p, q, r = self.points[i-1], self.points[i], self.points[i+1]
-            dx1, dx2 = 4*self.dist[i-1], 4*self.dist[i]
-            
-            di = (q-p)/dx1+(r-q)/dx2
-            self.der.append(di)
+            dx1, dx2 = self.dist[i-1], self.dist[i]
+            der = self._derivative1(p,q,r,dx1,dx2)
+            self.der.append(der)
 
         self.der.append(dn)
 
+    def _derivative1( self, p, q, r, d0, d1):
+        return r-p
+
+    def _derivative2( self, p, q, r, d0, d1):
+        d= d0+d1
+        d0 /= d 
+        d1 /= d 
+        der = (q-p)/(2*d0)+(r-q)/(2*d1)
+        return der
 
     def bezier_cp(self):
         """
         Compute bezier control points from the input points.
         """
+        a = 1./3
+
         n = len(self)
         self.ctrl_pts = []
-        for i in xrange(n-1):
+        for i in xrange(0,n-1):
             p, q = self.points[i:i+2] 
             dp, dq = self.der[i:i+2]
             self.ctrl_pts.append(p)
-            self.ctrl_pts.append(p+dp)
-            self.ctrl_pts.append(q-dq)
+            self.ctrl_pts.append(p+dp*a)
+            self.ctrl_pts.append(q-dq*a)
         # last point
         self.ctrl_pts.append(self.points[-1])
-
+        
+        if not self.is_closed:
+            self.ctrl_pts[1] = self.ctrl_pts[2]
+            self.ctrl_pts[-2] = self.ctrl_pts[-3]
 
     def bezier_kv(self, is_linear=False):
         """
