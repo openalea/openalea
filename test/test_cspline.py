@@ -25,8 +25,8 @@ def random_pts(n,interval=(-10,10)):
                      random.randint(*interval) )
     return [pts() for i in range(n) ]
 
-def spline_crv(pts):
-    spline = CSpline(pts)
+def spline_crv(pts,is_closed=False):
+    spline = CSpline(pts,is_closed)
     return spline.curve()
     
 
