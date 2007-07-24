@@ -336,21 +336,18 @@ class PyPackageWriter(object):
 from openalea.core import *
 
 def register_packages(pkgmanager):
-
     $PKG_DECLARATION
 
 """
 
     pkg_template = \
 """
-
     metainfo = $METAINFO 
     pkg = UserPackage("$PKGNAME", metainfo)
 
     $FACTORY_DECLARATION
 
     pkgmanager.add_package(pkg)
-
 """
 
     def __init__(self, package):

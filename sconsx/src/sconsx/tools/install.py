@@ -48,30 +48,30 @@ class Install:
         self.default()
 
         # Installation Directories
-        opts.Add(PathOption('prefix', 
-                             'install architecture-independent files', 
-                             self._default['prefix']))
+        opts.Add(('prefix', 
+                  'install architecture-independent files', 
+                  self._default['prefix']))
 
-        opts.Add(PathOption('exec_prefix', 
-                             'install architecture-dependent files', 
-                             '$prefix'))
+        opts.Add(('exec_prefix', 
+                  'install architecture-dependent files', 
+                  '$prefix'))
 
         # Fine tunning of the installation directory
-        opts.Add(PathOption('bindir', 
-                             'user executables', 
-                             pj('$prefix', 'bin')))
+        opts.Add(('bindir', 
+                  'user executables', 
+                  pj('$prefix', 'bin')))
 
-        opts.Add(PathOption('libdir', 
-                             'object code libraries', 
-                             pj('$prefix', 'lib')))
+        opts.Add(('libdir', 
+                  'object code libraries', 
+                  pj('$prefix', 'lib')))
 
-        opts.Add(PathOption('includedir', 
-                             'header files', 
-                             pj('$prefix', 'include')))
+        opts.Add(('includedir', 
+                  'header files', 
+                  pj('$prefix', 'include')))
 
-        opts.Add(PathOption('datadir', 
-                             'data', 
-                             pj('$prefix', 'share')))
+        opts.Add(('datadir', 
+                  'data', 
+                  pj('$prefix', 'share')))
 
         # Program & Library names
 
