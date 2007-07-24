@@ -375,8 +375,8 @@ class SearchModel (QAbstractListModel) :
 
 class NodeFactoryView(object):
     """
-    Base class for all view which display node factories
-    Implements Drag and Drop facilities
+    Base class for all view which display node factories.
+    Implements Drag and Drop facilities.
     """
     
     def __init__(self, main_win, parent=None):
@@ -440,7 +440,9 @@ class NodeFactoryView(object):
 
         
     def get_item_info(self, item):
-        """ Return (package_id, factory_id, mimetype) corresponding to item """
+        """ 
+        Return (package_id, factory_id, mimetype) corresponding to item.
+        """
         
         # put in the Mime Data pkg id and factory id
         obj = item.internalPointer()
