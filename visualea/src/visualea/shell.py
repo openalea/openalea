@@ -484,6 +484,18 @@ class SyntaxColor:
         return False
         
         
+if __name__=="__main__":
+    # Test the widget independently.
+    from code import InteractiveInterpreter as Interpreter
+    a = QtGui.QApplication(sys.argv)
+    
+    interpreter = Interpreter()
+    shellclass = get_shell_class()
+    aw = shellclass(interpreter)
+
+    aw.show()
+    a.exec_()
+
 
 
 
