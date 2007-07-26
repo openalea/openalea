@@ -156,9 +156,10 @@ class CSpline:
         # TODO: Compute incrementally the curve.
         self.nurbs = None
 
-    def curve(self):
+    def curve(self, stride_factor=10):
         """
         Return the equivalent PlantGL nurbs curve which interpol the points.
+        :param: stride_factor is the number of points to draw an arc of the curve.
         """
         if not self.nurbs:
             self.distances()
@@ -168,15 +169,27 @@ class CSpline:
  
         pts = self.points
         kv = pgl.RealArray(self.kv)
-
+        
+        stride = (len(pts)-1) * stride_factor
         if self.dim == 3:
             ctrl_pts = pgl.Point4Array(self.ctrl_pts,1)
-            self.nurbs = pgl.NurbsCurve( ctrl_pts, kv, 3, 60)
+            self.nurbs = pgl.NurbsCurve( ctrl_pts, kv, 3, stride)
         elif self.dim == 2:
             ctrl_pts = pgl.Point3Array(self.ctrl_pts,1)
-            self.nurbs = pgl.NurbsCurve2D( ctrl_pts, kv, 3, 60)
+            self.nurbs = pgl.NurbsCurve2D( ctrl_pts, kv, 3, stride)
         else:
             raise "Unable to build a spline curve from points of dimension %d"% (self.dim,)
 
         return self.nurbs
             
+###############################################################################
+
+# factory function
+def cspline(pts, is_closed=False):
+    """
+    Build a nurbs curve by interpolate (C1) the points pts.
+    The resulting curve can be closed.
+    """
+    spline = CSpline(pts,is_closed)
+    return spline.curve()
+
