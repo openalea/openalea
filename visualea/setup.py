@@ -21,7 +21,6 @@ url = metainfo.url
 license = 'Cecill v2' 
 
 
-
 setup(
     name=name,
     version=version,
@@ -45,6 +44,8 @@ setup(
     # Scripts
     entry_points = { 'gui_scripts': [
                            'visualea = openalea.visualea.visualea_script:start_gui',]},
+
+    postinstall_scripts = ['openalea.visualea.postinstall'],
  
     # Dependencies
     setup_requires = ['openalea.deploy'],

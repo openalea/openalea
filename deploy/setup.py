@@ -7,6 +7,12 @@ except:
 
 from setuptools import setup, find_packages
 from os.path import join as pj
+import sys
+
+if('win' in sys.platform):
+    plat_requires = ['pywin32']
+else:
+    plat_requires = []
 
 
 setup(
@@ -53,6 +59,6 @@ setup(
                  "alea_install = openalea.deploy.alea_install:main", ],
               },
 
-     #install_requires = [],
+     install_requires = [] + plat_requires,
     
 )

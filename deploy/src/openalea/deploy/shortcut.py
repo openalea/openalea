@@ -55,8 +55,12 @@ def create_win_shortcut(name, target, arguments = "",
         return
     
     try:
+        from openalea.deploy import get_base_dir
+        win32dir = get_base_dir('pywin32')
+        os.environ['PATH'] += ';' + os.path.join(win32dir, 'pywin32_system32')
         from win32com.shell import shell, shellcon
-    except:
+    except Exception, e:
+        print e
         print "ERROR : pywin32 is not installed. Cannot create shortcut."
         return
     
@@ -141,7 +145,7 @@ def create_fd_shortcut(name, target, arguments = "", version="",
     """
 
     (Name, Target, Arguments, Version, Icon, Description, MenuGroup) = \
-               (name, target, arguments, version, icon, description, menugroup):
+               (name, target, arguments, version, icon, description, menugroup)
             
     if(not 'posix' in os.name): return
 
