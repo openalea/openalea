@@ -8,7 +8,7 @@ def install():
     
     create_win_shortcut(name = 'Visualea',
                         target = sys.executable,
-                        arguments = pj(sys.prefix, 'Scripts', 'visualea.py'),
+                        arguments = pj(sys.prefix, 'Scripts', 'visualea.exe'),
                         startIn = "", 
                         icon = "",
                         description = "Visual programming",
@@ -17,7 +17,7 @@ def install():
 
     create_fd_shortcut(name='Visualea',
                        target=sys.executable, 
-                       arguments=pj(sys.prefix, 'bin', 'visualea.py'), 
+                       arguments=pj(sys.prefix, 'bin', 'visualea'), 
                        group='OpenAlea', 
                        icon='' )
    
