@@ -75,6 +75,8 @@ def get_eggs(namespace=None):
     for project_name in env:
         if(namespace and namespace+'.' in project_name):
             yield project_name
+        elif(not namespace):
+            yield project_name
 
 
 def get_all_lib_dirs(namespace=None):

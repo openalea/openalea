@@ -189,11 +189,7 @@ def write_keys_arg(cmd, basename, filename, force=False):
     
 
 
-
-
-
 # SCons Management
-
         
 
 class SconsError(Exception):
@@ -344,9 +340,9 @@ except:
                                    ('build_lib', 'build_dir'))
         try:
             self.namespaces = self.distribution.namespace_packages
-
+            if(self.namespaces is None) : self.namespaces = []
             # Add namespace to packages
-            for ns in self.namespacess:
+            for ns in self.namespaces:
                 if(ns not in self.distribution.packages):
                     self.distribution.packages.append(ns)
 
@@ -372,7 +368,7 @@ except:
 
     def run (self):
         """ Run command """
-
+        
         for namespace in self.namespaces:
             print "creating %s namespace"%(namespace)
             self.create_empty_namespace(namespace)
