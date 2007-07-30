@@ -44,7 +44,7 @@ setup(
     
     # Scripts
     entry_points = { 'gui_scripts': [
-                           'visualea.py = openalea.visualea.visualea_script:start_gui',]},
+                           'visualea = openalea.visualea.visualea_script:start_gui',]},
  
     # Dependencies
     setup_requires = ['openalea.deploy'],
