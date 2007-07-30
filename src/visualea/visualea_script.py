@@ -113,9 +113,16 @@ def start_gui():
     except ImportError:
         envdict = check_system()
 
-    os.execle(sys.executable, sys.executable, '-c',
-              '"import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)"',
-              envdict)
+    if('win' in sys.platform.lower()):
+        os.execle(sys.executable, sys.executable, '-c',
+                  '"import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)"',
+                  envdict)
+    else:
+        os.execle(sys.executable, sys.executable, '-c',
+                  'import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)',
+                  envdict)
+
+        
 
 if( __name__ == "__main__"):
     start_gui()
