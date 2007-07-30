@@ -29,13 +29,13 @@ setup(
     license=license,
 
     namespace_packages = ['openalea'],
-    create_namespaces=True,
-    zip_safe=False,
+    create_namespaces = True,
+    zip_safe = False,
 
-    packages= [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
+    packages = [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
                 'openalea.core.graph.interface' ],
     
-    package_dir= { 'openalea.core' : pj('src','core'),
+    package_dir = { 'openalea.core' : pj('src','core'),
                    'openalea.core.algo' : pj('src','core', 'algo'),
                    'openalea.core.graph' : pj('src','core', 'graph'),
                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface') 
