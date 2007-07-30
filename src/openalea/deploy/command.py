@@ -304,12 +304,7 @@ class scons(Command):
 		sys.exit(1)
 
 
-
-
 # Namespace Creation
-
-
-       
 
 class create_namespaces(Command):
     """
@@ -393,7 +388,7 @@ class install(old_install):
     Use alea_install instead of easy_install
     """
     def do_egg_install(self):
-
+ 
         alea_install = self.distribution.get_command_class('alea_install')
 
         cmd = alea_install(
