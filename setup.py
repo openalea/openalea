@@ -1,5 +1,8 @@
-from ez_setup import use_setuptools
-use_setuptools()
+try:
+    from ez_setup import use_setuptools
+    use_setuptools()
+except:
+    pass
 
 
 from setuptools import setup, find_packages
