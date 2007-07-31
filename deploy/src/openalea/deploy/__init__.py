@@ -54,6 +54,12 @@ def get_lib_dirs(pkg_name):
     return get_egg_info(pkg_name, 'lib_dirs.txt')
 
 
+def get_bin_dirs(pkg_name):
+    """ Return a generator which lists the shared lib directory """
+
+    return get_egg_info(pkg_name, 'bin_dirs.txt')
+
+
 def get_inc_dirs(pkg_name):
     """ Return a generator which lists the shared lib directory """
 
@@ -92,6 +98,19 @@ def get_all_lib_dirs(namespace=None):
             full_location = pj(location, sh)
             yield full_location
 
+
+def get_all_bin_dirs(namespace=None):
+    """ Return the iterator of the directories corresponding to the shared lib """
+
+    egg_names = get_eggs(namespace)
+    for e in egg_names:
+
+        location = get_base_dir(e)
+
+        for sh in get_bin_dirs(e):
+
+            full_location = pj(location, sh)
+            yield full_location
 
 
 

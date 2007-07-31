@@ -25,11 +25,11 @@ setup(
 
     entry_points = {
               "gui_scripts": [
-                 "alea_install_gui = openalea.deploy-gui.alea_install_gui:main", ],
+                 "alea_install_gui = openalea.deploygui.alea_install_gui:main", ],
               },
 
     # Dependencies
-    install_requires = ['OpenAlea.Deploy', 'pyQt4'],
+    install_requires = ['OpenAlea.Deploy'],
     dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
     
 )
