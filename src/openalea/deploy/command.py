@@ -45,7 +45,7 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from openalea.deploy import get_all_lib_dirs, OPENALEA_PI
+from openalea.deploy import get_all_lib_dirs, get_all_bin_dirs, OPENALEA_PI
 from openalea.deploy.environ_var import set_lsb_env, set_win_env
 
 
@@ -113,7 +113,10 @@ class build_py(old_build_py):
         self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
-        for d in (self.distribution.lib_dirs, self.distribution.inc_dirs):
+        for d in (self.distribution.lib_dirs,
+                  self.distribution.inc_dirs,
+                  self.distribution.bin_dirs
+                  ):
             if(d):
                 
                 if(not os.path.exists(self.build_lib)):
@@ -340,11 +343,12 @@ except:
                                    ('build_lib', 'build_dir'))
         try:
             self.namespaces = self.distribution.namespace_packages
-            if(self.namespaces is None) : self.namespaces = []
-            # Add namespace to packages
-            for ns in self.namespaces:
-                if(ns not in self.distribution.packages):
-                    self.distribution.packages.append(ns)
+#             if(self.namespaces is None) : self.namespaces = []
+#             # Add namespace to packages
+#             for ns in self.namespaces:
+#                 if(ns not in self.distribution.packages):
+#                     self.distribution.packages.append(ns)
+
 
         except:
             pass
@@ -440,12 +444,22 @@ class alea_install(easy_install):
         except Exception, e:
             print "ERROR : e"
 
-        dirs = list(get_all_lib_dirs('openalea'))
-        print "The following directories contains shared library :", '\n'.join(dirs), '\n'
+        lib_dirs = list(get_all_lib_dirs())
+        bin_dirs = list(get_all_bin_dirs())
+        
+        print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
+        print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
-        set_win_env(['OPENALEA_LIBS=%s'%(';'.join(dirs)), 'PATH=%OPENALEA_LIBS%'])
+        set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs)),
+                     'OPENALEA_BIN=%s'%(';'.join(bin_dirs)),
+                     'PATH=%OPENALEA_LIB%;%OPENALEA_BIN%'])
+        
         set_lsb_env('openalea',
-                    ['OPENALEA_LIBS=%s'%(':'.join(dirs)), 'LD_LIBRARY_PATH=$OPENALEA_LIBS'])
+                    ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
+                     'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
+                     'LD_LIBRARY_PATH=$OPENALEA_LIB',
+                     'PATH=$OPENALEA_BIN'
+                     ])
 
         sys.path = path
 

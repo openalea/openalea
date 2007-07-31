@@ -1,4 +1,4 @@
-#include "starter/config.h"
+//#include "starter/config.h"
 
 
 int afunc(void)

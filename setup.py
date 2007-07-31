@@ -37,6 +37,7 @@ setup(
               "distutils.setup_keywords": [
                  "lib_dirs = openalea.deploy.command:validate_shared_dirs",
                  "inc_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "bin_dirs = openalea.deploy.command:validate_shared_dirs",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
@@ -46,6 +47,7 @@ setup(
               "egg_info.writers": [
                  "lib_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "inc_dirs.txt = openalea.deploy.command:write_keys_arg",
+                 "bin_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "postinstall_scripts.txt = setuptools.command.egg_info:write_arg",
                  ],
 
