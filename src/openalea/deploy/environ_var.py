@@ -48,7 +48,7 @@ def set_lsb_env(name, vars):
             exportstr += 'else\n'
             exportstr +='  export %s=$%s:%s\n'%(vname, vname, value,)
             exportstr += 'fi\n\n'
-        
+                    
         elif(vname and value):
             exportstr += 'export %s=%s\n\n'%(vname, value)
     
@@ -120,6 +120,7 @@ def set_win_env(vars):
             
         if(name and value):
             _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
+            os.environ[name] = value
 
         _winreg.CloseKey(key)    
         _winreg.CloseKey(reg)
