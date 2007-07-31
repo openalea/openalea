@@ -115,7 +115,8 @@ class build_py(old_build_py):
         # Add lib_dirs and include_dirs in packages
         for d in (self.distribution.lib_dirs,
                   self.distribution.inc_dirs,
-                  self.distribution.bin_dirs
+                  self.distribution.bin_dirs,
+                  self.distribution.share_dirs,
                   ):
             if(d):
                 
@@ -125,10 +126,7 @@ class build_py(old_build_py):
                 for (name, dir) in d.items():
                     copy_data_tree(dir, pj(self.build_lib, name))
 
-                        
-        
         return old_build_py.run(self)
-
 
 
 # Validation functions
@@ -343,7 +341,7 @@ except:
                                    ('build_lib', 'build_dir'))
         try:
             self.namespaces = self.distribution.namespace_packages
-#             if(self.namespaces is None) : self.namespaces = []
+            if(self.namespaces is None) : self.namespaces = []
 #             # Add namespace to packages
 #             for ns in self.namespaces:
 #                 if(ns not in self.distribution.packages):
@@ -450,9 +448,8 @@ class alea_install(easy_install):
         print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
         print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
-        set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs)),
-                     'OPENALEA_BIN=%s'%(';'.join(bin_dirs)),
-                     'PATH=%OPENALEA_LIB%;%OPENALEA_BIN%'])
+        set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs+bin_dirs)),
+                     'PATH=%OPENALEA_LIB%',])
         
         set_lsb_env('openalea',
                     ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),

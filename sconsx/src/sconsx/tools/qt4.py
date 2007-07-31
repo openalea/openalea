@@ -41,7 +41,14 @@ class QT:
 
         if not qt_dir:
             if isinstance(platform, Win32):
-                qt_dir = pj('C:','QT')
+
+                # Try to use openalea egg
+                try:
+                    from openalea.deploy import get_base_dir
+                    qt_dir = get_base_dir("Qt4_PyQt4")
+                except:
+                    qt_dir = pj('C:','QT')
+                
             elif isinstance(platform, Posix):
                 qt_dir = pj('/usr', 'lib', 'qt4')
                 if not exists(pj(qt_dir, 'bin')):

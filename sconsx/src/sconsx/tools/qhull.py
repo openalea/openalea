@@ -37,13 +37,21 @@ class Qhull:
 
       if isinstance(platform, Win32):
          try:
-            import openalea.config as conf
-            self._default['include'] = conf.include_dir
-            self._default['lib'] = conf.lib_dir
+            # Try to use openalea egg
+            from openalea.deploy import get_base_dir
+            base_dir = get_base_dir("AleaDependencies")
+            self._default['include'] = os.path.join(base_dir, 'include_qhull')
+            self._default['lib'] = os.path.join(base_dir, 'lib_qhull')
+            
+         except:
+            try:
+                import openalea.config as conf
+                self._default['include'] = conf.include_dir
+                self._default['lib'] = conf.lib_dir
 
-         except ImportError, e:
-            self._default['include'] = 'C:'+os.sep
-            self._default['lib'] = 'C:'+os.sep
+            except ImportError, e:
+                self._default['include'] = 'C:'+os.sep
+                self._default['lib'] = 'C:'+os.sep
 
       elif isinstance(platform, Posix):
          self._default['include'] = '/usr/include'

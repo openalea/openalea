@@ -7,7 +7,7 @@ except:
 
 from setuptools import setup, find_packages
 from os.path import join as pj
-import sys
+import sys, os
 
 if('win' in sys.platform):
     plat_requires = ['pywin32']
@@ -38,6 +38,7 @@ setup(
                  "lib_dirs = openalea.deploy.command:validate_shared_dirs",
                  "inc_dirs = openalea.deploy.command:validate_shared_dirs",
                  "bin_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "share_dirs = openalea.deploy.command:validate_shared_dirs",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
@@ -64,3 +65,13 @@ setup(
      install_requires = [] + plat_requires,
     
 )
+
+# Set PATH for pywin32 on windows : HACK !!
+sys.path.append(os.path.abspath("src/openalea"))
+
+if('pywin32' in plat_requires):
+    from deploy.environ_var import set_win_env
+    from deploy import get_base_dir
+    win32dir = get_base_dir('pywin32')
+    
+    set_win_env(['PATH=%s'%(pj(win32dir, 'pywin32_system32'),)])

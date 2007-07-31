@@ -32,11 +32,18 @@ class Bison:
 
 
    def default(self):
-
-         if isinstance(platform, Win32):
+   
+      if isinstance(platform, Win32):
+         try:
+            # Try to use openalea egg
+            from openalea.deploy import get_base_dir
+            base_dir = get_base_dir("AleaDependencies")
+            self._default['bin'] = os.path.join(base_dir, 'bin_bisonflex')
+         except:
             self._default['bin'] = r'C:\Tools\Bin'
-         elif isinstance(platform, Posix):
-            self._default['bin'] = '/usr/bin'
+                
+      elif isinstance(platform, Posix):
+         self._default['bin'] = '/usr/bin'
 
 
    def option( self, opts):
