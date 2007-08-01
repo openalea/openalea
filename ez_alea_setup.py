@@ -16,7 +16,7 @@ This file can also be run as a script to install or upgrade setuptools.
 import sys
 DEFAULT_VERSION = "0.6c6"
 DEFAULT_URL     = "http://cheeseshop.python.org/packages/%s/s/setuptools/" % sys.version[:3]
-ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi/"
+ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi"
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -228,16 +228,22 @@ def install_deploy():
     except ImportError:
         from easy_install import main
         
-    main("-l %s openalea.deploy"%(ALEA_PI_URL))
+    main(['-f', ALEA_PI_URL, "openalea.deploy"])
 
 
 def install_pkg(name):
    """ Install package with alea_install """
+   
+   from pkg_resources import get_distribution
+   dist = get_distribution('openalea.deploy')
+   if(dist.location not in sys.path):
+       sys.path.append(dist.location)
    from openalea.deploy.alea_install import main
-   main(name)
+
+   main(['-f', ALEA_PI_URL, name])
     
 
-def install_openalea(pkgs):
+def install_openalea():
     """ Install the base packages """
 
     pkgs = ["openalea.deploygui",]

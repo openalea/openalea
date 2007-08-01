@@ -27,7 +27,8 @@ setup(
               "gui_scripts": [
                  "alea_install_gui = openalea.deploygui.alea_install_gui:main", ],
               },
-
+    
+    postinstall_scripts = ['openalea.deploygui.postinstall'],
     # Dependencies
     install_requires = ['OpenAlea.Deploy'],
     dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
