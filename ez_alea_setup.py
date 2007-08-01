@@ -154,7 +154,6 @@ def main(argv, version=DEFAULT_VERSION):
     try:
         import setuptools
     except ImportError:
-        egg = None
         try:
             egg = download_setuptools(version, delay=0)
             sys.path.insert(0,egg)
@@ -178,7 +177,7 @@ def main(argv, version=DEFAULT_VERSION):
         except ImportError:
             from easy_install import main
         main(list(argv)+[download_setuptools(delay=0)])
-        sys.exit(0) # try to force an exit
+        
     else:
         if argv:
             from setuptools.command.easy_install import main
@@ -222,22 +221,23 @@ def update_md5(filenames):
 
 
 def install_deploy():
-    """ Install OpenAlea.Deploy with setuptools"""    
+    """ Install OpenAlea.Deploy with setuptools"""
+
+    from pkg_resources import require
+    require('setuptools')
+    from setuptools.command.easy_install import main
+
     try:
-        from setuptools.command.easy_install import main
-    except ImportError:
-        from easy_install import main
-        
-    main(['-f', ALEA_PI_URL, "openalea.deploy"])
+        main(['-f', ALEA_PI_URL, "openalea.deploy"])
+    except:
+        print "Ex"
 
 
 def install_pkg(name):
    """ Install package with alea_install """
    
-   from pkg_resources import get_distribution
-   dist = get_distribution('openalea.deploy')
-   if(dist.location not in sys.path):
-       sys.path.append(dist.location)
+   from pkg_resources import require
+   require('openalea.deploy')
    from openalea.deploy.alea_install import main
 
    main(['-f', ALEA_PI_URL, name])
@@ -246,6 +246,8 @@ def install_pkg(name):
 def install_openalea():
     """ Install the base packages """
 
+    install_deploy()
+    
     pkgs = ["openalea.deploygui",]
 
     if("win" in sys.platform):
@@ -255,20 +257,22 @@ def install_openalea():
         install_pkg(pkg)
         
 
-
-
-if __name__=='__main__':
-
+def install_setuptools():
     # INSTALL Setup tools
     if len(sys.argv)>2 and sys.argv[1]=='--md5update':
         update_md5(sys.argv[2:])
     else:
         main(sys.argv[1:])
 
-    # INSTALL OPENALEA PACKAGES
-    install_deploy()
-    install_openalea()
+if(__name__ == "__main__"):
 
+    # Excecute the script in 2 process
+    if("openalea" in sys.argv):
+        install_openalea()
+    else:
+        install_setuptools()
+        os.system('%s %s openalea'%(sys.executable, __file__))
+    
 
 
 
