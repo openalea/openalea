@@ -1,0 +1,178 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>779</width>
+    <height>662</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>OpenAlea Installer</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="images.qrc" >:/icons/openalea_icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" >
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
+    </property>
+    <item>
+     <widget class="QLabel" name="label" >
+      <property name="text" >
+       <string>Packages</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="packageList" >
+      <property name="selectionMode" >
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+      <property name="modelColumn" >
+       <number>0</number>
+      </property>
+      <property name="sortingEnabled" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="proceedButton" >
+        <property name="text" >
+         <string>Install</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshButton" >
+        <property name="text" >
+         <string>Refresh</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_3" >
+      <property name="text" >
+       <string>Log</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="logText" >
+      <property name="readOnly" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2" >
+      <property name="text" >
+       <string>Locations</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="locationList" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="addLocButton" >
+        <property name="text" >
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="removeLocButton" >
+        <property name="text" >
+         <string>Remove</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>779</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+ </widget>
+ <tabstops>
+  <tabstop>packageList</tabstop>
+  <tabstop>proceedButton</tabstop>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>locationList</tabstop>
+  <tabstop>addLocButton</tabstop>
+  <tabstop>removeLocButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="images.qrc" />
+ </resources>
+ <connections/>
+</ui>
