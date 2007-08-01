@@ -120,7 +120,7 @@ def set_win_env(vars):
             
         if(name and value):
             _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-            os.environ[name] = value
+            os.system("setx name value -m")
 
         _winreg.CloseKey(key)    
         _winreg.CloseKey(reg)

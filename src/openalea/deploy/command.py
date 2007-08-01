@@ -28,11 +28,11 @@ import shutil
 from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
-from setuptools.command.build_py import build_py as old_build_py
+from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
 
-import setuptools.command.build_py
+import setuptools.command.build_ext
 import setuptools.command.install
 
 from distutils.dist import Distribution
@@ -87,7 +87,8 @@ def has_ext_modules(dist):
     try:
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
-                dist.lib_dirs)
+                dist.lib_dirs or dist.inc_dirs or
+                dist.bin_dirs or dist.share_dirs)
     except:
         return dist.has_ext_modules()
 
@@ -96,16 +97,15 @@ def set_has_ext_modules(dist):
     """ Set new function handler to dist object """
     m = new.instancemethod(has_ext_modules, dist, Distribution)
     dist.has_ext_modules = m
-    
 
 
-class build_py(old_build_py):
+class build_ext(old_build_ext):
     """
-    Enhanced 'build_py'
+    Enhanced 'build_ext'
     Add lib_dirs and inc_dirs parameters to package parameter
     """
     def finalize_options(self):
-        old_build_py.finalize_options(self)
+        old_build_ext.finalize_options(self)
 
     def run(self):
         # Run others commands
@@ -126,7 +126,7 @@ class build_py(old_build_py):
                 for (name, dir) in d.items():
                     copy_data_tree(dir, pj(self.build_lib, name))
 
-        return old_build_py.run(self)
+        return old_build_ext.run(self)
 
 
 # Validation functions
@@ -136,14 +136,13 @@ def validate_create_namespaces(dist, attr, value):
     assert_bool(dist, attr, value)
 
     if(value and dist.namespace_packages):
-        setuptools.command.build_py.build_py = build_py
-
+        setuptools.command.build_ext.build_ext = build_ext
 
 def validate_scons_scripts(dist, attr, value):
     """ Validation for scons_scripts keyword """
     assert_string_list(dist, attr, value)
     if(value): 
-        setuptools.command.build_py.build_py = build_py
+        setuptools.command.build_ext.build_ext = build_ext
         set_has_ext_modules(dist)
 
 
@@ -155,7 +154,7 @@ def validate_shared_dirs(dist, attr, value):
 
         if(value):
             # Change commands
-            setuptools.command.build_py.build_py = build_py
+            setuptools.command.build_ext.build_ext = build_ext
             setuptools.command.install.install = install
             set_has_ext_modules(dist)
 
@@ -475,7 +474,7 @@ class alea_install(easy_install):
         """ Call postinstall scripts """
 
         print "Post installation"
-
+        sys.path.append(dist.location)
         try:
             lstr = dist.get_metadata("postinstall_scripts.txt")
         except:
