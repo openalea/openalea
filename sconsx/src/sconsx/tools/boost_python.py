@@ -47,14 +47,23 @@ class Boost_Python:
       if isinstance(platform, Win32):
          self._default['flags'] = ''
          self._default['defines'] = ''
-         try:
-            import openalea.config as conf
-            self._default['include'] = conf.include_dir
-            self._default['lib'] = conf.lib_dir
 
-         except ImportError, e:
-            self._default['include'] = 'C:' + os.sep
-            self._default['lib'] = 'C:' + os.sep
+         try:
+            # Try to use openalea egg
+            from openalea.deploy import get_base_dir
+            base_dir = get_base_dir("boostpython")
+            self._default['include'] = os.path.join(base_dir, 'include')
+            self._default['lib'] = os.path.join(base_dir, 'lib')
+            
+         except:
+            try:
+               import openalea.config as conf
+               self._default['include'] = conf.include_dir
+               self._default['lib'] = conf.lib_dir
+
+            except ImportError, e:
+               self._default['include'] = 'C:' + os.sep
+               self._default['lib'] = 'C:' + os.sep
 
       elif isinstance(platform, Posix):
          self._default['include'] = '/usr/include'

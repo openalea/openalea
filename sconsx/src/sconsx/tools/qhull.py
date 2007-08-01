@@ -39,9 +39,9 @@ class Qhull:
          try:
             # Try to use openalea egg
             from openalea.deploy import get_base_dir
-            base_dir = get_base_dir("AleaDependencies")
-            self._default['include'] = os.path.join(base_dir, 'include_qhull')
-            self._default['lib'] = os.path.join(base_dir, 'lib_qhull')
+            base_dir = get_base_dir("qhull")
+            self._default['include'] = os.path.join(base_dir, 'include')
+            self._default['lib'] = os.path.join(base_dir, 'lib')
             
          except:
             try:

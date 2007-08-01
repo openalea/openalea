@@ -37,9 +37,9 @@ class Flex:
          try:
               # Try to use openalea egg
               from openalea.deploy import get_base_dir
-              base_dir = get_base_dir("AleaDependencies")
-              self._default['bin'] = pj(base_dir, 'bin_bisonflex')
-              self._default['include'] = pj(base_dir, 'include_bisonflex')
+              base_dir = get_base_dir("bisonflex")
+              self._default['bin'] = pj(base_dir, 'bin')
+              self._default['include'] = pj(base_dir, 'include')
          except:
               self._default['bin'] = pj('C:\\', 'Tools', 'Bin')
               self._default['include'] = pj('C:\\', 'Tools', 'Include')

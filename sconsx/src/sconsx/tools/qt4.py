@@ -45,7 +45,7 @@ class QT:
                 # Try to use openalea egg
                 try:
                     from openalea.deploy import get_base_dir
-                    qt_dir = get_base_dir("Qt4_PyQt4")
+                    qt_dir = get_base_dir("qt4")
                 except:
                     qt_dir = pj('C:','QT')
                 
