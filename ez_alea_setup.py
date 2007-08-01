@@ -241,10 +241,27 @@ def install_pkg(name):
    from openalea.deploy.alea_install import main
 
    main(['-f', ALEA_PI_URL, name])
+
+
+def welcome():
+    """ Print welcome message """
+
+    print
+    print "------------------------"
+    print " OPENALEA Installation  "
+    print "------------------------"
+    print
+    print "This script will download and install OpenAlea Installer."
+    print "The process can take a long time depending of your network connection."
+    print "Please, be patient !"
+    print
+    raw_input("Press Enter to continue...")
     
 
 def install_openalea():
     """ Install the base packages """
+
+    welcome()
 
     install_deploy()
     
@@ -272,6 +289,7 @@ if(__name__ == "__main__"):
     else:
         install_setuptools()
         os.system('%s %s openalea'%(sys.executable, __file__))
+        os.system('%s -c "import openalea.deploygui.alea_install_gui as gui; gui.main()"'%(sys.executable))
     
 
 
