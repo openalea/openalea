@@ -415,18 +415,20 @@ class alea_install(easy_install):
     """
 
     def finalize_options(self):
-        easy_install.finalize_options(self)
 
         # Add openalea package link
-        self.find_links += [ OPENALEA_PI ]
+        if(not self.find_links) : self.find_links = ""
+        self.find_links += " " + OPENALEA_PI
+        
+        easy_install.finalize_options(self)
+
 
     def run(self):
 
         easy_install.run(self)
-
         # Set environment
         self.set_env()
-        
+
 
     def set_env(self):
         """ Set environment variables """
@@ -462,10 +464,10 @@ class alea_install(easy_install):
 
     def process_distribution(self, requirement, dist, deps=True, *info):
         ret = easy_install.process_distribution(self, requirement, dist, deps, *info)
-        
+
         # Call postinstall
         self.postinstall(dist)
-
+ 
         return ret
 
 
@@ -481,8 +483,19 @@ class alea_install(easy_install):
         except:
             lstr = []
 
+        # Add pywin32 path
+        if('win' in sys.platform):
+    
+            from openalea.deploy import get_base_dir
+            win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
+
+            if(win32dir not in os.environ['PATH']):
+                os.environ['PATH'] += ";" + win32dir
+
+        # process postinstall
         for s in pkg_resources.yield_lines(lstr):
             print "Executing %s"%(s)
+            
             try:
                 module  = __import__(s, globals(), locals(), s.split('.'))
                 module.install()

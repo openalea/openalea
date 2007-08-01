@@ -3,8 +3,6 @@
 from setuptools import setup, find_packages
 from os.path import join as pj
 
-
-
 setup(
     # Metadata for PyPi
     name = "OpenAlea.DeployGui",

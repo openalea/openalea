@@ -115,6 +115,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.logText.setTextCursor(cursor)
         self.logText.ensureCursorVisible()
 
+        QtGui.QApplication.processEvents()
+        
+
     def flush(self):
         pass
 
@@ -132,10 +135,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             
             if(item.isSelected()):
                 pname = self.pnamemap[str(item.text())]
+                print "Installing ", pname
                 dist = self.pi[pname][0]
                 self.install_package(dist)
             
-
         self.refresh()
         
 

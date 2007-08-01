@@ -66,12 +66,3 @@ setup(
     
 )
 
-# Set PATH for pywin32 on windows : HACK !!
-sys.path.append(os.path.abspath("src/openalea"))
-
-if('pywin32' in plat_requires):
-    from deploy.environ_var import set_win_env
-    from deploy import get_base_dir
-    win32dir = get_base_dir('pywin32')
-    
-    set_win_env(['PATH=%s'%(pj(win32dir, 'pywin32_system32'),)])
