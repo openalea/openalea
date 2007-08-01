@@ -8,7 +8,7 @@ def main(argv=None, **kw):
     from setuptools import setup
     from setuptools.dist import Distribution
     import distutils.core
-
+    
     USAGE = """\
 usage: %(script)s [options] requirement_or_url ...
    or: %(script)s --help

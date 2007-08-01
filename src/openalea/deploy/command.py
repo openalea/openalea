@@ -460,9 +460,8 @@ class alea_install(easy_install):
         sys.path = path
 
 
-
     def process_distribution(self, requirement, dist, deps=True, *info):
-        ret = easy_install.process_distribution(self, requirement, dist, deps=True, *info)
+        ret = easy_install.process_distribution(self, requirement, dist, deps, *info)
         
         # Call postinstall
         self.postinstall(dist)
@@ -474,7 +473,9 @@ class alea_install(easy_install):
         """ Call postinstall scripts """
 
         print "Post installation"
-        sys.path.append(dist.location)
+        pkg_resources.require(dist.project_name)
+        #sys.path.append(dist.location)
+        
         try:
             lstr = dist.get_metadata("postinstall_scripts.txt")
         except:
