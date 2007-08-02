@@ -28,10 +28,12 @@ import shutil
 from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
+from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
 
+import setuptools.command.build_py
 import setuptools.command.build_ext
 import setuptools.command.install
 
@@ -100,17 +102,26 @@ def set_has_ext_modules(dist):
     dist.has_ext_modules = m
 
 
+class build_py(old_build_py):
+    """
+    Enhanced 'build_py'
+    Create namespace
+    """
+
+    def run(self):
+        # Run others commands
+        self.run_command("create_namespaces")
+        return old_build_py.run(self)
+
+
 class build_ext(old_build_ext):
     """
     Enhanced 'build_ext'
     Add lib_dirs and inc_dirs parameters to package parameter
     """
-    def finalize_options(self):
-        old_build_ext.finalize_options(self)
 
     def run(self):
         # Run others commands
-        self.run_command("create_namespaces")
         self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
@@ -137,7 +148,7 @@ def validate_create_namespaces(dist, attr, value):
     assert_bool(dist, attr, value)
 
     if(value and dist.namespace_packages):
-        setuptools.command.build_ext.build_ext = build_ext
+        setuptools.command.build_py.build_py = build_py
 
 def validate_scons_scripts(dist, attr, value):
     """ Validation for scons_scripts keyword """
@@ -420,7 +431,8 @@ class alea_install(easy_install):
         # Add openalea package link
         if(not self.find_links) : self.find_links = ""
         self.find_links += " " + OPENALEA_PI
-        
+        self.dist = None
+
         easy_install.finalize_options(self)
 
 
@@ -428,6 +440,9 @@ class alea_install(easy_install):
 
         self.set_system()
         easy_install.run(self)
+        # Call postinstall
+        self.postinstall(self.dist)
+
         # Set environment
         self.set_env()
 
@@ -475,9 +490,8 @@ class alea_install(easy_install):
 
     def process_distribution(self, requirement, dist, deps=True, *info):
         ret = easy_install.process_distribution(self, requirement, dist, deps, *info)
-
-        # Call postinstall
-        self.postinstall(dist)
+        # save distribution
+        self.dist = dist
  
         return ret
 
@@ -487,8 +501,8 @@ class alea_install(easy_install):
 
         print "Post installation"
         pkg_resources.require(dist.project_name)
-        #sys.path.append(dist.location)
-        
+        sys.path.append(dist.location)
+                
         try:
             lstr = dist.get_metadata("postinstall_scripts.txt")
         except:
