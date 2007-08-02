@@ -188,11 +188,7 @@ def register_packages(pkgmanager):
         
 
 
-def create_layout( name, languages=[] ):
-
-    cpp = 'cpp' in languages
-    c = 'c' in languages
-    fortran = 'fortran' in languages
+def create( name, python=True, cpp=False, c=False, fortran=False ):
 
     pkg = PackageLayout(name)
     pkg.set_languages(cpp=cpp, c=c, fortran=fortran)
