@@ -15,7 +15,8 @@ setup(
     url = 'openalea.gforge.inria.fr',
 
     namespace_packages = ["openalea"],
-    
+
+    py_modules = ['deploygui_postinstall'],
     packages = find_packages('src'),
     package_dir = { '' : 'src', }, 
     include_package_data = True,
@@ -26,7 +27,7 @@ setup(
                  "alea_install_gui = openalea.deploygui.alea_install_gui:main", ],
               },
     
-    postinstall_scripts = ['openalea.deploygui.postinstall'],
+    postinstall_scripts = ['deploygui_postinstall'],
     # Dependencies
     install_requires = ['OpenAlea.Deploy'],
     dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
