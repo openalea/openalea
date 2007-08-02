@@ -33,6 +33,7 @@ setup(
     keywords='visual programming',
 
     # Packages
+    py_modules = ['visualea_postinstall'],
     namespace_packages = ["openalea"],
     create_namespaces = True,
     
@@ -45,7 +46,7 @@ setup(
     entry_points = { 'gui_scripts': [
                            'visualea = openalea.visualea.visualea_script:start_gui',]},
 
-    postinstall_scripts = ['openalea.visualea.postinstall'],
+    postinstall_scripts = ['visualea_postinstall'],
  
     # Dependencies
     setup_requires = ['openalea.deploy'],
