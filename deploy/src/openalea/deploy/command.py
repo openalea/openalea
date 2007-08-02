@@ -45,7 +45,8 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from openalea.deploy import get_all_lib_dirs, get_all_bin_dirs, OPENALEA_PI
+from openalea.deploy import get_all_lib_dirs, get_all_bin_dirs
+from openalea.deploy import get_base_dir, OPENALEA_PI
 from openalea.deploy.environ_var import set_lsb_env, set_win_env
 
 
@@ -425,10 +426,21 @@ class alea_install(easy_install):
 
     def run(self):
 
+        self.set_system()
         easy_install.run(self)
         # Set environment
         self.set_env()
 
+
+    def set_system(self):
+        """ Set environment """
+
+        if("win" in sys.platform):
+            # install pywin32
+            bdir = get_base_dir("pywin32")
+            pywin32lib = pj(bdir, "pywin32_system32")
+            set_win_env(['PATH=%s'%(pywin32lib,),])
+        
 
     def set_env(self):
         """ Set environment variables """
@@ -439,9 +451,8 @@ class alea_install(easy_install):
         path = sys.path[:]
         try:
             sys.path.remove(os.path.abspath('.'))
-            pkg_resources.working_set = pkg_resources.WorkingSet()
-        except Exception, e:
-            print "ERROR : e"
+        except:
+            pass
 
         lib_dirs = list(get_all_lib_dirs())
         bin_dirs = list(get_all_bin_dirs())

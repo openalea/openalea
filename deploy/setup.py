@@ -63,6 +63,5 @@ setup(
               },
 
      install_requires = [] + plat_requires,
-    
 )
 
