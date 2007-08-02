@@ -49,7 +49,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         self.locationList.addItem(OPENALEA_PI)
 
-        self.pi = None
+        self.pi = None # package index
         self.pnamemap = {}
         sys.stdout = self
         sys.stderr = self
@@ -57,6 +57,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         # Signal connection
         self.connect(self.proceedButton, QtCore.SIGNAL("clicked()"), self.proceed)
         self.connect(self.refreshButton, QtCore.SIGNAL("clicked()"), self.refresh)
+        self.connect(self.addLocButton, QtCore.SIGNAL("clicked()"), self.add_location)
+        self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
 
         self.refresh()
 
@@ -126,7 +128,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         return 1
 
 
-
     def proceed(self):
         """ Install selected packages """
 
@@ -155,7 +156,28 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             print e
             self.write(str(e))
 
-  
+
+    def add_location(self):
+        """ Add a repository """
+
+        # Read a string
+        repo, ok = QtGui.QInputDialog.getText(self, "URL", "Enter a valid URL:",
+                                          QtGui.QLineEdit.Normal, "http://")
+        if(ok):
+            self.locationList.addItem(str(repo))
+
+
+    def remove_location(self):
+        """ Remove a repository """
+        
+        for i in xrange(self.locationList.count()):
+            item = self.locationList.item(i)
+            if(item and item.isSelected()):
+                self.locationList.takeItem(i)
+
+
+
+                
 
 def main(args=None):
 
