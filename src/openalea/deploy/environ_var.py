@@ -1,7 +1,7 @@
 ################################################################################
 # -*- python -*-
 #
-#       OpenAlea.Deploy:   
+#       OpenAlea.Deploy
 #
 #       Copyright or (c) or Copr. 2006 INRIA - CIRAD - INRA  
 #
@@ -119,11 +119,33 @@ def set_win_env(vars):
                 value = actualpath
             
         if(name and value):
-            _winreg.SetValueEx(key, name, 0, _winreg.REG_EXPAND_SZ, value)
-            #os.system("setx name value -m")
+            
+            expand = _winreg.REG_SZ
+            # Expand variable if necessary
+            if("%" in value):
+                expand = _winreg.REG_EXPAND_SZ
+                
+            _winreg.SetValueEx(key, name, 0, expand, value)
+                        
             os.environ[name] = value
             
         _winreg.CloseKey(key)    
         _winreg.CloseKey(reg)
+
+    # Refresh Environment
+    try:
+        HWND_BROADCAST      = 0xFFFF
+        WM_SETTINGCHANGE    = 0x001A
+        SMTO_ABORTIFHUNG    = 0x0002
+        sParam              = "Environment"
+
+        import win32gui
+        res1, res2          = win32gui.SendMessageTimeout(HWND_BROADCAST,
+                                WM_SETTINGCHANGE, 0, sParam, SMTO_ABORTIFHUNG, 100)
+        if  not res1:
+            print ("result %s, %s from SendMessageTimeout" % (bool(res1), res2))
+        
+    except Exception, e:
+        print e
 
 
