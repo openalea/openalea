@@ -483,8 +483,7 @@ class SyntaxColor:
 #             )
         return False
         
-        
-if __name__=="__main__":
+def main():        
     # Test the widget independently.
     from code import InteractiveInterpreter as Interpreter
     a = QtGui.QApplication(sys.argv)
@@ -497,5 +496,6 @@ if __name__=="__main__":
     a.exec_()
 
 
-
+if __name__=="__main__":
+    main()
 
