@@ -17,8 +17,8 @@ setup(
     namespace_packages = ["openalea"],
 
     py_modules = ['deploygui_postinstall'],
-    packages = find_packages('src'),
-    package_dir = { 'openalea' : 'src', 'openalea.deploygui': 'src' }, 
+    packages = ["openalea", "openalea.deploygui"],
+    package_dir = { 'openalea' : 'src/openalea', 'openalea.deploygui': 'src/openalea/deploygui' }, 
     include_package_data = True,
     zip_safe = True,
 
