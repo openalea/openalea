@@ -50,7 +50,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.locationList.addItem(OPENALEA_PI)
 
         self.pi = None # package index
-        self.pnamemap = {}
+        self.pnamemap = {} # map txt and (pname, dist)
         sys.stdout = self
         sys.stderr = self
 
@@ -78,21 +78,36 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         env = pkg_resources.Environment()
 
         for project_name in self.pi:
-
-            dist = self.pi._distmap[project_name][0]
-            version = dist.py_version or ""
-            platform = dist.platform or ""
+            for dist in self.pi._distmap[project_name]:
+                
+                version = dist._version or ""
+                platform = dist.platform or ""
             
-            txt = "%s %s %s"%(project_name, version, platform,)
-            self.pnamemap[txt] = project_name
+                txt = "%s %s %s"%(project_name, version, platform,)
 
-            # Filter
-            if(dist.precedence != pkg_resources.EGG_DIST
-               or project_name in env
-               or env[project_name] == version  ):
-                continue
+                ignore = False
+                update = False
+                
+                # Filter
+                # Select only egg
+                if(dist.precedence != pkg_resources.EGG_DIST):
+                    ignore = True
+                    continue
 
-            self.packageList.addItem(txt)
+                # compare with already installed egg
+                installed_version = [d.version for d in env[project_name]]
+                if(installed_version):
+                    if(max(installed_version) < version):
+                        update = True
+                    else:
+                        ignore = True
+
+                if(update): txt += " (UPDATE)"
+                if(not ignore):
+                    self.packageList.addItem(txt)
+                    pname = "%s==%s"%(project_name, version)
+                    self.pnamemap[txt] = (pname, dist)
+                            
             
         print "Done\n"
 
@@ -135,18 +150,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             item = self.packageList.item(i)
             
             if(item.isSelected()):
-                pname = self.pnamemap[str(item.text())]
+                pname, dist = self.pnamemap[str(item.text())]
                 print "Installing ", pname
-                dist = self.pi[pname][0]
-                self.install_package(dist)
+                self.install_package(pname, dist)
             
         self.refresh()
         
 
-    def install_package(self, dist):
-        """ Start alea_install for a particular dist """
+    def install_package(self, pname, dist):
+        """ Start alea_install for a particular project name """
         
-        print "Installing %s from %s\n"%(dist.project_name, dist.location)
+        print "Installing %s from %s\n"%(pname, dist.location)
         try:
             setup(
                 script_args = ['-q','alea_install', '-v'] + [dist.location],
