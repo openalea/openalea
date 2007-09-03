@@ -38,7 +38,6 @@ import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def main(args):
 
-       
     app = QtGui.QApplication(args)
 
     # Check Version

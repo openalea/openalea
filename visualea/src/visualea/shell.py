@@ -491,11 +491,12 @@ def main():
     interpreter = Interpreter()
     shellclass = get_shell_class()
     aw = shellclass(interpreter)
-
     aw.show()
     a.exec_()
 
 
 if __name__=="__main__":
     main()
+
+    
 
