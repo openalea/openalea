@@ -26,6 +26,7 @@ __revision__=" $Id: visualeagui.py 606 2007-06-25 12:55:41Z dufourko $"
 
 import sys, os
 import signal
+import cookielib, urllib, urllib2
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -59,7 +60,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.refreshButton, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.addLocButton, QtCore.SIGNAL("clicked()"), self.add_location)
         self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
-
+        self.connect(self.actionCookie_Session, QtCore.SIGNAL("activated()"), self.inriagforge_authentify)
+        
         self.refresh()
 
 
@@ -110,6 +112,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             
             
         print "Done\n"
+
+        try:
+            url = urllib2.urlopen('https://gforge.inria.fr/frs/?group_id=79')
+            page = url.read()
+
+            if 'PyLsysGui-0.1.0.dev_r3506-py2.5.egg' in page : print "SUCCESS"
+            
+        except Exception, e:
+            print e
+            
+
 
 
     def get_repo_list(self):
@@ -190,6 +203,67 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 self.locationList.takeItem(i)
 
 
+    def inriagforge_authentify(self):
+        """ Cookie based authentification """
+
+        login, ok = QtGui.QInputDialog.getText(self, "Login", "Enter your login name:",
+                                          QtGui.QLineEdit.Normal, "")
+        if not ok : return
+        
+        password, ok = QtGui.QInputDialog.getText(self, "Password", "Enter your password:",
+                                               QtGui.QLineEdit.Password, "")
+
+        if not ok :
+            password = None
+            return
+
+        # Create login/password values
+        values = {'form_loginname':login,
+                  'form_pw':password,
+                  'return_to' : '',
+                  'login' : "Connexion avec SSL" }
+
+        url = "https://gforge.inria.fr/account/login.php"
+
+        cookie_login(url, values)
+        
+        
+
+def cookie_login(login_url, values):
+    """ Open a session
+    login_url : the login url
+    values : dictionnary containing login form field
+    """
+    
+    # Enable cookie support for urllib2
+    cookiejar = cookielib.CookieJar()
+    urlOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
+    
+    data = urllib.urlencode(values)
+    request = urllib2.Request(login_url, data)
+    url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
+    page = url.read()
+    urllib2.install_opener(urlOpener)
+
+
+    # Make sure we are logged in by checking the presence of the cookie "session_ser".
+    # (which is the cookie containing the session identifier.)
+    if not 'session_ser' in [cookie.name for cookie in cookiejar]:
+        print "Login failed with login=%s" % (login,)
+    else:
+        print "We are logged in !"
+
+    try:
+        url = urllib2.urlopen('https://gforge.inria.fr/frs/?group_id=79')
+        page = url.read()
+
+        if 'PyLsysGui-0.1.0.dev_r3506-py2.5.egg' in page : print "SUCCESS"
+            
+    except Exception, e:
+        print e
+
+
+        
 
                 
 

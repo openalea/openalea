@@ -160,8 +160,20 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuAuthentification" >
+    <property name="title" >
+     <string>Authentification</string>
+    </property>
+    <addaction name="actionCookie_Session" />
+   </widget>
+   <addaction name="menuAuthentification" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
+  <action name="actionCookie_Session" >
+   <property name="text" >
+    <string>INRIA GForge Session</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>packageList</tabstop>

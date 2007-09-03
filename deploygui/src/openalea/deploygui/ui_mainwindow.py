@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Jul 17 16:01:20 2007
+# Created: Mon Sep  3 15:51:57 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,11 +89,19 @@ class Ui_MainWindow(object):
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0,0,779,25))
         self.menubar.setObjectName("menubar")
+
+        self.menuAuthentification = QtGui.QMenu(self.menubar)
+        self.menuAuthentification.setObjectName("menuAuthentification")
         MainWindow.setMenuBar(self.menubar)
 
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
+        self.actionCookie_Session = QtGui.QAction(MainWindow)
+        self.actionCookie_Session.setObjectName("actionCookie_Session")
+        self.menuAuthentification.addAction(self.actionCookie_Session)
+        self.menubar.addAction(self.menuAuthentification.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -112,5 +120,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Locations", None, QtGui.QApplication.UnicodeUTF8))
         self.addLocButton.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.removeLocButton.setText(QtGui.QApplication.translate("MainWindow", "Remove", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuAuthentification.setTitle(QtGui.QApplication.translate("MainWindow", "Authentification", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCookie_Session.setText(QtGui.QApplication.translate("MainWindow", "INRIA GForge Session", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
