@@ -44,7 +44,10 @@ setup(
     
     # Scripts
     entry_points = { 'gui_scripts': [
-                           'visualea = openalea.visualea.visualea_script:start_gui',]},
+                           'visualea = openalea.visualea.visualea_script:start_gui',
+                           'aleashell = openalea.visualea.shell:main',
+
+                           ]},
 
     postinstall_scripts = ['visualea_postinstall'],
  
