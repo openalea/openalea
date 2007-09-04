@@ -2,9 +2,9 @@
 
 # -*- python -*-
 #
-#       OpenAlea.Visualea: OpenAlea graphical user interface
+#       OpenAlea.DeployGui: OpenAlea installation frontend
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -17,16 +17,15 @@
 #
 
 __doc__="""
-Main Module for graphical interface
+Main Module for installation graphical frontend
 """
 
 __license__= "CeCILL v2"
-__revision__=" $Id: visualeagui.py 606 2007-06-25 12:55:41Z dufourko $"
+__revision__=" $Id$"
 
 
 import sys, os
 import signal
-import cookielib, urllib, urllib2
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -36,6 +35,7 @@ from openalea.deploy import OPENALEA_PI
 from setuptools.package_index import PackageIndex
 import pkg_resources
 from setuptools import setup
+from auth import cookie_login
 
 
 
@@ -112,16 +112,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             
             
         print "Done\n"
-
-        try:
-            url = urllib2.urlopen('https://gforge.inria.fr/frs/?group_id=79')
-            page = url.read()
-
-            if 'PyLsysGui-0.1.0.dev_r3506-py2.5.egg' in page : print "SUCCESS"
-            
-        except Exception, e:
-            print e
-            
 
 
 
@@ -226,44 +216,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         url = "https://gforge.inria.fr/account/login.php"
 
         cookie_login(url, values)
+        self.refresh()
         
         
 
-def cookie_login(login_url, values):
-    """ Open a session
-    login_url : the login url
-    values : dictionnary containing login form field
-    """
-    
-    # Enable cookie support for urllib2
-    cookiejar = cookielib.CookieJar()
-    urlOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
-    
-    data = urllib.urlencode(values)
-    request = urllib2.Request(login_url, data)
-    url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
-    page = url.read()
-    urllib2.install_opener(urlOpener)
-
-
-    # Make sure we are logged in by checking the presence of the cookie "session_ser".
-    # (which is the cookie containing the session identifier.)
-    if not 'session_ser' in [cookie.name for cookie in cookiejar]:
-        print "Login failed with login=%s" % (login,)
-    else:
-        print "We are logged in !"
-
-    try:
-        url = urllib2.urlopen('https://gforge.inria.fr/frs/?group_id=79')
-        page = url.read()
-
-        if 'PyLsysGui-0.1.0.dev_r3506-py2.5.egg' in page : print "SUCCESS"
-            
-    except Exception, e:
-        print e
-
-
-        
 
                 
 
