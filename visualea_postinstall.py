@@ -8,7 +8,8 @@ def install():
     from os.path import join as pj
 
     winexe = sys.executable
-    winexe = winexe.replace('python', 'pythonw')
+    winexe = winexe.replace('python.exe', 'pythonw.exe')
+        
     create_win_shortcut(name = 'Visualea',
                         target = winexe,
                         arguments = '"'+pj(sys.prefix, 'Scripts', 'visualea-script.pyw')+'"',
