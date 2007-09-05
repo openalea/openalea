@@ -64,10 +64,9 @@ Go to http://gforge.inria.fr/frs/?group_id=79
 
 === Requirements ===
 
-* OpenAlea.Config
 * Scons >= 0.96.93
 * SconsX
-* DistX
+* OpenAlea.Deploy
 * Boost.Python
 
 
