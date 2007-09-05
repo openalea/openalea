@@ -24,6 +24,7 @@ __revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
 
 
 import pkg_resources
+import os, sys
 from os.path import join as pj
 
 
@@ -112,6 +113,46 @@ def get_all_bin_dirs(namespace=None):
             full_location = pj(location, sh)
             yield full_location
 
+
+
+def check_system():
+    """
+    Check system configuration and return environment variables dictionary
+    This function need OpenAlea.Deploy
+    """
+
+    inenv = dict(os.environ)
+    outenv = {}
+    
+    try:
+
+        # Linux
+        if(("posix" in os.name) and ("linux" in sys.platform.lower())):
+
+            paths =  set(get_all_bin_dirs())
+            paths.update(set(inenv['PATH'].split(':')))
+            
+            libs = set(get_all_lib_dirs())
+            libs.update(set(inenv['LD_LIBRARY_PATH'].split(':')))
+
+            # libs
+            outenv['LD_LIBRARY_PATH'] = ':'.join(libs)
+            outenv['PATH'] = ':'.join(paths)
+
+                
+
+        # Windows
+        elif("win" in sys.platform.lower()):
+
+            libs = set(get_all_lib_dirs())
+            libs.update(set(inenv['PATH'].split(';')))
+            
+            outenv['PATH'] = ';'.join(libs)
+                  
+    except Exception, e:
+        print e
+
+    return outenv
 
 
         
