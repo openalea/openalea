@@ -26,7 +26,7 @@ __doc__=""" See OpenAlea WebSite / Packages / SConsX """
 
 import os, sys
 import string
-pj= os.path.join
+pj = os.path.join
 
 from SCons.Script import *
 from SCons.Options import PathOption, BoolOption, EnumOption, Options
@@ -94,8 +94,8 @@ def getLocalPath():
 #--------------------------------------------------------------------------------
 # Global Path settings
 
-tool_path= os.path.join(getLocalPath() , 'tools')
-sys.path= [tool_path] + sys.path
+tool_path = os.path.join(getLocalPath() , 'tools')
+sys.path = [tool_path] + sys.path
 
 
 #--------------------------------------------------------------------------------
