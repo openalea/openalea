@@ -17,13 +17,22 @@ def install():
                         icon = "",
                         description = "Visual programming",
                         menugroup = "OpenAlea")
+
+    create_win_shortcut(name = 'Python Shell',
+                        target = winexe,
+                        arguments = '"'+pj(sys.prefix, 'Scripts', 'aleashell-script.pyw')+'"',
+                        startin = "", 
+                        icon = "",
+                        description = "Python Shell",
+                        menugroup = "OpenAlea")
+    
         
 
-    create_fd_shortcut(name='Visualea',
-                       target=sys.executable, 
-                       arguments=pj(sys.prefix, 'bin', 'visualea'), 
-                       menugroup='OpenAlea', 
-                       icon='' )
+    #create_fd_shortcut(name='Visualea',
+    #                   target=sys.executable, 
+    #                   arguments=pj(sys.prefix, 'bin', 'visualea'), 
+    #                   menugroup='OpenAlea', 
+    #                   icon='' )
    
 
 
