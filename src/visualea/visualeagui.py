@@ -48,8 +48,6 @@ def main(args):
                                          "Visualea need QT library >=4.2")
 
         return 
- 
-
 
     #splash screen
     pix=QtGui.QPixmap(":/icons/splash.png")
@@ -57,13 +55,11 @@ def main(args):
     splash.show()
     QtGui.QApplication.processEvents()
     
-    
     import time
     time.sleep(1)
 
 
     session = Session()
-
 
     win = MainWindow(session)
 
