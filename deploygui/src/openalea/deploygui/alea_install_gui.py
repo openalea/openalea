@@ -152,7 +152,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         for i in xrange(self.packageList.count()):
             item = self.packageList.item(i)
             
-            if(item.isSelected()):
+            if(item and item.isSelected()):
                 pname, dist = self.pnamemap[str(item.text())]
                 print "Installing ", pname
                 self.install_package(pname, dist)
