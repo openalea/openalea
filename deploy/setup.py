@@ -59,7 +59,10 @@ setup(
                  ],
               
               "console_scripts": [
-                 "alea_install = openalea.deploy.alea_install:main", ],
+                 "alea_install = openalea.deploy.alea_install:main",
+                 "alea_config = openalea.deploy.alea_config:main",
+                 ],
+              
               },
 
      install_requires = [] + plat_requires,
