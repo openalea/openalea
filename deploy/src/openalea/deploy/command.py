@@ -500,8 +500,9 @@ class alea_install(easy_install):
         """ Call postinstall scripts """
 
         print "Post installation"
-        pkg_resources.require(dist.project_name)
-        sys.path.append(dist.location)
+        if(dist):
+            pkg_resources.require(dist.project_name)
+            sys.path.append(dist.location)
                 
         try:
             lstr = dist.get_metadata("postinstall_scripts.txt")
