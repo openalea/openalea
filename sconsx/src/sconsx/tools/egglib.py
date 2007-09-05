@@ -33,14 +33,14 @@ class EggLib:
       self.config = config
       self._default = {}
 
-      self.lib_key = "%s_lib"%(self.name)
-      self.include_key = "%s_include"%(self.name)
+      _name = name.replace(".", "_")
+      self.lib_key = "%s_lib"%(_name)
+      self.include_key = "%s_include"%(_name)
       
       
       
    def default( self ):
       """Set default tool values"""
-
 
       try:
          from openalea.deploy import get_inc_dirs, get_lib_dirs, get_base_dir
@@ -59,7 +59,7 @@ class EggLib:
          self._default[self.include_key] = ""
       
 
-   def option(  self, opts ):
+   def option(self, opts):
       """Add scons options to opts"""
       
       self.default()
@@ -73,11 +73,11 @@ class EggLib:
                 self._default[self.include_key])
 
 
-   def update( self, env ):
+   def update(self, env):
       """ Update the environment with specific flags """
 
-      env.AppendUnique( CPPPATH=[env[self.include_key]] )
-      env.AppendUnique( LIBPATH=[env[self.lib_key]] )
+      env.AppendUnique(CPPPATH=[env[self.include_key]] )
+      env.AppendUnique(LIBPATH=[env[self.lib_key]] )
 
       #env.EnableALEALib= _EnableALEALib
 
