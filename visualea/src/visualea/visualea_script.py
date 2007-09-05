@@ -35,32 +35,10 @@ def check_system_setuptools():
     This function need OpenAlea.Deploy
     """
 
+    from openalea.deploy import check_system
     envv = dict(os.environ)
-
-    try:
-        from openalea.deploy import get_all_lib_dirs
-
-        if(("posix" in os.name) and ("linux" in sys.platform.lower())):
-
-            confstr = ':'.join(get_all_lib_dirs('openalea'))
-            
-            if(not envv.has_key('LD_LIBRARY_PATH')):
-                envv['LD_LIBRARY_PATH'] = "%s"%(confstr,)
-            else:
-                envv['LD_LIBRARY_PATH'] += ":%s"%(confstr,)
-                
-
-        elif("win" in sys.platform.lower()):
-
-            confstr = ';'.join(get_all_lib_dirs('openalea'))
-
-            if(not envv.has_key('PATH')):
-                envv['PATH'] = "%s"%(confstr,)
-            else:
-                envv['PATH'] += ";%s"%(confstr,)
-                  
-    except Exception, e:
-        print e
+    res = check_system()
+    envv.update(res)
 
     return envv
 
