@@ -129,7 +129,7 @@ def check_system():
         # Linux
         if(("posix" in os.name) and ("linux" in sys.platform.lower())):
 
-            paths =  set(get_all_bin_dirs())
+            paths = set(get_all_bin_dirs())
             paths.update(set(inenv['PATH'].split(':')))
             
             libs = set(get_all_lib_dirs())

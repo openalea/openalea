@@ -477,13 +477,22 @@ class alea_install(easy_install):
 
         set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs+bin_dirs)),
                      'PATH=%OPENALEA_LIB%',])
-        
-        set_lsb_env('openalea',
-                    ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
-                     'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
-                     'LD_LIBRARY_PATH=$OPENALEA_LIB',
-                     'PATH=$OPENALEA_BIN'
-                     ])
+
+        try:
+            set_lsb_env('openalea',
+                        ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
+                         'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
+                         'LD_LIBRARY_PATH=$OPENALEA_LIB',
+                         'PATH=$OPENALEA_BIN'
+                         ])
+        except:
+            print "\nIMPORTANT !!!"
+            print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
+            print "# Set OpenAlea variables"
+            print "$(/usr/bin/alea_config)"
+            print ""
+        return
+
 
         sys.path = path
 
