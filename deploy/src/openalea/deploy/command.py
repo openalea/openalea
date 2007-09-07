@@ -108,6 +108,12 @@ class build_py(old_build_py):
     Create namespace
     """
 
+    def initialize_options (self):
+        old_build_py.initialize_options(self)
+	self.scons_ext_param = ""  # None value are not accepted
+	self.scons_path = None     # Scons path
+
+
     def run(self):
         # Run others commands
         self.run_command("create_namespaces")
@@ -119,6 +125,24 @@ class build_ext(old_build_ext):
     Enhanced 'build_ext'
     Add lib_dirs and inc_dirs parameters to package parameter
     """
+
+    # User options
+    user_options = []
+    user_options.extend( old_build_ext.user_options )
+    user_options.append( ( 'scons-ext-param=' ,
+                           None,
+                           'External parameters to pass to scons.' ) )
+    user_options.append( ( 'scons-path=',
+                           None,
+                           'Optional scons executable path.'
+                           'eg : C:\Python25\scons.bat for windows.' ) )
+
+
+    def initialize_options (self):
+        old_build_ext.initialize_options(self)
+	self.scons_ext_param = ""  # None value are not accepted
+	self.scons_path = None     # Scons path
+
 
     def run(self):
         # Run others commands
@@ -231,7 +255,7 @@ class scons(Command):
         self.scons_scripts = []   #scons directory
         self.scons_parameters = [] #scons parameters
 	self.build_dir = None        #build directory
-	self.scons_ext_param = ""  #scons external parameters
+	self.scons_ext_param = None  #scons external parameters
 	self.scons_path = None
 
 
@@ -245,7 +269,12 @@ class scons(Command):
             pass
 
         if(not self.scons_parameters):
-            self.scons_parameters = "" 
+            self.scons_parameters = ""
+
+        self.set_undefined_options('build_ext',
+                                   ('build_lib', 'build_dir'),
+                                   ('scons_ext_param', 'scons_ext_param'),
+                                   ('scons_path', 'scons_path'))
 
 
     def get_source_files(self):
