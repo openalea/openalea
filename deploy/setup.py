@@ -65,6 +65,6 @@ setup(
               
               },
 
-     install_requires = plat_requires,
+    #install_requires = plat_requires,
 )
 

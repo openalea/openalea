@@ -467,6 +467,8 @@ class alea_install(easy_install):
                 bdir = get_base_dir("pywin32")
                 pywin32lib = pj(bdir, "pywin32_system32")
                 set_win_env(['PATH=%s'%(pywin32lib,),])
+            except:
+                pass
         
 
     def set_env(self):
