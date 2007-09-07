@@ -9,10 +9,10 @@ from setuptools import setup, find_packages
 from os.path import join as pj
 import sys, os
 
-if('win' in sys.platform):
-    plat_requires = ['pywin32']
-else:
-    plat_requires = []
+# if('win' in sys.platform):
+#     plat_requires = ['pywin32']
+# else:
+#     plat_requires = []
 
 
 setup(

@@ -230,7 +230,7 @@ def install_deploy():
     try:
         main(['-f', ALEA_PI_URL, "openalea.deploy"])
     except:
-        print "Ex"
+        print "Cannot install openalea.deploy"
 
 
 def install_pkg(name):
@@ -268,7 +268,7 @@ def install_openalea():
     pkgs = ["openalea.deploygui",]
 
     if("win" in sys.platform):
-        pkgs += ["qt4",]
+        pkgs += ["pywin32", "qt4",]
         
     for pkg in pkgs:
         install_pkg(pkg)
