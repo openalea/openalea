@@ -452,9 +452,21 @@ class alea_install(easy_install):
 
         if("win" in sys.platform):
             # install pywin32
-            bdir = get_base_dir("pywin32")
-            pywin32lib = pj(bdir, "pywin32_system32")
-            set_win_env(['PATH=%s'%(pywin32lib,),])
+            try:
+                pkg_resources.require("pywin32")
+
+            except pkg_resources.DistributionNotFound:
+
+                # install pywin32
+                from setuptools.command.easy_install import main
+                main(['-f', ALEA_PI_URL, "openalea.deploy"])
+                
+
+            try:
+                pkg_resources.require("pywin32")
+                bdir = get_base_dir("pywin32")
+                pywin32lib = pj(bdir, "pywin32_system32")
+                set_win_env(['PATH=%s'%(pywin32lib,),])
         
 
     def set_env(self):
@@ -520,8 +532,6 @@ class alea_install(easy_install):
 
         # Add pywin32 path
         if('win' in sys.platform):
-    
-            from openalea.deploy import get_base_dir
             win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
 
             if(win32dir not in os.environ['PATH']):
