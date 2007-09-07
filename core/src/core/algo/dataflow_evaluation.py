@@ -49,7 +49,9 @@ class BrutEvaluation (AbstractEvaluation) :
 		
 		df = self._dataflow
 		actor = df.actor(vid)
-		
+
+		self._evaluated.add(vid)
+
 		# For each inputs
 		for pid in df.in_ports(vid) :
 			inputs = []
@@ -60,9 +62,8 @@ class BrutEvaluation (AbstractEvaluation) :
 				nvid = df.vertex(npid)
 				if nvid not in self._evaluated:
 					self.eval_vertex(nvid)
-
-				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
-				cpt += 1
+					inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
+					cpt += 1
 
 			# set input as a list or a simple value
 			if(cpt == 1) : inputs = inputs[0]
@@ -70,7 +71,6 @@ class BrutEvaluation (AbstractEvaluation) :
 			
 		# Eval the node
 		actor.eval()
-		self._evaluated.add(vid)
 	
 	
 	def eval (self, *args) :
