@@ -252,7 +252,6 @@ class CompositeNode(Node, DataFlow):
             return classobj(self)
 
         except Exception, e:
-            print "Evaluation Algo Error", e
             from  algo.dataflow_evaluation import SelectiveEvaluation
             return SelectiveEvaluation(self)
 

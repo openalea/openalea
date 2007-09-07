@@ -112,20 +112,6 @@ def register_packages(pkgmanager):
     package.add_factory( nf )
 
 
-    nf = Factory( name="enumTest",
-                  description="String Enumeration",
-                  category="Data Types",
-                  nodemodule="data",
-                  nodeclass="EnumTest",
-
-                  inputs=(dict(name="Str", interface=IEnumStr(["enum1", "enum2", "enum3"]),
-                               value="enum1"),),
-                  outputs=(dict(name="Str", interface = IStr),),
-                  )
-                      
-    package.add_factory( nf )
-
-
     nf = Factory( name="rgb",
                   description="RGB tuple",
                   category="Data Types",
@@ -177,15 +163,6 @@ def register_packages(pkgmanager):
                   )
 
     package.add_factory( nf )
-
-
-    nf = Factory( name="list9",
-                  description="Create a list with lots of elements.",
-                  category="Data Types",
-                  nodemodule="data",
-                  nodeclass="List9",
-                  )
-
 
 
     nf = Factory( name="Pool Reader",

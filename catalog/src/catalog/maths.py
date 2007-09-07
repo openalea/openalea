@@ -16,7 +16,7 @@
 
 
 __doc__="""
-Mathematics
+Mathematic
 """
 
 __license__= "Cecill-C"
@@ -107,6 +107,13 @@ def py_max(l=[]):
     """ max(l) """
     return max(l)
 
+def py_cos(x=0.):
+    """ cos(x) """
+    return cos(x)
+
+def py_sin(x=0.):
+    """ sin(x) """
+    return sin(x)
 
 def py_randint(a=0, b=100):
     """Return random integer in range [a, b], including both end points."""

@@ -109,15 +109,6 @@ Ouput 0 : Transmit the stored value
 
 
 
-class EnumTest(Node):
-    """
-String enumeration Test
-    """
-
-    def __call__(self, inputs):
-        return ( inputs[0], )
-
-
 class RGB(Node):
     """
 RGB Color
@@ -159,37 +150,12 @@ class Pair(Node):
         return ( (inputs[0], inputs[1]), )
 
 
-class List9(Node):
-    """
-    Python list with 8 entries.
-    """
-
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input( name = "i0", interface = None)
-        self.add_input( name = "i1", interface = None)
-        self.add_input( name = "i2", interface = None)
-        self.add_input( name = "i3", interface = None)
-        self.add_input( name = "i4", interface = None)
-        self.add_input( name = "i5", interface = None)
-        self.add_input( name = "i6", interface = None)
-        self.add_input( name = "i7", interface = None)
-        self.add_input( name = "i8", interface = None)
-        self.add_output( name = "list", interface = ISequence) 
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        l= filter(None,inputs)
-        return ( l, )
-
-
 from openalea.core.datapool import DataPool
 
 class PoolReader(Node):
     """
-In : Name (String)
-Out : Object (Any)
+In : Name (key)
+Out : Object (value)
     """
 
     def __init__(self, inputs, outputs):
@@ -201,8 +167,10 @@ Out : Object (Any)
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        key = str(inputs[0])
-        obj = self.pool[key]
+        key = inputs[0]
+        obj = self.pool.get(key)
+        if key in self.pool:
+            self.set_caption(str(key))
         return (obj, )
 
 
@@ -220,8 +188,9 @@ In :  Name (String), Object (Any)
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        key = str(inputs[0])
-        obj = str(inputs[1])
+        key = inputs[0]
+        obj = inputs[1]
+        self.set_caption(str(key)+' : '+str(obj))
         self.pool[key] = obj
 
 

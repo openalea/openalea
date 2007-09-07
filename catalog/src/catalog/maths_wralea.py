@@ -43,12 +43,12 @@ def register_packages(pkgmanager):
                     )
 
 
-    package = Package("Catalog.Maths", metainfo)
+    package = Package("Catalog.Math", metainfo)
 
 
     nf = Factory( name="==", 
                   description="Equality test", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_equal",
                   )
@@ -58,7 +58,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name=">", 
                   description="Greater than test", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_greater",
                   )
@@ -68,7 +68,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name=">=", 
                   description="greater or Equal test", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_greater_or_equal",
                   )
@@ -78,7 +78,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="and", 
                   description="Boolean And", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_and",
                   )
@@ -88,7 +88,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="or", 
                   description="Boolean Or", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_or",
                   )
@@ -98,7 +98,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name= "not", 
                   description="Boolean Not", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_not",
                   )
@@ -107,12 +107,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="+", 
                   description="Addition", 
-                  category="Maths", 
-                  inputs=(dict(name='a', interface=None),
-                          dict(name='b', interface=None)
-                         ),
-                  outputs= (dict(name='out', interface=None),
-                           ),
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_add",
                   )
@@ -122,7 +117,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="-", 
                   description="Soustraction", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_sub",
                   )
@@ -132,7 +127,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="*", 
                   description="Multiplication", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_mult",
                   )
@@ -142,7 +137,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="/", 
                   description="Division", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_div",
                   )
@@ -152,7 +147,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="abs", 
                   description="Absolute value", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_abs",
                   )
@@ -162,7 +157,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="cmp", 
                   description="Compare 2 objects", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_cmp",
                   )
@@ -173,7 +168,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="**", 
                   description="Power", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_pow",
                   )
@@ -184,26 +179,25 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="cos", 
                   description="Cosinus", 
-                  category="Maths",
-                  inputs=[dict(name='x', interface=IFloat)], 
-                  nodemodule="math",
-                  nodeclass="cos",
+                  category="Math",
+                  nodemodule="maths",
+                  nodeclass="py_cos",
                   )
 
     package.add_factory(nf)
 
     nf = Factory( name="sin", 
                   description="Sinus", 
-                  category="Maths", 
-                  nodemodule="math",
-                  nodeclass="sin",
+                  category="Math", 
+                  nodemodule="maths",
+                  nodeclass="py_sin",
                   )
 
     package.add_factory(nf)
 
     nf = Factory( name="round", 
                   description="Round value", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_round",
                   )
@@ -213,7 +207,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="min", 
                   description="Minimum of a sequence", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_min",
                   )
@@ -223,7 +217,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="max", 
                   description="Maximum of a sequence", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_max",
                   )
@@ -233,7 +227,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="randint", 
                   description="Random integer", 
-                  category="Maths", 
+                  category="Math", 
                   nodemodule="maths",
                   nodeclass="py_randint",
                   lazy = False,
