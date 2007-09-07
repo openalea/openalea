@@ -459,7 +459,7 @@ class alea_install(easy_install):
 
                 # install pywin32
                 from setuptools.command.easy_install import main
-                main(['-f', ALEA_PI_URL, "openalea.deploy"])
+                main(['-f', OPENALEA_PI, "pywin32"])
                 
 
             try:
