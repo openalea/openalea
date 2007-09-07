@@ -255,6 +255,32 @@ def test_addnode():
     assert sg.node(addid).get_output(0) == 6.
 
 
+# Test loop
+def test_loop():
+    pm = PackageManager ()
+    pm.init()
+
+    sg = CompositeNode()
+
+    # build the compositenode factory
+    val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+
+    sg.connect (val1id, 0, val2id, 0)
+    sg.connect (val2id, 0, val3id, 0)
+    sg.connect (val3id, 0, val1id, 0)
+
+
+    sgfactory = CompositeNodeFactory("testloop")
+
+    sg.node(val1id).set_input(0,"teststring")
+    sg.eval_as_expression(val3id)
+    assert sg.node(val2id).get_output(0) == "teststring"
+    assert sg.node(val3id).get_output(0) == "teststring"
+
+
+
 # Test multiple out connection
 def test_multi_out_eval():
     pm = PackageManager ()
