@@ -491,6 +491,10 @@ def main():
     interpreter = Interpreter()
     shellclass = get_shell_class()
     aw = shellclass(interpreter)
+
+    # static resize
+    aw.resize(600,400)
+
     aw.show()
     a.exec_()
 
