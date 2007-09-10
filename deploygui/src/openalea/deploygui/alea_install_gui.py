@@ -165,16 +165,24 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         
         print "Installing %s from %s\n"%(pname, dist.location)
         try:
-            repositories = ['-f'] + self.get_repo_list()
+            repositories = []
+            for r in self.get_repo_list():
+                repositories += ['-f', r]
+
             setup(
                 script_args = ['-q','alea_install', '-v'] + repositories + [dist.location],
                 script_name = 'alea_install',
                 )
+
         except Exception, e:
             print e
             self.write(str(e))
+
         except :
             print "Unexpected error:", sys.exc_info()[0]
+            print "Please check you have permission to install package in " + \
+                  "the destination directory."
+
 
 
     def add_location(self):
@@ -185,6 +193,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                                           QtGui.QLineEdit.Normal, "http://")
         if(ok):
             self.locationList.addItem(str(repo))
+            self.refresh()
 
 
     def remove_location(self):
