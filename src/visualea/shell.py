@@ -487,7 +487,10 @@ def main():
     # Test the widget independently.
     from code import InteractiveInterpreter as Interpreter
     a = QtGui.QApplication(sys.argv)
-    
+
+    # Restore default signal handler for CTRL+C
+    import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     interpreter = Interpreter()
     shellclass = get_shell_class()
     aw = shellclass(interpreter)
