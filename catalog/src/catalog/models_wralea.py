@@ -43,7 +43,7 @@ def register_packages(pkgmanager):
                     )
 
 
-    package = Package("Catalog.Models", metainfo)
+    package = Package("Catalog.Model", metainfo)
 
     
     nf = Factory( name="linearmodel", 

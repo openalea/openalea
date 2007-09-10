@@ -41,7 +41,7 @@ def register_packages(pkgmanager):
                }
 
 
-    package = Package("Catalog.Stats", metainfo)
+    package = Package("Catalog.Stat", metainfo)
 
 ###### begin nodes definitions #############
 
