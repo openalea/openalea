@@ -100,6 +100,7 @@ class SciShell(QsciScintilla):
         except AttributeError:
             sys.ps2 = "... "
 
+
         #self.completionText = ""
         # Excecution Status
         self.more = False
@@ -203,7 +204,7 @@ class SciShell(QsciScintilla):
         """
         Reimplemented slot to handle the paste action.
         """
-        lines = unicode(QApplication.clipboard().text())
+        lines = unicode(QtGui.QApplication.clipboard().text())
         self.__executeLines(lines)
         
         
@@ -211,7 +212,8 @@ class SciShell(QsciScintilla):
         """
         Private method to handle the middle mouse button press.
         """
-        lines = unicode(QApplication.clipboard().text(QClipboard.Selection))
+        lines = unicode(QtGui.QApplication.clipboard().text(
+            QtGui.QClipboard.Selection))
         self.__executeLines(lines)
 
         
@@ -289,7 +291,24 @@ class SciShell(QsciScintilla):
         Private method to check, if the cursor is on the last line.
         """
         cline, ccol = self.getCursorPosition()
-        return cline == self.lines() - 1    
+        return cline == self.lines() - 1
+
+
+    def contextMenuEvent(self, e):
+        pass
+
+
+    def mousePressEvent(self, event):
+        """
+        Protected method to handle the mouse press event.
+        
+        @param event the mouse press event (QMouseEvent)
+        """
+        self.setFocus()
+        if event.button() == Qt.MidButton:
+            self.__middleMouseButton()
+        else:
+            QsciScintilla.mousePressEvent(self, event)
 
 
     def keyPressEvent(self, ev):
@@ -304,7 +323,10 @@ class SciShell(QsciScintilla):
         ctrl = ev.modifiers() & Qt.ControlModifier
 
         if(ctrl):
-            QsciScintilla.keyPressEvent(self, ev)
+            if(key is 86): # ctrl+v
+                self.paste()
+            else:
+                QsciScintilla.keyPressEvent(self, ev)
 
         elif(self.keymap.has_key(key)):
             self.keymap[key]()
