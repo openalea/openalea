@@ -41,6 +41,7 @@ def is_available():
         return False
     return True
 
+
 class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
     """ Text annotation on the data flow """
     
@@ -81,10 +82,11 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
         
 
     def focusOutEvent(self, event):
-        
-        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        QtGui.QGraphicsTextItem.focusOutEvent(self, event)
+
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
+        #self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        return QtGui.QGraphicsTextItem.focusOutEvent(self, event)
+
 
 
     @lock_notify

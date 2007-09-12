@@ -399,7 +399,11 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             pass
         
         item = self.graph_item[elt_id]
-        item.remove_connections()
+        try:
+            item.remove_connections()
+        except:
+            pass
+        
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
 
