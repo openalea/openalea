@@ -41,6 +41,8 @@ from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
 
+from util import busy_pointer
+
 
 
 class MainWindow(QtGui.QMainWindow,
@@ -343,7 +345,8 @@ class MainWindow(QtGui.QMainWindow,
         self.pkgmanager.find_and_register_packages()
         self.reinit_treeview()
 
-    
+
+    @busy_pointer
     def run(self):
         """ Run the active workspace """
 

@@ -36,6 +36,7 @@ from openalea.core.observer import AbstractListener
 import annotation
 
 from dialogs import DictEditor
+from util import busy_pointer
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -870,7 +871,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             for k in editor.modified_key:
                 self.subnode.set_data(k, editor.pdict[k])
             
-        
+    @busy_pointer
     def run_node(self):
         """ Run the current node """
         self.graphview.node.eval_as_expression(self.elt_id)
@@ -1077,24 +1078,11 @@ class ConnectorOut(Connector):
 
         action = menu.addAction("Send to Pool")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.send_to_pool)
-
-        action = menu.addAction("Print")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.print_value)
-
         
         menu.move(event.screenPos())
         menu.show()
 
         event.accept()
-
-
-    def print_value(self):
-        """ Print output value """
-
-        #self.parentItem().run_node()
-        node = self.parentItem().subnode
-        data = node.get_output(self.mindex)
-        print data
         
 
     def send_to_pool(self):
