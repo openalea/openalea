@@ -37,7 +37,7 @@ usage: %(script)s [options] requirement_or_url ...
 
     with_ei_usage(lambda:
         setup(
-            script_args = ['-q','alea_install', '-v']+argv,
+            script_args = ['-q','alea_install', '-v'] + argv,
             script_name = sys.argv[0] or 'alea_install',
             distclass=DistributionWithoutHelpCommands, **kw
         )

@@ -25,6 +25,8 @@ __revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
 
 import os, sys
 import shutil
+from distutils.errors import *
+
 from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
@@ -32,6 +34,7 @@ from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
+from setuptools.command.develop import develop
 
 import setuptools.command.build_py
 import setuptools.command.build_ext
@@ -473,7 +476,7 @@ class alea_install(easy_install):
         self.postinstall(self.dist)
 
         # Set environment
-        self.set_env()
+        set_env()
 
 
     def set_system(self):
@@ -490,7 +493,6 @@ class alea_install(easy_install):
                 from setuptools.command.easy_install import main
                 main(['-f', OPENALEA_PI, "pywin32"])
                 
-
             try:
                 pkg_resources.require("pywin32")
                 bdir = get_base_dir("pywin32")
@@ -499,45 +501,6 @@ class alea_install(easy_install):
             except:
                 pass
         
-
-    def set_env(self):
-        """ Set environment variables """
-
-        print "Setting environment variables"
-
-        # Avoid local copy for setting environment variables
-        path = sys.path[:]
-        try:
-            sys.path.remove(os.path.abspath('.'))
-        except:
-            pass
-
-        lib_dirs = list(get_all_lib_dirs())
-        bin_dirs = list(get_all_bin_dirs())
-        
-        print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
-        print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
-
-        set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs+bin_dirs)),
-                     'PATH=%OPENALEA_LIB%',])
-
-        try:
-            set_lsb_env('openalea',
-                        ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
-                         'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
-                         'LD_LIBRARY_PATH=$OPENALEA_LIB',
-                         'PATH=$OPENALEA_BIN'
-                         ])
-        except:
-            print "\nIMPORTANT !!!"
-            print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
-            print "# Set OpenAlea variables"
-            print "$(/usr/bin/alea_config)"
-            print ""
-        return
-
-
-        sys.path = path
 
 
     def process_distribution(self, requirement, dist, deps=True, *info):
@@ -580,4 +543,62 @@ class alea_install(easy_install):
                 print "Warning : Cannot execute %s"%(s,)
                 print e
 
+
         
+class build_develop(develop):
+    """
+    build_develop
+    -call build and build_ext
+    -update environment
+    """
+
+
+    def install_for_development(self):
+        self.run_command('build')
+        develop.install_for_development(self)
+        
+
+    def run(self):
+        develop.run(self)
+        set_env()
+
+
+
+def set_env():
+    """ Set environment variables """
+
+    print "Setting environment variables"
+
+    # Avoid local copy for setting environment variables
+    path = sys.path[:]
+    try:
+        sys.path.remove(os.path.abspath('.'))
+    except:
+        pass
+    
+    lib_dirs = list(get_all_lib_dirs())
+    bin_dirs = list(get_all_bin_dirs())
+        
+    print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
+    print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
+
+    set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs+bin_dirs)),
+                 'PATH=%OPENALEA_LIB%',])
+
+    try:
+        set_lsb_env('openalea',
+                    ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
+                     'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
+                     'LD_LIBRARY_PATH=$OPENALEA_LIB',
+                     'PATH=$OPENALEA_BIN'
+                     ])
+    except:
+        print "\nIMPORTANT !!!"
+        print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
+        print "# Set OpenAlea variables"
+        print "$(/usr/bin/alea_config)"
+        print ""
+        return
+
+
+    sys.path = path

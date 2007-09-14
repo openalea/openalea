@@ -95,7 +95,6 @@ def get_all_lib_dirs(namespace=None):
         location = get_base_dir(e)
 
         for sh in get_lib_dirs(e):
-
             full_location = pj(location, sh)
             yield full_location
 

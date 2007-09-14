@@ -281,17 +281,40 @@ def install_setuptools():
     else:
         main(sys.argv[1:])
 
+        
+
+def finalize_installation():
+    try:
+        from openalea.deploy import  check_system
+        import os
+        
+        print "\nTo install OpenAlea packages you can start the graphical Installer:"
+        print "  - On Windows : Start Menu -> OpenAlea -> Installer"
+        print "  - On Linux/Unix : use the shell command 'alea_install_gui'"
+        print "  - You can also use the command 'alea_install' in a shell"
+
+        env = check_system()
+        os.environ.update(env)
+        
+        os.system('%s -c "import openalea.deploygui.alea_install_gui as gui; gui.main()"'%(sys.executable))
+    except:
+        print "OpenAlea is not installed properly."
+
+
+
 if(__name__ == "__main__"):
 
     # Excecute the script in 2 process
     if("openalea" in sys.argv):
         install_openalea()
+        finalize_installation()
+        raw_input("\n== Press Enter to finish. ==")
+
     else:
         install_setuptools()
         os.system('%s %s openalea'%(sys.executable, __file__))
-        os.system('%s -c "import openalea.deploygui.alea_install_gui as gui; gui.main()"'%(sys.executable))
+        
     
-
 
 
 
