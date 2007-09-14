@@ -89,7 +89,9 @@ def pylen(obj):
     """ len(obj) """
 
     f= None
-    if callable(obj):
+    if not obj:
+        f = lambda x: len(x)
+    elif callable(obj):
         f= lambda x: len(obj(x))
     else:
         f= len(obj)
