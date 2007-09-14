@@ -1077,11 +1077,24 @@ class ConnectorOut(Connector):
 
         action = menu.addAction("Send to Pool")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.send_to_pool)
+
+        action = menu.addAction("Print")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.print_value)
+
         
         menu.move(event.screenPos())
         menu.show()
 
         event.accept()
+
+
+    def print_value(self):
+        """ Print output value """
+
+        #self.parentItem().run_node()
+        node = self.parentItem().subnode
+        data = node.get_output(self.mindex)
+        print data
         
 
     def send_to_pool(self):
