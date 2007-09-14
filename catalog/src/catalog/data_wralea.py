@@ -46,14 +46,27 @@ def register_packages(pkgmanager):
 
     package = Package("Catalog.Data", metainfo)
 
-    nf = Factory( name="inputfile", 
+    nf = Factory( name="filename", 
                   description="File name", 
                   category="Data Types", 
                   nodemodule="data",
-                  nodeclass="InputFile",
+                  nodeclass="FileName",
 
                   inputs=(dict(name='FileStr', interface=IFileStr, value=''),),
                   outputs=(dict(name='FileStr', interface=IFileStr),)
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="dirname", 
+                  description="Directory name", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="DirName",
+
+                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),),
+                  outputs=(dict(name='DirStr', interface=IDirStr),)
                   )
 
     package.add_factory( nf )
@@ -67,6 +80,32 @@ def register_packages(pkgmanager):
 
                   inputs=(dict(name="String", interface=IStr, value=''),),
                   outputs=(dict(name="String", interface=IStr),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="text", 
+                  description="Text", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="Text",
+
+                  inputs=(dict(name="Text", interface=ITextStr, value=''),),
+                  outputs=(dict(name="Text", interface=ITextStr),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="datetime", 
+                  description="DateTime", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="DateTime",
+
+                  inputs=(dict(name="DateTime", interface=IDateTime, value=''),),
+                  outputs=(dict(name="DateTime", interface=IDateTime),),
                   )
 
     package.add_factory( nf )

@@ -96,6 +96,19 @@ class IStr(IInterface):
 
 class IFileStr(IStr):
     """ File Path interface """
+
+    def __init__(self, filter="All (*.*)"):
+        self.filter = filter
+
+
+
+class IDirStr(IStr):
+    """ Directory Path interface """
+    pass
+
+
+class ITextStr(IStr):
+    """ Long String interface """
     pass
 
 
@@ -150,6 +163,11 @@ class IRGBColor(IInterface):
     pass
 
 
+class IDateTime(IInterface):
+    """ DateTime """
+    pass
+
+
 class ITuple3(IInterface):
     """ Tuple3 """
 
@@ -161,6 +179,7 @@ class ITuple3(IInterface):
 class IFunction(IInterface):
     """ Function interface """
     __pytype__ = types.FunctionType
+
 
 
 class ISequence(IInterface):

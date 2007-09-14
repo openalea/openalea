@@ -26,7 +26,7 @@ __revision__=" $Id$ "
 from openalea.core import *
 
 
-class InputFile(Node):
+class FileName(Node):
     """
 A file path
 Out :  the file path string
@@ -37,6 +37,17 @@ Out :  the file path string
 
         return ( str(inputs[0]),  )
 
+
+class DirName(Node):
+    """
+A directory path
+Out :  the path string
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        return ( str(inputs[0]),  )
 
 
 class Bool(Node):
@@ -108,11 +119,24 @@ Ouput 0 : Transmit the stored value
         return ( str(inputs[0]), )
 
 
+class Text(Node):
+    """
+Text Variable
+Input 0 : The stored value
+Ouput 0 : Transmit the stored value
+    """
 
-class RGB(Node):
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        return ( str(inputs[0]), )
+
+
+
+class DateTime(Node):
     """
-RGB Color
-    """
+DateTime
+"""
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
