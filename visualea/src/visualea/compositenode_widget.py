@@ -450,8 +450,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
-            newnode.set_data('posx', position.x())
-            newnode.set_data('posy', position.y())
+            newnode.set_data('posx', position.x(), False)
+            newnode.set_data('posy', position.y(), False)
         
             newid = self.node.add_node(newnode)
             self.add_graphical_node(newid)
@@ -790,8 +790,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
             point = value.toPointF()
         
-            self.subnode.set_data('posx', point.x())
-            self.subnode.set_data('posy', point.y())
+            self.subnode.set_data('posx', point.x(), False)
+            self.subnode.set_data('posy', point.y(), False)
          
             #self.graphview.itemMoved(self, value)
 

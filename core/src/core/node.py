@@ -73,10 +73,11 @@ class AbstractNode(IActor, Observed):
         # Internal Data (caption...)
         self.internal_data = {}
 
-    def set_data(self, key, value):
+    def set_data(self, key, value, notify=True):
         """ Set internal node data """
         self.internal_data[key] = value
-        self.notify_listeners(("data_modified",))
+        if(notify):
+            self.notify_listeners(("data_modified",))
 
 
 
