@@ -83,6 +83,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
         self.spin.setValue(v)
         
 
+
 class IIntWidget(IInterfaceWidget, QtGui.QWidget):
     """
     integer spin box widget
@@ -234,6 +235,111 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.subwidget.setText(str(self.node.get_input(self.param_str)))
         
+
+
+class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
+    """
+    Date widget
+    """
+
+    __interface__ = IDateTime
+    __metaclass__ = make_metaclass()
+
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        QtGui.QWidget.__init__(self, parent)
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.hboxlayout = QtGui.QHBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QDateTimeEdit(self)
+        self.hboxlayout.addWidget(self.subwidget)
+
+        try:
+            self.subwidget.setDateTime(self.node.get_input(self.param_str))
+        except:
+            pass
+
+        self.connect(self.subwidget, QtCore.SIGNAL
+                     ("dateTimeChanged( const QDateTime & datetime )"), self.valueChanged)
+
+
+    @lock_notify      
+    def valueChanged(self, newval):
+        d = newval.toPyDateTime()
+        self.node.set_input(self.param_str, d)
+        
+        
+    def notify(self, sender, event):
+        """ Notification sent by node """
+
+        try:
+            self.subwidget.setDateTime(self.node.get_input(self.param_str))
+        except:
+            pass
+
+
+
+class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
+    """
+    Multi-Line Edit widget
+    """
+
+    __interface__ = ITextStr
+    __metaclass__ = make_metaclass()
+
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        QtGui.QWidget.__init__(self, parent)
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.hboxlayout = QtGui.QHBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(parameter_str)
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QTextEdit (self)
+        self.hboxlayout.addWidget(self.subwidget)
+
+        self.subwidget.setText(str(self.node.get_input(self.param_str)))
+
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+
+
+    @lock_notify      
+    def valueChanged(self):
+        self.node.set_input(self.param_str, self.subwidget.toPlainText())
+                
+        
+    def notify(self, sender, event):
+        """ Notification sent by node """
+
+        self.subwidget.setText(str(self.node.get_input(self.param_str)))
+
+
 
 class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     """
@@ -548,7 +654,6 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
 
 
         
-
 class IFileStrWidget(IStrWidget):
     """
     File name Line Edit Widget
@@ -569,19 +674,55 @@ class IFileStrWidget(IStrWidget):
         self.last_result = QtCore.QDir.homePath()
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
+        self.filter = interface.filter
 
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def button_clicked(self):
         
-        result = QtGui.QFileDialog.getOpenFileName(self, "Select File", self.last_result)
+        result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
+                                                   self.last_result, self.filter)
     
         if(result):
             self.node.set_input(self.param_str, str(result))
             self.last_result = result
 
-            
+
+class IDirStrWidget(IStrWidget):
+    """
+    File name Line Edit Widget
+    """
+
+    __interface__ = IDirStr
+    __metaclass__ = make_metaclass()
+
+
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        IStrWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.last_result = QtCore.QDir.homePath()
+        self.button = QtGui.QPushButton("...", self)
+        self.hboxlayout.addWidget(self.button)
+
+        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+
+
+    def button_clicked(self):
+        
+        result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.last_result)
+    
+        if(result):
+            self.node.set_input(self.param_str, str(result))
+            self.last_result = result
+
+
+
         
 class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
     """ String Enumeration widget """
