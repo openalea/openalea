@@ -314,7 +314,8 @@ if(__name__ == "__main__"):
 
     else:
         install_setuptools()
-        os.chdir(os.path.dirname(__file__))
+        d = os.path.dirname(__file__)
+        if(d) : os.chdir(d)
         os.system('"%s" "%s" openalea'%(sys.executable, os.path.basename(__file__)))
         raw_input("\n== Press Enter to finish. ==")
 
