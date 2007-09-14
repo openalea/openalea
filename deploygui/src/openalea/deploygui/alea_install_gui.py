@@ -38,6 +38,17 @@ from setuptools import setup
 from auth import cookie_login
 
 
+def busy_pointer(f):
+    """ Decorator to display a busy pointer """
+
+    def wrapped(*args):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
+        f(*args)
+        QtGui.QApplication.restoreOverrideCursor ()
+        
+    return wrapped
+
+
 
 class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     """ Main configuration window """
@@ -65,7 +76,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.refresh()
 
 
-
+    @busy_pointer
     def refresh(self):
         """ Refresh the list of packages """
 
@@ -145,7 +156,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def isatty(self):
         return 1
 
-
+    @busy_pointer
     def proceed(self):
         """ Install selected packages """
 
