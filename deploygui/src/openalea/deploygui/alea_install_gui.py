@@ -25,6 +25,7 @@ __revision__=" $Id$"
 
 
 import sys, os
+import shutil
 import signal
 
 from PyQt4 import QtGui
@@ -37,6 +38,7 @@ import pkg_resources
 from setuptools import setup
 from auth import cookie_login
 
+url = "http://openalea.gforge.inria.fr"
 
 def busy_pointer(f):
     """ Decorator to display a busy pointer """
@@ -67,6 +69,13 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         sys.stderr = self
 
         # Signal connection
+        self.connect(self.action_Quit, QtCore.SIGNAL("activated()"), self.quit)
+        self.connect(self.action_About, QtCore.SIGNAL("activated()"), self.about)
+        self.connect(self.action_Web, QtCore.SIGNAL("activated()"), self.web)
+        self.connect(self.radioAll, QtCore.SIGNAL("clicked()"), self.refresh)
+        self.connect(self.radioRecommended, QtCore.SIGNAL("clicked()"), self.refresh)
+        self.connect(self.radioUpdate, QtCore.SIGNAL("clicked()"), self.refresh)
+        self.connect(self.radioInstalled, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.proceedButton, QtCore.SIGNAL("clicked()"), self.proceed)
         self.connect(self.refreshButton, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.addLocButton, QtCore.SIGNAL("clicked()"), self.add_location)
@@ -76,20 +85,68 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.refresh()
 
 
+    def quit(self):
+        self.close()
+
+
+    def about(self):
+         """ Display About Dialog """
+        
+         mess = QtGui.QMessageBox.about(self, "About OpenAlea Installer",
+                                        
+                                        u"Copyright \xa9  2006-2007 INRIA - CIRAD - INRA\n"+
+                                        "This Software is distributed under the Cecill-V2 License.\n\n"+
+                                       
+                                        "Visit %s\n\n"%(url,)
+                                       )
+
+
+    def web(self):
+        """ Open OpenAlea website """
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+
+
+
+    def get_mode(self):
+        """ Return a string corresponding to the package mode:
+        ALL, RECOMMENDED, UPDATE, INSTALLED
+        """
+
+        if(self.radioAll.isChecked()):
+            return "ALL"
+        elif(self.radioRecommended.isChecked()):
+            return "RECOMMENDED"
+        elif(self.radioUpdate.isChecked()):
+            return "UPDATE"
+        elif(self.radioInstalled.isChecked()):
+            return "INSTALLED"
+
+        return None
+                
+
     @busy_pointer
     def refresh(self):
         """ Refresh the list of packages """
 
         print "Refreshing package list..."
-        self.pi = PackageIndex("")
-        self.pi.add_find_links(self.get_repo_list())
-        self.pi.prescan()
 
         self.packageList.clear()
         self.pnamemap.clear()
 
         env = pkg_resources.Environment()
 
+        mode = self.get_mode()
+
+        # select the correct package index
+        if(mode == "INSTALLED"):
+            self.pi = env
+        else:
+            self.pi = PackageIndex("")
+            self.pi.add_find_links(self.get_repo_list())
+            self.pi.prescan()
+
+
+        # Parse each distribution
         for project_name in self.pi:
             for dist in self.pi._distmap[project_name]:
                 
@@ -108,16 +165,36 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     continue
 
                 # compare with already installed egg
-                installed_version = [d.version for d in env[project_name]]
-                if(installed_version):
-                    if(max(installed_version) < version):
-                        update = True
-                    else:
-                        ignore = True
+                if(mode != "INSTALLED"):
+                    installed_version = [d.version for d in env[project_name]]
+                    if(installed_version):
+                        if(max(installed_version) < version):
+                            update = True
+                        else:
+                            ignore = True
+                            continue
+                
+                if(ignore) : continue
+                if(update): txt += " -- UPDATE --"
 
-                if(update): txt += " (UPDATE)"
-                if(not ignore):
-                    self.packageList.addItem(txt)
+                # Filter depending of mode
+                if(mode == "ALL" or mode == "INSTALLED"):
+                    ok = True
+                    
+                elif(mode == "RECOMMENDED" and
+                     "openalea" in project_name.lower()):
+                    ok = True
+                    
+                elif(mode == "UPDATE" and update):
+                    ok = True
+
+                else : ok = False
+                     
+                
+                if(ok):
+                    listitem = QtGui.QListWidgetItem(txt, self.packageList)
+                    listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
+                    listitem.setCheckState(QtCore.Qt.Unchecked)
                     pname = "%s==%s"%(project_name, version)
                     self.pnamemap[txt] = (pname, dist)
                             
@@ -163,10 +240,15 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         for i in xrange(self.packageList.count()):
             item = self.packageList.item(i)
             
-            if(item and item.isSelected()):
+            if(item and item.checkState() == QtCore.Qt.Checked):
                 pname, dist = self.pnamemap[str(item.text())]
-                print "Installing ", pname
-                self.install_package(pname, dist)
+
+                if(self.get_mode() == "INSTALLED"):
+                    print "Removing ", pname
+                    self.remove_package(pname, dist)
+                else:
+                    print "Installing ", pname
+                    self.install_package(pname, dist)
             
         self.refresh()
         
@@ -194,6 +276,24 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             print "Please check you have permission to install package in " + \
                   "the destination directory."
 
+
+    def remove_package(self, pname, dist):
+        """ Remove a distribution """
+        
+        try:
+            print "Delete ", dist.location
+            if(os.path.isdir(dist.location)):
+                shutil.rmtree(dist.location)
+            else:
+                os.remove(dist.location)
+            
+        except Exception, e:
+            print e
+            self.write(str(e))
+
+        except :
+            print "Unexpected error:", sys.exc_info()[0]
+            print "Please check you have permission to remove packages. "
 
 
     def add_location(self):
