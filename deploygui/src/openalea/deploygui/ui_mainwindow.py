@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Sep 17 18:22:32 2007
+# Created: Mon Sep 17 19:06:11 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,66 +21,82 @@ class Ui_MainWindow(object):
         self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.label_4 = QtGui.QLabel(self.centralwidget)
+        self.tabWidget = QtGui.QTabWidget(self.centralwidget)
+        self.tabWidget.setObjectName("tabWidget")
+
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout1.setObjectName("vboxlayout1")
+
+        self.label_4 = QtGui.QLabel(self.tab)
         self.label_4.setObjectName("label_4")
-        self.vboxlayout.addWidget(self.label_4)
+        self.vboxlayout1.addWidget(self.label_4)
 
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setObjectName("hboxlayout")
 
-        self.radioRecommended = QtGui.QRadioButton(self.centralwidget)
+        self.radioRecommended = QtGui.QRadioButton(self.tab)
         self.radioRecommended.setChecked(True)
         self.radioRecommended.setObjectName("radioRecommended")
         self.hboxlayout.addWidget(self.radioRecommended)
 
-        self.radioUpdate = QtGui.QRadioButton(self.centralwidget)
+        self.radioUpdate = QtGui.QRadioButton(self.tab)
         self.radioUpdate.setObjectName("radioUpdate")
         self.hboxlayout.addWidget(self.radioUpdate)
 
-        self.radioAll = QtGui.QRadioButton(self.centralwidget)
+        self.radioAll = QtGui.QRadioButton(self.tab)
         self.radioAll.setObjectName("radioAll")
         self.hboxlayout.addWidget(self.radioAll)
 
-        self.radioInstalled = QtGui.QRadioButton(self.centralwidget)
+        self.radioInstalled = QtGui.QRadioButton(self.tab)
         self.radioInstalled.setObjectName("radioInstalled")
         self.hboxlayout.addWidget(self.radioInstalled)
-        self.vboxlayout.addLayout(self.hboxlayout)
+        self.vboxlayout1.addLayout(self.hboxlayout)
 
-        self.packageList = QtGui.QListWidget(self.centralwidget)
+        self.packageList = QtGui.QListWidget(self.tab)
         self.packageList.setAlternatingRowColors(True)
         self.packageList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
         self.packageList.setSortingEnabled(True)
         self.packageList.setObjectName("packageList")
-        self.vboxlayout.addWidget(self.packageList)
+        self.vboxlayout1.addWidget(self.packageList)
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setSpacing(6)
         self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.proceedButton = QtGui.QPushButton(self.centralwidget)
+        self.proceedButton = QtGui.QPushButton(self.tab)
         self.proceedButton.setObjectName("proceedButton")
         self.hboxlayout1.addWidget(self.proceedButton)
 
-        self.refreshButton = QtGui.QPushButton(self.centralwidget)
+        self.refreshButton = QtGui.QPushButton(self.tab)
         self.refreshButton.setObjectName("refreshButton")
         self.hboxlayout1.addWidget(self.refreshButton)
-        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.vboxlayout1.addLayout(self.hboxlayout1)
 
-        self.label_3 = QtGui.QLabel(self.centralwidget)
+        self.label_3 = QtGui.QLabel(self.tab)
         self.label_3.setObjectName("label_3")
-        self.vboxlayout.addWidget(self.label_3)
+        self.vboxlayout1.addWidget(self.label_3)
 
-        self.logText = QtGui.QTextEdit(self.centralwidget)
+        self.logText = QtGui.QTextEdit(self.tab)
         self.logText.setReadOnly(True)
         self.logText.setObjectName("logText")
-        self.vboxlayout.addWidget(self.logText)
+        self.vboxlayout1.addWidget(self.logText)
+        self.tabWidget.addTab(self.tab,"")
 
-        self.label_2 = QtGui.QLabel(self.centralwidget)
+        self.tab_2 = QtGui.QWidget()
+        self.tab_2.setObjectName("tab_2")
+
+        self.vboxlayout2 = QtGui.QVBoxLayout(self.tab_2)
+        self.vboxlayout2.setObjectName("vboxlayout2")
+
+        self.label_2 = QtGui.QLabel(self.tab_2)
         self.label_2.setObjectName("label_2")
-        self.vboxlayout.addWidget(self.label_2)
+        self.vboxlayout2.addWidget(self.label_2)
 
-        self.locationList = QtGui.QListWidget(self.centralwidget)
+        self.locationList = QtGui.QListWidget(self.tab_2)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -88,21 +104,23 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.locationList.sizePolicy().hasHeightForWidth())
         self.locationList.setSizePolicy(sizePolicy)
         self.locationList.setObjectName("locationList")
-        self.vboxlayout.addWidget(self.locationList)
+        self.vboxlayout2.addWidget(self.locationList)
 
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setSpacing(6)
         self.hboxlayout2.setMargin(0)
         self.hboxlayout2.setObjectName("hboxlayout2")
 
-        self.addLocButton = QtGui.QPushButton(self.centralwidget)
+        self.addLocButton = QtGui.QPushButton(self.tab_2)
         self.addLocButton.setObjectName("addLocButton")
         self.hboxlayout2.addWidget(self.addLocButton)
 
-        self.removeLocButton = QtGui.QPushButton(self.centralwidget)
+        self.removeLocButton = QtGui.QPushButton(self.tab_2)
         self.removeLocButton.setObjectName("removeLocButton")
         self.hboxlayout2.addWidget(self.removeLocButton)
-        self.vboxlayout.addLayout(self.hboxlayout2)
+        self.vboxlayout2.addLayout(self.hboxlayout2)
+        self.tabWidget.addTab(self.tab_2,"")
+        self.vboxlayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -143,10 +161,17 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.tabWidget,self.radioRecommended)
+        MainWindow.setTabOrder(self.radioRecommended,self.radioUpdate)
+        MainWindow.setTabOrder(self.radioUpdate,self.radioAll)
+        MainWindow.setTabOrder(self.radioAll,self.radioInstalled)
+        MainWindow.setTabOrder(self.radioInstalled,self.packageList)
         MainWindow.setTabOrder(self.packageList,self.proceedButton)
         MainWindow.setTabOrder(self.proceedButton,self.refreshButton)
-        MainWindow.setTabOrder(self.refreshButton,self.locationList)
+        MainWindow.setTabOrder(self.refreshButton,self.logText)
+        MainWindow.setTabOrder(self.logText,self.locationList)
         MainWindow.setTabOrder(self.locationList,self.addLocButton)
         MainWindow.setTabOrder(self.addLocButton,self.removeLocButton)
 
@@ -155,23 +180,25 @@ class Ui_MainWindow(object):
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Packages</span> : Select the packages you want to install/update/remove and click on <span style=\" font-weight:600;\">Apply</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Packages</span> : Select the packages you want to install/update/remove and click on <span style=\" font-weight:600;\">Install/Remove</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.radioRecommended.setText(QtGui.QApplication.translate("MainWindow", "Recommended (to install)", None, QtGui.QApplication.UnicodeUTF8))
         self.radioUpdate.setText(QtGui.QApplication.translate("MainWindow", "Update (to install)", None, QtGui.QApplication.UnicodeUTF8))
         self.radioAll.setText(QtGui.QApplication.translate("MainWindow", "All (to install)", None, QtGui.QApplication.UnicodeUTF8))
         self.radioInstalled.setText(QtGui.QApplication.translate("MainWindow", "Installed (to remove)", None, QtGui.QApplication.UnicodeUTF8))
-        self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Apply", None, QtGui.QApplication.UnicodeUTF8))
-        self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
+        self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Install/Remove", None, QtGui.QApplication.UnicodeUTF8))
+        self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh List", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Log</span> : System Output</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Install/Remove Packages", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Locations </span>: repository URLs</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.addLocButton.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.removeLocButton.setText(QtGui.QApplication.translate("MainWindow", "Remove", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Repository", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAuthentification.setTitle(QtGui.QApplication.translate("MainWindow", "&Authentification", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
