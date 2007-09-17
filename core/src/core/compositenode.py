@@ -34,7 +34,6 @@ from pkgmanager import PackageManager
 from dataflow import DataFlow, InvalidEdge, PortError
 from algo.dataflow_copy import structural_copy
 from settings import Settings
-###############################################################################
 
 
 class CompositeNodeFactory(AbstractFactory):
@@ -75,8 +74,8 @@ class CompositeNodeFactory(AbstractFactory):
         self.doc = kargs.get('doc', "")
         
 
-    def clear (self) :
-
+    def clear(self) :
+        
         self.elt_factory.clear()
         self.connections.clear()
         self.elt_data.clear()
@@ -136,6 +135,49 @@ class CompositeNodeFactory(AbstractFactory):
         call_stack.pop()
 
         return new_df
+
+
+    def paste(self, cnode, data_modifiers=[], call_stack=None):
+        """ Paste to an existing CompositeNode instance
+        
+        @param data_modifiers : list of 2 uple (key, function) to apply to internal
+        data (for instance to move the node)
+        @param call_stack : the list of NodeFactory id already in recursion stack
+        (in order to avoid infinite loop)
+
+        @return the list of created id
+        """
+
+        # map to convert id
+        idmap = {}
+        
+        # Instantiate the node with each factory
+        for vid in self.elt_factory:
+            n = self.instantiate_node(vid, call_stack)
+
+            # Apply modifiers
+            for (key, func) in data_modifiers:
+                try:
+                    n.internal_data[key] = func(n.internal_data[key])
+                except:
+                    pass
+
+            newid = cnode.add_node(n, None)
+            idmap[vid] = newid
+
+        # Create the connections
+        for eid,link in self.connections.iteritems() :
+            (source_vid, source_port, target_vid, target_port) = link
+            # convert id
+            source_vid = idmap[source_vid]
+            target_vid = idmap[target_vid]
+            
+            cnode.connect(source_vid, source_port, target_vid, target_port)
+
+        self.graph_modified = False
+
+        return idmap.values()
+
 
 
     def instantiate_node(self, vid, call_stack=None):
@@ -407,12 +449,11 @@ class CompositeNode(Node, DataFlow):
                 factory_id = node.factory.get_id()
                 sgfactory.elt_factory[vid] = (pkg_id, factory_id)
 
-
             # Copy internal data
             sgfactory.elt_data[vid] = kdata
-            
-
+     
         self.graph_modified = False
+
 
 
     def add_node(self, node, vid = None):
@@ -491,6 +532,9 @@ class CompositeNode(Node, DataFlow):
                 return
             
         raise InvalidEdge("Edge not found")
+
+
+    
 
 
 

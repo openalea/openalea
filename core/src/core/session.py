@@ -59,7 +59,8 @@ class Session(Observed):
         self.pkgmanager = PackageManager()
 
         self.empty_cnode_factory = CompositeNodeFactory("Workspace")
-
+        self.clipboard = CompositeNodeFactory("Clipboard")
+        
         self.clear()
 
        
