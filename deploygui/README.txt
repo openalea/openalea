@@ -3,7 +3,7 @@ OpenAlea.Deploy-Gui
 Description
 -----------
 
-Graphical front-end for installing packages and their dependencies
+Graphical front-end to install/Uninstall packages.
 
 
 Dependencies

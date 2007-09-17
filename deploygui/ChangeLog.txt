@@ -1,0 +1,6 @@
+
+17/09/07 :  Add remove function
+            Improve interface 
+            Add authentification
+
+05/08/07 :  First implementation
