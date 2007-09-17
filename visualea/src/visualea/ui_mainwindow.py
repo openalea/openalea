@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Jul  3 13:30:32 2007
+# Created: Mon Sep 17 12:18:23 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,8 +19,8 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
 
         self.hboxlayout = QtGui.QHBoxLayout(self.centralwidget)
-        self.hboxlayout.setMargin(9)
         self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setMargin(9)
         self.hboxlayout.setObjectName("hboxlayout")
 
         self.splitter_2 = QtGui.QSplitter(self.centralwidget)
@@ -32,7 +32,7 @@ class Ui_MainWindow(object):
 
         self.packageview = QtGui.QWidget()
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(5))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.packageview.sizePolicy().hasHeightForWidth())
@@ -40,8 +40,8 @@ class Ui_MainWindow(object):
         self.packageview.setObjectName("packageview")
 
         self.vboxlayout = QtGui.QVBoxLayout(self.packageview)
-        self.vboxlayout.setMargin(9)
         self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setMargin(9)
         self.vboxlayout.setObjectName("vboxlayout")
         self.tabPackager.addTab(self.packageview,QtGui.QIcon(":/icons/package.png"),"")
 
@@ -49,8 +49,8 @@ class Ui_MainWindow(object):
         self.categoryview.setObjectName("categoryview")
 
         self.vboxlayout1 = QtGui.QVBoxLayout(self.categoryview)
-        self.vboxlayout1.setMargin(9)
         self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setMargin(9)
         self.vboxlayout1.setObjectName("vboxlayout1")
         self.tabPackager.addTab(self.categoryview,QtGui.QIcon(":/icons/category.png"),"")
 
@@ -58,8 +58,8 @@ class Ui_MainWindow(object):
         self.searchview.setObjectName("searchview")
 
         self.vboxlayout2 = QtGui.QVBoxLayout(self.searchview)
-        self.vboxlayout2.setMargin(9)
         self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setMargin(9)
         self.vboxlayout2.setObjectName("vboxlayout2")
 
         self.search_lineEdit = QtGui.QLineEdit(self.searchview)
@@ -74,8 +74,8 @@ class Ui_MainWindow(object):
         self.pooltab.setObjectName("pooltab")
 
         self.vboxlayout3 = QtGui.QVBoxLayout(self.pooltab)
-        self.vboxlayout3.setMargin(9)
         self.vboxlayout3.setSpacing(6)
+        self.vboxlayout3.setMargin(9)
         self.vboxlayout3.setObjectName("vboxlayout3")
         self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
 
@@ -83,8 +83,8 @@ class Ui_MainWindow(object):
         self.tab.setObjectName("tab")
 
         self.vboxlayout4 = QtGui.QVBoxLayout(self.tab)
-        self.vboxlayout4.setMargin(9)
         self.vboxlayout4.setSpacing(6)
+        self.vboxlayout4.setMargin(9)
         self.vboxlayout4.setObjectName("vboxlayout4")
 
         self.tableWidget = QtGui.QTableWidget(self.tab)
@@ -95,7 +95,7 @@ class Ui_MainWindow(object):
 
         self.splitter = QtGui.QSplitter(self.centralwidget)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
@@ -105,7 +105,7 @@ class Ui_MainWindow(object):
 
         self.tabWorkspace = QtGui.QTabWidget(self.splitter)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(3)
         sizePolicy.setHeightForWidth(self.tabWorkspace.sizePolicy().hasHeightForWidth())
@@ -116,8 +116,8 @@ class Ui_MainWindow(object):
         self.usetab.setObjectName("usetab")
 
         self.vboxlayout5 = QtGui.QVBoxLayout(self.usetab)
-        self.vboxlayout5.setMargin(9)
         self.vboxlayout5.setSpacing(6)
+        self.vboxlayout5.setMargin(9)
         self.vboxlayout5.setObjectName("vboxlayout5")
         self.tabWorkspace.addTab(self.usetab,"")
         self.hboxlayout.addWidget(self.splitter)
@@ -252,6 +252,15 @@ class Ui_MainWindow(object):
         self.actionOpen_Console = QtGui.QAction(MainWindow)
         self.actionOpen_Console.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionOpen_Console.setObjectName("actionOpen_Console")
+
+        self.action_Copy = QtGui.QAction(MainWindow)
+        self.action_Copy.setObjectName("action_Copy")
+
+        self.action_Paste = QtGui.QAction(MainWindow)
+        self.action_Paste.setObjectName("action_Paste")
+
+        self.action_Cut = QtGui.QAction(MainWindow)
+        self.action_Cut.setObjectName("action_Cut")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -269,7 +278,11 @@ class Ui_MainWindow(object):
         self.menu_Python.addAction(self.actionOpen_Console)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
+        self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
+        self.menu_Workspace.addAction(self.action_Copy)
+        self.menu_Workspace.addAction(self.action_Paste)
+        self.menu_Workspace.addAction(self.action_Cut)
         self.menu_Workspace.addAction(self.action_Delete_2)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.action_New_Empty_Workspace)
@@ -362,15 +375,21 @@ class Ui_MainWindow(object):
         self.actionShow_Pool.setText(QtGui.QApplication.translate("MainWindow", "Show Pool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShow_Pool.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
         self.action_OpenNode.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Delete_2.setText(QtGui.QApplication.translate("MainWindow", "&Delete Selection", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Delete_2.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Empty_Workspace.setText(QtGui.QApplication.translate("MainWindow", "&New Empty Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Empty_Workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReload_from_Model.setText(QtGui.QApplication.translate("MainWindow", "Reload", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConfigure_I_O.setText(QtGui.QApplication.translate("MainWindow", "Configure I/O", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionGroup_Selection.setText(QtGui.QApplication.translate("MainWindow", "Group Selection", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionGroup_Selection.setText(QtGui.QApplication.translate("MainWindow", "Group", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGroup_Selection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Console.setText(QtGui.QApplication.translate("MainWindow", "Open &Console", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Console.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Copy.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Copy.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Paste.setText(QtGui.QApplication.translate("MainWindow", "&Paste", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Paste.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Cut.setText(QtGui.QApplication.translate("MainWindow", "Cut", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

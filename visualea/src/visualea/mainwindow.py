@@ -149,6 +149,11 @@ class MainWindow(QtGui.QMainWindow,
                      self.open_python_console)
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
+        
+        self.connect(self.action_Copy, SIGNAL("activated()"), self.copy)
+        self.connect(self.action_Paste, SIGNAL("activated()"), self.paste)
+        self.connect(self.action_Cut, SIGNAL("activated()"), self.cut)
+        
         self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
         self.connect(self.actionGroup_Selection, SIGNAL("activated()"), self.group_selection)
         self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
@@ -612,6 +617,40 @@ class MainWindow(QtGui.QMainWindow,
         widget = self.index_nodewidget[cindex]
 
         try:
+            widget.remove_selection()
+        except AttributeError:
+            pass
+
+
+    def copy(self):
+        """ Copy """
+        cindex = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[cindex]
+
+        try:
+            widget.copy(self.session)
+        except AttributeError:
+            pass
+
+
+    def paste(self):
+        """ Paste """
+        cindex = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[cindex]
+
+        try:
+            widget.paste(self.session)
+        except AttributeError:
+            pass
+
+
+    def cut(self):
+        """ Cut """
+        cindex = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[cindex]
+
+        try:
+            widget.copy(self.session)
             widget.remove_selection()
         except AttributeError:
             pass

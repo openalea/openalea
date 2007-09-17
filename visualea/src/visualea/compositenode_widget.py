@@ -128,7 +128,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     @lock_notify      
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
-
         self.clear_scene()
         
         # create items
@@ -371,6 +370,32 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             self.remove_selection()
 
 
+    def copy(self, session):
+        """ Copy Selection """
+        
+        s = self.get_selected_item()
+        if(not s): return 
+
+        session.clipboard.clear()
+        self.node.to_factory(session.clipboard, s, auto_io=False)
+
+
+    @lock_notify
+    def paste(self, session):
+        """ Paste from clipboard """
+
+        l = lambda x :  x + 30
+        modifiers = [('posx', l), ('posy', l)]
+        new_ids = session.clipboard.paste(self.node, modifiers)
+
+        self.rebuild_scene()
+
+        # select new nodes
+        for i in new_ids:
+            item = self.graph_item[i]
+            item.setSelected(True)
+
+
     def get_center_pos(self, items):
         """ Return the center of items (items is the list of id) """
 
@@ -559,8 +584,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         menu.show()
         event.accept()
 
-        
-
+      
 
 # Utility function
 
