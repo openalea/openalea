@@ -1,4 +1,4 @@
-# configure openalea environment variables
+# Configure openalea environment variables
 
 
 from openalea.deploy import check_system
