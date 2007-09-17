@@ -74,8 +74,6 @@ class BrutEvaluation (AbstractEvaluation) :
 		# Eval the node
 		actor.eval()
 
-
-	
 	
 	def eval (self, *args) :
 		""" Evaluate the whole dataflow starting from leaves"""
@@ -104,4 +102,40 @@ class SelectiveEvaluation(BrutEvaluation) :
 		self._evaluated.clear()
 
 		self.eval_vertex(vtx_id)
+
+
+
+class PriorityEvaluation(BrutEvaluation) :
+	""" Support priority between nodes """
+	
+	def eval (self, vtx_id=None) :
+
+		df = self._dataflow
+		# Unvalidate all the nodes
+		self._evaluated.clear()
+
+		if(vtx_id is not None):
+			return self.eval_vertex(vtx_id)
+
+		# Select the leafs (list of (vid, actor))
+		leafs = [ (vid, df.actor(vid))
+			  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
+
+		# Sort by priority
+		def cmp_priority(x, y):
+			(xvid, xactor) = x
+			(yvid, yactor) = y
+			try: px = xactor.internal_data['priority']
+			except: px = 0
+			try: py = yactor.internal_data['priority']
+			except: py = 0
+
+			# reverse order
+			return cmp(py, px)
+
+		leafs.sort(cmp_priority)
+		
+		# Excecute
+		for vid, actor in leafs:
+			self.eval_vertex(vid)
 
