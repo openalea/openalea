@@ -261,7 +261,7 @@ class DataFlow(PropertyGraph):
 		and associate it with the given actor
 		return: vid
 		"""
-		vid=self.add_vertex(vid)
+		vid = self.add_vertex(vid)
 		for key,interface in actor.inputs() :
 			self.add_in_port(vid,key)
 			
