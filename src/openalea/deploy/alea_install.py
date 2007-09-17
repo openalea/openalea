@@ -1,4 +1,4 @@
-# Script which wrap easy install with some post-processing
+# Script to wrap easy install with some post-processing
 
 __requires__ = 'setuptools'
 import sys, os

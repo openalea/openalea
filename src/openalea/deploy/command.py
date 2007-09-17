@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Deploy: OpenAlea Deploy
+#       OpenAlea.Deploy: OpenAlea setuptools extension
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #
@@ -543,24 +543,6 @@ class alea_install(easy_install):
                 print "Warning : Cannot execute %s"%(s,)
                 print e
 
-
-        
-class build_develop(develop):
-    """
-    build_develop
-    -call build and build_ext
-    -update environment
-    """
-
-
-    def install_for_development(self):
-        self.run_command('build')
-        develop.install_for_development(self)
-        
-
-    def run(self):
-        develop.run(self)
-        set_env()
 
 
 
