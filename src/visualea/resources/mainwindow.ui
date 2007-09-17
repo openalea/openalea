@@ -17,11 +17,20 @@
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>9</number>
-    </property>
     <property name="spacing" >
      <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
     </property>
     <item>
      <widget class="QSplitter" name="splitter_2" >
@@ -34,9 +43,7 @@
        </property>
        <widget class="QWidget" name="packageview" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>3</hsizetype>
-          <vsizetype>5</vsizetype>
+         <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -48,11 +55,20 @@
          <iconset resource="images.qrc" >:/icons/package.png</iconset>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
         </layout>
        </widget>
@@ -64,11 +80,20 @@
          <iconset resource="images.qrc" >:/icons/category.png</iconset>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
         </layout>
        </widget>
@@ -80,11 +105,20 @@
          <iconset resource="images.qrc" >:/icons/search.png</iconset>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
          <item>
           <widget class="QLineEdit" name="search_lineEdit" />
@@ -104,11 +138,20 @@
          <iconset resource="images.qrc" >:/icons/datapool.png</iconset>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
         </layout>
        </widget>
@@ -117,11 +160,20 @@
          <string>Use</string>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
          <item>
           <widget class="QTableWidget" name="tableWidget" >
@@ -145,9 +197,7 @@
     <item>
      <widget class="QSplitter" name="splitter" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>7</hsizetype>
-        <vsizetype>7</vsizetype>
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
         <horstretch>10</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -157,9 +207,7 @@
       </property>
       <widget class="QTabWidget" name="tabWorkspace" >
        <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>7</hsizetype>
-         <vsizetype>7</vsizetype>
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
          <horstretch>4</horstretch>
          <verstretch>3</verstretch>
         </sizepolicy>
@@ -172,11 +220,20 @@
          <string>Root</string>
         </attribute>
         <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
          <property name="spacing" >
           <number>6</number>
+         </property>
+         <property name="leftMargin" >
+          <number>9</number>
+         </property>
+         <property name="topMargin" >
+          <number>9</number>
+         </property>
+         <property name="rightMargin" >
+          <number>9</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>9</number>
          </property>
         </layout>
        </widget>
@@ -238,7 +295,11 @@
     </property>
     <addaction name="action_Run" />
     <addaction name="actionConfigure_I_O" />
+    <addaction name="separator" />
     <addaction name="actionGroup_Selection" />
+    <addaction name="action_Copy" />
+    <addaction name="action_Paste" />
+    <addaction name="action_Cut" />
     <addaction name="action_Delete_2" />
     <addaction name="separator" />
     <addaction name="action_New_Empty_Workspace" />
@@ -437,7 +498,7 @@
   </action>
   <action name="action_Delete_2" >
    <property name="text" >
-    <string>&amp;Delete Selection</string>
+    <string>&amp;Delete</string>
    </property>
   </action>
   <action name="action_New_Empty_Workspace" >
@@ -465,7 +526,7 @@
   </action>
   <action name="actionGroup_Selection" >
    <property name="text" >
-    <string>Group Selection</string>
+    <string>Group</string>
    </property>
    <property name="shortcut" >
     <string>Ctrl+G</string>
@@ -480,6 +541,30 @@
    </property>
    <property name="shortcutContext" >
     <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="action_Copy" >
+   <property name="text" >
+    <string>Copy</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="action_Paste" >
+   <property name="text" >
+    <string>&amp;Paste</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="action_Cut" >
+   <property name="text" >
+    <string>Cut</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>
