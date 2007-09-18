@@ -16,7 +16,7 @@ class Usage(Exception):
         self.msg = msg
 
 
-class PackageLayout(object):
+class PackageBuilder(object):
     """
     Provide methods to build a standard layout package.
     Creates standard directories, files.
