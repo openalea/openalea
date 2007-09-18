@@ -1161,13 +1161,19 @@ class AbstractEdge(QtGui.QGraphicsLineItem):
     def shape(self):
 
         path = QtGui.QPainterPath()
-        
 
-        dp = QtCore.QPointF(20,0)
-        p1 = QtCore.QPointF(self.sourcePoint) - dp
-        p2 = QtCore.QPointF(self.sourcePoint) + dp
-        p3 = QtCore.QPointF(self.destPoint) + dp
-        p4 = QtCore.QPointF(self.destPoint) - dp
+        # Enlarge selection zone
+
+        diff = self.destPoint - self.sourcePoint
+        if( abs(diff.x()) > abs(diff.y())):
+            dp = QtCore.QPointF(0,10)
+        else:
+            dp = QtCore.QPointF(10,0)
+        
+        p1 = self.sourcePoint - dp
+        p2 = self.sourcePoint + dp
+        p3 = self.destPoint + dp
+        p4 = self.destPoint - dp
         poly = QtGui.QPolygonF([p1,p2,p3,p4])
         
         path.addPolygon(poly)
