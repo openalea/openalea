@@ -59,8 +59,7 @@ class Observed(object):
                 except Exception, e:
                     print "Warning : notification of %s failed"%(str(ref()),)
                     print e
-          
-
+ 
 
     def __getstate__(self):
         """ Pickle function """
