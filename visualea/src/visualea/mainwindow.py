@@ -188,8 +188,8 @@ class MainWindow(QtGui.QMainWindow,
         mess = QtGui.QMessageBox.about(self, "About Visualea",
                                        "Version %s\n\n"%(metainfo.version) +
                                        "VisuAlea is part of the OpenAlea framework.\n"+
-                                       u"Copyright \xa9  2006 INRIA - CIRAD - INRA\n"+
-                                       "This Software is distributed under the GPL License.\n\n"+
+                                       u"Copyright \xa9  2006-2007 INRIA - CIRAD - INRA\n"+
+                                       "This Software is distributed under the Cecill-V2 License.\n\n"+
                                        
                                        "Visit http://openalea.gforge.inria.fr\n\n"
                                        )
