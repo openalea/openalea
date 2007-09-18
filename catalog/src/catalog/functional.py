@@ -130,7 +130,7 @@ Output:
         
         binop= None
         
-        if not (f and g):
+        if (f is None) and (g is None):
             return (binop,)
         
         if callable(f) and callable(g):
