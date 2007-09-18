@@ -236,6 +236,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     @busy_pointer
     def proceed(self):
         """ Install selected packages """
+        ok = True
 
         for i in xrange(self.packageList.count()):
             item = self.packageList.item(i)
@@ -245,16 +246,28 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
                 if(self.get_mode() == "INSTALLED"):
                     print "Removing ", pname
-                    self.remove_package(pname, dist)
+                    ret = self.remove_package(pname, dist)
+                    ok = ret and ok
+                    
                 else:
                     print "Installing ", pname
-                    self.install_package(pname, dist)
-            
+                    ret = self.install_package(pname, dist)
+                    ok = ret and ok
+
+        if(ok):
+            mess = QtGui.QMessageBox.information(self, "OpenAlea Installer",
+                                                 "Success.")
+        else:
+            mess = QtGui.QMessageBox.warning(self, "OpenAlea Installer",
+                                                 "An error occured. Check the log output.")
+
         self.refresh()
         
 
     def install_package(self, pname, dist):
-        """ Start alea_install for a particular project name """
+        """ Start alea_install for a particular project name
+        return True if OK
+        """
         
         print "Installing %s from %s\n"%(pname, dist.location)
         try:
@@ -266,34 +279,42 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 script_args = ['-q','alea_install', '-v'] + repositories + [dist.location],
                 script_name = 'alea_install',
                 )
+            return True
 
         except Exception, e:
             print e
             self.write(str(e))
+            return False
 
         except :
             print "Unexpected error:", sys.exc_info()[0]
             print "Please check you have permission to install package in " + \
                   "the destination directory."
+            return False
 
 
     def remove_package(self, pname, dist):
-        """ Remove a distribution """
+        """ Remove a distribution
+        return True if OK
+        """
         
         try:
-            print "Delete ", dist.location
+            print "Remove ", dist.location
             if(os.path.isdir(dist.location)):
                 shutil.rmtree(dist.location)
             else:
                 os.remove(dist.location)
-            
+            return True
+
         except Exception, e:
             print e
             self.write(str(e))
+            return False
 
         except :
             print "Unexpected error:", sys.exc_info()[0]
             print "Please check you have permission to remove packages. "
+            return False
 
 
     def add_location(self):
