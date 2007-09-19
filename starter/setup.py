@@ -65,10 +65,13 @@ setup(
 
     
     include_package_data = True,
+    package_data = {'' : ['*.pyd', '*.so'],},
+
     zip_safe= False,
 
     lib_dirs = {'lib' : pj(build_prefix, 'lib'), },
     inc_dirs = { 'include' : pj(build_prefix, 'include') },
+    
     #postinstall_scripts = ['',],
 
     # Scripts
