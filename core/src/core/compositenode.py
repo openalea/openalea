@@ -134,6 +134,10 @@ class CompositeNodeFactory(AbstractFactory):
         # Set call stack to its original state
         call_stack.pop()
 
+        # Properties
+        new_df.lazy = self.lazy
+
+
         return new_df
 
 
@@ -211,6 +215,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
         return DisplayGraphWidget(node, parent)
+
 
 
 ################################################################################
@@ -294,7 +299,7 @@ class CompositeNode(Node, DataFlow):
             return classobj(self)
 
         except Exception, e:
-            from  algo.dataflow_evaluation import SelectiveEvaluation
+            from  algo.dataflow_evaluation import GeneratorEvaluation
             return SelectiveEvaluation(self)
 
 
@@ -313,7 +318,7 @@ class CompositeNode(Node, DataFlow):
     def eval(self):
         """
         Evaluate the graph
-        Return True if the node has been calculated
+        Return True if the node need a reevaluation (like generator)
         """
 
         self.eval_as_expression()
@@ -321,13 +326,12 @@ class CompositeNode(Node, DataFlow):
         self.modified = False
         self.notify_listeners( ("status_modified",self.modified) )
         
-        return True
+        return False
 
 
     def __call__(self, inputs=()):
         """
         Evaluate the graph
-        Return True if the node has been calculated
         """
 
         self.eval_as_expression()
@@ -404,6 +408,10 @@ class CompositeNode(Node, DataFlow):
         
         # Clear the factory
         sgfactory.clear()
+
+        # Properties
+        sgfactory.lazy = self.lazy
+        
         # I / O
         if(auto_io):
             (ins, outs, sup_connect) = self.compute_io(listid)
@@ -608,6 +616,7 @@ class PyCNFactoryWriter(object):
                               elt_factory=$ELT_FACTORY,
                               elt_connections=$ELT_CONNECTIONS,
                               elt_data=$ELT_DATA,
+                              lazy=$LAZY,
                               )
 
     pkg.add_factory(nf)
@@ -630,6 +639,7 @@ class PyCNFactoryWriter(object):
                                       ELT_FACTORY=repr(f.elt_factory),
                                       ELT_CONNECTIONS=repr(f.connections),
                                       ELT_DATA=repr(f.elt_data),
+                                      LAZY=repr(f.lazy),
                                       )
         return result
 

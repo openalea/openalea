@@ -26,6 +26,7 @@ __revision__=" $Id$ "
 
 import weakref
 
+
 class Observed(object):
     """ Observed Object """
 

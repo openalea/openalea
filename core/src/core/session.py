@@ -26,9 +26,8 @@ __revision__=" $Id$ "
 
 import os, sys
 
-from compositenode import CompositeNodeFactory,CompositeNode
+from compositenode import CompositeNodeFactory
 from pkgmanager import PackageManager
-from package import Package, UserPackage
 from observer import Observed
 from datapool import DataPool
 
