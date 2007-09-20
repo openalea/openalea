@@ -81,6 +81,19 @@ class IterNode(Node):
 
 
 
+class RDVNode(Node):
+    """
+    Rendez Vous node (synchronisation)
+    In1 : Value
+    In2 : Unused (control flow)
+    Out : Value
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        return inputs
+
+
 from openalea.core.datapool import DataPool
 
 class PoolReader(Node):
@@ -101,7 +114,7 @@ Out : Object (value)
         key = inputs[0]
         obj = self.pool.get(key)
         if key in self.pool:
-            self.set_caption(str(key))
+            self.set_caption("pool [%s]"%(repr(key),))
         return (obj, )
 
 
@@ -121,7 +134,7 @@ In :  Name (String), Object (Any)
 
         key = inputs[0]
         obj = inputs[1]
-        self.set_caption(str(key)+' : '+str(obj))
+        self.set_caption("pool [%s]=%s"%(repr(key),str(obj)))
         self.pool[key] = obj
 
 
@@ -149,9 +162,15 @@ class AccuList(Node):
         # Create datapool variable if necessary
         if(not self.pool.has_key(varname) or
            not isinstance(self.pool[varname], list)):
-            self.pool[varname] = list()
+            l = list()
+            self.pool[varname] = l
+        else:
+            l = self.pool[varname]
 
-        self.pool[varname].append(value)
+        self.set_caption("list accumulator : %s"%(repr(str(varname))))
+        l.append(value)
+        
+        return (l,)
         
 
 class AccuFloat(Node):
@@ -179,6 +198,8 @@ class AccuFloat(Node):
            not isinstance(self.pool[varname], float)):
             self.pool[varname] = 0.
 
+        self.set_caption("float accumulator : %s"%(repr(str(varname))))
         self.pool[varname] += float(value)
+        return (self.pool[varname],)
 
 

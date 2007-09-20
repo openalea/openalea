@@ -62,7 +62,8 @@ def register_packages(pkgmanager):
                  category="System", 
                  nodemodule="systemnodes",
                  nodeclass="IterNode",
-                 inputs = (dict(name="generator", interface=None, value=None),),
+                 inputs = (dict(name="generator", interface=None, value=None),
+                           ),
                  outputs = ( dict(name="value", interface=None), ),
 
                  )
@@ -70,25 +71,44 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory( name="pool_reader",
+    nf = Factory(name="rendez vous", 
+                 description="Synchronize 2 inputs", 
+                 category="System", 
+                 nodemodule="systemnodes",
+                 nodeclass="RDVNode",
+                 inputs = (dict(name="value", interface=None, value=None),
+                           dict(name="control_flow", interface=None, value=None),
+                           ),
+                 outputs = ( dict(name="value", interface=None), ),
+
+                 )
+
+    package.add_factory(nf)
+
+
+
+    nf = Factory( name="pool reader",
                   description="Read data from the data pool.",
                   category="System",
                   nodemodule="systemnodes",
                   nodeclass="PoolReader",
                   inputs = (dict(name='Key', interface=IStr),),
-                  outputs = (dict(name='Obj', interface=None),)
+                  outputs = (dict(name='Obj', interface=None),),
+                  lazy = False,
+
                   )
     
     package.add_factory( nf )
     
 
-    nf = Factory(name="pool_writer",
+    nf = Factory(name="pool writer",
                  description="Write data to the data pool.",
                  category="System",
                  nodemodule="systemnodes",
                  nodeclass="PoolWriter",
                  inputs = (dict(name='Key', interface=IStr),
                            dict(name='Obj', interface=None),),
+                 lazy = False,
                  )
 
     
@@ -96,7 +116,7 @@ def register_packages(pkgmanager):
 
 
 
-    nf = Factory(name="accu_list", 
+    nf = Factory(name="list accumulator", 
                  description="List accumulator", 
                  category="System", 
                  nodemodule="systemnodes",
@@ -111,7 +131,7 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory(name="accu_float", 
+    nf = Factory(name="float accumulator", 
                  description="Float accumulator", 
                  category="System", 
                  nodemodule="systemnodes",
