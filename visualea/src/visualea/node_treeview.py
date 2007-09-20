@@ -675,6 +675,32 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
         drag.start(QtCore.Qt.MoveAction)
 
 
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+
+        
+        menu = QtGui.QMenu(self)
+        action = menu.addAction("Remove")
+        self.connect(action, QtCore.SIGNAL("activated()"), self.remove_element)
+
+        menu.move(event.globalPos())
+        menu.show()
+        
+
+    def remove_element(self):
+        """ Remove an element from the datapool"""
+
+        item = self.currentIndex()
+        datapool = item.model().datapool
+
+        l = self.model().datapool.keys()
+        l.sort()
+        name = l[item.row()]
+
+        del(datapool[name])
+
+        
+
        
 
 
