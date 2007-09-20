@@ -174,50 +174,6 @@ class Pair(Node):
         return ( (inputs[0], inputs[1]), )
 
 
-from openalea.core.datapool import DataPool
-
-class PoolReader(Node):
-    """
-In : Name (key)
-Out : Object (value)
-    """
-
-    def __init__(self, inputs, outputs):
-
-        Node.__init__(self, inputs, outputs)
-        self.pool = DataPool()
-
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        key = inputs[0]
-        obj = self.pool.get(key)
-        if key in self.pool:
-            self.set_caption(str(key))
-        return (obj, )
-
-
-class PoolWriter(Node):
-    """
-In :  Name (String), Object (Any)
-    """
-
-    def __init__(self, inputs, outputs):
-
-        Node.__init__(self, inputs, outputs)
-        self.pool = DataPool()
-
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        key = inputs[0]
-        obj = inputs[1]
-        self.set_caption(str(key)+' : '+str(obj))
-        self.pool[key] = obj
-
-
 
 def list_select(items, index):
     """ __getitem__ """

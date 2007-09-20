@@ -130,6 +130,16 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
+    nf = Factory(name="enumerate",
+                 description="Return a python enumerate object.",
+                 category="Python",
+                 nodemodule="python",
+                 nodeclass="pyenumerate",
+                 )
+    
+    package.add_factory(nf)
+
+
     nf = Factory(name="len",
                  description="Return the number of items of a sequence or mapping.",
                  category="Python",

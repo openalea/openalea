@@ -84,6 +84,12 @@ def pyrange(start=0, stop=0, step=1):
     return (range(start, stop, step),)
 
 
+def pyenumerate(obj):
+    """ enumerate(iterable) -> iterator for index, value of iterable """
+
+    return (list(enumerate(obj)),)
+
+
 
 def pylen(obj):
     """ len(obj) """
