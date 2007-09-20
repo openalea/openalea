@@ -143,6 +143,7 @@ class Node(AbstractNode):
 
     caption = property(get_caption, set_caption)
 
+
     def get_lazy(self):
         return self.internal_data["lazy"]
 
@@ -293,21 +294,23 @@ class Node(AbstractNode):
     # Functions used by the node evaluator
     def eval(self):
         """
-        Evaluate the node by calling __call__python inspect performance issue
-        Return True if the node has been calculated
+        Evaluate the node by calling __call__
+        Return True if the node need a reevaluation
         """
 
         # lazy evaluation
-        if(self.lazy and not self.modified):
+        if(self.lazy
+           and not self.modified):
             return False
 
         self.modified = False
-        
+
+        # Run the node
         outlist = self.__call__(self.inputs)
         self.notify_listeners( ("status_modified",self.modified) )
 
-        #if(not outlist) : return True
-        
+
+        # Copy outputs
         if(not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
             outlist = (outlist,)
@@ -315,7 +318,7 @@ class Node(AbstractNode):
         for i in range( min ( len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
 
-        return True
+        return False
 
 
 
@@ -398,6 +401,8 @@ class AbstractFactory(Observed):
 
         self.lazy = lazy
 
+        #self.instantiated = set() # instantiated nodes
+
 
     def get_id(self):
         """ Return the node factory Id """
@@ -428,6 +433,8 @@ class AbstractFactory(Observed):
     def get_writer(self):
         """ Return the writer class """
         raise NotImplementedError()
+
+
     
 
 
@@ -535,10 +542,13 @@ class NodeFactory(AbstractFactory):
                 node = classobj(self.inputs, self.outputs)
             except TypeError:
                 node = classobj()
-                
+
+        # Properties
         node.factory = self
         node.set_caption(self.name)
         node.lazy = self.lazy
+
+        
         return node
                     
 
@@ -682,7 +692,7 @@ class NodeFactory(AbstractFactory):
         
         
 
-#class Factory:
+# Class Factory:
 Factory = NodeFactory
 
 

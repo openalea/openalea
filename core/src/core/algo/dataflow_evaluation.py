@@ -88,38 +88,72 @@ class BrutEvaluation (AbstractEvaluation) :
 
 
 
-class SelectiveEvaluation(BrutEvaluation) :
-	""" Selective evaluation algorithm """
-	
-	def eval (self, vtx_id=None) :
-		""" Evaluate the dataflow starting at vtx_id
-		If vtx_id == None : Use BrutEvaluation algo"""
 
-		if(vtx_id == None):
-			return BrutEvaluation.eval(self)
-		
-		# Unvalidate all the nodes
+
+class GeneratorEvaluation (AbstractEvaluation) :
+	""" evaluation algorithm with generator / priority and selection"""
+	
+	def __init__ (self, dataflow) :
+
+		AbstractEvaluation.__init__(self, dataflow)
+		# a property to specify if the node has already been evaluated
+		self._evaluated = set()
+		self._in_evaluation = set()
+		self.reeval = False # Flag to force reevaluation (for generator)
+
+
+	def clear(self):
+		""" Clear evaluation variable """
 		self._evaluated.clear()
-
-		self.eval_vertex(vtx_id)
-
-
-
-class PriorityEvaluation(BrutEvaluation) :
-	""" Support priority between nodes """
+		self.reeval = False
+		
 	
+	def eval_vertex (self, vid) :
+		""" Evaluate the vertex vid """
+		
+		df = self._dataflow
+		actor = df.actor(vid)
+
+		self._evaluated.add(vid)
+
+		# For each inputs
+		for pid in df.in_ports(vid) :
+			inputs = []
+
+			cpt = 0 
+			# For each connected node
+			for npid in df.connected_ports(pid):
+				nvid = df.vertex(npid)
+
+				# Do no reevaluate the same node
+				if (nvid not in self._evaluated):
+					self.eval_vertex(nvid)
+
+				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
+				cpt += 1
+
+			# set input as a list or a simple value
+			if(cpt == 1) : inputs = inputs[0]
+			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
+			
+		# Eval the node
+		ret = actor.eval()
+		
+		# Reevaluation flaf
+		if(ret) : self.reeval = ret
+
+
 	def eval (self, vtx_id=None) :
 
 		df = self._dataflow
-		# Unvalidate all the nodes
-		self._evaluated.clear()
 
 		if(vtx_id is not None):
-			return self.eval_vertex(vtx_id)
+			leafs = [ (vtx_id, df.actor(vtx_id)) ]
 
-		# Select the leafs (list of (vid, actor))
-		leafs = [ (vid, df.actor(vid))
-			  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
+		else:
+			# Select the leafs (list of (vid, actor))
+			leafs = [ (vid, df.actor(vid))
+				  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
 
 		# Sort by priority
 		def cmp_priority(x, y):
@@ -136,6 +170,18 @@ class PriorityEvaluation(BrutEvaluation) :
 		leafs.sort(cmp_priority)
 		
 		# Excecute
-		for vid, actor in leafs:
-			self.eval_vertex(vid)
+		
+		while(1):
+			# Unvalidate all the nodes
+			self.clear()
+
+			for vid, actor in leafs:
+				self.eval_vertex(vid)
+				
+			if(not self.reeval) : break
+
+		return False
+
+
+
 

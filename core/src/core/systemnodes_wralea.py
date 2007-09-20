@@ -56,6 +56,75 @@ def register_packages(pkgmanager):
 
     package.add_factory(nf)
 
+
+    nf = Factory(name="iter", 
+                 description="Iteration", 
+                 category="System", 
+                 nodemodule="systemnodes",
+                 nodeclass="IterNode",
+                 inputs = (dict(name="generator", interface=None, value=None),),
+                 outputs = ( dict(name="value", interface=None), ),
+
+                 )
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="pool_reader",
+                  description="Read data from the data pool.",
+                  category="System",
+                  nodemodule="systemnodes",
+                  nodeclass="PoolReader",
+                  inputs = (dict(name='Key', interface=IStr),),
+                  outputs = (dict(name='Obj', interface=None),)
+                  )
     
+    package.add_factory( nf )
+    
+
+    nf = Factory(name="pool_writer",
+                 description="Write data to the data pool.",
+                 category="System",
+                 nodemodule="systemnodes",
+                 nodeclass="PoolWriter",
+                 inputs = (dict(name='Key', interface=IStr),
+                           dict(name='Obj', interface=None),),
+                 )
+
+    
+    package.add_factory( nf )
+
+
+
+    nf = Factory(name="accu_list", 
+                 description="List accumulator", 
+                 category="System", 
+                 nodemodule="systemnodes",
+                 nodeclass="AccuList",
+                 inputs = (dict(name="value", interface=None, value=None),
+                           dict(name="varname", interface=IStr, value=None),
+                           ),
+                 outputs = ( dict(name="list", interface=ISequence), ),
+
+                 )
+
+    package.add_factory(nf)
+
+
+    nf = Factory(name="accu_float", 
+                 description="Float accumulator", 
+                 category="System", 
+                 nodemodule="systemnodes",
+                 nodeclass="AccuFloat",
+                 inputs = (dict(name="value", interface=IFloat, value=0.),
+                           dict(name="varname", interface=IStr, value=None),
+                           ),
+                 outputs = ( dict(name="float", interface=IFloat), ),
+
+                 )
+
+    package.add_factory(nf)
+
+
     pkgmanager.add_package(package)
 
