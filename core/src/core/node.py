@@ -528,7 +528,6 @@ class NodeFactory(AbstractFactory):
                 classobj = classobj()
             
             node = FuncNode(self.inputs, self.outputs, classobj)
-            node.set_caption(self.name)
 
         # Class inherits from Node
         else:
@@ -538,6 +537,7 @@ class NodeFactory(AbstractFactory):
                 node = classobj()
                 
         node.factory = self
+        node.set_caption(self.name)
         node.lazy = self.lazy
         return node
                     
