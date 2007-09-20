@@ -116,7 +116,9 @@ Ouput 0 : Transmit the stored value
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        return ( str(inputs[0]), )
+        s = str(inputs[0])
+        self.set_caption(repr(s))
+        return ( s, )
 
 
 class Text(Node):
