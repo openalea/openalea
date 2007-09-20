@@ -126,6 +126,12 @@ class Node(AbstractNode):
 
     
     # Accessor
+    def set_factory(self, factory):
+        """ Set the factory of the node (if any) """
+        self.factory = factory
+        if factory:
+            self.set_caption(factory.name)
+
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
@@ -320,6 +326,21 @@ class Node(AbstractNode):
 
         return False
 
+    def __getstate__(self):
+        odict = self.__dict__.copy()
+        odict.update(AbstractNode.__getstate__(self))
+
+        odict['modified'] = True
+        outputs = odict['outputs']
+        for i in range(self.get_nb_output()):
+            outputs[i] = None
+
+        inputs = odict['inputs']
+        for i in range(self.get_nb_input()):
+            if self.input_states[i] == "connected":
+                inputs[i] = None
+        
+        return odict
 
 
 
@@ -544,8 +565,7 @@ class NodeFactory(AbstractFactory):
                 node = classobj()
 
         # Properties
-        node.factory = self
-        node.set_caption(self.name)
+        node.set_factory(self)
         node.lazy = self.lazy
 
         

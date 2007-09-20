@@ -541,7 +541,6 @@ class CompositeNode(Node, DataFlow):
             
         raise InvalidEdge("Edge not found")
 
-
     
 
 
