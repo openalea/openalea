@@ -62,13 +62,15 @@ class IterNode(Node):
             if(not self.iterable):
                 self.iterable = iter(self.inputs[0])
 
-            self.outputs[0] = self.iterable.next()
-            
-            if(self.iterable.__length_hint__()):
-                return True
+            if(hasattr(self, "nextval")):
+               self.outputs[0] = self.nextval
             else:
-                return False
-        
+                self.outputs[0] = self.iterable.next()
+
+            self.nextval = self.iterable.next()
+            return True
+
+            
         except TypeError, e:
             self.outputs[0] = self.inputs[0]
             return False
