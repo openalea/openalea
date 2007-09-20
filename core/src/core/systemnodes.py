@@ -63,7 +63,11 @@ class IterNode(Node):
                 self.iterable = iter(self.inputs[0])
 
             self.outputs[0] = self.iterable.next()
-            return True
+            
+            if(self.iterable.__length_hint__()):
+                return True
+            else:
+                return False
         
         except TypeError, e:
             self.outputs[0] = self.inputs[0]
@@ -72,6 +76,8 @@ class IterNode(Node):
         except StopIteration, e:
             self.iterable = None
             return False
+
+
 
 from openalea.core.datapool import DataPool
 
