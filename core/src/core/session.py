@@ -119,7 +119,7 @@ class Session(Observed):
         if(filename):
             self.session_filename = filename
 
-        d = shelve.open(self.session_filename)
+        d = shelve.open(self.session_filename,writeback=True)
 
         # modules
         modules_path = []
@@ -129,12 +129,31 @@ class Session(Observed):
                 modules_path.append((m.__name__, os.path.abspath(m.__file__)))
                 
         d['__modules__'] = modules_path
+        d.sync()
 
         # datapool
-        d['datapool'] = self.datapool
+        d['datapool'] ={} 
+        for key in self.datapool:
+            
+            try:
+                d['datapool'][key] = self.datapool[key]
+                d.sync()
+            except Exception, e:
+                print e
+                print "Unable to save %s in the datapool..."%str(key)
+                del d['datapool'][key] 
 
         # workspaces
-        d['workspaces'] = self.workspaces
+        d['workspaces'] = []
+        for ws in self.workspaces:
+            try:
+                d['workspaces'].append(ws)
+                d.sync()
+            except Exception, e:
+                print e
+                print "Unable to save %s workspace... Skip this."%ws.name
+                print " WARNING: Your session is not saved. Please save your dataflow as a composite node !!!!!"
+                d['workspaces'].pop()
 
         d.close()
 
