@@ -28,9 +28,13 @@ def busy_pointer(f):
     """ Decorator to display a busy pointer """
 
     def wrapped(*args):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
-        f(*args)
-        QtGui.QApplication.restoreOverrideCursor ()
+
+        try:
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
+            f(*args)
+            
+        finally:
+            QtGui.QApplication.restoreOverrideCursor ()
         
     return wrapped
 
