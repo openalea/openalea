@@ -79,7 +79,7 @@ class CSpline:
         self.der.append(dn)
 
     def _derivative1( self, p, q, r, d0, d1):
-        return r-p
+        return (r-p)/2.
 
     def _derivative2( self, p, q, r, d0, d1):
         d= d0+d1
@@ -105,7 +105,7 @@ class CSpline:
         # last point
         self.ctrl_pts.append(self.points[-1])
         
-        if not self.is_closed:
+        if self.is_closed:
             self.ctrl_pts[1] = self.ctrl_pts[2]
             self.ctrl_pts[-2] = self.ctrl_pts[-3]
 
@@ -127,6 +127,11 @@ class CSpline:
         param = [p]
         if is_linear:
             param = range(nb_arc)
+            self.kv= [ param[ 0 ] ]*degree
+            step = (param[-1]-param[0]) / float(((nb_arc-2)*degree+1))
+            for i in range((nb_arc-2)*degree+2):
+                self.kv.append( param[0]+i*step )
+            self.kv.extend( [param[ -1 ]]*degree )
         else:
             dist = self.dist
             assert len(dist) == nb_arc
@@ -134,11 +139,11 @@ class CSpline:
                 p += d
                 param.append( p )
     
-        self.kv= [ param[ 0 ] ]
-        for p in param:
-            for j in range( degree ):
-                self.kv.append( p )
-        self.kv.append( param[ -1 ] )
+                self.kv= [ param[ 0 ] ]
+                for p in param:
+                    for j in range(degree):
+                        self.kv.append(p)
+                self.kv.append(param[-1])
 
     def add_point( self, pt ):
         if self.is_closed:
@@ -156,7 +161,7 @@ class CSpline:
         # TODO: Compute incrementally the curve.
         self.nurbs = None
 
-    def curve(self, stride_factor=10):
+    def curve(self, is_linear= False, stride_factor=10):
         """
         Return the equivalent PlantGL nurbs curve which interpol the points.
         :param: stride_factor is the number of points to draw an arc of the curve.
@@ -165,7 +170,7 @@ class CSpline:
             self.distances()
             self.derivatives()
             self.bezier_cp()
-            self.bezier_kv()
+            self.bezier_kv(is_linear)
  
         pts = self.points
         kv = pgl.RealArray(self.kv)
@@ -185,11 +190,11 @@ class CSpline:
 ###############################################################################
 
 # factory function
-def cspline(pts, is_closed=False):
+def cspline(pts, is_closed=False,is_linear=False):
     """
     Build a nurbs curve by interpolate (C1) the points pts.
     The resulting curve can be closed.
     """
     spline = CSpline(pts,is_closed)
-    return spline.curve()
+    return spline.curve(is_linear)
 
