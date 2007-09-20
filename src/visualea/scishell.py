@@ -112,7 +112,8 @@ class SciShell(QsciScintilla):
                    (sys.version, sys.platform))
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
-        self.write(message+'\n\n')
+        self.write(message+'\n')
+        self.write("Interactive Help can be obtained with '?' key\n\n")
         self.write(sys.ps1)
 
 
@@ -339,6 +340,8 @@ class SciShell(QsciScintilla):
             
             if(txt == '.'):
                 self.__showDynCompletion()
+            if(txt == '?'):
+                self.__showHelp()
 
         else:
             ev.ignore()
@@ -609,22 +612,36 @@ class SciShell(QsciScintilla):
         return QsciScintilla.focusNextPrevChild(self,next)
 
 
+    def __get_current_line(self):
+        """ Return the current line """
+
+        line, col = self.__getEndPos()
+        self.setCursorPosition(line,col)
+        buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+        text = buf.split()[-1][:-1]
+        return text
+
+
+    def __showHelp(self):
+
+        text = self.__get_current_line()
+        self.__executeCommand('help(%s)'%(text,))
+        self.__QScintillaNewline()
+        self.__insertTextAtEnd(text)
+
+        
     def __showDynCompletion(self):
         """
         Display a completion list based on the last token
         """
 
-        # get line
-        line, col = self.__getEndPos()
-        self.setCursorPosition(line,col)
-        buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
-
-        text = buf.split()[-1][:-1]
+        text = self.__get_current_line()
+        
         try:
             locals = self.interpreter.locals
             obj = eval(text, globals(), self.interpreter.locals)
             l = dir(obj)
-            l = filter(lambda x : not x.startswith('__'), l)
+            #l = filter(lambda x : not x.startswith('__'), l)
             self.__showCompletions(l, text) 
         except : pass
         
@@ -671,3 +688,38 @@ class SciShell(QsciScintilla):
              #   txt = txt.replace(self.completionText, "")
             self.__insertText(txt)
             #self.completionText = ""
+
+
+    # Drag and Drop from TreeView support
+    def dragEnterEvent(self, event):
+        event.setAccepted(event.mimeData().hasFormat("openalea/data_instance"))
+
+
+    def dragMoveEvent(self, event):
+        if ( event.mimeData().hasFormat("openalea/data_instance") ):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+            
+    def dropEvent(self, event):
+
+        if (event.mimeData().hasFormat("openalea/data_instance")):
+            pieceData = event.mimeData().data("openalea/data_instance")
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+            
+            data_key = QtCore.QString()
+            
+            dataStream >> data_key
+            data_key = str(data_key)
+
+            line = "datapool['%s']"%(data_key,)
+            self.__insertTextAtEnd(line)
+            self.setFocus()
+            
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+
+        else:
+            event.ignore()
