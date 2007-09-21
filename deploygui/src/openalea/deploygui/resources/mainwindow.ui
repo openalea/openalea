@@ -42,7 +42,7 @@ p, li { white-space: pre-wrap; }
           <item>
            <widget class="QRadioButton" name="radioRecommended" >
             <property name="text" >
-             <string>Recommended (to install)</string>
+             <string>Install Recommended packages</string>
             </property>
             <property name="checked" >
              <bool>true</bool>
@@ -50,23 +50,23 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioUpdate" >
+           <widget class="QRadioButton" name="radioAll" >
             <property name="text" >
-             <string>Update (to install)</string>
+             <string>Install All packages</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioAll" >
+           <widget class="QRadioButton" name="radioUpdate" >
             <property name="text" >
-             <string>All (to install)</string>
+             <string> Update packages</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="radioInstalled" >
             <property name="text" >
-             <string>Installed (to remove)</string>
+             <string>Remove packages</string>
             </property>
            </widget>
           </item>

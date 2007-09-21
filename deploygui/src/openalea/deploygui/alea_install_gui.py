@@ -139,8 +139,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         # select the correct package index
         if(mode == "INSTALLED"):
+            self.proceedButton.setText("Remove")
             self.pi = env
+           
         else:
+            self.proceedButton.setText("Install")
             self.pi = PackageIndex("")
             self.pi.add_find_links(self.get_repo_list())
             self.pi.prescan()
