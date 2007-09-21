@@ -88,6 +88,20 @@ class BrutEvaluation (AbstractEvaluation) :
 
 
 
+# Sort by priority
+def cmp_priority(x, y):
+	(xvid, xactor) = x
+	(yvid, yactor) = y
+	try: px = xactor.internal_data['priority']
+	except: px = 0
+	try: py = yactor.internal_data['priority']
+	except: py = 0
+	
+	# reverse order
+	return cmp(py, px)
+
+
+
 class PriorityEvaluation(BrutEvaluation) :
 	""" Support priority between nodes and selective"""
 	
@@ -103,18 +117,6 @@ class PriorityEvaluation(BrutEvaluation) :
 		# Select the leafs (list of (vid, actor))
 		leafs = [ (vid, df.actor(vid))
 			  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
-
-		# Sort by priority
-		def cmp_priority(x, y):
-			(xvid, xactor) = x
-			(yvid, yactor) = y
-			try: px = xactor.internal_data['priority']
-			except: px = 0
-			try: py = yactor.internal_data['priority']
-			except: py = 0
-
-			# reverse order
-			return cmp(py, px)
 
 		leafs.sort(cmp_priority)
 		
@@ -189,18 +191,6 @@ class GeneratorEvaluation (AbstractEvaluation) :
 			leafs = [ (vid, df.actor(vid))
 				  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
 
-		# Sort by priority
-		def cmp_priority(x, y):
-			(xvid, xactor) = x
-			(yvid, yactor) = y
-			try: px = xactor.internal_data['priority']
-			except: px = 0
-			try: py = yactor.internal_data['priority']
-			except: py = 0
-
-			# reverse order
-			return cmp(py, px)
-
 		leafs.sort(cmp_priority)
 		
 		# Excecute
@@ -210,7 +200,6 @@ class GeneratorEvaluation (AbstractEvaluation) :
 			while(self.reeval):
 				self.clear()
 				self.eval_vertex(vid)
-				
 
 		return False
 

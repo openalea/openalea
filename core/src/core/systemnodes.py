@@ -77,6 +77,8 @@ class IterNode(Node):
         
         except StopIteration, e:
             self.iterable = None
+            if(hasattr(self, "nextval")):
+                del self.nextval
             return False
 
 
@@ -136,6 +138,38 @@ In :  Name (String), Object (Any)
         obj = inputs[1]
         self.set_caption("pool [%s]=%s"%(repr(key),str(obj)))
         self.pool[key] = obj
+
+
+class InitNode(Node):
+    """
+In0 : Init value
+In1 : Current Value
+In2 : State (Bool)
+
+If state is true, return In0, else return In1
+state is set to false in the first execution.
+    """
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        state = inputs[2]
+
+        if(state):
+            ret = inputs[0]
+        else :
+            ret = inputs[1]
+
+        self.set_input(2, False)
+        return (ret,)
+
+
+    def reset(self):
+        Node.reset(self)
+        self.set_input(2, True)
+        
+            
 
 
 
