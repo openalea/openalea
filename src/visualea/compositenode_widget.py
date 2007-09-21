@@ -109,12 +109,12 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
     def clear_scene(self):
         """ Remove all items from the scene """
-            
 
         # close dialog
-        for (dialog, widget) in self.node_dialog:
-            dialog.close()
-            dialog.destroy()
+        #for (dialog, widget) in self.node_dialog.items():
+            #dialog.close()
+            #dialog.destroy()
+            
         self.node_dialog = {}
 
         # Close items
@@ -123,13 +123,13 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
-
+        
 
     @lock_notify      
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
+
         self.clear_scene()
-        
         # create items
         ids = self.node.vertices()
         for eltid in ids:
@@ -389,7 +389,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         new_ids = session.clipboard.paste(self.node, modifiers)
 
         self.rebuild_scene()
-
         # select new nodes
         for i in new_ids:
             item = self.graph_item[i]
