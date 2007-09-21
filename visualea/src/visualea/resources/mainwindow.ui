@@ -155,7 +155,7 @@
          </property>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab" >
+       <widget class="QWidget" name="UseTabWidget" >
         <attribute name="title" >
          <string>Use</string>
         </attribute>
@@ -176,7 +176,7 @@
           <number>9</number>
          </property>
          <item>
-          <widget class="QTableWidget" name="tableWidget" >
+          <widget class="QTableWidget" name="useTable" >
            <column>
             <property name="text" >
              <string>Variable</string>
@@ -294,6 +294,7 @@
      <string>&amp;Workspace</string>
     </property>
     <addaction name="action_Run" />
+    <addaction name="actionReset" />
     <addaction name="actionConfigure_I_O" />
     <addaction name="separator" />
     <addaction name="actionGroup_Selection" />
@@ -565,6 +566,14 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionReset" >
+   <property name="text" >
+    <string>Reset</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>

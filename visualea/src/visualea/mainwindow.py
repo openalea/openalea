@@ -149,6 +149,7 @@ class MainWindow(QtGui.QMainWindow,
                      self.open_python_console)
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
+        self.connect(self.actionReset, SIGNAL("activated()"), self.reset)
         
         self.connect(self.action_Copy, SIGNAL("activated()"), self.copy)
         self.connect(self.action_Paste, SIGNAL("activated()"), self.paste)
@@ -661,4 +662,12 @@ class MainWindow(QtGui.QMainWindow,
 
         dialog = PreferencesDialog(self)
         ret = dialog.exec_()
+
+
+    def reset(self):
+        """ Reset current workspace """
+
+        cindex = self.tabWorkspace.currentIndex()
+        self.index_nodewidget[cindex].node.reset()
+
 
