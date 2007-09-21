@@ -146,5 +146,21 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
+    nf = Factory(name="init", 
+                 description="Value selector for graph initialisation", 
+                 category="System", 
+                 nodemodule="systemnodes",
+                 nodeclass="InitNode",
+                 inputs = (dict(name="val_init", interface=None, value=0.),
+                           dict(name="value", interface=None, value=None),
+                           dict(name="state", interface=IBool, value=True),
+                           ),
+                 outputs = ( dict(name="value", interface=None), ),
+
+                 )
+
+    package.add_factory(nf)
+
+
     pkgmanager.add_package(package)
 

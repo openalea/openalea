@@ -179,7 +179,6 @@ class CompositeNodeFactory(AbstractFactory):
             cnode.connect(source_vid, source_port, target_vid, target_port)
 
         self.graph_modified = False
-
         return idmap.values()
 
 
@@ -239,6 +238,17 @@ class CompositeNode(Node, DataFlow):
      
         # graph modification status
         self.graph_modified = False
+
+
+    def reset(self):
+        """ Reset connected port and outputs """
+
+        Node.reset(self)
+
+        # Copy node
+        for vid in set(self.vertices()):
+            node = self.actor(vid)
+            node.reset()
 
 
     def set_io(self, inputs, outputs):

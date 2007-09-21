@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Sep 17 19:06:11 2007
+# Created: Fri Sep 21 11:20:48 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,13 +42,13 @@ class Ui_MainWindow(object):
         self.radioRecommended.setObjectName("radioRecommended")
         self.hboxlayout.addWidget(self.radioRecommended)
 
-        self.radioUpdate = QtGui.QRadioButton(self.tab)
-        self.radioUpdate.setObjectName("radioUpdate")
-        self.hboxlayout.addWidget(self.radioUpdate)
-
         self.radioAll = QtGui.QRadioButton(self.tab)
         self.radioAll.setObjectName("radioAll")
         self.hboxlayout.addWidget(self.radioAll)
+
+        self.radioUpdate = QtGui.QRadioButton(self.tab)
+        self.radioUpdate.setObjectName("radioUpdate")
+        self.hboxlayout.addWidget(self.radioUpdate)
 
         self.radioInstalled = QtGui.QRadioButton(self.tab)
         self.radioInstalled.setObjectName("radioInstalled")
@@ -181,10 +181,10 @@ class Ui_MainWindow(object):
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Packages</span> : Select the packages you want to install/update/remove and click on <span style=\" font-weight:600;\">Install/Remove</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioRecommended.setText(QtGui.QApplication.translate("MainWindow", "Recommended (to install)", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioUpdate.setText(QtGui.QApplication.translate("MainWindow", "Update (to install)", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioAll.setText(QtGui.QApplication.translate("MainWindow", "All (to install)", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioInstalled.setText(QtGui.QApplication.translate("MainWindow", "Installed (to remove)", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioRecommended.setText(QtGui.QApplication.translate("MainWindow", "Install Recommended packages", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioAll.setText(QtGui.QApplication.translate("MainWindow", "Install All packages", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioUpdate.setText(QtGui.QApplication.translate("MainWindow", " Update packages", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioInstalled.setText(QtGui.QApplication.translate("MainWindow", "Remove packages", None, QtGui.QApplication.UnicodeUTF8))
         self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Install/Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh List", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"

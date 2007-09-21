@@ -73,11 +73,17 @@ class AbstractNode(IActor, Observed):
         # Internal Data (caption...)
         self.internal_data = {}
 
+
     def set_data(self, key, value, notify=True):
         """ Set internal node data """
         self.internal_data[key] = value
         if(notify):
             self.notify_listeners(("data_modified",))
+
+
+    def reset(self):
+        """ Reset Node """
+        pass
 
 
 
@@ -326,7 +332,9 @@ class Node(AbstractNode):
 
         return False
 
+
     def __getstate__(self):
+        """ Pickle function """
         odict = self.__dict__.copy()
         odict.update(AbstractNode.__getstate__(self))
 
@@ -338,9 +346,27 @@ class Node(AbstractNode):
         inputs = odict['inputs']
         for i in range(self.get_nb_input()):
             if self.input_states[i] == "connected":
-                inputs[i] = None
+                inputs[i] =  None
         
         return odict
+
+
+    def reset(self):
+        """ Reset connected port and outputs """
+
+        for i in range(self.get_nb_output()):
+            self.outputs[i] = None
+
+        ok = False
+        for i in range(self.get_nb_input()):
+            if self.input_states[i] == "connected":
+                self.set_input(i, self.input_desc[i].get('value', None))
+                ok = True
+
+        if(not ok):
+            self.modified = True
+            self.notify_listeners(("input_modified", -1))
+
 
 
 
@@ -565,9 +591,12 @@ class NodeFactory(AbstractFactory):
                 node = classobj()
 
         # Properties
-        node.set_factory(self)
-        node.lazy = self.lazy
-
+        try:
+            node.factory = self
+            node.lazy = self.lazy
+            node.set_caption(self.name)
+        except:
+            pass
         
         return node
                     

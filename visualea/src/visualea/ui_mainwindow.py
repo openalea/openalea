@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Sep 17 12:18:23 2007
+# Created: Fri Sep 21 13:30:26 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -79,18 +79,18 @@ class Ui_MainWindow(object):
         self.vboxlayout3.setObjectName("vboxlayout3")
         self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
 
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName("tab")
+        self.UseTabWidget = QtGui.QWidget()
+        self.UseTabWidget.setObjectName("UseTabWidget")
 
-        self.vboxlayout4 = QtGui.QVBoxLayout(self.tab)
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.UseTabWidget)
         self.vboxlayout4.setSpacing(6)
         self.vboxlayout4.setMargin(9)
         self.vboxlayout4.setObjectName("vboxlayout4")
 
-        self.tableWidget = QtGui.QTableWidget(self.tab)
-        self.tableWidget.setObjectName("tableWidget")
-        self.vboxlayout4.addWidget(self.tableWidget)
-        self.poolTabWidget.addTab(self.tab,"")
+        self.useTable = QtGui.QTableWidget(self.UseTabWidget)
+        self.useTable.setObjectName("useTable")
+        self.vboxlayout4.addWidget(self.useTable)
+        self.poolTabWidget.addTab(self.UseTabWidget,"")
         self.hboxlayout.addWidget(self.splitter_2)
 
         self.splitter = QtGui.QSplitter(self.centralwidget)
@@ -261,6 +261,9 @@ class Ui_MainWindow(object):
 
         self.action_Cut = QtGui.QAction(MainWindow)
         self.action_Cut.setObjectName("action_Cut")
+
+        self.actionReset = QtGui.QAction(MainWindow)
+        self.actionReset.setObjectName("actionReset")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -277,6 +280,7 @@ class Ui_MainWindow(object):
         self.menu_Python.addAction(self.action_Execute_script)
         self.menu_Python.addAction(self.actionOpen_Console)
         self.menu_Workspace.addAction(self.action_Run)
+        self.menu_Workspace.addAction(self.actionReset)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
@@ -319,18 +323,18 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.searchview), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.pooltab), QtGui.QApplication.translate("MainWindow", "DataPool", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget.clear()
-        self.tableWidget.setColumnCount(2)
-        self.tableWidget.setRowCount(0)
+        self.useTable.clear()
+        self.useTable.setColumnCount(2)
+        self.useTable.setRowCount(0)
 
         headerItem = QtGui.QTableWidgetItem()
         headerItem.setText(QtGui.QApplication.translate("MainWindow", "Variable", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget.setHorizontalHeaderItem(0,headerItem)
+        self.useTable.setHorizontalHeaderItem(0,headerItem)
 
         headerItem1 = QtGui.QTableWidgetItem()
         headerItem1.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget.setHorizontalHeaderItem(1,headerItem1)
-        self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Use", None, QtGui.QApplication.UnicodeUTF8))
+        self.useTable.setHorizontalHeaderItem(1,headerItem1)
+        self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.UseTabWidget), QtGui.QApplication.translate("MainWindow", "Use", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.usetab), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
@@ -391,5 +395,7 @@ class Ui_MainWindow(object):
         self.action_Paste.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Cut.setText(QtGui.QApplication.translate("MainWindow", "Cut", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionReset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionReset.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+K", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
