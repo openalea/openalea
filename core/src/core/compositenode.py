@@ -569,7 +569,7 @@ class CompositeNodeInput(Node):
         
 
     def eval(self):
-        return True
+        return False
 
 
 
@@ -596,7 +596,7 @@ class CompositeNodeOutput(Node):
     
 
     def eval(self):
-        return True
+        return False
 
 
 ################################################################################
