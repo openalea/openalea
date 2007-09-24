@@ -19,7 +19,7 @@ Deployment utilities
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
+__revision__=" $Id$ "
 
 
 
