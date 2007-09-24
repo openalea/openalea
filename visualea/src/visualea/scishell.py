@@ -322,17 +322,11 @@ class SciShell(QsciScintilla):
         key = ev.key()
         
         ctrl = ev.modifiers() & Qt.ControlModifier
-
-        if(ctrl):
-            if(key is 86): # ctrl+v
-                self.paste()
-            else:
-                QsciScintilla.keyPressEvent(self, ev)
-
-        elif(self.keymap.has_key(key)):
+        shift = ev.modifiers() & Qt.ShiftModifier
+        # See it is text to insert.
+        if(self.keymap.has_key(key) and not shift and not ctrl):
             self.keymap[key]()
 
-        # See it is text to insert.
         elif self.__isCursorOnLastLine() and txt.length() :
 
             QsciScintilla.keyPressEvent(self, ev)
@@ -342,6 +336,10 @@ class SciShell(QsciScintilla):
                 self.__showDynCompletion()
             if(txt == '?'):
                 self.__showHelp()
+
+        elif(ctrl or shift):
+            QsciScintilla.keyPressEvent(self, ev)
+
 
         else:
             ev.ignore()
