@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Core: OpenAlea Core
+#       OpenAlea.Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -50,7 +50,8 @@ class CompositeNodeFactory(AbstractFactory):
         doc : documentation
         elt_factory : map of elements with its corresponding factory
         elt_connections : map of ( dst_id , input_port ) : ( src_id, output_port )
-        elt_data : Dictionnary which contains associated data
+        elt_data : Dictionary containing associated data
+        elt_value : Dictionary containing Lists of 2-uples (port, value)
         """
 
         # Init parent (name, description, category, doc, node, widget=None)
@@ -67,8 +68,9 @@ class CompositeNodeFactory(AbstractFactory):
         # ( source_vid , source_port ) : ( target_vid, target_port )
         self.connections = kargs.get("elt_connections", {})
 
-        # Dictionnary which contains associated data
         self.elt_data =  kargs.get("elt_data", {})
+        self.elt_value =  kargs.get("elt_value", {})
+
 
         # Documentation
         self.doc = kargs.get('doc', "")
@@ -79,6 +81,7 @@ class CompositeNodeFactory(AbstractFactory):
         self.elt_factory.clear()
         self.connections.clear()
         self.elt_data.clear()
+        self.elt_value.clear()
         
 
     def get_writer(self):
@@ -196,6 +199,15 @@ class CompositeNodeFactory(AbstractFactory):
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
         node.internal_data = self.elt_data[vid].copy()
+
+        # copy node input data if any
+        values = self.elt_value.get(vid, ())
+        for (port, v) in values:
+            try:
+               node.set_input(port, eval(v))
+            except:
+                continue
+            
         return node
 
         
@@ -469,6 +481,12 @@ class CompositeNode(Node, DataFlow):
 
             # Copy internal data
             sgfactory.elt_data[vid] = kdata
+
+            # Copy value
+            sgfactory.elt_value[vid] = \
+                                     [(port, repr(value)) for (port, value)
+                                      in enumerate(node.inputs)
+                                      if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
 
@@ -625,6 +643,7 @@ class PyCNFactoryWriter(object):
                               elt_factory=$ELT_FACTORY,
                               elt_connections=$ELT_CONNECTIONS,
                               elt_data=$ELT_DATA,
+                              elt_value=$ELT_VALUE,
                               lazy=$LAZY,
                               )
 
@@ -648,6 +667,7 @@ class PyCNFactoryWriter(object):
                                       ELT_FACTORY=repr(f.elt_factory),
                                       ELT_CONNECTIONS=repr(f.connections),
                                       ELT_DATA=repr(f.elt_data),
+                                      ELT_VALUE=repr(f.elt_value),
                                       LAZY=repr(f.lazy),
                                       )
         return result
