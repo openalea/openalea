@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Core: OpenAlea Core
+#       OpenAlea.Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -345,7 +345,7 @@ class Node(AbstractNode):
 
         inputs = odict['inputs']
         for i in range(self.get_nb_input()):
-            if self.input_states[i] == "connected":
+            if self.input_states[i] is "connected":
                 inputs[i] =  None
         
         return odict
@@ -359,7 +359,7 @@ class Node(AbstractNode):
 
         ok = False
         for i in range(self.get_nb_input()):
-            if self.input_states[i] == "connected":
+            if self.input_states[i] is "connected":
                 self.set_input(i, self.input_desc[i].get('value', None))
                 ok = True
 

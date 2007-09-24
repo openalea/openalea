@@ -6,7 +6,9 @@ pj = os.path.join
 name = 'OpenAlea.Core'
 namespace = 'openalea'
 
-import version as versionmodule
+sys.path.append("src")
+import core.version as versionmodule
+
 version = versionmodule.version
 
 description= 'OpenAlea Component platform core.' 

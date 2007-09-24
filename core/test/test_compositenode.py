@@ -37,7 +37,7 @@ def test_instantiate_compositenode():
     sg = CompositeNode()
 
     # build the compositenode factory
-    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    addid = sg.add_node ( pm.get_node("Catalog.Math", "+"))
     val1id = sg.add_node ( pm.get_node("Catalog.Data", "float")) 
     val2id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
     val3id = sg.add_node ( pm.get_node("Catalog.Data", "float"))

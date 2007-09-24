@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Core.Library: OpenAlea Core Library module
+#       OpenAlea.Core 
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -20,7 +20,7 @@ Wralea for System nodes
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: python_wralea.py 603 2007-06-21 14:41:17Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *
