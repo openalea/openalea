@@ -78,6 +78,14 @@ class Ui_Preferences(object):
         self.dbclickBox = QtGui.QComboBox(self.tab_3)
         self.dbclickBox.setObjectName("dbclickBox")
         self.gridlayout2.addWidget(self.dbclickBox,0,1,1,1)
+
+        self.comboBox = QtGui.QComboBox(self.tab_3)
+        self.comboBox.setObjectName("comboBox")
+        self.gridlayout2.addWidget(self.comboBox,1,1,1,1)
+
+        self.label_edge_style = QtGui.QLabel(self.tab_3)
+        self.label_edge_style.setObjectName("label_edge_style")
+        self.gridlayout2.addWidget(self.label_edge_style,1,0,1,1)
         self.tabWidget.addTab(self.tab_3,"")
         self.gridlayout.addWidget(self.tabWidget,0,0,1,1)
 
@@ -88,7 +96,7 @@ class Ui_Preferences(object):
         self.gridlayout.addWidget(self.buttonBox,1,0,1,1)
 
         self.retranslateUi(Preferences)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),Preferences.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),Preferences.reject)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
@@ -106,5 +114,9 @@ class Ui_Preferences(object):
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Open", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Line (Default)", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Polyline", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Spline", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_edge_style.setText(QtGui.QApplication.translate("Preferences", "Edge Style", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("Preferences", "UI", None, QtGui.QApplication.UnicodeUTF8))
 
