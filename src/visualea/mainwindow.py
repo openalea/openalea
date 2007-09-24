@@ -220,8 +220,7 @@ class MainWindow(QtGui.QMainWindow,
             self.update_tabwidget()
             self.reinit_treeview()
 
-        
-
+    
     def closeEvent(self, event):
         """ Close All subwindows """
         
@@ -231,6 +230,7 @@ class MainWindow(QtGui.QMainWindow,
         event.accept()
 
 
+    
     def reinit_treeview(self):
         """ Reinitialise package and category views """
 
@@ -620,36 +620,56 @@ class MainWindow(QtGui.QMainWindow,
 
     def copy(self):
         """ Copy """
-        cindex = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[cindex]
 
-        try:
-            widget.copy(self.session)
-        except AttributeError:
-            pass
+        if(self.interpreterWidget.hasFocus()):
+            try:
+                self.interpreterWidget.copy()
+            except:
+                pass
+        else:
+            cindex = self.tabWorkspace.currentIndex()
+            widget = self.index_nodewidget[cindex]
+
+            try:
+                widget.copy(self.session)
+            except AttributeError:
+                pass
 
 
     def paste(self):
         """ Paste """
-        cindex = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[cindex]
 
-        try:
-            widget.paste(self.session)
-        except AttributeError:
-            pass
+        if(self.interpreterWidget.hasFocus()):
+            try:
+                self.interpreterWidget.paste()
+            except:
+                pass
+        else:
+            cindex = self.tabWorkspace.currentIndex()
+            widget = self.index_nodewidget[cindex]
+            
+            try:
+                widget.paste(self.session)
+            except AttributeError:
+                pass
 
 
     def cut(self):
         """ Cut """
-        cindex = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[cindex]
-
-        try:
-            widget.copy(self.session)
-            widget.remove_selection()
-        except AttributeError:
-            pass
+        if(self.interpreterWidget.hasFocus()):
+            try:
+                self.interpreterWidget.cut()
+            except:
+                pass
+        else:
+            cindex = self.tabWorkspace.currentIndex()
+            widget = self.index_nodewidget[cindex]
+            
+            try:
+                widget.copy(self.session)
+                widget.remove_selection()
+            except AttributeError:
+                pass
 
 
     def open_preferences(self):
