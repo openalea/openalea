@@ -127,6 +127,7 @@ Output:
         g= self.get_input("g")
 
         op= self.op_dict[op_key]
+        self.set_caption(op_key)
         
         binop= None
         
