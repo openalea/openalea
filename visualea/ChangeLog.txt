@@ -1,3 +1,10 @@
+24/09/07 : 0.3.0 Alpha release
+	   New edge draw functions (polylines and splines) in preferences
+	   Support new core function (copy/paste, export application, save session)
+	   Improved QScintilla shell (help, copy/paste)
+	   A lot of bug fixes 
+
+
 06/07/07 : 0.2.1a Alpha release
 	   Add node property editor
 	   Add in preference dataflow algorithm configuration
