@@ -27,6 +27,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
+from openalea.core.session import Session
 
 import ui_newgraph
 import os
@@ -349,6 +350,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         # Read config
         config = Settings()
+        self.session = parent.session
 
         # pkgmanager
         try:
@@ -372,6 +374,17 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
                 self.dbclickBox.setCurrentIndex(2)
         except:
             pass
+
+        try:
+            self.edge_style = config.get("UI", "EdgeStyle")
+            if(self.edge_style == "Line"):
+                self.comboBox.setCurrentIndex(0)
+            elif(self.edge_style == "Polyline"):
+                self.comboBox.setCurrentIndex(1)
+            elif(self.edge_style == "Spline"):
+                self.comboBox.setCurrentIndex(2)
+        except:
+            self.edge_style = "Line"
 
         # Dataflow
         try:
@@ -445,9 +458,22 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         d = [["run", "open"], ["run"], ["open"],]
         index = self.dbclickBox.currentIndex()
 
+        styles = ["Line", "Polyline", "Spline"]
+        edge_style_index = self.comboBox.currentIndex()
+        edge_style = styles[edge_style_index]
+        
         config = Settings()
         config.set("UI", "DoubleClick", repr(d[index]))
+        config.set("UI", "EdgeStyle", edge_style)
         config.write_to_disk()
+
+        if edge_style != self.edge_style:
+            self.edge_style = edge_style
+            session = self.session
+            session.notify_listeners()
+            ws = session.workspaces
+            for cn in ws:
+                cn.notify_listeners(('graph_modified',))
 
 
     def valid_dataflow(self):
