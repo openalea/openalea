@@ -1,3 +1,13 @@
+24/09/07 : 0.3.0a Alpha release
+	   Save as CompositeNode save values
+	   Save Session command improved         
+	   Export Application	
+	   New evaluation algorithms with priority, and loop capabilities
+	   Add  system nodes like iter, dataflow access..
+	   A lot of bug fix
+
+
+  
 06/07/07 : 0.2.1a Alpha release
 	   Dataflow evaluation algorithm is set in user preference	   
 	   Add a selective algorithme
