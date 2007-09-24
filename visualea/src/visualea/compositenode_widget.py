@@ -309,8 +309,10 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         Connect the node in the graph
         """
         
-        self.node.connect(connector_src.parentItem().get_id(), connector_src.index(),
-                                connector_dst.parentItem().get_id(), connector_dst.index())
+        self.node.connect(connector_src.parentItem().get_id(), 
+                          connector_src.index(),
+                          connector_dst.parentItem().get_id(), 
+                          connector_dst.index())
 
 
     def open_item(self, elt_id):
@@ -1149,51 +1151,152 @@ class ConnectorOut(Connector):
 
 ################################################################################
 
-class AbstractEdge(QtGui.QGraphicsLineItem):
-    """
-    Base classe for edges
-    """
+def edge_factory():
+    try:
+        settings = Settings()
+        style = settings.get('UI','EdgeStyle')
+    except:
+        style = 'Line'
 
-    def __init__(self, graphview, parent=None, scene=None):
-        QtGui.QGraphicsLineItem.__init__(self, parent, scene)
+    if style == 'Line':
+        return LinearEdgePath()
+    elif style == 'Polyline':
+        return PolylineEdgePath()
+    else:
+        return SplineEdgePath()
 
-        self.graph = graphview
-        self.sourcePoint = QtCore.QPointF()
-        self.destPoint = QtCore.QPointF()
-
-        line = QtCore.QLineF(self.sourcePoint, self.destPoint)
-        self.setLine(line)
-
-        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
-                                  QtCore.Qt.SolidLine,
-                                  QtCore.Qt.RoundCap,
-                                  QtCore.Qt.RoundJoin))
+class LinearEdgePath(object):
+    """ Draw edges as line. """
+    def __init__(self): 
+        self.p1 = QtCore.QPointF()
+        self.p2 = QtCore.QPointF()
 
     def shape(self):
-
         path = QtGui.QPainterPath()
 
         # Enlarge selection zone
+        diff = self.p2 - self.p1
 
-        diff = self.destPoint - self.sourcePoint
         if( abs(diff.x()) > abs(diff.y())):
             dp = QtCore.QPointF(0,10)
         else:
             dp = QtCore.QPointF(10,0)
         
-        p1 = self.sourcePoint - dp
-        p2 = self.sourcePoint + dp
-        p3 = self.destPoint + dp
-        p4 = self.destPoint - dp
+        p1 = self.p1 - dp
+        p2 = self.p1 + dp
+        p3 = self.p2 + dp
+        p4 = self.p2 - dp
         poly = QtGui.QPolygonF([p1,p2,p3,p4])
-        
         path.addPolygon(poly)
+        
         return path
+
+    def getPath( self, p1, p2 ):
+        self.p1 = p1
+        self.p2 = p2
+        path = QtGui.QPainterPath(self.p1)
+        path.lineTo(self.p2)
+        return path
+        
+class PolylineEdgePath(LinearEdgePath):
+    WIDTH = 30
+    def __init__(self): 
+        LinearEdgePath.__init__(self)
+
+    def shape(self):
+        return None
+
+    def getPath( self, p1, p2 ):
+        self.p1 = p1
+        self.p2 = p2
+        path = QtGui.QPainterPath(self.p1)
+
+        points = []
+
+        sd= self.p2- self.p1
+        if abs(sd.x()) <= self.WIDTH: # draw a line
+            pass
+        elif sd.y() < 2 * self.WIDTH:
+            s1 = self.p1 + QtCore.QPointF(0,self.WIDTH)
+            d1 = self.p2 - QtCore.QPointF(0,self.WIDTH)
+
+            s1d1= d1 -s1
+            s2 = s1 + QtCore.QPointF(s1d1.x()/2.,0)
+            d2 = s2 + QtCore.QPointF(0,s1d1.y())
+            points.extend([s1,s2,d2,d1])
+        else:
+            s1 = self.p1 + QtCore.QPointF(0,sd.y()/2.)
+            d1= self.p2 - QtCore.QPointF(0,sd.y()/2.)
+            points.extend([s1,d1])
+        
+        points.append(self.p2)
+        for pt in points:
+            path.lineTo(pt)
+
+        return path
+
+class SplineEdgePath(PolylineEdgePath):
+    def __init__(self): 
+        PolylineEdgePath.__init__(self)
+
+    def getPath( self, p1, p2 ):
+        self.p1 = p1
+        self.p2 = p2
+        path = QtGui.QPainterPath(self.p1)
+
+        sd= self.p2- self.p1
+        if abs(sd.x()) <= self.WIDTH: # draw a line
+            path.lineTo(self.p2)
+        elif sd.y() < self.WIDTH: 
+            py = QtCore.QPointF(0,max( self.WIDTH, -sd.y()))
+            path.cubicTo(self.p1 + py, self.p2 - py, self.p2)
+
+        else:
+            py = QtCore.QPointF(0,sd.y()/2.)
+            pm= (self.p1 + self.p2)/2.
+            path.quadTo(self.p1 + py, pm)
+            path.quadTo(self.p2 - py, self.p2)
+
+        return path
+
+class AbstractEdge(QtGui.QGraphicsPathItem):
+    """
+    Base classe for edges (the return)!!!
+    """
+
+    WIDTH = 50
+    # Available styles are 'Line', 'Polyline', and 'Spline'
+    STYLE = 'Spline'
+
+    def __init__(self, graphview, parent=None, scene=None):
+        QtGui.QGraphicsPathItem.__init__(self, parent, scene)
+
+        self.graph = graphview
+        self.sourcePoint = QtCore.QPointF()
+        self.destPoint = QtCore.QPointF()
+
+        self.edge_path = edge_factory()
+        path = self.edge_path.getPath(self.sourcePoint, self.destPoint)
+        self.setPath(path)
+
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
+                               QtCore.Qt.SolidLine,
+                               QtCore.Qt.RoundCap,
+                               QtCore.Qt.RoundJoin))
+        
+
+    def shape(self):
+
+        path = self.edge_path.shape()
+        if not path:
+            return QtGui.QGraphicsPathItem.shape(self)
+        else:
+            return path
         
 
     def update_line(self):
-        line = QtCore.QLineF(self.sourcePoint, self.destPoint)
-        self.setLine(line)
+        path = self.edge_path.getPath(self.sourcePoint, self.destPoint)
+        self.setPath(path)
 
     
 class SemiEdge(AbstractEdge):
