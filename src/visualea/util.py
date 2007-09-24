@@ -19,7 +19,7 @@ Utilities
 """
 
 __license__= "CeCILL v2"
-__revision__=" $Id: mainwindow.py 616 2007-06-29 17:20:52Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from PyQt4 import QtGui, QtCore
@@ -37,4 +37,27 @@ def busy_pointer(f):
             QtGui.QApplication.restoreOverrideCursor ()
         
     return wrapped
+
+
+def open_dialog(parent, widget, title, delete_on_close=True):
+    """
+    Open a widget in a dialog box
+    Return dialog instance
+    """
+
+    # Open dialog
+    dialog = QtGui.QDialog(parent)
+    if(delete_on_close):
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    widget.setParent(dialog)
+    
+    vboxlayout = QtGui.QVBoxLayout(dialog)
+    vboxlayout.setMargin(3)
+    vboxlayout.setSpacing(5)
+    vboxlayout.addWidget(widget)
+
+    dialog.setWindowTitle(title)
+    dialog.show()
+
+    return dialog
 

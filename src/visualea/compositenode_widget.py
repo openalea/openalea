@@ -36,7 +36,7 @@ from openalea.core.observer import AbstractListener
 import annotation
 
 from dialogs import DictEditor
-from util import busy_pointer
+from util import busy_pointer, open_dialog
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -48,7 +48,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         vboxlayout = QtGui.QVBoxLayout(self)
-        
+
+        # Add subwidgets
         for id in node.vertices():
 
             subnode = node.node(id)
@@ -57,16 +58,42 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
             if(not factory): continue
             
             widget = factory.instantiate_widget(subnode, self)
-
-            caption = "%s"%(subnode.caption)
-            groupbox = QtGui.QGroupBox(caption, self)
-            layout = QtGui.QVBoxLayout(groupbox)
-            layout.setMargin(3)
-            layout.setSpacing(2)
-
-            layout.addWidget(widget)
+            if(widget.is_empty()) :
+                widget.close()
+                del widget
+                continue
             
-            vboxlayout.addWidget(groupbox)
+            else : vboxlayout.addWidget(widget)
+            
+            #caption = "%s"%(subnode.caption)
+            #groupbox = QtGui.QGroupBox(caption, self)
+            #layout = QtGui.QVBoxLayout(groupbox)
+            #layout.setMargin(3)
+            #layout.setSpacing(2)
+
+            #layout.addWidget(widget)
+            
+            #vboxlayout.addWidget(groupbox)
+            
+
+        # Add Run bouton and close button
+        runbutton = QtGui.QPushButton("Run", self)
+        exitbutton = QtGui.QPushButton("Exit", self)
+        self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
+        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+
+        buttons = QtGui.QHBoxLayout()
+        buttons.addWidget(runbutton)
+        buttons.addWidget(exitbutton)
+        vboxlayout.addLayout(buttons)
+
+        
+    def run(self):
+        self.node.eval()
+
+    def exit(self):
+        self.parent().close()
+        
 
         
 
@@ -293,11 +320,6 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if(self.node_dialog.has_key(elt_id)):
             (d,w) = self.node_dialog[elt_id]
 
-            if w.is_empty():
-                d.hide()
-            else:
-                d.show()
-
             d.raise_ ()
             d.activateWindow ()
             return
@@ -305,27 +327,17 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         # We Create a new Dialog
         node = self.node.node(elt_id)
         factory = node.get_factory()
-        if(not factory) : 
+        if(not factory) : return
+
+        widget = factory.instantiate_widget(node, self)
+        
+        if (widget.is_empty()):
+            widget.close()
+            del widget
             return
-        
-        container = QtGui.QDialog(self)
-        #container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            
-        widget = factory.instantiate_widget(node, container)
-        
-        vboxlayout = QtGui.QVBoxLayout(container)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
 
-        vboxlayout.addWidget(widget)
-
-        container.setWindowTitle(factory.get_id())
-
+        container = open_dialog(self, widget, factory.get_id(), False)
         self.node_dialog[elt_id] = (container, widget)
-        if widget.is_empty():
-            container.hide()
-        else:
-            container.show()
 
 
     def get_selected_item(self):

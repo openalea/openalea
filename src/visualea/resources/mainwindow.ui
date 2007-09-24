@@ -155,6 +155,14 @@
          </property>
         </layout>
        </widget>
+       <widget class="QWidget" name="sensortab" >
+        <attribute name="title" >
+         <string>Sensors</string>
+        </attribute>
+        <attribute name="icon" >
+         <iconset resource="images.qrc" >:/icons/info.png</iconset>
+        </attribute>
+       </widget>
        <widget class="QWidget" name="UseTabWidget" >
         <attribute name="title" >
          <string>Use</string>
@@ -310,6 +318,7 @@
     <addaction name="actionReload_from_Model" />
     <addaction name="separator" />
     <addaction name="actionExport_to_Application" />
+    <addaction name="actionPreview_Application" />
    </widget>
    <widget class="QMenu" name="menu_Package" >
     <property name="title" >
@@ -574,6 +583,11 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionPreview_Application" >
+   <property name="text" >
+    <string>Preview Application</string>
    </property>
   </action>
  </widget>

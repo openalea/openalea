@@ -35,6 +35,7 @@ from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
 from dialogs import EditPackage
+from util import open_dialog
 
 import images_rc
 
@@ -500,23 +501,6 @@ class NodeFactoryView(object):
         ret = dialog.exec_()
         
 
-    def open_dialog(self, widget, title):
-        """ Open a widget in a dialog box """
-
-        # Open Code editor dialog
-        dialog = QtGui.QDialog(self)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.setParent(dialog)
-                
-        vboxlayout = QtGui.QVBoxLayout(dialog)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
-        vboxlayout.addWidget(widget)
-
-        dialog.setWindowTitle(title)
-        dialog.show()
-        
-
     def mouseDoubleClickEvent(self, event):
 
         item = self.currentIndex()
@@ -536,7 +520,7 @@ class NodeFactoryView(object):
         
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget()
-            self.open_dialog(widget, obj.get_id())
+            open_dialog(self, widget, obj.get_id())
         
 
         elif(isinstance(obj, Package)):
@@ -557,7 +541,7 @@ class NodeFactoryView(object):
 
         elif(isinstance(obj, NodeFactory)):
             widget = obj.instantiate_widget(edit=True)
-            self.open_dialog(widget, obj.get_id())
+            open_dialog(self, widget, obj.get_id())
 
 
     def remove_node(self):
