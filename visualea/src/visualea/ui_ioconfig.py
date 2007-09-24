@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ioconfig.ui'
 #
-# Created: Fri Sep 21 13:30:26 2007
+# Created: Sat Sep 22 16:09:56 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!

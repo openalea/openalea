@@ -9,5 +9,6 @@
 	<file>diagram.png</file>	
         <file>datapool.png</file>	
 	<file>splash.png</file>
+	<file>info.png</file>
     </qresource>
 </RCC>

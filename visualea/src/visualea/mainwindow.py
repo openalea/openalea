@@ -166,7 +166,10 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
         self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
                      self.export_to_application)
+        self.connect(self.actionPreview_Application, SIGNAL("activated()"),
+                     self.preview_application)
 
+        
         
         
         # final init
@@ -421,7 +424,6 @@ class MainWindow(QtGui.QMainWindow,
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-                   
         
 
     def configure_io(self, index=-1):
@@ -441,13 +443,6 @@ class MainWindow(QtGui.QMainWindow,
         
 
             
-    def export_to_application(self):
-        """ Export current workspace composite node to an Application """
-
-        mess = QtGui.QMessageBox.warning(self, "Error",
-                                         "This functionality is not yet implemented")
-
-
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
@@ -669,5 +664,59 @@ class MainWindow(QtGui.QMainWindow,
 
         cindex = self.tabWorkspace.currentIndex()
         self.index_nodewidget[cindex].node.reset()
+
+
+
+    def get_current_factory(self, name):
+        """ Build a temporary factory for current workspace
+        Return (node, factory)
+        """
+
+        cindex = self.tabWorkspace.currentIndex()
+        node = self.index_nodewidget[cindex].node
+
+        # Export as temporary factory
+        from openalea.core.compositenode import CompositeNodeFactory
+        tempfactory = CompositeNodeFactory(name = name)
+        node.to_factory(tempfactory)
+
+        return (node, tempfactory)
+    
+        
+    def preview_application(self):
+        """ Open Application widget """
+
+        (node, tempfactory) = self.get_current_factory("Preview")
+        w = tempfactory.instantiate_widget(node, self)
+
+        from util import open_dialog
+        open_dialog(self, w, 'Preview Application')
+
+
+    def export_to_application(self):
+        """ Export current workspace composite node to an Application """
+
+        # Get Filename
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, "Python Application", QtCore.QDir.homePath(), "Python file (*.py)")
+        
+        filename = str(filename)
+        if(not filename) : return
+
+        # Get Application Name
+        (result, ok) = QtGui.QInputDialog.getText(self, "Application Name", "",
+                                   QtGui.QLineEdit.Normal, "")
+        if(not ok): return
+
+        name = str(result)
+        if(not name) : name = "OpenAlea Application"
+        
+        (node, tempfactory) = self.get_current_factory(name)
+        w = tempfactory.instantiate_widget(node, self)
+
+        from openalea.core import export_app
+        export_app.export_app(name, filename, tempfactory)
+        
+
 
 

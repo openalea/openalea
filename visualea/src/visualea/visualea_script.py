@@ -21,7 +21,7 @@ Wrapper to start Visualea with correct environment variables
 """
 
 __license__ = "CeCILL v2"
-__revision__ =" $Id: visualeagui.py 606 2007-06-25 12:55:41Z dufourko $"
+__revision__ =" $Id$"
 
 
 

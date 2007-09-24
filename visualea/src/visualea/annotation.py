@@ -20,7 +20,7 @@ Annotation node
 """
 
 __license__= "CeCILL v2"
-__revision__=" $Id: compositenode_widget.py 615 2007-06-27 16:22:52Z dufourko $ "
+__revision__=" $Id$ "
 
 
 

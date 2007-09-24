@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Sep 21 13:30:26 2007
+# Created: Sat Sep 22 16:09:55 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,6 +78,10 @@ class Ui_MainWindow(object):
         self.vboxlayout3.setMargin(9)
         self.vboxlayout3.setObjectName("vboxlayout3")
         self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
+
+        self.sensortab = QtGui.QWidget()
+        self.sensortab.setObjectName("sensortab")
+        self.poolTabWidget.addTab(self.sensortab,QtGui.QIcon(":/icons/info.png"),"")
 
         self.UseTabWidget = QtGui.QWidget()
         self.UseTabWidget.setObjectName("UseTabWidget")
@@ -264,6 +268,9 @@ class Ui_MainWindow(object):
 
         self.actionReset = QtGui.QAction(MainWindow)
         self.actionReset.setObjectName("actionReset")
+
+        self.actionPreview_Application = QtGui.QAction(MainWindow)
+        self.actionPreview_Application.setObjectName("actionPreview_Application")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -296,6 +303,7 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addAction(self.actionReload_from_Model)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionExport_to_Application)
+        self.menu_Workspace.addAction(self.actionPreview_Application)
         self.menuCreate.addAction(self.actionNew_Package)
         self.menuCreate.addAction(self.action_New_Network)
         self.menuCreate.addAction(self.actionNew_Python_Node)
@@ -323,6 +331,7 @@ class Ui_MainWindow(object):
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.categoryview), QtGui.QApplication.translate("MainWindow", "Category", None, QtGui.QApplication.UnicodeUTF8))
         self.tabPackager.setTabText(self.tabPackager.indexOf(self.searchview), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.pooltab), QtGui.QApplication.translate("MainWindow", "DataPool", None, QtGui.QApplication.UnicodeUTF8))
+        self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.sensortab), QtGui.QApplication.translate("MainWindow", "Sensors", None, QtGui.QApplication.UnicodeUTF8))
         self.useTable.clear()
         self.useTable.setColumnCount(2)
         self.useTable.setRowCount(0)
@@ -397,5 +406,6 @@ class Ui_MainWindow(object):
         self.action_Cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+K", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPreview_Application.setText(QtGui.QApplication.translate("MainWindow", "Preview Application", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
