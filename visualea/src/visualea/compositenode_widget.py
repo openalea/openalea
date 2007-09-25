@@ -322,8 +322,12 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if(self.node_dialog.has_key(elt_id)):
             (d,w) = self.node_dialog[elt_id]
 
-            d.raise_ ()
-            d.activateWindow ()
+            if(d.isVisible()):
+                d.raise_ ()
+                d.activateWindow ()
+            else:
+                d.show()
+
             return
 
         # We Create a new Dialog
