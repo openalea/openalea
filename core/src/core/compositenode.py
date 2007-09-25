@@ -132,14 +132,12 @@ class CompositeNodeFactory(AbstractFactory):
                 
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
-        self.graph_modified = False
 
         # Set call stack to its original state
         call_stack.pop()
 
         # Properties
         new_df.lazy = self.lazy
-
 
         return new_df
 
@@ -181,7 +179,6 @@ class CompositeNodeFactory(AbstractFactory):
             
             cnode.connect(source_vid, source_port, target_vid, target_port)
 
-        self.graph_modified = False
         return idmap.values()
 
 

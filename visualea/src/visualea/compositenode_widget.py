@@ -360,15 +360,13 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.graph_item[self.node.id_in].setSelected(False)
         self.graph_item[self.node.id_out].setSelected(False)
 
-        s = self.get_selected_item()
-                    
         # remove the nodes
-        map(self.remove_node, s)
+        nodes = self.get_selected_item()
+        for i in nodes : self.graph_item[i].remove()
 
         # Remove other item
         items = self.scene().selectedItems()
-       
-        map(self.scene().removeItem, items)
+        for i in items : i.remove()
 
 
     def group_selection(self, factory):
@@ -765,12 +763,12 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         for cin in self.connector_in:
             for e in list(cin.edge_list):
-                e.remove_edge()
+                e.remove()
             #cout.edge_list = []
                 
         for cout in self.connector_out:
             for e in list(cout.edge_list):
-                e.remove_edge()
+                e.remove()
             #cout.edge_list = []
                 
 
@@ -824,6 +822,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
 
+        ret = QtGui.QGraphicsItem.itemChange(self, change, value)
         
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
             
@@ -837,14 +836,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
          
             #self.graphview.itemMoved(self, value)
             
-     #    elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
+#         elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
 #             v = value.toBool()
 #             for c in self.connector_in :
 #                 for e in c.edge_list : e.setSelected(v)
 #             for c in self.connector_out :
 #                 for e in c.edge_list : e.setSelected(v)
                 
-        return QtGui.QGraphicsItem.itemChange(self, change, value)
+        return ret
 
 
     def mousePressEvent(self, event):
@@ -889,7 +888,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
 
         action = menu.addAction("Delete")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.delete_node)
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
         
 #         action = menu.addAction("Enable in Widget")
 #         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
@@ -930,7 +929,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.graphview.open_item(self.elt_id)
 
 
-    def delete_node(self):
+    def remove(self):
         """ Remove current node """
         self.graphview.remove_node(self.elt_id)
         
@@ -1165,7 +1164,7 @@ class ConnectorOut(Connector):
 def edge_factory():
     try:
         settings = Settings()
-        style = settings.get('UI','EdgeStyle')
+        style = settings.get('UI', 'EdgeStyle')
     except:
         style = 'Line'
 
@@ -1190,15 +1189,15 @@ class LinearEdgePath(object):
         diff = self.p2 - self.p1
 
         if( abs(diff.x()) > abs(diff.y())):
-            dp = QtCore.QPointF(0,10)
+            dp = QtCore.QPointF(0, 10)
         else:
-            dp = QtCore.QPointF(10,0)
+            dp = QtCore.QPointF(10, 0)
         
         p1 = self.p1 - dp
         p2 = self.p1 + dp
         p3 = self.p2 + dp
         p4 = self.p2 - dp
-        poly = QtGui.QPolygonF([p1,p2,p3,p4])
+        poly = QtGui.QPolygonF([p1, p2, p3, p4])
         path.addPolygon(poly)
         
         return path
@@ -1228,7 +1227,7 @@ class PolylineEdgePath(LinearEdgePath):
 
         points = []
 
-        sd= self.p2- self.p1
+        sd= self.p2 - self.p1
         if abs(sd.x()) <= self.WIDTH: # draw a line
             pass
         elif sd.y() < 2 * self.WIDTH:
@@ -1236,13 +1235,13 @@ class PolylineEdgePath(LinearEdgePath):
             d1 = self.p2 - QtCore.QPointF(0,self.WIDTH)
 
             s1d1= d1 -s1
-            s2 = s1 + QtCore.QPointF(s1d1.x()/2.,0)
-            d2 = s2 + QtCore.QPointF(0,s1d1.y())
-            points.extend([s1,s2,d2,d1])
+            s2 = s1 + QtCore.QPointF(s1d1.x() / 2., 0)
+            d2 = s2 + QtCore.QPointF(0, s1d1.y())
+            points.extend([s1, s2, d2, d1])
         else:
-            s1 = self.p1 + QtCore.QPointF(0,sd.y()/2.)
-            d1= self.p2 - QtCore.QPointF(0,sd.y()/2.)
-            points.extend([s1,d1])
+            s1 = self.p1 + QtCore.QPointF(0, sd.y() / 2.)
+            d1= self.p2 - QtCore.QPointF(0, sd.y() / 2.)
+            points.extend([s1, d1])
         
         points.append(self.p2)
         for pt in points:
@@ -1266,12 +1265,12 @@ class SplineEdgePath(PolylineEdgePath):
         if abs(sd.x()) <= self.WIDTH: # draw a line
             path.lineTo(self.p2)
         elif sd.y() < self.WIDTH: 
-            py = QtCore.QPointF(0,max( self.WIDTH, -sd.y()))
+            py = QtCore.QPointF(0, max(self.WIDTH, - sd.y()))
             path.cubicTo(self.p1 + py, self.p2 - py, self.p2)
 
         else:
-            py = QtCore.QPointF(0,sd.y()/2.)
-            pm= (self.p1 + self.p2)/2.
+            py = QtCore.QPointF(0, sd.y() / 2.)
+            pm = (self.p1 + self.p2) / 2.
             path.quadTo(self.p1 + py, pm)
             path.quadTo(self.p2 - py, self.p2)
 
@@ -1349,10 +1348,10 @@ class Edge(AbstractEdge):
         """
         AbstractEdge.__init__(self, graphview, parent, scene)
 
-        self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        #self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
-       #  self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
-#             QtGui.QGraphicsItem.ItemIsSelectable))
+        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
+            QtGui.QGraphicsItem.ItemIsSelectable))
 
         src = sourceNode.get_output_connector(out_index)
         if(src) : src.add_edge(self)
@@ -1381,18 +1380,24 @@ class Edge(AbstractEdge):
         self.update_line()
 
 
-   #  def paint(self, painter, option, widget):
+    def itemChange(self, change, value):
+        """ Callback when item has been modified (move...) """
 
-#         if(self.isSelected()): color = QtCore.Qt.blue
-#         else: color = QtCore.Qt.black
+        if (change == QtGui.QGraphicsItem.ItemSelectedChange):
+            print "edge", value.toBool()
+            if(value.toBool()):
+                color = QtCore.Qt.blue
+            else:
+                color = QtCore.Qt.black
 
-#         self.setPen(QtGui.QPen(color, 3,
-#                                QtCore.Qt.SolidLine,
-#                                QtCore.Qt.RoundCap,
-#                                QtCore.Qt.RoundJoin))
-    
-#         QtGui.QGraphicsPathItem.paint(self, painter, option, widget)
+            self.setPen(QtGui.QPen(color, 3,
+                                   QtCore.Qt.SolidLine,
+                                   QtCore.Qt.RoundCap,
+                                   QtCore.Qt.RoundJoin))
         
+                
+        return QtGui.QGraphicsItem.itemChange(self, change, value)
+
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -1400,7 +1405,7 @@ class Edge(AbstractEdge):
         menu = QtGui.QMenu(self.graph)
 
         action = menu.addAction("Delete connection")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove_edge)
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
         
         menu.move(event.screenPos())
         menu.show()
@@ -1408,7 +1413,8 @@ class Edge(AbstractEdge):
         event.accept()
 
 
-    def remove_edge(self):
+    def remove(self):
+        """ Remove the Edge """
         self.graph.remove_connection(self)
 
 
