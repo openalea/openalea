@@ -534,10 +534,13 @@ class alea_install(easy_install):
 
         # Add pywin32 path
         if('win' in sys.platform):
-            win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
+            try:
+                win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
 
-            if(win32dir not in os.environ['PATH']):
-                os.environ['PATH'] += ";" + win32dir
+                if(win32dir not in os.environ['PATH']):
+                    os.environ['PATH'] += ";" + win32dir
+            except:
+                print "!!Error : pywin32 package not found. Please install it before."
 
         # process postinstall
         for s in pkg_resources.yield_lines(lstr):
