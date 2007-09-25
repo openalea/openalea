@@ -755,9 +755,9 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         for s in  interface.enum:
             self.subwidget.addItem(s)
             self.map_index[s] = self.subwidget.count() - 1
-        
-        self.hboxlayout.addWidget(self.subwidget)
 
+        self.hboxlayout.addWidget(self.subwidget)
+        self.notify(None, None)
         
         self.connect(self.subwidget,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
