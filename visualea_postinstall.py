@@ -19,7 +19,7 @@ def install():
                         target = winexe,
                         arguments = '"'+pj(sys.prefix, 'Scripts', 'visualea-script.pyw')+'"',
                         startin = "", 
-                        icon = pj(share_dir, 'openalea_icon48.ico'),
+                        icon = pj(share_dir, 'openalea_icon.ico'),
                         description = "Visual programming",
                         menugroup = "OpenAlea")
 
