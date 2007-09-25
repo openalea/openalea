@@ -20,8 +20,9 @@ setup(
     packages = ["openalea", "openalea.deploygui"],
     package_dir = { 'openalea' : 'src/openalea', 'openalea.deploygui': 'src/openalea/deploygui' }, 
     include_package_data = True,
-    zip_safe = True,
+    zip_safe = False,
 
+    share_dirs = { 'share' : 'share'},
     entry_points = {
               "gui_scripts": [
                  "alea_install_gui = openalea.deploygui.alea_install_gui:main", ],

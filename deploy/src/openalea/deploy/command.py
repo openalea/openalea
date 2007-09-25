@@ -94,7 +94,7 @@ def has_ext_modules(dist):
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
                 dist.lib_dirs or dist.inc_dirs or
-                dist.bin_dirs or dist.share_dirs)
+                dist.bin_dirs)
     except:
         return dist.has_ext_modules()
 
