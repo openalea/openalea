@@ -646,7 +646,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
 
         # Record item as a listener for the subnode
-        self.ismodified = True
+        self.ismodified = self.subnode.modified
         self.initialise(self.subnode)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
@@ -682,14 +682,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             name = desc['name']
             interface = desc.get('interface', None)
             
-            tip= port_name(name,interface)
+            tip = port_name(name,interface)
             self.connector_in.append(ConnectorIn(self.graphview, self, scene, i, ninput, tip))
             
         for i,desc in enumerate(self.subnode.output_desc):
             name = desc['name']
             interface = desc.get('interface', None)
 
-            tip= port_name(name,interface)
+            tip = port_name(name,interface)
             self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
 
         # Set Position
@@ -710,8 +710,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         newsizex = fm.width(self.get_caption()) + 20;
         # when the text is small but there are lots of ports, 
         # add more space.
-        nb_ports= max(len(self.connector_in),len(self.connector_out))
-        newsizex= max( nb_ports * Connector.WIDTH * 2, newsizex)
+        nb_ports = max(len(self.connector_in),len(self.connector_out))
+        newsizex = max( nb_ports * Connector.WIDTH * 2, newsizex)
         
         if(newsizex > self.sizex):
 
@@ -742,7 +742,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
            
         elif(self.ismodified != sender.modified):
             self.ismodified = sender.modified or not sender.lazy
-            
             self.update()
             QtGui.QApplication.processEvents()
 
@@ -825,6 +824,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
 
+        
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
             
             for c in self.connector_in : c.adjust()
@@ -836,7 +836,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             self.subnode.set_data('posy', point.y(), False)
          
             #self.graphview.itemMoved(self, value)
-
+            
+     #    elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
+#             v = value.toBool()
+#             for c in self.connector_in :
+#                 for e in c.edge_list : e.setSelected(v)
+#             for c in self.connector_out :
+#                 for e in c.edge_list : e.setSelected(v)
+                
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
 
@@ -1169,6 +1176,7 @@ def edge_factory():
     else:
         return SplineEdgePath()
 
+
 class LinearEdgePath(object):
     """ Draw edges as line. """
     def __init__(self): 
@@ -1201,8 +1209,11 @@ class LinearEdgePath(object):
         path = QtGui.QPainterPath(self.p1)
         path.lineTo(self.p2)
         return path
+
         
 class PolylineEdgePath(LinearEdgePath):
+    """ Edge as Polyline """
+    
     WIDTH = 30
     def __init__(self): 
         LinearEdgePath.__init__(self)
@@ -1239,7 +1250,10 @@ class PolylineEdgePath(LinearEdgePath):
 
         return path
 
+
 class SplineEdgePath(PolylineEdgePath):
+    """ Edge as Spline """
+    
     def __init__(self): 
         PolylineEdgePath.__init__(self)
 
@@ -1262,15 +1276,12 @@ class SplineEdgePath(PolylineEdgePath):
             path.quadTo(self.p2 - py, self.p2)
 
         return path
+    
 
 class AbstractEdge(QtGui.QGraphicsPathItem):
     """
-    Base classe for edges (the return)!!!
+    Base classe for edges 
     """
-
-    WIDTH = 50
-    # Available styles are 'Line', 'Polyline', and 'Spline'
-    STYLE = 'Spline'
 
     def __init__(self, graphview, parent=None, scene=None):
         QtGui.QGraphicsPathItem.__init__(self, parent, scene)
@@ -1287,22 +1298,20 @@ class AbstractEdge(QtGui.QGraphicsPathItem):
                                QtCore.Qt.SolidLine,
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
+
         
-
     def shape(self):
-
         path = self.edge_path.shape()
         if not path:
             return QtGui.QGraphicsPathItem.shape(self)
         else:
             return path
         
-
     def update_line(self):
         path = self.edge_path.getPath(self.sourcePoint, self.destPoint)
         self.setPath(path)
 
-    
+
 class SemiEdge(AbstractEdge):
     """
     Represents an edge during its creation
@@ -1342,6 +1351,9 @@ class Edge(AbstractEdge):
 
         self.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
+       #  self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
+#             QtGui.QGraphicsItem.ItemIsSelectable))
+
         src = sourceNode.get_output_connector(out_index)
         if(src) : src.add_edge(self)
 
@@ -1369,6 +1381,19 @@ class Edge(AbstractEdge):
         self.update_line()
 
 
+   #  def paint(self, painter, option, widget):
+
+#         if(self.isSelected()): color = QtCore.Qt.blue
+#         else: color = QtCore.Qt.black
+
+#         self.setPen(QtGui.QPen(color, 3,
+#                                QtCore.Qt.SolidLine,
+#                                QtCore.Qt.RoundCap,
+#                                QtCore.Qt.RoundJoin))
+    
+#         QtGui.QGraphicsPathItem.paint(self, painter, option, widget)
+        
+
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
@@ -1385,4 +1410,6 @@ class Edge(AbstractEdge):
 
     def remove_edge(self):
         self.graph.remove_connection(self)
+
+
     
