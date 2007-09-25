@@ -472,6 +472,13 @@ class alea_install(easy_install):
 
         self.set_system()
         easy_install.run(self)
+
+        # Activate the correct egg
+        self.dist.activate()
+        if(pkg_resources.working_set.by_key.has_key(self.dist.key)):
+            del pkg_resources.working_set.by_key[self.dist.key]
+        pkg_resources.working_set.add(self.dist)
+
         # Call postinstall
         self.postinstall(self.dist)
 
@@ -515,6 +522,7 @@ class alea_install(easy_install):
         """ Call postinstall scripts """
 
         print "Post installation"
+
         if(dist):
             pkg_resources.require(dist.project_name)
             sys.path.append(dist.location)
@@ -551,13 +559,6 @@ def set_env():
 
     print "Setting environment variables"
 
-    # Avoid local copy for setting environment variables
-    path = sys.path[:]
-    try:
-        sys.path.remove(os.path.abspath('.'))
-    except:
-        pass
-    
     lib_dirs = list(get_all_lib_dirs())
     bin_dirs = list(get_all_bin_dirs())
         
@@ -583,4 +584,3 @@ def set_env():
         return
 
 
-    sys.path = path
