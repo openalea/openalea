@@ -25,7 +25,22 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 
+class Variable(Node):
+    """
+    In : Caption, Obj
+    Out: Obj
+    Transmit obj to output
+    Display str as caption
+    """
 
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        self.set_caption(str(inputs[0]))
+        return (inputs[1],  )
+
+
+    
 class FileName(Node):
     """
 A file path

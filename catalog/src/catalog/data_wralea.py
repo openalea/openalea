@@ -46,6 +46,23 @@ def register_packages(pkgmanager):
 
     package = Package("Catalog.Data", metainfo)
 
+
+    nf = Factory( name="variable", 
+                  description="Variable", 
+                  category="Data Types", 
+                  nodemodule="data",
+                  nodeclass="Variable",
+
+                  inputs=(dict(name='Caption', interface=IStr, value='Variable'),
+                          dict(name='Object', interface=None, value=None),
+                          ),
+                  outputs=(dict(name='Object', interface=None),)
+                  )
+
+    package.add_factory( nf )
+
+
+
     nf = Factory( name="filename", 
                   description="File name", 
                   category="Data Types", 
