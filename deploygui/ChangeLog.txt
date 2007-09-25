@@ -2,6 +2,6 @@
 17/09/07 :  Version 0.2
 	    Add remove function
             Improve interface (add tab view)
-            Add authentification
+            Add authentification for INRIA Gforge
 
 05/08/07 :  First implementation
