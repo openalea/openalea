@@ -1,5 +1,6 @@
 24/09/07 : 0.3.0a Alpha release
-	   Save as CompositeNode save values
+	   "Save as CompositeNode" save values
+	   Add copy/Paste support
 	   Save Session command improved         
 	   Export Application	
 	   New evaluation algorithms with priority, and loop capabilities

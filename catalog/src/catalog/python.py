@@ -23,6 +23,8 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 from openalea.core import *
+import os
+
 
 def py_ifelse(c=True,a=None,b=None):
     """ Return a if c is true else b """
@@ -117,13 +119,33 @@ def py_fwrite(x="", filename="", mode="w"):
     f.close()
 
 
-def py_fread(filename=""):
-    """ Write to a file """
+class FileRead(object):
+    """ Read a file """
 
-    f = open(filename, 'r')
-    s = f.read()
-    f.close()
-    return s
+    def __init__(self):
+
+        self.mtime = 0 # modification time
+        self.filename = ''
+        self.s = '' 
+    
+    def __call__(self, filename=""):
+
+        try:
+            mtime = os.stat(filename).st_mtime
+        except:
+            mtime = 0
+        
+        if(filename != self.filename or
+           mtime != self.mtime):
+
+            self.filename = filename
+            self.mtime = mtime
+            
+            f = open(filename, 'r')
+            self.s = f.read()
+            f.close()
+            
+        return self.s
 
 
 def py_method(obj=None, name="", args=()):

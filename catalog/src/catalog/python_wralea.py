@@ -182,10 +182,11 @@ def register_packages(pkgmanager):
                  description="File input", 
                  category="Python", 
                  nodemodule="python",
-                 nodeclass="py_fread",
+                 nodeclass="FileRead",
                  inputs=(dict(name="filename", interface=IFileStr),
                          ),
                  outputs=(dict(name="String", interface=IStr),),
+                 lazy = False,
                  )
 
     package.add_factory(nf)
