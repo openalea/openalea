@@ -18,7 +18,7 @@ def install():
                         target = winexe,
                         arguments = '"'+pj(sys.prefix, 'Scripts', 'alea_install_gui-script.pyw')+'"',
                         startin = "", 
-                        icon = pj(share_dir, 'install_icon48.ico'),
+                        icon = pj(share_dir, 'install_icon.ico'),
                         description = "OpenAlea Installation",
                         menugroup = "OpenAlea")
         
