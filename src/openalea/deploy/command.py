@@ -120,7 +120,18 @@ class build_py(old_build_py):
     def run(self):
         # Run others commands
         self.run_command("create_namespaces")
-        return old_build_py.run(self)
+
+        # Add share_dirs 
+        d = self.distribution.share_dirs
+        if(d):
+            if(not os.path.exists(self.build_lib)):
+                self.mkpath(self.build_lib)
+
+            for (name, dir) in d.items():
+                copy_data_tree(dir, pj(self.build_lib, name))
+
+        ret = old_build_py.run(self)
+        return ret
 
 
 class build_ext(old_build_ext):
@@ -185,7 +196,7 @@ def validate_scons_scripts(dist, attr, value):
         set_has_ext_modules(dist)
 
 
-def validate_shared_dirs(dist, attr, value):
+def validate_bin_dirs(dist, attr, value):
     """ Validation for shared directories keywords"""
     try:
         assert_string_list(dist, attr, list(value.keys()))
@@ -202,6 +213,24 @@ def validate_shared_dirs(dist, attr, value):
             "%r must be a dict of strings (got %r)" % (attr,value)
         )
     
+
+def validate_share_dirs(dist, attr, value):
+    """ Validation for shared directories keywords"""
+    try:
+        assert_string_list(dist, attr, list(value.keys()))
+        assert_string_list(dist, attr, list(value.values()))
+
+        if(value):
+            # Change commands
+            setuptools.command.build_py.build_py = build_py
+            setuptools.command.install.install = install
+            set_has_ext_modules(dist)
+
+    except (TypeError,ValueError,AttributeError,AssertionError):
+        raise DistutilsSetupError(
+            "%r must be a dict of strings (got %r)" % (attr,value)
+        )
+
 
 def validate_postinstall_scripts(dist, attr, value):
     """ Validation for postinstall_scripts keyword"""

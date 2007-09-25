@@ -35,10 +35,10 @@ setup(
 
     entry_points = {
               "distutils.setup_keywords": [
-                 "lib_dirs = openalea.deploy.command:validate_shared_dirs",
-                 "inc_dirs = openalea.deploy.command:validate_shared_dirs",
-                 "bin_dirs = openalea.deploy.command:validate_shared_dirs",
-                 "share_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "lib_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "inc_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "bin_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "share_dirs = openalea.deploy.command:validate_share_dirs",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
