@@ -259,8 +259,10 @@ class DataPoolModel (QAbstractListModel) :
             l = self.datapool.keys()
             l.sort()
             name = l[index.row()]
-            classname = self.datapool[name].__class__
-            return QVariant("%s (%s)"%(name, classname))
+            #classname = self.datapool[name].__class__
+            value = repr(self.datapool[name])
+            if(len(value) > 30) : value = value[:30] + "..."
+            return QVariant("%s ( %s )"%(name, value))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):

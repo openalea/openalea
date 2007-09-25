@@ -50,6 +50,7 @@ setup(
                            ]},
 
     postinstall_scripts = ['visualea_postinstall'],
+    share_dirs = { 'share' : 'share' },
  
     # Dependencies
     setup_requires = ['openalea.deploy'],

@@ -7,6 +7,10 @@ def install():
     import sys
     from os.path import join as pj
 
+    # Get the location of the installed egg
+    base_dir = get_base_dir('openalea.visualea')
+    share_dir = pj(base_dir, 'share')
+    
     winexe = sys.executable
     winexe = winexe.replace('python.exe', 'pythonw.exe')
         
@@ -14,7 +18,7 @@ def install():
                         target = winexe,
                         arguments = '"'+pj(sys.prefix, 'Scripts', 'visualea-script.pyw')+'"',
                         startin = "", 
-                        icon = "",
+                        icon = pj(share_dir, 'openalea_icon48.ico'),
                         description = "Visual programming",
                         menugroup = "OpenAlea")
 
