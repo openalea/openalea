@@ -35,7 +35,7 @@ def export_app(name, filename, cn_factory):
 
     # Read template
     dir = os.path.dirname(__file__)
-    template_fn = os.path.join(dir, "template_app.py")
+    template_fn = os.path.join(dir, "template_app.txt")
     f = open(template_fn, "r")
 
 
