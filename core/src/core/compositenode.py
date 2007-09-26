@@ -480,10 +480,13 @@ class CompositeNode(Node, DataFlow):
             sgfactory.elt_data[vid] = kdata
 
             # Copy value
-            sgfactory.elt_value[vid] = \
-                                     [(port, repr(value)) for (port, value)
-                                      in enumerate(node.inputs)
-                                      if node.input_states[port] is not "connected"]
+            if(not node.get_nb_input()):
+                sgfactory.elt_value[vid] = []
+            else:
+                sgfactory.elt_value[vid] = \
+                                         [(port, repr(value)) for (port, value)
+                                          in enumerate(node.inputs)
+                                          if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
 
