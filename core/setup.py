@@ -33,6 +33,7 @@ setup(
     namespace_packages = ['openalea'],
     create_namespaces = True,
     zip_safe = False,
+    include_package_data = True,
 
     packages = [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
                 'openalea.core.graph.interface' ],

@@ -319,7 +319,7 @@ class CompositeNode(Node, DataFlow):
 
         except Exception, e:
             from  algo.dataflow_evaluation import GeneratorEvaluation
-            return SelectiveEvaluation(self)
+            return GeneratorEvaluation(self)
 
 
     def eval_as_expression(self, vtx_id=None):
