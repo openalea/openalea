@@ -113,7 +113,8 @@ class SciShell(QsciScintilla):
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
         self.write(message+'\n')
-        self.write("Interactive Help can be obtained with '?' key\n\n")
+        #self.write("help -> Python help system.\n")
+        self.write(" object? -> Print details about 'object'\n\n")
         self.write(sys.ps1)
 
 
@@ -253,6 +254,10 @@ class SciShell(QsciScintilla):
             self.history.append(QtCore.QString(cmd))
             self.histidx = -1
 
+        if(cmd.endswith('?')):
+                self.__showHelp(cmd)
+                return
+
         # Execute command
         self.execlines.append(str(cmd))
         source = '\n'.join(self.execlines)
@@ -334,8 +339,6 @@ class SciShell(QsciScintilla):
             
             if(txt == '.'):
                 self.__showDynCompletion()
-            if(txt == '?'):
-                self.__showHelp()
 
         elif(ctrl or shift):
             QsciScintilla.keyPressEvent(self, ev)
@@ -620,12 +623,12 @@ class SciShell(QsciScintilla):
         return text
 
 
-    def __showHelp(self):
+    def __showHelp(self, text):
 
-        text = self.__get_current_line()
-        self.__executeCommand('help(%s)'%(text,))
-        self.__QScintillaNewline()
-        self.__insertTextAtEnd(text)
+        #text = self.__get_current_line()
+        self.__executeCommand('help(%s)'%(text[:-1],))
+        #self.__QScintillaNewline()
+        #self.__insertTextAtEnd(text)
 
         
     def __showDynCompletion(self):
