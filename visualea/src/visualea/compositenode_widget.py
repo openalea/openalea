@@ -1384,7 +1384,6 @@ class Edge(AbstractEdge):
         """ Callback when item has been modified (move...) """
 
         if (change == QtGui.QGraphicsItem.ItemSelectedChange):
-            print "edge", value.toBool()
             if(value.toBool()):
                 color = QtCore.Qt.blue
             else:
