@@ -479,11 +479,12 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
     def valid_dataflow(self):
 
         item = self.listAlgo.currentItem()
-        algostr = str(item.text())
+        if(item):
+            algostr = str(item.text())
         
-        config = Settings()
-        config.set("eval", "type", algostr)
-        config.write_to_disk()
+            config = Settings()
+            config.set("eval", "type", algostr)
+            config.write_to_disk()
           
 
     def accept(self):
