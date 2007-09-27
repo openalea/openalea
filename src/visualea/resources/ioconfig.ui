@@ -13,11 +13,20 @@
    <string>I/O Configuration</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
    <property name="spacing" >
     <number>6</number>
+   </property>
+   <property name="leftMargin" >
+    <number>9</number>
+   </property>
+   <property name="topMargin" >
+    <number>9</number>
+   </property>
+   <property name="rightMargin" >
+    <number>9</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>9</number>
    </property>
    <item>
     <widget class="QLabel" name="label" >
@@ -27,26 +36,24 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="inTable" >
-     <column>
-      <property name="text" >
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string>Interface</string>
-      </property>
-     </column>
-    </widget>
+    <widget class="QTableView" name="inTable" />
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
+     </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
      </property>
      <item>
       <widget class="QPushButton" name="addInput" >
@@ -72,26 +79,24 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="outTable" >
-     <column>
-      <property name="text" >
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text" >
-       <string>Interface</string>
-      </property>
-     </column>
-    </widget>
+    <widget class="QTableView" name="outTable" />
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
+     </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
      </property>
      <item>
       <widget class="QPushButton" name="addOutput" >
@@ -121,6 +126,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>inTable</tabstop>
+  <tabstop>addInput</tabstop>
+  <tabstop>delInput</tabstop>
+  <tabstop>outTable</tabstop>
+  <tabstop>addOutput</tabstop>
+  <tabstop>delOutput</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
