@@ -220,6 +220,8 @@ p, li { white-space: pre-wrap; }
     <property name="title" >
      <string>&amp;File</string>
     </property>
+    <addaction name="actionInstall_Egg" />
+    <addaction name="separator" />
     <addaction name="action_Quit" />
    </widget>
    <widget class="QMenu" name="menuHelp" >
@@ -255,6 +257,11 @@ p, li { white-space: pre-wrap; }
   <action name="action_Web" >
    <property name="text" >
     <string>&amp;Web</string>
+   </property>
+  </action>
+  <action name="actionInstall_Egg" >
+   <property name="text" >
+    <string>Install Egg File</string>
    </property>
   </action>
  </widget>
