@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Sep 21 11:20:48 2007
+# Created: Thu Sep 27 18:40:22 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -152,7 +152,12 @@ class Ui_MainWindow(object):
 
         self.action_Web = QtGui.QAction(MainWindow)
         self.action_Web.setObjectName("action_Web")
+
+        self.actionInstall_Egg = QtGui.QAction(MainWindow)
+        self.actionInstall_Egg.setObjectName("actionInstall_Egg")
         self.menuAuthentification.addAction(self.actionCookie_Session)
+        self.menu_File.addAction(self.actionInstall_Egg)
+        self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
         self.menuHelp.addAction(self.action_About)
         self.menuHelp.addAction(self.action_Web)
@@ -207,5 +212,6 @@ class Ui_MainWindow(object):
         self.action_Quit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Web.setText(QtGui.QApplication.translate("MainWindow", "&Web", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInstall_Egg.setText(QtGui.QApplication.translate("MainWindow", "Install Egg File", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

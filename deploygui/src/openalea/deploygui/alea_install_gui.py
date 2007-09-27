@@ -69,6 +69,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         sys.stderr = self
 
         # Signal connection
+        self.connect(self.actionInstall_Egg, QtCore.SIGNAL("activated()"), self.install_egg)
+
         self.connect(self.action_Quit, QtCore.SIGNAL("activated()"), self.quit)
         self.connect(self.action_About, QtCore.SIGNAL("activated()"), self.about)
         self.connect(self.action_Web, QtCore.SIGNAL("activated()"), self.web)
@@ -236,6 +238,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def isatty(self):
         return 1
 
+        
     @busy_pointer
     def proceed(self):
         """ Install selected packages """
@@ -249,12 +252,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
                 if(self.get_mode() == "INSTALLED"):
                     print "Removing ", pname
-                    ret = self.remove_package(pname, dist)
+                    ret = self.remove_package(pname, dist.location)
                     ok = ret and ok
                     
                 else:
                     print "Installing ", pname
-                    ret = self.install_package(pname, dist)
+                    ret = self.install_package(pname, dist.location)
                     ok = ret and ok
 
         if(ok):
@@ -267,19 +270,19 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.refresh()
         
 
-    def install_package(self, pname, dist):
-        """ Start alea_install for a particular project name
+    def install_package(self, pname, location):
+        """ Start alea_install for a particular project name, given a location
         return True if OK
         """
         
-        print "Installing %s from %s\n"%(pname, dist.location)
+        print "Installing %s from %s\n"%(pname, location)
         try:
             repositories = []
             for r in self.get_repo_list():
                 repositories += ['-f', r]
 
             setup(
-                script_args = ['-q','alea_install', '-v'] + repositories + [dist.location],
+                script_args = ['-q','alea_install', '-v'] + repositories + [location],
                 script_name = 'alea_install',
                 )
             return True
@@ -296,17 +299,30 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return False
 
 
-    def remove_package(self, pname, dist):
+    def install_egg(self):
+        """ Install manually an egg """
+
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, "Choose an Egg", QtCore.QDir.homePath(), "Egg file (*.egg)")
+
+        filename = str(filename)
+        if(not filename) : return
+
+        self.install_package(filename, filename)
+
+        
+
+    def remove_package(self, pname, location):
         """ Remove a distribution
         return True if OK
         """
         
         try:
-            print "Remove ", dist.location
-            if(os.path.isdir(dist.location)):
-                shutil.rmtree(dist.location)
+            print "Remove ", location
+            if(os.path.isdir(location)):
+                shutil.rmtree(location)
             else:
-                os.remove(dist.location)
+                os.remove(location)
             return True
 
         except Exception, e:
