@@ -53,11 +53,13 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         for id in node.vertices():
 
             subnode = node.node(id)
-            factory = subnode.get_factory()
 
-            if(not factory): continue
+            try:
+                factory = subnode.get_factory()
+                widget = factory.instantiate_widget(subnode, self)
+            except:
+                continue
             
-            widget = factory.instantiate_widget(subnode, self)
             if(widget.is_empty()) :
                 widget.close()
                 del widget
@@ -362,7 +364,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
         # remove the nodes
         nodes = self.get_selected_item()
-        for i in nodes : self.graph_item[i].remove()
+        for i in nodes : self.remove_node(i)
 
         # Remove other item
         items = self.scene().selectedItems()
@@ -615,6 +617,8 @@ def port_name( name, interface ):
             except AttributeError:
                 iname = str(interface)
     return '%s(%s)'%(name,iname)
+
+
 
     
 
@@ -896,6 +900,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         action = menu.addAction("Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
 
+        action = menu.addAction("Reset")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.subnode.reset)
+
+
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_internals)
         
@@ -946,6 +954,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):
             n.caption = str(result)
+
+
+        
+
 
 
 #     def edit_code(self):
