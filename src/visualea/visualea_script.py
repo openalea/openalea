@@ -49,8 +49,9 @@ def start_gui():
     try:
         envdict = check_system_setuptools()
 
-    except ImportError:
-        pass
+    except Exception, e:
+        envdict = os.environ
+        print e
     
     if('win' in sys.platform.lower()):
         os.execle(sys.executable, sys.executable, '-c',
