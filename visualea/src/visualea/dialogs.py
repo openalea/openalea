@@ -496,6 +496,42 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
 
 
+class ComboDelegate(QtGui.QItemDelegate):
+
+
+    def get_interfaces(self):
+        """ Return the list of availble interfaces """
+
+        x =  [k.__name__ for k in IInterfaceMetaClass.all]
+        x.append('None')
+        return x
+        
+
+    
+    def createEditor(self, parent, option, index):
+        """ Create the editor """
+        if index.column() == 1:
+            editor = QtGui.QComboBox(parent)
+            editor.addItems(self.get_interfaces())
+            return editor
+
+        return QtGui.QItemDelegate.createEditor(self, parent, option, index)
+
+    
+    def setEditorData(self ,editor, index):
+        """ Accessor """
+        value = str(index.data().toString())
+        i = editor.findText(value)
+        editor.setCurrentIndex (i)
+
+
+    def setModelData(self, editor, model, index):
+        """ Accessor """
+        value = editor.currentText()
+        model.setItem(index.row(), index.column(),
+                      QtGui.QStandardItem(str(value)))
+
+
 class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
     """ IO Configuration dialog """
     
@@ -505,20 +541,34 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         QtGui.QDialog.__init__(self, parent)
         ui_ioconfig.Ui_IOConfig.__init__(self)
         self.setupUi(self)
+        delegate = ComboDelegate()
+        self.__delegate = delegate
 
         self.inputs = inputs
         self.outputs = outputs
+        
+        self.inModel = QtGui.QStandardItemModel(len(inputs), 2)
+        self.inModel.setHorizontalHeaderLabels(["Name", "Interface"])
+        self.inTable.setModel(self.inModel)
 
-        self.inTable.setRowCount(len(inputs))
+        self.inTable.setItemDelegate(delegate)
+
+        self.outModel = QtGui.QStandardItemModel(len(outputs), 2)
+        self.outModel.setHorizontalHeaderLabels(["Name", "Interface"])
+        self.outTable.setModel(self.outModel)
+        
+        self.outTable.setItemDelegate(delegate)
+
+        #self.inTable.setItemDelegateForColumn(1, ComboBoxDeletegate())
+                                                      
         for i, d in enumerate(inputs):
-            self.inTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
-            self.inTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
-            
+            self.inModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
+            self.inModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
 
-        self.outTable.setRowCount(len(outputs))
+
         for i, d in enumerate(outputs):
-            self.outTable.setItem(i, 0, QtGui.QTableWidgetItem(str(d['name'])))
-            self.outTable.setItem(i, 1, QtGui.QTableWidgetItem(str(d['interface'])))
+            self.outModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
+            self.outModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
 
 
         self.connect(self.addInput, QtCore.SIGNAL("clicked()"), self.add_input)
@@ -532,10 +582,11 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
 
         # build input dict
         self.inputs = []
-        c = self.inTable.rowCount()
+        c = self.inModel.rowCount()
         for i in xrange(c):
-            name = str(self.inTable.item(i,0).text())
-            interface_str = str(self.inTable.item(i,1).text())
+            name = str(self.inModel.item(i,0).text())
+            interface_str = str(self.inModel.item(i,1).text())
+
             try:
                 interface = eval(interface_str)
             except:
@@ -545,10 +596,10 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
 
         # build output dict
         self.outputs = []
-        c = self.outTable.rowCount()
+        c = self.outModel.rowCount()
         for i in xrange(c):
-            name = str(self.outTable.item(i,0).text())
-            interface_str = str(self.outTable.item(i,1).text())
+            name = str(self.outModel.item(i,0).text())
+            interface_str = str(self.outModel.item(i,1).text())
             try:
                 interface = eval(interface_str)
             except:
@@ -559,32 +610,30 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
 
 
     def add_input(self):
-        c = self.inTable.rowCount()
-        self.inTable.setRowCount(c+1)
-        self.inTable.setItem(c, 0, QtGui.QTableWidgetItem('IN%i'%(c+1,)))
-        self.inTable.setItem(c, 1, QtGui.QTableWidgetItem('None'))
+        c = self.inModel.rowCount()
+        self.inModel.appendRow([QtGui.QStandardItem('IN%i'%(c+1,)),
+                                QtGui.QStandardItem('None')])
 
 
     def add_output(self):
-        c = self.outTable.rowCount()
-        self.outTable.setRowCount(c+1)
-        self.outTable.setItem(c, 0, QtGui.QTableWidgetItem('OUT%i'%(c+1,)))
-        self.outTable.setItem(c, 1, QtGui.QTableWidgetItem('None'))
+        c = self.outModel.rowCount()
+        self.outModel.appendRow([QtGui.QStandardItem('OUT%i'%(c+1,)),
+                                QtGui.QStandardItem('None')])
 
-
+        
     def del_input(self):
-        c = self.inTable.rowCount()
-        self.inTable.setRowCount(c-1)
+        c = self.inModel.rowCount()
+        self.inModel.takeRow(c-1)
 
 
     def del_output(self):
-        c = self.outTable.rowCount()
-        self.outTable.setRowCount(c-1)
+        c = self.outModel.rowCount()
+        self.outModel.takeRow(c-1)
         
 
 class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
     """
-    Dictionnary editor
+    Dictionnary editor (used for node internals)
     If accepted :
       self.pdict contains the modified dictionary
       self.modified_key  contains the list of modified key
