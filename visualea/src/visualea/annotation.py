@@ -42,6 +42,10 @@ def is_available():
     return True
 
 
+
+
+
+
 class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
     """ Text annotation on the data flow """
     
@@ -49,7 +53,6 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
 
         scene = graphview.scene()
         QtGui.QGraphicsTextItem.__init__(self)
-
         
         # members
         self.elt_id = elt_id
