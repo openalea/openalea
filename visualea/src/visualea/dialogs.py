@@ -42,11 +42,14 @@ import ui_tableedit
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
     
-    def __init__(self, title, pmanager, parent=None, factory=None):
+    def __init__(self, title, pmanager, parent=None,
+                 factory=None, io=True, inputs=(), outputs=()):
         """
         Constructor
         pmanager : the package manager
         factory : if not None, activate edition mode
+        io : provide io config
+        inputs and output are default inputs and output
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -78,11 +81,12 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         else:
             self.packageBox.addItems(pkgstr)
 
-            self.inputs = ()
-            self.outputs = ()
+            self.inputs = inputs
+            self.outputs = outputs
 
                 
         self.categoryEdit.addItems(pmanager.category.keys())
+        self.ioButton.setVisible(io)
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
 
         
@@ -356,7 +360,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
     def new_factory(self):
 
-        dialog = NewGraph("New Composite Node", self.pkgmanager, self)
+        dialog = NewGraph("New Composite Node", self.pkgmanager, self, io=False)
         ret = dialog.exec_()
 
         if(ret>0):
