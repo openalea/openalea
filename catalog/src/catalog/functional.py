@@ -56,8 +56,20 @@ def pyfunction(func_str):
     """ creates a function from a text string """
 
     if func_str:
-	f= eval(str(func_str))
-        return f
+        func_str = str(func_str)
+        # Extract the function name
+        l= func_str.split('\n')
+        for line in l:
+            if 'def' in line:
+                break
+        name=line.split('def ')[1]
+        name=name.split('(')[0]
+
+        # local dictionary
+        d = {}
+        exec(str(func_str),d)
+        
+        return d.get(name,None)
     else:
         return None
 
