@@ -60,7 +60,7 @@ def pyfunction(func_str):
         # Extract the function name
         l= func_str.split('\n')
         for line in l:
-            if 'def' in line:
+            if 'def ' in line:
                 break
         name=line.split('def ')[1]
         name=name.split('(')[0]
