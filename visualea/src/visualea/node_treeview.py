@@ -34,7 +34,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
-from dialogs import EditPackage
+from dialogs import EditPackage, NewGraph
 from util import open_dialog
 
 import images_rc
@@ -478,6 +478,10 @@ class NodeFactoryView(object):
             action = menu.addAction("Remove")
             self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
 
+            action = menu.addAction("Properties")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_properties)
+
+
 
         elif(isinstance(obj, Package)):
             menu = QtGui.QMenu(self)
@@ -531,7 +535,6 @@ class NodeFactoryView(object):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
 
 
-
     def edit_node(self):
         """ Edit Node in tab workspace"""
 
@@ -545,6 +548,19 @@ class NodeFactoryView(object):
             widget = obj.instantiate_widget(edit=True)
             open_dialog(self, widget, obj.get_id())
 
+
+    def edit_properties(self):
+        """ Edit Node info"""
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        
+        d = NewGraph("Node Properties", PackageManager(), self, obj)
+        ret = d.exec_()
+        if(ret):
+            d.update_factory()
+        
+        
 
     def remove_node(self):
         """ Remove the node from the package """
