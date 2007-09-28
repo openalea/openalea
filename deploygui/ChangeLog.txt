@@ -3,5 +3,6 @@
 	    Add remove function
             Improve interface (add tab view)
             Add authentification for INRIA Gforge
+            Add install egg tab
 
 05/08/07 :  First implementation

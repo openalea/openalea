@@ -45,8 +45,9 @@ def busy_pointer(f):
 
     def wrapped(*args):
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
-        f(*args)
+        ret = f(*args)
         QtGui.QApplication.restoreOverrideCursor ()
+        return ret
         
     return wrapped
 
@@ -69,8 +70,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         sys.stderr = self
 
         # Signal connection
-        self.connect(self.actionInstall_Egg, QtCore.SIGNAL("activated()"), self.install_egg)
-
+        self.connect(self.fileButton, QtCore.SIGNAL("clicked()"), self.get_filename)
+        self.connect(self.customInstallButton, QtCore.SIGNAL("clicked()"), self.install_egg)
         self.connect(self.action_Quit, QtCore.SIGNAL("activated()"), self.quit)
         self.connect(self.action_About, QtCore.SIGNAL("activated()"), self.about)
         self.connect(self.action_Web, QtCore.SIGNAL("activated()"), self.web)
@@ -85,6 +86,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.actionCookie_Session, QtCore.SIGNAL("activated()"), self.inriagforge_authentify)
         
         self.refresh()
+
 
 
     def quit(self):
@@ -238,8 +240,18 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def isatty(self):
         return 1
 
+
+    def install_egg(self):
+        """ Install manually an egg """
         
-    @busy_pointer
+        loc = str(self.requestEdit.text())
+        if(not loc): return
+        
+        ok = self.install_package(loc, loc)
+        self.display_finish_message(ok)
+        self.refresh()
+   
+        
     def proceed(self):
         """ Install selected packages """
         ok = True
@@ -256,26 +268,22 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     ok = ret and ok
                     
                 else:
-                    print "Installing ", pname
+                    print "Installing ", pname, ok
                     ret = self.install_package(pname, dist.location)
                     ok = ret and ok
+                    print "OOOOOOOOOOOO", ok
 
-        if(ok):
-            mess = QtGui.QMessageBox.information(self, "OpenAlea Installer",
-                                                 "Success.")
-        else:
-            mess = QtGui.QMessageBox.warning(self, "OpenAlea Installer",
-                                                 "An error occured. Check the log output.")
-
+        self.display_finish_message(ok)
         self.refresh()
         
 
+    @busy_pointer
     def install_package(self, pname, location):
         """ Start alea_install for a particular project name, given a location
         return True if OK
         """
         
-        print "Installing %s from %s\n"%(pname, location)
+        print "Installing %s\n"%(pname,)
         try:
             repositories = []
             for r in self.get_repo_list():
@@ -288,7 +296,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return True
 
         except Exception, e:
-            print e
             self.write(str(e))
             return False
 
@@ -299,19 +306,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return False
 
 
-    def install_egg(self):
-        """ Install manually an egg """
-
-        filename = QtGui.QFileDialog.getOpenFileName(
-            self, "Choose an Egg", QtCore.QDir.homePath(), "Egg file (*.egg)")
-
-        filename = str(filename)
-        if(not filename) : return
-
-        self.install_package(filename, filename)
-
+    def display_finish_message(self, ok):
+        """ Display finish message depending of ok """
+        if(ok):
+            mess = QtGui.QMessageBox.information(self, "OpenAlea Installer",
+                                                 "Success.")
+        else:
+            mess = QtGui.QMessageBox.warning(self, "OpenAlea Installer",
+                                             "An error occured. Check the log output.")
         
-
+        
+    @busy_pointer
     def remove_package(self, pname, location):
         """ Remove a distribution
         return True if OK
@@ -380,7 +385,20 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         cookie_login(url, values)
         self.refresh()
+
+
+    def get_filename(self):
+        """ Retrieve a local egg filename """
         
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, "Choose an Egg", QtCore.QDir.homePath(), "Egg (*.egg)")
+
+        filename = str(filename)
+        if(filename) : self.requestEdit.setText(filename)
+
+        
+        
+
         
 
 
