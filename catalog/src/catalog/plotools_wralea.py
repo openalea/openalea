@@ -24,10 +24,10 @@ __revision__=" $Id$ "
 
 from openalea.core import *
  
-class IPlotableObject(IInterface):
-    """ Interface for Plotable object """
-    __metaclass__ = IInterfaceMetaClass
-    __pytype__ = types.PlotableObjectType
+#class IPlotableObject(IInterface):
+#    """ Interface for Plotable object """
+#    __metaclass__ = IInterfaceMetaClass
+#    __pytype__ = types.PlotableObjectType
  
  
 #class IPlotableObjectWidget(IInterfaceWidget, QtGui.QWidget):
