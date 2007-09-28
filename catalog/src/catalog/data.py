@@ -168,7 +168,12 @@ Python List
     def __call__(self, inputs):
         """ inputs is the list of input values """
         import copy
-        return (copy.copy(inputs[0]), )
+        try:
+            iter( inputs[0] )
+            return (copy.copy(inputs[0]), )
+        except:
+            return ([copy.copy(inputs[0])], )
+            
 
 
 class Dict(Node):

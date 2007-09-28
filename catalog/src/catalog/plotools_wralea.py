@@ -45,11 +45,11 @@ def register_packages(pkgmanager):
 
     package = Package("Catalog.PlotTools", metainfo)
 
-    nf = Factory( name= "plot2D", 
+    nf = Factory( name= "Plot2D", 
                   description="Plot a list of 2D plotable objects", 
                   category="Vizualisation", 
                   nodemodule="plotools",
-                  nodeclass="plot2D",
+                  nodeclass="Plot2D",
                   inputs=(dict(name='plotObjList', interface=ISequence, showwidget=True),
                           dict(name='title', interface=IStr, value='MyPlot'),
                             dict(name='xlabel', interface=IStr, value='x-axis'),
