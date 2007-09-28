@@ -476,7 +476,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.accept()
         else:
-            QtGui.QGraphicsView.dragEnterEvent(self, event)
+            self.parent().dragEnterEvent(event)
+            #QtGui.QGraphicsView.dragEnterEvent(self, event)
 
 
     def dragMoveEvent(self, event):
