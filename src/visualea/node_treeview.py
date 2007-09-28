@@ -467,7 +467,7 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         menu = None
         
-        if(isinstance(obj, AbstractFactory)):
+        if(isinstance(obj, AbstractFactory)): # Factory
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
@@ -475,15 +475,13 @@ class NodeFactoryView(object):
             action = menu.addAction("Edit")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_node)
 
-            action = menu.addAction("Remove")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
-
             action = menu.addAction("Properties")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_properties)
 
+            action = menu.addAction("Remove")
+            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
 
-
-        elif(isinstance(obj, Package)):
+        elif(isinstance(obj, Package)): # Package
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open URL")
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
