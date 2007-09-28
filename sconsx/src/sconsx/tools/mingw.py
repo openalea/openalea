@@ -42,7 +42,7 @@ class MinGW:
       if '/nologo' in CCFLAGS:
         CCFLAGS.remove('/nologo') 
         env['CCFLAGS'] = CCFLAGS
-
+        del env['SHLIBEMITTER'][0]
       t = Tool('mingw')
       t(env)
      

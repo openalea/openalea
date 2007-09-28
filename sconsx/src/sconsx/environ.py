@@ -55,8 +55,8 @@ def ALEALibrary(env, target, source, *args, **kwds):
         'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
     lib = env.SharedLibrary("$build_libdir/%s" % (target,), source, *args, **kwds)
   # Bug on mingw with .exp
-  if env["compiler"] == "mingw":
-    lib = [l for l in lib if not str(l).endswith('.exp')]
+  #if env["compiler"] == "mingw":
+  #  lib = [l for l in lib if not str(l).endswith('.exp')]
   Alias("build", lib)
     
   inst_lib = env.Install("$libdir", lib)
