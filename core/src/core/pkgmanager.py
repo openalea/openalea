@@ -242,7 +242,7 @@ class PackageManager(object):
     def find_and_register_packages (self):
         """ Find all wralea on the system and register them """
         
-        readerlist=self.find_wralea_files()
+        readerlist = self.find_wralea_files()
 
         [x.register_packages(self) for x in readerlist]
 
@@ -261,9 +261,11 @@ class PackageManager(object):
         # Create directory
         if(not path):
             path = get_userpkg_dir()
+            path = os.path.join(path, name)
         
         if(not os.path.isdir(path)):
             os.mkdir(path)
+
 
         # Create new Package and its wralea
         p = UserPackage(name, metainfo, path)

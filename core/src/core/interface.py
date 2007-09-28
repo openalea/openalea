@@ -46,8 +46,8 @@ class TypeInterfaceMap(dict):
         @param interface : IInterface class object
         @param type : Python type
         """
-
-        if(not self.has_key(type)):
+        
+        if(type and not self.has_key(type)):
             self[type] = interface
 
 
@@ -56,12 +56,14 @@ class IInterfaceMetaClass(type):
     IInterface Metaclass
     Allow to register corresponding python type
     """
+
+    all = [] # all interfaces
     
     def __init__(cls,name,bases,dic):
         super(IInterfaceMetaClass,cls).__init__(name,bases,dic)
-        if(cls.__pytype__):
-            TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
-
+        TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
+        IInterfaceMetaClass.all.append(cls)
+        
     def __repr__(cls):
         return cls.__name__
 
