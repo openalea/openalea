@@ -52,6 +52,14 @@ def pyreduce(func, seq):
     else:
         return ( [], )
 
+def pyfunction(func_str):
+    """ creates a function from a text string """
+
+    if func_str:
+	f= eval(str(func_str))
+        return f
+    else:
+        return None
 
 
 from openalea.core import *

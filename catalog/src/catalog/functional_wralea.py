@@ -94,6 +94,16 @@ def register_packages(pkgmanager):
     
     package.add_factory(nf)
 
+    nf = Factory( name="function",
+                  description="Creates a function from a python string",
+                  category="Functional",
+                  nodemodule="functional",
+                  nodeclass="pyfunction",
+		  inputs = (dict(name="func_str",interface=ITextStr),),
+                  )
+    
+    package.add_factory(nf)
+
 
     
     pkgmanager.add_package(package)
