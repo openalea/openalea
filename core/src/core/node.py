@@ -69,9 +69,10 @@ class AbstractNode(IActor, Observed):
         Create Internal Data dictionnary
         """
 
-        Observed.__init__(self)
+        Observed.__init__(self) 
         # Internal Data (caption...)
         self.internal_data = {}
+        self.factory = None
 
 
     def set_data(self, key, value, notify=True):
@@ -84,6 +85,17 @@ class AbstractNode(IActor, Observed):
     def reset(self):
         """ Reset Node """
         pass
+
+
+    # Accessor
+    def set_factory(self, factory):
+        """ Set the factory of the node (if any) """
+        self.factory = factory
+
+
+    def get_factory(self):
+        """ Return the factory of the node (if any) """
+        return self.factory
 
 
 
@@ -107,9 +119,6 @@ class Node(AbstractNode):
         # Node State
         self.modified = True
 
-        # Factory
-        self.factory = None
-
         # Internal Data
         self.internal_data['caption'] = str(self.__class__.__name__)
         self.internal_data['lazy'] = True
@@ -130,20 +139,15 @@ class Node(AbstractNode):
     # property
     process_obj = property(get_process_obj)
 
-    
-    # Accessor
+    # Internal data accessor
     def set_factory(self, factory):
-        """ Set the factory of the node (if any) """
+        """ Set the factory of the node (if any)
+        and uptdate caption """
         self.factory = factory
         if factory:
             self.set_caption(factory.name)
+            
 
-    def get_factory(self):
-        """ Return the factory of the node (if any) """
-        return self.factory
-
-
-    # Internal data accessor
     def set_caption(self, newcaption):
         """ Define the node caption """
         self.internal_data['caption'] = newcaption
@@ -352,18 +356,16 @@ class Node(AbstractNode):
 
 
     def reset(self):
-        """ Reset connected port and outputs """
-
+        """ Reset ports """
         for i in range(self.get_nb_output()):
             self.outputs[i] = None
 
-        ok = False
-        for i in range(self.get_nb_input()):
-            if self.input_states[i] is "connected":
-                self.set_input(i, self.input_desc[i].get('value', None))
-                ok = True
+        i = self.get_nb_input()
+        for i in xrange(i):
+            #if(not connected or self.input_states[i] is "connected"):
+            self.set_input(i, self.input_desc[i].get('value', None))
 
-        if(not ok):
+        if(i>0):
             self.modified = True
             self.notify_listeners(("input_modified", -1))
 

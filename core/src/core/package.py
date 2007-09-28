@@ -119,6 +119,13 @@ class Package(dict):
         factory.package = self
 
 
+    def update_factory(self, old_name, factory):
+        """ Update factory (change its name) """
+
+        del(self[old_name])
+        self.add_factory(factory)
+
+
     def get_names(self):
         """ Return all the factory names in a list """
 
@@ -190,9 +197,10 @@ class UserPackage(Package):
             raise FactoryExistsError()
 
         localdir = self.path
+        classname = name.replace(' ', '_')
 
         # Create the module file
-        template = 'class %s(object):\n'%(name)+\
+        template = 'class %s(object):\n'%(classname)+\
                    '    """  Doc... """ \n'+\
                    '\n'+\
                    '    def __init__(self):\n'+\
@@ -203,7 +211,7 @@ class UserPackage(Package):
                    '        return None\n'
 
                 
-        module_path = os.path.join(localdir, "%s.py"%(name))
+        module_path = os.path.join(localdir, "%s.py"%(classname))
         
         file = open(module_path, 'w')
         file.write(template)
@@ -217,8 +225,8 @@ class UserPackage(Package):
                               description=description,
                               inputs=inputs,
                               outputs=outputs,
-                              nodemodule=name,
-                              nodeclass=name,
+                              nodemodule=classname,
+                              nodeclass=classname,
                               search_path = [localdir]
                               )
 

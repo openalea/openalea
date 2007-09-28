@@ -42,10 +42,11 @@ import ui_tableedit
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
     
-    def __init__(self, title, pmanager, parent=None):
+    def __init__(self, title, pmanager, parent=None, factory=None):
         """
         Constructor
         pmanager : the package manager
+        factory : if not None, activate edition mode
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -53,6 +54,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         self.setWindowTitle(title)
 
         self.setupUi(self)
+
+        self.factory = factory # edition mode
 
         packages = pmanager.get_user_packages()
 
@@ -63,19 +66,36 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             pkgstr.append(p.name)
             self.pkgmap[p.name] = p
 
-        self.packageBox.addItems(pkgstr)
+        
+        if(factory): # Edition mode
+            self.packageBox.addItem(factory.package.name)
+            self.packageBox.setEnabled(False)
+            self.inputs = factory.inputs
+            self.outputs = factory.outputs
+            self.nameEdit.setText(factory.name)
+            self.descriptionEdit.setText(factory.description)
+
+        else:
+            self.packageBox.addItems(pkgstr)
+
+            self.inputs = ()
+            self.outputs = ()
+
+                
         self.categoryEdit.addItems(pmanager.category.keys())
-
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
-        self.inputs = ()
-        self.outputs = ()
 
+        
 
     def accept(self):
-
+        
         # Test if name is correct
         name = str(self.nameEdit.text())
-        if(not name or self.get_package().has_key(name)):
+        if(not name or
+           (not self.factory and self.get_package().has_key(name)) or
+           (self.factory and self.factory.name != name and 
+            self.get_package().has_key(name))
+           ):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                             "The Name is already use")
             return
@@ -149,6 +169,24 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         return ret
 
 
+    def update_factory(self):
+        """ Update factory with value """
+        (name, pkg, cat, desc) = self.get_data()
+
+        factory = self.factory
+        if(not factory) : return
+        
+        oldname = factory.name
+        factory.name = name
+        factory.category = cat
+        factory.description = desc
+        factory.inputs = self.inputs
+        factory.outputs = self.outputs
+        
+        factory.package.update_factory(oldname, factory)
+    
+
+
 
 
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
@@ -164,7 +202,7 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.pkgs = pkgs
         self.connect(self.pathButton, QtCore.SIGNAL("clicked()"), self.path_clicked)
 
-        self.pathEdit.setText(get_userpkg_dir())
+        #self.pathEdit.setText(get_userpkg_dir())
 
 
     def path_clicked(self):
@@ -188,7 +226,7 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
 
         # Test Path
         path = str(self.pathEdit.text())
-        if(not os.path.isdir(path)):
+        if(path and not os.path.isdir(path)):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Invalid Path")
             return
