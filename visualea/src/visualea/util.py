@@ -35,7 +35,8 @@ def busy_pointer(f):
             
         finally:
             QtGui.QApplication.restoreOverrideCursor ()
-            return ret
+
+        return ret
         
     return wrapped
 
