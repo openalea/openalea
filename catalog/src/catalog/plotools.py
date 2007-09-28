@@ -37,8 +37,5 @@ class Plot2D(object):
     """Generate a plot from 2D plotable object
     Input 0 : 2D plotable object list"""
     def __call__( self, plotObjList, title, xlabel, ylabel, **keys ):
-        #from matplotlib import rc, rcParams
-        #rc('text', usetex=True )
-        #rcParams['backend'] = 'Qt4Agg'
         plot_plotable(  plotable_list=plotObjList, title=title, xlabel=xlabel, ylabel=ylabel, **keys )        
 

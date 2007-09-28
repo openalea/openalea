@@ -23,7 +23,51 @@ __revision__=" $Id$ "
 
 
 from openalea.core import *
-
+ 
+class IPlotableObject(IInterface):
+    """ Interface for Plotable object """
+    __metaclass__ = IInterfaceMetaClass
+    __pytype__ = types.PlotableObjectType
+ 
+ 
+#class IPlotableObjectWidget(IInterfaceWidget, QtGui.QWidget):
+#    """
+#    Float spin box widget
+#    """
+# 
+#    # Associate widget with the IPlotableObject
+#    __interface__ = IPlotableObject
+#    __metaclass__ = make_metaclass()
+# 
+#    def __init__(self, node, parent, parameter_str, interface):
+#        """
+#        @param parameter_str : the parameter key the widget is associated to
+#        @param interface : instance of interface object
+#        """
+#        QtGui.QWidget.__init__(self, parent)
+#        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+# 
+#        hboxlayout = QtGui.QHBoxLayout(self)
+#        self.spin = QtGui.QDoubleSpinBox (self)
+#        self.spin.setRange(interface.min, interface.max)
+# 
+#        hboxlayout.addWidget(self.spin)
+# 
+#        self.notify(None,None)
+#        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
+# 
+# 
+#    def valueChanged(self, newval):
+#        self.node.set_input_by_key(self.param_str, newval)
+# 
+#    def notify(self, sender, event):
+#        """ Notification sent by node """
+#        try:
+#            v = float(self.node.get_input_by_key(self.param_str))
+#        except:
+#            v = 0.
+# 
+#        self.spin.setValue(v)
 
 
 def register_packages(pkgmanager):

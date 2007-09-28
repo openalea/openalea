@@ -154,6 +154,13 @@ def py_method(obj=None, name="", args=()):
     m(*args)
 
 
+def py_getattr(items, member_name):
+    """__getitem on class dictionary"""
+    try:
+	return getattr(items, member_name)
+    except:
+	return None
+
 ################################################################################
 # Widgets
 

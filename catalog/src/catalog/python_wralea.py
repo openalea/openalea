@@ -121,7 +121,7 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     nf = Factory(name="range",
-                 description="Return an arithmetic progression of integers",
+                 description="Returns an arithmetic progression of integers",
                  category="Python",
                  nodemodule="python",
                  nodeclass="pyrange",
@@ -131,7 +131,7 @@ def register_packages(pkgmanager):
 
 
     nf = Factory(name="enumerate",
-                 description="Return a python enumerate object.",
+                 description="Returns a python enumerate object.",
                  category="Python",
                  nodemodule="python",
                  nodeclass="pyenumerate",
@@ -141,7 +141,7 @@ def register_packages(pkgmanager):
 
 
     nf = Factory(name="len",
-                 description="Return the number of items of a sequence or mapping.",
+                 description="Returns the number of items of a sequence or mapping.",
                  category="Python",
                  nodemodule="python",
                  nodeclass="pylen",
@@ -193,7 +193,7 @@ def register_packages(pkgmanager):
 
 
     nf = Factory(name="method", 
-                 description="Call object method", 
+                 description="Calls object method", 
                  category="Python", 
                  nodemodule="python",
                  nodeclass="py_method",
@@ -201,6 +201,20 @@ def register_packages(pkgmanager):
 
 
     package.add_factory(nf)
+    
+    
+    nf = Factory( name="getattr",
+                  description="Gets class attribute",
+                  category="Python",
+                  nodemodule="python",
+                  nodeclass="py_getattr",
+
+                  inputs=(dict(name="IN0", interface=None),
+		    dict(name="Class_attribute_name", interface=IStr)),
+                  outputs=(dict(name="Class_attribute", interface=None),),
+                  )
+
+    package.add_factory( nf )
 
     
     pkgmanager.add_package(package)

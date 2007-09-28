@@ -26,9 +26,9 @@ __docformat__= "restructuredtext en"
 __revision__="$Id$"
 
 
-from matplotlib import rc, rcParams
+from matplotlib import rc, rcParams,use
 rc('text', usetex=True )
-rcParams['backend'] = 'Qt4Agg'
+use('Qt4Agg')
 import pylab
 
 
@@ -88,10 +88,7 @@ def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
     else :
         legend =[]
         for obj in objList :
-            rcParams['backend'] = 'Qt4Agg'
-            print rcParams
             pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
-            print rcParams
             if obj.legend:
                 legend.append(r''+obj.legend )
                 legend_printed = True
