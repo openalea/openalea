@@ -24,7 +24,7 @@
       </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
-        <string>Install/Remove Packages</string>
+        <string>Install/Remove OpenAlea Packages</string>
        </attribute>
        <layout class="QVBoxLayout" >
         <item>
@@ -118,22 +118,63 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="OtherEggs" >
+       <attribute name="title" >
+        <string>Install Other Eggs</string>
+       </attribute>
+       <layout class="QVBoxLayout" >
         <item>
-         <widget class="QLabel" name="label_3" >
+         <widget class="QLabel" name="label" >
           <property name="text" >
            <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Log&lt;/span> : System Output&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Enter  : &lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + a Python&lt;span style=" font-style:italic;"> package name &lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + or the &lt;span style=" font-style:italic;">URL of an Egg&lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + or the &lt;span style=" font-style:italic;">local path of an Egg&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="logText" >
-          <property name="readOnly" >
-           <bool>true</bool>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QLineEdit" name="requestEdit" />
+          </item>
+          <item>
+           <widget class="QPushButton" name="fileButton" >
+            <property name="text" >
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
           </property>
-         </widget>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QPushButton" name="customInstallButton" >
+            <property name="text" >
+             <string>Install</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -199,6 +240,23 @@ p, li { white-space: pre-wrap; }
       </widget>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="label_3" >
+      <property name="text" >
+       <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Log&lt;/span> : System Output&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="logText" >
+      <property name="readOnly" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar" >
@@ -220,8 +278,6 @@ p, li { white-space: pre-wrap; }
     <property name="title" >
      <string>&amp;File</string>
     </property>
-    <addaction name="actionInstall_Egg" />
-    <addaction name="separator" />
     <addaction name="action_Quit" />
    </widget>
    <widget class="QMenu" name="menuHelp" >
@@ -259,24 +315,22 @@ p, li { white-space: pre-wrap; }
     <string>&amp;Web</string>
    </property>
   </action>
-  <action name="actionInstall_Egg" >
-   <property name="text" >
-    <string>Install Egg File</string>
-   </property>
-  </action>
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>radioRecommended</tabstop>
-  <tabstop>radioUpdate</tabstop>
   <tabstop>radioAll</tabstop>
+  <tabstop>radioUpdate</tabstop>
   <tabstop>radioInstalled</tabstop>
   <tabstop>packageList</tabstop>
   <tabstop>proceedButton</tabstop>
   <tabstop>refreshButton</tabstop>
-  <tabstop>logText</tabstop>
+  <tabstop>requestEdit</tabstop>
+  <tabstop>fileButton</tabstop>
+  <tabstop>customInstallButton</tabstop>
   <tabstop>locationList</tabstop>
   <tabstop>addLocButton</tabstop>
+  <tabstop>logText</tabstop>
   <tabstop>removeLocButton</tabstop>
  </tabstops>
  <resources>
