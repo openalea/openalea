@@ -31,10 +31,11 @@ def busy_pointer(f):
 
         try:
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
-            f(*args)
+            ret = f(*args)
             
         finally:
             QtGui.QApplication.restoreOverrideCursor ()
+            return ret
         
     return wrapped
 

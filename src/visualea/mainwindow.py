@@ -345,8 +345,9 @@ class MainWindow(QtGui.QMainWindow,
     def add_wralea(self):
 
         filename = QtGui.QFileDialog.getOpenFileName(self, "Add Wralea")
-        self.pkgmanager.add_wralea(str(filename))
-        self.reinit_treeview()
+        if(filename):
+            self.pkgmanager.add_wralea(str(filename))
+            self.reinit_treeview()
 
     
     def find_wralea(self):
