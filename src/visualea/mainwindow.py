@@ -170,8 +170,7 @@ class MainWindow(QtGui.QMainWindow,
                      self.preview_application)
 
         
-        
-        
+        self.setAcceptDrops(True)
         # final init
         self.session = session
         session.notify_listeners()
@@ -739,5 +738,28 @@ class MainWindow(QtGui.QMainWindow,
         export_app.export_app(name, filename, tempfactory)
         
 
+    # Drag and drop support 
+    def dragEnterEvent(self, event):
+        
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def dropEvent(self, event):
+
+        urls = event.mimeData().urls()
+        try:
+            file = urls[0]
+            filename = str(file.path())
+            self.session.load(filename)
+            event.accept()
+
+        except Exception, e:
+            print e
+            event.ignore()
+
+            
 
 
