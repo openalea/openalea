@@ -323,11 +323,12 @@ class Node(AbstractNode):
            and not self.modified):
             return False
 
-        # Run the node
-        outlist = self.__call__(self.inputs)
         self.modified = False
 
+        # Run the node
+        outlist = self.__call__(self.inputs)
         self.notify_listeners( ("status_modified",self.modified) )
+
 
         # Copy outputs
         if(not isinstance(outlist, tuple) and
@@ -662,10 +663,15 @@ class NodeFactory(AbstractFactory):
             # Test if the module is already in sys.modules
             if(self.nodemodule_name in sys.modules.keys()):
                    m = sys.modules[self.nodemodule_name]
+                   
                    # test unvalidate
                    if(hasattr(m, 'oa_invalidate' )):
-                       pass
-                       #reload(m)
+                       sav_path = sys.path[:]
+                       sys.path += self.search_path
+                       reload(m)
+                       del(m.oa_invalidate)
+                       sys.path = sav_path
+                       
                    self.nodemodule_path = m.__file__
                    return m
                    
