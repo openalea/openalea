@@ -123,6 +123,8 @@ class Node(AbstractNode):
         self.internal_data['caption'] = str(self.__class__.__name__)
         self.internal_data['lazy'] = True
         self.internal_data['priority'] = 0
+        self.internal_data['hide'] = False
+        self.internal_data['minimal'] = False
 
 
     def __call__(self, inputs = ()):
