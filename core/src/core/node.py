@@ -217,11 +217,13 @@ class Node(AbstractNode):
         # Get parameters
         name = str(kargs['name'])
         interface = kargs.get('interface', None)
-        value = kargs.get('value', None)
 
         # default value
-        if(interface and value==None):
+        if(interface and not kargs.has_key('value')):
             value = interface.default()
+        else:
+            value = None
+
 
         value = copy(value)
             

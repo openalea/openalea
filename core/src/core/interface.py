@@ -270,8 +270,7 @@ class IInterfaceWidget(AbstractListener):
                 self.setVisible(notconnected)
             else:
                 self.setEnabled(notconnected)
-        except Exception, e:
-            print e
+        except:
             pass
 
 
