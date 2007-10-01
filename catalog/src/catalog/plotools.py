@@ -39,3 +39,36 @@ class Plot2D(object):
     def __call__( self, plotObjList, title, xlabel, ylabel, **keys ):
         plot_plotable(  plotable_list=plotObjList, title=title, xlabel=xlabel, ylabel=ylabel, **keys )        
 
+class IPlotable(Node):
+    """Interface for plotable object.
+    
+    <Long description of the class functionality.>
+    """
+
+    def __call__( self, inputs ):
+        """Returns plotable object with changed the values which were changed from default.
+        
+        <Long description of the function functionality.>
+        
+        :parameters:
+            arg1 : `T`
+                <Description of `arg1` meaning>
+        :rtype: `PlotableObject`
+        :return: Updated PlotableObject.
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        #plotable, legend, linestyle, marker, color 
+        plotable = self.get_input( "plotable" )
+        legend = self.get_input( "legend" )
+        linestyle = self.get_input( "linestyle" )
+        marker = self.get_input( "marker" )
+        color = self.get_input( "color" )
+        if not linestyle=="Default":
+            plotable.linestyle = linestyle
+        if not marker=="Default":
+            plotable.marker = marker
+        if not color=="Default":
+            plotable.color = color
+        if not legend=="Default":
+            plotable.legend = legend
+        return  plotable

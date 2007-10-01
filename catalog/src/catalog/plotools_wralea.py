@@ -24,51 +24,6 @@ __revision__=" $Id$ "
 
 from openalea.core import *
  
-#class IPlotableObject(IInterface):
-#    """ Interface for Plotable object """
-#    __metaclass__ = IInterfaceMetaClass
-#    __pytype__ = types.PlotableObjectType
- 
- 
-#class IPlotableObjectWidget(IInterfaceWidget, QtGui.QWidget):
-#    """
-#    Float spin box widget
-#    """
-# 
-#    # Associate widget with the IPlotableObject
-#    __interface__ = IPlotableObject
-#    __metaclass__ = make_metaclass()
-# 
-#    def __init__(self, node, parent, parameter_str, interface):
-#        """
-#        @param parameter_str : the parameter key the widget is associated to
-#        @param interface : instance of interface object
-#        """
-#        QtGui.QWidget.__init__(self, parent)
-#        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
-# 
-#        hboxlayout = QtGui.QHBoxLayout(self)
-#        self.spin = QtGui.QDoubleSpinBox (self)
-#        self.spin.setRange(interface.min, interface.max)
-# 
-#        hboxlayout.addWidget(self.spin)
-# 
-#        self.notify(None,None)
-#        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
-# 
-# 
-#    def valueChanged(self, newval):
-#        self.node.set_input_by_key(self.param_str, newval)
-# 
-#    def notify(self, sender, event):
-#        """ Notification sent by node """
-#        try:
-#            v = float(self.node.get_input_by_key(self.param_str))
-#        except:
-#            v = 0.
-# 
-#        self.spin.setValue(v)
-
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -94,10 +49,10 @@ def register_packages(pkgmanager):
                   category="Vizualisation", 
                   nodemodule="plotools",
                   nodeclass="Plot2D",
-                  inputs=(dict(name='plotObjList', interface=ISequence, showwidget=True),
+                  inputs=(dict(name='plotObjList', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
-                            dict(name='xlabel', interface=IStr, value='x-axis'),
-                            dict(name='ylabel', interface=IStr, value='y-axis'),  ),
+                            dict(name='xlabel', interface=IStr, value='x-axis-label'),
+                            dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
                   outputs=()
 
                 )
@@ -105,7 +60,20 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    
+    nf = Factory( name= "Plotable", 
+                  description="Allows us to edit plotable object", 
+                  category="Vizualisation", 
+                  nodemodule="plotools",
+                  nodeclass="IPlotable",
+                  inputs=(dict(name='plotable', interface=None, showwidget=False),
+                            dict(name='legend', interface=IStr, value='Default'),
+                            dict(name='linestyle', interface=IStr, value='Default'),
+                            dict(name='marker', interface=IStr, value='Default'),
+                            dict(name='color', interface=IStr, value='Default'), ),
+                  outputs=( dict(name='Plotable', interface=None), )
+                )
+    package.add_factory(nf)
+
     pkgmanager.add_package(package)
 
 

@@ -65,8 +65,9 @@ class PlotableObject(object):
         self.linestyle = str(linestyle)
         self.marker = str(marker)
         self.color = str(color)
-        
-        
+
+
+
 def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
     """Plots plotable Object.
     
@@ -83,22 +84,26 @@ def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
     objList=plotable_list
     pylab.cla()
     legend_printed = False
-    if objList == None :
-      pass
-    else :
+    try:
+        iter( objList )
         legend =[]
         for obj in objList :
             pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
             if obj.legend:
                 legend.append(r''+obj.legend )
                 legend_printed = True
-
         if legend_printed: pylab.legend( tuple( legend ), loc='best', shadow=True )
-        pylab.title( title )
-        pylab.xlabel( xlabel )
-        pylab.ylabel( ylabel )
-        pylab.show()
-            
+    except  TypeError:
+        # do sth with exceptions
+        obj=plotable_list
+        pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
+        #if obj.legend:
+        #    pylab.legend( (obj.legend), loc='best', shadow=True )
+    pylab.title( title )
+    pylab.xlabel( xlabel )
+    pylab.ylabel( ylabel )
+    pylab.show()
+        
             
 def plot_single_plotable(  plotable=PlotableObject(), title="", xlabel="", ylabel="", **keys ):
     """Plots plotable Object.
@@ -116,7 +121,7 @@ def plot_single_plotable(  plotable=PlotableObject(), title="", xlabel="", ylabe
     plot_plotable( [ plotable ], title=title, xlabel=xlabel, ylabel=ylabel, **keys )
 
 
-def plot_from_dictionary(  dict={}, title="", xlabel="", ylabel="", **keys ):
+def generate_plotable_from_dict(  dict2plotable={}, legend="", linestyle="-",marker=".", color="r", **keys ):
     """Plots plotable Object.
     
     :parameters:
@@ -129,4 +134,8 @@ def plot_from_dictionary(  dict={}, title="", xlabel="", ylabel="", **keys ):
         ylabel : `string`
             Y label description
     """
-    plot_plotable( [ plotable ], title=title, xlabel=xlabel, ylabel=ylabel, **keys )
+    r=list(dict2plotable.items())
+    r.sort()
+    #print [r[i][0] for i in range(len(r))]
+    return PlotableObject(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], legend=legend, linestyle=linestyle, marker=marker, color=color )
+
