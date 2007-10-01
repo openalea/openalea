@@ -53,6 +53,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         for id in node.vertices():
 
             subnode = node.node(id)
+            if(subnode.internal_data.get('hide', False)): continue
 
             try:
                 factory = subnode.get_factory()
