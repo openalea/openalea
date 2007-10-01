@@ -331,7 +331,7 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
 
     @lock_notify      
     def valueChanged(self):
-        self.node.set_input(self.param_str, self.subwidget.toPlainText())
+        self.node.set_input(self.param_str, str(self.subwidget.toPlainText()))
                 
         
     def notify(self, sender, event):
