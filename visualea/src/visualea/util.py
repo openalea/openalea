@@ -23,12 +23,12 @@ __revision__=" $Id$ "
 
 
 from PyQt4 import QtGui, QtCore
+from openalea.core.algo.dataflow_evaluation import EvaluationException
 
 def busy_pointer(f):
     """ Decorator to display a busy pointer """
 
     def wrapped(*args):
-
         try:
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
             ret = f(*args)
@@ -38,6 +38,27 @@ def busy_pointer(f):
 
         return ret
         
+    return wrapped
+
+def exception_display(f):
+    """ Decorator to display exception if raised """
+
+    def wrapped(*args):
+        try:
+            ret = f(*args)            
+        except EvaluationException, e:
+            self = args[0]
+            if not isinstance(self,QtGui.QWidget):
+                self = None            
+            QtGui.QMessageBox.critical(self,'Exception raised !',e.exception.__class__.__name__+': '+e.exception.message)
+            raise e.exception
+        except Exception, e:
+            self = args[0]
+            if not isinstance(self,QtGui.QWidget):
+                self = None
+            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+e.message)
+            raise e
+        return ret
     return wrapped
 
 

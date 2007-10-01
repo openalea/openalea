@@ -23,16 +23,43 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
+class EvaluationException(Exception):
+    def __init__(self,vid,node,exception):
+        Exception.__init__(self)
+        self.vid = vid
+        self.node = node
+        self.exception = exception
+
 class AbstractEvaluation (object) :
-	""" Abstract evaluation algorithm """
-	
-	def __init__ (self, dataflow) :
-		self._dataflow = dataflow
-
-	def eval(self, *args):
-		raise NotImplementedError()
-
-
+    """ Abstract evaluation algorithm """
+    
+    def __init__ (self, dataflow) :
+        self._dataflow = dataflow
+    
+    def eval(self, *args):
+        raise NotImplementedError()
+    
+    def eval_vertex_code(self, vid):
+        """ Evaluate the vertex vid. Can raise an exception if evaluation failed """
+        node = self._dataflow.actor(vid)
+        try:
+            ret = node.eval()
+            # When an exception is raised, a flag is set.
+            # So we remove it when evaluation is ok.
+            if hasattr(node,'raise_exception'):
+                del node.raise_exception
+                node.notify_listeners( ('data_modified',))
+            return ret
+        except EvaluationException, e:
+            e.vid = vid
+            e.node = node
+            # When an exception is raised, a flag is set.
+            node.raise_exception = True
+            raise e
+        except Exception, e:
+            # When an exception is raised, a flag is set.
+            node.raise_exception = True
+            raise EvaluationException(vid,node,e)
 
 class BrutEvaluation (AbstractEvaluation) :
 	""" Basic evaluation algorithm """
@@ -72,7 +99,7 @@ class BrutEvaluation (AbstractEvaluation) :
 			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
 			
 		# Eval the node
-		actor.eval()
+		self.eval_vertex_code(vid)
 
 	
 	def eval (self, *args) :
@@ -173,7 +200,7 @@ class GeneratorEvaluation (AbstractEvaluation) :
 			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
 			
 		# Eval the node
-		ret = actor.eval()
+		ret = self.eval_vertex_code(vid)
 		
 		# Reevaluation flaf
 		if(ret) : self.reeval = ret

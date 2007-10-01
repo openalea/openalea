@@ -36,7 +36,7 @@ from openalea.core.observer import AbstractListener
 import annotation
 
 from dialogs import DictEditor
-from util import busy_pointer, open_dialog
+from util import busy_pointer, exception_display, open_dialog
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -90,7 +90,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         buttons.addWidget(exitbutton)
         vboxlayout.addLayout(buttons)
 
-        
+    @exception_display
+    @busy_pointer    
     def run(self):
         self.node.eval()
 
@@ -802,15 +803,22 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
 
         # Draw Box
-        if(self.isSelected()):
-            color = QtGui.QColor(180, 180, 180, 180)
+        if hasattr(self.subnode,'raise_exception'):
+            color = QtGui.QColor(255, 0, 0, 255)            
+            if(self.isSelected()):
+                secondcolor = QtGui.QColor(0, 0, 0, 255)
+            else:
+                secondcolor = QtGui.QColor(100, 0, 0, 255)
         else:
-            color = QtGui.QColor(255, 255, 255, 100)
+            if(self.isSelected()):
+                color = QtGui.QColor(180, 180, 180, 180)
+            else:
+                color = QtGui.QColor(255, 255, 255, 100)
 
-        if(self.ismodified):
-            secondcolor = QtGui.QColor(255, 0, 0, 200)
-        else:
-            secondcolor = QtGui.QColor(0, 0, 255, 200)
+            if(self.ismodified):
+                secondcolor = QtGui.QColor(255, 0, 0, 200)        
+            else:
+                secondcolor = QtGui.QColor(0, 0, 255, 200)
             
         
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)
@@ -932,6 +940,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             for k in editor.modified_key:
                 self.subnode.set_data(k, editor.pdict[k])
             
+    @exception_display
     @busy_pointer
     def run_node(self):
         """ Run the current node """

@@ -323,12 +323,11 @@ class Node(AbstractNode):
            and not self.modified):
             return False
 
-        self.modified = False
-
         # Run the node
         outlist = self.__call__(self.inputs)
-        self.notify_listeners( ("status_modified",self.modified) )
+        self.modified = False
 
+        self.notify_listeners( ("status_modified",self.modified) )
 
         # Copy outputs
         if(not isinstance(outlist, tuple) and
