@@ -41,7 +41,7 @@ from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
 
-from util import busy_pointer
+from util import exception_display, busy_pointer
 
 
 
@@ -355,6 +355,7 @@ class MainWindow(QtGui.QMainWindow,
         self.reinit_treeview()
 
 
+    @exception_display
     @busy_pointer
     def run(self):
         """ Run the active workspace """
