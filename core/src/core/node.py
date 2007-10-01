@@ -222,7 +222,7 @@ class Node(AbstractNode):
         if(interface and not kargs.has_key('value')):
             value = interface.default()
         else:
-            value = None
+            value = kargs.get('value', None)
 
 
         value = copy(value)
@@ -647,6 +647,7 @@ class NodeFactory(AbstractFactory):
     def get_writer(self):
         """ Return the writer class """
 
+
         return PyNodeFactoryWriter(self)
 
 
@@ -660,9 +661,14 @@ class NodeFactory(AbstractFactory):
 
             # Test if the module is already in sys.modules
             if(self.nodemodule_name in sys.modules.keys()):
-                m = sys.modules[self.nodemodule_name]
-                self.nodemodule_path = m.__file__
-                return m
+                   m = sys.modules[self.nodemodule_name]
+                   # test unvalidate
+                   if(hasattr(m, 'oa_invalidate' )):
+                       pass
+                       #reload(m)
+                   self.nodemodule_path = m.__file__
+                   return m
+                   
             
             # load module
             (file, pathname, desc) = imp.find_module(self.nodemodule_name,

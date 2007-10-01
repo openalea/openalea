@@ -111,9 +111,22 @@ class PackageManager(object):
         else :
             self.add_wralea(filename)
 
+
+    def unload_module(self):
+        """ Remove all wralea module and invalidate others"""
+
+        for name in sys.modules.keys():
+            if('wralea' in name):
+                del(sys.modules[name])
+            else:
+                m = sys.modules[name]
+                if(m) : m.oa_invalidate = True
+        
+
         
     def clear(self):
         """ Remove all packages """
+
         self.pkgs = {}
         self.recover_syspath()
         self.category = {}
