@@ -265,11 +265,13 @@ class IInterfaceWidget(AbstractListener):
 
         # By default, disable the entire widget
         try:
-            if(state == "connected"):
-                self.setEnabled(False)
+            notconnected = bool(state != "connected")
+            if(self.node.internal_data.get('minimal', False)):
+                self.setVisible(notconnected)
             else:
-                self.setEnabled(True)
-        except:
+                self.setEnabled(notconnected)
+        except Exception, e:
+            print e
             pass
 
 
