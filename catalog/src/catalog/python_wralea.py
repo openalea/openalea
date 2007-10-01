@@ -185,7 +185,7 @@ def register_packages(pkgmanager):
                  nodeclass="FileRead",
                  inputs=(dict(name="filename", interface=IFileStr),
                          ),
-                 outputs=(dict(name="String", interface=IStr),),
+                 outputs=(dict(name="string", interface=IStr),),
                  lazy = False,
                  )
 
@@ -210,12 +210,64 @@ def register_packages(pkgmanager):
                   nodeclass="py_getattr",
 
                   inputs=(dict(name="IN0", interface=None),
-		    dict(name="Class_attribute_name", interface=IStr)),
-                  outputs=(dict(name="Class_attribute", interface=None),),
+		    dict(name="class_attribute_name", interface=IStr)),
+                  outputs=(dict(name="class_attribute", interface=None),),
                   )
 
     package.add_factory( nf )
 
-    
+
+    nf = Factory( name="eval",
+                  description="Eval str as python expression",
+                  category="Python",
+                  nodemodule="python",
+                  nodeclass="py_eval",
+
+                  inputs=(dict(name="expression", interface=ITextStr),),
+                  outputs=(dict(name="result", interface=None),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="exec",
+                  description="Exec str as python code",
+                  category="Python",
+                  nodemodule="python",
+                  nodeclass="py_exec",
+
+                  inputs=(dict(name="code", interface=ITextStr),),
+                  outputs=(),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="zip", 
+                  description="Zip 2 sequences", 
+                  category="Python", 
+                  nodemodule="python",
+                  nodeclass="py_zip",
+                  )
+
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name= "extract", 
+                  description= "Extract element from a list or a dict", 
+                  category = "Python", 
+                  nodemodule = "python",
+                  nodeclass = "extract",
+                  inputs = [dict(name='indexable' , interface=ISequence, value=[]),
+                            dict(name='keys' , interface=ISequence, value=[])
+                            ],
+                  outputs = [dict(name='list' , interface=ISequence)],
+                  
+                  )
+    package.add_factory( nf )
+
+
+
     pkgmanager.add_package(package)
 

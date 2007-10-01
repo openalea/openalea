@@ -161,6 +161,36 @@ def py_getattr(items, member_name):
     except:
 	return None
 
+
+def py_eval(str):
+    """ Python eval """
+    return (eval(str),)
+
+
+def py_exec(str):
+    """ Python exec """
+    exec(str)
+
+
+def py_zip(s1=(), s2=()):
+    __doc__ = zip.__doc__
+    return (zip(s1,s2),)
+
+
+
+def extract(indexable, keys):
+    """ Extract from indexable object indexed by keys"""
+    outlist = []
+
+    for k in keys:
+        try:
+            outlist.append(indexable[k])
+        except KeyError, IndexError:
+            pass
+
+    return (outlist,)
+
+
 ################################################################################
 # Widgets
 

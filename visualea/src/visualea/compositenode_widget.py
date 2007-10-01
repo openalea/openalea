@@ -665,11 +665,15 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             doc = [x.strip() for x in doc] 
             doc = '\n'.join(doc)
             self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
-                             "Instance : %s\n"%(elt_id,) +
                              "Documentation : \n%s"%(doc,))
         else:
-            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
-                             "Instance : %s\n"%(elt_id,) )
+            if(self.subnode.factory):
+                desc = self.subnode.factory.description
+            else : desc = ""
+            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__)+
+                             "Description :%s\n" %(desc)
+                             )
+                              
 
         # Font and box size
         self.font = self.graphview.font()

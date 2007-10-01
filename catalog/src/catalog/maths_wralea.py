@@ -225,17 +225,51 @@ def register_packages(pkgmanager):
 
     package.add_factory(nf)
 
+
+
+
+    # Random function
     nf = Factory( name="randint", 
-                  description="Random integer", 
+                  description="Random integer in range[a,b]", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_randint",
+                  nodemodule="random",
+                  nodeclass="randint",
+                  inputs=(dict(name='a', interface=IInt, value=0),
+                          dict(name='b', interface=IInt, value=100),
+                          ),
                   lazy = False,
                   )
 
 
     package.add_factory(nf)
 
+
+    nf = Factory( name="random", 
+                  description="Random float [0,1)", 
+                  category="Math", 
+                  nodemodule="random",
+                  nodeclass="random",
+                  lazy = False,
+                  )
+
+
+    package.add_factory(nf)
+
+    nf = Factory( name="randlist", 
+                  description="List of Random integer", 
+                  category="Math", 
+                  nodemodule="maths",
+                  nodeclass="py_randlist",
+                  inputs=(dict(name='a', interface=IInt, value=0),
+                          dict(name='b', interface=IInt, value=100),
+                          dict(name='size', interface=IInt, value=10),
+                          ),
+
+                  lazy = False,
+                  )
+
+
+    package.add_factory(nf)
 
     pkgmanager.add_package(package)
 
