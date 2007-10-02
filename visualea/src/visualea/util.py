@@ -59,7 +59,7 @@ def exception_display(f):
             self = args[0]
             if not isinstance(self,QtGui.QWidget):
                 self = None
-            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+ str(e)
+            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+ str(e))
 
         return ret
     return wrapped

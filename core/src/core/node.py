@@ -191,14 +191,13 @@ class Node(AbstractNode):
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
         changed = self.internal_data['port_hide_changed']
+        
         if (s != state):
             changed.add(index)
         elif(index in changed):
             changed.remove(index)
-        
 
         
-
 
     # Status
     def unvalidate_input(self, index_key):
