@@ -427,6 +427,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         self.updating = True
 
         self.subwidget.clear()
+        if(not seq): return
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
@@ -584,6 +585,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         dic = self.node.get_input(self.param_str)
         self.subwidget.clear()
         self.rowkey = []
+    
         try:
             for (key,elt) in dic.items() :
                 item = QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
@@ -661,7 +663,8 @@ class IFileStrWidget(IStrWidget):
 
     __interface__ = IFileStr
     __metaclass__ = make_metaclass()
-
+    
+    last_result = QtCore.QDir.homePath()
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -671,7 +674,7 @@ class IFileStrWidget(IStrWidget):
 
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.last_result = QtCore.QDir.homePath()
+        
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
         self.filter = interface.filter
@@ -686,7 +689,7 @@ class IFileStrWidget(IStrWidget):
     
         if(result):
             self.node.set_input(self.param_str, str(result))
-            self.last_result = result
+            IFileStrWidget.last_result = result
 
 
 class IDirStrWidget(IStrWidget):
@@ -697,6 +700,7 @@ class IDirStrWidget(IStrWidget):
     __interface__ = IDirStr
     __metaclass__ = make_metaclass()
 
+    last_result = QtCore.QDir.homePath()
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -706,7 +710,7 @@ class IDirStrWidget(IStrWidget):
 
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.last_result = QtCore.QDir.homePath()
+        
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
 
@@ -719,7 +723,7 @@ class IDirStrWidget(IStrWidget):
     
         if(result):
             self.node.set_input(self.param_str, str(result))
-            self.last_result = result
+            IDirStrWidget.last_result = result
 
 
 

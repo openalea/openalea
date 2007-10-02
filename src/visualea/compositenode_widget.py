@@ -36,7 +36,7 @@ from openalea.core.settings import Settings
 from openalea.core.observer import AbstractListener
 import annotation
 
-from dialogs import DictEditor
+from dialogs import DictEditor, ShowPortDialog
 from util import busy_cursor, exception_display, open_dialog
 
 
@@ -427,12 +427,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         return QtCore.QPointF( float(sx)/l, float(sy)/l )
     
 
-    @lock_notify      
-    def remove_node(self, elt_id):
-        """ Remove node identified by elt_id """
-
-        if(elt_id == self.node.id_in) : return
-        if(elt_id == self.node.id_out) : return
+    def close_node_dialog(self, elt_id):
+        """ Close a node dialog """
 
         # close dialog
         try:
@@ -443,6 +439,16 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
             del(self.node_dialog[elt_id])
         except KeyError:
             pass
+
+
+    @lock_notify      
+    def remove_node(self, elt_id):
+        """ Remove node identified by elt_id """
+
+        if(elt_id == self.node.id_in) : return
+        if(elt_id == self.node.id_out) : return
+
+        self.close_node_dialog(elt_id)
         
         item = self.graph_item[elt_id]
         try:
@@ -710,6 +716,9 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             hide = self.subnode.is_port_hidden(i)
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
+                c = self.connector_in[i]
+                self.scene().removeItem(c)
+                del c
                 self.connector_in[i] = None
                 continue
 
@@ -734,7 +743,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                                                      scene, i, tip)
 
 
-    def adjust_size(self):
+    def adjust_size(self, force=False):
         """ Compute the box size """
 
         fm = QtGui.QFontMetrics(self.font);
@@ -744,7 +753,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         nb_ports = max(self.nb_cin, len(self.connector_out))
         newsizex = max( nb_ports * Connector.WIDTH * 2, newsizex)
         
-        if(newsizex != self.sizex):
+        if(newsizex != self.sizex or force):
             self.sizex = newsizex
 
             i = 0
@@ -773,10 +782,20 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
-            print "toto"
+
             self.adjust_size()
             self.update()
             QtGui.QApplication.processEvents()
+
+        elif(event and
+             event[0] == "port_modified"):
+            self.set_connectors()
+            self.adjust_size(force=True)
+            self.update()
+
+            # del widget
+            self.graphview.close_node_dialog(self.elt_id)
+             
            
         elif(self.ismodified != sender.modified):
             self.ismodified = sender.modified or not sender.lazy
@@ -919,6 +938,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             
         if('run' in str):
             self.run_node()
+            
 
     @lock_notify
     def mouseMoveEvent(self, event):
@@ -945,6 +965,8 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         action = menu.addAction("Reset")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.subnode.reset)
 
+        action = menu.addAction("Show/Hide ports")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.show_ports)
 
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_internals)
@@ -957,6 +979,14 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         menu.show()
 
         event.accept()
+
+
+    def show_ports(self):
+        """ Open port show/hide dialog """
+
+        editor = ShowPortDialog(self.subnode, self.graphview)
+        editor.exec_()
+        
 
 
     def set_internals(self):
