@@ -144,6 +144,15 @@ def register_packages(pkgmanager):
 
     package.add_factory(nf)
 
+    nf = Factory( name="%", 
+                  description="Modulo", 
+                  category="Math", 
+                  nodemodule="maths",
+                  nodeclass="py_modulo",
+                  )
+
+    package.add_factory(nf)
+
 
     nf = Factory( name="abs", 
                   description="Absolute value", 

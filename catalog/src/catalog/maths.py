@@ -78,6 +78,11 @@ def py_div(a=0.,b=1.):
     return a / b
 
 
+def py_modulo(a=0.,b=1.):
+    """ a % b """
+    return a % b
+
+
 def py_abs(a=0.):
     """ abs(a) """
     return abs(a)
