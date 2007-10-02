@@ -5,6 +5,7 @@
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): David Da SILVA <david.da_silva@cirad.fr>
+#                       Szymon STOMA <szymon.stoma@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -15,7 +16,7 @@
 
 
 __doc__="""
-Wralea for Catalog.PlotTools 
+Wralea for PlotTools 
 """
 
 __license__= "Cecill-C"
@@ -37,12 +38,12 @@ def register_packages(pkgmanager):
                  'license' : 'CECILL-C',
                  'authors' : 'OpenAlea Consortium',
                  'institutes' : 'INRIA/CIRAD',
-                 'description' : 'Catalog library.',
+                 'description' : 'Plotools library.',
                  'url' : 'http://openalea.gforge.inria.fr'
                  }
 
 
-    package = Package("Catalog.PlotTools", metainfo)
+    package = Package("PlotTools", metainfo)
 
     nf = Factory( name= "SequencePlot2D", 
                   description="Plot a list of 2D points plotable objects", 

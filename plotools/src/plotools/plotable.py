@@ -25,7 +25,6 @@ __version__="0.1"
 __docformat__= "restructuredtext en"
 __revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
 
-
 from matplotlib import rc, rcParams,use
 rc('text', usetex=True )
 use('Qt4Agg')
@@ -35,9 +34,11 @@ import pylab
 try:
   from matplotlib.backends.backend_qt4 import qApp
 except ImportError:
-  from matplotlib.backends import backend_qt4
+  import matplotlib as mymat
+  from matplotlib.backends import backend_qt4, backend_qt4agg
   from PyQt4 import QtGui
   backend_qt4.qApp = QtGui.qApp
+  backend_qt4agg.matplotlib = mymat
 #=============================================================#
 
 class VisualSequence2D(object):
@@ -138,6 +139,13 @@ def display_visual_sequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="",
         # do sth with exceptions
         obj=vis_seq_list
         pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
+
+    xmin, xmax = pylab.xlim()
+    xr = (xmax-xmin)/20.
+    pylab.xlim(xmin-xr, xmax+xr)
+    ymin, ymax = pylab.ylim()
+    yr = (ymax-ymin)/20.
+    pylab.ylim(ymin-yr, ymax+yr)
     pylab.title( title )
     pylab.xlabel( xlabel )
     pylab.ylabel( ylabel )
