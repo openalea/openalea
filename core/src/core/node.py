@@ -190,6 +190,7 @@ class Node(AbstractNode):
 
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
+
         changed = self.internal_data['port_hide_changed']
         
         if (s != state):
