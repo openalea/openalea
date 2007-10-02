@@ -271,7 +271,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     print "Installing ", pname, ok
                     ret = self.install_package(pname, dist.location)
                     ok = ret and ok
-                    print "OOOOOOOOOOOO", ok
+                    
 
         self.display_finish_message(ok)
         self.refresh()

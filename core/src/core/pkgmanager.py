@@ -116,11 +116,8 @@ class PackageManager(object):
         """ Remove all wralea module and invalidate others"""
 
         for name in sys.modules.keys():
-            if('wralea' in name):
-                del(sys.modules[name])
-            else:
-                m = sys.modules[name]
-                if(m) : m.oa_invalidate = True
+            m = sys.modules[name]
+            if(m) : m.oa_invalidate = True
         
 
         

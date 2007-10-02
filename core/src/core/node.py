@@ -124,6 +124,7 @@ class Node(AbstractNode):
         self.internal_data['lazy'] = True
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = False
+        self.internal_data['port_hide_changed']= set()
         self.internal_data['minimal'] = False
 
 
@@ -169,6 +170,34 @@ class Node(AbstractNode):
         self.internal_data["lazy"] = v
 
     lazy = property(get_lazy, set_lazy)
+
+
+    def is_port_hidden(self, index_key):
+        """ Return the hidden state of a port """
+        
+        index = self.map_index_in[index_key]
+        s = self.input_desc[index].get('hide', False)
+        changed = self.internal_data['port_hide_changed']
+
+        if(index in changed):
+            return not s
+        else:
+            return s
+
+
+    def set_port_hidden(self, index_key, state):
+        """ Set the hidden state of a port """
+
+        index = self.map_index_in[index_key]
+        s = self.input_desc[index].get('hide', False)
+        changed = self.internal_data['port_hide_changed']
+        if (s != state):
+            changed.add(index)
+        elif(index in changed):
+            changed.remove(index)
+        
+
+        
 
 
     # Status
@@ -467,7 +496,8 @@ class AbstractFactory(Observed):
 
         return "Name : %s\n"%(self.name,) +\
                "Category  : %s\n"%(self.category,) +\
-               "Description : %s\n"%(self.description,)
+               "Description : %s\n"%(self.description,) +\
+               "Package : %s\n"%(self.package.name,)
 
        
     def instantiate(self, call_stack=[]):
