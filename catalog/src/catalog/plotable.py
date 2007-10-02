@@ -31,8 +31,14 @@ rc('text', usetex=True )
 use('Qt4Agg')
 import pylab
 
+try:
+  from matplotlib.backends.backend_qt4 import qApp
+except ImportError:
+  from matplotlib.backends import backend_qt4
+  from PyQt4 import QtGui
+  backend_qt4.qApp = QtGui.qApp
 
-class PlotableObject(object):
+class VisualSequence2D(object):
     """Object containing basic plot information.
     
     <Long description of the function functionality.>    
@@ -66,14 +72,47 @@ class PlotableObject(object):
         self.marker = str(marker)
         self.color = str(color)
 
+def change_vis_seq2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
 
+        """Returns vis_seq2D object with values changed from default
+        
+        :parameters:
+            vis_seq2D : `VisualSequence2D`
+                object to be modified
+            legend : `string`
+                legend of a line
+            linestyle : `string`
+                One of - : -. -
+            marker : `string`
+                One of + , o . s v x > <,
+            color : `string`
+                A matplotlib color arg
+        :rtype: `VisualSequence2D`
+        :return: Updated object.
+        """
 
-def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
-    """Plots plotable Object.
+        #plotable = self.get_input( "plotable" )
+        #legend = self.get_input( "legend" )
+        #linestyle = self.get_input( "linestyle" )
+        #marker = self.get_input( "marker" )
+        #color = self.get_input( "color" )
+        plotable = vis_seq2D
+        if not new_linestyle=="Default":
+            plotable.linestyle = new_linestyle
+        if not new_marker=="Default":
+            plotable.marker = new_marker
+        if not new_color=="Default":
+            plotable.color = new_color
+        if not new_legend=="Default":
+            plotable.legend = new_legend
+        return  plotable
+
+def display_visual_sequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="", **keys ):
+    """Plots 2D visual sequences.
     
     :parameters:
-        plotable_list : `[PlotableObject]`
-            Contains primordium id to creation time mapping.
+        vis_seq_list : `[VisualSequence2D]`
+            Contains a list of object to display
         title : `string`
             Title of the plot.
         xlabel : `string`
@@ -81,7 +120,7 @@ def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
         ylabel : `string`
             Y label description
     """
-    objList=plotable_list
+    objList=vis_seq_list
     pylab.cla()
     legend_printed = False
     try:
@@ -95,22 +134,21 @@ def plot_plotable(  plotable_list=[], title="", xlabel="", ylabel="", **keys ):
         if legend_printed: pylab.legend( tuple( legend ), loc='best', shadow=True )
     except  TypeError:
         # do sth with exceptions
-        obj=plotable_list
+        obj=vis_seq_list
         pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
-        #if obj.legend:
-        #    pylab.legend( (obj.legend), loc='best', shadow=True )
     pylab.title( title )
     pylab.xlabel( xlabel )
     pylab.ylabel( ylabel )
     pylab.show()
-        
-            
-def plot_single_plotable(  plotable=PlotableObject(), title="", xlabel="", ylabel="", **keys ):
-    """Plots plotable Object.
+
+def seqs2visual_sequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o", color="b", **keys ):
+    """generates visual sequence2D with list1 as x  and list2 as y
     
     :parameters:
-        plotable : `PlotableObject`
-            Contains primordium id to creation time mapping.
+        seq1 : `iterable`
+            Contains the x sequence
+        seq2 : `iterable`
+            Contains the x sequence
         title : `string`
             Title of the plot.
         xlabel : `string`
@@ -118,15 +156,15 @@ def plot_single_plotable(  plotable=PlotableObject(), title="", xlabel="", ylabe
         ylabel : `string`
             Y label description
     """
-    plot_plotable( [ plotable ], title=title, xlabel=xlabel, ylabel=ylabel, **keys )
+    return VisualSequence2D(x=seq1, y=seq2, legend=legend, linestyle=linestyle, marker=marker, color=color )
+       
 
-
-def generate_plotable_from_dict(  dict2plotable={}, legend="", linestyle="-",marker=".", color="r", **keys ):
-    """Plots plotable Object.
+def dict2visual_sequence2D(  dict2vis_seq={}, legend="", linestyle="",marker="o", color="g", **keys ):
+    """generates visual sequence2D with keys as x  and values as y
     
     :parameters:
-        plotable : `PlotableObject`
-            Contains primordium id to creation time mapping.
+        dict2vis_seq : `dict{float:float}`
+            Contains a list of object to display
         title : `string`
             Title of the plot.
         xlabel : `string`
@@ -134,8 +172,7 @@ def generate_plotable_from_dict(  dict2plotable={}, legend="", linestyle="-",mar
         ylabel : `string`
             Y label description
     """
-    r=list(dict2plotable.items())
+    r=list(dict2vis_seq.items())
     r.sort()
-    #print [r[i][0] for i in range(len(r))]
-    return PlotableObject(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], legend=legend, linestyle=linestyle, marker=marker, color=color )
+    return VisualSequence2D(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], legend=legend, linestyle=linestyle, marker=marker, color=color )
 

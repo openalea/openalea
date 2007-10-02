@@ -44,15 +44,15 @@ def register_packages(pkgmanager):
 
     package = Package("Catalog.PlotTools", metainfo)
 
-    nf = Factory( name= "Plot2D", 
-                  description="Plot a list of 2D plotable objects", 
+    nf = Factory( name= "SequencePlot2D", 
+                  description="Plot a list of 2D points plotable objects", 
                   category="Vizualisation", 
-                  nodemodule="plotools",
-                  nodeclass="Plot2D",
-                  inputs=(dict(name='plotObjList', interface=ISequence, showwidget=False),
+                  nodemodule="plotable",
+                  nodeclass="display_visual_sequence2D",
+                  inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
-                            dict(name='xlabel', interface=IStr, value='x-axis-label'),
-                            dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
+                          dict(name='xlabel', interface=IStr, value='x-axis-label'),
+                          dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
                   outputs=()
 
                 )
@@ -60,19 +60,44 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory( name= "Plotable", 
+    nf = Factory( name= "SeqStyle", 
                   description="Allows us to edit plotable object", 
                   category="Vizualisation", 
-                  nodemodule="plotools",
-                  nodeclass="IPlotable",
-                  inputs=(dict(name='plotable', interface=None, showwidget=False),
-                            dict(name='legend', interface=IStr, value='Default'),
-                            dict(name='linestyle', interface=IStr, value='Default'),
-                            dict(name='marker', interface=IStr, value='Default'),
-                            dict(name='color', interface=IStr, value='Default'), ),
-                  outputs=( dict(name='Plotable', interface=None), )
+                  nodemodule="plotable",
+                  nodeclass="change_vis_seq2D",
+                  inputs=(dict(name='vis_seq2D', interface=None, showwidget=False),
+                            dict(name='new_legend', interface=IStr, value='Default'),
+                            dict(name='new_linestyle', interface=IStr, value='Default'),
+                            dict(name='new_marker', interface=IStr, value='Default'),
+                            dict(name='new_color', interface=IStr, value='Default'), 
+                          ),
+                  outputs=( dict(name='vis_seq2D', interface=None), )
                 )
     package.add_factory(nf)
+
+    nf = Factory( name= "Iterable to Vis_Seq2D", 
+                  description="Generates Vis_Seq2D from 2 iterables", 
+                  category="Vizualisation", 
+                  nodemodule="plotable",
+                  nodeclass="seqs2visual_sequence2D",
+                  inputs=(dict(name='seq1', interface=ISequence),
+                            dict(name='seq2', interface=ISequence),
+                          ),
+                  outputs=( dict(name='vis_seq2D', interface=None), )
+                )
+    package.add_factory(nf)
+
+    nf = Factory( name= "Dict to Vis_Seq2D", 
+                  description="Generates Vis_Seq2D from a dictionary", 
+                  category="Vizualisation", 
+                  nodemodule="plotable",
+                  nodeclass="dict2visual_sequence2D",
+                  inputs=(dict(name='dict', interface=IDict),
+                          ),
+                  outputs=( dict(name='vis_seq2D', interface=None), )
+                )
+    package.add_factory(nf)
+
 
     pkgmanager.add_package(package)
 

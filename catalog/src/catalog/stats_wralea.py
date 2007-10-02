@@ -61,18 +61,32 @@ def register_packages(pkgmanager):
 
     package.add_factory( nf )
 
+    nf = Factory( name="MultipleLinearRegression",
+                  description="compute a multiple linear regression",
+                  category="Stat",
+                  nodemodule="stats",
+                  nodeclass="multiReg",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Y", interface=ISequence, showwidget=True ),
+                            dict( name = "colList", interface=ISequence, showwidget=True ),
+                            dict( name = "alpha", interface=IFloat, value=5. ),
+                          ),
+                  outputs=(dict(name="reg", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
     nf = Factory( name="LRtoPlot",
                   description="generate plotable object from linear regression",
                   category="Stat",
                   nodemodule="stats",
                   nodeclass="LR2Plot",
                   inputs= ( dict( name='reg', interface=IDict ),
-                            dict( name='pointLegend', interface=IStr, value='Data' ),
-                            dict( name='pointMarker', interface=IStr, value='^' ),
-                            dict( name='pointColor', interface=IStr, value='dodgerblue' ),
-                            dict( name='regLineStyle', interface=IStr, value='-' ),
                           ),
-                  outputs=( dict(name='plotObjList', interface=ISequence),
+                  outputs=( dict(name='plotObjList',),
+                            dict(name='plotObjList',),
                           ),
                   )
 

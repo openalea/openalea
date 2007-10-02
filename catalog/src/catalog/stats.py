@@ -23,10 +23,11 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 import rpy
-import pylab
-from plotable import *
-from matplotlib import rc
+import plotable
+from matplotlib import rc, use
 rc( 'text', usetex=True )
+use('Qt4Agg')
+import pylab
 
 ############## Node definition ##########################
 class LinearRegression( Node ):
@@ -44,7 +45,7 @@ class LinearRegression( Node ):
         """ inputs is the list of input values """
         if self.get_input( "origin" ):
             print "Origin will not work if x values are < 0"
-            reg = regLinOri(self.get_input( "X" ),self.get_input( "Y" ),self.get_input_by_key( "alpha" ) )
+            reg = regLinOri(self.get_input( "X" ),self.get_input( "Y" ),self.get_input( "alpha" ) )
         else:
             reg = regLin(self.get_input( "X" ),self.get_input( "Y" ),self.get_input( "alpha" ) )
         return ( reg, )
@@ -60,11 +61,7 @@ class LR2Plot( Node ):
 
     def __call__( self, inputs ):
 
-        reg=self.get_input_by_key( 'reg' )
-        point_legend=self.get_input_by_key( 'pointLegend' )
-        reg_linestyle=self.get_input_by_key( 'regLineStyle' )
-        point_marker=self.get_input_by_key( 'pointMarker' )
-        point_color=self.get_input_by_key( 'pointColor' )
+        reg=self.get_input( 'reg' )
         reg_x=pylab.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
         reg_y = reg_x*reg[ 'pente' ]+reg[ 'intercept' ]
         reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
@@ -72,12 +69,12 @@ class LR2Plot( Node ):
                      " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
                      "    r2 = "+str( round( reg[ 'r2' ],3 ) )
         reg_color='red'
-        points = plotObject( x=reg[ 'x' ], y=reg[ 'y' ], legend=point_legend, linestyle='None', marker = point_marker, color=point_color )
-        line = plotObject( x=reg_x, y=reg_y, legend=reg_legend, linestyle=reg_linestyle, marker='None', color=reg_color )
-        resseq = []
-        resseq.append(points)
-        resseq.append(line)
-        return ( resseq, )
+        points = plotable.PlotableObject( x=reg[ 'x' ], y=reg[ 'y' ], legend= 'Data', linestyle='None', marker = '^', color='dodgerblue' )
+        line = plotable.PlotableObject( x=reg_x, y=reg_y, legend=reg_legend, linestyle='-', marker='None', color=reg_color )
+        #resseq = []
+        #resseq.append(points)
+        #resseq.append(line)
+        return ( points, line )
 
 ############## End of Node definition ###################
 
@@ -102,6 +99,38 @@ def regression(x, y, regmodel, alpha ):
       intercept = 0
 
     data = {'pente':pente, 'intercept':intercept, 'r2':r2, 'adj_r2':r2adj, 'ic':ic, 'x':x, 'y':y}
+    return data
+
+def multiReg(x, y, colList, alpha):
+    #d = rpy.r.data_frame(y)
+    newX=[]
+    d = {'Y':y}
+    model_string = "Y~"
+    #names = ["Y"]
+    for i in colList:
+      name = "X"+str(i) 
+      #names.append( name )
+      d[name] = x[i]
+      newX.append(x[i])
+      model_string = model_string + name + "+"
+    print d
+    #rpy.r.colnames(d) = names
+    model_string = model_string + "1"
+    model = rpy.r(model_string)
+
+    n=rpy.sqrt( len( y ) )
+    norm=rpy.r.qnorm( 1. - ( alpha/200. ) )
+    Rlm = rpy.with_mode(rpy.NO_CONVERSION, rpy.r.lm)
+    reg = Rlm(model, data = d)
+    result = rpy.r.summary(reg)
+    print result
+    coef =result['coefficients']
+    r2 = result['r.squared']
+    r2adj = result['adj.r.squared']
+    ic = result[ 'sigma' ]*norm/n
+    regressor = coef[:,0]
+
+    data = {'regressor':regressor[1:], 'intercept':regressor[0], 'r2':r2, 'adj_r2':r2adj, 'ic':ic, 'x':newX, 'y':y}
     return data
    
 def regLin(x, y, alpha=5):
