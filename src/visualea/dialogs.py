@@ -718,3 +718,12 @@ class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
                     self.pdict[k] = s
                     
         QtGui.QDialog.accept(self)
+
+
+class ShowPortDialog(QtGui.QWidget):
+    """
+    Port show status onfiguration dialog
+    """
+
+
+   

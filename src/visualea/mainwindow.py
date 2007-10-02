@@ -40,8 +40,7 @@ import metainfo
 from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
-
-from util import exception_display, busy_pointer
+from util import exception_display, busy_cursor
 
 
 
@@ -351,12 +350,14 @@ class MainWindow(QtGui.QMainWindow,
     
     def find_wralea(self):
 
+        self.pkgmanager.unload_module()
+        self.pkgmanager.clear()
         self.pkgmanager.find_and_register_packages()
         self.reinit_treeview()
 
 
     @exception_display
-    @busy_pointer
+    @busy_cursor
     def run(self):
         """ Run the active workspace """
 

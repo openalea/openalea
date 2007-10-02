@@ -25,7 +25,7 @@ __revision__=" $Id$ "
 from PyQt4 import QtGui, QtCore
 from openalea.core.algo.dataflow_evaluation import EvaluationException
 
-def busy_pointer(f):
+def busy_cursor(f):
     """ Decorator to display a busy pointer """
 
     def wrapped(*args):
@@ -40,24 +40,27 @@ def busy_pointer(f):
         
     return wrapped
 
+
 def exception_display(f):
     """ Decorator to display exception if raised """
 
     def wrapped(*args):
         try:
             ret = f(*args)            
+
         except EvaluationException, e:
             self = args[0]
             if not isinstance(self,QtGui.QWidget):
                 self = None            
-            QtGui.QMessageBox.critical(self,'Exception raised !',e.exception.__class__.__name__+': '+e.exception.message)
+            QtGui.QMessageBox.critical(self,'Exception raised !',e.exception.__class__.__name__+': '+ str(e.exception))
             raise e.exception
+        
         except Exception, e:
             self = args[0]
             if not isinstance(self,QtGui.QWidget):
                 self = None
-            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+e.message)
-            raise e
+            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+ str(e)
+
         return ret
     return wrapped
 
