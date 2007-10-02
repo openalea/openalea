@@ -26,6 +26,7 @@ __revision__=" $Id$ "
 
 import sys
 import math
+import weakref
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.node import NodeWidget, RecursionError
@@ -36,7 +37,7 @@ from openalea.core.observer import AbstractListener
 import annotation
 
 from dialogs import DictEditor
-from util import busy_pointer, exception_display, open_dialog
+from util import busy_cursor, exception_display, open_dialog
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -91,7 +92,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         vboxlayout.addLayout(buttons)
 
     @exception_display
-    @busy_pointer    
+    @busy_cursor    
     def run(self):
         self.node.eval()
 
@@ -285,7 +286,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             nin = subnode.get_nb_input()
             nout = subnode.get_nb_output()
-            gnode = GraphicalNode(self, eltid, nin, nout)
+            gnode = GraphicalNode(self, eltid)
 
             # do not display in and out nodes if not necessary
             if(nin == 0 and nout == 0 and
@@ -460,8 +461,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_connection(self, edge_item):
         """ Remove a connection """
 
-        connector_src = edge_item.source
-        connector_dst = edge_item.dest
+        connector_src = edge_item.source()
+        connector_dst = edge_item.dest()
         
         connector_src.edge_list.remove(edge_item)
         connector_dst.edge_list.remove(edge_item)
@@ -628,13 +629,10 @@ def port_name( name, interface ):
 class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     """ Represent a node in the graphwidget """
 
-    def __init__(self, graphview, elt_id, ninput, noutput):
+    def __init__(self, graphview, elt_id):
         """
         @param graphview : EditGraphWidget container
         @param elt_id : id in the graph
-        @param ninput : number of input
-        @param noutput : number of output
-        @param caption : box text
         """
 
         scene = graphview.scene()
@@ -644,8 +642,11 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.elt_id = elt_id
         self.graphview = graphview
         self.subnode = self.graphview.node.node(elt_id)
-        self.connector_in = []
-        self.connector_out = []
+        
+        self.nb_cin = 0
+        self.connector_in = [None] * self.subnode.get_nb_input()
+        self.connector_out = [None] * self.subnode.get_nb_output()
+
         self.sizey = 32
         self.sizex = 20
 
@@ -682,24 +683,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.font.setBold(True)
         self.font.setPointSize(10)
 
-
         # Add to scene
         scene.addItem(self)
 
-        # Connectors
-        for i,desc in enumerate(self.subnode.input_desc):
-            name = desc['name']
-            interface = desc.get('interface', None)
-            
-            tip = port_name(name,interface)
-            self.connector_in.append(ConnectorIn(self.graphview, self, scene, i, ninput, tip))
-            
-        for i,desc in enumerate(self.subnode.output_desc):
-            name = desc['name']
-            interface = desc.get('interface', None)
-
-            tip = port_name(name,interface)
-            self.connector_out.append(ConnectorOut(self.graphview, self, scene, i, noutput, tip))
+        self.set_connectors()
 
         # Set Position
         try:
@@ -712,6 +699,41 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.adjust_size()
 
 
+    def set_connectors(self):
+        """ Add connectors """
+
+        scene = self.graphview.scene()
+        
+        self.nb_cin = 0
+        for i,desc in enumerate(self.subnode.input_desc):
+
+            hide = self.subnode.is_port_hidden(i)
+            # hidden connector
+            if(hide and self.subnode.input_states[i] is not "connected"):
+                self.connector_in[i] = None
+                continue
+
+            # show connector (update if necessary)
+            elif(not self.connector_in[i]):
+                name = desc['name']
+                interface = desc.get('interface', None)
+                tip = port_name(name,interface)
+                self.connector_in[i] = ConnectorIn(self.graphview, self,
+                                                   scene, i, tip)
+            # nb connector
+            self.nb_cin += 1 
+                
+            
+        for i,desc in enumerate(self.subnode.output_desc):
+            if(not self.connector_out[i]): # update if necessary
+                name = desc['name']
+                interface = desc.get('interface', None)
+                tip = port_name(name,interface)
+
+                self.connector_out[i] = ConnectorOut(self.graphview, self,
+                                                     scene, i, tip)
+
+
     def adjust_size(self):
         """ Compute the box size """
 
@@ -719,18 +741,24 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         newsizex = fm.width(self.get_caption()) + 20;
         # when the text is small but there are lots of ports, 
         # add more space.
-        nb_ports = max(len(self.connector_in),len(self.connector_out))
+        nb_ports = max(self.nb_cin, len(self.connector_out))
         newsizex = max( nb_ports * Connector.WIDTH * 2, newsizex)
         
-        if(newsizex > self.sizex):
-
+        if(newsizex != self.sizex):
             self.sizex = newsizex
-            for i in range(len(self.connector_in)):
-                c = self.connector_in[i]
-                c.adjust_position(self, i, len(self.connector_in))
-            for i in range(len(self.connector_out)):
-                c = self.connector_out[i]
-                c.adjust_position(self, i, len(self.connector_out))
+
+            i = 0
+            # i index can differ from real index since port can hidden
+            for c in self.connector_in:
+                if(not c) : continue
+                c.adjust_position(self, i, self.nb_cin)
+                c.adjust()
+                i += 1
+
+            nb_cout = len(self.connector_out)
+            for i,c in enumerate(self.connector_out):
+                c.adjust_position(self, i, nb_cout)
+                c.adjust()
 
 
     def get_caption(self):
@@ -745,6 +773,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
+            print "toto"
             self.adjust_size()
             self.update()
             QtGui.QApplication.processEvents()
@@ -844,8 +873,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
             
-            for c in self.connector_in : c.adjust()
-            for c in self.connector_out : c.adjust()
+            for c in self.connector_in :
+                if(c): c.adjust()
+            for c in self.connector_out :
+                if(c): c.adjust()
 
             point = value.toPointF()
         
@@ -908,9 +939,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         action = menu.addAction("Delete")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
         
-#         action = menu.addAction("Enable in Widget")
-#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.enable_in_widget)
-        
         action = menu.addAction("Caption")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
 
@@ -941,7 +969,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                 self.subnode.set_data(k, editor.pdict[k])
             
     @exception_display
-    @busy_pointer
+    @busy_cursor
     def run_node(self):
         """ Run the current node """
         self.graphview.node.eval_as_expression(self.elt_id)
@@ -969,10 +997,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):
             n.caption = str(result)
-
-
-        
-
 
 
 #     def edit_code(self):
@@ -1015,7 +1039,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
         QtGui.QGraphicsItem.__init__(self, parent, scene)
 
         self.mindex = index
-        self.graphview = graphview
+        self.graphview = weakref.ref(graphview)
 
         self.base_tooltip = tooltip
         self.update_tooltip()
@@ -1056,7 +1080,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton):
-            self.graphview.start_edge(self)
+            self.graphview().start_edge(self)
         
         QtGui.QGraphicsItem.mousePressEvent(self, event)
 
@@ -1066,11 +1090,11 @@ class Connector(QtGui.QGraphicsEllipseItem):
 class ConnectorIn(Connector):
     """ Input node connector """
 
-    def __init__(self, graphview, parent, scene, index, ntotal, tooltip):
+    def __init__(self, graphview, parent, scene, index, tooltip):
 
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
 
-        self.adjust_position(parent, index, ntotal)
+        #self.adjust_position(parent, index, ntotal)
         self.setAcceptDrops(True)
 
 
@@ -1081,7 +1105,7 @@ class ConnectorIn(Connector):
 
     
     def adjust_position(self, parentitem, index, ntotal):
-        width= parentitem.sizex / float(ntotal+1)
+        width = parentitem.sizex / float(ntotal+1)
         self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
 
 
@@ -1127,10 +1151,10 @@ class ConnectorIn(Connector):
 class ConnectorOut(Connector):
     """ Output node connector """
 
-    def __init__(self, graphview, parent, scene, index, ntotal, tooltip):
+    def __init__(self, graphview, parent, scene, index, tooltip):
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
         
-        self.adjust_position(parent, index, ntotal)
+        #self.adjust_position(parent, index, ntotal)
 
         
     def update_tooltip(self):
@@ -1148,7 +1172,7 @@ class ConnectorOut(Connector):
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
-        menu = QtGui.QMenu(self.graphview)
+        menu = QtGui.QMenu(self.graphview())
 
         action = menu.addAction("Send to Pool")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.send_to_pool)
@@ -1172,7 +1196,7 @@ class ConnectorOut(Connector):
 
     def send_to_pool(self):
 
-        (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Data Pool", "Instance name",
+        (result, ok) = QtGui.QInputDialog.getText(self.graphview(), "Data Pool", "Instance name",
                                                       QtGui.QLineEdit.Normal, )
         if(ok):
             from openalea.core.session import DataPool
@@ -1347,12 +1371,12 @@ class SemiEdge(AbstractEdge):
     def __init__(self, graphview, connector, parent=None, scene=None):
         AbstractEdge.__init__(self, graphview, parent, scene)
 
-        self.connect = connector
+        self.connect = weakref.ref(connector)
         self.sourcePoint = self.mapFromItem(connector, connector.rect().center())
 
 
     def connector(self):
-        return self.connect
+        return self.connect()
 
 
     def setMousePoint(self, scene_point):
@@ -1386,8 +1410,8 @@ class Edge(AbstractEdge):
         dst = destNode.get_input_connector(in_index)
         if(dst) : dst.add_edge(self)
 
-        self.source = src
-        self.dest = dst
+        self.source = weakref.ref(src)
+        self.dest = weakref.ref(dst)
         self.adjust()
 
 
@@ -1395,8 +1419,10 @@ class Edge(AbstractEdge):
         if not self.source or not self.dest:
             return
 
-        line = QtCore.QLineF(self.mapFromItem(self.source, self.source.rect().center() ),
-                              self.mapFromItem(self.dest, self.dest.rect().center() ))
+        source = self.source()
+        dest = self.dest()
+        line = QtCore.QLineF(self.mapFromItem(source, source.rect().center() ),
+                              self.mapFromItem(dest, dest.rect().center() ))
        
         length = line.length()
         if length == 0.0:
