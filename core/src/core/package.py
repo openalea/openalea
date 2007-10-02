@@ -310,26 +310,35 @@ class PyPackageReader(object):
             syspath_updated = True
         else :
             syspath_updated = False            
-            
-        
+
         modulename = self.filename_to_module(basename)
 
-        (file, pathname, desc) = imp.find_module(modulename,  [basedir])
-
-        try:
-            wraleamodule = imp.load_module(modulename, file, pathname, desc)
+        # reload module if necessary
+        if(modulename in sys.modules.keys()):
+            wraleamodule = sys.modules[modulename]
+            
+            if(hasattr(wraleamodule, 'oa_invalidate' )):
+                reload(wraleamodule)
+                del wraleamodule.oa_invalidate
+                
             wraleamodule.register_packages(pkgmanager) 
 
-        except Exception, e:
-            print '%s is invalid :'%(self.filename,), e
+                
+        else: # module not loaded
+            (file, pathname, desc) = imp.find_module(modulename,  [basedir])
+            try:
+                wraleamodule = imp.load_module(modulename, file, pathname, desc)
+                wraleamodule.register_packages(pkgmanager) 
+            except Exception, e:
+                print '%s is invalid :'%(self.filename,), e
 
-        
-        if(file) :
-            file.close()
+            if(file) :
+                file.close()
+
 
         # Recover syspath
         if(syspath_updated):
-         sys.path.remove(basedir)
+            sys.path.remove(basedir)
 
         
 
