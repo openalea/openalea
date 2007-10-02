@@ -717,9 +717,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
                 c = self.connector_in[i]
-                self.scene().removeItem(c)
-                del c
-                self.connector_in[i] = None
+                if(c):
+                    self.scene().removeItem(c)
+                    del c
+                    self.connector_in[i] = None
                 continue
 
             # show connector (update if necessary)

@@ -752,6 +752,7 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
             
             txt = "%s %s"%(desc['name'], interface)
             listitem = QtGui.QListWidgetItem(txt, self.listWidget)
+            
             if(node.input_states[i] is not "connected"):
                 listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
             else:
@@ -771,13 +772,13 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
         for i in xrange(self.listWidget.count()):
             item = self.listWidget.item(i)
 
-            if(item and
-               (item.flags() & QtCore.Qt.ItemIsEnabled) and
-               (item.checkState() == QtCore.Qt.Checked)):
-                self.node.set_port_hidden(i, False)
-                
-            elif(self.node.input_states[i] is not "connected"):
-                self.node.set_port_hidden(i, True)
+            if(item and (item.flags() & QtCore.Qt.ItemIsEnabled) and
+               self.node.input_states[i] is not "connected" ):
+
+                if(item.checkState() == QtCore.Qt.Checked):
+                    self.node.set_port_hidden(i, False)
+                else:
+                    self.node.set_port_hidden(i, True)
 
         self.node.notify_listeners( ("port_modified", ) )
 
