@@ -684,6 +684,15 @@ class MainWindow(QtGui.QMainWindow,
     def reset(self):
         """ Reset current workspace """
 
+        ret = QtGui.QMessageBox.question(self, "Reset Workspace",
+                                         "Reset will delete all input values.\n"+
+                                         "Continue ?\n",
+                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+            
+        if(ret == QtGui.QMessageBox.No):
+            return
+                    
+
         cindex = self.tabWorkspace.currentIndex()
         self.index_nodewidget[cindex].node.reset()
 

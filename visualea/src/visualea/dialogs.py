@@ -36,6 +36,7 @@ import ui_newpackage
 import ui_preferences
 import ui_ioconfig
 import ui_tableedit
+import ui_listedit
 
 
 
@@ -560,18 +561,26 @@ class ComboDelegate(QtGui.QItemDelegate):
         return QtGui.QItemDelegate.createEditor(self, parent, option, index)
 
     
-    def setEditorData(self ,editor, index):
+    def setEditorData(self, editor, index):
         """ Accessor """
-        value = str(index.data().toString())
-        i = editor.findText(value)
-        editor.setCurrentIndex (i)
+
+        if index.column() == 1:
+
+            value = str(index.data().toString())
+            i = editor.findText(value)
+            editor.setCurrentIndex (i)
+        else:
+            QtGui.QItemDelegate.setEditorData(self, editor, index)
 
 
     def setModelData(self, editor, model, index):
         """ Accessor """
-        value = editor.currentText()
-        model.setItem(index.row(), index.column(),
-                      QtGui.QStandardItem(str(value)))
+        if index.column() == 1:
+            value = editor.currentText()
+            model.setItem(index.row(), index.column(),
+                          QtGui.QStandardItem(str(value)))
+        else:
+            QtGui.QItemDelegate.setModelData(self, editor, model, index)
 
 
 class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
@@ -720,10 +729,59 @@ class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
         QtGui.QDialog.accept(self)
 
 
-class ShowPortDialog(QtGui.QWidget):
+class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
     """
     Port show status onfiguration dialog
     """
 
+    def __init__(self, node, parent):
+
+        QtGui.QDialog.__init__(self, parent)
+        ui_listedit.Ui_ListEdit.__init__(self)
+        self.setupUi(self)
+
+        self.node = node
+        
+        for i, desc in enumerate(node.input_desc):
+
+            try:
+                interface = desc.get('interface').__name__
+            except:
+                interface = ""
+
+            
+            txt = "%s %s"%(desc['name'], interface)
+            listitem = QtGui.QListWidgetItem(txt, self.listWidget)
+            if(node.input_states[i] is not "connected"):
+                listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
+            else:
+                listitem.setFlags(QtCore.Qt.ItemIsUserCheckable)
+
+            hide = node.is_port_hidden(i)
+            if(not hide):
+                listitem.setCheckState(QtCore.Qt.Checked)
+            else:
+                listitem.setCheckState(QtCore.Qt.Unchecked)
+
+                
+
+        
+    def accept(self):
+
+        for i in xrange(self.listWidget.count()):
+            item = self.listWidget.item(i)
+
+            if(item and
+               (item.flags() & QtCore.Qt.ItemIsEnabled) and
+               (item.checkState() == QtCore.Qt.Checked)):
+                self.node.set_port_hidden(i, False)
+                
+            elif(self.node.input_states[i] is not "connected"):
+                self.node.set_port_hidden(i, True)
+
+        self.node.notify_listeners( ("port_modified", ) )
+
+                    
+        QtGui.QDialog.accept(self)
 
    

@@ -61,7 +61,9 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
             # Hidden state
             h = node.is_port_hidden(i)
-            if(h) : continue
+            if(h) :
+                self.widgets.append(None)
+                continue
             
             name = desc['name']
             interface = desc.get('interface', None)
