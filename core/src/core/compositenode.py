@@ -195,7 +195,7 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
-        node.internal_data = self.elt_data[vid].copy()
+        node.internal_data.update(self.elt_data[vid])
 
         # copy node input data if any
         values = self.elt_value.get(vid, ())
