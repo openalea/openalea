@@ -597,6 +597,7 @@ def set_env():
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
     print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
+    all_dirs = set(lib_dirs+bin_dirs)
     set_win_env(['OPENALEA_LIB=%s'%(';'.join(lib_dirs+bin_dirs)),
                  'PATH=%OPENALEA_LIB%',])
 
