@@ -51,7 +51,7 @@ class IterNode(Node):
         """ Constructor """
 
         Node.__init__(self, *args)
-        self.iterable = None
+        self.iterable = "Empty"
 
         
     def eval(self):
@@ -59,7 +59,7 @@ class IterNode(Node):
         Return True if the node need a reevaluation
         """
         try:
-            if(not self.iterable):
+            if self.iterable == "Empty":
                 self.iterable = iter(self.inputs[0])
 
             if(hasattr(self, "nextval")):
@@ -76,7 +76,7 @@ class IterNode(Node):
             return False
         
         except StopIteration, e:
-            self.iterable = None
+            self.iterable = "Empty"
             if(hasattr(self, "nextval")):
                 del self.nextval
             return False
