@@ -66,9 +66,12 @@ def exception_display(f):
             if errorbox is None:
                 errorbox = QtGui.QErrorMessage(parent)
                 errorbox.setModal(True)
-                errorbox.resize(700,300)
+                errorbox.resize(700,250)
             errorbox.setWindowTitle(title)
-            errorbox.showMessage(processText(''.join(stack)))
+            txt = '<B>Traceback (most recent call last):</B><BR>'
+            txt += processText(''.join(stack))
+            txt += '<B>'+title+'</B><BR>'
+            errorbox.showMessage(txt)
             errorbox.exec_()
         
     def wrapped(*args):
