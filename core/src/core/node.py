@@ -201,11 +201,12 @@ class Node(AbstractNode):
         
 
     # Status
-    def unvalidate_input(self, index_key):
+    def unvalidate_input(self, index_key, notify=True):
         """ Unvalidate node and notify listeners """
         self.modified = True
         index = self.map_index_in[index_key]
-        self.notify_listeners( ("input_modified", index) )
+        if(notify):
+            self.notify_listeners( ("input_modified", index) )
 
 
     # Declarations
@@ -282,7 +283,7 @@ class Node(AbstractNode):
 
     # I/O Functions
    
-    def set_input(self, key, val=None):
+    def set_input(self, key, val=None, notify=True):
         """
         Define the input value for the specified index/key
         """
@@ -299,7 +300,7 @@ class Node(AbstractNode):
 
         if(changed):
             self.inputs[index] = val
-            self.unvalidate_input(index)
+            self.unvalidate_input(index, notify)
             
 
     def output (self, key) :
