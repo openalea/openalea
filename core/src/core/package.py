@@ -33,7 +33,12 @@ import imp
 # Exceptions
 
 class UnknownNodeError (Exception):
-    pass
+    def __init__(self, name):
+        Exception.__init__(self)
+        self.message = "Cannot find node : %s"%(name)
+
+    def __str__(self):
+        return self.message
 
 class FactoryExistsError(Exception):
     pass
@@ -138,7 +143,7 @@ class Package(dict):
         try:
             factory = self[id]
         except KeyError:
-            raise UnknownNodeError()
+            raise UnknownNodeError("%s.%s"%(self.name,id) )
 
         return factory
     

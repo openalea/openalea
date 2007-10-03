@@ -37,6 +37,16 @@ from settings import get_userpkg_dir, Settings
 class UnknowFileType(Exception):
     pass
 
+class UnknownPackageError (Exception):
+    def __init__(self, name):
+        Exception.__init__(self)
+        self.message = "Cannot find package : %s"%(name)
+
+    def __str__(self):
+        return self.message
+
+
+
 ###############################################################################
 
 class PackageManager(object):
@@ -296,7 +306,10 @@ class PackageManager(object):
     # Dictionnary behaviour
       
     def __getitem__(self, key):
-        return self.pkgs[key]
+        try:
+            return self.pkgs[key]
+        except KeyError:
+            raise UnknownPackageError(key)
 
     def __setitem__(self, key, val):
         self.pkgs[key] = val
