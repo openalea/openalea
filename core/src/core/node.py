@@ -692,7 +692,10 @@ class NodeFactory(AbstractFactory):
         if(self.nodemodule_name):
 
             # Test if the module is already in sys.modules
-            if(self.nodemodule_name in sys.modules.keys()):
+            if((self.nodemodule_name in sys.modules.keys())
+               and (os.path.abspath(sys.modules[modulename].__file__)
+               == os.path.abspath(self.filename))):
+                
                    m = sys.modules[self.nodemodule_name]
                    
                    # test unvalidate
