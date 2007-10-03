@@ -61,11 +61,11 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     nf = Factory( name= "Sequence2D Hist", 
-                  description="Plot f(x) values as a hist", 
+                  description="Plot sequence values as a histogram", 
                   category="Vizualisation", 
                   nodemodule="plotable",
-                  nodeclass="display_VisualSequence2D_as_Hist2D",
-                  inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
+                  nodeclass="display_Hist2D",
+                  inputs=(dict(name='seq', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
                           dict(name='xlabel', interface=IStr, value='x-axis-label'),
                           dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
@@ -76,7 +76,7 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory( name= "Sequence2D Style", 
+    nf = Factory( name= "VSequence2D Style", 
                   description="Allows us to edit VisualSequence2D plot", 
                   category="Vizualisation", 
                   nodemodule="plotable",
@@ -113,6 +113,19 @@ def register_packages(pkgmanager):
                   outputs=( dict(name='vis_seq2D', interface=None), )
                 )
     package.add_factory(nf)
+
+    nf = Factory( name= "Iterable to Hist", 
+                  description="Generates Hist2D from iterable and bins number", 
+                  category="Vizualisation", 
+                  nodemodule="plotable",
+                  nodeclass="seq2Hist2D",
+                  inputs=(dict(name='seq1', interface=ISequence),
+                            dict(name='bins', interface=IInt, value = 10),
+                          ),
+                  outputs=( dict(name='hist2D', interface=None), )
+                )
+    package.add_factory(nf)
+
 
 
     pkgmanager.add_package(package)
