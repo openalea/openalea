@@ -99,8 +99,9 @@ class IStr(IInterface):
 class IFileStr(IStr):
     """ File Path interface """
 
-    def __init__(self, filter="All (*.*)"):
+    def __init__(self, filter="All (*.*)", save=False):
         self.filter = filter
+        self.save = save
 
 
 
