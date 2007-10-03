@@ -22,14 +22,17 @@ This module provide an algorithm to evaluate a dataflow
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
+import sys
+import traceback as tb
 
 class EvaluationException(Exception):
     
-    def __init__(self,vid,node,exception):
+    def __init__(self,vid,node,exception,exc_info):
         Exception.__init__(self)
         self.vid = vid
         self.node = node
         self.exception = exception
+        self.exc_info = exc_info
         
 
 class AbstractEvaluation (object) :
@@ -63,7 +66,7 @@ class AbstractEvaluation (object) :
         except Exception, e:
             # When an exception is raised, a flag is set.
             node.raise_exception = True
-            raise EvaluationException(vid,node,e)
+            raise EvaluationException(vid,node,e,tb.format_tb(sys.exc_info()[2]))
 
         
 
