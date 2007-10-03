@@ -65,6 +65,16 @@ Out :  the path string
         return ( str(inputs[0]),  )
 
 
+class RGB(Node):
+    """
+RGB Color
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        return ( inputs[0], )
+
+
 class Bool(Node):
     """
 Boolean value
