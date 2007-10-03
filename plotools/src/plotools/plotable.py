@@ -75,7 +75,7 @@ class VisualSequence2D(object):
         self.marker = str(marker)
         self.color = str(color)
 
-def change_visual_sequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
+def change_VisualSequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
 
         """Returns vis_seq2D object with values changed from default
         
@@ -110,7 +110,7 @@ def change_visual_sequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, 
             plotable.legend = new_legend
         return  plotable
 
-def display_visual_sequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="", **keys ):
+def display_VisualSequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="", **keys ):
     """Plots 2D visual sequences.
     
     :parameters:
@@ -151,7 +151,7 @@ def display_visual_sequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="",
     pylab.ylabel( ylabel )
     pylab.show()
 
-def seqs2visual_sequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o", color="b", **keys ):
+def seqs2VisualSequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o", color="b", **keys ):
     """generates visual sequence2D with list1 as x  and list2 as y
     
     :parameters:
@@ -169,7 +169,7 @@ def seqs2visual_sequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o"
     return VisualSequence2D(x=seq1, y=seq2, legend=legend, linestyle=linestyle, marker=marker, color=color )
        
 
-def dict2visual_sequence2D(  dict2vis_seq={}, legend="", linestyle="",marker="o", color="g", **keys ):
+def dict2VisualSequence2D(  dict2vis_seq={}, legend="", linestyle="",marker="o", color="g", **keys ):
     """generates visual sequence2D with keys as x  and values as y
     
     :parameters:
