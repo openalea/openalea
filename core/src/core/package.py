@@ -330,8 +330,12 @@ class PyPackageReader(object):
             if(hasattr(wraleamodule, 'oa_invalidate' )):
                 reload(wraleamodule)
                 del wraleamodule.oa_invalidate
-                
-            wraleamodule.register_packages(pkgmanager) 
+
+            try:
+                wraleamodule.register_packages(pkgmanager)
+            except:
+                print '%s is invalid :'%(self.filename,), e
+
 
                 
         else: # module not loaded
@@ -339,7 +343,7 @@ class PyPackageReader(object):
             try:
                 wraleamodule = imp.load_module(modulename, file, pathname, desc)
                 wraleamodule.register_packages(pkgmanager) 
-            except Exception, e:
+            except:
                 print '%s is invalid :'%(self.filename,), e
 
             if(file) :
