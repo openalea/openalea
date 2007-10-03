@@ -41,13 +41,35 @@ except ImportError:
   backend_qt4agg.matplotlib = mymat
 #=============================================================#
 
+class Hist2D(object):
+    """Object containing basic plot information.
+    
+    <Long description of the function functionality.>    
+    """
+
+    def __init__( self, y=[], bins=10 ):
+        """Object used to store histogram plot information. 
+        
+        It use the syntax of mathplot lib so go there for details.
+        
+        :parameters:
+            y : `[float]`
+                values f(X)
+            bins : `int`
+                Number of bins
+
+        
+        """  
+        self.y = y
+        self.bins = bins
+        
 class VisualSequence2D(object):
     """Object containing basic plot information.
     
     <Long description of the function functionality.>    
     """
 
-    def __init__( self, x=[], y=[], legend="", linestyle="", marker="", color="" ):
+    def __init__( self, x=[], y=[], legend="", linestyle="", marker="", color="", bins=10 ):
         """Object used to store plot information. 
         
         It use the syntax of mathplot lib so go there for details.
@@ -74,6 +96,7 @@ class VisualSequence2D(object):
         self.linestyle = str(linestyle)
         self.marker = str(marker)
         self.color = str(color)
+        self.bins = bins
 
 def change_VisualSequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
 
@@ -150,6 +173,36 @@ def display_VisualSequence2D(  vis_seq_list=[], title="", xlabel="", ylabel="", 
     pylab.xlabel( xlabel )
     pylab.ylabel( ylabel )
     pylab.show()
+
+def display_VisualSequence2D_as_hist(  hist_list=[], title="", xlabel="", ylabel="", **keys ):
+    """Plots 2D visual sequences.
+    
+    :parameters:
+        vis_seq_list : `[VisualSequence2D]`
+            Contains a list of object to display
+        title : `string`
+            Title of the plot.
+        xlabel : `string`
+            X axis description
+        ylabel : `string`
+            Y label description
+    """
+    objList=vis_seq_list
+    pylab.cla()
+    try:
+        iter( objList )
+        for obj in objList :
+            pylab.hist( obj.y, bins=obj.bins, **keys )
+    except  TypeError:
+        # do sth with exceptions
+        obj=hist_list
+        pylab.plot( obj.y, obj.bins **keys )
+
+    pylab.title( title )
+    pylab.xlabel( xlabel )
+    pylab.ylabel( ylabel )
+    pylab.show()
+
 
 def seqs2VisualSequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o", color="b", **keys ):
     """generates visual sequence2D with list1 as x  and list2 as y

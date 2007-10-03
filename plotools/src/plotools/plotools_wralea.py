@@ -31,7 +31,7 @@ def register_packages(pkgmanager):
     Return a list of package to include in the package manager.
     This function is called by the package manager when it is updated
     """
-
+    print "pt"
     # Base Library
 
     metainfo = { 'version' : '0.0.1',
@@ -50,6 +50,21 @@ def register_packages(pkgmanager):
                   category="Vizualisation", 
                   nodemodule="plotable",
                   nodeclass="display_VisualSequence2D",
+                  inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
+                          dict(name='title', interface=IStr, value='MyPlot'),
+                          dict(name='xlabel', interface=IStr, value='x-axis-label'),
+                          dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
+                  outputs=()
+
+                )
+
+    package.add_factory(nf)
+
+    nf = Factory( name= "Sequence2D Hist", 
+                  description="Plot f(x) values as a hist", 
+                  category="Vizualisation", 
+                  nodemodule="plotable",
+                  nodeclass="display_VisualSequence2D_as_Hist2D",
                   inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
                           dict(name='xlabel', interface=IStr, value='x-axis-label'),
