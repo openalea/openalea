@@ -35,7 +35,7 @@ from openalea.core.pkgmanager import PackageManager, Category
 from openalea.core.observer import AbstractListener
 
 from dialogs import EditPackage, NewGraph
-from util import open_dialog
+from util import open_dialog, exception_display, busy_cursor
 
 import images_rc
 
@@ -515,7 +515,8 @@ class NodeFactoryView(object):
         elif (not isinstance(obj, Package)):
             self.open_node()
 
-
+    @busy_cursor
+    @exception_display
     def open_node(self):
         """ Instantiate Node : open a dialog """
 
@@ -533,6 +534,8 @@ class NodeFactoryView(object):
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
 
 
+    @busy_cursor
+    @exception_display
     def edit_node(self):
         """ Edit Node in tab workspace"""
 

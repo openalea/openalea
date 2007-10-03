@@ -32,11 +32,11 @@ def busy_cursor(f):
         try:
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
             ret = f(*args)
-            
-        finally:
             QtGui.QApplication.restoreOverrideCursor ()
-
-        return ret
+            return ret
+        except:
+            QtGui.QApplication.restoreOverrideCursor ()
+            raise
         
     return wrapped
 
@@ -46,11 +46,11 @@ def exception_display(f):
 
     def wrapped(*args):
         try:
-            ret = f(*args)            
+            return f(*args)            
 
         except EvaluationException, e:
             self = args[0]
-            if not isinstance(self,QtGui.QWidget):
+            if not isinstance(self, QtGui.QWidget):
                 self = None            
             QtGui.QMessageBox.critical(self,'Exception raised !',e.exception.__class__.__name__+': '+ str(e.exception))
             raise e.exception
@@ -61,7 +61,6 @@ def exception_display(f):
                 self = None
             QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+ str(e))
 
-        return ret
     return wrapped
 
 
