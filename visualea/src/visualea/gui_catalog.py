@@ -766,6 +766,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.connect(self.subwidget,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.valueChanged)
+        self.subwidget.setCurrentIndex(0)
 
 
     @lock_notify      
