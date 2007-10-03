@@ -236,6 +236,7 @@ class UserPackage(Package):
                               )
 
         self.add_factory(factory)
+        self.write()
         
         return factory
 
@@ -257,7 +258,8 @@ class UserPackage(Package):
                                           outputs=outputs,
                                           )
         self.add_factory(newfactory)
-
+        self.write()
+        
         return newfactory
 
 
@@ -265,7 +267,7 @@ class UserPackage(Package):
         """ Write change on disk """
 
         Package.add_factory(self, factory)
-        self.write()
+        
 
 
     def __delitem__(self, key):
