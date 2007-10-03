@@ -323,7 +323,7 @@ class PyPackageReader(object):
         # reload module if necessary
         if((modulename in sys.modules.keys())
            and (os.path.abspath(sys.modules[modulename].__file__)
-               != os.path.abspath(self.filename))):
+               == os.path.abspath(self.filename))):
             
             wraleamodule = sys.modules[modulename]
 
