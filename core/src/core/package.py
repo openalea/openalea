@@ -333,8 +333,10 @@ class PyPackageReader(object):
 
             try:
                 wraleamodule.register_packages(pkgmanager)
-            except:
+            except Exception, e:
                 print '%s is invalid :'%(self.filename,), e
+            except: # Treat all exception
+                print '%s is invalid :'%(self.filename,)
 
 
                 
@@ -343,8 +345,10 @@ class PyPackageReader(object):
             try:
                 wraleamodule = imp.load_module(modulename, file, pathname, desc)
                 wraleamodule.register_packages(pkgmanager) 
-            except:
+            except Exception, e:
                 print '%s is invalid :'%(self.filename,), e
+            except: # Treat all exception
+                print '%s is invalid :'%(self.filename,)
 
             if(file) :
                 file.close()
