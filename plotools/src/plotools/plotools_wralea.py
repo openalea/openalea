@@ -45,7 +45,7 @@ def register_packages(pkgmanager):
 
     package = Package("PlotTools", metainfo)
 
-    nf = Factory( name= "SequencePlot2D", 
+    nf = Factory( name= "Sequence2D Plot", 
                   description="Plot a list of 2D points plotable objects", 
                   category="Vizualisation", 
                   nodemodule="plotable",
@@ -61,23 +61,23 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
 
-    nf = Factory( name= "SeqStyle", 
-                  description="Allows us to edit plotable object", 
+    nf = Factory( name= "Sequence2D Style", 
+                  description="Allows us to edit VisualSequence2D plot", 
                   category="Vizualisation", 
                   nodemodule="plotable",
-                  nodeclass="change_vis_seq2D",
+                  nodeclass="change_visual_sequence2D",
                   inputs=(dict(name='vis_seq2D', interface=None, showwidget=False),
                             dict(name='new_legend', interface=IStr, value='Default'),
-                            dict(name='new_linestyle', interface=IStr, value='Default'),
-                            dict(name='new_marker', interface=IStr, value='Default'),
+                            dict(name='new_linestyle', interface=IEnumStr( ['Default','-','--',':','-.'] )),
+                            dict(name='new_marker', interface=IEnumStr( ['Default','.',',','o','^','v','<','>','s','+','x','D','d','1','2','3','4','h','H','p','p','|','_'] ) ),
                             dict(name='new_color', interface=IStr, value='Default'), 
                           ),
                   outputs=( dict(name='vis_seq2D', interface=None), )
                 )
     package.add_factory(nf)
 
-    nf = Factory( name= "Iterable to Vis_Seq2D", 
-                  description="Generates Vis_Seq2D from 2 iterables", 
+    nf = Factory( name= "Iterables to Sequence2D", 
+                  description="Generates VisualSequence2D from 2 iterables", 
                   category="Vizualisation", 
                   nodemodule="plotable",
                   nodeclass="seqs2visual_sequence2D",
@@ -88,8 +88,8 @@ def register_packages(pkgmanager):
                 )
     package.add_factory(nf)
 
-    nf = Factory( name= "Dict to Vis_Seq2D", 
-                  description="Generates Vis_Seq2D from a dictionary", 
+    nf = Factory( name= "Dict to Sequence2D", 
+                  description="Generates VisualSequence2D from a dictionary", 
                   category="Vizualisation", 
                   nodemodule="plotable",
                   nodeclass="dict2visual_sequence2D",

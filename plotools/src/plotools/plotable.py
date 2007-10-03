@@ -75,7 +75,7 @@ class VisualSequence2D(object):
         self.marker = str(marker)
         self.color = str(color)
 
-def change_vis_seq2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
+def change_visual_sequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color ): 
 
         """Returns vis_seq2D object with values changed from default
         
