@@ -58,7 +58,6 @@ def main(args):
     import time
     time.sleep(1)
 
-
     session = Session()
 
     win = MainWindow(session)

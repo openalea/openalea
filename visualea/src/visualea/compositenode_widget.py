@@ -467,11 +467,14 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def remove_connection(self, edge_item):
         """ Remove a connection """
 
-        connector_src = edge_item.source()
-        connector_dst = edge_item.dest()
+        connector_src = edge_item.source
+        connector_dst = edge_item.dest
         
         connector_src.edge_list.remove(edge_item)
         connector_dst.edge_list.remove(edge_item)
+
+        edge_item.dest = None
+        edge_item.source= None
         
         self.scene().removeItem(edge_item)
 
@@ -932,7 +935,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
             localsettings = Settings()
             str = localsettings.get("UI", "DoubleClick")
         except:
-            str = "['open', 'run']"
+            str = "['open']"
 
         if('open' in str):
             self.graphview.open_item(self.elt_id)
@@ -1402,12 +1405,12 @@ class SemiEdge(AbstractEdge):
     def __init__(self, graphview, connector, parent=None, scene=None):
         AbstractEdge.__init__(self, graphview, parent, scene)
 
-        self.connect = weakref.ref(connector)
+        self.connect = connector
         self.sourcePoint = self.mapFromItem(connector, connector.rect().center())
 
 
     def connector(self):
-        return self.connect()
+        return self.connect
 
 
     def setMousePoint(self, scene_point):
@@ -1441,8 +1444,8 @@ class Edge(AbstractEdge):
         dst = destNode.get_input_connector(in_index)
         if(dst) : dst.add_edge(self)
 
-        self.source = weakref.ref(src)
-        self.dest = weakref.ref(dst)
+        self.source = src
+        self.dest = dst
         self.adjust()
 
 
@@ -1450,8 +1453,8 @@ class Edge(AbstractEdge):
         if not self.source or not self.dest:
             return
 
-        source = self.source()
-        dest = self.dest()
+        source = self.source
+        dest = self.dest
         line = QtCore.QLineF(self.mapFromItem(source, source.rect().center() ),
                               self.mapFromItem(dest, dest.rect().center() ))
        
