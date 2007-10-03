@@ -230,12 +230,12 @@ class PackageManager(object):
 
         from path import path
 
-        wralea_files= set()
+        wralea_files = set()
         for wp in self.wraleapath:
             if(not os.path.isdir(wp)):
                 continue
             
-            p= path(wp).abspath()
+            p = path(wp).abspath()
 
             # search for wralea.py
             wralea_files.update( p.walkfiles("*wralea.py") )
@@ -244,7 +244,7 @@ class PackageManager(object):
         for f in wralea_files:
             print "Package Manager : found %s" % f
             
-        return map( self.get_pkgreader, wralea_files)
+        return map(self.get_pkgreader, wralea_files)
 
 
     def get_pkgreader(self, filename):
