@@ -321,9 +321,12 @@ class PyPackageReader(object):
         modulename = self.filename_to_module(basename)
 
         # reload module if necessary
-        if(modulename in sys.modules.keys()):
-            wraleamodule = sys.modules[modulename]
+        if((modulename in sys.modules.keys())
+           and (os.path.abspath(sys.modules[modulename].__file__)
+               != os.path.abspath(self.filename))):
             
+            wraleamodule = sys.modules[modulename]
+
             if(hasattr(wraleamodule, 'oa_invalidate' )):
                 reload(wraleamodule)
                 del wraleamodule.oa_invalidate
