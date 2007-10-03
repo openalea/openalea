@@ -48,6 +48,8 @@ def processText(txt):
     txt = txt.replace('File','<B>File</B>')
     txt = txt.replace(', in',', <B>in</B>')
     txt = txt.replace(', line',', <B>line</B>')
+    txt = txt.replace('\n','<BR>')
+    txt = txt.replace('  ','&nbsp;&nbsp;')
     return txt
 
 use_error_box = True
@@ -55,10 +57,21 @@ errorbox = None
 
 def exception_display(f):
     """ Decorator to display exception if raised """
-    
-    def wrapped(*args):
+    def display_error(parent,title,stack):
         global use_error_box
         global errorbox
+        if not use_error_box:
+                QtGui.QMessageBox.critical(None,'Exception raised !',title)
+        else:
+            if errorbox is None:
+                errorbox = QtGui.QErrorMessage(parent)
+                errorbox.setModal(True)
+                errorbox.resize(700,300)
+            errorbox.setWindowTitle(title)
+            errorbox.showMessage(processText(''.join(stack)))
+            errorbox.exec_()
+        
+    def wrapped(*args):
         try:
             return f(*args)            
         except EvaluationException, e:
@@ -66,16 +79,7 @@ def exception_display(f):
             if not isinstance(self, QtGui.QWidget):
                 self = None
             txt = e.exception.__class__.__name__+': '+ str(e.exception)
-            
-            if not use_error_box:
-                QtGui.QMessageBox.critical(None,'Exception raised !',txt)
-            else:
-                if errorbox is None:
-                    errorbox = QtGui.QErrorMessage(self)
-                    errorbox.setModal(False)
-                errorbox.setWindowTitle(txt)
-                errorbox.showMessage(processText('<BR>'.join(e.exc_info)))
-                errorbox.exec_()
+            display_error(self,txt,e.exc_info)
             raise e.exception
         
         except Exception, e:
@@ -83,15 +87,7 @@ def exception_display(f):
             if not isinstance(self,QtGui.QWidget):
                 self = None
             txt = e.__class__.__name__+': '+ str(e)
-            if not use_error_box:
-                QtGui.QMessageBox.critical(None,'Exception raised !',txt)
-            else:
-                if errorbox is None:
-                    errorbox = QtGui.QErrorMessage(self)
-                    errorbox.setModal(False)
-                errorbox.setWindowTitle(txt)
-                errorbox.showMessage(processText('<BR>'.join(tb.format_tb(sys.exc_info()[2]))))
-                errorbox.exec_()
+            display_error(self,txt,tb.format_tb(sys.exc_info()[2]))
             raise e.exception
 
     return wrapped
