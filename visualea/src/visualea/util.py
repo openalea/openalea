@@ -24,6 +24,9 @@ __revision__=" $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.core.algo.dataflow_evaluation import EvaluationException
+import sys
+import traceback as tb
+
 
 def busy_cursor(f):
     """ Decorator to display a busy pointer """
@@ -41,25 +44,55 @@ def busy_cursor(f):
     return wrapped
 
 
+def processText(txt):
+    txt = txt.replace('File','<B>File</B>')
+    txt = txt.replace(', in',', <B>in</B>')
+    txt = txt.replace(', line',', <B>line</B>')
+    return txt
+
+use_error_box = True
+errorbox = None
+
 def exception_display(f):
     """ Decorator to display exception if raised """
-
+    
     def wrapped(*args):
+        global use_error_box
+        global errorbox
         try:
             return f(*args)            
-
         except EvaluationException, e:
             self = args[0]
             if not isinstance(self, QtGui.QWidget):
-                self = None            
-            QtGui.QMessageBox.critical(self,'Exception raised !',e.exception.__class__.__name__+': '+ str(e.exception))
+                self = None
+            txt = e.exception.__class__.__name__+': '+ str(e.exception)
+            
+            if not use_error_box:
+                QtGui.QMessageBox.critical(None,'Exception raised !',txt)
+            else:
+                if errorbox is None:
+                    errorbox = QtGui.QErrorMessage(self)
+                    errorbox.setModal(False)
+                errorbox.setWindowTitle(txt)
+                errorbox.showMessage(processText('<BR>'.join(e.exc_info)))
+                errorbox.exec_()
             raise e.exception
         
         except Exception, e:
             self = args[0]
             if not isinstance(self,QtGui.QWidget):
                 self = None
-            QtGui.QMessageBox.critical(None,'Exception raised !',e.__class__.__name__+': '+ str(e))
+            txt = e.__class__.__name__+': '+ str(e)
+            if not use_error_box:
+                QtGui.QMessageBox.critical(None,'Exception raised !',txt)
+            else:
+                if errorbox is None:
+                    errorbox = QtGui.QErrorMessage(self)
+                    errorbox.setModal(False)
+                errorbox.setWindowTitle(txt)
+                errorbox.showMessage(processText('<BR>'.join(tb.format_tb(sys.exc_info()[2]))))
+                errorbox.exec_()
+            raise e.exception
 
     return wrapped
 
