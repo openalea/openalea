@@ -678,14 +678,19 @@ class IFileStrWidget(IStrWidget):
         self.button = QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
         self.filter = interface.filter
+        self.open = not interface.save
 
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def button_clicked(self):
-        
-        result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
-                                                   self.last_result, self.filter)
+
+        if(self.open):
+            result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
+                                                       self.last_result, self.filter)
+        else:
+            result = QtGui.QFileDialog.getSaveFileName(self, "Select File",
+                                                       self.last_result, self.filter)
     
         if(result):
             self.node.set_input(self.param_str, str(result))
