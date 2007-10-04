@@ -2,7 +2,7 @@
 
 
 
-from openalea.graph.property_graph import PropertyGraph
+from openalea.core.graph.property_graph import PropertyGraph
 
 
 def test_propertygraph():
