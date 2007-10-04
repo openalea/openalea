@@ -59,7 +59,8 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.spin = QtGui.QDoubleSpinBox (self)
         self.spin.setRange(interface.min, interface.max)
-
+        self.spin.setSingleStep(interface.step)
+        
         hboxlayout.addWidget(self.spin)
 
         self.notify(None,None)
@@ -112,7 +113,8 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.spin = QtGui.QSpinBox (self)
         self.spin.setRange(interface.min, interface.max)
-
+        self.spin.setSingleStep(interface.step)
+        
         hboxlayout.addWidget(self.spin)
 
         self.notify(None,None)
