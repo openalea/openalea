@@ -1,15 +1,24 @@
-from ez_setup import use_setuptools
-use_setuptools()
+try:
+    from ez_setup import use_setuptools
+    use_setuptools()
+except:
+    pass
 
 
 from setuptools import setup, find_packages
 from os.path import join as pj
+import sys, os
+
+# if('win' in sys.platform):
+#     plat_requires = ['pywin32']
+# else:
+#     plat_requires = []
 
 
 setup(
     # Metadata for PyPi
     name = "OpenAlea.Deploy",
-    version = "0.1",
+    version = "0.2",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "Setuptools extension for OpenAlea",
@@ -26,8 +35,10 @@ setup(
 
     entry_points = {
               "distutils.setup_keywords": [
-                 "lib_dirs = openalea.deploy.command:validate_shared_dirs",
-                 "inc_dirs = openalea.deploy.command:validate_shared_dirs",
+                 "lib_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "inc_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "bin_dirs = openalea.deploy.command:validate_bin_dirs",
+                 "share_dirs = openalea.deploy.command:validate_share_dirs",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
@@ -37,6 +48,7 @@ setup(
               "egg_info.writers": [
                  "lib_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "inc_dirs.txt = openalea.deploy.command:write_keys_arg",
+                 "bin_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "postinstall_scripts.txt = setuptools.command.egg_info:write_arg",
                  ],
 
@@ -47,9 +59,12 @@ setup(
                  ],
               
               "console_scripts": [
-                 "alea_install = openalea.deploy.alea_install:main", ],
+                 "alea_install = openalea.deploy.alea_install:main",
+                 "alea_config = openalea.deploy.alea_config:main",
+                 ],
+              
               },
 
-     #install_requires = [],
-    
+    #install_requires = plat_requires,
 )
+

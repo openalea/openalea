@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Deploy: OpenAlea Deploy
+#       OpenAlea.Deploy: OpenAlea setuptools extension
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #
@@ -18,21 +18,26 @@ Setuptools commands
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
+__revision__=" $Id$ "
 
 
 
 
 import os, sys
 import shutil
+from distutils.errors import *
+
 from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
 from setuptools.command.build_py import build_py as old_build_py
+from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
+from setuptools.command.develop import develop
 
 import setuptools.command.build_py
+import setuptools.command.build_ext
 import setuptools.command.install
 
 from distutils.dist import Distribution
@@ -45,7 +50,8 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from openalea.deploy import get_all_lib_dirs, OPENALEA_PI
+from openalea.deploy import get_all_lib_dirs, get_all_bin_dirs
+from openalea.deploy import get_base_dir, OPENALEA_PI
 from openalea.deploy.environ_var import set_lsb_env, set_win_env
 
 
@@ -87,7 +93,8 @@ def has_ext_modules(dist):
     try:
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
-                dist.lib_dirs)
+                dist.lib_dirs or dist.inc_dirs or
+                dist.bin_dirs)
     except:
         return dist.has_ext_modules()
 
@@ -96,24 +103,71 @@ def set_has_ext_modules(dist):
     """ Set new function handler to dist object """
     m = new.instancemethod(has_ext_modules, dist, Distribution)
     dist.has_ext_modules = m
-    
 
 
 class build_py(old_build_py):
     """
     Enhanced 'build_py'
-    Add lib_dirs and inc_dirs parameters to package parameter
+    Create namespace
     """
-    def finalize_options(self):
-        old_build_py.finalize_options(self)
+
+    def initialize_options (self):
+        old_build_py.initialize_options(self)
+	self.scons_ext_param = ""  # None value are not accepted
+	self.scons_path = None     # Scons path
+
 
     def run(self):
         # Run others commands
         self.run_command("create_namespaces")
+
+        # Add share_dirs 
+        d = self.distribution.share_dirs
+        if(d):
+            if(not os.path.exists(self.build_lib)):
+                self.mkpath(self.build_lib)
+
+            for (name, dir) in d.items():
+                copy_data_tree(dir, pj(self.build_lib, name))
+
+        ret = old_build_py.run(self)
+        return ret
+
+
+class build_ext(old_build_ext):
+    """
+    Enhanced 'build_ext'
+    Add lib_dirs and inc_dirs parameters to package parameter
+    """
+
+    # User options
+    user_options = []
+    user_options.extend( old_build_ext.user_options )
+    user_options.append( ( 'scons-ext-param=' ,
+                           None,
+                           'External parameters to pass to scons.' ) )
+    user_options.append( ( 'scons-path=',
+                           None,
+                           'Optional scons executable path.'
+                           'eg : C:\Python25\scons.bat for windows.' ) )
+
+
+    def initialize_options (self):
+        old_build_ext.initialize_options(self)
+	self.scons_ext_param = ""  # None value are not accepted
+	self.scons_path = None     # Scons path
+
+
+    def run(self):
+        # Run others commands
         self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
-        for d in (self.distribution.lib_dirs, self.distribution.inc_dirs):
+        for d in (self.distribution.lib_dirs,
+                  self.distribution.inc_dirs,
+                  self.distribution.bin_dirs,
+                  self.distribution.share_dirs,
+                  ):
             if(d):
                 
                 if(not os.path.exists(self.build_lib)):
@@ -122,10 +176,7 @@ class build_py(old_build_py):
                 for (name, dir) in d.items():
                     copy_data_tree(dir, pj(self.build_lib, name))
 
-                        
-        
-        return old_build_py.run(self)
-
+        return old_build_ext.run(self)
 
 
 # Validation functions
@@ -137,16 +188,33 @@ def validate_create_namespaces(dist, attr, value):
     if(value and dist.namespace_packages):
         setuptools.command.build_py.build_py = build_py
 
-
 def validate_scons_scripts(dist, attr, value):
     """ Validation for scons_scripts keyword """
     assert_string_list(dist, attr, value)
     if(value): 
-        setuptools.command.build_py.build_py = build_py
+        setuptools.command.build_ext.build_ext = build_ext
         set_has_ext_modules(dist)
 
 
-def validate_shared_dirs(dist, attr, value):
+def validate_bin_dirs(dist, attr, value):
+    """ Validation for shared directories keywords"""
+    try:
+        assert_string_list(dist, attr, list(value.keys()))
+        assert_string_list(dist, attr, list(value.values()))
+
+        if(value):
+            # Change commands
+            setuptools.command.build_ext.build_ext = build_ext
+            setuptools.command.install.install = install
+            set_has_ext_modules(dist)
+
+    except (TypeError,ValueError,AttributeError,AssertionError):
+        raise DistutilsSetupError(
+            "%r must be a dict of strings (got %r)" % (attr,value)
+        )
+    
+
+def validate_share_dirs(dist, attr, value):
     """ Validation for shared directories keywords"""
     try:
         assert_string_list(dist, attr, list(value.keys()))
@@ -162,7 +230,7 @@ def validate_shared_dirs(dist, attr, value):
         raise DistutilsSetupError(
             "%r must be a dict of strings (got %r)" % (attr,value)
         )
-    
+
 
 def validate_postinstall_scripts(dist, attr, value):
     """ Validation for postinstall_scripts keyword"""
@@ -189,11 +257,7 @@ def write_keys_arg(cmd, basename, filename, force=False):
     
 
 
-
-
-
 # SCons Management
-
         
 
 class SconsError(Exception):
@@ -223,7 +287,7 @@ class scons(Command):
         self.scons_scripts = []   #scons directory
         self.scons_parameters = [] #scons parameters
 	self.build_dir = None        #build directory
-	self.scons_ext_param = ""  #scons external parameters
+	self.scons_ext_param = None  #scons external parameters
 	self.scons_path = None
 
 
@@ -237,7 +301,12 @@ class scons(Command):
             pass
 
         if(not self.scons_parameters):
-            self.scons_parameters = "" 
+            self.scons_parameters = ""
+
+        self.set_undefined_options('build_ext',
+                                   ('build_lib', 'build_dir'),
+                                   ('scons_ext_param', 'scons_ext_param'),
+                                   ('scons_path', 'scons_path'))
 
 
     def get_source_files(self):
@@ -304,12 +373,7 @@ class scons(Command):
 		sys.exit(1)
 
 
-
-
 # Namespace Creation
-
-
-       
 
 class create_namespaces(Command):
     """
@@ -349,11 +413,12 @@ except:
                                    ('build_lib', 'build_dir'))
         try:
             self.namespaces = self.distribution.namespace_packages
+            if(self.namespaces is None) : self.namespaces = []
+#             # Add namespace to packages
+#             for ns in self.namespaces:
+#                 if(ns not in self.distribution.packages):
+#                     self.distribution.packages.append(ns)
 
-            # Add namespace to packages
-            for ns in self.namespacess:
-                if(ns not in self.distribution.packages):
-                    self.distribution.packages.append(ns)
 
         except:
             pass
@@ -377,7 +442,7 @@ except:
 
     def run (self):
         """ Run command """
-
+        
         for namespace in self.namespaces:
             print "creating %s namespace"%(namespace)
             self.create_empty_namespace(namespace)
@@ -393,7 +458,7 @@ class install(old_install):
     Use alea_install instead of easy_install
     """
     def do_egg_install(self):
-
+ 
         alea_install = self.distribution.get_command_class('alea_install')
 
         cmd = alea_install(
@@ -423,49 +488,62 @@ class alea_install(easy_install):
     """
 
     def finalize_options(self):
-        easy_install.finalize_options(self)
 
         # Add openalea package link
-        self.find_links += [ OPENALEA_PI ]
+        if(not self.find_links) : self.find_links = ""
+        self.find_links += " " + OPENALEA_PI
+        self.dist = None
+
+        easy_install.finalize_options(self)
+
 
     def run(self):
 
+        self.set_system()
         easy_install.run(self)
 
+        # Activate the correct egg
+        self.dist.activate()
+        if(pkg_resources.working_set.by_key.has_key(self.dist.key)):
+            del pkg_resources.working_set.by_key[self.dist.key]
+        pkg_resources.working_set.add(self.dist)
+
+        # Call postinstall
+        self.postinstall(self.dist)
+
         # Set environment
-        self.set_env()
+        set_env()
+
+
+    def set_system(self):
+        """ Set environment """
+
+        if("win" in sys.platform):
+            # install pywin32
+            try:
+                pkg_resources.require("pywin32")
+
+            except pkg_resources.DistributionNotFound:
+
+                # install pywin32
+                from setuptools.command.easy_install import main
+                main(['-f', OPENALEA_PI, "pywin32"])
+                
+            try:
+                pkg_resources.require("pywin32")
+                bdir = get_base_dir("pywin32")
+                pywin32lib = pj(bdir, "pywin32_system32")
+                set_win_env(['PATH=%s'%(pywin32lib,),])
+            except:
+                pass
         
-
-    def set_env(self):
-        """ Set environment variables """
-
-        print "Setting environment variables"
-
-        # Avoid local copy for setting environment variables
-        path = sys.path[:]
-        try:
-            sys.path.remove(os.path.abspath('.'))
-            pkg_resources.working_set = pkg_resources.WorkingSet()
-        except Exception, e:
-            print "ERROR : e"
-
-        dirs = list(get_all_lib_dirs('openalea'))
-        print "The following directories contains shared library :", '\n'.join(dirs), '\n'
-
-        set_win_env(['OPENALEA_LIBS=%s'%(';'.join(dirs)), 'PATH=%OPENALEA_LIBS%'])
-        set_lsb_env('openalea',
-                    ['OPENALEA_LIBS=%s'%(':'.join(dirs)), 'LD_LIBRARY_PATH=$OPENALEA_LIBS'])
-
-        sys.path = path
-
 
 
     def process_distribution(self, requirement, dist, deps=True, *info):
-        ret = easy_install.process_distribution(self, requirement, dist, deps=True, *info)
-        
-        # Call postinstall
-        self.postinstall(dist)
-
+        ret = easy_install.process_distribution(self, requirement, dist, deps, *info)
+        # save distribution
+        self.dist = dist
+ 
         return ret
 
 
@@ -474,13 +552,29 @@ class alea_install(easy_install):
 
         print "Post installation"
 
+        if(dist):
+            pkg_resources.require(dist.project_name)
+            sys.path.append(dist.location)
+                
         try:
             lstr = dist.get_metadata("postinstall_scripts.txt")
         except:
             lstr = []
 
+        # Add pywin32 path
+        if('win' in sys.platform):
+            try:
+                win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
+
+                if(win32dir not in os.environ['PATH']):
+                    os.environ['PATH'] += ";" + win32dir
+            except:
+                print "!!Error : pywin32 package not found. Please install it before."
+
+        # process postinstall
         for s in pkg_resources.yield_lines(lstr):
             print "Executing %s"%(s)
+            
             try:
                 module  = __import__(s, globals(), locals(), s.split('.'))
                 module.install()
@@ -489,4 +583,37 @@ class alea_install(easy_install):
                 print "Warning : Cannot execute %s"%(s,)
                 print e
 
+
+
+
+def set_env():
+    """ Set environment variables """
+
+    print "Setting environment variables"
+
+    lib_dirs = list(get_all_lib_dirs())
+    bin_dirs = list(get_all_bin_dirs())
         
+    print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
+    print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
+
+    all_dirs = set(lib_dirs+bin_dirs)
+    set_win_env(['OPENALEA_LIB=%s'%(';'.join(all_dirs)),
+                 'PATH=%OPENALEA_LIB%',])
+
+    try:
+        set_lsb_env('openalea',
+                    ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
+                     'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
+                     'LD_LIBRARY_PATH=$OPENALEA_LIB',
+                     'PATH=$OPENALEA_BIN'
+                     ])
+    except:
+        print "\nIMPORTANT !!!"
+        print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
+        print "# Set OpenAlea variables"
+        print "$(/usr/bin/alea_config)"
+        print ""
+        return
+
+

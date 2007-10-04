@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Deploy: OpenAlea Deploy
+#       OpenAlea.Deploy: OpenAlea setuptools extension
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #
@@ -19,11 +19,12 @@ Deployment utilities
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: node.py 622 2007-07-06 08:14:43Z dufourko $ "
+__revision__=" $Id$ "
 
 
 
 import pkg_resources
+import os, sys
 from os.path import join as pj
 
 
@@ -54,6 +55,12 @@ def get_lib_dirs(pkg_name):
     return get_egg_info(pkg_name, 'lib_dirs.txt')
 
 
+def get_bin_dirs(pkg_name):
+    """ Return a generator which lists the shared lib directory """
+
+    return get_egg_info(pkg_name, 'bin_dirs.txt')
+
+
 def get_inc_dirs(pkg_name):
     """ Return a generator which lists the shared lib directory """
 
@@ -75,6 +82,8 @@ def get_eggs(namespace=None):
     for project_name in env:
         if(namespace and namespace+'.' in project_name):
             yield project_name
+        elif(not namespace):
+            yield project_name
 
 
 def get_all_lib_dirs(namespace=None):
@@ -86,11 +95,63 @@ def get_all_lib_dirs(namespace=None):
         location = get_base_dir(e)
 
         for sh in get_lib_dirs(e):
+            full_location = pj(location, sh)
+            yield full_location
+
+
+def get_all_bin_dirs(namespace=None):
+    """ Return the iterator of the directories corresponding to the shared lib """
+
+    egg_names = get_eggs(namespace)
+    for e in egg_names:
+
+        location = get_base_dir(e)
+
+        for sh in get_bin_dirs(e):
 
             full_location = pj(location, sh)
             yield full_location
 
 
+
+def check_system():
+    """
+    Check system configuration and return environment variables dictionary
+    This function need OpenAlea.Deploy
+    """
+
+    inenv = dict(os.environ)
+    outenv = {}
+    
+    try:
+
+        # Linux
+        if(("posix" in os.name) and ("linux" in sys.platform.lower())):
+
+            paths = set(get_all_bin_dirs())
+            paths.update(set(inenv['PATH'].split(':')))
+            
+            libs = set(get_all_lib_dirs())
+            libs.update(set(inenv['LD_LIBRARY_PATH'].split(':')))
+
+            # libs
+            outenv['LD_LIBRARY_PATH'] = ':'.join(libs)
+            outenv['PATH'] = ':'.join(paths)
+
+                
+
+        # Windows
+        elif("win" in sys.platform.lower()):
+
+            libs = set(get_all_lib_dirs())
+            libs.update(set(inenv['PATH'].split(';')))
+            
+            outenv['PATH'] = ';'.join(libs)
+                  
+    except Exception, e:
+        print e
+
+    return outenv
 
 
         
