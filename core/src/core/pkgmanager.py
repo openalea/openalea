@@ -263,9 +263,8 @@ class PackageManager(object):
         """ Find all wralea on the system and register them """
         
         readerlist = self.find_wralea_files()
-
         [x.register_packages(self) for x in readerlist]
-
+            
         self.rebuild_category()
 
 
