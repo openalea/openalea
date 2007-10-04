@@ -27,6 +27,8 @@ __version__="0.1"
 __docformat__= "restructuredtext en"
 __revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
 
+
+import copy
 from matplotlib import rc, rcParams,use
 rc('text', usetex=True )
 use('Qt4Agg')
@@ -45,13 +47,13 @@ except ImportError:
 
 
         
-class VisualSequence2D(object):
+class VisualSequence(object):
     """Object containing basic plot information.
     
     <Long description of the function functionality.>    
     """
 
-    def __init__( self, x=[], y=[], legend="", linestyle="", marker="", color="", bins=10, figure=0 ):
+    def __init__( self, x=list(), y=list(), z=list(), legend="", linestyle="", marker="", color="", bins=10, **keys ):
         """Object used to store plot information. 
         
         It use the syntax of mathplot lib so go there for details.
@@ -71,22 +73,25 @@ class VisualSequence2D(object):
                 A matplotlib color arg
 
         
-        """  
+        """
+        # data segment -- should be shared between the views
         self.x = x
         self.y = y
+        self.y = z
+        
+        # properties segment -- should be changed for each view
+        
         self.legend = str(legend)
         self.linestyle = str(linestyle)
         self.marker = str(marker)
         self.color = str(color)
-        self.bins = bins
-        self.figure = figure
+        self.bins = int(bins)
 
-def change_VisualSequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, new_color, new_figure ): 
-
-        """Returns vis_seq2D object with values changed from default
+def change_VisualSequence_PointLineView( vis_seq, new_legend, new_linestyle, new_marker, new_color ): 
+        """Returns vis_seq object with values changed from default
         
         :parameters:
-            vis_seq2D : `VisualSequence2D`
+            vis_seq : `VisualSequence`
                 object to be modified
             legend : `string`
                 legend of a line
@@ -96,33 +101,25 @@ def change_VisualSequence2D( vis_seq2D, new_legend, new_linestyle, new_marker, n
                 One of + , o . s v x > <,
             color : `string`
                 A matplotlib color arg
-        :rtype: `VisualSequence2D`
+        :rtype: `VisualSequence`
         :return: Updated object.
         """
-
-        #plotable = self.get_input( "plotable" )
-        #legend = self.get_input( "legend" )
-        #linestyle = self.get_input( "linestyle" )
-        #marker = self.get_input( "marker" )
-        #color = self.get_input( "color" )
-        plotable = vis_seq2D
+        plotable = copy.copy(vis_seq)
         if not new_linestyle=="Default":
-            plotable.linestyle = new_linestyle
+            plotable.linestyle = str( new_linestyle )
         if not new_marker=="Default":
-            plotable.marker = new_marker
+            plotable.marker = str( new_marker )
         if not new_color=="Default":
-            plotable.color = new_color
+            plotable.color = str( new_color )
         if not new_legend=="Default":
-            plotable.legend = new_legend
-        if not new_figure==0:
-            plotable.figure = new_figure
+            plotable.legend =  str( new_legend )
         return  plotable
 
-def display_VisualSequence2D(  vis_seq2D_list=list(), title="", xlabel="", ylabel="", figure=0, **keys ):
+def display_VisualSequence(  vis_seq_list=list(), visualisation="", title="", xlabel="", ylabel="", figure=0, **keys ):
     """Plots 2D visual sequences.
     
     :parameters:
-        vis_seq2D_list : `[VisualSequence2D]`
+        vis_seq_list : `[VisualSequence]`
             Contains a list of object to display
         title : `string`
             Title of the plot.
@@ -131,21 +128,41 @@ def display_VisualSequence2D(  vis_seq2D_list=list(), title="", xlabel="", ylabe
         ylabel : `string`
             Y label description
     """
-    objList=vis_seq2D_list
+    if visualisation == "Hist":
+        return display_VisualSequence_as_Hist( vis_seq_list=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
+    elif visualisation == "PointLine":
+        return display_VisualSequence_as_PointLine( vis_seq_list=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
+    raise TypeError("Any know plot type")
+
+def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel="", ylabel="", figure=0, **keys ):
+    """Plots 2D visual sequences.
+    
+    :parameters:
+        vis_seq_list : `[VisualSequence]`
+            Contains a list of object to display
+        title : `string`
+            Title of the plot.
+        xlabel : `string`
+            X axis description
+        ylabel : `string`
+            Y label description
+    """
+    objList=vis_seq_list
+    figure=pylab.figure( figure )
     pylab.cla()
     legend_printed = False
     try:
         iter( objList )
         legend =[]
         for obj in objList :
-            pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, figure=pylab.figure( figure ), **keys )
+            pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
             if obj.legend:
                 legend.append(r''+obj.legend )
                 legend_printed = True
         if legend_printed: pylab.legend( tuple( legend ), loc='best', shadow=True )
     except  TypeError:
         # do sth with exceptions
-        obj=vis_seq2D_list
+        obj=vis_seq_list
         pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, figure=pylab.figure( figure ), **keys )
 
     xmin, xmax = pylab.xlim()
@@ -159,11 +176,37 @@ def display_VisualSequence2D(  vis_seq2D_list=list(), title="", xlabel="", ylabe
     pylab.ylabel( ylabel )
     pylab.show()
 
-def display_VisualSequence2D_as_hist(  vis_seq2D_list=list(), title="", xlabel="", ylabel="", figure=0, **keys ):
+
+def change_VisualSequence_HistView( vis_seq,  new_bins, new_color ): 
+        """Returns vis_seq object with values changed from default
+        
+        :parameters:
+            vis_seq : `VisualSequence`
+                object to be modified
+            legend : `string`
+                legend of a line
+            linestyle : `string`
+                One of - : -. -
+            marker : `string`
+                One of + , o . s v x > <,
+            color : `string`
+                A matplotlib color arg
+        :rtype: `VisualSequence`
+        :return: Updated object.
+        """
+        plotable = copy.copy(vis_seq)
+        if not new_color=="Default":
+            plotable.color = str( new_color )
+        if not new_bins==10:
+            plotable.new_bins =  int( new_bins )
+        return  plotable
+
+
+def display_VisualSequence_as_Hist(  vis_seq=None, title="", xlabel="", ylabel="", figure=0, **keys ):
     """Plots 2D visual sequences.
     
     :parameters:
-        vis_seq2D_list : `[VisualSequence2D]`
+        vis_seq_list : `[VisualSequence]`
             Contains a list of object to display
         title : `string`
             Title of the plot.
@@ -172,23 +215,16 @@ def display_VisualSequence2D_as_hist(  vis_seq2D_list=list(), title="", xlabel="
         ylabel : `string`
             Y label description
     """
+    figure=pylab.figure( figure )
     pylab.cla()
-    try:
-        iter( vis_seq2D_list )
-        for obj in vis_seq2D_list :
-            pylab.hist( obj.y, bins=obj.bins, edgecolor=obj.color, facecolor=obj.color, figure=pylab.figure( figure ), **keys )
-    except  TypeError:
-        # do sth with exceptions
-        obj=vis_seq2D_list
-        pylab.hist(obj.y, obj.bins, figure=pylab.figure( figure ), **keys )
-
+    pylab.hist(vis_seq.y, vis_seq.bins, **keys )
     pylab.title( title )
     pylab.xlabel( xlabel )
     pylab.ylabel( ylabel )
     pylab.show()
 
 
-def seqs2VisualSequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o", color="b", **keys ):
+def seqs2VisualSequence( seq1=[], seq2=[], marker="o", color="b", **keys ):
     """generates visual sequence2D with list1 as x  and list2 as y
     
     :parameters:
@@ -196,30 +232,26 @@ def seqs2VisualSequence2D( seq1=[], seq2=[], legend="", linestyle="",marker="o",
             Contains the x sequence
         seq2 : `iterable`
             Contains the x sequence
-        title : `string`
-            Title of the plot.
-        xlabel : `string`
-            X axis description
-        ylabel : `string`
-            Y label description
+        marker : `string`
+            The marker for the Point-Line.
+        color : `string`
+            The color.
     """
-    return VisualSequence2D(x=seq1, y=seq2, legend=legend, linestyle=linestyle, marker=marker, color=color )
+    return VisualSequence(x=seq1, y=seq2, marker=marker, color=color, **keys )
        
 
-def dict2VisualSequence2D(  dict2vis_seq={}, legend="", linestyle="",marker="o", color="g", **keys ):
+def dict2VisualSequence(  dict2vis_seq={}, marker="o", color="g", **keys ):
     """generates visual sequence2D with keys as x  and values as y
     
     :parameters:
         dict2vis_seq : `dict{float:float}`
             Contains a list of object to display
-        title : `string`
-            Title of the plot.
-        xlabel : `string`
-            X axis description
-        ylabel : `string`
-            Y label description
+        marker : `string`
+            The marker for the Point-Line.
+        color : `string`
+            The color.
     """
     r=list(dict2vis_seq.items())
     r.sort()
-    return VisualSequence2D(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], legend=legend, linestyle=linestyle, marker=marker, color=color )
+    return VisualSequence(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], marker=marker, color=color, **keys )
 
