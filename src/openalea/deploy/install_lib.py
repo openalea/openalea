@@ -32,6 +32,7 @@ egg_marker_extension = ".egm"
 
 from util import get_all_lib_dirs, get_base_dir
 from distutils.dir_util import mkpath
+from distutils.sysconfig import get_python_lib
 
 
 def get_default_dyn_lib():
