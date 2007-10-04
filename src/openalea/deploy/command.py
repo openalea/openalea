@@ -630,7 +630,7 @@ def set_env(dyn_lib=None):
 
     print "Install dynamic libs "
     
-    lib_dirs = list(get_all_lib_dirs())
+    #lib_dirs = list(get_all_lib_dirs())
     dyn_lib = install_lib.install_lib(dyn_lib)
     
 

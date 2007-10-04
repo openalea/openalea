@@ -65,10 +65,11 @@ def set_dyn_lib_dir(path):
     """ Set the shared lib directory """
     bdir = get_base_dir("openalea.deploy")
     dir = os.path.abspath(join(bdir, os.path.pardir))
-
+    dst = join(dir, "shared-lib.pth")
     try:
-        f = open(join(dir, "shared-lib.pth"), 'w')
+        f = open(dst, 'w')
         f.write(path)
+        print "Write ", dst
         f.close()
     except Exception, e:
         print e
