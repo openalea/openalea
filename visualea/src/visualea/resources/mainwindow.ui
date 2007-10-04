@@ -284,8 +284,6 @@
     <addaction name="separator" />
     <addaction name="action_About" />
     <addaction name="actionOpenAlea_Web" />
-    <addaction name="separator" />
-    <addaction name="actionPreferences" />
    </widget>
    <widget class="QMenu" name="menu_Python" >
     <property name="title" >
@@ -338,11 +336,21 @@
     <addaction name="separator" />
     <addaction name="menuCreate" />
    </widget>
+   <widget class="QMenu" name="menu_Window" >
+    <property name="title" >
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="actionLeft_Panel" />
+    <addaction name="actionWorkspaces" />
+    <addaction name="separator" />
+    <addaction name="actionPreferences" />
+   </widget>
    <addaction name="menu_File" />
    <addaction name="menu_Package" />
    <addaction name="menuDataPool" />
    <addaction name="menu_Workspace" />
    <addaction name="menu_Python" />
+   <addaction name="menu_Window" />
    <addaction name="menu_Help" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
@@ -588,6 +596,16 @@
   <action name="actionPreview_Application" >
    <property name="text" >
     <string>Preview Application</string>
+   </property>
+  </action>
+  <action name="actionLeft_Panel" >
+   <property name="text" >
+    <string>Left Panel</string>
+   </property>
+  </action>
+  <action name="actionWorkspaces" >
+   <property name="text" >
+    <string>Workspaces</string>
    </property>
   </action>
  </widget>

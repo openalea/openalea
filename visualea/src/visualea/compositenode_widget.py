@@ -110,7 +110,7 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
 
-        #self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
+        self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
@@ -128,6 +128,8 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         self.node_dialog = {}
 
         self.rebuild_scene()
+
+        
 
 
     # Node property 

@@ -121,10 +121,11 @@ class IFloat(IInterface):
 
     __pytype__ = types.FloatType
     
-    def __init__(self, min = -2.**24, max = 2.**24):
+    def __init__(self, min = -2.**24, max = 2.**24, step=1.):
 
         self.min = min
         self.max = max
+        self.step = step
 
     @classmethod
     def default(cls):
@@ -138,10 +139,11 @@ class IInt(IInterface):
 
     __pytype__ = types.IntType
     
-    def __init__(self, min = -2**24, max = 2**24):
+    def __init__(self, min = -2**24, max = 2**24, step=1):
 
         self.min = min
         self.max = max
+        self.step = step
 
 
 class IBool(IInterface):
