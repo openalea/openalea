@@ -31,7 +31,6 @@ def register_packages(pkgmanager):
     Return a list of package to include in the package manager.
     This function is called by the package manager when it is updated
     """
-    print "pt"
     # Base Library
 
     metainfo = { 'version' : '0.0.1',
@@ -48,13 +47,14 @@ def register_packages(pkgmanager):
     nf = Factory( name= "Sequence2D Plot", 
                   description="Plot a list of 2D points plotable objects", 
                   category="Vizualisation", 
-                  nodemodule="plotable",
+                  nodemodule="plotable2",
                   nodeclass="display_VisualSequence2D",
                   inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
                           dict(name='xlabel', interface=IStr, value='x-axis-label'),
-                          dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
-                  outputs=()
+                          dict(name='ylabel', interface=IStr, value='y-axis-label'),
+                          dict(name='figure', interface=IInt(0,10), value=0), ), 
+                  outputs=(dict(name='result', interface=None ),)
 
                 )
 
@@ -63,13 +63,14 @@ def register_packages(pkgmanager):
     nf = Factory( name= "Sequence2D Hist", 
                   description="Plot sequence values as a histogram", 
                   category="Vizualisation", 
-                  nodemodule="plotable",
-                  nodeclass="display_Hist2D",
-                  inputs=(dict(name='seq', interface=ISequence, showwidget=False),
+                  nodemodule="plotable2",
+                  nodeclass="display_VisualSequence2D_as_hist",
+                  inputs=(dict(name='vis_seq2D_list', interface=ISequence, showwidget=False),
                           dict(name='title', interface=IStr, value='MyPlot'),
                           dict(name='xlabel', interface=IStr, value='x-axis-label'),
-                          dict(name='ylabel', interface=IStr, value='y-axis-label'),  ),
-                  outputs=()
+                          dict(name='ylabel', interface=IStr, value='y-axis-label'),
+                          dict(name='figure', interface=IInt(0,10), value=0),),
+                  outputs=(dict(name='result', interface=None ),)
 
                 )
 
@@ -79,13 +80,14 @@ def register_packages(pkgmanager):
     nf = Factory( name= "VSequence2D Style", 
                   description="Allows us to edit VisualSequence2D plot", 
                   category="Vizualisation", 
-                  nodemodule="plotable",
+                  nodemodule="plotable2",
                   nodeclass="change_VisualSequence2D",
                   inputs=(dict(name='vis_seq2D', interface=None, showwidget=False),
                             dict(name='new_legend', interface=IStr, value='Default'),
                             dict(name='new_linestyle', interface=IEnumStr( ['Default','-','--',':','-.'] )),
                             dict(name='new_marker', interface=IEnumStr( ['Default','.',',','o','^','v','<','>','s','+','x','D','d','1','2','3','4','h','H','p','p','|','_'] ) ),
-                            dict(name='new_color', interface=IStr, value='Default'), 
+                            dict(name='new_color', interface=IStr, value='Default'),
+                            dict(name='new_figure', interface=IInt(0,10), value=0),
                           ),
                   outputs=( dict(name='vis_seq2D', interface=None), )
                 )
@@ -94,7 +96,7 @@ def register_packages(pkgmanager):
     nf = Factory( name= "Iterables to Sequence2D", 
                   description="Generates VisualSequence2D from 2 iterables", 
                   category="Vizualisation", 
-                  nodemodule="plotable",
+                  nodemodule="plotable2",
                   nodeclass="seqs2VisualSequence2D",
                   inputs=(dict(name='seq1', interface=ISequence),
                             dict(name='seq2', interface=ISequence),
@@ -106,7 +108,7 @@ def register_packages(pkgmanager):
     nf = Factory( name= "Dict to Sequence2D", 
                   description="Generates VisualSequence2D from a dictionary", 
                   category="Vizualisation", 
-                  nodemodule="plotable",
+                  nodemodule="plotable2",
                   nodeclass="dict2VisualSequence2D",
                   inputs=(dict(name='dict', interface=IDict),
                           ),
