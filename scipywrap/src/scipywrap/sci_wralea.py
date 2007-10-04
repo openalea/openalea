@@ -65,6 +65,20 @@ def register_packages(pkg_manager):
 
     package.add_factory( nf )
 
+    nf = Factory( name="ScipyLinearRegression",
+                  description="compute the linear regression with scipy",
+                  category="Stat",
+                  nodemodule="scistat",
+                  nodeclass="linearregress",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Y", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="linearregress", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
 ###### end nodes definitions ###############
 
     pkg_manager.add_package(package)

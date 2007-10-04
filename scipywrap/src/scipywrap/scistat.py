@@ -74,9 +74,6 @@ def kstest(x,y = [], cdf = '', args=[]):
 
      """
 
-    print x
-
-
     if y == [] :
         res = stats.stats.kstest(x,cdf=cdf,args=args)
         TestType = 'One sample'
@@ -87,5 +84,35 @@ def kstest(x,y = [], cdf = '', args=[]):
     pvalue = res[1]
     statistic = res[0]
     
-    data = {'Test type': TestType, 'p.value':pvalue, 't.statistic':statistic} 
+    data = {'Test type': TestType, 'p.value':pvalue, 'ks.statistic':statistic} 
     return data   
+
+def linearregress(x, y):
+    """
+    Compute the slope and intercept of the 2 given vector linear regression.
+    
+    :Parameters:
+     - `x`: X-axis values
+     - `y`: Y-axis values
+    
+    :Types:
+     - `x`: float list
+     - `y`: float list
+    
+    :Returns: the slope and the intercept of the linear regression
+    :Returntype: float list
+
+    :attention: the 2 vector/list must have the same size
+    """
+
+    result = stats.stats.linregress(x,y)
+    intercept = result[1]
+    pente = result[0]
+    r2 = result[2] * result[2]
+    pvalue = result[3]
+
+    data = {'pente':pente, 'intercept':intercept, 'r2':r2, 'two-tailed prob, pvalue':pvalue, 'x':x, 'y':y}
+    return data
+
+
+

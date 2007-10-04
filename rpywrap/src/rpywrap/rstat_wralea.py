@@ -54,7 +54,7 @@ def register_packages(pkg_manager):
                   category="Stat",
                   nodemodule="rstat",
                   nodeclass="random_continuous_law",
-                  inputs= ( dict( name = "law", interface=IStr, showwidget=True ),
+                  inputs= ( dict( name = "law", interface=IEnumStr(['exp','norm','unif']), showwidget=True ),
                             dict( name = "n", interface=IInt, showwidget=True ),
                             dict( name = "args", interface=ISequence, showwidget=True ),
                           ),
@@ -63,6 +63,67 @@ def register_packages(pkg_manager):
                   )
 
     package.add_factory( nf )
+
+    nf = Factory( name="RandomDiscrete",
+                  description="Generate random values from discrete distribution",
+                  category="Stat",
+                  nodemodule="rstat",
+                  nodeclass="random_discrete_law",
+                  inputs= ( dict( name = "law", interface=IEnumStr(['binom','geom','pois']), showwidget=True ),
+                            dict( name = "n", interface=IInt, showwidget=True ),
+                            dict( name = "args", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="res", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+    
+
+    nf = Factory( name="StatSummary",
+                  description="Compute the statistical summary (min, max, median, mean, sd) ",
+                  category="Stat",
+                  nodemodule="rstat",
+                  nodeclass="StatSummary",
+                  inputs= ( dict( name = "x", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="statsummary", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="Correlation",
+                  description="compute the correlations",
+                  category="Stat",
+                  nodemodule="rstat",
+                  nodeclass="Corr",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Y", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Corr", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="GLM",
+                  description="compute the generalized linear regression",
+                  category="Stat",
+                  nodemodule="rstat",
+                  nodeclass="Glm",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Y", interface=ISequence, showwidget=True ),
+                            dict( name = "Family", interface=IEnumStr(['binomial','Gamma','gaussian','poisson']), showwidget=True ),
+                          ),
+                  outputs=(dict(name="Glm", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
 
 ############## Linear regression section ##########################
 

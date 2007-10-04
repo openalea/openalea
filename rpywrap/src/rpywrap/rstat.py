@@ -73,7 +73,7 @@ def random_continuous_law(law ,n , args):
      - 'n': int
      - 'args': float list
 
-     :Returns the vector of the random values from gaussian distributions
+     :Returns the vector of the random values from continuous distributions
      :Returntype: float list
 
      :attention:  n must be greater than 0
@@ -89,6 +89,129 @@ def random_continuous_law(law ,n , args):
                res = rpy.r.rexp(n, rate = args[0])
 
     return (res,)
+
+def random_discrete_law(law ,n , args):
+    """
+    Generate random values from discrete distribution
+
+    :Parameters:
+     - 'law': distribution to simulate
+     - 'n' : number of random values
+     - 'args': parameters of discrete distribution to simulate
+
+     :Types:
+     - 'law': string
+     - 'n': int
+     - 'args': float list
+
+     :Returns the vector of the random values from discrete distributions
+     :Returntype: float list
+
+     :attention:  n must be greater than 0
+     """
+
+    if law == 'binom':
+        res = rpy.r.rbinom(n, size = args[0], prob = args[1])
+    else:
+        if law == 'pois':
+            res = rpy.r.rpois(n, args[0])
+        else:
+           if law == 'geom':
+               res = rpy.r.rgeom(n, prob = args[0])
+
+    return (res,)
+
+
+def StatSummary( x ):
+    """
+    Compute the statistical summary (min, max, median, mean, sd) 
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the vector of the statistical summary
+     :Returntype: float list
+
+     :attention:  x cannot be empty
+     """
+
+    result = rpy.r.summary(x)
+    minimum = result['Min.']
+    maximum = result['Max.']
+    median = result['Median']
+    mean = result['Mean']
+    sd = rpy.r.sd(x)
+
+    data = {'minimum':minimum, 'maximum':maximum, 'median':median, 'mean':mean, 'standard deviation':sd}
+    return data
+
+
+def Corr( x , y ):#= []):
+    """
+    Compute the statistical correlation
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values 
+     - 'y': an optionnal (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+     - 'y': float list
+
+     :Returns the vector of the correlation
+     :Returntype: float list
+
+     :attention:  x cannot be empty, x and y must have the same size
+     """
+
+    res = rpy.r.cor(x,y)
+        
+    data = {'Cor': res, 'x':x, 'y':y}
+
+    return data
+
+
+def Glm(x, y, famil = 'gaussian'): 
+    """
+    Compute the slope and intercept of the 2 given vector generalized linear regression.
+    
+    :Parameters:
+     - `x`: X-axis values
+     - `y`: Y-axis values
+     - 'famil': family objects for models and link function
+    
+    :Types:
+     - `x`: float list
+     - `y`: float list
+     - 'famil': string
+    
+    :Returns: the slope and the intercept of the generalized linear regression
+    :Returntype: float cople
+
+    :attention: the 2 vector/list must have the same size
+    """
+    
+    model = rpy.r("Y~X")
+
+    d = rpy.r.data_frame(X=x, Y=y)
+
+    reg = rpy.r.glm(model, data = d, family = famil)
+
+
+    #print reg
+    
+    intercept = reg['coefficients']['(Intercept)']
+    slope = reg['coefficients']['X']
+    family = reg['family']['family']
+    #link = reg['link']
+
+    data = {'Intercept':intercept, 'Slope':slope, 'Family': famil}#, 'Link':lin}
+    return data
+    
+
 
 ############## Linear regression section ##########################
 
