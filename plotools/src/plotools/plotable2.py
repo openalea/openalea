@@ -53,7 +53,7 @@ class VisualSequence(object):
     <Long description of the function functionality.>    
     """
 
-    def __init__( self, x=list(), y=list(), z=list(), legend="", linestyle="", marker="", color="", bins=10, **keys ):
+    def __init__( self, x=[], y=[], z=[], legend="", linestyle="", marker="", color="", bins=10, **keys ):
         """Object used to store plot information. 
         
         It use the syntax of mathplot lib so go there for details.
@@ -74,10 +74,13 @@ class VisualSequence(object):
 
         
         """
+        print x, y, z
         # data segment -- should be shared between the views
-        self.x = x
-        self.y = y
-        self.y = z
+        self.abs = x
+        self.ord = y
+        #self.x = x
+        #self.y = y
+        self.z = z
         
         # properties segment -- should be changed for each view
         
@@ -86,6 +89,22 @@ class VisualSequence(object):
         self.marker = str(marker)
         self.color = str(color)
         self.bins = int(bins)
+
+    def get_x(self):
+        if len(self.abs) == len(self.ord):
+            return self.abs
+        else:
+            return range(len(self.ord))
+    def set_x(self, value):
+        self.abs = value
+    def get_y(self):
+        return self.ord
+    def set_y(self, value):
+        self.ord = value
+
+    x = property(get_x, set_x)
+    y = property(get_y, set_y)
+
 
 def change_VisualSequence_PointLineView( vis_seq, new_legend, new_linestyle, new_marker, new_color ): 
         """Returns vis_seq object with values changed from default
@@ -129,7 +148,7 @@ def display_VisualSequence(  vis_seq_list=list(), visualisation="", title="", xl
             Y label description
     """
     if visualisation == "Hist":
-        return display_VisualSequence_as_Hist( vis_seq_list=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
+        return display_VisualSequence_as_Hist( vis_seq=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
     elif visualisation == "PointLine":
         return display_VisualSequence_as_PointLine( vis_seq_list=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
     raise TypeError("Any know plot type")
@@ -148,7 +167,7 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
             Y label description
     """
     objList=vis_seq_list
-    figure=pylab.figure( figure )
+    pylab.figure( figure )
     pylab.cla()
     legend_printed = False
     try:
@@ -163,7 +182,8 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
     except  TypeError:
         # do sth with exceptions
         obj=vis_seq_list
-        pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, figure=pylab.figure( figure ), **keys )
+        print figure
+        pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color,  **keys )
 
     xmin, xmax = pylab.xlim()
     xr = (xmax-xmin)/20.
@@ -202,7 +222,7 @@ def change_VisualSequence_HistView( vis_seq,  new_bins, new_color ):
         return  plotable
 
 
-def display_VisualSequence_as_Hist(  vis_seq=None, title="", xlabel="", ylabel="", figure=0, **keys ):
+def display_VisualSequence_as_Hist(  vis_seq=[], title="", xlabel="", ylabel="", figure=0, **keys ):
     """Plots 2D visual sequences.
     
     :parameters:
@@ -215,7 +235,7 @@ def display_VisualSequence_as_Hist(  vis_seq=None, title="", xlabel="", ylabel="
         ylabel : `string`
             Y label description
     """
-    figure=pylab.figure( figure )
+    pylab.figure( figure )
     pylab.cla()
     pylab.hist(vis_seq.y, vis_seq.bins, **keys )
     pylab.title( title )
@@ -237,7 +257,7 @@ def seqs2VisualSequence( seq1=[], seq2=[], marker="o", color="b", **keys ):
         color : `string`
             The color.
     """
-    return VisualSequence(x=seq1, y=seq2, marker=marker, color=color, **keys )
+    return VisualSequence(x=seq1, y=seq2,z=None, marker=marker, color=color, **keys )
        
 
 def dict2VisualSequence(  dict2vis_seq={}, marker="o", color="g", **keys ):
@@ -253,5 +273,5 @@ def dict2VisualSequence(  dict2vis_seq={}, marker="o", color="g", **keys ):
     """
     r=list(dict2vis_seq.items())
     r.sort()
-    return VisualSequence(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))], marker=marker, color=color, **keys )
+    return VisualSequence(x=[r[i][0] for i in range(len(r))], y=[r[i][1] for i in range(len(r))],z=None, marker=marker, color=color, **keys )
 
