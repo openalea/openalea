@@ -67,7 +67,7 @@ def test_compositenode_creation_without_edges():
     sg = CompositeNode()
 
     # build the compositenode factory
-    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    addid = sg.add_node ( pm.get_node("Catalog.Math", "+"))
     val1id = sg.add_node ( pm.get_node("Catalog.Data", "float")) 
     val2id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
     val3id = sg.add_node ( pm.get_node("Catalog.Data", "float"))
@@ -106,8 +106,8 @@ def test_to_factory():
 
     sg2 = sgfactory.instantiate()
 
-    assert len(sg2.vertices()) == 2+2# two nodes + in/ou
-    assert len(sg2.edges()) == 1
+    assert len(list(sg2.vertices())) == 2+2# two nodes + in/ou
+    assert len(list(sg2.edges())) == 1
 
     sg2.node(e1).set_input(0, 3.)
     sg2()
@@ -172,7 +172,7 @@ def test_compositenodeio():
                               dict(name="in2",interface=None,value=None)),
                       outputs=(dict(name="out",interface=None),),
                       )
-    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    addid = sg.add_node ( pm.get_node("Catalog.Math", "+"))
 
     sg.connect (sg.id_in, 0, addid, 0)
     sg.connect (sg.id_in, 1, addid, 1)
@@ -244,7 +244,7 @@ def test_addnode():
 
 
     # Add a new node
-    addid = sg.add_node ( pm.get_node("Catalog.Maths", "+"))
+    addid = sg.add_node ( pm.get_node("Catalog.Math", "+"))
     sg.connect (val1id, 0, addid, 0)
     sg.connect (val2id, 0, addid, 1)
     

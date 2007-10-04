@@ -33,4 +33,3 @@ def test_export():
     app.main(sys.argv)
 
 
-test_export()
