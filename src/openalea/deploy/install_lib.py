@@ -30,9 +30,47 @@ from os.path import join
 
 egg_marker_extension = ".egm"
 
-from util import get_all_lib_dirs
+from util import get_all_lib_dirs, get_base_dir
+from distutils.dir_util import mkpath
 
 
+def get_default_dyn_lib():
+    """ Return the default path for dynamic library """
+    
+    if("posix" in os.name):
+        return "/usr/local/lib"
+    elif("win" in sys.platform.lower()):
+        basedir = get_python_lib()
+        return os.path.join(basedir, "shared_libs")
+
+
+def get_dyn_lib_dir():
+    """ Return the shared lib directory """
+    bdir = get_base_dir("openalea.deploy")
+    dir = os.path.abspath(join(bdir, os.path.pardir))
+
+    try:
+        f = open(join(dir, "shared-lib.pth"), 'r')
+        lib_dir = f.read()
+        f.close()
+    except Exception, e:
+        lib_dir = get_default_dyn_lib()
+        
+    return lib_dir
+
+
+
+def set_dyn_lib_dir(path):
+    """ Set the shared lib directory """
+    bdir = get_base_dir("openalea.deploy")
+    dir = os.path.abspath(join(bdir, os.path.pardir))
+
+    try:
+        f = open(join(dir, "shared-lib.pth"), 'w')
+        f.write(path)
+        f.close()
+    except Exception, e:
+        print e
 
 def is_lib(filename):
     """ Return true if filename is a library """
@@ -64,7 +102,7 @@ def link_lib(src, dst):
             return False
 
     except Exception, e:
-        print e
+        pass
     
     # copy
     print "Installing %s -> %s"%(src, dst)
@@ -86,26 +124,45 @@ def link_lib(src, dst):
 
 
     
-def clean_lib(lib_dir):
-    """ Remove lib if source has been remvoved """
+def clean_lib(lib_dir, clean_all=False):
+    """ Remove lib if source has been removed
+    If clean_all is True, remove all library with egm
+    """
 
     for egm in glob.iglob(join(lib_dir, "*" + egg_marker_extension)):
         f = open(egm, 'r')
         srcfile = f.read()
         f.close()
 
-        if(not os.path.exists(srcfile)):
+        if(not os.path.exists(srcfile) or clean_all):
             libfile = egm[:- len(egg_marker_extension)]
             print "Removing ", libfile
             os.remove(libfile)
             print "Removing ", egm
-            os.remove(egm) 
-        
+            os.remove(egm)
+
+
 
 def install_lib(lib_dir):
+    """
+    Install dynamic library in lib_dir
+    if None, use previous dir or default
+    Return real lib_dir
+    """
+    if(not lib_dir):
+        lib_dir = get_dyn_lib_dir()
 
+    # Create directory
+    if(not os.path.exists(lib_dir)):
+        mkpath(lib_dir)
+
+    old_lib_dir = get_dyn_lib_dir()
+    changed = (old_lib_dir != lib_dir)
     # remove unused lib
-    clean_lib(lib_dir)
+    clean_lib(old_lib_dir, changed)
+
+    if(changed):
+        set_dyn_lib_dir(lib_dir)
     
     # get all lib_dir
     egglibdirs = set(get_all_lib_dirs())
@@ -124,7 +181,7 @@ def install_lib(lib_dir):
                 link_lib(src, dst)
 
 
-    
+    return lib_dir
                 
 
 

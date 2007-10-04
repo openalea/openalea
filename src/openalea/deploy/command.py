@@ -50,7 +50,8 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from util import get_all_lib_dirs, get_all_bin_dirs, get_default_dyn_lib
+from util import get_all_lib_dirs, get_all_bin_dirs
+from install_lib import get_dyn_lib_dir
 from util import get_base_dir, OPENALEA_PI
 from environ_var import set_lsb_env, set_win_env
 
@@ -473,7 +474,8 @@ class install(old_install):
     def finalize_options(self):
         # Add openalea package link
         if(not self.install_dyn_lib) :
-            self.install_dyn_lib = get_default_dyn_lib()
+            self.install_dyn_lib = get_dyn_lib_dir()
+            print self.install_dyn_lib
 
         old_install.finalize_options(self)
 
@@ -527,7 +529,7 @@ class alea_install(easy_install):
         self.find_links += " " + OPENALEA_PI
         self.dist = None
         if(not self.install_dyn_lib) :
-            self.install_dyn_lib = get_default_dyn_lib()
+            self.install_dyn_lib = get_dyn_lib_dir()
 
         easy_install.finalize_options(self)
 
@@ -629,7 +631,7 @@ def set_env(dyn_lib=None):
     print "Install dynamic libs "
     
     lib_dirs = list(get_all_lib_dirs())
-    install_lib.install_lib(dyn_lib)
+    dyn_lib = install_lib.install_lib(dyn_lib)
     
 
     print "Setting environment variables"

@@ -1,7 +1,7 @@
 # Configure openalea environment variables
 
 
-from util import get_default_dyn_lib
+from install_lib import get_default_dyn_lib
 # from util import check_system
 from command import set_env
 import os, sys
@@ -13,7 +13,7 @@ def main():
     parser = OptionParser()
     parser.add_option( "--install-dyn-lib", dest="lib_dir",
                        help="Set the dynamic library path",
-                       default=get_default_dyn_lib())
+                       default=None)
 
     (options, args)= parser.parse_args()
 
