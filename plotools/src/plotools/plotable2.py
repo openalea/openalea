@@ -29,6 +29,7 @@ __revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
 
 
 import copy
+import sys
 from matplotlib import rc, rcParams,use
 if("win" in sys.platform):
   print "LateX writing not available"
