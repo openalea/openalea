@@ -342,8 +342,10 @@ class CompositeNode(Node, DataFlow):
         Evaluate the graph
         Return True if the node need a reevaluation (like generator)
         """
-
-        self.eval_as_expression(self.id_out)
+        if(self.id_out and self.get_nb_output()>0):
+            self.eval_as_expression(self.id_out)
+        else:
+            self.eval_as_expression(None)
         
         self.modified = False
         self.notify_listeners( ("status_modified",self.modified) )
