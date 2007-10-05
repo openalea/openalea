@@ -31,7 +31,7 @@ plotting tools
 
 
 from openalea.core import *
-from openalea.catalog.plotable import *
+#from openalea.catalog.plotable import *
 
 #class PointsPlot2D(object):
 #    """Generate a plot from 2D plotable object

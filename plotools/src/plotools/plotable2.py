@@ -30,7 +30,7 @@ __revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
 
 import copy
 from matplotlib import rc, rcParams,use
-rc('text', usetex=True )
+#rc('text', usetex=True )
 use('Qt4Agg')
 import pylab
 
