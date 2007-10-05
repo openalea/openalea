@@ -489,6 +489,7 @@ class CompositeNode(Node, DataFlow):
                                           if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
+        self.factory = sgfactory
 
 
 
