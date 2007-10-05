@@ -29,6 +29,7 @@ import os
 from PyQt4 import QtCore, QtGui
 from openalea.core.node import NodeWidget
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
+from openalea.core.observer import lock_notify
 from gui_catalog import *
 import types
   
@@ -42,12 +43,12 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     """
 
     type_map = InterfaceWidgetMap()
-
+    
+    @lock_notify
     def __init__(self, node, parent):
 
         NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
-        
         self.setMinimumSize(100, 20)
 
         self.widgets = []
@@ -58,7 +59,6 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         self.empty = True
         for i,desc in enumerate(node.input_desc):
-
             # Hidden state
             h = node.is_port_hidden(i)
             if(h) :
@@ -67,15 +67,14 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             
             name = desc['name']
             interface = desc.get('interface', None)
-            iwidget = desc.get('showwidget', True)
 
             # interface class or instance ?
             if(type(interface) == IInterfaceMetaClass):
                 interface = interface()
             
-            wclass= self.type_map.get(interface.__class__,None)
+            wclass = self.type_map.get(interface.__class__, None)
 
-            if(wclass and iwidget):
+            if(wclass):
                 widget = wclass(node, self, name, interface)
                 widget.update_state()
                 vboxlayout.addWidget(widget)
@@ -98,7 +97,6 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         if(event and event[0] == "input_modified"):
             input_index = event[1]
-
             widget = self.widgets[input_index]
             if widget and not widget.is_notification_locked():
 

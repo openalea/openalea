@@ -1,4 +1,4 @@
-
+# Color nodes
 
 from openalea.core import *
 import openalea.catalog.colormap as colormap
