@@ -922,6 +922,13 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
                          self.get_caption())
 
+#         # Draw Lazy symbol
+#         if(self.subnode.lazy):
+#             painter.setPen(QtGui.QPen(QtCore.Qt.darkMagenta, 1))
+#             painter.drawRoundRect(0, 0, self.sizex, self.sizey)
+
+        
+
 
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
