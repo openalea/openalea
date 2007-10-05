@@ -27,7 +27,7 @@ import pkg_resources
 import os, sys
 from os.path import join as pj
 from distutils.sysconfig import get_python_lib
-from install_lib import get_dyn_lib_dir
+
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 
@@ -121,7 +121,8 @@ def check_system():
     Check system configuration and return environment variables dictionary
     This function need OpenAlea.Deploy
     """
-
+    from install_lib import get_dyn_lib_dir
+    
     inenv = dict(os.environ)
     outenv = {}
     

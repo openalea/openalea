@@ -30,7 +30,7 @@ from os.path import join
 
 egg_marker_extension = ".egm"
 
-from util import get_all_lib_dirs, get_base_dir
+from openalea.deploy.util import get_all_lib_dirs, get_base_dir
 from distutils.dir_util import mkpath
 from distutils.sysconfig import get_python_lib
 
