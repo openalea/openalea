@@ -17,7 +17,7 @@
 ################################################################################
 
 __license__ = "Cecill-C"
-__revision__ =" $Id: environ_var.py 847 2007-10-04 11:53:07Z dufourko $"
+__revision__ =" $Id$"
 
 __doc__ = """ Install dynamic library """
 
