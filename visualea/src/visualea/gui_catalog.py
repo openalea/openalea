@@ -769,12 +769,13 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.hboxlayout.addWidget(self.subwidget)
         self.notify(None, None)
-        
+
         self.connect(self.subwidget,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.valueChanged)
-        self.subwidget.setCurrentIndex(0)
 
+
+        
 
     @lock_notify      
     def valueChanged(self, newval):
