@@ -27,6 +27,7 @@ import pkg_resources
 import os, sys
 from os.path import join as pj
 from distutils.sysconfig import get_python_lib
+from install_lib import get_dyn_lib_dir
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 
@@ -114,6 +115,7 @@ def get_all_bin_dirs(namespace=None):
 
 
 
+
 def check_system():
     """
     Check system configuration and return environment variables dictionary
@@ -124,24 +126,32 @@ def check_system():
     outenv = {}
     
     try:
+
         # Linux
         if(("posix" in os.name) and ("linux" in sys.platform.lower())):
 
             paths = set(get_all_bin_dirs())
             paths.update(set(inenv['PATH'].split(':')))
+            
+            libs = set([get_dyn_lib_dir()])
+            libs.update(set(inenv['LD_LIBRARY_PATH'].split(':')))
+
+            # libs
+            outenv['LD_LIBRARY_PATH'] = ':'.join(libs)
             outenv['PATH'] = ':'.join(paths)
+
+                
 
         # Windows
         elif("win" in sys.platform.lower()):
 
             libs = set(get_all_bin_dirs())
+            libs.add(get_dyn_lib_dir())
             libs.update(set(inenv['PATH'].split(';')))
+            
             outenv['PATH'] = ';'.join(libs)
                   
     except Exception, e:
         print e
 
     return outenv
-
-
-        
