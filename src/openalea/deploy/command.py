@@ -654,11 +654,6 @@ def set_env(dyn_lib=None):
                      'PATH=$OPENALEA_BIN'
                      ])
     except:
-        print "\nIMPORTANT !!!"
-        print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
-        print "# Set OpenAlea variables"
-        print "$(/usr/bin/alea_config)"
-        print ""
         return
 
 
