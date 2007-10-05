@@ -50,10 +50,12 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from openalea.deploy import get_all_lib_dirs, get_all_bin_dirs
-from openalea.deploy import get_base_dir, OPENALEA_PI
-from openalea.deploy.environ_var import set_lsb_env, set_win_env
+from util import get_all_lib_dirs, get_all_bin_dirs
+from install_lib import get_dyn_lib_dir
+from util import get_base_dir, OPENALEA_PI
+from environ_var import set_lsb_env, set_win_env
 
+import install_lib
 
 
 # Utility
@@ -457,6 +459,27 @@ class install(old_install):
     Overload install command
     Use alea_install instead of easy_install
     """
+
+    user_options = []
+    user_options.extend( old_install.user_options )
+    user_options.append( ( 'install-dyn-lib=',
+                           None,
+                           'Directory to install dynamic library.' ) )
+
+    def initialize_options (self):
+        old_install.initialize_options(self)
+        self.install_dyn_lib = None
+
+
+    def finalize_options(self):
+        # Add openalea package link
+        if(not self.install_dyn_lib) :
+            self.install_dyn_lib = get_dyn_lib_dir()
+            print self.install_dyn_lib
+
+        old_install.finalize_options(self)
+
+
     def do_egg_install(self):
  
         alea_install = self.distribution.get_command_class('alea_install')
@@ -464,8 +487,9 @@ class install(old_install):
         cmd = alea_install(
             self.distribution, args="x", root=self.root, record=self.record,
         )
+        cmd.install_dyn_lib = self.install_dyn_lib
         cmd.ensure_finalized()  # finalize before bdist_egg munges install cmd
-
+        
         self.run_command('bdist_egg')
         args = [self.distribution.get_command_obj('bdist_egg').egg_output]
 
@@ -486,6 +510,17 @@ class alea_install(easy_install):
     - Environment variable
     - Postinstall Scripts
     """
+    
+    user_options = []
+    user_options.extend( easy_install.user_options )
+    user_options.append( ( 'install-dyn-lib=',
+                           None,
+                           'Directory to install dynamic library.' ) )
+
+
+    def initialize_options (self):
+        easy_install.initialize_options(self)
+        self.install_dyn_lib = None
 
     def finalize_options(self):
 
@@ -493,6 +528,8 @@ class alea_install(easy_install):
         if(not self.find_links) : self.find_links = ""
         self.find_links += " " + OPENALEA_PI
         self.dist = None
+        if(not self.install_dyn_lib) :
+            self.install_dyn_lib = get_dyn_lib_dir()
 
         easy_install.finalize_options(self)
 
@@ -512,7 +549,7 @@ class alea_install(easy_install):
         self.postinstall(self.dist)
 
         # Set environment
-        set_env()
+        set_env(self.install_dyn_lib)
 
 
     def set_system(self):
@@ -585,13 +622,21 @@ class alea_install(easy_install):
 
 
 
+def set_env(dyn_lib=None):
+    """
+    Set environment
+    dyn_lib is the directory to install dynamic library
+    """
 
-def set_env():
-    """ Set environment variables """
+    print "Install dynamic libs "
+    
+    #lib_dirs = list(get_all_lib_dirs())
+    dyn_lib = install_lib.install_lib(dyn_lib)
+    
 
     print "Setting environment variables"
 
-    lib_dirs = list(get_all_lib_dirs())
+    lib_dirs = [dyn_lib]
     bin_dirs = list(get_all_bin_dirs())
         
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
@@ -609,11 +654,6 @@ def set_env():
                      'PATH=$OPENALEA_BIN'
                      ])
     except:
-        print "\nIMPORTANT !!!"
-        print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
-        print "# Set OpenAlea variables"
-        print "$(/usr/bin/alea_config)"
-        print ""
         return
 
 
