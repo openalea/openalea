@@ -16,6 +16,7 @@ def set_path():
                  "scipywrap/src",
                  "rpywrap/src",
                  "spatial/src",
+                 "stand/src",
                  openalea_dir
                  ]
 
