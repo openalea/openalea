@@ -78,17 +78,16 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
                 del widget
                 continue
             
-            else : vboxlayout.addWidget(widget)
+            else : #vboxlayout.addWidget(widget)
             
-            #caption = "%s"%(subnode.caption)
-            #groupbox = QtGui.QGroupBox(caption, self)
-            #layout = QtGui.QVBoxLayout(groupbox)
-            #layout.setMargin(3)
-            #layout.setSpacing(2)
-
-            #layout.addWidget(widget)
+                caption = "%s"%(subnode.caption)
+                groupbox = QtGui.QGroupBox(caption, self)
+                layout = QtGui.QVBoxLayout(groupbox)
+                layout.setMargin(3)
+                layout.setSpacing(2)
+                layout.addWidget(widget)
             
-            #vboxlayout.addWidget(groupbox)
+                vboxlayout.addWidget(groupbox)
             
     def set_autonomous(self):
         """ Add Run bouton and close button """
@@ -221,22 +220,24 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
     def mouseReleaseEvent(self, event):
         
         if(self.newedge):
-            item = self.itemAt(event.pos())
-            if(item and isinstance(item, ConnectorIn)
-               and isinstance(self.newedge.connector(), ConnectorOut)):
+            try:
+                item = self.itemAt(event.pos())
+                if(item and isinstance(item, ConnectorIn)
+                   and isinstance(self.newedge.connector(), ConnectorOut)):
 
-                self.connect_node(self.newedge.connector(), item)
-                self.add_graphical_connection( self.newedge.connector(), item)
+                    self.connect_node(self.newedge.connector(), item)
+                    self.add_graphical_connection( self.newedge.connector(), item)
 
 
-            elif(item and isinstance(item, ConnectorOut) and
-                 isinstance(self.newedge.connector(), ConnectorIn) ):
+                elif(item and isinstance(item, ConnectorOut) and
+                     isinstance(self.newedge.connector(), ConnectorIn) ):
 
-                self.connect_node(item, self.newedge.connector())
-                self.add_graphical_connection( item, self.newedge.connector())
-        
-            self.scene().removeItem(self.newedge)
-            self.newedge = None
+                    self.connect_node(item, self.newedge.connector())
+                    self.add_graphical_connection( item, self.newedge.connector())
+                    
+            finally:
+                self.scene().removeItem(self.newedge)
+                self.newedge = None
 
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 

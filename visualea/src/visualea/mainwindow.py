@@ -362,7 +362,7 @@ class MainWindow(QtGui.QMainWindow,
         """ Run the active workspace """
 
         cindex = self.tabWorkspace.currentIndex()
-        self.index_nodewidget[cindex].node.eval()
+        self.index_nodewidget[cindex].node.eval_as_expression()
 
 
     def reload_from_factory(self, index=-1):

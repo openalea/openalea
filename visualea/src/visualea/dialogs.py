@@ -598,8 +598,8 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         self.inputs = inputs
         self.outputs = outputs
         
-        self.inModel = QtGui.QStandardItemModel(len(inputs), 2)
-        self.inModel.setHorizontalHeaderLabels(["Name", "Interface"])
+        self.inModel = QtGui.QStandardItemModel(len(inputs), 3)
+        self.inModel.setHorizontalHeaderLabels(["Name", "Interface", "Value"])
         self.inTable.setModel(self.inModel)
 
         self.inTable.setItemDelegate(delegate)
@@ -615,6 +615,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         for i, d in enumerate(inputs):
             self.inModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
             self.inModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
+            self.inModel.setItem(i, 2, QtGui.QStandardItem(str(d['value'])))
 
 
         for i, d in enumerate(outputs):
@@ -637,12 +638,20 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         for i in xrange(c):
             name = str(self.inModel.item(i,0).text())
             interface_str = str(self.inModel.item(i,1).text())
+            val_str = str(self.inModel.item(i,2).text())
 
             try:
                 interface = eval(interface_str)
             except:
                 interface = None
-            self.inputs.append(dict(name=name, interface=interface))
+
+            try:
+                val = eval(val_str)
+            except:
+                val = None
+
+        
+            self.inputs.append(dict(name=name, interface=interface, value=val))
             
 
         # build output dict
@@ -663,6 +672,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
     def add_input(self):
         c = self.inModel.rowCount()
         self.inModel.appendRow([QtGui.QStandardItem('IN%i'%(c+1,)),
+                                QtGui.QStandardItem('None'),
                                 QtGui.QStandardItem('None')])
 
 
