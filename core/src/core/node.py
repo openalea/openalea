@@ -123,7 +123,7 @@ class Node(AbstractNode):
         self.internal_data['caption'] = str(self.__class__.__name__)
         self.internal_data['lazy'] = True
         self.internal_data['priority'] = 0
-        self.internal_data['hide'] = False
+        self.internal_data['hide'] = True # hide in composite node widget
         self.internal_data['port_hide_changed']= set()
         self.internal_data['minimal'] = False
 
@@ -834,8 +834,13 @@ class NodeWidget(AbstractListener):
         pass
     
 
-    def is_empty( self ):
+    def is_empty(self):
         return False
+
+
+    def set_autonomous(self):
+        """ set the widget autonomous """
+        return
         
 
 

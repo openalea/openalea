@@ -38,6 +38,7 @@ import annotation
 
 from dialogs import DictEditor, ShowPortDialog
 from util import busy_cursor, exception_display, open_dialog
+from node_widget import DefaultNodeWidget
 
 
 class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
@@ -49,6 +50,16 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         vboxlayout = QtGui.QVBoxLayout(self)
+        self.vboxlayout = vboxlayout
+
+        # Add inputs port
+        default_widget = DefaultNodeWidget(node, parent)
+        if(default_widget.is_empty()):
+            default_widget.close()
+            default_widget.destroy()
+            del default_widget
+        else:
+            vboxlayout.addWidget(default_widget)
 
         # Add subwidgets
         for id in node.vertices():
@@ -79,8 +90,9 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
             
             #vboxlayout.addWidget(groupbox)
             
-
-        # Add Run bouton and close button
+    def set_autonomous(self):
+        """ Add Run bouton and close button """
+        
         runbutton = QtGui.QPushButton("Run", self)
         exitbutton = QtGui.QPushButton("Exit", self)
         self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
@@ -89,7 +101,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         buttons = QtGui.QHBoxLayout()
         buttons.addWidget(runbutton)
         buttons.addWidget(exitbutton)
-        vboxlayout.addLayout(buttons)
+        self.vboxlayout.addLayout(buttons)
+        
 
     @exception_display
     @busy_cursor    
@@ -337,11 +350,29 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
 
             return
 
-        # We Create a new Dialog
         node = self.node.node(elt_id)
+
+        # Click on IO node
+        # TO refactore 
+        from openalea.core.compositenode import CompositeNodeInput, CompositeNodeOutput
+        from dialogs import IOConfigDialog
+        if(isinstance(node, CompositeNodeInput) or
+           isinstance(node, CompositeNodeOutput)):
+            
+            dialog = IOConfigDialog(self.node.input_desc,
+                                    self.node.output_desc,
+                                    parent=self)
+            ret = dialog.exec_()
+
+            if(ret):
+                self.node.set_io(dialog.inputs, dialog.outputs)
+                self.rebuild_scene()
+            return
+        ########### End refactor
+            
         factory = node.get_factory()
         if(not factory) : return
-
+        # We Create a new Dialog
         widget = factory.instantiate_widget(node, self)
         
         if (widget.is_empty()):
