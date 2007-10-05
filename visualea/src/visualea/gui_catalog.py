@@ -79,7 +79,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
             v = float(self.node.get_input(self.param_str))
         except:
             v = 0.
-            print "FLOAT SPIN : cannot set value : ", self.node.get_input(self.param_str)
+            #print "FLOAT SPIN : cannot set value : ", self.node.get_input(self.param_str)
             
         self.spin.setValue(v)
         
@@ -133,7 +133,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
             v = int(self.node.get_input(self.param_str))
         except:
             v = 0
-            print "INT SPIN : cannot set value : ", self.node.get_input(self.param_str)
+            #print "INT SPIN : cannot set value : ", self.node.get_input(self.param_str)
 
         self.spin.setValue(v)
 

@@ -525,6 +525,7 @@ class NodeFactoryView(object):
         
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget()
+            widget.set_autonomous()
             open_dialog(self, widget, obj.get_id())
         
 
