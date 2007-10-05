@@ -15,6 +15,7 @@ def set_path():
                  "plotools/src",
                  "scipywrap/src",
                  "rpywrap/src",
+                 "spatial/src",
                  openalea_dir
                  ]
 
