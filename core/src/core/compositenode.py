@@ -267,13 +267,11 @@ class CompositeNode(Node, DataFlow):
         """
 
         #I/O ports
+        # Remove node if nb of input has changed
         if(self.id_in is not None
            and len(inputs) != self.node(self.id_in).get_nb_output()):
             self.remove_vertex(self.id_in)
             self.id_in = None
-
-        if(self.id_in is None):
-            self.id_in = self.add_node(CompositeNodeInput(inputs))
 
             
         if(self.id_out is not None
@@ -281,17 +279,22 @@ class CompositeNode(Node, DataFlow):
             self.remove_vertex(self.id_out)
             self.id_out = None
 
+        # Create new io node if necessary
+        if(self.id_in is None):
+            self.id_in = self.add_node(CompositeNodeInput(inputs))
+        else:
+            self.node(self.id_in).set_io((),inputs)
+            
         if(self.id_out is None):
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
-
-
+        else:
+            self.node(self.id_out).set_io(outputs,())
+            
+            
         Node.set_io(self, inputs, outputs)
-
-        self.node(self.id_in).set_io((), inputs)
-        self.node(self.id_out).set_io(outputs, ())
-
-
-    def set_input (self, index_key, val=None) :
+                
+        
+    def set_input (self, index_key, val=None, *args) :
         """ Copy val into input node output ports """
         self.node(self.id_in).set_input(index_key, val)
         
@@ -340,7 +343,7 @@ class CompositeNode(Node, DataFlow):
         Return True if the node need a reevaluation (like generator)
         """
 
-        self.eval_as_expression()
+        self.eval_as_expression(self.id_out)
         
         self.modified = False
         self.notify_listeners( ("status_modified",self.modified) )
@@ -353,7 +356,7 @@ class CompositeNode(Node, DataFlow):
         Evaluate the graph
         """
 
-        self.eval_as_expression()
+        self.eval_as_expression(self.id_out)
         return ()
 
 
@@ -592,11 +595,12 @@ class CompositeNodeInput(Node):
         self.internal_data['caption'] = "In"
 
 
-    def set_input (self, input_pid, val=None) :
+    def set_input (self, input_pid, val=None, *args) :
         """ Define input value """
-        self.outputs[input_pid]=val
-        
+        index = self.map_index_out[input_pid]
+        self.outputs[index] = val
 
+   
     def eval(self):
         return False
 
@@ -621,7 +625,9 @@ class CompositeNodeOutput(Node):
 
     def get_output(self, output_pid) :
         """ Return Output value """
-        return self.inputs[output_pid]
+
+        index = self.map_index_in[output_pid]
+        return self.inputs[index]
     
 
     def eval(self):

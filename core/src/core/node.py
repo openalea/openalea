@@ -164,7 +164,7 @@ class Node(AbstractNode):
 
 
     def get_lazy(self):
-        return self.internal_data["lazy"]
+        return self.internal_data.get("lazy", True)
 
     def set_lazy(self, v):
         self.internal_data["lazy"] = v
@@ -258,14 +258,17 @@ class Node(AbstractNode):
         value = copy(value)
             
         name = str(name) #force to have a string
-        self.inputs.append( value )
+        self.inputs.append(None)
 
         self.input_desc.append(kargs)
         
         self.input_states.append(None)
         index = len(self.inputs) - 1
         self.map_index_in[name] = index 
-        self.map_index_in[index]= index 
+        self.map_index_in[index]= index
+
+        self.set_input(name, value, False)
+
 
 
     def add_output(self, **kargs):
