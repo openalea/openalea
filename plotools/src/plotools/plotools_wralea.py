@@ -50,7 +50,7 @@ def register_packages(pkgmanager):
                   nodemodule="plotable2",
                   nodeclass="display_VisualSequence",
                   inputs=(dict(name='vis_seq_list', interface=ISequence, showwidget=False),
-                          dict(name='visualisation', interface=IEnumStr(["PointLine", "Hist"])),
+                          dict(name='visualisation', interface=IEnumStr(['PointLine', 'Hist'])),
                           dict(name='title', interface=IStr, value='MyPlot'),
                           dict(name='xlabel', interface=IStr, value='x-axis-label'),
                           dict(name='ylabel', interface=IStr, value='y-axis-label'),

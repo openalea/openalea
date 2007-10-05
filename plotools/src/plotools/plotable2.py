@@ -74,7 +74,6 @@ class VisualSequence(object):
 
         
         """
-        print x, y, z
         # data segment -- should be shared between the views
         self.abs = x
         self.ord = y
@@ -147,9 +146,9 @@ def display_VisualSequence(  vis_seq_list=list(), visualisation="", title="", xl
         ylabel : `string`
             Y label description
     """
-    if visualisation == "Hist":
+    if visualisation == 'Hist':
         return display_VisualSequence_as_Hist( vis_seq=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
-    elif visualisation == "PointLine":
+    elif visualisation == 'PointLine':
         return display_VisualSequence_as_PointLine( vis_seq_list=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
     raise TypeError("Any know plot type")
 
