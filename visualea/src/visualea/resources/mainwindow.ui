@@ -340,8 +340,8 @@
     <property name="title" >
      <string>&amp;Window</string>
     </property>
-    <addaction name="actionLeft_Panel" />
-    <addaction name="actionWorkspaces" />
+    <addaction name="actionDisplay_Package_Manager" />
+    <addaction name="actionDisplay_Workspaces" />
     <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
@@ -353,7 +353,6 @@
    <addaction name="menu_Window" />
    <addaction name="menu_Help" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
   <action name="action_About" >
    <property name="text" >
     <string>&amp;About</string>
@@ -600,12 +599,34 @@
   </action>
   <action name="actionLeft_Panel" >
    <property name="text" >
-    <string>Left Panel</string>
+    <string>Package Manager</string>
    </property>
   </action>
   <action name="actionWorkspaces" >
    <property name="text" >
     <string>Workspaces</string>
+   </property>
+  </action>
+  <action name="actionDisplay_Package_Manager" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Display Package Manager</string>
+   </property>
+  </action>
+  <action name="actionDisplay_Workspaces" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Display Workspaces</string>
    </property>
   </action>
  </widget>
