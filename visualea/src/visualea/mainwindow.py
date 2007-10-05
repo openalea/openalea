@@ -119,8 +119,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_About, SIGNAL("activated()"), self.about)
         self.connect(self.actionOpenAlea_Web, SIGNAL("activated()"), self.web)
         self.connect(self.action_Help, SIGNAL("activated()"), self.help)
-        self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
-
 
         # File Menu
         self.connect(self.action_New_Session, SIGNAL("activated()"), self.new_session)
@@ -168,7 +166,12 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionPreview_Application, SIGNAL("activated()"),
                      self.preview_application)
 
-        
+        # Window Mneu
+        self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
+        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), self.display_leftpanel)
+        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), self.display_rightpanel)
+
+                
         self.setAcceptDrops(True)
         # final init
         self.session = session
@@ -773,5 +776,11 @@ class MainWindow(QtGui.QMainWindow,
             event.ignore()
 
             
+    # Window support
+    def display_leftpanel(self, toggled):
+        self.splitter_2.setVisible(toggled)
+    
 
+    def display_rightpanel(self, toggled):
+        self.splitter.setVisible(toggled)
 
