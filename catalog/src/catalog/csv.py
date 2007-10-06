@@ -1,11 +1,11 @@
 # -*- python -*-
 #
-#       OpenAlea.Core.Library: OpenAlea Core Library module
+#       OpenAlea.Catalog.Library: OpenAlea Catalog Library module
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
-#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#       File author(s): BOUDON Frederic <frederic.boudon@cirad.fr>
+#                       Da SILVA David <david.da_silva@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+
 
 
 __doc__="""

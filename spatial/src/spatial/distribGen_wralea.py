@@ -4,8 +4,8 @@
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): BOUDON Frederic <frederic.boudon@cirad.fr>
-#                       Da SILVA David <david.da_silva@cirad.fr>
+#       File author(s): Da SILVA David <david.da_silva@cirad.fr>
+#                       BOUDON Frederic <frederic.boudon@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -41,10 +41,11 @@ def register_packages(pkg_manager):
                   inputs= ( dict( name = "n", interface=IInt, value = 10, showwidget=True ),
                             dict( name = "x-range", interface=ISequence, value = [0,1], showwidget= True ),
                             dict( name = "y-range", interface=ISequence, value = [0,1], showwidget=True ),
-                            dict( name = "type", interface=IEnumStr(['Random', 'Regular', 'Neman Scott', 'Gibbs']), showwidget=True ),
-                            dict( name = "parameters", interface=IDict, showwidget=True ),
+                            dict( name = "type", interface=IEnumStr(['Random', 'Regular', 'Neman Scott', 'Gibbs']), value = 'Random', showwidget=True ),
+                            dict( name = "parameters", interface=IDict, value = {'cluster':3, 'cluster_radius':0.3}, showwidget=True ),
                           ),
-                  outputs=(dict(name="spatial distrib", interface = ISequence),
+                  outputs=( dict( name = "X positions", interface = ISequence ),
+                            dict( name = "Y positions", interface = ISequence ),
                           ),
                   )
 
