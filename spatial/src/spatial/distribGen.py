@@ -120,7 +120,7 @@ def _linearProba(dtest, d):
     return False
 
 
-def random_distrib( n = 10, xr = (0,1), yr = (0,1) ):
+def random_distrib( n = 100, xr = (0,1), yr = (0,1) ):
   assert ( xr[0] < xr[1] and yr[0] < yr[1] and " min value must be lesser than max" )
   x_range = xr
   y_range = yr
@@ -130,7 +130,7 @@ def random_distrib( n = 10, xr = (0,1), yr = (0,1) ):
 
   return ( x, y ) 
 
-def regular_distrib( n = 10, xr = (0,1), yr = (0,1) ):
+def regular_distrib( n = 100, xr = (0,1), yr = (0,1) ):
   """
   Simulation d'une realisation du processus regulier correspondant a une proba lineaire fonction du rayon caracterisant l'espace disponible par point
 
@@ -175,7 +175,7 @@ def regular_distrib( n = 10, xr = (0,1), yr = (0,1) ):
   return (ptX, ptY)
 
 
-def neman_scott__distrib( n = 10, xr = (0,1), yr = (0,1), **kwds ):
+def neman_scott__distrib( n = 100, xr = (0,1), yr = (0,1), **kwds ):
   """
   simulation d'une realisation du processus de type Neman Scott (Nb Agregats, Rayon Agregats)
   """
@@ -184,8 +184,8 @@ def neman_scott__distrib( n = 10, xr = (0,1), yr = (0,1), **kwds ):
   x_range = xr
   y_range = yr
 
-  nb_cluster = kwds.get( 'cluster', 3)
-  cl_radius = kwds.get( 'cluster_radius', 0.2)
+  nb_cluster = kwds.get( 'cluster', 5)
+  cl_radius = kwds.get( 'cluster_radius', 0.1)
 
   x_cl, y_cl = random_distrib( nb_cluster, x_range, y_range )
   ptX = []
@@ -206,7 +206,7 @@ def gibbs_distrib( n = 10, xr = (0,1), yr = (0,1) ):
   pass
 
 
-def spatial_distrib( n=10, xrange=(0,1), yrange=(0,1), type='Random', params = None):
+def spatial_distrib( n=100, xrange=(0,1), yrange=(0,1), type='Random', params = None):
   if type == 'Random':
     return random_distrib( n, xrange, yrange)
   elif type == 'Regular':

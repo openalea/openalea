@@ -39,8 +39,25 @@ def register_packages(pkg_manager):
                   nodemodule="stand_modelling",
                   nodeclass="stand_positioner",
                   inputs= ( dict( name = "Object List", interface=ISequence, showwidget = False),
-                            dict( name = "Spatial distribution", interface=ISequence, showwidget = False ),
-                            dict( name = "type", interface=IEnumStr(['Position mapping (PM)', 'Best PM', 'Best PM with radius deformation', 'Gibbs']), showwidget=True ),
+                            dict( name = "X distribution", interface=ISequence, showwidget = False ),
+                            dict( name = "Y distribution", interface=ISequence, showwidget = False ),
+                            dict( name = "type", interface=IEnumStr(['Position mapping (PM)', 'Best PM', 'Best PM with radius deformation', 'Gibbs']), value = 'Position mapping (PM)', showwidget=True ),
+                            dict( name = "parameters", interface=IDict, showwidget=True ),
+                          ),
+                  outputs=(dict(name="modified object list", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="Stand Dresser",
+                  description="Add geometry to each object from list",
+                  category="Stand",
+                  nodemodule="stand_modelling",
+                  nodeclass="stand_dresser",
+                  lazy = False,
+                  inputs= ( dict( name = "Object List", interface=ISequence, showwidget = False),
+                            dict( name = "dresser" ),
                             dict( name = "parameters", interface=IDict, showwidget=True ),
                           ),
                   outputs=(dict(name="modified object list", interface = ISequence),

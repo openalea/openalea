@@ -20,14 +20,16 @@ from scipy import stats
 import random
 
 
-def position_mapping( objList = [], pts_distrib = [] ):
-  assert len(objList) == len(pts_distrib)
+#------------ Associating spatial distribution ------------------#
+
+def position_mapping( objList = [], ptX = [], ptY =[] ):
+  assert ( len(objList) == len(ptX) and len(objList) == len(ptY) and "coordinates and objects should have the same length" ) 
   
   for i in range( len( objList ) ) :
-    ojb[i].x = pts_distrib[i][0]
-    ojb[i].y = pts_distrib[i][1]
+    objList[i].X = ptX[i]
+    objList[i].Y = ptY[i]
 
-  return objList
+  return (objList, )
 
 def best_position_mapping( objList = [], pts_distrib = [] ):
   pass
@@ -38,9 +40,9 @@ def best_position_mapping_with_radius_deform( objList = [], pts_distrib = [] ):
 def gibbs( objList = [], pts_distrib = [] ):
   pass
 
-def stand_positioner( objList = [], pts_distrib = [], type='Position mapping', params = None):
+def stand_positioner( objList = [], ptX = [], ptY = [], type='Position mapping (PM)', params = None):
   if type == 'Position mapping (PM)':
-    return (position_mapping(objList, pts_distrib), )
+    return position_mapping(objList, ptX, ptY)
   elif type == 'Best PM':
     print 'Best Position mapping not implemented'
   elif type == 'Best PM with radius deformation':
@@ -48,4 +50,16 @@ def stand_positioner( objList = [], pts_distrib = [], type='Position mapping', p
   elif type == 'Gibbs':
     print 'Gibbs not implemented'
 
-  
+
+#---------------- Associating geometry --------------------------#
+
+def stand_dresser(objList = [], dresser = None, params = None) :
+  scene =[]
+  if dresser != None :
+    for obj in objList :
+      shList = dresser.__call__(obj, **params)
+      for sh in shList :
+        scene.append(sh)
+  else :
+    raise "No Dresser"
+  return (scene, )

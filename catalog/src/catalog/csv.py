@@ -26,9 +26,10 @@ __license__= "Cecill-C"
 
 class Obj:
     def __init__(self,pid,propname,value):
-        print(value)
-        self.pid = pid
-        for i in range(len(propname)):
+      #print propname
+      self.pid = pid
+      for i in range(len(propname)):
+        try:
           val = value[i]
           if len(val) > 0:  
             try:
@@ -38,10 +39,19 @@ class Obj:
                     # val = value[i].replace(',','.')
                     val = float(val)
                 except:
-                    val = value[i]
-            self.__dict__[propname[i]] = val
+                    val = str(value[i])
+            self.__dict__[propname[i].replace('"', '')] = val
+        except IndexError:
+          print "index : ", i, " prop : ", propname[i]
 
 def parseText(text = '', separator=',', lineseparator='\n'):
         lines = text.split(lineseparator)
         propname = lines.pop(0).split(separator)
-        return ([Obj(i+1,propname,l.split(separator)) for i,l in enumerate(lines)],)
+        objList = []
+        for i, l in enumerate(lines):
+          values = l.split(separator)
+          if len(values) == len(propname) :
+            objList.append( Obj(i+1, propname, values) )
+
+        #return ([Obj(i+1,propname,l.split(separator)) for i,l in enumerate(lines)],)
+        return (objList, )
