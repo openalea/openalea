@@ -65,7 +65,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         pkgstr = []
         self.pkgmap = {}
-        
+
+        packages.sort()
         for p in packages:
             pkgstr.append(p.name)
             self.pkgmap[p.name] = p
@@ -81,7 +82,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         else:
             self.packageBox.addItems(pkgstr)
-
+            i = self.packageBox.findText(Session.USR_PKG_NAME)
+            self.packageBox.setCurrentIndex(i)
             self.inputs = inputs
             self.outputs = outputs
 
@@ -333,16 +335,23 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         cfactories = []
         # Get all composite node factories in writable packages
         for pkg in self.pkgmanager.get_user_packages():
-            for f in pkg.values():
+            pname = pkg.name
+            
+            for f in pkg.itervalues():
                 if(isinstance(f, CompositeNodeFactory)):
-                   cfactories.append(f.name)
-                   self.factorymap[f.name] = f
+                    name = "%s.%s"%(pname, f.name)
+                    cfactories.append(name)
+                    self.factorymap[name] = f
 
+        cfactories.sort()
         self.comboBox.addItems(cfactories)
 
-        if(default_factory):
-            i = self.comboBox.findText(default_factory.name)
-            self.comboBox.setCurrentIndex(i)
+        i = -1
+        if(default_factory and default_factory.package):
+            name = "%s.%s"%(default_factory.package.name, default_factory.name)
+            i = self.comboBox.findText(name)
+
+        self.comboBox.setCurrentIndex(i)
 
         self.connect(self.newFactoryButton, QtCore.SIGNAL("clicked()"), self.new_factory)
 
@@ -366,9 +375,10 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
         if(ret>0):
             newfactory = dialog.create_cnfactory(self.pkgmanager)
-            self.comboBox.addItem(newfactory.name)
-            self.factorymap[newfactory.name] = newfactory
-            i = self.comboBox.findText(newfactory.name)
+            name = "%s.%s"%(newfactory.package.name, newfactory.name)
+            self.comboBox.addItem(name)
+            self.factorymap[name] = newfactory
+            i = self.comboBox.findText(name)
             self.comboBox.setCurrentIndex(i)
         
 
