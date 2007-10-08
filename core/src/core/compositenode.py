@@ -495,7 +495,7 @@ class CompositeNode(Node, DataFlow):
      
         self.graph_modified = False
         self.factory = sgfactory
-
+        
 
 
     def add_node(self, node, vid = None):

@@ -171,7 +171,8 @@ class UserPackage(Package):
                 self.path = os.path.dirname(self.path)
            
         # wralea.py full path
-        self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(name))
+        wralea_name = name.replace('.', '_')
+        self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(wralea_name))
 
 
     def get_wralea_path(self):
@@ -187,6 +188,7 @@ class UserPackage(Package):
             os.mkdir(self.path)
 
         writer.write_wralea(self.wralea_path)
+        print "Writing", self.wralea_path
 
 
     # Convenience function
