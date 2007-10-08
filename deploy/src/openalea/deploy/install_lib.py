@@ -172,15 +172,20 @@ def install_lib(lib_dir):
     # install lib
     for d in egglibdirs:
 
-        src_dir = os.path.abspath(d)
-        dst_dir = os.path.abspath(lib_dir)
+        try:
+            src_dir = os.path.abspath(d)
+            dst_dir = os.path.abspath(lib_dir)
     
-        for f in os.listdir(src_dir):
+            for f in os.listdir(src_dir):
 
-            if( is_lib(f) ):
-                src = join(src_dir, f)
-                dst = join(dst_dir, f)
-                link_lib(src, dst)
+                if( is_lib(f) ):
+                    src = join(src_dir, f)
+                    dst = join(dst_dir, f)
+                    link_lib(src, dst)
+                    
+        except Exception, e:
+            print e
+            
 
 
     return lib_dir
