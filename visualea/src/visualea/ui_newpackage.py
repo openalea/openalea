@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'newpackage.ui'
 #
-# Created: Sat Sep 22 16:09:55 2007
+# Created: Mon Oct  8 12:12:11 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,8 +15,8 @@ class Ui_NewPackageDialog(object):
         NewPackageDialog.resize(QtCore.QSize(QtCore.QRect(0,0,479,435).size()).expandedTo(NewPackageDialog.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(NewPackageDialog)
-        self.vboxlayout.setMargin(9)
         self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setMargin(9)
         self.vboxlayout.setObjectName("vboxlayout")
 
         self.gridlayout = QtGui.QGridLayout()
@@ -105,7 +105,8 @@ class Ui_NewPackageDialog(object):
         QtCore.QMetaObject.connectSlotsByName(NewPackageDialog)
         NewPackageDialog.setTabOrder(self.nameEdit,self.descriptionEdit)
         NewPackageDialog.setTabOrder(self.descriptionEdit,self.versionEdit)
-        NewPackageDialog.setTabOrder(self.versionEdit,self.authorsEdit)
+        NewPackageDialog.setTabOrder(self.versionEdit,self.licenseEdit)
+        NewPackageDialog.setTabOrder(self.licenseEdit,self.authorsEdit)
         NewPackageDialog.setTabOrder(self.authorsEdit,self.institutesEdit)
         NewPackageDialog.setTabOrder(self.institutesEdit,self.urlEdit)
         NewPackageDialog.setTabOrder(self.urlEdit,self.pathEdit)
