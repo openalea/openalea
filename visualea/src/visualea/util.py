@@ -91,7 +91,7 @@ def exception_display(f):
                 self = None
             txt = e.__class__.__name__+': '+ str(e)
             display_error(self,txt,tb.format_tb(sys.exc_info()[2]))
-            raise e.exception
+            raise e
 
     return wrapped
 
