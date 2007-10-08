@@ -52,6 +52,18 @@ def register_packages(pkgmanager):
                  category="Csv", 
                  nodemodule="csv",
                  nodeclass="parseText",
+                 outputs=(dict(name='objects', interface=None),
+                          dict(name='header', interface=None),)
+                 )
+
+    package.add_factory(nf)
+
+    nf = Factory(name="obj2cvs", 
+                 description="Csv exporter", 
+                 category="Csv", 
+                 nodemodule="csv",
+                 nodeclass="writeObjs",
+                 outputs=(dict(name='string', interface=IStr),)
                  )
 
     package.add_factory(nf)
