@@ -13,18 +13,39 @@
    <string>Package</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
    <property name="spacing" >
     <number>6</number>
    </property>
+   <property name="leftMargin" >
+    <number>9</number>
+   </property>
+   <property name="topMargin" >
+    <number>9</number>
+   </property>
+   <property name="rightMargin" >
+    <number>9</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>9</number>
+   </property>
    <item>
     <layout class="QGridLayout" >
-     <property name="margin" >
+     <property name="leftMargin" >
       <number>0</number>
      </property>
-     <property name="spacing" >
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing" >
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing" >
       <number>6</number>
      </property>
      <item row="4" column="1" >
@@ -132,6 +153,7 @@
   <tabstop>nameEdit</tabstop>
   <tabstop>descriptionEdit</tabstop>
   <tabstop>versionEdit</tabstop>
+  <tabstop>licenseEdit</tabstop>
   <tabstop>authorsEdit</tabstop>
   <tabstop>institutesEdit</tabstop>
   <tabstop>urlEdit</tabstop>
