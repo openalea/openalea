@@ -253,6 +253,16 @@ def register_packages(pkgmanager):
 
     package.add_factory(nf)
 
+    nf = Factory( name="flatten", 
+                  description="flatten list", 
+                  category="Python", 
+                  nodemodule="python",
+                  nodeclass="py_flatten",
+                  )
+
+
+    package.add_factory(nf)
+
 
     nf = Factory( name= "extract", 
                   description= "Extract element from a list or a dict", 

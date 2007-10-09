@@ -177,6 +177,23 @@ def py_zip(s1=(), s2=()):
     return (zip(s1,s2),)
 
 
+def py_flatten( l = []):
+    """ Flatten nested list """
+    tobeflatten = False
+    for v in iter(l):
+        if hasattr(v,'__iter__'):
+            tobeflatten = True
+            break
+    if not tobeflatten:
+        return (l,)
+    else:
+        nl = []
+        for v in iter(l):
+            for x in iter(py_flatten(v)[0]):
+                nl.append(x)
+        #print nl
+        return (nl,)
+
 
 def extract(indexable, keys):
     """ Extract from indexable object indexed by keys"""

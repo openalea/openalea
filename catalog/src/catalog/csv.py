@@ -51,7 +51,11 @@ class Obj:
         nbprop = len(propnames)
         for i, prop in enumerate(propnames):
             if hasattr(self,prop):
-                res += str(self.__dict__[prop])
+                v = self.__dict__[prop]
+                if type(v) == str:
+                    res += '"'+v+'"'
+                else:
+                    res += str(v)
             if i < nbprop-1:
                 res += separator
         return res
@@ -63,7 +67,7 @@ class Obj:
             for key,val in self.__dict__.iteritems():                
                 res+=str(key)+'='+str(val)
                 propid += 1
-                if propid < nbprop -1:
+                if propid < nbprop :
                     res += ','
         res += ')'
         return res
@@ -87,8 +91,11 @@ def writeObjs(objects, separator=',', lineseparator='\n'):
         propnames = obj.merge_header(propnames)
     nbprop = len(propnames)
     for i, prop in enumerate(propnames):
-        res += prop + separator
-        if i < nbprop-1:
+        if type(prop) == str:
+            res += '"'+prop+'"'
+        else:
+            res += str(prop)
+        if i < nbprop -1:
             res += separator
     res += lineseparator
     for obj in objects:

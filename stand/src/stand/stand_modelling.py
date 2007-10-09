@@ -53,11 +53,11 @@ def stand_positioner( objList = [], ptX = [], ptY = [], type='Position mapping (
 
 #---------------- Associating geometry --------------------------#
 
-def stand_dresser(objList = [], dresser = None, params = None) :
+def stand_dresser(objList = [], dresser = None) :
   scene =[]
   if dresser != None :
     for obj in objList :
-      shList = dresser.__call__(obj, **params)
+      shList = dresser.__call__(obj)
       for sh in shList :
         scene.append(sh)
   else :
