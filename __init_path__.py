@@ -13,8 +13,8 @@ def set_path():
                  "distx",
                  "sconsx/src",
                  "plotools/src",
-                 "scipywrap/src",
-                 "rpywrap/src",
+                 "scipy/src",
+                 "rpy/src",
                  "spatial/src",
                  "stand/src",
                  openalea_dir
