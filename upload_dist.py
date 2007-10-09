@@ -203,7 +203,12 @@ def glob_upload(pattern):
 urlmap = {
     'deploygui-0.2' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
     'deploy-0.2' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
-    'catalog-0.3' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'scipywrap' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'rpywrap' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'plotools' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'spatial' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+    'stand' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
     'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
     'visualea-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=841',
     }

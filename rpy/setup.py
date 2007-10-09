@@ -5,9 +5,9 @@ from setuptools import setup
 
 
 # Package name
-name = 'OpenAlea.RpyWrap'
+name = 'OpenAlea.Rpy'
 namespace = 'openalea'
-pkg_name = 'openalea.rpywrap'
+pkg_name = 'openalea.rpy'
 version = '0.1.0' 
 description = 'OpenAlea wrapper for common R routines.' 
 long_description = ''
@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'rpywrap')},
+    package_dir={pkg_name : pj('src', 'rpy')},
 
     # Dependencies
     setup_requires = ['openalea.deploy'],

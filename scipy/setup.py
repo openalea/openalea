@@ -5,9 +5,9 @@ from setuptools import setup
 
 
 # Package name
-name = 'OpenAlea.ScipyWrap'
+name = 'OpenAlea.Scipy'
 namespace = 'openalea'
-pkg_name = 'openalea.scipywrap'
+pkg_name = 'openalea.scipy'
 version = '0.1.0' 
 description = 'OpenAlea wrapper for scipy routines.' 
 long_description = ''
@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'scipywrap')},
+    package_dir={pkg_name : pj('src', 'scipy')},
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
