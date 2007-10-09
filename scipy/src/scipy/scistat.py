@@ -33,11 +33,11 @@ def ttest(x,y = [],mu=0):
      - 'y': float list
      - 'mu': float
 
-     :Returns the p-value of the Student t-test
-     :Returntype: float list
+    :Returns the p-value of the Student t-test
+    :Returntype: float list
 
-     :attention: the 2 vectors must have the same size    
-     """
+    :attention: the 2 vectors must have the same size    
+    """
 
     if y == [] :
         res = stats.stats.ttest_1samp(x,mu)
@@ -69,10 +69,10 @@ def kstest(x,y = [], cdf = '', args=[]):
      - 'cdf': string
      - 'args': float list
 
-     :Returns the p-value of the Kolmogoros-Smirnov test
-     :Returntype: dict
+    :Returns the p-value of the Kolmogoros-Smirnov test
+    :Returntype: dict
 
-     """
+    """
 
     if y == [] :
         res = stats.stats.kstest(x,cdf=cdf,args=args)

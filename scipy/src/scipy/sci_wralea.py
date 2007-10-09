@@ -16,6 +16,7 @@
 
 
 from openalea.core import *
+import scipy
 
 def register_packages(pkg_manager):
     
@@ -32,6 +33,20 @@ def register_packages(pkg_manager):
     
     
 ###### begin nodes definitions #############
+
+    nf = Factory( name="log",
+                  description="compute the log of each item of the input list",
+                  category="Math",
+                  nodemodule="sci_base",
+                  nodeclass="array_log",
+                  inputs= ( dict( name = "List", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="log", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
 
     nf = Factory( name="StudentTest",
                   description="compute the Student Test",
