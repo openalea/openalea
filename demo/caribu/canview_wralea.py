@@ -14,7 +14,7 @@ def register_packages(pkgmanager):
                     )
 
 
-    package = Package("Caribu.Graphic", metainfo)
+    package = Package("Caribu.Visualisation", metainfo)
 
     nf = Factory( name = "Import Can File",
                   description="ld a detailled description of a can file",
