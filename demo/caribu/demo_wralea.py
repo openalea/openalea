@@ -14,7 +14,7 @@ def register_packages(pkgmanager):
                     )
 
 
-    package = Package("Demo.Caribu.Visualisation", metainfo)
+    pkg = Package("Demo.Caribu.Visualisation", metainfo)
     
     nf = CompositeNodeFactory(name='plot_can_file_with_colors', 
                               description='', 
@@ -22,9 +22,9 @@ def register_packages(pkgmanager):
                               doc='',
                               inputs=[],
                               outputs=[],
-                              elt_factory={2: ('Catalog.Maths', 'min'), 
+                              elt_factory={2: ('Catalog.Math', 'min'), 
                               3: ('Caribu.Visualisation', 'Read Vec File'), 
-                              4: ('Catalog.Maths', 'max'), 
+                              4: ('Catalog.Math', 'max'), 
                               5: ('Catalog.Color', 'ColorMap'), 
                               6: ('Catalog.Functional', 'map'), 
                               7: ('Caribu.Visualisation', 'Plot Can File')},
