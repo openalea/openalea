@@ -1,13 +1,13 @@
-OpenAlea.BaseModule
+OpenAlea.Scipy
 ----------------
 
-OpenAlea.BaseModule common file and architecture for openAlea modules.
+OpenAlea.Scipy openalea wrapper for common SciPy routines..
 
 
 License
 -------
 
-OpenAlea.BaseModule is released under a Cecill-C License.
+OpenAlea.Scipy is released under a Cecill-C License.
 
 See LICENSE.txt
 Nota : Cecill-C license is a LGPL compatible license.
@@ -17,7 +17,6 @@ Dependances
 -----------
 
 Python >= 2.4   (See http://www.python.org)
-OpenAlea.Config (See http://openalea.gforge.inria.fr)
 OpenAlea.Core (See http://openalea.gforge.inria.fr)
 Scipy (See http://www.scipy.org)
 
