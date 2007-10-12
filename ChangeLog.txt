@@ -1,0 +1,4 @@
+18/09/07
+  * Rename the package from wizard_layout to pkg_builder
+  * Build a complete package layout for the project
+
