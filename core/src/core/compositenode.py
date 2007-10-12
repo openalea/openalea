@@ -113,7 +113,7 @@ class CompositeNodeFactory(AbstractFactory):
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
-            new_df.add_node(n, vid)
+            new_df.add_node(n, vid, False)
 
         # Set IO internal data
         try:
@@ -138,6 +138,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Properties
         new_df.lazy = self.lazy
+        new_df.graph_modified = False # Graph is not modifyied
 
         return new_df
 
@@ -498,7 +499,7 @@ class CompositeNode(Node, DataFlow):
         
 
 
-    def add_node(self, node, vid = None):
+    def add_node(self, node, vid = None, modify=True):
         """
         Add a node in the Graph with a particular id
         if id is None, autogenrate one
@@ -518,8 +519,9 @@ class CompositeNode(Node, DataFlow):
             
         self.set_actor(vid, node)
         #self.id_cpt += 1
-        self.notify_listeners(("graph_modified",))
-        self.graph_modified = True
+        if(modify):
+            self.notify_listeners(("graph_modified",))
+            self.graph_modified = True
 
         return vid
     
