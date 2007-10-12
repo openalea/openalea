@@ -48,7 +48,7 @@ def register_packages(pkgmanager):
     
     nf = Factory( name="linearmodel", 
                   description="Linear Model", 
-                  category="Models", 
+                  category="Model", 
                   nodemodule="models",
                   nodeclass="linearmodel",
                   )

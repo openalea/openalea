@@ -49,7 +49,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="variable", 
                   description="Variable", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="Variable",
 
@@ -65,7 +65,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="filename", 
                   description="File name", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="FileName",
 
@@ -78,7 +78,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="dirname", 
                   description="Directory name", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="DirName",
 
@@ -91,7 +91,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="string", 
                   description="String", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="String",
 
@@ -104,7 +104,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="text", 
                   description="Text", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="Text",
 
@@ -117,7 +117,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="datetime", 
                   description="DateTime", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="DateTime",
 
@@ -130,7 +130,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="bool", 
                   description="boolean", 
-                  category="Data Types", 
+                  category="Type", 
                   nodemodule="data",
                   nodeclass="Bool",
 
@@ -144,7 +144,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="float",
                   description="Float Value",
-                  category="Data Types",
+                  category="Type",
                   nodemodule="data",
                   nodeclass="Float",
 
@@ -157,7 +157,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="int",
                   description="Int Value",
-                  category="Data Types",
+                  category="Type",
                   nodemodule="data",
                   nodeclass="Int",
 
@@ -170,7 +170,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="rgb",
                   description="RGB tuple",
-                  category="Data Types",
+                  category="Type,Color",
                   nodemodule="data",
                   nodeclass="RGB",
 
@@ -184,7 +184,7 @@ def register_packages(pkgmanager):
     
     nf = Factory( name="list",
                   description="Python list",
-                  category="Data Types",
+                  category="Type",
                   nodemodule="data",
                   nodeclass="List",
 
@@ -197,7 +197,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="dict",
                   description="Python dictionary",
-                  category="Data Types",
+                  category="Type",
                   nodemodule="data",
                   nodeclass="Dict",
 
@@ -210,7 +210,7 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="pair",
                   description="Python 2-uple",
-                  category="Data Types",
+                  category="Type",
                   nodemodule="data",
                   nodeclass="Pair",
                   inputs=(dict(name="IN0", interface=None,),
