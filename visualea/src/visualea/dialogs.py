@@ -62,7 +62,9 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         self.factory = factory # edition mode
 
         packages = pmanager.get_user_packages()
+        self.pmanager = pmanager
 
+        # Build Map package name -> package
         pkgstr = []
         self.pkgmap = {}
 
@@ -70,6 +72,9 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         for p in packages:
             pkgstr.append(p.name)
             self.pkgmap[p.name] = p
+
+        # Get category
+        self.categoryEdit.addItems(pmanager.category.keys())
 
         
         if(factory): # Edition mode
@@ -79,6 +84,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.outputs = factory.outputs
             self.nameEdit.setText(factory.name)
             self.descriptionEdit.setText(factory.description)
+            i = self.categoryEdit.findText(factory.category)
+            self.categoryEdit.setCurrentIndex(i)
 
         else:
             self.packageBox.addItems(pkgstr)
@@ -88,7 +95,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.outputs = outputs
 
                 
-        self.categoryEdit.addItems(pmanager.category.keys())
+        
         self.ioButton.setVisible(io)
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
 
@@ -185,13 +192,22 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         
         oldname = factory.name
         factory.name = name
-        factory.category = cat
         factory.description = desc
         factory.inputs = self.inputs
         factory.outputs = self.outputs
+        oldcat = factory.category
+        factory.category = cat
         
         factory.package.update_factory(oldname, factory)
-    
+        factory.package.write()
+
+        # update category
+        if(oldcat != cat):
+            self.pmanager.category[oldcat].remove(factory)
+            self.pmanager.update_category(factory.package)
+            
+
+
 
 
 

@@ -276,7 +276,7 @@ class UserPackage(Package):
         """ Write change on disk """
         
         Package.__delitem__(self, key)
-        self.write()
+        #self.write()
 
 
 
