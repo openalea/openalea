@@ -184,9 +184,9 @@ class PackageManager(object):
         for nf in package.values():
             if not nf.category: 
                 nf.category = "Unclassified"
-
-            self.category.setdefault(nf.category, 
-                                     Category(nf.category)).add(nf)
+            
+            for c in nf.category.split(","):
+                self.category.setdefault(c, Category(c)).add(nf)
 
 
     def rebuild_category(self):
