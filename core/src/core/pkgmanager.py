@@ -186,6 +186,7 @@ class PackageManager(object):
                 nf.category = "Unclassified"
             
             for c in nf.category.split(","):
+                c = c.strip()
                 self.category.setdefault(c, Category(c)).add(nf)
 
 
