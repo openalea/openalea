@@ -39,7 +39,7 @@ def set_stdout():
     if("pythonw" in sys.executable):
         nullfd = open(os.devnull, "w")
         sys.stdout = nullfd
-        sys.stderr = nullfd
+        sys.stderr = nullfd
 
 
 def main(args):
