@@ -34,10 +34,17 @@ from openalea.core.session import Session
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+def set_stdout():
+    """Disable stdout if using pythonw"""
+    if("pythonw" in sys.executable):
+        nullfd = open(os.devnull, "w")
+        sys.stdout = nullfd
+        sys.stderr = nullfd
 
 
 def main(args):
 
+    set_stdout()
     app = QtGui.QApplication(args)
 
     # Check Version
