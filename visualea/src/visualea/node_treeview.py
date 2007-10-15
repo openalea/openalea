@@ -576,6 +576,7 @@ class NodeFactoryView(object):
             
         if(ret == QtGui.QMessageBox.Yes):
             del(obj.package[obj.name])
+            obj.package.write()
             self.main_win.reinit_treeview()
         
        
