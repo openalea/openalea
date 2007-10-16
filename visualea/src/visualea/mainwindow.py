@@ -230,7 +230,6 @@ class MainWindow(QtGui.QMainWindow,
             w.close()
         event.accept()
 
-
     
     def reinit_treeview(self):
         """ Reinitialise package and category views """
