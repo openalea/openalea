@@ -580,6 +580,8 @@ class NodeFactory(AbstractFactory):
         self.nodemodule_path = None
         self.search_path = search_path
         
+        self.module_cache = None
+
         # Context directory
         # inspect.stack()[1][1] is the caller python module
         caller_dir = os.path.dirname(os.path.abspath(inspect.stack()[1][1]))
@@ -593,6 +595,7 @@ class NodeFactory(AbstractFactory):
         odict['nodemodule_path'] = None
         odict['nodemodule'] = None
         odict['nodeclass'] = None      
+        odict['module_cache'] = None      
         return odict
     
        
@@ -695,14 +698,11 @@ class NodeFactory(AbstractFactory):
         if(self.nodemodule_name):
 
             # Test if the module is already in sys.modules
-            if( self.nodemodule_path and 
-                (self.nodemodule_name in sys.modules.keys())
-                and (os.path.abspath(sys.modules[self.nodemodule_name].__file__)
-                     == os.path.abspath(self.nodemodule_path))):
+            if(self.nodemodule_path and self.module_cache):
                 
-                   m = sys.modules[self.nodemodule_name]
+                   m = self.module_cache
                    
-                   # test unvalidate
+                   # test unvalidate and reload if necessary
                    if(hasattr(m, 'oa_invalidate' )):
                        sav_path = sys.path[:]
                        sys.path += self.search_path
@@ -724,6 +724,7 @@ class NodeFactory(AbstractFactory):
             sys.path.pop()
                 
             if(file) : file.close()
+            self.module_cache = nodemodule
             return nodemodule
                 
         else :
@@ -732,14 +733,15 @@ class NodeFactory(AbstractFactory):
             return __builtin__
     
 
-    def get_node_src(self):
+    def get_node_src(self, cache=True):
         """
         Return a string containing the node src
         Return None if src is not available
+        If cache is False, return the source on the disk
         """
 
         # Return cached source if any
-        if(self.src_cache) : return self.src_cache
+        if(self.src_cache and cache) : return self.src_cache
         
         module = self.get_node_module()
 
@@ -755,6 +757,7 @@ class NodeFactory(AbstractFactory):
         Execute new src
         """
         module = self.get_node_module()
+        
         # Run src
         exec newsrc in module.__dict__
 
@@ -765,7 +768,7 @@ class NodeFactory(AbstractFactory):
     def save_new_src(self, newsrc):
         
         module = self.get_node_module()
-        nodesrc = self.get_node_src()
+        nodesrc = self.get_node_src(cache=False)
         
         # Run src
         exec newsrc in module.__dict__
@@ -785,15 +788,18 @@ class NodeFactory(AbstractFactory):
         file = open(self.nodemodule_path, 'w')
         file.write(modulesrc)
         file.close()
-
-        # unload module
-        if(self.nodemodule_name in sys.modules.keys()) : del(sys.modules[self.nodemodule_name])
-        self.src_cache = None
- 
-        # Recompile
-        import py_compile
-        py_compile.compile(self.nodemodule_path)
         
+        # reload module
+        if(self.module_cache):
+                self.module_cache.invalidate_oa = True
+        #self.src_cache = None
+        m = self.get_node_module()
+        #reload(m)
+        # Recompile
+        #import py_compile
+        #py_compile.compile(self.nodemodule_path)
+
+               
         
 
 # Class Factory:
