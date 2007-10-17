@@ -475,7 +475,7 @@ class install(old_install):
         # Add openalea package link
         if(not self.install_dyn_lib) :
             self.install_dyn_lib = get_dyn_lib_dir()
-            print self.install_dyn_lib
+        self.install_dyn_lib = os.path.expanduser(self.install_dyn_lib)
 
         old_install.finalize_options(self)
 
@@ -530,6 +530,8 @@ class alea_install(easy_install):
         self.dist = None
         if(not self.install_dyn_lib) :
             self.install_dyn_lib = get_dyn_lib_dir()
+            
+        self.install_dyn_lib = os.path.expanduser(self.install_dyn_lib)
 
         easy_install.finalize_options(self)
 

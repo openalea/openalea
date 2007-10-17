@@ -51,6 +51,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
+        # flag to define if the composite widget add only io widgets 
+        empty_io = False 
 
         # Add inputs port
         default_widget = DefaultNodeWidget(node, parent)
@@ -58,6 +60,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
             default_widget.close()
             default_widget.destroy()
             del default_widget
+            empty_io = True
         else:
             vboxlayout.addWidget(default_widget)
 
@@ -65,7 +68,7 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
         for id in node.vertices():
 
             subnode = node.node(id)
-            if(subnode.internal_data.get('hide', False)): continue
+            if(subnode.internal_data.get('hide', False) and not empty_io): continue
 
             try:
                 factory = subnode.get_factory()
@@ -88,7 +91,8 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
                 layout.addWidget(widget)
             
                 vboxlayout.addWidget(groupbox)
-            
+           
+
     def set_autonomous(self):
         """ Add Run bouton and close button """
         

@@ -58,6 +58,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         vboxlayout.setSpacing(2)
 
         self.empty = True
+        
         for i,desc in enumerate(node.input_desc):
             # Hidden state
             h = node.is_port_hidden(i)
