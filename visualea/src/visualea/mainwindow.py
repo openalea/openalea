@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
 __doc__="""
 QT4 Main window 

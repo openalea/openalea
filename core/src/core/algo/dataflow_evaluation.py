@@ -1,9 +1,8 @@
 # -*- python -*-
-# -*- coding: latin-1 -*-
 #
-#       Evaluator : openalea core package
+#       OpenAlea.Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -14,6 +13,8 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
+
 
 __doc__="""
 This module provide an algorithm to evaluate a dataflow

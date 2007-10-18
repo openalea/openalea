@@ -1,3 +1,8 @@
+19/10/07 : 0.3.0 final release
+       Multiple categories
+       Reload module capabilities
+       Bug fix
+
 24/09/07 : 0.3.0a Alpha release
 	   "Save as CompositeNode" save values
 	   Add copy/Paste support

@@ -1,9 +1,8 @@
 # -*- python -*-
-# -*- coding: latin-1 -*-
 #
-#       Functor : openalea core package
+#       OpenAlea.Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #
@@ -11,8 +10,10 @@
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
-#       VPlants WebSite : http://openalea.gforge.inria.fr
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
+
 
 __doc__="""
 This module provide an actor interface
