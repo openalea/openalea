@@ -1,6 +1,5 @@
-
 17/09/07 :  Version 0.2
-	    Add remove function
+     	    Add remove function
             Improve interface (add tab view)
             Add authentification for INRIA Gforge
             Add install egg tab

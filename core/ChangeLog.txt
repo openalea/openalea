@@ -1,4 +1,5 @@
 19/10/07 : 0.3.0 final release
+       Multiple categories
        Reload module capabilities
        Bug fix
 
