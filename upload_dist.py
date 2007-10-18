@@ -216,6 +216,7 @@ urlmap = {
 
 
 
+import getpass
 
 if( __name__ == "__main__"):
 
@@ -223,8 +224,7 @@ if( __name__ == "__main__"):
 
     print "login :"
     login = raw_input()
-    print "Password:"
-    password = raw_input()
+    password = getpass.getpass()
 
 
     # Create login/password values

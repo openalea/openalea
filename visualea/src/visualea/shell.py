@@ -17,7 +17,6 @@
 
 __doc__="""
 This module implements a QT4 python interpreter widget.
-It is inspired bu PyCute : http://gerard.vermeulen.free.fr
 """
 
 __license__= "CeCILL V2"
@@ -67,6 +66,7 @@ class PyCutExt(QTextEdit):
     line interpreter is very hard, if not, impossible.  PyCute solves this
     problem by interfacing the Python interpreter to a PyQt widget.
 
+    This class is inspired by PyCute.py : http://gerard.vermeulen.free.fr (GPL)
     """
     
     def __init__(self, interpreter, message="", log='', parent=None):

@@ -17,7 +17,6 @@
 
 __doc__="""
 This module implements a QT4 python interpreter widget.
-It is inspired bu PyCute : http://gerard.vermeulen.free.fr
 """
 
 __license__= "CeCILL V2"
@@ -48,6 +47,8 @@ class MultipleRedirection:
 class SciShell(QsciScintilla):
     """
     SciShell is a Python shell based in QScintilla.
+    It is inspired bu PyCute (pycute.py) : http://gerard.vermeulen.free.fr (GPL)
+    and Eric4 shell (shell.py) : http://www.die-offenbachs.de/eric/index.html (GPL)
     """
     
     def __init__(self, interpreter, message="", log='', parent=None):
