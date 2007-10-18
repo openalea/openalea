@@ -16,7 +16,6 @@
 
 
 from openalea.core import *
-import scipy
 
 def register_packages(pkg_manager):
     

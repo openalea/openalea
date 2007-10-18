@@ -17,6 +17,7 @@
 
 from openalea.core import *
 from scipy import stats
+import scipy
 
 
 def ttest(x,y = [],mu=0):
