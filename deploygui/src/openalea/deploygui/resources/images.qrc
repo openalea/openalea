@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons" >
+	<file>openalea_icon.png</file>
+    </qresource>
+</RCC>
