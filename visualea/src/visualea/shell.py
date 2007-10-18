@@ -13,7 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
+################################################################################
 
 __doc__="""
 This module implements a QT4 python interpreter widget.

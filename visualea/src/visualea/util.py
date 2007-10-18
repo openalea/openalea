@@ -6,6 +6,7 @@
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
+#                       Frederic Boudon <frederic.boudon@cirad.fr>
 #
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
@@ -13,9 +14,11 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
+
 
 __doc__="""
-Utilities
+Decorator and Utilities
 """
 
 __license__= "CeCILL v2"
