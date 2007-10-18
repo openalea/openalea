@@ -1,7 +1,6 @@
 # -*- python -*-
-# -*- coding: latin-1 -*-
 #
-#       PortGraph : graph package
+#       OpenAlea.Core
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
@@ -12,8 +11,9 @@
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
-#       VPlants WebSite : https://gforge.inria.fr/projects/vplants/
-
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+################################################################################
 
 __doc__="""
 This module provide an implementation of a dataflow

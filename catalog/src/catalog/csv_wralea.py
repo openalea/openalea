@@ -1,11 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Catalog.Library: OpenAlea Catalog Library module
+#       OpenAlea.Catalog
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
-#
-#       File author(s): BOUDON Frederic <frederic.boudon@cirad.fr>
-#                       Da SILVA David <david.da_silva@cirad.fr>
+#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -13,13 +10,12 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
-__doc__="""
-Wralea for Core.Library 
-"""
 
+__doc__ = """ Catalog.CSV"""
 __license__= "Cecill-C"
-__revision__=" $Id: python_wralea.py 799 2007-10-01 06:41:20Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *

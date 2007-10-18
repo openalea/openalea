@@ -15,6 +15,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
 __doc__="""
 Main Module for graphical interface

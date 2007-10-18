@@ -15,6 +15,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
 __doc__ = """
 Wrapper to start Visualea with correct environment variables

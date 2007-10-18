@@ -1,9 +1,8 @@
 # -*- python -*-
-# -*- coding: latin-1 -*-
 #
-#       IdGenerator : graph package
+#       OpenAlea.Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Fred Theveny <theveny@cirad.fr>
@@ -12,8 +11,9 @@
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
-#       VPlants WebSite : https://gforge.inria.fr/projects/vplants/
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+################################################################################
 
 __doc__="""
 This module provide a generator for id numbers
