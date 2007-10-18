@@ -4,8 +4,8 @@
 #
 #       Copyright 2006-2007 INRIA - CIRAD - INRA  
 #
-#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
-#                       Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+###############################################################################
 
 
 __doc__="""
