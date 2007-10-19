@@ -130,6 +130,8 @@ def random_distrib( n = 100, xr = (0,1), yr = (0,1) ):
 
   return ( x, y ) 
 
+
+
 def regular_distrib( n = 100, xr = (0,1), yr = (0,1) ):
   """
   Simulation d'une realisation du processus regulier correspondant a une proba lineaire fonction du rayon caracterisant l'espace disponible par point
@@ -206,6 +208,7 @@ def gibbs_distrib( n = 10, xr = (0,1), yr = (0,1) ):
   pass
 
 
+
 def spatial_distrib( n=100, xrange=(0,1), yrange=(0,1), type='Random', params = None):
   if type == 'Random':
     return random_distrib( n, xrange, yrange)
@@ -214,6 +217,140 @@ def spatial_distrib( n=100, xrange=(0,1), yrange=(0,1), type='Random', params = 
   elif type == 'Neman Scott':
     return neman_scott__distrib( n, xrange, yrange, **params)
   elif type == 'Gibbs':
-    print 'Gibbs not implemented'
+    pass
+    
+#======================================================================#
 
+def domain(xmin, xmax, ymin, ymax):
+  return ((xmin, xmax), (ymin, ymax)),
+  
+def random_distribution(n =10):
+  x = [ random.random() for i in range(n) ]
+  y = [ random.random() for i in range(n) ]
+  return x, y
+
+def regular_distribution(n=10):
+  dist = 1./n
+  ptX = []
+  ptY = []
+  NbTry = 0 #count the number of try allowed to find a type2 point
+
+  while( len( ptX ) < n and NbTry < 100 ):
+
+    xtmp = random.random()
+    ytmp = random.random()
+    NbTry += 1
+    min_dist = _minDistPtClstr( xtmp, ytmp, ptX, ptY)
+
+    if _linearProba(min_dist, dist) :
+      ptX.append(xtmp)
+      ptY.append(ytmp)
+      NbTry = 0
+
+  if NbTry >= 100:
+    print "Impossible to get all Type2 points with required parameters"
+  
+  return ptX, ptY
+
+class basic_distrib( Node ):
+    """
+    Basic distribution(type) -> distribution func
+    Input:
+        Type of the function.
+    Output:
+        function that generates distribution.
+    """
+    
+    distr_func= { "Random" : random_distribution,
+                  "Regular" : regular_distribution,
+              } 
+    
+    def __init__(self):
+    
+        Node.__init__(self)
+
+        funs= self.distr_func.keys()
+        funs.sort()
+        self.add_input( name = "Type", interface = IEnumStr(funs), value = funs[0]) 
+        self.add_output( name = "Distribution", interface = None)
+
+    def __call__(self, inputs):
+        func_name= self.get_input("Type")
+        f = self.distr_func[func_name]
+        self.set_caption(func_name)
+
+        return f
+
+def neman_scott__distribution( n =10, cl_nbr = 2, cl_radius = 0.2 ):
+  """
+  simulation d'une realisation du processus de type Neman Scott (Nb Agregats, Rayon Agregats)
+  """
+
+  x_cl, y_cl = random_distrib( cl_nbr )
+  ptX = []
+  ptY =[]
+
+  while( len(ptX) < n ):
+    xtmp = random.random()
+    ytmp = random.random()
+    
+    if _testDistance(xtmp, ytmp, x_cl, y_cl, cl_radius):
+      ptX.append( xtmp )
+      ptY.append( ytmp )
+  
+  return ptX, ptY
+
+
+class aggregative_distrib( Node ):
+    """
+    Basic distribution(type) -> distribution func
+    Input:
+        Type of the function.
+    Output:
+        function that generates distribution.
+    """
+    
+    distr_func= { "NemanScott" : neman_scott__distribution,
+                } 
+    
+    def __init__(self):
+    
+        Node.__init__(self)
+
+        funs= self.distr_func.keys()
+        funs.sort()
+        self.add_input( name = "Type", interface = IEnumStr(funs), value = funs[0]) 
+        self.add_input( name = "Cluster number", interface = IInt(min=1), value = 2) 
+        self.add_input( name = "Cluster radius", interface = IFloat, value = 0.2) 
+        self.add_output( name = "Distribution", interface = None)
+
+    def __call__(self, inputs):
+        func_name= self.get_input("Type")
+        cluster_nb = self.get_input("Cluster number")
+        cluster_rd= self.get_input("Cluster radius")
+        f = self.distr_func[func_name]
+        self.set_caption(func_name)
+
+        return lambda n : neman_scott__distribution(n, cluster_nb, cluster_rd)
+
+
+def scale (seq, min, max):
+  mm = max-min
+  return [ min+x*mm for x in seq] 
+
+def random2D(n , distrib_func, domain):
+  if not distrib_func:
+    return
+
+  x, y = distrib_func(n)
+  
+  if domain:
+    (xmin, xmax), (ymin, ymax) = domain
+    x = scale(x, xmin, xmax)
+    y = scale(y, ymin, ymax)
+  
+  return x,y
+
+  
+  
   

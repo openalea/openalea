@@ -33,23 +33,57 @@ def register_packages(pkg_manager):
     
 ###### begin nodes definitions #############
 
-    nf = Factory( name="Spatial Distribution",
-                  description="Generates spatials ditributions of different kind",
+
+    nf = Factory( name="Domain",
+                  description="Generates domain tuple",
                   category="Spatial",
                   nodemodule="distribGen",
-                  nodeclass="spatial_distrib",
-                  inputs= ( dict( name = "n", interface=IInt, value = 100, showwidget=True ),
-                            dict( name = "x-range", interface=ISequence, value = [0,1], showwidget= True ),
-                            dict( name = "y-range", interface=ISequence, value = [0,1], showwidget=True ),
-                            dict( name = "type", interface=IEnumStr(['Random', 'Regular', 'Neman Scott', 'Gibbs']), value = 'Random', showwidget=True ),
-                            dict( name = "parameters", interface=IDict, value = {'cluster':5, 'cluster_radius':0.1}, showwidget=True ),
+                  nodeclass="domain",
+                  inputs= ( dict( name = "X min", interface=IInt, value = 0, showwidget=True ),
+                            dict( name = "X max", interface=IInt, value = 1, showwidget=True ),
+                            dict( name = "Y min", interface=IInt, value = 0, showwidget=True ),
+                            dict( name = "Y max", interface=IInt, value = 1, showwidget=True ),
                           ),
-                  outputs=( dict( name = "X positions", interface = ISequence ),
-                            dict( name = "Y positions", interface = ISequence ),
+                  outputs=( dict( name = "domain2D", ),
                           ),
                   )
 
     package.add_factory( nf )
+
+    nf = Factory( name= "Basic Distribution", 
+                  description= "Basic spatial distributions", 
+                  category = "Spatial", 
+                  nodemodule = "distribGen",
+                  nodeclass = "basic_distrib",
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "Aggregative Distribution", 
+                  description= "clustered distributions", 
+                  category = "Spatial", 
+                  nodemodule = "distribGen",
+                  nodeclass = "aggregative_distrib",
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="Random 2D",
+                  description="Generates random spatial distribution in a 2D domain",
+                  category="Spatial",
+                  nodemodule="distribGen",
+                  nodeclass="random2D",
+                  inputs= ( dict( name = "n", interface=IInt(min=0), value = 10, showwidget=True ),
+                            dict( name = "distribution", interface=IFunction, ),
+                            dict( name = "domain2D", interface=None,),
+                          ),
+                  outputs=( dict( name = "x", interface = ISequence),
+                            dict( name = "y", interface = ISequence)
+                          ),
+                  )
+
+    package.add_factory( nf )
+
 
 
 ###### end nodes definitions ###############
