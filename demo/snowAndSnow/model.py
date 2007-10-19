@@ -8,7 +8,7 @@ Snow&Snow phyllotaxis model.
 """
 
 
-from visual import *
+#from visual import *
 import math
 from matplotlib import rc, rcParams,use
 rc('text', usetex=True )
