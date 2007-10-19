@@ -70,11 +70,13 @@ class DiscInhibitorPhyllotaxisModel:
     """Class for simulating Snow&Snow phyllotaxis model.
     """
     def __init__( self, prims=None, visualisation=False ):
-        self.c_center = vector(0,0,0)
+        #self.c_center = vector(0,0,0)
+        self.c_center = pgl.Vector3(0,0,0)
         self.c_czone=1
 
         self.c_discretization =360
-        self.c_plane_normal=vector(0,0,1)
+        #self.c_plane_normal=vector(0,0,1)
+        self.c_plane_normal=pgl.Vector3(0,0,1)
         self.c_convergance_error = 1.
         self.c_convergance_nbr_last_values = 20
         
@@ -172,12 +174,12 @@ class DiscInhibitorPhyllotaxisModel:
             pgl.Viewer.camera.setOrthographic()
             pgl.Viewer.animation( True )
             pgl.Viewer.display( self.scene )
-        else:
-            self.background = cylinder(pos=vector(0,0,-1), axis=vector(0,0,1),radius=1.5*self.c_dzone, length=0.01, color=(0.,0.0,0))
-            self.center = sphere(pos=vector(0,0,1), radius=0.1, color=(1,1,1))
-            self.competence = ring( pos=vector(0,0,1), axis=vector(0,0,1), radius=self.c_czone, thickness=self.c_visual_zone_size)
-            self.drop = ring( pos=vector(0,0,1), axis=vector(0,0,1), radius=self.c_dzone, color=(1,0,0), thickness=self.c_visual_zone_size)
-            scene.exit_on_close( 0 )
+        #else:
+        #    self.background = cylinder(pos=vector(0,0,-1), axis=vector(0,0,1),radius=1.5*self.c_dzone, length=0.01, color=(0.,0.0,0))
+        #    self.center = sphere(pos=vector(0,0,1), radius=0.1, color=(1,1,1))
+        #    self.competence = ring( pos=vector(0,0,1), axis=vector(0,0,1), radius=self.c_czone, thickness=self.c_visual_zone_size)
+        #    self.drop = ring( pos=vector(0,0,1), axis=vector(0,0,1), radius=self.c_dzone, color=(1,0,0), thickness=self.c_visual_zone_size)
+        #    scene.exit_on_close( 0 )
 
     def _prepare_scene( self ):
         """Visualisation. It is not mandatory.
@@ -195,12 +197,12 @@ class DiscInhibitorPhyllotaxisModel:
         """
         if self.visualisation == 2:        
             nv=[]
-            for i in vis:
-                i.visible=False
-            for i in prims:
-                nv.append( cylinder(pos=prims[ i ], axis=vector(0,0,1),radius=self.c_prim_size, length=0.01*(self.c_dzone-mag(self.c_center-prims[ i ])), color=(0.,0.5,0)))
-                nv.append( ring(pos=prims[ i ], axis=vector(0,0,1),radius=self.c_prim_size, thickness=0.008*(self.c_dzone-mag(self.c_center-prims[ i ])), color=(0.,0.8,0)))
-                nv.append( cylinder(pos=prims[ i ], axis=vector(0,0,1),radius=float(self.c_prim_size)/25, length=50, color=(0.5,0.0,0)))
+            #for i in vis:
+            #    i.visible=False
+            #for i in prims:
+            #    nv.append( cylinder(pos=prims[ i ], axis=vector(0,0,1),radius=self.c_prim_size, length=0.01*(self.c_dzone-mag(self.c_center-prims[ i ])), color=(0.,0.5,0)))
+            #    nv.append( ring(pos=prims[ i ], axis=vector(0,0,1),radius=self.c_prim_size, thickness=0.008*(self.c_dzone-mag(self.c_center-prims[ i ])), color=(0.,0.8,0)))
+            #    nv.append( cylinder(pos=prims[ i ], axis=vector(0,0,1),radius=float(self.c_prim_size)/25, length=50, color=(0.5,0.0,0)))
             #raw_input()    
             return nv
         else:
@@ -241,13 +243,15 @@ class DiscInhibitorPhyllotaxisModel:
             a = e+(float(i)/self.c_discretization)*2*math.pi
             x = self.c_czone*math.cos(a)
             y = self.c_czone*math.sin(a)
-            l.append(vector(x,y,0))
+            #l.append(vector(x,y,0))
+            l.append(pgl.Vector3(x,y,0))
         #second ring
         for i in range(self.c_discretization/4):
             a = e+(float(i)/self.c_discretization/5)*2*math.pi
             x = 1.1*self.c_czone*math.cos(a)
             y = 1.1*self.c_czone*math.sin(a)
-            l.append(vector(x,y,0))
+            #l.append(vector(x,y,0))
+            l.append(pgl.Vector3(x,y,0))
         return l
 
     def move_primodiums( self, prims ):
@@ -359,8 +363,10 @@ class DiscInhibitorPhyllotaxisModel:
             for i in prims:
                 self.add_prim( prims[ i ] )
         else:
-            self.add_prim( vector(-self.c_czone,0,0) )
-            self.add_prim( vector(self.c_czone+0.01,0,0) )
+            #self.add_prim( vector(-self.c_czone,0,0) )
+            #self.add_prim( vector(self.c_czone+0.01,0,0) )
+            self.add_prim( pgl.Vector3(-self.c_czone,0,0) )
+            self.add_prim( pgl.Vector3(self.c_czone+0.01,0,0) )
 
 
 

@@ -24,9 +24,9 @@ __docformat__= "restructuredtext en"
 __revision__="$Id$"
 
 import openalea.plotools.plotable2 as ptb
-import visual
+#import visual
 import math
-
+import openalea.plantgl.all as pgl
 
 def generate_VisualSequence_prim_id2abs_time( prim_id2time={}, legend="Primordium to absolute creation time", linestyle=":", marker="o", color="r" ):
     """Generates VisualSequence object from primordium id and its creation time containing the absolute time between primordia creation.
@@ -127,22 +127,25 @@ def generate_VisualSequence_prim_id2abs_angle( prim_id2prim_pos, legend="Primord
     xy=prim_id2prim_pos.items()
     xy.sort()
     prim_id=[i[0] for i in xy]
-    sta_div_ang=[get_angle_between_primordias( visual.vector(), xy[ i-1][1])  for i in range( len(xy) )]  
+    #sta_div_ang=[get_angle_between_primordias( visual.vector(), xy[ i-1][1])  for i in range( len(xy) )]
+    sta_div_ang=[get_angle_between_primordias( pgl.Vector3(1,0,0), xy[ i-1][1])  for i in range( len(xy) )]  
     return ptb.VisualSequence( x=prim_id, y=sta_div_ang, legend=legend, linestyle=linestyle, marker=marker, color=color )
 
      
 def get_angle_between_primordias( yi, yj):
     """Return the angle between primordias.
     """
-    if yi.__class__ == visual.vector:
-        d = yi.diff_angle(yj)
-        if visual.mag( visual.rotate( yi, axis=(0,0,1), angle=d )- yj ) < 0.001:
-            return d*360/(2*math.pi)
-        else:
-            return (2*math.pi-d)*360/(2*math.pi)
-    else:
+    #if yi.__class__ == visual.vector:
+    #    d = yi.diff_angle(yj)
+    #    if visual.mag( visual.rotate( yi, axis=(0,0,1), angle=d )- yj ) < 0.001:
+    #        return d*360/(2*math.pi)
+    #    else:
+    #        return (2*math.pi-d)*360/(2*math.pi)
+    #else:
         #except NotImplemented()    
-        pass
+        #d = yi.diff_angle(yj)
+    d = pgl.angle( yi, yj )
+    return  d*360/(2*math.pi)
     
 def standarize_angle( a ):
     """Angle standarisation.
