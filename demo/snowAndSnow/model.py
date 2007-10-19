@@ -140,7 +140,8 @@ class DiscInhibitorPhyllotaxisModel:
     def f_single_inihibition( self, p1, p2, r):
         """Defines the behaviour of single primordium inhibition.
         """
-        d = mag(p1 - p2)
+        #d = mag(p1 - p2)
+        d = pgl.norm(p1 - p2)
         try:
             return (self.c_prim_size/d)**self.c_prim_stiffness
         except ZeroDivisionError:
@@ -157,12 +158,16 @@ class DiscInhibitorPhyllotaxisModel:
     def displacement( self, p, c ):
         """Defines how the primordias are moving.
         """
-        return norm( p-c )*self.scalar_speed( p )
+        n=p-c
+        n.normalize()
+        return n*self.scalar_speed( p )
+        #return norm( p-c )*self.scalar_speed( p )
 
     def scalar_speed( self, p ):
         """Defines the magnitude with which primordias are moving.
         """
-        return self.current_timestep*self.c_v0*mag(p-self.c_center)/self.c_czone
+        return self.current_timestep*self.c_v0*pgl.norm(p-self.c_center)/self.c_czone
+        #return self.current_timestep*self.c_v0*mag(p-self.c_center)/self.c_czone
 
     def prepare_scene( self ):
         """Visualisation. It is not mandatory.
@@ -266,7 +271,8 @@ class DiscInhibitorPhyllotaxisModel:
         """
         t = {}
         for i in prims:
-            if mag(prims[ i ] - self.c_center) < self.c_dzone:
+#            if mag(prims[ i ] - self.c_center) < self.c_dzone:
+            if pgl.norm(prims[ i ] - self.c_center) < self.c_dzone:
                 t[ i ] = prims[ i  ]
         return t
 
