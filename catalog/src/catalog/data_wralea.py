@@ -149,6 +149,18 @@ def register_packages(pkgmanager):
 
     package.add_factory( nf )
 
+    nf = Factory( name="float scy",
+                  description="Float Value",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="FloatScy",
+
+                  inputs=(dict(name="str", interface=IStr, value="0.0"),),
+                  outputs=(dict(name="Float", interface=IFloat),),
+                  )
+
+    package.add_factory( nf )
+
 
     nf = Factory( name="int",
                   description="Int Value",

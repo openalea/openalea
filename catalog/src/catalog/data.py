@@ -126,6 +126,25 @@ Ouput 0 : Transmit the stored value
         return ( res, )
 
 
+class FloatScy(Node):
+    """
+Variable
+Input 0 : The stored value in string format
+Ouput 0 : Transmit the stored value
+    """
+
+    def __init__(self, ins, outs):
+        Node.__init__(self, ins, outs)
+        self.set_caption(str(0.0))
+       
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        res = float(inputs[0])
+        self.set_caption('%.1e'%res)
+        return ( res, )
+
+
 class String(Node):
     """
 String Variable
