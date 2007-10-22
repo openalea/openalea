@@ -605,9 +605,11 @@ class NodeFactory(AbstractFactory):
         @param call_stack : the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
-        
+
         module = self.get_node_module()
-        classobj = module.__dict__[self.nodeclass_name]
+        classobj = module.__dict__.get(self.nodeclass_name,None)
+        if classobj is None:
+            raise "Cannot instantiate '"+self.nodeclass_name+"' from "+str(module)
 
         # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not AbstractNode in classobj.mro()):
