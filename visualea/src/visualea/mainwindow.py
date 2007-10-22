@@ -259,7 +259,7 @@ class MainWindow(QtGui.QMainWindow,
                                                  QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
                 if(ret == QtGui.QMessageBox.Yes):
-                    self.export_to_factory(cindex, False)
+                    self.export_to_factory(cindex)
 
         except Exception, e:
             pass
