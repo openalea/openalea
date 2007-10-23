@@ -31,6 +31,7 @@ import string
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
 from pkgmanager import PackageManager
+from package import UnknownNodeError
 from dataflow import DataFlow, InvalidEdge, PortError
 from algo.dataflow_copy import structural_copy
 from settings import Settings
@@ -109,11 +110,19 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
+
+        error_nodes = set() # non instantiated nodes
+
         
         # Instantiate the node with each factory
         for vid in self.elt_factory:
-            n = self.instantiate_node(vid, call_stack)
-            new_df.add_node(n, vid, False)
+            try:
+                n = self.instantiate_node(vid, call_stack)
+                new_df.add_node(n, vid, False)
+
+            except UnknownNodeError:
+                error_nodes.add(vid)
+
 
         # Set IO internal data
         try:
@@ -125,6 +134,9 @@ class CompositeNodeFactory(AbstractFactory):
         # Create the connections
         for eid,link in self.connections.iteritems() :
             (source_vid, source_port, target_vid, target_port) = link
+
+            if(source_vid in error_nodes or target_vid in error_nodes): 
+                continue
 
             # Replace id for in and out nodes
             if(source_vid == '__in__') :  source_vid = new_df.id_in
@@ -161,6 +173,7 @@ class CompositeNodeFactory(AbstractFactory):
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
 
+            
             # Apply modifiers
             for (key, func) in data_modifiers:
                 try:
@@ -172,8 +185,9 @@ class CompositeNodeFactory(AbstractFactory):
             idmap[vid] = newid
 
         # Create the connections
-        for eid,link in self.connections.iteritems() :
+        for eid,link in self.connections.iteritems():
             (source_vid, source_port, target_vid, target_port) = link
+            
             # convert id
             source_vid = idmap[source_vid]
             target_vid = idmap[target_vid]
