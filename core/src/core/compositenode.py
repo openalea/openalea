@@ -30,7 +30,7 @@ import string
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
-from pkgmanager import PackageManager
+from pkgmanager import PackageManager, UnknownPackageError
 from package import UnknownNodeError
 from dataflow import DataFlow, InvalidEdge, PortError
 from algo.dataflow_copy import structural_copy
@@ -120,8 +120,11 @@ class CompositeNodeFactory(AbstractFactory):
                 n = self.instantiate_node(vid, call_stack)
                 new_df.add_node(n, vid, False)
 
-            except UnknownNodeError:
+            except (UnknownNodeError, UnknownPackageError):
                 error_nodes.add(vid)
+                print "WARNING : The graph is not fully operational "  
+                (pkg, fact) = self.elt_factory[vid]
+                print "-> Cannot find '%s.%s'"%(pkg, fact)
 
 
         # Set IO internal data
