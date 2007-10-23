@@ -209,10 +209,6 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             
 
 
-
-
-
-
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
     

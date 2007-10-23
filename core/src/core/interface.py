@@ -146,6 +146,11 @@ class IInt(IInterface):
         self.max = max
         self.step = step
 
+    @classmethod
+    def default(cls):
+        return 0
+    
+
 
 class IBool(IInterface):
     """ Bool interface """

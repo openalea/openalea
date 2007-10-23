@@ -400,11 +400,19 @@ class CompositeNode(Node, DataFlow):
         
         # For each input port
         for pid in self.in_ports():
-            # if port is not connected
-            if(len(list(self.connected_edges(pid))) > 0):
-                continue
-                # TODO : Test if connected source_port not in v_list
 
+            connected_edges = list(self.connected_edges(pid))
+
+            is_input = False
+            for e in connected_edges:
+                s = self.source(e)
+                if(s not in v_list):
+                    is_input = True
+
+            # if port is not connected
+            if(len(connected_edges) > 0 and not is_input):
+                continue
+            
             vid = self.vertex(pid)
             if(v_list and not vid in v_list) : continue
                 
@@ -412,18 +420,32 @@ class CompositeNode(Node, DataFlow):
             n = self.node(vid)
             desc = n.input_desc[pname]
             name = "in_" + desc['name'] + str(vid)
+            interface = desc['interface']
+            if(interface):
+                value = interface.default()
+            else:
+                value = None
 
             connections.append( ('__in__', len(ins), vid, pname) )
-            ins.append(dict(name=name, interface=desc['interface']))
+            ins.append(dict(name=name, interface=interface, value=value))
                 
                 
         # For each output port
         for pid in self.out_ports():
-            # if port is not connected
-            if(len(list(self.connected_edges(pid))) > 0 ):
+
+            connected_edges = list(self.connected_edges(pid))
+
+            is_output = False
+            for e in connected_edges:
+                t = self.target(e)
+                if(t not in v_list):
+                    is_output = True
+
+            # if port is connected
+            if(len(connected_edges) > 0 and not is_output):
                 continue
-                # TODO : Test if connected target_port not in v_list
-                
+
+            # port is not connected
             vid = self.vertex(pid)
             if(v_list and not vid in v_list) : continue
                 
@@ -512,7 +534,10 @@ class CompositeNode(Node, DataFlow):
                                           if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
-        self.factory = sgfactory
+
+        # Set node factory if all node have been exported
+        if(listid is None):
+            self.factory = sgfactory
         
 
 
