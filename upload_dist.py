@@ -195,14 +195,18 @@ def glob_upload(pattern):
                 url = v
 
         if(url):
+            if(filename.endswith("egg")):
+                ext = "egg"
+            else:
+                ext = "srcgz"
             print "upload", filename, url
-            upload(filename, url, "egg", "any")
+            upload(filename, url, ext, "any")
             #break
     
 
 urlmap = {
-    'deploygui-0.2' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
-    'deploy-0.2' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
+    'deploygui-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
+    'deploy-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
     'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
     'scipy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
     'rpy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',

@@ -85,6 +85,28 @@ def register_packages(pkg_manager):
     package.add_factory( nf )
 
 
+    nf = CompositeNodeFactory(name='Spatial Distribution', 
+                              description='', 
+                              category='Spatial',
+                              doc='',
+                              inputs=[{'interface': IInt, 'name': 'Size', 'value': 10}],
+                              outputs=[{'interface': ISequence, 'name': 'X'}, 
+                                       {'interface': ISequence, 'name': 'Y'}],
+                              elt_factory={2: ('spatial', 'Basic Distribution'), 
+                                           3: ('spatial', 'Random 2D'), 
+                                           4: ('spatial', 'Domain')},
+
+                              elt_connections={147103624: (2, 0, 3, 1), 147103612: (4, 0, 3, 2), 147103588: (3, 1, '__out__', 1), 147103636: ('__in__', 0, 3, 0), 147103600: (3, 0, '__out__', 0)},
+                              elt_data={3: 
+{'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'Random 2D', 'posx': 140.0, 'posy': 228.75, 'minimal': False}, 2: {'lazy': True, 'hide': False, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'Basic Distribution', 'posx': 140.0, 'posy': 122.5, 'minimal': False}, '__in__': {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'In', 'posx': 20.0, 'posy': 5.0, 'minimal': False}, 4: {'lazy': True, 'hide': False, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'Domain', 'posx': 308.75, 'posy': 131.25, 'minimal': False}, '__out__': {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'Out', 'posx': 152.5, 'posy': 306.25, 'minimal': False}},
+                              elt_value={3: [], 2: [(0, "'Random'")], '__in__': [], 4: [(0, '0'), (1, '1'), (2, '0'), (3, '1')], '__out__': []},
+                              lazy=True,
+                              )
+
+    package.add_factory(nf)
+
+
+
 
 ###### end nodes definitions ###############
 
