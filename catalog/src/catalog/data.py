@@ -17,7 +17,7 @@ __doc__=""" Data Nodes """
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
+from os.path import join
 from openalea.core import *
 
 class Variable(Node):
@@ -56,8 +56,11 @@ Out :  the path string
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-
-        return ( str(inputs[0]),  )
+        rep,cwd=inputs
+        if len(cwd)>0 :
+            return ( join(str(cwd),str(rep)),  )
+        else :
+            return ( str(rep),  )
 
 
 class RGB(Node):
@@ -123,6 +126,25 @@ Ouput 0 : Transmit the stored value
         """ inputs is the list of input values """
         res = float(inputs[0])
         self.set_caption('%.1f'%res)
+        return ( res, )
+
+
+class FloatScy(Node):
+    """
+Variable
+Input 0 : The stored value in string format
+Ouput 0 : Transmit the stored value
+    """
+
+    def __init__(self, ins, outs):
+        Node.__init__(self, ins, outs)
+        self.set_caption(str(0.0))
+       
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        res = float(inputs[0])
+        self.set_caption('%.1e'%res)
         return ( res, )
 
 

@@ -77,7 +77,7 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="DirName",
 
-                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),),
+                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),dict(name='cwd', interface=IDirStr, value='', hide=True)),
                   outputs=(dict(name='DirStr', interface=IDirStr),)
                   )
 
@@ -144,6 +144,18 @@ def register_packages(pkgmanager):
                   nodeclass="Float",
 
                   inputs=(dict(name="Float", interface=IFloat, value=0.0),),
+                  outputs=(dict(name="Float", interface=IFloat),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="float scy",
+                  description="Float Value",
+                  category="Data Types",
+                  nodemodule="data",
+                  nodeclass="FloatScy",
+
+                  inputs=(dict(name="str", interface=IStr, value="0.0"),),
                   outputs=(dict(name="Float", interface=IFloat),),
                   )
 
