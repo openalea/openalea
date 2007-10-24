@@ -87,6 +87,11 @@ class AbstractNode(IActor, Observed):
         """ Reset Node """
         pass
 
+    
+    def invalidate(self):
+        """ Invalidate Node """
+        pass
+
 
     # Accessor
     def set_factory(self, factory):
@@ -404,8 +409,14 @@ class Node(AbstractNode):
             self.set_input(i, self.input_desc[i].get('value', None))
 
         if(i>0):
-            self.modified = True
-            self.notify_listeners(("input_modified", -1))
+            self.invalidate()
+
+
+    def invalidate(self):
+        """ Invalidate node """
+        
+        self.modified = True
+        self.notify_listeners(("input_modified", -1))
 
 
 
