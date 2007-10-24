@@ -17,7 +17,7 @@ __doc__=""" Data Nodes """
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
+from os.path import join
 from openalea.core import *
 
 class Variable(Node):
@@ -56,8 +56,11 @@ Out :  the path string
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-
-        return ( str(inputs[0]),  )
+        rep,cwd=inputs
+        if len(cwd)>0 :
+            return ( join(str(cwd),str(rep)),  )
+        else :
+            return ( str(rep),  )
 
 
 class RGB(Node):

@@ -77,7 +77,7 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="DirName",
 
-                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),),
+                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),dict(name='cwd', interface=IDirStr, value='', hide=True)),
                   outputs=(dict(name='DirStr', interface=IDirStr),)
                   )
 
