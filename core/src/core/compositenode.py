@@ -268,14 +268,23 @@ class CompositeNode(Node, DataFlow):
 
 
     def reset(self):
-        """ Reset connected port and outputs """
+        """ Reset nodes """
 
         Node.reset(self)
 
-        # Copy node
         for vid in set(self.vertices()):
             node = self.actor(vid)
             node.reset()
+
+    
+    def invalidate(self):
+        """ Invalidate nodes """
+
+        Node.invalidate(self)
+
+        for vid in set(self.vertices()):
+            node = self.actor(vid)
+            node.invalidate()
 
 
     def set_io(self, inputs, outputs):
