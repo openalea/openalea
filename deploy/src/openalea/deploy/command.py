@@ -115,8 +115,8 @@ class build_py(old_build_py):
 
     def initialize_options (self):
         old_build_py.initialize_options(self)
-	self.scons_ext_param = ""  # None value are not accepted
-	self.scons_path = None     # Scons path
+        self.scons_ext_param = ""  # None value are not accepted
+        self.scons_path = None     # Scons path
 
 
     def run(self):
@@ -156,8 +156,8 @@ class build_ext(old_build_ext):
 
     def initialize_options (self):
         old_build_ext.initialize_options(self)
-	self.scons_ext_param = ""  # None value are not accepted
-	self.scons_path = None     # Scons path
+        self.scons_ext_param = ""  # None value are not accepted
+        self.scons_path = None     # Scons path
 
 
     def run(self):
@@ -406,7 +406,7 @@ except:
 
 
     def initialize_options (self):
-	self.namespaces = []
+        self.namespaces = []
         self.build_dir = None
 
     def finalize_options (self):
