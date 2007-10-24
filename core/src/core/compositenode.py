@@ -30,7 +30,8 @@ import string
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
-from pkgmanager import PackageManager
+from pkgmanager import PackageManager, UnknownPackageError
+from package import UnknownNodeError
 from dataflow import DataFlow, InvalidEdge, PortError
 from algo.dataflow_copy import structural_copy
 from settings import Settings
@@ -109,11 +110,22 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
+
+        error_nodes = set() # non instantiated nodes
+
         
         # Instantiate the node with each factory
         for vid in self.elt_factory:
-            n = self.instantiate_node(vid, call_stack)
-            new_df.add_node(n, vid, False)
+            try:
+                n = self.instantiate_node(vid, call_stack)
+                new_df.add_node(n, vid, False)
+
+            except (UnknownNodeError, UnknownPackageError):
+                error_nodes.add(vid)
+                print "WARNING : The graph is not fully operational "  
+                (pkg, fact) = self.elt_factory[vid]
+                print "-> Cannot find '%s.%s'"%(pkg, fact)
+
 
         # Set IO internal data
         try:
@@ -125,6 +137,9 @@ class CompositeNodeFactory(AbstractFactory):
         # Create the connections
         for eid,link in self.connections.iteritems() :
             (source_vid, source_port, target_vid, target_port) = link
+
+            if(source_vid in error_nodes or target_vid in error_nodes): 
+                continue
 
             # Replace id for in and out nodes
             if(source_vid == '__in__') :  source_vid = new_df.id_in
@@ -161,6 +176,7 @@ class CompositeNodeFactory(AbstractFactory):
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
 
+            
             # Apply modifiers
             for (key, func) in data_modifiers:
                 try:
@@ -172,8 +188,9 @@ class CompositeNodeFactory(AbstractFactory):
             idmap[vid] = newid
 
         # Create the connections
-        for eid,link in self.connections.iteritems() :
+        for eid,link in self.connections.iteritems():
             (source_vid, source_port, target_vid, target_port) = link
+            
             # convert id
             source_vid = idmap[source_vid]
             target_vid = idmap[target_vid]
@@ -251,14 +268,23 @@ class CompositeNode(Node, DataFlow):
 
 
     def reset(self):
-        """ Reset connected port and outputs """
+        """ Reset nodes """
 
         Node.reset(self)
 
-        # Copy node
         for vid in set(self.vertices()):
             node = self.actor(vid)
             node.reset()
+
+    
+    def invalidate(self):
+        """ Invalidate nodes """
+
+        Node.invalidate(self)
+
+        for vid in set(self.vertices()):
+            node = self.actor(vid)
+            node.invalidate()
 
 
     def set_io(self, inputs, outputs):
@@ -383,11 +409,19 @@ class CompositeNode(Node, DataFlow):
         
         # For each input port
         for pid in self.in_ports():
-            # if port is not connected
-            if(len(list(self.connected_edges(pid))) > 0):
-                continue
-                # TODO : Test if connected source_port not in v_list
 
+            connected_edges = list(self.connected_edges(pid))
+
+            is_input = False
+            for e in connected_edges:
+                s = self.source(e)
+                if(s not in v_list):
+                    is_input = True
+
+            # if port is not connected
+            if(len(connected_edges) > 0 and not is_input):
+                continue
+            
             vid = self.vertex(pid)
             if(v_list and not vid in v_list) : continue
                 
@@ -395,18 +429,32 @@ class CompositeNode(Node, DataFlow):
             n = self.node(vid)
             desc = n.input_desc[pname]
             name = "in_" + desc['name'] + str(vid)
+            interface = desc['interface']
+            if(interface):
+                value = interface.default()
+            else:
+                value = None
 
             connections.append( ('__in__', len(ins), vid, pname) )
-            ins.append(dict(name=name, interface=desc['interface']))
+            ins.append(dict(name=name, interface=interface, value=value))
                 
                 
         # For each output port
         for pid in self.out_ports():
-            # if port is not connected
-            if(len(list(self.connected_edges(pid))) > 0 ):
+
+            connected_edges = list(self.connected_edges(pid))
+
+            is_output = False
+            for e in connected_edges:
+                t = self.target(e)
+                if(t not in v_list):
+                    is_output = True
+
+            # if port is connected
+            if(len(connected_edges) > 0 and not is_output):
                 continue
-                # TODO : Test if connected target_port not in v_list
-                
+
+            # port is not connected
             vid = self.vertex(pid)
             if(v_list and not vid in v_list) : continue
                 
@@ -495,7 +543,10 @@ class CompositeNode(Node, DataFlow):
                                           if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
-        self.factory = sgfactory
+
+        # Set node factory if all node have been exported
+        if(listid is None):
+            self.factory = sgfactory
         
 
 
