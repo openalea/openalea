@@ -300,6 +300,7 @@
      <string>&amp;Workspace</string>
     </property>
     <addaction name="action_Run" />
+    <addaction name="actionInvalidate" />
     <addaction name="actionReset" />
     <addaction name="actionConfigure_I_O" />
     <addaction name="separator" />
@@ -627,6 +628,14 @@
    </property>
    <property name="text" >
     <string>Display Workspaces</string>
+   </property>
+  </action>
+  <action name="actionInvalidate" >
+   <property name="text" >
+    <string>Invalidate</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

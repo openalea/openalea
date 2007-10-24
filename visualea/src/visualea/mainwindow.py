@@ -148,6 +148,7 @@ class MainWindow(QtGui.QMainWindow,
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
         self.connect(self.actionReset, SIGNAL("activated()"), self.reset)
+        self.connect(self.actionInvalidate, SIGNAL("activated()"), self.invalidate)
         
         self.connect(self.action_Copy, SIGNAL("activated()"), self.copy)
         self.connect(self.action_Paste, SIGNAL("activated()"), self.paste)
@@ -699,6 +700,12 @@ class MainWindow(QtGui.QMainWindow,
         cindex = self.tabWorkspace.currentIndex()
         self.index_nodewidget[cindex].node.reset()
 
+    
+    def invalidate(self):
+        """ Invalidate current workspace """
+
+        cindex = self.tabWorkspace.currentIndex()
+        self.index_nodewidget[cindex].node.invalidate()
 
 
     def get_current_factory(self, name):

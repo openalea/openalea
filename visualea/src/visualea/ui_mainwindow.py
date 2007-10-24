@@ -267,6 +267,9 @@ class Ui_MainWindow(object):
 
         self.actionReset = QtGui.QAction(MainWindow)
         self.actionReset.setObjectName("actionReset")
+        
+        self.actionInvalidate = QtGui.QAction(MainWindow)
+        self.actionInvalidate.setObjectName("actionInvalidate")
 
         self.actionPreview_Application = QtGui.QAction(MainWindow)
         self.actionPreview_Application.setObjectName("actionPreview_Application")
@@ -301,6 +304,7 @@ class Ui_MainWindow(object):
         self.menu_Python.addAction(self.actionOpen_Console)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addAction(self.actionReset)
+        self.menu_Workspace.addAction(self.actionInvalidate)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
@@ -425,6 +429,8 @@ class Ui_MainWindow(object):
         self.action_Cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+K", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInvalidate.setText(QtGui.QApplication.translate("MainWindow", "Invalidate", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInvalidate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreview_Application.setText(QtGui.QApplication.translate("MainWindow", "Preview Application", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLeft_Panel.setText(QtGui.QApplication.translate("MainWindow", "Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.actionWorkspaces.setText(QtGui.QApplication.translate("MainWindow", "Workspaces", None, QtGui.QApplication.UnicodeUTF8))
