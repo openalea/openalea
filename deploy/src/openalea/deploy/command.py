@@ -30,6 +30,7 @@ from distutils.errors import *
 from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
+from distutils.command.build import build as old_build
 from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
@@ -106,6 +107,11 @@ def set_has_ext_modules(dist):
     m = new.instancemethod(has_ext_modules, dist, Distribution)
     dist.has_ext_modules = m
 
+    # put build_ext command before build_py
+    def cmp_cmd(x,y):
+        return cmp(x[0], y[0])
+
+    old_build.sub_commands.sort(cmp=cmp_cmd)
 
 class build_py(old_build_py):
     """
