@@ -1,34 +1,32 @@
 # This file allow to use openalea packages without installing them.
 
 def set_path():
-    import os
-    from distutils.sysconfig import get_python_lib
-    import openalea
+    import os, sys
+    from os.path import join
+    import pkg_resources
+    openalea = sys.modules['openalea']
 
-    openalea_dir = os.path.join(get_python_lib(),'openalea')
 
-    pkg_dirs = [ "core/src",
-                 "visualea/src",
-                 "catalog/src",
-                 "distx",
-                 "sconsx/src",
-                 "plotools/src",
-                 "scipy/src",
-                 "rpy/src",
-                 "spatial/src",
-                 "stand/src",
-                 openalea_dir
-                 ]
+    dir = os.path.dirname(__file__)
+
+    pkg_resources._handle_ns('openalea.core', join('core/src'))
+    
+
+    pkg_dirs = { 'openalea.core': "core/src",
+                 'openalea.visualea':"visualea/src",
+                 'openalea.catalog' : "catalog/src",
+                 'openalea.sconsx' : "sconsx/src",
+                 'openalea.plotools' : "plotools/src",
+                 'openalea.scipy' : "scipy/src",
+                 'openalea.rpy' : "rpy/src",
+                 'openalea.spatial' ; "spatial/src",
+                 'openalea.stand' : "stand/src",
+                 }
 
  
-    for subdir in  pkg_dirs:
-        for p in openalea.__path__:
-        
-            newpath = os.path.abspath(os.path.join(p, os.path.normpath(subdir)))
-            if(os.path.isdir(newpath)):
-                openalea.__path__.append(newpath)
-                break
+    for name, subdir in  pkg_dirs.items():
 
+        pkg_resources._handle_ns(name, join(dir, subdir))
 
     try:
         import vplants
@@ -37,6 +35,3 @@ def set_path():
         pass
 
 
-
-    del get_python_lib
-    del openalea_dir
