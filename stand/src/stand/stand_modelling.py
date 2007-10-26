@@ -26,8 +26,8 @@ def position_mapping( objList = [], ptX = [], ptY =[] ):
   assert ( len(objList) == len(ptX) and len(objList) == len(ptY) and "coordinates and objects should have the same length" ) 
   
   for i in range( len( objList ) ) :
-    objList[i].X = ptX[i]
-    objList[i].Y = ptY[i]
+    objList[i].posX = ptX[i]
+    objList[i].posY = ptY[i]
 
   return (objList, )
 

@@ -48,17 +48,19 @@ def register_packages(pkgmanager):
                  category="Csv", 
                  nodemodule="csv",
                  nodeclass="parseText",
+                 lazy = False,
                  outputs=(dict(name='objects', interface=None),
                           dict(name='header', interface=None),)
                  )
 
     package.add_factory(nf)
 
-    nf = Factory(name="obj2cvs", 
+    nf = Factory(name="obj2csv", 
                  description="Csv exporter", 
                  category="Csv", 
                  nodemodule="csv",
                  nodeclass="writeObjs",
+                 lazy = False,
                  outputs=(dict(name='string', interface=IStr),)
                  )
 

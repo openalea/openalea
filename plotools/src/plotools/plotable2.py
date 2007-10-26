@@ -185,7 +185,7 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
     except  TypeError:
         # do sth with exceptions
         obj=vis_seq_list
-        print figure
+        #print figure
         pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color,  **keys )
 
     xmin, xmax = pylab.xlim()
