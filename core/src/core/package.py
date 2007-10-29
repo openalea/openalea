@@ -83,7 +83,6 @@ class Package(dict):
         import inspect
         # get the path of the file which call this function
         call_path = os.path.abspath(inspect.stack()[1][1])
-        print call_path
         self.path = os.path.dirname(call_path)
         self.wralea_path = call_path
             
@@ -177,7 +176,6 @@ class UserPackage(Package):
             import inspect
             # get the path of the file which call this function
             call_path = os.path.abspath(inspect.stack()[1][1])
-            print call_path
             self.path = os.path.dirname(call_path)
             self.wralea_path = call_path
 
