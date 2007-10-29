@@ -85,7 +85,7 @@ class PackageDir(Node):
         path = ''
 
         if pkg :
-            path = pkg.wralea_path
+            path = pkg.path
 
         return (path,  )
 
