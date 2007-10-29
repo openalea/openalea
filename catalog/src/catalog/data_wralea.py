@@ -64,7 +64,8 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="FileName",
 
-                  inputs=(dict(name='FileStr', interface=IFileStr, value=''),),
+                  inputs=(dict(name='FileStr', interface=IFileStr, value=''),
+                          dict(name='cwd', interface=IDirStr, value='', hide=True),),
                   outputs=(dict(name='FileStr', interface=IFileStr),)
                   )
 
@@ -77,7 +78,20 @@ def register_packages(pkgmanager):
                   nodemodule="data",
                   nodeclass="DirName",
 
-                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),dict(name='cwd', interface=IDirStr, value='', hide=True)),
+                  inputs=(dict(name='DirStr', interface=IDirStr, value=''),
+                          dict(name='cwd', interface=IDirStr, value='', hide=True)),
+                  outputs=(dict(name='DirStr', interface=IDirStr),)
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="packagedir", 
+                  description="Package Directory", 
+                  category="Type", 
+                  nodemodule="data",
+                  nodeclass="PackageDir",
+
+                  inputs=(dict(name='PackageStr', interface=IStr, value=''),),
                   outputs=(dict(name='DirStr', interface=IDirStr),)
                   )
 

@@ -45,7 +45,11 @@ Out :  the file path string
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        return ( str(inputs[0]),  )
+        fname, cwd = inputs
+        if len(cwd)>0 :
+            return (join(str(cwd),str(fname)),)
+        else :
+            return (str(fname),)
 
 
 class DirName(Node):
@@ -56,11 +60,34 @@ Out :  the path string
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        rep,cwd=inputs
+
+        rep, cwd = inputs
         if len(cwd)>0 :
             return ( join(str(cwd),str(rep)),  )
         else :
             return ( str(rep),  )
+
+
+class PackageDir(Node):
+    """
+    In : A Package Name
+    Out : The Path of the package wralea
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        pname = str(inputs[0])
+
+        from openalea.core.pkgmanager import PackageManager
+        pm = PackageManager()
+        pkg = pm.get(pname) 
+        path = ''
+
+        if pkg :
+            path = pkg.wralea_path
+
+        return (path,  )
 
 
 class RGB(Node):

@@ -328,6 +328,9 @@ class PackageManager(object):
 
     def has_key(self, *args):
         return self.pkgs.has_key(*args)
+    
+    def get(self, *args):
+        return self.pkgs.get(*args)
 
 
     # Convenience functions
