@@ -43,6 +43,7 @@ def register_packages(pkg_manager):
                             dict( name = "X max", interface=IInt, value = 1, showwidget=True ),
                             dict( name = "Y min", interface=IInt, value = 0, showwidget=True ),
                             dict( name = "Y max", interface=IInt, value = 1, showwidget=True ),
+                            dict( name = "Scale factor", interface=IFloat(min=1, step=10), value = 1, showwidget=True ),
                           ),
                   outputs=( dict( name = "domain2D", ),
                           ),

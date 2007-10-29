@@ -221,8 +221,8 @@ def spatial_distrib( n=100, xrange=(0,1), yrange=(0,1), type='Random', params = 
     
 #======================================================================#
 
-def domain(xmin, xmax, ymin, ymax):
-  return ((xmin, xmax), (ymin, ymax)),
+def domain(xmin, xmax, ymin, ymax, scale):
+  return ((xmin*scale, xmax*scale), (ymin*scale, ymax*scale)),
   
 def random_distribution(n =10):
   x = [ random.random() for i in range(n) ]
@@ -321,7 +321,7 @@ class aggregative_distrib( Node ):
         funs.sort()
         self.add_input( name = "Type", interface = IEnumStr(funs), value = funs[0]) 
         self.add_input( name = "Cluster number", interface = IInt(min=1), value = 2) 
-        self.add_input( name = "Cluster radius", interface = IFloat, value = 0.2) 
+        self.add_input( name = "Cluster radius", interface = IFloat(0.01, 1, 0.01), value = 0.2) 
         self.add_output( name = "Distribution", interface = None)
 
     def __call__(self, inputs):
