@@ -79,10 +79,22 @@ class Package(dict):
         self.name = name
         self.metainfo = metainfo
 
-        # association between node name and node factory
-        #self.__node_factories = {}
+        # package directory
+        import inspect
+        # get the path of the file which call this function
+        call_path = os.path.abspath(inspect.stack()[1][1])
+        print call_path
+        self.path = os.path.dirname(call_path)
+        self.wralea_path = call_path
+            
+           
 
 
+    def get_wralea_path(self):
+        """ Return the full path of the wralea.py (if set) """
+        return self.wralea_path
+
+        
     def get_id(self):
         """ Return the package id """
         return self.name
@@ -158,32 +170,27 @@ class UserPackage(Package):
     def __init__(self, name, metainfo, path=None):
         """ @param path : directory where to store wralea and module files """
         
-        Package.__init__(self, name, metainfo)
+        Package.__init__(self, name, metainfo, path)
         
-        # package directory
         if(not path):
+            # package directory
             import inspect
             # get the path of the file which call this function
             call_path = os.path.abspath(inspect.stack()[1][1])
+            print call_path
             self.path = os.path.dirname(call_path)
             self.wralea_path = call_path
-            
-        else:    
+
+        # wralea.py path is specified
+        else:
             if(not os.path.isdir(self.path)):
                 self.path = os.path.dirname(self.path)
             else:
                 self.path = path
 
-           
-            # wralea.py full path
             wralea_name = name.replace('.', '_')
             self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(wralea_name))
-
-
-
-    def get_wralea_path(self):
-        """ Return the full path of the wralea.py (if set) """
-        return self.wralea_path
+        
 
 
     def write(self):
