@@ -44,7 +44,7 @@ green= pgl.Material( ambient=pgl.Color3(0,250,10),
                  specular=pgl.Color3(50,50,50),
                  emission=pgl.Color3(0,0,0),
                  shininess=1,
-                 transparency=0.4)
+                 transparency=0.6)
 blue = pgl.Material( ambient=pgl.Color3(0,0,250),
                  diffuse=1,
                  specular=pgl.Color3(50,50,50),
@@ -190,8 +190,8 @@ class DiscInhibitorPhyllotaxisModel:
         """Visualisation. It is not mandatory.
         """
         self.drop = pgl.Shape( pgl.Disc(self.c_dzone), black )
-        self.center = pgl.Shape( pgl.Translated( pgl.Vector3(0,0,0.1 ), pgl.Sphere( radius=0.1 ) ), red )
-        self.competance_zone = pgl.Shape( pgl.Translated( pgl.Vector3(0,0,0.1), pgl.Disc( self.c_czone) ), blue )
+        self.center = pgl.Shape( pgl.Translated( pgl.Vector3(0,0,0.1 ), pgl.Sphere( radius=0.1 ) ), black )
+        self.competance_zone = pgl.Shape( pgl.Translated( pgl.Vector3(0,0,0.1), pgl.Disc( self.c_czone) ), red )
         self.scene.add( self.competance_zone )
         self.scene.add( self.center )
         self.scene.add( self.drop )
@@ -224,7 +224,7 @@ class DiscInhibitorPhyllotaxisModel:
                                 pgl.Vector3( prims[ i ].x, prims[ i ].y, prims[ i ].z+0.2 ),
                                 pgl.Disc( self.c_prim_size )
                             )
-                            , red )
+                            , green )
                     nv.append( p )
                     self.scene.add( p )
                 if self.c_show_primordia:
@@ -233,7 +233,7 @@ class DiscInhibitorPhyllotaxisModel:
                                 pgl.Vector3( prims[ i ].x, prims[ i ].y, prims[ i ].z+0.2 ),
                                 pgl.Disc( self.c_prim_size/100 )
                             )
-                            , red )
+                            , black )
                     nv.append( p )
                     self.scene.add( p )
             pgl.Viewer.update()
