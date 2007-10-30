@@ -252,10 +252,15 @@ class LR2Plot( Node ):
         reg=self.get_input( 'reg' )
         reg_x=rpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
         reg_y = reg_x*reg[ 'pente' ]+reg[ 'intercept' ]
-        reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
-                     "x + "+str( round(reg[ 'intercept' ],3 ))+ \
-                     " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
-                     r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
+        if reg.has_key('ic'):
+          reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
+                       "x + "+str( round(reg[ 'intercept' ],3 ))+ \
+                       " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
+                       r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
+        else :
+          reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
+                       "x + "+str( round(reg[ 'intercept' ],3 ))+ \
+                       r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
         reg_color='red'
         points = plotable.VisualSequence2D( x=reg[ 'x' ], y=reg[ 'y' ], legend= 'Data', linestyle='None', marker = '^', color='dodgerblue' )
         line = plotable.VisualSequence2D( x=reg_x, y=reg_y, legend=reg_legend, linestyle='-', marker='None', color=reg_color )
