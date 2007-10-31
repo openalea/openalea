@@ -32,7 +32,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 import ui_mainwindow
-from openalea.deploy import OPENALEA_PI
+from openalea.deploy.util import get_repo_list as util_get_repo_list
 from setuptools.package_index import PackageIndex
 import pkg_resources
 from setuptools import setup
@@ -62,7 +62,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
-        self.locationList.addItem(OPENALEA_PI)
+        for i in util_get_repo_list():
+            self.locationList.addItem(i)
 
         self.pi = None # package index
         self.pnamemap = {} # map txt and (pname, dist)
@@ -213,12 +214,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def get_repo_list(self):
         """ Return the list of the repository """
 
-        ret = []
+        ret = set()
         for i in xrange(self.locationList.count()):
             item = self.locationList.item(i)
-            ret.append(str(item.text()))
+            ret.add(str(item.text()))
 
-        return ret
+        return list(ret)
 
 
     def write(self, text):

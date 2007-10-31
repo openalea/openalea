@@ -30,8 +30,10 @@ from distutils.sysconfig import get_python_lib
 
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
+OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"
 
 
+# EGG Management
 
 def get_base_dir(pkg_name):
     """ Return the base directory of a pkg """
@@ -114,7 +116,7 @@ def get_all_bin_dirs(namespace=None):
             yield full_location
 
 
-
+# System config
 
 def check_system():
     """
@@ -156,3 +158,20 @@ def check_system():
         print e
 
     return outenv
+
+
+# Repository management
+
+def get_repo_list():
+    """ Return the list of OpenAlea repository """
+    import urllib
+    try:
+        ret = []
+        u = urllib.urlopen(OPENALEA_REPOLIST)
+        for i in u:
+            ret.append(i.strip())
+        return ret
+
+    except Exception, e:
+        print e
+        return [OPENALEA_PI]

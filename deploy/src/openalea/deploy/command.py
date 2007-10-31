@@ -53,7 +53,7 @@ import new
 
 from util import get_all_lib_dirs, get_all_bin_dirs
 from install_lib import get_dyn_lib_dir
-from util import get_base_dir, OPENALEA_PI
+from util import get_base_dir, get_repo_list
 from environ_var import set_lsb_env, set_win_env
 
 import install_lib
@@ -531,9 +531,13 @@ class alea_install(easy_install):
     def finalize_options(self):
 
         # Add openalea package link
+        repolist = get_repo_list() 
         if(not self.find_links) : self.find_links = ""
-        self.find_links += " " + OPENALEA_PI
+        self.find_links += " " + " ".join(repolist)
+
         self.dist = None
+
+        # dynamic library installation path
         if(not self.install_dyn_lib) :
             self.install_dyn_lib = get_dyn_lib_dir()
             
