@@ -69,7 +69,7 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
         font.setPointSize(12)
         self.setFont(font)
 
-        self.notify(None, None)
+        self.notify(None, ("data_modified",))
 
         scene.addItem(self)
 
@@ -77,7 +77,7 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
         
     def mouseDoubleClickEvent(self, event):
 
-        self.setTextInteractionFlags(QtCore.Qt.TextEditable)
+        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setSelected(True)
         self.setFocus()
         cursor = self.textCursor()
@@ -89,6 +89,13 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
         #self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+
+        # unselect text
+        cursor = self.textCursor ()
+        if(cursor.hasSelection()):
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+
         return QtGui.QGraphicsTextItem.focusOutEvent(self, event)
 
 
@@ -112,6 +119,9 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
     
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
+
+        if(not event or event[0] != "data_modified"):
+            return
 
         try:
             x = self.subnode.internal_data['posx']

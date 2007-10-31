@@ -605,37 +605,33 @@ class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
         else:
             QtGui.QGraphicsView.dropEvent(self, event)
 
+
     # Keybord Event
     def keyPressEvent(self, e):
 
         QtGui.QGraphicsView.keyPressEvent(self, e)
+        if(e.isAccepted ()): return
         
-        key   = e.key()
+        key = e.key()
         if( key == QtCore.Qt.Key_Delete):
             self.remove_selection()
+            e.setAccepted(True)
 
         elif(key == QtCore.Qt.Key_Space):
             self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+            e.setAccepted(True)
 
 
     def keyReleaseEvent(self, e):
         """ Key """
         QtGui.QGraphicsView.keyReleaseEvent(self, e)
-        key   = e.key()
+        if(e.isAccepted ()): return
+
+        key = e.key()
         if(key == QtCore.Qt.Key_Space):
             self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-
-
-    def event(self, event):
-        """ Main event handler """
+            e.setAccepted(True)
         
-        if (event.type() == QtCore.QEvent.ToolTip):
-            item = self.itemAt(event.pos())
-            if(item and isinstance(item, Connector)):
-                txt = item.update_tooltip()
-
-        return QtGui.QGraphicsView.event(self, event)
- 
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -850,12 +846,10 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
     
 
     def get_input_connector(self, index):
-
         return self.connector_in[index]
         
 
     def get_output_connector(self, index):
-
         return self.connector_out[index]
 
 
@@ -1064,10 +1058,6 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
         self.graphview.remove_node(self.elt_id)
         
 
-    def enable_in_widget(self):
-        pass
-
-
     def set_caption(self):
         """ Open a input dialog to set node caption """
 
@@ -1134,6 +1124,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
         self.edge_list = []
+        self.setAcceptsHoverEvents(True)
 
 
     def index(self):
@@ -1163,7 +1154,9 @@ class Connector(QtGui.QGraphicsEllipseItem):
         
         QtGui.QGraphicsItem.mousePressEvent(self, event)
 
-
+    
+    def hoverEnterEvent(self, event):
+        self.update_tooltip()
 
 
 class ConnectorIn(Connector):
