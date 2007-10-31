@@ -1157,6 +1157,10 @@ class Connector(QtGui.QGraphicsEllipseItem):
     
     def hoverEnterEvent(self, event):
         self.update_tooltip()
+        self.setPen(QtGui.QPen(QtCore.Qt.darkYellow, 0))
+
+    def hoverLeaveEvent(self, event):
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
 
 class ConnectorIn(Connector):
