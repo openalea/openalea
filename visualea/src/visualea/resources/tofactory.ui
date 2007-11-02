@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>208</width>
-    <height>219</height>
+    <width>371</width>
+    <height>143</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,19 +16,22 @@
    <iconset resource="images.qrc" >:/icons/diagram.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
-   <property name="spacing" >
-    <number>6</number>
-   </property>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
+     </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
      </property>
      <item>
       <widget class="QLabel" name="label" >
@@ -36,7 +39,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="text" >
-        <string>Composite Node :</string>
+        <string>Select a Composite Node :</string>
        </property>
        <property name="scaledContents" >
         <bool>true</bool>
@@ -52,17 +55,25 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Or</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
+     <item>
+      <widget class="QLabel" name="label_3" >
+       <property name="text" >
+        <string>Create a new Composite Node</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="newFactoryButton" >
        <property name="text" >
-        <string>New Composite Node</string>
+        <string>New</string>
        </property>
       </widget>
      </item>

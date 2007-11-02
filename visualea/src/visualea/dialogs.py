@@ -75,7 +75,9 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.pkgmap[p.name] = p
 
         # Get category
-        self.categoryEdit.addItems(pmanager.category.keys())
+        cats = pmanager.category.keys()
+        cats.sort()
+        self.categoryEdit.addItems(cats)
 
         
         if(factory): # Edition mode
@@ -92,6 +94,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.packageBox.addItems(pkgstr)
             i = self.packageBox.findText(Session.USR_PKG_NAME)
             self.packageBox.setCurrentIndex(i)
+            self.categoryEdit.setCurrentIndex(-1)
             self.inputs = inputs
             self.outputs = outputs
 
