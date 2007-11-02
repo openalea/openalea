@@ -27,6 +27,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 import string
+import copy
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
@@ -160,7 +161,7 @@ class CompositeNodeFactory(AbstractFactory):
 
     def paste(self, cnode, data_modifiers=[], call_stack=None):
         """ Paste to an existing CompositeNode instance
-        
+        @param cnode : composite node instance
         @param data_modifiers : list of 2 uple (key, function) to apply to internal
         data (for instance to move the node)
         @param call_stack : the list of NodeFactory id already in recursion stack
@@ -175,7 +176,6 @@ class CompositeNodeFactory(AbstractFactory):
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
-
             
             # Apply modifiers
             for (key, func) in data_modifiers:
@@ -531,7 +531,7 @@ class CompositeNode(Node, DataFlow):
                 sgfactory.elt_factory[vid] = (pkg_id, factory_id)
 
             # Copy internal data
-            sgfactory.elt_data[vid] = kdata
+            sgfactory.elt_data[vid] = copy.deepcopy(kdata)
 
             # Copy value
             if(not node.get_nb_input()):
