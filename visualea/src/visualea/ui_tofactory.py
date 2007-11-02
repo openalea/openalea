@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tofactory.ui'
 #
-# Created: Sat Sep 22 16:09:56 2007
+# Created: Fri Nov  2 10:04:02 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,16 +12,13 @@ from PyQt4 import QtCore, QtGui
 class Ui_FactorySelector(object):
     def setupUi(self, FactorySelector):
         FactorySelector.setObjectName("FactorySelector")
-        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,208,219).size()).expandedTo(FactorySelector.minimumSizeHint()))
+        FactorySelector.resize(QtCore.QSize(QtCore.QRect(0,0,371,143).size()).expandedTo(FactorySelector.minimumSizeHint()))
         FactorySelector.setWindowIcon(QtGui.QIcon(":/icons/diagram.png"))
 
         self.vboxlayout = QtGui.QVBoxLayout(FactorySelector)
-        self.vboxlayout.setMargin(9)
-        self.vboxlayout.setSpacing(6)
         self.vboxlayout.setObjectName("vboxlayout")
 
         self.hboxlayout = QtGui.QHBoxLayout()
-        self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(6)
         self.hboxlayout.setObjectName("hboxlayout")
 
@@ -37,10 +34,16 @@ class Ui_FactorySelector(object):
         self.hboxlayout.addWidget(self.comboBox)
         self.vboxlayout.addLayout(self.hboxlayout)
 
+        self.label_2 = QtGui.QLabel(FactorySelector)
+        self.label_2.setObjectName("label_2")
+        self.vboxlayout.addWidget(self.label_2)
+
         self.hboxlayout1 = QtGui.QHBoxLayout()
-        self.hboxlayout1.setMargin(0)
-        self.hboxlayout1.setSpacing(6)
         self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.label_3 = QtGui.QLabel(FactorySelector)
+        self.label_3.setObjectName("label_3")
+        self.hboxlayout1.addWidget(self.label_3)
 
         self.newFactoryButton = QtGui.QPushButton(FactorySelector)
         self.newFactoryButton.setObjectName("newFactoryButton")
@@ -62,7 +65,9 @@ class Ui_FactorySelector(object):
 
     def retranslateUi(self, FactorySelector):
         FactorySelector.setWindowTitle(QtGui.QApplication.translate("FactorySelector", "Selector", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Composite Node :", None, QtGui.QApplication.UnicodeUTF8))
-        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New Composite Node", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("FactorySelector", "Select a Composite Node :", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("FactorySelector", "Or", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("FactorySelector", "Create a new Composite Node", None, QtGui.QApplication.UnicodeUTF8))
+        self.newFactoryButton.setText(QtGui.QApplication.translate("FactorySelector", "New", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
