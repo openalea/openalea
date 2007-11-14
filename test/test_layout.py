@@ -1,6 +1,6 @@
-from openalea.pkg_builder import PackageLayout
+from openalea.pkg_builder import PackageBuilder
 
-pkg = layout.PackageLayout('toto')
+pkg = PackageBuilder('toto')
 pkg.check_name()
 pkg.mkdirs()
 pkg.mkfiles()

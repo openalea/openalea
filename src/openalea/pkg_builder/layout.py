@@ -22,7 +22,7 @@ class PackageBuilder(object):
     Creates standard directories, files.
     May also build templae setup file and SConstruct.
     """
-    good_name = re.compile( "[a-z_]{4,}" )
+    good_name = re.compile( "[a-z_]{3,}" )
 
     def __init__(self, name, dir = '.'):
         self.name = name
@@ -33,7 +33,7 @@ class PackageBuilder(object):
     def check_name(self):
         """ Check correctness of pkg name. """
         if not self.good_name.match( self.name ):
-            print "Error, package name %s is invalid" % ( name, )
+            print "Error, package name %s is invalid" % ( self.name, )
             return False
         return True
 
