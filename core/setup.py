@@ -45,6 +45,12 @@ setup(
     setup_requires = ['openalea.deploy'],
     install_requires = [],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+
+    # entry_points
+    entry_points = {
+              "wralea": ["system = openalea.core",]
+              },
+
     
     )
 

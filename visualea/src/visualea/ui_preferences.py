@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'preferences.ui'
 #
-# Created: Sat Sep 22 16:09:56 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Tue Dec  4 16:17:13 2007
+#      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -30,14 +30,6 @@ class Ui_Preferences(object):
         self.gridlayout1.setSpacing(6)
         self.gridlayout1.setObjectName("gridlayout1")
 
-        self.removeButton = QtGui.QPushButton(self.tab)
-        self.removeButton.setObjectName("removeButton")
-        self.gridlayout1.addWidget(self.removeButton,2,0,1,1)
-
-        self.addButton = QtGui.QPushButton(self.tab)
-        self.addButton.setObjectName("addButton")
-        self.gridlayout1.addWidget(self.addButton,1,0,1,1)
-
         self.label_2 = QtGui.QLabel(self.tab)
         self.label_2.setObjectName("label_2")
         self.gridlayout1.addWidget(self.label_2,0,0,1,1)
@@ -45,6 +37,18 @@ class Ui_Preferences(object):
         self.pathList = QtGui.QListWidget(self.tab)
         self.pathList.setObjectName("pathList")
         self.gridlayout1.addWidget(self.pathList,0,1,3,1)
+
+        self.addButton = QtGui.QPushButton(self.tab)
+        self.addButton.setObjectName("addButton")
+        self.gridlayout1.addWidget(self.addButton,1,0,1,1)
+
+        self.removeButton = QtGui.QPushButton(self.tab)
+        self.removeButton.setObjectName("removeButton")
+        self.gridlayout1.addWidget(self.removeButton,2,0,1,1)
+
+        self.includenmspace = QtGui.QCheckBox(self.tab)
+        self.includenmspace.setObjectName("includenmspace")
+        self.gridlayout1.addWidget(self.includenmspace,3,1,1,1)
         self.tabWidget.addTab(self.tab,"")
 
         self.tab_4 = QtGui.QWidget()
@@ -96,16 +100,17 @@ class Ui_Preferences(object):
         self.gridlayout.addWidget(self.buttonBox,1,0,1,1)
 
         self.retranslateUi(Preferences)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),Preferences.accept)
         QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),Preferences.reject)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
 
     def retranslateUi(self, Preferences):
         Preferences.setWindowTitle(QtGui.QApplication.translate("Preferences", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
-        self.removeButton.setText(QtGui.QApplication.translate("Preferences", "Remove", None, QtGui.QApplication.UnicodeUTF8))
-        self.addButton.setText(QtGui.QApplication.translate("Preferences", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Preferences", "Search Path", None, QtGui.QApplication.UnicodeUTF8))
+        self.addButton.setText(QtGui.QApplication.translate("Preferences", "Add", None, QtGui.QApplication.UnicodeUTF8))
+        self.removeButton.setText(QtGui.QApplication.translate("Preferences", "Remove", None, QtGui.QApplication.UnicodeUTF8))
+        self.includenmspace.setText(QtGui.QApplication.translate("Preferences", "Include OpenAlea namespace directories", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Preferences", "Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Preferences", "Algorithm", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("Preferences", "Dataflow", None, QtGui.QApplication.UnicodeUTF8))
