@@ -61,7 +61,7 @@ class PackageManager(object):
     def __init__ (self):
         """ Constructor """
         
-        self.include_namespace = False
+        self.include_namespace = self.get_include_namespace()
 
         # save system path
         self.old_syspath = sys.path[:]
@@ -71,19 +71,33 @@ class PackageManager(object):
 
         # dictionnay of category
         self.category = {}
-
-        self.read_config()
-
+        
         # list of path to search wralea file
         self.set_default_wraleapath()
+        self.read_wralea_path()
+
+    def get_include_namespace(self):
+        """ Read user config and return include namespace status """
+
+        config = Settings()
+
+        # include namespace
+        try:
+            str = config.get("pkgmanager", "include_namespace")
+            self.include_namespace = bool(eval(str))
+            
+        except:
+            self.include_namespace = False
+
+        return self.include_namespace
 
 
-
-    def read_config(self):
+    def read_wralea_path(self):
         """ Read user config """
 
         config = Settings()
-        
+
+        # wralea path
         try:
             str = config.get("pkgmanager", "path")
             l = eval(str)
@@ -93,14 +107,7 @@ class PackageManager(object):
                 
         except Exception, e:
             print e
-            
-        try:
-            str = config.get("pkgmanager", "include_namespace")
-            self.include_namespace = bool(eval(str))
-            
-        except:
-            pass
-
+          
 
     def write_config(self):
         """ Write user config """
@@ -113,10 +120,10 @@ class PackageManager(object):
 
     def set_default_wraleapath(self):
         """ Define the default wralea search path """
-
-        # Use setuptools entry_point
+        
         self.wraleapath = set()
 
+        # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
             m = epoint.load()
             for p in m.__path__:
