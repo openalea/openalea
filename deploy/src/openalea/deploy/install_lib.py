@@ -131,7 +131,7 @@ def clean_lib(lib_dir, clean_all=False):
     If clean_all is True, remove all library with egm
     """
 
-    for egm in glob.iglob(join(lib_dir, "*" + egg_marker_extension)):
+    for egm in glob.glob(join(lib_dir, "*" + egg_marker_extension)):
         f = open(egm, 'r')
         srcfile = f.read()
         f.close()
