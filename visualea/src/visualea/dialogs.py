@@ -525,14 +525,15 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         """ Set the search path in the package manager """
 
         pkgmanager = PackageManager()
+
+        pkgmanager.include_namespace = bool( \
+            self.includenmspace.checkState() == QtCore.Qt.Checked)
+
         pkgmanager.set_default_wraleapath()
 
         for i in xrange(self.pathList.count()):
             path = self.pathList.item(i).text()
             pkgmanager.add_wraleapath(os.path.abspath(str(path)))
-
-        pkgmanager.include_namespace = bool( \
-            self.includenmspace.checkState() == QtCore.Qt.Checked)
 
         pkgmanager.write_config()
 

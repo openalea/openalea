@@ -122,6 +122,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 
+
     @lock_notify      
     def valueChanged(self, newval):
         self.node.set_input(self.param_str, newval)
