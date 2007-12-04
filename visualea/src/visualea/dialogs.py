@@ -431,6 +431,18 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
+        try:
+            str = config.get("pkgmanager", "include_namespace")
+            enabled = bool(eval(str))
+            
+            if(enabled):
+                self.includenmspace.setCheckState(QtCore.Qt.Checked)
+            else:
+                self.includenmspace.setCheckState(QtCore.Qt.Unchecked)
+        except:
+            pass
+
+
         # UI
         try:
             str = config.get("UI", "DoubleClick")
@@ -514,9 +526,13 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         pkgmanager = PackageManager()
         pkgmanager.set_default_wraleapath()
+
         for i in xrange(self.pathList.count()):
             path = self.pathList.item(i).text()
             pkgmanager.add_wraleapath(os.path.abspath(str(path)))
+
+        pkgmanager.include_namespace = bool( \
+            self.includenmspace.checkState() == QtCore.Qt.Checked)
 
         pkgmanager.write_config()
 

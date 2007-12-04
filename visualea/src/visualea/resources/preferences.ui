@@ -34,7 +34,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -59,20 +59,6 @@
        <property name="verticalSpacing" >
         <number>6</number>
        </property>
-       <item row="2" column="0" >
-        <widget class="QPushButton" name="removeButton" >
-         <property name="text" >
-          <string>Remove</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QPushButton" name="addButton" >
-         <property name="text" >
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0" >
         <widget class="QLabel" name="label_2" >
          <property name="text" >
@@ -82,6 +68,27 @@
        </item>
        <item rowspan="3" row="0" column="1" >
         <widget class="QListWidget" name="pathList" />
+       </item>
+       <item row="1" column="0" >
+        <widget class="QPushButton" name="addButton" >
+         <property name="text" >
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QPushButton" name="removeButton" >
+         <property name="text" >
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <widget class="QCheckBox" name="includenmspace" >
+         <property name="text" >
+          <string>Include OpenAlea namespace directories</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
