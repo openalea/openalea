@@ -30,6 +30,7 @@ import os
 from singleton import Singleton
 from package import UserPackage, PyPackageReader
 from settings import get_userpkg_dir, Settings
+from pkg_resources import iter_entry_points
 
 
 # Exceptions 
@@ -58,14 +59,12 @@ class PackageManager(object):
     __metaclass__ = Singleton
 
     def __init__ (self):
+        """ Constructor """
         
-
-        # list of path to search wralea file
-        self.set_default_wraleapath()
+        self.include_namespace = False
 
         # save system path
         self.old_syspath = sys.path[:]
-        #self.update_syspath()
 
         # dictionnay of packages
         self.pkgs = {}
@@ -74,6 +73,10 @@ class PackageManager(object):
         self.category = {}
 
         self.read_config()
+
+        # list of path to search wralea file
+        self.set_default_wraleapath()
+
 
 
     def read_config(self):
@@ -90,6 +93,13 @@ class PackageManager(object):
                 
         except Exception, e:
             print e
+            
+        try:
+            str = config.get("pkgmanager", "include_namespace")
+            self.include_namespace = bool(eval(str))
+            
+        except:
+            pass
 
 
     def write_config(self):
@@ -97,16 +107,28 @@ class PackageManager(object):
         
         config = Settings()
         config.set("pkgmanager", "path", repr(list(self.wraleapath)))
+        config.set("pkgmanager", "include_namespace", repr(self.include_namespace))
         config.write_to_disk()
 
 
     def set_default_wraleapath(self):
-        """ Return a list wralea path """
+        """ Define the default wralea search path """
 
+        # Use setuptools entry_point
         self.wraleapath = set()
-        l = list(openalea.__path__)
-        for p in l :
-            self.add_wraleapath(p)
+
+        for epoint in iter_entry_points("wralea"):
+            m = epoint.load()
+            for p in m.__path__:
+                self.add_wraleapath(p)
+
+        # Search in openalea namespace
+        if(self.include_namespace):
+            l = list(openalea.__path__)
+            for p in l :
+                self.add_wraleapath(p)
+
+        self.add_wraleapath(os.path.dirname(__file__))
         self.add_wraleapath(get_userpkg_dir())
         
 
@@ -129,7 +151,6 @@ class PackageManager(object):
             m = sys.modules[name]
             if(m) : m.oa_invalidate = True
         
-
         
     def clear(self):
         """ Remove all packages """
