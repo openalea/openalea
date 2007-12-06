@@ -11,7 +11,7 @@ Snow&Snow phyllotaxis model.
 #from visual import *
 import math
 from matplotlib import rc, rcParams,use
-rc('text', usetex=True )
+rc('text', usetex=False )
 use('Qt4Agg')
 import pylab as pl
 import random

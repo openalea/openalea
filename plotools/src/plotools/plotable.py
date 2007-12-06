@@ -28,7 +28,7 @@ __docformat__= "restructuredtext en"
 __revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
 
 from matplotlib import rc, rcParams,use
-rc('text', usetex=True )
+rc('text', usetex=False )
 use('Qt4Agg')
 import pylab
 

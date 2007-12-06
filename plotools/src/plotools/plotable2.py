@@ -33,10 +33,11 @@ import sys
 from matplotlib import rc, rcParams,use
 if("win" in sys.platform):
   print "LateX writing not available"
+  rc('text', usetex=False )
 else:
   rc('text', usetex=True )
 use('Qt4Agg')
-import pylab
+
 
 #the following allows a smooth use of pylab windows with Qt4.2#
 try:
@@ -47,6 +48,8 @@ except ImportError:
   from PyQt4 import QtGui
   backend_qt4.qApp = QtGui.qApp
   backend_qt4agg.matplotlib = mymat
+
+import pylab
 #=============================================================#
 
 
