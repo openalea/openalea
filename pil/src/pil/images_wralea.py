@@ -57,19 +57,17 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
  
     def notify(self, sender, event):
         """ Notification sent by node """
-        try:
-            img = self.node.get_input(self.param_str)
+        img = self.node.get_input(self.param_str)
+        if( img == None or img.isNull() ):
+            self.img_label.resize(200,50)
+            self.setMinimumSize(200,50)
+            self.img_label.setText('No Image to display')
+        else:
             self.img_label.resize(img.size())
             self.setMinimumSize(img.size())
             self.img_label.setPixmap(img)
-        
-        except:
-            self.setMinimumSize(200,50)
-            self.img_label.setText('No Image to display')
- 
-        self.img_label.update()
-
-
+            QtGui.QWidget.resize(self,img.size())
+            QtGui.QWidget.update(self)
 
 ##### end of declaration of pix interface and its widget ###########
 
@@ -97,8 +95,8 @@ def register_packages(pkg_manager):
                   category="Images",
                   nodemodule="images",
                   nodeclass= "image_size",
-                  inputs= ( dict( name = "Width", interface=IFloat, value = 300),
-                            dict( name = "Heigth", interface=IFloat, value = 300),
+                  inputs= ( dict( name = "Width", interface=IInt(min=10), value = 300),
+                            dict( name = "Heigth", interface=IInt(min=10), value = 300),
                           ),
                   outputs=( dict( name = "Image size", interface = ISequence),
                           ),

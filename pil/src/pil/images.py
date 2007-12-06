@@ -19,7 +19,7 @@ from PyQt4 import QtGui
 import os
 
 def image_size(width, height):
-  return (width, height),
+  return (int(width), int(height)),
 
 
 def PIL2Qt(pil_img):

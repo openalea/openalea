@@ -52,6 +52,7 @@ except ImportError:
 import pylab
 #=============================================================#
 
+import pylab
 
         
 class VisualSequence(object):
