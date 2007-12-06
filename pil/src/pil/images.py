@@ -49,7 +49,7 @@ Input 0 : File name
 Output 0 : Image object
     """
   
-    return QtGui.QPixmap(filename)
+    return QtGui.QPixmap(filename),
 
 
 
