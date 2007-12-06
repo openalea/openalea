@@ -29,6 +29,7 @@ def PIL2Qt(pil_img):
   os.remove(file)
   return qpix,
 
+
 class Pix(Node):
     """
 Text Variable
@@ -36,10 +37,19 @@ Input 0 : The stored image
 Ouput 0 : Transmit the stored image
     """
 
-
     def __call__(self, inputs):
         """ inputs is the list of input values """
         return ( str(inputs[0]), )
+
+
+def loadimage(filename):
+    """
+Load an image from a file:
+Input 0 : File name
+Output 0 : Image object
+    """
+  
+    return QtGui.QPixmap(filename)
 
 
 

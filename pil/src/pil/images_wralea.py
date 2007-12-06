@@ -46,27 +46,30 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.img_label = QtGui.QLabel(self)
+
         
         self.notify(node,None)
-        self.parent().resize(500,500)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
-        #self.setMinimumSize(500,500)
  
+    def update_state(self):
+        """ Enable/Disable widget function """
+        pass
  
     def notify(self, sender, event):
         """ Notification sent by node """
         try:
             img = self.node.get_input(self.param_str)
             self.img_label.resize(img.size())
-            self.parent().resize(img.size())
+            self.setMinimumSize(img.size())
             self.img_label.setPixmap(img)
+        
         except:
-            self.img_label.setMinimumSize(QtCore.QSize(250,50))
-            self.setMinimumSize(QtCore.QSize(250,50))
-            print "la taille devrait etre de 250x50 !!"
+            self.setMinimumSize(200,50)
             self.img_label.setText('No Image to display')
  
         self.img_label.update()
+
+
 
 ##### end of declaration of pix interface and its widget ###########
 
@@ -127,6 +130,19 @@ def register_packages(pkg_manager):
                   inputs=(dict(name="Image", interface=IPix,),),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
+    
+    package.add_factory( nf )
+
+    nf = Factory( name="load image", 
+                  description="Load an image from a file", 
+                  category="Images", 
+                  nodemodule="images",
+                  nodeclass="loadimage",
+
+                  inputs=(dict(name="Filename", interface=IFileStr,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
 
     package.add_factory( nf )
 
