@@ -14,6 +14,8 @@ def test_init():
         if('Catalog' in p): 
             pkg = pm[p]
             for factory in pkg.values():
+                print factory.name
                 factory.instantiate()
 
 
+test_init()

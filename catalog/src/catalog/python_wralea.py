@@ -56,11 +56,12 @@ def register_packages(pkgmanager):
     nf = Factory( name="getitem",
                   description="Python __getitem__",
                   category="Python",
-                  nodemodule="python",
+
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
                   nodeclass="getitem",
 
                   widgetclass="ListSelectorWidget",
-             
                   )
 
     package.add_factory(nf)
@@ -69,7 +70,8 @@ def register_packages(pkgmanager):
     nf = Factory(name="setitem",
                  description="Python __setitem__",
                  category="Python",
-                 nodemodule="python",
+                 inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                 nodemodule="operator",
                  nodeclass="setitem",
                  )
 
@@ -152,36 +154,6 @@ def register_packages(pkgmanager):
                  nodeclass="py_print",
                  outputs=(),
                  lazy=False,
-                 )
-
-    package.add_factory(nf)
-
-
-    nf = Factory(name="fwrite", 
-                 description="File output", 
-                 category="Python", 
-                 nodemodule="python",
-                 nodeclass="py_fwrite",
-                 inputs=(dict(name="x", interface=IStr),
-                         dict(name="filename", interface=IFileStr),
-                         dict(name="mode", interface=IStr, value="w"),
-                         ),
-                 outputs=(),
-                 lazy=False,
-                 )
-
-    package.add_factory(nf)
-
-
-    nf = Factory(name="fread", 
-                 description="File input", 
-                 category="Python", 
-                 nodemodule="python",
-                 nodeclass="FileRead",
-                 inputs=(dict(name="filename", interface=IFileStr),
-                         ),
-                 outputs=(dict(name="string", interface=IStr),),
-                 lazy = False,
                  )
 
     package.add_factory(nf)
@@ -272,6 +244,35 @@ def register_packages(pkgmanager):
                   )
     package.add_factory( nf )
 
+    # DEPRECATED
+    nf = Factory(name="fwrite", 
+                 description="File output", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="py_fwrite",
+                 inputs=(dict(name="x", interface=IStr),
+                         dict(name="filename", interface=IFileStr),
+                         dict(name="mode", interface=IStr, value="w"),
+                         ),
+                 outputs=(),
+                 lazy=False,
+                 )
+
+    package.add_factory(nf)
+
+
+    nf = Factory(name="fread", 
+                 description="File input", 
+                 category="Python", 
+                 nodemodule="python",
+                 nodeclass="FileRead",
+                 inputs=(dict(name="filename", interface=IFileStr),
+                         ),
+                 outputs=(dict(name="string", interface=IStr),),
+                 lazy = False,
+                 )
+
+    package.add_factory(nf)
 
 
     pkgmanager.add_package(package)

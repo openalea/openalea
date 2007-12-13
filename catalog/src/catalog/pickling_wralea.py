@@ -15,7 +15,7 @@
 __doc__ = """ Catalog.Python """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: python_wralea.py 928 2007-10-18 15:01:55Z dufourko $ "
+__revision__ = " $Id$ "
 
 
 from openalea.core import *
@@ -39,7 +39,7 @@ def register_packages(pkgmanager):
                     )
 
 
-    package = Package("Catalog.pickle", metainfo)
+    package = Package("Catalog.Pickle", metainfo)
 
 ################# node description ###################
 

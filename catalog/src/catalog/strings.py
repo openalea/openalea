@@ -13,40 +13,31 @@
 ################################################################################
 
 
-__doc__=""" Math Nodes """
-
+__doc__=""" String manipulation """
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
-
 from openalea.core import *
 
+# File name manipulation
+
+def str_split(string, char):
+    """
+Split a String
+In 0 : a String
+In 1 : The split character 
+Out :  The splitted string
+    """
+
+    return (string.split(char),)
 
 
-def py_cmp(a=0.,b=0.):
-    """ cmp(a,b) """
-    return cmp(a,b)
+def str_join(list, char):
+    """
+Join a list
+In 0 : A list of String
+In 1 : The join character 
+Out :  The joinned string
+    """
 
-
-def py_round(x=0.,n=1):
-    """ round(x,n) """
-    return round(x,n)
-
-
-def py_min(l=[]):
-    """ min(l) """
-    return min(l)
-
-
-def py_max(l=[]):
-    """ max(l) """
-    return max(l)
-
-    
-def py_randlist(a=0, b=100, size=10):
-    """Return a list of size random integer in range [a, b(."""
-    import random
-    a = int(a)
-    b = int(b)
-    return ([random.randrange(a, b) for i in xrange(size)],)
+    return (char.join(list),)

@@ -36,58 +36,6 @@ class Variable(Node):
 
 
     
-class FileName(Node):
-    """
-A file path
-Out :  the file path string
-    """
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        fname, cwd = inputs
-        if len(cwd)>0 :
-            return (join(str(cwd),str(fname)),)
-        else :
-            return (str(fname),)
-
-
-class DirName(Node):
-    """
-A directory path
-Out :  the path string
-    """
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        rep, cwd = inputs
-        if len(cwd)>0 :
-            return ( join(str(cwd),str(rep)),  )
-        else :
-            return ( str(rep),  )
-
-
-class PackageDir(Node):
-    """
-    In : A Package Name
-    Out : The Path of the package wralea
-    """
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        pname = str(inputs[0])
-
-        from openalea.core.pkgmanager import PackageManager
-        pm = PackageManager()
-        pkg = pm.get(pname) 
-        path = ''
-
-        if pkg :
-            path = pkg.path
-
-        return (path,  )
 
 
 class RGB(Node):
@@ -257,6 +205,64 @@ def list_select(items, index):
         return items[index]
     except:
         return None
+
+
+# DEPRECATED
+class FileName(Node):
+    """
+A file path
+Out :  the file path string
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.FileName")
+        fname, cwd = inputs
+        if len(cwd)>0 :
+            return (join(str(cwd),str(fname)),)
+        else :
+            return (str(fname),)
+
+
+class DirName(Node):
+    """
+A directory path
+Out :  the path string
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.DirName")
+        rep, cwd = inputs
+        if len(cwd)>0 :
+            return ( join(str(cwd),str(rep)),  )
+        else :
+            return ( str(rep),  )
+
+
+class PackageDir(Node):
+    """
+    In : A Package Name
+    Out : The Path of the package wralea
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.PackageDir")
+        pname = str(inputs[0])
+
+        from openalea.core.pkgmanager import PackageManager
+        pm = PackageManager()
+        pkg = pm.get(pname) 
+        path = ''
+
+        if pkg :
+            path = pkg.path
+
+        return (path,  )
 
 
 

@@ -20,8 +20,7 @@ __revision__=" $Id$ "
 
 
 from openalea.core import *
-
-
+import math
 
 def register_packages(pkgmanager):
     """ Initialisation function
@@ -44,9 +43,20 @@ def register_packages(pkgmanager):
 
     nf = Factory( name="==", 
                   description="Equality test", 
-                  category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_equal",
+                  category="Math",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="eq",
+                  )
+    
+    package.add_factory(nf)
+
+    nf = Factory( name="!=", 
+                  description="Equality test", 
+                  category="Math",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="ne",
                   )
 
     package.add_factory(nf)
@@ -55,8 +65,9 @@ def register_packages(pkgmanager):
     nf = Factory( name=">", 
                   description="Greater than test", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_greater",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="ge",
                   )
 
     package.add_factory(nf)
@@ -65,8 +76,9 @@ def register_packages(pkgmanager):
     nf = Factory( name=">=", 
                   description="greater or Equal test", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_greater_or_equal",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="ge",
                   )
 
     package.add_factory(nf)
@@ -75,8 +87,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="and", 
                   description="Boolean And", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_and",
+                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  nodemodule="operator",
+                  nodeclass="and_",
                   )
 
     package.add_factory(nf)
@@ -85,8 +98,19 @@ def register_packages(pkgmanager):
     nf = Factory( name="or", 
                   description="Boolean Or", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_or",
+                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  nodemodule="operator",
+                  nodeclass="or_",
+                  )
+
+    package.add_factory(nf)
+
+    nf = Factory( name="xor", 
+                  description="Boolean XOR", 
+                  category="Math",
+                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  nodemodule="operator",
+                  nodeclass="xor",
                   )
 
     package.add_factory(nf)
@@ -95,8 +119,9 @@ def register_packages(pkgmanager):
     nf = Factory( name= "not", 
                   description="Boolean Not", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_not",
+                  inputs=[dict(name="a", interface=IBool),],
+                  nodemodule="operator",
+                  nodeclass="not_",
                   )
 
     package.add_factory(nf)
@@ -104,8 +129,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="+", 
                   description="Addition", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_add",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="add",
                   )
 
 
@@ -114,18 +140,29 @@ def register_packages(pkgmanager):
     nf = Factory( name="-", 
                   description="Soustraction", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_sub",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="sub",
                   )
 
     package.add_factory(nf)
 
+    nf = Factory( name="neg", 
+                  description="Soustraction", 
+                  category="Math", 
+                  inputs=[dict(name="a", interface=None), ],
+                  nodemodule="operator",
+                  nodeclass="neg",
+                  )
+
+    package.add_factory(nf)
 
     nf = Factory( name="*", 
                   description="Multiplication", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_mult",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="mul",
                   )
 
     package.add_factory(nf)
@@ -134,8 +171,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="/", 
                   description="Division", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_div",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="div",
                   )
 
     package.add_factory(nf)
@@ -143,8 +181,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="%", 
                   description="Modulo", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_modulo",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="mod",
                   )
 
     package.add_factory(nf)
@@ -153,12 +192,13 @@ def register_packages(pkgmanager):
     nf = Factory( name="abs", 
                   description="Absolute value", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_abs",
+                  inputs=[dict(name="a", interface=None), ],
+                  nodemodule="operator",
+                  nodeclass="abs",
                   )
 
-
     package.add_factory(nf)
+
 
     nf = Factory( name="cmp", 
                   description="Compare 2 objects", 
@@ -167,38 +207,107 @@ def register_packages(pkgmanager):
                   nodeclass="py_cmp",
                   )
 
-
     package.add_factory(nf)
 
 
     nf = Factory( name="**", 
                   description="Power", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_pow",
+                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  nodemodule="operator",
+                  nodeclass="pow",
                   )
-
 
     package.add_factory(nf)
 
-
+    # Trigonometry
     nf = Factory( name="cos", 
                   description="Cosinus", 
                   category="Math",
-                  nodemodule="maths",
-                  nodeclass="py_cos",
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="cos",
                   )
 
     package.add_factory(nf)
+
 
     nf = Factory( name="sin", 
                   description="Sinus", 
                   category="Math", 
-                  nodemodule="maths",
-                  nodeclass="py_sin",
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="sin",
                   )
 
     package.add_factory(nf)
+
+    
+    nf = Factory( name="tan", 
+                  description="Tangent", 
+                  category="Math", 
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="tan",
+                  )
+
+    package.add_factory(nf)
+
+    
+    nf = Factory( name="acos", 
+                  description="Arccosinus", 
+                  category="Math",
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="acos",
+                  )
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="asin", 
+                  description="Arcsinus", 
+                  category="Math", 
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="asin",
+                  )
+
+    package.add_factory(nf)
+
+    
+    nf = Factory( name="atan", 
+                  description="Arctangent", 
+                  category="Math", 
+                  inputs=[dict(name="a", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="atan",
+                  )
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="radians", 
+                  description="Degrees to radians converter", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="radians",
+                  )
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="degrees", 
+                  description="Radians to degrees converter", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="degrees",
+                  )
+
+    package.add_factory(nf)
+
 
     nf = Factory( name="round", 
                   description="Round value", 
@@ -209,6 +318,77 @@ def register_packages(pkgmanager):
 
 
     package.add_factory(nf)
+
+
+    nf = Factory( name="floor", 
+                  description="floor of x", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  outputs=[dict(name="y", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="floor",
+                  )
+
+    package.add_factory(nf)
+
+    
+    nf = Factory( name="ceil", 
+                  description="ceil of x", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  outputs=[dict(name="y", interface=IInt), ],
+                  nodemodule="math",
+                  nodeclass="ceil",
+                  )
+
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="sqrt", 
+                  description="Square root", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="sqrt",
+                  )
+
+    package.add_factory(nf)
+
+
+    nf = Factory( name="log10", 
+                  description="Base 10 logarithm", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="log10",
+                  )
+
+    package.add_factory(nf)
+
+    
+    nf = Factory( name="log", 
+                  description="Logarithm", 
+                  category="Math", 
+                  inputs=[dict(name="a", interface=IFloat), 
+                          dict(name="base", interface=IFloat, value=math.e),],
+                  nodemodule="math",
+                  nodeclass="log",
+                  )
+
+    package.add_factory(nf)
+
+    
+    nf = Factory( name="exp", 
+                  description="Exponential", 
+                  category="Math", 
+                  inputs=[dict(name="x", interface=IFloat), ],
+                  nodemodule="math",
+                  nodeclass="exp",
+                  )
+
+    package.add_factory(nf)
+
 
     nf = Factory( name="min", 
                   description="Minimum of a sequence", 
@@ -229,8 +409,6 @@ def register_packages(pkgmanager):
 
 
     package.add_factory(nf)
-
-
 
 
     # Random function

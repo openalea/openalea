@@ -26,27 +26,6 @@ def py_ifelse(c=True,a=None,b=None):
     return bool(c) and a or b
 
 
-def setitem(obj, key, value):
-    """ call __setitem__ on obj """
-    try:
-        ret = obj.__setitem__(key, value)
-    except:
-        pass
-    
-    return obj
-
-
-def getitem(obj=[], key=None):
-    """ call __getitem__ on obj"""
-
-    try:
-        ret = obj.__getitem__(key)
-    except:
-        ret = None
-
-    return (ret,)
-
-
 def delitem(obj, key):
     """ call __delitem__ on obj"""
     
@@ -104,43 +83,6 @@ def pylen(obj):
 def py_print(x):
     """ Print to the console """
     print x
-
-
-def py_fwrite(x="", filename="", mode="w"):
-    """ Write to a file """
-
-    f = open(filename, mode)
-    f.write(x)
-    f.close()
-
-
-class FileRead(object):
-    """ Read a file """
-
-    def __init__(self):
-
-        self.mtime = 0 # modification time
-        self.filename = ''
-        self.s = '' 
-    
-    def __call__(self, filename=""):
-
-        try:
-            mtime = os.stat(filename).st_mtime
-        except:
-            mtime = 0
-        
-        if(filename != self.filename or
-           mtime != self.mtime):
-
-            self.filename = filename
-            self.mtime = mtime
-            
-            f = open(filename, 'r')
-            self.s = f.read()
-            f.close()
-            
-        return self.s
 
 
 def py_method(obj=None, name="", args=()):
@@ -202,6 +144,47 @@ def extract(indexable, keys):
 
     return (outlist,)
 
+
+
+# DEPRECATED
+
+def py_fwrite(x="", filename="", mode="w"):
+    """ Write to a file """
+
+    print "This node is DEPRECATED. Use %s instead"%("Catalog.File.write")
+    f = open(filename, mode)
+    f.write(x)
+    f.close()
+
+
+class FileRead(object):
+    """ Read a file """
+
+    def __init__(self):
+
+        self.mtime = 0 # modification time
+        self.filename = ''
+        self.s = '' 
+    
+    def __call__(self, filename=""):
+
+        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.read")
+        try:
+            mtime = os.stat(filename).st_mtime
+        except:
+            mtime = 0
+        
+        if(filename != self.filename or
+           mtime != self.mtime):
+
+            self.filename = filename
+            self.mtime = mtime
+            
+            f = open(filename, 'r')
+            self.s = f.read()
+            f.close()
+            
+        return self.s
 
 ################################################################################
 # Widgets
