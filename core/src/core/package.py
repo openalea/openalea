@@ -45,9 +45,10 @@ class FactoryExistsError(Exception):
     pass
 
 ###############################################################################
-        
 
-class Package(dict):
+from nocasedict import NoCaseDict
+
+class Package(NoCaseDict):
     """
     A Package is a dictionnary of node factory.
     Each node factory is able to generate node and their widget
@@ -85,8 +86,6 @@ class Package(dict):
         call_path = os.path.abspath(inspect.stack()[1][1])
         self.path = os.path.dirname(call_path)
         self.wralea_path = call_path
-            
-           
 
 
     def get_wralea_path(self):
@@ -158,7 +157,6 @@ class Package(dict):
             raise UnknownNodeError("%s.%s"%(self.name,id) )
 
         return factory
-    
 
 
 ################################################################################
