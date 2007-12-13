@@ -621,7 +621,7 @@ class NodeFactory(AbstractFactory):
         classobj = module.__dict__.get(self.nodeclass_name, None)
 
         if classobj is None:
-            raise "Cannot instantiate '" + self.nodeclass_name + "' from " + str(module)
+            raise Exception("Cannot instantiate '" + self.nodeclass_name + "' from " + str(module))
 
         # If class is not a Node, embed object in a Node class
         if(not hasattr(classobj, 'mro') or not AbstractNode in classobj.mro()):

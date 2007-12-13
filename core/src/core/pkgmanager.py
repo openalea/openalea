@@ -31,7 +31,7 @@ from singleton import Singleton
 from package import UserPackage, PyPackageReader
 from settings import get_userpkg_dir, Settings
 from pkg_resources import iter_entry_points
-
+from nocasedict import NoCaseDict
 
 # Exceptions 
 
@@ -67,14 +67,15 @@ class PackageManager(object):
         self.old_syspath = sys.path[:]
 
         # dictionnay of packages
-        self.pkgs = {}
+        self.pkgs = NoCaseDict()
 
         # dictionnay of category
-        self.category = {}
+        self.category = NoCaseDict()
         
         # list of path to search wralea file
         self.set_default_wraleapath()
         self.read_wralea_path()
+
 
     def get_include_namespace(self):
         """ Read user config and return include namespace status """
@@ -162,9 +163,9 @@ class PackageManager(object):
     def clear(self):
         """ Remove all packages """
 
-        self.pkgs = {}
+        self.pkgs = NoCaseDict()
         self.recover_syspath()
-        self.category = {}
+        self.category = NoCaseDict()
         
 
     # Path Functions
@@ -203,7 +204,6 @@ class PackageManager(object):
         #if( not self.pkgs.has_key(package.get_id())):
         self[package.get_id()] = package
         self.update_category(package)
-
 
     # Category management
     def update_category(self, package):

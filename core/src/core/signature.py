@@ -40,26 +40,33 @@ class Signature(object):
         """
 
     def __init__(self, f):
-        """ f is a function object or instance method, functor class managed but neeed to be tested more carefully"""
+        """ f is a function object or instance method, 
+        functor class are managed but need to be tested more carefully"""
         
         self.name = f.__name__
         self.parameters = []
         
         try:
             #if f is an instance method
-            if( isinstance(f,types.MethodType)):
+            if( inspect.ismethod(f)):
                 func = f.im_func
                 spec = inspect.getargspec(func)
-                varnames=spec[0][1:]
+                varnames = spec[0][1:]
+
             #if f is a function
-            elif( isinstance(f,types.FunctionType)):
+            elif(inspect.isfunction(f)):
                 func = f
                 spec = inspect.getargspec(func)
-                varnames=spec[0]
-            elif( hasattr(f, '__call__')):
+                varnames = spec[0]
+
+            elif(inspect.isclass(f) and hasattr(f, '__call__')):
                 func = f.__call__
-                spec = inspect.getargspec(func) #modules have __call__ method but getargspec won't work !
+                spec = inspect.getargspec(func) 
+                # modules have __call__ method but getargspec won't work !
+
                 varnames=spec[0][1:]
+            else:
+                raise TypeError
 
             default_values = spec[3] or []
 
