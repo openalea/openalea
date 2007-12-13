@@ -374,7 +374,7 @@ class Node(AbstractNode):
            not isinstance(outlist, list)):
             outlist = (outlist,)
 
-        for i in range( min ( len(outlist), len(self.outputs))):
+        for i in range( min (len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
 
         return False

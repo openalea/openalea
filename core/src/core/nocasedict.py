@@ -42,3 +42,9 @@ class NoCaseDict(dict):
         return dict.has_key(self, self.convert_item(key))
 
 
+    def __delitem__(self, key):
+        return dict.__delitem__(self, self.convert_item(key))
+
+
+    def get(self, key, default=None):
+        return dict.get(self, self.convert_item(key), default)

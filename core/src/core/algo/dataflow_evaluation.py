@@ -36,6 +36,30 @@ class EvaluationException(Exception):
         self.exc_info = exc_info
         
 
+# Sort functions
+
+# Sort by priority
+def cmp_priority(x, y):
+    (xvid, xactor) = x
+    (yvid, yactor) = y
+    px = xactor.internal_data.get('priority', 0)
+    py = yactor.internal_data.get('priority', 0)
+	
+    # reverse order
+    return cmp(py, px)
+
+
+def cmp_posx(x, y):
+    (pid, vid, xactor) = x
+    (pid, vid, yactor) = y
+    px = xactor.internal_data.get('posx', 0)
+    py = yactor.internal_data.get('posx', 0)
+	
+    # reverse order
+    return cmp(px, py)
+
+
+# Evaluation Algoithm
 class AbstractEvaluation (object) :
     """ Abstract evaluation algorithm """
     
@@ -69,6 +93,24 @@ class AbstractEvaluation (object) :
             node.raise_exception = True
             raise EvaluationException(vid,node,e,tb.format_tb(sys.exc_info()[2]))
 
+    
+    def get_parent_nodes(self, pid):
+        """ Return the list of parent node connected to pid
+        The list contains tuples (port_pid, node_pid, actor)
+        This list is sorted by the x value of the node
+        """
+        
+        df = self._dataflow
+
+        # For each connected node
+        npids = [(npid, df.vertex(npid), df.actor(df.vertex(npid))) \
+                     for npid in df.connected_ports(pid)]
+        npids.sort(cmp=cmp_posx)
+
+        return npids
+
+
+
         
 
 class BrutEvaluation (AbstractEvaluation) :
@@ -96,12 +138,11 @@ class BrutEvaluation (AbstractEvaluation) :
 
 			cpt = 0 
 			# For each connected node
-			for npid in df.connected_ports(pid):
-				nvid = df.vertex(npid)
+                        for npid, nvid, nactor in self.get_parent_nodes(pid):
 				if nvid not in self._evaluated:
 					self.eval_vertex(nvid)
 
-				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
+				inputs.append(nactor.get_output(df.local_id(npid)))
 				cpt += 1
 
 			# set input as a list or a simple value
@@ -122,20 +163,6 @@ class BrutEvaluation (AbstractEvaluation) :
 		# Eval from the leaf
 		for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0) :
 			self.eval_vertex(vid)
-
-
-
-# Sort by priority
-def cmp_priority(x, y):
-	(xvid, xactor) = x
-	(yvid, yactor) = y
-	try: px = xactor.internal_data['priority']
-	except: px = 0
-	try: py = yactor.internal_data['priority']
-	except: py = 0
-	
-	# reverse order
-	return cmp(py, px)
 
 
 
@@ -195,14 +222,12 @@ class GeneratorEvaluation (AbstractEvaluation) :
 
 			cpt = 0 
 			# For each connected node
-			for npid in df.connected_ports(pid):
-				nvid = df.vertex(npid)
-
+                        for npid, nvid, nactor in self.get_parent_nodes(pid):
 				# Do no reevaluate the same node
 				if (nvid not in self._evaluated):
 					self.eval_vertex(nvid)
 
-				inputs.append(df.actor(nvid).get_output(df.local_id(npid)))
+				inputs.append(nactor.get_output(df.local_id(npid)))
 				cpt += 1
 
 			# set input as a list or a simple value
