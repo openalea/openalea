@@ -60,6 +60,8 @@ def cmp_posx(x, y):
 
 
 # Evaluation Algoithm
+
+
 class AbstractEvaluation (object) :
     """ Abstract evaluation algorithm """
     
@@ -123,7 +125,7 @@ class BrutEvaluation (AbstractEvaluation) :
 		self._evaluated = set()
 
 	
-	def eval_vertex (self, vid) :
+	def eval_vertex (self, vid, *args) :
 		""" Evaluate the vertex vid """
 		
 		df = self._dataflow
@@ -169,14 +171,14 @@ class BrutEvaluation (AbstractEvaluation) :
 class PriorityEvaluation(BrutEvaluation) :
 	""" Support priority between nodes and selective"""
 	
-	def eval (self, vtx_id=None) :
+	def eval (self, vtx_id=None, *args) :
 
 		df = self._dataflow
 		# Unvalidate all the nodes
 		self._evaluated.clear()
 
 		if(vtx_id is not None):
-			return self.eval_vertex(vtx_id)
+			return self.eval_vertex(vtx_id, *args)
 
 		# Select the leafs (list of (vid, actor))
 		leafs = [ (vid, df.actor(vid))
@@ -186,12 +188,12 @@ class PriorityEvaluation(BrutEvaluation) :
 		
 		# Excecute
 		for vid, actor in leafs:
-			self.eval_vertex(vid)
+			self.eval_vertex(vid, *args)
 
 
 
 class GeneratorEvaluation (AbstractEvaluation) :
-	""" evaluation algorithm with generator / priority and selection"""
+	""" Evaluation algorithm with generator / priority and selection"""
 	
 	def __init__ (self, dataflow) :
 
@@ -268,3 +270,103 @@ class GeneratorEvaluation (AbstractEvaluation) :
 
 
 
+from openalea.core.dataflow import SubDataflow
+from openalea.core.interface import IFunction
+
+class LambdaEvaluation (PriorityEvaluation) :
+	""" Evaluation algorithm with support of lambda / priority and selection"""
+	
+	def __init__ (self, dataflow) :
+		PriorityEvaluation.__init__(self, dataflow)
+
+
+	def eval_vertex (self, vid, context, *args) :
+		""" Evaluate the vertex vid 
+                @param context is a list a value to assign to lambdas
+                """
+		
+		df = self._dataflow
+		actor = df.actor(vid)
+
+		self._evaluated.add(vid)
+
+                use_lambda = False
+
+		# For each inputs
+		for pid in df.in_ports(vid):
+
+                        input_index = df.local_id(pid)
+			inputs = []
+
+                        # Get input interface
+                        interface = actor.input_desc[input_index]['interface']
+
+                        # Determine if the context must be transmitted
+                        # If interface is IFunction it means that the node is a consumer
+                        # We do not propagate the context
+                        if(interface is IFunction):
+                            transmit_cxt = None
+                        else:
+                            transmit_cxt = context
+                        
+			cpt = 0 # parent counter
+
+			# For each connected node
+                        for npid, nvid, nactor in self.get_parent_nodes(pid):
+
+				# Do no reevaluate the same node
+				if (nvid not in self._evaluated):
+					self.eval_vertex(nvid, transmit_cxt)
+
+                                outval = nactor.get_output(df.local_id(npid))
+
+                                # Lambda 
+
+                                # We must consider 2 cases
+                                #  1) Lambda detection (receive a SubDataflow)
+                                #  2) Resolution mode (context is not None) : we 
+                                #      replace the lambda with value
+                                if(isinstance(outval, SubDataflow)
+                                   and interface is not IFunction):
+
+                                    if(not context and not len(self.lambda_value)): 
+                                        # we are not in resolution mode
+                                        use_lambda = True
+                                    else:
+                                        # We set the context value for later use
+                                        if(not self.lambda_value.has_key(outval)):
+                                            self.lambda_value[outval] = context.pop()
+                                        
+                                        # We replace the value with a context value
+                                        outval = self.lambda_value[outval]
+
+
+				inputs.append(outval)
+				cpt += 1
+
+			# set input as a list or a simple value
+			if(cpt == 1) : inputs = inputs[0]
+			if(cpt > 0) : actor.set_input(input_index, inputs)
+			
+		# Eval the node
+                if(not use_lambda):
+                    ret = self.eval_vertex_code(vid)
+                else:
+                    # set the node output with subdataflow
+                    for i in xrange(actor.get_nb_output()):
+                        actor.outputs[i] = SubDataflow(df, self, vid, i)
+
+
+
+        def eval (self, vtx_id=None, context=None) :
+            """ 
+            Eval the dataflow from vtx_id with a particular context
+            @param vtx_id : vertex id to start the evaluation
+            @param context : list a value to assign to lambda variables
+            """
+            
+            self.lambda_value = {}
+            PriorityEvaluation.eval(self, vtx_id, context)
+
+
+DefaultEvaluation = LambdaEvaluation
