@@ -44,7 +44,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="==", 
                   description="Equality test", 
                   category="Math",
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="eq",
                   )
@@ -54,7 +55,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="!=", 
                   description="Equality test", 
                   category="Math",
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="ne",
                   )
@@ -65,7 +67,8 @@ def register_packages(pkgmanager):
     nf = Factory( name=">", 
                   description="Greater than test", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="ge",
                   )
@@ -76,7 +79,8 @@ def register_packages(pkgmanager):
     nf = Factory( name=">=", 
                   description="greater or Equal test", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="ge",
                   )
@@ -87,7 +91,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="and", 
                   description="Boolean And", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  inputs=(dict(name="a", interface=IBool, value=True), 
+                          dict(name="b", interface=IBool, value=True),),
                   nodemodule="operator",
                   nodeclass="and_",
                   )
@@ -98,7 +103,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="or", 
                   description="Boolean Or", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  inputs=(dict(name="a", interface=IBool, value=True), 
+                          dict(name="b", interface=IBool, value=True),),
                   nodemodule="operator",
                   nodeclass="or_",
                   )
@@ -108,7 +114,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="xor", 
                   description="Boolean XOR", 
                   category="Math",
-                  inputs=[dict(name="a", interface=IBool), dict(name="b", interface=IBool),],
+                  inputs=(dict(name="a", interface=IBool, value=True), 
+                          dict(name="b", interface=IBool, value=True),),
                   nodemodule="operator",
                   nodeclass="xor",
                   )
@@ -119,7 +126,7 @@ def register_packages(pkgmanager):
     nf = Factory( name= "not", 
                   description="Boolean Not", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IBool),],
+                  inputs=(dict(name="a", interface=IBool, value=True),),
                   nodemodule="operator",
                   nodeclass="not_",
                   )
@@ -129,7 +136,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="+", 
                   description="Addition", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="add",
                   )
@@ -140,7 +148,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="-", 
                   description="Soustraction", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
+                  
                   nodemodule="operator",
                   nodeclass="sub",
                   )
@@ -148,9 +158,9 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     nf = Factory( name="neg", 
-                  description="Soustraction", 
+                  description="Negative", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), ],
+                  inputs=(dict(name="a", interface=IInt, value=0), ),
                   nodemodule="operator",
                   nodeclass="neg",
                   )
@@ -160,7 +170,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="*", 
                   description="Multiplication", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="mul",
                   )
@@ -171,7 +182,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="/", 
                   description="Division", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=1),),
+                  
                   nodemodule="operator",
                   nodeclass="div",
                   )
@@ -181,7 +194,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="%", 
                   description="Modulo", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=0), 
+                          dict(name="b", interface=IInt, value=0),),
+                  
                   nodemodule="operator",
                   nodeclass="mod",
                   )
@@ -192,7 +207,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="abs", 
                   description="Absolute value", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), ],
+                  inputs=(dict(name="a", interface=IInt, value=0),),
                   nodemodule="operator",
                   nodeclass="abs",
                   )
@@ -213,7 +228,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="**", 
                   description="Power", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
+                  inputs=(dict(name="a", interface=IInt, value=1), 
+                          dict(name="b", interface=IInt, value=1),),
                   nodemodule="operator",
                   nodeclass="pow",
                   )
@@ -224,7 +240,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="cos", 
                   description="Cosinus", 
                   category="Math",
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="cos",
                   )
@@ -235,7 +251,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="sin", 
                   description="Sinus", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="sin",
                   )
@@ -246,7 +262,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="tan", 
                   description="Tangent", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="tan",
                   )
@@ -257,7 +273,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="acos", 
                   description="Arccosinus", 
                   category="Math",
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="acos",
                   )
@@ -268,7 +284,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="asin", 
                   description="Arcsinus", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="asin",
                   )
@@ -279,7 +295,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="atan", 
                   description="Arctangent", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="atan",
                   )
@@ -290,7 +306,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="radians", 
                   description="Degrees to radians converter", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="radians",
                   )
@@ -301,7 +317,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="degrees", 
                   description="Radians to degrees converter", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="degrees",
                   )
@@ -323,8 +339,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="floor", 
                   description="floor of x", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
-                  outputs=[dict(name="y", interface=IFloat), ],
+                  inputs=(dict(name="x", interface=IFloat, value=0.),),
+                  outputs=(dict(name="y", interface=IFloat), ),
                   nodemodule="math",
                   nodeclass="floor",
                   )
@@ -333,10 +349,10 @@ def register_packages(pkgmanager):
 
     
     nf = Factory( name="ceil", 
-                  description="ceil of x", 
+                  description="Ceil of x", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
-                  outputs=[dict(name="y", interface=IInt), ],
+                  inputs=(dict(name="x", interface=IFloat, value=0.),),
+                  outputs=(dict(name="y", interface=IInt), ),
                   nodemodule="math",
                   nodeclass="ceil",
                   )
@@ -348,7 +364,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="sqrt", 
                   description="Square root", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
+                  inputs=(dict(name="x", interface=IFloat, value=0.),),
                   nodemodule="math",
                   nodeclass="sqrt",
                   )
@@ -359,7 +375,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="log10", 
                   description="Base 10 logarithm", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
+                  inputs=(dict(name="x", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="log10",
                   )
@@ -370,8 +386,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="log", 
                   description="Logarithm", 
                   category="Math", 
-                  inputs=[dict(name="a", interface=IFloat), 
-                          dict(name="base", interface=IFloat, value=math.e),],
+                  inputs=(dict(name="a", interface=IFloat, value=0.), 
+                          dict(name="base", interface=IFloat, value=math.e),),
                   nodemodule="math",
                   nodeclass="log",
                   )
@@ -382,7 +398,7 @@ def register_packages(pkgmanager):
     nf = Factory( name="exp", 
                   description="Exponential", 
                   category="Math", 
-                  inputs=[dict(name="x", interface=IFloat), ],
+                  inputs=(dict(name="x", interface=IFloat, value=0.), ),
                   nodemodule="math",
                   nodeclass="exp",
                   )

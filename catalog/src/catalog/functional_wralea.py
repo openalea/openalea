@@ -41,6 +41,8 @@ def register_packages(pkgmanager):
     nf = Factory( name="map",
                   description="Apply a function on a sequence",
                   category="Functional",
+                  inputs=(dict(name='func', interface=IFunction), 
+                          dict(name='seq', interface=ISequence)),
                   nodemodule="functional",
                   nodeclass="pymap",
                   )
@@ -51,6 +53,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="filter",
                   description="Apply a function on a sequence and return only true values",
                   category="Functional",
+                  inputs=(dict(name='func', interface=IFunction), 
+                          dict(name='seq', interface=ISequence)),
+
                   nodemodule="functional",
                   nodeclass="pyfilter",
                   )
@@ -61,6 +66,9 @@ def register_packages(pkgmanager):
     nf = Factory( name="reduce",
                   description="Apply a function of two arguments cumulatively to the items of a sequence",
                   category="Functional",
+                  inputs=(dict(name='func', interface=IFunction), 
+                          dict(name='seq', interface=ISequence)),
+
                   nodemodule="functional",
                   nodeclass="pyreduce",
                   )
