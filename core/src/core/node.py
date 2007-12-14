@@ -60,6 +60,7 @@ def gen_port_list(size):
 
 
 
+
 ###############################################################################
 class AbstractNode(IActor, Observed):
     """ An AbstractNode is the atomic entity in a dataflow."""
@@ -362,13 +363,10 @@ class Node(AbstractNode):
            and not self.modified):
             return False
 
+
         # Run the node
         outlist = self.__call__(self.inputs)
-
-        self.modified = False
-        self.notify_listeners( ("status_modified",self.modified) )
-
-
+        
         # Copy outputs
         if(not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
@@ -376,6 +374,10 @@ class Node(AbstractNode):
 
         for i in range( min (len(outlist), len(self.outputs))):
             self.outputs[i] = outlist[i]
+
+        # Set State
+        self.modified = False
+        self.notify_listeners( ("status_modified",self.modified) )
 
         return False
 

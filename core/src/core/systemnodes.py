@@ -24,7 +24,8 @@ __revision__=" $Id$ "
 
 
 from openalea.core.node import AbstractNode, Node
-
+from openalea.core.dataflow import SubDataflow
+        
 
 class AnnotationNode(AbstractNode):
     """ A DummyNode is a fake node."""
@@ -237,3 +238,55 @@ class AccuFloat(Node):
         return (self.pool[varname],)
 
 
+class LambdaVar(Node):    
+    """ Return a lambda variable """
+
+    def __call__(self, inputs):
+        
+        return (SubDataflow(None, None, 0, 0),)
+
+
+class For(Node):
+    """ For Loop Univariate
+    In 0 : Initial value
+    In 1 : Test function
+    In 2 : Process Function
+
+    Out 0 : Result value
+    """
+    
+    def __call__(self, inputs):
+        
+        value = inputs[0]
+        test = inputs[1]
+        func = inputs[2]
+
+        while(test(value)):
+            value = func(value)
+
+        return (value,)
+
+
+class ForList(Node):
+    """ For Loop Multivariate
+    In 0 : List of initial value
+    In 1 : Test function
+    In 2 : List of Process Function
+
+    Out 0 : Result variables
+    """
+    
+    def __call__(self, inputs):
+        
+        values = inputs[0]
+        test = inputs[1]
+        funcs = inputs[2]
+
+        while(test(*values)):
+            newvals = []
+
+            for i,f in enumerate(funcs):
+                newvals.append(f(*values))
+            values = newvals
+
+        return (values,)

@@ -365,5 +365,32 @@ class DataFlow(PropertyGraph):
 
 
 
+class SubDataflow(object):
+    """ Represents a part of a dataflow for a partial evaluation """
 
+    def __init__(self, dataflow, algo, node_id, port_index):
+	""" Constructor
+	@param dataflow
+	@param algo
+	@param node_id
+	@param port_index
+	"""
+        
+        self.dataflow = dataflow
+	self.algo = algo
+        self.node_id = node_id
+        self.port_index = port_index
+
+
+    def __call__(self, *args):
+        """ Consider the Subdataflow as a function """
+
+	if(not self.dataflow): 
+		# Identity function
+		if(len(args)==1) : return args[0]
+		else: return args
+
+        self.algo.eval(self.node_id, list(args))
+	ret = self.dataflow.actor(self.node_id).get_output(self.port_index)
+        return ret
 	
