@@ -67,7 +67,7 @@ def register_packages(pkgmanager):
                               elt_factory={2: ('Catalog.Data', 'float'), 3: ('Catalog.Data', 'float'), 4: ('Catalog.Data', 'list')},
                               elt_connections={154750856: (2, 0, 4, 0), 154750868: (3, 0, 4, 0)},
                               elt_data={3: {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'float', 'posx': 60.0, 'posy': 116.25, 'minimal': False}, 2: {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'float', 'posx': 225.0, 'posy': 112.5, 'minimal': False}, '__in__': {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'In', 'posx': 20.0, 'posy': 5.0, 'minimal': False}, 4: {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'list', 'posx': 71.25, 'posy': 195.0, 'minimal': False}, '__out__': {'lazy': True, 'hide': True, 'port_hide_changed': set([]), 'priority': 0, 'caption': 'Out', 'posx': 20.0, 'posy': 250.0, 'minimal': False}},
-                              elt_value={3: [(0, '0.0')], 2: [(0, '0.0')], '__in__': [], 4: [], '__out__': []},
+                              elt_value={3: [(0, '1.0')], 2: [(0, '2.0')], '__in__': [], 4: [], '__out__': []},
                               lazy=True,
                               )
 

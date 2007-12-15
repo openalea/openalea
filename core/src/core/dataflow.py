@@ -366,7 +366,9 @@ class DataFlow(PropertyGraph):
 
 
 class SubDataflow(object):
-    """ Represents a part of a dataflow for a partial evaluation """
+    """ Represents a part of a dataflow for a partial evaluation 
+    A SubDataflow is a callable and absract a part of a dataflow as a funtion
+    """
 
     def __init__(self, dataflow, algo, node_id, port_index):
 	""" Constructor
