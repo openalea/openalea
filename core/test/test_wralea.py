@@ -56,7 +56,7 @@ def test_register():
 
     register_packages(pkgmanager)
 
-    assert "Test" in  pkgmanager.keys()
+    assert "test" in  pkgmanager.keys()
 
     pkg = pkgmanager["Test"]
 

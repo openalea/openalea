@@ -27,8 +27,24 @@ from openalea.core.node import Factory, gen_port_list
 import os
 
 
+def setup_module():
+    try:
+        os.remove(os.path.join(os.path.curdir, "MyTestPackage_wralea.py"))
+        os.remove(os.path.join(os.path.curdir, "MyTestPackage_wralea.pyc"))
+    except:
+        pass
+    try:
+        os.remove(os.path.join(os.path.curdir, "mynode.py"))
+        os.remove(os.path.join(os.path.curdir, "mynode.pyc"))
+    except:
+        pass
+
+
 
 def test_compositenodewriter():
+    
+    setup_module()
+
     pm = PackageManager ()
     pm.init()
 
@@ -46,6 +62,7 @@ def test_compositenodewriter():
     sg.connect (val1id, 0, addid, 0)
     sg.connect (val2id, 0, addid, 1)
     sg.connect (addid, 0, val3id, 0)
+    sg.connect (val3id, 0, sg.id_out, 0)
     sgfactory = CompositeNodeFactory("addition")
     sg.to_factory(sgfactory)
     # Package
@@ -58,7 +75,7 @@ def test_compositenodewriter():
                }
 
 
-    package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
+    package1 = pm.create_user_package("MyTestPackage", metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
     print package1.keys()
     assert package1.has_key('addition')
@@ -70,16 +87,16 @@ def test_compositenodewriter():
     sg.node(val1id).set_input(0, 2.)
     sg.node(val2id).set_input(0, 3.)
 
-        # evaluation
+    # evaluation
     sg()
-    
+    print sg.node(val3id).get_output(0) 
     assert sg.node(val3id).get_output(0) == 5.
-
+    
     print "nb vertices", len( sg )
     assert len(sg) == 6
 
     pm.init()
-    newsg = pm.get_node('MyPackage', 'addition')
+    newsg = pm.get_node('MyTestPackage', 'addition')
     print "nb vertices", len( newsg )
     assert len(newsg) == 6
     
@@ -87,6 +104,7 @@ def test_compositenodewriter():
     
     
 def test_nodewriter():
+    setup_module()
 
     pm = PackageManager ()
     pm.init()
@@ -101,9 +119,10 @@ def test_nodewriter():
                'url' : 'http://openalea.gforge.inria.fr'
                }
 
-    package1 = pm.create_user_package("MyPackage", metainfo, os.path.curdir)
+    package1 = pm.create_user_package("MyTestPackage", metainfo, os.path.curdir)
 
     assert package1 != None
+    
 
     nf = package1.create_user_node(name="mynode",
                                       category='test',
@@ -117,10 +136,8 @@ def test_nodewriter():
     
     pm.init()
 
-    newsg = pm.get_node('MyPackage', 'mynode')
+    newsg = pm.get_node('MyTestPackage', 'mynode')
 
-    os.remove("MyPackage_wralea.py")
-    os.remove("MyPackage_wralea.pyc")
     os.remove("mynode.py")
     os.remove("mynode.pyc")
 

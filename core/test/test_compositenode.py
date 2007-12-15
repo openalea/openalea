@@ -266,18 +266,26 @@ def test_loop():
     val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
     val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
     val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
+    valinit = sg.add_node( pm.get_node("System", "init"))
 
+    sg.connect (valinit, 0, val1id, 0)
     sg.connect (val1id, 0, val2id, 0)
-    sg.connect (val2id, 0, val3id, 0)
-    sg.connect (val3id, 0, val1id, 0)
+    sg.connect (val2id, 0, valinit, 1)
+    sg.connect (val3id, 0, valinit, 0)
 
 
     sgfactory = CompositeNodeFactory("testloop")
 
-    sg.node(val1id).set_input(0,"teststring")
-    sg.eval_as_expression(val3id)
+    sg.node(val3id).set_input(0,"teststring")
+    sg.node(valinit).set_input(2, True)
+
+    sg.eval_as_expression(val2id)
+    assert sg.node(val1id).get_output(0) == "teststring"
     assert sg.node(val2id).get_output(0) == "teststring"
-    assert sg.node(val3id).get_output(0) == "teststring"
+
+    sg.eval_as_expression(val2id)
+    assert sg.node(val1id).get_output(0) == "teststring"
+    assert sg.node(val2id).get_output(0) == "teststring"
 
 
 
@@ -421,7 +429,7 @@ def test_auto_io():
     sg.connect (val2id, 0, val3id, 0)
 
     sgfactory = CompositeNodeFactory("testlautoio")
-    sg.to_factory(sgfactory, auto_io=True)
+    sg.to_factory(sgfactory, listid=[val1id, val2id, val3id], auto_io=True)
 
     # allocate the compositenode
     sg = sgfactory.instantiate()

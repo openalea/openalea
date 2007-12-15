@@ -278,6 +278,8 @@ class LambdaEvaluation (PriorityEvaluation) :
 	
 	def __init__ (self, dataflow) :
 		PriorityEvaluation.__init__(self, dataflow)
+                
+                self.lambda_value = {} # lambda resolution dictionary
 
 
 	def eval_vertex (self, vid, context, *args) :
@@ -299,7 +301,7 @@ class LambdaEvaluation (PriorityEvaluation) :
 			inputs = []
 
                         # Get input interface
-                        interface = actor.input_desc[input_index]['interface']
+                        interface = actor.input_desc[input_index].get('interface', None)
 
                         # Determine if the context must be transmitted
                         # If interface is IFunction it means that the node is a consumer
@@ -323,19 +325,24 @@ class LambdaEvaluation (PriorityEvaluation) :
                                 # Lambda 
 
                                 # We must consider 2 cases
-                                #  1) Lambda detection (receive a SubDataflow)
+                                #  1) Lambda detection (receive a SubDataflow and interface != IFunction)
+                                #         
                                 #  2) Resolution mode (context is not None) : we 
                                 #      replace the lambda with value
+
                                 if(isinstance(outval, SubDataflow)
                                    and interface is not IFunction):
 
-                                    if(not context and not len(self.lambda_value)): 
+                                    if(not context and not self.lambda_value): 
                                         # we are not in resolution mode
                                         use_lambda = True
                                     else:
                                         # We set the context value for later use
                                         if(not self.lambda_value.has_key(outval)):
-                                            self.lambda_value[outval] = context.pop()
+                                            try:
+                                                self.lambda_value[outval] = context.pop()
+                                            except Exception:
+                                                raise Exception("The number of lambda variables is insuffisant")
                                         
                                         # We replace the value with a context value
                                         outval = self.lambda_value[outval]
@@ -365,8 +372,8 @@ class LambdaEvaluation (PriorityEvaluation) :
             @param context : list a value to assign to lambda variables
             """
             
-            self.lambda_value = {}
+            self.lambda_value.clear() 
             PriorityEvaluation.eval(self, vtx_id, context)
-
+            self.lambda_value.clear() # do not keep context in memory
 
 DefaultEvaluation = LambdaEvaluation

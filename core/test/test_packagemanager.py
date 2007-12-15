@@ -68,9 +68,9 @@ def test_category():
     # test if factory are dedoubled
     for cat in pkgman.category.values():
         s = set()
-        for factory in  cat:
-            assert not factory.get_id() in s
-            s.add(factory.get_id())
+        for factory in cat:
+            assert not factory in s
+            s.add(factory)
 
 
 def test_search():
