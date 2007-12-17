@@ -53,7 +53,7 @@ import new
 
 from util import get_all_lib_dirs, get_all_bin_dirs
 from install_lib import get_dyn_lib_dir
-from util import get_base_dir, get_repo_list
+from util import get_base_dir, get_repo_list, OPENALEA_PI
 from environ_var import set_lsb_env, set_win_env
 
 import install_lib
