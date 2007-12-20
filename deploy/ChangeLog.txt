@@ -1,0 +1,7 @@
+OpenAlea.Deploy 0.3.3
+    * Execute build_ext before build_py
+OpenAlea.Deploy 0.3.2
+    * Manage a list of web repository
+OpenAlea.Deploy 0.3
+    * Manage a directory of shared lib
+    
