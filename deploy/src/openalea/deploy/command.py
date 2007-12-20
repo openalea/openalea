@@ -31,15 +31,18 @@ from os.path import join as pj
 from setuptools import Command
 from setuptools.dist import assert_string_list, assert_bool
 from distutils.command.build import build as old_build
+from setuptools.command.install_lib import install_lib as old_install_lib
 from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
 from setuptools.command.develop import develop
 
+import distutils.command.build
 import setuptools.command.build_py
 import setuptools.command.build_ext
 import setuptools.command.install
+import setuptools.command.install_lib
 
 from distutils.dist import Distribution
 
@@ -107,11 +110,16 @@ def set_has_ext_modules(dist):
     m = new.instancemethod(has_ext_modules, dist, Distribution)
     dist.has_ext_modules = m
 
-    # put build_ext command before build_py
-    def cmp_cmd(x,y):
-        return cmp(x[0], y[0])
 
-    old_build.sub_commands.sort(cmp=cmp_cmd)
+class build(old_build):
+    """ Override sub command order in build command """
+    sub_commands = [('build_ext',     old_build.has_ext_modules),
+                    ('build_py',      old_build.has_pure_modules),
+                    ('build_clib',    old_build.has_c_libraries),
+                    ('build_scripts', old_build.has_scripts),
+                   ]
+
+
 
 class build_py(old_build_py):
     """
@@ -187,6 +195,17 @@ class build_ext(old_build_ext):
         return old_build_ext.run(self)
 
 
+class install_lib(old_install_lib):
+    """ Overide install_lib command (execute build_ext before build_py"""
+    
+    def build (self):
+        if not self.skip_build:
+            if self.distribution.has_ext_modules():
+                self.run_command('build_ext')    
+
+            if self.distribution.has_pure_modules():
+                self.run_command('build_py')
+                
 # Validation functions
 
 def validate_create_namespaces(dist, attr, value):
@@ -196,11 +215,14 @@ def validate_create_namespaces(dist, attr, value):
     if(value and dist.namespace_packages):
         setuptools.command.build_py.build_py = build_py
 
+
 def validate_scons_scripts(dist, attr, value):
     """ Validation for scons_scripts keyword """
     assert_string_list(dist, attr, value)
     if(value): 
         setuptools.command.build_ext.build_ext = build_ext
+        distutils.command.build.build = build
+        setuptools.command.install_lib.install_lib = install_lib
         set_has_ext_modules(dist)
 
 
@@ -214,7 +236,9 @@ def validate_bin_dirs(dist, attr, value):
             # Change commands
             setuptools.command.build_ext.build_ext = build_ext
             setuptools.command.install.install = install
+            setuptools.command.install_lib.install_lib = install_lib
             set_has_ext_modules(dist)
+
 
     except (TypeError,ValueError,AttributeError,AssertionError):
         raise DistutilsSetupError(
