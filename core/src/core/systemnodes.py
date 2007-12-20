@@ -240,14 +240,20 @@ class AccuFloat(Node):
 
 class LambdaVar(Node):    
     """ Return a lambda variable """
+    cpt = 0
+
+    def __init__(self, *args):
+        Node.__init__(self, *args)
+        self.set_caption("X" + str(LambdaVar.cpt))
+        LambdaVar.cpt += 1
 
     def __call__(self, inputs):
         
         return (SubDataflow(None, None, 0, 0),)
 
 
-class For(Node):
-    """ For Loop Univariate
+class WhileUniVar(Node):
+    """ While Loop Univariate
     In 0 : Initial value
     In 1 : Test function
     In 2 : Process Function
@@ -267,8 +273,8 @@ class For(Node):
         return (value,)
 
 
-class ForList(Node):
-    """ For Loop Multivariate
+class WhileMultiVar(Node):
+    """ While Loop Multivariate
     In 0 : List of initial value
     In 1 : Test function
     In 2 : List of Process Function

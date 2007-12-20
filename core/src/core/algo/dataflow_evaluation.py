@@ -377,3 +377,183 @@ class LambdaEvaluation (PriorityEvaluation) :
             self.lambda_value.clear() # do not keep context in memory
 
 DefaultEvaluation = LambdaEvaluation
+
+
+# from collections import deque
+
+
+# class LambdaEvaluation (PriorityEvaluation) :
+# 	""" Evaluation algorithm with support of lambda / priority and selection"""
+	
+# 	def __init__ (self, dataflow) :
+
+# 		PriorityEvaluation.__init__(self, dataflow)
+
+
+#         def scan_graph(self, vid, context):
+#             """ Return the list of vextex id in the correct process order
+#             starting from vid
+#             @param vid : starting vertex id
+#             @param context  : variable context
+#             """
+            
+#             df = self._dataflow
+
+#             scanned = set() # Scanned node
+#             process_list = deque()
+#             scan_list = deque([(vid, context)])
+
+#             while(scan_list):
+                
+#                 (vid, context) = scan_list.popleft()
+                
+#                 process_list.appendleft( (vid, context) )
+#                 scanned.add(vid)
+
+#                 actor = df.actor(vid)
+                
+#                 # For each inputs
+#                 for pid in df.in_ports(vid):
+
+#                     # Determine if the context must be transmitted
+#                     # If interface is IFunction it means that the node is a consumer
+#                     # We do not propagate the context
+#                     input_index = df.local_id(pid)
+#                     interface = actor.input_desc[input_index].get('interface', None)
+#                     transmit_cxt = None if(interface is IFunction) else context
+
+#                     # For each connected node
+#                     for npid in df.connected_ports(pid):
+#                         nvid = df.vertex(npid)
+                   
+#                         # Do no reevaluate the same node
+#                         if (nvid not in scanned):
+#                             scan_list.append((nvid, transmit_cxt))
+
+#             return process_list
+
+
+
+# 	def eval_vertex (self, vid, context, *args) :
+# 		""" Evaluate the graph starting at the vertex vid 
+#                 @param vid : starting vertex id
+#                 @param context  : list of values to assign to variables
+#                 """
+                
+#                 lambda_value = {}
+		
+#                 # Get the node order
+#                 process_list = self.scan_graph(vid, context)
+                
+#                 # Eval each node 
+#                 for vid, context in process_list:
+#                     self.eval_one_vertex(vid, context, lambda_value)
+        
+
+#         def eval_one_vertex (self, vid, context, lambda_value) :
+# 		""" Evaluate only one vertex 
+#                 @param vid : id of vertex to evalaute
+#                 @param context  : list of values to assign to variables
+#                 @param lambda_value : dictionary of previous assigned values
+#                 """
+
+#                 df = self._dataflow
+                
+#                 actor = df.actor(vid)
+#                 use_lambda = False
+                    
+#                 # Get inputs
+#                 for pid in df.in_ports(vid):
+
+#                     inputs = []
+#                     cpt = 0 # parent counter
+                        
+#                     # Get input interface
+#                     input_index = df.local_id(pid)
+#                     interface = actor.input_desc[input_index].get('interface', None)
+
+#                     # For each connected node
+#                     for npid, nvid, nactor in self.get_parent_nodes(pid):
+                            
+#                         outval = nactor.get_output(df.local_id(npid))
+
+#                         # Lambda 
+
+#                         # We must consider 2 cases
+#                         #  1) Lambda detection (receive a SubDataflow and interface != IFunction)
+#                         #         
+#                         #  2) Resolution mode (context is not None) : we 
+#                         #      replace the lambda with value
+
+#                         if(isinstance(outval, SubDataflow)
+#                            and interface is not IFunction):
+
+#                             if(not context and not lambda_value): 
+#                                 # we are not in resolution mode
+#                                 use_lambda = True
+#                             else:
+#                                 # We set the context value for later use
+#                                 if(not lambda_value.has_key(outval)):
+#                                     try:
+#                                         lambda_value[outval] = context.pop()
+#                                     except Exception,e :
+#                                         print e, context, lambda_value
+#                                         raise Exception("The number of lambda variables is insuffisant")
+                                        
+#                                 # We replace the value with a context value
+#                                 outval = lambda_value[outval]
+
+
+#                         inputs.append(outval)
+#                         cpt += 1
+
+#                     # set input as a list or a simple value
+#                     if(cpt == 1) : inputs = inputs[0]
+#                     if(cpt > 0) : actor.set_input(input_index, inputs)
+
+                        
+#                 # Eval the node
+#                 if(not use_lambda):
+#                     ret = self.eval_vertex_code(vid)
+#                 else:
+#                     # tranmit a SubDataflow to following node
+#                     for i in xrange(actor.get_nb_output()):
+#                         actor.outputs[i] = SubDataflow(df, self, vid, i)
+
+
+
+#         def eval (self, vtx_id=None, context=None) :
+#             """ 
+#             Eval the dataflow from vtx_id with a particular context
+#             @param vtx_id : vertex id to start the evaluation
+#             @param context : list a value to assign to lambda variables
+#             """
+            
+#             PriorityEvaluation.eval(self, vtx_id, context)
+
+
+
+# from openalea.core.threadmanager import ThreadManager
+
+# class ParallelEvaluation(LambdaEvaluation):
+#     """ Parallel execution of a dataflow """
+
+#     def eval_vertex (self, vid, context, *args) :
+#         """ Evaluate the graph starting at the vertex vid 
+#         @param vid : starting vertex id
+#         @param context  : list of values to assign to variables
+#         """
+        
+#         tm = ThreadManager()
+
+#         lambda_value = {}
+		
+#         # Get the node order
+#         process_list = self.scan_graph(vid, context)
+                
+#         # Eval each node 
+#         for vid, context in process_list:
+#             tm.queue.put( (self.eval_one_vertex, (vid, context, lambda_value)))
+
+
+# DefaultEvaluation = ParallelEvaluation
