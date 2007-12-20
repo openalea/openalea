@@ -127,7 +127,7 @@ class Node(AbstractNode):
         self.modified = True
 
         # Internal Data
-        self.internal_data['caption'] = str(self.__class__.__name__)
+        self.internal_data['caption'] = '' #str(self.__class__.__name__)
         self.internal_data['lazy'] = True
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
@@ -654,7 +654,7 @@ class NodeFactory(AbstractFactory):
         try:
             node.factory = self
             node.lazy = self.lazy
-            node.set_caption(self.name)
+            if(not node.caption) : node.set_caption(self.name)
         except:
             pass
         

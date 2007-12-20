@@ -162,8 +162,8 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     
-    nf = Factory(name="lambda var", 
-                 description="Lambda variable", 
+    nf = Factory(name="X", 
+                 description="Function variable", 
                  category="System", 
                  nodemodule="systemnodes",
                  nodeclass="LambdaVar",
@@ -174,11 +174,11 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     
-    nf = Factory(name="for", 
-                 description="For Loop (Univariate)", 
+    nf = Factory(name="while univariate", 
+                 description="While Loop (Univariate)", 
                  category="System", 
                  nodemodule="systemnodes",
-                 nodeclass="For",
+                 nodeclass="WhileUniVar",
                  inputs = (dict(name="InitValue", interface=None, value=None),  
                            dict(name="Test", interface=IFunction, value=None),  
                            dict(name="Function", interface=IFunction, value=None),  
@@ -189,11 +189,11 @@ def register_packages(pkgmanager):
     package.add_factory(nf)
 
     
-    nf = Factory(name="forlist", 
-                 description="For Loop (Multivariate)", 
+    nf = Factory(name="while multivariate", 
+                 description="While Loop (Multivariate)", 
                  category="System", 
                  nodemodule="systemnodes",
-                 nodeclass="ForList",
+                 nodeclass="WhileMultiVar",
                  inputs = (dict(name="InitValues", interface=ISequence, value=[]),  
                            dict(name="Test", interface=IFunction, value=None),  
                            dict(name="Functions", interface=IFunction, value=None),  
