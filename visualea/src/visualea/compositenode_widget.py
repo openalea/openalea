@@ -717,8 +717,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
                 desc = self.subnode.factory.description
             else : desc = ""
             self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__)+
-                             "Description :%s\n" %(desc)
-                             )
+                             "Description :%s\n" %(desc) )
                               
 
         # Font and box size
