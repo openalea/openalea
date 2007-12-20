@@ -195,7 +195,7 @@ class build_ext(old_build_ext):
         return old_build_ext.run(self)
 
 
-class install_lib(old_install_lib):
+class cmd_install_lib(old_install_lib):
     """ Overide install_lib command (execute build_ext before build_py"""
     
     def build (self):
@@ -222,7 +222,7 @@ def validate_scons_scripts(dist, attr, value):
     if(value): 
         setuptools.command.build_ext.build_ext = build_ext
         distutils.command.build.build = build
-        setuptools.command.install_lib.install_lib = install_lib
+        setuptools.command.install_lib.install_lib = cmd_install_lib
         set_has_ext_modules(dist)
 
 
@@ -236,7 +236,7 @@ def validate_bin_dirs(dist, attr, value):
             # Change commands
             setuptools.command.build_ext.build_ext = build_ext
             setuptools.command.install.install = install
-            setuptools.command.install_lib.install_lib = install_lib
+            setuptools.command.install_lib.install_lib = cmd_install_lib
             set_has_ext_modules(dist)
 
 
