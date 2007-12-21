@@ -28,10 +28,10 @@ A file path
 Out :  the file path string
     """
 
-    def __call__(self, inputs):
+    def __call__(self, input):
         """ inputs is the list of input values """
 
-        fname = inputs[0]
+        fname = input
         return (str(fname),)
 
 
@@ -41,10 +41,10 @@ A file path
 Out :  the path string
     """
 
-    def __call__(self, inputs):
+    def __call__(self, input):
         """ inputs is the list of input values """
 
-        fname = inputs[0]
+        fname = input
         return (str(fname),)
 
 
