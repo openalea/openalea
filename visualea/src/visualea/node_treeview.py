@@ -33,10 +33,10 @@ from openalea.core.node import NodeFactory, AbstractFactory
 from openalea.core.package import Package
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager, Category
-from openalea.core.observer import AbstractListener
 
 from dialogs import EditPackage, NewGraph
 from util import open_dialog, exception_display, busy_cursor
+from node_widget import SignalSlotListener
 
 import images_rc
 
@@ -622,7 +622,7 @@ class SearchListView(NodeFactoryView, QtGui.QListView):
         NodeFactoryView.__init__(self, main_win, parent)
         
 
-class DataPoolListView(QtGui.QListView, AbstractListener):
+class DataPoolListView(QtGui.QListView, SignalSlotListener):
     """ Specialized QListView to display data pool contents """
     
     def __init__(self, main_win, datapool, parent=None):
@@ -633,7 +633,7 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
         """
         
         QtGui.QListView.__init__(self, parent)
-        AbstractListener.__init__(self)
+        SignalSlotListener.__init__(self)
 
         self.main_win = main_win
 
@@ -646,6 +646,7 @@ class DataPoolListView(QtGui.QListView, AbstractListener):
 
     def notify(self, sender, event):
         """ Notification by observed """
+
         self.reset()
         
         
