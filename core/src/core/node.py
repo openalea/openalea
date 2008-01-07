@@ -824,51 +824,6 @@ Factory = NodeFactory
 
 
 
-###############################################################################
-
-class NodeWidget(AbstractListener):
-    """
-    Base class for node instance widgets.
-    """
-
-    def __init__(self, node):
-        """ Init the widget with the associated node """
-        
-        self.__node = node
-
-        # register to observed node
-        self.initialise(node)
-
-
-    def get_node(self):
-        """ Return the associated node """
-        return self.__node
-
-
-    def set_node(self, node):
-        """ Define the associated node """
-        self.__node = node
-
-    node = property(get_node, set_node)
-
-
-    def notify(self, sender, event):
-        """
-        This function is called by the Observed objects
-        and must be overloaded
-        """
-        pass
-    
-
-    def is_empty(self):
-        return False
-
-
-    def set_autonomous(self):
-        """ set the widget autonomous """
-        return
-        
-
 
 ################################################################################
         

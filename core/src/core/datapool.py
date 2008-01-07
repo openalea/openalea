@@ -37,6 +37,8 @@ def notify_decorator(f):
     return wrapped
 
 
+
+
 class DataPool(Observed, dict):
     """ Dictionnary of session data """
 
