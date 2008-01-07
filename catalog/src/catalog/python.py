@@ -189,7 +189,7 @@ class FileRead(object):
 ################################################################################
 # Widgets
 
-from openalea.core.core import NodeWidget
+from openalea.visualea.node_widget import NodeWidget
 from openalea.core.observer import lock_notify         
 
 from PyQt4 import QtGui, QtCore

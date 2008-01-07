@@ -28,12 +28,92 @@ import sys
 import os
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.node import NodeWidget
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
-from openalea.core.observer import lock_notify
+from openalea.core.observer import lock_notify, AbstractListener
 from gui_catalog import *
 import types
-  
+
+
+
+class SignalSlotListener(AbstractListener):
+    """ Listener with QT Signal/Slot support """
+
+    def __init__(self):
+        
+        # Create a QObject if necessary
+        if(not isinstance(self, QtCore.QObject)):
+            self.qobj = QtCore.QObject()
+        else:
+            self.qobj = self
+        
+            
+        self.qobj.connect(self.qobj, QtCore.SIGNAL("notify"), self.notify)
+
+
+    def call_notify (self, sender, event=None):
+        """
+        This function is called by observed object
+        @param sender : the observed object which send notification
+        @param event : the data associated to the notification
+        """
+        
+        try:
+            self.qobj.emit(QtCore.SIGNAL("notify"), sender, event)
+        except:
+            print "Cannot emit Qt Signal"
+            self.notify(self, sender, event)
+
+
+
+
+
+
+###############################################################################
+
+class NodeWidget(SignalSlotListener):
+    """
+    Base class for node instance widgets.
+    """
+
+    def __init__(self, node):
+        """ Init the widget with the associated node """
+        
+        self.__node = node
+
+        SignalSlotListener.__init__(self)
+        # register to observed node
+        self.initialise(node)
+
+
+    def get_node(self):
+        """ Return the associated node """
+        return self.__node
+
+
+    def set_node(self, node):
+        """ Define the associated node """
+        self.__node = node
+
+    node = property(get_node, set_node)
+
+
+    def notify(self, sender, event):
+        """
+        This function is called by the Observed objects
+        and must be overloaded
+        """
+        pass
+    
+
+    def is_empty(self):
+        return False
+
+
+    def set_autonomous(self):
+        """ 
+        Set the widget autonomous (i.e add run/exit button) 
+        """
+        return
 
    
 
@@ -47,9 +127,10 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     
     @lock_notify
     def __init__(self, node, parent):
+        """ Constructor """
 
-        NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
+        NodeWidget.__init__(self, node)
         self.setMinimumSize(100, 20)
 
         self.widgets = []

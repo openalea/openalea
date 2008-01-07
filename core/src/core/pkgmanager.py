@@ -126,9 +126,11 @@ class PackageManager(object):
 
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
-            m = epoint.load()
-            for p in m.__path__:
-                self.add_wraleapath(p)
+            base = epoint.dist.location
+            m = epoint.module_name.split('.')
+            p = os.path.join(base, *m)
+            print "Wralea entry point: ", p
+            self.add_wraleapath(p)
 
         # Search in openalea namespace
         if(self.include_namespace):

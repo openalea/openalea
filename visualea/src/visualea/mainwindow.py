@@ -35,10 +35,9 @@ from code import InteractiveInterpreter as Interpreter
 from node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
 from node_treeview import DataPoolListView, DataPoolModel
 from node_treeview import SearchListView, SearchModel
-
+from node_widget import SignalSlotListener
 import metainfo
 
-from openalea.core.observer import AbstractListener
 
 from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
 from util import exception_display, busy_cursor
@@ -47,7 +46,8 @@ from util import exception_display, busy_cursor
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
-                 AbstractListener) :
+                 SignalSlotListener) :
+
 
     def __init__(self, session, parent=None):
         """
@@ -57,7 +57,7 @@ class MainWindow(QtGui.QMainWindow,
         """
 
         QtGui.QMainWindow.__init__(self, parent)
-        AbstractListener.__init__(self)
+        SignalSlotListener.__init__(self)
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 

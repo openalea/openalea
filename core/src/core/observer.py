@@ -57,7 +57,7 @@ class Observed(object):
         for ref in self.listeners:
             if(not ref().is_notification_locked()):
                 try:
-                    ref().notify(self, event)
+                    ref().call_notify(self, event)
                 except Exception, e:
                     print "Warning : notification of %s failed"%(str(ref()),)
                     print e
@@ -71,7 +71,6 @@ class Observed(object):
 
 
 
-
 class AbstractListener(object):
     """ Listener base class """
 
@@ -79,6 +78,7 @@ class AbstractListener(object):
     
     def initialise (self, observed):
         """ Register self as a listener to observed """
+
         assert observed != None
         observed.register_listener(self)
         if( self.notify_lock == None) : self.notify_lock = list()
@@ -87,7 +87,16 @@ class AbstractListener(object):
     def is_notification_locked(self):
         return self.notify_lock != None and len(self.notify_lock)>0
         
+    
+    def call_notify (self, sender, event=None):
+        """ 
+        Basic implementation call directly notify function 
+        Sub class can override this method to implement different call strategy 
+        (like signal slot)
+        """
+        self.notify(sender, event)
 
+    
     def notify (self, sender, event=None):
         """
         This function is called by observed object

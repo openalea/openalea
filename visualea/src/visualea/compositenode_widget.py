@@ -30,25 +30,26 @@ import math
 import weakref
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.node import NodeWidget, RecursionError
+from openalea.core.node import RecursionError
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
-from openalea.core.observer import AbstractListener
 import annotation
+
+from node_widget import NodeWidget, SignalSlotListener
 
 from dialogs import DictEditor, ShowPortDialog
 from util import busy_cursor, exception_display, open_dialog
 from node_widget import DefaultNodeWidget
 
 
-class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
+class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
     
     def __init__(self, node, parent=None):
 
-        NodeWidget.__init__(self, node)
         QtGui.QWidget.__init__(self, parent)
+        NodeWidget.__init__(self, node)
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
@@ -119,13 +120,14 @@ class DisplayGraphWidget(NodeWidget, QtGui.QWidget):
 
         
 
-class EditGraphWidget(NodeWidget, QtGui.QGraphicsView):
+class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     """ Graph widget allowing to edit the network """
     
     def __init__(self, node, parent=None):
+        """ Constructor """
 
-        NodeWidget.__init__(self, node)
         QtGui.QGraphicsView.__init__(self, parent)
+        NodeWidget.__init__(self, node)
 
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -669,7 +671,7 @@ def port_name( name, interface ):
 
     
 
-class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
+class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     """ Represent a node in the graphwidget """
 
     def __init__(self, graphview, elt_id):
@@ -680,6 +682,7 @@ class GraphicalNode(QtGui.QGraphicsItem, AbstractListener):
 
         scene = graphview.scene()
         QtGui.QGraphicsItem.__init__(self)
+        SignalSlotListener.__init__(self)
 
         # members
         self.elt_id = elt_id

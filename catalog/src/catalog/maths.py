@@ -45,7 +45,7 @@ def py_max(l=[]):
 
     
 def py_randlist(a=0, b=100, size=10):
-    """Return a list of size random integer in range [a, b(."""
+    """Return a list of size 'size' of random integer in range [a, b(."""
     import random
     a = int(a)
     b = int(b)
