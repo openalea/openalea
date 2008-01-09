@@ -53,9 +53,13 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
-        # flag to define if the composite widget add only io widgets 
-        empty_io = False 
 
+        # Container
+        self.container = QtGui.QTabWidget(self)
+        vboxlayout.addWidget(self.container)
+        
+        # empty_io is a flag to define if the composite widget add only io widgets 
+        
         # Add inputs port
         default_widget = DefaultNodeWidget(node, parent)
         if(default_widget.is_empty()):
@@ -64,37 +68,32 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
             del default_widget
             empty_io = True
         else:
-            vboxlayout.addWidget(default_widget)
+            empty_io = False 
+            self.container.addTab(default_widget, "Inputs")
 
-        # Add subwidgets
+        # Add subwidgets (Need to sort widget)
         for id in node.vertices():
 
             subnode = node.node(id)
+
+            # Do not display widget if hidden and no IO
             if(subnode.internal_data.get('hide', False) and not empty_io): continue
 
             try:
                 factory = subnode.get_factory()
                 widget = factory.instantiate_widget(subnode, self)
             except:
-                continue
+                widget = None
             
-            if(widget.is_empty()) :
+            if(not widget or widget.is_empty()) :
                 widget.close()
                 del widget
-                continue
-            
-            else : #vboxlayout.addWidget(widget)
-            
+            else : 
+                # Add as tab
                 caption = "%s"%(subnode.caption)
-                groupbox = QtGui.QGroupBox(caption, self)
-                layout = QtGui.QVBoxLayout(groupbox)
-                layout.setMargin(3)
-                layout.setSpacing(2)
-                layout.addWidget(widget)
-            
-                vboxlayout.addWidget(groupbox)
+                self.container.addTab(widget, caption)
+                
            
-
     def set_autonomous(self):
         """ Add Run bouton and close button """
         
@@ -149,8 +148,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         self.rebuild_scene()
 
         
-
-
     # Node property 
     def set_node(self, node):
         """ Define the associated node (overloaded) """

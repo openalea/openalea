@@ -490,22 +490,22 @@ class NodeFactoryView(object):
             action = menu.addAction("Infos")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
-            action = menu.addAction("Export to Directory")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.export_package)
+#             action = menu.addAction("Export to Directory")
+#             self.connect(action, QtCore.SIGNAL("activated()"), self.export_package)
 
         if(menu):
             menu.move(event.globalPos())
             menu.show()
 
     
-    def export_package(self):
-        """ Export a package in a directory """
+#     def export_package(self):
+#         """ Export a package in a directory """
 
-        dirdialog = QtGui.QFileDialog(self, "Export Package")
-        dirdialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-        if(not dirdialog.exec_()) :return
+#         dirdialog = QtGui.QFileDialog(self, "Export Package")
+#         dirdialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+#         if(not dirdialog.exec_()) :return
 
-        dir = str(dirdialog.selectedFiles()[0])
+#         dir = str(dirdialog.selectedFiles()[0])
 
 
 
