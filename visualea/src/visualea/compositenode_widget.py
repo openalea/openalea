@@ -83,9 +83,9 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 factory = subnode.get_factory()
                 widget = factory.instantiate_widget(subnode, self)
             except:
-                widget = None
+                continue
             
-            if(not widget or widget.is_empty()) :
+            if(widget.is_empty()) :
                 widget.close()
                 del widget
             else : 
