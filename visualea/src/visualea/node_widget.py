@@ -26,6 +26,7 @@ __revision__=" $Id$"
 
 import sys
 import os
+import weakref
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
@@ -42,12 +43,13 @@ class SignalSlotListener(AbstractListener):
         
         # Create a QObject if necessary
         if(not isinstance(self, QtCore.QObject)):
-            self.qobj = QtCore.QObject()
+            self.obj = QtCore.QObject()
+            self.qobj = weakref.ref(self.obj)
         else:
-            self.qobj = self
+            self.qobj = weakref.ref(self)
         
             
-        self.qobj.connect(self.qobj, QtCore.SIGNAL("notify"), self.notify)
+        self.qobj().connect(self.qobj(), QtCore.SIGNAL("notify"), self.notify)
 
 
     def call_notify (self, sender, event=None):
@@ -58,10 +60,10 @@ class SignalSlotListener(AbstractListener):
         """
         
         try:
-            self.qobj.emit(QtCore.SIGNAL("notify"), sender, event)
-        except:
-            print "Cannot emit Qt Signal"
-            self.notify(self, sender, event)
+            self.qobj().emit(QtCore.SIGNAL("notify"), sender, event)
+        except Exception, e:
+            print "Cannot emit Qt Signal : ", e
+            self.notify(sender, event)
 
 
 

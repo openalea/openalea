@@ -711,7 +711,11 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         """ Remove an element from the datapool"""
 
         item = self.currentIndex()
-        datapool = item.model().datapool
+
+        model = item.model()
+        if(not model) : return
+
+        datapool = model.datapool
 
         l = self.model().datapool.keys()
         l.sort()
