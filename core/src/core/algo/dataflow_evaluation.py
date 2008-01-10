@@ -38,7 +38,7 @@ class EvaluationException(Exception):
 
 # Sort functions
 
-# Sort by priority
+# order function sort by priority
 def cmp_priority(x, y):
     (xvid, xactor) = x
     (yvid, yactor) = y
@@ -49,6 +49,7 @@ def cmp_priority(x, y):
     return cmp(py, px)
 
 
+# order function to sort by pos x
 def cmp_posx(x, y):
     (pid, vid, xactor) = x
     (pid, vid, yactor) = y
@@ -75,7 +76,9 @@ class AbstractEvaluation (object) :
     
     def eval_vertex_code(self, vid):
         """ Evaluate the vertex vid. Can raise an exception if evaluation failed """
+
         node = self._dataflow.actor(vid)
+
         try:
             ret = node.eval()
             # When an exception is raised, a flag is set.
@@ -84,12 +87,14 @@ class AbstractEvaluation (object) :
                 del node.raise_exception
                 node.notify_listeners( ('data_modified',))
             return ret
+
         except EvaluationException, e:
             e.vid = vid
             e.node = node
             # When an exception is raised, a flag is set.
             node.raise_exception = True
             raise e
+
         except Exception, e:
             # When an exception is raised, a flag is set.
             node.raise_exception = True
@@ -399,17 +404,13 @@ DefaultEvaluation = LambdaEvaluation
             
 #             df = self._dataflow
 
-#             scanned = set() # Scanned node
 #             process_list = deque()
 #             scan_list = deque([(vid, context)])
 
 #             while(scan_list):
                 
 #                 (vid, context) = scan_list.popleft()
-                
 #                 process_list.appendleft( (vid, context) )
-#                 scanned.add(vid)
-
 #                 actor = df.actor(vid)
                 
 #                 # For each inputs
@@ -425,10 +426,7 @@ DefaultEvaluation = LambdaEvaluation
 #                     # For each connected node
 #                     for npid in df.connected_ports(pid):
 #                         nvid = df.vertex(npid)
-                   
-#                         # Do no reevaluate the same node
-#                         if (nvid not in scanned):
-#                             scan_list.append((nvid, transmit_cxt))
+#                         scan_list.append((nvid,  transmit_cxt))
 
 #             return process_list
 
@@ -446,8 +444,19 @@ DefaultEvaluation = LambdaEvaluation
 #                 process_list = self.scan_graph(vid, context)
                 
 #                 # Eval each node 
+#                 scanned = set()
+
 #                 for vid, context in process_list:
-#                     self.eval_one_vertex(vid, context, lambda_value)
+#                     if(vid not in scanned):
+#                         self.eval_one_vertex(vid, context, lambda_value)
+#                     scanned.add(vid)
+
+ 
+#         def get_output_value(self, nvid, nactor, npid):
+#             """ Return the value of a node output """
+
+#             return nactor.get_output(self._dataflow.local_id(npid))
+
         
 
 #         def eval_one_vertex (self, vid, context, lambda_value) :
@@ -475,7 +484,7 @@ DefaultEvaluation = LambdaEvaluation
 #                     # For each connected node
 #                     for npid, nvid, nactor in self.get_parent_nodes(pid):
                             
-#                         outval = nactor.get_output(df.local_id(npid))
+#                         outval = self.get_output_value(nvid, nactor, npid)
 
 #                         # Lambda 
 
@@ -534,26 +543,69 @@ DefaultEvaluation = LambdaEvaluation
 
 
 # from openalea.core.threadmanager import ThreadManager
+# import thread
 
 # class ParallelEvaluation(LambdaEvaluation):
 #     """ Parallel execution of a dataflow """
+
+
+#     def get_output_value(self, nvid, nactor, npid):
+#             """ Return the value of a node output """
+
+#             l = self.locks[nvid]
+
+#             l.acquire()
+#             v = nactor.get_output(self._dataflow.local_id(npid))
+#             l.release()
+
+#             return v
+
+    
+#     def eval_one_vertex (self, vid, context, lambda_value) :
+#         """ Evaluate only one vertex 
+#         @param vid : id of vertex to evalaute
+#         @param context  : list of values to assign to variables
+#         @param lambda_value : dictionary of previous assigned values
+#         """
+#         LambdaEvaluation.eval_one_vertex(self, vid, context, lambda_value)
+#         self.locks[vid].release()
+
+
 
 #     def eval_vertex (self, vid, context, *args) :
 #         """ Evaluate the graph starting at the vertex vid 
 #         @param vid : starting vertex id
 #         @param context  : list of values to assign to variables
 #         """
-        
-#         tm = ThreadManager()
 
 #         lambda_value = {}
-		
+
+#         tm = ThreadManager()
+#         tm.clear()
+
 #         # Get the node order
 #         process_list = self.scan_graph(vid, context)
+
+#         # Synchronisation locks
+#         self.locks = {}
+
+#         for vid, context in process_list:
+
+#             if(self.locks.has_key(vid)): continue
+#             l = thread.allocate_lock()
+#             l.acquire()
+#             self.locks[vid] = l
+
                 
 #         # Eval each node 
+#         scanned = set()
+
 #         for vid, context in process_list:
-#             tm.queue.put( (self.eval_one_vertex, (vid, context, lambda_value)))
+#             if(vid not in scanned):
+#                 tm.add_task( self.eval_one_vertex, (vid, context, lambda_value))
+#             scanned.add(vid)
+
 
 
 # DefaultEvaluation = ParallelEvaluation
+# #DefaultEvaluation = LambdaEvaluation
