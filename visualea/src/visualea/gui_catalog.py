@@ -193,6 +193,7 @@ class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
             self.checkbox.setCheckState(QtCore.Qt.Unchecked)
 
 
+
 class IStrWidget(IInterfaceWidget, QtGui.QWidget):
     """
     Line Edit widget

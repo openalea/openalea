@@ -70,13 +70,7 @@ def pyenumerate(obj):
 def pylen(obj):
     """ len(obj) """
 
-    f= None
-    if obj is None:
-        f = lambda x: len(x)
-    elif callable(obj):
-        f= lambda x: len(obj(x))
-    else:
-        f= len(obj)
+    f = len(obj)
     return ( f, )
 
 

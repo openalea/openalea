@@ -75,6 +75,19 @@ def register_packages(pkgmanager):
     
     package.add_factory(nf)
 
+    
+    nf = Factory( name="apply",
+                  description="Apply a function with arguments",
+                  category="Functional",
+                  inputs=(dict(name='func', interface=IFunction), 
+                          dict(name='seq', interface=ISequence)),
+
+                  nodemodule="functional",
+                  nodeclass="pyapply",
+                  )
+    
+    package.add_factory(nf)
+
 
     nf = Factory( name="ax+b", 
                   description="Linear function", 

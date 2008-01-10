@@ -31,9 +31,10 @@ def pymap(func, seq):
         return ( [], )
 
 
+
 def pyfilter(func, seq):
     """ filter(func, seq) """
-
+    
     if func and seq:
         return ( filter(func,seq), )
     else:
@@ -41,12 +42,30 @@ def pyfilter(func, seq):
 
 
 def pyreduce(func, seq):
-    """ filter(func, seq) """
+    """ reduce(func, seq) """
 
     if func and seq:
         return ( reduce(func,seq), )
     else:
         return ( [], )
+
+
+
+def pyapply(func, seq):
+    """ apply(func, seq)"""
+
+    try:
+        seq = list(seq)
+        
+    except TypeError:
+        seq = list([seq])
+
+    if func:
+        return apply(func, seq)
+    else:
+        return ()
+
+
 
 def pyfunction(func_str):
     """ creates a function from a text string """
