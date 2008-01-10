@@ -262,8 +262,8 @@ class LR2Plot( Node ):
                        "x + "+str( round(reg[ 'intercept' ],3 ))+ \
                        r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
         reg_color='red'
-        points = plotable.VisualSequence2D( x=reg[ 'x' ], y=reg[ 'y' ], legend= 'Data', linestyle='None', marker = '^', color='dodgerblue' )
-        line = plotable.VisualSequence2D( x=reg_x, y=reg_y, legend=reg_legend, linestyle='-', marker='None', color=reg_color )
+        points = plotable.VisualSequence( x=reg[ 'x' ], y=reg[ 'y' ], legend= 'Data', linestyle='None', marker = '^', color='dodgerblue' )
+        line = plotable.VisualSequence( x=reg_x, y=reg_y, legend=reg_legend, linestyle='-', marker='None', color=reg_color )
         return ( points, line )
 
 

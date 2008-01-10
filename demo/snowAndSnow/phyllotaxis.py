@@ -23,7 +23,7 @@ __version__="0.1"
 __docformat__= "restructuredtext en"
 __revision__="$Id$"
 
-import openalea.plotools.plotable2 as ptb
+import openalea.plotools.plotable as ptb
 #import visual
 import math
 import openalea.plantgl.all as pgl

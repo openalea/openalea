@@ -59,7 +59,7 @@ from openalea.core.core import Node
 from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
 import model as m
 import phyllotaxis as phyllotaxis
-import openalea.plotools.plotable2 as plotable
+import openalea.plotools.plotable as plotable
 
 
 class NodeModel(Node):
