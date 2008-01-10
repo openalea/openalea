@@ -29,7 +29,7 @@ class IPix(IInterface):
  
     # interface methods
 
-class IPixWidget(IInterfaceWidget, QtGui.QWidget):
+class IPixWidget(IInterfaceWidget, QtGui.QLabel):
     """
     Float spin box widget
     """
@@ -43,14 +43,15 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QLabel.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.img_label = QtGui.QLabel(self)
-        
+        self.parent = parent
+        self.setScaledContents(True)
         self.notify(node,None)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
- 
+        self.resize(400,400)
+
     def update_state(self):
         """ Enable/Disable widget function """
         pass
@@ -62,16 +63,20 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
           img = QtGui.QPixmap.fromImage(ImageQt.ImageQt(img_pil))
 
         if( img_pil == None or img.isNull() ):
-            self.img_label.resize(200,50)
-            self.setMinimumSize(200,50)
-            self.img_label.setText('No Image to display')
+            self.resize(200,50)
+            #self.setMinimumSize(200,50)
+            self.setText('No Image to display')
         else:
-            self.img_label.resize(img.size())
-            self.setMinimumSize(img.size())
-            self.img_label.setPixmap(img)
-            QtGui.QWidget.resize(self,img.size())
-            QtGui.QWidget.update(self)
+            #self.setMinimumSize(img.size())
+            s = img.size()
+            self.setPixmap(img)
+            self.parent.setMinimumSize(s)
+            self.resize(s)
+            #QtGui.QWidget.resize(self,img.size())
+            #QtGui.QWidget.update(self)
 
+    #def resizeEvent(self, event):
+    #  print "resized", event
 ##### end of declaration of pix interface and its widget ###########
 
 
