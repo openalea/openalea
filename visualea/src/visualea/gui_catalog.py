@@ -201,6 +201,7 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
     __interface__ = IStr
     __metaclass__ = make_metaclass()
 
+    MAX_LEN = 100000
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -223,21 +224,31 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.subwidget = QtGui.QLineEdit (self)
         self.hboxlayout.addWidget(self.subwidget)
-
-        self.subwidget.setText(str(self.node.get_input(self.param_str)))
-
+        
+        self.too_long = False # Validity Flag
+        self.notify(None, None)
         self.connect(self.subwidget, QtCore.SIGNAL("textChanged(QString)"), self.valueChanged)
 
 
     @lock_notify      
     def valueChanged(self, newval):
-        self.node.set_input(self.param_str, str(newval))
+
+        if(not self.too_long):
+            self.node.set_input(self.param_str, str(newval))
         
         
     def notify(self, sender, event):
         """ Notification sent by node """
+        
+        s = str(self.node.get_input(self.param_str))
 
-        self.subwidget.setText(str(self.node.get_input(self.param_str)))
+        if(len(s) > self.MAX_LEN) : 
+            s = "String too long..."
+            self.too_long = True
+        else:
+            self.too_long = False
+
+        self.subwidget.setText(s)
         
 
 
@@ -304,7 +315,7 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
 
     __interface__ = ITextStr
     __metaclass__ = make_metaclass()
-
+    MAX_LEN = 1000000
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -328,20 +339,32 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.subwidget = QtGui.QTextEdit (self)
         self.hboxlayout.addWidget(self.subwidget)
 
-        self.subwidget.setText(str(self.node.get_input(self.param_str)))
+        self.too_long = False # Validity Flag
+        self.notify(None, None)
 
         self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
     @lock_notify      
     def valueChanged(self):
-        self.node.set_input(self.param_str, str(self.subwidget.toPlainText()))
-                
+
+        if(not self.too_long):
+            self.node.set_input(self.param_str, str(self.subwidget.toPlainText()))
+            
         
     def notify(self, sender, event):
         """ Notification sent by node """
+        
+        s = str(self.node.get_input(self.param_str))
 
-        self.subwidget.setText(str(self.node.get_input(self.param_str)))
+        if(len(s) > self.MAX_LEN) : 
+            s = "String too long..."
+            self.too_long = True
+        else:
+            self.too_long = False
+
+        self.subwidget.setText(s)
+       
 
 
 
