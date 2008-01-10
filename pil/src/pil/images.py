@@ -16,19 +16,11 @@
 
 from openalea.core import *
 from PyQt4 import QtGui
+from PIL import Image
 import os
 
 def image_size(width, height):
   return (int(width), int(height)),
-
-
-def PIL2Qt(pil_img):
-  file = os.path.join(os.path.abspath(os.curdir), 'imgTmp.jpg')
-  pil_img.save(file, "JPEG")
-  qpix = QtGui.QPixmap(file)
-  os.remove(file)
-  return qpix,
-
 
 class Pix(Node):
     """
@@ -48,9 +40,21 @@ Load an image from a file:
 Input 0 : File name
 Output 0 : Image object
     """
-  
-    return QtGui.QPixmap(filename),
+    img_pil = Image.open(filename)
+    return img_pil,
 
+def rotate(img, angle, clockwise=False):
+  if clockwise:
+    angle = -angle
+  return img.rotate(angle)
+
+def perspectiveTransform(img):
+        # this is just an example to demonstrate that one can do
+        # perspective transformations with PIL (something not
+        # supported with Qt, it "only" can do affine transformations).
+        size = img.size
+        return img.transform(size,Image.PERSPECTIVE,[2,0,0,0,2,0,0.002,0.002,1],Image.BILINEAR)
+        
 
 
 

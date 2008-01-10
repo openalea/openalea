@@ -20,6 +20,7 @@ from openalea.core import *
 ##### declaration of pix interface and its widget ###########
 
 from openalea.core.interface import *
+from PIL import ImageQt
 from PyQt4 import QtGui, QtCore
  
 class IPix(IInterface):
@@ -46,7 +47,6 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.img_label = QtGui.QLabel(self)
-
         
         self.notify(node,None)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
@@ -57,8 +57,11 @@ class IPixWidget(IInterfaceWidget, QtGui.QWidget):
  
     def notify(self, sender, event):
         """ Notification sent by node """
-        img = self.node.get_input(self.param_str)
-        if( img == None or img.isNull() ):
+        img_pil = self.node.get_input(self.param_str)
+        if img_pil != None:
+          img = QtGui.QPixmap.fromImage(ImageQt.ImageQt(img_pil))
+
+        if( img_pil == None or img.isNull() ):
             self.img_label.resize(200,50)
             self.setMinimumSize(200,50)
             self.img_label.setText('No Image to display')
@@ -104,21 +107,6 @@ def register_packages(pkg_manager):
 
     package.add_factory( nf )
 
-
-    nf = Factory( name="PIL to Qt",
-                  description="Convert PIL image to Qt pixmap",
-                  category="Images",
-                  nodemodule="images",
-                  nodeclass= "PIL2Qt",
-                  inputs= ( dict( name = "PIL Image", interface=None,),
-                          ),
-                  outputs=( dict( name = "Qt Image", interface = IPix,),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-
     nf = Factory( name="Pix view", 
                   description="Display image", 
                   category="Images", 
@@ -143,6 +131,36 @@ def register_packages(pkg_manager):
 
 
     package.add_factory( nf )
+
+    nf = Factory( name="rotate image", 
+                  description="Direct rotation of an image", 
+                  category="Images", 
+                  nodemodule="images",
+                  nodeclass="rotate",
+
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="Angle", interface=IFloat(min=0, max=359), value = 90),
+                          dict(name="Clockwise", interface=IBool, value=False),
+                        ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+
+    package.add_factory( nf )
+
+    nf = Factory( name="Perspective", 
+                  description="Perspective transformation", 
+                  category="Images", 
+                  nodemodule="images",
+                  nodeclass="perspectiveTransform",
+
+                  inputs=(dict(name="Image", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+    
+    package.add_factory( nf )
+
+
 
 
 
