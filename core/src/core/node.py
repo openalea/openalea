@@ -142,7 +142,7 @@ class Node(AbstractNode):
 
 
     def get_process_obj(self):
-        """ Return the procession obj """
+        """ Return the process obj """
         return self
 
 
@@ -318,7 +318,7 @@ class Node(AbstractNode):
 
 
     def get_input (self, index_key) :
-        """ Return the output for the specified index/key """
+        """ Return the input value for the specified index/key """
         index = self.map_index_in[index_key]
         return self.inputs[index]
 
@@ -448,6 +448,8 @@ class FuncNode(Node):
 
 
     def get_process_obj(self):
+        """ Return the process obj """
+
         return self.func
 
     process_obj = property(get_process_obj)

@@ -34,7 +34,7 @@ class ThreadManager(object):
 
     __metaclass__ = Singleton
 
-    NUM_THREAD = 2 # Default number of threads
+    NUM_THREAD = 4 # Default number of threads
     
     def __init__(self, num_thread=NUM_THREAD):
         """ Create num_thread Threads """
@@ -50,6 +50,22 @@ class ThreadManager(object):
             t.start()
 
             self.thread_list.append(t)
+
+
+    def add_task(self, func, params):
+        """ 
+        Add a task to perform 
+        @param : function to call
+        @param params : tuple of parameters
+        """
+
+        self.queue.put((func, params))
+
+    def clear(self):
+        """ clear pending task """
+        
+        while(not self.queue.empty()):
+            self.queue.get()
         
 
 
