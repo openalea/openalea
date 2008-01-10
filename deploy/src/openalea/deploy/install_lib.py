@@ -138,10 +138,18 @@ def clean_lib(lib_dir, clean_all=False):
 
         if(not os.path.exists(srcfile) or clean_all):
             libfile = egm[:- len(egg_marker_extension)]
-            print "Removing ", libfile
-            os.remove(libfile)
-            print "Removing ", egm
-            os.remove(egm)
+
+            try:
+                print "Removing ", libfile
+                os.remove(libfile)
+            except Exception, e:
+                print "Cannot remove %s : %s"%(libfile, e)
+            
+            try:
+                print "Removing ", egm
+                os.remove(egm)
+            except Exception, e:
+                print "Cannot remove %s : %s"%(egm, e)
 
 
 
