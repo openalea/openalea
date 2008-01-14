@@ -6,7 +6,7 @@ from os.path import join as pj
 setup(
     # Metadata for PyPi
     name = "OpenAlea.DeployGui",
-    version = "0.3",
+    version = "0.3.1",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "OpenAlea graphical installer",
@@ -30,7 +30,7 @@ setup(
     
     postinstall_scripts = ['deploygui_postinstall'],
     # Dependencies
-    install_requires = ['OpenAlea.Deploy'],
+    install_requires = ['OpenAlea.Deploy>=0.3.3'],
     dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
     
 )
