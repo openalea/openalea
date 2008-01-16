@@ -856,11 +856,15 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         """ Remove edge connected to this item """ 
 
         for cin in self.connector_in:
+            if(not cin) : continue # cin is none if hidden
+
             for e in list(cin.edge_list):
                 e.remove()
             #cout.edge_list = []
                 
         for cout in self.connector_out:
+            if(not cout) : continue # cout is none if hidden
+
             for e in list(cout.edge_list):
                 e.remove()
             #cout.edge_list = []
