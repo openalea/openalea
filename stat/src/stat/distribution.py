@@ -19,6 +19,7 @@ from openalea.core import *
 from openalea.plotools import plotable
 
 import rpy
+from scipy import stats
 import scipy
 import pylab
 
