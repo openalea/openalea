@@ -70,7 +70,7 @@ class PackageManager(object):
         self.pkgs = NoCaseDict()
 
         # dictionnay of category
-        self.category = NoCaseDict()
+        self.category = PseudoGroup("")
         
         # list of path to search wralea file
         self.set_default_wraleapath()
@@ -167,7 +167,7 @@ class PackageManager(object):
 
         self.pkgs = NoCaseDict()
         self.recover_syspath()
-        self.category = NoCaseDict()
+        self.category = PseudoGroup('Root')
         
 
     # Path Functions
@@ -199,13 +199,28 @@ class PackageManager(object):
         sys.path = self.old_syspath
 
     # Accessors
-
     def add_package(self, package):
         """ Add a package to the pkg manager """
 
         #if( not self.pkgs.has_key(package.get_id())):
         self[package.get_id()] = package
         self.update_category(package)
+
+
+    def get_pseudo_pkg(self):
+        """ Return a pseudopackage structure """
+
+        pt = PseudoPackage('Root')
+        for k, v in self.pkgs.iteritems():
+            pt.add_name(k, v)
+
+        return pt
+
+    
+    def get_pseudo_cat(self):
+        """ Return a pseudocategory structure """
+        return self.category 
+
 
     # Category management
     def update_category(self, package):
@@ -217,13 +232,13 @@ class PackageManager(object):
             
             for c in nf.category.split(","):
                 c = c.strip()
-                self.category.setdefault(c, Category(c)).add(nf)
+                self.category.add_name(c, nf)
 
 
     def rebuild_category(self):
         """ Rebuild all the category """
 
-        self.category = {}
+        self.category = PseudoGroup('Root') 
         for p in self.values():
             self.update_category(p)
         
@@ -387,16 +402,76 @@ class PackageManager(object):
 
 
 
-class Category(set):
-    """ Annex class to sort NodeFactory by category """
 
-    def __init__(self, category_name):
-        self.category = category_name
+class PseudoGroup(dict):
+    """ Data structure used to separate dotted naming (packages, category) """
+
+    sep = '.' # Separator
+    mimetype = "openalea/package"
+
+    def __init__(self, name):
+        """ Name is the pseudo package name """
+        self.name = name
+        self.item = None
+
+    def new(self, name):
+        return PseudoGroup(name)
 
     def get_id(self):
-        return self.category
+        return self.name
 
     def get_tip(self):
-        return ""
+        return self.name
+
+
+    def add_name(self, name, value):
+        """ Add a value in the structure with the key name_tuple """
+
+        if(not name) : 
+            # if value is a dict we include sub nodes
+            self.item = value
+            try:
+                for k, v in value.iteritems():
+                    self[k] = v
+            except:
+                self[None] = value
+            finally:
+                return
+        
+        splitted = name.split(self.sep, 1)
+        key = splitted[0]
+
+        # Create sub dict if necessary
+        if(not self.has_key(key)):
+            self[key] = self.new(key)
+
+        if(len(splitted)>1):
+            remain = splitted[1]
+        else:
+            remain = None
+
+        self[key].add_name(remain, value)
+            
+
+class PseudoPackage(PseudoGroup):
+    """ Package structure used to separate dotted naming (packages, category) """
+
+    def new(self, name):
+        return PseudoPackage(name) 
+
+    def is_real_package(self):
+        return self.item != None
+
+
+    def get_tip(self):
+        if(self.item) : return self.item.get_tip()
+
+        return "Sub Package : %s"%(self.name,)
+   
+    
+    def get_metainfo(self, key):
+        if(self.item):
+            return self.item.get_metainfo(key)
+        return "" 
 
 
