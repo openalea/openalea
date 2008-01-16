@@ -8,7 +8,7 @@ from setuptools import setup
 name = 'OpenAlea.Catalog'
 namespace = 'openalea'
 pkg_name = 'openalea.catalog'
-version = '0.3.0a' 
+version = '0.4.0' 
 description = 'OpenAlea Logical Component Catalog.' 
 long_description = ''
 
