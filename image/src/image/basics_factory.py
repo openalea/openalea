@@ -24,6 +24,7 @@ __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 from openalea.core import Factory
+from openalea.core.interface import *
 
 def define_factory (package) :
 
