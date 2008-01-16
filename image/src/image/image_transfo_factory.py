@@ -23,8 +23,86 @@ This module provide basics function to handle 2D images
 __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
-
 from openalea.core import Factory
+from openalea.core.interface import *
+from images_wralea import IPix
 
 def define_factory (package) :
-	pass
+    nf = Factory( name= "blend", 
+                  description= "create an interpolation between two images", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "blend",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="Image", interface=IPix,),dict(name="alpha", interface=IFloat,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "composite", 
+                  description= "create an interpolation between two images", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "composite",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="Image", interface=IPix,),dict(name="masklpha", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "merge", 
+                  description= "merge bands into a single image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "merge",
+                  inputs=(dict(name="mode", interface=IStr,),dict(name="bands", interface=ISequence,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "paste", 
+                  description= "paste an image into another", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "paste",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="Image", interface=IPix,),dict(name="x", interface=IInt,),dict(name="y",interface=IInt)),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "fill", 
+                  description= "fill a rectangle with a color", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "fill",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=None,),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "put_alpha", 
+                  description= "add an alpha mask to an image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "put_alpha",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="alpha", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "split", 
+                  description= "split bands of an image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "split",
+                  inputs=(dict(name="Image", interface=IPix,),),
+                  outputs=(dict(name="bands", interface=ISequence,),),
+                  )
+
+    package.add_factory( nf )
+
+

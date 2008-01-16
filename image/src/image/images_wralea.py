@@ -20,9 +20,34 @@ from openalea.core import *
 ##### declaration of pix interface and its widget ###########
 
 from openalea.core.interface import *
+from openalea.visualea.gui_catalog import IEnumStrWidget
 import ImageQt
+import Image
 from PyQt4 import QtGui, QtCore
- 
+
+class IImageMode (IEnumStr) :
+    """
+    interface for differents mode of an image
+    """
+    def __init__ (self) :
+        IEnumStr.__init__(self, ["RGB","RGBA"])
+
+class IImageModeWidget (IEnumStrWidget) :
+    """
+    widget for modes
+    """
+    __interface__ = IImageMode
+    __metaclass__ = make_metaclass()
+    def __init__ (self, node, parent, parameter_str, interface) :
+        IEnumStrWidget.__init__(self,node,parent,parameter_str,interface)
+
+class IColor (IInterface) :
+    """
+    interface for image color
+    a tuple RGBA or a single value
+    """
+    __metaclass__ = IInterfaceMetaClass
+
 class IPix(IInterface):
     """ Image interface """
     __metaclass__ = IInterfaceMetaClass

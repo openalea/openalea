@@ -25,7 +25,7 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 from openalea.core import Factory
 from openalea.core.interface import *
-from images_wralea import IPix
+from images_wralea import IImageMode,IPix
 
 def define_factory (package) :
 
@@ -59,7 +59,7 @@ def define_factory (package) :
                   nodemodule = "basics",
                   nodeclass = "convert",
                   inputs=(dict(name="Image", interface=IPix,),
-                          dict(name="Mode", interface=IStr,),
+                          dict(name="Mode", interface=IImageMode,value="RGB"),
                           ),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )

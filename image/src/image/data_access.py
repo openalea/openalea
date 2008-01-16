@@ -31,11 +31,6 @@ def bands (image) :
 
 bands.__doc__=Im.getbands.__doc__
 
-def bounding_box (image) :
-    return image.getbbox()
-
-bounding_box.__doc__=Im.getbbox.__doc__
-
 def colors (image) :
     return image.getcolors()
 
