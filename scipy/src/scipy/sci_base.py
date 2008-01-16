@@ -19,7 +19,7 @@ from openalea.core import *
 import scipy 
 
 
-def array_log( valist ):
+def list_log( valist ):
     """
     Compute the log of each item of a list and change it to an array
 

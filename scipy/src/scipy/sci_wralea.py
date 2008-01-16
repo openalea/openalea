@@ -37,7 +37,7 @@ def register_packages(pkg_manager):
                   description="compute the log of each item of the input list",
                   category="Math",
                   nodemodule="sci_base",
-                  nodeclass="array_log",
+                  nodeclass="list_log",
                   inputs= ( dict( name = "List", interface=ISequence, showwidget=True ),
                           ),
                   outputs=(dict(name="log", interface = ISequence),
