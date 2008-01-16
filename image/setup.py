@@ -5,12 +5,16 @@ from setuptools import setup
 
 
 # Package name
-name = 'OpenAlea.pil'
+name = 'openalea.image'
 namespace = 'openalea'
-pkg_name = 'openalea.pil'
+pkg_name = 'openalea.image'
 version = '0.1.0' 
-description = 'OpenAlea common files and architecture.' 
-long_description = ''
+description = 'OpenAlea image handling.' 
+long_description = 
+"""
+Set of functionality to work around images in openalea
+this module is mainly based on PIL
+"""
 
 author = 'OpenAlea consortium'
 author_email = 'david.da_silva@cirad.fr'
@@ -34,7 +38,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'pil')},
+    package_dir={pkg_name : pj('src', 'image')},
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
