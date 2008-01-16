@@ -32,7 +32,8 @@ from PyQt4.QtCore import QAbstractListModel
 from openalea.core.node import NodeFactory, AbstractFactory
 from openalea.core.package import Package
 from openalea.core.compositenode import CompositeNodeFactory
-from openalea.core.pkgmanager import PackageManager, Category
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
 
 from dialogs import EditPackage, NewGraph
 from util import open_dialog, exception_display, busy_cursor
@@ -47,8 +48,11 @@ def get_icon(item):
     """ Return Icon object depending of the type of item """
     if(isinstance(item, Package)):
         return QVariant(QtGui.QPixmap(":/icons/package.png"))
+    
+    if(isinstance(item, PseudoPackage)):
+        return QVariant(QtGui.QPixmap(":/icons/package.png"))
 
-    elif(isinstance(item, Category)):
+    elif(isinstance(item, PseudoGroup)):
         return QVariant(QtGui.QPixmap(":/icons/category.png"))
 
     elif( isinstance(item, CompositeNodeFactory)):
@@ -69,13 +73,15 @@ class PkgModel (QAbstractItemModel) :
     def __init__(self, pkgmanager, parent=None):
         
         QAbstractItemModel.__init__(self, parent)
-        self.rootItem = pkgmanager
+        self.pman = pkgmanager
+        self.rootItem = self.pman.get_pseudo_pkg()
 
         self.parent_map = {}
         self.row_map = {}
 
         
     def reset(self):
+        self.rootItem = self.pman.get_pseudo_pkg()
         self.parent_map = {}
         self.row_map = {}
         QAbstractItemModel.reset(self)
@@ -169,10 +175,9 @@ class PkgModel (QAbstractItemModel) :
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
-
             
         if isinstance(parentItem, AbstractFactory):
-                return 0
+            return 0
 
         return len(parentItem)
         
@@ -183,57 +188,21 @@ class CategoryModel (PkgModel) :
 
     def __init__(self, pkgmanager, parent=None):
         
-        PkgModel.__init__(self, pkgmanager, parent)
-    
+        QAbstractItemModel.__init__(self, parent)
+        self.pman = pkgmanager
+        self.rootItem = self.pman.get_pseudo_cat()
 
-    def index(self, row, column, parent):
+        self.parent_map = {}
+        self.row_map = {}
 
-        if (not parent.isValid()):
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
-
-        if( isinstance(parentItem, PackageManager)):
-            l = parentItem.category.values()
-            l.sort(key = Category.get_id)
-            childItem = l[row]
-
-        elif( isinstance(parentItem, Category)):
-            l= list(parentItem)
-            l.sort(key = AbstractFactory.get_id)
-            childItem = l[row]
-        else:
-            childItem = None
         
-
-        if (childItem):
-            # save parent and row
-            self.parent_map[ id(childItem) ] = parentItem
-            self.row_map[ id(childItem) ] = row
-                
-            return self.createIndex(row, column, childItem)
-        
-        else:
-            return QtCore.QModelIndex()
+    def reset(self):
+        self.rootItem = self.pman.get_pseudo_cat()
+        self.parent_map = {}
+        self.row_map = {}
+        QAbstractItemModel.reset(self)
 
 
-    def rowCount(self, parent):
-
-        if (not parent.isValid()):
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
-
-        if( isinstance(parentItem, PackageManager)):
-            return len(parentItem.category.keys())
-
-        elif( isinstance(parentItem, Category)):
-            return len(parentItem)
-
-        else :
-            return 0
-
-       
 
 class DataPoolModel (QAbstractListModel) :
     """ QT4 data model (model/view pattern) to support Data Pool """
@@ -482,12 +451,17 @@ class NodeFactoryView(object):
             action = menu.addAction("Remove")
             self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
 
-        elif(isinstance(obj, Package)): # Package
+        elif(isinstance(obj, PseudoPackage)): # Package
+
+            enabled = obj.is_real_package()
+            
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open URL")
+            action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
 
             action = menu.addAction("Infos")
+            action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
 #             action = menu.addAction("Export to Directory")
@@ -514,6 +488,8 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
+        # obj is necessary a pseudo package (menu disbled in other case)        
+        obj = obj.item
 
         dialog = EditPackage(obj, parent = self)
         ret = dialog.exec_()
@@ -543,7 +519,7 @@ class NodeFactoryView(object):
             open_dialog(self, widget, obj.get_id())
         
 
-        elif(isinstance(obj, Package)):
+        elif(isinstance(obj, PseudoPackage)):
             # Display URL
             urlstr = obj.get_metainfo('url')
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
