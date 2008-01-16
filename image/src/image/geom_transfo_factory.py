@@ -55,19 +55,27 @@ def define_factory (package) :
                   
     package.add_factory( nf )
 
-#
-#    nf = Factory( name= "resize image", 
-#                  description= "resize an image", 
-#                  category = "Image", 
-#                  nodemodule = "geom_transfo",
-#                  nodeclass = "crop",
-#                  inputs=(dict(name="Image", interface=IPix,),
-#                          dict(name="Width", interface=IInt(min=0),),
-#                          dict(name="Height", interface=IInt(min=0),),
-#                          dict(name="Filter mode", interface=IInt(min=0),),
-#                          ),
-#                  outputs=(dict(name="Image", interface=IPix,),),
-#                  )
-#
-#    package.add_factory( nf )
-#
+    nf = Factory( name="rotate image",
+                  description="rotate an image",
+                  category="Image",
+                  nodemodule="geom_transfo",
+                  nodeclass="rotate",
+                )
+                  
+    package.add_factory( nf )
+
+
+
+    nf = Factory( name= "mirror", 
+                  description= "flip an image", 
+                  category = "Image", 
+                  nodemodule = "geom_transfo",
+                  nodeclass = "mirror",
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="Horizontal", interface=IBool, value=True),
+                          ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+

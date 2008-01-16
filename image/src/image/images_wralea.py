@@ -75,7 +75,7 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
         self.setScaledContents(True)
         self.notify(node,None)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
-        self.resize(400,400)
+        #self.resize(400,400)
 
     def update_state(self):
         """ Enable/Disable widget function """
@@ -95,8 +95,8 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
             #self.setMinimumSize(img.size())
             s = img.size()
             self.setPixmap(img)
-            self.parent.setMinimumSize(s)
-            self.resize(s)
+            #self.parent.setMaximumSize(100,100)
+            self.setMaximumSize(150,150)
             #QtGui.QWidget.resize(self,img.size())
             #QtGui.QWidget.update(self)
 
