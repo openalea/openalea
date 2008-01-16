@@ -16,7 +16,7 @@
 
 from openalea.core import *
 from PyQt4 import QtGui
-from PIL import Image
+import Image
 import os
 
 def image_size(width, height):

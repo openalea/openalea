@@ -20,7 +20,7 @@ from openalea.core import *
 ##### declaration of pix interface and its widget ###########
 
 from openalea.core.interface import *
-from PIL import ImageQt
+import ImageQt
 from PyQt4 import QtGui, QtCore
  
 class IPix(IInterface):
