@@ -428,16 +428,15 @@ class CompositeNode(Node, DataFlow):
                 
             pname = self.local_id(pid)
             n = self.node(vid)
-            desc = n.input_desc[pname]
-            name = "in_" + desc['name'] + str(vid)
-            interface = desc['interface']
-            if(interface):
-                value = interface.default()
-            else:
-                value = None
+            desc = dict(n.input_desc[pname])
+            if n.inputs[pname]:
+                desc['value'] = n.inputs[pname]
+            elif 'value' not in desc:
+                if 'interface' in desc:
+                    desc['value']=desc['interface'].default()
 
             connections.append( ('__in__', len(ins), vid, pname) )
-            ins.append(dict(name=name, interface=interface, value=value))
+            ins.append(desc)
                 
                 
         # For each output port
@@ -462,10 +461,11 @@ class CompositeNode(Node, DataFlow):
             pname = self.local_id(pid)
             n = self.node(vid)
             desc = n.output_desc[pname]
-            name = "out_" + desc['name'] + str(vid)
+            #name = "out_" + desc['name'] + str(vid)
                 
             connections.append( (vid , pname, '__out__', len(outs)) )
-            outs.append(dict(name=name, interface=desc['interface']))
+            #outs.append(dict(name=name, interface=desc['interface']))
+            outs.append(dict(desc))
 
 
         return (ins, outs, connections)
@@ -719,19 +719,32 @@ class PyCNFactoryWriter(object):
 
     def __repr__(self):
         """ Return the python string representation """
+        from pprint import pprint
+        from StringIO import StringIO
+
+        def pprint_repr(obj):
+            stream = StringIO()
+            pprint(obj, stream=stream)
+            s=stream.getvalue()[:-1]
+            if '\n' not in s: 
+                return s
+            else:
+                return '\\\n'+s
+
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
-        result = fstr.safe_substitute(NAME=repr(f.name),
-                                      DESCRIPTION=repr(f.description),
-                                      CATEGORY=repr(f.category),
-                                      DOC=repr(f.doc),
-                                      INPUTS=repr(f.inputs),
-                                      OUTPUTS=repr(f.outputs),
-                                      ELT_FACTORY=repr(f.elt_factory),
-                                      ELT_CONNECTIONS=repr(f.connections),
-                                      ELT_DATA=repr(f.elt_data),
-                                      ELT_VALUE=repr(f.elt_value),
-                                      LAZY=repr(f.lazy),
+
+        result = fstr.safe_substitute(NAME=pprint_repr(f.name),
+                                      DESCRIPTION=pprint_repr(f.description),
+                                      CATEGORY=pprint_repr(f.category),
+                                      DOC=pprint_repr(f.doc),
+                                      INPUTS=pprint_repr(f.inputs),
+                                      OUTPUTS=pprint_repr(f.outputs),
+                                      ELT_FACTORY=pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=pprint_repr(f.connections),
+                                      ELT_DATA=pprint_repr(f.elt_data),
+                                      ELT_VALUE=pprint_repr(f.elt_value),
+                                      LAZY=pprint_repr(f.lazy),
                                       )
         return result
 
