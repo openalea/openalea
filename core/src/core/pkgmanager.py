@@ -430,11 +430,12 @@ class PseudoGroup(dict):
         if(not name) : 
             # if value is a dict we include sub nodes
             self.item = value
-            try:
-                for k, v in value.iteritems():
-                    self[k] = v
-            except:
-                self[None] = value
+            try:		
+                try:
+                    for k, v in value.iteritems():
+                        self[k] = v
+                except:
+                    self[None] = value
             finally:
                 return
         
