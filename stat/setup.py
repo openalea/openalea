@@ -5,11 +5,11 @@ from setuptools import setup
 
 
 # Package name
-name = 'OpenAlea.Rpy'
+name = 'OpenAlea.Stat'
 namespace = 'openalea'
-pkg_name = 'openalea.rpy'
+pkg_name = 'openalea.stat'
 version = '0.1.0' 
-description = 'OpenAlea wrapper for common R routines.' 
+description = 'OpenAlea common statistic functions.' 
 long_description = ''
 
 author = 'OpenAlea consortium'
@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'rpy')},
+    package_dir={pkg_name : pj('src', 'stat')},
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
@@ -43,7 +43,7 @@ setup(
 
     # entry_points
     entry_points = {
-        "wralea": ["rpy = openalea.rpy",]
+        "wralea": ["stat = openalea.stat",]
         },
 
                      
