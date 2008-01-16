@@ -34,4 +34,4 @@ def array_log( list ):
 
     """
 
-    return scipy.log( scipy.array( list ) )
+    return list(scipy.log( scipy.array( list ) )),
