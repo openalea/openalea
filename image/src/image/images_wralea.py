@@ -80,9 +80,9 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
 ##### end of declaration of pix interface and its widget ###########
 
 import basics_factory
-import data_access
-import geom_transfo
-import image_transfo
+import data_access_factory
+import geom_transfo_factory
+import image_transfo_factory
 
 
 def register_packages(pkg_manager):
@@ -98,8 +98,8 @@ def register_packages(pkg_manager):
     
     package = Package("image", metainfo)
     basics_factory.define_factory(package)
-    data_access.define_factory(package)
-    geom_transfo.define_factory(package)
-    image_transfo.define_factory(package)
+    data_access_factory.define_factory(package)
+    geom_transfo_factory.define_factory(package)
+    image_transfo_factory.define_factory(package)
 
     pkg_manager.add_package(package)
