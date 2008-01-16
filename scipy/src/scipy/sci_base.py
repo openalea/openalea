@@ -19,7 +19,7 @@ from openalea.core import *
 import scipy 
 
 
-def array_log( list ):
+def array_log( valist ):
     """
     Compute the log of each item of a list and change it to an array
 
@@ -30,8 +30,9 @@ def array_log( list ):
      - 'list': float list
 
     :Returns the log array from the input list 
-    :Returntype: float array
+    :Returntype: float list
 
     """
 
-    return list(scipy.log( scipy.array( list ) )),
+    l = list( scipy.log( scipy.array( valist ) ) )
+    return l,
