@@ -79,6 +79,10 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
     #  print "resized", event
 ##### end of declaration of pix interface and its widget ###########
 
+import basics_factory
+import data_access
+import geom_transfo
+import image_transfo
 
 
 def register_packages(pkg_manager):
@@ -92,83 +96,10 @@ def register_packages(pkg_manager):
                }
     
     
-    package = Package("pil", metainfo)
-    
-    
-###### begin nodes definitions #############
-
-
-    nf = Factory( name="Image size",
-                  description="Defines the size of generated image",
-                  category="Images",
-                  nodemodule="images",
-                  nodeclass= "image_size",
-                  inputs= ( dict( name = "Width", interface=IInt(min=10), value = 300),
-                            dict( name = "Heigth", interface=IInt(min=10), value = 300),
-                          ),
-                  outputs=( dict( name = "Image size", interface = ISequence),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-    nf = Factory( name="Pix view", 
-                  description="Display image", 
-                  category="Images", 
-                  nodemodule="images",
-                  nodeclass="Pix",
-
-                  inputs=(dict(name="Image", interface=IPix,),),
-                  outputs=(dict(name="Image", interface=IPix,),),
-                  )
-    
-    package.add_factory( nf )
-
-    nf = Factory( name="load image", 
-                  description="Load an image from a file", 
-                  category="Images", 
-                  nodemodule="images",
-                  nodeclass="loadimage",
-
-                  inputs=(dict(name="Filename", interface=IFileStr,),),
-                  outputs=(dict(name="Image", interface=IPix,),),
-                  )
-
-
-    package.add_factory( nf )
-
-    nf = Factory( name="rotate image", 
-                  description="Direct rotation of an image", 
-                  category="Images", 
-                  nodemodule="images",
-                  nodeclass="rotate",
-
-                  inputs=(dict(name="Image", interface=IPix,),
-                          dict(name="Angle", interface=IFloat(min=0, max=359), value = 90),
-                          dict(name="Clockwise", interface=IBool, value=False),
-                        ),
-                  outputs=(dict(name="Image", interface=IPix,),),
-                  )
-
-
-    package.add_factory( nf )
-
-    nf = Factory( name="Perspective", 
-                  description="Perspective transformation", 
-                  category="Images", 
-                  nodemodule="images",
-                  nodeclass="perspectiveTransform",
-
-                  inputs=(dict(name="Image", interface=IPix,),),
-                  outputs=(dict(name="Image", interface=IPix,),),
-                  )
-    
-    package.add_factory( nf )
-
-
-
-
-
-###### end nodes definitions ###############
+    package = Package("image", metainfo)
+    basics_factory.define_factory(package)
+    data_access.define_factory(package)
+    geom_transfo.define_factory(package)
+    image_transfo.define_factory(package)
 
     pkg_manager.add_package(package)
