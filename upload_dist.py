@@ -215,6 +215,9 @@ urlmap = {
     'stand' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
     'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
     'visualea-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=841',
+    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=1740',
+    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=1748',
+    'catalog-0.4' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=1750',
     }
 
 
