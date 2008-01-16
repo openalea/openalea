@@ -35,7 +35,7 @@ def register_packages(pkg_manager):
 
     nf = Factory( name="random continuous (rpy)",
                   description="Generate random values from continuous distribution",
-                  category="distribution",
+                  category="probability distribution",
                   nodemodule="distribution",
                   nodeclass="random_continuous_law",
                   inputs= ( dict( name = "law", interface=IEnumStr(['exp','norm','unif']), showwidget=True ),
@@ -50,7 +50,7 @@ def register_packages(pkg_manager):
 
     nf = Factory( name="random discrete (rpy)",
                   description="Generate random values from discrete distribution",
-                  category="distribution",
+                  category="probability distribution",
                   nodemodule="distribution",
                   nodeclass="random_discrete_law",
                   inputs= ( dict( name = "law", interface=IEnumStr(['binom','geom','pois']), showwidget=True ),
