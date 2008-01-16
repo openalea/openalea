@@ -23,20 +23,20 @@ def register_packages(pkg_manager):
                'license' : 'CECILL-C',
                'authors' : 'F. Chaubert and D. Da Silva',
                'institutes' : 'INRIA/CIRAD',
-               'description' : 'Statistical functions from R and RPy.',
-               'url' : 'http://rpy.sourceforge.net'
+               'description' : 'Test functions from Rpy and Scipy.',
+               'url' : 'http://rpy.sourceforge.net and http://www.scipy.org/' 
                }
     
     
-    package = Package("r", metainfo)
+    package = Package("stat.test", metainfo)
     
     
 ###### begin nodes definitions #############
 
-    nf = Factory( name="ChisquareTest",
+    nf = Factory( name="chi square test (rpy)",
                   description="compute the Chisquare Test",
-                  category="Stat",
-                  nodemodule="rstat",
+                  category="test",
+                  nodemodule="stattest",
                   nodeclass="chisqtest",
                   inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
                             dict( name = "Y", interface=ISequence, showwidget=True ),
@@ -49,133 +49,38 @@ def register_packages(pkg_manager):
     package.add_factory( nf )
 
 
-    nf = Factory( name="RandomContinuous",
-                  description="Generate random values from continuous distribution",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="random_continuous_law",
-                  inputs= ( dict( name = "law", interface=IEnumStr(['exp','norm','unif']), showwidget=True ),
-                            dict( name = "n", interface=IInt, showwidget=True ),
-                            dict( name = "args", interface=ISequence, showwidget=True ),
-                          ),
-                  outputs=(dict(name="res", interface = ISequence),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-    nf = Factory( name="RandomDiscrete",
-                  description="Generate random values from discrete distribution",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="random_discrete_law",
-                  inputs= ( dict( name = "law", interface=IEnumStr(['binom','geom','pois']), showwidget=True ),
-                            dict( name = "n", interface=IInt, showwidget=True ),
-                            dict( name = "args", interface=ISequence, showwidget=True ),
-                          ),
-                  outputs=(dict(name="res", interface = ISequence),
-                          ),
-                  )
-
-    package.add_factory( nf )
-    
-
-    nf = Factory( name="StatSummary",
-                  description="Compute the statistical summary (min, max, median, mean, sd) ",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="StatSummary",
-                  inputs= ( dict( name = "x", interface=ISequence, showwidget=True ),
-                          ),
-                  outputs=(dict(name="statsummary", interface = ISequence),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-
-    nf = Factory( name="Correlation",
-                  description="compute the correlations",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="Corr",
+    nf = Factory( name="student test (scipy)",
+                  description="compute the Student Test",
+                  category="test",
+                  nodemodule="stattest",
+                  nodeclass="ttest",
                   inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
                             dict( name = "Y", interface=ISequence, showwidget=True ),
+                            dict( name = "mu", interface=IFloat, value=0. ),
                           ),
-                  outputs=(dict(name="Corr", interface = IDict),
+                  outputs=(dict(name="ttest", interface = IDict),
                           ),
                   )
 
     package.add_factory( nf )
 
 
-    nf = Factory( name="GLM",
-                  description="compute the generalized linear regression",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="Glm",
+    nf = Factory( name="kolmogorov smirnov test (scipy)",
+                  description="compute the Kolmogorov-Smirnov Test",
+                  category="test",
+                  nodemodule="stattest",
+                  nodeclass="kstest",
                   inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
                             dict( name = "Y", interface=ISequence, showwidget=True ),
-                            dict( name = "Family", interface=IEnumStr(['binomial','Gamma','gaussian','poisson']), showwidget=True ),
+                            dict( name = "Cdf", interface=IStr, showwidget=True ),
+                            dict( name = "Args", interface=ISequence, showwidget=True),
                           ),
-                  outputs=(dict(name="Glm", interface = IDict),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-
-############## Linear regression section ##########################
-
-    nf = Factory( name="LinearRegression",
-                  description="compute the linear regression",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="LinearRegression",
-                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
-                            dict( name = "Y", interface=ISequence, showwidget=True ),
-                            dict( name = "alpha", interface=IFloat, value=5. ),
-                            dict( name = "origin", interface=IBool, value=False ),
-                          ),
-                  outputs=(dict(name="reg", interface = IDict),
+                  outputs=(dict(name="kstest", interface = IDict),
                           ),
                   )
 
     package.add_factory( nf )
 
-    nf = Factory( name="MultipleLinearRegression",
-                  description="compute a multiple linear regression",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="multiReg",
-                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
-                            dict( name = "Y", interface=ISequence, showwidget=True ),
-                            dict( name = "colList", interface=ISequence, showwidget=True ),
-                            dict( name = "alpha", interface=IFloat, value=5. ),
-                          ),
-                  outputs=(dict(name="reg", interface = IDict),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-
-    nf = Factory( name="LRtoPlot",
-                  description="generate plotable object from linear regression",
-                  category="Stat",
-                  nodemodule="rstat",
-                  nodeclass="LR2Plot",
-                  inputs= ( dict( name='reg', interface=IDict ),
-                          ),
-                  outputs=( dict(name='plotObjList',),
-                            dict(name='plotObjList',),
-                          ),
-                  )
-
-    package.add_factory( nf )
-
-
-############## End of section #####################################
 
 ###### end nodes definitions ###############
 

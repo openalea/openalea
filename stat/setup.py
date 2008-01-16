@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # Package name
-name = 'OpenAlea.Stat'
+name = 'openalea.stat'
 namespace = 'openalea'
 pkg_name = 'openalea.stat'
 version = '0.1.0' 
@@ -38,7 +38,7 @@ setup(
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
-    install_requires = ['openalea.core'],
+    install_requires = ['openalea.core', 'openalea.plotools'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
 
     # entry_points
