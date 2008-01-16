@@ -25,6 +25,49 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 
 from openalea.core import Factory
+from openalea.core.interface import *
+from images_wralea import IPix
 
 def define_factory (package) :
-	pass
+
+    nf = Factory( name= "crop image", 
+                  description= "crop an image", 
+                  category = "Image", 
+                  nodemodule = "geom_transfo",
+                  nodeclass = "crop",
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="Xmin", interface=IInt(min=0),),
+                          dict(name="Xmax", interface=IInt(min=0),),
+                          dict(name="Ymin", interface=IInt(min=0),),
+                          dict(name="Ymax", interface=IInt(min=0),),
+                          ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="resize image",
+                  description="resize an image",
+                  category="Image",
+                  nodemodule="geom_transfo",
+                  nodeclass="resize",
+                )
+                  
+    package.add_factory( nf )
+
+#
+#    nf = Factory( name= "resize image", 
+#                  description= "resize an image", 
+#                  category = "Image", 
+#                  nodemodule = "geom_transfo",
+#                  nodeclass = "crop",
+#                  inputs=(dict(name="Image", interface=IPix,),
+#                          dict(name="Width", interface=IInt(min=0),),
+#                          dict(name="Height", interface=IInt(min=0),),
+#                          dict(name="Filter mode", interface=IInt(min=0),),
+#                          ),
+#                  outputs=(dict(name="Image", interface=IPix,),),
+#                  )
+#
+#    package.add_factory( nf )
+#

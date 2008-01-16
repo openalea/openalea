@@ -25,6 +25,8 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 import Image
 from Image import Image as Im
+from images_wralea import IPix
+from openalea.core import *
 
 def crop (image, xmin, xmax, ymin, ymax) :
     im=image.crop( (xmin,ymin,xmax,ymax) )
@@ -33,10 +35,10 @@ def crop (image, xmin, xmax, ymin, ymax) :
 
 crop.__doc__=Im.crop.__doc__
 
-def resize (image, width, height, filter_mode=Image.NEAREST) :
-    return image.resize( (width,height), filter_mode )
+#def resize (image, width, height, filter_mode=Image.NEAREST) :
+#    return image.resize( (width,height), filter_mode )
 
-resize.__doc__=Im.resize.__doc__
+#resize.__doc__=Im.resize.__doc__
 
 def rotate (image, angle, filter_mode=Image.NEAREST, expand=0) :
     return image.rotate(angle,filter_mode,expand)
@@ -57,4 +59,31 @@ def mirror (image, horizontal=True) :
     else :
         return image.transpose(Image.FLIP_TOP_BOTTOM)
 
+class resize( Node ): 
+    mode_func= { "Nearest" : Image.NEAREST,
+                  "Bilinear" : Image.BILINEAR,
+                  "Bicubic" : Image.BICUBIC,
+                  "Antialias" : Image.ANTIALIAS,
+              } 
+    
+    def __init__(self):
+    
+        Node.__init__(self)
+
+        funs= self.mode_func.keys()
+        funs.sort()
+        self.add_input( name = "Image", interface = IPix,) 
+        self.add_input( name = "Width", interface = IInt(min=0),) 
+        self.add_input( name = "Height", interface = IInt(min=0),) 
+        self.add_input( name = "Mode", interface = IEnumStr(funs), value = funs[-1]) 
+        self.add_output( name = "Image", interface = IPix)
+        self.__doc__=Im.resize.__doc__
+
+    def __call__(self, inputs):
+        im = self.get_input("Image")
+        w = self.get_input("Width")
+        h = self.get_input("Height")
+        fm = self.mode_func[self.get_input("Mode")]
+        print fm
+        return im.resize( (w,h), fm )
 
