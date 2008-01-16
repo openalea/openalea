@@ -23,14 +23,23 @@ This module provide basics function to handle 2D images
 __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
+import Image
+from Image import Image as Im
+
 def blend (image1, image2, alpha) :
-    pass
+    return Image.blend(image1,image2,alpha)
+
+blend.__doc__=Image.blend.__doc__
 
 def composite (image1, image2, mask) :
-    pass
+    return Image.composite(image1,image2,mask)
+
+composite.__doc__=Image.composite.__doc__
 
 def merge (mode, bands) :
-    pass
+    return Image.merge(mode,bands)
+
+merge.__doc__=Image.merge.__doc__
 
 def paste (image_target, image_source, x, y) :
     """
@@ -38,11 +47,21 @@ def paste (image_target, image_source, x, y) :
     """
     return image_target.paste(image_source,(x,y))
 
+paste.__doc__=Im.paste.__doc__
+
 def fill (image, color, xmin, xmax, ymin, ymax) :
+    """
+    fill a rectangle region with the given color
+    """
     return image.paste(color,(xmin,ymin,xmax,ymax))
 
 def put_alpha (image, band) :
     return image.putalpha(band)
 
+put_alpha.__doc__=Im.putalpha.__doc__
+
 def split (image) :
     return image.split()
+
+split.__doc__=Im.split.__doc__
+

@@ -23,19 +23,23 @@ This module provide basics function to handle 2D images
 __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
+import Image
+from Image import Image as Im
+
 def load_image (filename) :
     """
     Load an image from a file:
-    Input 0 : File name
-    Output 0 : Image object
     """
     img_pil = Image.open(filename)
-    return img_pil,
+    return img_pil
 
 def save_image (image, filename) :
-    pass
+    image.save(filename)
+
+save_image.__doc__=Im.save.__doc__
 
 def convert (image, mode) :
-    return
+    return image.convert(mode)
 
+convert.__doc__=Im.convert.__doc__
 

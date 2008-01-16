@@ -24,20 +24,37 @@ __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 import Image
+from Image import Image as Im
 
 def crop (image, xmin, xmax, ymin, ymax) :
-    pass
+    im=image.crop( (xmin,ymin,xmax,ymax) )
+    im.load()
+    return im
+
+crop.__doc__=Im.crop.__doc__
 
 def resize (image, width, height, filter_mode=Image.NEAREST) :
-    pass
+    return image.resize( (width,height), filter_mode )
+
+resize.__doc__=Im.resize.__doc__
 
 def rotate (image, angle, filter_mode=Image.NEAREST, expand=0) :
-    pass
+    return image.rotate(angle,filter_mode,expand)
+
+rotate.__doc__=Im.rotate.__doc__
 
 def transform (image, args) :
     raise NotImplementedError
 
+transform.__doc__=Im.transform.__doc__
+
 def mirror (image, horizontal=True) :
-    pass
+    """
+    flip the image horizontally or vertically
+    """
+    if horizontal :
+        return image.transpose(Image.FLIP_LEFT_RIGHT)
+    else :
+        return image.transpose(Image.FLIP_TOP_BOTTOM)
 
 
