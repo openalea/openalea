@@ -29,7 +29,7 @@ def array_log( valist ):
     :Types:
      - 'list': float list
 
-    :Returns the log array from the input list 
+    :Returns the log list from the input list 
     :Returntype: float list
 
     """
