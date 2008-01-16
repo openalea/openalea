@@ -21,7 +21,6 @@ from openalea.plotools import plotable
 import rpy
 from scipy import stats
 import scipy
-import pylab
 
 def Glm(x, y, famil = 'gaussian'): 
     """

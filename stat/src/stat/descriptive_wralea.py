@@ -63,6 +63,75 @@ def register_packages(pkg_manager):
     package.add_factory( nf )
 
 
+    nf = Factory( name="mean",
+                  description="compute the mean",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Mean",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Mean", interface = IFloat),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="median",
+                  description="compute the median",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Median",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Median", interface = IFloat),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="mode",
+                  description="compute the mode",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Mode",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Mode", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    
+    nf = Factory( name="variance",
+                  description="compute the variance",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Var",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Variance", interface = IFloat),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name="frequencies",
+                  description="compute the frequencies",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Freq",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Freq", interface = IDict),
+                          ),
+                  )
+
+    package.add_factory( nf )
+    
 ###### end nodes definitions ###############
 
     pkg_manager.add_package(package)

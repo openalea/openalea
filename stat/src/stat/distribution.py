@@ -85,3 +85,4 @@ def random_discrete_law(law ,n , args):
 
     return (res,)
 
+

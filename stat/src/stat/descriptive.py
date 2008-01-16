@@ -19,6 +19,7 @@ from openalea.core import *
 from openalea.plotools import plotable
 
 import rpy
+from scipy import stats
 import scipy
 import pylab
 
@@ -74,3 +75,126 @@ def Corr( x , y ):#= []):
 
     return data
 
+
+def Mean( x ):
+    """
+    Compute the statistical mean
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the mean 
+     :Returntype: float
+
+     :attention:  x cannot be empty
+     """
+
+    result = stats.stats.mean(x)
+
+    return result
+
+
+def Median( x ):
+    """
+    Compute the statistical median
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the median 
+     :Returntype: float
+
+     :attention:  x cannot be empty
+     """
+
+    result = stats.stats.median(x)
+
+    return result
+
+def Mode( x ):
+    """
+    Compute the statistical mode
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the mode 
+     :Returntype: float list
+
+     :attention:  x cannot be empty
+     """
+
+    res = stats.stats.mode(x)
+    mode = list(res[0])
+    count = list(res[1])
+
+    data = {'modal value': mode, 'counts': count}
+    return data
+
+def Var( x ):
+    """
+    Compute the statistical variance
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the variance 
+     :Returntype: float
+
+     :attention:  x cannot be empty
+     """
+
+    result = stats.stats.var(x)
+
+    return result
+
+
+def Freq(x):
+
+    """
+    Compute the frequencies
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the frequencies 
+     :Returntype: float list
+
+     :attention:  x cannot be empty
+     """
+
+    count = rpy.r.table(x)
+    co = list(count)
+
+    freq = [float(co[0])/len(x)]
+    for i in range(1,len(co)-1):
+        freq.append(float(co[i])/len(x))
+        
+    
+    x = rpy.r.sort(x)
+    val = [x[0]]
+    j = 0
+
+    for i in range(1,len(x)-1):
+        if x[i]!=val[j]:
+            j = j+1
+            val.append(x[i])
+
+    
+    data = {'values': val, 'counts': co, 'frequencies': freq}
+    return data

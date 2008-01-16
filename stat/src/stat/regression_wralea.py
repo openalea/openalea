@@ -84,7 +84,7 @@ def register_packages(pkg_manager):
     package.add_factory( nf )
 
 
-    nf = Factory( name="linear regression to plot (pylab)",
+    nf = Factory( name="linear regression to plot (plotools)",
                   description="generate plotable object from linear regression",
                   category="regression",
                   nodemodule="regression",
