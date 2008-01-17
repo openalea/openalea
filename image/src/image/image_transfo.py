@@ -3,7 +3,7 @@
 #
 #       basics : image package
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or  or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
 #			Jerome Chopard <jerome.chopard@sophia.inria.fr>
@@ -107,3 +107,53 @@ def seuillage(image, low, high) :
     #matrix = numpy.reshape(th,(width,heigh))
     return img,
 
+def rbg2hsl(image) :
+	#imgR,imgG,imgB,imgA=image.split()
+	print "toto"
+	print type(image)
+	#dataR = imgR.getdata()
+	#dataG = imgG.getdata()
+	#dataB = imgB.getdata()
+	#R = numpy.array(dataR)
+	#G = numpy.array(dataG)
+	#B = numpy.array(dataB)
+	#var_R = ( R / 255.0 )
+	#var_G = ( G / 255.0 )
+	#var_B = ( B / 255.0 )
+	#channelMat=[var_R,var_G,var_B]
+	#var_Min = min(channelMat,0)
+	#var_Max = max(channelMat,0)
+	#del_Max = var_Max - var_Min
+	#L = ( var_Max + var_Min ) / 2
+	#H=R
+	#S=R
+	#del_R=R
+	#del_G=R
+	#del_B=R
+	##Premiere version pas optimisee (en boucle for)
+	#for i in range(len(R)):
+	#	#if ( del_Max[i] == 0 ):
+	#	#	#H[i] = 0
+	#	#	#S[i] = 0
+	#	#else:
+	#	#	#if ( L[i] < 0.5 ):
+	#	#	#	#S[i] = del_Max[i] / ( var_Max[i] + var_Min[i] )
+	#	#	#else: S[i] = del_Max[i] / ( 2 - var_Max[i] - var_Min[i] )
+
+	#	#	#del_R[i] = ( ( ( var_Max[i] - var_R[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
+	#	#	#del_G[i] = ( ( ( var_Max[i] - var_G[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
+	#	#	#del_B[i] = ( ( ( var_Max[i] - var_B[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
+
+	#	#	#if ( var_R[i] == var_Max[i] ):
+	#	#	#	#H[i] = del_B[i] - del_G[i]
+	#	#	#elif ( var_G[i] == var_Max[i] ):
+	#	#	#	#H[i] = ( 1 / 3 ) + del_R[i] - del_B[i]
+	#	#	#elif ( var_B[i] == var_Max[i] ):
+	#	#	#	#H[i] = ( 2 / 3 ) + del_G[i] - del_R[i]
+	#	#	#
+	#	#	#if ( H[i] < 0 ):
+	#	#	#	#H[i] += 1
+	#	#	#if ( H[i] > 1 ):
+	#	#	#	#H[i] -= 1
+	#return H,S,L,
+	return 1,2,3

@@ -132,6 +132,19 @@ def define_factory (package) :
                   )
 
     package.add_factory( nf )
+    
+    nf = Factory( name= "rgb2hsl",
+                  description= "Transformation of colour space",
+                  category = "Image",
+                  nodemodule = "image_transfo",
+                  nodeclass = "rgb2hsl",
+                  inputs=(dict(name="Image", interface=IPix,),),
+                  outputs=(dict(name="H", interface=ISequence,),
+                          dict(name="S", interface=ISequence,),
+                          dict(name="L", interface=ISequence,),),
+                  )
+
+    package.add_factory( nf )
 
     nf = Factory( name= "levels", 
                   description= "change pixels lower than min and higher than max", 
