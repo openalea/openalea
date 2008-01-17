@@ -434,7 +434,7 @@ class PseudoGroup(dict):
                 for k, v in value.iteritems():
                     self[k] = v
             except:
-                self[None] = value
+                self[id(value)] = value
             return
         
         splitted = name.split(self.sep, 1)
