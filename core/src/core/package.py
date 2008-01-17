@@ -30,6 +30,7 @@ import inspect
 import os, sys
 import string
 import imp
+import copy
 
 # Exceptions
 
@@ -190,6 +191,13 @@ class UserPackage(Package):
 
     def clone_from_package(self, pkg):
         """ Copy the contents of pkg in self"""
+
+        # Copy deeply all the factory
+        self.update(copy.deepcopy(pkg))
+
+        # Copy all file contained in the wralea directory
+        
+
 
     def write(self):
         """ Return the writer class """

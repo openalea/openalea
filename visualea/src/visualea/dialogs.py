@@ -215,8 +215,13 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
     
-    def __init__(self, pkgs, name="", parent=None):
-        """ pkgs : list of existing package name """
+    def __init__(self, pkgs, name="", parent=None, metainfo=None):
+        """ 
+        @param pkgs : list of existing package name
+        @param name : defaut name
+        @param parent :
+        @metainfo : default metainfo
+        """
         
         QtGui.QDialog.__init__(self, parent)
         ui_newpackage.Ui_NewPackageDialog.__init__(self)
@@ -226,6 +231,7 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.connect(self.pathButton, QtCore.SIGNAL("clicked()"), self.path_clicked)
 
         #self.pathEdit.setText(get_userpkg_dir())
+        if(metainfo) : self.set_data(name, "", metainfo)
 
 
     def path_clicked(self):
@@ -257,6 +263,22 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         QtGui.QDialog.accept(self)
 
 
+    def set_data(self, name, path, metainfo):
+        """ Set the dialog data """
+
+        self.nameEdit.setText(name)
+        if(path):
+            self.pathEdit.setText(path)
+        
+        self.descriptionEdit.setText(metainfo.get('description', ''))
+        self.versionEdit.setText(metainfo.get('version', ''))
+        self.licenseEdit.setText(metainfo.get('license', ''))
+        self.authorsEdit.setText(metainfo.get('authors', ''))
+        self.institutesEdit.setText(metainfo.get('institutes', ''))
+        self.urlEdit.setText(metainfo.get('url', ''))
+
+
+
     def get_data(self):
         """
         Return a tuple (name, metainfo, path)
@@ -277,11 +299,11 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
 
 
 
-class EditPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
+class EditPackage(NewPackage) :
     """ Edit package dialog """
     
     def __init__(self, package, parent=None):
-        """ package : package object to edit """
+        """ @param package : package object to edit """
         
         QtGui.QDialog.__init__(self, parent)
         ui_newpackage.Ui_NewPackageDialog.__init__(self)
@@ -317,19 +339,6 @@ class EditPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         QtGui.QDialog.accept(self)
 
 
-    def set_data(self, name, path, metainfo):
-        """ Set the dialog data """
-
-        self.nameEdit.setText(name)
-        if(path):
-            self.pathEdit.setText(path)
-        
-        self.descriptionEdit.setText(metainfo.get('description', ''))
-        self.versionEdit.setText(metainfo.get('version', ''))
-        self.licenseEdit.setText(metainfo.get('license', ''))
-        self.authorsEdit.setText(metainfo.get('authors', ''))
-        self.institutesEdit.setText(metainfo.get('institutes', ''))
-        self.urlEdit.setText(metainfo.get('url', ''))
                
 
 

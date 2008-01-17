@@ -35,7 +35,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
 
-from dialogs import EditPackage, NewGraph
+from dialogs import EditPackage, NewGraph, NewPackage
 from util import open_dialog, exception_display, busy_cursor
 from node_widget import SignalSlotListener
 
@@ -469,6 +469,7 @@ class NodeFactoryView(object):
             enabled = obj.is_real_package()
             
             menu = QtGui.QMenu(self)
+
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
@@ -477,32 +478,46 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
-#             action = menu.addAction("Export to Directory")
-#             self.connect(action, QtCore.SIGNAL("activated()"), self.export_package)
+            action = menu.addAction("Duplicate as User Package")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
 
         if(menu):
             menu.move(event.globalPos())
             menu.show()
 
     
-#     def export_package(self):
-#         """ Export a package in a directory """
+    def get_current_pkg(self):
+        """ Return the current package """
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+        # obj is necessary a pseudo package (menu disbled in other case)        
+        obj = obj.item
 
-#         dirdialog = QtGui.QFileDialog(self, "Export Package")
-#         dirdialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-#         if(not dirdialog.exec_()) :return
+        return obj
 
-#         dir = str(dirdialog.selectedFiles()[0])
 
+    def duplicate_package(self):
+        """ Duplicate a package """
+        
+        pkg = self.get_current_pkg()
+        pman = self.model().pman # pkgmanager
+
+        dialog = NewPackage(pman.keys(), parent = self, metainfo=pkg.metainfo)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            (name, metainfo, path) = dialog.get_data()
+            
+            newpkg = pman.create_user_package(name, metainfo, path)
+            newpkg.clone_from_package(pkg)
+            self.reset()
 
 
     def edit_package(self):
         """ Edit package Metadata """
 
-        item = self.currentIndex()
-        obj =  item.internalPointer()
-        # obj is necessary a pseudo package (menu disbled in other case)        
-        obj = obj.item
+        obj = self.get_current_pkg()
 
         dialog = EditPackage(obj, parent = self)
         ret = dialog.exec_()
@@ -517,6 +532,7 @@ class NodeFactoryView(object):
             self.edit_node()
         elif (not isinstance(obj, Package)):
             self.open_node()
+
 
     @busy_cursor
     @exception_display
