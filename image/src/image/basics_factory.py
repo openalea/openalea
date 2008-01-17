@@ -53,6 +53,17 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
+    nf = Factory( name= "view image", 
+                  description= "display an image", 
+                  category = "Image", 
+                  nodemodule = "basics",
+                  nodeclass = "pix_view",
+                  inputs=(dict(name="Image", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
     nf = Factory( name= "convert mode", 
                   description= "change the color mode of the image", 
                   category = "Image", 

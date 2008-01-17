@@ -24,6 +24,7 @@ from openalea.visualea.gui_catalog import IEnumStrWidget
 import ImageQt
 import Image
 from PyQt4 import QtGui, QtCore
+from view import PixView
 
 class IImageMode (IEnumStr) :
     """
@@ -54,7 +55,7 @@ class IPix(IInterface):
  
     # interface methods
 
-class IPixWidget(IInterfaceWidget, QtGui.QLabel):
+class IPixWidget(IInterfaceWidget, PixView):
     """
     Float spin box widget
     """
@@ -68,14 +69,12 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-        QtGui.QLabel.__init__(self, parent)
+        PixView.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.parent = parent
-        self.setScaledContents(True)
         self.notify(node,None)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
-        #self.resize(400,400)
 
     def update_state(self):
         """ Enable/Disable widget function """
@@ -85,20 +84,9 @@ class IPixWidget(IInterfaceWidget, QtGui.QLabel):
         """ Notification sent by node """
         img_pil = self.node.get_input(self.param_str)
         if img_pil != None:
-          img = QtGui.QPixmap.fromImage(ImageQt.ImageQt(img_pil))
-
-        if( img_pil == None or img.isNull() ):
-            self.resize(200,50)
-            #self.setMinimumSize(200,50)
-            self.setText('No Image to display')
-        else:
-            #self.setMinimumSize(img.size())
-            s = img.size()
-            self.setPixmap(img)
-            #self.parent.setMaximumSize(100,100)
-            self.setMaximumSize(150,150)
-            #QtGui.QWidget.resize(self,img.size())
-            #QtGui.QWidget.update(self)
+            img = self.set_image(ImageQt.ImageQt(img_pil))
+        else :
+            self.set_image(None)
 
     #def resizeEvent(self, event):
     #  print "resized", event
