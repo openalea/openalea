@@ -124,7 +124,7 @@ class FileRead(object):
             self.mtime = mtime
             
             f = open(filename, 'r')
-            self.read_contents()
+            self.read_contents(f)
             f.close()
             
         return self.s
