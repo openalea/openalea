@@ -29,12 +29,22 @@ from openalea.core import Node
 from images_wralea import IPix
 
 
-def load_image (filename) :
+def load2rgb (filename) :
     """
-    Load an image from a file:
+    Load an image from a file and convert it into 'RGBA' image
     """
     img_pil = Image.open(filename)
-    return img_pil
+    img = img_pil.convert('RGBA')
+    return img,
+
+def load2l (filename) :
+    """
+    Load an image from a file and convert it into 'L' image
+    """
+    img_pil = Image.open(filename)
+    img = img_pil.convert('L')
+    return img,
+
 
 def save_image (image, filename) :
     image.save(filename)

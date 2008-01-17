@@ -6,8 +6,8 @@
 #       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
-#						Jerome Chopard <jerome.chopard@sophia.inria.fr>
-#						Fernandez Romain <romain.fernandez@sophia.inria.fr>
+#			Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#			Fernandez Romain <romain.fernandez@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -60,7 +60,7 @@ def put_alpha (image, band) :
 
 put_alpha.__doc__=Im.putalpha.__doc__
 
-def split (image) :
+def split(image) :
     return image.split()
 
 split.__doc__=Im.split.__doc__

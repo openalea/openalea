@@ -29,16 +29,28 @@ from images_wralea import IImageMode,IPix
 
 def define_factory (package) :
 
-    nf = Factory( name= "load image", 
-                  description= "load an image file", 
+    nf = Factory( name= "load2rgb", 
+                  description= "load an image file and convert it to RGBA", 
                   category = "Image", 
                   nodemodule = "basics",
-                  nodeclass = "load_image",
+                  nodeclass = "load2rgb",
                   inputs=(dict(name="Filename", interface=IFileStr,),),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 
     package.add_factory( nf )
+
+    nf = Factory( name= "load2l", 
+                  description= "load an image file and convert it to L", 
+                  category = "Image", 
+                  nodemodule = "basics",
+                  nodeclass = "load2l",
+                  inputs=(dict(name="Filename", interface=IFileStr,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
 
     nf = Factory( name= "save image", 
                   description= "save an image file", 

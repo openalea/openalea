@@ -6,8 +6,8 @@
 #       Copyright or  or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
-#						Jerome Chopard <jerome.chopard@sophia.inria.fr>
-#						Fernandez Romain <romain.fernandez@sophia.inria.fr>
+#			Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#			Fernandez Romain <romain.fernandez@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -100,7 +100,10 @@ def define_factory (package) :
                   nodemodule = "image_transfo",
                   nodeclass = "split",
                   inputs=(dict(name="Image", interface=IPix,),),
-                  outputs=(dict(name="bands", interface=ISequence,),),
+                  outputs=(dict(name="R", interface=IPix,),
+                          dict(name="G", interface=IPix,),
+                          dict(name="B", interface=IPix,),
+                          dict(name="AA", interface=IPix,),),
                   )
 
     package.add_factory( nf )
