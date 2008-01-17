@@ -104,6 +104,11 @@ class IFileStr(IStr):
         self.filter = filter
         self.save = save
 
+    def __repr__(self):
+        if self.filter == "All (*.*)" and not self.save: # default values
+            return 'IFileStr'
+        else: 
+            return 'IFileStr(filter="%s", save=%s)'%(self.filter, str(self.save))
 
 
 class IDirStr(IStr):
@@ -132,7 +137,16 @@ class IFloat(IInterface):
     def default(cls):
         return 0.
     
-
+    def __repr__(self):
+        default_min = -2**24
+        default_max = 2**24
+        default_step = 1.
+        if (self.min == default_min and 
+            self.max == default_max and 
+            self.step == default_step):
+            return self.__class__.__name__
+        else:
+            return 'IFloat(min=%d, max=%d, step=%f)'%(self.min, self.max, self.step)
     
 
 class IInt(IInterface):
@@ -150,6 +164,16 @@ class IInt(IInterface):
     def default(cls):
         return 0
     
+    def __repr__(self):
+        default_min = -2**24
+        default_max = 2**24
+        default_step = 1
+        if (self.min == default_min and 
+            self.max == default_max and 
+            self.step == default_step):
+            return self.__class__.__name__
+        else:
+            return 'IFloat(min=%d, max=%d, step=%d)'%(self.min, self.max, self.step)
 
 
 class IBool(IInterface):
@@ -167,7 +191,8 @@ class IEnumStr(IStr):
 
     def __init__(self, enum = []):
         self.enum = enum
-
+    def __repr__(self):
+        return 'IEnumStr(enum=%s'%(str(self.enum))
 
 class IRGBColor(IInterface):
     """ RGB Color """
