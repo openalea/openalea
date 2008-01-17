@@ -30,7 +30,7 @@ from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.node import NodeFactory, AbstractFactory
-from openalea.core.package import Package
+from openalea.core.package import Package, UserPackage
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
@@ -50,7 +50,12 @@ def get_icon(item):
         return QVariant(QtGui.QPixmap(":/icons/package.png"))
     
     if(isinstance(item, PseudoPackage)):
-        return QVariant(QtGui.QPixmap(":/icons/package.png"))
+        if(item.is_real_package()):
+            if(isinstance(item.item, UserPackage)):
+                return QVariant(QtGui.QPixmap(":/icons/usrpkg.png"))
+            if(isinstance(item.item, Package)):
+                return QVariant(QtGui.QPixmap(":/icons/pkg.png"))
+        return QVariant(QtGui.QPixmap(":/icons/pseudopkg.png"))
 
     elif(isinstance(item, PseudoGroup)):
         return QVariant(QtGui.QPixmap(":/icons/category.png"))
