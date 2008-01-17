@@ -128,9 +128,24 @@ def define_factory (package) :
                   outputs=(dict(name="R", interface=IPix,),
                           dict(name="G", interface=IPix,),
                           dict(name="B", interface=IPix,),
-                          dict(name="AA", interface=IPix,),),
+                          dict(name="A", interface=IPix,),),
                   )
 
     package.add_factory( nf )
+
+    nf = Factory( name= "levels", 
+                  description= "change pixels lower than min and higher than max", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "seuillage",
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="Low", interface=IInt(min=0, max=255),value=100),
+                          dict(name="High", interface=IInt(min=0, max=255),value=100),
+                          ),
+                  outputs=(dict(name="Thresholded pix", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
 
 

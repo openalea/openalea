@@ -24,6 +24,7 @@ __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 import Image
+import numpy
 from Image import Image as Im
 
 def blend (image1, image2, alpha) :
@@ -86,4 +87,23 @@ def split(image) :
     return image.split()
 
 split.__doc__=Im.split.__doc__
+
+
+def __threshold(x, low, high):
+    if x < low :
+      return 255
+    elif x > high :
+      return 0
+    else :
+      return x
+
+def seuillage(image, low, high) :
+    width,height = image.size
+    imdata = image.getdata()
+    tab = numpy.array(imdata)
+    thd_img = map( lambda x : __threshold(x, low, high), tab )
+    img = Image.new('L', image.size, 0)
+    img.putdata(thd_img)
+    #matrix = numpy.reshape(th,(width,heigh))
+    return img,
 
