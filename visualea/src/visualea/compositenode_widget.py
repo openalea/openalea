@@ -1106,6 +1106,8 @@ class Connector(QtGui.QGraphicsEllipseItem):
     WIDTH = 12
     HEIGHT = 8
 
+    MAX_TIPLEN = 2000 # Tooltip max length
+
     def __init__(self, graphview, parent, scene, index, tooltip=""):
         """
         @param graphview : EditGraphWidget container
@@ -1153,10 +1155,6 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.setToolTip(self.base_tooltip)
 
 
-#     def mouseMoveEvent(self, event):
-#         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
-
-
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton):
             self.graphview().start_edge(self)
@@ -1178,15 +1176,16 @@ class ConnectorIn(Connector):
     def __init__(self, graphview, parent, scene, index, tooltip):
 
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
-
-        #self.adjust_position(parent, index, ntotal)
         self.setAcceptDrops(True)
 
 
     def update_tooltip(self):
         node = self.parentItem().subnode
         data = node.get_input(self.mindex)
-        self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
+        s = str(data)
+        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
+
+        self.setToolTip("%s %s"%(self.base_tooltip, s))
 
     
     def adjust_position(self, parentitem, index, ntotal):
@@ -1245,6 +1244,10 @@ class ConnectorOut(Connector):
     def update_tooltip(self):
         node = self.parentItem().subnode
         data = node.get_output(self.mindex)
+        
+        s = str(data)
+        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
+
         self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
 
 

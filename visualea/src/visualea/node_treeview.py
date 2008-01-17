@@ -46,6 +46,7 @@ import images_rc
 
 def get_icon(item):
     """ Return Icon object depending of the type of item """
+
     if(isinstance(item, Package)):
         return QVariant(QtGui.QPixmap(":/icons/package.png"))
     
@@ -277,7 +278,7 @@ class DataPoolModel (QAbstractListModel) :
         return len(self.datapool.keys())
     
 
-class SearchModel (QAbstractListModel) :
+class SearchModel (QAbstractItemModel) :
     """ QT4 data model (model/view pattern) to support Search result"""
 
     def __init__(self, parent=None):
@@ -285,23 +286,19 @@ class SearchModel (QAbstractListModel) :
         QAbstractListModel.__init__(self, parent)
         self.searchresult = []
 
+
     def set_results(self, results):
         """ Set the search results : results is a list of factory """
         self.searchresult = results
         self.reset()
 
-        
-    def reset(self):
-        QAbstractItemModel.reset(self)
-        
 
     def index(self, row, column, parent):
 
         if (row < len(self.searchresult)):
-
             factory = self.searchresult[row]
             return self.createIndex(row, column, factory)
-        
+            
         else:
             return QtCore.QModelIndex()
 
@@ -317,10 +314,13 @@ class SearchModel (QAbstractListModel) :
         item = self.searchresult[index.row()]
 
         if (role == QtCore.Qt.DisplayRole):
+            if(index.column() == 1):
+                return QVariant(str(item.package.get_id()))
             return QVariant(str(item.name))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
+            if(index.column()>0) : return QVariant()
             return get_icon(item)
 
         # Tool Tip
@@ -345,7 +345,15 @@ class SearchModel (QAbstractListModel) :
 
 
     def rowCount(self, parent):
-        return len(self.searchresult)
+
+        if (not parent.isValid()):
+            return len(self.searchresult)
+        else :
+            return 0
+
+
+    def columnCount(self, index):
+        return 2
 
 
 ################################################################################
@@ -590,7 +598,7 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
 
 
 
-class SearchListView(NodeFactoryView, QtGui.QListView):
+class SearchListView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized QListView to display search results with Drag and Drop support """
     
     def __init__(self, main_win, parent=None):
@@ -601,8 +609,15 @@ class SearchListView(NodeFactoryView, QtGui.QListView):
 
         QtGui.QListView.__init__(self, parent)
         NodeFactoryView.__init__(self, main_win, parent)
-        
+        self.setRootIsDecorated(False)
 
+
+    def reset(self):
+        QtGui.QTreeView.reset(self)
+        for i in range(self.model().columnCount(None)):
+            self.resizeColumnToContents(i)
+
+        
 class DataPoolListView(QtGui.QListView, SignalSlotListener):
     """ Specialized QListView to display data pool contents """
     
