@@ -61,6 +61,20 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
+    nf = Factory( name= "mergeRGB", 
+                  description= "merge bands into a single image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "merge_rgb",
+                  inputs=(dict(name="R", interface=IPix,),
+                          dict(name="G", interface=IPix,),
+                          dict(name="B", interface=IPix,),
+                          dict(name="A", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
     nf = Factory( name= "paste", 
                   description= "paste an image into another", 
                   category = "Image", 
@@ -72,12 +86,23 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
-    nf = Factory( name= "fill", 
-                  description= "fill a rectangle with a color", 
+    nf = Factory( name= "fill L", 
+                  description= "fill a rectangle with a 0-255 (L) color", 
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "fill",
-                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=None,),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=IInt(min=0,max=255), value=0),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "fillRGB", 
+                  description= "fill a rectangle with a RGB color", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "fill",
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=IRGBColor, value=(0,0,0)),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 

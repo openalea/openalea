@@ -21,7 +21,7 @@ from openalea.core import *
 
 from openalea.core.interface import *
 from openalea.visualea.gui_catalog import IEnumStrWidget
-import ImageQt
+from ImageQt import ImageQt
 import Image
 from PyQt4 import QtGui, QtCore
 from view import PixView
@@ -84,7 +84,11 @@ class IPixWidget(IInterfaceWidget, PixView):
         """ Notification sent by node """
         img_pil = self.node.get_input(self.param_str)
         if img_pil != None:
-            img = self.set_image(ImageQt.ImageQt(img_pil))
+            if img_pil.mode in ("RGB","RGBA") :
+                pix=ImageQt(img_pil)
+            else :
+                pix=ImageQt(img_pil.convert("RGBA"))
+            self.set_image(pix)
         else :
             self.set_image(None)
 

@@ -47,18 +47,24 @@ class PixView (QLabel) :
     
     def set_image (self, image) :
         if image is None :
-            self.resize(200,50)
+            self.setMinimumSize(200,50)
+            self.resize(self.minimumSize())
             self.setText("No Image to display")
         else :
             pix=QPixmap.fromImage(image)
             if (pix is None) or (pix.isNull()) :
                 self.set_image(None)
             else :
-                s = pix.size()
+                w,h = pix.width(),pix.height()
                 self.setPixmap(pix)
-                self.setMinimumSize(s)
-                self.resize(s)
+                self.setMinimumSize(w,h)
+                self.resize(self.minimumSize())
     
+    def setMinimumSize (self, width, height) :
+        width=min(width,self.maximumWidth())
+        height=min(height,self.maximumHeight())
+        QLabel.setMinimumSize(self,width,height)
+
     def keyReleaseEvent (self, event) :
         if event.key()==Qt.Key_Escape :
             self.close()

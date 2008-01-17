@@ -41,6 +41,26 @@ def merge (mode, bands) :
 
 merge.__doc__=Image.merge.__doc__
 
+def merge_rgb (R=None, G=None, B=None, A=None) :
+    valid_im_list=[channel for channel in (R,G,B,A) if channel is not None]
+    if len(valid_im_list)==0 :
+        raise UserWarning("at least one band must be a valid image")
+    w,h=valid_im_list[0].size
+    if R is None :
+        R=Image.new("L",(w,h))
+    if G is None :
+        G=Image.new("L",(w,h))
+    if B is None :
+        B=Image.new("L",(w,h))
+    if A is None :
+        im=Image.merge("RGB",(R,G,B))
+        im.putalpha(255)
+    else :
+        im=Image.merge("RGBA",(R,G,B,A))
+    return im
+
+merge_rgb.__doc__=Image.merge.__doc__
+
 def paste (image_target, image_source, x, y) :
     """
     paste image_source into image_target at position x,y
@@ -53,7 +73,9 @@ def fill (image, color, xmin, xmax, ymin, ymax) :
     """
     fill a rectangle region with the given color
     """
-    return image.paste(color,(xmin,ymin,xmax,ymax))
+    im=image.copy()
+    im.paste(color,(xmin,ymin,xmax,ymax))
+    return im
 
 def put_alpha (image, band) :
     return image.putalpha(band)
