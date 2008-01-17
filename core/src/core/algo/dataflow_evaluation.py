@@ -51,13 +51,15 @@ def cmp_priority(x, y):
 
 # order function to sort by pos x
 def cmp_posx(x, y):
-    (pid, vid, xactor) = x
-    (pid, vid, yactor) = y
+    (xpid, xvid, xactor) = x
+    (ypid, yvid, yactor) = y
     px = xactor.internal_data.get('posx', 0)
     py = yactor.internal_data.get('posx', 0)
-	
+    
+    ret = cmp(px, py)
+    if(not ret) : ret = cmp(xpid, ypid)
     # reverse order
-    return cmp(px, py)
+    return ret
 
 
 # Evaluation Algoithm

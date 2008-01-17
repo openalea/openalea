@@ -188,6 +188,8 @@ class UserPackage(Package):
             self.wralea_path = os.path.join(self.path, "%s_wralea.py"%(wralea_name))
         
 
+    def clone_from_package(self, pkg):
+        """ Copy the contents of pkg in self"""
 
     def write(self):
         """ Return the writer class """
