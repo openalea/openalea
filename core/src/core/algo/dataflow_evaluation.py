@@ -68,7 +68,7 @@ def cmp_posx(x, y):
 class AbstractEvaluation (object) :
     """ Abstract evaluation algorithm """
     
-    def __init__ (self, dataflow) :
+    def __init__ (self, dataflow):
         self._dataflow = dataflow
         
     
