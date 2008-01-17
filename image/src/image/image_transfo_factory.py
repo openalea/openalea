@@ -3,7 +3,7 @@
 #
 #       basics : image package
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or  or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
 #						Jerome Chopard <jerome.chopard@sophia.inria.fr>
@@ -33,7 +33,7 @@ def define_factory (package) :
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "blend",
-                  inputs=(dict(name="Image", interface=IPix,),dict(name="Image", interface=IPix,),dict(name="alpha", interface=IFloat,),),
+                  inputs=(dict(name="Image", interface=IPix,),dict(name="Image", interface=IPix,),dict(name="alpha", interface=IFloat(min=0., max=1.0),value=0.5),),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 
