@@ -137,7 +137,7 @@ def define_factory (package) :
                   description= "Transformation of colour space",
                   category = "Image",
                   nodemodule = "image_transfo",
-                  nodeclass = "rgb2hsl",
+                  nodeclass = "rbg2hsl",
                   inputs=(dict(name="Image", interface=IPix,),),
                   outputs=(dict(name="H", interface=ISequence,),
                           dict(name="S", interface=ISequence,),
