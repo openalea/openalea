@@ -365,10 +365,11 @@ class LambdaEvaluation (PriorityEvaluation) :
 		# Eval the node
                 if(not use_lambda):
                     ret = self.eval_vertex_code(vid)
+                    
                 else:
                     # set the node output with subdataflow
                     for i in xrange(actor.get_nb_output()):
-                        actor.outputs[i] = SubDataflow(df, self, vid, i)
+                        actor.set_output(i, SubDataflow(df, self, vid, i))
 
 
 

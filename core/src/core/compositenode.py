@@ -322,19 +322,28 @@ class CompositeNode(Node, DataFlow):
                 
         
     def set_input (self, index_key, val=None, *args) :
-        """ Copy val into input node output ports """
+        """ Set the input of the composite node """
         self.node(self.id_in).set_input(index_key, val)
 
 
     def get_input (self, index_key) :
         """ Return the composite node input"""
+
         return self.node(self.id_in).get_input(index_key)
-        
+    
+    
+    def set_output (self, index_key, val=None) :
+        """ Set the output of the composite node """
+
+        return self.node(self.id_out).set_output(index_key, val)
+
 
     def get_output (self, index_key) :
         """ Retrieve values from output node input ports """
 
         return self.node(self.id_out).get_output(index_key)
+    
+
     
 
     def get_eval_algo(self):
@@ -679,6 +688,13 @@ class CompositeNodeOutput(Node):
         self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
+    
+    def set_output(self, output_pid, val) :
+        """ Define output """
+
+        index = self.map_index_in[output_pid]
+        self.inputs[index] = val
+
 
     def get_output(self, output_pid) :
         """ Return Output value """
@@ -686,12 +702,15 @@ class CompositeNodeOutput(Node):
         index = self.map_index_in[output_pid]
         return self.inputs[index]
     
+    
+
 
     def eval(self):
         return False
 
 
 ################################################################################
+import pprint
 
 class PyCNFactoryWriter(object):
     """ CompositeNodeFactory python Writer """
@@ -716,36 +735,31 @@ class PyCNFactoryWriter(object):
 
     def __init__(self, factory):
         self.factory = factory
+
+
+    def pprint_repr(self,obj, indent=3):
+        """ Pretty print repr """
+        return pprint.pformat(obj, indent=indent)
         
 
     def __repr__(self):
         """ Return the python string representation """
-        from pprint import pprint
-        from StringIO import StringIO
 
-        def pprint_repr(obj):
-            stream = StringIO()
-            pprint(obj, stream=stream)
-            s=stream.getvalue()[:-1]
-            if '\n' not in s: 
-                return s
-            else:
-                return '\\\n'+s
-
+        
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
 
-        result = fstr.safe_substitute(NAME=pprint_repr(f.name),
-                                      DESCRIPTION=pprint_repr(f.description),
-                                      CATEGORY=pprint_repr(f.category),
-                                      DOC=pprint_repr(f.doc),
-                                      INPUTS=pprint_repr(f.inputs),
-                                      OUTPUTS=pprint_repr(f.outputs),
-                                      ELT_FACTORY=pprint_repr(f.elt_factory),
-                                      ELT_CONNECTIONS=pprint_repr(f.connections),
-                                      ELT_DATA=pprint_repr(f.elt_data),
-                                      ELT_VALUE=pprint_repr(f.elt_value),
-                                      LAZY=pprint_repr(f.lazy),
+        result = fstr.safe_substitute(NAME=self.pprint_repr(f.name),
+                                      DESCRIPTION=self.pprint_repr(f.description),
+                                      CATEGORY=self.pprint_repr(f.category),
+                                      DOC=self.pprint_repr(f.doc),
+                                      INPUTS=self.pprint_repr(f.inputs),
+                                      OUTPUTS=self.pprint_repr(f.outputs),
+                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
+                                      ELT_DATA=self.pprint_repr(f.elt_data),
+                                      ELT_VALUE=self.pprint_repr(f.elt_value),
+                                      LAZY=self.pprint_repr(f.lazy),
                                       )
         return result
 

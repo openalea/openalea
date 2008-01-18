@@ -19,11 +19,12 @@ def test_lambda():
         ('TestLambda', 3, map( lambda x: (x+5)*5, range(10))),
         ('testlambda2', 10, filter( lambda x: x>=2 and x <= 7, range(10))),
         ('testlambda3', 3, map( lambda y : filter( lambda x: x>=7, y), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]]) ),         
-        ('test_composite_lambda', 10, filter( lambda x: x>=2 and x <= 7, range(10))),
+        ('test_str', 5, ['toto', 'toto']),
         ):
 
-        print "run", t
         n = pm.get_node("TestLambda", t)
         n()
+
         assert n.node(id).get_output(0) == res
+
 
