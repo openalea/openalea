@@ -1,7 +1,8 @@
 from openalea.core.core import Package, Factory
+from openalea.core.traitsui import View, Item, Group
 #from openalea.core.core import Node
 #from openalea.core.core import NodeFactory,Factory
-#from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
+from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
 #import model as m
 #import openalea.mersim.gui.phyllotaxis as phyllotaxis
 #import openalea.plotable as plotable
@@ -31,7 +32,25 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeModel",
                       widgetmodule = None,
                       widgetclass = None,
-		      parameters=["gamma", "nbr_prims", "discretisation", "visualisation"] 
+		      inputs=[
+                        dict(name= "gamma", interface=IFloat, value=3.1, label="test", desc="desc test"),
+                        dict( name= "nbr_prims", interface=IInt(min=2, max=2000), value=20,label="test", desc="desc test"),
+                        dict( name= "discretisation", interface=IInt(min=4, max=1000), value=20),
+                        dict( name= "visualisation", interface=IBool, value=True),
+                        dict( name= "continueSimulation", interface=IBool, value=False),
+                        dict( name= "Prims/InhibitionFields", interface=IBool, value=False)
+                      ],
+                      outputs=[
+                         dict( name= "result_dict", interface=None )
+                      ],
+                      view=View( Group(
+                         "test",
+                         Item( "gamma"),
+                         Item( "visualisation")
+                         ),
+                         Item( "discretisation"),
+                         Item( "nbr_prims")
+                         )
                       )
 
     package.add_factory( nf )

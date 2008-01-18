@@ -57,38 +57,29 @@
 
 from openalea.core.core import Node
 from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
+from openalea.core.traitsui import View, Item, Group
 import model as m
 import phyllotaxis as phyllotaxis
 import openalea.plotools.plotable as plotable
 
 
-class NodeModel(Node):
-    def __init__( self ):
-	Node.__init__( self )
-	self.add_input( name= "gamma", interface=IFloat, value=3.1)
-	self.add_input( name= "nbr_prims", interface=IInt(min=2, max=2000), value=20)
-	self.add_input( name= "discretisation", interface=IInt(min=4, max=1000), value=20)
-	self.add_input( name= "visualisation", interface=IBool, value=True)
-	self.add_input( name= "continueSimulation", interface=IBool, value=False)
-	self.add_input( name= "Prims/InhibitionFields", interface=IBool, value=False)
+class NodeModel(object):
+    def __init__( self, **kargs ):
+        self.model = m.DiscInhibitorPhyllotaxisModel(visualisation=True)#None
         
-	self.add_output( name= "result_dict", interface=None )
-	
-        self.model = m.DiscInhibitorPhyllotaxisModel(visualisation=self.get_input( "visualisation" ))#None
-        
-    def __call__( self, inputs ):
-        if not self.get_input( "continueSimulation" ):
-            self.model = m.DiscInhibitorPhyllotaxisModel(visualisation=self.get_input( "visualisation" ))
-        self.model.c_prim_size = self.get_input( "gamma" )
-        self.model.c_discretization = self.get_input( "discretisation" )
-        if self.get_input( "Prims/InhibitionFields" ):
+    def __call__( self, gamma, nbr_prims, discretisation, visualisation, cont_sim, prim_inh ):
+        if not cont_sim:
+            self.model = m.DiscInhibitorPhyllotaxisModel(visualisation=visualisation)
+        self.model.c_prim_size = gamma
+        self.model.c_discretization = discretisation
+        if prim_inh:
             self.model.c_show_inhibition_fields = True
             self.model.c_show_primordia = False
         else:
             self.model.c_show_inhibition_fields = False
             self.model.c_show_primordia = True
             
-        self.model.run(self.get_input( "nbr_prims" ))
+        self.model.run(nbr_prims)
         return ({"prim2init_pos":self.model.i_prim2init_pos.copy(), "prim2time":self.model.i_prim2time.copy(), "current_prim":self.model.current_prim}, )
             
 	

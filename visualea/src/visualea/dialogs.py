@@ -820,7 +820,7 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
             else:
                 listitem.setFlags(QtCore.Qt.ItemIsUserCheckable)
 
-            hide = node.is_port_hidden(i)
+            hide = desc.is_port_hidden()#node.is_port_hidden(i)
             if(not hide):
                 listitem.setCheckState(QtCore.Qt.Checked)
             else:
