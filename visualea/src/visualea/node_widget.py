@@ -31,6 +31,7 @@ import weakref
 from PyQt4 import QtCore, QtGui
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from openalea.core.observer import lock_notify, AbstractListener
+from openalea.core.traitsui import View, Item, Group
 from gui_catalog import *
 import types
 
@@ -143,38 +144,109 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         self.empty = True
         
-        for i,desc in enumerate(node.input_desc):
-            # Hidden state
-            h = node.is_port_hidden(i)
-            if(h) :
-                self.widgets.append(None)
-                continue
-            
-            name = desc['name']
-            interface = desc.get('interface', None)
 
-            # interface class or instance ?
-            if(type(interface) == IInterfaceMetaClass):
-                interface = interface()
-            
-            wclass = self.type_map.get(interface.__class__, None)
+        if  node.factory.view is None:
+            # we create the widget in default way
+            #print node.input_desc
+            for port in node.input_desc:
+                self.place_item( self, port, vboxlayout)
 
-            if(wclass):
-                widget = wclass(node, self, name, interface)
-                widget.update_state()
-                vboxlayout.addWidget(widget)
-                self.widgets.append(widget)
-                self.empty = False
-            else:
-                self.widgets.append(None)
+        else:
+            # we use custom view defined by user
+            for i in node.factory.view.content:
+                self.place( self,  i, vboxlayout )
+    
+    def place( self, widget,  item, layout ):
+        """<Short description of the function functionality.>
+        
+        <Long description of the function functionality.>
+        
+        :parameters:
+            arg1 : `T`
+                <Description of `arg1` meaning>
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        #print widget, item, layout
+        if isinstance( item, Item ):
+            p = self.node.get_input_port( item.name )
+
+            self.place_item( widget, p, layout)
+        elif isinstance( item, Group ):
+            self.place_group(widget, item, layout)
+    
+    def place_item( self,  widget, port,  layout ):
+        """<Short description of the function functionality.>
+        
+        <Long description of the function functionality.>
+        
+        :parameters:
+            arg1 : `T`
+                <Description of `arg1` meaning>
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        name = port['name']
+        interface = port.get_interface()
+
+        # Hidden state
+        if(port.is_hidden()) :
+            self.widgets.append(None)
+            return
+        
+
+        # interface class or instance ?
+        if(type(interface) == IInterfaceMetaClass):
+            interface = interface()
+        
+        wclass = self.type_map.get(interface.__class__, None)
+
+        if(wclass):
+            #print widget
+            widgetT = wclass(self.node, widget, name, interface)
+            widgetT.update_state()
+            layout.addWidget(widgetT)
+            self.widgets.append(widgetT)
+            self.empty = False
+        else:
+            self.widgets.append(None)
 
         # If there is no subwidget, add the name
         if( self.empty ):
+
             label = QtGui.QLabel(self)
             label.setText(self.node.__class__.__name__+
                           " (No Widget available)")
 
-            vboxlayout.addWidget(label)
+            layout.addWidget(label)
+                
+    def place_group( self,  widget, group,  layout ):
+        """<Short description of the function functionality.>
+        
+        <Long description of the function functionality.>
+        
+        :parameters:
+            arg1 : `T`
+                <Description of `arg1` meaning>
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        groupBox = QtGui.QGroupBox(widget)
+        groupBox.setObjectName("groupBox")
+        groupBox.setTitle(group.label)
+        groupBox.setMinimumSize(100, 20)
+        
+        nlayout = QtGui.QVBoxLayout(groupBox)
+        #nlayout.setMargin(3)
+        #nlayout.setSpacing(2)
+        
+        #layout.addWidget(widget)
+        #print group.content
+        for i in group.content:
+            self.place(groupBox, i, nlayout)
 
     
     def notify(self, sender, event):

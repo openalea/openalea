@@ -55,7 +55,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
         hboxlayout.setSpacing(5)
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QDoubleSpinBox (self)
@@ -109,7 +109,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         hboxlayout.addWidget(self.label)
 
         self.spin = QtGui.QSpinBox (self)
@@ -220,7 +220,7 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = QtGui.QLineEdit (self)
@@ -278,7 +278,7 @@ class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
 
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = QtGui.QDateTimeEdit(self)
@@ -334,7 +334,7 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
 
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = QtGui.QTextEdit (self)
@@ -400,7 +400,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         self.gridlayout.addWidget(self.buttonmoins,3,0,1,1)
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.gridlayout.addWidget(self.label,0,0,1,1)
 
         self.subwidget = QtGui.QListWidget (self)
@@ -571,7 +571,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         self.hboxlayout.setSpacing(5)
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = QtGui.QListWidget (self)
@@ -782,7 +782,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.hboxlayout.setSpacing(5)
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = QtGui.QComboBox(self)
@@ -841,7 +841,7 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         self.hboxlayout.setSpacing(5)
 
         self.label = QtGui.QLabel(self)
-        self.label.setText(parameter_str)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
         self.colorwidget = QtGui.QWidget(self)
