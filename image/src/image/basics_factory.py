@@ -69,7 +69,9 @@ def define_factory (package) :
                   description= "display an image", 
                   category = "Image", 
                   nodemodule = "basics",
-                  nodeclass = "pix_view",
+                  nodeclass = "pix_visu",
+                  widgetmodule = "images_wralea",
+                  widgetclass = "PixVisu",
                   inputs=(dict(name="Image", interface=IPix,),),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )

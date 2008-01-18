@@ -51,12 +51,10 @@ def save_image (image, filename) :
 
 save_image.__doc__=Im.save.__doc__
 
-def pix_view (image) :
-    return image
-
 def convert (image, mode) :
     return image.convert(mode)
 
 convert.__doc__=Im.convert.__doc__
 
-
+def pix_visu(image) : 
+    return image,

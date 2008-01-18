@@ -24,14 +24,14 @@ __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QLabel,QPixmap
+from PyQt4.QtGui import QLabel,QPixmap,QImage
 
 class PixView (QLabel) :
     """
     minimalist widget to display an image
     """
-    def __init__ (self, parent=None, image=None) :
-        QLabel.__init__(self,parent)
+    def __init__ (self, parent=None, image=QPixmap()) :
+        QLabel.__init__(self)
         self.setScaledContents(True)
         self.setAlignment(Qt.AlignCenter)
         self.set_image(image)
@@ -46,27 +46,24 @@ class PixView (QLabel) :
         return self.pixmap().toImage()
     
     def set_image (self, image) :
-        if image is None :
-            self.setMinimumSize(200,50)
-            self.resize(self.minimumSize())
+        self.setMinimumSize(50,50)
+        if image.isNull() :
+            self.resize(200,50)
             self.setText("No Image to display")
         else :
-            pix=QPixmap.fromImage(image)
-            if (pix is None) or (pix.isNull()) :
-                self.set_image(None)
-            else :
-                w,h = pix.width(),pix.height()
-                self.setPixmap(pix)
-                self.setMinimumSize(w,h)
-                self.resize(self.minimumSize())
+            #pix=QPixmap.fromImage(image)
+            w,h = image.width(),image.height()
+            self.setPixmap(image)
+            self.resize(w,h)
     
-    def setMinimumSize (self, width, height) :
-        width=min(width,self.maximumWidth())
-        height=min(height,self.maximumHeight())
-        QLabel.setMinimumSize(self,width,height)
+#    def setMinimumSize (self, width, height) :
+#        width=min(width,self.maximumWidth())
+#        height=min(height,self.maximumHeight())
+#        QLabel.setMinimumSize(self,width,height)
 
     def keyReleaseEvent (self, event) :
         if event.key()==Qt.Key_Escape :
             self.close()
         else :
             QLabel.keyReleaseEvent(self,event)
+
