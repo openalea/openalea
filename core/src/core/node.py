@@ -311,6 +311,17 @@ class Node(AbstractNode):
         if(changed):
             self.inputs[index] = val
             self.unvalidate_input(index, notify)
+
+
+
+    def set_output(self, key, val) :
+        """ 
+        Define the input value for the specified index/key
+        """
+
+        index = self.map_index_out[key]
+        self.outputs[index] = val
+
             
 
     def output (self, key) :
@@ -327,6 +338,7 @@ class Node(AbstractNode):
         """ Return the output for the specified index/key """
         index = self.map_index_out[index_key]
         return self.outputs[index]
+
 
     def get_input_state(self, index_key):
         index = self.map_index_in[index_key]
