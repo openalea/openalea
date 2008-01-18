@@ -60,7 +60,17 @@ def merge_rgb (R=None, G=None, B=None, A=None) :
         im=Image.merge("RGBA",(R,G,B,A))
     return im
 
-merge_rgb.__doc__=Image.merge.__doc__
+
+def merge_rgbData (R, G, B, dimX, dimY) :
+    imgR = Image.new('L', [dimX,dimY], 0)
+    imgG = Image.new('L', [dimX,dimY], 0)
+    imgB = Image.new('L', [dimX,dimY], 0)
+    imgR.putdata(R)
+    imgG.putdata(G)
+    imgB.putdata(B)
+    img=Image.merge("RGB",(imgR,imgG,imgB))
+    return img
+
 
 def paste (image_target, image_source, x, y) :
     """
@@ -91,11 +101,13 @@ split.__doc__=Im.split.__doc__
 
 def __threshold(x, low, high):
     if x < low :
-      return 255
-    elif x > high :
       return 0
+    elif x > high :
+      return 255
     else :
       return x
+
+
 
 def seuillage(image, low, high) :
     width,height = image.size
@@ -107,53 +119,123 @@ def seuillage(image, low, high) :
     #matrix = numpy.reshape(th,(width,heigh))
     return img,
 
-def rbg2hsl(image) :
-    #imgR,imgG,imgB,imgA=image.split()
-    print "toto"
-    print type(image)
-    #dataR = imgR.getdata()
-    #dataG = imgG.getdata()
-    #dataB = imgB.getdata()
-    #R = numpy.array(dataR)
-    #G = numpy.array(dataG)
-    #B = numpy.array(dataB)
-    #var_R = ( R / 255.0 )
-    #var_G = ( G / 255.0 )
-    #var_B = ( B / 255.0 )
-    #channelMat=[var_R,var_G,var_B]
-    #var_Min = min(channelMat,0)
-    #var_Max = max(channelMat,0)
-    #del_Max = var_Max - var_Min
-    #L = ( var_Max + var_Min ) / 2
-    #H=R
-    #S=R
-    #del_R=R
-    #del_G=R
-    #del_B=R
-    ##Premiere version pas optimisee (en boucle for)
-    #for i in range(len(R)):
-    #	#if ( del_Max[i] == 0 ):
-    #	#	#H[i] = 0
-    #	#	#S[i] = 0
-    #	#else:
-    #	#	#if ( L[i] < 0.5 ):
-    #	#	#	#S[i] = del_Max[i] / ( var_Max[i] + var_Min[i] )
-    #	#	#else: S[i] = del_Max[i] / ( 2 - var_Max[i] - var_Min[i] )
-    
-    #	#	#del_R[i] = ( ( ( var_Max[i] - var_R[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
-    #	#	#del_G[i] = ( ( ( var_Max[i] - var_G[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
-    #	#	#del_B[i] = ( ( ( var_Max[i] - var_B[i] ) / 6 ) + ( del_Max[i] / 2 ) ) / del_Max[i]
-    
-    #	#	#if ( var_R[i] == var_Max[i] ):
-    #	#	#	#H[i] = del_B[i] - del_G[i]
-    #	#	#elif ( var_G[i] == var_Max[i] ):
-    #	#	#	#H[i] = ( 1 / 3 ) + del_R[i] - del_B[i]
-    #	#	#elif ( var_B[i] == var_Max[i] ):
-    #	#	#	#H[i] = ( 2 / 3 ) + del_G[i] - del_R[i]
-    #	#	#
-    #	#	#if ( H[i] < 0 ):
-    #	#	#	#H[i] += 1
-    #	#	#if ( H[i] > 1 ):
-    #	#	#	#H[i] -= 1
-    #return H,S,L,
-    return 1,2,3
+def rgb2hsl(image) :
+    imgR,imgG,imgB,imgA=image.split()
+    dataR = imgR.getdata()
+    dataG = imgG.getdata()
+    dataB = imgB.getdata()
+    R = numpy.array(dataR)
+    G = numpy.array(dataG)
+    B = numpy.array(dataB)
+    var_R = ( R / 255.0 )
+    var_G = ( G / 255.0 )
+    var_B = ( B / 255.0 )
+    channelMat=[var_R,var_G,var_B]
+    var_Min = numpy.min(channelMat,0)
+    var_Max = numpy.max(channelMat,0)
+    del_Max = var_Max - var_Min
+    L = ( var_Max + var_Min ) / 2
+    H=R/1.0
+    S=R/1.0
+    del_R=R/1.0
+    del_G=R/1.0
+    del_B=R/1.0
+    for i in range(len(R)):
+        if ( del_Max[i] == 0 ):
+            H[i] = 0
+            S[i] = 0
+        else:
+            if ( L[i] < 0.5 ):
+                S[i] = del_Max[i] / ( var_Max[i] + var_Min[i] )
+            else:
+                S[i] = del_Max[i] / ( 2 - var_Max[i] - var_Min[i] )
+            del_R[i] = ( ( ( var_Max[i] - var_R[i] ) / 6.0 ) + ( del_Max[i] / 2.0 ) ) / del_Max[i]
+            del_G[i] = ( ( ( var_Max[i] - var_G[i] ) / 6.0 ) + ( del_Max[i] / 2.0 ) ) / del_Max[i]
+            del_B[i] = ( ( ( var_Max[i] - var_B[i] ) / 6.0 ) + ( del_Max[i] / 2.0 ) ) / del_Max[i]
+            if ( var_R[i] == var_Max[i] ):
+                H[i] = del_B[i] - del_G[i]
+            elif ( var_G[i] == var_Max[i] ):
+                H[i] = ( 1 / 3.0 ) + del_R[i] - del_B[i]
+            elif ( var_B[i] == var_Max[i] ):
+                H[i] = ( 2 / 3.0 ) + del_G[i] - del_R[i]
+            if ( H[i] < 0 ):
+                H[i] += 1
+            if ( H[i] > 1 ):
+                H[i] -= 1
+    return H,S,L,
+
+
+def __Hue_2_RGB( v1, v2, vH ) :
+    if ( vH < 0 ) :
+        vH += 1
+    if ( vH > 1 ) :
+        vH -= 1
+    if ( ( 6 * vH ) < 1 ) :
+        return ( v1 + ( v2 - v1 ) * 6 * vH )
+    if ( ( 2 * vH ) < 1 ) :
+        return ( v2 )
+    if ( ( 3 * vH ) < 2 ) :
+        return ( v1 + ( v2 - v1 ) * ( ( 2 / 3.0 ) - vH ) * 6 )
+    return v1
+
+
+
+def hsl2rgb(H,S,L) :
+    R=S/1.0
+    G=S/1.0
+    B=S/1.0
+    var_1=0
+    var_2=0
+    for i in range(len(S)):
+        if ( S[i] == 0 ) :
+            R[i] = L[i] * 255
+            G[i] = L[i] * 255
+            B[i] = L[i] * 255
+        else:
+            if ( L[i] < 0.5 ) :
+                var_2 = L[i] * ( 1 + S[i] )
+            else:
+                var_2 = ( L[i] + S[i] ) - ( S[i] * L[i] )
+            var_1 = 2 * L[i] - var_2
+            R[i] = 255 * __Hue_2_RGB( var_1, var_2, H[i] + ( 1 / 3.0 ) )
+            G[i] = 255 * __Hue_2_RGB( var_1, var_2, H[i] )
+            B[i] = 255 * __Hue_2_RGB( var_1, var_2, H[i] - ( 1 / 3.0 ) )
+    return R,G,B
+
+
+def __HueCircularThreshold(x, center, maxDistance) :
+    if __HueCircularDistance(x, center) > maxDistance :
+        return 0
+    else :
+        return 255
+
+def __mult509(x) :
+    return 509*x
+
+def __mult509EtInv(x) :
+    return 255-509*x
+
+
+def __HueCircularDistance(x, center) :
+    if center > x :
+        return ( min(center-x  ,1-center+x ) )
+    else :
+        return ( min(x-center  ,1-x+center ) )
+
+def hue2RefDistance(image,hueRef) :
+    H,S,L = rgb2hsl(image)
+    dataTemp = map( lambda x : __HueCircularDistance(x,hueRef),H)
+    imgTemp= map( lambda x : __mult509(x),dataTemp)
+    imgDist = Image.new('L', image.size, 0)
+    imgDist.putdata(imgTemp)
+    return imgDist,
+
+def hue2RefNearest(image,hueRef) :
+    H,S,L = rgb2hsl(image)
+    dataTemp = map( lambda x : __HueCircularDistance(x,hueRef),H)
+    imgTemp= map( lambda x : __mult509EtInv(x),dataTemp)
+    imgDist = Image.new('L', image.size, 0)
+    imgDist.putdata(imgTemp)
+    return imgDist,
+
+

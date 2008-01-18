@@ -62,7 +62,7 @@ def define_factory (package) :
     package.add_factory( nf )
 
     nf = Factory( name= "mergeRGB", 
-                  description= "merge bands into a single image", 
+                  description= "merge Image of channels into a single image", 
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "merge_rgb",
@@ -70,6 +70,21 @@ def define_factory (package) :
                           dict(name="G", interface=IPix,),
                           dict(name="B", interface=IPix,),
                           dict(name="A", interface=IPix,),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "mergeRGBData", 
+                  description= "merge sequence of R,G,B channels into a single image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "merge_rgbData",
+                  inputs=(dict(name="R", interface=ISequence,),
+                          dict(name="G", interface=ISequence,),
+                          dict(name="B", interface=ISequence,),
+                          dict(name="dimX", interface=IInt(min=0, max=100000),value=100),
+                          dict(name="dimY", interface=IInt(min=0, max=100000),value=100),),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 
@@ -137,7 +152,7 @@ def define_factory (package) :
                   description= "Transformation of colour space",
                   category = "Image",
                   nodemodule = "image_transfo",
-                  nodeclass = "rbg2hsl",
+                  nodeclass = "rgb2hsl",
                   inputs=(dict(name="Image", interface=IPix,),),
                   outputs=(dict(name="H", interface=ISequence,),
                           dict(name="S", interface=ISequence,),
@@ -145,6 +160,47 @@ def define_factory (package) :
                   )
 
     package.add_factory( nf )
+
+    nf = Factory( name= "hsl2rgb",
+                  description= "Transformation of colour space",
+                  category = "Image",
+                  nodemodule = "image_transfo",
+                  nodeclass = "hsl2rgb",
+                  inputs=(dict(name="H", interface=ISequence,),
+                          dict(name="S", interface=ISequence,),
+                          dict(name="L", interface=ISequence,),),
+                  outputs=(dict(name="R", interface=IPix,),
+                          dict(name="G", interface=ISequence,),
+                          dict(name="B", interface=ISequence,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "hueDistance",
+                  description= "Distance to a reference hue",
+                  category = "Image",
+                  nodemodule = "image_transfo",
+                  nodeclass = "hue2RefDistance",
+                  inputs=(dict(name="Image", interface=IPix,),
+                         dict(name="ReferenceHue", interface=IFloat(min=0, max=1.0),value=0.5),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+
+    nf = Factory( name= "hueNearest",
+                  description= "Enlight the hue near to the reference",
+                  category = "Image",
+                  nodemodule = "image_transfo",
+                  nodeclass = "hue2RefNearest",
+                  inputs=(dict(name="Image", interface=IPix,),
+                         dict(name="ReferenceHue", interface=IFloat(min=0, max=1.0),value=0.5),),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
 
     nf = Factory( name= "levels", 
                   description= "change pixels lower than min and higher than max", 
