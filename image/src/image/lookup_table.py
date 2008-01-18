@@ -2,7 +2,7 @@
 #
 #       basics : image package
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright or  or Copr. 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
 #						Jerome Chopard <jerome.chopard@sophia.inria.fr>
@@ -22,7 +22,8 @@ This module provide basics function to handle 2D images
 __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
-from numpy import zeros
+from numpy import zeros,ones, array
+from openalea.image.image_transfo import hsl2rgb,merge_rgbData
 
 class ILookupTable (object) :
     """
@@ -42,8 +43,40 @@ class LookupTable (ILookupTable) :
     def __init__ (self, max_index) :
         self._table=zeros( (max_index+1,3),"int" )
 
+    def max_index(self) :
+        return self._table.shape[0]-1
+
+    def table(self) :
+        return self._table
+
+
     def __call__ (self, index) :
         return tuple(self._table[index,])
+
+class LookupTableRainbow (LookupTable) :
+    """
+    implementation of a rainbow LookupTable using an array
+    """
+    def __init__ (self, max_index) :
+        LookupTable.__init__(self, max_index)
+        H=([0.7-i*0.7/float(max_index) for i in xrange(0,max_index+1)])#borne sup exclue
+        S=ones( (max_index+1,),"float" )
+        L=ones( (max_index+1,),"float" )/2.0
+        R,G,B=hsl2rgb(H,S,L)
+        t=array([R,G,B])
+        self._table=t.transpose()
+
+
+def create_rainbow_LUT(max_index):
+    lut=LookupTableRainbow(max_index)
+    return lut
+
+def rainbow_lut2image(lut) :
+    t=array(lut.table())
+    print "shape",t.shape
+    #a=t.shape
+    t=t.transpose()
+    return ( merge_rgbData (t[0,], t[1,], t[2,], lut.max_index()+1,1) )
 
 class LookupFunc (ILookupTable) :
     """

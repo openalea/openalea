@@ -26,6 +26,7 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 import Image
 import numpy
 from Image import Image as Im
+from numpy import array,zeros
 
 def blend (image1, image2, alpha) :
     return Image.blend(image1,image2,alpha)
@@ -65,6 +66,10 @@ def merge_rgbData (R, G, B, dimX, dimY) :
     imgR = Image.new('L', [dimX,dimY], 0)
     imgG = Image.new('L', [dimX,dimY], 0)
     imgB = Image.new('L', [dimX,dimY], 0)
+    a = R.shape
+    print "dimX",dimX
+    print "R",R
+    
     imgR.putdata(R)
     imgG.putdata(G)
     imgB.putdata(B)
@@ -188,12 +193,10 @@ def __Hue_2_RGB( v1, v2, vH ) :
 
 
 def hsl2rgb(H,S,L) :
-    R=S/1.0
-    G=S/1.0
-    B=S/1.0
-    var_1=0
-    var_2=0
-    for i in range(len(S)):
+    R=zeros((len(S),))
+    G=zeros((len(S),))
+    B=zeros((len(S),))
+    for i in xrange(len(S)):
         if ( S[i] == 0 ) :
             R[i] = L[i] * 255
             G[i] = L[i] * 255

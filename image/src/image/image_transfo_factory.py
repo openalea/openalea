@@ -241,7 +241,6 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
-
     nf = Factory( name= "levels L", 
                   description= "change pixels lower than min and higher than max on one band image", 
                   category = "Image", 
@@ -256,5 +255,26 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
+    nf = Factory( name= "rainbow_lut", 
+                  description= "Create a new rainbow lut expanding from 0 to max_index", 
+                  category = "Image", 
+                  nodemodule = "lookup_table",
+                  nodeclass = "create_rainbow_LUT",
+                  inputs=(dict(name="N_max", interface=IInt(min=1, max=16000000),value=255),
+                          ),
+                  outputs=(dict(name="Rainbow_LUT", interface=None,),),
+                  )
 
+    package.add_factory( nf )
 
+    nf = Factory( name= "lut2image", 
+                  description= "Create an image from a LUT and allows its visualization", 
+                  category = "Image", 
+                  nodemodule = "lookup_table",
+                  nodeclass = "rainbow_lut2image",
+                  inputs=(dict(name="LUT", interface=None),
+                          ),
+                  outputs=(dict(name="Rainbow_LUT_Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
