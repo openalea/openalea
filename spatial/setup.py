@@ -8,7 +8,7 @@ from setuptools import setup
 name = 'OpenAlea.Spatial'
 namespace = 'openalea'
 pkg_name = 'openalea.spatial'
-version = '0.1.0' 
+version = '0.2' 
 description = 'OpenAlea module for spatial distributions.' 
 long_description = ''
 
