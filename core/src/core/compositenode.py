@@ -322,28 +322,19 @@ class CompositeNode(Node, DataFlow):
                 
         
     def set_input (self, index_key, val=None, *args) :
-        """ Set the input of the composite node """
+        """ Copy val into input node output ports """
         self.node(self.id_in).set_input(index_key, val)
 
 
     def get_input (self, index_key) :
         """ Return the composite node input"""
-
         return self.node(self.id_in).get_input(index_key)
-    
-    
-    def set_output (self, index_key, val=None) :
-        """ Set the output of the composite node """
-
-        return self.node(self.id_out).set_output(index_key, val)
-
+        
 
     def get_output (self, index_key) :
         """ Retrieve values from output node input ports """
 
         return self.node(self.id_out).get_output(index_key)
-    
-
     
 
     def get_eval_algo(self):
@@ -423,64 +414,82 @@ class CompositeNode(Node, DataFlow):
         outs = []
         connections = []
         
+        # just to select unique name
+        name_port = []
+
         # For each input port
-        for pid in self.in_ports():
-
-            connected_edges = list(self.connected_edges(pid))
-
-            is_input = False
-            for e in connected_edges:
-                s = self.source(e)
-                if(s not in v_list):
-                    is_input = True
-
-            # if port is not connected
-            if(len(connected_edges) > 0 and not is_input):
-                continue
-            
-            vid = self.vertex(pid)
-            if(v_list and not vid in v_list) : continue
+        for vid in v_list:
+            for pid in self.in_ports(vid):
+                connected_edges = list(self.connected_edges(pid))
                 
-            pname = self.local_id(pid)
-            n = self.node(vid)
-            desc = dict(n.input_desc[pname])
-            if n.inputs[pname]:
-                desc['value'] = n.inputs[pname]
-            elif 'value' not in desc and 'interface' in desc:
-                    desc['value']=desc['interface'].default()
+                is_input = False
+                for e in connected_edges:
+                    s = self.source(e)
+                    if s not in v_list:
+                        is_input = True
 
-            connections.append( ('__in__', len(ins), vid, pname) )
-            ins.append(desc)
+                if connected_edges:
+                    if not is_input:
+                        continue
+
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = dict(n.input_desc[pname])
+
+                caption= '(%s)'%(n.get_caption())
+                count = '' 
+                name = desc['name']
+                while name+str(count)+caption in name_port:
+                    if count:
+                        count+=1
+                    else: 
+                        count = 1
+                desc['name'] = name+str(count)+caption
+                name_port.append(desc['name'])
+
+                if n.inputs[pname]:
+                    desc['value'] = n.inputs[pname]
+                elif 'value' not in desc:
+                    if 'interface' in desc:
+                        desc['value']=desc['interface'].default()
+
+                connections.append( ('__in__', len(ins), vid, pname) )
+                ins.append(desc)
+
+        # just to select unique name
+        name_port = []
+        # For each output port in the selected vertices
+        for vid in v_list:
+            for pid in self.out_ports(vid):
+                connected_edges = list(self.connected_edges(pid))
                 
-                
-        # For each output port
-        for pid in self.out_ports():
+                is_output = False
+                for e in connected_edges:
+                    target_vid = self.target(e)
+                    if target_vid not in v_list:
+                        is_output = True
 
-            connected_edges = list(self.connected_edges(pid))
+                if connected_edges:
+                    if not is_output:
+                        continue
 
-            is_output = False
-            for e in connected_edges:
-                t = self.target(e)
-                if(t not in v_list):
-                    is_output = True
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = n.output_desc[pname]
 
-            # if port is connected
-            if(len(connected_edges) > 0 and not is_output):
-                continue
+                caption= '(%s)'%(n.get_caption())
+                count = '' 
+                name = desc['name']
+                while name+str(count)+caption in name_port:
+                    if count:
+                        count+=1
+                    else: 
+                        count = 1
+                desc['name'] = name+str(count)+caption
+                name_port.append(desc['name'])
 
-            # port is not connected
-            vid = self.vertex(pid)
-            if(v_list and not vid in v_list) : continue
-                
-            pname = self.local_id(pid)
-            n = self.node(vid)
-            desc = n.output_desc[pname]
-            #name = "out_" + desc['name'] + str(vid)
-                
-            connections.append( (vid , pname, '__out__', len(outs)) )
-            #outs.append(dict(name=name, interface=desc['interface']))
-            outs.append(dict(desc))
-
+                connections.append( (vid , pname, '__out__', len(outs)) )
+                outs.append(dict(desc))
 
         return (ins, outs, connections)
 
@@ -505,7 +514,6 @@ class CompositeNode(Node, DataFlow):
             (ins, outs, sup_connect) = self.compute_io(listid)
             sgfactory.inputs = ins
             sgfactory.outputs = outs
-            print ins
         else:
             sgfactory.inputs = [dict(val) for val in self.input_desc]
             sgfactory.outputs = [dict(val) for val in self.output_desc]
@@ -699,13 +707,6 @@ class CompositeNodeOutput(Node):
         self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
-    
-    def set_output(self, output_pid, val) :
-        """ Define output """
-
-        index = self.map_index_in[output_pid]
-        self.inputs[index] = val
-
 
     def get_output(self, output_pid) :
         """ Return Output value """
@@ -713,15 +714,12 @@ class CompositeNodeOutput(Node):
         index = self.map_index_in[output_pid]
         return self.inputs[index]
     
-    
-
 
     def eval(self):
         return False
 
 
 ################################################################################
-import pprint
 
 class PyCNFactoryWriter(object):
     """ CompositeNodeFactory python Writer """
@@ -746,31 +744,36 @@ class PyCNFactoryWriter(object):
 
     def __init__(self, factory):
         self.factory = factory
-
-
-    def pprint_repr(self,obj, indent=3):
-        """ Pretty print repr """
-        return pprint.pformat(obj, indent=indent)
         
 
     def __repr__(self):
         """ Return the python string representation """
+        from pprint import pprint
+        from StringIO import StringIO
 
-        
+        def pprint_repr(obj):
+            stream = StringIO()
+            pprint(obj, stream=stream)
+            s=stream.getvalue()[:-1]
+            if '\n' not in s: 
+                return s
+            else:
+                return '\\\n'+s
+
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
 
-        result = fstr.safe_substitute(NAME=self.pprint_repr(f.name),
-                                      DESCRIPTION=self.pprint_repr(f.description),
-                                      CATEGORY=self.pprint_repr(f.category),
-                                      DOC=self.pprint_repr(f.doc),
-                                      INPUTS=self.pprint_repr(f.inputs),
-                                      OUTPUTS=self.pprint_repr(f.outputs),
-                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
-                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
-                                      ELT_DATA=self.pprint_repr(f.elt_data),
-                                      ELT_VALUE=self.pprint_repr(f.elt_value),
-                                      LAZY=self.pprint_repr(f.lazy),
+        result = fstr.safe_substitute(NAME=pprint_repr(f.name),
+                                      DESCRIPTION=pprint_repr(f.description),
+                                      CATEGORY=pprint_repr(f.category),
+                                      DOC=pprint_repr(f.doc),
+                                      INPUTS=pprint_repr(f.inputs),
+                                      OUTPUTS=pprint_repr(f.outputs),
+                                      ELT_FACTORY=pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=pprint_repr(f.connections),
+                                      ELT_DATA=pprint_repr(f.elt_data),
+                                      ELT_VALUE=pprint_repr(f.elt_value),
+                                      LAZY=pprint_repr(f.lazy),
                                       )
         return result
 
