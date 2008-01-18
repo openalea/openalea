@@ -853,7 +853,6 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(node, None)
     
         self.hboxlayout.addWidget(self.colorwidget)
-        self.notify(None, None)
 
 
     def widget_clicked(self,event):
@@ -862,7 +861,7 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
             (r,g,b) = self.node.get_input(self.param_str)
             oldcolor = QtGui.QColor(r,g,b)
         except:
-            oldcolor = QtCore.Qt.White                                        
+            oldcolor = QtGui.QColor(0,0,0)                                    
         
         color = QtGui.QColorDialog.getColor(oldcolor, self)
     
@@ -870,6 +869,7 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
             self.node.set_input(self.param_str, (color.red(), color.green(), color.blue()))
 
 
+    @lock_notify
     def notify(self, sender, event):
         """ Notification sent by node """
 
