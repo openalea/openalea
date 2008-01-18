@@ -54,6 +54,155 @@ def random_continuous_law(law ,n , args):
 
     return (res,)
 
+
+################# normal distribution ###############
+def dnorm(x , mean, sd):
+    """
+    Give the density of a normal distribution
+
+    :Parameters:
+     - 'x': values
+     - 'mean' : mean of the normal distribution
+     - 'sd': standard deviation of the normal distribution
+
+     :Types:
+     - 'x': float list
+     - 'mean': float
+     - 'sd': float
+
+     :Returns the vector of the density of values from a specific normal distribution
+     :Returntype: float list
+
+     :attention:  sd must be greater or equal than 0
+     """
+
+    res = rpy.r.dnorm(x, mean, sd)
+
+    return (res,)
+
+def pnorm(x , mean, sd):
+    """
+    Give the cumulative distribution of a normal distribution
+
+    :Parameters:
+     - 'x': values
+     - 'mean' : mean of the normal distribution
+     - 'sd': standard deviation of the normal distribution
+
+     :Types:
+     - 'x': float list
+     - 'mean': float
+     - 'sd': float
+
+     :Returns the vector of the cumulative probabilies of values from a specific normal distribution
+     :Returntype: float list
+
+     :attention:  sd must be greater or equal than 0
+     """
+
+    res = rpy.r.pnorm(x, mean, sd)
+
+    return (res,)
+
+def rnorm(n ,mean , sd):
+    """
+    Generate random values from normal distribution
+
+    :Parameters:
+     - 'n' : number of random values
+     - 'mean' : mean of the normal distribution
+     - 'sd': standard deviation of the normal distribution
+
+     :Types:
+     - 'n': int
+     - 'mean': float
+     - 'sd': float
+
+     :Returns the vector of the random values from normal distribution
+     :Returntype: float list
+
+     :attention: n must be greater than 0
+     :attention: sd must be greater or equal than 0
+     """
+
+    res = rpy.r.rnorm(n, mean, sd) 
+
+    return (res,)
+
+############## end section normal distribution ########
+
+################# poisson distribution ###############
+def dpois(x , lambd):
+    """
+    Give the density of a poisson distribution
+
+    :Parameters:
+     - 'x': values
+     - 'lambd' : parameter of poisson distribution
+
+     :Types:
+     - 'x': float list
+     - 'lambd' : float
+
+     :Returns the vector of the density of values from a specific poisson distribution
+     :Returntype: float list
+
+     :attention: lambd must be greater than 0
+     """
+
+    res = rpy.r.dpois(x, lambd)
+
+    return (res,)
+
+def ppois(x , lambd):
+    """
+    Give the cumulative distribution of a poisson distribution
+
+    :Parameters:
+     - 'x': values
+     - 'lambd' : parameter of poisson distribution
+
+     :Types:
+     - 'x': float list
+     - 'lambd' : float
+
+     :Returns the vector of the cumulative probabilies of values from a specific poisson distribution
+     :Returntype: float list
+
+     :attention:  lambd must be greater than 0
+     """
+
+    res = rpy.r.ppois(x, lambd)
+
+    return (res,)
+
+def rpois(n , lambd):
+    """
+    Generate random values from poisson distribution
+
+    :Parameters:
+     - 'n' : number of random values
+     - 'lambd' : parameter of poisson distribution
+
+     :Types:
+     - 'n': int
+     - 'lambd': float
+
+     :Returns the vector of the random values from poisson distribution
+     :Returntype: float list
+
+     :attention: n must be greater than 0
+     :attention: lambd must be greater than 0
+     """
+
+    res = rpy.r.rpois(n, lambd) 
+
+    return (res,)
+
+############## end section poisson distribution ########
+
+
+
 def random_discrete_law(law ,n , args):
     """
     Generate random values from discrete distribution

@@ -48,6 +48,102 @@ def register_packages(pkg_manager):
 
     package.add_factory( nf )
 
+
+####### normal distribution ################
+    
+    nf = Factory( name="density normal",
+                  description="compute the density of normal distribution",
+                  category="normal distribution",
+                  nodemodule="distribution",
+                  nodeclass="dnorm",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Mean", interface=IFloat, value=0. ),
+                            dict( name = "Sd", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="density", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="cumulative normal",
+                  description="compute the cumulative probability of normal distribution",
+                  category="normal distribution",
+                  nodemodule="distribution",
+                  nodeclass="pnorm",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Mean", interface=IFloat, value=0. ),
+                            dict( name = "Sd", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="cumulate", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="random normal",
+                  description="generate random values from normal distribution",
+                  category="normal distribution",
+                  nodemodule="distribution",
+                  nodeclass="rnorm",
+                  inputs= ( dict( name = "n", interface=IInt, value = 1, showwidget=True ),
+                            dict( name = "Mean", interface=IFloat, value=0. ),
+                            dict( name = "Sd", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="random", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+    
+###### end normal distribution ##############
+
+####### poisson distribution ################
+    
+    nf = Factory( name="density poisson",
+                  description="compute the density of poisson distribution",
+                  category="poisson distribution",
+                  nodemodule="distribution",
+                  nodeclass="dpois",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Lambda", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="density", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="cumulate poisson",
+                  description="compute the cumulative probability of poisson distribution",
+                  category="poisson distribution",
+                  nodemodule="distribution",
+                  nodeclass="ppois",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                            dict( name = "Lambda", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="cumulate", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name="random poisson",
+                  description="generate random values from poisson distribution",
+                  category="poisson distribution",
+                  nodemodule="distribution",
+                  nodeclass="rpois",
+                  inputs= ( dict( name = "n", interface=IInt, value=1, showwidget=True ),
+                            dict( name = "Lambda", interface=IFloat, value=1. ),
+                          ),
+                  outputs=(dict(name="random", interface = ISequence),
+                          ),
+                  )
+
+    package.add_factory( nf )
+    
+###### end poisson distribution ##############
+    
     nf = Factory( name="random discrete (rpy)",
                   description="Generate random values from discrete distribution",
                   category="probability distribution",
