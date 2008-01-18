@@ -415,64 +415,53 @@ class CompositeNode(Node, DataFlow):
         connections = []
         
         # For each input port
-        for pid in self.in_ports():
-
-            connected_edges = list(self.connected_edges(pid))
-
-            is_input = False
-            for e in connected_edges:
-                s = self.source(e)
-                if(s not in v_list):
-                    is_input = True
-
-            # if port is not connected
-            if(len(connected_edges) > 0 and not is_input):
-                continue
-            
-            vid = self.vertex(pid)
-            if(v_list and not vid in v_list) : continue
+        for vid in v_list:
+            for pid in self.in_ports(vid):
+                connected_edges = list(self.connected_edges(pid))
                 
-            pname = self.local_id(pid)
-            n = self.node(vid)
-            desc = dict(n.input_desc[pname])
-            if n.inputs[pname]:
-                desc['value'] = n.inputs[pname]
-            elif 'value' not in desc:
-                if 'interface' in desc:
-                    desc['value']=desc['interface'].default()
+                is_input = False
+                for e in connected_edges:
+                    s = self.source(e)
+                    if s not in v_list:
+                        is_input = True
 
-            connections.append( ('__in__', len(ins), vid, pname) )
-            ins.append(desc)
+                if connected_edges:
+                    if not is_input:
+                        continue
+
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = dict(n.input_desc[pname])
+                if n.inputs[pname]:
+                    desc['value'] = n.inputs[pname]
+                elif 'value' not in desc:
+                    if 'interface' in desc:
+                        desc['value']=desc['interface'].default()
+
+                connections.append( ('__in__', len(ins), vid, pname) )
+                ins.append(desc)
+
+        # For each output port in the selected vertices
+        for vid in v_list:
+            for pid in self.out_ports(vid):
+                connected_edges = list(self.connected_edges(pid))
                 
-                
-        # For each output port
-        for pid in self.out_ports():
+                is_output = False
+                for e in connected_edges:
+                    target_vid = self.target(e)
+                    if target_vid not in v_list:
+                        is_output = True
 
-            connected_edges = list(self.connected_edges(pid))
+                if connected_edges:
+                    if not is_output:
+                        continue
 
-            is_output = False
-            for e in connected_edges:
-                t = self.target(e)
-                if(t not in v_list):
-                    is_output = True
-
-            # if port is connected
-            if(len(connected_edges) > 0 and not is_output):
-                continue
-
-            # port is not connected
-            vid = self.vertex(pid)
-            if(v_list and not vid in v_list) : continue
-                
             pname = self.local_id(pid)
             n = self.node(vid)
             desc = n.output_desc[pname]
-            #name = "out_" + desc['name'] + str(vid)
-                
-            connections.append( (vid , pname, '__out__', len(outs)) )
-            #outs.append(dict(name=name, interface=desc['interface']))
-            outs.append(dict(desc))
 
+            connections.append( (vid , pname, '__out__', len(outs)) )
+            outs.append(dict(desc))
 
         return (ins, outs, connections)
 
