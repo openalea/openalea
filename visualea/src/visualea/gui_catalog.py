@@ -851,8 +851,9 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         self.colorwidget.setBackgroundRole(QtGui.QPalette.Window)
         self.colorwidget.mouseDoubleClickEvent = self.widget_clicked
         self.notify(node, None)
-        
+    
         self.hboxlayout.addWidget(self.colorwidget)
+        self.notify(None, None)
 
 
     def widget_clicked(self,event):
@@ -876,6 +877,7 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
             (r,g,b) = self.node.get_input(self.param_str)
         except:
             (r,g,b) = (0,0,0)
+            self.node.set_input(self.param_str, (r,g,b))
         
         palette = self.colorwidget.palette()
         palette.setColor(QtGui.QPalette.Window, QtGui.QColor(r,g,b))
