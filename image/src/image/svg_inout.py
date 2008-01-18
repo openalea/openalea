@@ -37,31 +37,40 @@ def writesc (sc, filename) :
 def get_elm (svggr, svgid) :
     return svggr.get_id(svgid)
 
-def svg_image (image, filename, svgid) :
+def svg_image (svgid, image, filename=None) :
     svgim=SVGImage(None,svgid)
-    svgim.set_filename(filename)
+    if filename is None :
+        svgim.set_filename(svgid)
+    else :
+        svgim.set_filename(filename)
     svgim.set_image(image)
     if image is not None :
         w,h=image.size
         svgim.scale2D( (w,h,0) )
     return svgim
 
-def svg_point (x, y, radius=2, color=None, svgid=None) :
+def svg_point (svgid, x, y, radius=2, color=None) :
     svgelm=SVGSphere(None,svgid)
     svgelm.scale2D( (radius,radius,radius) )
     svgelm.translate2D( (x,y,0) )
-    svgelm.fill=color
+    if color is None :
+        svgelm.fill=color
+    else :
+        svgelm.fill=Color3(*color)
     return svgelm
 
-def svg_group (svg_elms, svgid) :
+def svg_group (svgid, svg_elms) :
     svggr=SVGGroup(None,svgid)
     for elm in svg_elms :
         svggr.append(elm)
     return svggr
 
-def svg_layer (svg_elms, name, svgid) :
+def svg_layer (svgid, svg_elms, name=None) :
     svglay=SVGLayer(None,svgid)
-    svglay.set_name(name)
+    if name is None :
+        svglay.set_name(svgid)
+    else :
+        svglay.set_name(name)
     for elm in svg_elms :
         svglay.append(elm)
     return svglay
@@ -73,10 +82,10 @@ def svg_scene (width,height,layers) :
         svgsc.append(lay)
     return svgsc
 
-def elements (svggr) :
+def svg_elements (svggr) :
     return list(svggr.elements())
 
-def positions (svg_pts) :
+def svg_positions (svg_pts) :
     coords={}
     for pt in svg_pts :
         x,y,z=pt.center()
