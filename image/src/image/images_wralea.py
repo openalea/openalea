@@ -81,7 +81,7 @@ class IPixWidget(IInterfaceWidget, PixView):
         img_pil = img.copy()
         img_pil.thumbnail((100,100))
         if img_pil != None:
-            if img_pil.mode in ("RGB", "RGBA"):
+            if img_pil.mode in ("RGB", "RGBA", "L"):
                 img = ImageQt(img_pil)
             else :
                 img = ImageQt(img.convert("RGBA"))
