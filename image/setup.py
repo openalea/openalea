@@ -10,7 +10,7 @@ namespace = 'openalea'
 pkg_name = 'openalea.image'
 version = '0.1.0' 
 description = 'OpenAlea image handling.' 
-long_description = 
+long_description = \
 """
 Set of functionality to work around images in openalea
 this module is mainly based on PIL

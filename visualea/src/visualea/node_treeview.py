@@ -479,7 +479,7 @@ class NodeFactoryView(object):
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
             action = menu.addAction("Duplicate as User Package")
-            action.setEnabled(enabled)
+            action.setEnabled(False)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
 
         if(menu):

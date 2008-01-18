@@ -207,20 +207,24 @@ def glob_upload(pattern):
 urlmap = {
     'deploygui-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
     'deploy-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
-    'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'scipy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'rpy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'plotools' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'spatial' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'stand' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-    'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
-    'visualea-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=841',
-    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=1740',
-    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=1748',
-    'catalog-0.4' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=1750',
+    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1749&package_id=840',
+    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1748&package_id=841',
+    'catalog-0.4' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'stat-0.1' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'plotools-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'spatial-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'stand-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'image-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+
     }
 
 
+#     'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+
+#     'scipy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+#     'rpy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
+#     'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
+#     'visualea-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=841',
 
 
 import getpass
