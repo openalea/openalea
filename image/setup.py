@@ -40,6 +40,12 @@ setup(
     packages=[pkg_name],
     package_dir={pkg_name : pj('src', 'image')},
 
+    # entry_points
+    entry_points = {
+        "wralea": ["stat = openalea.iamge",]
+        },
+
+
     # Dependencies
     setup_requires = ['openalea.deploy'],
     install_requires = ['openalea.core'],
