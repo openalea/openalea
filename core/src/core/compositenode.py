@@ -324,10 +324,16 @@ class CompositeNode(Node, DataFlow):
     def set_input (self, index_key, val=None, *args) :
         """ Copy val into input node output ports """
         self.node(self.id_in).set_input(index_key, val)
+
+
+    def get_input (self, index_key) :
+        """ Return the composite node input"""
+        return self.node(self.id_in).get_input(index_key)
         
 
     def get_output (self, index_key) :
         """ Retrieve values from output node input ports """
+
         return self.node(self.id_out).get_output(index_key)
     
 
@@ -539,8 +545,8 @@ class CompositeNode(Node, DataFlow):
                 sgfactory.elt_value[vid] = []
             else:
                 sgfactory.elt_value[vid] = \
-                                         [(port, repr(value)) for (port, value)
-                                          in enumerate(node.inputs)
+                                         [(port, repr(node.get_input(port))) for port
+                                          in xrange(len(node.inputs))
                                           if node.input_states[port] is not "connected"]
      
         self.graph_modified = False
@@ -655,6 +661,12 @@ class CompositeNodeInput(Node):
         """ Define input value """
         index = self.map_index_out[input_pid]
         self.outputs[index] = val
+
+
+    def get_input (self, input_pid) :
+        """ Return the input value """
+        index = self.map_index_out[input_pid]
+        return self.outputs[index]
 
    
     def eval(self):

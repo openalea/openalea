@@ -59,6 +59,7 @@ def test_instantiate_compositenode():
 
     assert sg.node(val3id).get_output(0) == 5.
 
+
 def test_compositenode_creation_without_edges():
        
     pm = PackageManager ()
@@ -366,34 +367,34 @@ def teardown_func():
     map(lambda f: f.remove(),wralea.glob('*wralea*'))
 
 
-@with_setup(setup_func,teardown_func)
-def test_eval_bug():
+# @with_setup(setup_func,teardown_func)
+# def test_eval_bug():
 
-    pm= PackageManager()
-    pm.init()
+#     pm= PackageManager()
+#     pm.init()
 
-    name= 'jcd_test'
+#     name= 'jcd_test'
 
-    sg= CompositeNode()
-    cid = sg.add_node(pm.get_node(name,'cid'))
-    wid = sg.add_node(pm.get_node(name,'wid'))
-    eid = sg.add_node(pm.get_node(name,'eid'))
-    dbg = sg.add_node(pm.get_node(name,'dbg'))
-    dbg1 = sg.add_node(pm.get_node(name,'dbg'))
+#     sg= CompositeNode()
+#     cid = sg.add_node(pm.get_node(name,'cid'))
+#     wid = sg.add_node(pm.get_node(name,'wid'))
+#     eid = sg.add_node(pm.get_node(name,'eid'))
+#     dbg = sg.add_node(pm.get_node(name,'dbg'))
+#     dbg1 = sg.add_node(pm.get_node(name,'dbg'))
     
-    sg.connect( cid, 0, dbg, 0 )
-    sg.connect( wid, 0, dbg1, 0 )
-    sgf= CompositeNodeFactory("test_eval")
-    sg.to_factory(sgf)
+#     sg.connect( cid, 0, dbg, 0 )
+#     sg.connect( wid, 0, dbg1, 0 )
+#     sgf= CompositeNodeFactory("test_eval")
+#     sg.to_factory(sgf)
 
-    sg = sgf.instantiate()
-    sg()
+#     sg = sgf.instantiate()
+#     sg()
     
-    print sg.node(dbg).get_output(0)
-    print sg.node(dbg1).get_output(0)
+#     print sg.node(dbg).get_output(0)
+#     print sg.node(dbg1).get_output(0)
 
-    assert sg.node(dbg).get_output(0) == 0
-    assert sg.node(dbg1).get_output(0) == 1
+#     assert sg.node(dbg).get_output(0) == 0
+#     assert sg.node(dbg1).get_output(0) == 1
 
 
 # Test set_io

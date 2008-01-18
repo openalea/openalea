@@ -246,7 +246,7 @@ class GeneratorEvaluation (AbstractEvaluation) :
 		# Eval the node
 		ret = self.eval_vertex_code(vid)
 		
-		# Reevaluation flaf
+		# Reevaluation flag
 		if(ret) : self.reeval = ret
 
 
@@ -325,7 +325,7 @@ class LambdaEvaluation (PriorityEvaluation) :
 
 				# Do no reevaluate the same node
 				if (nvid not in self._evaluated):
-					self.eval_vertex(nvid, transmit_cxt)
+                                    self.eval_vertex(nvid, transmit_cxt)
 
                                 outval = nactor.get_output(df.local_id(npid))
 

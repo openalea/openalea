@@ -2,6 +2,7 @@
     <qresource prefix="/icons" >
         <file>node.png</file>
         <file>pkg.png</file>
+	<file>package.png</file>
         <file>pseudopkg.png</file>
         <file>usrpkg.png</file>
 	<file>category.png</file>
