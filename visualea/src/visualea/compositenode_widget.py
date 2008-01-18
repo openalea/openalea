@@ -422,9 +422,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         def cmp_x(i1, i2):
             return cmp(self.graph_item[i1].pos().x(), self.graph_item[i2].pos().x())
 
-        print 's before', s
         s.sort(cmp=cmp_x)
-        print 's after', s
 
         self.node.to_factory(factory, s, auto_io=True)
         
