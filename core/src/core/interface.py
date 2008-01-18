@@ -84,6 +84,15 @@ class IInterface(object):
     def default(cls):
         return None
    
+    def __init__(self, **kargs):
+        """ Default init"""
+        
+        ## the desc should be used as  a dynamic description of IInterace
+        ## default visualisation in widget is done with tooltip
+        #self.desc = kargs.get('desc', None)
+        ## the label should be used to describe the default static description
+        ## default visualisation in widget is done with label
+        #self.label = kargs.get('label', None)
 
 
 class IStr(IInterface):
@@ -100,7 +109,8 @@ class IStr(IInterface):
 class IFileStr(IStr):
     """ File Path interface """
 
-    def __init__(self, filter="All (*.*)", save=False):
+    def __init__(self, filter="All (*.*)", save=False, **kargs):
+        Interface.__init__(self, **kargs)
         self.filter = filter
         self.save = save
 
@@ -127,8 +137,8 @@ class IFloat(IInterface):
 
     __pytype__ = types.FloatType
     
-    def __init__(self, min = -2.**24, max = 2.**24, step=1.):
-
+    def __init__(self, min = -2.**24, max = 2.**24, step=1., **kargs):
+        IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
         self.step = step
@@ -154,8 +164,8 @@ class IInt(IInterface):
 
     __pytype__ = types.IntType
     
-    def __init__(self, min = -2**24, max = 2**24, step=1):
-
+    def __init__(self, min = -2**24, max = 2**24, step=1, **kargs):
+        IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
         self.step = step
@@ -189,7 +199,8 @@ class IBool(IInterface):
 class IEnumStr(IStr):
     """ String enumeration """
 
-    def __init__(self, enum = []):
+    def __init__(self, enum = [], **kargs):
+        IInterface.__init__(self, **kargs)
         self.enum = enum
     def __repr__(self):
         return 'IEnumStr(enum=%s'%(str(self.enum))
@@ -268,7 +279,7 @@ class InterfaceWidgetMap(dict):
 class IWidgetMetaClass(type):
     """ InterfaceWidget Metaclass """
     
-    def __init__(cls,name,bases,dic):
+    def __init__(cls,name,bases,dic, **kargs):
         super(IWidgetMetaClass,cls).__init__(name,bases,dic)
         if(cls.__interface__):
             InterfaceWidgetMap().declare_interface(cls.__interface__, cls)
@@ -289,6 +300,7 @@ class IInterfaceWidget(AbstractListener):
         """
         self.node = node
         self.param_str = parameter_str
+
 
 
     def update_state(self):

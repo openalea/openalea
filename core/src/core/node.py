@@ -104,6 +104,69 @@ class AbstractNode(IActor, Observed):
         """ Return the factory of the node (if any) """
         return self.factory
 
+class AbstractPort(dict):
+    """The class describing the ports.
+    
+    <Long description of the class functionality.>
+    """
+    pass
+
+class InputPort(dict):
+    """The class describing the ports.
+    
+    <Long description of the class functionality.>
+    """
+    def get_label( self ):
+        """Gets defult label
+        
+        <Long description of the function functionality.>
+        
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        return self.get("label", self["name"] )
+
+    def get_desc( self ):
+        """Gets defult description
+        
+        <Long description of the function functionality.>
+        
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        return self.get("desc", None )
+
+    def is_hidden( self ):
+        """True iff the port should be displayed.
+        
+        <Long description of the function functionality.>
+        
+        :rtype: bool
+        :return: Should be displayed?
+        
+        """
+        return self.get("hide", None )
+
+
+    def get_interface( self ):
+        """Gets the interface
+        
+        <Long description of the function functionality.>
+        
+        :rtype: `T`
+        :return: <Description of ``return_object`` meaning>
+        :raise Exception: <Description of situation raising `Exception`>
+        """
+        return self.get("interface", None )
+    
+class OutputPort(dict):
+    """The class describing the ports.
+    
+    <Long description of the class functionality.>
+    """
+    pass
 
 
 class Node(AbstractNode):
@@ -125,6 +188,9 @@ class Node(AbstractNode):
         
         # Node State
         self.modified = True
+        
+        # The default layout
+        self.view = None
 
         # Internal Data
         self.internal_data['caption'] = '' #str(self.__class__.__name__)
@@ -169,6 +235,21 @@ class Node(AbstractNode):
 
     caption = property(get_caption, set_caption)
 
+    def get_input_port( self, name=None ):
+        """Gets port by name.
+        
+        <Long description of the function functionality.>
+        
+        :parameters:
+            name : string
+                The name of the port
+        :rtype: `InputPort`
+        :return: Input port characterized by name
+        """
+        index = self.map_index_in[name]
+        return self.input_desc[ index ] 
+        
+        
 
     def get_lazy(self):
         return self.internal_data.get("lazy", True)
@@ -267,7 +348,9 @@ class Node(AbstractNode):
         name = str(name) #force to have a string
         self.inputs.append(None)
 
-        self.input_desc.append(kargs)
+        p = InputPort()
+        p.update(kargs)
+        self.input_desc.append(p)
         
         self.input_states.append(None)
         index = len(self.inputs) - 1
@@ -484,6 +567,7 @@ class AbstractFactory(Observed):
                  inputs = (),
                  outputs = (),
                  lazy = True,
+                 view=None,
                  **kargs):
         
         """
@@ -495,6 +579,7 @@ class AbstractFactory(Observed):
         @param inputs : inputs description
         @param outputs : outputs description, value=0
         @param lazy : enable lazy evaluation (default = False)
+        @param view : custom view (default = None)
 
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
@@ -514,6 +599,8 @@ class AbstractFactory(Observed):
         self.outputs = outputs
 
         self.lazy = lazy
+        self.view=view
+        
 
         #self.instantiated = set() # instantiated nodes
 
