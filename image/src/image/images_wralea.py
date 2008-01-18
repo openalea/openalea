@@ -42,13 +42,6 @@ class IImageModeWidget (IEnumStrWidget) :
     def __init__ (self, node, parent, parameter_str, interface) :
         IEnumStrWidget.__init__(self,node,parent,parameter_str,interface)
 
-class IColor (IInterface) :
-    """
-    interface for image color
-    a tuple RGBA or a single value
-    """
-    __metaclass__ = IInterfaceMetaClass
-
 class IPix(IInterface):
     """ Image interface """
     __metaclass__ = IInterfaceMetaClass
@@ -113,10 +106,18 @@ def register_packages(pkg_manager):
                }
     
     
-    package = Package("image", metainfo)
+    package = Package("image.basics", metainfo)
     basics_factory.define_factory(package)
-    data_access_factory.define_factory(package)
-    geom_transfo_factory.define_factory(package)
-    image_transfo_factory.define_factory(package)
+    pkg_manager.add_package(package)
 
+    package = Package("image.infos", metainfo)
+    data_access_factory.define_factory(package)
+    pkg_manager.add_package(package)
+    
+    package = Package("image.geometry", metainfo)
+    geom_transfo_factory.define_factory(package)
+    pkg_manager.add_package(package)
+
+    package = Package("image.transformations", metainfo)
+    image_transfo_factory.define_factory(package)
     pkg_manager.add_package(package)

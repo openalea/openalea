@@ -80,13 +80,20 @@ def paste (image_target, image_source, x, y) :
 
 paste.__doc__=Im.paste.__doc__
 
+def put_pixel_rgb (image, x, y, color) :
+    pix = image.load()
+    pix[x,y] = color
+    return image,
+
+put_pixel_rgb.__doc__=Im.putpixel.__doc__
+
 def fill (image, color, xmin, xmax, ymin, ymax) :
     """
     fill a rectangle region with the given color
     """
     im=image.copy()
     im.paste(color,(xmin,ymin,xmax,ymax))
-    return im
+    return im,
 
 def put_alpha (image, band) :
     return image.putalpha(band)

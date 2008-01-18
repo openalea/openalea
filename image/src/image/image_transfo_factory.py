@@ -101,12 +101,47 @@ def define_factory (package) :
 
     package.add_factory( nf )
 
+    nf = Factory( name= "put pixel RGB", 
+                  description= "set color of a pixel inside a RGB image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "put_pixel_rgb",
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="x",interface=IInt(min=0)),
+                          dict(name="y",interface=IInt(min=0)),
+                          dict(name="color",interface=IRGBColor,),
+                          ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
+    nf = Factory( name= "put pixel L", 
+                  description= "set color of a pixel inside a one band image", 
+                  category = "Image", 
+                  nodemodule = "image_transfo",
+                  nodeclass = "put_pixel_rgb",
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="x",interface=IInt(min=0)),
+                          dict(name="y",interface=IInt(min=0)),
+                          dict(name="color",interface=IInt(min=0, max=255),),
+                          ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
+
+    package.add_factory( nf )
+
     nf = Factory( name= "fill L", 
                   description= "fill a rectangle with a 0-255 (L) color", 
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "fill",
-                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=IInt(min=0,max=255), value=0),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="color", interface=IInt(min=0,max=255), value=0),
+                          dict(name="xmin", interface=IInt,),
+                          dict(name="xmax",interface=IInt),
+                          dict(name="ymin",interface=IInt),
+                          dict(name="ymax",interface=IInt)),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 
@@ -117,7 +152,12 @@ def define_factory (package) :
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "fill",
-                  inputs=(dict(name="Image", interface=IPix,),dict(name="color", interface=IRGBColor, value=(0,0,0)),dict(name="xmin", interface=IInt,),dict(name="xmax",interface=IInt),dict(name="ymin",interface=IInt),dict(name="ymax",interface=IInt)),
+                  inputs=(dict(name="Image", interface=IPix,),
+                          dict(name="color", interface=IRGBColor, value=(0,0,0)),
+                          dict(name="xmin", interface=IInt,),
+                          dict(name="xmax",interface=IInt),
+                          dict(name="ymin",interface=IInt),
+                          dict(name="ymax",interface=IInt)),
                   outputs=(dict(name="Image", interface=IPix,),),
                   )
 
@@ -202,8 +242,8 @@ def define_factory (package) :
     package.add_factory( nf )
 
 
-    nf = Factory( name= "levels", 
-                  description= "change pixels lower than min and higher than max", 
+    nf = Factory( name= "levels L", 
+                  description= "change pixels lower than min and higher than max on one band image", 
                   category = "Image", 
                   nodemodule = "image_transfo",
                   nodeclass = "seuillage",
