@@ -160,6 +160,25 @@ def Var( x ):
 
     return result
 
+def Std( x ):
+    """
+    Compute the statistical standard deviation
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the variance 
+     :Returntype: float
+
+     :attention:  x cannot be empty
+     """
+
+    result = stats.stats.std(x)
+
+    return result
 
 def Freq(x):
 

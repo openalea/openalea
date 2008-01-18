@@ -119,6 +119,20 @@ def register_packages(pkg_manager):
     package.add_factory( nf )
 
 
+    nf = Factory( name="standard deviation",
+                  description="compute the standard deviation",
+                  category="descriptive",
+                  nodemodule="descriptive",
+                  nodeclass="Std",
+                  inputs= ( dict( name = "X", interface=ISequence, showwidget=True ),
+                          ),
+                  outputs=(dict(name="Std", interface = IFloat),
+                          ),
+                  )
+
+    package.add_factory( nf )
+
+
     nf = Factory( name="frequencies",
                   description="compute the frequencies",
                   category="descriptive",
