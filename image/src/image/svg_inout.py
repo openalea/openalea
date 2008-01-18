@@ -21,7 +21,9 @@ This module provide basics function to handle 2D images
 __license__= "Cecill-C"
 __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 
-from openalea.svgdraw import open_svg,SVGImage,SVGSphere,SVGGroup,SVGLayer,SVGScene,Color3
+from openalea.svgdraw import open_svg,SVGImage,SVGSphere\
+                            ,SVGPath,SVGGroup,SVGLayer,SVGScene\
+                            ,Color3
 
 def loadsc (filename) :
     f=open_svg(filename,'r')
@@ -59,6 +61,18 @@ def svg_point (svgid, x, y, radius=2, color=None) :
         svgelm.fill=Color3(*color)
     return svgelm
 
+def svg_polyline (svgid, pts, color=None, stroke_width=1.) :
+    svgelm=SVGPath(None,svgid)
+    svgelm.append("M",[pts[0]])
+    for pt in pts[1:] :
+        svgelm.append("L",[pt])
+    if color is None :
+        svgelm.stroke=color
+    else :
+        svgelm.stroke=Color3(*color)
+    svgelm.stroke_width=stroke_width
+    return svgelm
+
 def svg_group (svgid, svg_elms) :
     svggr=SVGGroup(None,svgid)
     for elm in svg_elms :
@@ -91,3 +105,11 @@ def svg_positions (svg_pts) :
         x,y,z=pt.center()
         coords[pt.svgid()]=(x,y)
     return coords
+
+__all__=["loadsc","writesc",
+         "get_elm",
+         "svg_image","svg_point","svg_polyline",
+         "svg_group","svg_layer",
+         "svg_scene",
+         "svg_elements",
+         "svg_positions"]
