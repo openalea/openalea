@@ -21,6 +21,7 @@ def set_path():
                  'openalea.rpy' : "rpy/src",
 				 'openalea.spatial' : "spatial/src",
                  'openalea.stand' : "stand/src",
+                 'openalea.image' : "image/src",
                  }
 
  
