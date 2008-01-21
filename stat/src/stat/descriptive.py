@@ -43,138 +43,6 @@ def list_log( valist ):
     return l,
 
 
-def Load(path):
-    """
-    Read a .txt file 
-
-    :Parameters:
-     - 'path': path of the .txt file
-
-     :Types:
-     - 'x': string
-
-     :Returns the file
-     :Returntype: array
-     """
-
-    f = pylab.load(path)
-
-    return f
-
-
-def ExtractLigne(data,l, val):
-    """
-    Extract the lth row with elements different to val
-
-    :Parameters:
-     - 'data' : data 
-     - 'l': row
-     - 'val': comparison value
-
-     :Types:
-     - 'data' : array
-     - 'l': int
-     - 'val': float
-
-     :Returns the lth row of data
-     :Returntype: array
-
-     :attention: l must be greater or equal than 0 
-     """
-
-    res = filter(lambda x: x!=val, data[l])
-
-    return (res,)
-
-def ExtractCol(data,c, val):
-    """
-    Extract the cth column with elements different to val
-
-    :Parameters:
-     - 'data' : data 
-     - 'c': column
-     - 'val': comparison value
-
-     :Types:
-     - 'data' : array
-     - 'c': int
-     - 'val': float
-
-     :Returns the cth column of data
-     :Returntype: array
-
-     :attention: c must be greater or equal than 0 
-     """
-
-    res = filter(lambda x: x!=val, data[:,c])
-
-    return (res,)
-
-
-def Plot(x,y, xlab, ylab, main):
-    """
-    Plot y according to x
-
-    :Parameters:
-     - 'x' : the coordinates of points in the plot. 
-     - 'y': the y coordinates of points in the plot
-     - 'xlab': a title for the x axis
-     - 'ylab': a title for the y axis
-     - 'main': a title for the plot
-     
-     :Types:
-     - 'x' : float list
-     - 'y': float list
-     - 'xlab': string
-     - 'ylab': string
-     - 'main': string
-
-     :Returns a plot
-     :Returntype: None
-
-     :attention: x and y must have the same length
-     """
-
-    rpy.r.plot(x,y,xlab=xlab, ylab=ylab, main=main)
-    
-    return None
-
-
-def Hist(x, k, xlab, main, freq):
-    """
-    Histogram of x
-
-    :Parameters:
-     - 'x' : data 
-     - 'k': number of classes
-     - 'xlab': a title for the x axis
-     - 'main': a title for the plot
-     - 'freq': counts or densities
-     
-     :Types:
-     - 'x' : float list
-     - 'k': int
-     - 'xlab': string
-     - 'main': string
-     - 'freq': boolean
-
-     :Returns an histogram
-     :Returntype: float list
-
-     :attention: k must be greater or equal than 0
-     """
-
-    if k != 0:
-        step = (max(x)-min(x))/k
-        rpy.r.hist(x,xlab=xlab, main=main, br=rpy.r.seq(min(x),max(x),step), freq=freq)
-        
-    else:
-        rpy.r.hist(x,xlab=xlab, main=main, freq=freq)
-            
-        
-    return None
-
-
 def StatSummary( x ):
     """
     Compute the statistical summary (min, max, median, mean, sd) 
@@ -368,3 +236,24 @@ def Freq(x):
     
     data = {'values': val, 'counts': co, 'frequencies': freq}
     return data
+
+
+def Density(x):
+    """
+    Compute the Kernel density estimation
+
+    :Parameters:
+     - 'x': a (non-empty) numeric vector of data values
+
+     :Types:
+     - 'x': float list
+
+     :Returns the estimated density values 
+     :Returntype: float list
+
+     :attention:  x cannot be empty
+     """
+
+    res = rpy.r.density(x)
+
+    return res
