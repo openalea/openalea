@@ -316,7 +316,10 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
 
     def add_graphical_connection(self, connector_src, connector_dst):
-        """ Return the new edge """
+        """ 
+        Create the graphical Edge between two connectorse 
+        Do not create the REAL dataflow connection
+        """
         
         edge = Edge(self, connector_src.parentItem(), connector_src.index(),
                     connector_dst.parentItem(), connector_dst.index(),
@@ -327,8 +330,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     
     def connect_node(self, connector_src, connector_dst):
         """
-        Convenience function
-        Connect the node in the graph
+        Connect the 2 nodes given its connectors (convenience function)
         """
         
         self.node.connect(connector_src.parentItem().get_id(), 
