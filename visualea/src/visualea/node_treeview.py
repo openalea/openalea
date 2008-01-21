@@ -34,6 +34,7 @@ from openalea.core.package import Package, UserPackage
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
+from openalea.core import cli
 
 from dialogs import EditPackage, NewGraph, NewPackage
 from util import open_dialog, exception_display, busy_cursor
@@ -692,13 +693,14 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         l.sort()
         name = l[item.row()]
 
-
         dataStream << QtCore.QString(name)
 
         mimeData = QtCore.QMimeData()
-
         mimeData.setData("openalea/data_instance", itemData)
-    
+
+        linecode = cli.get_datapool_code(name)
+        mimeData.setText(linecode)
+
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))

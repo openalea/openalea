@@ -693,13 +693,13 @@ class SciShell(QsciScintilla):
             #self.completionText = ""
 
 
-    # Drag and Drop from TreeView support
+    # Drag and Drop support
     def dragEnterEvent(self, event):
-        event.setAccepted(event.mimeData().hasFormat("openalea/data_instance"))
+        event.setAccepted(event.mimeData().hasFormat("text/plain"))
 
 
     def dragMoveEvent(self, event):
-        if ( event.mimeData().hasFormat("openalea/data_instance") ):
+        if (event.mimeData().hasFormat("text/plain")):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
@@ -708,16 +708,8 @@ class SciShell(QsciScintilla):
             
     def dropEvent(self, event):
 
-        if (event.mimeData().hasFormat("openalea/data_instance")):
-            pieceData = event.mimeData().data("openalea/data_instance")
-            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            
-            data_key = QtCore.QString()
-            
-            dataStream >> data_key
-            data_key = str(data_key)
-
-            line = "datapool['%s']"%(data_key,)
+        if(event.mimeData().hasFormat("text/plain")):
+            line = event.mimeData().text()
             self.__insertTextAtEnd(line)
             self.setFocus()
             

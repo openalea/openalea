@@ -438,6 +438,35 @@ class PyCutExt(QTextEdit):
             format = cursor.charFormat()
             format.setForeground( QtGui.QBrush(QtGui.QColor(R,G,B)))
             cursor.setCharFormat(format)
+
+
+        # Drag and Drop support
+    def dragEnterEvent(self, event):
+        event.setAccepted(event.mimeData().hasFormat("text/plain"))
+
+
+    def dragMoveEvent(self, event):
+        if (event.mimeData().hasFormat("text/plain")):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+            
+    def dropEvent(self, event):
+
+        if(event.mimeData().hasFormat("text/plain")):
+            line = event.mimeData().text()
+            self.__insertTextAtEnd(line)
+            self.setFocus()
+            
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+
+
+        else:
+            event.ignore()
+
             
 
 

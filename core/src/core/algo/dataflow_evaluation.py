@@ -258,19 +258,19 @@ class GeneratorEvaluation (AbstractEvaluation) :
 			leafs = [ (vtx_id, df.actor(vtx_id)) ]
 
 		else:
-			# Select the leafs (list of (vid, actor))
-			leafs = [ (vid, df.actor(vid))
-				  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
+                    # Select the leafs (list of (vid, actor))
+                    leafs = [ (vid, df.actor(vid))
+                              for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
 
 		leafs.sort(cmp_priority)
 		
-		# Excecute
-
+		# Execute
 		for vid, actor in leafs:
-			self.reeval = True
-			while(self.reeval):
-				self.clear()
-				self.eval_vertex(vid)
+                    self.reeval = True
+
+                    while(self.reeval):
+                        self.clear()
+                        self.eval_vertex(vid)
 
 		return False
 

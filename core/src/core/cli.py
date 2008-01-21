@@ -43,6 +43,19 @@ def get_welcome_msg():
 
 
 
+def get_datapool_code(data_key):
+    """ Return the python code to access to 'data_key' in the datapool """
+
+    return "datapool['%s']"%(data_key,)
+    
+
+def get_node_code(node_id):
+    """ Return the python code to access to 'node_id' """
+
+    return "session.ws.actor(%i)"%(node_id,)
+
+
+
    
 
     
