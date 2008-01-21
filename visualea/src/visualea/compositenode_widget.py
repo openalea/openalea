@@ -34,6 +34,8 @@ from openalea.core.node import RecursionError
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
+from openalea.core import cli
+
 import annotation
 
 from node_widget import NodeWidget, SignalSlotListener
@@ -214,11 +216,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
 
-    def mousePressEvent(self, event):
-
-        if (event.buttons() & QtCore.Qt.LeftButton):
-            QtGui.QGraphicsView.mousePressEvent(self, event)
-            
 
     @lock_notify
     def mouseReleaseEvent(self, event):
@@ -651,6 +648,8 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         menu.show()
         event.accept()
 
+
+
       
 
 # Utility function
@@ -994,6 +993,20 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     @lock_notify
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+        
+        if (event.buttons() & QtCore.Qt.MidButton):
+            drag = QtGui.QDrag(self.graphview)
+
+            pixmap = QtGui.QPixmap(":/icons/ccmime.png")
+            linecode = cli.get_node_code(self.elt_id)
+            
+            mimeData = QtCore.QMimeData()
+            mimeData.setText(linecode)
+            drag.setMimeData(mimeData)
+
+            drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+            drag.setPixmap(pixmap)
+            drag.start(QtCore.Qt.MoveAction)
 
 
     def contextMenuEvent(self, event):

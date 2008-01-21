@@ -113,6 +113,8 @@ class MainWindow(QtGui.QMainWindow,
         # Widgets
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
                      self.contextMenuEvent)
+        self.connect(self.tabWorkspace, SIGNAL("currentChanged(int)"), self.ws_changed)
+
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
 
 
@@ -168,6 +170,7 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionPreview_Application, SIGNAL("activated()"),
                      self.preview_application)
 
+
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
         self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), self.display_leftpanel)
@@ -178,7 +181,6 @@ class MainWindow(QtGui.QMainWindow,
         # final init
         self.session = session
         session.notify_listeners()
-        
         
 
     def open_compositenode(self, factory):
@@ -452,7 +454,11 @@ class MainWindow(QtGui.QMainWindow,
             widget.node.set_io(dialog.inputs, dialog.outputs)
             widget.rebuild_scene()
         
-
+    
+    def ws_changed(self, index):
+        """ Current workspace has changed """
+        self.session.cworkspace = index
+        
             
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
