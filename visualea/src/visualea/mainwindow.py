@@ -84,31 +84,31 @@ class MainWindow(QtGui.QMainWindow,
         self.pkg_model = PkgModel(self.pkgmanager)
         self.packageTreeView = NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
-        self.vboxlayout.addWidget(self.packageTreeView)
+        self.vboxlayout1.addWidget(self.packageTreeView)
 
         # category tree view
         self.cat_model = CategoryModel(self.pkgmanager)
         self.categoryTreeView = NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
-        self.vboxlayout1.addWidget(self.categoryTreeView)
+        self.vboxlayout2.addWidget(self.categoryTreeView)
 
         # search list view
         self.search_model = SearchModel()
         self.searchListView = SearchListView(self, self.searchview)
         self.searchListView.setModel(self.search_model)
-        self.vboxlayout2.addWidget(self.searchListView)
+        self.vboxlayout3.addWidget(self.searchListView)
 
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
         self.datapoolListView = DataPoolListView(self, session.datapool, self.pooltab)
         self.datapoolListView.setModel(self.datapool_model)
-        self.vboxlayout3.addWidget(self.datapoolListView)
+        self.vboxlayout4.addWidget(self.datapoolListView)
 
         # use view
-        self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
-        self.datapoolListView2.setModel(self.datapool_model)
-        self.vboxlayout5.addWidget(self.datapoolListView2)
+      #   self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
+#         self.datapoolListView2.setModel(self.datapool_model)
+#         self.vboxlayout5.addWidget(self.datapoolListView2)
 
         # Widgets
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
@@ -331,6 +331,9 @@ class MainWindow(QtGui.QMainWindow,
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         vboxlayout = QtGui.QVBoxLayout(container)
+        vboxlayout.setSpacing(6)
+        vboxlayout.setMargin(6)
+
         vboxlayout.addWidget(widget)
 
         if(not caption) :

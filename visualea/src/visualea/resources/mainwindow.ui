@@ -16,234 +16,216 @@
    <iconset resource="images.qrc" >:/icons/openalea_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QHBoxLayout" >
-    <property name="spacing" >
-     <number>6</number>
-    </property>
-    <property name="leftMargin" >
-     <number>9</number>
-    </property>
-    <property name="topMargin" >
-     <number>9</number>
-    </property>
-    <property name="rightMargin" >
-     <number>9</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>9</number>
-    </property>
+   <layout class="QVBoxLayout" >
     <item>
-     <widget class="QSplitter" name="splitter_2" >
+     <widget class="QSplitter" name="splitter_3" >
       <property name="orientation" >
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QTabWidget" name="tabPackager" >
-       <property name="currentIndex" >
-        <number>0</number>
+      <widget class="QSplitter" name="splitter_2" >
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QWidget" name="packageview" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QTabWidget" name="tabPackager" >
+        <property name="currentIndex" >
+         <number>0</number>
         </property>
-        <attribute name="title" >
-         <string>Package</string>
-        </attribute>
-        <attribute name="icon" >
-         <iconset resource="images.qrc" >:/icons/package.png</iconset>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-        </layout>
+        <widget class="QWidget" name="packageview" >
+         <attribute name="title" >
+          <string>Package</string>
+         </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/package.png</iconset>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="categoryview" >
+         <attribute name="title" >
+          <string>Category</string>
+         </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/category.png</iconset>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="searchview" >
+         <attribute name="title" >
+          <string>Search</string>
+         </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/search.png</iconset>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="search_lineEdit" />
+          </item>
+         </layout>
+        </widget>
        </widget>
-       <widget class="QWidget" name="categoryview" >
-        <attribute name="title" >
-         <string>Category</string>
-        </attribute>
-        <attribute name="icon" >
-         <iconset resource="images.qrc" >:/icons/category.png</iconset>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="searchview" >
-        <attribute name="title" >
-         <string>Search</string>
-        </attribute>
-        <attribute name="icon" >
-         <iconset resource="images.qrc" >:/icons/search.png</iconset>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="search_lineEdit" />
-         </item>
-        </layout>
+       <widget class="QTabWidget" name="poolTabWidget" >
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="pooltab" >
+         <attribute name="title" >
+          <string>DataPool</string>
+         </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/datapool.png</iconset>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="sensortab" >
+         <attribute name="title" >
+          <string>Sensors</string>
+         </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/info.png</iconset>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="UseTabWidget" >
+         <attribute name="title" >
+          <string>Use</string>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QTableWidget" name="useTable" >
+            <column>
+             <property name="text" >
+              <string>Variable</string>
+             </property>
+            </column>
+            <column>
+             <property name="text" >
+              <string>Port</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
-      <widget class="QTabWidget" name="poolTabWidget" >
-       <property name="currentIndex" >
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="pooltab" >
-        <attribute name="title" >
-         <string>DataPool</string>
-        </attribute>
-        <attribute name="icon" >
-         <iconset resource="images.qrc" >:/icons/datapool.png</iconset>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="sensortab" >
-        <attribute name="title" >
-         <string>Sensors</string>
-        </attribute>
-        <attribute name="icon" >
-         <iconset resource="images.qrc" >:/icons/info.png</iconset>
-        </attribute>
-       </widget>
-       <widget class="QWidget" name="UseTabWidget" >
-        <attribute name="title" >
-         <string>Use</string>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-         <item>
-          <widget class="QTableWidget" name="useTable" >
-           <column>
-            <property name="text" >
-             <string>Variable</string>
-            </property>
-           </column>
-           <column>
-            <property name="text" >
-             <string>Port</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QSplitter" name="splitter" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-        <horstretch>10</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="orientation" >
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QTabWidget" name="tabWorkspace" >
+      <widget class="QSplitter" name="splitter" >
        <property name="sizePolicy" >
         <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-         <horstretch>4</horstretch>
-         <verstretch>3</verstretch>
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="currentIndex" >
-        <number>0</number>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QWidget" name="usetab" >
-        <attribute name="title" >
-         <string>Root</string>
-        </attribute>
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
-          <number>9</number>
-         </property>
-        </layout>
+       <widget class="QTabWidget" name="tabWorkspace" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+          <horstretch>4</horstretch>
+          <verstretch>3</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="usetab" >
+         <attribute name="title" >
+          <string>Root</string>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <property name="leftMargin" >
+           <number>6</number>
+          </property>
+          <property name="topMargin" >
+           <number>6</number>
+          </property>
+          <property name="rightMargin" >
+           <number>6</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>6</number>
+          </property>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>
