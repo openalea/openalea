@@ -110,7 +110,7 @@ class IFileStr(IStr):
     """ File Path interface """
 
     def __init__(self, filter="All (*.*)", save=False, **kargs):
-        Interface.__init__(self, **kargs)
+        IInterface.__init__(self, **kargs)
         self.filter = filter
         self.save = save
 
