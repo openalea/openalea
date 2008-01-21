@@ -49,6 +49,8 @@ class Session(Observed):
         Observed.__init__(self)
         
         self.workspaces = []
+        self.cworkspace = -1 # current workspace
+
         self.datapool = DataPool()
 
         # Use dictionary
@@ -62,7 +64,14 @@ class Session(Observed):
         
         self.clear()
 
-       
+
+    def get_current_workspace(self, ):
+        """ Return the current workspace object """
+        return self.workspaces[self.cworkspace]
+
+    ws = property(get_current_workspace)
+    
+      
     def add_workspace(self, compositenode=None, notify=True):
         """
         Open a new workspace in the session
@@ -106,6 +115,7 @@ class Session(Observed):
 
         if(create_workspace):
             self.add_workspace()
+            self.cworkspace = 0
             
         self.notify_listeners()
 

@@ -62,7 +62,7 @@ def gen_port_list(size):
 
 
 ###############################################################################
-class AbstractNode(IActor, Observed):
+class AbstractNode(Observed):
     """ An AbstractNode is the atomic entity in a dataflow."""
 
     def __init__(self):
@@ -161,12 +161,14 @@ class InputPort(dict):
         """
         return self.get("interface", None )
     
+
 class OutputPort(dict):
     """The class describing the ports.
     
     <Long description of the class functionality.>
     """
     pass
+
 
 
 class Node(AbstractNode):
