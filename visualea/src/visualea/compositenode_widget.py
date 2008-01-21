@@ -432,9 +432,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         if new_id is not False:
             new_edges = self.node.compute_external_io(s, new_id)
 
-            print 'new_id', new_id
-            print 'new_connections', new_edges
-
             self.add_new_connections(new_edges)
             self.remove_selection()
 
