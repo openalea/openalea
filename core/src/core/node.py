@@ -820,19 +820,23 @@ class NodeFactory(AbstractFactory):
             # Test if the module is already in sys.modules
             if(self.nodemodule_path and self.module_cache):
                 
-                   m = self.module_cache
-                   
-                   # test unvalidate and reload if necessary
-                   if(hasattr(m, 'oa_invalidate' )):
-                       sav_path = sys.path[:]
-                       sys.path += self.search_path
-                       reload(m)
-                       del(m.oa_invalidate)
-                       sys.path = sav_path
+                m = self.module_cache
+                 
+                # test unvalidate and reload if necessary
+                if(hasattr(m, 'oa_invalidate' )):
+                    sav_path = sys.path[:]
+                    sys.path += self.search_path
+                    reload(m)
+                    del(m.oa_invalidate)
+                    sys.path = sav_path
                        
-                   self.nodemodule_path = m.__file__
-                   return m
-                   
+                try:
+                    self.nodemodule_path = m.__file__
+                except AttributeError:
+                    # Abort for C standard modules for instance.
+                    self.nodemodule_path = None
+                
+                return m
             
             # load module
             sav_path = sys.path[:]
