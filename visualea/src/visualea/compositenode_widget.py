@@ -777,8 +777,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.nb_cin = 0
         for i,desc in enumerate(self.subnode.input_desc):
 
-            #hide = self.subnode.is_port_hidden(i)
-            hide = desc.is_hidden()
+            hide = self.subnode.is_port_hidden(i)
+            #hide = desc.is_hidden()
+
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
                 c = self.connector_in[i]
