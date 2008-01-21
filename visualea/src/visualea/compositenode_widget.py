@@ -424,11 +424,18 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         s.sort(cmp=cmp_x)
 
         self.node.to_factory(factory, s, auto_io=True)
-        
+
         pos = self.get_center_pos(s)
 
         # Instantiate the new node
-        if(self.add_new_node(factory, pos)):
+        new_id = self.add_new_node(factory, pos)
+        if new_id is not False:
+            new_edges = self.node.compute_external_io(s, new_id)
+
+            print 'new_id', new_id
+            print 'new_connections', new_edges
+
+            self.add_new_connections(new_edges)
             self.remove_selection()
 
 
@@ -542,7 +549,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     @lock_notify
     def add_new_node(self, factory, position):
-        """ Convenience function : Return True if success"""
+        """ Convenience function : Return new id if success"""
         
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
@@ -551,13 +558,29 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         
             newid = self.node.add_node(newnode)
             self.add_graphical_node(newid)
-            return True
+            return newid
 
         except RecursionError:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
             return False
 
+    @lock_notify
+    def add_new_connections(self, edges):
+        """ Convenience function : 
+            Add new edges in the current dataflow.
+            Create graphical connections. """
+        
+        dataflow = self.node
+        for src_vid, src_pid, tgt_vid, tgt_pid in edges:
+            eid = dataflow.connect(src_vid, src_pid, tgt_vid, tgt_pid) 
+
+            src_item = self.graph_item[src_vid]
+            tgt_item = self.graph_item[tgt_vid]
+
+            src_connector = src_item.get_output_connector(src_pid) 
+            tgt_connector = tgt_item.get_input_connector(tgt_pid)
+            self.add_graphical_connection(src_connector, tgt_connector)
 
     @lock_notify
     def add_graphical_annotation(self, position=None):
