@@ -414,7 +414,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     def group_selection(self, factory):
         """
-        Export selected node in factory
+        Export selected node in a new factory
         """
 
         s = self.get_selected_item()

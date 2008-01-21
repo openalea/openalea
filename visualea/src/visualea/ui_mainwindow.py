@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'resources/mainwindow.ui'
 #
-# Created: Fri Oct  5 16:49:15 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Sat Jan 19 17:40:31 2008
+#      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -18,12 +18,14 @@ class Ui_MainWindow(object):
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.hboxlayout = QtGui.QHBoxLayout(self.centralwidget)
-        self.hboxlayout.setSpacing(6)
-        self.hboxlayout.setMargin(9)
-        self.hboxlayout.setObjectName("hboxlayout")
+        self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        self.splitter_2 = QtGui.QSplitter(self.centralwidget)
+        self.splitter_3 = QtGui.QSplitter(self.centralwidget)
+        self.splitter_3.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter_3.setObjectName("splitter_3")
+
+        self.splitter_2 = QtGui.QSplitter(self.splitter_3)
         self.splitter_2.setOrientation(QtCore.Qt.Vertical)
         self.splitter_2.setObjectName("splitter_2")
 
@@ -31,40 +33,34 @@ class Ui_MainWindow(object):
         self.tabPackager.setObjectName("tabPackager")
 
         self.packageview = QtGui.QWidget()
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.packageview.sizePolicy().hasHeightForWidth())
-        self.packageview.setSizePolicy(sizePolicy)
         self.packageview.setObjectName("packageview")
 
-        self.vboxlayout = QtGui.QVBoxLayout(self.packageview)
-        self.vboxlayout.setSpacing(6)
-        self.vboxlayout.setMargin(9)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.packageview)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setMargin(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
         self.tabPackager.addTab(self.packageview,QtGui.QIcon(":/icons/package.png"),"")
 
         self.categoryview = QtGui.QWidget()
         self.categoryview.setObjectName("categoryview")
 
-        self.vboxlayout1 = QtGui.QVBoxLayout(self.categoryview)
-        self.vboxlayout1.setSpacing(6)
-        self.vboxlayout1.setMargin(9)
-        self.vboxlayout1.setObjectName("vboxlayout1")
+        self.vboxlayout2 = QtGui.QVBoxLayout(self.categoryview)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setMargin(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
         self.tabPackager.addTab(self.categoryview,QtGui.QIcon(":/icons/category.png"),"")
 
         self.searchview = QtGui.QWidget()
         self.searchview.setObjectName("searchview")
 
-        self.vboxlayout2 = QtGui.QVBoxLayout(self.searchview)
-        self.vboxlayout2.setSpacing(6)
-        self.vboxlayout2.setMargin(9)
-        self.vboxlayout2.setObjectName("vboxlayout2")
+        self.vboxlayout3 = QtGui.QVBoxLayout(self.searchview)
+        self.vboxlayout3.setSpacing(6)
+        self.vboxlayout3.setMargin(6)
+        self.vboxlayout3.setObjectName("vboxlayout3")
 
         self.search_lineEdit = QtGui.QLineEdit(self.searchview)
         self.search_lineEdit.setObjectName("search_lineEdit")
-        self.vboxlayout2.addWidget(self.search_lineEdit)
+        self.vboxlayout3.addWidget(self.search_lineEdit)
         self.tabPackager.addTab(self.searchview,QtGui.QIcon(":/icons/search.png"),"")
 
         self.poolTabWidget = QtGui.QTabWidget(self.splitter_2)
@@ -73,10 +69,10 @@ class Ui_MainWindow(object):
         self.pooltab = QtGui.QWidget()
         self.pooltab.setObjectName("pooltab")
 
-        self.vboxlayout3 = QtGui.QVBoxLayout(self.pooltab)
-        self.vboxlayout3.setSpacing(6)
-        self.vboxlayout3.setMargin(9)
-        self.vboxlayout3.setObjectName("vboxlayout3")
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.pooltab)
+        self.vboxlayout4.setSpacing(6)
+        self.vboxlayout4.setMargin(6)
+        self.vboxlayout4.setObjectName("vboxlayout4")
         self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
 
         self.sensortab = QtGui.QWidget()
@@ -86,18 +82,17 @@ class Ui_MainWindow(object):
         self.UseTabWidget = QtGui.QWidget()
         self.UseTabWidget.setObjectName("UseTabWidget")
 
-        self.vboxlayout4 = QtGui.QVBoxLayout(self.UseTabWidget)
-        self.vboxlayout4.setSpacing(6)
-        self.vboxlayout4.setMargin(9)
-        self.vboxlayout4.setObjectName("vboxlayout4")
+        self.vboxlayout5 = QtGui.QVBoxLayout(self.UseTabWidget)
+        self.vboxlayout5.setSpacing(6)
+        self.vboxlayout5.setMargin(6)
+        self.vboxlayout5.setObjectName("vboxlayout5")
 
         self.useTable = QtGui.QTableWidget(self.UseTabWidget)
         self.useTable.setObjectName("useTable")
-        self.vboxlayout4.addWidget(self.useTable)
+        self.vboxlayout5.addWidget(self.useTable)
         self.poolTabWidget.addTab(self.UseTabWidget,"")
-        self.hboxlayout.addWidget(self.splitter_2)
 
-        self.splitter = QtGui.QSplitter(self.centralwidget)
+        self.splitter = QtGui.QSplitter(self.splitter_3)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(10)
@@ -119,12 +114,12 @@ class Ui_MainWindow(object):
         self.usetab = QtGui.QWidget()
         self.usetab.setObjectName("usetab")
 
-        self.vboxlayout5 = QtGui.QVBoxLayout(self.usetab)
-        self.vboxlayout5.setSpacing(6)
-        self.vboxlayout5.setMargin(9)
-        self.vboxlayout5.setObjectName("vboxlayout5")
+        self.vboxlayout6 = QtGui.QVBoxLayout(self.usetab)
+        self.vboxlayout6.setSpacing(6)
+        self.vboxlayout6.setMargin(6)
+        self.vboxlayout6.setObjectName("vboxlayout6")
         self.tabWorkspace.addTab(self.usetab,"")
-        self.hboxlayout.addWidget(self.splitter)
+        self.vboxlayout.addWidget(self.splitter_3)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -267,9 +262,6 @@ class Ui_MainWindow(object):
 
         self.actionReset = QtGui.QAction(MainWindow)
         self.actionReset.setObjectName("actionReset")
-        
-        self.actionInvalidate = QtGui.QAction(MainWindow)
-        self.actionInvalidate.setObjectName("actionInvalidate")
 
         self.actionPreview_Application = QtGui.QAction(MainWindow)
         self.actionPreview_Application.setObjectName("actionPreview_Application")
@@ -289,6 +281,9 @@ class Ui_MainWindow(object):
         self.actionDisplay_Workspaces.setCheckable(True)
         self.actionDisplay_Workspaces.setChecked(True)
         self.actionDisplay_Workspaces.setObjectName("actionDisplay_Workspaces")
+
+        self.actionInvalidate = QtGui.QAction(MainWindow)
+        self.actionInvalidate.setObjectName("actionInvalidate")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -303,8 +298,8 @@ class Ui_MainWindow(object):
         self.menu_Python.addAction(self.action_Execute_script)
         self.menu_Python.addAction(self.actionOpen_Console)
         self.menu_Workspace.addAction(self.action_Run)
-        self.menu_Workspace.addAction(self.actionReset)
         self.menu_Workspace.addAction(self.actionInvalidate)
+        self.menu_Workspace.addAction(self.actionReset)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
@@ -429,12 +424,12 @@ class Ui_MainWindow(object):
         self.action_Cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReset.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+K", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionInvalidate.setText(QtGui.QApplication.translate("MainWindow", "Invalidate", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionInvalidate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreview_Application.setText(QtGui.QApplication.translate("MainWindow", "Preview Application", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLeft_Panel.setText(QtGui.QApplication.translate("MainWindow", "Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.actionWorkspaces.setText(QtGui.QApplication.translate("MainWindow", "Workspaces", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDisplay_Package_Manager.setText(QtGui.QApplication.translate("MainWindow", "Display Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDisplay_Workspaces.setText(QtGui.QApplication.translate("MainWindow", "Display Workspaces", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInvalidate.setText(QtGui.QApplication.translate("MainWindow", "Invalidate", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInvalidate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
