@@ -793,7 +793,7 @@ class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
 
 class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
     """
-    Port show status onfiguration dialog
+    Port show status configuration dialog
     """
 
     def __init__(self, node, parent):
@@ -820,7 +820,7 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
             else:
                 listitem.setFlags(QtCore.Qt.ItemIsUserCheckable)
 
-            hide = desc.is_port_hidden()#node.is_port_hidden(i)
+            hide = desc.is_hidden()#node.is_port_hidden(i)
             if(not hide):
                 listitem.setCheckState(QtCore.Qt.Checked)
             else:

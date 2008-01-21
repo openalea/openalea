@@ -32,7 +32,7 @@ class View( object ):
         """Basic constructor.
         """
         self.content = values
-        print values
+        #print values
     
 class Item( object ):
     """Describes the atom of View.

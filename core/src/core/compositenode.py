@@ -401,8 +401,137 @@ class CompositeNode(Node, DataFlow):
         return self.actor(vid)
 
 
-    ############################################################################$
+    ############################################################################
 
+    def compute_external_io(self, vertex_selection, new_vid):
+        ins, in_edges = self._compute_inout_connection(vertex_selection, is_input=True)
+        outs, out_edges = self._compute_inout_connection(vertex_selection, is_input=False)
+        
+        in_edges = self._compute_outside_connection(vertex_selection, in_edges, new_vid, is_input=True)
+        out_edges = self._compute_outside_connection(vertex_selection, out_edges, new_vid, is_input=False)
+        
+        return in_edges + out_edges
+
+    def _compute_outside_connection(self, vertex_selection, new_connections, new_vid, is_input = True):
+        """ Return external connections of a composite node 
+            with input and output ports.
+            - vertex_selection is a sorted set of node.
+        """
+        connections = []
+        selected_port = {}
+        if is_input:
+            ports = self.in_ports
+            get_vertex_io = self.source
+            get_my_vertex = self.target
+        else:
+            ports = self.out_ports
+            get_vertex_io = self.target
+            get_my_vertex = self.source
+
+        # For each selected vertices
+        for vid in vertex_selection:
+            for pid in ports(vid):
+                connected_edges = self.connected_edges(pid)
+                
+                for e in connected_edges:
+                    s = get_vertex_io(e)
+                    if s not in vertex_selection:
+                        pname = self.local_id(pid)
+                        selected_port.setdefault((vid, pname), []).append(e)
+                        
+        for edge in new_connections:
+            if is_input:
+                if not (edge[0] == '__in__'):
+                    continue
+                target_id, target_port = edge[2:]
+                if (target_id, target_port) in selected_port:
+                    target_edges = selected_port[(target_id, target_port)]
+                    for e in target_edges:
+                        vid = self.source(e)
+                        port_id = self.local_id(self.source_port(e))
+                        connections.append((vid, port_id, new_vid, edge[1]))
+            else:
+                if not (edge[2] == '__out__'):
+                    continue
+                source_id, source_port = edge[0:2]
+                if (source_id, source_port) in selected_port:
+                    source_edges= selected_port[(source_id, source_port)]
+                    for e in source_edges:
+                        vid = self.target(e)
+                        port_id = self.local_id(self.target_port(e))
+                        connections.append((new_vid, edge[3], vid, port_id))
+
+        return connections
+
+    def _compute_inout_connection(self, vertex_selection, is_input=True):
+        """ Return internal connections of a composite node 
+            with input port or output port.
+            - vertex_selection is a sorted set of node.
+            - is_input is a boolean indicated if connection
+             have to be created with input or output ports.
+        """
+        nodes = []
+        connections = []
+
+        # just to select unique name
+        name_port = []
+
+        if is_input:
+            ports = self.in_ports
+            get_vertex_io = self.source
+            io_desc = lambda n: n.input_desc
+        else:
+            ports = self.out_ports
+            get_vertex_io = self.target
+            io_desc = lambda n: n.output_desc
+
+        # For each input port
+        for vid in vertex_selection:
+            for pid in ports(vid):
+                connected_edges = list(self.connected_edges(pid))
+                
+                is_io = False
+                for e in connected_edges:
+                    s = get_vertex_io(e)
+                    if s not in vertex_selection:
+                        is_io = True
+
+                if connected_edges:
+                    if not is_io:
+                        continue
+
+                pname = self.local_id(pid)
+                n = self.node(vid)
+                desc = dict(io_desc(n)[pname])
+
+                caption= '(%s)'%(n.get_caption())
+                count = '' 
+                name = desc['name']
+                while name+str(count)+caption in name_port:
+                    if count:
+                        count+=1
+                    else: 
+                        count = 1
+                desc['name'] = name+str(count)+caption
+                name_port.append(desc['name'])
+
+                if is_input:
+                    # set default value on cn imput port
+                    if n.inputs[pname]:
+                        desc['value'] = n.inputs[pname]
+                    elif 'value' not in desc:
+                        if 'interface' in desc:
+                            desc['value']=desc['interface'].default()
+
+                    connections.append( ('__in__', len(nodes), vid, pname) )
+                else: # output
+                    connections.append( (vid , pname, '__out__', len(nodes)) )
+                
+                nodes.append(desc)
+
+        return (nodes, connections)
+
+        
     def compute_io(self, v_list=None):
         """
         Return (inputs, outputs, connections)
@@ -410,89 +539,12 @@ class CompositeNode(Node, DataFlow):
         v_list is a vertex id list 
         """
 
-        ins = []
-        outs = []
-        connections = []
         
-        # just to select unique name
-        name_port = []
-
-        # For each input port
-        for vid in v_list:
-            for pid in self.in_ports(vid):
-                connected_edges = list(self.connected_edges(pid))
-                
-                is_input = False
-                for e in connected_edges:
-                    s = self.source(e)
-                    if s not in v_list:
-                        is_input = True
-
-                if connected_edges:
-                    if not is_input:
-                        continue
-
-                pname = self.local_id(pid)
-                n = self.node(vid)
-                desc = dict(n.input_desc[pname])
-
-                caption= '(%s)'%(n.get_caption())
-                count = '' 
-                name = desc['name']
-                while name+str(count)+caption in name_port:
-                    if count:
-                        count+=1
-                    else: 
-                        count = 1
-                desc['name'] = name+str(count)+caption
-                name_port.append(desc['name'])
-
-                if n.inputs[pname]:
-                    desc['value'] = n.inputs[pname]
-                elif 'value' not in desc:
-                    if 'interface' in desc:
-                        desc['value']=desc['interface'].default()
-
-                connections.append( ('__in__', len(ins), vid, pname) )
-                ins.append(desc)
-
-        # just to select unique name
-        name_port = []
-        # For each output port in the selected vertices
-        for vid in v_list:
-            for pid in self.out_ports(vid):
-                connected_edges = list(self.connected_edges(pid))
-                
-                is_output = False
-                for e in connected_edges:
-                    target_vid = self.target(e)
-                    if target_vid not in v_list:
-                        is_output = True
-
-                if connected_edges:
-                    if not is_output:
-                        continue
-
-                pname = self.local_id(pid)
-                n = self.node(vid)
-                desc = n.output_desc[pname]
-
-                caption= '(%s)'%(n.get_caption())
-                count = '' 
-                name = desc['name']
-                while name+str(count)+caption in name_port:
-                    if count:
-                        count+=1
-                    else: 
-                        count = 1
-                desc['name'] = name+str(count)+caption
-                name_port.append(desc['name'])
-
-                connections.append( (vid , pname, '__out__', len(outs)) )
-                outs.append(dict(desc))
+        ins, in_edges = self._compute_inout_connection(v_list, is_input=True)
+        outs, out_edges = self._compute_inout_connection(v_list, is_input=False)
+        connections = in_edges + out_edges
 
         return (ins, outs, connections)
-
 
 
     def to_factory(self, sgfactory, listid = None, auto_io=False):
@@ -519,7 +571,8 @@ class CompositeNode(Node, DataFlow):
             sgfactory.outputs = [dict(val) for val in self.output_desc]
             sup_connect = []
 
-        if(listid is None): listid = set(self.vertices())
+        if listid is None: 
+            listid = set(self.vertices())
 
         # Copy Connections
         for eid in self.edges() :
