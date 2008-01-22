@@ -829,7 +829,6 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
                 listitem.setCheckState(QtCore.Qt.Unchecked)
 
                 
-
         
     def accept(self):
 

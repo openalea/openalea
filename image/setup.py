@@ -42,7 +42,7 @@ setup(
 
     # entry_points
     entry_points = {
-        "wralea": ["stat = openalea.image",]
+        "wralea": ["image = openalea.image",]
         },
 
 
