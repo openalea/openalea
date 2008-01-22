@@ -138,6 +138,7 @@ class InputPort(dict):
         """
         return self.get("desc", None )
 
+
     def is_hidden( self ):
         """True iff the port should be displayed.
         
@@ -231,11 +232,13 @@ class Node(AbstractNode):
         self.internal_data['caption'] = newcaption
         self.notify_listeners( ("caption_modified",) )
 
+
     def get_caption(self):
         """ Return the node caption """
         return self.internal_data.get('caption', "")
 
     caption = property(get_caption, set_caption)
+
 
     def get_input_port( self, name=None ):
         """Gets port by name.
@@ -251,10 +254,10 @@ class Node(AbstractNode):
         index = self.map_index_in[name]
         return self.input_desc[ index ] 
         
-        
 
     def get_lazy(self):
         return self.internal_data.get("lazy", True)
+
 
     def set_lazy(self, v):
         self.internal_data["lazy"] = v
@@ -287,7 +290,6 @@ class Node(AbstractNode):
             changed.add(index)
         elif(index in changed):
             changed.remove(index)
-
         
 
     # Status
@@ -398,7 +400,6 @@ class Node(AbstractNode):
             self.unvalidate_input(index, notify)
 
 
-
     def set_output(self, key, val) :
         """ 
         Define the input value for the specified index/key
@@ -406,7 +407,6 @@ class Node(AbstractNode):
 
         index = self.map_index_out[key]
         self.outputs[index] = val
-
             
 
     def output (self, key) :
