@@ -839,8 +839,8 @@ class NodeFactory(AbstractFactory):
                 return m
             
             # load module
-            sav_path = sys.path[:]
-            sys.path += self.search_path
+            sav_path = sys.path
+            sys.path = self.search_path + sav_path 
             (file, pathname, desc) = imp.find_module(self.nodemodule_name)
             
             self.nodemodule_path = pathname
@@ -848,7 +848,6 @@ class NodeFactory(AbstractFactory):
             sys.path.append(os.path.dirname(pathname))
             nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
             sys.path = sav_path
-            #sys.path.pop()
                 
             if(file) : file.close()
             self.module_cache = nodemodule
