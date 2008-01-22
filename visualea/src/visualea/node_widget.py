@@ -137,24 +137,30 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         self.setMinimumSize(100, 20)
 
         self.widgets = []
-
-        vboxlayout = QtGui.QVBoxLayout(self)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(2)
-
         self.empty = True
+
+
         
 
         if  node.factory.view is None:
             # we create the widget in default way
             #print node.input_desc
+            layout = QtGui.QVBoxLayout(self)
+            layout.setMargin(3)
+            layout.setSpacing(2)
             for port in node.input_desc:
-                self.place_item( self, port, vboxlayout)
+                self.place_item( self, port, layout)
 
         else:
+            print node.factory.view.layout
+            if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
+            else: layout = QtGui.QVBoxLayout(self)
+            layout.setMargin(3)
+            layout.setSpacing(2)
+                
             # we use custom view defined by user
             for i in node.factory.view.content:
-                self.place( self,  i, vboxlayout )
+                self.place( self,  i, layout )
     
     def place( self, widget,  item, layout ):
         """<Short description of the function functionality.>
@@ -171,8 +177,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         #print widget, item, layout
         if isinstance( item, Item ):
             p = self.node.get_input_port( item.name )
-
             self.place_item( widget, p, layout)
+            
         elif isinstance( item, Group ):
             self.place_group(widget, item, layout)
     
@@ -191,7 +197,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         name = port['name']
         interface = port.get_interface()
 
-        # Hidden state
+        ## Hidden state
+        ## TODO
         if(port.is_hidden()) :
             self.widgets.append(None)
             return
@@ -237,8 +244,11 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         groupBox = QtGui.QGroupBox(widget)
         groupBox.setObjectName("groupBox")
         groupBox.setTitle(group.label)
-        groupBox.setMinimumSize(100, 20)
-        
+        #groupBox.setMinimumSize(100, 20)
+        layout.addWidget( groupBox )
+        if group.layout=="-": nlayout = QtGui.QHBoxLayout(self)
+        else: nlayout = QtGui.QVBoxLayout(self)
+
         nlayout = QtGui.QVBoxLayout(groupBox)
         #nlayout.setMargin(3)
         #nlayout.setSpacing(2)
