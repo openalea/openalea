@@ -43,7 +43,7 @@ setup(
 	
 	# entry_points
     entry_points = {
-        "wralea": ["stand = openalea.spatial",]
+        "wralea": ["spatial = openalea.spatial",]
         },
                      
     )
