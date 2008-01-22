@@ -46,10 +46,14 @@ def register_packages(pkgmanager):
                       view=View( Group(
                          "test",
                          Item( "gamma"),
-                         Item( "visualisation")
+                         Item( "visualisation"),
+                         Item( "visualisation"),
+                         Item( "visualisation"),
+                         layout="-"
                          ),
                          Item( "discretisation"),
-                         Item( "nbr_prims")
+                         Item( "nbr_prims"),
+                         layout="-"
                          )
                       )
 
