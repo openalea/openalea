@@ -32,18 +32,18 @@ class View( object ):
         """Basic constructor.
         """
         self.content = values
-        #print values
+        self.layout = kargs.get("layout","|")
     
 class Item( object ):
     """Describes the atom of View.
     
     <Long description of the class functionality.>
     """
-    def __init__( self, name, show_label=True, **keys ):
+    def __init__( self, name, **keys ):
         """Basic constructor.
         """
         self.name = name
-        self.show_label = show_label
+        self.show_label = keys.get("show_label",True)
 
 class Group( object ):
     """Describes the group for  View.
@@ -55,4 +55,4 @@ class Group( object ):
         """
         self.content = values
         self.label = label
-        #self.content = values
+        self.layout = keys.get("layout","|")
