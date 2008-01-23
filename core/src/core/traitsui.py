@@ -33,6 +33,7 @@ class View( object ):
         """
         self.content = values
         self.layout = kargs.get("layout","|")
+        self.label=kargs.get("label","")
     
 class Item( object ):
     """Describes the atom of View.

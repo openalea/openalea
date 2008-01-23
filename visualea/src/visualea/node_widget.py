@@ -139,9 +139,6 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         self.widgets = []
         self.empty = True
 
-
-        
-
         if  node.factory.view is None:
             # we create the widget in default way
             #print node.input_desc
@@ -150,17 +147,16 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             layout.setSpacing(2)
             for port in node.input_desc:
                 self.place_item( self, port, layout)
-
         else:
-            print node.factory.view.layout
-            if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
-            else: layout = QtGui.QVBoxLayout(self)
-            layout.setMargin(3)
-            layout.setSpacing(2)
-                
-            # we use custom view defined by user
-            for i in node.factory.view.content:
-                self.place( self,  i, layout )
+            #if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
+            #elif node.factory.view.layout=="|": layout = QtGui.QVBoxLayout(self)
+            #layout.setMargin(3)
+            #layout.setSpacing(2)
+            #    
+            ## we use custom view defined by user
+            #for i in node.factory.view.content:
+            #    self.place( self,  i, layout )
+            self.place_group( self, node.factory.view, QtGui.QVBoxLayout(self))
     
     def place( self, widget,  item, layout ):
         """<Short description of the function functionality.>
@@ -174,11 +170,9 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         :return: <Description of ``return_object`` meaning>
         :raise Exception: <Description of situation raising `Exception`>
         """
-        #print widget, item, layout
         if isinstance( item, Item ):
             p = self.node.get_input_port( item.name )
             self.place_item( widget, p, layout)
-            
         elif isinstance( item, Group ):
             self.place_group(widget, item, layout)
     
@@ -241,22 +235,28 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         :return: <Description of ``return_object`` meaning>
         :raise Exception: <Description of situation raising `Exception`>
         """
-        groupBox = QtGui.QGroupBox(widget)
-        groupBox.setObjectName("groupBox")
-        groupBox.setTitle(group.label)
-        #groupBox.setMinimumSize(100, 20)
-        layout.addWidget( groupBox )
-        if group.layout=="-": nlayout = QtGui.QHBoxLayout(self)
-        else: nlayout = QtGui.QVBoxLayout(self)
-
-        nlayout = QtGui.QVBoxLayout(groupBox)
-        #nlayout.setMargin(3)
-        #nlayout.setSpacing(2)
         
-        #layout.addWidget(widget)
-        #print group.content
+        if group.layout=="-" or  group.layout=="|":
+            groupW = QtGui.QGroupBox(widget)
+            groupW.setTitle(group.label)
+            layout.addWidget( groupW )
+            if group.layout=="-": nlayout = QtGui.QHBoxLayout(self)
+            else: nlayout = QtGui.QVBoxLayout(self)
+            groupW.setLayout(nlayout)
+        else:
+            tab=QtGui.QTabWidget( self )
+            layout.addWidget( tab )
+
         for i in group.content:
-            self.place(groupBox, i, nlayout)
+            if group.layout=="t":
+                groupW = QtGui.QWidget()
+                nlayout = QtGui.QVBoxLayout(self)
+                groupW.setLayout(nlayout)
+                if isinstance( i, Item ):
+                    name=self.node.get_input_port( i.name ).get_label()
+                else: name=group.label
+                tab.addTab(groupW, name)
+            self.place(groupW, i, nlayout)
 
     
     def notify(self, sender, event):

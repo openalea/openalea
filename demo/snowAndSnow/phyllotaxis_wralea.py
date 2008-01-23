@@ -43,18 +43,25 @@ def register_packages(pkgmanager):
                       outputs=[
                          dict( name= "result_dict", interface=None )
                       ],
-                      view=View( Group(
-                         "test",
-                         Item( "gamma"),
-                         Item( "visualisation"),
-                         Item( "visualisation"),
-                         Item( "visualisation"),
-                         layout="-"
-                         ),
-                         Item( "discretisation"),
-                         Item( "nbr_prims"),
-                         layout="-"
-                         )
+                      view=View(
+                                    Group(
+                                        "test",
+                                        Item( "gamma"),
+                                        Item( "visualisation"),
+                                        Group(
+                                            "visualisation",
+                                            Group(
+                                                "",
+                                                Item( "visualisation")
+                                            ),
+                                            Item( "visualisation")
+                                        ),
+                                        layout="t"
+                                    ),
+                                    Item( "discretisation"),
+                                    Item( "nbr_prims"),
+                                    layout="t"
+                                )
                       )
 
     package.add_factory( nf )
