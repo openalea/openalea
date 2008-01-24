@@ -465,13 +465,21 @@ class Node(AbstractNode):
         outlist = self.__call__(self.inputs)
 
         # Copy outputs
-        if(len(self.outputs)==1 or
-           not isinstance(outlist, tuple) and
-           not isinstance(outlist, list)):
-            outlist = (outlist,)
+        # only one output
+        if(len(self.outputs)==1):
+            if(isinstance(outlist, tuple) and
+               len(outlist) == 1):
+                self.outputs[0] = outlist[0]
+            else:
+                self.outputs[0] = outlist
 
-        for i in range( min (len(outlist), len(self.outputs))):
-            self.outputs[i] = outlist[i]
+        else: # multi output
+            if(not isinstance(outlist, tuple) and
+               not isinstance(outlist, list)):
+                outlist = (outlist,)
+
+            for i in range( min (len(outlist), len(self.outputs))):
+                self.outputs[i] = outlist[i]
 
         # Set State
         self.modified = False
