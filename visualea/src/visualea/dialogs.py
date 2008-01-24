@@ -69,10 +69,10 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         pkgstr = []
         self.pkgmap = {}
 
-        packages.sort()
         for p in packages:
             pkgstr.append(p.name)
             self.pkgmap[p.name] = p
+        pkgstr.sort()
 
         # Get category
         cats = pmanager.category.keys()
@@ -97,16 +97,15 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.categoryEdit.setCurrentIndex(-1)
             self.inputs = inputs
             self.outputs = outputs
-
-                
-        
+            
         self.ioButton.setVisible(io)
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
 
         
 
     def accept(self):
-        
+        """ Accept Dialog result """
+
         # Test if name is correct
         name = str(self.nameEdit.text())
         if(not name or
@@ -245,7 +244,7 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         
 
     def accept(self):
-
+        """ Accept dialog result """
         # Test if name is correct
         name = str(self.nameEdit.text())
         if(not name or name in self.pkgs):
@@ -322,6 +321,7 @@ class EditPackage(NewPackage) :
         
 
     def accept(self):
+        """ Accept dialog result """
 
         metainfo = dict(
             description=str(self.descriptionEdit.text()),
@@ -339,15 +339,15 @@ class EditPackage(NewPackage) :
         QtGui.QDialog.accept(self)
 
 
-               
-
 
 class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
-    """ New package dialog """
+    """ Dialog to select a particular CompositeNode factory """
     
+
     def __init__(self, default_factory=None, parent=None):
         """
-        default_factory : default choice
+        Construtor
+        @param default_factory : default selected factory
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -382,7 +382,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
 
     def accept(self):
-
+        """ Accept dialog result """
         # Test if name is correct
         text = self.comboBox.currentText()
         if(not text):
@@ -394,7 +394,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
 
     def new_factory(self):
-
+        """ Create a new composite node """
         dialog = NewGraph("New Composite Node", self.pkgmanager, self, io=False)
         ret = dialog.exec_()
 
@@ -492,6 +492,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
     def add_search_path(self):
         """ Package Manager : Add a path in the list """
+
         result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
     
         if(result):
@@ -583,6 +584,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
           
 
     def accept(self):
+        """ Validate dialog results """
 
         self.valid_search_path()
         self.valid_ui()
@@ -592,16 +594,19 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
 
 class ComboDelegate(QtGui.QItemDelegate):
-
+    """ 
+    Tool class used in IO editor 
+    It allows to choose an interface from a combobox in a QTable
+    """
 
     def get_interfaces(self):
         """ Return the list of availble interfaces """
 
         x =  [k.__name__ for k in IInterfaceMetaClass.all]
+        x.sort()
         x.append('None')
         return x
         
-
     
     def createEditor(self, parent, option, index):
         """ Create the editor """
@@ -617,7 +622,6 @@ class ComboDelegate(QtGui.QItemDelegate):
         """ Accessor """
 
         if index.column() == 1:
-
             value = str(index.data().toString())
             i = editor.findText(value)
             editor.setCurrentIndex (i)
@@ -831,6 +835,7 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
                 
         
     def accept(self):
+        """ Set port status in the node """
 
         for i in xrange(self.listWidget.count()):
             item = self.listWidget.item(i)
