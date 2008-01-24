@@ -24,11 +24,11 @@ def test_funcnode():
     n.set_input(0, 1)
     n.eval()
     print n.get_output('y')
-    assert n.get_output('y') == ((1,0),)
+    assert n.get_output('y') == (1,0)
     
     n.set_input('a', 'BB')
     n.eval()
-    assert n.get_output(0) == ((1,'BB'),)
+    assert n.get_output(0) == (1,'BB')
 
 
 
