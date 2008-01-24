@@ -463,9 +463,10 @@ class Node(AbstractNode):
 
         # Run the node
         outlist = self.__call__(self.inputs)
-        
+
         # Copy outputs
-        if(not isinstance(outlist, tuple) and
+        if(len(self.outputs)==1 or
+           not isinstance(outlist, tuple) and
            not isinstance(outlist, list)):
             outlist = (outlist,)
 
