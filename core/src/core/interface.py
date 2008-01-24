@@ -203,7 +203,7 @@ class IEnumStr(IStr):
         IInterface.__init__(self, **kargs)
         self.enum = enum
     def __repr__(self):
-        return 'IEnumStr(enum=%s'%(str(self.enum))
+        return 'IEnumStr(enum=%s)'%(str(self.enum))
 
 class IRGBColor(IInterface):
     """ RGB Color """
