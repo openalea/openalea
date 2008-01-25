@@ -51,7 +51,7 @@ def create_win_shortcut(name, target, arguments = "",
     (Name, Target, Arguments, StartIn, Icon, Description, MenuGroup) = \
            (name, target, arguments, startin, icon, description, menugroup)
 
-    if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
+    if((not 'win32' in sys.platform)):
         return
     
     try:

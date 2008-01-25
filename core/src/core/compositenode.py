@@ -330,11 +330,16 @@ class CompositeNode(Node, DataFlow):
         """ Return the composite node input"""
         return self.node(self.id_in).get_input(index_key)
         
-
+    
     def get_output (self, index_key) :
         """ Retrieve values from output node input ports """
 
         return self.node(self.id_out).get_output(index_key)
+
+    def set_output (self, index_key, val) :
+        """ Set a value to an output """
+
+        return self.node(self.id_out).set_output(index_key, val)
     
 
     def get_eval_algo(self):
@@ -404,6 +409,10 @@ class CompositeNode(Node, DataFlow):
     ############################################################################
 
     def compute_external_io(self, vertex_selection, new_vid):
+        """ 
+        Return the list of input and output edges to connect the composite node
+        """
+
         ins, in_edges = self._compute_inout_connection(vertex_selection, is_input=True)
         outs, out_edges = self._compute_inout_connection(vertex_selection, is_input=False)
         
@@ -412,10 +421,12 @@ class CompositeNode(Node, DataFlow):
         
         return in_edges + out_edges
 
+
     def _compute_outside_connection(self, vertex_selection, new_connections, new_vid, is_input = True):
-        """ Return external connections of a composite node 
-            with input and output ports.
-            - vertex_selection is a sorted set of node.
+        """ 
+        Return external connections of a composite node 
+        with input and output ports.
+        - vertex_selection is a sorted set of node.
         """
         connections = []
         selected_port = {}
@@ -462,6 +473,7 @@ class CompositeNode(Node, DataFlow):
                         connections.append((new_vid, edge[3], vid, port_id))
 
         return connections
+
 
     def _compute_inout_connection(self, vertex_selection, is_input=True):
         """ Return internal connections of a composite node 
@@ -767,6 +779,13 @@ class CompositeNodeOutput(Node):
         index = self.map_index_in[output_pid]
         return self.inputs[index]
     
+
+    def set_output(self, output_pid, val) :
+        """ Define output """
+ 
+        index = self.map_index_in[output_pid]
+        self.inputs[index] = val
+
 
     def eval(self):
         return False

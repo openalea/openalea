@@ -40,7 +40,7 @@ def get_default_dyn_lib():
     
     if("posix" in os.name):
         return "/usr/local/lib"
-    elif("win" in sys.platform.lower()):
+    else:
         basedir = get_python_lib()
         return os.path.join(basedir, "shared_libs")
 

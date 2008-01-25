@@ -591,7 +591,7 @@ class alea_install(easy_install):
     def set_system(self):
         """ Set environment """
 
-        if("win" in sys.platform):
+        if("win32" in sys.platform):
             # install pywin32
             try:
                 pkg_resources.require("pywin32")
@@ -635,7 +635,7 @@ class alea_install(easy_install):
             lstr = []
 
         # Add pywin32 path
-        if('win' in sys.platform):
+        if('win32' in sys.platform):
             try:
                 win32dir = pj(get_base_dir('pywin32'), 'pywin32_system32')
 

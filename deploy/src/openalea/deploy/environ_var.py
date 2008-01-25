@@ -83,7 +83,7 @@ def set_win_env(vars):
     @param vars : ['VAR1=VAL1', 'VAR2=VAL2', 'PATH=SOMEPATH' ]
     """
 
-    if((not 'win' in sys.platform) or (sys.platform == 'cygwin')):
+    if(not 'win32' in sys.platform):
         return
     
     for newvar in vars:
