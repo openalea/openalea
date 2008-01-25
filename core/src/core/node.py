@@ -927,7 +927,8 @@ class NodeFactory(AbstractFactory):
         # reload module
         if(self.module_cache):
                 self.module_cache.invalidate_oa = True
-        #self.src_cache = None
+        
+        self.src_cache = None
         m = self.get_node_module()
         #reload(m)
         # Recompile
