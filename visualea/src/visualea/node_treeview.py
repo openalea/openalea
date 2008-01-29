@@ -613,6 +613,11 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
         QtGui.QTreeView.__init__(self, parent)
         NodeFactoryView.__init__(self, main_win, parent)
 
+        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+
+
+    #def reset(self):
+        #QtGui.QTreeView.reset(self)
 
 
 class SearchListView(NodeFactoryView, QtGui.QTreeView):
