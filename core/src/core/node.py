@@ -814,7 +814,6 @@ class NodeFactory(AbstractFactory):
     def get_writer(self):
         """ Return the writer class """
 
-
         return PyNodeFactoryWriter(self)
 
 
@@ -953,18 +952,16 @@ class PyNodeFactoryWriter(object):
 
     nodefactory_template = """
 
-    nf = Factory(name=$NAME, 
-                 description=$DESCRIPTION, 
-                 category=$CATEGORY, 
-                 nodemodule=$NODEMODULE,
-                 nodeclass=$NODECLASS,
-                 inputs=$LISTIN,
-                 outputs=$LISTOUT,
-                 widgetmodule=$WIDGETMODULE,
-                 widgetclass=$WIDGETCLASS,
-                 )
-
-    pkg.add_factory( nf )
+$NAME = Factory(name=$PNAME, 
+                description=$DESCRIPTION, 
+                category=$CATEGORY, 
+                nodemodule=$NODEMODULE,
+                nodeclass=$NODECLASS,
+                inputs=$LISTIN,
+                outputs=$LISTOUT,
+                widgetmodule=$WIDGETMODULE,
+                widgetclass=$WIDGETCLASS,
+                )
 
 """
 
@@ -975,7 +972,8 @@ class PyNodeFactoryWriter(object):
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
-        result = fstr.safe_substitute(NAME=repr(f.name),
+        result = fstr.safe_substitute(NAME=f.name,
+                                      PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
                                       CATEGORY=repr(f.category), 
                                       NODEMODULE=repr(f.nodemodule_name),
