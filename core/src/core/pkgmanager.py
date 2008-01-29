@@ -28,7 +28,7 @@ import openalea
 import sys
 import os
 from singleton import Singleton
-from package import UserPackage, PyPackageReader
+from package import UserPackage, PyPackageReader, PyPackageReaderWralea
 from settings import get_userpkg_dir, Settings
 from pkg_resources import iter_entry_points
 from nocasedict import NoCaseDict
@@ -198,6 +198,7 @@ class PackageManager(object):
         """ Restore the initial sys path """
         sys.path = self.old_syspath
 
+
     # Accessors
     def add_package(self, package):
         """ Add a package to the pkg manager """
@@ -285,7 +286,7 @@ class PackageManager(object):
 
             # search for wralea.py
             wralea_files.update( p.walkfiles("*wralea.py") )
-            #wralea_files.update( p.walkfiles("*wralea.xml") )
+            wralea_files.update( p.walkfiles("__wralea__.py") )
 
         for f in wralea_files:
             print "Package Manager : found %s" % f
@@ -293,14 +294,17 @@ class PackageManager(object):
         return map(self.get_pkgreader, wralea_files)
 
 
+
     def get_pkgreader(self, filename):
         """ Return the pkg reader corresponding to the filename """
 
         reader = None
-        if(filename.endswith('.py')):
+        if(filename.endswith("__wralea__.py")):
+            reader = PyPackageReaderWralea(filename)
+        elif(filename.endswith('wralea.py')):
             reader = PyPackageReader(filename)
         else :
-            raise UnknowFileType()
+            raise UnknowFileType(filename)
 
         return reader
 
@@ -309,7 +313,8 @@ class PackageManager(object):
         """ Find all wralea on the system and register them """
         
         readerlist = self.find_wralea_files()
-        [x.register_packages(self) for x in readerlist]
+        for x in readerlist:
+            x.register_packages(self)
             
         self.rebuild_category()
 
