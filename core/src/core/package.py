@@ -373,8 +373,6 @@ class PyPackageReader(object):
         sys.path.pop()
 
 
-            
-
     def build_package(self, wraleamodule, pkgmanager):
         """ Build package and update pkgmanager """
         wraleamodule.register_packages(pkgmanager) 

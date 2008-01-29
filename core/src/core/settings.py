@@ -116,7 +116,7 @@ def get_openalea_home_dir(name='.openalea'):
 
 
 
-def get_userpkg_dir(name='wralea'):
+def get_userpkg_dir(name='user_pkg'):
     """
     Get user package directory (the place where are the
     wralea.py files).

@@ -19,7 +19,7 @@ __revision__=" $Id$ "
 
 
 from openalea.core import *
-import openalea.catalog.colormap as colormap
+import colormap
 
 
 def color_map(val,minval = 0,maxval = 1,coul1 = 80,coul2 = 20):

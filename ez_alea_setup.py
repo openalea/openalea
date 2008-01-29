@@ -151,6 +151,7 @@ and place it in this directory before rerunning this script.)
             if dst: dst.close()
     return os.path.realpath(saveto)
 
+
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
 
@@ -158,6 +159,7 @@ def main(argv, version=DEFAULT_VERSION):
         import setuptools
     except ImportError:
         try:
+            egg = None
             egg = download_setuptools(version, delay=0)
             sys.path.insert(0,egg)
             from setuptools.command.easy_install import main
