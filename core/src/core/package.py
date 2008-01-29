@@ -350,6 +350,10 @@ class PyPackageReader(object):
 
         modulename = self.get_pkg_name()
         base_modulename = self.filename_to_module(basename)
+        
+        # Adapt sys.path
+        sys.path.append(basedir)
+
 
         (file, pathname, desc) = imp.find_module(base_modulename, [basedir])
         try:
@@ -364,6 +368,10 @@ class PyPackageReader(object):
 
         if(file) :
             file.close()
+
+        # Recover sys.path
+        sys.path.pop()
+
 
             
 
