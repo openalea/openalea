@@ -104,9 +104,13 @@ class Package(NoCaseDict):
                 self.path = path
                 self.wralea_path = os.path.join(self.path, "__wralea__.py")
 
-
             #wralea_name = name.replace('.', '_')
         
+
+    def is_directory(self):
+        """ Return if the package is embeded in a directory """
+        return self.wralea_path.endswith("__wralea__.py")
+
 
     def get_wralea_path(self):
         """ Return the full path of the wralea.py (if set) """
@@ -198,10 +202,26 @@ class UserPackage(Package):
     def clone_from_package(self, pkg):
         """ Copy the contents of pkg in self"""
 
-        # Copy deeply all the factory
-        self.update(copy.deepcopy(pkg))
+        import shutil
 
         # Copy all file contained in the wralea directory
+        for file in os.listdir(pkg.path):
+            
+            src = os.path.join(pkg.path, file)
+            
+            if(not os.path.isfile(src) or
+               not src.endswith(".py")): continue
+
+            dst = os.path.join(self.path, file)
+            shutil.copyfile(src, dst)
+
+
+        metainfo = self.metainfo 
+        # Copy deeply all the factory
+        self.update(copy.deepcopy(pkg))
+        self.metainfo = metainfo
+        self.write()
+
         
 
 
@@ -360,6 +380,8 @@ class PyPackageReader(object):
         # Adapt sys.path
         sys.path.append(basedir)
 
+        if(sys.modules.has_key(modulename)):
+            del sys.modules[modulename]
 
         (file, pathname, desc) = imp.find_module(base_modulename, [basedir])
         try:

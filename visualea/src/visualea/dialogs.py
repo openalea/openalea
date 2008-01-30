@@ -232,8 +232,8 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         #self.pathEdit.setText(get_userpkg_dir())
         if(metainfo) : self.set_data(name, "", metainfo)
 
-        from settings import get_userpkg_dir
         self.pathEdit.setText(get_userpkg_dir())
+
 
     def path_clicked(self):
 

@@ -475,13 +475,18 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
 
-            action = menu.addAction("Infos")
+            action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
-            action = menu.addAction("Duplicate as User Package")
-            action.setEnabled(False)
+            action = menu.addAction("Duplicate Package")
+            action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
+
+            action = menu.addAction("Reload Package")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.reload_package)
+
 
         if(menu):
             menu.move(event.globalPos())
@@ -497,12 +502,23 @@ class NodeFactoryView(object):
 
         return obj
 
+    
+    def reload_package(self):
+        """ Reload package """
+        pass
+
 
     def duplicate_package(self):
         """ Duplicate a package """
         
         pkg = self.get_current_pkg()
         pman = self.model().pman # pkgmanager
+
+        if(not pkg.is_directory()):
+            QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot duplicate old style package\n :")
+            return
+
 
         dialog = NewPackage(pman.keys(), parent = self, metainfo=pkg.metainfo)
         ret = dialog.exec_()
@@ -512,7 +528,7 @@ class NodeFactoryView(object):
             
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
-            self.reset()
+            self.model().reset()
 
 
     def edit_package(self):
