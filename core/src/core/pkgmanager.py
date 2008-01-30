@@ -331,11 +331,10 @@ class PackageManager(object):
         # Create directory
         if(not path):
             path = get_userpkg_dir()
-            path = os.path.join(path, name)
+        path = os.path.join(path, name)
         
         if(not os.path.isdir(path)):
             os.mkdir(path)
-
 
         # Create new Package and its wralea
         p = UserPackage(name, metainfo, path)
