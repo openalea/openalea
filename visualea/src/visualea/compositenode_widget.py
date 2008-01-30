@@ -673,24 +673,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
 
       
-
-# Utility function
-
-def port_name( name, interface ):
-    """ Return the port name str """
-    iname = 'Any'
-    if(interface):
-        try:
-            iname = interface.__name__
-        except AttributeError:
-            try:
-                iname = interface.__class__.__name__
-            except AttributeError:
-                iname = str(interface)
-    return '%s(%s)'%(name,iname)
-
-
-
     
 
 class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
@@ -788,9 +770,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
             # show connector (update if necessary)
             elif(not self.connector_in[i]):
-                name = desc['name']
-                interface = desc.get('interface', None)
-                tip = port_name(name,interface)
+                tip = desc.get_tip()
                 self.connector_in[i] = ConnectorIn(self.graphview, self,
                                                    scene, i, tip)
             # nb connector
@@ -799,10 +779,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             
         for i,desc in enumerate(self.subnode.output_desc):
             if(not self.connector_out[i]): # update if necessary
-                name = desc['name']
-                interface = desc.get('interface', None)
-                tip = port_name(name,interface)
-
+                tip = desc.get_tip()
                 self.connector_out[i] = ConnectorOut(self.graphview, self,
                                                      scene, i, tip)
 
@@ -975,15 +952,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             self.subnode.set_data('posx', point.x(), False)
             self.subnode.set_data('posy', point.y(), False)
          
-            #self.graphview.itemMoved(self, value)
-            
-#         elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
-#             v = value.toBool()
-#             for c in self.connector_in :
-#                 for e in c.edge_list : e.setSelected(v)
-#             for c in self.connector_out :
-#                 for e in c.edge_list : e.setSelected(v)
-                
         return ret
 
 
@@ -1084,6 +1052,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         if(ret):
             for k in editor.modified_key:
                 self.subnode.set_data(k, editor.pdict[k])
+
             
     @exception_display
     @busy_cursor
@@ -1220,7 +1189,7 @@ class ConnectorIn(Connector):
         s = str(data)
         if(len(s) > self.MAX_TIPLEN): s = "String too long..."
 
-        self.setToolTip("%s %s"%(self.base_tooltip, s))
+        self.setToolTip("%s \nValue: %s"%(self.base_tooltip, s))
 
     
     def adjust_position(self, parentitem, index, ntotal):
@@ -1283,7 +1252,7 @@ class ConnectorOut(Connector):
         s = str(data)
         if(len(s) > self.MAX_TIPLEN): s = "String too long..."
 
-        self.setToolTip("%s %s"%(self.base_tooltip, str(data)))
+        self.setToolTip("%s\nValue: %s"%(self.base_tooltip, str(data)))
 
 
     def adjust_position(self, parentitem, index, ntotal):
