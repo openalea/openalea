@@ -28,6 +28,7 @@ __revision__=" $Id$ "
 
 import string
 import copy
+import pprint
 
 from node import AbstractFactory, Node
 from node import RecursionError, InstantiationError
@@ -798,54 +799,49 @@ class PyCNFactoryWriter(object):
 
     sgfactory_template = """
 
-    nf = CompositeNodeFactory(name=$NAME, 
-                              description=$DESCRIPTION, 
-                              category=$CATEGORY,
-                              doc=$DOC,
-                              inputs=$INPUTS,
-                              outputs=$OUTPUTS,
-                              elt_factory=$ELT_FACTORY,
-                              elt_connections=$ELT_CONNECTIONS,
-                              elt_data=$ELT_DATA,
-                              elt_value=$ELT_VALUE,
-                              lazy=$LAZY,
-                              )
+$NAME = CompositeNodeFactory(name=$PNAME, 
+                             description=$DESCRIPTION, 
+                             category=$CATEGORY,
+                             doc=$DOC,
+                             inputs=$INPUTS,
+                             outputs=$OUTPUTS,
+                             elt_factory=$ELT_FACTORY,
+                             elt_connections=$ELT_CONNECTIONS,
+                             elt_data=$ELT_DATA,
+                             elt_value=$ELT_VALUE,
+                             lazy=$LAZY,
+                             )
 
-    pkg.add_factory(nf)
 """
 
     def __init__(self, factory):
         self.factory = factory
         
+    
+    def pprint_repr(self,obj, indent=3): 	 
+         """ Pretty print repr """ 	 
+         return pprint.pformat(obj, indent=indent) 	 
+ 
 
     def __repr__(self):
         """ Return the python string representation """
-        from pprint import pprint
-        from StringIO import StringIO
-
-        def pprint_repr(obj):
-            stream = StringIO()
-            pprint(obj, stream=stream)
-            s=stream.getvalue()[:-1]
-            if '\n' not in s: 
-                return s
-            else:
-                return '\\\n'+s
 
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
+        print f.name
 
-        result = fstr.safe_substitute(NAME=pprint_repr(f.name),
-                                      DESCRIPTION=pprint_repr(f.description),
-                                      CATEGORY=pprint_repr(f.category),
-                                      DOC=pprint_repr(f.doc),
-                                      INPUTS=pprint_repr(f.inputs),
-                                      OUTPUTS=pprint_repr(f.outputs),
-                                      ELT_FACTORY=pprint_repr(f.elt_factory),
-                                      ELT_CONNECTIONS=pprint_repr(f.connections),
-                                      ELT_DATA=pprint_repr(f.elt_data),
-                                      ELT_VALUE=pprint_repr(f.elt_value),
-                                      LAZY=pprint_repr(f.lazy),
+        result = fstr.safe_substitute(NAME=f.name,
+                                      PNAME=self.pprint_repr(f.name),
+                                      DESCRIPTION=self.pprint_repr(f.description),
+                                      CATEGORY=self.pprint_repr(f.category),
+                                      DOC=self.pprint_repr(f.doc),
+                                      INPUTS=self.pprint_repr(f.inputs),
+                                      OUTPUTS=self.pprint_repr(f.outputs),
+                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
+                                      ELT_DATA=self.pprint_repr(f.elt_data),
+                                      ELT_VALUE=self.pprint_repr(f.elt_value),
+                                      LAZY=self.pprint_repr(f.lazy),
                                       )
         return result
 
