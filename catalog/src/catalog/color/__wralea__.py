@@ -36,6 +36,5 @@ colormap = Factory(name='colormap',
                    widgetmodule=None,
                    widgetclass=None,
                  )
-
-
+		 
 

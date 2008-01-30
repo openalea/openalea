@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'resources/mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jan 19 17:40:31 2008
+# Created: Wed Jan 30 14:44:23 2008
 #      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -284,6 +284,9 @@ class Ui_MainWindow(object):
 
         self.actionInvalidate = QtGui.QAction(MainWindow)
         self.actionInvalidate.setObjectName("actionInvalidate")
+
+        self.actionClea_r_Console = QtGui.QAction(MainWindow)
+        self.actionClea_r_Console.setObjectName("actionClea_r_Console")
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -297,6 +300,7 @@ class Ui_MainWindow(object):
         self.menu_Help.addAction(self.actionOpenAlea_Web)
         self.menu_Python.addAction(self.action_Execute_script)
         self.menu_Python.addAction(self.actionOpen_Console)
+        self.menu_Python.addAction(self.actionClea_r_Console)
         self.menu_Workspace.addAction(self.action_Run)
         self.menu_Workspace.addAction(self.actionInvalidate)
         self.menu_Workspace.addAction(self.actionReset)
@@ -378,7 +382,7 @@ class Ui_MainWindow(object):
         self.action_New_Package.setText(QtGui.QApplication.translate("MainWindow", "&Create Package", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Package.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSystem_Search.setText(QtGui.QApplication.translate("MainWindow", "System &Search", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Load Wralea File", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Load Package/Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "&Reload All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "&Close Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
@@ -414,7 +418,7 @@ class Ui_MainWindow(object):
         self.actionConfigure_I_O.setText(QtGui.QApplication.translate("MainWindow", "Configure I/O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGroup_Selection.setText(QtGui.QApplication.translate("MainWindow", "Group", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGroup_Selection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionOpen_Console.setText(QtGui.QApplication.translate("MainWindow", "Open &Console", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpen_Console.setText(QtGui.QApplication.translate("MainWindow", "Open &shell", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_Console.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Copy.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Copy.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
@@ -431,5 +435,6 @@ class Ui_MainWindow(object):
         self.actionDisplay_Workspaces.setText(QtGui.QApplication.translate("MainWindow", "Display Workspaces", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInvalidate.setText(QtGui.QApplication.translate("MainWindow", "Invalidate", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInvalidate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClea_r_Console.setText(QtGui.QApplication.translate("MainWindow", "&Clear shell", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

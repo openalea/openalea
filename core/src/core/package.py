@@ -31,6 +31,7 @@ import os, sys
 import string
 import imp
 import copy
+import time
 
 from node import NodeFactory
 from nocasedict import NoCaseDict
@@ -575,7 +576,11 @@ $FACTORY_DECLARATION
 
         pstr = repr(self)
         wtpl = string.Template(self.wralea_template)
-        result = wtpl.safe_substitute(PKG_DECLARATION=pstr)
+
+        result = wtpl.safe_substitute(
+            TIME=time.ctime(),
+            PKG_DECLARATION=pstr)
+
         filehandler.write(result)
         
 
