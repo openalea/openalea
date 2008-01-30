@@ -186,6 +186,12 @@ class UserPackage(Package):
 
     def __init__(self, name, metainfo, path=None):
         """ @param path : directory where to store wralea and module files """
+
+        if(not path):
+            import inspect
+            # get the path of the file which call this function
+            path = os.path.abspath(inspect.stack()[1][1])
+
         Package.__init__(self, name, metainfo, path)
         
 
