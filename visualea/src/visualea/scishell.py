@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2007 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -44,6 +44,8 @@ class MultipleRedirection:
 
         for f in self.files:
             f.write(str)
+
+
 
 class SciShell(QsciScintilla):
     """
@@ -138,6 +140,10 @@ class SciShell(QsciScintilla):
         self.connect(self, QtCore.SIGNAL('userListActivated(int, const QString)'),
                      self.__completionListSelected)
 
+        self.setFocus()
+
+
+
     def get_interpreter(self):
         """ Return the interpreter object """
 
@@ -208,6 +214,7 @@ class SciShell(QsciScintilla):
         """
         Reimplemented slot to handle the paste action.
         """
+
         lines = unicode(QtGui.QApplication.clipboard().text())
         self.__executeLines(lines)
         
@@ -227,6 +234,7 @@ class SciShell(QsciScintilla):
         @param lines multiple lines of text to be executed as single
             commands (string)
         """
+        
         for line in lines.splitlines(True):
             if line.endswith("\r\n"):
                 fullline = True
@@ -293,6 +301,7 @@ class SciShell(QsciScintilla):
         self.prline, self.prcol = self.__getEndPos()
         self.setCursorPosition(self.prline, self.prcol)
 
+
         
     def __isCursorOnLastLine(self):
         """
@@ -334,13 +343,16 @@ class SciShell(QsciScintilla):
         if(self.keymap.has_key(key) and not shift and not ctrl):
             self.keymap[key]()
 
+        elif ev == QtGui.QKeySequence.Paste:
+            self.paste()
+
         elif self.__isCursorOnLastLine() and txt.length() :
 
             QsciScintilla.keyPressEvent(self, ev)
             self.incrementalSearchActive = True
             
             if(txt == '.'):
-                self.__showDynCompletion()
+                self.__showDynCompletion()        
 
         elif(ctrl or shift):
             QsciScintilla.keyPressEvent(self, ev)
