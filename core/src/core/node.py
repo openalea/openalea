@@ -628,6 +628,13 @@ class AbstractFactory(Observed):
         return self.name
 
 
+    def get_python_name(self):
+        """ Return a python valid name """
+
+        name = self.name.replace(".", "_")
+        return name
+
+
     def get_tip(self):
         """ Return the node description """
 
@@ -674,7 +681,7 @@ class NodeFactory(AbstractFactory):
                  nodeclass = None,
                  widgetmodule = None,
                  widgetclass = None,
-                 search_path = [],
+                 search_path = None,
                  **kargs):
         
         """
@@ -711,7 +718,10 @@ class NodeFactory(AbstractFactory):
 
         # Module path, value=0
         self.nodemodule_path = None
-        self.search_path = search_path
+        if(not search_path):
+            self.search_path = []
+        else:
+            self.search_path = search_path
         
         self.module_cache = None
 
@@ -720,6 +730,12 @@ class NodeFactory(AbstractFactory):
         caller_dir = os.path.dirname(os.path.abspath(inspect.stack()[1][1]))
         if(not caller_dir in self.search_path):
             self.search_path.append(caller_dir)
+
+
+    def get_python_name(self):
+        """ Return a python valid name """
+
+        return "%s_%s"%(self.nodemodule_name, self.nodeclass_name)
 
 
     def __getstate__(self):
@@ -785,9 +801,9 @@ class NodeFactory(AbstractFactory):
 
         # Code Editor
         if(edit):
-            from openalea.visualea.code_editor import PythonCodeEditor
-            w = PythonCodeEditor(parent)
-            w.edit_module(self.get_node_module())
+            from openalea.visualea.code_editor import get_editor
+            w = get_editor()(parent)
+            w.edit_module(self.get_node_module(), self.nodeclass_name)
             return w 
 
         # Node Widget
@@ -842,7 +858,7 @@ class NodeFactory(AbstractFactory):
                 # test unvalidate and reload if necessary
                 if(hasattr(m, 'oa_invalidate' )):
                     sav_path = sys.path[:]
-                    sys.path += self.search_path
+                    sys.path = self.search_path + sav_path
                     reload(m)
                     del(m.oa_invalidate)
                     sys.path = sav_path
@@ -863,7 +879,7 @@ class NodeFactory(AbstractFactory):
             self.nodemodule_path = pathname
 
             sys.path.append(os.path.dirname(pathname))
-            nodemodule = imp.load_module(self.nodemodule_name, file, pathname, desc)
+            nodemodule = imp.load_module(str(id(self.nodemodule_name)), file, pathname, desc)
             sys.path = sav_path
                 
             if(file) : file.close()
@@ -981,7 +997,7 @@ $NAME = Factory(name=$PNAME,
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
-        result = fstr.safe_substitute(NAME=f.name,
+        result = fstr.safe_substitute(NAME=f.get_python_name(),
                                       PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
                                       CATEGORY=repr(f.category), 

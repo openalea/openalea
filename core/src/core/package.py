@@ -260,7 +260,6 @@ class UserPackage(Package):
 
         
 
-
     def write(self):
         """ Return the writer class """
 
@@ -487,7 +486,6 @@ class PyPackageReaderWralea(PyPackageReader):
         # Add factories
         factories = wraleamodule.__dict__.get('__all__', [])
         for fname in  factories:
-
             f = wraleamodule.__dict__.get(fname, None)
             if(f): p.add_factory(f)
 
@@ -537,7 +535,8 @@ $FACTORY_DECLARATION
         for f in self.package.values():
             writer = f.get_writer()
             if(writer):
-                result_str[f.name] = str(writer)
+                name = f.get_python_name()
+                result_str[name] = str(writer)
 
         return result_str
 
@@ -546,6 +545,7 @@ $FACTORY_DECLARATION
         """ Return a string with the package declaration """
 
         fdict = self.get_factories_str()
+
         all = fdict.keys()
 
         fstr = '\n'.join(fdict.values())
