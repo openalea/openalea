@@ -660,7 +660,8 @@ class MainWindow(QtGui.QMainWindow,
             try:
                 self.interpreterWidget.paste()
             except:
-                pass
+                raise
+
         else:
             cindex = self.tabWorkspace.currentIndex()
             widget = self.index_nodewidget[cindex]
