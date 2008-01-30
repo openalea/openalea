@@ -785,8 +785,10 @@ class NodeFactory(AbstractFactory):
 
         # Code Editor
         if(edit):
-            from openalea.visualea.code_editor import NodeCodeEditor
-            return NodeCodeEditor(self, parent)
+            from openalea.visualea.code_editor import PythonCodeEditor
+            w = PythonCodeEditor(parent)
+            w.edit_module(self.get_node_module())
+            return w 
 
         # Node Widget
         if(node == None): node = self.instantiate()
@@ -872,8 +874,8 @@ class NodeFactory(AbstractFactory):
             # By default use __builtin__ module
             import __builtin__
             return __builtin__
-    
 
+    
     def get_node_src(self, cache=True):
         """
         Return a string containing the node src
