@@ -189,6 +189,11 @@ class PyCutExt(QTextEdit):
         Simulate stdin, stdout, and stderr.
         """
         return 1
+
+
+    def clear(self):
+        """ Clear """
+        
     
 
     def readline(self):

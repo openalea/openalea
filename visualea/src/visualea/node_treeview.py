@@ -39,7 +39,7 @@ from openalea.core import cli
 from dialogs import EditPackage, NewGraph, NewPackage
 from util import open_dialog, exception_display, busy_cursor
 from node_widget import SignalSlotListener
-
+from code_editor import PythonCodeEditor
 import images_rc
 
 
@@ -47,7 +47,6 @@ import images_rc
 
 def get_icon(item):
     """ Return Icon object depending of the type of item """
-
     if(isinstance(item, Package)):
         return QVariant(QtGui.QPixmap(":/icons/package.png"))
     
@@ -479,6 +478,10 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
+            action = menu.addAction("Edit Code")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_pkg_code)
+
             action = menu.addAction("Duplicate Package")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
@@ -503,9 +506,37 @@ class NodeFactoryView(object):
         return obj
 
     
+    def edit_pkg_code(self):
+        """ Reload package """
+
+        pkg = self.get_current_pkg()
+        pman = self.model().pman # pkgmanager
+
+        if(not pkg.is_directory()):
+            QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot edit code of old style package\n :")
+            return
+        
+        filename = pkg.get_wralea_path()
+        widget = PythonCodeEditor(self)
+        widget.edit_file(filename)
+        open_dialog(self, widget, pkg.name)
+
+        
     def reload_package(self):
         """ Reload package """
-        pass
+
+        pkg = self.get_current_pkg()
+        pman = self.model().pman # pkgmanager
+
+        if(not pkg.is_directory()):
+            QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot reload old style package\n :")
+            return
+
+        pkg.reload()
+        pman.load_directory(pkg.path)
+        self.model().reset()
 
 
     def duplicate_package(self):
@@ -528,7 +559,9 @@ class NodeFactoryView(object):
             
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
+            pman.add_package(newpkg)
             self.model().reset()
+
 
 
     def edit_package(self):

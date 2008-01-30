@@ -143,6 +143,9 @@ class SciShell(QsciScintilla):
         self.setFocus()
 
 
+    def clear(self):
+        """ Clear shell """
+
 
     def get_interpreter(self):
         """ Return the interpreter object """

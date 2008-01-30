@@ -131,8 +131,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
 
         # Package Manager Menu
-        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.find_wralea)
-        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_wralea)
+        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.reload_all)
+        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_pkgdir)
         self.connect(self.actionFind_Node, SIGNAL("activated()"),
                      self.find_node)
         self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
@@ -147,6 +147,9 @@ class MainWindow(QtGui.QMainWindow,
                      self.exec_python_script)
         self.connect(self.actionOpen_Console, SIGNAL("activated()"),
                      self.open_python_console)
+        self.connect(self.actionClea_r_Console, SIGNAL("activated()"),
+                     self.clear_python_console)
+
         # WorkspaceMenu
         self.connect(self.action_Run, SIGNAL("activated()"), self.run)
         self.connect(self.actionReset, SIGNAL("activated()"), self.reset)
@@ -349,19 +352,16 @@ class MainWindow(QtGui.QMainWindow,
         return index
         
 
-    def add_wralea(self):
+    def add_pkgdir(self):
 
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Add Wralea")
-        if(filename):
-            self.pkgmanager.add_wralea(str(filename))
+        dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Package/Directory")
+        if(dirname):
+            self.pkgmanager.load_directory(str(dirname))
             self.reinit_treeview()
 
     
-    def find_wralea(self):
-
-        self.pkgmanager.unload_module()
-        self.pkgmanager.clear()
-        self.pkgmanager.find_and_register_packages()
+    def reload_all(self):
+        self.pkgmanager.reload()
         self.reinit_treeview()
 
 
@@ -562,9 +562,15 @@ class MainWindow(QtGui.QMainWindow,
 
 
     def open_python_console(self):
-        """ Open an independant window with a python console """
-
+        """ Set focus on the python shell """
         self.interpreterWidget.setFocus(QtCore.Qt.ShortcutFocusReason)
+
+    
+    def clear_python_console(self):
+        """ Clear python shell """
+
+        self.interpreterWidget.clear()
+
         
 
     def new_session(self):

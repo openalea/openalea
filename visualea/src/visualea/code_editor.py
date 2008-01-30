@@ -25,39 +25,43 @@ __revision__=" $Id$"
 
 
 from PyQt4 import QtCore, QtGui
+import os
 
 
-class NodeCodeEditor(QtGui.QWidget):
-    """ Default node editor """
 
-    def __init__(self, factory, parent=None):
+class PythonCodeEditor(QtGui.QWidget):
+    """ Simple Python code editor """
+
+    def __init__(self, parent=None):
         
         QtGui.QWidget.__init__(self, parent)
 
-        self.factory = factory
-        self.src = None
         self.textedit = self.get_editor()
 
         vboxlayout = QtGui.QVBoxLayout(self)
         vboxlayout.setMargin(1)
         vboxlayout.setSpacing(1)
-        hboxlayout = QtGui.QHBoxLayout()
-        hboxlayout.setMargin(1)
-        hboxlayout.setSpacing(1)
-        self.but1 = QtGui.QPushButton("Apply changes", self)
-        self.but2 = QtGui.QPushButton("Save changes", self)
-        hboxlayout.addWidget(self.but1)
-        hboxlayout.addWidget(self.but2)
-        vboxlayout.addLayout(hboxlayout)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(1)
+        self.hboxlayout.setSpacing(1)
+        self.applybut = QtGui.QPushButton("Apply changes", self)
+        self.hboxlayout.addWidget(self.applybut)
+
+        self.savbut = QtGui.QPushButton("Save changes", self)
+        self.hboxlayout.addWidget(self.savbut)
+        vboxlayout.addLayout(self.hboxlayout)
         vboxlayout.addWidget(self.textedit)
+
 
         self.label = QtGui.QLabel("")
         vboxlayout.addWidget(self.label)
 
-        self.connect(self.but1, QtCore.SIGNAL("clicked()"), self.apply_changes)
-        self.connect(self.but2, QtCore.SIGNAL("clicked()"), self.save_changes)
+        self.savescut = QtGui.QShortcut( QtGui.QKeySequence(QtGui.QKeySequence.Save), self)
+        self.connect(self.savescut, QtCore.SIGNAL("activated()"), self.save_changes)
+        self.connect(self.savbut, QtCore.SIGNAL("clicked()"), self.save_changes)
+        self.connect(self.applybut, QtCore.SIGNAL("clicked()"), self.apply_changes)
 
-        self.edit_class(factory)
+
         
 
     def get_editor(self):
@@ -92,6 +96,7 @@ class NodeCodeEditor(QtGui.QWidget):
 
         return textedit
 
+
     def setText(self, str):
         """ Set the text of the editor """
 
@@ -109,6 +114,87 @@ class NodeCodeEditor(QtGui.QWidget):
             return self.textedit.toPlainText()
         
 
+    def edit_file(self, filename):
+        """ Open file in the editor """
+        
+        if(filename):
+            filename = os.path.abspath(filename)
+
+        self.filename = filename
+
+        try:
+            f = open(filename, 'r')
+            self.textedit.setText(f.read())
+            self.label.setText("File : " + filename)
+            f.close()
+            self.savbut.setEnabled(True)
+            self.applybut.setEnabled(False)
+
+
+        except Exception, e:
+            print e
+            self.src = None
+            self.applybut.setEnabled(False)
+            self.savbut.setEnabled(False)
+            self.textedit.setText(" Sources are not available...")
+
+
+    def edit_module(self, module):
+        """ Edit the source file of a python module """
+
+        self.module = module
+        if(not module):  
+            self.applybut.setEnabled(False)
+            return
+            
+        import inspect
+        filename =  inspect.getsourcefile(module)
+        self.edit_file(filename)
+
+        self.savbut.setEnabled(True)
+        self.applybut.setEnabled(True)
+
+
+    def apply_changes(self):
+        """ Reload file """
+
+        if(self.module):
+            newsrc = str(self.getText())
+            exec newsrc in self.module.__dict__
+
+
+    def save_changes(self):
+        """ Save module """
+        if(not os.access(self.filename, os.W_OK)):
+            ret = QtGui.QMessageBox.warning(self, "Cannot write file %s", self.filename)
+            return
+            
+            
+        try:
+            f = open(self.filename, 'w')
+            f.write(str(self.getText()))
+            self.label.setText("Write file : " + self.filename)
+        finally:
+            f.close()
+            
+            
+
+
+
+class NodeCodeEditor(PythonCodeEditor):
+    """ Default node editor """
+
+    def __init__(self, factory, parent=None):
+        
+        PythonCodeEditor.__init__(self, parent)
+
+        self.factory = factory
+        self.src = None
+
+        self.edit_class(factory)
+        
+
+
     def edit_class(self, nodefactory):
         """ Open class source in editor """
         
@@ -119,12 +205,13 @@ class NodeCodeEditor(QtGui.QWidget):
         except Exception, e:
             print e
             self.src = None
-            self.but1.setEnabled(False)
-            self.but2.setEnabled(False)
+            self.applybut.setEnabled(False)
+            self.savbut.setEnabled(False)
             self.textedit.setText(" Sources are not available...")
             
 
     def apply_changes(self):
+        """ Apply """
         self.src = str(self.getText())
         if(self.src != self.factory.get_node_src()):
             self.factory.apply_new_src(self.src)
