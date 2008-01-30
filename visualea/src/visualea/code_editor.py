@@ -26,15 +26,100 @@ __revision__=" $Id$"
 
 from PyQt4 import QtCore, QtGui
 import os
+from openalea.core.settings import Settings
+
+def get_editor():
+    """ Return the editor class """
+    
+    editor = PythonCodeEditor
+
+    s = Settings()
+    try:
+        str = s.get('editor', 'use_external')
+        l = eval(str)
+        if(l): editor = ExternalCodeEditor
+        
+    except:
+        pass
+
+    return editor
+
+
+class AbstractCodeEditor(object):
+    """ External code editor """
+
+    def __init__(self, *args):
+        pass
+
+
+    def is_widget(self):
+        raise NotImplementedError()
+
+    def edit_file(self, filename):
+        """ Open file in the editor """
+        
+    def edit_module(self, module, class_name=None):
+        """ Edit the source file of a python module """
+
+        import inspect
+        filename =  inspect.getsourcefile(module)
+        self.edit_file(filename)
+
+
+class ExternalCodeEditor(AbstractCodeEditor):
+    """ External code editor """
+
+    def __init__(self, *args):
+        AbstractCodeEditor.__init__(self)
+
+
+    def is_widget(self):
+        return False
+
+
+    def get_command(self):
+        """ Return command to execute """
+        s = Settings()
+        cmd = ""
+        try:
+            cmd = s.get('editor', 'command')
+            
+        except:
+            cmd = ""
+            
+        if(not cmd):
+            if('posix' in os.name):
+                return "/usr/bin/vim"
+            else:
+                return "C:\\windows\\notepad.exe"
+
+        return cmd
+
+
+    def edit_file(self, filename):
+        """ Open file in the editor """
+        
+        if(not filename):
+            ret = QtGui.QMessageBox.warning(None, "Error", "Cannot find the file to edit.")
+            return
+
+        c = self.get_command()
+        try:
+            import subprocess
+            subprocess.Popen([c, filename])
+        except:
+            print "Cannot execute %s"%(c,)
 
 
 
-class PythonCodeEditor(QtGui.QWidget):
+
+class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
     """ Simple Python code editor """
 
     def __init__(self, parent=None):
         
         QtGui.QWidget.__init__(self, parent)
+        AbstractCodeEditor.__init__(self)
 
         self.textedit = self.get_editor()
 
@@ -60,8 +145,21 @@ class PythonCodeEditor(QtGui.QWidget):
         self.connect(self.savescut, QtCore.SIGNAL("activated()"), self.save_changes)
         self.connect(self.savbut, QtCore.SIGNAL("clicked()"), self.save_changes)
         self.connect(self.applybut, QtCore.SIGNAL("clicked()"), self.apply_changes)
+        
+    
+    def is_widget(self):
+        return True
 
 
+    def file_changed(self, path):
+        ret = QtGui.QMessageBox.question(self, "File has changed on the disk.",
+                                         "Reload ?\n",
+                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+        
+        if(ret == QtGui.QMessageBox.No): return
+        self.edit_file(self.filename)
+                
+            
         
 
     def get_editor(self):
@@ -97,6 +195,13 @@ class PythonCodeEditor(QtGui.QWidget):
         return textedit
 
 
+    def goToLine(self, linenb):
+        """ Go to line nb """
+        try:
+            self.ensureLineVisible(linenb)
+        except:
+            pass
+
     def setText(self, str):
         """ Set the text of the editor """
 
@@ -126,10 +231,15 @@ class PythonCodeEditor(QtGui.QWidget):
             f = open(filename, 'r')
             self.textedit.setText(f.read())
             self.label.setText("File : " + filename)
+            self.file_stat = os.stat(filename)
             f.close()
             self.savbut.setEnabled(True)
             self.applybut.setEnabled(False)
 
+            self.filewatcher = QtCore.QFileSystemWatcher(self)
+            self.filewatcher.addPath(self.filename)
+            self.connect(self.filewatcher, QtCore.SIGNAL("fileChanged(const QString &)"), self.file_changed)
+        
 
         except Exception, e:
             print e
@@ -139,7 +249,7 @@ class PythonCodeEditor(QtGui.QWidget):
             self.textedit.setText(" Sources are not available...")
 
 
-    def edit_module(self, module):
+    def edit_module(self, module, class_name=None):
         """ Edit the source file of a python module """
 
         self.module = module
@@ -169,13 +279,16 @@ class PythonCodeEditor(QtGui.QWidget):
             ret = QtGui.QMessageBox.warning(self, "Cannot write file %s", self.filename)
             return
             
-            
+        self.filewatcher.removePath(self.filename)
+
         try:
             f = open(self.filename, 'w')
             f.write(str(self.getText()))
             self.label.setText("Write file : " + self.filename)
         finally:
             f.close()
+        
+        self.filewatcher.addPath(self.filename)
             
             
 

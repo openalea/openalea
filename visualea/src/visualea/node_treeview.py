@@ -39,7 +39,7 @@ from openalea.core import cli
 from dialogs import EditPackage, NewGraph, NewPackage
 from util import open_dialog, exception_display, busy_cursor
 from node_widget import SignalSlotListener
-from code_editor import PythonCodeEditor
+from code_editor import get_editor
 import images_rc
 
 
@@ -482,7 +482,7 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_pkg_code)
 
-            action = menu.addAction("Duplicate Package")
+            action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
 
@@ -514,13 +514,13 @@ class NodeFactoryView(object):
 
         if(not pkg.is_directory()):
             QtGui.QMessageBox.warning(self, "Error",
-                                             "Cannot edit code of old style package\n :")
+                                             "Cannot edit code of old style package\n")
             return
         
         filename = pkg.get_wralea_path()
-        widget = PythonCodeEditor(self)
+        widget = get_editor()(self)
         widget.edit_file(filename)
-        open_dialog(self, widget, pkg.name)
+        if(widget.is_widget()) : open_dialog(self, widget, pkg.name)
 
         
     def reload_package(self):
@@ -531,7 +531,7 @@ class NodeFactoryView(object):
 
         if(not pkg.is_directory()):
             QtGui.QMessageBox.warning(self, "Error",
-                                             "Cannot reload old style package\n :")
+                                             "Cannot reload old style package\n")
             return
 
         pkg.reload()
@@ -547,7 +547,7 @@ class NodeFactoryView(object):
 
         if(not pkg.is_directory()):
             QtGui.QMessageBox.warning(self, "Error",
-                                             "Cannot duplicate old style package\n :")
+                                             "Cannot duplicate old style package\n")
             return
 
 
@@ -617,7 +617,8 @@ class NodeFactoryView(object):
 
         elif(isinstance(obj, NodeFactory)):
             widget = obj.instantiate_widget(edit=True)
-            open_dialog(self, widget, obj.get_id())
+            if(widget.is_widget()) :
+                open_dialog(self, widget, obj.get_id())
 
 
     def edit_properties(self):

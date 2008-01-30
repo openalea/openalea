@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'preferences.ui'
 #
-# Created: Tue Dec  4 16:17:13 2007
+# Created: Wed Jan 30 18:44:42 2008
 #      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,6 +65,29 @@ class Ui_Preferences(object):
 
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
+
+        self.vboxlayout = QtGui.QVBoxLayout(self.tab_2)
+        self.vboxlayout.setObjectName("vboxlayout")
+
+        self.externalBool = QtGui.QCheckBox(self.tab_2)
+        self.externalBool.setObjectName("externalBool")
+        self.vboxlayout.addWidget(self.externalBool)
+
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setObjectName("hboxlayout")
+
+        self.label_4 = QtGui.QLabel(self.tab_2)
+        self.label_4.setObjectName("label_4")
+        self.hboxlayout.addWidget(self.label_4)
+
+        self.commandStr = QtGui.QLineEdit(self.tab_2)
+        self.commandStr.setObjectName("commandStr")
+        self.hboxlayout.addWidget(self.commandStr)
+
+        self.commandPath = QtGui.QPushButton(self.tab_2)
+        self.commandPath.setObjectName("commandPath")
+        self.hboxlayout.addWidget(self.commandPath)
+        self.vboxlayout.addLayout(self.hboxlayout)
         self.tabWidget.addTab(self.tab_2,"")
 
         self.tab_3 = QtGui.QWidget()
@@ -114,7 +137,10 @@ class Ui_Preferences(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Preferences", "Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Preferences", "Algorithm", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("Preferences", "Dataflow", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Preferences", "Python Editor", None, QtGui.QApplication.UnicodeUTF8))
+        self.externalBool.setText(QtGui.QApplication.translate("Preferences", "Use External editor", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("Preferences", "Command", None, QtGui.QApplication.UnicodeUTF8))
+        self.commandPath.setText(QtGui.QApplication.translate("Preferences", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Preferences", "Editor", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Preferences", "Double click on item", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run", None, QtGui.QApplication.UnicodeUTF8))
