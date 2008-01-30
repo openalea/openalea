@@ -453,6 +453,24 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
+        # Editor
+        try:
+            str = config.get("editor", "use_external")
+            l = eval(str)
+            if(l):
+                self.externalBool.setCheckState(QtCore.Qt.Checked)
+            else:
+                self.externalBool.setCheckState(QtCore.Qt.Unchecked)
+        except Exception, e:
+            print e
+
+        try:
+            str = config.get("editor", "command")
+            self.commandStr.setText(str)
+        except:
+            pass
+
+
 
         # UI
         try:
@@ -465,7 +483,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
             elif("open" in l):
                 self.dbclickBox.setCurrentIndex(2)
         except:
-            pass
+            self.dbclickBox.setCurrentIndex(2)
 
         try:
             self.edge_style = config.get("UI", "EdgeStyle")
@@ -476,7 +494,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
             elif(self.edge_style == "Spline"):
                 self.comboBox.setCurrentIndex(2)
         except:
-            self.edge_style = "Line"
+            self.edge_style = "Spline"
 
         # Dataflow
         try:
@@ -575,7 +593,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
 
     def valid_dataflow(self):
-
+        """ Valid dataflow parameter """
         item = self.listAlgo.currentItem()
         if(item):
             algostr = str(item.text())
@@ -583,6 +601,19 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
             config = Settings()
             config.set("eval", "type", algostr)
             config.write_to_disk()
+
+
+    def valid_editor(self):
+        """ Valid editor parameter """
+        use_ext = bool(self.externalBool.checkState() == QtCore.Qt.Checked)
+        command = str(self.commandStr.text())
+
+        config = Settings()
+        config.set("editor", "use_external", repr(use_ext))
+        config.set("editor", "command", command)
+        config.write_to_disk()
+
+        
           
 
     def accept(self):
@@ -591,6 +622,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         self.valid_search_path()
         self.valid_ui()
         self.valid_dataflow()
+        self.valid_editor()
         QtGui.QDialog.accept(self)
 
 
