@@ -66,10 +66,10 @@ class PackageManager(object):
         # save system path
         self.old_syspath = sys.path[:]
 
-        # dictionnay of packages
+        # dictionnary of packages
         self.pkgs = NoCaseDict()
 
-        # dictionnay of category
+        # dictionnary of category
         self.category = PseudoGroup("")
         
         # list of path to search wralea file
@@ -142,24 +142,25 @@ class PackageManager(object):
         self.add_wraleapath(get_userpkg_dir())
         
 
-    def init(self, filename=None):
+    def init(self, dirname=None):
         """ Initialize package
-        If filename is None, find wralea files on the system
-        else load filename
+        If dirname is None, find wralea files on the system
+        else load directory
         """
 
-        if (not filename):
+        if (not dirname):
             self.find_and_register_packages()
         else :
-            self.add_wralea(filename)
+            self.load_directory(dirname)    
 
 
-    def unload_module(self):
-        """ Remove all wralea module and invalidate others"""
+    def reload(self):
+        """ Reload all packages """
 
-        for name in sys.modules.keys():
-            m = sys.modules[name]
-            if(m) : m.oa_invalidate = True
+        self.clear()
+        self.find_and_register_packages()
+        for p in self.pkgs.values():
+            p.reload()
         
         
     def clear(self):
@@ -242,56 +243,69 @@ class PackageManager(object):
         self.category = PseudoGroup('Root') 
         for p in self.values():
             self.update_category(p)
-        
+
+       
 
     # Wralea functions
-    def add_wralea(self, filename):
-        """ Execute a wralea file 
-        Return the registered packages
-        """
-
-        filename = os.path.abspath(filename)
+    def load_directory(self, dirname):
+        """ Load a directory containing wraleas"""
         
-        if(not os.path.exists(filename) or
-           not os.path.isfile(filename)):
-            print "Wralea : %s does not exists."%(filename,)
+        dirname = os.path.abspath(dirname)
+
+        if(not os.path.exists(dirname) or
+           not os.path.isdir(dirname)):
+            print "Package directory : %s does not exists."%(dirname,)
             return
 
-        # Update wralea path if necessary
-        path = os.path.dirname(filename)
-        self.add_wraleapath(path)
-        
-        reader = self.get_pkgreader(filename)
-        if reader: 
-            return reader.register_packages(self)
-        else:
-            print "Unable to load package %s."%(filename,)
-            return None
-        
-    
-    def find_wralea_files (self):
+        self.add_wraleapath(dirname)
+
+        # find wralea
+        readers = self.find_wralea_dir(dirname)
+        for r in readers:
+            if r: 
+                return r.register_packages(self)
+            else:
+                print "Unable to load package %s."%(filename,)
+                return None
+
+
+
+    def find_wralea_dir(self, directory):
         """
-        Find on the system all wralea.py, wralea.xml files
+        Find in a directory wralea files,
         @return : a list of pkgreader instances
         """
 
         from path import path
 
         wralea_files = set()
-        for wp in self.wraleapath:
-            if(not os.path.isdir(wp)):
-                continue
+        if(not os.path.isdir(directory)):
+            return
             
-            p = path(wp).abspath()
+        p = path(directory).abspath()
 
-            # search for wralea.py
-            wralea_files.update( p.walkfiles("*wralea.py") )
-            wralea_files.update( p.walkfiles("__wralea__.py") )
+        # search for wralea.py
+        wralea_files.update( p.walkfiles("*wralea.py") )
+        wralea_files.update( p.walkfiles("__wralea__.py") )
 
         for f in wralea_files:
             print "Package Manager : found %s" % f
             
         return map(self.get_pkgreader, wralea_files)
+
+
+    
+    def find_wralea_files (self):
+        """
+        Find on the system all wralea.py, wralea.xml files
+        @return : a list of pkgreader instances
+        """
+        
+        readers = []
+        for wp in self.wraleapath:
+            readers += self.find_wralea_dir(wp)
+            
+        return readers
 
 
 
@@ -341,7 +355,7 @@ class PackageManager(object):
         p.write()
 
         # Register package
-        self.add_wralea(p.get_wralea_path())
+        self.load_directory(path)
         self.write_config()
         return p
 
