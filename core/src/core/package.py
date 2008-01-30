@@ -112,6 +112,45 @@ class Package(NoCaseDict):
         return self.wralea_path.endswith("__wralea__.py")
 
 
+    def get_pkg_files(self):
+        """ Return the list of python filename of the package.
+        The filename are relative to self.path
+        """
+        
+        #assert self.is_directory()
+
+        ret = []
+        for file in os.listdir(self.path):
+            src = os.path.join(self.path, file)
+            if(not os.path.isfile(src) or
+               not file.endswith(".py")): continue
+            ret.append(file)
+
+        return ret
+
+
+    def reload(self):
+        """ Reload all python file of the package """
+        
+        sources = self.get_pkg_files()
+
+        s = set() # set of full path name
+        for f in sources:
+            if(f.endswith('.py')): f += 'c'
+
+            s.add(os.path.abspath(os.path.join(self.path, f)))
+
+        for module in sys.modules.itervalues():
+            if(not module): continue
+            try:
+                modulefile = os.path.abspath(module.__file__)
+                if(modulefile in s):
+                    reload(module)
+                    print "Reloaded ", module.__name__
+            except:
+                pass
+            
+
     def get_wralea_path(self):
         """ Return the full path of the wralea.py (if set) """
         return self.wralea_path
@@ -197,24 +236,20 @@ class UserPackage(Package):
             path = os.path.abspath(inspect.stack()[1][1])
 
         Package.__init__(self, name, metainfo, path)
-        
+       
 
     def clone_from_package(self, pkg):
         """ Copy the contents of pkg in self"""
+        
+        assert self.is_directory()
 
         import shutil
+        sources =  pkg.get_pkg_files()
 
-        # Copy all file contained in the wralea directory
-        for file in os.listdir(pkg.path):
-            
+        for file in sources:
             src = os.path.join(pkg.path, file)
-            
-            if(not os.path.isfile(src) or
-               not src.endswith(".py")): continue
-
             dst = os.path.join(self.path, file)
             shutil.copyfile(src, dst)
-
 
         metainfo = self.metainfo 
         # Copy deeply all the factory
@@ -370,6 +405,7 @@ class PyPackageReader(object):
         """ Execute Wralea.py """
 
         retlist = []
+        pkg = None
 
         basename = os.path.basename(self.filename)
         basedir = os.path.abspath( os.path.dirname( self.filename ))
@@ -386,7 +422,7 @@ class PyPackageReader(object):
         (file, pathname, desc) = imp.find_module(base_modulename, [basedir])
         try:
             wraleamodule = imp.load_module(modulename, file, pathname, desc)
-            self.build_package(wraleamodule, pkgmanager)
+            pkg = self.build_package(wraleamodule, pkgmanager)
 
         except Exception, e:
             print '%s is invalid :'%(self.filename,), e
@@ -399,6 +435,8 @@ class PyPackageReader(object):
 
         # Recover sys.path
         sys.path.pop()
+
+        return pkg
 
 
     def build_package(self, wraleamodule, pkgmanager):
