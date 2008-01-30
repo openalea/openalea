@@ -146,8 +146,8 @@ rgb_ = Factory( name="rgb",
               nodemodule="data",
               nodeclass="RGB",
               
-              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0)),),
-              outputs=(dict(name="RGB", interface = ISequence),),
+              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
+              outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
               )
 
 

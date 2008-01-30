@@ -104,18 +104,44 @@ class AbstractNode(Observed):
         """ Return the factory of the node (if any) """
         return self.factory
 
-class AbstractPort(dict):
-    """The class describing the ports.
-    
-    <Long description of the class functionality.>
-    """
-    pass
 
-class InputPort(dict):
-    """The class describing the ports.
+
+class AbstractPort(dict):
+    """ The class describing the ports """
     
-    <Long description of the class functionality.>
-    """
+    def get_desc( self ):
+        """Gets defult description   """
+        return self.get("desc", None )
+
+
+    def get_interface( self ):
+        """Gets the interface  """
+        return self.get("interface", None )
+    
+    def get_tip(self):
+        """ Return the tool tip """
+
+        name = self['name']
+        interface = self.get('interface', None)
+        desc = self.get('desc', '')
+        
+        iname = 'Any'
+        if(interface):
+            try:
+                iname = interface.__name__
+            except AttributeError:
+                try:
+                    iname = interface.__class__.__name__
+                except AttributeError:
+                    iname = str(interface)
+        
+        return '%s(%s) : %s '%(name,iname, desc)
+
+
+
+class InputPort(AbstractPort):
+    """ The class describing the input ports """
+
     def get_label( self ):
         """Gets defult label
         
@@ -127,16 +153,7 @@ class InputPort(dict):
         """
         return self.get("label", self["name"] )
 
-    def get_desc( self ):
-        """Gets defult description
-        
-        <Long description of the function functionality.>
-        
-        :rtype: `T`
-        :return: <Description of ``return_object`` meaning>
-        :raise Exception: <Description of situation raising `Exception`>
-        """
-        return self.get("desc", None )
+
 
 
     def is_hidden( self ):
@@ -151,23 +168,10 @@ class InputPort(dict):
         return self.get("hide", None )
 
 
-    def get_interface( self ):
-        """Gets the interface
-        
-        <Long description of the function functionality.>
-        
-        :rtype: `T`
-        :return: <Description of ``return_object`` meaning>
-        :raise Exception: <Description of situation raising `Exception`>
-        """
-        return self.get("interface", None )
     
 
-class OutputPort(dict):
-    """The class describing the ports.
-    
-    <Long description of the class functionality.>
-    """
+class OutputPort(AbstractPort):
+    """The class describing the output ports """
     pass
 
 
@@ -372,7 +376,10 @@ class Node(AbstractNode):
         name = str(kargs['name'])
         self.outputs.append( None )
         
-        self.output_desc.append(kargs)
+        p = OutputPort()
+        p.update(kargs)
+        
+        self.output_desc.append(p)
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index 

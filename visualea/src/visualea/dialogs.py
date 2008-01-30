@@ -656,14 +656,14 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         self.inputs = inputs
         self.outputs = outputs
         
-        self.inModel = QtGui.QStandardItemModel(len(inputs), 3)
-        self.inModel.setHorizontalHeaderLabels(["Name", "Interface", "Value"])
+        self.inModel = QtGui.QStandardItemModel(len(inputs), 4)
+        self.inModel.setHorizontalHeaderLabels(["Name", "Interface", "Value", "Description"])
         self.inTable.setModel(self.inModel)
 
         self.inTable.setItemDelegate(delegate)
 
-        self.outModel = QtGui.QStandardItemModel(len(outputs), 2)
-        self.outModel.setHorizontalHeaderLabels(["Name", "Interface"])
+        self.outModel = QtGui.QStandardItemModel(len(outputs), 3)
+        self.outModel.setHorizontalHeaderLabels(["Name", "Interface", "Description"])
         self.outTable.setModel(self.outModel)
         
         self.outTable.setItemDelegate(delegate)
@@ -674,11 +674,12 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
             self.inModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
             self.inModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
             self.inModel.setItem(i, 2, QtGui.QStandardItem(str(d['value'])))
-
+            self.inModel.setItem(i, 3, QtGui.QStandardItem(str(d.get('desc', ''))))
 
         for i, d in enumerate(outputs):
             self.outModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
             self.outModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
+            self.outModel.setItem(i, 2, QtGui.QStandardItem(str(d.get('desc', ''))))
 
 
         self.connect(self.addInput, QtCore.SIGNAL("clicked()"), self.add_input)
@@ -697,6 +698,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
             name = str(self.inModel.item(i,0).text())
             interface_str = str(self.inModel.item(i,1).text())
             val_str = str(self.inModel.item(i,2).text())
+            desc_str = str(self.inModel.item(i,3).text())
 
             try:
                 interface = eval(interface_str)
@@ -709,7 +711,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
                 val = None
 
         
-            self.inputs.append(dict(name=name, interface=interface, value=val))
+            self.inputs.append(dict(name=name, interface=interface, value=val, desc=desc_str))
             
 
         # build output dict
@@ -718,11 +720,14 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         for i in xrange(c):
             name = str(self.outModel.item(i,0).text())
             interface_str = str(self.outModel.item(i,1).text())
+            desc_str = str(self.outModel.item(i,2).text())
+
             try:
                 interface = eval(interface_str)
             except:
                 interface = None
-            self.outputs.append(dict(name=name, interface=interface))
+
+            self.outputs.append(dict(name=name, interface=interface, desc=desc_str))
         
         QtGui.QDialog.accept(self)
 
@@ -731,13 +736,15 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         c = self.inModel.rowCount()
         self.inModel.appendRow([QtGui.QStandardItem('IN%i'%(c+1,)),
                                 QtGui.QStandardItem('None'),
-                                QtGui.QStandardItem('None')])
+                                QtGui.QStandardItem('None'),
+                                QtGui.QStandardItem('')])
 
 
     def add_output(self):
         c = self.outModel.rowCount()
         self.outModel.appendRow([QtGui.QStandardItem('OUT%i'%(c+1,)),
-                                QtGui.QStandardItem('None')])
+                                QtGui.QStandardItem('None'),
+                                 QtGui.QStandardItem('')])
 
         
     def del_input(self):
@@ -749,6 +756,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         c = self.outModel.rowCount()
         self.outModel.takeRow(c-1)
         
+
 
 class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
     """

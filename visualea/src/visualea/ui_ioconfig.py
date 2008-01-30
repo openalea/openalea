@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'ioconfig.ui'
 #
-# Created: Thu Sep 27 15:17:09 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Jan 30 10:45:37 2008
+#      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_IOConfig(object):
     def setupUi(self, IOConfig):
         IOConfig.setObjectName("IOConfig")
-        IOConfig.resize(QtCore.QSize(QtCore.QRect(0,0,291,528).size()).expandedTo(IOConfig.minimumSizeHint()))
+        IOConfig.resize(QtCore.QSize(QtCore.QRect(0,0,444,441).size()).expandedTo(IOConfig.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(IOConfig)
         self.vboxlayout.setSpacing(6)
