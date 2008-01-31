@@ -45,13 +45,15 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     """ New network dialog """
     
     def __init__(self, title, pmanager, parent=None,
-                 factory=None, io=True, inputs=(), outputs=()):
+                 factory=None, io=True, inputs=(), outputs=(),
+                 pkg_id = None):
         """
         Constructor
         pmanager : the package manager
         factory : if not None, activate edition mode
         io : provide io config
         inputs and output are default inputs and output
+        pkg_id : id of selected pkg
         """
         
         QtGui.QDialog.__init__(self, parent)
@@ -79,6 +81,11 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         cats.sort()
         self.categoryEdit.addItems(cats)
 
+
+        if(pkg_id):
+            self.packageBox.addItem(pkg_id)
+            self.packageBox.setEnabled(False)
+            
         
         if(factory): # Edition mode
             self.packageBox.addItem(factory.package.name)
@@ -470,6 +477,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
+        self.connect(self.commandPath, QtCore.SIGNAL("clicked()"), self.select_editor)
 
 
         # UI
@@ -514,9 +522,22 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         """ Package Manager : Add a path in the list """
 
         result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
-    
+        
         if(result):
             self.pathList.addItem(result)
+
+
+    def select_editor(self):
+        """ Select Python Editor command """
+
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, "Select python editor")
+
+        filename = str(filename)
+        if(not filename) : return
+
+        if(filename):
+            self.commandStr.setText(filename)
 
 
     def update_eval_algo(self, algo_str):
