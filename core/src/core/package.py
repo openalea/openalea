@@ -30,7 +30,6 @@ import inspect
 import os, sys
 import string
 import imp
-import copy
 import time
 
 from node import NodeFactory
@@ -252,10 +251,14 @@ class UserPackage(Package):
             dst = os.path.join(self.path, file)
             shutil.copyfile(src, dst)
 
-        metainfo = self.metainfo 
         # Copy deeply all the factory
-        self.update(copy.deepcopy(pkg))
-        self.metainfo = metainfo
+        for k,v in pkg.iteritems():
+            self[k] = v.copy(replace_pkg = (pkg, self),
+                             path = self.path
+                             )
+            
+            #self.update(copy.deepcopy(pkg))
+
         self.write()
 
         

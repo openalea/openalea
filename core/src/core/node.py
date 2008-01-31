@@ -32,7 +32,7 @@ import inspect
 import os, sys
 import string
 import types
-from copy import copy
+from copy import copy, deepcopy
 
 
 #from signature import get_parameters
@@ -662,6 +662,24 @@ class AbstractFactory(Observed):
         raise NotImplementedError()
 
 
+    def copy(self, **args):
+        """ Copy factory """
+
+        # Disable package before copy
+        pkg = self.package
+        self.package = None
+
+        ret = deepcopy(self)
+        self.packageg = pkg
+
+        old_pkg, new_pkg = args['replace_pkg']
+
+        ret.package = new_pkg
+            
+        
+        return ret
+
+
     
 
 
@@ -746,7 +764,16 @@ class NodeFactory(AbstractFactory):
         odict['nodeclass'] = None      
         odict['module_cache'] = None      
         return odict
+
     
+    def copy(self, **args):
+        """ Copy factory 
+        @param path : new search path"""
+        
+        ret = AbstractFactory.copy(self, **args)
+        ret.search_path = [args['path']]
+        return ret
+
        
     def instantiate(self, call_stack=[]):
         """ Return a node instance

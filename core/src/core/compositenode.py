@@ -71,8 +71,8 @@ class CompositeNodeFactory(AbstractFactory):
         # ( source_vid , source_port ) : ( target_vid, target_port )
         self.connections = kargs.get("elt_connections", {})
 
-        self.elt_data =  kargs.get("elt_data", {})
-        self.elt_value =  kargs.get("elt_value", {})
+        self.elt_data = kargs.get("elt_data", {})
+        self.elt_value = kargs.get("elt_value", {})
 
 
         # Documentation
@@ -85,6 +85,25 @@ class CompositeNodeFactory(AbstractFactory):
         self.connections.clear()
         self.elt_data.clear()
         self.elt_value.clear()
+        
+    
+    def copy(self, **args):
+        """ Copy factory 
+        @param path : new search path"""
+
+        ret = AbstractFactory.copy(self, **args)
+        
+        # Replace old pkg name to new pkg name
+        (old_pkg, new_pkg) = args['replace_pkg']
+        
+        for k, v in ret.elt_factory.iteritems():
+            pkg_id, factory_id = v
+
+            if(pkg_id == old_pkg.get_id()):
+                pkg_id = new_pkg.get_id()
+                ret.elt_factory[k] = pkg_id, factory_id
+        
+        return ret
         
 
     def get_writer(self):
@@ -828,7 +847,6 @@ $NAME = CompositeNodeFactory(name=$PNAME,
 
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
-        print f.name
 
         result = fstr.safe_substitute(NAME=f.name,
                                       PNAME=self.pprint_repr(f.name),
