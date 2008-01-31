@@ -48,7 +48,7 @@ getitem = Factory( name="getitem",
                    inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
                    nodemodule="operator",
                    nodeclass="getitem",
-                   
+                   widgetmodule="python",
                    widgetclass="ListSelectorWidget",
                    )
 

@@ -848,7 +848,7 @@ $NAME = CompositeNodeFactory(name=$PNAME,
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
 
-        result = fstr.safe_substitute(NAME=f.name,
+        result = fstr.safe_substitute(NAME=f.get_python_name(),
                                       PNAME=self.pprint_repr(f.name),
                                       DESCRIPTION=self.pprint_repr(f.description),
                                       CATEGORY=self.pprint_repr(f.category),

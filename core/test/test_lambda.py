@@ -14,7 +14,7 @@ def test_lambda():
     for t, id, res in (
         ('LambdaFactoriel', 2, 362880),
         ('testlambdaFor', 3, 12),
-        ('testlambdaFor', 9, [3628800, 11]),
+        ('testlambdaFor', 9, [12, 5]),
         ('testorder', 4, [1.,2.]),
         ('TestLambda', 3, map( lambda x: (x+5)*5, range(10))),
         ('testlambda2', 10, filter( lambda x: x>=2 and x <= 7, range(10))),
@@ -24,7 +24,8 @@ def test_lambda():
 
         n = pm.get_node("TestLambda", t)
         n()
-
+        
+        print n.node(id).get_output(0), res
         assert n.node(id).get_output(0) == res
 
 

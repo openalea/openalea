@@ -90,7 +90,7 @@ and_ = Factory( name="and",
                nodeclass="and_",
                )
 
-__all__.append('pand')
+__all__.append('and_')
 
 
 or_ = Factory( name="or", 
