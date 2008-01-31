@@ -642,7 +642,10 @@ class AbstractFactory(Observed):
     def get_python_name(self):
         """ Return a python valid name """
 
-        name = self.name.replace(".", "_")
+        name = self.name
+
+        if(not name.isalnum()):
+            name = '_%s'%(id(name))
         return name
 
 

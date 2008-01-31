@@ -248,8 +248,7 @@ class LambdaVar(Node):
         LambdaVar.cpt += 1
 
     def __call__(self, inputs):
-        
-        return (SubDataflow(None, None, 0, 0),)
+        return SubDataflow(None, None, 0, 0)
 
 
 class WhileUniVar(Node):
@@ -267,8 +266,12 @@ class WhileUniVar(Node):
         test = inputs[1]
         func = inputs[2]
 
+        cpt = 0
         while(test(value)):
+            cpt += 1
+            if(cpt > 100000): raise RuntimeError("Infinite Loop  (>100000)")
             value = func(value)
+            print "while output: ", value
 
         return (value,)
 
@@ -287,12 +290,18 @@ class WhileMultiVar(Node):
         values = inputs[0]
         test = inputs[1]
         funcs = inputs[2]
-
+        
+        cpt = 0
         while(test(*values)):
             newvals = []
 
-            for i,f in enumerate(funcs):
-                newvals.append(f(*values))
-            values = newvals
+            cpt += 1
+            if(cpt > 100000): raise RuntimeError("Infinite Loop (>100000)")
 
-        return (values,)
+            for f in funcs:
+                res = f(*values)
+                newvals.append(res)
+            values = newvals
+            print "while output: ", values
+
+        return values

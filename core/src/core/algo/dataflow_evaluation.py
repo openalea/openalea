@@ -293,7 +293,7 @@ class LambdaEvaluation (PriorityEvaluation) :
 		""" Evaluate the vertex vid 
                 @param context is a list a value to assign to lambdas
                 """
-		
+
 		df = self._dataflow
 		actor = df.actor(vid)
 
@@ -328,7 +328,6 @@ class LambdaEvaluation (PriorityEvaluation) :
                                     self.eval_vertex(nvid, transmit_cxt)
 
                                 outval = nactor.get_output(df.local_id(npid))
-
                                 # Lambda 
 
                                 # We must consider 2 cases
@@ -381,8 +380,10 @@ class LambdaEvaluation (PriorityEvaluation) :
             """
             
             self.lambda_value.clear() 
+            if(context) : context.reverse()
             PriorityEvaluation.eval(self, vtx_id, context)
             self.lambda_value.clear() # do not keep context in memory
+
 
 DefaultEvaluation = LambdaEvaluation
 
