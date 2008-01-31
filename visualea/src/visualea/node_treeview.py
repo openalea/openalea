@@ -469,7 +469,8 @@ class NodeFactoryView(object):
         elif(isinstance(obj, PseudoPackage)): # Package
 
             enabled = obj.is_real_package()
-            
+            pkg = obj.item
+
             menu = QtGui.QMenu(self)
 
             action = menu.addAction("Open URL")
@@ -481,17 +482,17 @@ class NodeFactoryView(object):
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
 
             action = menu.addAction("Edit Code")
-            action.setEnabled(enabled)
+            action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_pkg_code)
 
             menu.addSeparator()
 
             action = menu.addAction("Add Python Node")
-            action.setEnabled(enabled)
+            action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("activated()"), self.add_python_node)
             
             action = menu.addAction("Add Composite Node")
-            action.setEnabled(enabled)
+            action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("activated()"), self.add_composite_node)
 
             menu.addSeparator()
@@ -501,7 +502,7 @@ class NodeFactoryView(object):
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
 
             action = menu.addAction("Remove Package")
-            action.setEnabled(enabled)
+            action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("activated()"), self.remove_package)
 
 
@@ -565,6 +566,8 @@ class NodeFactoryView(object):
             QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot Remove old style package\n")
             return
+
+        if(not pkg.is_editable()): return 
 
         ret = QtGui.QMessageBox.question(self, "Remove package",
                                          "Remove %s?\n"%(pkg.name,),
