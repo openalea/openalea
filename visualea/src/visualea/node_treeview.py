@@ -461,6 +461,8 @@ class NodeFactoryView(object):
             action = menu.addAction("Properties")
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_properties)
 
+            menu.addSeparator()
+
             action = menu.addAction("Remove")
             self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
 
@@ -498,6 +500,11 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
 
+            action = menu.addAction("Remove Package")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_package)
+
+
             menu.addSeparator()
 
             action = menu.addAction("Reload Package")
@@ -530,7 +537,8 @@ class NodeFactoryView(object):
 
         if(ret>0):
             dialog.create_nodefactory(pman)
-            self.model().reset()
+            self.main_win.reinit_treeview()
+
 
 
     def add_composite_node(self):
@@ -543,9 +551,38 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_cnfactory(pman)
-            self.model().reset()
+            self.main_win.reinit_treeview()
+
+
+
+    def remove_package(self):
+        """ Remove selected package """
+
+        pkg = self.get_current_pkg()
+        pman = self.model().pman # pkgmanager
+
+        if(not pkg.is_directory()):
+            QtGui.QMessageBox.warning(self, "Error",
+                                             "Cannot Remove old style package\n")
+            return
+
+        ret = QtGui.QMessageBox.question(self, "Remove package",
+                                         "Remove %s?\n"%(pkg.name,),
+                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+
+        if(ret == QtGui.QMessageBox.No):
+            return
+
+        try:
+            pkg.remove_files()
+        except AssertionError:
+            return
+
+        del pman[pkg.get_id()]
+        self.main_win.reinit_treeview()
 
     
+
     def edit_pkg_code(self):
         """ Reload package """
 
@@ -576,7 +613,7 @@ class NodeFactoryView(object):
 
         pkg.reload()
         pman.load_directory(pkg.path)
-        self.model().reset()
+        self.main_win.reinit_treeview()
 
 
     def duplicate_package(self):
@@ -600,7 +637,7 @@ class NodeFactoryView(object):
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
             pman.add_package(newpkg)
-            self.model().reset()
+            self.main_win.reinit_treeview()
 
 
 

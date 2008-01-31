@@ -1020,14 +1020,18 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         action = menu.addAction("Open Widget")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
 
+        menu.addSeparator()
+
         action = menu.addAction("Delete")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
-        
-        action = menu.addAction("Caption")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
 
         action = menu.addAction("Reset")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.subnode.reset)
+        
+        menu.addSeparator()
+
+        action = menu.addAction("Caption")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
 
         action = menu.addAction("Show/Hide ports")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.show_ports)

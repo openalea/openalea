@@ -31,6 +31,7 @@ import os, sys
 import string
 import imp
 import time
+import shutil
 
 from node import NodeFactory
 from nocasedict import NoCaseDict
@@ -127,6 +128,11 @@ class Package(NoCaseDict):
             ret.append(file)
 
         return ret
+
+
+    def remove_files(self):
+        """ Remove pkg files """
+        assert False
 
 
     def reload(self):
@@ -236,14 +242,21 @@ class UserPackage(Package):
             path = os.path.abspath(inspect.stack()[1][1])
 
         Package.__init__(self, name, metainfo, path)
-       
+    
+    
+    def remove_files(self):
+        """ Remove pkg files """
+        assert self.is_directory()
+        
+        self.clear()
+        shutil.rmtree(self.path, ignore_errors=True)
+
 
     def clone_from_package(self, pkg):
         """ Copy the contents of pkg in self"""
         
         assert self.is_directory()
 
-        import shutil
         sources =  pkg.get_pkg_files()
 
         for file in sources:
@@ -262,7 +275,6 @@ class UserPackage(Package):
         self.write()
 
         
-
     def write(self):
         """ Return the writer class """
 
@@ -351,7 +363,6 @@ class UserPackage(Package):
 
         Package.add_factory(self, factory)
         
-
 
     def __delitem__(self, key):
         """ Write change on disk """
