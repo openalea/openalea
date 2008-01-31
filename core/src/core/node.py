@@ -33,7 +33,7 @@ import os, sys
 import string
 import types
 from copy import copy, deepcopy
-
+from weakref import ref
 
 #from signature import get_parameters
 import signature as sgn
@@ -110,7 +110,7 @@ class AbstractPort(dict):
     """ The class describing the ports """
     
     def get_desc( self ):
-        """Gets defult description   """
+        """Gets default description   """
         return self.get("desc", None )
 
 
@@ -611,7 +611,7 @@ class AbstractFactory(Observed):
         self.description = description
         self.category = category
 
-        self.package = None
+        self.__pkg__ = None
 
         self.inputs = inputs
         self.outputs = outputs
@@ -621,6 +621,17 @@ class AbstractFactory(Observed):
         
 
         #self.instantiated = set() # instantiated nodes
+
+    # Package property
+    def set_pkg(self, p):
+        if(not p): self.__pkg__ = None
+        else : self.__pkg__ = ref(p)
+
+    def get_pkg(self):
+        if(not self.__pkg__): return None
+        return self.__pkg__()
+
+    package = property(get_pkg, set_pkg)
 
 
     def get_id(self):

@@ -380,6 +380,11 @@ class PackageManager(object):
     def __len__(self):
         return len(self.pkgs)
 
+    def __delitem__(self, item):
+        r = self.pkgs.__delitem__(item)
+        self.rebuild_category()
+        return r
+    
     def keys(self):
         return self.pkgs.keys()
 
