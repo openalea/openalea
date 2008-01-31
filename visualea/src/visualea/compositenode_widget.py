@@ -713,20 +713,29 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
         # Set ToolTip
         doc= self.subnode.__doc__
+        try:
+            node_name = self.subnode.factory.name
+        except:
+            node_name = self.subnode.__class__.__name__
+
+        try:
+            pkg_name = self.subnode.factory.package.get_id()
+        except:
+            pkg_name = ''
+
         if doc:
             doc = doc.split('\n')
             doc = [x.strip() for x in doc] 
             doc = '\n'.join(doc)
-            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__) +
-                             "Documentation : \n%s"%(doc,))
         else:
             if(self.subnode.factory):
-                desc = self.subnode.factory.description
-            else : desc = ""
-            self.setToolTip( "Class : %s\n"%(self.subnode.__class__.__name__)+
-                             "Description :%s\n" %(desc) )
-                              
+                doc = self.subnode.factory.description
 
+
+        self.setToolTip( "Name : %s\n"%(node_name) +
+                         "Package : %s\n"%(pkg_name) +
+                         "Documentation : \n%s"%(doc,))
+                              
         # Font and box size
         self.font = self.graphview.font()
         self.font.setBold(True)

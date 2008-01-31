@@ -473,7 +473,7 @@ class NodeFactoryView(object):
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
-
+            
             action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
@@ -482,9 +482,23 @@ class NodeFactoryView(object):
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.edit_pkg_code)
 
+            menu.addSeparator()
+
+            action = menu.addAction("Add Python Node")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.add_python_node)
+            
+            action = menu.addAction("Add Composite Node")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("activated()"), self.add_composite_node)
+
+            menu.addSeparator()
+
             action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
+
+            menu.addSeparator()
 
             action = menu.addAction("Reload Package")
             action.setEnabled(enabled)
@@ -504,6 +518,32 @@ class NodeFactoryView(object):
         obj = obj.item
 
         return obj
+
+    
+    def add_python_node(self):
+        """ """
+        pman = self.model().pman # pkgmanager
+        pkg = self.get_current_pkg()
+
+        dialog = NewGraph("New Python Node", pman, self, pkg_id=pkg.name)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            dialog.create_nodefactory(pman)
+            self.model().reset()
+
+
+    def add_composite_node(self):
+        """ """
+        pman = self.model().pman # pkgmanager
+        pkg = self.get_current_pkg()
+
+        dialog = NewGraph("New Composite Node", pman, self, pkg_id=pkg.name)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            newfactory = dialog.create_cnfactory(pman)
+            self.model().reset()
 
     
     def edit_pkg_code(self):
