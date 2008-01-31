@@ -113,6 +113,9 @@ class Package(NoCaseDict):
         return self.wralea_path.endswith("__wralea__.py")
 
 
+    def is_editable(self):
+        return False
+
     def get_pkg_files(self):
         """ Return the list of python filename of the package.
         The filename are relative to self.path
@@ -243,6 +246,10 @@ class UserPackage(Package):
 
         Package.__init__(self, name, metainfo, path)
     
+    
+    def is_editable(self):
+        return True
+
     
     def remove_files(self):
         """ Remove pkg files """
