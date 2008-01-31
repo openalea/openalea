@@ -420,10 +420,14 @@ class PackageManager(object):
                    search_str in factory.name.upper() or
                    search_str in factory.description.upper() or
                    search_str in factory.category.upper()) ]
-            
+        
+        ret.sort(cmp=cmp_name)
         return ret
 
 
+def cmp_name(x, y):
+    """ Comparison function """
+    return cmp(x.name.lower(), y.name.lower())
 
 
 class PseudoGroup(dict):

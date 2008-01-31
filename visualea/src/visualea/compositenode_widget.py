@@ -1200,7 +1200,7 @@ class ConnectorIn(Connector):
         node = self.parentItem().subnode
         data = node.get_input(self.mindex)
         s = str(data)
-        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
+        if(len(s) > Connector.MAX_TIPLEN): s = "String too long..."
 
         self.setToolTip("%s \nValue: %s"%(self.base_tooltip, s))
 
@@ -1263,9 +1263,9 @@ class ConnectorOut(Connector):
         data = node.get_output(self.mindex)
         
         s = str(data)
-        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
+        if(len(s) > Connector.MAX_TIPLEN): s = "String too long..."
 
-        self.setToolTip("%s\nValue: %s"%(self.base_tooltip, str(data)))
+        self.setToolTip("%s\nValue: %s"%(self.base_tooltip, s))
 
 
     def adjust_position(self, parentitem, index, ntotal):

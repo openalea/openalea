@@ -185,3 +185,17 @@ whilemulti = Factory(name="while multivariate",
 
 
 __all__.append('whilemulti')
+
+
+os_system = Factory(name="os.system", 
+             description="Call a system command", 
+             category="System", 
+             nodemodule="os",
+             nodeclass="system",
+             inputs = (dict(name="command", interface=IStr, value='', desc='command string'),  
+                       ),
+             outputs = ( dict(name="result", interface=None), ),
+             )
+
+
+__all__.append('os_system')
