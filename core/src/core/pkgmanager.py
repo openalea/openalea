@@ -409,18 +409,24 @@ class PackageManager(object):
         return factory.instantiate()
 
 
-    def search_node(self, search_str):
+    def search_node(self, search_str, nb_inputs=-1, nb_outputs=-1):
         """ Return a list of Factory corresponding to search_str """
 
         search_str = search_str.upper()
+
         ret = [ factory \
                 for pkg in self.values() \
-                for factory  in pkg.values() \
-                if(search_str in pkg.name.upper() or
-                   search_str in factory.name.upper() or
-                   search_str in factory.description.upper() or
-                   search_str in factory.category.upper()) ]
-        
+                    for factory  in pkg.values() \
+                    if(search_str in pkg.name.upper() or
+                       search_str in factory.name.upper() or
+                       search_str in factory.description.upper() or
+                       search_str in factory.category.upper()) ]
+
+        if(nb_inputs>=0):
+            ret = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, ret)
+        if(nb_outputs>=0):
+            ret = filter(lambda x: x and x.outputs and len(x.outputs) == nb_outputs, ret)
+            
         ret.sort(cmp=cmp_name)
         return ret
 
