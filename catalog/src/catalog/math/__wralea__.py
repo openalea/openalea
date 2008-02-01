@@ -13,7 +13,7 @@
 ################################################################################
 
 
-__doc__= """ Catalog.Math """
+__doc__= """catalog.math """
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "
@@ -22,7 +22,7 @@ __revision__=" $Id$ "
 from openalea.core import *
 import math
 
-__name__ = "Catalog.Math"
+__name__ = "catalog.math"
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'

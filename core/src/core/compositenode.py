@@ -39,6 +39,9 @@ from algo.dataflow_copy import structural_copy
 from settings import Settings
 
 
+class IncompatibleNodeError(Exception): pass
+
+
 class CompositeNodeFactory(AbstractFactory):
     """
     The CompositeNodeFactory is able to create CompositeNode instances
@@ -736,6 +739,20 @@ class CompositeNode(Node, DataFlow):
                 return
             
         raise InvalidEdge("Edge not found")
+
+
+    def replace_node(self, vid, newnode):
+        """ Replace the node vid by newnode """
+
+        oldnode = self.actor(vid)
+        newnode.internal_data.update(oldnode.internal_data)
+
+        if(oldnode.get_nb_input() !=newnode.get_nb_input()
+           or
+           oldnode.get_nb_output() != newnode.get_nb_output()):
+               raise IncompatibleNodeError()
+        
+        self.set_actor(vid, newnode)
 
     
 

@@ -187,7 +187,7 @@ whilemulti = Factory(name="while multivariate",
 __all__.append('whilemulti')
 
 
-cmd_system = Factory(name="system_cmd", 
+cmd = Factory(name="command", 
              description="Call a system command", 
              category="System", 
              nodemodule="systemnodes",
@@ -201,6 +201,6 @@ cmd_system = Factory(name="system_cmd",
 
 
 
-__all__.append('cmd_system')
+__all__.append('cmd')
 
 
