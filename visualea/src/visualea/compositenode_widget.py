@@ -40,7 +40,7 @@ import annotation
 
 from node_widget import NodeWidget, SignalSlotListener
 
-from dialogs import DictEditor, ShowPortDialog
+from dialogs import DictEditor, ShowPortDialog, NodeChooser
 from util import busy_cursor, exception_display, open_dialog
 from node_widget import DefaultNodeWidget
 
@@ -1028,6 +1028,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         action = menu.addAction("Reset")
         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.subnode.reset)
         
+        action = menu.addAction("Replace By")
+        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.replace_by)
+        
         menu.addSeparator()
 
         action = menu.addAction("Caption")
@@ -1094,26 +1097,20 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             n.caption = str(result)
 
 
-#     def edit_code(self):
-#         """ Edit node code """
-
-#         factory = self.subnode.factory
-#         if(not factory) : return
-#         widget = factory.instantiate_widget(node=self.subnode, edit=True)
+    def replace_by(self):
+        """ Replace a node by an other """
         
-#          # Open Code editor dialog
-#         dialog = QtGui.QDialog(self.graphview)
-#         dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-#         widget.setParent(dialog)
-                
-#         vboxlayout = QtGui.QVBoxLayout(dialog)
-#         vboxlayout.setMargin(3)
-#         vboxlayout.setSpacing(5)
-#         vboxlayout.addWidget(widget)
+        self.dialog = NodeChooser(self.graphview)
+        self.dialog.search('', self.subnode.get_nb_input(), self.subnode.get_nb_output())
+        ret = self.dialog.exec_()
 
-#         dialog.setWindowTitle(self.subnode.get_caption())
-#         dialog.show()
-       
+        if(not ret): return
+        
+        factory = self.dialog.get_selection()
+        newnode = factory.instantiate()
+        self.graphview.node.replace_node(self.elt_id, newnode)
+        
+        self.graphview.rebuild_scene()
 
 
 ################################################################################

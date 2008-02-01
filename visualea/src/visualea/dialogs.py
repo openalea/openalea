@@ -38,7 +38,7 @@ import ui_preferences
 import ui_ioconfig
 import ui_tableedit
 import ui_listedit
-
+import ui_nodechooser
 
 
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
@@ -918,4 +918,65 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
                     
         QtGui.QDialog.accept(self)
 
+
+
    
+
+
+class NodeChooser(QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
+    """ Dialog allowing to choose a node (package view) """
+
+    def __init__(self, parent):
+        from node_treeview import SearchListView, SearchModel
+
+        QtGui.QDialog.__init__(self, parent)
+        ui_nodechooser.Ui_NodeChooser.__init__(self)
+        self.setupUi(self)
+
+        self.pman = PackageManager()
+        self.map = {}
+
+
+    def search(self, name='', nb_inputs=-1, nb_outputs=-1):
+        """ Add node to combo box selector corresponding to request 
+        @param name
+        @param nb_inputs
+        @param nb_outputs
+        """
+
+        res = self.pman.search_node(name, nb_inputs, nb_outputs)
+        strs = []
+
+        for f in res:
+            key = "%s.%s"%(f.package.get_id().lower(), f.name)
+            self.map[key] = f
+            strs.append(key)
+        
+        strs.sort()
+        self.comboBox.addItems(strs)
+
+    
+    def get_selection(self):
+        """ Return selected factory """
+
+        s = str(self.comboBox.currentText())
+        
+        if(self.map.has_key(s)):
+            return self.map[s]
+
+        return None
+
+
+    def accept(self):
+        """ Validate result """
+
+        s = str(self.comboBox.currentText())
+        
+        if(self.map.has_key(s)):
+            QtGui.QDialog.accept(self)
+        
+        else:
+            QtGui.QMessageBox.warning(self, "Error", "Unknown component name")
+
+            
+
