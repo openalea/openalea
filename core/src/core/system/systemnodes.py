@@ -268,10 +268,16 @@ class WhileUniVar(Node):
 
         cpt = 0
         while(test(value)):
-            cpt += 1
-            if(cpt > 100000): raise RuntimeError("Infinite Loop  (>100000)")
-            value = func(value)
-            print "while output: ", value
+
+            newvalue = func(value)
+
+            # Test for infinite loop
+            if(value == newvalue):
+                cpt +=1
+                if(cpt > 1000): raise RuntimeError("Infinite Loop")
+            else:
+                value = newvalue
+            print value
 
         return (value,)
 
@@ -295,13 +301,29 @@ class WhileMultiVar(Node):
         while(test(*values)):
             newvals = []
 
-            cpt += 1
-            if(cpt > 100000): raise RuntimeError("Infinite Loop (>100000)")
 
             for f in funcs:
                 res = f(*values)
                 newvals.append(res)
-            values = newvals
-            print "while output: ", values
+
+            # Test for infinite loop
+            if(values == newvals):
+                cpt +=1
+                if(cpt > 1000): raise RuntimeError("Infinite Loop")
+            else:
+                values = newvals
+
+            print values
 
         return values
+
+
+def system_cmd(str_list):
+    """ Execute a system command
+    Input : a list of string
+    Output : subprocess stdout, stderr
+    """
+
+    import subprocess
+
+    return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
