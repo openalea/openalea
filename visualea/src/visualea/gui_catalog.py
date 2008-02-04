@@ -346,6 +346,10 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
+    def setEnabled(self, val):
+        self.subwidget.setReadOnly(not bool(val))
+        
+
     @lock_notify      
     def valueChanged(self):
 
