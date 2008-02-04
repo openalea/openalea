@@ -542,21 +542,30 @@ class CompositeNode(Node, DataFlow):
                 caption= '(%s)'%(n.get_caption())
                 count = '' 
                 name = desc['name']
-                while name+str(count)+caption in name_port:
+
+                while name + str(count) + caption in name_port:
                     if count:
-                        count+=1
+                        count += 1
                     else: 
                         count = 1
-                desc['name'] = name+str(count)+caption
+
+                desc['name'] = name + str(count) + caption
                 name_port.append(desc['name'])
 
                 if is_input:
-                    # set default value on cn imput port
+                    # set default value on cn input port
                     if n.inputs[pname]:
-                        desc['value'] = n.inputs[pname]
-                    elif 'value' not in desc:
-                        if 'interface' in desc:
-                            desc['value']=desc['interface'].default()
+                        v = n.inputs[pname]
+                        
+                        try:
+                            eval(repr(v))
+                            desc['value'] = v
+                        except:
+                            pass
+                        
+                    if 'value' not in desc:
+                        if 'interface' in desc and desc['interface']:
+                            desc['value'] = desc['interface'].default()
 
                     connections.append( ('__in__', len(nodes), vid, pname) )
                 else: # output
