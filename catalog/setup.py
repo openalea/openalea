@@ -33,7 +33,15 @@ setup(
     zip_safe=False,
 
     
-    packages=[pkg_name],
+    packages=['openalea.catalog', 
+              'openalea.catalog.color', 'openalea.catalog.data',
+              'openalea.catalog.csv', 'openalea.catalog.file',
+              'openalea.catalog.functional',
+              'openalea.catalog.math', 'openalea.catalog.model',
+              'openalea.catalog.pickling', 'openalea.catalog.python',
+              'openalea.catalog.string',
+              ],
+
     package_dir={pkg_name : pj('src', 'catalog')},
 
     # Dependencies
@@ -43,7 +51,18 @@ setup(
 
     # entry_points
     entry_points = {
-        "wralea": ["catalog = openalea.catalog",]
+        "wralea": ['catalog.color = openalea.catalog.color', 
+                   'catalog.data = openalea.catalog.data',
+                   'catalog.csv = openalea.catalog.csv', 
+                   'catalog.file = openalea.catalog.file',
+                   'catalog.functional = openalea.catalog.functional',
+                   'catalog.math = openalea.catalog.math', 
+                   'catalog.model = openalea.catalg.model',
+                   'catalog.pickling = openalea.catalog.pickling', 
+                   'catalog.python = openalea.catalog.python',
+                   'catalog.string = openalea.catalog.string',
+              ],
+
         },
 
                      
