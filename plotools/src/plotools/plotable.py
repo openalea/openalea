@@ -251,6 +251,23 @@ def display_VisualSequence_as_Hist(  vis_seq=[], title="", xlabel="", ylabel="",
     pylab.show()
 
 
+def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
+    """generates visual sequence2D from a list a 2uples (x,y)
+    
+    :parameters:
+        seq1 : `iterable`
+            Contains the list of (x,y)
+        marker : `string`
+            The marker for the Point-Line.
+        color : `string`
+            The color.
+    """
+    
+    sx, sy = zip(*seq1)
+    
+    return VisualSequence(x=sx, y=sy,z=None, marker=marker, color=color, **keys )
+
+
 def seqs2VisualSequence( seq1=[], seq2=[], marker="o", color="b", **keys ):
     """generates visual sequence2D with list1 as x  and list2 as y
     

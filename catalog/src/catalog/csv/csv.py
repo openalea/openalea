@@ -20,11 +20,16 @@ __revision__ = " $Id$ "
 
 
 
-class Obj:
+class Obj(object):
+
+
     def __init__(self,pid,propnames,values):
+      """ """
       self.pid = pid
       self.read(propnames,values)
-    def read(self,propnames,values):
+    
+    def read(self, propnames, values):
+      """ """  
       for i,prop in enumerate(propnames):
         try:
           val = values[i]
@@ -40,8 +45,14 @@ class Obj:
             self.__dict__[prop.replace('"', '')] = val
         except IndexError:
           print "index : ", i, " prop : ", propnames[i]
+          
+          
+    def __getitem__(self, key):
+        return self.__getattribute__(key)
+    
     def merge_header(self,propname):
       return propname.union(set(self.__dict__.keys()))
+      
     def write(self,propnames,separator=','):
         res = ''
         nbprop = len(propnames)
@@ -55,6 +66,7 @@ class Obj:
             if i < nbprop-1:
                 res += separator
         return res
+        
     def __repr__(self):
         res =  'Obj('        
         nbprop = len(self.__dict__)
@@ -67,6 +79,7 @@ class Obj:
                     res += ','
         res += ')'
         return res
+        
         
 def parseText(text = '', separator=',', lineseparator='\n'):
         lines = text.split(lineseparator)
