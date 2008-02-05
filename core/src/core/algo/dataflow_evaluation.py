@@ -289,7 +289,7 @@ class LambdaEvaluation (PriorityEvaluation) :
                 self.lambda_value = {} # lambda resolution dictionary
 
 
-	def eval_vertex (self, vid, context, *args) :
+	def eval_vertex (self, vid, context, lambda_value, *args) :
 		""" Evaluate the vertex vid 
                 @param context is a list a value to assign to lambdas
                 """
@@ -315,8 +315,10 @@ class LambdaEvaluation (PriorityEvaluation) :
                         # We do not propagate the context
                         if(interface is IFunction):
                             transmit_cxt = None
+                            transmit_lambda = None
                         else:
                             transmit_cxt = context
+                            transmit_lambda = lambda_value
                         
 			cpt = 0 # parent counter
 
@@ -325,7 +327,7 @@ class LambdaEvaluation (PriorityEvaluation) :
 
 				# Do no reevaluate the same node
 				if (nvid not in self._evaluated):
-                                    self.eval_vertex(nvid, transmit_cxt)
+                                    self.eval_vertex(nvid, transmit_cxt, transmit_lambda)
 
                                 outval = nactor.get_output(df.local_id(npid))
                                 # Lambda 
@@ -339,19 +341,19 @@ class LambdaEvaluation (PriorityEvaluation) :
                                 if(isinstance(outval, SubDataflow)
                                    and interface is not IFunction):
 
-                                    if(not context and not self.lambda_value): 
+                                    if(not context and not lambda_value): 
                                         # we are not in resolution mode
                                         use_lambda = True
                                     else:
                                         # We set the context value for later use
-                                        if(not self.lambda_value.has_key(outval)):
+                                        if(not lambda_value.has_key(outval)):
                                             try:
-                                                self.lambda_value[outval] = context.pop()
+                                                lambda_value[outval] = context.pop()
                                             except Exception:
                                                 raise Exception("The number of lambda variables is insuffisant")
                                         
                                         # We replace the value with a context value
-                                        outval = self.lambda_value[outval]
+                                        outval = lambda_value[outval]
 
 
 				inputs.append(outval)
@@ -381,7 +383,7 @@ class LambdaEvaluation (PriorityEvaluation) :
             
             self.lambda_value.clear() 
             if(context) : context.reverse()
-            PriorityEvaluation.eval(self, vtx_id, context)
+            PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
             self.lambda_value.clear() # do not keep context in memory
 
 
