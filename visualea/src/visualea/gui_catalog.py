@@ -708,20 +708,25 @@ class IFileStrWidget(IStrWidget):
 
         
         self.button = QtGui.QPushButton("...", self)
+        self.checkbox = QtGui.QCheckBox("Save", self)
         self.hboxlayout.addWidget(self.button)
+        self.hboxlayout.addWidget(self.checkbox)
         self.filter = interface.filter
         self.open = not interface.save
+        #self.open = False
 
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def button_clicked(self):
 
-        if(self.open):
-            result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
-                                                       self.last_result, self.filter)
-        else:
+        
+        if(not self.open or self.checkbox.checkState()== QtCore.Qt.Checked):
             result = QtGui.QFileDialog.getSaveFileName(self, "Select File",
+                                                       self.last_result, self.filter)
+
+        else:
+            result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
                                                        self.last_result, self.filter)
     
         if(result):
