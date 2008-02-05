@@ -22,10 +22,12 @@ from openalea.core import *
 from openalea.core.interface import *
 from openalea.visualea.gui_catalog import IEnumStrWidget
 from openalea.visualea.node_widget import NodeWidget
-from ImageQt import ImageQt
-import Image
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QLabel,QPixmap
+
+from ImageQt import ImageQt
+import Image
 from view import PixView
 
 class IImageMode (IEnumStr) :
@@ -34,6 +36,7 @@ class IImageMode (IEnumStr) :
     """
     def __init__ (self) :
         IEnumStr.__init__(self, ["RGB","RGBA"])
+
 
 class IImageModeWidget (IEnumStrWidget) :
     """
@@ -119,6 +122,7 @@ class PixVisu(PixView, NodeWidget):
     #  print "resized", event
 ##### end of declaration of pix interface and its widget ###########
 
+
 import basics_factory
 import data_access_factory
 import geom_transfo_factory
@@ -151,3 +155,4 @@ def register_packages(pkg_manager):
     package = Package("image.transformations", metainfo)
     image_transfo_factory.define_factory(package)
     pkg_manager.add_package(package)
+

@@ -30,10 +30,12 @@ class PixView (QLabel) :
     """
     minimalist widget to display an image
     """
-    def __init__ (self, parent=None, image=QPixmap()) :
+    def __init__ (self, parent=None, image=None) :
         QLabel.__init__(self)
         self.setScaledContents(True)
         self.setAlignment(Qt.AlignCenter)
+        if image is None:
+            image = QPixmap()
         self.set_image(image)
     
     def scalable (self) :
