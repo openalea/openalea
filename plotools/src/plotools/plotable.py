@@ -262,7 +262,6 @@ def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
         color : `string`
             The color.
     """
-    
     sx, sy = zip(*seq1)
     
     return VisualSequence(x=sx, y=sy,z=None, marker=marker, color=color, **keys )

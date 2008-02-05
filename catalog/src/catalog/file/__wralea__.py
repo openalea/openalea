@@ -39,7 +39,7 @@ filename = Factory( name="filename",
                   nodeclass="FileName",
 
                   inputs=(dict(name='FileStr', interface=IFileStr, value=''),),
-                  outputs=(dict(name='FileStr', interface=IFileStr),)
+                  outputs=(dict(name='FileStr', interface=IFileStr),),
                   )
 
 __all__.append('filename')
@@ -108,6 +108,7 @@ read = Factory(name="read",
                
                nodemodule="files",
                nodeclass="FileRead",
+               lazy = False,
                )
 
 

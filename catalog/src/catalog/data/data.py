@@ -198,6 +198,14 @@ class Pair(Node):
         return ( (inputs[0], inputs[1]), )
 
 
+class Tuple3(Node):
+    """
+    Python 2-uple generator
+    """
+
+    def __call__(self, inputs):
+        return ( (inputs[0], inputs[1], inputs[2]), )
+
 
 def list_select(items, index):
     """ __getitem__ """

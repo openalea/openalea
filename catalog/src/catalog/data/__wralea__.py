@@ -183,7 +183,7 @@ __all__.append('dict_')
 
 
 pair = Factory( name="pair",
-              description="Python 2-uple",
+              description="Python 2-uples",
               category="Type",
               nodemodule="data",
               nodeclass="Pair",
@@ -194,6 +194,19 @@ pair = Factory( name="pair",
 
 __all__.append('pair')
 
+tuple3 = Factory( name="tuple3",
+              description="Python 3-uples",
+              category="Type",
+              nodemodule="data",
+              nodeclass="Tuple3",
+              inputs=(dict(name="IN0", interface=None,),
+                      dict(name="IN1", interface=None,),
+                      dict(name="IN1", interface=None,),
+                      ),
+              outputs=(dict(name="OUT", interface = ISequence),),
+              )
+
+__all__.append('tuple3')
 
 # DEPRECATED
 fname = Factory( name="filename", 
