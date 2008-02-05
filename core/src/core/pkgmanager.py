@@ -420,7 +420,10 @@ class PackageManager(object):
                     if(search_str in pkg.name.upper() or
                        search_str in factory.name.upper() or
                        search_str in factory.description.upper() or
-                       search_str in factory.category.upper()) ]
+                       search_str in factory.category.upper() or
+                       search_str in "%s.%s"%(pkg.name.upper(), factory.name.upper())
+                       )            
+                ]
 
         if(nb_inputs>=0):
             ret = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, ret)
