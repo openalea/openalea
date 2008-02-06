@@ -27,6 +27,7 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 from openalea.core import Factory
 from openalea.core.interface import *
 from images_wralea import IPix
+from openalea.core.traitsui import View, Group, Item
 
 def define_factory (package) :
 
@@ -51,6 +52,33 @@ def define_factory (package) :
                   category="Image",
                   nodemodule="geom_transfo",
                   nodeclass="resize",
+                  view=View(
+                            Group(
+                              "Tabu",
+                              Group(
+                                    "Size",
+                                    Item("Width"),
+                                    Item("Height"),
+                                    layout='t',
+                                    ),
+                              Group(
+                                    "Test",
+                                    Item("Mode"),
+                                    ),
+                              layout='t',
+                                  ),
+                            Group(
+                                  "Size",
+                                  Item("Width"),
+                                  Item("Height"),
+                                  layout='-',
+                                  ),
+                            Group(
+                                  "Test",
+                                  Item("Mode"),
+                                  ),
+                            layout="t",
+                            ),
                 )
                   
     package.add_factory( nf )

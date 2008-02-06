@@ -73,7 +73,7 @@ class resize( Node ):
         funs= self.mode_func.keys()
         funs.sort()
         self.add_input( name = "Image", interface = IPix,) 
-        self.add_input( name = "Width", interface = IInt(min=0), value=314) 
+        self.add_input( name = "Width", label='totot',interface = IInt(min=0), value=314) 
         self.add_input( name = "Height", interface = IInt(min=0), value=159) 
         self.add_input( name = "Mode", interface = IEnumStr(funs), value = funs[-1]) 
         self.add_output( name = "Image", interface = IPix)
