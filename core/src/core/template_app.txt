@@ -40,12 +40,7 @@ from openalea.core.pkgmanager import PackageManager
 from PyQt4 import QtGui, QtCore
 
 
-def get_factory():
-    # Return the application CNFactory
-
-    $FACTORY_CODE
-
-    return nf
+$FACTORY_CODE
 
 
 
@@ -75,7 +70,7 @@ def main(args):
 
     p = PackageManager()
     p.init()
-    f = get_factory()
+    f = $FACTORY_NAME
     win = open_window(f)
     win.show()
     
