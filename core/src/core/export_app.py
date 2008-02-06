@@ -60,19 +60,20 @@ def export_app(name, filename, cn_factory):
 
     writer = code = cn_factory.get_writer()
     code = repr(writer)
-    code = code.replace("pkg.add_factory(nf)", "")
-        
+    fname = cn_factory.get_python_name()
 
     # Replace value
-    result = template_str.safe_substitute(OPENALEA_VERSION=versionmodule.version,
-                                  DATE=time.asctime(time.localtime()),
-                                  NAME=name,
-                                  AUTHOR=authors,
-                                  LICENSE=license,
-                                  VERSION=version,
-                                  DOC=doc,
-                                  FACTORY_CODE=code,
-                                  )
+    result = template_str.safe_substitute(
+        OPENALEA_VERSION=versionmodule.version,
+        DATE=time.asctime(time.localtime()),
+        NAME=name,
+        AUTHOR=authors,
+        LICENSE=license,
+        VERSION=version,
+        DOC=doc,
+        FACTORY_CODE=code,
+        FACTORY_NAME=fname,
+        )
 
     # write file
     f = open(filename, "w")
