@@ -428,6 +428,9 @@ class MainWindow(QtGui.QMainWindow,
         factory = dialog.get_factory()
 
         widget.node.to_factory(factory, None)
+        widget.node.factory = factory
+        caption = "Workspace %i - %s"%(index, factory.name)
+        self.tabWorkspace.setTabText(index, caption)
 
         try:
             factory.package.write()
