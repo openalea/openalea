@@ -155,13 +155,13 @@ class Session(Observed):
 
         # workspaces
         d['workspaces'] = []
-        for ws in self.workspaces:
+        for cpt, ws in enumerate(self.workspaces):
             try:
                 d['workspaces'].append(ws)
                 d.sync()
             except Exception, e:
                 print e
-                print "Unable to save %s workspace... Skip this."%ws.name
+                print "Unable to save workspace %i. Skip this."%(cpt,)
                 print " WARNING: Your session is not saved. Please save your dataflow as a composite node !!!!!"
                 d['workspaces'].pop()
 

@@ -97,6 +97,8 @@ class Package(NoCaseDict):
 
         # wralea.py path is specified
         else:
+            if(not os.path.exists(path)):
+                os.mkdir(path)
             if(not os.path.isdir(path)):
                 self.path = os.path.dirname(path)
                 self.wralea_path = path
@@ -115,6 +117,7 @@ class Package(NoCaseDict):
 
     def is_editable(self):
         return False
+
 
     def get_pkg_files(self):
         """ Return the list of python filename of the package.
@@ -290,6 +293,14 @@ class UserPackage(Package):
             os.mkdir(self.path)
 
         writer.write_wralea(self.wralea_path)
+
+        # create a __init__.py if necessary
+        init_path = os.path.join(self.path, '__init__.py')
+
+        if(not os.path.exists(init_path)):
+            f = open(init_path, 'w')
+            f.close()
+
         print "Writing", self.wralea_path
 
 

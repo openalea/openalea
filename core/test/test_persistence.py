@@ -25,17 +25,15 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory,CompositeNode
 from openalea.core.node import Factory, gen_port_list
 import os
-
+import shutil
 
 def setup_module():
+    
+    
     try:
-        os.remove(os.path.join(os.path.curdir, "MyTestPackage_wralea.py"))
-        os.remove(os.path.join(os.path.curdir, "MyTestPackage_wralea.pyc"))
-    except:
-        pass
-    try:
-        os.remove(os.path.join(os.path.curdir, "mynode.py"))
-        os.remove(os.path.join(os.path.curdir, "mynode.pyc"))
+        path = os.path.join(os.path.curdir, "MyTestPackage")
+        shutil.rmtree(path)
+                            
     except:
         pass
 
@@ -107,6 +105,7 @@ def test_nodewriter():
     setup_module()
 
     pm = PackageManager ()
+    pm.clear()
     pm.init()
 
 
@@ -138,9 +137,7 @@ def test_nodewriter():
 
     newsg = pm.get_node('MyTestPackage', 'mynode')
 
-    os.remove("mynode.py")
-    os.remove("mynode.pyc")
-
+    package1.remove_files()
     
 
 
