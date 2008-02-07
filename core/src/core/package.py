@@ -473,7 +473,13 @@ class PyPackageReader(object):
 
     def build_package(self, wraleamodule, pkgmanager):
         """ Build package and update pkgmanager """
-        wraleamodule.register_packages(pkgmanager) 
+
+        try:
+            wraleamodule.register_packages(pkgmanager) 
+        except AttributeError:
+            # compatibility issue between two types of reader
+            reader = PyPackageReaderWralea(self.filename)
+            reader.build_package(wraleamodule, pkgmanager)
  
     
         
@@ -509,7 +515,10 @@ class PyPackageReaderWralea(PyPackageReader):
 
         
         # Build Package
-        path = os.path.dirname(wraleamodule.__file__)
+        path = wraleamodule.__file__
+        if(path.endswith('.pyc')) :
+            path = path.replace('.pyc', '.py')
+
         if(not edit):
             p = Package(name, metainfo, path)
         else:
