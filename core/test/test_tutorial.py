@@ -7,11 +7,19 @@ from PyQt4 import QtGui
 def test_tutorial():
 
     app = QtGui.QApplication(sys.argv)
+    
+    path = os.path.join( os.path.abspath(os.path.dirname(__file__)), "tutorial_standbuilder")
+    image = os.path.join(path, "stand.csv.png")
+
+    try:
+        os.remove(image)
+    except:
+        pass
+
 
     pm = PackageManager()
     pm.init()
 
-    path = os.path.join( os.path.abspath(os.path.dirname(__file__)), "tutorial_standbuilder")
     pm.load_directory(path)
     n = pm.get_node("tutorial_standbuilder", "gen_images")
 
@@ -20,6 +28,6 @@ def test_tutorial():
     #assert False
     n()
 
-    assert os.path.exists(os.path.join(path, "stand.csv.png"))
+    assert os.path.exists(image)
     
     
