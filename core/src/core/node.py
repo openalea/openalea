@@ -645,7 +645,7 @@ class AbstractFactory(Observed):
         name = self.name
 
         if(not name.isalnum()):
-            name = '_%s'%(id(name))
+            name = '_%s'%(id(self))
         return name
 
 

@@ -32,7 +32,9 @@ from openalea.core.settings import Settings
 def test_wraleapath():
 
     pkgman = PackageManager()
-    assert openalea.__path__[0] in  pkgman.wraleapath
+    
+    assert bool(openalea.__path__[0] in  pkgman.wraleapath) == pkgman.include_namespace
+
     if(os.name == 'posix'):
         pkgman.add_wraleapath("/usr/bin")
         assert "/usr/bin" in pkgman.wraleapath
@@ -76,18 +78,23 @@ def test_category():
 def test_search():
 
     pkgman = PackageManager()
-    pkgman.add_wralea("test_wralea.py")
+    pkgman.load_directory("./")
 
     assert pkgman.has_key('Test')
 
-    res = pkgman.search_node("iter")
-    assert "iter" in res[1].name
+    res = pkgman.search_node("command")
+    print res
+    assert "command" in res[0].name
 
+    res = pkgman.search_node("system.command")
+    print res
+    assert "command" in res[0].name
+    
 
 def test_write_config():
 
     pkgman = PackageManager()
-    pkgman.add_wralea("test_wralea.py")
+    pkgman.load_directory("./")
     pkgman.write_config()
     p = pkgman.wraleapath
 

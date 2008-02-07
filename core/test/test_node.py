@@ -122,6 +122,23 @@ def test_factory():
     assert n.get_nb_input() == 2
 
 
+def test_factory_name():
+    """ test the factory python name """
+
+    names = [
+        'aaaa',
+        '234AB3',
+        'azert er',
+        'AZ_12',
+        '::qsd,;'
+        ]
+
+    for n in names:
+        f = Factory( name = n)
+        python_name = f.get_python_name()
+        exec( "%s = 0"%(python_name))
+
+
 
 # BUG #4877
 def test_node_output():

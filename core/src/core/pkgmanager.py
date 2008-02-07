@@ -337,6 +337,7 @@ class PackageManager(object):
         """
         Create a new package in the user space and register it
         Return the created package
+        @param path : the directory where to create the package
         """
 
         if(self.pkgs.has_key(name)):

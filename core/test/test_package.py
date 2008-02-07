@@ -33,8 +33,21 @@ def test_userpackage():
                'url' : 'http://openalea.gforge.inria.fr'
                }
     
+    try:
+        import shutil
+        shutil.rmtree("tstpkg")
+    except:
+        pass
 
-    package = UserPackage("DummyPkg", metainfo, os.path.curdir)
+    assert not os.path.exists("tstpkg")
+
+    try:
+        os.mkdir("tstpkg")
+    except:
+        pass
+
+    path = os.path.join(os.path.curdir, "tstpkg")
+    package = UserPackage("DummyPkg", metainfo, path)
 
 
 
@@ -42,22 +55,36 @@ def test_userpackage():
                                        gen_port_list(3),
                                        gen_port_list(2))
     
-    assert os.path.curdir in factory.search_path
+    assert path in factory.search_path
     assert len(factory.inputs)==3
     assert len(factory.outputs)==2
 
-    assert os.path.exists("TestFact.py")
-    execfile("TestFact.py")
+    assert os.path.exists("tstpkg/TestFact.py")
+    execfile("tstpkg/TestFact.py")
 
     package.write()
-    assert os.path.exists("DummyPkg_wralea.py")
-    execfile("DummyPkg_wralea.py")
+    assert os.path.exists("tstpkg/__wralea__.py")
+    assert os.path.exists("tstpkg/__init__.py")
+    execfile("tstpkg/__wralea__.py")
 
 
-    os.remove("DummyPkg_wralea.py")
-    os.remove("DummyPkg_wralea.pyc")
-    os.remove("TestFact.py")
+
+    # Test_clone_package
+    path = os.path.join(os.path.curdir, "clonepkg")
+    pkg2 = UserPackage("ClonePkg", metainfo, path)
+    print pkg2.wralea_path
+
+    pkg2.clone_from_package(package)
+    pkg2.write()
+
+    assert len(pkg2) == 1
+    assert len(pkg2["TestFact"].inputs) == 3
+    assert id(pkg2["TestFact"]) != id(package["TestFact"])
+    assert os.path.exists(path)
+    assert os.path.exists(os.path.join(path, '__wralea__.py'))
+    assert os.path.exists(os.path.join(path, '__init__.py'))
+    assert os.path.exists(os.path.join(path, 'TestFact.py'))
+
     
-
     
 

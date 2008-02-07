@@ -130,7 +130,6 @@ def test_to_factory2():
 
 # Test Recursion detection
 #A REVOIR L'ORDRE A CHANGE
-"""
 def test_recursion_factory():
 
     pm = PackageManager ()
@@ -146,17 +145,24 @@ def test_recursion_factory():
 
     pm.add_package(pkg)
     
+    n1 = sgfactory1.instantiate()
+    n2 = sgfactory1.instantiate()
     # build the compositenode factory
+    n1.add_node(n2)
+    n2.add_node(n1)
 
-    sgfactory1.add_nodefactory ( ("compositenode", "graph2"))
-    sgfactory2.add_nodefactory ( ("compositenode", "graph1"))
+    n1.to_factory(sgfactory1)
+    n2.to_factory(sgfactory2)
+    
+    #sgfactory1.add_nodefactory ( ("compositenode", "graph2"))
+    #sgfactory2.add_nodefactory ( ("compositenode", "graph1"))
 
     try:
         sg = sgfactory1.instantiate ()
         assert False
     except RecursionError:
         assert True
-"""
+
 
 
 # Test IO
@@ -267,7 +273,7 @@ def test_loop():
     val1id = sg.add_node( pm.get_node("Catalog.Data", "string"))
     val2id = sg.add_node( pm.get_node("Catalog.Data", "string"))
     val3id = sg.add_node( pm.get_node("Catalog.Data", "string"))
-    valinit = sg.add_node( pm.get_node("System", "init"))
+    valinit = sg.add_node( pm.get_node("system", "init"))
 
     sg.connect (valinit, 0, val1id, 0)
     sg.connect (val1id, 0, val2id, 0)
