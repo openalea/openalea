@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Jan 30 14:44:23 2008
+# Created: Tue Feb 12 09:35:41 2008
 #      by: PyQt4 UI code generator 4.3.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -128,6 +128,9 @@ class Ui_MainWindow(object):
 
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
+
+        self.menu_Export = QtGui.QMenu(self.menu_File)
+        self.menu_Export.setObjectName("menu_Export")
 
         self.menuDataPool = QtGui.QMenu(self.menubar)
         self.menuDataPool.setObjectName("menuDataPool")
@@ -287,10 +290,20 @@ class Ui_MainWindow(object):
 
         self.actionClea_r_Console = QtGui.QAction(MainWindow)
         self.actionClea_r_Console.setObjectName("actionClea_r_Console")
+
+        self.action_Image = QtGui.QAction(MainWindow)
+        self.action_Image.setObjectName("action_Image")
+
+        self.action_Application = QtGui.QAction(MainWindow)
+        self.action_Application.setObjectName("action_Application")
+        self.menu_Export.addAction(self.action_Image)
+        self.menu_Export.addAction(self.action_Application)
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
         self.menu_File.addAction(self.actionSave_as)
+        self.menu_File.addSeparator()
+        self.menu_File.addAction(self.menu_Export.menuAction())
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
         self.menuDataPool.addAction(self.actionClear_Data_Pool)
@@ -367,6 +380,7 @@ class Ui_MainWindow(object):
         self.poolTabWidget.setTabText(self.poolTabWidget.indexOf(self.UseTabWidget), QtGui.QApplication.translate("MainWindow", "Use", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWorkspace.setTabText(self.tabWorkspace.indexOf(self.usetab), QtGui.QApplication.translate("MainWindow", "Root", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_File.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_Export.setTitle(QtGui.QApplication.translate("MainWindow", "&Export", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDataPool.setTitle(QtGui.QApplication.translate("MainWindow", "&DataPool", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
@@ -436,5 +450,7 @@ class Ui_MainWindow(object):
         self.actionInvalidate.setText(QtGui.QApplication.translate("MainWindow", "Invalidate", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInvalidate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClea_r_Console.setText(QtGui.QApplication.translate("MainWindow", "&Clear shell", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Image.setText(QtGui.QApplication.translate("MainWindow", "&Image", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Application.setText(QtGui.QApplication.translate("MainWindow", "&Application", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc

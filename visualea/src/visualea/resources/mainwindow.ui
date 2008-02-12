@@ -245,10 +245,19 @@
     <property name="title" >
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menu_Export" >
+     <property name="title" >
+      <string>&amp;Export</string>
+     </property>
+     <addaction name="action_Image" />
+     <addaction name="action_Application" />
+    </widget>
     <addaction name="action_New_Session" />
     <addaction name="action_Open_Session" />
     <addaction name="action_Save_Session" />
     <addaction name="actionSave_as" />
+    <addaction name="separator" />
+    <addaction name="menu_Export" />
     <addaction name="separator" />
     <addaction name="action_Quit" />
    </widget>
@@ -624,6 +633,16 @@
   <action name="actionClea_r_Console" >
    <property name="text" >
     <string>&amp;Clear shell</string>
+   </property>
+  </action>
+  <action name="action_Image" >
+   <property name="text" >
+    <string>&amp;Image</string>
+   </property>
+  </action>
+  <action name="action_Application" >
+   <property name="text" >
+    <string>&amp;Application</string>
    </property>
   </action>
  </widget>
