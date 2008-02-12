@@ -612,24 +612,32 @@ class AbstractFactory(Observed):
         self.category = category
 
         self.__pkg__ = None
+        self.__pkg_id__ = None
 
         self.inputs = inputs
         self.outputs = outputs
 
         self.lazy = lazy
-        self.view=view
+        self.view = view
         
 
-        #self.instantiated = set() # instantiated nodes
 
     # Package property
     def set_pkg(self, p):
         if(not p): self.__pkg__ = None
-        else : self.__pkg__ = ref(p)
+        else : 
+            self.__pkg__ = ref(p)
+            self.__pkg_id__ = p.get_id()
+        return p
 
     def get_pkg(self):
-        if(not self.__pkg__): return None
-        return self.__pkg__()
+        p = self.__pkg__()
+        
+        # Test if pkg has been reloaded
+        if(not p and self.__pkg_id__):
+            from openalea.core.pkgmanager import PackageManager
+            p = self.set_pkg(PackageManager()[self.__pkg_id__])
+        return p
 
     package = property(get_pkg, set_pkg)
 

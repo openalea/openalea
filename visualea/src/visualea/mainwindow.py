@@ -129,6 +129,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Save_Session, SIGNAL("activated()"), self.save_session)
         self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
         self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
+        
+        self.connect(self.action_Image, SIGNAL("activated()"), self.export_image)
 
         # Package Manager Menu
         self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.reload_all)
@@ -811,4 +813,29 @@ class MainWindow(QtGui.QMainWindow,
 
     def display_rightpanel(self, toggled):
         self.splitter.setVisible(toggled)
+
+
+    def export_image(self):
+        """ Export current workspace to an image """
+        
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, "Export image",  QtCore.QDir.homePath(), "PNG Image (*.png)")
+
+        filename = str(filename)
+        if(not filename) : return
+        
+        # Get current workspace
+        cindex = self.tabWorkspace.currentIndex()
+        view = self.index_nodewidget[cindex]
+
+        # Create an image
+        rect = view.sceneRect()
+        x = rect.width()
+        y = rect.height()
+        image = QtGui.QImage(x, y, QtGui.QImage.Format_RGB32)
+        painter = QtGui.QPainter(image)
+
+        view.render(painter)
+        painter.end()
+        image.save(filename)
 
