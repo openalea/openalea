@@ -726,7 +726,7 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         for i, d in enumerate(inputs):
             self.inModel.setItem(i, 0, QtGui.QStandardItem(str(d['name'])))
             self.inModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
-            self.inModel.setItem(i, 2, QtGui.QStandardItem(str(d['value'])))
+            self.inModel.setItem(i, 2, QtGui.QStandardItem(str(d.get('value'))))
             self.inModel.setItem(i, 3, QtGui.QStandardItem(str(d.get('desc', ''))))
 
         for i, d in enumerate(outputs):
