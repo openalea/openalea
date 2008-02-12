@@ -62,6 +62,7 @@ setup(
                  "alea_install = openalea.deploy.alea_install:main",
                  "alea_config = openalea.deploy.alea_config:main",
                  "alea_clean = openalea.deploy.alea_update:clean_version",
+                 "alea_update = openalea.deploy.alea_update:update_all",
                  ],
               
               },

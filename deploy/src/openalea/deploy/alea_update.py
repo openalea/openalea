@@ -17,25 +17,25 @@ import pkg_resources
 import os
 import shutil
 
-def remove_egg(project_name, version, location):
-    """ Remove an egg from the system (use rm) """
+# def remove_egg(project_name, version, location):
+#     """ Remove an egg from the system (use rm) """
 
-    try:
-        print "Remove ", project_name, version, location
-        if(os.path.isdir(location)):
-            shutil.rmtree(location)
-        else:
-            os.remove(location)
-            return True
+#     try:
+#         print "Remove ", project_name, version, location
+#         if(os.path.isdir(location)):
+#             shutil.rmtree(location)
+#         else:
+#             os.remove(location)
+#             return True
 
-    except Exception, e:
-        print e
-        return False
+#     except Exception, e:
+#         print e
+#         return False
 
-    except :
-        print "Unexpected error:", sys.exc_info()[0]
-        print "Please check you have permission to remove packages. "
-        return False
+#     except :
+#         print "Unexpected error:", sys.exc_info()[0]
+#         print "Please check you have permission to remove packages. "
+#         return False
     
 
 
@@ -54,3 +54,22 @@ def clean_version():
             if(dist.version < max_version): remove_egg(project_name, dist.version, dist.location)
 
 
+
+def update_all():
+    """ Update all packages """
+
+    env = pkg_resources.Environment()
+
+    for project_name in env._distmap.keys():
+        alea_install_U(project_name)
+
+
+
+def alea_install_U(project_name):
+    """ Call alea_install -U project_name """
+
+    from setuptools import setup
+   
+    setup(
+        script_args = ['-q','alea_install', '-v', '-U', project_name],
+        )
