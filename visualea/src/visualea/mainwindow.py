@@ -827,15 +827,13 @@ class MainWindow(QtGui.QMainWindow,
         # Get current workspace
         cindex = self.tabWorkspace.currentIndex()
         view = self.index_nodewidget[cindex]
+        rect = view.viewport().rect()
 
-        # Create an image
-        rect = view.sceneRect()
-        x = rect.width()
-        y = rect.height()
-        image = QtGui.QImage(x, y, QtGui.QImage.Format_RGB32)
-        painter = QtGui.QPainter(image)
-
-        view.render(painter)
+        pixmap = QtGui.QPixmap(rect.width(), rect.height())
+        pixmap.fill()
+        painter = QtGui.QPainter(pixmap)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        #painter.setBackground(QtGui.QBrush(QtGui.QColor(255,255,255)))
+        view.scene().render(painter, )
         painter.end()
-        image.save(filename)
-
+        pixmap.save(filename)
