@@ -85,6 +85,9 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         if(pkg_id):
             self.packageBox.addItem(pkg_id)
             self.packageBox.setEnabled(False)
+            self.categoryEdit.setCurrentIndex(-1)
+            self.inputs = inputs
+            self.outputs = outputs
             
         
         elif(factory): # Edition mode
