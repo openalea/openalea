@@ -624,14 +624,20 @@ class AbstractFactory(Observed):
 
     # Package property
     def set_pkg(self, p):
-        if(not p): self.__pkg__ = None
+        if(not p): 
+            self.__pkg__ = None
+            self.__pkg_id = None
         else : 
             self.__pkg__ = ref(p)
             self.__pkg_id__ = p.get_id()
+
         return p
 
     def get_pkg(self):
-        p = self.__pkg__()
+        if(self.__pkg__):
+            p = self.__pkg__()
+        else:
+            p = None
         
         # Test if pkg has been reloaded
         if(not p and self.__pkg_id__):
