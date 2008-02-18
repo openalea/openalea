@@ -81,16 +81,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         cats.sort()
         self.categoryEdit.addItems(cats)
 
-
-        if(pkg_id):
-            self.packageBox.addItem(pkg_id)
-            self.packageBox.setEnabled(False)
-            self.categoryEdit.setCurrentIndex(-1)
-            self.inputs = inputs
-            self.outputs = outputs
-            
-        
-        elif(factory): # Edition mode
+        if(factory): # Edition mode
             self.packageBox.addItem(factory.package.name)
             self.packageBox.setEnabled(False)
             self.inputs = factory.inputs
@@ -102,7 +93,10 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         else:
             self.packageBox.addItems(pkgstr)
-            i = self.packageBox.findText(Session.USR_PKG_NAME)
+            if(pkg_id):
+                i = self.packageBox.findText(pkg_id)
+            else:
+                i = self.packageBox.findText(Session.USR_PKG_NAME)
             self.packageBox.setCurrentIndex(i)
             self.categoryEdit.setCurrentIndex(-1)
             self.inputs = inputs
@@ -110,7 +104,6 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             
         self.ioButton.setVisible(io)
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
-
         
 
     def accept(self):
@@ -368,7 +361,8 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
         self.pkgmanager = PackageManager()
         self.factorymap = {}
-        
+        self.default_factory = default_factory
+
         cfactories = []
         # Get all composite node factories in writable packages
         for pkg in self.pkgmanager.get_user_packages():
@@ -407,7 +401,12 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
     def new_factory(self):
         """ Create a new composite node """
-        dialog = NewGraph("New Composite Node", self.pkgmanager, self, io=False)
+
+        if(self.default_factory and self.default_factory.package):
+            pkg_id = self.default_factory.package.name
+        else :
+            pkg_id = None
+        dialog = NewGraph("New Composite Node", self.pkgmanager, self, io=False, pkg_id=pkg_id)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -417,6 +416,7 @@ class FactorySelector(QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
             self.factorymap[name] = newfactory
             i = self.comboBox.findText(name)
             self.comboBox.setCurrentIndex(i)
+            self.accept()
         
 
     def get_factory(self):
