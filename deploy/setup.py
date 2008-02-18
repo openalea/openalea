@@ -18,7 +18,7 @@ import sys, os
 setup(
     # Metadata for PyPi
     name = "OpenAlea.Deploy",
-    version = "0.3.4a",
+    version = "0.4",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "Setuptools extension for OpenAlea",
@@ -60,9 +60,10 @@ setup(
               
               "console_scripts": [
                  "alea_install = openalea.deploy.alea_install:main",
+                # "alea_uninstall = openalea.deploy.alea_update:uninstall_egg",
                  "alea_config = openalea.deploy.alea_config:main",
                  "alea_clean = openalea.deploy.alea_update:clean_version",
-                 "alea_update = openalea.deploy.alea_update:update_all",
+                 "alea_update_all = openalea.deploy.alea_update:update_all",
                  ],
               
               },
