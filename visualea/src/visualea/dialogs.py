@@ -87,7 +87,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.packageBox.setEnabled(False)
             
         
-        if(factory): # Edition mode
+        elif(factory): # Edition mode
             self.packageBox.addItem(factory.package.name)
             self.packageBox.setEnabled(False)
             self.inputs = factory.inputs
