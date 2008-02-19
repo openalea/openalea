@@ -10,6 +10,7 @@ cd $DIR &&
 rm -Rf build &&
 rm -Rf dist &&
 python setup.py bdist_egg -d ../dist sdist -d ../dist --format=gztar 
+rm -Rf build &&
 cd $LOCPATH
 echo $LOCPATH
 done
