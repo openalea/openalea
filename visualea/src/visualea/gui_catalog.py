@@ -545,8 +545,9 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
+                del(seq[row])
                 self.subwidget.takeItem(row)
-                del(seq[row-1])
+
         self.node.unvalidate_input(self.param_str)    
 
 
@@ -619,7 +620,10 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         self.rowkey = []
     
         try:
-            for (key,elt) in dic.items() :
+            keys = dic.keys()
+            keys.sort()
+            for key in keys:
+                elt = dic[key]
                 item = QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
                 item.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
                 self.subwidget.addItem(item)
@@ -675,14 +679,16 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         if(self.connected): return
         key   = e.key()
         seq = self.node.get_input(self.param_str)
+
+        # Delete Row
         if( key == QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
-                self.subwidget.takeItem(row)
-                key = self.rowkey[row - 1]
+                key = self.rowkey[row]
                 del(seq[key])
-                del(self.rowkey[row - 1])
+                del(self.rowkey[row])
+                self.subwidget.takeItem(row)
 
             self.node.unvalidate_input(self.param_str)
 
