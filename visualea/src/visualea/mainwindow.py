@@ -395,8 +395,17 @@ class MainWindow(QtGui.QMainWindow,
 
         if(not widget.get_selected_item()) : return
 
-        # Create a new factory
-        dialog = NewGraph("New Composite Node", self.pkgmanager, self)
+        # Get default package id
+        default_factory = widget.node.factory
+        if(default_factory and default_factory.package):
+            pkg_id = default_factory.package.name
+            name = default_factory.name + "_grp_" + str(len(default_factory.package))
+        else:
+            pkg_id = None
+            name = ""
+
+        dialog = NewGraph("Group Selection", self.pkgmanager, self, 
+            io=False, pkg_id=pkg_id, name=name)
         ret = dialog.exec_()
 
         if(not ret): return

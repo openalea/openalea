@@ -46,7 +46,7 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
     
     def __init__(self, title, pmanager, parent=None,
                  factory=None, io=True, inputs=(), outputs=(),
-                 pkg_id = None):
+                 pkg_id=None, name=""):
         """
         Constructor
         pmanager : the package manager
@@ -101,7 +101,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.categoryEdit.setCurrentIndex(-1)
             self.inputs = inputs
             self.outputs = outputs
-            
+            self.nameEdit.setText(name)
+
         self.ioButton.setVisible(io)
         self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
         
