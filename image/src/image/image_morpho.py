@@ -134,4 +134,12 @@ def connected_spaces (data_im) :
 def set_labels (rasters, label_im, point_list) :
     return dict( (label,rasters[label_im[x,y]]) for label,(x,y) in point_list.iteritems() )
 
+def raster_border (raster) :
+    """
+    return a raster containing only the border
+    points of the given raster
+    assume the raster is connexe
+    """
+    pass
+
 __all__ = ["surface","barycenter","pca","extract_rasters","connected_spaces","set_labels"]
