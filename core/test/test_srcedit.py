@@ -55,7 +55,7 @@ from openalea.core import *
 
 def register_packages(pkgmanager):
     metainfo={ }
-    package1 = Package("TEST", metainfo)
+    package1 = Package("TestPackage", metainfo)
 
     f = Factory( name= "test",
                  category = "",
@@ -97,8 +97,7 @@ def test_srcedit():
     pm.wraleapath = '.'
 
     pm.init()
-
-    factory = pm['TEST']['test']
+    factory = pm['TestPackage']['test']
 
     node1 = factory.instantiate()
     assert node1.func( (1,2,3) ) == (1,2,3)
@@ -126,7 +125,7 @@ def test_srcedit():
 
     pm.init()
 
-    factory = pm['TEST']['test']
+    factory = pm['TestPackage']['test']
 
     node = factory.instantiate()
 
