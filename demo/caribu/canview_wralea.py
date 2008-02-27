@@ -44,7 +44,7 @@ def register_packages(pkgmanager):
                   nodeclass="plot_can",
                   inputs=[dict(name="can file", interface=IFileStr('*.can')),
                           dict(name="colors", interface=ISequence, value = None),],
-                  outputs=(),
+                  outputs=[dict(name="canfile",interface=IFileStr),],
                 )
 
     package.add_factory(nf)

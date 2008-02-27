@@ -95,6 +95,7 @@ def py_write(x="", filename="", mode="w"):
     f = open(filename, mode)
     f.write(x)
     f.close()
+    return filename,
 
 
 class FileRead(object):

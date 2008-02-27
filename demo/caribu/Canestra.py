@@ -115,7 +115,7 @@ class Canestra(object):
             d.mkdir(mode=755)
         os.chdir(d)
 
-        cmd = "canestrad44 "
+        cmd = "canestrad "
         for opt in effargs:
             cmd += opt + " "
         

@@ -136,7 +136,7 @@ write = Factory( name="write",
                       dict(name="filename", interface=IFileStr),
                       dict(name="mode", interface=IStr, value="w"),
                       ),
-              outputs=(),
+              outputs=(dict(name="filename", interface=IFileStr),),
               nodemodule="files",
               nodeclass="py_write",
               
