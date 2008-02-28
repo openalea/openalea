@@ -44,7 +44,6 @@ class EggLib:
 
       try:
          from openalea.deploy import get_inc_dirs, get_lib_dirs, get_base_dir
-         from itertools import repeat
 
          bdir = get_base_dir(self.name)
          dirs = [os.path.join(bdir, x) for x in get_lib_dirs(self.name)]
