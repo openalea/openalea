@@ -32,7 +32,9 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 import ui_mainwindow
+
 from openalea.deploy.util import get_repo_list as util_get_repo_list
+
 from setuptools.package_index import PackageIndex
 import pkg_resources
 from setuptools import setup
@@ -85,7 +87,15 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.addLocButton, QtCore.SIGNAL("clicked()"), self.add_location)
         self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
         self.connect(self.actionCookie_Session, QtCore.SIGNAL("activated()"), self.inriagforge_authentify)
-        
+        self.connect(self.requestEdit, QtCore.SIGNAL("returnPressed()"), self.install_egg)
+
+        try:
+            from openalea.deploy.util import get_recommended_prefix
+            self.recommended_prefix = get_recommended_prefix()
+
+        except Exception, e:
+            self.recommended_prefix = ["openalea"]
+            
         self.refresh()
 
 
@@ -138,6 +148,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.packageList.clear()
         self.pnamemap.clear()
 
+        in_list = set() # already added project
+
         env = pkg_resources.Environment()
 
         mode = self.get_mode()
@@ -156,7 +168,13 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         # Parse each distribution
         for project_name in self.pi:
-            for dist in self.pi._distmap[project_name]:
+            
+            # Sort list by version
+            dist_list = self.pi._distmap[project_name]
+            dist_list = dist_list[:]
+            dist_list.sort(cmp = (lambda x,y : cmp(y.version, x.version)))
+            
+            for dist in dist_list :
                 
                 version = dist._version or ""
                 platform = dist.platform or ""
@@ -189,17 +207,35 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 if(mode == "ALL" or mode == "INSTALLED"):
                     ok = True
                     
-                elif(mode == "RECOMMENDED" and
-                     "openalea" in project_name.lower()):
-                    ok = True
+                elif(mode == "RECOMMENDED"):
+
+                    # Keep only most recent package
+                    if(project_name in in_list): 
+                        ok = False
+                        continue
+
+                    # Test all prefix
+                    n = project_name.lower()
+                    ok = False
+                    for pref in self.recommended_prefix:
+                        if(n.startswith(pref.lower())):
+                            ok = True
+                            break;
+
+                    if(not ok): continue
+
                     
-                elif(mode == "UPDATE" and update):
+                elif(mode == "UPDATE" and update
+                     and project_name not in in_list):
+                    # Keep only most recent package
+
                     ok = True
 
                 else : ok = False
                      
                 
                 if(ok):
+                    in_list.add(project_name)
                     listitem = QtGui.QListWidgetItem(txt, self.packageList)
                     listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
                     listitem.setCheckState(QtCore.Qt.Unchecked)

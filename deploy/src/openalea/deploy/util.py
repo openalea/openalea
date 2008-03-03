@@ -31,7 +31,7 @@ from distutils.sysconfig import get_python_lib
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"
-
+OPENALEA_RECOMMENDED_PKG = "http://openalea.gforge.inria.fr/pkg_prefix"
 
 # EGG Management
 
@@ -175,3 +175,19 @@ def get_repo_list():
     except Exception, e:
         print e
         return [OPENALEA_PI]
+
+
+
+def get_recommended_prefix():
+    """ Return the list of recommended package prefix """
+    import urllib
+    try:
+        ret = []
+        u = urllib.urlopen(OPENALEA_RECOMMENDED_PKG)
+        for i in u:
+            ret.append(i.strip())
+        return ret
+
+    except Exception, e:
+        print e
+        return ["openalea"]
