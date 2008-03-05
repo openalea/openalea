@@ -179,14 +179,18 @@ class PackageManager(object):
         """
 
         if(not os.path.isdir(path)): return
+                
 
         # Ensure to add a non existing path
         for p in self.wraleapath:
             common = os.path.commonprefix((p, path))
             # the path is already in wraleapth
-            if(common == p): return
+            if( common == p and
+                os.path.join(common, path[len(common):]) == path ): 
+                return
             # the new path is more generic, we keep it
-            if(common == path):
+            if(common == path and
+               os.path.join(common, p[len(common):]) == p):
                 self.wraleapath.remove(p)
                 self.wraleapath.add(path)
                 return
