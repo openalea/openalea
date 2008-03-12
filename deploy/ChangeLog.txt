@@ -1,3 +1,9 @@
+OpenAlea.Deploy 0.3.6
+    * add get_recommended_pkg functions
+OpenAlea.Deploy 0.3.5
+    * add alea_clean and alea_update_all scritps
+OpenAlea.Deploy 0.3.4a
+    * Fix platform detection for darwin
 OpenAlea.Deploy 0.3.3
     * Execute build_ext before build_py
 OpenAlea.Deploy 0.3.2

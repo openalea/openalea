@@ -21,7 +21,7 @@ from openalea.core import *
 
 __name__ = "catalog.python"
 
-__version__ = '0.0.1',
+__version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
