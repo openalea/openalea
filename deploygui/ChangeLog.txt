@@ -1,7 +1,13 @@
-17/09/07 :  Version 0.2
-     	    Add remove function
-            Improve interface (add tab view)
-            Add authentification for INRIA Gforge
-            Add install egg tab
+Version 0.3:
+    * Improve prefered packages
+    * Update shows only most recent packages
+    * Install other egg form improved
 
-05/08/07 :  First implementation
+Version 0.2 :
+    * Add Authentification
+    * Add Remove packages tab
+    * Add Custom Egg Installation tab
+    * Improve GUI
+    * Bug Fixes
+
+Version 0.1 :  First implementation
