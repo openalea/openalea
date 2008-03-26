@@ -144,3 +144,17 @@ write = Factory( name="write",
 
 
 __all__.append('write')
+
+tmpnam = Factory( name="tmpnam",
+              description="return a unique name for a temporary file.",
+              category="File",
+              inputs=(),
+              outputs=(dict(name="filename", interface=IStr),),
+              nodemodule="files",
+              nodeclass="py_tmpnam",
+              
+              )
+
+
+__all__.append('tmpnam')
+

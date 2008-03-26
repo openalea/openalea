@@ -28,7 +28,7 @@ __description__ = 'String library'
 __url__ = 'http://openalea.gforge.inria.fr'
 
 
-__all__ = ['split', 'join']
+__all__ = ['split', 'join', 'strip']
 
 split = Factory( name="split", 
               description="split a string", 
@@ -42,6 +42,17 @@ split = Factory( name="split",
               outputs=(dict(name="List", interface=ISequence),),
               )
 
+strip = Factory( name="strip", 
+              description="Return a copy of the string s with leading and trailing whitespace removed.", 
+              category="String", 
+              nodemodule="strings",
+              nodeclass="str_strip",
+              
+              inputs=(dict(name="string", interface=IStr, value=''),
+                      dict(name="chars", interface=IStr, value=' '),
+                      ),
+              outputs=(dict(name="ostring", interface=IStr),),
+              )
    
 join = Factory( name="join", 
                 description="Join a list of string", 

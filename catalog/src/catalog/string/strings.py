@@ -17,7 +17,7 @@ __doc__=""" String manipulation """
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from openalea.core import *
+#from openalea.core import *
 
 # File name manipulation
 
@@ -41,3 +41,10 @@ Out :  The joinned string
     """
 
     return (char.join(list),)
+
+def str_strip(string, chars):
+    """
+    Return a copy of the string with leading and trailing whitespace removed.
+    """
+    return (string.strip(chars),)
+
