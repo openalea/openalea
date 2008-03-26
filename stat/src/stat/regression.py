@@ -120,7 +120,7 @@ def regression(x, y, regmodel, alpha ):
     model = regmodel
     #reg = rpy.r.lm(model, data = d)
     n=rpy.sqrt( len( x ) )
-    norm=rpy.r.qnorm( 1. - ( alpha/200. ) )
+    norm=rpy.r.qt( 1. - ( alpha/200. ), len(x) )
     Rlm = rpy.with_mode(rpy.NO_CONVERSION, rpy.r.lm)
     reg2 = Rlm(model, data = d)
     result = rpy.r.summary(reg2)
