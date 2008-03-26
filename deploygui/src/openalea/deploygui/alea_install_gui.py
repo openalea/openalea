@@ -78,6 +78,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.action_Quit, QtCore.SIGNAL("activated()"), self.quit)
         self.connect(self.action_About, QtCore.SIGNAL("activated()"), self.about)
         self.connect(self.action_Web, QtCore.SIGNAL("activated()"), self.web)
+        
+        self.connect(self.checkAll, QtCore.SIGNAL("clicked()"), self.check_all)
+        self.connect(self.ClearAll, QtCore.SIGNAL("clicked()"), self.clear_all)
+        
         self.connect(self.radioAll, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.radioRecommended, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.radioUpdate, QtCore.SIGNAL("clicked()"), self.refresh)
@@ -88,6 +92,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
         self.connect(self.actionCookie_Session, QtCore.SIGNAL("activated()"), self.inriagforge_authentify)
         self.connect(self.requestEdit, QtCore.SIGNAL("returnPressed()"), self.install_egg)
+
 
         try:
             from openalea.deploy.util import get_recommended_prefix
@@ -109,7 +114,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         
          mess = QtGui.QMessageBox.about(self, "About OpenAlea Installer",
                                         
-                                        u"Copyright \xa9  2006-2007 INRIA - CIRAD - INRA\n"+
+                                        u"Copyright \xa9  2006-2008 INRIA - CIRAD - INRA\n"+
                                         "This Software is distributed under the Cecill-V2 License.\n\n"+
                                        
                                         "Visit %s\n\n"%(url,)
@@ -137,7 +142,25 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return "INSTALLED"
 
         return None
-                
+
+
+    def check_all(self):
+        """ Check all entry in the list """
+        
+        for i in xrange(self.packageList.count()):
+            
+            item = self.packageList.item(i)
+            item.setCheckState(QtCore.Qt.Checked)
+
+        
+    def clear_all(self):
+        """ UnCheck all entry in the list """
+        
+        for i in xrange(self.packageList.count()):
+            
+            item = self.packageList.item(i)
+            item.setCheckState(QtCore.Qt.Unchecked)
+
 
     @busy_pointer
     def refresh(self):

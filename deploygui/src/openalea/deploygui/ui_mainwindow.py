@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Sep 28 12:12:24 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Mar 26 15:32:51 2008
+#      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -21,7 +21,11 @@ class Ui_MainWindow(object):
         self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.tabWidget = QtGui.QTabWidget(self.centralwidget)
+        self.splitter = QtGui.QSplitter(self.centralwidget)
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.splitter.setObjectName("splitter")
+
+        self.tabWidget = QtGui.QTabWidget(self.splitter)
         self.tabWidget.setObjectName("tabWidget")
 
         self.tab = QtGui.QWidget()
@@ -63,18 +67,35 @@ class Ui_MainWindow(object):
         self.vboxlayout1.addWidget(self.packageList)
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
-        self.hboxlayout1.setSpacing(6)
-        self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.checkAll = QtGui.QPushButton(self.tab)
+        self.checkAll.setFlat(True)
+        self.checkAll.setObjectName("checkAll")
+        self.hboxlayout1.addWidget(self.checkAll)
+
+        self.ClearAll = QtGui.QPushButton(self.tab)
+        self.ClearAll.setFlat(True)
+        self.ClearAll.setObjectName("ClearAll")
+        self.hboxlayout1.addWidget(self.ClearAll)
+
+        spacerItem = QtGui.QSpacerItem(521,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+        self.vboxlayout1.addLayout(self.hboxlayout1)
+
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
         self.proceedButton = QtGui.QPushButton(self.tab)
         self.proceedButton.setObjectName("proceedButton")
-        self.hboxlayout1.addWidget(self.proceedButton)
+        self.hboxlayout2.addWidget(self.proceedButton)
 
         self.refreshButton = QtGui.QPushButton(self.tab)
         self.refreshButton.setObjectName("refreshButton")
-        self.hboxlayout1.addWidget(self.refreshButton)
-        self.vboxlayout1.addLayout(self.hboxlayout1)
+        self.hboxlayout2.addWidget(self.refreshButton)
+        self.vboxlayout1.addLayout(self.hboxlayout2)
         self.tabWidget.addTab(self.tab,"")
 
         self.OtherEggs = QtGui.QWidget()
@@ -87,28 +108,28 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.vboxlayout2.addWidget(self.label)
 
-        self.hboxlayout2 = QtGui.QHBoxLayout()
-        self.hboxlayout2.setObjectName("hboxlayout2")
-
-        self.requestEdit = QtGui.QLineEdit(self.OtherEggs)
-        self.requestEdit.setObjectName("requestEdit")
-        self.hboxlayout2.addWidget(self.requestEdit)
-
-        self.fileButton = QtGui.QPushButton(self.OtherEggs)
-        self.fileButton.setObjectName("fileButton")
-        self.hboxlayout2.addWidget(self.fileButton)
-        self.vboxlayout2.addLayout(self.hboxlayout2)
-
-        spacerItem = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout2.addItem(spacerItem)
-
         self.hboxlayout3 = QtGui.QHBoxLayout()
         self.hboxlayout3.setObjectName("hboxlayout3")
 
+        self.requestEdit = QtGui.QLineEdit(self.OtherEggs)
+        self.requestEdit.setObjectName("requestEdit")
+        self.hboxlayout3.addWidget(self.requestEdit)
+
+        self.fileButton = QtGui.QPushButton(self.OtherEggs)
+        self.fileButton.setObjectName("fileButton")
+        self.hboxlayout3.addWidget(self.fileButton)
+        self.vboxlayout2.addLayout(self.hboxlayout3)
+
+        spacerItem1 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout2.addItem(spacerItem1)
+
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setObjectName("hboxlayout4")
+
         self.customInstallButton = QtGui.QPushButton(self.OtherEggs)
         self.customInstallButton.setObjectName("customInstallButton")
-        self.hboxlayout3.addWidget(self.customInstallButton)
-        self.vboxlayout2.addLayout(self.hboxlayout3)
+        self.hboxlayout4.addWidget(self.customInstallButton)
+        self.vboxlayout2.addLayout(self.hboxlayout4)
         self.tabWidget.addTab(self.OtherEggs,"")
 
         self.tab_2 = QtGui.QWidget()
@@ -131,34 +152,40 @@ class Ui_MainWindow(object):
         self.locationList.setObjectName("locationList")
         self.vboxlayout3.addWidget(self.locationList)
 
-        self.hboxlayout4 = QtGui.QHBoxLayout()
-        self.hboxlayout4.setSpacing(6)
-        self.hboxlayout4.setMargin(0)
-        self.hboxlayout4.setObjectName("hboxlayout4")
+        self.hboxlayout5 = QtGui.QHBoxLayout()
+        self.hboxlayout5.setSpacing(6)
+        self.hboxlayout5.setMargin(0)
+        self.hboxlayout5.setObjectName("hboxlayout5")
 
         self.addLocButton = QtGui.QPushButton(self.tab_2)
         self.addLocButton.setObjectName("addLocButton")
-        self.hboxlayout4.addWidget(self.addLocButton)
+        self.hboxlayout5.addWidget(self.addLocButton)
 
         self.removeLocButton = QtGui.QPushButton(self.tab_2)
         self.removeLocButton.setObjectName("removeLocButton")
-        self.hboxlayout4.addWidget(self.removeLocButton)
-        self.vboxlayout3.addLayout(self.hboxlayout4)
+        self.hboxlayout5.addWidget(self.removeLocButton)
+        self.vboxlayout3.addLayout(self.hboxlayout5)
         self.tabWidget.addTab(self.tab_2,"")
-        self.vboxlayout.addWidget(self.tabWidget)
 
-        self.label_3 = QtGui.QLabel(self.centralwidget)
+        self.widget = QtGui.QWidget(self.splitter)
+        self.widget.setObjectName("widget")
+
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.widget)
+        self.vboxlayout4.setObjectName("vboxlayout4")
+
+        self.label_3 = QtGui.QLabel(self.widget)
         self.label_3.setObjectName("label_3")
-        self.vboxlayout.addWidget(self.label_3)
+        self.vboxlayout4.addWidget(self.label_3)
 
-        self.logText = QtGui.QTextEdit(self.centralwidget)
+        self.logText = QtGui.QTextEdit(self.widget)
         self.logText.setReadOnly(True)
         self.logText.setObjectName("logText")
-        self.vboxlayout.addWidget(self.logText)
+        self.vboxlayout4.addWidget(self.logText)
+        self.vboxlayout.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,779,25))
+        self.menubar.setGeometry(QtCore.QRect(0,0,779,26))
         self.menubar.setObjectName("menubar")
 
         self.menuAuthentification = QtGui.QMenu(self.menubar)
@@ -170,10 +197,6 @@ class Ui_MainWindow(object):
         self.menuHelp = QtGui.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
-
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
         self.actionCookie_Session = QtGui.QAction(MainWindow)
         self.actionCookie_Session.setObjectName("actionCookie_Session")
@@ -202,15 +225,17 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.radioAll,self.radioUpdate)
         MainWindow.setTabOrder(self.radioUpdate,self.radioInstalled)
         MainWindow.setTabOrder(self.radioInstalled,self.packageList)
-        MainWindow.setTabOrder(self.packageList,self.proceedButton)
+        MainWindow.setTabOrder(self.packageList,self.checkAll)
+        MainWindow.setTabOrder(self.checkAll,self.ClearAll)
+        MainWindow.setTabOrder(self.ClearAll,self.proceedButton)
         MainWindow.setTabOrder(self.proceedButton,self.refreshButton)
-        MainWindow.setTabOrder(self.refreshButton,self.requestEdit)
+        MainWindow.setTabOrder(self.refreshButton,self.logText)
+        MainWindow.setTabOrder(self.logText,self.requestEdit)
         MainWindow.setTabOrder(self.requestEdit,self.fileButton)
         MainWindow.setTabOrder(self.fileButton,self.customInstallButton)
         MainWindow.setTabOrder(self.customInstallButton,self.locationList)
         MainWindow.setTabOrder(self.locationList,self.addLocButton)
-        MainWindow.setTabOrder(self.addLocButton,self.logText)
-        MainWindow.setTabOrder(self.logText,self.removeLocButton)
+        MainWindow.setTabOrder(self.addLocButton,self.removeLocButton)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "OpenAlea Installer", None, QtGui.QApplication.UnicodeUTF8))
@@ -222,6 +247,8 @@ class Ui_MainWindow(object):
         self.radioAll.setText(QtGui.QApplication.translate("MainWindow", "Install All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.radioUpdate.setText(QtGui.QApplication.translate("MainWindow", " Update packages", None, QtGui.QApplication.UnicodeUTF8))
         self.radioInstalled.setText(QtGui.QApplication.translate("MainWindow", "Remove packages", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkAll.setText(QtGui.QApplication.translate("MainWindow", "CheckAll", None, QtGui.QApplication.UnicodeUTF8))
+        self.ClearAll.setText(QtGui.QApplication.translate("MainWindow", "ClearAll", None, QtGui.QApplication.UnicodeUTF8))
         self.proceedButton.setText(QtGui.QApplication.translate("MainWindow", "Install/Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh List", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Install/Remove OpenAlea Packages", None, QtGui.QApplication.UnicodeUTF8))
