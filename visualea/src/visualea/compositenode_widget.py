@@ -455,10 +455,12 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         new_ids = session.clipboard.paste(self.node, modifiers)
 
         self.rebuild_scene()
+
         # select new nodes
         for i in new_ids:
             item = self.graph_item[i]
             item.setSelected(True)
+
 
 
     def get_center_pos(self, items):
@@ -599,10 +601,33 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         factory = pkg.get_factory("annotation")
 
         self.add_new_node(factory, position)
+
+    
+    def acceptEvent(self, event):
+        """ Return True if event is accepted """
+        return bool(
+            event.mimeData().hasFormat("openalea/data_instance")
+            or
+            event.mimeData().hasFormat("openalea/nodefactory"))
+
+
+
+    def dragEnterEvent(self, event):
+        event.setAccepted(self.acceptEvent(event))
+            
+
+    def dragMoveEvent(self, event):
+        if (self.acceptEvent(event)):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
         
          
     def dropEvent(self, event):
 
+        # Drag and Drop from the PackageManager 
         if (event.mimeData().hasFormat("openalea/nodefactory")):
             pieceData = event.mimeData().data("openalea/nodefactory")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
@@ -624,6 +649,34 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 
+        # Drag and Drop from the DataPool
+        elif(event.mimeData().hasFormat("openalea/data_instance")):
+
+            pieceData = event.mimeData().data("openalea/data_instance")
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+            
+            data_key = QtCore.QString()
+            
+            dataStream >> data_key
+            data_key = str(data_key)
+
+            # Add new node
+            pkgmanager = PackageManager()
+            pkg = pkgmanager["system"]
+            factory = pkg.get_factory("pool reader")
+
+            position = self.mapToScene(event.pos())
+                    
+            # Set key val
+            eltid = self.add_new_node(factory, position)
+            subnode = self.node.node(eltid)
+            subnode.set_input(0, data_key)
+            subnode.set_caption("pool ['%s']"%(data_key,))
+
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+
+        # Propagate the Signal
         else:
             QtGui.QGraphicsView.dropEvent(self, event)
 
@@ -672,6 +725,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
 
 
+
       
     
 
@@ -699,7 +753,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         self.sizey = 32
         self.sizex = 20
-
 
         # Record item as a listener for the subnode
         self.ismodified = self.subnode.modified

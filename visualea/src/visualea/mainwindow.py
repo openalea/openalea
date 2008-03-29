@@ -178,7 +178,8 @@ class MainWindow(QtGui.QMainWindow,
 
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
-        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), self.display_leftpanel)
+        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), 
+                     self.display_leftpanel)
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), self.display_rightpanel)
 
                 
