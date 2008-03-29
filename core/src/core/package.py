@@ -339,7 +339,7 @@ class UserPackage(Package):
 	my_template = \
 """\
 def %s(%s):
-    '''
+    '''\
     %s
     '''
     %s
