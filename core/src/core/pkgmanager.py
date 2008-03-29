@@ -29,6 +29,7 @@ import openalea
 import sys
 import os
 import tempfile
+import glob
 
 from singleton import Singleton
 from package import UserPackage, PyPackageReader, PyPackageReaderWralea
@@ -74,10 +75,10 @@ class PackageManager(object):
 
         # dictionnary of category
         self.category = PseudoGroup("")
+
+        self.wraleapath = set()
+
         
-        # list of path to search wralea file
-        self.set_default_wraleapath()
-        self.read_wralea_path()
 
 
     def get_include_namespace(self):
@@ -145,16 +146,32 @@ class PackageManager(object):
         self.add_wraleapath(get_userpkg_dir())
         
 
-    def init(self, dirname=None):
+    def init(self, dirname=None, verbose=True):
         """ Initialize package manager
         If dirname is None, find wralea files on the system
         else load directory
+        If verbose is False, don't print any output
         """
 
-        if (not dirname):
-            self.find_and_register_packages()
-        else :
-            self.load_directory(dirname)    
+        # output redirection
+        if(not verbose):
+            sysout = sys.stdout
+            sys.stdout = open(os.devnull, 'w')
+
+        try:
+
+            if (not dirname):
+                self.find_and_register_packages()
+            else :
+                self.load_directory(dirname) 
+
+        finally:
+
+            if(not verbose):
+                sys.stdout.close()
+                sys.stdout = sysout
+
+        
 
 
     def reload(self):
@@ -204,7 +221,7 @@ class PackageManager(object):
 
     def recover_syspath(self):
         """ Restore the initial sys path """
-        sys.path = self.old_syspath
+        sys.path = self.old_syspath[:]
 
 
     # Accessors
@@ -295,13 +312,10 @@ class PackageManager(object):
 
         # search for wralea.py
         if(recursive):
-            wralea_files.update( p.walkfiles("*wralea.py") )
-            wralea_files.update( p.walkfiles("__wralea__.py") )
+            wralea_files.update( p.walkfiles("*wralea*.py") )
         else:
-            wralea_files.update( p.glob("*wralea.py") )
-            wralea_files.update( p.glob("__wralea__.py") )
+            wralea_files.update( p.glob("*wralea*.py") )
         
-
         for f in wralea_files:
             print "Package Manager : found %s" % f
             
@@ -319,12 +333,17 @@ class PackageManager(object):
 
         try:
             # Try to load cache file
-            directories = list(self.get_cache())
+            directories = set(self.get_cache())
             assert(len(directories))
             recursive = False
 
         except Exception, e:
             # No cache : search recursively on the disk
+
+            # list of path to search wralea file
+            self.set_default_wraleapath()
+            self.read_wralea_path()
+
             directories = self.wraleapath
             recursive = True
 
@@ -372,6 +391,7 @@ class PackageManager(object):
     # Cache functions
     def get_cache_filename(self):
         """ Return the cache filename """
+
         return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
 
 
@@ -379,9 +399,8 @@ class PackageManager(object):
         """ Save in cache current package manager state """
         
         f = open(self.get_cache_filename(),'w')
-        for pkg in self.pkgs.itervalues():
-            f.write(pkg.path)
-            f.write("\n")
+        s = set([pkg.path + "\n" for pkg in self.pkgs.itervalues()])
+        f.writelines(list(s))
         f.close()
 
 
