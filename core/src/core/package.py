@@ -318,23 +318,41 @@ class UserPackage(Package):
 
         localdir = self.path
         classname = name.replace(' ', '_')
-
+	
+	ins = []
+	for input in inputs:
+		in_name= input['name'].replace(' ', '_')
+		in_value = input['value']
+		if in_value is not None:
+			arg = '%s=%s'%(in_name,in_value)
+		else:
+			arg = '%s'%(in_name,)
+		ins.append(arg)
+	in_args = ', '.join(ins)
+	outs = []
+	for output in outputs:
+		arg = output['name'].replace(' ', '_')
+		outs.append(arg)
+	out_values = ', '.join(outs) + ' ='+' None,'*len(outs)
+	return_values = ', '.join(outs)+','
         # Create the module file
-        template = 'class %s(object):\n'%(classname)+\
-                   '    """  Doc... """ \n'+\
-                   '\n'+\
-                   '    def __init__(self):\n'+\
-                   '        pass\n'+\
-                   '\n'+\
-                   '\n'+\
-                   '    def __call__(self, *inputs):\n'+\
-                   '        return None\n'
+	my_template = \
+"""\
+def %s(%s):
+    '''
+    %s
+    '''
+    %s
+    # write the node code here.
 
-                
+    # return outputs
+    return %s
+"""%(classname, in_args, description, out_values, return_values)
+
         module_path = os.path.join(localdir, "%s.py"%(classname))
         
         file = open(module_path, 'w')
-        file.write(template)
+        file.write(my_template)
         file.close()
 
 
