@@ -25,8 +25,11 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 import openalea
+
 import sys
 import os
+import tempfile
+
 from singleton import Singleton
 from package import UserPackage, PyPackageReader, PyPackageReaderWralea
 from settings import get_userpkg_dir, Settings
@@ -143,7 +146,7 @@ class PackageManager(object):
         
 
     def init(self, dirname=None):
-        """ Initialize package
+        """ Initialize package manager
         If dirname is None, find wralea files on the system
         else load directory
         """
@@ -232,7 +235,7 @@ class PackageManager(object):
     def update_category(self, package):
         """ Update the category dictionary with package contents """
         
-        for nf in package.values():
+        for nf in package.itervalues():
             if not nf.category: 
                 nf.category = "Unclassified"
             
@@ -245,7 +248,7 @@ class PackageManager(object):
         """ Rebuild all the category """
 
         self.category = PseudoGroup('Root') 
-        for p in self.values():
+        for p in self.pkgs.itervalues():
             self.update_category(p)
 
        
@@ -274,9 +277,10 @@ class PackageManager(object):
 
 
 
-    def find_wralea_dir(self, directory):
+    def find_wralea_dir(self, directory, recursive=True):
         """
         Find in a directory wralea files,
+        Search recursivly is recursive is True
         @return : a list of pkgreader instances
         """
 
@@ -284,13 +288,19 @@ class PackageManager(object):
 
         wralea_files = set()
         if(not os.path.isdir(directory)):
-            return
+            print "notdir", directory, repr(directory)
+            return []
             
         p = path(directory).abspath()
 
         # search for wralea.py
-        wralea_files.update( p.walkfiles("*wralea.py") )
-        wralea_files.update( p.walkfiles("__wralea__.py") )
+        if(recursive):
+            wralea_files.update( p.walkfiles("*wralea.py") )
+            wralea_files.update( p.walkfiles("__wralea__.py") )
+        else:
+            wralea_files.update( p.glob("*wralea.py") )
+            wralea_files.update( p.glob("__wralea__.py") )
+        
 
         for f in wralea_files:
             print "Package Manager : found %s" % f
@@ -301,13 +311,27 @@ class PackageManager(object):
     
     def find_wralea_files (self):
         """
-        Find on the system all wralea.py, wralea.xml files
+        Find on the system all wralea.py files
         @return : a list of pkgreader instances
         """
         
         readers = []
-        for wp in self.wraleapath:
-            readers += self.find_wralea_dir(wp)
+
+        try:
+            # Try to load cache file
+            directories = list(self.get_cache())
+            assert(len(directories))
+            recursive = False
+
+        except Exception, e:
+            # No cache : search recursively on the disk
+            directories = self.wraleapath
+            recursive = True
+
+        for wp in directories:
+            ret = self.find_wralea_dir(wp, recursive)
+            if(ret):
+                readers += ret 
             
         return readers
 
@@ -327,15 +351,62 @@ class PackageManager(object):
         return reader
 
 
-    def find_and_register_packages (self):
-        """ Find all wralea on the system and register them """
-        
+    def find_and_register_packages (self, no_cache=False):
+        """ 
+        Find all wralea on the system and register them 
+        If no_cache is True, ignore cache file
+        """
+
+        if(no_cache):
+            self.delete_cache()
+
         readerlist = self.find_wralea_files()
         for x in readerlist:
             x.register_packages(self)
+
+        self.save_cache()
             
         self.rebuild_category()
 
+
+    # Cache functions
+    def get_cache_filename(self):
+        """ Return the cache filename """
+        return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
+
+
+    def save_cache(self):
+        """ Save in cache current package manager state """
+        
+        f = open(self.get_cache_filename(),'w')
+        for pkg in self.pkgs.itervalues():
+            f.write(pkg.path)
+            f.write("\n")
+        f.close()
+
+
+    def delete_cache(self):
+        """ Remove cache """
+        
+        n = self.get_cache_filename()
+
+        if(os.path.exists(n)):
+            os.remove(n)
+
+
+    def get_cache(self):
+        """ Return cache contents """
+        
+        f = open(self.get_cache_filename(), "r")
+        
+        for d in f:
+            d = d.strip()
+            yield d
+        
+        f.close()
+        
+        
+    # Package creation
 
     def create_user_package(self, name, metainfo, path=None):
         """
@@ -398,6 +469,15 @@ class PackageManager(object):
 
     def values(self):
         return self.pkgs.values()
+
+    def iterkeys(self):
+        return self.pkgs.iterkeys()
+
+    def iteritems(self):
+        return self.pkgs.iteritems()
+
+    def itervalues(self):
+        return self.pkgs.itervalues()
 
     def has_key(self, *args):
         return self.pkgs.has_key(*args)
