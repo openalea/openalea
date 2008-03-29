@@ -76,8 +76,9 @@ class PackageManager(object):
         # dictionnary of category
         self.category = PseudoGroup("")
 
-        self.wraleapath = set()
-
+        # list of path to search wralea file
+        self.set_default_wraleapath()
+        self.read_wralea_path()
         
 
 
@@ -339,10 +340,6 @@ class PackageManager(object):
 
         except Exception, e:
             # No cache : search recursively on the disk
-
-            # list of path to search wralea file
-            self.set_default_wraleapath()
-            self.read_wralea_path()
 
             directories = self.wraleapath
             recursive = True
