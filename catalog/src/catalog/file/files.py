@@ -18,6 +18,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 import os
+import tempfile
 from openalea.core import *
 
 # File name manipulation
@@ -143,7 +144,9 @@ class FileReadlines(FileRead):
     def read_contents(self, f):
         self.s = f.readlines()
 
+
+
 def py_tmpnam():
-    return os.tmpnam(),
+    return tempfile.mktemp(),
 
 

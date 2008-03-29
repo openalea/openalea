@@ -744,6 +744,7 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
         NodeFactoryView.__init__(self, main_win, parent)
 
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.setAnimated(True)
 
 
     #def reset(self):
