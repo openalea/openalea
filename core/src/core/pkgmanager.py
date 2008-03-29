@@ -78,8 +78,6 @@ class PackageManager(object):
 
         # list of path to search wralea file
         self.set_default_wraleapath()
-        self.read_wralea_path()
-        
 
 
     def get_include_namespace(self):
@@ -340,6 +338,8 @@ class PackageManager(object):
 
         except Exception, e:
             # No cache : search recursively on the disk
+            
+            self.read_wralea_path()
 
             directories = self.wraleapath
             recursive = True
