@@ -873,6 +873,8 @@ class ShowPortDialog(QtGui.QDialog, ui_listedit.Ui_ListEdit):
         ui_listedit.Ui_ListEdit.__init__(self)
         self.setupUi(self)
 
+        self.setWindowTitle("Show/Hide ports")
+
         self.node = node
         
         for i, desc in enumerate(node.input_desc):
