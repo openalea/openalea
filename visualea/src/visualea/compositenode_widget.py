@@ -581,6 +581,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             tgt_connector = tgt_item.get_input_connector(tgt_pid)
             self.add_graphical_connection(src_connector, tgt_connector)
 
+
     @lock_notify
     def add_graphical_annotation(self, position=None):
         """ Add text annotation """
@@ -624,7 +625,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             event.ignore()
 
         
-         
     def dropEvent(self, event):
 
         # Drag and Drop from the PackageManager 
@@ -683,7 +683,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     # Keybord Event
     def keyPressEvent(self, e):
-
         QtGui.QGraphicsView.keyPressEvent(self, e)
         if(e.isAccepted ()): return
         
@@ -698,7 +697,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
 
     def keyReleaseEvent(self, e):
-        """ Key """
         QtGui.QGraphicsView.keyReleaseEvent(self, e)
         if(e.isAccepted ()): return
 
@@ -751,9 +749,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.connector_in = [None] * self.subnode.get_nb_input()
         self.connector_out = [None] * self.subnode.get_nb_output()
 
-        self.sizey = 32
-        self.sizex = 20
-
+        
         # Record item as a listener for the subnode
         self.ismodified = self.subnode.modified
         self.initialise(self.subnode)
@@ -765,7 +761,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         
         # Set ToolTip
-        doc= self.subnode.__doc__
+        doc = self.subnode.__doc__
         try:
             node_name = self.subnode.factory.name
         except:
@@ -784,15 +780,30 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             if(self.subnode.factory):
                 doc = self.subnode.factory.description
 
-
         self.setToolTip( "Name : %s\n"%(node_name) +
                          "Package : %s\n"%(pkg_name) +
                          "Documentation : \n%s"%(doc,))
+
+        #self.fullname = node_name
                               
         # Font and box size
+        self.sizex = 20
+        self.sizey = 32
+
         self.font = self.graphview.font()
         self.font.setBold(True)
         self.font.setPointSize(10)
+        self.fm = QtGui.QFontMetrics(self.font)
+
+#         self.font2 = QtGui.QFont(self.font)
+#         self.font2.setBold(False)
+#         self.font2.setPointSize(8)
+#         self.fm2 = QtGui.QFontMetrics(self.font2)
+
+#         self.sizex = 20
+#         self.sizey = self.fm.height() + self.fm2.height() + 5
+#         self.ysep = self.fm.height()
+
 
         # Add to scene
         scene.addItem(self)
@@ -849,12 +860,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def adjust_size(self, force=False):
         """ Compute the box size """
 
-        fm = QtGui.QFontMetrics(self.font);
-        newsizex = fm.width(self.get_caption()) + 20;
+        newsizex = self.fm.width(self.get_caption()) + 20
+        # newsizex2 = self.fm2.width(self.fullname) + 20
+        
         # when the text is small but there are lots of ports, 
         # add more space.
         nb_ports = max(self.nb_cin, len(self.connector_out))
-        newsizex = max( nb_ports * Connector.WIDTH * 2, newsizex)
+        newsizex = max(nb_ports * Connector.WIDTH * 2, newsizex)
         
         if(newsizex != self.sizex or force):
             self.sizex = newsizex
@@ -956,7 +968,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
 
         # Draw Box
-        if hasattr(self.subnode,'raise_exception'):
+        if hasattr(self.subnode, 'raise_exception'):
             color = QtGui.QColor(255, 0, 0, 255)            
             if(self.isSelected()):
                 secondcolor = QtGui.QColor(0, 0, 0, 255)
@@ -985,9 +997,14 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         # Draw Text
         textRect = QtCore.QRectF(0, 0, self.sizex, self.sizey)
         painter.setFont(self.font)
-        painter.setPen(QtCore.Qt.black)
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
                          self.get_caption())
+        
+#         textRect = QtCore.QRectF(0, self.ysep, self.sizex, self.sizey - self.ysep)
+#         painter.setFont(self.font2)
+#         painter.drawText(textRect, QtCore.Qt.AlignHCenter,
+#                          self.fullname)
+
 
 #         # Draw Lazy symbol
 #         if(self.subnode.lazy):
@@ -1028,7 +1045,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
 
     def mouseDoubleClickEvent(self, event):
-
         # Read settings
         try:
             localsettings = Settings()
@@ -1189,7 +1205,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.graphview = weakref.ref(graphview)
 
         self.base_tooltip = tooltip
-        self.update_tooltip()
+        #self.update_tooltip()
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
         gradient = QtGui.QRadialGradient(-3, -3, 10)
@@ -1203,7 +1219,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
         self.edge_list = []
         self.setAcceptsHoverEvents(True)
-
+        
 
     def index(self):
         return self.mindex
@@ -1216,7 +1232,6 @@ class Connector(QtGui.QGraphicsEllipseItem):
     def adjust(self):
         for e in self.edge_list:
             e.adjust()
-
 
     def update_tooltip(self):
         self.setToolTip(self.base_tooltip)
@@ -1233,8 +1248,10 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.update_tooltip()
         self.setPen(QtGui.QPen(QtCore.Qt.darkYellow, 0))
 
+
     def hoverLeaveEvent(self, event):
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
+
 
 
 class ConnectorIn(Connector):
@@ -1266,7 +1283,7 @@ class ConnectorIn(Connector):
 
 
     def dragMoveEvent(self, event):
-        if ( event.mimeData().hasFormat("openalea/data_instance") ):
+        if (event.mimeData().hasFormat("openalea/data_instance") ):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
@@ -1274,7 +1291,6 @@ class ConnectorIn(Connector):
 
             
     def dropEvent(self, event):
-
         if (event.mimeData().hasFormat("openalea/data_instance")):
             pieceData = event.mimeData().data("openalea/data_instance")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
@@ -1297,6 +1313,7 @@ class ConnectorIn(Connector):
             event.ignore()
 
             
+
 
 
 class ConnectorOut(Connector):
