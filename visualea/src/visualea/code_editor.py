@@ -142,7 +142,7 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
         vboxlayout.addWidget(self.label)
 
         self.savescut = QtGui.QShortcut( QtGui.QKeySequence(QtGui.QKeySequence.Save), self)
-        self.connect(self.savescut, QtCore.SIGNAL("activated()"), self.save_changes)
+        self.connect(self.savescut, QtCore.SIGNAL("triggered()"), self.save_changes)
         self.connect(self.savbut, QtCore.SIGNAL("clicked()"), self.save_changes)
         self.connect(self.applybut, QtCore.SIGNAL("clicked()"), self.apply_changes)
         

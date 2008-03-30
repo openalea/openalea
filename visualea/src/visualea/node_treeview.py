@@ -453,18 +453,18 @@ class NodeFactoryView(object):
         if(isinstance(obj, AbstractFactory)): # Factory
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
 
             action = menu.addAction("Edit")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_node)
 
             action = menu.addAction("Properties")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_properties)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_properties)
 
             menu.addSeparator()
 
             action = menu.addAction("Remove")
-            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_node)
 
         elif(isinstance(obj, PseudoPackage)): # Package
 
@@ -475,42 +475,42 @@ class NodeFactoryView(object):
 
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("activated()"), self.open_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
             
             action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_package)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_package)
 
             action = menu.addAction("Edit Code")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("activated()"), self.edit_pkg_code)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_pkg_code)
 
             menu.addSeparator()
 
             action = menu.addAction("Add Python Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("activated()"), self.add_python_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_python_node)
             
             action = menu.addAction("Add Composite Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("activated()"), self.add_composite_node)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_composite_node)
 
             menu.addSeparator()
 
             action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("activated()"), self.duplicate_package)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.duplicate_package)
 
             action = menu.addAction("Remove Package")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("activated()"), self.remove_package)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_package)
 
 
             menu.addSeparator()
 
             action = menu.addAction("Reload Package")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("activated()"), self.reload_package)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.reload_package)
 
 
         if(menu):
@@ -851,7 +851,7 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         
         menu = QtGui.QMenu(self)
         action = menu.addAction("Remove")
-        self.connect(action, QtCore.SIGNAL("activated()"), self.remove_element)
+        self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_element)
 
         menu.move(event.globalPos())
         menu.show()
