@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -119,65 +119,65 @@ class MainWindow(QtGui.QMainWindow,
 
 
         # Help Menu
-        self.connect(self.action_About, SIGNAL("activated()"), self.about)
-        self.connect(self.actionOpenAlea_Web, SIGNAL("activated()"), self.web)
-        self.connect(self.action_Help, SIGNAL("activated()"), self.help)
+        self.connect(self.action_About, SIGNAL("triggered()"), self.about)
+        self.connect(self.actionOpenAlea_Web, SIGNAL("triggered()"), self.web)
+        self.connect(self.action_Help, SIGNAL("triggered()"), self.help)
 
         # File Menu
-        self.connect(self.action_New_Session, SIGNAL("activated()"), self.new_session)
-        self.connect(self.action_Open_Session, SIGNAL("activated()"), self.open_session)
-        self.connect(self.action_Save_Session, SIGNAL("activated()"), self.save_session)
-        self.connect(self.actionSave_as, SIGNAL("activated()"), self.save_as)
-        self.connect(self.action_Quit, SIGNAL("activated()"), self.quit)
+        self.connect(self.action_New_Session, SIGNAL("triggered()"), self.new_session)
+        self.connect(self.action_Open_Session, SIGNAL("triggered()"), self.open_session)
+        self.connect(self.action_Save_Session, SIGNAL("triggered()"), self.save_session)
+        self.connect(self.actionSave_as, SIGNAL("triggered()"), self.save_as)
+        self.connect(self.action_Quit, SIGNAL("triggered()"), self.quit)
         
-        self.connect(self.action_Image, SIGNAL("activated()"), self.export_image)
+        self.connect(self.action_Image, SIGNAL("triggered()"), self.export_image)
 
         # Package Manager Menu
-        self.connect(self.action_Auto_Search, SIGNAL("activated()"), self.reload_all)
-        self.connect(self.action_Add_File, SIGNAL("activated()"), self.add_pkgdir)
-        self.connect(self.actionFind_Node, SIGNAL("activated()"),
+        self.connect(self.action_Auto_Search, SIGNAL("triggered()"), self.reload_all)
+        self.connect(self.action_Add_File, SIGNAL("triggered()"), self.add_pkgdir)
+        self.connect(self.actionFind_Node, SIGNAL("triggered()"),
                      self.find_node)
-        self.connect(self.action_New_Network, SIGNAL("activated()"), self.new_graph)
-        self.connect(self.actionNew_Python_Node, SIGNAL("activated()"), self.new_python_node)
-        self.connect(self.actionNew_Package, SIGNAL("activated()"), self.new_package)
+        self.connect(self.action_New_Network, SIGNAL("triggered()"), self.new_graph)
+        self.connect(self.actionNew_Python_Node, SIGNAL("triggered()"), self.new_python_node)
+        self.connect(self.actionNew_Package, SIGNAL("triggered()"), self.new_package)
 
         # DataPool Menu
-        self.connect(self.actionClear_Data_Pool, SIGNAL("activated()"), self.clear_data_pool)
+        self.connect(self.actionClear_Data_Pool, SIGNAL("triggered()"), self.clear_data_pool)
 
         # Python Menu
-        self.connect(self.action_Execute_script, SIGNAL("activated()"),
+        self.connect(self.action_Execute_script, SIGNAL("triggered()"),
                      self.exec_python_script)
-        self.connect(self.actionOpen_Console, SIGNAL("activated()"),
+        self.connect(self.actionOpen_Console, SIGNAL("triggered()"),
                      self.open_python_console)
-        self.connect(self.actionClea_r_Console, SIGNAL("activated()"),
+        self.connect(self.actionClea_r_Console, SIGNAL("triggered()"),
                      self.clear_python_console)
 
         # WorkspaceMenu
-        self.connect(self.action_Run, SIGNAL("activated()"), self.run)
-        self.connect(self.actionReset, SIGNAL("activated()"), self.reset)
-        self.connect(self.actionInvalidate, SIGNAL("activated()"), self.invalidate)
+        self.connect(self.action_Run, SIGNAL("triggered()"), self.run)
+        self.connect(self.actionReset, SIGNAL("triggered()"), self.reset)
+        self.connect(self.actionInvalidate, SIGNAL("triggered()"), self.invalidate)
         
-        self.connect(self.action_Copy, SIGNAL("activated()"), self.copy)
-        self.connect(self.action_Paste, SIGNAL("activated()"), self.paste)
-        self.connect(self.action_Cut, SIGNAL("activated()"), self.cut)
+        self.connect(self.action_Copy, SIGNAL("triggered()"), self.copy)
+        self.connect(self.action_Paste, SIGNAL("triggered()"), self.paste)
+        self.connect(self.action_Cut, SIGNAL("triggered()"), self.cut)
         
-        self.connect(self.action_Delete_2, SIGNAL("activated()"), self.delete_selection)
-        self.connect(self.actionGroup_Selection, SIGNAL("activated()"), self.group_selection)
-        self.connect(self.action_New_Empty_Workspace, SIGNAL("activated()"), self.new_workspace)
-        self.connect(self.action_Close_current_workspace, SIGNAL("activated()"),
+        self.connect(self.action_Delete_2, SIGNAL("triggered()"), self.delete_selection)
+        self.connect(self.actionGroup_Selection, SIGNAL("triggered()"), self.group_selection)
+        self.connect(self.action_New_Empty_Workspace, SIGNAL("triggered()"), self.new_workspace)
+        self.connect(self.action_Close_current_workspace, SIGNAL("triggered()"),
                      self.close_workspace)
-        self.connect(self.actionConfigure_I_O, SIGNAL("activated()"),
+        self.connect(self.actionConfigure_I_O, SIGNAL("triggered()"),
                      self.configure_io)
-        self.connect(self.actionReload_from_Model, SIGNAL("activated()"), self.reload_from_factory)
-        self.connect(self.action_Export_to_Factory, SIGNAL("activated()"), self.export_to_factory)
-        self.connect(self.actionExport_to_Application, SIGNAL("activated()"),
+        self.connect(self.actionReload_from_Model, SIGNAL("triggered()"), self.reload_from_factory)
+        self.connect(self.action_Export_to_Factory, SIGNAL("triggered()"), self.export_to_factory)
+        self.connect(self.actionExport_to_Application, SIGNAL("triggered()"),
                      self.export_to_application)
-        self.connect(self.actionPreview_Application, SIGNAL("activated()"),
+        self.connect(self.actionPreview_Application, SIGNAL("triggered()"),
                      self.preview_application)
 
 
         # Window Mneu
-        self.connect(self.actionPreferences, SIGNAL("activated()"), self.open_preferences)
+        self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
         self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), 
                      self.display_leftpanel)
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), self.display_rightpanel)
@@ -498,13 +498,13 @@ class MainWindow(QtGui.QMainWindow,
         menu = QtGui.QMenu(self)
 
         action = menu.addAction("Close")
-        self.connect(action, SIGNAL("activated()"), self.close_workspace)
+        self.connect(action, SIGNAL("triggered()"), self.close_workspace)
 
 #         action = menu.addAction("Run")
-#         self.connect(action, SIGNAL("activated()"), self.run)
+#         self.connect(action, SIGNAL("triggered()"), self.run)
 
 #         action = menu.addAction("Export to Model")
-#         self.connect(action, SIGNAL("activated()"), self.export_to_factory)
+#         self.connect(action, SIGNAL("triggered()"), self.export_to_factory)
 
         menu.move(event.globalPos())
         menu.show()

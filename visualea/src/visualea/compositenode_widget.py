@@ -715,7 +715,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         menu = QtGui.QMenu(self)
         action = menu.addAction("Add Annotation")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.add_graphical_annotation)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.add_graphical_annotation)
         
         menu.move(event.globalPos())
         menu.show()
@@ -788,7 +788,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                               
         # Font and box size
         self.sizex = 20
-        self.sizey = 32
+        self.sizey = 35
 
         self.font = self.graphview.font()
         self.font.setBold(True)
@@ -817,8 +817,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         except:
             (x,y) = (10,10)
         self.setPos(QtCore.QPointF(x,y))
+        
 
+
+        self.more_port = None
         self.adjust_size()
+        
 
 
     def set_connectors(self):
@@ -830,7 +834,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         for i,desc in enumerate(self.subnode.input_desc):
 
             hide = self.subnode.is_port_hidden(i)
-            #hide = desc.is_hidden()
 
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
@@ -884,6 +887,27 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 c.adjust_position(self, i, nb_cout)
                 c.adjust()
 
+            self.set_symbols()
+
+
+
+    def set_symbols(self):
+        """ Set symbols around the box """
+
+        phiden = bool( self.nb_cin != self.subnode.get_nb_input())
+        
+        if(phiden != self.more_port):
+           
+            if(self.more_port):
+                self.scene().removeItem(self.more_port)
+                self.more_port = None
+
+            if(phiden):
+                self.more_port = QtGui.QGraphicsTextItem(">>", self)
+                self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
+                self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
+                self.more_port.setPos( self.sizex - 18, - 4)
+           
 
     def get_caption(self):
         """ Return the node caption (convenience)"""
@@ -1005,12 +1029,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 #         painter.drawText(textRect, QtCore.Qt.AlignHCenter,
 #                          self.fullname)
 
-
-#         # Draw Lazy symbol
-#         if(self.subnode.lazy):
-#             painter.setPen(QtGui.QPen(QtCore.Qt.darkMagenta, 1))
-#             painter.drawRoundRect(0, 0, self.sizex, self.sizey)
-
         
 
 
@@ -1045,6 +1063,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
 
     def mouseDoubleClickEvent(self, event):
+
+        print QtGui.QGraphicsItem.mouseDoubleClickEvent(self, event)
+  
         # Read settings
         try:
             localsettings = Settings()
@@ -1084,36 +1105,36 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         menu = QtGui.QMenu(self.graphview)
 
         action = menu.addAction("Run")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.run_node)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.run_node)
         
         action = menu.addAction("Open Widget")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.open_widget)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.open_widget)
 
         menu.addSeparator()
 
         action = menu.addAction("Delete")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
 
         action = menu.addAction("Reset")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.subnode.reset)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.subnode.reset)
         
         action = menu.addAction("Replace By")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.replace_by)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.replace_by)
         
         menu.addSeparator()
 
         action = menu.addAction("Caption")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_caption)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_caption)
 
         action = menu.addAction("Show/Hide ports")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.show_ports)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.show_ports)
 
         action = menu.addAction("Internals")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.set_internals)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
         
         
 #         action = menu.addAction("Edit")
-#         self.scene().connect(action, QtCore.SIGNAL("activated()"), self.edit_code)
+#         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.edit_code)
 
         menu.move(event.screenPos())
         menu.show()
@@ -1205,7 +1226,6 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.graphview = weakref.ref(graphview)
 
         self.base_tooltip = tooltip
-        #self.update_tooltip()
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
         gradient = QtGui.QRadialGradient(-3, -3, 10)
@@ -1313,7 +1333,8 @@ class ConnectorIn(Connector):
             event.ignore()
 
             
-
+    def mouseDoubleClickEvent(self, event):
+        self.parentItem().show_ports()
 
 
 class ConnectorOut(Connector):
@@ -1347,10 +1368,10 @@ class ConnectorOut(Connector):
         menu = QtGui.QMenu(self.graphview())
 
         action = menu.addAction("Send to Pool")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.send_to_pool)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.send_to_pool)
 
         action = menu.addAction("Print")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.print_value )
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.print_value )
 
         menu.move(event.screenPos())
         menu.show()
@@ -1629,7 +1650,7 @@ class Edge(AbstractEdge):
         menu = QtGui.QMenu(self.graph)
 
         action = menu.addAction("Delete connection")
-        self.scene().connect(action, QtCore.SIGNAL("activated()"), self.remove)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
         
         menu.move(event.screenPos())
         menu.show()
