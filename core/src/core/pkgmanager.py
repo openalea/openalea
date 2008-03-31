@@ -132,7 +132,7 @@ class PackageManager(object):
             base = epoint.dist.location
             m = epoint.module_name.split('.')
             p = os.path.join(base, *m)
-            print "Wralea entry point: ", p
+            #print "Wralea entry point: ", p
             self.add_wraleapath(p)
 
         # Search in openalea namespace
@@ -291,6 +291,10 @@ class PackageManager(object):
                 print "Unable to load package %s."%(filename,)
                 return None
 
+        if(readers): 
+            self.save_cache()
+            self.rebuild_category()
+
 
 
     def find_wralea_dir(self, directory, recursive=True):
@@ -381,7 +385,6 @@ class PackageManager(object):
             x.register_packages(self)
 
         self.save_cache()
-            
         self.rebuild_category()
 
 
