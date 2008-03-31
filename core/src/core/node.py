@@ -110,14 +110,19 @@ class AbstractNode(Observed):
 class AbstractPort(dict):
     """ The class describing the ports """
     
-    def get_desc( self ):
+    def get_desc(self):
         """Gets default description   """
         return self.get("desc", None )
 
 
-    def get_interface( self ):
+    def get_default(self):
+        return self.get("value", None )
+
+
+    def get_interface(self):
         """Gets the interface  """
         return self.get("interface", None )
+
     
     def get_tip(self):
         """ Return the tool tip """
@@ -125,7 +130,7 @@ class AbstractPort(dict):
         name = self['name']
         interface = self.get('interface', None)
         desc = self.get('desc', '')
-        
+        value = self.get('value', None)
         iname = 'Any'
         if(interface):
             try:
@@ -136,7 +141,7 @@ class AbstractPort(dict):
                 except AttributeError:
                     iname = str(interface)
         
-        return '%s(%s) : %s '%(name,iname, desc)
+        return '%s(%s):\t%s \t[default=%s] '%(name,iname,  desc, str(value))
 
 
 

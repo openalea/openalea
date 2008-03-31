@@ -53,6 +53,19 @@ def run(component, inputs, gui=False, pm=None):
         query(component, pm)
         return
     
+    if(inputs):
+        for k,v in inputs.iteritems():
+            try:
+                node.set_input(k, v)
+            except KeyError:
+                print "Unknown input %s"%(k,)
+                query(component, pm)
+                return
+                   
+    node.eval()
+    
+    print node.outputs
+
 
 
 def query(component, pm=None):
@@ -115,12 +128,17 @@ def query(component, pm=None):
         print "\nComponent"
         print "---------"
         print "Name : %s"%(factory.name)
-        print "Documentation : \n  %s"%(doc,)
+        print "Documentation : %s"%(doc,)
+        print "Inputs:"
+        for i in xrange(node.get_nb_input()):
+            port = node.get_input_port(i)
+            print "  ", port.get_tip()
+        print "Outputs:"
+        for port in node.output_desc:
+            print "  ", port.get_tip()
 
-        
-        
-        
-        
+            
+
         
         
 
@@ -137,8 +155,6 @@ def parse_component(name):
     else:
         raise ValueError("Component name error : cannot parse 'pkg_id:node_id'")
     
-
-
 
 
 def get_intput_callback(option, opt_str, value, parser):
@@ -167,7 +183,7 @@ def get_intput_callback(option, opt_str, value, parser):
     except:
         raise ValueError("Invalid inputs %s"%(str(value)))
 
-    setattr(parser.values, option.dest, value)
+    setattr(parser.values, option.dest, dict)
 
 
 
@@ -212,6 +228,7 @@ def main():
 
 
     if(options.run):
+        print options.input
         run(component, options.input)
     else:
         query(component)
