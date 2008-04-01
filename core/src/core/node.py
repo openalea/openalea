@@ -32,7 +32,6 @@ import inspect
 import os, sys
 import string
 import types
-import pprint
 from copy import copy, deepcopy
 from weakref import ref
 
@@ -141,7 +140,7 @@ class AbstractPort(dict):
                 except AttributeError:
                     iname = str(interface)
         
-        return '%s(%s):\t%s \t[default=%s] '%(name,iname,  desc, str(value))
+        return '%s(%s): %s [default=%s] '%(name,iname,  desc, str(value))
 
 
 
@@ -1036,7 +1035,7 @@ Factory = NodeFactory
 class PyNodeFactoryWriter(object):
     """ NodeFactory python Writer """
 
-    nodefactory_widget_template = """
+    nodefactory_template = """
 
 $NAME = Factory(name=$PNAME, 
                 description=$DESCRIPTION, 
@@ -1050,53 +1049,24 @@ $NAME = Factory(name=$PNAME,
                 )
 
 """
-    nodefactory_template = """
-
-$NAME = Factory(name=$PNAME, 
-                description=$DESCRIPTION, 
-                category=$CATEGORY, 
-                nodemodule=$NODEMODULE,
-                nodeclass=$NODECLASS,
-                inputs=$LISTIN,
-                outputs=$LISTOUT,
-                )
-
-"""
-
 
     def __init__(self, factory):
         self.factory = factory
 
-    def pprint_repr(self,obj, indent=3): 	 
-         """ Pretty print repr """ 	 
-         return pprint.pformat(obj, indent=indent) 	 
-
     def __repr__(self):
         """ Return the python string representation """
         f = self.factory
-        args = dict( NAME=f.get_python_name(),
-                     PNAME=repr(f.name),
-                     DESCRIPTION=repr(f.description),
-                     CATEGORY=repr(f.category), 
-                     NODEMODULE=repr(f.nodemodule_name),
-                     NODECLASS=repr(f.nodeclass_name),
-                   )
-	if f.widgetmodule_name is None and f.widgetclass_name is None:
-		template = self.nodefactory_template
-	else:
-		template = self.nodefactory_widget_template
-		args['WIDGETMODULE']=repr(f.widgetmodule_name)
-		args['WIDGETCLASS']=repr(f.widgetclass_name)
-
-	listin = self.pprint_repr(f.inputs)
-	listout = self.pprint_repr(f.outputs)
-
-	args['LISTIN'] = listin
-	args['LISTOUT'] = listout
-
-        fstr = string.Template(template)
-        result = fstr.safe_substitute(**args)
-
+        fstr = string.Template(self.nodefactory_template)
+        result = fstr.safe_substitute(NAME=f.get_python_name(),
+                                      PNAME=repr(f.name),
+                                      DESCRIPTION=repr(f.description),
+                                      CATEGORY=repr(f.category), 
+                                      NODEMODULE=repr(f.nodemodule_name),
+                                      NODECLASS=repr(f.nodeclass_name),
+                                      LISTIN=repr(f.inputs),
+                                      LISTOUT=repr(f.outputs),
+                                      WIDGETMODULE=repr(f.widgetmodule_name),
+                                      WIDGETCLASS=repr(f.widgetclass_name),)
         return result
            
 
