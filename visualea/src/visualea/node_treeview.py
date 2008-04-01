@@ -30,16 +30,17 @@ from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
 
 from openalea.core.node import NodeFactory, AbstractFactory
+from openalea.core.data import DataFactory
 from openalea.core.package import Package, UserPackage
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
 from openalea.core import cli
 
-from dialogs import EditPackage, NewGraph, NewPackage
-from util import open_dialog, exception_display, busy_cursor
-from node_widget import SignalSlotListener
-from code_editor import get_editor
+from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage
+from openalea.visualea.util import open_dialog, exception_display, busy_cursor
+from openalea.visualea.node_widget import SignalSlotListener
+from openalea.visualea.code_editor import get_editor
 import images_rc
 
 
@@ -66,6 +67,9 @@ def get_icon(item):
            
     elif( isinstance(item, NodeFactory)):
         return QVariant(QtGui.QPixmap(":/icons/node.png"))
+
+    elif( isinstance(item, DataFactory)):
+        return QVariant(QtGui.QPixmap(":/icons/data.png"))
 
     else:
         return QVariant()

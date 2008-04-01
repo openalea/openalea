@@ -27,20 +27,21 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
-from shell import get_shell_class
+from openalea.visualea.shell import get_shell_class
 
 from openalea.core import cli
 from code import InteractiveInterpreter as Interpreter
 
-from node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
-from node_treeview import DataPoolListView, DataPoolModel
-from node_treeview import SearchListView, SearchModel
-from node_widget import SignalSlotListener
+from openalea.visualea.node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
+from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
+from openalea.visualea.node_treeview import SearchListView, SearchModel
+from openalea.visualea.node_widget import SignalSlotListener
 import metainfo
 
 
-from dialogs import NewGraph, NewPackage, FactorySelector, IOConfigDialog, PreferencesDialog
-from util import exception_display, busy_cursor
+from openalea.visualea.dialogs import NewGraph, NewPackage, FactorySelector
+from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog
+from openalea.visualea.util import exception_display, busy_cursor
 
 
 
