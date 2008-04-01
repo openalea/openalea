@@ -16,11 +16,40 @@
 
 import os, sys
 from optparse import OptionParser
+import threading
 
 from openalea.core.pkgmanager import PackageManager
 
-#global package manager
-pm = None
+
+
+
+
+def start_qt(factory, node):
+    """ Start QT, and open widget of factory, node """
+
+    from PyQt4 import QtGui, QtCore
+
+    app = QtGui.QApplication(sys.argv)
+
+    # CTRL+C binding
+    import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    dialog = QtGui.QDialog()
+    widget = factory.instantiate_widget(node)
+    widget.set_autonomous()
+
+    dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    widget.setParent(dialog)
+    
+    vboxlayout = QtGui.QVBoxLayout(dialog)
+    vboxlayout.setMargin(3)
+    vboxlayout.setSpacing(5)
+    vboxlayout.addWidget(widget)
+
+    dialog.setWindowTitle(factory.name)
+    dialog.show()
+
+    app.exec_()
 
 
 def load_package_manager(pkg_id, node_id):
@@ -43,15 +72,18 @@ def run(component, inputs, gui=False, pm=None):
         pm = load_package_manager(pkg_id, node_id)
 
     try:
-        node = pm.get_node(pkg_id, node_id)
+        factory = pm[pkg_id][ node_id]
     except Exception, e:
-        node = None
+        factory = None
     
-    if(not node):
+    if(not factory):
 
         print "Cannot run node %s:%s"%(pkg_id, node_id)
         query(component, pm)
         return
+
+
+    node = factory.instantiate()
     
     if(inputs):
         for k,v in inputs.iteritems():
@@ -61,10 +93,14 @@ def run(component, inputs, gui=False, pm=None):
                 print "Unknown input %s"%(k,)
                 query(component, pm)
                 return
-                   
-    node.eval()
-    
-    print node.outputs
+
+    if(not gui):
+        node.eval()
+        print node.outputs
+        return
+
+    else:
+        start_qt(factory, node)
 
 
 
@@ -137,10 +173,6 @@ def query(component, pm=None):
         for port in node.output_desc:
             print "  ", port.get_tip()
 
-            
-
-        
-        
 
 
 def parse_component(name):
@@ -161,7 +193,7 @@ def get_intput_callback(option, opt_str, value, parser):
 
     assert value is None
     done = 0
-    value = []
+    value = {}
     rargs = parser.rargs
     while rargs:
         arg = rargs[0]
@@ -173,17 +205,25 @@ def get_intput_callback(option, opt_str, value, parser):
         if ((arg[:2] == "--" and len(arg) > 2) or
             (arg[:1] == "-" and len(arg) > 1 and arg[1] != "-")):
             break
+
         else:
-            value.append(arg)
+            v = arg.split("=")
+            if(len(v) != 2):
+                raise ValueError("Invalid input %s"%(str(arg)))
+            
+
+            value[v[0]] = v[1]
             del rargs[0]
 
-    param_list = ",".join(value)
-    try:
-        dict = eval("dict(%s)"%(param_list,))
-    except:
-        raise ValueError("Invalid inputs %s"%(str(value)))
 
-    setattr(parser.values, option.dest, dict)
+    for k,v in value.iteritems():
+        try:
+            v = eval(v)
+            value[k] = v
+        except:
+            pass
+        
+    setattr(parser.values, option.dest, value)
 
 
 
@@ -192,12 +232,8 @@ def main():
     """ Parse options """
     
         # options
-    usage = "usage: %prog [-r|-q] [-c package_id:node_id] [-i key1=val1 key2=val2]"
+    usage = "usage: %prog [-r|-q] package_id[:node_id] [-i key1=val1 key2=val2]"
     parser = OptionParser(usage=usage)
-
-    parser.add_option( "-c", "--component", dest="component",
-                       help="Component is 'pkg_id:node_id'.",
-                       default=None)
 
     parser.add_option( "-q", "--query", dest="query",
                        help="Show package/component help.",
@@ -219,20 +255,25 @@ def main():
                        dest="input"
                        )
 
-    (options, args)= parser.parse_args()
+    try:
+        (options, args)= parser.parse_args()
+    except Exception,e:
+        parser.print_usage()
+        print "Error while parsing args:", e
+        return
+    
+    if(len(args) < 1):
+        parser.error("Incomplete command : specify a 'package_id:node_id')")
 
-    if(options.component is None):
-        parser.error("Need to specify component (-c option)")
+    component = parse_component(args[0])
 
-    component = parse_component(options.component)
 
+    # Execute
 
     if(options.run):
-        print options.input
-        run(component, options.input)
+        run(component, options.input, options.gui)
     else:
-        query(component)
-
+        query(component,)
 
 
 
@@ -240,3 +281,6 @@ def main():
 
 if(__name__ == "__main__"):
     main()
+
+
+# python alea.py -r -c "adel.macro:6 - plot_scene" -i leafdb="'/home/sdufour/openaleapkg/adel/data/leaves1.db'" lsystem="'/home/sdufour/openaleapkg/adel/lsystem/Adel.l'"
