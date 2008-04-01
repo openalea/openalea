@@ -1,4 +1,4 @@
-from external import *
+from openalea.core.external import *
 
 
 def global_module(module):

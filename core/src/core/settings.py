@@ -26,7 +26,7 @@ __revision__=" $Id$ "
 
 import os, sys
 from ConfigParser import SafeConfigParser
-from singleton import Singleton
+from openalea.core.singleton import Singleton
 
 # [pkgmanager]
 # path = '.', '/home/user/directory'

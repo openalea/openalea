@@ -22,9 +22,9 @@ This module defines Interface classes (I/O types)
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from metaclass import make_metaclass
-from singleton import Singleton
-from observer import AbstractListener
+from openalea.core.metaclass import make_metaclass
+from openalea.core.singleton import Singleton
+from openalea.core.observer import AbstractListener
 import types
 
 # Dictionary to map Interface with corresponding python type
@@ -246,6 +246,11 @@ class IDict(IInterface):
     @classmethod
     def default(cls):
         return dict()
+
+
+class IData(IStr):
+    """ Pacage data interface """
+    pass
 
 
 

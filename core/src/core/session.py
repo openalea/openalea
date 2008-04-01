@@ -26,10 +26,10 @@ __revision__=" $Id$ "
 
 import os, sys
 
-from compositenode import CompositeNodeFactory
-from pkgmanager import PackageManager
-from observer import Observed
-from datapool import DataPool
+from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.observer import Observed
+from openalea.core.datapool import DataPool
 
 import shelve
 

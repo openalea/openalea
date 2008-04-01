@@ -36,9 +36,9 @@ from copy import copy, deepcopy
 from weakref import ref
 
 #from signature import get_parameters
-import signature as sgn
-from observer import Observed, AbstractListener
-from actor import IActor
+import openalea.core.signature as sgn
+from openalea.core.observer import Observed, AbstractListener
+from openalea.core.actor import IActor
 
 # Exceptions
 class RecursionError (Exception):
@@ -637,6 +637,7 @@ class AbstractFactory(Observed):
             self.__pkg_id__ = p.get_id()
 
         return p
+
 
     def get_pkg(self):
         if(self.__pkg__):

@@ -20,8 +20,8 @@ DataPool is a global dictionnary to share data between node instance
 """
 
 
-from singleton import Singleton
-from observer import Observed
+from openalea.core.singleton import Singleton
+from openalea.core.observer import Observed
 
 
 

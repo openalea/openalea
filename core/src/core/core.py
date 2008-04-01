@@ -25,6 +25,6 @@ __revision__=" $Id$ "
 
 
 
-from package import *
-from node import *
+#from package import *
+#from node import *
 

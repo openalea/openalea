@@ -33,8 +33,8 @@ import imp
 import time
 import shutil
 
-from node import NodeFactory
-from nocasedict import NoCaseDict
+from openalea.core.node import NodeFactory
+from openalea.core.nocasedict import NoCaseDict
 
 # Exceptions
 
