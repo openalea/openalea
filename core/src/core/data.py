@@ -97,7 +97,7 @@ class DataNode(Node):
                       inputs=(dict(name='data', interface=IData, value=v),),
                       outputs=(dict(name='data', interface=IData),),
                       )
-        
+        self.caption = 'Data : %s:%s'%(v.pkg, v.name)
         
     def __call__(self, args):
         return args[0],
