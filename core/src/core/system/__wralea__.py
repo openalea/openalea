@@ -204,3 +204,9 @@ cmd = Factory(name="command",
 __all__.append('cmd')
 
 
+
+
+mydata = DataFactory(name="file.txt",
+                     desc="")
+
+__all__.append('mydata')

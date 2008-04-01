@@ -1,7 +1,5 @@
-from openalea.core.core import Package, Factory
+from openalea.core.external import Package, Factory
 from openalea.core.traitsui import View, Item, Group
-#from openalea.core.core import Node
-#from openalea.core.core import NodeFactory,Factory
 from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
 #import model as m
 #import openalea.mersim.gui.phyllotaxis as phyllotaxis

@@ -38,11 +38,11 @@ from openalea.core import cli
 
 import annotation
 
-from node_widget import NodeWidget, SignalSlotListener
+from openalea.visualea.node_widget import NodeWidget, SignalSlotListener
 
-from dialogs import DictEditor, ShowPortDialog, NodeChooser
-from util import busy_cursor, exception_display, open_dialog
-from node_widget import DefaultNodeWidget
+from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
+from openalea.visualea.util import busy_cursor, exception_display, open_dialog
+from openalea.visualea.node_widget import DefaultNodeWidget
 
 
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):

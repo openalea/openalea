@@ -30,13 +30,13 @@ import string
 import copy
 import pprint
 
-from node import AbstractFactory, Node
-from node import RecursionError, InstantiationError
-from pkgmanager import PackageManager, UnknownPackageError
-from package import UnknownNodeError
-from dataflow import DataFlow, InvalidEdge, PortError
-from algo.dataflow_copy import structural_copy
-from settings import Settings
+from openalea.core.node import AbstractFactory, Node
+from openalea.core.node import RecursionError, InstantiationError
+from openalea.core.pkgmanager import PackageManager, UnknownPackageError
+from openalea.core.package import UnknownNodeError
+from openalea.core.dataflow import DataFlow, InvalidEdge, PortError
+from openalea.core.algo.dataflow_copy import structural_copy
+from openalea.core.settings import Settings
 
 
 class IncompatibleNodeError(Exception): pass

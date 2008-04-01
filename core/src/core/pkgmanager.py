@@ -31,11 +31,12 @@ import os
 import tempfile
 import glob
 
-from singleton import Singleton
-from package import UserPackage, PyPackageReader, PyPackageReaderWralea
-from settings import get_userpkg_dir, Settings
 from pkg_resources import iter_entry_points
-from nocasedict import NoCaseDict
+
+from openalea.core.singleton import Singleton
+from openalea.core.package import UserPackage, PyPackageReader, PyPackageReaderWralea
+from openalea.core.settings import get_userpkg_dir, Settings
+from openalea.core.nocasedict import NoCaseDict
 
 # Exceptions 
 
@@ -177,7 +178,7 @@ class PackageManager(object):
         """ Reload all packages """
 
         self.clear()
-        self.find_and_register_packages()
+        self.find_and_register_packages(no_cache=True)
         for p in self.pkgs.values():
             p.reload()
         

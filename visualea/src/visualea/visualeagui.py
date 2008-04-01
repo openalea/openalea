@@ -35,6 +35,7 @@ from openalea.core.session import Session
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+
 def set_stdout():
     """Disable stdout if using pythonw"""
     if("pythonw" in sys.executable):

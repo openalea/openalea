@@ -25,9 +25,11 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from singleton import Singleton
 from threading import Thread
 from Queue import Queue
+
+from openalea.core.singleton import Singleton
+
 
 class ThreadManager(object):
     """ ThreadManager provides thread on demand """

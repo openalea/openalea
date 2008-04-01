@@ -32,8 +32,8 @@ from PyQt4 import QtCore, QtGui
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from openalea.core.observer import lock_notify, AbstractListener
 from openalea.core.traitsui import View, Item, Group
-from gui_catalog import *
-from util import busy_cursor, exception_display
+from openalea.visualea.gui_catalog import *
+from openalea.visualea.util import busy_cursor, exception_display
 
 import types
 

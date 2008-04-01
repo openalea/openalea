@@ -13,5 +13,6 @@
         <file>datapool.png</file>	
 	<file>splash.png</file>
 	<file>info.png</file>
+	<file>data.png</file>
     </qresource>
 </RCC>

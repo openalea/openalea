@@ -114,6 +114,9 @@ class FileRead(object):
     
     def __call__(self, filename=""):
 
+        if(not isinstance(filename, basestring)):
+               filename = str(filename)
+
         try:
             mtime = os.stat(filename).st_mtime
         except:
