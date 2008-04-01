@@ -33,6 +33,8 @@ from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from openalea.core.observer import lock_notify, AbstractListener
 from openalea.core.traitsui import View, Item, Group
 from gui_catalog import *
+from util import busy_cursor, exception_display
+
 import types
 
 
@@ -65,8 +67,6 @@ class SignalSlotListener(AbstractListener):
         except Exception, e:
             print "Cannot emit Qt Signal : ", e
             self.notify(sender, event)
-
-
 
 
 
@@ -139,10 +139,12 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         self.widgets = []
         self.empty = True
 
+        self.vboxlayout = QtGui.QVBoxLayout(self)
+
         if  node.factory.view is None:
             # we create the widget in default way
             #print node.input_desc
-            layout = QtGui.QVBoxLayout(self)
+            layout = self.vboxlayout
             layout.setMargin(3)
             layout.setSpacing(2)
             for port in node.input_desc:
@@ -156,7 +158,31 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             ## we use custom view defined by user
             #for i in node.factory.view.content:
             #    self.place( self,  i, layout )
-            self.place_group( self, node.factory.view, QtGui.QVBoxLayout(self))
+            self.place_group( self, node.factory.view, self.vboxlayout)
+
+
+    def set_autonomous(self):
+        """ Add Run bouton and close button """
+        
+        runbutton = QtGui.QPushButton("Run", self)
+        exitbutton = QtGui.QPushButton("Exit", self)
+        self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
+        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+
+        buttons = QtGui.QHBoxLayout()
+        buttons.addWidget(runbutton)
+        buttons.addWidget(exitbutton)
+        self.vboxlayout.addLayout(buttons)
+
+
+    @exception_display
+    @busy_cursor    
+    def run(self):
+        self.node.eval()
+
+    def exit(self):
+        self.parent().close()
+
     
     def place( self, widget,  item, layout ):
         """<Short description of the function functionality.>
@@ -216,12 +242,13 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         # If there is no subwidget, add the name
         if( self.empty ):
+            pass
+#             label = QtGui.QLabel(self)
+#             label.setText(self.node.__class__.__name__+
+#                           " (No Widget available)")
 
-            label = QtGui.QLabel(self)
-            label.setText(self.node.__class__.__name__+
-                          " (No Widget available)")
+#             layout.addWidget(label)
 
-            layout.addWidget(label)
                 
     def place_group( self,  widget, group,  layout ):
         """<Short description of the function functionality.>
