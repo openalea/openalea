@@ -1064,7 +1064,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
     def mouseDoubleClickEvent(self, event):
 
-        print QtGui.QGraphicsItem.mouseDoubleClickEvent(self, event)
+        QtGui.QGraphicsItem.mouseDoubleClickEvent(self, event)
   
         # Read settings
         try:
