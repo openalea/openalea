@@ -529,7 +529,7 @@ class PackageManager(object):
                        search_str in factory.name.upper() or
                        search_str in factory.description.upper() or
                        search_str in factory.category.upper() or
-                       search_str in "%s.%s"%(pkg.name.upper(), factory.name.upper())
+                       search_str in "%s:%s"%(pkg.name.upper(), factory.name.upper())
                        )            
                 ]
 

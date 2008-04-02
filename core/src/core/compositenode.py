@@ -148,7 +148,7 @@ class CompositeNodeFactory(AbstractFactory):
                 error_nodes.add(vid)
                 print "WARNING : The graph is not fully operational "  
                 (pkg, fact) = self.elt_factory[vid]
-                print "-> Cannot find '%s.%s'"%(pkg, fact)
+                print "-> Cannot find '%s:%s'"%(pkg, fact)
 
 
         # Set IO internal data
