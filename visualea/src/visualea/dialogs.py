@@ -39,10 +39,11 @@ import ui_ioconfig
 import ui_tableedit
 import ui_listedit
 import ui_nodechooser
+import ui_newdata
 
 
 class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
-    """ New network dialog """
+    """ New composite node dialog """
     
     def __init__(self, title, pmanager, parent=None,
                  factory=None, io=True, inputs=(), outputs=(),
@@ -212,7 +213,100 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         if(oldcat != cat):
             self.pmanager.category[oldcat].remove(factory)
             self.pmanager.update_category(factory.package)
+
+
+
+class NewData(QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
+    """ import data dialog """
+    
+    def __init__(self, title, pmanager, parent=None,
+                 pkg_id=None):
+        """
+        Constructor
+        pmanager : the package manager
+        pkg_id : id of selected pkg
+        """
+        
+        QtGui.QDialog.__init__(self, parent)
+        ui_newdata.Ui_NewDataDialog.__init__(self)
+        self.setupUi(self)
+
+        packages = pmanager.get_user_packages()
+        self.pmanager = pmanager
+
+        # Build Map package name -> package
+        pkgstr = []
+        self.pkgmap = {}
+
+        for p in packages:
+            pkgstr.append(p.name)
+            self.pkgmap[p.name] = p
+        pkgstr.sort()
+
+        self.packageBox.addItems(pkgstr)
+        if(pkg_id):
+            i = self.packageBox.findText(pkg_id)
+        else:
+            i = self.packageBox.findText(Session.USR_PKG_NAME)
+        self.packageBox.setCurrentIndex(i)
+        
+        self.connect(self.browseButton, QtCore.SIGNAL("clicked()"), self.browse_file)
+        
+
+    def accept(self):
+        """ Accept Dialog result """
+
+        # Test if name is correct
+        name = str(self.nameEdit.text())
+        name = os.path.basename(name)
+        if(not name or self.get_package().has_key(name)):
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                            "The Name is already use")
+            return
+        
+        QtGui.QDialog.accept(self)
+
+
+    def browse_file(self):
+        """ Open File browser """
+
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self, "Import file")
+
+        filename = str(filename)
+        if(not filename) : return
+
+        self.nameEdit.setText(os.path.abspath(filename))
             
+
+    def get_package(self):
+        """ Return the selected package """
+
+        pkgstr = str(self.packageBox.currentText().toAscii())
+        return self.pkgmap[pkgstr]
+
+
+    def get_data(self):
+        """
+        Return the dialog data in a tuple
+        (name, nin, nout, category, description)
+        """
+
+        name = str(self.nameEdit.text())
+        description = str(self.descriptionEdit.text().toAscii())
+        
+        return (name, self.get_package(), description)
+
+
+    def create_datafactory(self, pkgmanager):
+        """ Create, register and return a new CompositeNodeFactory """
+        
+        (name, pkg, desc) = self.get_data()
+        newfactory = pkg.add_data_file(name, desc)
+        pkgmanager.add_package(pkg)
+
+        return newfactory
+
 
 
 class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :

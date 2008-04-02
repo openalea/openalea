@@ -40,7 +40,7 @@ import metainfo
 
 
 from openalea.visualea.dialogs import NewGraph, NewPackage, FactorySelector
-from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog
+from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 from openalea.visualea.util import exception_display, busy_cursor
 
 
@@ -141,6 +141,7 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_New_Network, SIGNAL("triggered()"), self.new_graph)
         self.connect(self.actionNew_Python_Node, SIGNAL("triggered()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("triggered()"), self.new_package)
+        self.connect(self.action_Data_File, SIGNAL("triggered()"), self.new_data)
 
         # DataPool Menu
         self.connect(self.actionClear_Data_Pool, SIGNAL("triggered()"), self.clear_data_pool)
@@ -538,6 +539,18 @@ class MainWindow(QtGui.QMainWindow,
         if(ret>0):
             dialog.create_nodefactory(self.pkgmanager)
             self.reinit_treeview()
+            
+
+    def new_data(self):
+        """ Import file """
+
+        dialog = NewData("Import data file", self.pkgmanager, self)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            dialog.create_datafactory(self.pkgmanager)
+            self.reinit_treeview()
+
 
 
     def new_package(self):

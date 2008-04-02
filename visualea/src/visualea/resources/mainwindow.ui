@@ -238,7 +238,7 @@
      <x>0</x>
      <y>0</y>
      <width>847</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
@@ -317,11 +317,12 @@
     </property>
     <widget class="QMenu" name="menuCreate" >
      <property name="title" >
-      <string>Create</string>
+      <string>&amp;Add</string>
      </property>
      <addaction name="actionNew_Package" />
      <addaction name="action_New_Network" />
      <addaction name="actionNew_Python_Node" />
+     <addaction name="action_Data_File" />
     </widget>
     <addaction name="action_Add_File" />
     <addaction name="action_Auto_Search" />
@@ -643,6 +644,11 @@
   <action name="action_Application" >
    <property name="text" >
     <string>&amp;Application</string>
+   </property>
+  </action>
+  <action name="action_Data_File" >
+   <property name="text" >
+    <string>&amp;Data File</string>
    </property>
   </action>
  </widget>

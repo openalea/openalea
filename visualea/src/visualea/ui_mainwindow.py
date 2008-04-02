@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Feb 12 09:35:41 2008
-#      by: PyQt4 UI code generator 4.3.1
+# Created: Wed Apr  2 00:49:32 2008
+#      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -123,7 +123,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,847,25))
+        self.menubar.setGeometry(QtCore.QRect(0,0,847,26))
         self.menubar.setObjectName("menubar")
 
         self.menu_File = QtGui.QMenu(self.menubar)
@@ -296,6 +296,9 @@ class Ui_MainWindow(object):
 
         self.action_Application = QtGui.QAction(MainWindow)
         self.action_Application.setObjectName("action_Application")
+
+        self.action_Data_File = QtGui.QAction(MainWindow)
+        self.action_Data_File.setObjectName("action_Data_File")
         self.menu_Export.addAction(self.action_Image)
         self.menu_Export.addAction(self.action_Application)
         self.menu_File.addAction(self.action_New_Session)
@@ -336,6 +339,7 @@ class Ui_MainWindow(object):
         self.menuCreate.addAction(self.actionNew_Package)
         self.menuCreate.addAction(self.action_New_Network)
         self.menuCreate.addAction(self.actionNew_Python_Node)
+        self.menuCreate.addAction(self.action_Data_File)
         self.menu_Package.addAction(self.action_Add_File)
         self.menu_Package.addAction(self.action_Auto_Search)
         self.menu_Package.addAction(self.actionFind_Node)
@@ -386,7 +390,7 @@ class Ui_MainWindow(object):
         self.menu_Python.setTitle(QtGui.QApplication.translate("MainWindow", "P&ython", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package Manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "&Add", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Window.setTitle(QtGui.QApplication.translate("MainWindow", "&Window", None, QtGui.QApplication.UnicodeUTF8))
         self.action_About.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Help.setText(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
@@ -452,5 +456,6 @@ class Ui_MainWindow(object):
         self.actionClea_r_Console.setText(QtGui.QApplication.translate("MainWindow", "&Clear shell", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Image.setText(QtGui.QApplication.translate("MainWindow", "&Image", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Application.setText(QtGui.QApplication.translate("MainWindow", "&Application", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Data_File.setText(QtGui.QApplication.translate("MainWindow", "&Data File", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
