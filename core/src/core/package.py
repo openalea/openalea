@@ -33,7 +33,6 @@ import imp
 import time
 import shutil
 
-from openalea.core.node import NodeFactory
 from openalea.core.nocasedict import NoCaseDict
 
 # Exceptions
@@ -130,7 +129,10 @@ class Package(NoCaseDict):
         for file in os.listdir(self.path):
             src = os.path.join(self.path, file)
             if(not os.path.isfile(src) or
-               not file.endswith(".py")): continue
+               file.endswith(".pyc") or
+               file.startswith(".") 
+               ): 
+                continue
             ret.append(file)
 
         return ret
@@ -291,6 +293,8 @@ class UserPackage(Package):
         writer = PyPackageWriter(self)
         if(not os.path.isdir(self.path)):
             os.mkdir(self.path)
+            
+        print "Writing", self.wralea_path
 
         writer.write_wralea(self.wralea_path)
 
@@ -301,7 +305,6 @@ class UserPackage(Package):
             f = open(init_path, 'w')
             f.close()
 
-        print "Writing", self.wralea_path
 
 
     # Convenience function
@@ -355,6 +358,7 @@ def %s(%s):
         file.write(my_template)
         file.close()
 
+        from openalea.core.node import NodeFactory
 
         factory = NodeFactory(name=name,
                               category=category,
@@ -392,6 +396,27 @@ def %s(%s):
         self.write()
         
         return newfactory
+
+
+    def add_data_file(self, filename, description=''):
+        """ 
+        Add a file in a package
+        (copy it in the directory)
+        """
+        from openalea.core.data import DataFactory
+
+        bname = os.path.basename(filename)
+        src = os.path.abspath(filename)
+        dst = os.path.join(self.path, bname)
+
+        shutil.copyfile(src, dst)
+        newfactory = DataFactory(bname, description)
+
+        self.add_factory(newfactory)
+        self.write()
+        
+        return newfactory
+
 
 
     def add_factory(self, factory):
@@ -511,7 +536,6 @@ class PyPackageReaderWralea(PyPackageReader):
         """ Build package and update pkgmanager """
 
         name = wraleamodule.__dict__.get('__name__', None)
-        if(not name) : name = wraleamodule.__name__
         edit = wraleamodule.__dict__.get('__editable__', False)
 
         # Build Metainfo
@@ -630,8 +654,8 @@ $FACTORY_DECLARATION
 
     
 
-    def write(self, filehandler):
-        """ Write package description to file handler """
+    def get_str(self):
+        """ Return string to write """
 
         pstr = repr(self)
         wtpl = string.Template(self.wralea_template)
@@ -640,14 +664,21 @@ $FACTORY_DECLARATION
             TIME=time.ctime(),
             PKG_DECLARATION=pstr)
 
-        filehandler.write(result)
+        return result
         
 
     def write_wralea(self, fullfilename):
         """ Write the wralea.py in the specified filename """
 
+        try:
+            result = self.get_str()
+        except Exception,e:
+            print e
+            print "FILE HAS NOT BEEN SAVED !!"
+            return
+            
         handler = open(fullfilename, 'w')
-        self.write(handler)
+        handler.write(result)
         handler.close()
 
         # Recompile

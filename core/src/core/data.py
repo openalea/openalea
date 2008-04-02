@@ -23,22 +23,25 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 from openalea.core.node import AbstractFactory, Node, NodeFactory
-from openalea.core.pkgmanager import PackageManager
 from openalea.core.interface import IData
 
 import os
+import string
+
 
 
 class PackageData(object):
     """ String representing a package data """
 
-    def __init__(self, pkg, name):
+    def __init__(self, pkg, filename):
         """ 
         pkg : package name 
         name : data name
         """
         self.pkg = pkg
-        self.name = name
+        self.name = filename
+
+        from openalea.core.pkgmanager import PackageManager
 
         path = PackageManager()[self.pkg].path
         self.repr = os.path.join(path, self.name)
@@ -51,6 +54,7 @@ class PackageData(object):
         return self.repr
 
 
+
 class DataFactory(AbstractFactory):
     """ Data representation as factory """
     
@@ -59,11 +63,20 @@ class DataFactory(AbstractFactory):
     def __init__(self,
                  name,
                  description = '',
-                 category = '',
                  **kargs):
 
-        AbstractFactory.__init__(self, name, description, category, **kargs)
+        AbstractFactory.__init__(self, name, description, category='data', **kargs)
+        self.pkgdata_cache = None
 
+    
+    def get_pkg_data(self):
+        """ Return the associated PackageData object"""
+
+        if(not self.pkgdata_cache):
+            self.pkgdata_cache = PackageData(self.package.name, self.name)
+            
+        return self.pkgdata_cache
+    
     
     def instantiate(self, call_stack=[]):
         """ Return a node instance
@@ -71,17 +84,40 @@ class DataFactory(AbstractFactory):
         (in order to avoir infinite recursion)
         """
 
-        p = PackageData(self.package.name, self.name)
-        return DataNode(p)
+        node =  DataNode(self.get_pkg_data())
+        node.factory = self
+        return node
+
+
     
 
-    instantiate_widget = NodeFactory.instantiate_widget
+    def instantiate_widget(self, node=None, parent=None, edit=False):
+        """ Return the corresponding widget initialised with node """
 
+        # Code Editor
+        if(edit):
+            from openalea.visualea.code_editor import get_editor
+            w = get_editor()(parent)
+            w.edit_file(str(self.get_pkg_data()))
+            return w 
+
+        # Node Widget
+        if(node == None): node = self.instantiate()
+
+        from openalea.visualea.node_widget import DefaultNodeWidget
+        return DefaultNodeWidget(node, parent)
+    
     
     def get_writer(self):
         """ Return the writer class """
-        raise NotImplementedError()
+ 
+        return PyDataFactoryWriter(self)
 
+
+    def clean_files(self):
+        """ Remove files depending of factory """
+        
+        os.remove(str(self.get_pkg_data()))
 
 
 
@@ -105,7 +141,7 @@ class DataNode(Node):
 
 
 
-class DataFactoryWriter(object):
+class PyDataFactoryWriter(object):
     """ DataFactory python Writer """
 
     datafactory_template = """
@@ -120,7 +156,7 @@ $NAME = DataFactory(name=$PNAME,
     def __repr__(self):
         """ Return the python string representation """
         f = self.factory
-        fstr = string.Template(self.nodefactory_template)
+        fstr = string.Template(self.datafactory_template)
         result = fstr.safe_substitute(NAME=f.get_python_name(),
                                       PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
