@@ -16,6 +16,7 @@
 
 import os, sys
 import re
+from random import randint
 from openalea.core.path import path
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
@@ -32,7 +33,9 @@ def vlab_object(directory):
     
     """
     directory = path(directory)
-    return
+    obj = VlabObject(directory)
+    obj.read_specification()
+    return obj
 
 # Factories to build nodes from vlab components.
 # A component may be a data, an editor or a program.
@@ -68,6 +71,7 @@ class VlabObject(object):
 
     def __init__(self, directory):
         self.dir = directory
+        print "Export to OpenAlea the %s directory"%self.dir.basename()
         self._programs = []
         self._files = {}
         self._text = {}
@@ -97,7 +101,7 @@ class VlabObject(object):
                 break
             fn = l.strip()
             if re.match(pattern,fn):
-                self._files[fn]=None
+                self._files[fn]=[]
 
     def read_commands(self, f):
         pattern = '\t*[a-zA-Z0-9_ \\-]+:\\s*$'
@@ -118,12 +122,12 @@ class VlabObject(object):
                 continue
             cmd = l.strip()
             if cmd:
-                self._process_command('.'.join(menus), cmd)
+                self.process_command('.'.join(menus), cmd)
 
     def process_command(self, name, cmd):
         command = cmd.split()
         prog = command[0]
-        command[0] = name2program.get(prog,prog)
+        command[0] = self.name2program.get(prog,prog)
         if prog in self.programs:
             self.process_program(name, command)
         elif prog in self.editors:
@@ -157,15 +161,17 @@ class VlabObject(object):
             node = self.pm.get_node("vlab", "text editor")
         # TODO : replace this entry by a data object
         filename = self.dir / fn
-        node.set_input(0,filename)
+        node.set_input(0,str(filename))
 
         edit_node = self.sg.add_node(node)
+
         self._editors.setdefault(fn,[]).append(edit_node)
 
     def process_text(self, name, command):
         node = self.pm.get_node('catalog.file', 'viewfile')
         text_node = self.sg.add_node(node)
-        self._text.setdefault(command[-1], []).append(text_node)
+        filename = command[-1]
+        self._text.setdefault(filename, []).append(text_node)
 
     def process_files(self):
         deps = self._files
@@ -181,18 +187,38 @@ class VlabObject(object):
         for f in files:
             # TODO: Create data rather than files
             node = self.pm.get_node("vlab", "vlab file stamp")
-            node.set_input(1,f)
+            node.set_input(1,str(self.dir/f))
             fnode = self.sg.add_node(node)
             self._filenodes[f] = fnode
+            
 
     def build_graph(self):
         """
         Specify connections between nodes.
         """
+        prog_deps = []
+        files = self._files.keys()
         for p in self._programs:
-            pass
-            
-        
+            cmd = self.sg.node(p).inputs[1].split()
+            fdeps = [ f for f in files if f in cmd]
+            for f in fdeps:
+                fnode = self._filenodes[f]
+                self.sg.connect(fnode, 0, p, 0)
+        for f in files:
+            for fdep in self._files[f]:
+                depnode = self._filenodes[fdep]
+                node = self._filenodes[f]
+                self.sg.connect(depnode,0,node,0)
+        for f, nodes in self._editors.iteritems():
+            fnode = self._filenodes[f]
+            for node in nodes:
+                self.sg.connect(node,0,fnode,0)
+        for f, nodes in self._text.iteritems():
+            fnode = self._filenodes[f]
+            for node in nodes:
+                self.sg.connect(fnode, 0, node, 0)
+        layout(self)
+        self.sg.to_factory(self.sgfactory)
 
 def search (file, filenames):
     """
@@ -204,7 +230,88 @@ def search (file, filenames):
     l = filter(lambda x: ' '+x+' ' in text, filenames)
     return l
     
+def random_layout(obj):
+    sg = obj.sg
+    size = 600
+    for vid in sg:
+        x, y = randint(0,size), randint(0,size)
+        data = sg.node(vid).internal_data
+        data['posx'] = x
+        data['posy'] = y
+
+min_dx = 100
+def layout(obj):
+    # compute a layout of the graph
+    size = 600
+    sg= obj.sg
+    dy = 80
+    y = 300
+    progs = obj._programs
+    n = len(progs)+1
+    dx = x = size / n
+    dx = max(min_dx, dx)
+    for vid in progs:
+        data = sg.node(vid).internal_data
+        data['posx'] = x
+        data['posy'] = y
+        x+= dx
+
+    
+    for vid in obj._programs:
+        l = list(sg.in_neighbors(vid))
+        if not l:
+            continue
+        n1 = sg.node(vid)
+        x0, y0 = n1.internal_data ['posx'], n1.internal_data ['posy']
+        dx1 = max(min_dx,dx / len(l))
+        y1 = y0 - dy
+        x1 = x0 - dx/2
+        for node_id in l:
+            data = sg.node(node_id).internal_data
+            data['posx'] = x1
+            data['posy'] = y1
+            x1 += dx1
+            compute_layout(sg, node_id, x1, dx1, y1,dy)
+    
+    # compute layout for nodes which are not connected to a program
+    x = 60
+    y = 40
+    for vid in obj._filenodes.values():
+        data = sg.node(vid).internal_data
+        
+        if not data.get('posx'):
+            data['posx'], data['posy'] = x, y
+            compute_layout(sg, vid,x, 0, y, dy) 
+    # add editor
+    
+def compute_layout(sg, vid, x, dx, y, dy):
+    l = list(sg.in_neighbors(vid))
+    if not l: 
+        return
+    x = x - dx/2
+    dx /= len(l)
+    dx = max(min_dx,dx)
+    y -= dy
+    for node_id in l:
+        data = sg.node(node_id).internal_data
+        data['posx'] = x
+        data['posy'] = y
+        x += dx
+        compute_layout(sg, node_id, x, dx, y, dy)
+        
+
+    
+            
+
+
 # TESTS
+def test1(directory):
+    obj = vlab_object(directory)
+    factory = obj.sgfactory
+    pkg = obj.pm['__my package__']
+    pkg.add_factory(obj.sgfactory)
+    pkg.write()
+
 def test():
     spec = path('specifications')
     f = open(spec)
