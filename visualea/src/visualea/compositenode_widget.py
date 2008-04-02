@@ -728,7 +728,19 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     
 
 class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
-    """ Represent a node in the graphwidget """
+    """ Represents a node in the graphwidget """
+
+    # Color Definition
+    not_modified_color = QtGui.QColor(0, 0, 255, 200)
+    modified_color = QtGui.QColor(255, 0, 0, 200)        
+
+    selected_color = QtGui.QColor(180, 180, 180, 180)
+    not_selected_color = QtGui.QColor(255, 255, 255, 100)
+
+    error_color = QtGui.QColor(255, 0, 0, 255)    
+    selected_error_color = QtGui.QColor(0, 0, 0, 255)
+    not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
+
 
     def __init__(self, graphview, elt_id):
         """
@@ -818,11 +830,14 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             (x,y) = (10,10)
         self.setPos(QtCore.QPointF(x,y))
         
-
-
         self.more_port = None
         self.adjust_size()
-        
+
+        # color
+        if(hasattr(self.subnode, "__color__")):
+            r,g,b = self.subnode.__color__
+            self.not_modified_color = QtGui.QColor(r, g, b, 200)
+            self.modified_color = self.not_modified_color
 
 
     def set_connectors(self):
@@ -993,21 +1008,21 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         # Draw Box
         if hasattr(self.subnode, 'raise_exception'):
-            color = QtGui.QColor(255, 0, 0, 255)            
+            color = self.error_color
             if(self.isSelected()):
-                secondcolor = QtGui.QColor(0, 0, 0, 255)
+                secondcolor = self.selected_error_color
             else:
-                secondcolor = QtGui.QColor(100, 0, 0, 255)
+                secondcolor = self.not_selected_error_color
         else:
             if(self.isSelected()):
-                color = QtGui.QColor(180, 180, 180, 180)
+                color = self.selected_color
             else:
-                color = QtGui.QColor(255, 255, 255, 100)
+                color = self.not_selected_color
 
             if(self.ismodified):
-                secondcolor = QtGui.QColor(255, 0, 0, 200)        
+                secondcolor = self.modified_color
             else:
-                secondcolor = QtGui.QColor(0, 0, 255, 200)
+                secondcolor = self.not_modified_color
             
         
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)

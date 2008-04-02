@@ -208,9 +208,18 @@ class Package(NoCaseDict):
             print "Factory %s already defined. Ignored !"%(factory.name,)
             return
 
+
         self[factory.name] = factory
         factory.package = self
+        
+        try:
+            factory.is_valid()
 
+        except Exception, e:
+            factory.package = None
+            del(self[factory.name])
+            raise e
+        
 
     def update_factory(self, old_name, factory):
         """ Update factory (change its name) """
@@ -568,9 +577,12 @@ class PyPackageReaderWralea(PyPackageReader):
 
         # Add factories
         factories = wraleamodule.__dict__.get('__all__', [])
-        for fname in  factories:
+        for fname in factories:
             f = wraleamodule.__dict__.get(fname, None)
-            if(f): p.add_factory(f)
+            try:
+                if(f): p.add_factory(f)
+            except Exception, e:
+                print e
 
         pkgmanager.add_package(p)
         

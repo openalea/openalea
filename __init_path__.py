@@ -23,6 +23,7 @@ def set_path():
                  'openalea.stand' : "stand/src",
                  'openalea.fractalysis' : "fractalysis/src",
                  'openalea.image' : "image/src",
+                 'openalea.demo' : "demo",
                  }
 
  
