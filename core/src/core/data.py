@@ -150,8 +150,9 @@ class DataNode(Node):
                       )
         self.caption = 'Data : %s'%(v.name)
         
+
     def __call__(self, args):
-        return args[0],
+        return str(args[0]),
 
 
 

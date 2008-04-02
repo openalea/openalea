@@ -418,7 +418,12 @@ def %s(%s):
         src = os.path.abspath(filename)
         dst = os.path.join(self.path, bname)
 
-        shutil.copyfile(src, dst)
+        try:
+            shutil.copyfile(src, dst)
+        except IOError:
+            f = open(dst, 'w')
+            f.close()
+            
         newfactory = DataFactory(bname, description)
 
         self.add_factory(newfactory)
