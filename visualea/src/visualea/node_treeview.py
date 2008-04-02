@@ -730,6 +730,10 @@ class NodeFactoryView(object):
         item = self.currentIndex()
         obj =  item.internalPointer()
         
+        if(isinstance(obj, DataFactory)):
+            QtGui.QMessageBox.information(self, "Properties", "Data : %s"%(obj.name))
+            return
+
         d = NewGraph("Node Properties", PackageManager(), self, obj)
         ret = d.exec_()
         if(ret):
