@@ -34,6 +34,8 @@ import time
 import shutil
 
 from openalea.core.nocasedict import NoCaseDict
+from openalea.core.path import path as _path
+from openalea.core.vlab import vlab_object
 
 # Exceptions
 
@@ -54,7 +56,7 @@ class FactoryExistsError(Exception):
 class Package(NoCaseDict):
     """
     A Package is a dictionnary of node factory.
-    Each node factory is able to generate node and their widget
+    Each node factory is able to generate node and their widgets.
 
     Meta informations are associated with a package.
     """
@@ -449,28 +451,36 @@ def %s(%s):
 
 ################################################################################
     
+class AbstractPackageReader(object):
+    """
+    Abstract class to add a package in the package manager.
+    """
+    def __init__(self, filename):
+        """ 
+        Build a package from a specification file.
+        filename may be a __wralea__.py file for instance.
+        """
+        self.filename = filename
 
-class PyPackageReader(object):
+    def register_packages(self, pkgmanager):
+        """ Create and add a package in the package manager. """
+        raise NotImplementedError()
+
+class PyPackageReader(AbstractPackageReader):
     """ 
     Build packages from wralea file
     Use 'register_package' function
     """
 
-    def __init__(self, filename):
-        """  Filename is a wralea.py file """
-        
-        self.filename = filename
-
-    
     def filename_to_module (self, filename):
         """ Transform the filename ending with .py to the module name """
-
         start_index = 0
         end_index = len(filename)
 
         # delete the .py at the end
         if(filename.endswith('.py')):
             end_index = -3
+        # Windows case (e.g. C:/...)
         if(filename[1] == ':'):
             start_index = 2
 
@@ -537,9 +547,7 @@ class PyPackageReader(object):
             # compatibility issue between two types of reader
             reader = PyPackageReaderWralea(self.filename)
             reader.build_package(wraleamodule, pkgmanager)
- 
-    
-        
+
 class PyPackageReaderWralea(PyPackageReader):
     """ 
     Build a package from  a __wralea__.py 
@@ -592,6 +600,26 @@ class PyPackageReaderWralea(PyPackageReader):
         pkgmanager.add_package(p)
         
 
+#####################
+# Vlab package reader
+#####################
+
+class PyPackageReaderVlab(AbstractPackageReader):
+    """ 
+    Build a package from  a vlab specification file. 
+    """
+
+    def register_packages(self, pkgmanager):
+        """ Create and add a package in the package manager. """
+        fn = _path(self.filename).abspath()
+        pkg_path = fn.dirname()
+
+        spec_file = fn.basename()
+        assert spec_file == 'specifications'
+
+        vlab_package = vlab_object(pkg_path, pkgmanager)
+        pkg= vlab_package.get_package()
+        pkgmanager.add_package(pkg)
 
 
 ############################## Writers #########################################

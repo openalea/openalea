@@ -34,7 +34,7 @@ import glob
 from pkg_resources import iter_entry_points
 
 from openalea.core.singleton import Singleton
-from openalea.core.package import UserPackage, PyPackageReader, PyPackageReaderWralea
+from openalea.core.package import UserPackage, PyPackageReader, PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.nocasedict import NoCaseDict
 
@@ -285,6 +285,10 @@ class PackageManager(object):
 
         # find wralea
         readers = self.find_wralea_dir(dirname)
+        if not readers:
+            print "Search Vlab objects."
+            readers = self.find_vlab_dir(dirname)
+
         for r in readers:
             if r: 
                 ret =  r.register_packages(self)
@@ -296,9 +300,34 @@ class PackageManager(object):
             self.save_cache()
             self.rebuild_category()
 
-        return ret 
+        return ret
 
+    def find_vlab_dir(self, directory, recursive=True):
+        """
+        Find in a directory vlab specification file.
+        Search recursivly is recursive is True
+        @return : a list of pkgreader instances
+        """
 
+        from path import path
+
+        spec_files = set()
+        if(not os.path.isdir(directory)):
+            print "notdir", directory, repr(directory)
+            return []
+            
+        p = path(directory).abspath()
+
+        # search for wralea.py
+        if(recursive):
+            spec_files.update( p.walkfiles("specifications") )
+        else:
+            spec_files.update( p.glob("specifications") )
+
+        for f in spec_files:
+            print "Package Manager : found  VLAB %s" % f
+            
+        return map(self.get_pkgreader, spec_files)
 
     def find_wralea_dir(self, directory, recursive=True):
         """
@@ -368,6 +397,10 @@ class PackageManager(object):
             reader = PyPackageReaderWralea(filename)
         elif(filename.endswith('wralea.py')):
             reader = PyPackageReader(filename)
+        elif(filename.endswith('specifications')):
+            print 'Build PyPackageReaderVlab(%s)'%(filename,)
+            reader = PyPackageReaderVlab(filename)
+
         else :
             raise UnknowFileType(filename)
 
