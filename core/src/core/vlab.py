@@ -18,10 +18,8 @@ import os, sys
 import re
 from random import randint
 from openalea.core.path import path
-from openalea.core.pkgmanager import PackageManager
-from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
-def vlab_object(directory):
+def vlab_object(directory, pkgmanager):
     """
     Create an openalea package from a vlab object.
     First, read the specification file and parse it.
@@ -33,8 +31,7 @@ def vlab_object(directory):
     
     """
     directory = path(directory)
-    obj = VlabObject(directory)
-    obj.read_specification()
+    obj = VlabObject(directory, pkgmanager)
     return obj
 
 # Factories to build nodes from vlab components.
@@ -69,21 +66,54 @@ class VlabObject(object):
                 'MEDIT' : 'medit',
                 'GALLERY' : 'gallery'}
 
-    def __init__(self, directory):
+    def __init__(self, directory, pkgmanager):
         self.dir = directory
         print "Export to OpenAlea the %s directory"%self.dir.basename()
         self._programs = []
         self._files = {}
         self._text = {}
         self._editors = {}
+        self.pm = pkgmanager
+        self.sg = None
+        self.sgfactory = None
+        self._package = None
+
+    def pkgname(self):
+        return 'vlab.'+self.dir.basename()
+
+    def get_package(self):
+        if not self._package:
+            self.build_package()
+
+        return self._package
+
+    def build_package(self):
+        from openalea.core.package import UserPackage
+        if not self.sgfactory:
+            self.read_specification()
+
+        # Build MetaData
+        metainfo = dict(
+            version = '',
+            license = '',
+            authors = '',
+            institutes = '',
+            description = '',
+            url = '',
+            )
+        name = self.pkgname()
+        self._package = UserPackage(name, metainfo, str(self.dir))
+        
+        # Add factorie of the dataflow
+        self._package.add_factory(self.sgfactory)
+        # TODO : Add data factories there
 
     def read_specification(self):
+        print "read_specification"
         spec = self.dir / 'specifications'
+        from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
         f = spec.open()
-        # start the package manager
-        self.pm = PackageManager()
-        self.pm.init(verbose=False)
         self.sg = CompositeNode()
         self.sgfactory = CompositeNodeFactory(self.dir.basename())
 
@@ -149,22 +179,24 @@ class VlabObject(object):
         """
         Find the file on which the editor works on.
         """
-        fn = command[-1]
         cmd = ' '.join(command)
-        if fn not in self._files.keys():
-            print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
+        fn = ''
+        if len(command) > 1:
+            fn = command[-1]
+            if fn not in self._files.keys():
+                print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
+        
         prog = command[0]
         if prog != 'EDIT':
             node = self.pm.get_node("vlab", "editor")
             node.set_input(1,cmd)
+            node.set_input(2,str(self.dir))
         else:
             node = self.pm.get_node("vlab", "text editor")
-        # TODO : replace this entry by a data object
-        filename = self.dir / fn
-        node.set_input(0,str(filename))
+            filename = self.dir/fn
+            node.set_input(0,str(filename))
 
         edit_node = self.sg.add_node(node)
-
         self._editors.setdefault(fn,[]).append(edit_node)
 
     def process_text(self, name, command):
@@ -196,6 +228,7 @@ class VlabObject(object):
         """
         Specify connections between nodes.
         """
+        print 'build_graph'
         prog_deps = []
         files = self._files.keys()
         for p in self._programs:
@@ -210,6 +243,8 @@ class VlabObject(object):
                 node = self._filenodes[f]
                 self.sg.connect(depnode,0,node,0)
         for f, nodes in self._editors.iteritems():
+            if not f: # an editor can act withouot a file
+                continue
             fnode = self._filenodes[f]
             for node in nodes:
                 self.sg.connect(node,0,fnode,0)
@@ -306,10 +341,11 @@ def compute_layout(sg, vid, x, dx, y, dy):
 
 # TESTS
 def test1(directory):
+    from openalea.core.pkgmanager import PackageManager
+    pm = PackageManager()
+    pm.init(verbose=False)
     obj = vlab_object(directory)
-    factory = obj.sgfactory
-    pkg = obj.pm['__my package__']
-    pkg.add_factory(obj.sgfactory)
+    pkg = obj.get_package()
     pkg.write()
 
 def test():
