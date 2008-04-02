@@ -33,22 +33,26 @@ import string
 class PackageData(object):
     """ String representing a package data """
 
-    def __init__(self, pkg, filename):
+    def __init__(self, pkg_name, filename, package=None):
         """ 
-        pkg : package name 
+        pkg_name : package name 
         name : data name
+        package : object
         """
-        self.pkg = pkg
+        self.pkg_name = pkg_name
         self.name = filename
 
-        from openalea.core.pkgmanager import PackageManager
+        if(not package):
+            from openalea.core.pkgmanager import PackageManager
+            path = PackageManager()[self.pkg_name].path
+        else:
+            path = package.path
 
-        path = PackageManager()[self.pkg].path
         self.repr = os.path.join(path, self.name)
         
 
     def __repr__(self):
-        return "PackageData(%s, %s)"%(self.pkg, self.name)
+        return "PackageData(%s, %s)"%(self.pkg_name, self.name)
 
     def __str__(self):
         return self.repr
@@ -68,12 +72,23 @@ class DataFactory(AbstractFactory):
         AbstractFactory.__init__(self, name, description, category='data', **kargs)
         self.pkgdata_cache = None
 
+
+
+    def is_valid(self):
+        """ 
+        Return True if the factory is valid 
+        else raise an exception
+        """
+        if(not os.path.exists(str(self.get_pkg_data()))):
+            raise Exception("%s does'nt exists. Ignoring"%(str(self.get_pkg_data())))
+                        
+
     
     def get_pkg_data(self):
-        """ Return the associated PackageData object"""
+        """ Return the associated PackageData object """
 
         if(not self.pkgdata_cache):
-            self.pkgdata_cache = PackageData(self.package.name, self.name)
+            self.pkgdata_cache = PackageData(self.package.name, self.name, self.package)
             
         return self.pkgdata_cache
     
@@ -88,8 +103,6 @@ class DataFactory(AbstractFactory):
         node.factory = self
         return node
 
-
-    
 
     def instantiate_widget(self, node=None, parent=None, edit=False):
         """ Return the corresponding widget initialised with node """
@@ -123,6 +136,8 @@ class DataFactory(AbstractFactory):
 
 class DataNode(Node):
     """ Node representing a Data """
+
+    __color__ = (200,200,200)
  
     def __init__(self, packagedata):
 
@@ -133,7 +148,7 @@ class DataNode(Node):
                       inputs=(dict(name='data', interface=IData, value=v),),
                       outputs=(dict(name='data', interface=IData),),
                       )
-        self.caption = 'Data : %s:%s'%(v.pkg, v.name)
+        self.caption = 'Data : %s'%(v.name)
         
     def __call__(self, args):
         return args[0],

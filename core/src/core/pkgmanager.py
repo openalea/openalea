@@ -279,7 +279,7 @@ class PackageManager(object):
         if(not os.path.exists(dirname) or
            not os.path.isdir(dirname)):
             print "Package directory : %s does not exists."%(dirname,)
-            return
+            return None
 
         self.add_wraleapath(dirname)
 
@@ -287,14 +287,16 @@ class PackageManager(object):
         readers = self.find_wralea_dir(dirname)
         for r in readers:
             if r: 
-                return r.register_packages(self)
+                ret =  r.register_packages(self)
             else:
                 print "Unable to load package %s."%(filename,)
-                return None
-
+                ret = None
+        
         if(readers): 
             self.save_cache()
             self.rebuild_category()
+
+        return ret 
 
 
 
@@ -446,9 +448,10 @@ class PackageManager(object):
         if(not os.path.isdir(path)):
             os.mkdir(path)
 
-        # Create new Package and its wralea
-        p = UserPackage(name, metainfo, path)
-        p.write()
+        if(not os.path.exists(os.path.join(path, "__wralea__.py"))):
+            # Create new Package and its wralea
+            p = UserPackage(name, metainfo, path)
+            p.write()
 
         # Register package
         self.load_directory(path)

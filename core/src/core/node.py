@@ -642,18 +642,28 @@ class AbstractFactory(Observed):
 
 
     def get_pkg(self):
+
         if(self.__pkg__):
             p = self.__pkg__()
         else:
             p = None
         
         # Test if pkg has been reloaded
+        # In this case the wekref is not valid anymore
         if(not p and self.__pkg_id__):
             from openalea.core.pkgmanager import PackageManager
             p = self.set_pkg(PackageManager()[self.__pkg_id__])
         return p
 
     package = property(get_pkg, set_pkg)
+
+
+    def is_valid(self):
+        """ 
+        Return True if the factory is valid 
+        else raise an exception
+        """
+        return True
 
 
     def get_id(self):
