@@ -37,7 +37,7 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
 from openalea.core import cli
 
-from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage
+from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage, NewData
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
 from openalea.visualea.node_widget import SignalSlotListener
 from openalea.visualea.code_editor import get_editor
@@ -499,6 +499,11 @@ class NodeFactoryView(object):
             action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("triggered()"), self.add_composite_node)
 
+            action = menu.addAction("Add Data File")
+            action.setEnabled(enabled and pkg.is_editable())
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_data)
+
+
             menu.addSeparator()
 
             action = menu.addAction("Copy Package")
@@ -545,7 +550,6 @@ class NodeFactoryView(object):
             self.main_win.reinit_treeview()
 
 
-
     def add_composite_node(self):
         """ """
         pman = self.model().pman # pkgmanager
@@ -556,6 +560,19 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_cnfactory(pman)
+            self.main_win.reinit_treeview()
+
+
+    def add_data(self):
+        """ """
+        pman = self.model().pman # pkgmanager
+        pkg = self.get_current_pkg()
+
+        dialog = NewData("Import Data", pman, self, pkg_id=pkg.name)
+        ret = dialog.exec_()
+
+        if(ret>0):
+            newfactory = dialog.create_datafactory(pman)
             self.main_win.reinit_treeview()
 
 
@@ -699,7 +716,9 @@ class NodeFactoryView(object):
         if(isinstance(obj, CompositeNodeFactory)):
             self.main_win.open_compositenode(obj)
 
-        elif(isinstance(obj, NodeFactory)):
+        elif(isinstance(obj, NodeFactory)
+             or isinstance(obj, DataFactory)
+             ):
             widget = obj.instantiate_widget(edit=True)
             if(widget.is_widget()) :
                 open_dialog(self, widget, obj.get_id())
@@ -729,6 +748,12 @@ class NodeFactoryView(object):
                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
         if(ret == QtGui.QMessageBox.Yes):
+
+            try:
+                obj.package[obj.name].clean_files()
+            except Exception, e:
+                print e
+
             del(obj.package[obj.name])
             obj.package.write()
             self.main_win.reinit_treeview()

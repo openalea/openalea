@@ -76,6 +76,10 @@ class AbstractNode(Observed):
         self.internal_data = {}
         self.factory = None
 
+        # The default layout
+        self.view = None
+
+
 
     def set_data(self, key, value, notify=True):
         """ Set internal node data """
@@ -201,8 +205,6 @@ class Node(AbstractNode):
         # Node State
         self.modified = True
         
-        # The default layout
-        self.view = None
 
         # Internal Data
         self.internal_data['caption'] = '' #str(self.__class__.__name__)
@@ -713,7 +715,10 @@ class AbstractFactory(Observed):
         
         return ret
 
-
+    def clean_files(self):
+        """ Remove files depending of factory """
+        pass
+        
     
 
 

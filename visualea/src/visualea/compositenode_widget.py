@@ -906,7 +906,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.more_port = QtGui.QGraphicsTextItem(">>", self)
                 self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
                 self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
-                self.more_port.setPos( self.sizex - 18, - 4)
+                self.more_port.setPos(self.sizex - 16, - 12)
            
 
     def get_caption(self):

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'newgraph.ui'
 #
-# Created: Sat Sep 22 16:09:55 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Apr  2 00:35:28 2008
+#      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,7 +69,8 @@ class Ui_NewGraphDialog(object):
         NewGraphDialog.setTabOrder(self.packageBox,self.nameEdit)
         NewGraphDialog.setTabOrder(self.nameEdit,self.categoryEdit)
         NewGraphDialog.setTabOrder(self.categoryEdit,self.descriptionEdit)
-        NewGraphDialog.setTabOrder(self.descriptionEdit,self.buttonBox)
+        NewGraphDialog.setTabOrder(self.descriptionEdit,self.ioButton)
+        NewGraphDialog.setTabOrder(self.ioButton,self.buttonBox)
 
     def retranslateUi(self, NewGraphDialog):
         self.label_2.setText(QtGui.QApplication.translate("NewGraphDialog", "Name", None, QtGui.QApplication.UnicodeUTF8))
