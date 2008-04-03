@@ -33,11 +33,14 @@ import string
 class PackageData(object):
     """ String representing a package data """
 
+    # if __local__ is True, then PackageData point to a local data (i.e in the currrent directory)
+    __local__ = False
+
     def __init__(self, pkg_name, filename, package=None):
         """ 
         pkg_name : package name 
         name : data name
-        package : object
+        package : Package object
         """
         self.pkg_name = pkg_name
         self.name = filename
@@ -48,7 +51,10 @@ class PackageData(object):
         else:
             path = package.path
 
-        self.repr = os.path.join(path, self.name)
+        if(PackageData.__local__):
+            self.repr = self.name
+        else:
+            self.repr = os.path.join(path, self.name)
         
 
     def __repr__(self):
@@ -81,7 +87,6 @@ class DataFactory(AbstractFactory):
         self.editors = editors
 
 
-
     def is_valid(self):
         """ 
         Return True if the factory is valid 
@@ -106,7 +111,7 @@ class DataFactory(AbstractFactory):
         (in order to avoir infinite recursion)
         """
 
-        node =  DataNode(self.get_pkg_data(), self.editors)
+        node = DataNode(self.get_pkg_data(), self.editors)
         node.factory = self
         return node
 
@@ -135,8 +140,7 @@ class DataFactory(AbstractFactory):
             w.edit_file(str(self.get_pkg_data()))
             return w 
         
-    
-    
+     
     def get_writer(self):
         """ Return the writer class """
  
@@ -183,6 +187,7 @@ $NAME = DataFactory(name=$PNAME,
 
     def __init__(self, factory):
         self.factory = factory
+
 
     def __repr__(self):
         """ Return the python string representation """

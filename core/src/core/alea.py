@@ -261,6 +261,11 @@ or
                        help="Open graphical user interface",
                        action="store_true", default=False)
 
+    parser.add_option( "-l", "--local_data",
+                       help="Data are local (ie in current directory)",
+                       action="store_true", default=False)
+
+
     parser.add_option( "-i", "--input", 
                        action="callback", callback=get_intput_callback,
                        help="Specify inputs as KEY=VALUE, KEY=VALUE...",
@@ -281,6 +286,9 @@ or
 
 
     # Execute
+    if(options.local_data):
+        import openalea.core.data
+        openalea.core.data.PackageData.__local__ = True
 
     if(options.run):
         run(component, options.input, options.gui)
