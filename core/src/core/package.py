@@ -203,6 +203,14 @@ class Package(NoCaseDict):
             return ""
 
 
+    def set_icon(self, name):
+        """ 
+        Set package icon 
+        name is a filename in the package dir
+        """
+        self.metainfo['icon'] = name
+
+
     def add_factory(self, factory):
         """ Add to the package a factory ( node or subgraph ) """
 
@@ -466,6 +474,8 @@ class AbstractPackageReader(object):
         """ Create and add a package in the package manager. """
         raise NotImplementedError()
 
+
+
 class PyPackageReader(AbstractPackageReader):
     """ 
     Build packages from wralea file
@@ -548,6 +558,8 @@ class PyPackageReader(AbstractPackageReader):
             reader = PyPackageReaderWralea(self.filename)
             reader.build_package(wraleamodule, pkgmanager)
 
+
+
 class PyPackageReaderWralea(PyPackageReader):
     """ 
     Build a package from  a __wralea__.py 
@@ -568,6 +580,7 @@ class PyPackageReaderWralea(PyPackageReader):
             institutes = '',
             description = '',
             url = '',
+            icon = '',
             )
 
         for k,v in wraleamodule.__dict__.iteritems():
@@ -600,9 +613,9 @@ class PyPackageReaderWralea(PyPackageReader):
         pkgmanager.add_package(p)
         
 
-#####################
+######################
 # Vlab package reader
-#####################
+######################
 
 class PyPackageReaderVlab(AbstractPackageReader):
     """ 
@@ -618,7 +631,7 @@ class PyPackageReaderVlab(AbstractPackageReader):
         assert spec_file == 'specifications'
 
         vlab_package = vlab_object(pkg_path, pkgmanager)
-        pkg= vlab_package.get_package()
+        pkg = vlab_package.get_package()
         pkgmanager.add_package(pkg)
 
 
@@ -696,7 +709,6 @@ $FACTORY_DECLARATION
                                       )
 
         return result
-
     
 
     def get_str(self):

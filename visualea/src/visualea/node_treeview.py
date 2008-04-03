@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -25,6 +25,8 @@ Others are view as leaves.
 __license__= "CeCILL v2"
 __revision__=" $Id$ "
 
+import os
+from weakref import ref
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
@@ -46,30 +48,43 @@ import images_rc
 
 # Utilities function
 
+icon_dict = None
+
 def get_icon(item):
     """ Return Icon object depending of the type of item """
-    if(isinstance(item, Package)):
-        return QVariant(QtGui.QPixmap(":/icons/package.png"))
-    
-    if(isinstance(item, PseudoPackage)):
+
+    global icon_dict
+    if(not icon_dict):
+        # dict to do a switch
+        icon_dict = {
+            PseudoGroup : QVariant(QtGui.QPixmap(":/icons/category.png")),
+            CompositeNodeFactory : QVariant(QtGui.QPixmap(":/icons/diagram.png")),
+            NodeFactory : QVariant(QtGui.QPixmap(":/icons/node.png")),
+            DataFactory : QVariant(QtGui.QPixmap(":/icons/data.png")),
+            UserPackage : QVariant(QtGui.QPixmap(":/icons/usrpkg.png")),
+            Package :  QVariant(QtGui.QPixmap(":/icons/pkg.png")),
+            }
+
+    # Get icon from dictionary
+    if(icon_dict.has_key(type(item))):
+        return icon_dict[type(item)]
+
+    elif(isinstance(item, PseudoPackage)):
+        
         if(item.is_real_package()):
-            if(isinstance(item.item, UserPackage)):
-                return QVariant(QtGui.QPixmap(":/icons/usrpkg.png"))
-            if(isinstance(item.item, Package)):
-                return QVariant(QtGui.QPixmap(":/icons/pkg.png"))
+    
+            # Try to load package specific icon
+            icon = item.item.metainfo.get("icon", None)
+            if(icon):
+                icon = os.path.join(item.item.path, icon)
+                pix = QtGui.QPixmap(icon)
+                if(not pix.isNull()):
+                    return QVariant(pix)
+ 
+            # Standard icon
+            return icon_dict[type(item.item)]
+
         return QVariant(QtGui.QPixmap(":/icons/pseudopkg.png"))
-
-    elif(isinstance(item, PseudoGroup)):
-        return QVariant(QtGui.QPixmap(":/icons/category.png"))
-
-    elif( isinstance(item, CompositeNodeFactory)):
-        return QVariant(QtGui.QPixmap(":/icons/diagram.png"))
-           
-    elif( isinstance(item, NodeFactory)):
-        return QVariant(QtGui.QPixmap(":/icons/node.png"))
-
-    elif( isinstance(item, DataFactory)):
-        return QVariant(QtGui.QPixmap(":/icons/data.png"))
 
     else:
         return QVariant()
@@ -375,7 +390,7 @@ class NodeFactoryView(object):
         @param parent : parent widget
         """
         
-        self.main_win = main_win
+        self.main_win = ref(main_win)
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -547,7 +562,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             dialog.create_nodefactory(pman)
-            self.main_win.reinit_treeview()
+            self.main_win().reinit_treeview()
 
 
     def add_composite_node(self):
@@ -560,7 +575,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_cnfactory(pman)
-            self.main_win.reinit_treeview()
+            self.main_win().reinit_treeview()
 
 
     def add_data(self):
@@ -573,7 +588,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_datafactory(pman)
-            self.main_win.reinit_treeview()
+            self.main_win().reinit_treeview()
 
 
 
@@ -603,7 +618,7 @@ class NodeFactoryView(object):
             return
 
         del pman[pkg.get_id()]
-        self.main_win.reinit_treeview()
+        self.main_win().reinit_treeview()
 
     
 
@@ -621,7 +636,7 @@ class NodeFactoryView(object):
         filename = pkg.get_wralea_path()
         widget = get_editor()(self)
         widget.edit_file(filename)
-        if(widget.is_widget()) : open_dialog(self.main_win, widget, pkg.name)
+        if(widget.is_widget()) : open_dialog(self.main_win(), widget, pkg.name)
 
         
     def reload_package(self):
@@ -637,7 +652,7 @@ class NodeFactoryView(object):
 
         pkg.reload()
         pman.load_directory(pkg.path)
-        self.main_win.reinit_treeview()
+        self.main_win().reinit_treeview()
 
 
     def duplicate_package(self):
@@ -661,7 +676,7 @@ class NodeFactoryView(object):
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
             pman.add_package(newpkg)
-            self.main_win.reinit_treeview()
+            self.main_win().reinit_treeview()
 
 
 
@@ -696,7 +711,7 @@ class NodeFactoryView(object):
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget()
             widget.set_autonomous()
-            open_dialog(self.main_win, widget, obj.get_id())
+            open_dialog(self.main_win(), widget, obj.get_id())
         
 
         elif(isinstance(obj, PseudoPackage)):
@@ -714,14 +729,14 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         
         if(isinstance(obj, CompositeNodeFactory)):
-            self.main_win.open_compositenode(obj)
+            self.main_win().open_compositenode(obj)
 
         elif(isinstance(obj, NodeFactory)
              or isinstance(obj, DataFactory)
              ):
             widget = obj.instantiate_widget(edit=True)
             if(widget.is_widget()) :
-                open_dialog(self.main_win, widget, obj.get_id())
+                open_dialog(self.main_win(), widget, obj.get_id())
 
 
     def edit_properties(self):
@@ -760,7 +775,7 @@ class NodeFactoryView(object):
 
             del(obj.package[obj.name])
             obj.package.write()
-            self.main_win.reinit_treeview()
+            self.main_win().reinit_treeview()
         
        
 
@@ -817,7 +832,7 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         QtGui.QListView.__init__(self, parent)
         SignalSlotListener.__init__(self)
 
-        self.main_win = main_win
+        self.main_win = ref(main_win)
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)

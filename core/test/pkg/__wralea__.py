@@ -14,6 +14,7 @@ __institutes__ = 'INRIA/CIRAD'
 __description__ = '...'
 __url__ = 'http://openalea.gforge.inria.fr'
 
+__icon__ = 'icon.png'
 
 
 __all__ = ['file1', 'file2']
