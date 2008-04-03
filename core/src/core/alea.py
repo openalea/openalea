@@ -95,8 +95,14 @@ def run(component, inputs, gui=False, pm=None):
                 return
 
     if(not gui):
-        node.eval()
-        print node.outputs
+        
+        try:
+            node.eval()
+            print node.outputs
+
+        except Exception, e:
+            print "Error while executing component : ", e
+            print "Try with -g flag"
         return
 
     else:

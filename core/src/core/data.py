@@ -117,16 +117,16 @@ class DataFactory(AbstractFactory):
         if(node): editors = node.get_input(1)
         else: editors = self.editors
 
-        print editors
-
-
         # single command
         if(editors and isinstance(editors, str)):
             command = self.editors%(self.get_pkg_data(),)
             os.system(command)
 
         # multi command
-        #elif(editors and isinstance(editors, dict)):
+        elif(editors and isinstance(editors, dict)):
+            
+            from openalea.visualea.dialogs import EditorSelector
+            return EditorSelector(parent, self.editors, (self.get_pkg_data(),) )
 
         else:
             # Code Editor
