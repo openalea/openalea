@@ -30,6 +30,8 @@ from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
 from openalea.core.session import Session
 
+from openalea.visualea.node_widget import NodeWidget
+
 import ui_newgraph
 import os
 import ui_tofactory
@@ -1080,3 +1082,37 @@ class NodeChooser(QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
 
             
 
+class EditorSelector(NodeWidget, QtGui.QWidget):
+    """
+    Dialog to select an editor
+    """
+
+    def __init__(self, parent, editors, params):
+        """
+        @param editors : dictionnary name:command
+        @param params : strings to replace command param (%s)
+        """
+
+        QtGui.QWidget.__init__(self, parent)
+
+        vboxlayout = QtGui.QVBoxLayout(self)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+
+        self.editors = editors
+        self.params = params
+
+        for k in editors.iterkeys():
+
+            but = QtGui.QPushButton(self)
+            but.setText(k)
+            vboxlayout.addWidget(but)
+
+            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        
+            
+    def button_clicked(self):
+
+        command = self.editors[str(self.sender().text())]
+        command = command%self.params
+        os.system(command)
