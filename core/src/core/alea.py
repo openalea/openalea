@@ -178,7 +178,9 @@ def query(component, pm=None):
 def parse_component(name):
     """ Return (pkg_id, node_id) from name """
 
-    tname = name.split(':')
+    tname = name.split('/')
+    if(len(tname)<2):
+        tname = name.split(':')
     
     if(len(tname) == 1):
         return (tname[0], None)
@@ -232,7 +234,11 @@ def main():
     """ Parse options """
     
         # options
-    usage = "usage: %prog [-r|-q] package_id[:node_id] [-i key1=val1 key2=val2]"
+    usage = """
+%prog [-r|-q] package_id[:node_id] [-i key1=val1 key2=val2 ...]
+or
+%prog [-r|-q] package_id[/node_id] [-i key1=val1 key2=val2 ...]
+"""
     parser = OptionParser(usage=usage)
 
     parser.add_option( "-q", "--query", dest="query",
@@ -263,7 +269,7 @@ def main():
         return
     
     if(len(args) < 1):
-        parser.error("Incomplete command : specify a 'package_id:node_id')")
+        parser.error("Incomplete command : specify a 'package_id:node_id'")
 
     component = parse_component(args[0])
 

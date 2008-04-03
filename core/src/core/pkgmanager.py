@@ -487,7 +487,7 @@ class PackageManager(object):
             p.write()
 
         # Register package
-        self.load_directory(path)
+        p = self.load_directory(path)
         self.write_config()
         return p
 

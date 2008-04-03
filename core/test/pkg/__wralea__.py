@@ -19,5 +19,5 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = ['file1', 'file2']
 
 
-file1 = DataFactory(name="file1.txt")
+file1 = DataFactory(name="file1.txt", editors="vi %s")
 file2 = DataFactory(name="file2.txt")

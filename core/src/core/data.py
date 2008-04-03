@@ -67,10 +67,18 @@ class DataFactory(AbstractFactory):
     def __init__(self,
                  name,
                  description = '',
+                 editors = None,
                  **kargs):
+        """
+        name : filename
+        description : file description
+        editors : dictionnary listing external command to execute
+        """
 
         AbstractFactory.__init__(self, name, description, category='data', **kargs)
         self.pkgdata_cache = None
+
+        self.editors = editors
 
 
 
@@ -83,7 +91,6 @@ class DataFactory(AbstractFactory):
             raise Exception("%s does'nt exists. Ignoring"%(str(self.get_pkg_data())))
                         
 
-    
     def get_pkg_data(self):
         """ Return the associated PackageData object """
 
@@ -99,7 +106,7 @@ class DataFactory(AbstractFactory):
         (in order to avoir infinite recursion)
         """
 
-        node =  DataNode(self.get_pkg_data())
+        node =  DataNode(self.get_pkg_data(), self.editors)
         node.factory = self
         return node
 
@@ -107,18 +114,27 @@ class DataFactory(AbstractFactory):
     def instantiate_widget(self, node=None, parent=None, edit=False):
         """ Return the corresponding widget initialised with node """
 
-        # Code Editor
-        if(edit):
+        if(node): editors = node.get_input(1)
+        else: editors = self.editors
+
+        print editors
+
+
+        # single command
+        if(editors and isinstance(editors, str)):
+            command = self.editors%(self.get_pkg_data(),)
+            os.system(command)
+
+        # multi command
+        #elif(editors and isinstance(editors, dict)):
+
+        else:
+            # Code Editor
             from openalea.visualea.code_editor import get_editor
             w = get_editor()(parent)
             w.edit_file(str(self.get_pkg_data()))
             return w 
-
-        # Node Widget
-        if(node == None): node = self.instantiate()
-
-        from openalea.visualea.node_widget import DefaultNodeWidget
-        return DefaultNodeWidget(node, parent)
+        
     
     
     def get_writer(self):
@@ -139,16 +155,15 @@ class DataNode(Node):
 
     __color__ = (200,200,200)
  
-    def __init__(self, packagedata):
+    def __init__(self, packagedata, editors=None):
 
-        # compute path
-        v = packagedata
-
-        Node.__init__(self,
-                      inputs=(dict(name='data', interface=IData, value=v),),
-                      outputs=(dict(name='data', interface=IData),),
-                      )
-        self.caption = 'Data : %s'%(v.name)
+         Node.__init__(self,
+                      inputs=(dict(name='data', interface=IData, value=packagedata),
+                              dict(name='editors', interface=None, value=editors),
+                              ),
+                       outputs=(dict(name='data', interface=IData),),
+                       )
+         self.caption = 'Data : %s'%(packagedata.name)
         
 
     def __call__(self, args):
