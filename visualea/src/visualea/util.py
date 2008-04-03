@@ -121,3 +121,17 @@ def open_dialog(parent, widget, title, delete_on_close=True):
 
     return dialog
 
+
+def get_icon():
+    """ Return QPixmap """
+    
+    HEIGHT = 48
+    WIDTH = 48
+
+    #set_pointer(WIDTH, HEIGHT)
+
+    point = QtGui.QCursor.pos()
+    pix = QtGui.QPixmap.grabWindow(QtGui.QApplication.desktop().winId(), 
+                                   point.x(), point.y(), WIDTH, HEIGHT)
+
+    return pix
