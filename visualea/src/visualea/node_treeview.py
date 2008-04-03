@@ -621,7 +621,7 @@ class NodeFactoryView(object):
         filename = pkg.get_wralea_path()
         widget = get_editor()(self)
         widget.edit_file(filename)
-        if(widget.is_widget()) : open_dialog(self, widget, pkg.name)
+        if(widget.is_widget()) : open_dialog(self.main_win, widget, pkg.name)
 
         
     def reload_package(self):
@@ -696,7 +696,7 @@ class NodeFactoryView(object):
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget()
             widget.set_autonomous()
-            open_dialog(self, widget, obj.get_id())
+            open_dialog(self.main_win, widget, obj.get_id())
         
 
         elif(isinstance(obj, PseudoPackage)):
@@ -721,7 +721,7 @@ class NodeFactoryView(object):
              ):
             widget = obj.instantiate_widget(edit=True)
             if(widget.is_widget()) :
-                open_dialog(self, widget, obj.get_id())
+                open_dialog(self.main_win, widget, obj.get_id())
 
 
     def edit_properties(self):
