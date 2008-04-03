@@ -55,6 +55,10 @@ class AbstractCodeEditor(object):
     def is_widget(self):
         raise NotImplementedError()
 
+    def is_empty(self):
+        return False
+
+
     def edit_file(self, filename):
         """ Open file in the editor """
         
