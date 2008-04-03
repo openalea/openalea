@@ -1,5 +1,5 @@
 
-# This file has been generated at Wed Apr  2 21:32:20 2008
+# This file has been generated at Thu Apr  3 00:07:39 2008
 
 from openalea.core import *
 
@@ -15,11 +15,11 @@ __url__ = ''
 __institutes__ = 'INRA'
  
 
-__all__ = ['_143110924', '_145237548', '_143093420', '_143111596', '_143093484']
+__all__ = ['_143097804', '_143110764', '_143110188', '_143111500', '_150173068', '_143111468']
 
 
 
-_143110924 = CompositeNodeFactory(name='pydrop_planter', 
+_143097804 = CompositeNodeFactory(name='pydrop_planter', 
                              description='', 
                              category='Ecophysiology',
                              doc='',
@@ -256,13 +256,8 @@ _143110924 = CompositeNodeFactory(name='pydrop_planter',
 
 
 
-_145237548 = DataFactory(name='output.txt', 
-                    description='', 
-                    )
 
-
-
-_143093420 = CompositeNodeFactory(name='pydrop_simple', 
+_143110764 = CompositeNodeFactory(name='pydrop_simple', 
                              description='simple demo of pydrop', 
                              category='Ecophysiology',
                              doc='',
@@ -374,8 +369,152 @@ _143093420 = CompositeNodeFactory(name='pydrop_simple',
 
 
 
+_143110188 = DataFactory(name='output.txt', 
+                    description='', 
+                    )
 
-_143111596 = CompositeNodeFactory(name='pydrop_simple2', 
+
+_143111500 = DataFactory(name='duclos.b3d', 
+                    description='', 
+                    )
+
+
+
+_150173068 = CompositeNodeFactory(name='drop_vlab', 
+                             description='', 
+                             category='Unclassified',
+                             doc='',
+                             inputs=[  {'desc': '', 'interface': IFileStr, 'name': 'digit', 'value': None},
+   {'desc': '', 'interface': IFileStr, 'name': 'output', 'value': None}],
+                             outputs=[],
+                             elt_factory={  2: ('pydrop', 'ReadB3D'),
+   3: ('pydrop', 'DropTri'),
+   4: ('pydrop', 'DropDisplay'),
+   5: ('pydrop', 'DropInt'),
+   6: ('pydrop', 'DropSummary'),
+   9: ('system', 'annotation'),
+   10: ('system', 'annotation'),
+   11: ('system', 'annotation'),
+   12: ('system', 'annotation'),
+   13: ('system', 'annotation'),
+   14: ('system', 'annotation'),
+   15: ('system', 'annotation'),
+   16: ('system', 'annotation'),
+   17: ('catalog.data', 'int'),
+   18: ('catalog.file', 'write')},
+                             elt_connections={  135720752: (17, 0, 4, 2),
+   135720764: ('__in__', 0, 2, 0),
+   135720776: (3, 0, 6, 0),
+   135720788: ('__in__', 1, 18, 1),
+   135720800: (6, 0, 18, 0),
+   135720812: (3, 0, 5, 0),
+   135720824: (3, 0, 4, 0),
+   135720836: (2, 0, 3, 0),
+   135720848: (5, 0, 4, 1),
+   135720860: (5, 0, 6, 1)},
+                             elt_data={  2: {  'caption': 'ReadB3D',
+         'hide': True,
+         'lazy': True,
+         'minimal': False,
+         'port_hide_changed': set([]),
+         'posx': 408.75,
+         'posy': 266.25,
+         'priority': 0},
+   3: {  'caption': 'DropTri',
+         'hide': True,
+         'lazy': True,
+         'minimal': False,
+         'port_hide_changed': set([]),
+         'posx': 430.0,
+         'posy': 356.25,
+         'priority': 0},
+   4: {  'caption': 'DropDisplay',
+         'hide': False,
+         'lazy': True,
+         'minimal': False,
+         'port_hide_changed': set([]),
+         'posx': 427.5,
+         'posy': 576.25,
+         'priority': 0},
+   5: {  'caption': 'DropInt',
+         'hide': False,
+         'lazy': True,
+         'minimal': False,
+         'port_hide_changed': set([]),
+         'posx': 531.25,
+         'posy': 468.75,
+         'priority': 0},
+   6: {  'caption': 'DropSummary',
+         'hide': True,
+         'lazy': True,
+         'minimal': False,
+         'port_hide_changed': set([]),
+         'posx': 131.79999625052534,
+         'posy': 486.33857228559418,
+         'priority': 0},
+   9: {'posx': 25.0, 'posy': 600.0, 'txt': 'Text Output'},
+   10: {'posx': 451.25, 'posy': 643.75, 'txt': '3D Output'},
+   11: {'posx': 556.25, 'posy': 266.25, 'txt': 'Read Digit file'},
+   12: {'posx': 556.25, 'posy': 356.25, 'txt': 'Mesh'},
+   13: {'posx': 705.0, 'posy': 476.25, 'txt': 'Rain Inteception'},
+   14: {'posx': 426.25, 'posy': 105.0, 'txt': 'Rain interception with PyDrop'},
+   15: {  'posx': 427.5,
+          'posy': 133.75,
+          'txt': 'Authors : Samuel Dufour-Kowalski, Francois Bussiere'},
+   16: {'posx': 427.5, 'posy': 161.25, 'txt': 'Intitute : INRA'},
+   17: {  'caption': '18',
+          'hide': True,
+          'lazy': True,
+          'minimal': False,
+          'port_hide_changed': set([]),
+          'posx': 603.75,
+          'posy': 547.5,
+          'priority': 0},
+   18: {  'caption': 'write',
+          'hide': True,
+          'lazy': True,
+          'minimal': False,
+          'port_hide_changed': set([]),
+          'posx': 254.05450357767211,
+          'posy': 626.77225195443134,
+          'priority': 0},
+   '__in__': {  'caption': 'In',
+                'hide': True,
+                'lazy': True,
+                'minimal': False,
+                'port_hide_changed': set([]),
+                'posx': 232.51255476932147,
+                'posy': 141.99824631846084,
+                'priority': 0},
+   '__out__': {  'caption': 'Out',
+                 'lazy': True,
+                 'posx': 20.0,
+                 'posy': 250.0,
+                 'priority': 0}},
+                             elt_value={  2: [],
+   3: [(1, "'Plant'")],
+   4: [],
+   5: [(1, '10'), (2, '10'), (3, '30'), (4, '30.0')],
+   6: [],
+   9: [],
+   10: [],
+   11: [],
+   12: [],
+   13: [],
+   14: [],
+   15: [],
+   16: [],
+   17: [(0, '18')],
+   18: [(2, "'w'")],
+   '__in__': [],
+   '__out__': []},
+                             lazy=True,
+                             )
+
+
+
+
+_143111468 = CompositeNodeFactory(name='pydrop_simple2', 
                              description='', 
                              category='Ecophysiology',
                              doc='',
@@ -522,11 +661,6 @@ _143111596 = CompositeNodeFactory(name='pydrop_simple2',
                              lazy=True,
                              )
 
-
-
-_143093484 = DataFactory(name='duclos.b3d', 
-                    description='', 
-                    )
 
 
 

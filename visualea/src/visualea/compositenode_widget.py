@@ -81,13 +81,23 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
             # Do not display widget if hidden and no IO
             if(subnode.internal_data.get('hide', False) and not empty_io): continue
 
+            # Do not display widget if all port are connected
+#             hide = True
+#             for key in xrange(subnode.get_nb_input()):
+#                 if(subnode.get_input_state(key) != "connected"):
+#                     hide = False
+#                     break
+
+#             if(hide): continue
+
+            # Add tab
             try:
                 factory = subnode.get_factory()
                 widget = factory.instantiate_widget(subnode, self)
             except:
                 continue
             
-            if(widget.is_empty()) :
+            if(widget and widget.is_empty()) :
                 widget.close()
                 del widget
             else : 
@@ -379,6 +389,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         # We Create a new Dialog
         widget = factory.instantiate_widget(node, self)
         
+        if(not widget) : return 
         if (widget.is_empty()):
             widget.close()
             del widget

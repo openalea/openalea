@@ -201,6 +201,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             self.place_item( widget, p, layout)
         elif isinstance( item, Group ):
             self.place_group(widget, item, layout)
+
     
     def place_item( self,  widget, port,  layout ):
         """<Short description of the function functionality.>
@@ -223,7 +224,6 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             self.widgets.append(None)
             return
         
-
         # interface class or instance ?
         if(type(interface) == IInterfaceMetaClass):
             interface = interface()
