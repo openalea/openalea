@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -249,7 +249,7 @@ class CompositeNodeFactory(AbstractFactory):
         return node
 
         
-    def instantiate_widget(self, node=None, parent=None, edit=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
         """
         Return the corresponding widget initialised with node
         if node is None, the node is allocated
@@ -263,7 +263,7 @@ class CompositeNodeFactory(AbstractFactory):
         if(node == None):  node = self.instantiate()
 
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
-        return DisplayGraphWidget(node, parent)
+        return DisplayGraphWidget(node, parent, autonomous)
 
 
 
