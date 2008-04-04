@@ -2,7 +2,6 @@
     <qresource prefix="/icons" >
         <file>node.png</file>
         <file>pkg.png</file>
-	<file>package.png</file>
         <file>pseudopkg.png</file>
         <file>usrpkg.png</file>
 	<file>category.png</file>
@@ -14,5 +13,6 @@
 	<file>splash.png</file>
 	<file>info.png</file>
 	<file>data.png</file>
+	<file>cursor_icon.png</file>
     </qresource>
 </RCC>

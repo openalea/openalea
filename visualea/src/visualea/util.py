@@ -123,20 +123,51 @@ def open_dialog(parent, widget, title, delete_on_close=True):
 
 
 
-def set_grab_cursor(cursor=None):
-    """ Set the application cursor """
-    return cursor
+
+class IconGrabber(object):
+    """ Display a frame to grab an icon"""
+
+    def __init__(self):
+        self.splash = None
+
+    def show(self):
+        """ Set the application cursor """
+
+        if(self.splash):
+            self.hide()
+
+        pix=QtGui.QPixmap(":/icons/cursor_icon.png")
+        self.splash = QtGui.QSplashScreen(pix)
+        self.splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|QtCore.Qt.FramelessWindowHint)
+        self.splash.setFixedSize(pix.size())
+        self.splash.setMask(pix.mask())
+        self.splash.setWindowTitle("Icon Selector")
+        self.splash.show()
 
 
-def grab_icon():
+    def hide(self):
+        
+        self.splash.close()
+        self.splash = None
+
+
+
+def grab_icon(parent):
     """ Return QPixmap under the cursor"""
     
     HEIGHT = 48
     WIDTH = 48
 
+    grab = IconGrabber()
+    grab.show()
 
-    point = QtGui.QCursor.pos()
+    QtGui.QMessageBox.information(parent, 
+                                  "Grab Icon", "Put the image under the icon frame and click ok")
+
+    point = grab.splash.pos()
     pix = QtGui.QPixmap.grabWindow(QtGui.QApplication.desktop().winId(), 
-                                   point.x(), point.y(), WIDTH, HEIGHT)
+                                   point.x()+2, point.y()+2, WIDTH, HEIGHT)
+
+    grab.hide()
 
     return pix
