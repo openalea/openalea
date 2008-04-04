@@ -325,7 +325,7 @@ class PackageManager(object):
             spec_files.update( p.glob("specifications") )
 
         for f in spec_files:
-            print "Package Manager : found  VLAB %s" % f
+            print "Package Manager : found  VLAB %s" % p
             
         return map(self.get_pkgreader, spec_files)
 
@@ -398,7 +398,6 @@ class PackageManager(object):
         elif(filename.endswith('wralea.py')):
             reader = PyPackageReader(filename)
         elif(filename.endswith('specifications')):
-            print 'Build PyPackageReaderVlab(%s)'%(filename,)
             reader = PyPackageReaderVlab(filename)
 
         else :
