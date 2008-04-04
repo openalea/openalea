@@ -302,6 +302,7 @@ class PackageManager(object):
 
         return ret
 
+
     def find_vlab_dir(self, directory, recursive=True):
         """
         Find in a directory vlab specification file.
@@ -329,6 +330,7 @@ class PackageManager(object):
             
         return map(self.get_pkgreader, spec_files)
 
+
     def find_wralea_dir(self, directory, recursive=True):
         """
         Find in a directory wralea files,
@@ -347,7 +349,8 @@ class PackageManager(object):
 
         # search for wralea.py
         if(recursive):
-            wralea_files.update( p.walkfiles("*wralea*.py") )
+            for f in p.walkfiles("*wralea*.py"):
+                wralea_files.add(str(f))
         else:
             wralea_files.update( p.glob("*wralea*.py") )
         
