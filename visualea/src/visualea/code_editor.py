@@ -55,6 +55,12 @@ class AbstractCodeEditor(object):
     def is_widget(self):
         raise NotImplementedError()
 
+
+    # NodeWidget compatibility function
+    def set_autonomous(self):
+        return
+
+
     def is_empty(self):
         return False
 
@@ -68,6 +74,7 @@ class AbstractCodeEditor(object):
         import inspect
         filename =  inspect.getsourcefile(module)
         self.edit_file(filename)
+
 
 
 class ExternalCodeEditor(AbstractCodeEditor):

@@ -44,7 +44,7 @@ from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage, NewData
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
 from openalea.visualea.node_widget import SignalSlotListener
 from openalea.visualea.code_editor import get_editor
-from openalea.visualea.util import set_grab_cursor, grab_icon
+from openalea.visualea.util import grab_icon
 
 import images_rc
 
@@ -634,10 +634,7 @@ class NodeFactoryView(object):
         """ Set the package icon """
 
         pkg = self.get_current_pkg()
-
-        oldcursor =  set_grab_cursor()
-        pix = grab_icon()
-        set_grab_cursor(oldcursor)
+        pix = grab_icon(self.main_win())
 
         fname = os.path.join(pkg.path, "icon.png")
         pix.save(fname)
