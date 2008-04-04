@@ -79,8 +79,8 @@ def main(args):
     
     win.show()
     
-splash.finish(win);
-    
+    splash.finish(win);
+
     return app.exec_()
 
 
