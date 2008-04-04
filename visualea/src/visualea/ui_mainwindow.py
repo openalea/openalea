@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Apr  2 00:49:32 2008
+# Created: Fri Apr  4 06:59:34 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,7 +39,7 @@ class Ui_MainWindow(object):
         self.vboxlayout1.setSpacing(6)
         self.vboxlayout1.setMargin(6)
         self.vboxlayout1.setObjectName("vboxlayout1")
-        self.tabPackager.addTab(self.packageview,QtGui.QIcon(":/icons/package.png"),"")
+        self.tabPackager.addTab(self.packageview,"")
 
         self.categoryview = QtGui.QWidget()
         self.categoryview.setObjectName("categoryview")
@@ -219,9 +219,6 @@ class Ui_MainWindow(object):
 
         self.actionNew_Package = QtGui.QAction(MainWindow)
         self.actionNew_Package.setObjectName("actionNew_Package")
-
-        self.action_Delete = QtGui.QAction(MainWindow)
-        self.action_Delete.setObjectName("action_Delete")
 
         self.action_EditNode = QtGui.QAction(MainWindow)
         self.action_EditNode.setObjectName("action_EditNode")
@@ -423,7 +420,6 @@ class Ui_MainWindow(object):
         self.actionFind_Node.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew_Python_Node.setText(QtGui.QApplication.translate("MainWindow", "Python &Node", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew_Package.setText(QtGui.QApplication.translate("MainWindow", "&Package", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Delete.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.action_EditNode.setText(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShow_Pool.setText(QtGui.QApplication.translate("MainWindow", "Show Pool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionShow_Pool.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
