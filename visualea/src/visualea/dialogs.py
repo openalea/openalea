@@ -1130,5 +1130,5 @@ class EditorSelector(NodeWidget, QtGui.QWidget):
         else:
             command = self.editors[name]
             command = command%self.params
-            os.system(command)
+            Popen(command, shell=True)
 
