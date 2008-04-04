@@ -138,7 +138,7 @@ class IconGrabber(object):
 
         pix=QtGui.QPixmap(":/icons/cursor_icon.png")
         self.splash = QtGui.QSplashScreen(pix)
-        self.splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|QtCore.Qt.FramelessWindowHint)
+        self.splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint) #|QtCore.Qt.FramelessWindowHint)
         self.splash.setFixedSize(pix.size())
         self.splash.setMask(pix.mask())
         self.splash.setWindowTitle("Icon Selector")
