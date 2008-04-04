@@ -1,7 +1,10 @@
 Version 0.3:
-    * Improve prefered packages
+    
+    * Add button to select all package in a list	
+    * Improve recommended packages
     * Update shows only most recent packages
     * Install other egg form improved
+    * Minor bug fixes
 
 Version 0.2 :
     * Add Authentification
