@@ -1102,17 +1102,32 @@ class EditorSelector(NodeWidget, QtGui.QWidget):
         self.editors = editors
         self.params = params
 
-        for k in editors.iterkeys():
+        # put the edit button in the first place
+        keys = editors.keys()
+        if 'edit' in keys:
+            but = QtGui.QPushButton(self)
+            but.setText('edit')
+            vboxlayout.addWidget(but)
+            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
+            keys.remove('edit')
 
+        for k in keys:
             but = QtGui.QPushButton(self)
             but.setText(k)
             vboxlayout.addWidget(but)
 
             self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
         
-            
+        
     def button_clicked(self):
+        name = str(self.sender().text())
+        if name.lower() == 'edit':
+            # Edit file
+            text_editor = self.editors[name]
+            print 'filename ', self.params
+            text_editor.edit_file(str(self.params[0]))
+        else:
+            command = self.editors[name]
+            command = command%self.params
+            os.system(command)
 
-        command = self.editors[str(self.sender().text())]
-        command = command%self.params
-        os.system(command)

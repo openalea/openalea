@@ -14,6 +14,7 @@ def set_path():
 
     pkg_dirs = { 'openalea.core': "core/src",
                  'openalea.visualea':"visualea/src",
+                 'openalea.deploy':"deploy/src/openalea",
                  'openalea.catalog' : "catalog/src",
                  'openalea.sconsx' : "sconsx/src",
                  'openalea.plotools' : "plotools/src",
