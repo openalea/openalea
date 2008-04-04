@@ -116,7 +116,7 @@ class DataFactory(AbstractFactory):
         return node
 
 
-    def instantiate_widget(self, node=None, parent=None, edit=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node """
 
         def code_editor(parent):

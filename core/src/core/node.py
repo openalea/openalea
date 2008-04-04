@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -209,7 +209,6 @@ class Node(AbstractNode):
         # Internal Data
         self.internal_data['caption'] = '' #str(self.__class__.__name__)
         self.internal_data['lazy'] = True
-        self.internal_data['user_command'] = False
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
         self.internal_data['port_hide_changed']= set()
@@ -268,14 +267,14 @@ class Node(AbstractNode):
     lazy = property(get_lazy, set_lazy)
 
 
-    def get_user_command(self):
-        return self.internal_data.get("user_command", True)
+    def get_user_application(self):
+        return self.internal_data.get("user_application", False)
 
 
-    def set_user_command(self, v):
-        self.internal_data["user_command"] = v
+    def set_user_application(self, v):
+        self.internal_data["user_application"] = v
 
-    user_command = property(get_user_command, set_user_command)
+    user_application = property(get_user_application, set_user_application)
 
 
     def set_caption(self, newcaption):
@@ -714,7 +713,7 @@ class AbstractFactory(Observed):
         raise NotImplementedError()
     
 
-    def instantiate_widget(self, node=None, parent=None, edit=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node"""
         raise NotImplementedError()
 
@@ -888,7 +887,7 @@ class NodeFactory(AbstractFactory):
         return node
                     
 
-    def instantiate_widget(self, node=None, parent=None, edit=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node """
 
         # Code Editor
@@ -910,7 +909,7 @@ class NodeFactory(AbstractFactory):
         if(not modulename or not self.widgetclass_name) :
 
             from openalea.visualea.node_widget import DefaultNodeWidget
-            return DefaultNodeWidget(node, parent)
+            return DefaultNodeWidget(node, parent, autonomous)
         
         else:
             # load module

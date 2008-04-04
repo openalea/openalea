@@ -35,8 +35,7 @@ def start_qt(factory, node):
     import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     dialog = QtGui.QDialog()
-    widget = factory.instantiate_widget(node)
-    widget.set_autonomous()
+    widget = factory.instantiate_widget(node, autonomous=True)
 
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     widget.setParent(dialog)

@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -1081,6 +1081,7 @@ class NodeChooser(QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
             QtGui.QMessageBox.warning(self, "Error", "Unknown component name")
 
             
+
 
 class EditorSelector(NodeWidget, QtGui.QWidget):
     """

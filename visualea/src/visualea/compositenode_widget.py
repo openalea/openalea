@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -48,82 +48,132 @@ from openalea.visualea.node_widget import DefaultNodeWidget
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
     
-    def __init__(self, node, parent=None):
+    def __init__(self, node, parent=None, autonomous=False):
 
         QtGui.QWidget.__init__(self, parent)
         NodeWidget.__init__(self, node)
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
+        
+        self.node = node
 
         # Container
         self.container = QtGui.QTabWidget(self)
         vboxlayout.addWidget(self.container)
+
+
+        if(autonomous):
+            self.set_autonomous()
+            return
         
         # empty_io is a flag to define if the composite widget add only io widgets 
         
-        # Add inputs port
+        # Trey to create a standard node widget for inputs
         default_widget = DefaultNodeWidget(node, parent)
+
         if(default_widget.is_empty()):
             default_widget.close()
             default_widget.destroy()
             del default_widget
             empty_io = True
+
         else:
             empty_io = False 
             self.container.addTab(default_widget, "Inputs")
+
 
         # Add subwidgets (Need to sort widget)
         for id in node.vertices():
 
             subnode = node.node(id)
 
-            # Do not display widget if hidden and no IO
-            if(subnode.internal_data.get('hide', False) and not empty_io): continue
+            # Do not display widget if hidden
+            hide = subnode.internal_data.get('hide', False) 
+            user_app = subnode.internal_data.get('user_application', False) 
+            if(hide and not empty_io): continue
 
-            # Do not display widget if all port are connected
-#             hide = True
-#             for key in xrange(subnode.get_nb_input()):
-#                 if(subnode.get_input_state(key) != "connected"):
-#                     hide = False
-#                     break
-
-#             if(hide): continue
+            if(not user_app):
+                # ignore node with all input connected
+                states = [ bool(subnode.get_input_state(p)=="connected")
+                           for p in xrange(subnode.get_nb_input())]
+                
+                if(all(states)): continue
 
             # Add tab
             try:
                 factory = subnode.get_factory()
                 widget = factory.instantiate_widget(subnode, self)
+                assert widget
             except:
                 continue
             
-            if(widget and widget.is_empty()) :
+            if(widget.is_empty()) :
                 widget.close()
                 del widget
             else : 
                 # Add as tab
                 caption = "%s"%(subnode.caption)
                 self.container.addTab(widget, caption)
+
+        
                 
            
     def set_autonomous(self):
-        """ Add Run bouton and close button """
-        
-        runbutton = QtGui.QPushButton("Run", self)
-        exitbutton = QtGui.QPushButton("Exit", self)
-        self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
-        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+        """ Create autonomous widget with user applications buttons and dataflow """
 
+        # User App panel
+        userapp_widget = QtGui.QWidget(self)
+        userapp_layout = QtGui.QVBoxLayout(userapp_widget)
+
+
+        for id in self.node.vertices():
+
+            subnode = self.node.node(id)
+            user_app = subnode.internal_data.get('user_application', False) 
+
+            # add to user app panel
+            if(user_app):
+                
+                label = QtGui.QLabel(subnode.caption, userapp_widget)
+                runbutton = QtGui.QPushButton("Run", userapp_widget)
+                runbutton.id = id
+                
+                widgetbutton = QtGui.QPushButton("Widget", userapp_widget)
+                widgetbutton.id = id
+
+                self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run_node)
+                self.connect(widgetbutton, QtCore.SIGNAL("clicked()"), self.open_widget)
+
+                buttons = QtGui.QHBoxLayout()
+                buttons.addWidget(label)
+                buttons.addWidget(runbutton)
+                buttons.addWidget(widgetbutton)
+                userapp_layout.addLayout(buttons)
+
+        
+        self.container.addTab(userapp_widget, "User Applications")
+        
+        dataflow_widget = EditGraphWidget(self.node, self.container)
+        self.container.addTab(dataflow_widget, "Dataflow")
+        self.dataflow_widget = dataflow_widget
+
+        exitbutton = QtGui.QPushButton("Exit", self)
+        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+           
         buttons = QtGui.QHBoxLayout()
-        buttons.addWidget(runbutton)
         buttons.addWidget(exitbutton)
         self.vboxlayout.addLayout(buttons)
-        
+
 
     @exception_display
     @busy_cursor    
-    def run(self):
-        self.node.eval()
+    def run_node(self):
+        self.node.eval_as_expression(self.sender().id)
+
+    def open_widget(self):
+        self.dataflow_widget.open_item(self.sender().id)
+        
 
     def exit(self):
         self.parent().close()
@@ -1026,7 +1076,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             else:
                 color = self.not_selected_color
 
-            if(self.subnode.user_command):
+            if(self.subnode.user_application):
                 secondcolor = QtGui.QColor(255, 144, 0, 200)
             else:
                 secondcolor = self.not_modified_color
@@ -1150,10 +1200,10 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         menu.addSeparator()
         
-        action = menu.addAction("Mark as Action")
+        action = menu.addAction("Mark as User Application")
         action.setCheckable(True)
-        action.setChecked(self.subnode.user_command)
-        self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_command)
+        action.setChecked(self.subnode.user_application)
+        self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_application)
 
         
         action = menu.addAction("Lazy")
@@ -1180,8 +1230,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.update()
         
 
-    def set_user_command(self, val):
-        self.subnode.user_command = val
+    def set_user_application(self, val):
+        self.subnode.user_application = val
         self.update()
 
 
@@ -1190,7 +1240,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         editor = ShowPortDialog(self.subnode, self.graphview)
         editor.exec_()
-        
 
 
     def set_internals(self):
