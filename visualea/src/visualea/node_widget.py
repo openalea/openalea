@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006 - 2007 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -78,7 +78,7 @@ class NodeWidget(SignalSlotListener):
     Base class for node instance widgets.
     """
 
-    def __init__(self, node):
+    def __init__(self, node, autonomous=False):
         """ Init the widget with the associated node """
         
         self.__node = node
@@ -112,12 +112,6 @@ class NodeWidget(SignalSlotListener):
         return False
 
 
-    def set_autonomous(self):
-        """ 
-        Set the widget autonomous (i.e add run/exit button) 
-        """
-        return
-
    
 
 class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
@@ -129,7 +123,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     type_map = InterfaceWidgetMap()
     
     @lock_notify
-    def __init__(self, node, parent):
+    def __init__(self, node, parent, autonomous=False):
         """ Constructor """
 
         QtGui.QWidget.__init__(self, parent)
@@ -159,6 +153,9 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             #for i in node.factory.view.content:
             #    self.place( self,  i, layout )
             self.place_group( self, node.factory.view, self.vboxlayout)
+
+
+        if(autonomous): self.set_autonomous()
 
 
     def set_autonomous(self):

@@ -730,8 +730,7 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
         
         if(isinstance(obj, AbstractFactory)):
-            widget = obj.instantiate_widget()
-            widget.set_autonomous()
+            widget = obj.instantiate_widget(autonomous=True)
             open_dialog(self.main_win(), widget, obj.get_id())
         
 

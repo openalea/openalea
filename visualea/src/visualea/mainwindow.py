@@ -776,8 +776,7 @@ class MainWindow(QtGui.QMainWindow,
         """ Open Application widget """
 
         (node, tempfactory) = self.get_current_factory("Preview")
-        w = tempfactory.instantiate_widget(node, self)
-        w.set_autonomous()
+        w = tempfactory.instantiate_widget(node, self, autonomous=True)
 
         from util import open_dialog
         open_dialog(self, w, 'Preview Application')
