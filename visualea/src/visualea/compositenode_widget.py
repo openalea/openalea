@@ -774,7 +774,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         
         # Record item as a listener for the subnode
-        self.ismodified = self.subnode.modified
         self.initialise(self.subnode)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
@@ -818,15 +817,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.font.setPointSize(10)
         self.fm = QtGui.QFontMetrics(self.font)
 
-#         self.font2 = QtGui.QFont(self.font)
-#         self.font2.setBold(False)
-#         self.font2.setPointSize(8)
-#         self.fm2 = QtGui.QFontMetrics(self.font2)
-
-#         self.sizex = 20
-#         self.sizey = self.fm.height() + self.fm2.height() + 5
-#         self.ysep = self.fm.height()
-
 
         # Add to scene
         scene.addItem(self)
@@ -849,6 +839,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             r,g,b = self.subnode.__color__
             self.not_modified_color = QtGui.QColor(r, g, b, 200)
             self.modified_color = self.not_modified_color
+
+        # modified
+        self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
+        self.modified_item.setBrush(self.modified_color)
+        
+        self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
 
 
     def set_connectors(self):
@@ -889,8 +885,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def adjust_size(self, force=False):
         """ Compute the box size """
 
-        newsizex = self.fm.width(self.get_caption()) + 20
-        # newsizex2 = self.fm2.width(self.fullname) + 20
+        newsizex = self.fm.width(self.get_caption()) + 30
         
         # when the text is small but there are lots of ports, 
         # add more space.
@@ -962,8 +957,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             self.graphview.close_node_dialog(self.elt_id)
              
            
-        elif(self.ismodified != sender.modified):
-            self.ismodified = sender.modified or not sender.lazy
+        elif(self.modified_item.isVisible() != sender.modified):
+            self.modified_item.setVisible(bool(sender.modified or not sender.lazy))
             self.update()
             QtGui.QApplication.processEvents()
 
@@ -1017,25 +1012,27 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         painter.setBrush(QtGui.QColor(100, 100, 100, 50))
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
 
-        # Draw Box
+        # Select color
         if hasattr(self.subnode, 'raise_exception'):
             color = self.error_color
             if(self.isSelected()):
                 secondcolor = self.selected_error_color
             else:
                 secondcolor = self.not_selected_error_color
+
         else:
             if(self.isSelected()):
                 color = self.selected_color
             else:
                 color = self.not_selected_color
 
-            if(self.ismodified):
-                secondcolor = self.modified_color
+            if(self.subnode.user_command):
+                secondcolor = QtGui.QColor(255, 144, 0, 200)
             else:
                 secondcolor = self.not_modified_color
-            
-        
+
+        # Draw Box
+
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)
         gradient.setColorAt(0.0, color)
         gradient.setColorAt(1.0, secondcolor)
@@ -1050,10 +1047,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
                          self.get_caption())
         
-#         textRect = QtCore.QRectF(0, self.ysep, self.sizex, self.sizey - self.ysep)
-#         painter.setFont(self.font2)
-#         painter.drawText(textRect, QtCore.Qt.AlignHCenter,
-#                          self.fullname)
 
         
 
@@ -1155,6 +1148,20 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         action = menu.addAction("Show/Hide ports")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.show_ports)
 
+        menu.addSeparator()
+        
+        action = menu.addAction("Mark as Action")
+        action.setCheckable(True)
+        action.setChecked(self.subnode.user_command)
+        self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_command)
+
+        
+        action = menu.addAction("Lazy")
+        action.setCheckable(True)
+        action.setChecked(self.subnode.lazy)
+        self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_lazy)
+
+
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
         
@@ -1166,6 +1173,16 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         menu.show()
 
         event.accept()
+
+
+    def set_lazy(self, val):
+        self.subnode.lazy = val
+        self.update()
+        
+
+    def set_user_command(self, val):
+        self.subnode.user_command = val
+        self.update()
 
 
     def show_ports(self):
@@ -1206,7 +1223,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def set_caption(self):
         """ Open a input dialog to set node caption """
 
-        n = self.subnode
+        n = self.subnode 
         (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Node caption", "",
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):

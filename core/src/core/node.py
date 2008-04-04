@@ -209,6 +209,7 @@ class Node(AbstractNode):
         # Internal Data
         self.internal_data['caption'] = '' #str(self.__class__.__name__)
         self.internal_data['lazy'] = True
+        self.internal_data['user_command'] = False
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
         self.internal_data['port_hide_changed']= set()
@@ -238,19 +239,6 @@ class Node(AbstractNode):
             self.set_caption(factory.name)
             
 
-    def set_caption(self, newcaption):
-        """ Define the node caption """
-        self.internal_data['caption'] = newcaption
-        self.notify_listeners( ("caption_modified",) )
-
-
-    def get_caption(self):
-        """ Return the node caption """
-        return self.internal_data.get('caption', "")
-
-    caption = property(get_caption, set_caption)
-
-
     def get_input_port( self, name=None ):
         """Gets port by name.
         
@@ -266,6 +254,10 @@ class Node(AbstractNode):
         return self.input_desc[ index ] 
         
 
+    
+    # Properties
+
+
     def get_lazy(self):
         return self.internal_data.get("lazy", True)
 
@@ -274,6 +266,30 @@ class Node(AbstractNode):
         self.internal_data["lazy"] = v
 
     lazy = property(get_lazy, set_lazy)
+
+
+    def get_user_command(self):
+        return self.internal_data.get("user_command", True)
+
+
+    def set_user_command(self, v):
+        self.internal_data["user_command"] = v
+
+    user_command = property(get_user_command, set_user_command)
+
+
+    def set_caption(self, newcaption):
+        """ Define the node caption """
+        self.internal_data['caption'] = newcaption
+        self.notify_listeners( ("caption_modified",) )
+
+
+    def get_caption(self):
+        """ Return the node caption """
+        return self.internal_data.get('caption', "")
+
+    caption = property(get_caption, set_caption)
+
 
 
     def is_port_hidden(self, index_key):

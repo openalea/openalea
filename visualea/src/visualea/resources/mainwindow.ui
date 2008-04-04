@@ -34,9 +34,6 @@
          <attribute name="title" >
           <string>Package</string>
          </attribute>
-         <attribute name="icon" >
-          <iconset resource="images.qrc" >:/icons/package.png</iconset>
-         </attribute>
          <layout class="QVBoxLayout" >
           <property name="spacing" >
            <number>6</number>
@@ -482,11 +479,6 @@
   <action name="actionNew_Package" >
    <property name="text" >
     <string>&amp;Package</string>
-   </property>
-  </action>
-  <action name="action_Delete" >
-   <property name="text" >
-    <string>&amp;Delete</string>
    </property>
   </action>
   <action name="action_EditNode" >
