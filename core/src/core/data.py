@@ -27,7 +27,7 @@ from openalea.core.interface import IData
 
 import os
 import string
-
+import subprocess
 
 
 class PackageData(object):
@@ -131,7 +131,7 @@ class DataFactory(AbstractFactory):
         # single command
         if(editors and isinstance(editors, str)):
             command = self.editors%(self.get_pkg_data(),)
-            os.system(command)
+            os.Popen(command, shell=True)
             return
 
         # multi command

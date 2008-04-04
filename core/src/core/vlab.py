@@ -382,7 +382,7 @@ class VlabObject2(VlabObject):
         if prog != 'EDIT':
             if fn:
                 vlabfile = self._files[fn]
-                command[-1]="%s&"
+                command[-1]="%s"
                 vlabfile.editors[name]=' '.join(command)
 
     def process_text(self, name, command):
