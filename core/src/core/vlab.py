@@ -31,7 +31,7 @@ def vlab_object(directory, pkgmanager):
     
     """
     directory = path(directory)
-    obj = VlabObject(directory, pkgmanager)
+    obj = VlabObject2(directory, pkgmanager)
     return obj
 
 # Factories to build nodes from vlab components.
@@ -39,7 +39,7 @@ def vlab_object(directory, pkgmanager):
 # The difference between an editor and a program is that
 # an editor have the same output value than its input,
 # and a program may have many inputs but unknow outputs.
-def data(name):
+def data(vlabfile):
     return
 
 def editor(command):
@@ -48,6 +48,11 @@ def editor(command):
 def program(command):
     return
 
+class VlabFile(object):
+    def __init__(self,name):
+        self.name = name
+        self.deps = []
+        self.editors = {}
 
 class VlabObject(object):
     """
@@ -57,7 +62,7 @@ class VlabObject(object):
     text = ['TEXT','HINTS']
     editors = ['MAP', 'loadmap', 'savemap', 'EDIT', 'SURFACE', 
                'bezieredit','PALETTE', 'palette', 'MEDIT', 'medit',
-               'GALLERY', 'gallery', 'EDIT']
+               'GALLERY', 'gallery', 'EDIT', 'funcedit','panel'] # panel
     programs = ['cpfg', 'lpfg']
     ignore = [';', '#']
     name2program = {'MAP' : 'loadmap',
@@ -76,6 +81,7 @@ class VlabObject(object):
         self.pm = pkgmanager
         self.sg = None
         self.sgfactory = None
+        self.factories = []
         self._package = None
 
     def pkgname(self):
@@ -89,8 +95,6 @@ class VlabObject(object):
 
     def build_package(self):
         from openalea.core.package import UserPackage
-        if not self.sgfactory:
-            self.read_specification()
 
         # Build MetaData
         metainfo = dict(
@@ -100,16 +104,21 @@ class VlabObject(object):
             institutes = '',
             description = '',
             url = '',
+            # TODO: add icon here
             )
         name = self.pkgname()
         self._package = UserPackage(name, metainfo, str(self.dir))
-        
+
+        if not self.sgfactory:
+            self.read_specification()
+       
         # Add factorie of the dataflow
         self._package.add_factory(self.sgfactory)
         # TODO : Add data factories there
+        for f in self.factories:
+            self._package.add_factory(f)
 
     def read_specification(self):
-        print "read_specification"
         spec = self.dir / 'specifications'
         from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
@@ -206,6 +215,7 @@ class VlabObject(object):
         self._text.setdefault(filename, []).append(text_node)
 
     def process_files(self):
+        from openalea.core.data import DataFactory
         deps = self._files
         files = deps.keys()
         for f in files:
@@ -218,6 +228,10 @@ class VlabObject(object):
         self._filenodes = {}
         for f in files:
             # TODO: Create data rather than files
+            factory = DataFactory(f)
+            factory.package = self._package
+            self.factories.append(factory)
+    
             node = self.pm.get_node("vlab", "vlab file stamp")
             node.set_input(1,str(self.dir/f))
             fnode = self.sg.add_node(node)
@@ -228,7 +242,6 @@ class VlabObject(object):
         """
         Specify connections between nodes.
         """
-        print 'build_graph'
         prog_deps = []
         files = self._files.keys()
         for p in self._programs:
@@ -275,12 +288,13 @@ def random_layout(obj):
         data['posy'] = y
 
 min_dx = 100
+size=(800, 250)
 def layout(obj):
     # compute a layout of the graph
-    size = 600
+    size = 500
     sg= obj.sg
     dy = 80
-    y = 300
+    y = 250
     progs = obj._programs
     n = len(progs)+1
     dx = x = size / n
@@ -291,16 +305,16 @@ def layout(obj):
         data['posy'] = y
         x+= dx
 
-    
+    size = size/n
     for vid in obj._programs:
         l = list(sg.in_neighbors(vid))
         if not l:
             continue
         n1 = sg.node(vid)
-        x0, y0 = n1.internal_data ['posx'], n1.internal_data ['posy']
-        dx1 = max(min_dx,dx / len(l))
+        x0, y0 = n1.internal_data['posx'], n1.internal_data['posy']
+        dx1 = max(min_dx,size/(2*len(l)+1))
         y1 = y0 - dy
-        x1 = x0 - dx/2
+        x1 = x0 - size/2
         for node_id in l:
             data = sg.node(node_id).internal_data
             data['posx'] = x1
@@ -316,6 +330,7 @@ def layout(obj):
         
         if not data.get('posx'):
             data['posx'], data['posy'] = x, y
+            x+= min_dx
             compute_layout(sg, vid,x, 0, y, dy) 
     # add editor
     
@@ -334,7 +349,102 @@ def compute_layout(sg, vid, x, dx, y, dy):
         x += dx
         compute_layout(sg, node_id, x, dx, y, dy)
         
+#######################################################################
+# new implementation
+# add files as data with editors inside.
 
+class VlabObject2(VlabObject):
+    def __init__(self, *args, **kwds):
+        VlabObject.__init__(self,*args, **kwds)
+
+    def read_files(self, f):
+        pattern ='\w+\.\w+'
+        for l in f:
+            if 'ignore:' in l:
+                break
+            fn = l.strip()
+            if re.match(pattern,fn):
+                self._files[fn] = VlabFile(fn)
+
+    def process_editor(self, name, command):
+        """
+        Find the file on which the editor works on.
+        """
+        cmd = ' '.join(command)
+        fn = ''
+        if len(command) > 1:
+            fn = command[-1]
+            if fn not in self._files.keys():
+                print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
+        
+        prog = command[0]
+        if prog != 'EDIT':
+            if fn:
+                vlabfile = self._files[fn]
+                command[-1]="%s&"
+                vlabfile.editors[name]=' '.join(command)
+
+    def process_text(self, name, command):
+        pass
+
+    def process_files(self):
+        from openalea.core.data import DataFactory
+
+        deps = self._files
+        files = deps.keys()
+        for f, vf in deps.iteritems():
+            fn = self.dir/f
+            if fn.ext in ['.map', '.txt', '.s']: 
+                continue #binary file or other
+            print "Search dependencies in %s"%f
+            vf.deps = search(fn, files)
+            
+        # create the data here
+        # Create vlab data rather than simple data
+        self._filenodes = {}
+        for vf in deps.itervalues():
+            factory = DataFactory(vf.name, editors=vf.editors)
+            self._package.add_factory(factory)
+            self.factories.append(factory)
+            
+            # TODO: Create data rather than files
+            node = factory.instantiate()
+            #self.pm.get_node("vlab", "vlab file stamp")
+            #node.set_input(1,str(self.dir/f))
+            node = self.sg.add_node(node)
+            self._filenodes[vf.name] = node
+            vf.node = node
+
+    def build_graph(self):
+        """
+        Specify connections between nodes.
+        """
+        prog_deps = []
+        files = self._files.keys()
+        for p in self._programs:
+            cmd = self.sg.node(p).inputs[1].split()
+            fdeps = [ f for f in files if f in cmd]
+            for f in fdeps:
+                fnode = self._filenodes[f]
+                self.sg.connect(fnode, 0, p, 0)
+        for f in files:
+            for fdep in self._files[f].deps:
+                depnode = self._filenodes[fdep]
+                node = self._filenodes[f]
+                self.sg.connect(depnode,0,node,0)
+        #for f, nodes in self._editors.iteritems():
+        #    if not f: # an editor can act withouot a file
+        #        continue
+        #    fnode = self._filenodes[f]
+        #    for node in nodes:
+        #        self.sg.connect(node,0,fnode,0)
+        #for f, nodes in self._text.iteritems():
+        #    fnode = self._filenodes[f]
+        #    for node in nodes:
+        #        self.sg.connect(fnode, 0, node, 0)
+        layout(self)
+        self.sg.to_factory(self.sgfactory)
+    
     
             
 
@@ -348,59 +458,4 @@ def test1(directory):
     pkg = obj.get_package()
     pkg.write()
 
-def test():
-    spec = path('specifications')
-    f = open(spec)
-    p1 = '\w+\.\w+'
-    p2 = '\t*[a-zA-Z0-9_ \\-]+:\\s*$'
-    menus = []
-    for l in f:
-        if 'ignore:' in l:
-            break
-        fn = l.strip()
-        if re.match(p1,fn):
-            print fn
-    for l in f:
-        if re.match(pattern, l):
-            level = l.rstrip().count('\t')
-            menu = l.strip()[:-1]
-            if len(menus) <= level:
-                menus.append(menu)
-            else:
-                menus[level] = menu
-                menus = menus[:level+1]
-            continue
-        if not menus:
-            continue
-        cmd = l.strip()
-        if cmd:
-            test_process_command('.'.join(menus), cmd)
-    f.close()
-def test_process_command(name, cmd):
-        command = cmd.split()
-        prog = command[0]
-        command[0] = name2program.get(prog,prog)
-        if prog in programs:
-            print 'Program %s'%(' '.join(command))
-            #self.process_program(name, command)
-        elif prog in editors:
-            print 'Editor %s'%(' '.join(command))
-            #self.process_editor(name, command)
-        elif prog in text:
-            print 'Text %s'%(' '.join(command))
-            #self.process_text(name, command)
-        else: 
-            print 'Do not know how to process this command: %s'%cmd
-"""
-text = ['TEXT','HINTS', 'EDIT']
-editors = ['MAP', 'loadmap', 'savemap', 'EDIT', 'SURFACE', 
-        'bezieredit','PALETTE', 'palette', 'MEDIT', 'medit',
-        'GALLERY', 'gallery']
-programs = ['cpfg', 'lpfg']
-ignore = [';', '#']
-name2program = {'MAP' : 'loadmap',
-                'SURFACE' : 'bezieredit',
-                'PALETTE' : 'palette',
-                'MEDIT' : 'medit',
-                'GALLERY' : 'gallery'}
-"""
+

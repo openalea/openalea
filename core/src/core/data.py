@@ -89,8 +89,8 @@ class DataFactory(AbstractFactory):
 
     def is_valid(self):
         """ 
-        Return True if the factory is valid 
-        else raise an exception
+        Return True if the factory has associated data.
+        Else raise an exception
         """
         if(not os.path.exists(str(self.get_pkg_data()))):
             raise Exception("%s does'nt exists. Ignoring"%(str(self.get_pkg_data())))
@@ -167,7 +167,7 @@ class DataNode(Node):
                               ),
                        outputs=(dict(name='data', interface=IData),),
                        )
-         self.caption = 'Data : %s'%(packagedata.name)
+         self.caption = '%s'%(packagedata.name)
         
 
     def __call__(self, args):
