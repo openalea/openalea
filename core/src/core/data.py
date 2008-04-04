@@ -119,6 +119,12 @@ class DataFactory(AbstractFactory):
     def instantiate_widget(self, node=None, parent=None, edit=False):
         """ Return the corresponding widget initialised with node """
 
+        def code_editor(parent):
+            # Code Editor
+            from openalea.visualea.code_editor import get_editor
+            w = get_editor()(parent)
+            return w 
+            
         if(node): editors = node.get_input(1)
         else: editors = self.editors
 
@@ -126,20 +132,22 @@ class DataFactory(AbstractFactory):
         if(editors and isinstance(editors, str)):
             command = self.editors%(self.get_pkg_data(),)
             os.system(command)
+            return
 
         # multi command
-        elif(editors and isinstance(editors, dict)):
-            
-            from openalea.visualea.dialogs import EditorSelector
-            return EditorSelector(parent, self.editors, (self.get_pkg_data(),) )
+        # Add systematically a <F4>text editor.
+        if( not isinstance(editors, dict)):
+            editors = {}
 
-        else:
-            # Code Editor
-            from openalea.visualea.code_editor import get_editor
-            w = get_editor()(parent)
-            w.edit_file(str(self.get_pkg_data()))
-            return w 
-        
+        edit = [x for x in editors if x.lower() == 'edit']
+        if not edit:
+            edit = ['edit']
+        # Add a text editor
+        self.editors[edit[0]] = code_editor(parent)
+                
+        from openalea.visualea.dialogs import EditorSelector
+        return EditorSelector(parent, self.editors, (self.get_pkg_data(),) )
+
      
     def get_writer(self):
         """ Return the writer class """
