@@ -75,9 +75,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         # Signal connection
         self.connect(self.fileButton, QtCore.SIGNAL("clicked()"), self.get_filename)
         self.connect(self.customInstallButton, QtCore.SIGNAL("clicked()"), self.install_egg)
-        self.connect(self.action_Quit, QtCore.SIGNAL("activated()"), self.quit)
-        self.connect(self.action_About, QtCore.SIGNAL("activated()"), self.about)
-        self.connect(self.action_Web, QtCore.SIGNAL("activated()"), self.web)
+        self.connect(self.action_Quit, QtCore.SIGNAL("triggered()"), self.quit)
+        self.connect(self.action_About, QtCore.SIGNAL("triggered()"), self.about)
+        self.connect(self.action_Web, QtCore.SIGNAL("triggered()"), self.web)
         
         self.connect(self.checkAll, QtCore.SIGNAL("clicked()"), self.check_all)
         self.connect(self.ClearAll, QtCore.SIGNAL("clicked()"), self.clear_all)
@@ -90,7 +90,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.refreshButton, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.addLocButton, QtCore.SIGNAL("clicked()"), self.add_location)
         self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
-        self.connect(self.actionCookie_Session, QtCore.SIGNAL("activated()"), self.inriagforge_authentify)
+        self.connect(self.actionCookie_Session, QtCore.SIGNAL("triggered()"), self.inriagforge_authentify)
         self.connect(self.requestEdit, QtCore.SIGNAL("returnPressed()"), self.install_egg)
 
 
