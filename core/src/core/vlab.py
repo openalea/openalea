@@ -95,7 +95,7 @@ class VlabObject(object):
 
     def build_package(self):
         from openalea.core.package import UserPackage
-
+        icons = self.dir.glob('icon.*')
         # Build MetaData
         metainfo = dict(
             version = '',
@@ -105,6 +105,7 @@ class VlabObject(object):
             description = '',
             url = '',
             # TODO: add icon here
+            icon = icons[0].basename(),
             )
         name = self.pkgname()
         self._package = UserPackage(name, metainfo, str(self.dir))
