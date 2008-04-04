@@ -62,6 +62,7 @@ class MainWindow(QtGui.QMainWindow,
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+        self.setAttribute(QtCore.Qt.WA_QuitOnClose)
         self.pkgmanager = session.pkgmanager
 
         # Set observer
@@ -115,7 +116,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
                      self.contextMenuEvent)
         self.connect(self.tabWorkspace, SIGNAL("currentChanged(int)"), self.ws_changed)
-
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
 
 
@@ -182,8 +182,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
         self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), 
                      self.display_leftpanel)
-        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), self.display_rightpanel)
-
+        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
+                     self.display_rightpanel)
                 
         self.setAcceptDrops(True)
         # final init
@@ -223,7 +223,7 @@ class MainWindow(QtGui.QMainWindow,
     def quit(self):
         """ Quit Application """
 
-        self.close()
+        QtGui.QApplication.closeAllWindows()
 
 
     def notify(self, sender, event):
@@ -240,6 +240,7 @@ class MainWindow(QtGui.QMainWindow,
         for i in range(self.tabWorkspace.count()):
             w = self.tabWorkspace.widget(i)
             w.close()
+
         event.accept()
 
     

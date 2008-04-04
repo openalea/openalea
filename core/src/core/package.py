@@ -203,13 +203,6 @@ class Package(NoCaseDict):
             return ""
 
 
-    def set_icon(self, name):
-        """ 
-        Set package icon 
-        name is a filename in the package dir
-        """
-        self.metainfo['icon'] = name
-
 
     def add_factory(self, factory):
         """ Add to the package a factory ( node or subgraph ) """
@@ -441,6 +434,24 @@ def %s(%s):
         
         return newfactory
 
+
+    def set_icon(self, filename):
+        """ 
+        Set package icon 
+        Copy filename in the package dir
+        """
+
+        bname = os.path.basename(filename)
+        src = os.path.abspath(filename)
+        dst = os.path.join(self.path, bname)
+        
+        try:
+            if(src != dst):
+                shutil.copyfile(src, dst)
+            self.metainfo['icon'] = bname
+
+        except IOError:
+            pass
 
 
     def add_factory(self, factory):
