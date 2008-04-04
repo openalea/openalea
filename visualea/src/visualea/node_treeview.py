@@ -27,6 +27,7 @@ __revision__=" $Id$ "
 
 import os
 from weakref import ref
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
@@ -43,6 +44,8 @@ from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage, NewData
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
 from openalea.visualea.node_widget import SignalSlotListener
 from openalea.visualea.code_editor import get_editor
+from openalea.visualea.util import set_grab_cursor, grab_icon
+
 import images_rc
 
 
@@ -517,8 +520,13 @@ class NodeFactoryView(object):
             action = menu.addAction("Add Data File")
             action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("triggered()"), self.add_data)
+            
+            menu.addSeparator()
 
-
+            action = menu.addAction("Grab Icon")
+            action.setEnabled(enabled)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.grab_icon)
+            
             menu.addSeparator()
 
             action = menu.addAction("Copy Package")
@@ -620,6 +628,22 @@ class NodeFactoryView(object):
         del pman[pkg.get_id()]
         self.main_win().reinit_treeview()
 
+
+    
+    def grab_icon(self):
+        """ Set the package icon """
+
+        pkg = self.get_current_pkg()
+
+        oldcursor =  set_grab_cursor()
+        pix = grab_icon()
+        set_grab_cursor(oldcursor)
+
+        fname = os.path.join(pkg.path, "icon.png")
+        pix.save(fname)
+        pkg.set_icon(fname)
+
+        self.main_win().reinit_treeview()
     
 
     def edit_pkg_code(self):

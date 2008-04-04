@@ -64,9 +64,6 @@ def main(args):
     splash.show()
     QtGui.QApplication.processEvents()
     
-    import time
-    time.sleep(1)
-
     session = Session()
 
     win = MainWindow(session)
