@@ -152,11 +152,12 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 userapp_layout.addLayout(buttons)
 
         
-        self.container.addTab(userapp_widget, "User Applications")
         
         dataflow_widget = EditGraphWidget(self.node, self.container)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget
+
+        self.container.addTab(userapp_widget, "User Applications")
 
         exitbutton = QtGui.QPushButton("Exit", self)
         self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)

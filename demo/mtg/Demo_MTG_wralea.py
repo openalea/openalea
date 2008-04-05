@@ -13,7 +13,7 @@ __url__ = ''
 __version__ = '0.1'
 __authors__ = 'C. Godin'
 __institutes__ = 'INRIA'
- 
+__icon__ = 'icon.png' 
 
 __all__ = ['MTGExtraction', 'PlantFrame1', 'MTGActionOnMultipleMTGs', 'MTGComponentSelection', 'PlantFrame2']
 

@@ -456,7 +456,7 @@ def %s(%s):
             if(src != dst):
                 shutil.copyfile(src, dst)
             self.metainfo['icon'] = bname
-
+            self.write()
         except IOError:
             pass
 
@@ -571,6 +571,7 @@ class PyPackageReader(AbstractPackageReader):
 
         try:
             wraleamodule.register_packages(pkgmanager) 
+            
         except AttributeError:
             # compatibility issue between two types of reader
             reader = PyPackageReaderWralea(self.filename)
