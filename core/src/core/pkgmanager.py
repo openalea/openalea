@@ -291,7 +291,7 @@ class PackageManager(object):
 
         for r in readers:
             if r: 
-                ret =  r.register_packages(self)
+                ret = r.register_packages(self)
             else:
                 print "Unable to load package %s."%(filename,)
                 ret = None
@@ -489,8 +489,10 @@ class PackageManager(object):
             p.write()
 
         # Register package
-        p = self.load_directory(path)
+        self.load_directory(path)
         self.write_config()
+
+        p = self.pkgs[name]
         return p
 
 
