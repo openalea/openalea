@@ -116,7 +116,7 @@ class DataFactory(AbstractFactory):
         return node
 
 
-    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False):
         """ Return the corresponding widget initialised with node """
 
         def code_editor(parent):
@@ -137,9 +137,9 @@ class DataFactory(AbstractFactory):
         # multi command
         # Add systematically a <F4>text editor.
         if( not isinstance(editors, dict)):
-            editors = {}
+            self.editors = {}
 
-        edit = [x for x in editors if x.lower() == 'edit']
+        edit = [x for x in self.editors if x.lower() == 'edit']
         if not edit:
             edit = ['edit']
         # Add a text editor

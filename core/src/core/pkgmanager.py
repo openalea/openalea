@@ -288,7 +288,7 @@ class PackageManager(object):
         if not readers:
             print "Search Vlab objects."
             readers = self.find_vlab_dir(dirname)
-
+        ret = None
         for r in readers:
             if r: 
                 ret = r.register_packages(self)
