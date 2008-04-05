@@ -22,6 +22,8 @@ QT4 Main window
 __license__= "CeCILL v2"
 __revision__=" $Id$ "
 
+import os
+from subprocess import Popen
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.compositenode import CompositeNodeFactory
@@ -33,7 +35,6 @@ from openalea.core.session import Session
 from openalea.visualea.node_widget import NodeWidget
 
 import ui_newgraph
-import os
 import ui_tofactory
 import ui_newpackage
 import ui_preferences

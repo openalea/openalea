@@ -95,7 +95,6 @@ class VlabObject(object):
 
     def build_package(self):
         from openalea.core.package import UserPackage
-        icons = self.dir.glob('icon.*')
         # Build MetaData
         metainfo = dict(
             version = '',
@@ -104,9 +103,11 @@ class VlabObject(object):
             institutes = '',
             description = '',
             url = '',
-            # TODO: add icon here
-            icon = icons[0].basename(),
             )
+        icons = self.dir.glob('icon.*')
+        if len(icons) > 0:
+            metainfo['icon'] = icons[0].basename()
+
         name = self.pkgname()
         self._package = UserPackage(name, metainfo, str(self.dir))
 
@@ -115,9 +116,9 @@ class VlabObject(object):
        
         # Add factorie of the dataflow
         self._package.add_factory(self.sgfactory)
-        # TODO : Add data factories there
-        for f in self.factories:
-            self._package.add_factory(f)
+        #  Add data factories there
+        #for f in self.factories:
+        #    self._package.add_factory(f)
 
     def read_specification(self):
         spec = self.dir / 'specifications'
@@ -276,7 +277,7 @@ def search (file, filenames):
     f = open(file)
     text = f.read()
     f.close()
-    l = filter(lambda x: ' '+x+' ' in text, filenames)
+    l = [fn for fn in filenames if fn != file and (' %s '%fn in text)]
     return l
     
 def random_layout(obj):
