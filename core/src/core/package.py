@@ -430,7 +430,7 @@ def %s(%s):
 
         try:
             shutil.copyfile(src, dst)
-        except IOError:
+        except shutil.Error:
             f = open(dst, 'w')
             f.close()
             
