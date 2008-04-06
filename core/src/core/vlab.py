@@ -39,14 +39,6 @@ def vlab_object(directory, pkgmanager):
 # The difference between an editor and a program is that
 # an editor have the same output value than its input,
 # and a program may have many inputs but unknow outputs.
-def data(vlabfile):
-    return
-
-def editor(command):
-    return
-
-def program(command):
-    return
 
 class VlabFile(object):
     def __init__(self,name):
@@ -73,7 +65,7 @@ class VlabObject(object):
 
     def __init__(self, directory, pkgmanager):
         self.dir = directory
-        print "Export to OpenAlea the %s directory"%self.dir.basename()
+        print "Import into OpenAlea the %s directory"%self.dir.basename()
         self._programs = []
         self._files = {}
         self._text = {}
@@ -85,12 +77,24 @@ class VlabObject(object):
         self._package = None
 
     def pkgname(self):
-        return 'vlab.'+self.dir.basename()
+        names = []
+        def search_name(d):
+            name= d.name
+            if name == 'ext':
+                search_name(d.dirname())
+            elif (d/'.id').isfile() or (d/'specifications').isfile():
+                names.insert(0,name)
+                search_name(d.dirname())
+            else:
+                return
+        d = self.dir
+        search_name(d)
+        return 'vlab.'+'.'.join(names)
 
     def get_package(self):
         if not self._package:
             self.build_package()
-
+        self._package.write()
         return self._package
 
     def build_package(self):
@@ -138,10 +142,10 @@ class VlabObject(object):
     def read_files(self, f):
         pattern ='\w+\.\w+'
         for l in f:
-            if 'ignore:' in l:
+            if 'ignore:' in l or l is '*':
                 break
             fn = l.strip()
-            if re.match(pattern,fn):
+            if ':' not in fn and re.match(pattern,fn):
                 self._files[fn]=[]
 
     def read_commands(self, f):
@@ -181,7 +185,7 @@ class VlabObject(object):
     def process_program(self, name, command):
         """ Build a process node from the command.
         """
-        node = self.pm.get_node("vlab","process")
+        node = self.pm.get_node("vlab.bin","process")
         node.set_input(1,' '.join(command))
         prog_node = self.sg.add_node(node)
         self._programs.append(prog_node)
@@ -199,11 +203,11 @@ class VlabObject(object):
         
         prog = command[0]
         if prog != 'EDIT':
-            node = self.pm.get_node("vlab", "editor")
+            node = self.pm.get_node("vlab.bin", "editor")
             node.set_input(1,cmd)
             node.set_input(2,str(self.dir))
         else:
-            node = self.pm.get_node("vlab", "text editor")
+            node = self.pm.get_node("vlab.bin", "text editor")
             filename = self.dir/fn
             node.set_input(0,str(filename))
 
@@ -224,17 +228,15 @@ class VlabObject(object):
             fn = self.dir/f
             if fn.ext in ['.map', '.txt', '.s']: 
                 continue #binary file or other
-            print "Search dependencies in %s"%f
             deps[f] = search(fn, files)
             
         self._filenodes = {}
         for f in files:
-            # TODO: Create data rather than files
             factory = DataFactory(f)
             factory.package = self._package
             self.factories.append(factory)
     
-            node = self.pm.get_node("vlab", "vlab file stamp")
+            node = self.pm.get_node("vlab.bin", "vlab file stamp")
             node.set_input(1,str(self.dir/f))
             fnode = self.sg.add_node(node)
             self._filenodes[f] = fnode
@@ -346,6 +348,8 @@ def compute_layout(sg, vid, x, dx, y, dy):
     y -= dy
     for node_id in l:
         data = sg.node(node_id).internal_data
+        if 'posx' in data:
+            return
         data['posx'] = x
         data['posy'] = y
         x += dx
@@ -362,10 +366,10 @@ class VlabObject2(VlabObject):
     def read_files(self, f):
         pattern ='\w+\.\w+'
         for l in f:
-            if 'ignore:' in l:
+            if 'ignore:' in l or l is '*':
                 break
             fn = l.strip()
-            if re.match(pattern,fn):
+            if re.match(pattern,fn) and fn[-1] != ':':
                 self._files[fn] = VlabFile(fn)
 
     def process_editor(self, name, command):
@@ -395,10 +399,10 @@ class VlabObject2(VlabObject):
         deps = self._files
         files = deps.keys()
         for f, vf in deps.iteritems():
+            assert f[-1] != ':'
             fn = self.dir/f
             if fn.ext in ['.map', '.txt', '.s']: 
                 continue #binary file or other
-            print "Search dependencies in %s"%f
             vf.deps = search(fn, files)
             
         # create the data here
@@ -411,7 +415,7 @@ class VlabObject2(VlabObject):
             
             # TODO: Create data rather than files
             node = factory.instantiate()
-            #self.pm.get_node("vlab", "vlab file stamp")
+            #self.pm.get_node("vlab.bin", "vlab file stamp")
             #node.set_input(1,str(self.dir/f))
             node = self.sg.add_node(node)
             self._filenodes[vf.name] = node
