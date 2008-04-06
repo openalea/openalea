@@ -27,6 +27,8 @@ __revision__=" $Id$"
 from PyQt4 import QtCore, QtGui
 import os
 from openalea.core.settings import Settings
+from openalea.visualea.util import open_dialog
+
 
 def get_editor():
     """ Return the editor class """
@@ -164,8 +166,6 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
         
         if(ret == QtGui.QMessageBox.No): return
         self.edit_file(self.filename)
-                
-            
         
 
     def get_editor(self):
@@ -350,6 +350,82 @@ class NodeCodeEditor(PythonCodeEditor):
         newsrc = str(self.getText())
 
         self.factory.save_new_src(newsrc)
+
+
+
+
+def code_editor(parent):
+    # Code Editor
+    from openalea.visualea.code_editor import get_editor
+    
+    return w 
+
+
+
+class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
+    """
+    Dialog to select an editor
+    """
+
+    def __init__(self, parent, editors, params):
+        """
+        @param editors : dictionnary name:command
+        @param params : strings to replace command param (%s)
+        """
+
+        QtGui.QWidget.__init__(self, parent)
+
+        vboxlayout = QtGui.QVBoxLayout(self)
+        vboxlayout.setMargin(3)
+        vboxlayout.setSpacing(5)
+
+        self.editors = editors
+        self.params = params
+
+        # put the edit button in the first place
+        keys = editors.keys()
+        if 'edit' in keys:
+            keys.remove('edit')
+            keys.insert(0, 'edit')
+
+        for k in keys:
+            but = QtGui.QPushButton(self)
+            but.setText(k)
+            vboxlayout.addWidget(but)
+
+            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
+
+    
+    def is_widget(self):
+        return True
+
+            
+    def __del__(self):
+        """ Destroy widget """
+        
+        for e in self.editors:
+            try:
+                e.close()
+            except:
+                pass
+        
+        
+    def button_clicked(self):
+        name = str(self.sender().text())
+
+        if name.lower() == 'edit':
+
+            # Edit file
+            fn = str(self.params[0])
+            text_editor = get_editor()(self)
+            text_editor.edit_file(fn)
+            if(text_editor.is_widget()) : open_dialog(self, text_editor, fn,
+                                                      delete_on_close=False)
+
+        else:
+            command = self.editors[name]
+            command = command%self.params
+            Popen(command, shell=True)
 
 
 

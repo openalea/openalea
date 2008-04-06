@@ -32,7 +32,6 @@ from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
 from openalea.core.session import Session
 
-from openalea.visualea.node_widget import NodeWidget
 
 import ui_newgraph
 import ui_tofactory
@@ -1083,53 +1082,4 @@ class NodeChooser(QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
 
             
 
-
-class EditorSelector(NodeWidget, QtGui.QWidget):
-    """
-    Dialog to select an editor
-    """
-
-    def __init__(self, parent, editors, params):
-        """
-        @param editors : dictionnary name:command
-        @param params : strings to replace command param (%s)
-        """
-
-        QtGui.QWidget.__init__(self, parent)
-
-        vboxlayout = QtGui.QVBoxLayout(self)
-        vboxlayout.setMargin(3)
-        vboxlayout.setSpacing(5)
-
-        self.editors = editors
-        self.params = params
-
-        # put the edit button in the first place
-        keys = editors.keys()
-        if 'edit' in keys:
-            but = QtGui.QPushButton(self)
-            but.setText('edit')
-            vboxlayout.addWidget(but)
-            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
-            keys.remove('edit')
-
-        for k in keys:
-            but = QtGui.QPushButton(self)
-            but.setText(k)
-            vboxlayout.addWidget(but)
-
-            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
-        
-        
-    def button_clicked(self):
-        name = str(self.sender().text())
-        if name.lower() == 'edit':
-            # Edit file
-            text_editor = self.editors[name]
-            print 'filename ', self.params
-            text_editor.edit_file(str(self.params[0]))
-        else:
-            command = self.editors[name]
-            command = command%self.params
-            Popen(command, shell=True)
 
