@@ -131,7 +131,7 @@ class DataFactory(AbstractFactory):
         # single command
         if(editors and isinstance(editors, str)):
             command = self.editors%(self.get_pkg_data(),)
-            os.Popen(command, shell=True)
+            subprocess.Popen(command, shell=True)
             return
 
         # multi command
