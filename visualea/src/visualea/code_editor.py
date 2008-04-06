@@ -29,6 +29,7 @@ import os
 from subprocess import Popen
 from openalea.core.settings import Settings
 from openalea.visualea.util import open_dialog
+from openalea.core.path import path
 
 
 def get_editor():
@@ -361,6 +362,26 @@ def code_editor(parent):
     return w 
 
 
+class Command(object):
+    """
+    Execute a command depending on a filename.
+    Create a process and execute the command locally.
+    """
+    def __init__(self, command):
+        self.p = None
+        self.command = command
+    def __del__(self):
+        if self.p and (self.p.poll() is None):
+            os.kill(self.p.pid,1)
+        self.p = None
+    def __call__(self, filename):
+        fn = path(filename)
+        cwd = fn.dirname()
+        name = str(fn.basename())
+        if self.p and (self.p.poll() is None):
+            os.kill(self.p.pid, 1)
+        self.p = Popen(self.command%name, shell = True, cwd = cwd)
+
 
 class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
     """
@@ -392,6 +413,13 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
             but = QtGui.QPushButton(self)
             but.setText(k)
             vboxlayout.addWidget(but)
+            if k != 'edit':
+                command = self.editors[k]
+                if isinstance(command, str):
+                    self.editors[k] = Command(command)
+            else:
+                self.editors[k] = get_editor()(self)
+
 
             self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
@@ -402,30 +430,28 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
             
     def __del__(self):
         """ Destroy widget """
-        
-        for e in self.editors:
+        for e in self.editors.values():
             try:
                 e.close()
             except:
-                pass
+                del e
         
         
     def button_clicked(self):
         name = str(self.sender().text())
+        command = self.editors[name]
+        fn = str(self.params[0])
 
         if name.lower() == 'edit':
-
             # Edit file
-            fn = str(self.params[0])
-            text_editor = get_editor()(self)
+            text_editor = command
             text_editor.edit_file(fn)
-            if(text_editor.is_widget()) : open_dialog(self, text_editor, fn,
-                                                      delete_on_close=False)
+            if(text_editor.is_widget()): 
+                open_dialog(self, text_editor, fn, 
+                            delete_on_close=False)
 
         else:
-            command = self.editors[name]
-            command = command%self.params
-            Popen(command, shell=True)
+            command(fn)
 
 
 
