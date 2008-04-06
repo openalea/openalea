@@ -27,7 +27,7 @@ from openalea.core.interface import IData
 
 import os
 import string
-import subprocess
+
 
 
 class PackageData(object):
@@ -116,36 +116,29 @@ class DataFactory(AbstractFactory):
         return node
 
 
-    def instantiate_widget(self, node=None, parent=None, edit=False):
+    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node """
 
-        def code_editor(parent):
-            # Code Editor
-            from openalea.visualea.code_editor import get_editor
-            w = get_editor()(parent)
-            return w 
-            
         if(node): editors = node.get_input(1)
         else: editors = self.editors
 
         # single command
         if(editors and isinstance(editors, str)):
-            command = self.editors%(self.get_pkg_data(),)
-            subprocess.Popen(command, shell=True)
-            return
+            editors = {'edit' : editors }
 
         # multi command
-        # Add systematically a <F4>text editor.
-        if( not isinstance(editors, dict)):
+        # Add systematically a text editor.
+        if(not isinstance(editors, dict)):
             self.editors = {}
 
         edit = [x for x in self.editors if x.lower() == 'edit']
         if not edit:
             edit = ['edit']
+
         # Add a text editor
-        self.editors[edit[0]] = code_editor(parent)
+        self.editors[edit[0]] = None
                 
-        from openalea.visualea.dialogs import EditorSelector
+        from openalea.visualea.code_editor import EditorSelector
         return EditorSelector(parent, self.editors, (self.get_pkg_data(),) )
 
      
