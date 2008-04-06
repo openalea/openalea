@@ -281,6 +281,11 @@ class UserPackage(Package):
         
         assert self.is_directory()
 
+        # Copy icon
+        if(not self.metainfo['icon']):
+            self.metainfo['icon'] = pkg.metainfo['icon']
+        
+        # Copy files
         sources =  pkg.get_pkg_files()
 
         for file in sources:
