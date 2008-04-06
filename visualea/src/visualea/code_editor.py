@@ -26,6 +26,7 @@ __revision__=" $Id$"
 
 from PyQt4 import QtCore, QtGui
 import os
+from subprocess import Popen
 from openalea.core.settings import Settings
 from openalea.visualea.util import open_dialog
 
@@ -113,8 +114,7 @@ class ExternalCodeEditor(AbstractCodeEditor):
 
         c = self.get_command()
         try:
-            import subprocess
-            subprocess.Popen([c, filename])
+            Popen([c, filename])
         except:
             print "Cannot execute %s"%(c,)
 
