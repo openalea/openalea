@@ -129,17 +129,17 @@ class DataFactory(AbstractFactory):
         # multi command
         # Add systematically a text editor.
         if(not isinstance(editors, dict)):
-            self.editors = {}
+            editors = {}
 
-        edit = [x for x in self.editors if x.lower() == 'edit']
-        if not edit:
-            edit = ['edit']
+        _edit = [x for x in editors if x.lower() == 'edit']
+        if not _edit:
+            _edit = ['edit']
 
         # Add a text editor
-        self.editors[edit[0]] = None
+        editors[_edit[0]] = None
                 
         from openalea.visualea.code_editor import EditorSelector
-        return EditorSelector(parent, self.editors, (self.get_pkg_data(),) )
+        return EditorSelector(parent, editors, (self.get_pkg_data(),) )
 
      
     def get_writer(self):
