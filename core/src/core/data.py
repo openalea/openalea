@@ -180,12 +180,43 @@ class DataNode(Node):
                        outputs=(dict(name='data', interface=IData),),
                        )
         self.caption = '%s'%(packagedata.name)
+        self.watch = None
+        self.monitor_file(str(packagedata))
         
         if not includes:
             self.set_port_hidden(2,True)
 
+    
+    def __del__(self):
+        print "DEL DATANODE"
+        del(self.watch)
+        
+
     def __call__(self, args):
         return str(args[0]),
+
+
+    def monitor_file(self, filename):
+        """ Enable file monitoring """
+        try:
+            from PyQt4 import QtCore
+            
+            self.watch = QtCore.QFileSystemWatcher()
+            QtCore.QCoreApplication.instance().connect(self.watch, 
+                                                       QtCore.SIGNAL("fileChanged(const QString&)"),
+                                                       self.changed)
+
+            self.watch.addPath(filename)
+
+        except ImportError:
+            print "File monitoring is not available"
+
+
+    def changed(self, path):
+        """ Call listeners """
+        self.continuous_eval.notify_listeners(("node_modified",))
+
+
 
 
 
