@@ -74,17 +74,20 @@ class DataFactory(AbstractFactory):
                  name,
                  description = '',
                  editors = None,
+                 includes = None,
                  **kargs):
         """
         name : filename
         description : file description
         editors : dictionnary listing external command to execute
+        includes : List of data files that are included in the file.
         """
 
         AbstractFactory.__init__(self, name, description, category='data', **kargs)
         self.pkgdata_cache = None
 
         self.editors = editors
+        self.includes = includes
 
 
     def is_valid(self):
@@ -111,7 +114,7 @@ class DataFactory(AbstractFactory):
         (in order to avoir infinite recursion)
         """
 
-        node = DataNode(self.get_pkg_data(), self.editors)
+        node = DataNode(self.get_pkg_data(), self.editors, self.includes)
         node.factory = self
         return node
 
@@ -160,16 +163,26 @@ class DataNode(Node):
 
     __color__ = (200,200,200)
  
-    def __init__(self, packagedata, editors=None):
-
-         Node.__init__(self,
+    def __init__(self, 
+                 packagedata, 
+                 editors=None,
+                 includes= []):
+        """
+        @packagedata : A file contained in a defined package.
+        @editors : A dictionary of commands which act on the file.
+        @includes : Other files that are included in the data file.
+        """
+        Node.__init__(self,
                       inputs=(dict(name='data', interface=IData, value=packagedata),
                               dict(name='editors', interface=None, value=editors),
+                              dict(name='includes', interface=None, value=includes),
                               ),
                        outputs=(dict(name='data', interface=IData),),
                        )
-         self.caption = '%s'%(packagedata.name)
+        self.caption = '%s'%(packagedata.name)
         
+        if not includes:
+            self.set_port_hidden(2,True)
 
     def __call__(self, args):
         return str(args[0]),
@@ -183,6 +196,8 @@ class PyDataFactoryWriter(object):
     datafactory_template = """
 $NAME = DataFactory(name=$PNAME, 
                     description=$DESCRIPTION, 
+                    editors=$EDITORS,
+                    includes=$INCLUDES,
                     )
 """
 
@@ -197,6 +212,8 @@ $NAME = DataFactory(name=$PNAME,
         result = fstr.safe_substitute(NAME=f.get_python_name(),
                                       PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
+                                      EDITORS=repr(f.editors),
+                                      INCLUDES=repr(f.includes),
                                       )
         return result
 

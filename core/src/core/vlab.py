@@ -437,7 +437,7 @@ class VlabObject2(VlabObject):
             for fdep in self._files[f].deps:
                 depnode = self._filenodes[fdep]
                 node = self._filenodes[f]
-                self.sg.connect(depnode,0,node,0)
+                self.sg.connect(depnode,0,node,2)
         #for f, nodes in self._editors.iteritems():
         #    if not f: # an editor can act withouot a file
         #        continue
@@ -452,7 +452,6 @@ class VlabObject2(VlabObject):
         self.sg.to_factory(self.sgfactory)
     
     
-            
 
 
 # TESTS
