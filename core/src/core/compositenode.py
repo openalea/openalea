@@ -734,6 +734,8 @@ class CompositeNode(Node, DataFlow):
         self.notify_listeners(("connection_modified",))
         self.graph_modified = True
 
+        self.update_eval_listeners(src_id)
+
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements :
@@ -745,13 +747,16 @@ class CompositeNode(Node, DataFlow):
 
         source_pid = self.out_port(src_id, port_src)
         target_pid = self.in_port(dst_id, port_dst)
+
         for eid in self.connected_edges(source_pid) :
+
             if self.target_port(eid) == target_pid :
-                #DataFlow.disconnect(self,eid)
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
                 self.notify_listeners(("connection_modified",))
                 self.graph_modified = True
+
+                self.update_eval_listeners(src_id)
                 return
             
         raise InvalidEdge("Edge not found")
@@ -770,6 +775,8 @@ class CompositeNode(Node, DataFlow):
         
         self.set_actor(vid, newnode)
 
+
+    # Continuous eval functions
 
     def set_continuous_eval(self, vid, state=True):
         """ set vid as a continuous evaluated node """
@@ -796,6 +803,23 @@ class CompositeNode(Node, DataFlow):
                 n = self.actor(v)
                 n.continuous_eval.register_listener(l)
         
+
+    def update_eval_listeners(self, vid):
+        """ Update continuous evaluation listener for node vid """
+
+        src_node = self.node(vid)
+        src_node.continuous_eval.listeners.clear()
+
+        # For each output
+        for pid in self.out_ports(vid):
+            
+            # For each connected node
+            for npid in self.connected_ports(pid):
+                dst_id = self.vertex(npid)
+                
+                dst_node = self.node(dst_id)
+                listeners = dst_node.continuous_eval.listeners
+                src_node.continuous_eval.listeners.update(listeners)
 
 
 

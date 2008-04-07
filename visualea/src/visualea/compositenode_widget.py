@@ -994,7 +994,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
-
             self.adjust_size()
             self.update()
             QtGui.QApplication.processEvents()
