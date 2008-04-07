@@ -152,28 +152,14 @@ class InputPort(AbstractPort):
     """ The class describing the input ports """
 
     def get_label( self ):
-        """Gets defult label
-        
-        <Long description of the function functionality.>
-        
-        :rtype: `T`
-        :return: <Description of ``return_object`` meaning>
-        :raise Exception: <Description of situation raising `Exception`>
-        """
+        """Gets defult label"""
         return self.get("label", self["name"] )
 
 
 
 
     def is_hidden( self ):
-        """True iff the port should be displayed.
-        
-        <Long description of the function functionality.>
-        
-        :rtype: bool
-        :return: Should be displayed?
-        
-        """
+        """True iff the port should be displayed."""
         return self.get("hide", None )
 
 
@@ -212,7 +198,10 @@ class Node(AbstractNode):
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
         self.internal_data['port_hide_changed']= set()
-        self.internal_data['minimal'] = False
+
+        # Observed object to notify final nodes wich are continuously evaluated
+        self.continuous_eval = Observed()
+
 
 
     def __call__(self, inputs = ()):
@@ -274,6 +263,7 @@ class Node(AbstractNode):
     def set_user_application(self, v):
         self.internal_data["user_application"] = v
 
+
     user_application = property(get_user_application, set_user_application)
 
 
@@ -327,7 +317,8 @@ class Node(AbstractNode):
         self.modified = True
         index = self.map_index_in[index_key]
         if(notify):
-            self.notify_listeners( ("input_modified", index) )
+            self.notify_listeners(("input_modified", index))
+            self.continuous_eval.notify_listeners(("node_modified",))
 
 
     # Declarations
@@ -557,6 +548,8 @@ class Node(AbstractNode):
         
         self.modified = True
         self.notify_listeners(("input_modified", -1))
+
+        self.continuous_eval.notify_listeners(("node_modified", self))
 
 
 

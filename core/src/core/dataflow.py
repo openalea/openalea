@@ -24,6 +24,7 @@ __revision__=" $Id$ "
 
 from openalea.core.graph.property_graph import PropertyGraph,InvalidVertex,InvalidEdge
 from openalea.core.graph.id_generator import IdGenerator
+from collections import deque
 
 
 class PortError (Exception) :
@@ -362,6 +363,34 @@ class DataFlow(PropertyGraph):
 		PropertyGraph.clear(self)
 
 	clear.__doc__ = PropertyGraph.clear.__doc__
+
+	
+	def get_all_parent_nodes(self, vid):
+		""" Return an iterator of vextex id corresponding to all the parent node of vid"""
+
+		input_vid = vid
+		scan_list = deque([vid])
+		processed = set()
+
+		while(scan_list):
+                
+			vid = scan_list.popleft()
+			#process_list.appendleft(vid)
+			if(input_vid != vid):
+				yield vid
+
+			processed.add(vid)
+			actor = self.actor(vid)
+                
+			# For each inputs
+			for pid in self.in_ports(vid):
+				# For each connected node
+				for npid in self.connected_ports(pid):
+					nvid = self.vertex(npid)
+                    
+					if(not nvid in processed):
+						scan_list.append(nvid)
+
 
 
 

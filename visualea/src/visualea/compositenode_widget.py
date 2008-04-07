@@ -626,6 +626,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
                                                  "A graph cannot be contained in itself.")
             return False
 
+
     @lock_notify
     def add_new_connections(self, edges):
         """ Convenience function : 
@@ -1203,7 +1204,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
         action = menu.addAction("Mark as User Application")
         action.setCheckable(True)
-        action.setChecked(self.subnode.user_application)
+        action.setChecked(bool(self.subnode.user_application))
         self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_application)
 
         
@@ -1232,7 +1233,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
 
     def set_user_application(self, val):
-        self.subnode.user_application = val
+        
+        #self.subnode.user_application = val
+        self.graphview.node.set_continuous_eval(self.elt_id, bool(val))
         self.update()
 
 

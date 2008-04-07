@@ -288,6 +288,7 @@ class CompositeNode(Node, DataFlow):
      
         # graph modification status
         self.graph_modified = False
+        self.evaluating = False
 
 
     def reset(self):
@@ -392,9 +393,15 @@ class CompositeNode(Node, DataFlow):
         if node_id is None, then all the nodes without sons are evaluated
         """
 
+        if(self.evaluating) : return
         if(vtx_id != None) : self.node(vtx_id).modified = True
         algo = self.get_eval_algo()
-        algo.eval(vtx_id)
+
+        try:
+            self.evaluating = True
+            algo.eval(vtx_id)
+        finally:
+            self.evaluating = False
 
 
     # Functions used by the node evaluator
@@ -763,7 +770,51 @@ class CompositeNode(Node, DataFlow):
         
         self.set_actor(vid, newnode)
 
-    
+
+    def set_continuous_eval(self, vid, state=True):
+        """ set vid as a continuous evaluated node """
+
+        node = self.actor(vid)
+        
+        if(not node.user_application and not state):
+            return
+
+        # Remove previous listener
+        if( node.user_application ):
+            l = node.user_application
+            node.user_application = None
+            del(l)
+
+
+        if(state):
+            l = ContinuousEvalListener(self, vid)
+            node.set_user_application(l)
+
+
+            # Add node as observed in all parent node
+            for v in self.get_all_parent_nodes(vid):
+                n = self.actor(v)
+                n.continuous_eval.register_listener(l)
+        
+
+
+
+from openalea.core.observer import AbstractListener
+
+class ContinuousEvalListener(AbstractListener):
+    """ When notified this listener reexecute a dataflow on a particular vid) """
+
+    def __init__(self, dataflow, vid):
+        """ dataflow, vid : dataflow.eval_as_expression(vid)"""
+        
+        self.dataflow = dataflow
+        self.vid = vid
+
+    def notify(self, sender, event):
+        """ Notification """
+
+        self.dataflow.eval_as_expression(self.vid)
+
 
 
 
@@ -894,3 +945,4 @@ $NAME = CompositeNodeFactory(name=$PNAME,
 
 
     
+
