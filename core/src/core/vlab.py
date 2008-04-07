@@ -54,14 +54,18 @@ class VlabObject(object):
     text = ['TEXT','HINTS']
     editors = ['MAP', 'loadmap', 'savemap', 'EDIT', 'SURFACE', 
                'bezieredit','PALETTE', 'palette', 'MEDIT', 'medit',
-               'GALLERY', 'gallery', 'EDIT', 'funcedit','panel'] # panel
+               'GALLERY', 'gallery', 'EDIT', 'funcedit','panel', 'CHAR'] # panel
     programs = ['cpfg', 'lpfg']
     ignore = [';', '#']
-    name2program = {'MAP' : 'loadmap',
+    name2program = {'MAP' : 'medit',
                 'SURFACE' : 'bezieredit',
                 'PALETTE' : 'palette',
                 'MEDIT' : 'medit',
-                'GALLERY' : 'gallery'}
+                'GALLERY' : 'gallery',
+                'EDIT' : 'edit',
+                'CHAR' : 'edit',
+                'loadmap':'palette'}
+
 
     def __init__(self, directory, pkgmanager):
         self.dir = directory
@@ -130,7 +134,9 @@ class VlabObject(object):
 
         f = spec.open()
         self.sg = CompositeNode()
-        self.sgfactory = CompositeNodeFactory(self.dir.basename())
+        #name  = self.dir.basename().split('-')[-1]
+        name = self.dir.basename()
+        self.sgfactory = CompositeNodeFactory(name)
 
         self.read_files(f)
         self.read_commands(f)
@@ -200,6 +206,8 @@ class VlabObject(object):
             fn = command[-1]
             if fn not in self._files.keys():
                 print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
+                return
+                #self._files[fn] = []
         
         prog = command[0]
         if prog != 'EDIT':
@@ -226,7 +234,7 @@ class VlabObject(object):
         files = deps.keys()
         for f in files:
             fn = self.dir/f
-            if fn.ext in ['.map', '.txt', '.s']: 
+            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']: 
                 continue #binary file or other
             deps[f] = search(fn, files)
             
@@ -384,9 +392,9 @@ class VlabObject2(VlabObject):
                 print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
         
         prog = command[0]
-        if prog != 'EDIT':
-            if fn:
-                vlabfile = self._files[fn]
+        if prog.lower() != 'edit':
+            if fn and fn in self._files:
+                vlabfile = self._files.get(fn)
                 command[-1]="%s"
                 vlabfile.editors[name]=' '.join(command)
 
@@ -401,7 +409,7 @@ class VlabObject2(VlabObject):
         for f, vf in deps.iteritems():
             assert f[-1] != ':'
             fn = self.dir/f
-            if fn.ext in ['.map', '.txt', '.s']: 
+            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']: 
                 continue #binary file or other
             vf.deps = search(fn, files)
             
