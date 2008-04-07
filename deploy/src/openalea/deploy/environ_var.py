@@ -42,6 +42,10 @@ def set_lsb_env(name, vars):
     for newvar in vars:
 
         vname, value = newvar.split('=')
+        
+        # Exception
+        if(vname == "LD_LIBRARY_PATH" and value == "/usr/local/lib"): continue
+
         if(((vname == "LD_LIBRARY_PATH") or (vname== "PATH")) and value):
             exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
             exportstr += '  export %s=%s\n'%(vname, value,)
@@ -57,10 +61,10 @@ def set_lsb_env(name, vars):
     try:
         filehandle = open(filename, 'w')
     except:
-        print "ERROR : Cannot create /etc/profile.d/%s.sh"%(name)
-        print "ERROR : Check if you have Root privileges, or if your " + \
+        print "Warning : Cannot create /etc/profile.d/%s.sh"%(name)
+        print "Warning : Check if you have Root privileges, or if your " + \
               "system support this feature.\n"
-        print "\nIMPORTANT !!!"
+        print "\n"
         print "Add the following lines to your /etc/profile or your ~/.bashrc :\n"
         print exportstr
         raise

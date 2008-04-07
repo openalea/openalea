@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.3.7
+    * Simplify the warning message for environment variable on Linux
 OpenAlea.Deploy 0.3.6
     * add get_recommended_pkg functions
 OpenAlea.Deploy 0.3.5
