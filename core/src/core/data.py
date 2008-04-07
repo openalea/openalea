@@ -188,7 +188,6 @@ class DataNode(Node):
 
     
     def __del__(self):
-        print "DEL DATANODE"
         del(self.watch)
         
 
