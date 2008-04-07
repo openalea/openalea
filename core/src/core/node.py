@@ -305,8 +305,11 @@ class Node(AbstractNode):
 
 
     def set_port_hidden(self, index_key, state):
-        """ Set the hidden state of a port """
-
+        """ 
+        Set the hidden state of a port.
+        @index_key : the input port index.
+        @state: a boolean value.
+        """
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
 
