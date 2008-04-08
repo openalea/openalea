@@ -512,7 +512,8 @@ class Node(AbstractNode):
 
 
     def __getstate__(self):
-        """ Pickle function """
+        """ Pickle function : remove not saved data"""
+
         odict = self.__dict__.copy()
         odict.update(AbstractNode.__getstate__(self))
 
@@ -525,7 +526,9 @@ class Node(AbstractNode):
         for i in range(self.get_nb_input()):
             if self.input_states[i] is "connected":
                 inputs[i] =  None
-        
+
+        #odict['continuous_eval'].listeners.clear()
+
         return odict
 
 
