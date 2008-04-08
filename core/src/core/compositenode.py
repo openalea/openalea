@@ -794,18 +794,18 @@ class CompositeNode(Node, DataFlow):
         node = self.actor(vid)
         
         if(not node.user_application and not state):
-            return
+           return
 
         # Remove previous listener
-        if( node.user_application and hasattr(node, 'continous_listener') ):
+        if(node.user_application and hasattr(node, 'continuous_listener')):
             l = node.continuous_listener
-            node.user_application = False
-            del(l)
+            node.continuous_listener = None
+            if(l):  del(l)
 
-
+        node.user_application = state
+           
         if(state):
             l = ContinuousEvalListener(self, vid)
-            node.set_user_application(True)
             node.continuous_listener = l
 
             # Add node as observed in all parent node
