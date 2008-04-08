@@ -207,7 +207,7 @@ class DataNode(Node):
 
             self.watch.addPath(filename)
 
-        except ImportError:
+        except:
             print "File monitoring is not available"
 
 
