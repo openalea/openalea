@@ -106,12 +106,14 @@ class PkgModel (QAbstractItemModel) :
 
         self.parent_map = {}
         self.row_map = {}
-
+        self.index_map = {}
         
     def reset(self):
+
         self.rootItem = self.pman.get_pseudo_pkg()
-        self.parent_map = {}
-        self.row_map = {}
+        #self.parent_map = {}
+        #self.row_map = {}
+        
         QAbstractItemModel.reset(self)
 
 
@@ -177,7 +179,11 @@ class PkgModel (QAbstractItemModel) :
         self.parent_map[id(childItem)] = parentItem
         self.row_map[id(childItem)] = row
         
-        return self.createIndex(row, column, childItem)
+        i = self.createIndex(row, column, childItem)
+
+        self.index_map[childItem.name] = i
+ 
+        return i
         
 
     def parent(self, index):
@@ -189,7 +195,8 @@ class PkgModel (QAbstractItemModel) :
         
         parentItem = self.parent_map[id(childItem)]
         
-        if (parentItem == self.rootItem):
+        # Test if it is the root
+        if (not self.parent_map.has_key(id(parentItem)) ):
             return QtCore.QModelIndex()
         
         else:
@@ -222,12 +229,13 @@ class CategoryModel (PkgModel) :
 
         self.parent_map = {}
         self.row_map = {}
+        self.index_map = {}
 
         
     def reset(self):
         self.rootItem = self.pman.get_pseudo_cat()
-        self.parent_map = {}
-        self.row_map = {}
+        # self.parent_map = {}
+        # self.row_map = {}
         QAbstractItemModel.reset(self)
 
 
@@ -299,6 +307,7 @@ class DataPoolModel (QAbstractListModel) :
     def rowCount(self, parent):
         return len(self.datapool.keys())
     
+
 
 class SearchModel (QAbstractItemModel) :
     """ QT4 data model (model/view pattern) to support Search result"""
@@ -402,8 +411,8 @@ class NodeFactoryView(object):
             h = self.header().hide()
         except:
             pass
-        
-        
+
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.accept()
@@ -796,8 +805,9 @@ class NodeFactoryView(object):
             del(obj.package[obj.name])
             obj.package.write()
             self.main_win().reinit_treeview()
-        
        
+
+
 
 class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """
@@ -812,11 +822,28 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
         NodeFactoryView.__init__(self, main_win, parent)
 
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.setAnimated(True)
+        #self.setAnimated(True)
+
+        self.connect(self, QtCore.SIGNAL("expanded (const QModelIndex &)"), self.expanded)
+        self.connect(self, QtCore.SIGNAL("collapsed (const QModelIndex &)"), self.collapsed)
+
+        self.expanded_items = set()
 
 
-    #def reset(self):
-        #QtGui.QTreeView.reset(self)
+    def collapsed(self, index):
+        self.expanded_items.remove(index.internalPointer().name)
+
+
+    def expanded(self, index):
+        self.expanded_items.add(index.internalPointer().name)
+
+
+    def reset(self):
+        QtGui.QTreeView.reset(self)
+
+        for n in self.expanded_items:
+            i = self.model().index_map[n]
+            self.setExpanded(i, True)
 
 
 class SearchListView(NodeFactoryView, QtGui.QTreeView):
@@ -839,6 +866,7 @@ class SearchListView(NodeFactoryView, QtGui.QTreeView):
             self.resizeColumnToContents(i)
 
         
+
 class DataPoolListView(QtGui.QListView, SignalSlotListener):
     """ Specialized QListView to display data pool contents """
     

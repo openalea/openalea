@@ -34,7 +34,8 @@ import glob
 from pkg_resources import iter_entry_points
 
 from openalea.core.singleton import Singleton
-from openalea.core.package import UserPackage, PyPackageReader, PyPackageReaderWralea, PyPackageReaderVlab
+from openalea.core.package import UserPackage, PyPackageReader
+from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.nocasedict import NoCaseDict
 
@@ -631,7 +632,8 @@ class PseudoGroup(dict):
             remain = None
 
         self[key].add_name(remain, value)
-            
+         
+   
 
 class PseudoPackage(PseudoGroup):
     """ Package structure used to separate dotted naming (packages, category) """
