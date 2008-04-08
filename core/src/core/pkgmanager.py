@@ -560,24 +560,32 @@ class PackageManager(object):
 
         search_str = search_str.upper()
 
-        ret = [ factory \
-                for pkg in self.values() \
-                    for factory  in pkg.values() \
-                    if(search_str in pkg.name.upper() or
-                       search_str in factory.name.upper() or
-                       search_str in factory.description.upper() or
-                       search_str in factory.category.upper() or
-                       search_str in "%s:%s"%(pkg.name.upper(), factory.name.upper())
-                       )            
-                ]
+        best = None
+        match = [] 
+        for pkg in self.values():
+            for factory  in pkg.values():
+                
+                if(not best and (search_str == factory.name.upper())):
+                    best = factory
+                    continue
+
+                if(search_str in pkg.name.upper() or
+                   search_str in factory.name.upper() or
+                   search_str in factory.description.upper() or
+                   search_str in factory.category.upper() or
+                   search_str in "%s:%s"%(pkg.name.upper(), factory.name.upper())):
+
+                    match.append(factory)
+                       
 
         if(nb_inputs>=0):
-            ret = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, ret)
+            match = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, match)
         if(nb_outputs>=0):
-            ret = filter(lambda x: x and x.outputs and len(x.outputs) == nb_outputs, ret)
+            match = filter(lambda x: x and x.outputs and len(x.outputs) == nb_outputs, match)
             
-        ret.sort(cmp=cmp_name)
-        return ret
+        match.sort(cmp=cmp_name)
+        if(best) : match.insert(0, best)
+        return match
 
 
 def cmp_name(x, y):
