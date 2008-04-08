@@ -136,13 +136,17 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.set_caption(self.get_id())
 
         error_nodes = set() # non instantiated nodes
-
+        cont_eval = set() # continuous evaluated nodes
         
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             try:
                 n = self.instantiate_node(vid, call_stack)
                 new_df.add_node(n, vid, False)
+
+                # Manage continuous eval
+                if(n.user_application): 
+                    cont_eval.add(vid)
 
             except (UnknownNodeError, UnknownPackageError):
                 error_nodes.add(vid)
@@ -170,6 +174,11 @@ class CompositeNodeFactory(AbstractFactory):
             if(target_vid == '__out__') : target_vid = new_df.id_out
                 
             new_df.connect(source_vid, source_port, target_vid, target_port)
+
+
+        # Set continuous evaluation
+        for vid in cont_eval:
+            new_df.set_continuous_eval(vid, True)
 
 
         # Set call stack to its original state
@@ -245,6 +254,7 @@ class CompositeNodeFactory(AbstractFactory):
                node.set_input(port, eval(v))
             except:
                 continue
+
             
         return node
 
@@ -787,16 +797,16 @@ class CompositeNode(Node, DataFlow):
             return
 
         # Remove previous listener
-        if( node.user_application ):
-            l = node.user_application
-            node.user_application = None
+        if( node.user_application and hasattr(node, 'continous_listener') ):
+            l = node.continuous_listener
+            node.user_application = False
             del(l)
 
 
         if(state):
             l = ContinuousEvalListener(self, vid)
-            node.set_user_application(l)
-
+            node.set_user_application(True)
+            node.continuous_listener = l
 
             # Add node as observed in all parent node
             for v in self.get_all_parent_nodes(vid):
