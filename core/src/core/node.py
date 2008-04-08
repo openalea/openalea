@@ -78,7 +78,7 @@ class AbstractNode(Observed):
 
         # The default layout
         self.view = None
-
+        self.user_application = None
 
 
     def set_data(self, key, value, notify=True):
