@@ -1,3 +1,9 @@
+09/04/08 : 0.4.0 release
+           Refactoring for new package layout (__wralea__)
+	   Use operator for math
+	   Separate file function, data functions and string function in differents subpackage
+	   Adds nodes
+
 24/09/07 : 0.3.0a Alpha release
 	   Refactoring (caption, names, ...)
 	   Add functional nodes (based on lambda)
