@@ -1,7 +1,37 @@
+09/04/08 : 0.4.0
+
+	   Package management
+           ------------------
+           New Package directory layout (__wralea__) 
+           Better package management (copy, add file etc...)
+	   Support for Data file in packages with DataFactory and DataNode
+	   Add a package icon
+	   Add PseudoPackages for hierarchical package organisation
+	   Better search function
+	   Improve loading performance of package manager (use of cache)
+	   
+	   Composite node
+	   --------------
+           Add a description for ports
+	   Group nodes feature improved
+	   Better reload functions (package and package manager)
+	   
+	   Evaluation
+           ----------
+	   Continuous evaluation for selected nodes
+	   Function abstraction (with X node and map)
+	   Add File monitoring
+
+	   Others
+	   ------
+           Add the "alea" command to access to OpenAlea function from the shell
+	   Bux fix
+       
+
 19/10/07 : 0.3.0 final release
-       Multiple categories
-       Reload module capabilities
-       Bug fix
+           Multiple categories
+           Reload module capabilities
+           Bug fix
 
 
 24/09/07 : 0.3.0a Alpha release
@@ -27,20 +57,19 @@
 	   Bug fixes
 
 
-13/06/07 : Alpha release 0.2.0a. For this release, 
-the core module has been refactorised.
-	 - A lot of bug fixes.
-	 - New node déclaration (without inheritance)
-	 - New graph data structure
-	 - New modular dataflow evaluation (lazy evaluation)
-	 - XML export has been replaced by Python code export for composite nodes
-	 - Dynamic reloading and code edition for node
-	 - Search function
-	 - Datapool class
-	 - New session class with persistence based on Pickle (experimental)
+13/06/07 : Alpha release 0.2.0a. Main refactoring
+	   A lot of bug fixes.
+	   New node déclaration (without inheritance)
+	   New graph data structure
+	   New modular dataflow evaluation (lazy evaluation)
+	   XML export has been replaced by Python code export for composite nodes
+	   Dynamic reloading and code edition for node
+	   Search function
+	   Datapool class
+	   New session class with persistence based on Pickle (experimental)
 
-09/02/06 : version 0.1.0 = First release for development purpose.
-	 - Node / Factory / Package / Interface definitions
-	 - Package manager (Discovering wralea.py)
-	 - Graph construction and evaluation
-	 - Session management and Persitence in XML
+09/02/06 : 0.1.0 - First release for development purpose.
+	   Node / Factory / Package / Interface definitions
+	   Package manager (Discovering wralea.py)
+	   Graph construction and evaluation
+	   Session management and Persitence in XML
