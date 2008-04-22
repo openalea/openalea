@@ -24,7 +24,7 @@ __revision__=" $Id: node.py 1016 2008-01-10 10:44:12Z dufourko $ "
 
 
 class View( object ):
-    """Describes the layaout of widget.
+    """Describes the layout of widget.
     
     <Long description of the class functionality.>
     """
