@@ -36,9 +36,9 @@ from copy import copy, deepcopy
 from weakref import ref
 
 #from signature import get_parameters
-import openalea.core.signature as sgn
-from openalea.core.observer import Observed, AbstractListener
-from openalea.core.actor import IActor
+import signature as sgn
+from observer import Observed, AbstractListener
+from actor import IActor
 
 # Exceptions
 class RecursionError (Exception):
