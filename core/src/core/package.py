@@ -354,12 +354,12 @@ class UserPackage(Package):
 
         
         # build output
-	out_values = []
+	out_values = ""
         return_values = []
 	for output in outputs:
             arg = output['name'].replace(' ', '_')
-            out_values.append('%s = None\n'%(arg,) )
-            return_values.append('%s,'%(args,))
+            out_values += '%s = None; '%(arg,)
+            return_values.append('%s, '%(arg,))
 
 
         # Create the module file
