@@ -34,6 +34,7 @@ from PyQt4 import QtCore
 import ui_mainwindow
 
 from openalea.deploy.util import get_repo_list as util_get_repo_list
+from fake_pkg_generation import *
 
 from setuptools.package_index import PackageIndex
 import pkg_resources
@@ -92,8 +93,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.removeLocButton, QtCore.SIGNAL("clicked()"), self.remove_location)
         self.connect(self.actionCookie_Session, QtCore.SIGNAL("triggered()"), self.inriagforge_authentify)
         self.connect(self.requestEdit, QtCore.SIGNAL("returnPressed()"), self.install_egg)
-
-
+        self.connect(self.customPackageDirButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageDirEdit))
+        self.connect(self.customPackageIncludeButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageIncludeEdit,self.customPackageDirEdit))
+        self.connect(self.customPackageLibButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageLibEdit,self.customPackageDirEdit))
+        self.connect(self.customResetButton,QtCore.SIGNAL("clicked()"), self.resetCustom)
+        self.connect(self.customApplyButton,QtCore.SIGNAL("clicked()"), self.applyCustom)
         try:
             from openalea.deploy.util import get_recommended_prefix
             self.recommended_prefix = get_recommended_prefix()
@@ -456,13 +460,53 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         filename = str(filename)
         if(filename) : self.requestEdit.setText(filename)
 
+    def get_custom_dirname(self, widget_to_fill = None, widget_to_use_to_start = None):
+        """ Select a dirname for local custom package """
+        init_path = ''
+        if not widget_to_fill is None: 
+            init_path = str(widget_to_fill.text())
+        if not widget_to_use_to_start is None: 
+            init_path = str(widget_to_use_to_start.text())
+        if len(init_path) == 0:
+            init_path = QtCore.QDir.homePath()
+        dirname = QtGui.QFileDialog.getExistingDirectory (
+            self, "Local Custom Package Directory", init_path )
+        dirname = str(dirname)
+        if(dirname) : widget_to_fill.setText(dirname)
         
+    def resetCustom(self):
+        """ reset custom package form """
+        self.customPackageNameEdit.clear()
+        self.customPackageVersionEdit.clear()
+        self.customPackageDirEdit.clear()
+        self.customPackageIncludeFrame.setChecked(False)
+        self.customPackageIncludeEdit.clear()
+        self.customPackageLibFrame.setChecked(False)
+        self.customPackageLibEdit.clear()
         
+    def applyCustom(self):
+        """ apply custom package form """
+        pkg_name = str(self.customPackageNameEdit.text())
+        pkg_version = str(self.customPackageVersionEdit.text())
+        pkg_dir = str(self.customPackageDirEdit.text())
+        if len(pkg_name) == 0 or len(pkg_version) == 0 or len(pkg_dir) == 0:
+            QtGui.QMessageBox.warning(self,'Invalid custom package','Properties of custom package are not set properly !')
+            return
+        pkg_lib = 'lib'
+        if self.customPackageLibFrame.isChecked() and len(self.customPackageLibEdit.text()) > 0:
+            pkg_lib = relative_path(pkg_dir,str(self.customPackageLibEdit.text()))
+        pkg_inc = 'include'
+        if self.customPackageIncludeFrame.isChecked() and len(self.customPackageIncludeEdit.text()) > 0:
+            pkg_inc = relative_path(pkg_dir,str(self.customPackageIncludeEdit.text()))
+        setup_fname = generate_setup_dev(pkg_name,pkg_version,pkg_dir,pkg_lib,pkg_inc)
+        script_args = [setup_fname]
+        script_name = 'develop'
+        print script_name,script_args
+        os.chdir(pkg_dir)
+        os.system(sys.executable+' '+setup_fname+' develop')
+        os.path.remove(os.path.join(pkg_dir,setup_fname))
 
-        
-
-
-                
+               
 
 def main(args=None):
 
