@@ -460,6 +460,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         filename = str(filename)
         if(filename) : self.requestEdit.setText(filename)
 
+
     def get_custom_dirname(self, widget_to_fill = None, widget_to_use_to_start = None):
         """ Select a dirname for local custom package """
         init_path = ''
@@ -474,6 +475,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         dirname = str(dirname)
         if(dirname) : widget_to_fill.setText(dirname)
         
+
     def resetCustom(self):
         """ reset custom package form """
         self.customPackageNameEdit.clear()
@@ -484,28 +486,37 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.customPackageLibFrame.setChecked(False)
         self.customPackageLibEdit.clear()
         
+
     def applyCustom(self):
         """ apply custom package form """
         pkg_name = str(self.customPackageNameEdit.text())
         pkg_version = str(self.customPackageVersionEdit.text())
         pkg_dir = str(self.customPackageDirEdit.text())
+
+        # Test parameters
         if len(pkg_name) == 0 or len(pkg_version) == 0 or len(pkg_dir) == 0:
-            QtGui.QMessageBox.warning(self,'Invalid custom package','Properties of custom package are not set properly !')
+            QtGui.QMessageBox.warning(self,'Invalid custom package',
+                                      'Properties of custom package are not set properly !')
             return
+
+        # build lib and inc dirs
         pkg_lib = 'lib'
         if self.customPackageLibFrame.isChecked() and len(self.customPackageLibEdit.text()) > 0:
             pkg_lib = relative_path(pkg_dir,str(self.customPackageLibEdit.text()))
-        pkg_inc = 'include'
-        if self.customPackageIncludeFrame.isChecked() and len(self.customPackageIncludeEdit.text()) > 0:
-            pkg_inc = relative_path(pkg_dir,str(self.customPackageIncludeEdit.text()))
-        setup_fname = generate_setup_dev(pkg_name,pkg_version,pkg_dir,pkg_lib,pkg_inc)
-        script_args = [setup_fname]
-        script_name = 'develop'
-        print script_name,script_args
-        os.chdir(pkg_dir)
-        os.system(sys.executable+' '+setup_fname+' develop')
-        os.path.remove(os.path.join(pkg_dir,setup_fname))
 
+        pkg_inc = 'include'
+        if (self.customPackageIncludeFrame.isChecked() and 
+            len(self.customPackageIncludeEdit.text()) > 0):
+            pkg_inc = relative_path(pkg_dir,str(self.customPackageIncludeEdit.text()))
+        
+        #setup_fname = generate_setup_dev(pkg_name,pkg_version,pkg_dir,pkg_lib,pkg_inc)
+        os.chdir(pkg_dir)
+        setup(name = "toto", version="0.1", 
+              zip_safe = False,
+              lib_dirs = {'lib' : pkg_lib,},
+              inc_dirs = {'include' : pkg_inc },
+              script_args=['-q', 'develop'], script_name="develop")
+        
                
 
 def main(args=None):
