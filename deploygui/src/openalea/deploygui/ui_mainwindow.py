@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'resources/mainwindow.ui'
 #
-# Created: Wed Mar 26 15:32:51 2008
+# Created: Wed Apr 30 15:19:02 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -167,17 +167,116 @@ class Ui_MainWindow(object):
         self.vboxlayout3.addLayout(self.hboxlayout5)
         self.tabWidget.addTab(self.tab_2,"")
 
-        self.widget = QtGui.QWidget(self.splitter)
-        self.widget.setObjectName("widget")
+        self.customPackagePage = QtGui.QWidget()
+        self.customPackagePage.setObjectName("customPackagePage")
 
-        self.vboxlayout4 = QtGui.QVBoxLayout(self.widget)
+        self.gridlayout = QtGui.QGridLayout(self.customPackagePage)
+        self.gridlayout.setObjectName("gridlayout")
+
+        self.label_5 = QtGui.QLabel(self.customPackagePage)
+        self.label_5.setObjectName("label_5")
+        self.gridlayout.addWidget(self.label_5,0,0,1,5)
+
+        self.label_6 = QtGui.QLabel(self.customPackagePage)
+        self.label_6.setObjectName("label_6")
+        self.gridlayout.addWidget(self.label_6,1,0,1,1)
+
+        self.customPackageNameEdit = QtGui.QLineEdit(self.customPackagePage)
+        self.customPackageNameEdit.setObjectName("customPackageNameEdit")
+        self.gridlayout.addWidget(self.customPackageNameEdit,1,1,1,4)
+
+        self.label_7 = QtGui.QLabel(self.customPackagePage)
+        self.label_7.setObjectName("label_7")
+        self.gridlayout.addWidget(self.label_7,2,0,1,1)
+
+        self.customPackageVersionEdit = QtGui.QLineEdit(self.customPackagePage)
+        self.customPackageVersionEdit.setObjectName("customPackageVersionEdit")
+        self.gridlayout.addWidget(self.customPackageVersionEdit,2,1,1,1)
+
+        spacerItem2 = QtGui.QSpacerItem(291,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.gridlayout.addItem(spacerItem2,2,2,1,2)
+
+        self.label_8 = QtGui.QLabel(self.customPackagePage)
+        self.label_8.setObjectName("label_8")
+        self.gridlayout.addWidget(self.label_8,3,0,1,1)
+
+        self.customPackageDirEdit = QtGui.QLineEdit(self.customPackagePage)
+        self.customPackageDirEdit.setObjectName("customPackageDirEdit")
+        self.gridlayout.addWidget(self.customPackageDirEdit,3,1,1,3)
+
+        self.customPackageDirButton = QtGui.QPushButton(self.customPackagePage)
+        self.customPackageDirButton.setObjectName("customPackageDirButton")
+        self.gridlayout.addWidget(self.customPackageDirButton,3,4,1,1)
+
+        self.customPackageIncludeFrame = QtGui.QGroupBox(self.customPackagePage)
+        self.customPackageIncludeFrame.setEnabled(True)
+        self.customPackageIncludeFrame.setCheckable(True)
+        self.customPackageIncludeFrame.setChecked(False)
+        self.customPackageIncludeFrame.setObjectName("customPackageIncludeFrame")
+
+        self.hboxlayout6 = QtGui.QHBoxLayout(self.customPackageIncludeFrame)
+        self.hboxlayout6.setObjectName("hboxlayout6")
+
+        self.label_9 = QtGui.QLabel(self.customPackageIncludeFrame)
+        self.label_9.setObjectName("label_9")
+        self.hboxlayout6.addWidget(self.label_9)
+
+        self.customPackageIncludeEdit = QtGui.QLineEdit(self.customPackageIncludeFrame)
+        self.customPackageIncludeEdit.setObjectName("customPackageIncludeEdit")
+        self.hboxlayout6.addWidget(self.customPackageIncludeEdit)
+
+        self.customPackageIncludeButton = QtGui.QPushButton(self.customPackageIncludeFrame)
+        self.customPackageIncludeButton.setObjectName("customPackageIncludeButton")
+        self.hboxlayout6.addWidget(self.customPackageIncludeButton)
+        self.gridlayout.addWidget(self.customPackageIncludeFrame,4,0,1,5)
+
+        self.customPackageLibFrame = QtGui.QGroupBox(self.customPackagePage)
+        self.customPackageLibFrame.setCheckable(True)
+        self.customPackageLibFrame.setChecked(False)
+        self.customPackageLibFrame.setObjectName("customPackageLibFrame")
+
+        self.hboxlayout7 = QtGui.QHBoxLayout(self.customPackageLibFrame)
+        self.hboxlayout7.setObjectName("hboxlayout7")
+
+        self.label_11 = QtGui.QLabel(self.customPackageLibFrame)
+        self.label_11.setObjectName("label_11")
+        self.hboxlayout7.addWidget(self.label_11)
+
+        self.customPackageLibEdit = QtGui.QLineEdit(self.customPackageLibFrame)
+        self.customPackageLibEdit.setObjectName("customPackageLibEdit")
+        self.hboxlayout7.addWidget(self.customPackageLibEdit)
+
+        self.customPackageLibButton = QtGui.QPushButton(self.customPackageLibFrame)
+        self.customPackageLibButton.setObjectName("customPackageLibButton")
+        self.hboxlayout7.addWidget(self.customPackageLibButton)
+        self.gridlayout.addWidget(self.customPackageLibFrame,5,0,1,5)
+
+        spacerItem3 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.gridlayout.addItem(spacerItem3,6,3,1,1)
+
+        spacerItem4 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.gridlayout.addItem(spacerItem4,7,2,1,1)
+
+        self.customResetButton = QtGui.QPushButton(self.customPackagePage)
+        self.customResetButton.setObjectName("customResetButton")
+        self.gridlayout.addWidget(self.customResetButton,7,3,1,1)
+
+        self.customApplyButton = QtGui.QPushButton(self.customPackagePage)
+        self.customApplyButton.setObjectName("customApplyButton")
+        self.gridlayout.addWidget(self.customApplyButton,7,4,1,1)
+        self.tabWidget.addTab(self.customPackagePage,"")
+
+        self.layoutWidget = QtGui.QWidget(self.splitter)
+        self.layoutWidget.setObjectName("layoutWidget")
+
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.layoutWidget)
         self.vboxlayout4.setObjectName("vboxlayout4")
 
-        self.label_3 = QtGui.QLabel(self.widget)
+        self.label_3 = QtGui.QLabel(self.layoutWidget)
         self.label_3.setObjectName("label_3")
         self.vboxlayout4.addWidget(self.label_3)
 
-        self.logText = QtGui.QTextEdit(self.widget)
+        self.logText = QtGui.QTextEdit(self.layoutWidget)
         self.logText.setReadOnly(True)
         self.logText.setObjectName("logText")
         self.vboxlayout4.addWidget(self.logText)
@@ -185,7 +284,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,779,26))
+        self.menubar.setGeometry(QtCore.QRect(0,0,779,21))
         self.menubar.setObjectName("menubar")
 
         self.menuAuthentification = QtGui.QMenu(self.menubar)
@@ -269,6 +368,20 @@ class Ui_MainWindow(object):
         self.addLocButton.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.removeLocButton.setText(QtGui.QApplication.translate("MainWindow", "Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("MainWindow", "<b>Custom Package:</b> To declare in the package database a local version of a package", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("MainWindow", "Package name :", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Version : ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageDirButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageIncludeFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Include", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageIncludeButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageLibFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Lib", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageLibButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.customResetButton.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
+        self.customApplyButton.setText(QtGui.QApplication.translate("MainWindow", "Apply", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.customPackagePage), QtGui.QApplication.translate("MainWindow", "Custom Local Package", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
