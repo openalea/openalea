@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.3.8
+    * Adapr develop command for shared dirs (lib and include)
 OpenAlea.Deploy 0.3.7
     * Simplify the warning message for environment variable on Linux
 OpenAlea.Deploy 0.3.6

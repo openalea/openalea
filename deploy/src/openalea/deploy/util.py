@@ -98,7 +98,10 @@ def get_all_lib_dirs(namespace=None):
         location = get_base_dir(e)
 
         for sh in get_lib_dirs(e):
-            full_location = pj(location, sh)
+            if(os.path.isabs(sh)):
+                full_location = sh
+            else:
+                full_location = pj(location, sh)
             yield full_location
 
 
@@ -111,8 +114,10 @@ def get_all_bin_dirs(namespace=None):
         location = get_base_dir(e)
 
         for sh in get_bin_dirs(e):
-
-            full_location = pj(location, sh)
+            if(os.path.isabs(sh)):
+                full_location = sh
+            else:
+                full_location = pj(location, sh)
             yield full_location
 
 

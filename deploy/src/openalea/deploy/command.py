@@ -36,7 +36,7 @@ from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
 from setuptools.command.easy_install import easy_install
-from setuptools.command.develop import develop
+from setuptools.command.develop import develop as old_develop
 
 import distutils.command.build
 import setuptools.command.build_py
@@ -176,6 +176,7 @@ class build_ext(old_build_ext):
 
     def run(self):
         # Run others commands
+        
         self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
@@ -184,13 +185,14 @@ class build_ext(old_build_ext):
                   self.distribution.bin_dirs,
                   self.distribution.share_dirs,
                   ):
-            if(d):
-                
-                if(not os.path.exists(self.build_lib)):
-                    self.mkpath(self.build_lib)
 
-                for (name, dir) in d.items():
-                    copy_data_tree(dir, pj(self.build_lib, name))
+            if(not d or self.inplace == 1): continue
+
+            if(not os.path.exists(self.build_lib)):
+                self.mkpath(self.build_lib)
+
+            for (name, dir) in d.items():
+                copy_data_tree(dir, pj(self.build_lib, name))
 
         return old_build_ext.run(self)
 
@@ -228,6 +230,7 @@ def validate_scons_scripts(dist, attr, value):
 
 def validate_bin_dirs(dist, attr, value):
     """ Validation for shared directories keywords"""
+
     try:
         assert_string_list(dist, attr, list(value.keys()))
         assert_string_list(dist, attr, list(value.values()))
@@ -237,6 +240,7 @@ def validate_bin_dirs(dist, attr, value):
             setuptools.command.build_ext.build_ext = build_ext
             setuptools.command.install.install = install
             setuptools.command.install_lib.install_lib = cmd_install_lib
+            setuptools.command.develop.develop = develop
             set_has_ext_modules(dist)
 
 
@@ -281,10 +285,11 @@ def validate_postinstall_scripts(dist, attr, value):
 
 def write_keys_arg(cmd, basename, filename, force=False):
     """ Egg-info writer """
+    
     argname = os.path.splitext(basename)[0]
     value = getattr(cmd.distribution, argname, None)
     if value is not None:
-        value = '\n'.join(value.keys())+'\n'
+        value = '\n'.join(value.keys()) + '\n'
     cmd.write_or_delete_file(argname, filename, value, force)
     
 
@@ -552,6 +557,7 @@ class alea_install(easy_install):
         easy_install.initialize_options(self)
         self.install_dyn_lib = None
 
+
     def finalize_options(self):
 
         # Add openalea package link
@@ -692,4 +698,28 @@ def set_env(dyn_lib=None):
     except:
         return
 
+
+
+
+class develop(old_develop):
+    """
+    Overloaded develop command
+    """
+
+    def finalize_options(self):
+        old_develop.finalize_options(self)
+
+        # !! HACK !!
+        # Modify inc, lib, share directory
+        
+        for d in (self.distribution.lib_dirs,
+                  self.distribution.inc_dirs,
+                  self.distribution.bin_dirs,
+                  self.distribution.share_dirs,
+                  ):
+            if(not d): continue
+
+            for k, v in d.items():
+                d[v] = v
+                del(d[k])
 
