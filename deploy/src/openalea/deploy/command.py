@@ -723,3 +723,10 @@ class develop(old_develop):
                 d[v] = v
                 del(d[k])
 
+
+    def run(self):
+        old_develop.run(self)
+
+        # Set environment
+        set_env()
+
