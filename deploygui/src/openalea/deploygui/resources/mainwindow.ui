@@ -347,7 +347,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="title" >
-            <string>Include</string>
+            <string>Custom Include Directory</string>
            </property>
            <property name="checkable" >
             <bool>true</bool>
@@ -379,7 +379,7 @@ p, li { white-space: pre-wrap; }
          <item row="5" column="0" colspan="5" >
           <widget class="QGroupBox" name="customPackageLibFrame" >
            <property name="title" >
-            <string>Lib</string>
+            <string>Custom Lib Directory</string>
            </property>
            <property name="checkable" >
             <bool>true</bool>
