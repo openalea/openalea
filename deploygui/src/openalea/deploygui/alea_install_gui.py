@@ -511,11 +511,25 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         
         #setup_fname = generate_setup_dev(pkg_name,pkg_version,pkg_dir,pkg_lib,pkg_inc)
         os.chdir(pkg_dir)
-        setup(name = "toto", version="0.1", 
+        ok = True
+        try:
+            setup(name = pkg_name, version=pkg_version, 
               zip_safe = False,
               lib_dirs = {'lib' : pkg_lib,},
               inc_dirs = {'include' : pkg_inc },
-              script_args=['-q', 'develop'], script_name="develop")
+              script_args=['-q', 'develop'], script_name="")
+        except Exception, e:
+            self.write(str(e))
+            ok = False
+
+        except :
+            print "Unexpected error:", sys.exc_info()[0]
+            print "Please check you have permission to install package in " + \
+                  "the destination directory."
+            ok = False
+        print 'Done\n'
+        self.display_finish_message(ok)
+        self.refresh()
         
                
 

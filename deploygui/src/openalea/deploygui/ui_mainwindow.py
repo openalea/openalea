@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'resources/mainwindow.ui'
 #
-# Created: Wed Apr 30 15:19:02 2008
+# Created: Wed Apr 30 18:01:14 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -373,10 +373,10 @@ class Ui_MainWindow(object):
         self.label_7.setText(QtGui.QApplication.translate("MainWindow", "Version : ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
         self.customPackageDirButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.customPackageIncludeFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Include", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageIncludeFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Custom Include Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
         self.customPackageIncludeButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.customPackageLibFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Lib", None, QtGui.QApplication.UnicodeUTF8))
+        self.customPackageLibFrame.setTitle(QtGui.QApplication.translate("MainWindow", "Custom Lib Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.label_11.setText(QtGui.QApplication.translate("MainWindow", "Directory :", None, QtGui.QApplication.UnicodeUTF8))
         self.customPackageLibButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.customResetButton.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
