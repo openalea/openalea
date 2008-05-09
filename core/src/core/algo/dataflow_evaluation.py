@@ -123,156 +123,156 @@ class AbstractEvaluation (object) :
         
 
 class BrutEvaluation (AbstractEvaluation) :
-	""" Basic evaluation algorithm """
-	
-	def __init__ (self, dataflow) :
+    """ Basic evaluation algorithm """
+    
+    def __init__ (self, dataflow) :
 
-		AbstractEvaluation.__init__(self, dataflow)
-		# a property to specify if the node has already been evaluated
-		self._evaluated = set()
+        AbstractEvaluation.__init__(self, dataflow)
+        # a property to specify if the node has already been evaluated
+        self._evaluated = set()
 
-	
-	def eval_vertex (self, vid, *args) :
-		""" Evaluate the vertex vid """
-		
-		df = self._dataflow
-		actor = df.actor(vid)
+    
+    def eval_vertex (self, vid, *args) :
+        """ Evaluate the vertex vid """
+        
+        df = self._dataflow
+        actor = df.actor(vid)
 
-		self._evaluated.add(vid)
+        self._evaluated.add(vid)
 
 
-		# For each inputs
-		for pid in df.in_ports(vid) :
-			inputs = []
+        # For each inputs
+        for pid in df.in_ports(vid) :
+            inputs = []
 
-			cpt = 0 
-			# For each connected node
-                        for npid, nvid, nactor in self.get_parent_nodes(pid):
-				if nvid not in self._evaluated:
-					self.eval_vertex(nvid)
+            cpt = 0 
+            # For each connected node
+            for npid, nvid, nactor in self.get_parent_nodes(pid):
+                if nvid not in self._evaluated:
+                    self.eval_vertex(nvid)
 
-				inputs.append(nactor.get_output(df.local_id(npid)))
-				cpt += 1
+                inputs.append(nactor.get_output(df.local_id(npid)))
+                cpt += 1
 
-			# set input as a list or a simple value
-			if(cpt == 1) : inputs = inputs[0]
-			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
-			
-		# Eval the node
-		self.eval_vertex_code(vid)
+            # set input as a list or a simple value
+            if(cpt == 1) : inputs = inputs[0]
+            if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
+            
+        # Eval the node
+        self.eval_vertex_code(vid)
 
-	
-	def eval (self, *args) :
-		""" Evaluate the whole dataflow starting from leaves"""
-		df = self._dataflow
-		
-		# Unvalidate all the nodes
-		self._evaluated.clear()
+    
+    def eval (self, *args) :
+        """ Evaluate the whole dataflow starting from leaves"""
+        df = self._dataflow
+        
+        # Unvalidate all the nodes
+        self._evaluated.clear()
 
-		# Eval from the leaf
-		for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0) :
-			self.eval_vertex(vid)
+        # Eval from the leaf
+        for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0) :
+            self.eval_vertex(vid)
 
 
 
 class PriorityEvaluation(BrutEvaluation) :
-	""" Support priority between nodes and selective"""
-	
-	def eval (self, vtx_id=None, *args) :
+    """ Support priority between nodes and selective"""
+    
+    def eval (self, vtx_id=None, *args) :
 
-		df = self._dataflow
-		# Unvalidate all the nodes
-		self._evaluated.clear()
+        df = self._dataflow
+        # Unvalidate all the nodes
+        self._evaluated.clear()
 
-		if(vtx_id is not None):
-			return self.eval_vertex(vtx_id, *args)
+        if(vtx_id is not None):
+            return self.eval_vertex(vtx_id, *args)
 
-		# Select the leafs (list of (vid, actor))
-		leafs = [ (vid, df.actor(vid))
-			  for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
+        # Select the leafs (list of (vid, actor))
+        leafs = [ (vid, df.actor(vid))
+              for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
 
-		leafs.sort(cmp_priority)
-		
-		# Excecute
-		for vid, actor in leafs:
-			self.eval_vertex(vid, *args)
+        leafs.sort(cmp_priority)
+        
+        # Excecute
+        for vid, actor in leafs:
+            self.eval_vertex(vid, *args)
 
 
 
 class GeneratorEvaluation (AbstractEvaluation) :
-	""" Evaluation algorithm with generator / priority and selection"""
-	
-	def __init__ (self, dataflow) :
+    """ Evaluation algorithm with generator / priority and selection"""
+    
+    def __init__ (self, dataflow) :
 
-		AbstractEvaluation.__init__(self, dataflow)
-		# a property to specify if the node has already been evaluated
-		self._evaluated = set()
-		self._in_evaluation = set()
-		self.reeval = False # Flag to force reevaluation (for generator)
-
-
-	def clear(self):
-		""" Clear evaluation variable """
-		self._evaluated.clear()
-		self.reeval = False
-		
-	
-	def eval_vertex (self, vid) :
-		""" Evaluate the vertex vid """
-		
-		df = self._dataflow
-		actor = df.actor(vid)
-
-		self._evaluated.add(vid)
-
-		# For each inputs
-		for pid in df.in_ports(vid) :
-			inputs = []
-
-			cpt = 0 
-			# For each connected node
-                        for npid, nvid, nactor in self.get_parent_nodes(pid):
-				# Do no reevaluate the same node
-				if (nvid not in self._evaluated):
-					self.eval_vertex(nvid)
-
-				inputs.append(nactor.get_output(df.local_id(npid)))
-				cpt += 1
-
-			# set input as a list or a simple value
-			if(cpt == 1) : inputs = inputs[0]
-			if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
-			
-		# Eval the node
-		ret = self.eval_vertex_code(vid)
-		
-		# Reevaluation flag
-		if(ret) : self.reeval = ret
+        AbstractEvaluation.__init__(self, dataflow)
+        # a property to specify if the node has already been evaluated
+        self._evaluated = set()
+        self._in_evaluation = set()
+        self.reeval = False # Flag to force reevaluation (for generator)
 
 
-	def eval (self, vtx_id=None) :
+    def clear(self):
+        """ Clear evaluation variable """
+        self._evaluated.clear()
+        self.reeval = False
+        
+    
+    def eval_vertex (self, vid) :
+        """ Evaluate the vertex vid """
+        
+        df = self._dataflow
+        actor = df.actor(vid)
 
-		df = self._dataflow
+        self._evaluated.add(vid)
 
-		if(vtx_id is not None):
-			leafs = [ (vtx_id, df.actor(vtx_id)) ]
+        # For each inputs
+        for pid in df.in_ports(vid) :
+            inputs = []
 
-		else:
+            cpt = 0 
+            # For each connected node
+            for npid, nvid, nactor in self.get_parent_nodes(pid):
+                # Do no reevaluate the same node
+                if (nvid not in self._evaluated):
+                    self.eval_vertex(nvid)
+
+                inputs.append(nactor.get_output(df.local_id(npid)))
+                cpt += 1
+
+            # set input as a list or a simple value
+            if(cpt == 1) : inputs = inputs[0]
+            if(cpt > 0) : actor.set_input(df.local_id(pid), inputs)
+            
+        # Eval the node
+        ret = self.eval_vertex_code(vid)
+        
+        # Reevaluation flag
+        if(ret) : self.reeval = ret
+
+
+    def eval (self, vtx_id=None) :
+
+        df = self._dataflow
+
+        if(vtx_id is not None):
+            leafs = [ (vtx_id, df.actor(vtx_id)) ]
+
+        else:
                     # Select the leafs (list of (vid, actor))
                     leafs = [ (vid, df.actor(vid))
                               for vid in df.vertices() if df.nb_out_edges(vid)==0 ]
 
-		leafs.sort(cmp_priority)
-		
-		# Execute
-		for vid, actor in leafs:
+        leafs.sort(cmp_priority)
+        
+        # Execute
+        for vid, actor in leafs:
                     self.reeval = True
 
                     while(self.reeval):
                         self.clear()
                         self.eval_vertex(vid)
 
-		return False
+        return False
 
 
 
@@ -281,96 +281,96 @@ from openalea.core.dataflow import SubDataflow
 from openalea.core.interface import IFunction
 
 class LambdaEvaluation (PriorityEvaluation) :
-	""" Evaluation algorithm with support of lambda / priority and selection"""
-	
-	def __init__ (self, dataflow) :
-		PriorityEvaluation.__init__(self, dataflow)
+    """ Evaluation algorithm with support of lambda / priority and selection"""
+    
+    def __init__ (self, dataflow) :
+        PriorityEvaluation.__init__(self, dataflow)
                 
-                self.lambda_value = {} # lambda resolution dictionary
+        self.lambda_value = {} # lambda resolution dictionary
 
 
-	def eval_vertex (self, vid, context, lambda_value, *args) :
-		""" Evaluate the vertex vid 
-                @param context is a list a value to assign to lambdas
-                """
+    def eval_vertex (self, vid, context, lambda_value, *args) :
+        """ Evaluate the vertex vid 
+        @param context is a list a value to assign to lambdas
+        """
 
-		df = self._dataflow
-		actor = df.actor(vid)
+        df = self._dataflow
+        actor = df.actor(vid)
 
-		self._evaluated.add(vid)
+        self._evaluated.add(vid)
 
-                use_lambda = False
+        use_lambda = False
 
-		# For each inputs
-		for pid in df.in_ports(vid):
+        # For each inputs
+        for pid in df.in_ports(vid):
 
-                        input_index = df.local_id(pid)
-			inputs = []
+            input_index = df.local_id(pid)
+            inputs = []
 
-                        # Get input interface
-                        interface = actor.input_desc[input_index].get('interface', None)
+            # Get input interface
+            interface = actor.input_desc[input_index].get('interface', None)
 
-                        # Determine if the context must be transmitted
-                        # If interface is IFunction it means that the node is a consumer
-                        # We do not propagate the context
-                        if(interface is IFunction):
-                            transmit_cxt = None
-                            transmit_lambda = None
-                        else:
-                            transmit_cxt = context
-                            transmit_lambda = lambda_value
+            # Determine if the context must be transmitted
+            # If interface is IFunction it means that the node is a consumer
+            # We do not propagate the context
+            if(interface is IFunction):
+                transmit_cxt = None
+                transmit_lambda = None
+            else:
+                transmit_cxt = context
+                transmit_lambda = lambda_value
                         
-			cpt = 0 # parent counter
+            cpt = 0 # parent counter
 
-			# For each connected node
-                        for npid, nvid, nactor in self.get_parent_nodes(pid):
+            # For each connected node
+            for npid, nvid, nactor in self.get_parent_nodes(pid):
 
-				# Do no reevaluate the same node
-				if (nvid not in self._evaluated):
-                                    self.eval_vertex(nvid, transmit_cxt, transmit_lambda)
+                # Do no reevaluate the same node
+                if (nvid not in self._evaluated):
+                    self.eval_vertex(nvid, transmit_cxt, transmit_lambda)
 
-                                outval = nactor.get_output(df.local_id(npid))
-                                # Lambda 
+                outval = nactor.get_output(df.local_id(npid))
+                # Lambda 
 
-                                # We must consider 2 cases
-                                #  1) Lambda detection (receive a SubDataflow and interface != IFunction)
-                                #         
-                                #  2) Resolution mode (context is not None) : we 
-                                #      replace the lambda with value
+                # We must consider 2 cases
+                #  1) Lambda detection (receive a SubDataflow and interface != IFunction)
+                #         
+                #  2) Resolution mode (context is not None) : we 
+                #      replace the lambda with value
 
-                                if(isinstance(outval, SubDataflow)
-                                   and interface is not IFunction):
+                if(isinstance(outval, SubDataflow)
+                   and interface is not IFunction):
 
-                                    if(not context and not lambda_value): 
-                                        # we are not in resolution mode
-                                        use_lambda = True
-                                    else:
-                                        # We set the context value for later use
-                                        if(not lambda_value.has_key(outval)):
-                                            try:
-                                                lambda_value[outval] = context.pop()
-                                            except Exception:
-                                                raise Exception("The number of lambda variables is insuffisant")
-                                        
-                                        # We replace the value with a context value
-                                        outval = lambda_value[outval]
+                    if(not context and not lambda_value): 
+                        # we are not in resolution mode
+                        use_lambda = True
+                    else:
+                        # We set the context value for later use
+                        if(not lambda_value.has_key(outval)):
+                            try:
+                                lambda_value[outval] = context.pop()
+                            except Exception:
+                                raise Exception("The number of lambda variables is insuffisant")
+                        
+                        # We replace the value with a context value
+                        outval = lambda_value[outval]
 
 
-				inputs.append(outval)
-				cpt += 1
+                inputs.append(outval)
+                cpt += 1
 
-			# set input as a list or a simple value
-			if(cpt == 1) : inputs = inputs[0]
-			if(cpt > 0) : actor.set_input(input_index, inputs)
-			
-		# Eval the node
-                if(not use_lambda):
-                    ret = self.eval_vertex_code(vid)
-                    
-                else:
-                    # set the node output with subdataflow
-                    for i in xrange(actor.get_nb_output()):
-                        actor.set_output(i, SubDataflow(df, self, vid, i))
+            # set input as a list or a simple value
+            if(cpt == 1) : inputs = inputs[0]
+            if(cpt > 0) : actor.set_input(input_index, inputs)
+            
+        # Eval the node
+        if(not use_lambda):
+            ret = self.eval_vertex_code(vid)
+            
+        else:
+            # set the node output with subdataflow
+            for i in xrange(actor.get_nb_output()):
+                actor.set_output(i, SubDataflow(df, self, vid, i))
 
 
 

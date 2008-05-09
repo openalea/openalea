@@ -42,7 +42,7 @@ class Port (object) :
 		self._local_pid = local_pid
 		self._is_out_port = is_out_port
 
-		
+
 
 class DataFlow(PropertyGraph):
 	"""
@@ -61,7 +61,7 @@ class DataFlow(PropertyGraph):
 
 		self.add_vertex_property("_ports")
 		self.add_vertex_property("_actor")
-		
+
 	####################################################
 	#
 	#		edge port view
@@ -74,7 +74,7 @@ class DataFlow(PropertyGraph):
 		:rtype: pid
 		"""
 		return self.edge_property("_source_port")[eid]
-	
+
 
 	def target_port (self, eid) :
 		"""
@@ -83,7 +83,7 @@ class DataFlow(PropertyGraph):
 		:rtype: pid
 		"""
 		return self.edge_property("_target_port")[eid]
-	
+
 
 	####################################################
 	#
@@ -101,7 +101,7 @@ class DataFlow(PropertyGraph):
 		for pid in self.ports(vid) :
 			if self.is_out_port(pid) :
 				yield pid
-	
+
 
 	def in_ports (self, vid=None) :
 		"""
@@ -113,7 +113,7 @@ class DataFlow(PropertyGraph):
 		for pid in self.ports(vid) :
 			if self.is_in_port(pid) :
 				yield pid
-	
+
 	def ports (self, vid=None) :
 		"""
 		iter on all ports of a given vertex
@@ -140,7 +140,7 @@ class DataFlow(PropertyGraph):
 		:rtype: bool
 		"""
 		return not self._ports[pid]._is_out_port
-	
+
 
 	def is_out_port (self, pid) :
 		"""
@@ -149,7 +149,7 @@ class DataFlow(PropertyGraph):
 		:rtype: bool
 		"""
 		return self._ports[pid]._is_out_port
-	
+
 
 	def vertex (self, pid) :
 		"""
@@ -157,7 +157,7 @@ class DataFlow(PropertyGraph):
 		:rtype: vid
 		"""
 		return self._ports[pid]._vid
-	
+
 
 	def connected_ports (self, pid) :
 		"""
@@ -171,7 +171,7 @@ class DataFlow(PropertyGraph):
 		else :
 			for eid in self.connected_edges(pid) :
 				yield self.source_port(eid)
-	
+
 
 	def connected_edges (self, pid) :
 		"""
@@ -204,7 +204,7 @@ class DataFlow(PropertyGraph):
 		except KeyError :
 			raise PortError("port %s don't exist" % str(pid))
 
-	
+
 	def local_id (self, pid) :
 		"""
 		local port identifier of a given port
@@ -214,8 +214,8 @@ class DataFlow(PropertyGraph):
 			return self._ports[pid]._local_pid
 		except KeyError :
 			raise PortError("port %s don't exist" % str(pid))
-		
-	
+
+
 	def out_port (self, vid, local_pid) :
 		"""
 		global port id of a given port
@@ -225,8 +225,8 @@ class DataFlow(PropertyGraph):
 			if self._ports[pid]._local_pid == local_pid :
 				return pid
 		raise PortError ("Local pid '%s' does not exist" % str(local_pid))
-	
-	
+
+
 	def in_port (self, vid, local_pid) :
 		"""
 		global port id of a given port
@@ -236,7 +236,7 @@ class DataFlow(PropertyGraph):
 			if self._ports[pid]._local_pid == local_pid :
 				return pid
 		raise PortError ("local pid '%s' does not exist" % str(local_pid))
-	
+
 	#####################################################
 	#
 	#		associated actor
@@ -247,15 +247,15 @@ class DataFlow(PropertyGraph):
 		associate an actor to a given vertex
 		"""
 		self.vertex_property("_actor")[vid] = actor
-		
-	
+
+
 	def actor (self, vid) :
 		"""
 		return actor associated to a given vertex
 		"""
 		return self.vertex_property("_actor")[vid]
-	
-	
+
+
 	def add_actor (self, actor, vid=None) :
 		"""
 		create a vertex and the corresponding ports
@@ -265,13 +265,13 @@ class DataFlow(PropertyGraph):
 		vid = self.add_vertex(vid)
 		for key,interface in actor.inputs() :
 			self.add_in_port(vid,key)
-			
+
 		for key,interface in actor.outputs() :
 			self.add_out_port(vid,key)
-			
+
 		self.set_actor(vid,actor)
 		return vid
-	
+
 	#####################################################
 	#
 	#		mutable concept
@@ -290,7 +290,7 @@ class DataFlow(PropertyGraph):
 		self._ports[pid] = Port(vid,local_pid,False)
 		self.vertex_property("_ports")[vid].add(pid)
 		return pid
-	
+
 
 	def add_out_port (self, vid, local_pid, pid=None) :
 		"""
@@ -306,7 +306,7 @@ class DataFlow(PropertyGraph):
 		self.vertex_property("_ports")[vid].add(pid)
 		return pid
 
-	
+
 	def remove_port (self, pid) :
 		"""
 		remove the specified port
@@ -317,7 +317,7 @@ class DataFlow(PropertyGraph):
 		self.vertex_property("_ports")[self.vertex(pid)].remove(pid)
 		self._pid_generator.release_id(pid)
 		del self._ports[pid]
-	
+
 
 	def connect (self, source_pid, target_pid, eid=None) :
 		"""
@@ -337,10 +337,10 @@ class DataFlow(PropertyGraph):
 		eid = self.add_edge((self.vertex(source_pid), self.vertex(target_pid)), eid)
 		self.edge_property("_source_port")[eid] = source_pid
 		self.edge_property("_target_port")[eid] = target_pid
-		
+
 		return eid
 
-	
+
 	def add_vertex (self, vid=None) :
 		vid=PropertyGraph.add_vertex(self,vid)
 		self.vertex_property("_ports")[vid] = set()
@@ -348,14 +348,14 @@ class DataFlow(PropertyGraph):
 
 	add_vertex.__doc__ = PropertyGraph.add_vertex.__doc__
 
-	
+
 	def remove_vertex (self, vid) :
 		for pid in list(self.ports(vid)) :
 			self.remove_port(pid)
 		PropertyGraph.remove_vertex(self,vid)
-		
+
 	remove_vertex.__doc__ = PropertyGraph.remove_vertex.__doc__
-	
+
 
 	def clear (self) :
 		self._ports.clear()
@@ -364,7 +364,7 @@ class DataFlow(PropertyGraph):
 
 	clear.__doc__ = PropertyGraph.clear.__doc__
 
-	
+
 	def get_all_parent_nodes(self, vid):
 		""" Return an iterator of vextex id corresponding to all the parent node of vid"""
 
@@ -373,7 +373,7 @@ class DataFlow(PropertyGraph):
 		processed = set()
 
 		while(scan_list):
-                
+
 			vid = scan_list.popleft()
 			#process_list.appendleft(vid)
 			if(input_vid != vid):
@@ -381,13 +381,13 @@ class DataFlow(PropertyGraph):
 
 			processed.add(vid)
 			actor = self.actor(vid)
-                
+
 			# For each inputs
 			for pid in self.in_ports(vid):
 				# For each connected node
 				for npid in self.connected_ports(pid):
 					nvid = self.vertex(npid)
-                    
+
 					if(not nvid in processed):
 						scan_list.append(nvid)
 
@@ -400,15 +400,15 @@ class SubDataflow(object):
     """
 
     def __init__(self, dataflow, algo, node_id, port_index):
-	""" Constructor
-	@param dataflow
-	@param algo
-	@param node_id
-	@param port_index
-	"""
-        
+        """ Constructor
+        @param dataflow
+        @param algo
+        @param node_id
+        @param port_index
+        """
+
         self.dataflow = dataflow
-	self.algo = algo
+        self.algo = algo
         self.node_id = node_id
         self.port_index = port_index
 
@@ -422,7 +422,7 @@ class SubDataflow(object):
 		#if(len(args)==1) : return args[0]
 		#else: return args
 
-        self.algo.eval(self.node_id, list(args))
+	self.algo.eval(self.node_id, list(args))
 	ret = self.dataflow.actor(self.node_id).get_output(self.port_index)
-        return ret
-	
+	return ret
+
