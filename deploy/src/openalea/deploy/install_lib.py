@@ -30,7 +30,7 @@ from os.path import join
 
 egg_marker_extension = ".egm"
 
-from openalea.deploy.util import get_all_lib_dirs, get_base_dir
+from openalea.deploy.util import get_all_lib_dirs, get_base_dir, INSTALL_DIST
 from distutils.dir_util import mkpath
 from distutils.sysconfig import get_python_lib
 
@@ -93,7 +93,6 @@ def link_lib(src, dst):
     mark_file = dst + egg_marker_extension
 
     # test if there is a marker
-
     try:
         f = open(mark_file, 'r')
         mark = f.read()
@@ -168,6 +167,7 @@ def install_lib(lib_dir):
 
     old_lib_dir = get_dyn_lib_dir()
     changed = (old_lib_dir != lib_dir)
+
     # remove unused lib
     clean_lib(old_lib_dir, changed)
 
@@ -175,7 +175,7 @@ def install_lib(lib_dir):
         set_dyn_lib_dir(lib_dir)
     
     # get all lib_dir
-    egglibdirs = set(get_all_lib_dirs())
+    egglibdirs = set(get_all_lib_dirs(precedence=INSTALL_DIST))
 
     # install lib
     for d in egglibdirs:

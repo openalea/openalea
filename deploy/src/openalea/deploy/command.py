@@ -54,7 +54,7 @@ from distutils.dir_util import mkpath
 import re
 import new
 
-from util import get_all_lib_dirs, get_all_bin_dirs
+from util import get_all_lib_dirs, get_all_bin_dirs, DEV_DIST
 from install_lib import get_dyn_lib_dir
 from util import get_base_dir, get_repo_list, OPENALEA_PI
 from environ_var import set_lsb_env, set_win_env
@@ -479,7 +479,7 @@ except:
 
     def run (self):
         """ Run command """
-        
+
         for namespace in self.namespaces:
             print "creating %s namespace"%(namespace)
             self.create_empty_namespace(namespace)
@@ -678,13 +678,13 @@ def set_env(dyn_lib=None):
 
     print "Setting environment variables"
 
-    lib_dirs = [dyn_lib]
+    lib_dirs = [dyn_lib] + list(get_all_lib_dirs(precedence=DEV_DIST))
     bin_dirs = list(get_all_bin_dirs())
         
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
     print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
-    all_dirs = set(lib_dirs+bin_dirs)
+    all_dirs = set(lib_dirs + bin_dirs)
     set_win_env(['OPENALEA_LIB=%s'%(';'.join(all_dirs)),
                  'PATH=%OPENALEA_LIB%',])
 
@@ -705,8 +705,33 @@ class develop(old_develop):
     """
     Overloaded develop command
     """
+    redirect_ns = """
+# Redirect path
+import os
+
+cdir = os.path.dirname(__file__)
+pdir = os.path.join(cdir, "../../%s")
+pdir = os.path.abspath(pdir)
+
+__path__.append(pdir)
+"""
+
+    def initialize_options (self):
+        self.namespaces = []
+        self.create_namespaces = False
+
+        old_develop.initialize_options(self)
+
 
     def finalize_options(self):
+        
+        try:
+            self.namespaces = self.distribution.namespace_packages
+            if(self.namespaces is None) : self.namespaces = []
+            self.create_namespaces = self.distribution.create_namespaces
+        except:
+            pass
+
         old_develop.finalize_options(self)
 
         # !! HACK !!
@@ -718,14 +743,53 @@ class develop(old_develop):
                   self.distribution.share_dirs,
                   ):
             if(not d): continue
+            
+            for dest_dir, src_dir in d.items():
+              
+                # replace dest_dir by src_dir
+                adir  = os.path.join(self.setup_path, src_dir)
+                d[adir] = adir
+                del(d[dest_dir])
 
-            for k, v in d.items():
-                d[v] = v
-                del(d[k])
+
+    def create_fake_namespace(self, name):
+        """ Create namespace directory with a __init__.py """
+
+        nsdir = pj(self.egg_path, name)
+        
+        if(not os.path.exists(nsdir)):
+            self.mkpath(nsdir)
+
+        initfilename = pj(nsdir, '__init__.py')
+        
+        if(not os.path.exists(initfilename)):
+            f = open(initfilename, 'w')
+            f.write(create_namespaces.namespace_header)
+            f.close()
+
+        # Create an __init__.py to redirect to real package directory
+        pkg_name = self.distribution.metadata.get_name().lower()
+        pkg_dir = os.path.join(nsdir, pkg_name)
+        
+        if(not os.path.exists(pkg_dir)):
+            self.mkpath(pkg_dir)
+
+        initfilename = pj(pkg_dir, '__init__.py')
+        
+        if(not os.path.exists(initfilename)):
+            f = open(initfilename, 'w')
+            f.write(develop.redirect_ns%(pkg_name,))
+            f.close()
+
 
 
     def run(self):
         old_develop.run(self)
+
+        # Redirect namespace
+        if(self.create_namespaces):
+            for namespace in self.namespaces:
+                self.create_fake_namespace(namespace)
 
         # Set environment
         set_env()

@@ -33,6 +33,16 @@ OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"
 OPENALEA_RECOMMENDED_PKG = "http://openalea.gforge.inria.fr/pkg_prefix"
 
+
+# Precedence
+INSTALL_DIST = [pkg_resources.EGG_DIST, 
+                pkg_resources.BINARY_DIST, 
+                pkg_resources.SOURCE_DIST, 
+                pkg_resources.CHECKOUT_DIST,]
+
+DEV_DIST = [pkg_resources.DEVELOP_DIST,]
+ALL_DIST = DEV_DIST + INSTALL_DIST
+
 # EGG Management
 
 def get_base_dir(pkg_name):
@@ -76,23 +86,35 @@ def get_postinstall_scripts(pkg_name):
     return get_egg_info(pkg_name, 'postinstall_scripts.txt')
 
 
-def get_eggs(namespace=None):
+def get_eggs(namespace=None, precedence=ALL_DIST):
     """ Return as a generator the list of the name of all EGGS in
-    a particular namespace (optional) """
+    a particular namespace (optional) 
+    select only egg with a particular precedence
+    """
 
     env = pkg_resources.Environment()
 
-    for project_name in env:
+    for project_name in env: 
+        
+        if(precedence):
+            pkg = pkg_resources.get_distribution(project_name)
+            if(pkg.precedence not in precedence):
+                continue
+
         if(namespace and namespace+'.' in project_name):
             yield project_name
+
         elif(not namespace):
             yield project_name
 
 
-def get_all_lib_dirs(namespace=None):
-    """ Return the iterator of the directories corresponding to the shared lib """
+def get_all_lib_dirs(namespace=None, precedence=ALL_DIST):
+    """ 
+    Return the iterator of the directories corresponding to the shared lib 
+    Select only egg with a particular precedence
+    """
 
-    egg_names = get_eggs(namespace)
+    egg_names = get_eggs(namespace, precedence)
     for e in egg_names:
 
         location = get_base_dir(e)
@@ -105,10 +127,13 @@ def get_all_lib_dirs(namespace=None):
             yield full_location
 
 
-def get_all_bin_dirs(namespace=None):
-    """ Return the iterator of the directories corresponding to the shared lib """
+def get_all_bin_dirs(namespace=None, precedence=ALL_DIST):
+    """ 
+    Return the iterator of the directories corresponding to the shared lib 
+    Select only egg with a particular precedence
+    """
 
-    egg_names = get_eggs(namespace)
+    egg_names = get_eggs(namespace, precedence)
     for e in egg_names:
 
         location = get_base_dir(e)
@@ -121,12 +146,12 @@ def get_all_bin_dirs(namespace=None):
             yield full_location
 
 
+
 # System config
 
 def check_system():
     """
     Check system configuration and return environment variables dictionary
-    This function need OpenAlea.Deploy
     """
     from install_lib import get_dyn_lib_dir
     
