@@ -4,20 +4,20 @@ def split_all_path(src):
     """ split a path into dir name lists """
     res = []
     head, tail = os.path.split(src)
-    while len(tail) > 0:
+    while len(tail) > 0:        
         res.append(tail)
+        head, tail = os.path.split(head)
     res.append(head)
     res.reverse()
     return res
-    
+
 def relative_path(origin,dest):
         """ return the relative path between 2 path """
         origin = os.path.normpath(os.path.abspath(origin))
         dest = os.path.normpath(os.path.abspath(dest))
-
+        
         dest_list = split_all_path(dest)
-        orig_list = split_all_path(dest)
-
+        orig_list = split_all_path(origin)
         
         # Find the location where the two paths start to differ.
         i = 0
@@ -25,7 +25,7 @@ def relative_path(origin,dest):
             if start_seg != dest_seg:
                 break
             i += 1
-
+        
         # Now i is the point where the two paths diverge.
         # Need a certain number of "os.pardir"s to work up
         # from the origin to the point of divergence.
