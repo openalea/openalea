@@ -1,5 +1,11 @@
+OpenAlea.Deploy 0.4.0
+    * Improve Develop command : manage namespace and environment variables
+    * Reinstall library if they are missing (but not egm)
+    * add shell command : alea_clean, alea_config and alea_update
+    * Download setuptools-0.6c8
+
 OpenAlea.Deploy 0.3.8
-    * Adapt develop command for hybrid python/c++ packages
+    * Adapt develop command for lib_dir and bin_dir
 OpenAlea.Deploy 0.3.7
     * Simplify the warning message for environment variable on Linux
 OpenAlea.Deploy 0.3.6

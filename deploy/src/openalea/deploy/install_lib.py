@@ -74,6 +74,7 @@ def set_dyn_lib_dir(path):
     except Exception, e:
         print e
 
+
 def is_lib(filename):
     """ Return true if filename is a library """
 
@@ -86,20 +87,23 @@ def is_lib(filename):
 
 def link_lib(src, dst):
     
-    """ Create a symlink/copy library if necessary
-    And create a marker file if it is absent
+    """ 
+    Symlink/copy library if necessary
+    and create a marker file (egm) if it is absent
+    src : source lib file
+    dst : destination lib file
     """
 
     mark_file = dst + egg_marker_extension
 
-    # test if there is a marker
+    # Test if there is a marker
     try:
         f = open(mark_file, 'r')
         mark = f.read()
         f.close()
 
-        # file is identical : return
-        if(mark == src):
+        # File is identical : return
+        if(mark == src and os.path.exists(dst)):
             return False
 
     except Exception, e:
@@ -115,7 +119,7 @@ def link_lib(src, dst):
     else:
         shutil.copy2(src, dst)
 
-    # create a mark file
+    # create an egm file
     print "Installing ", mark_file
     f = open(mark_file, 'w')
     f.write(src)

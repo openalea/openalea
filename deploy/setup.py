@@ -9,16 +9,11 @@ from setuptools import setup, find_packages
 from os.path import join as pj
 import sys, os
 
-# if('win' in sys.platform):
-#     plat_requires = ['pywin32']
-# else:
-#     plat_requires = []
-
 
 setup(
     # Metadata for PyPi
     name = "OpenAlea.Deploy",
-    version = "0.3.8",
+    version = "0.4.0",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "Setuptools extension for OpenAlea",
