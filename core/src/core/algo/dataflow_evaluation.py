@@ -374,17 +374,17 @@ class LambdaEvaluation (PriorityEvaluation) :
 
 
 
-        def eval (self, vtx_id=None, context=None) :
-            """ 
+    def eval (self, vtx_id=None, context=None) :
+        """ 
             Eval the dataflow from vtx_id with a particular context
             @param vtx_id : vertex id to start the evaluation
             @param context : list a value to assign to lambda variables
-            """
-            
-            self.lambda_value.clear() 
-            if(context) : context.reverse()
-            PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
-            self.lambda_value.clear() # do not keep context in memory
+        """
+
+        self.lambda_value.clear() 
+        if(context) : context.reverse()
+        PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
+        self.lambda_value.clear() # do not keep context in memory
 
 
 DefaultEvaluation = LambdaEvaluation
