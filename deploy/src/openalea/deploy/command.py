@@ -715,7 +715,9 @@ cdir = os.path.dirname(__file__)
 pdir = os.path.join(cdir, "../../%s")
 pdir = os.path.abspath(pdir)
 
-__path__.append(pdir)
+__path__ = [pdir] + __path__[:]
+
+import %s.__init__
 """
 
     def initialize_options (self):
@@ -773,6 +775,7 @@ __path__.append(pdir)
         # create indirection for each declared package
         for pkg_name in self.distribution.packages:
 
+            full_pkg_name = pkg_name
             nsprefix = name + '.'
             if(not pkg_name.startswith(nsprefix)) : continue
 
@@ -789,7 +792,7 @@ __path__.append(pdir)
         
             if(not os.path.exists(initfilename)):
                 f = open(initfilename, 'w')
-                f.write(develop.redirect_ns%(pkg_name,))
+                f.write(develop.redirect_ns%(pkg_name, full_pkg_name))
                 f.close()
 
 
