@@ -216,6 +216,7 @@ def validate_create_namespaces(dist, attr, value):
 
     if(value and dist.namespace_packages):
         setuptools.command.build_py.build_py = build_py
+        setuptools.command.develop.develop = develop
 
 
 def validate_scons_scripts(dist, attr, value):
@@ -705,6 +706,7 @@ class develop(old_develop):
     """
     Overloaded develop command
     """
+
     redirect_ns = """
 # Redirect path
 import os
@@ -717,6 +719,7 @@ __path__.append(pdir)
 """
 
     def initialize_options (self):
+
         self.namespaces = []
         self.create_namespaces = False
 
@@ -733,7 +736,7 @@ __path__.append(pdir)
             pass
 
         old_develop.finalize_options(self)
-
+        
         # !! HACK !!
         # Modify inc, lib, share directory
         
