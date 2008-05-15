@@ -770,19 +770,27 @@ __path__.append(pdir)
             f.write(create_namespaces.namespace_header)
             f.close()
 
-        # Create an __init__.py to redirect to real package directory
-        pkg_name = self.distribution.metadata.get_name().lower()
-        pkg_dir = os.path.join(nsdir, pkg_name)
-        
-        if(not os.path.exists(pkg_dir)):
-            self.mkpath(pkg_dir)
+        # create indirection for each declared package
+        for pkg_name in self.distribution.packages:
 
-        initfilename = pj(pkg_dir, '__init__.py')
+            nsprefix = name + '.'
+            if(not pkg_name.startswith(nsprefix)) : continue
+
+            # keep first name (ex for openalea.core.algo, we keep core)
+            pkg_name = pkg_name.split('.')[1]
+
+            # Create an __init__.py to redirect to real package directory
+            pkg_dir = os.path.join(nsdir, pkg_name)
         
-        if(not os.path.exists(initfilename)):
-            f = open(initfilename, 'w')
-            f.write(develop.redirect_ns%(pkg_name,))
-            f.close()
+            if(not os.path.exists(pkg_dir)):
+                self.mkpath(pkg_dir)
+
+            initfilename = pj(pkg_dir, '__init__.py')
+        
+            if(not os.path.exists(initfilename)):
+                f = open(initfilename, 'w')
+                f.write(develop.redirect_ns%(pkg_name,))
+                f.close()
 
 
 
