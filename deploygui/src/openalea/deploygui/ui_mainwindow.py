@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'resources/mainwindow.ui'
 #
-# Created: Wed Apr 30 18:01:14 2008
+# Created: Thu May 15 10:56:40 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,6 +35,7 @@ class Ui_MainWindow(object):
         self.vboxlayout1.setObjectName("vboxlayout1")
 
         self.label_4 = QtGui.QLabel(self.tab)
+        self.label_4.setOpenExternalLinks(True)
         self.label_4.setObjectName("label_4")
         self.vboxlayout1.addWidget(self.label_4)
 
@@ -105,6 +106,7 @@ class Ui_MainWindow(object):
         self.vboxlayout2.setObjectName("vboxlayout2")
 
         self.label = QtGui.QLabel(self.OtherEggs)
+        self.label.setOpenExternalLinks(True)
         self.label.setObjectName("label")
         self.vboxlayout2.addWidget(self.label)
 
@@ -284,7 +286,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,779,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,779,26))
         self.menubar.setObjectName("menubar")
 
         self.menuAuthentification = QtGui.QMenu(self.menubar)
@@ -341,7 +343,8 @@ class Ui_MainWindow(object):
         self.label_4.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Packages</span> : Select the packages you want to install/update/remove and click on <span style=\" font-weight:600;\">Install/Remove</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Packages</span> : Select the packages you want to install/update/remove and click on <span style=\" font-weight:600;\">Install/Remove</span></p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;\">Package descriptions are available in the <a href=\"http://openalea.gforge.inria.fr/packages.php\"><span style=\" text-decoration: underline; color:#0000ff;\">Package index</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.radioRecommended.setText(QtGui.QApplication.translate("MainWindow", "Install Recommended packages", None, QtGui.QApplication.UnicodeUTF8))
         self.radioAll.setText(QtGui.QApplication.translate("MainWindow", "Install All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.radioUpdate.setText(QtGui.QApplication.translate("MainWindow", " Update packages", None, QtGui.QApplication.UnicodeUTF8))
@@ -354,10 +357,14 @@ class Ui_MainWindow(object):
         self.label.setText(QtGui.QApplication.translate("MainWindow", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
         "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Enter  : </span></p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">  + a Python<span style=\" font-style:italic;\"> package name </span></p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Install a custom python package</span></p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">See </span><a href=\"http://openalea.gforge.inria.fr/packages.php\"><span style=\" font-weight:600; text-decoration: underline; color:#0000ff;\">Openalea Package index</span></a><span style=\" font-weight:600;\"> and </span><a href=\"http://pypi.python.org/pypi\"><span style=\" font-weight:600; text-decoration: underline; color:#0000ff;\">PyPi index</span></a></p>\n"
+        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;\">Enter  : </p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">  + a Python<span style=\" font-style:italic;\"> package name (ex : ipython, numpy...)</span></p>\n"
         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">  + or the <span style=\" font-style:italic;\">URL of an Egg</span></p>\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">  + or the <span style=\" font-style:italic;\">local path of an Egg</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">  + or the <span style=\" font-style:italic;\">local path of an Egg</span></p>\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-style:italic;\"><span style=\" font-style:normal;\">and click </span><span style=\" font-weight:600; font-style:normal;\">Install</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.fileButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.customInstallButton.setText(QtGui.QApplication.translate("MainWindow", "Install", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.OtherEggs), QtGui.QApplication.translate("MainWindow", "Install Other Eggs", None, QtGui.QApplication.UnicodeUTF8))

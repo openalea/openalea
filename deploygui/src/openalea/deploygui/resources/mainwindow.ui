@@ -37,7 +37,11 @@
             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Packages&lt;/span> : Select the packages you want to install/update/remove and click on &lt;span style=" font-weight:600;">Install/Remove&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Packages&lt;/span> : Select the packages you want to install/update/remove and click on &lt;span style=" font-weight:600;">Install/Remove&lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;">Package descriptions are available in the &lt;a href="http://openalea.gforge.inria.fr/packages.php">&lt;span style=" text-decoration: underline; color:#0000ff;">Package index&lt;/span>&lt;/a>&lt;/p>&lt;/body>&lt;/html></string>
+           </property>
+           <property name="openExternalLinks" >
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -172,10 +176,17 @@ p, li { white-space: pre-wrap; }
             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Enter  : &lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + a Python&lt;span style=" font-style:italic;"> package name &lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Install a custom python package&lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">See &lt;/span>&lt;a href="http://openalea.gforge.inria.fr/packages.php">&lt;span style=" font-weight:600; text-decoration: underline; color:#0000ff;">Openalea Package index&lt;/span>&lt;/a>&lt;span style=" font-weight:600;"> and &lt;/span>&lt;a href="http://pypi.python.org/pypi">&lt;span style=" font-weight:600; text-decoration: underline; color:#0000ff;">PyPi index&lt;/span>&lt;/a>&lt;/p>
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;">Enter  : &lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + a Python&lt;span style=" font-style:italic;"> package name (ex : ipython, numpy...)&lt;/span>&lt;/p>
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + or the &lt;span style=" font-style:italic;">URL of an Egg&lt;/span>&lt;/p>
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + or the &lt;span style=" font-style:italic;">local path of an Egg&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  + or the &lt;span style=" font-style:italic;">local path of an Egg&lt;/span>&lt;/p>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-style:italic;">&lt;span style=" font-style:normal;">and click &lt;/span>&lt;span style=" font-weight:600; font-style:normal;">Install&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+           </property>
+           <property name="openExternalLinks" >
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -482,7 +493,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAuthentification" >
