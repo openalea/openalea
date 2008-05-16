@@ -434,7 +434,8 @@ def %s(%s):
         dst = os.path.join(self.path, bname)
 
         try:
-            shutil.copyfile(src, dst)
+            if(src != dst):
+                shutil.copyfile(src, dst)
         except shutil.Error:
             f = open(dst, 'w')
             f.close()
