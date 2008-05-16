@@ -178,6 +178,7 @@ class BrutEvaluation (AbstractEvaluation) :
 class PriorityEvaluation(BrutEvaluation) :
     """ Support priority between nodes and selective"""
     
+
     def eval (self, vtx_id=None, *args) :
 
         df = self._dataflow
@@ -376,9 +377,9 @@ class LambdaEvaluation (PriorityEvaluation) :
 
     def eval (self, vtx_id=None, context=None) :
         """ 
-            Eval the dataflow from vtx_id with a particular context
-            @param vtx_id : vertex id to start the evaluation
-            @param context : list a value to assign to lambda variables
+        Eval the dataflow from vtx_id with a particular context
+        @param vtx_id : vertex id to start the evaluation
+        @param context : list a value to assign to lambda variables
         """
 
         self.lambda_value.clear() 

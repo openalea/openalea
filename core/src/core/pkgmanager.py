@@ -134,7 +134,7 @@ class PackageManager(object):
             base = epoint.dist.location
             m = epoint.module_name.split('.')
             p = os.path.join(base, *m)
-            #print "Wralea entry point: ", p
+            print "Wralea entry point: ", p
             self.add_wraleapath(p)
 
         # Search in openalea namespace
