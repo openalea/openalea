@@ -34,6 +34,9 @@
          <attribute name="title" >
           <string>Package</string>
          </attribute>
+         <attribute name="icon" >
+          <iconset resource="images.qrc" >:/icons/package.png</iconset>
+         </attribute>
          <layout class="QVBoxLayout" >
           <property name="spacing" >
            <number>6</number>

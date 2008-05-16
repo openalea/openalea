@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Apr  4 06:59:34 2008
+# Created: Fri May 16 17:18:34 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,7 +39,7 @@ class Ui_MainWindow(object):
         self.vboxlayout1.setSpacing(6)
         self.vboxlayout1.setMargin(6)
         self.vboxlayout1.setObjectName("vboxlayout1")
-        self.tabPackager.addTab(self.packageview,"")
+        self.tabPackager.addTab(self.packageview,QtGui.QIcon(":/icons/package.png"),"")
 
         self.categoryview = QtGui.QWidget()
         self.categoryview.setObjectName("categoryview")

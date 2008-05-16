@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.4.1
+    * Fix bug with develop command and namespace
 OpenAlea.Deploy 0.4.0
     * Improve Develop command : manage namespace and environment variables
     * Reinstall library if they are missing (but not egm)

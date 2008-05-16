@@ -6,11 +6,11 @@ from os.path import join as pj
 setup(
     # Metadata for PyPi
     name = "OpenAlea.DeployGui",
-    version = "0.3.3",
+    version = "0.4.0",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "OpenAlea graphical installer",
-    license = 'Cecill-C',
+    license = 'Cecill-V2',
     keywords = ['Graphical installer'],
     url = 'openalea.gforge.inria.fr',
 

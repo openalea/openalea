@@ -9,9 +9,6 @@ def set_path():
 
     dir = os.path.dirname(__file__)
 
-    pkg_resources._handle_ns('openalea.core', join('core/src'))
-    
-
     pkg_dirs = { 'openalea.core': "core/src",
                  'openalea.visualea':"visualea/src",
                  'openalea.deploy':"deploy/src/openalea",

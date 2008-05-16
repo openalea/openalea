@@ -156,7 +156,7 @@ class Package(NoCaseDict):
 
             s.add(os.path.abspath(os.path.join(self.path, f)))
 
-        for module in sys.modules.itervalues():
+        for module in sys.modules.values():
             if(not module): continue
             try:
                 modulefile = os.path.abspath(module.__file__)

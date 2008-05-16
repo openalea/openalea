@@ -39,7 +39,8 @@ setup(
                     'openalea.core.system' : pj('src','core', 'system'),
                     'openalea.core.algo' : pj('src','core', 'algo'),
                     'openalea.core.graph' : pj('src','core', 'graph'),
-                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface') 
+                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface'),
+                    '':'src',
                   },
 
     # Dependencies
