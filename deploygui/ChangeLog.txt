@@ -1,3 +1,7 @@
+Version 0.4:
+    * Improve interface (check all, link for documentation)
+    * Add custom egg creation tab (thanks to Frederic Boudon)
+
 Version 0.3:
     
     * Add button to select all package in a list	
