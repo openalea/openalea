@@ -14,9 +14,12 @@
 #
 
 __doc__ = """
-INRIA GForge SOAP python API wrappers
+INRIA GForge SOAP python API wrappers (based on SOAPpy)
 See test functions below for usage examples
 """
+
+import pkg_resources
+pkg_resources.require("soappy")
 
 import os, sys
 from SOAPpy import SOAPProxy, WSDL
@@ -293,21 +296,101 @@ def convert_to_id(project_id=None, package_id=None, release_id=None, file_id=Non
 
 
 ################################################################################
-def add_package(project_id, package_name):
-    """ """
+def add_package(project_id, package_name, public=True):
+    """ Create a new package """
+    
+    global session, server
+    
+    (project_id,) = convert_to_id(project_id)
+    
+    try:
+        server.addPackage(session, project_id, package_name, int(public))
+    except Exception, e:
+        print e
 
 
-def add_release():
-    """ """
+def add_release(project_id, package_id, release_name, notes, changes):
+    """ Create a new release """
+    
+    global session, server
+
+    project_id, package_id = convert_to_id(project_id, package_id,)
+
+    try:
+        server.addRelease(session, project_id, package_id, release_name, notes, changes)
+    except Exception, e:
+        print e
+        
 
 
-def add_file():
-    """ """
+def add_file(project_id, package_id, release_id, filename, 
+             proc_type="any", file_type="other"):
+    """ A a file in a release """
 
     
+    global session, server
+
+    project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
+
+    name = os.path.basename(filename)
+
+    # convert file contents
+    import base64, time
+    f = open(filename, "rb")
+    binstr =  f.read()
+    f.close()
+    filestr = base64.b64encode(binstr)
+
+    # get type and processor
+    type = type_id.get(file_type, type_id['other'])
+    processor = proc_id.get(proc_type, proc_id['any'])
+
+    release_time = int(time.mktime(time.localtime()))
+    print "Uploading %s..."%(name,)
+
+    try:
+        server.addFile(session, project_id, package_id, release_id,
+                       name, filestr, type, processor, release_time)
+        print "ok"
+    except Exception, e:
+        print e
 
 
 
+# CONST
+
+proc_id = { "i386" : 1000,
+            "ppc": 2000,
+            "mips" : 3000,
+            "sparc" : 4000,
+            "ultrasparc": 5000,
+            "ia64": 6000,
+            "alpha" : 7000,
+            "any" : 8000,
+            "other" : 9999,
+            }
+
+type_id = { ".deb" : 1000,
+            ".rpm": 2000,
+            ".zip" : 3000,
+            ".bz2" : 3100,
+            ".gz" : 3110,
+            "src .zip" : 5000,
+            "src .bz2" : 5010,
+            "src .gz" : 5020,
+            "src .rpm" : 5100,
+            "src other" : 5900,	
+            ".jpg" : 8000,
+            ".txt" : 8100,
+            ".html" : 8200,
+            ".pdf" : 8300,
+            ".dmg" : 4000,
+            ".pkg" : 4010,
+            "other" : 9999,
+            }
+            
+            
+				
 
 ################################################################################
 def test_login():
@@ -381,4 +464,23 @@ def test_file():
     f.close()
     os.remove(filename)
 
+
+def test_add_pkg():
+
+    if(not session) : login()
+    add_package("openalea", "test_pkg")
+    assert get_package_id("openalea", "test_pkg") >0
+
+
+def test_add_release():
+
+    if(not session) : login()
+    add_release("openalea", "test_pkg", "0.1", "notes", "changes")
+    assert get_release_id("openalea", "test_pkg", "0.1") >0
+
+def test_add_file():
+
+    if(not session) : login()
+    add_file("openalea", "test_pkg", "0.1", "./core.tgz", file_type="srcgz")
+    assert get_file_id("openalea", "test_pkg", "0.1", "core.tgz") >0
 
