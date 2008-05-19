@@ -102,7 +102,6 @@ def get_project_details(project_id):
     return id
 
 
-
 def get_packages(project_id):
     """ 
     Return a list of package name 
@@ -516,6 +515,7 @@ def test_add_release():
     if(not session) : login()
     add_release("openalea", "test_pkg", "0.1", "notes", "changes")
     assert get_release_id("openalea", "test_pkg", "0.1") >0
+
 
 def test_add_file():
 
