@@ -15,14 +15,16 @@
 
 __doc__ = """
 INRIA GForge SOAP python API wrappers (based on SOAPpy)
-See test functions below for usage examples
+See test functions below 
 """
 
 import pkg_resources
-pkg_resources.require("soappy")
+pkg_resources.require('soappy')
 
 import os, sys
 from SOAPpy import SOAPProxy, WSDL
+import base64
+import time
 
 # URLs
 url = 'https://gforge.inria.fr:443/soap/index.php'
@@ -34,7 +36,7 @@ encoding = 'http://schemas.xmlsoap.org/soap/encoding/'
 # SOAP proxy 
 server = SOAPProxy(url, namespace=namespace, encoding='ISO-8859-1') 
 
-#Uncomment the following lines for SAOP Debug informations
+#Uncomment the following lines for SOAP Debug informations
 #server.config.dumpSOAPOut = 1
 #server.config.dumpSOAPIn = 1
 
@@ -87,7 +89,8 @@ def get_project_id(project_name):
 
 def get_project_details(project_id):
     """ 
-    Return thre project details in a dict
+    Return the project details in a dictionary
+    @param project_id : a number or a name
     """
     global session, server
     
@@ -95,13 +98,16 @@ def get_project_details(project_id):
 
     ret = server.getGroups(session, [project_id])
     id = ret[0]
+
     return id
 
 
 
 def get_packages(project_id):
-    """ Return a list of package_name """
-
+    """ 
+    Return a list of package name 
+    @param project_id : a number or a name
+    """
     global session, server
 
     (project_id,) = convert_to_id(project_id)
@@ -110,8 +116,10 @@ def get_packages(project_id):
                      
 
 def get_package_id(project_id, pkg_name):
-    """ Return the package id, -1 if failed """
-
+    """ 
+    Return the package id, -1 if failed 
+    @param project_id : a number or a name
+    """
     global session, server
     (project_id,) = convert_to_id(project_id)
 
@@ -134,8 +142,11 @@ def get_package_id(project_id, pkg_name):
 
 
 def get_releases(project_id, package_id):
-    """ Return a list of package_name """
-
+    """ 
+    Return a list of release name 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    """
     global session, server
     project_id, package_id = convert_to_id(project_id, package_id)
 
@@ -144,8 +155,11 @@ def get_releases(project_id, package_id):
 
 
 def get_release_id(project_id, package_id, release_name):
-    """ Return the release id, -1 if failed """
-
+    """ 
+    Return the release id, -1 if failed 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    """
     global session, server
     release_name = release_name.lower()
     
@@ -168,8 +182,12 @@ def get_release_id(project_id, package_id, release_name):
 
 
 def get_release_details(project_id, package_id, release_id):
-    """ Return a tuple (name, date, notes, changes) """
-
+    """ 
+    Return a tuple (name, date, notes, changes) 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    @param release_id : a number or a name
+    """
     global session, server
 
     project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
@@ -196,8 +214,12 @@ def get_release_details(project_id, package_id, release_id):
 
 
 def get_files(project_id, package_id, release_id):
-    """ Return a list of package_name """
-
+    """ 
+    Return a list of package_name 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    @param release_id : a number or a name
+    """
     global session, server
 
     project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
@@ -207,7 +229,9 @@ def get_files(project_id, package_id, release_id):
 
 
 def get_file_id(project_id, package_id, release_id, file_name):
-    """ Return a file id """
+    """ 
+    Return a file id 
+    """
 
     global session, server
     file_name = file_name.lower()
@@ -234,8 +258,11 @@ def get_file(project_id, package_id, release_id, file_id, filename=None):
     """ 
     Download a file given its id 
     If filename is not None, write file in filename
-
-    Return filename
+    Return the filename
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    @param release_id : a number or a name
+    @param file_id : a number or a name
     """
     global session, server
 
@@ -257,7 +284,6 @@ def get_file(project_id, package_id, release_id, file_id, filename=None):
     filestr = server.getFile(session, project_id, package_id, release_id, file_id)
 
     # convert to binary structure
-    import base64
     binstr = base64.b64decode(filestr)
 
     # write file
@@ -273,8 +299,11 @@ def convert_to_id(project_id=None, package_id=None, release_id=None, file_id=Non
     """
     Utility function : Convert full names to id(s)
     Return an array containing id(s)
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    @param release_id : a number or a name
+    @param file_id : a number or a name
     """
-
     ret = []
     if(project_id and isinstance(project_id, str)):
         project_id = get_project_id(project_id)
@@ -297,7 +326,10 @@ def convert_to_id(project_id=None, package_id=None, release_id=None, file_id=Non
 
 ################################################################################
 def add_package(project_id, package_name, public=True):
-    """ Create a new package """
+    """ 
+    Create a new package 
+    @param project_id : a number or a name
+    """
     
     global session, server
     
@@ -310,7 +342,11 @@ def add_package(project_id, package_name, public=True):
 
 
 def add_release(project_id, package_id, release_name, notes, changes):
-    """ Create a new release """
+    """ 
+    Create a new release 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    """
     
     global session, server
 
@@ -325,9 +361,12 @@ def add_release(project_id, package_id, release_name, notes, changes):
 
 def add_file(project_id, package_id, release_id, filename, 
              proc_type="any", file_type="other"):
-    """ A a file in a release """
-
-    
+    """ 
+    Add a file in a particular release 
+    @param project_id : a number or a name
+    @param package_id : a number or a name
+    @param release_id : a number or a name
+    """
     global session, server
 
     project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
@@ -335,7 +374,6 @@ def add_file(project_id, package_id, release_id, filename,
     name = os.path.basename(filename)
 
     # convert file contents
-    import base64, time
     f = open(filename, "rb")
     binstr =  f.read()
     f.close()
@@ -346,6 +384,7 @@ def add_file(project_id, package_id, release_id, filename,
     processor = proc_id.get(proc_type, proc_id['any'])
 
     release_time = int(time.mktime(time.localtime()))
+
     print "Uploading %s..."%(name,)
 
     try:
