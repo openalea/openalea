@@ -507,19 +507,19 @@ def test_add_pkg():
 
     if(not session) : login()
     add_package("openalea", "test_pkg")
-    assert get_package_id("openalea", "test_pkg") >0
+    assert get_package_id("openalea", "test_pkg") > 0
 
 
 def test_add_release():
 
     if(not session) : login()
     add_release("openalea", "test_pkg", "0.1", "notes", "changes")
-    assert get_release_id("openalea", "test_pkg", "0.1") >0
+    assert get_release_id("openalea", "test_pkg", "0.1") > 0
 
 
 def test_add_file():
 
     if(not session) : login()
     add_file("openalea", "test_pkg", "0.1", "./core.tgz", file_type="srcgz")
-    assert get_file_id("openalea", "test_pkg", "0.1", "core.tgz") >0
+    assert get_file_id("openalea", "test_pkg", "0.1", "core.tgz") > 0
 

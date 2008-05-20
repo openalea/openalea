@@ -808,3 +808,80 @@ import %s.__init__
         # Set environment
         set_env()
 
+
+
+class alea_upload(Command):
+    """
+    Upload a package on the OpenAlea GForge repository
+    """
+
+    description = "Upload the package on the OpenAlea GForge repository"
+
+    GFORGE_REPOSITORY = "http://gforge.inria.fr"
+
+    user_options = [
+        ('repository=', 'r',
+         "url of repository [default: %s]" % GFORGE_REPOSITORY),
+        ('username=', 'u', "user id"),
+        ('password=', 'p', "user password"),
+        ('project=', None, ""),
+        ('package=', None, ""),
+        ('release=', None, ""),
+        
+        
+        ]
+
+    
+
+    def initialize_options (self):
+        
+        self.username = None
+        self.password = None
+        self.repository = self.GFORGE_REPOSITORY
+        self.project = 'openalea'
+        self.package = ''
+        self.release = ''
+
+
+    def finalize_options (self):
+        
+        if(not self.package):
+            self.package = self.distribution.metadata.get_name()
+
+        if(not self.release):
+            version = self.distribution.metadata.version
+            try:
+                versiontab = version.split(".")[:2]
+                self.release = ".".join(versiontab)
+            except IndexError:
+                self.release = version
+
+    def run (self):
+
+        if not self.distribution.dist_files:
+            raise DistutilsOptionError("No dist file created in earlier command")
+
+        import gforge
+
+        print "LOGIN...."
+        gforge.login(self.username, self. password)
+        
+        for command, pyversion, filename in self.distribution.dist_files:
+            self.upload_file(command, pyversion, filename)
+
+        print "LOGOUT..."
+        gforge.logout()
+
+
+    def upload_file(self, command, pyversion, filename):
+
+        import gforge
+
+        print "Project: ", self.project
+        print "Package: ", self.package
+        print "Release: ", self.release
+        print "Filename: ", filename
+
+        gforge.add_file(self.project, self.package, self.release, filename)
+
+        
