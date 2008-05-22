@@ -389,7 +389,7 @@ def add_file(project_id, package_id, release_id, filename,
     try:
         server.addFile(session, project_id, package_id, release_id,
                        name, filestr, type, processor, release_time)
-        print "ok"
+        print "Done."
     except Exception, e:
         print e
 

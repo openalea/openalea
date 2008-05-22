@@ -45,8 +45,12 @@ def get_default_dyn_lib():
         return os.path.join(basedir, "shared_libs")
 
 
-def get_dyn_lib_dir():
-    """ Return the shared lib directory """
+def get_dyn_lib_dir(use_default=True):
+    """ 
+    Return the shared lib directory 
+    if use_default : return default directory if not defined
+    """
+
     bdir = get_base_dir("openalea.deploy")
     dir = os.path.abspath(join(bdir, os.path.pardir))
 
@@ -54,8 +58,13 @@ def get_dyn_lib_dir():
         f = open(join(dir, "shared-lib.pth"), 'r')
         lib_dir = f.read()
         f.close()
+
     except Exception, e:
-        lib_dir = get_default_dyn_lib()
+
+        if(use_default):
+            lib_dir = get_default_dyn_lib()
+        else:
+            lib_dir = None
         
     return lib_dir
 
@@ -63,6 +72,7 @@ def get_dyn_lib_dir():
 
 def set_dyn_lib_dir(path):
     """ Set the shared lib directory """
+    
     bdir = get_base_dir("openalea.deploy")
     dir = os.path.abspath(join(bdir, os.path.pardir))
     dst = join(dir, "shared-lib.pth")
@@ -86,7 +96,6 @@ def is_lib(filename):
 
 
 def link_lib(src, dst):
-    
     """ 
     Symlink/copy library if necessary
     and create a marker file (egm) if it is absent
@@ -169,11 +178,12 @@ def install_lib(lib_dir):
     if(not os.path.exists(lib_dir)):
         mkpath(lib_dir)
 
-    old_lib_dir = get_dyn_lib_dir()
+    old_lib_dir = get_dyn_lib_dir(False)
     changed = (old_lib_dir != lib_dir)
+    clean_all = (changed and old_lib_dir)
 
     # remove unused lib
-    clean_lib(old_lib_dir, changed)
+    clean_lib(old_lib_dir, clean_all)
 
     if(changed):
         set_dyn_lib_dir(lib_dir)

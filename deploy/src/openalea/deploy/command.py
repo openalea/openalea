@@ -863,13 +863,24 @@ class alea_upload(Command):
 
         import gforge
 
-        print "LOGIN...."
+        print "Login...."
         gforge.login(self.username, self. password)
+
+        # Check package
+        if(gforge.get_package_id(self.project, self.package) < 0):
+            gforge.add_package(self.project, self.package)
+
+        # Check release
+        if(gforge.get_release_id(self.project, self.package) < 0):
+            notes = ""
+            changes = ""
+            gforge.add_release(self.project, self.package, self.release, notes, changes)
+
         
         for command, pyversion, filename in self.distribution.dist_files:
             self.upload_file(command, pyversion, filename)
 
-        print "LOGOUT..."
+        print "Logout..."
         gforge.logout()
 
 
