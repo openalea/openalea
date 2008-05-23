@@ -27,17 +27,30 @@ import sys
 import shutil
 import glob
 from os.path import join
+import sys
 
 egg_marker_extension = ".egm"
 
 from openalea.deploy.util import get_all_lib_dirs, get_base_dir, INSTALL_DIST
+from openalea.deploy.util import is_virtual_env
 from distutils.dir_util import mkpath
 from distutils.sysconfig import get_python_lib
 
 
 def get_default_dyn_lib():
     """ Return the default path for dynamic library """
-    
+
+    basedir = get_python_lib()
+
+    # Virtual environment
+    if(is_virtual_env()):
+        if("posix" in os.name):
+            return os.path.abspath( 
+                os.path.join(basedir, '../../lib') )
+        else:
+            return os.path.join(basedir, "shared_libs")
+
+    # Standard environment
     if("posix" in os.name):
         return "/usr/local/lib"
     else:
@@ -73,6 +86,7 @@ def get_dyn_lib_dir(use_default=True):
 def set_dyn_lib_dir(path):
     """ Set the shared lib directory """
     
+    path = os.path.abspath(path)
     bdir = get_base_dir("openalea.deploy")
     dir = os.path.abspath(join(bdir, os.path.pardir))
     dst = join(dir, "shared-lib.pth")
@@ -183,7 +197,8 @@ def install_lib(lib_dir):
     clean_all = (changed and old_lib_dir)
 
     # remove unused lib
-    clean_lib(old_lib_dir, clean_all)
+    if(old_lib_dir):
+        clean_lib(old_lib_dir, clean_all)
 
     if(changed):
         set_dyn_lib_dir(lib_dir)

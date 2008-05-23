@@ -37,26 +37,29 @@ def set_lsb_env(name, vars):
     if(not 'posix' in os.name): return
 
     # Build string
-    exportstr = "############ OPENALEA Configuration ############\n\n"
+    exportstr = "############ Configuration ############\n\n"
 
     for newvar in vars:
 
         vname, value = newvar.split('=')
         
         # Exception
-        if(vname == "LD_LIBRARY_PATH" and value == "/usr/local/lib"): continue
+        if(vname == "LD_LIBRARY_PATH" and 
+           (value == "/usr/local/lib") or
+           (value == "/usr/lib")
+           ): continue
 
         if(((vname == "LD_LIBRARY_PATH") or (vname== "PATH")) and value):
             exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
             exportstr += '  export %s=%s\n'%(vname, value,)
             exportstr += 'else\n'
-            exportstr +='  export %s=$%s:%s\n'%(vname, vname, value,)
+            exportstr +='  export %s=$%s:%s\n'%(vname, value, vname,)
             exportstr += 'fi\n\n'
                     
         elif(vname and value):
             exportstr += 'export %s=%s\n\n'%(vname, value)
     
-    exportstr += "############ OPENALEA Configuration END ########"
+    exportstr += "############ Configuration END ########"
 
     try:
         filename = '/etc/profile.d/'+name+'.sh'
@@ -66,20 +69,24 @@ def set_lsb_env(name, vars):
         print "Trying to setup environment in the ~/.bashrc file"
 
         try:
+            script_name = ".%s.sh"%(name)
             filename = os.path.join(os.path.expanduser( '~' ), ".bashrc")
             filehandle = open(filename, 'r')
             bashrc = filehandle.read()
             filehandle.close()
 
-            if(not "source ~/.openalea.sh" in bashrc):
-                bashrc += "\nsource ~/.openalea.sh\n"
+            bashrc_cmd = "source ~/%s\n"%(script_name,)
+            
+            if(not bashrc_cmd in bashrc):
+                bashrc += "\n" + bashrc_cmd
             
             filehandle = open(filename, 'w')
             filehandle.write(bashrc)
             filehandle.close()
             
-            filename = os.path.join(os.path.expanduser( '~' ), ".openalea.sh")
+            filename = os.path.join(os.path.expanduser( '~' ), script_name)
             filehandle = open(filename, 'w')
+
 
         except Exception, e:
             print e
@@ -94,8 +101,8 @@ def set_lsb_env(name, vars):
     filehandle.close()
     #cmdstr = "(echo $SHELL|grep bash>/dev/null)&&. %s||source %s"%(filename,filename)
     cmdstr = ". %s"%(filename,)
-    print "Executing :", cmdstr
-    os.system(cmdstr)
+    print "To enable new OpenAlea config, open a new shell or type"
+    print '  $ %s'%(bashrc_cmd)
 
 
 

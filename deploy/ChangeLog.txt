@@ -1,7 +1,8 @@
 OpenAlea.Deploy 0.4.2
     * Add <alea_upload> command (GForge upload)
     * Add gforge module (SOAP communication)
-    * Fix dyn-lib bug with virtual env
+    * Fix dyn-lib bug with virtual env and with relative path
+    * Add option to alea_config to print dyn-lib
 OpenAlea.Deploy 0.4.1
     * Fix bug with <develop> command and namespaces
 OpenAlea.Deploy 0.4.0

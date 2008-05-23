@@ -57,6 +57,7 @@ import new
 from util import get_all_lib_dirs, get_all_bin_dirs, DEV_DIST
 from install_lib import get_dyn_lib_dir
 from util import get_base_dir, get_repo_list, OPENALEA_PI
+from util import is_virtual_env
 from environ_var import set_lsb_env, set_win_env
 
 import install_lib
@@ -671,19 +672,26 @@ def set_env(dyn_lib=None):
     dyn_lib is the directory to install dynamic library
     """
 
+    virtualenv = is_virtual_env()
+
     print "Install dynamic libs "
-    
+
     #lib_dirs = list(get_all_lib_dirs())
     dyn_lib = install_lib.install_lib(dyn_lib)
     
-
+    
     print "Setting environment variables"
 
     lib_dirs = [dyn_lib] + list(get_all_lib_dirs(precedence=DEV_DIST))
     bin_dirs = list(get_all_bin_dirs())
-        
+
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
     print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
+
+
+    if(is_virtual_env()) : 
+        print "EDIT the activate script to setup PATH and/or LD_LIBRARY_PATH"
+        return
 
     all_dirs = set(lib_dirs + bin_dirs)
     set_win_env(['OPENALEA_LIB=%s'%(';'.join(all_dirs)),
@@ -796,7 +804,6 @@ import %s.__init__
                 f.close()
 
 
-
     def run(self):
         old_develop.run(self)
 
@@ -828,10 +835,8 @@ class alea_upload(Command):
         ('package=', None, ""),
         ('release=', None, ""),
         
-        
         ]
 
-    
 
     def initialize_options (self):
         

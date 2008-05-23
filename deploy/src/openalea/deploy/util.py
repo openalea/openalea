@@ -221,3 +221,10 @@ def get_recommended_prefix():
     except Exception, e:
         print e
         return ["openalea"]
+
+
+def is_virtual_env():
+    """ Return True if we are in a virtual env"""
+
+    import site
+    return hasattr(site, "virtual_addsitepackages")
