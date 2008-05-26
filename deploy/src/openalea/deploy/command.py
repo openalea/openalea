@@ -861,6 +861,23 @@ class alea_upload(Command):
             except IndexError:
                 self.release = version
 
+        if os.environ.has_key('HOME'):
+            rc = os.path.join(os.environ['HOME'], '.pypirc')
+            if os.path.exists(rc):
+                self.announce('Using PyPI login from %s' % rc)
+                config = ConfigParser.ConfigParser({
+                        'username':'',
+                        'password':'',
+                        'repository':''})
+                config.read(rc)
+                if not self.repository:
+                    self.repository = config.get('server-login', 'repository')
+                if not self.username:
+                    self.username = config.get('server-login', 'username')
+                if not self.password:
+                    self.password = config.get('server-login', 'password')
+
+
     def run (self):
 
         if not self.distribution.dist_files:
