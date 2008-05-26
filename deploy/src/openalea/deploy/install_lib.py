@@ -27,9 +27,8 @@ import sys
 import shutil
 import glob
 from os.path import join
-import sys
 
-egg_marker_extension = ".egm"
+EGG_MARKER_EXTENSION = ".egm"
 
 from openalea.deploy.util import get_all_lib_dirs, get_base_dir, INSTALL_DIST
 from openalea.deploy.util import is_virtual_env
@@ -65,10 +64,10 @@ def get_dyn_lib_dir(use_default=True):
     """
 
     bdir = get_base_dir("openalea.deploy")
-    dir = os.path.abspath(join(bdir, os.path.pardir))
+    up_dir = os.path.abspath(join(bdir, os.path.pardir))
 
     try:
-        f = open(join(dir, "shared-lib.pth"), 'r')
+        f = open(join(up_dir, "shared-lib.pth"), 'r')
         lib_dir = f.read()
         f.close()
 
@@ -117,7 +116,7 @@ def link_lib(src, dst):
     dst : destination lib file
     """
 
-    mark_file = dst + egg_marker_extension
+    mark_file = dst + EGG_MARKER_EXTENSION
 
     # Test if there is a marker
     try:
@@ -129,7 +128,7 @@ def link_lib(src, dst):
         if(mark == src and os.path.exists(dst)):
             return False
 
-    except Exception, e:
+    except:
         pass
     
     # copy
@@ -157,13 +156,13 @@ def clean_lib(lib_dir, clean_all=False):
     If clean_all is True, remove all library with egm
     """
 
-    for egm in glob.glob(join(lib_dir, "*" + egg_marker_extension)):
+    for egm in glob.glob(join(lib_dir, "*" + EGG_MARKER_EXTENSION)):
         f = open(egm, 'r')
         srcfile = f.read()
         f.close()
 
         if(not os.path.exists(srcfile) or clean_all):
-            libfile = egm[:- len(egg_marker_extension)]
+            libfile = egm[:- len(EGG_MARKER_EXTENSION)]
 
             try:
                 print "Removing ", libfile

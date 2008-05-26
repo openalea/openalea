@@ -21,8 +21,8 @@ See test functions below
 import pkg_resources
 pkg_resources.require('soappy')
 
-import os, sys
-from SOAPpy import SOAPProxy, WSDL
+import os
+from SOAPpy import SOAPProxy
 import base64
 import time
 
@@ -189,7 +189,8 @@ def get_release_details(project_id, package_id, release_id):
     """
     global session, server
 
-    project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
+    project_id, package_id, release_id = \
+        convert_to_id(project_id, package_id, release_id)
 
     try:
         releases = server.getReleases(session, project_id, package_id)
@@ -221,7 +222,8 @@ def get_files(project_id, package_id, release_id):
     """
     global session, server
 
-    project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
+    project_id, package_id, release_id = \
+        convert_to_id(project_id, package_id, release_id)
 
     files = server.getFiles(session, project_id, package_id, release_id)
     return [ f['name'] for f in files ]
@@ -235,7 +237,8 @@ def get_file_id(project_id, package_id, release_id, file_name):
     global session, server
     file_name = file_name.lower()
 
-    project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
+    project_id, package_id, release_id = \
+        convert_to_id(project_id, package_id, release_id)
 
     try:
         files = server.getFiles(session, project_id, package_id, release_id)
@@ -265,8 +268,8 @@ def get_file(project_id, package_id, release_id, file_id, filename=None):
     """
     global session, server
 
-    project_id, package_id, release_id, file_id = convert_to_id(project_id, package_id, 
-                                                                release_id, file_id)
+    project_id, package_id, release_id, file_id = \
+        convert_to_id(project_id, package_id, release_id, file_id)
 
 
     if(not filename):
@@ -352,7 +355,8 @@ def add_release(project_id, package_id, release_name, notes, changes):
     project_id, package_id = convert_to_id(project_id, package_id,)
 
     try:
-        server.addRelease(session, project_id, package_id, release_name, notes, changes)
+        server.addRelease(session, project_id, package_id, 
+                          release_name, notes, changes)
     except Exception, e:
         print e
         
@@ -368,7 +372,8 @@ def add_file(project_id, package_id, release_id, filename,
     """
     global session, server
 
-    project_id, package_id, release_id = convert_to_id(project_id, package_id, release_id)
+    project_id, package_id, release_id = \
+        convert_to_id(project_id, package_id, release_id)
 
     name = os.path.basename(filename)
 

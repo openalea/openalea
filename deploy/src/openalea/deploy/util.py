@@ -14,19 +14,18 @@
 #
 
 
-__doc__="""
+__doc__ = """
 Deployment utilities
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ =" $Id$ "
 
 
 
 import pkg_resources
 import os, sys
 from os.path import join as pj
-from distutils.sysconfig import get_python_lib
 
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
@@ -40,7 +39,7 @@ INSTALL_DIST = [pkg_resources.EGG_DIST,
                 pkg_resources.SOURCE_DIST, 
                 pkg_resources.CHECKOUT_DIST,]
 
-DEV_DIST = [pkg_resources.DEVELOP_DIST,]
+DEV_DIST = [pkg_resources.DEVELOP_DIST]
 ALL_DIST = DEV_DIST + INSTALL_DIST
 
 # EGG Management
@@ -213,8 +212,8 @@ def get_recommended_prefix():
     import urllib
     try:
         ret = []
-        u = urllib.urlopen(OPENALEA_RECOMMENDED_PKG)
-        for i in u:
+        prefixes = urllib.urlopen(OPENALEA_RECOMMENDED_PKG)
+        for i in prefixes:
             ret.append(i.strip())
         return ret
 

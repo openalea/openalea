@@ -13,12 +13,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-__doc__="""
+__doc__ = """
 Setuptools commands
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 
@@ -53,6 +53,7 @@ from distutils.dir_util import mkpath
 
 import re
 import new
+import ConfigParser
 
 from util import get_all_lib_dirs, get_all_bin_dirs, DEV_DIST
 from install_lib import get_dyn_lib_dir
@@ -61,7 +62,10 @@ from util import is_virtual_env
 from environ_var import set_lsb_env, set_win_env
 
 import install_lib
-import ConfigParser
+
+
+
+
 
 # Utility
 def copy_data_tree (src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
