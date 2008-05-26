@@ -53,7 +53,7 @@ def set_lsb_env(name, vars):
             exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
             exportstr += '  export %s=%s\n'%(vname, value,)
             exportstr += 'else\n'
-            exportstr +='  export %s=$%s:%s\n'%(vname, value, vname,)
+            exportstr +='   export %s=%s:$%s\n'%(vname, value, vname,)
             exportstr += 'fi\n\n'
                     
         elif(vname and value):
