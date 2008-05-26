@@ -61,7 +61,7 @@ from util import is_virtual_env
 from environ_var import set_lsb_env, set_win_env
 
 import install_lib
-
+import ConfigParser
 
 # Utility
 def copy_data_tree (src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
