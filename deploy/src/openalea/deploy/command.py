@@ -686,7 +686,7 @@ def set_env(dyn_lib=None):
     
     print "Setting environment variables"
 
-    lib_dirs = [dyn_lib] + list(get_all_lib_dirs(precedence=DEV_DIST))
+    lib_dirs = list(get_all_lib_dirs(precedence=DEV_DIST)) + [dyn_lib]
     bin_dirs = list(get_all_bin_dirs())
 
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
