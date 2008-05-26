@@ -876,7 +876,7 @@ class alea_upload(Command):
             gforge.add_package(self.project, self.package)
 
         # Check release
-        if(gforge.get_release_id(self.project, self.package) < 0):
+        if(gforge.get_release_id(self.project, self.package, self.release) < 0):
             notes = ""
             changes = ""
             gforge.add_release(self.project, self.package, self.release, notes, changes)
