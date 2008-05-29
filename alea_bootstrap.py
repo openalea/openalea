@@ -625,11 +625,18 @@ ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi"
  
 import subprocess
 def after_install(options, home_dir):
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), '-f', ALEA_PI_URL,
+
+    if('win32' in sys.platform):
+        bin_dir = 'Scripts'
+    else:
+        bin_dir = 'bin'
+    
+
+    subprocess.call([join(home_dir, bin_dir, 'easy_install'), '-f', ALEA_PI_URL,
                      'openalea.deploy'])
 
-    for pkg in ['ipython']:
-        subprocess.call([join(home_dir, 'bin', 'alea_install'), '-f', ALEA_PI_URL,
+    for pkg in []:
+        subprocess.call([join(home_dir, bin_dir, 'alea_install'), '-f', ALEA_PI_URL,
                          pkg])
 
 
