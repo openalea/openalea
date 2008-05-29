@@ -41,7 +41,7 @@ class Python:
           if not os.path.exists(lib_dir):
               # case with virtual env...
               lib_dir = pj(os.path.dirname(get_config_var('LIBDEST')),'libs')
-              self._default['lib'] = lib_dir
+          self._default['lib'] = lib_dir
       else:
          self._default['lib'] = '/usr/lib'
 
