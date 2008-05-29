@@ -36,9 +36,12 @@ class Python:
    def default(self):
 
       self._default['include'] = get_python_inc(plat_specific=1)
-
       if isinstance(platform, Win32):
-         self._default['lib'] = pj(PREFIX,"libs")
+          lib_dir = pj(PREFIX,"libs")
+          if not os.path.exists(lib_dir):
+              # case with virtual env...
+              lib_dir = pj(os.path.dirname(get_config_var('LIBDEST')),'libs')
+              self._default['lib'] = lib_dir
       else:
          self._default['lib'] = '/usr/lib'
 
