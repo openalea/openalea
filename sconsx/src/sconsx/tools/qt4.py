@@ -39,7 +39,13 @@ class QT:
         qt_bin = '$QTDIR/bin'
         qt_inc = '$QTDIR/include'
 
-        if not qt_dir:
+        if isinstance(platform, Linux):
+            # Use LSB spec
+            qt_dir = '/usr'
+            qt_bin = '/usr/bin'
+            qt_inc = '/usr/include/qt4'
+            qt_lib = '/usr/lib'
+        elif not qt_dir:
             if isinstance(platform, Win32):
 
                 # Try to use openalea egg

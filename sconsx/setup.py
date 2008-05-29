@@ -48,7 +48,8 @@ setup(name = name,
       zip_safe = False,
 
       packages = ["openalea.sconsx", "openalea.sconsx.tools"],
-      package_dir = { pkg_name : pj('src','sconsx')},
+      package_dir = { pkg_name : pj('src','sconsx'),
+                      '' : 'src'},
 
       # Dependencies
       setup_requires = ['openalea.deploy'],

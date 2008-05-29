@@ -42,7 +42,7 @@ class Compiler:
          compilers = ['gcc']
          libs_suffix = ''
       elif isinstance(platform, Win32):
-         compilers = ['msvc', 'mingw']
+         compilers = ['mingw', 'msvc']
          libs_suffix = '-vc80'
       else:
          raise "Add a compiler support for your os !!!"
