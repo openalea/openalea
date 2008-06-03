@@ -729,7 +729,7 @@ pdir = os.path.abspath(pdir)
 
 __path__ = [pdir] + __path__[:]
 
-import %s.__init__
+from %s.__init__ import *
 """
 
     def initialize_options (self):
