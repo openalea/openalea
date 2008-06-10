@@ -130,6 +130,7 @@ class Package(NoCaseDict):
         ret = []
         for file in os.listdir(self.path):
             src = os.path.join(self.path, file)
+            print "src :: ", src
             if(not os.path.isfile(src) or
                file.endswith(".pyc") or
                file.startswith(".") 
