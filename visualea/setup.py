@@ -38,7 +38,7 @@ setup(
     create_namespaces = True,
     
     packages = [pkg_name],
-    package_dir = {pkg_name : pj('src', 'visualea')},
+    package_dir = {pkg_name : pj('src', 'visualea'), '' : 'src', },
     include_package_data = True,
     zip_safe = False,
     
