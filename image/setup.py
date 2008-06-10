@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # Package name
-name = 'openalea.image'
+name = 'Openalea.Image'
 namespace = 'openalea'
 pkg_name = 'openalea.image'
 version = '0.1.0' 
@@ -38,7 +38,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'image')},
+    package_dir={pkg_name : pj('src', 'image'), '':'src',},
 
     # entry_points
     entry_points = {

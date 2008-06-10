@@ -42,7 +42,7 @@ setup(
               'openalea.catalog.string',
               ],
 
-    package_dir={pkg_name : pj('src', 'catalog')},
+    package_dir={pkg_name : pj('src', 'catalog'), "":"src" },
 
     # Dependencies
     setup_requires = ['openalea.deploy'],

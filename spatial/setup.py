@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'spatial')},
+    package_dir={pkg_name : pj('src', 'spatial'), '' : 'src', },
 
     # Dependencies
     setup_requires = ['openalea.deploy'],

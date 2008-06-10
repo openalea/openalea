@@ -61,7 +61,7 @@ setup(
     namespace_packages = [namespace],
     create_namespaces = True,
     packages =  [ 'openalea.' + x for x in find_packages('src') ],
-    package_dir = { 'openalea.starter':  pj('src','starter'),  }, 
+    package_dir = { 'openalea.starter':  pj('src','starter'), '' : 'src', }, 
 
     
     include_package_data = True,

@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # Package name
-name = 'openalea.stat'
+name = 'Openalea.Stat'
 namespace = 'openalea'
 pkg_name = 'openalea.stat'
 version = '0.1.0' 
@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'stat')},
+    package_dir={pkg_name : pj('src', 'stat'), '' : 'src', },
 
     # Dependencies
     setup_requires = ['openalea.deploy'],

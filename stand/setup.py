@@ -34,7 +34,7 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'stand')},
+    package_dir={pkg_name : pj('src', 'stand'), '' : 'src', },
 
     # Dependencies
     setup_requires = ['openalea.deploy'],

@@ -17,11 +17,15 @@ def set_path():
                  'openalea.plotools' : "plotools/src",
                  'openalea.scipy' : "scipy/src",
                  'openalea.rpy' : "rpy/src",
+                 'openalea.image' : "image/src",
 		 'openalea.spatial' : "spatial/src",
                  'openalea.stand' : "stand/src",
-                 'openalea.fractalysis' : "fractalysis/src",
+                 'openalea.stat' : "stat/src",
+                 'openalea.toto' : "toto/src",
+                 'openalea.plantgl' : "plantgl/src",
                  'openalea.image' : "image/src",
                  'openalea.demo' : "demo",
+                 #'openalea.fractalysis' : "fractalysis/src",
                  }
 
  
