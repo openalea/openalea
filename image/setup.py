@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # Package name
-name = 'Openalea.Image'
+name = 'OpenAlea.Image'
 namespace = 'openalea'
 pkg_name = 'openalea.image'
 version = '0.1.0' 

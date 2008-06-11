@@ -57,7 +57,7 @@ setup(
                    'catalog.file = openalea.catalog.file',
                    'catalog.functional = openalea.catalog.functional',
                    'catalog.math = openalea.catalog.math', 
-                   'catalog.model = openalea.catalg.model',
+                   'catalog.model = openalea.catalog.model',
                    'catalog.pickling = openalea.catalog.pickling', 
                    'catalog.python = openalea.catalog.python',
                    'catalog.string = openalea.catalog.string',

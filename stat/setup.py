@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 # Package name
-name = 'Openalea.Stat'
+name = 'OpenAlea.Stat'
 namespace = 'openalea'
 pkg_name = 'openalea.stat'
 version = '0.1.0' 
