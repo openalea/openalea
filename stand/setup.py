@@ -33,8 +33,13 @@ setup(
     zip_safe=False,
 
     
-    packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'stand'), '' : 'src', },
+    packages=[pkg_name,
+              pkg_name + '.forestry_stand',
+              ],
+
+    package_dir={pkg_name : pj('src', 'stand'), 
+                 pkg_name + '.forestry_stand' : pj('src', 'stand', 'forestry_stand') ,
+                 '' : 'src', },
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
@@ -43,7 +48,9 @@ setup(
 
     # entry_points
     entry_points = {
-        "wralea": ["stand = openalea.stand",]
+        "wralea": ["stand = openalea.stand",
+                   "demo = openalea.stand.forestry_stand",
+                   ]
         },
 
                      
