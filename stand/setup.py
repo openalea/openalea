@@ -41,6 +41,8 @@ setup(
                  pkg_name + '.forestry_stand' : pj('src', 'stand', 'forestry_stand') ,
                  '' : 'src', },
 
+    package_data={ '' : ['*.*']},
+
     # Dependencies
     setup_requires = ['openalea.deploy'],
     install_requires = ['openalea.core'],
