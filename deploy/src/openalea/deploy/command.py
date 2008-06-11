@@ -788,11 +788,12 @@ from %s.__init__ import *
         for pkg_name in self.distribution.packages:
 
             full_pkg_name = pkg_name
+                        
             nsprefix = name + '.'
             if(not pkg_name.startswith(nsprefix)) : continue
 
-            # keep first name (ex for openalea.core.algo, we keep core)
-            pkg_name = pkg_name.split('.')[1]
+            # remove first component (ex for openalea.core.algo, we keep core.algo)
+            pkg_name = os.sep.join(pkg_name.split('.')[1:])
 
             # Create an __init__.py to redirect to real package directory
             pkg_dir = os.path.join(nsdir, pkg_name)
