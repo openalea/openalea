@@ -162,8 +162,7 @@ def set_win_env(vars):
                 expand = _winreg.REG_EXPAND_SZ
                 
             _winreg.SetValueEx(key, name, 0, expand, value)
-                        
-            os.environ[name] = value
+            #os.environ[name] = value #not necessary
             
         _winreg.CloseKey(key)    
         _winreg.CloseKey(reg)
