@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.4.4
+    * Fix bug with os.environ['PATH'] under windows
 OpenAlea.Deploy 0.4.3
     * Fix bug with namespace creation and complex __init__.py
 OpenAlea.Deploy 0.4.2

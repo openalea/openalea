@@ -123,7 +123,7 @@ def get_all_lib_dirs(namespace=None, precedence=ALL_DIST):
                 full_location = sh
             else:
                 full_location = pj(location, sh)
-            yield full_location
+            yield os.path.normpath(full_location)
 
 
 def get_all_bin_dirs(namespace=None, precedence=ALL_DIST):
@@ -142,7 +142,7 @@ def get_all_bin_dirs(namespace=None, precedence=ALL_DIST):
                 full_location = sh
             else:
                 full_location = pj(location, sh)
-            yield full_location
+            yield os.path.normpath(full_location)
 
 
 
