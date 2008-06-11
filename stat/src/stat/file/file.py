@@ -20,19 +20,21 @@ from openalea.plotools import plotable
 
 import pylab
 
+__docformat__ = "restructuredtext en"
+
 def Load(path):
     """
     Read a .txt file 
 
     :Parameters:
-     - 'path': path of the .txt file
+     - `path`: path of the .txt file
 
-     :Types:
-     - 'x': string
+    :Types:
+     - `path`: string
 
-     :Returns the file
-     :Returntype: array
-     """
+    :returns: the file
+    :returntype: array
+    """
 
     f = pylab.load(path)
 
@@ -44,20 +46,20 @@ def ExtractLigne(data,l, val):
     Extract the lth row with elements different to val
 
     :Parameters:
-     - 'data' : data 
-     - 'l': row
-     - 'val': comparison value
+     - `data` : data 
+     - `l`: row
+     - `val`: comparison value
 
-     :Types:
-     - 'data' : array
-     - 'l': int
-     - 'val': float
+    :Types:
+     - `data` : array
+     - `l`: int
+     - `val`: float
 
-     :Returns the lth row of data
-     :Returntype: array
+    :returns: the lth row of data
+    :returntype: array
 
-     :attention: l must be greater or equal than 0 
-     """
+    :attention: l must be greater or equal than 0 
+    """
 
     res = filter(lambda x: x!=val, data[l])
 
@@ -68,20 +70,20 @@ def ExtractCol(data,c, val):
     Extract the cth column with elements different to val
 
     :Parameters:
-     - 'data' : data 
-     - 'c': column
-     - 'val': comparison value
+     - `data` : data 
+     - `c`: column
+     - `val`: comparison value
 
-     :Types:
-     - 'data' : array
-     - 'c': int
-     - 'val': float
+    :Types:
+     - `data` : array
+     - `c`: int
+     - `val`: float
 
-     :Returns the cth column of data
-     :Returntype: array
+    :returns: the cth column of data
+    :returntype: array
 
-     :attention: c must be greater or equal than 0 
-     """
+    :attention: c must be greater or equal than 0 
+    """
 
     res = filter(lambda x: x!=val, data[:,c])
 

@@ -22,6 +22,8 @@ import rpy
 from scipy import stats
 import scipy
 
+__docformat__ = "restructuredtext en"
+
 def Glm(x, y, famil = 'gaussian'): 
     """
     Compute the slope and intercept of the 2 given vector generalized linear regression.
@@ -29,15 +31,15 @@ def Glm(x, y, famil = 'gaussian'):
     :Parameters:
      - `x`: X-axis values
      - `y`: Y-axis values
-     - 'famil': family objects for models and link function
+     - `famil`: family objects for models and link function
     
     :Types:
      - `x`: float list
      - `y`: float list
-     - 'famil': string
+     - `famil`: string
     
-    :Returns: the slope and the intercept of the generalized linear regression
-    :Returntype: float cople
+    :returns: the slope and the intercept of the generalized linear regression
+    :returntype: float cople
 
     :attention: the 2 vector/list must have the same size
     """
@@ -182,8 +184,8 @@ def regLin(x, y, alpha=5):
      - `x`: float list
      - `y`: float list
     
-    :Returns: the slope and the intercept of the linear regression
-    :Returntype: float cople
+    :returns: the slope and the intercept of the linear regression
+    :returntype: float cople
 
     :attention: the 2 vector/list must have the same size
     """
@@ -206,8 +208,8 @@ def regLinOri(x, y, alpha=5):
      - `x`: float list
      - `y`: float list
 
-    :Returns: the slope of the linear regression
-    :Returntype: float
+    :returns: the slope of the linear regression
+    :returntype: float
     
     :attention: the 2 vector/list must have the same size
     """
@@ -229,8 +231,8 @@ def linearregress(x, y):
      - `x`: float list
      - `y`: float list
     
-    :Returns: the slope and the intercept of the linear regression
-    :Returntype: float list
+    :returns: the slope and the intercept of the linear regression
+    :returntype: float list
 
     :attention: the 2 vector/list must have the same size
     """

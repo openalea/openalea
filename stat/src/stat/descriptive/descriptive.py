@@ -23,23 +23,26 @@ from scipy import stats
 import scipy
 import pylab
 
+__docformat__ = "restructuredtext en"
 
-def list_log( valist ):
+def list_log( x ):
     """
     Compute the log of each item of a list and change it to an array
 
     :Parameters:
-     - 'list': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
     :Types:
-     - 'list': float list
+     - `x`: float list
 
-    :Returns the log list from the input list 
-    :Returntype: float list
+    :returns: the log list from the input list
+     
+    :returntype: float list
+
 
     """
 
-    l = list( scipy.log( scipy.array( valist ) ) )
+    l = list( scipy.log( scipy.array( x) ) )
     return l,
 
 
@@ -48,16 +51,16 @@ def StatSummary( x ):
     Compute the statistical summary (min, max, median, mean, sd) 
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the vector of the statistical summary
-     :Returntype: float list
+    :returns: the vector of the statistical summary
+    :returntype: float list
 
-     :attention:  x cannot be empty
-     """
+    :attention:  x cannot be empty
+    """
 
     result = rpy.r.summary(x)
     minimum = result['Min.']
@@ -75,18 +78,18 @@ def Corr( x , y ):#= []):
     Compute the statistical correlation
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values 
-     - 'y': an optionnal (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values 
+     - `y`: an optionnal (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
-     - 'y': float list
+    :Types:
+     - `x`: float list
+     - `y`: float list
 
-     :Returns the vector of the correlation
-     :Returntype: float list
+    :returns: the vector of the correlation
+    :returntype: float list
 
-     :attention:  x cannot be empty, x and y must have the same size
-     """
+    :attention:  x cannot be empty, x and y must have the same size
+    """
 
     res = rpy.r.cor(x,y)
         
@@ -100,16 +103,16 @@ def Mean( x ):
     Compute the statistical mean
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the mean 
-     :Returntype: float
+    :returns: the mean 
+    :returntype: float
 
-     :attention:  x cannot be empty
-     """
+    :attention:  x cannot be empty
+    """
 
     result = stats.stats.mean(x)
 
@@ -121,16 +124,16 @@ def Median( x ):
     Compute the statistical median
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the median 
-     :Returntype: float
+    :returns: the median 
+    :returntype: float
 
-     :attention:  x cannot be empty
-     """
+    :attention:  x cannot be empty
+    """
 
     result = stats.stats.median(x)
 
@@ -141,16 +144,16 @@ def Mode( x ):
     Compute the statistical mode
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the mode 
-     :Returntype: float list
+    :returns: the mode 
+    :returntype: float list
 
-     :attention:  x cannot be empty
-     """
+    :attention:  x cannot be empty
+    """
 
     res = stats.stats.mode(x)
     mode = list(res[0])
@@ -164,15 +167,15 @@ def Var( x ):
     Compute the statistical variance
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the variance 
-     :Returntype: float
+    :returns: the variance 
+    :returntype: float
 
-     :attention:  x cannot be empty
+    :attention:  x cannot be empty
      """
 
     result = stats.stats.var(x)
@@ -184,16 +187,16 @@ def Std( x ):
     Compute the statistical standard deviation
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the variance 
-     :Returntype: float
+    :returns: the variance 
+    :returntype: float
 
-     :attention:  x cannot be empty
-     """
+    :attention:  x cannot be empty
+    """
 
     result = stats.stats.std(x)
 
@@ -205,22 +208,22 @@ def Freq(x):
     Compute the frequencies
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the frequencies 
-     :Returntype: float list
+    :returns: the frequencies 
+    :returntype: float list
 
-     :attention:  x cannot be empty
+    :attention:  x cannot be empty
      """
 
     count = rpy.r.table(x)
     co = list(count)
 
     freq = [float(co[0])/len(x)]
-    for i in range(1,len(co)-1):
+    for i in range(1,len(co)):
         freq.append(float(co[i])/len(x))
         
     
@@ -228,7 +231,7 @@ def Freq(x):
     val = [x[0]]
     j = 0
 
-    for i in range(1,len(x)-1):
+    for i in range(1,len(x)):
         if x[i]!=val[j]:
             j = j+1
             val.append(x[i])
@@ -243,15 +246,15 @@ def Density(x):
     Compute the Kernel density estimation
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
+     - `x`: a (non-empty) numeric vector of data values
 
-     :Types:
-     - 'x': float list
+    :Types:
+     - `x`: float list
 
-     :Returns the estimated density values 
-     :Returntype: float list
+    :returns: the estimated density values 
+    :returntype: float list
 
-     :attention:  x cannot be empty
+    :attention:  x cannot be empty
      """
 
     res = rpy.r.density(x)

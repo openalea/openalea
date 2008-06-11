@@ -23,30 +23,31 @@ from scipy import stats
 import scipy
 import pylab
 
+__docformat__ = "restructuredtext en"
 
 def Plot(x,y, xlab, ylab, main):
     """
     Plot y according to x
 
     :Parameters:
-     - 'x' : the coordinates of points in the plot. 
-     - 'y': the y coordinates of points in the plot
-     - 'xlab': a title for the x axis
-     - 'ylab': a title for the y axis
-     - 'main': a title for the plot
+     - `x` : the coordinates of points in the plot. 
+     - `y`: the y coordinates of points in the plot
+     - `xlab`: a title for the x axis
+     - `ylab`: a title for the y axis
+     - `main`: a title for the plot
      
-     :Types:
-     - 'x' : float list
-     - 'y': float list
-     - 'xlab': string
-     - 'ylab': string
-     - 'main': string
+    :Types:
+     - `x` : float list
+     - `y`: float list
+     - `xlab`: string
+     - `ylab`: string
+     - `main`: string
 
-     :Returns a plot
-     :Returntype: None
+    :returns: a plot
+    :returntype: None
 
-     :attention: x and y must have the same length
-     """
+    :attention: x and y must have the same length
+    """
 
     rpy.r.plot(x,y,xlab=xlab, ylab=ylab, main=main)
     
@@ -58,24 +59,24 @@ def Hist(x, k, xlab, main, freq):
     Histogram of x
 
     :Parameters:
-     - 'x' : data 
-     - 'k': number of classes
-     - 'xlab': a title for the x axis
-     - 'main': a title for the plot
-     - 'freq': counts or densities
+     - `x` : data 
+     - `k`: number of classes
+     - `xlab`: a title for the x axis
+     - `main`: a title for the plot
+     - `freq`: counts or densities
      
-     :Types:
-     - 'x' : float list
-     - 'k': int
-     - 'xlab': string
-     - 'main': string
-     - 'freq': boolean
+    :Types:
+     - `x` : float list
+     - `k`: int
+     - `xlab`: string
+     - `main`: string
+     - `freq`: boolean
 
-     :Returns an histogram
-     :Returntype: float list
+    :returns: an histogram
+    :returntype: float list
 
-     :attention: k must be greater or equal than 0
-     """
+    :attention: k must be greater or equal than 0
+    """
 
     if k != 0:
         step = (max(x)-min(x))/k
@@ -93,16 +94,16 @@ def PlotDens(x):
     Add the kernel density estimation
 
     :Parameters:
-     - 'x' : the coordinates of points in the plot. 
+     - `x` : the coordinates of points in the plot. 
      
-     :Types:
-     - 'x' : float list
+    :Types:
+     - `x` : float list
 
-     :Returns a plot
-     :Returntype: None
+    :returns: a plot
+    :returntype: None
 
-     :attention: x and y must have the same length
-     """
+    :attention: x and y must have the same length
+    """
 
     rpy.r.lines(rpy.r.density(x),col=2)
     

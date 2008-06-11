@@ -23,25 +23,27 @@ from scipy import stats
 import scipy
 import pylab
 
+__docformat__ = "restructuredtext en"
+
 def chisqtest(x,y = [], p = []):
     """
-    Compute the Student's t-test
+    Compute the Chi-square test
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
-     - 'y': an optional (non-empty) numeric vector of data values
-     - 'p': an optional (non_empty) numeric vector of probabilities
+     - `x`: a (non-empty) numeric vector of data values
+     - `y`: an optional (non-empty) numeric vector of data values
+     - `p`: an optional (non_empty) numeric vector of probabilities
 
     :Types:
-     - 'x': float list
-     - 'y': float list
-     - 'p': float list
+     - `x`: float list
+     - `y`: float list
+     - `p`: float list
 
-     :Returns the p-value of the Chi-square test
-     :Returntype: float list
+    :returns: the p-value of the Chi-square test
+    :returntype: float list
 
-     :attention: the 2 vectors must have the same size and the sum of probabilities must be equal to 1   
-     """
+    :attention: the 2 vectors must have the same size and the sum of probabilities must be equal to 1   
+    """
     
     if p == []:
         p = rpy.r.rep(1./len(x), len(x))
@@ -64,17 +66,17 @@ def ttest(x,y = [],mu=0):
     Compute the Student's t-test
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
-     - 'y': an optional (non-empty) numeric vector of data values
-     - 'mu': a number indicating the true value of the mean
+     - `x`: a (non-empty) numeric vector of data values
+     - `y`: an optional (non-empty) numeric vector of data values
+     - `mu`: a number indicating the true value of the mean
 
     :Types:
-     - 'x': float list
-     - 'y': float list
-     - 'mu': float
+     - `x`: float list
+     - `y`: float list
+     - `mu`: float
 
-    :Returns the p-value of the Student t-test
-    :Returntype: float list
+    :returns: the p-value of the Student t-test
+    :returntype: float list
 
     :attention: the 2 vectors must have the same size    
     """
@@ -98,19 +100,19 @@ def kstest(x,y = [], cdf = '', args=[]):
     Compute the Kolmogorov-Smirnov test
 
     :Parameters:
-     - 'x': a (non-empty) numeric vector of data values
-     - 'y': an optional (non-empty) numeric vector of data values
-     - 'cdf': a string to define the cumulative distribution to compare
-     - 'args': parameters of cdf
+     - `x`: a (non-empty) numeric vector of data values
+     - `y`: an optional (non-empty) numeric vector of data values
+     - `cdf`: a string to define the cumulative distribution to compare
+     - `args`: parameters of cdf
 
     :Types:
-     - 'x': float list
-     - 'y': float list
-     - 'cdf': string
-     - 'args': float list
+     - `x`: float list
+     - `y`: float list
+     - `cdf`: string
+     - `args`: float list
 
-    :Returns the p-value of the Kolmogoros-Smirnov test
-    :Returntype: dict
+    :returns: the p-value of the Kolmogoros-Smirnov test
+    :returntype: dict
 
     """
 
