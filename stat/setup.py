@@ -34,7 +34,16 @@ setup(
 
     
     packages=[pkg_name],
-    package_dir={pkg_name : pj('src', 'stat'), '' : 'src', },
+
+    package_dir={pkg_name : pj('src', 'stat'),
+                 pkg_name+".descriptive":pj('src','stat','descriptive'),
+                 pkg_name+".distribution":pj('src','stat','distribution'),
+                 pkg_name+".file":pj('src','stat','file'),
+                 pkg_name+".graphics":pj('src','stat','graphics'),
+                 pkg_name+".regression":pj('src','stat','regression'),
+                 pkg_name+".stattest":pj('src','stat','stattest'),                 
+                 "":"src"},
+
 
     # Dependencies
     setup_requires = ['openalea.deploy'],
