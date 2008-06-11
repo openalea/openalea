@@ -5,19 +5,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>779</width>
-    <height>662</height>
+    <width>703</width>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>OpenAlea Installer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="images.qrc" >:/icons/openalea_icon.png</iconset>
+   <iconset resource="images.qrc" >
+    <normaloff>:/icons/openalea_icon.png</normaloff>:/icons/openalea_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" >
-    <item>
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>21</y>
+     <width>703</width>
+     <height>660</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_4" >
+    <item row="0" column="0" >
      <widget class="QSplitter" name="splitter" >
       <property name="orientation" >
        <enum>Qt::Vertical</enum>
@@ -27,6 +36,14 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>679</width>
+          <height>373</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Install/Remove OpenAlea Packages</string>
         </attribute>
@@ -74,7 +91,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <widget class="QRadioButton" name="radioInstalled" >
              <property name="text" >
-              <string>Remove packages</string>
+              <string>List/Remove packages</string>
              </property>
             </widget>
            </item>
@@ -120,7 +137,7 @@ p, li { white-space: pre-wrap; }
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>521</width>
                <height>20</height>
@@ -135,16 +152,7 @@ p, li { white-space: pre-wrap; }
            <property name="spacing" >
             <number>6</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -166,6 +174,14 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
        <widget class="QWidget" name="OtherEggs" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>679</width>
+          <height>373</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Install Other Eggs</string>
         </attribute>
@@ -209,7 +225,7 @@ p, li { white-space: pre-wrap; }
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>20</width>
              <height>40</height>
@@ -231,6 +247,14 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
        <widget class="QWidget" name="tab_2" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>679</width>
+          <height>373</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Repository</string>
         </attribute>
@@ -260,16 +284,7 @@ p, li { white-space: pre-wrap; }
            <property name="spacing" >
             <number>6</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -291,12 +306,26 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
        <widget class="QWidget" name="customPackagePage" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>679</width>
+          <height>373</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Custom Local Package</string>
         </attribute>
-        <layout class="QGridLayout" >
+        <layout class="QGridLayout" name="gridLayout_2" >
          <item row="0" column="0" colspan="5" >
           <widget class="QLabel" name="label_5" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text" >
             <string>&lt;b>Custom Package:&lt;/b> To declare in the package database a local version of a package</string>
            </property>
@@ -327,7 +356,7 @@ p, li { white-space: pre-wrap; }
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>291</width>
              <height>20</height>
@@ -353,12 +382,12 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="4" column="0" colspan="5" >
-          <widget class="QGroupBox" name="customPackageIncludeFrame" >
+          <widget class="QGroupBox" name="customCppPackageFrame" >
            <property name="enabled" >
             <bool>true</bool>
            </property>
            <property name="title" >
-            <string>Custom Include Directory</string>
+            <string>C++ Directories</string>
            </property>
            <property name="checkable" >
             <bool>true</bool>
@@ -366,19 +395,68 @@ p, li { white-space: pre-wrap; }
            <property name="checked" >
             <bool>false</bool>
            </property>
-           <layout class="QHBoxLayout" >
-            <item>
+           <layout class="QGridLayout" name="gridLayout_3" >
+            <property name="leftMargin" >
+             <number>4</number>
+            </property>
+            <property name="topMargin" >
+             <number>1</number>
+            </property>
+            <property name="rightMargin" >
+             <number>4</number>
+            </property>
+            <property name="bottomMargin" >
+             <number>1</number>
+            </property>
+            <property name="spacing" >
+             <number>1</number>
+            </property>
+            <item row="0" column="0" >
              <widget class="QLabel" name="label_9" >
               <property name="text" >
-               <string>Directory :</string>
+               <string>Include :</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="0" column="1" >
              <widget class="QLineEdit" name="customPackageIncludeEdit" />
             </item>
-            <item>
+            <item row="0" column="2" >
              <widget class="QPushButton" name="customPackageIncludeButton" >
+              <property name="text" >
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="label_11" >
+              <property name="text" >
+               <string>Lib:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QLineEdit" name="customPackageLibEdit" />
+            </item>
+            <item row="1" column="2" >
+             <widget class="QPushButton" name="customPackageLibButton" >
+              <property name="text" >
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="label_13" >
+              <property name="text" >
+               <string>Bin:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QLineEdit" name="customPackageBinEdit" />
+            </item>
+            <item row="2" column="2" >
+             <widget class="QPushButton" name="customPackageBinButton" >
               <property name="text" >
                <string>...</string>
               </property>
@@ -388,9 +466,12 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="5" column="0" colspan="5" >
-          <widget class="QGroupBox" name="customPackageLibFrame" >
+          <widget class="QGroupBox" name="customPythonPackageFrame" >
+           <property name="enabled" >
+            <bool>true</bool>
+           </property>
            <property name="title" >
-            <string>Custom Lib Directory</string>
+            <string>Python</string>
            </property>
            <property name="checkable" >
             <bool>true</bool>
@@ -398,46 +479,92 @@ p, li { white-space: pre-wrap; }
            <property name="checked" >
             <bool>false</bool>
            </property>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label_11" >
+           <layout class="QGridLayout" name="gridLayout" >
+            <property name="leftMargin" >
+             <number>4</number>
+            </property>
+            <property name="topMargin" >
+             <number>0</number>
+            </property>
+            <property name="rightMargin" >
+             <number>2</number>
+            </property>
+            <property name="bottomMargin" >
+             <number>4</number>
+            </property>
+            <property name="spacing" >
+             <number>2</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_12" >
               <property name="text" >
-               <string>Directory :</string>
+               <string>Path:</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLineEdit" name="customPackageLibEdit" />
+            <item row="0" column="1" >
+             <widget class="QLineEdit" name="customPythonPackageEdit" />
             </item>
-            <item>
-             <widget class="QPushButton" name="customPackageLibButton" >
+            <item row="0" column="2" >
+             <widget class="QPushButton" name="customPythonPackageButton" >
               <property name="text" >
                <string>...</string>
               </property>
              </widget>
             </item>
+            <item row="1" column="1" >
+             <widget class="QGroupBox" name="pythonNamespaceFrame" >
+              <property name="title" >
+               <string>Include in Namespace</string>
+              </property>
+              <property name="checkable" >
+               <bool>true</bool>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout" >
+               <property name="spacing" >
+                <number>2</number>
+               </property>
+               <property name="leftMargin" >
+                <number>4</number>
+               </property>
+               <property name="topMargin" >
+                <number>1</number>
+               </property>
+               <property name="rightMargin" >
+                <number>4</number>
+               </property>
+               <property name="bottomMargin" >
+                <number>4</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_10" >
+                 <property name="text" >
+                  <string>Name:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="namespaceEdit" >
+                 <property name="text" >
+                  <string>openalea</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
-         <item row="6" column="3" >
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" >
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="7" column="2" >
+         <item row="6" column="1" colspan="2" >
           <spacer>
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>40</width>
              <height>20</height>
@@ -445,14 +572,14 @@ p, li { white-space: pre-wrap; }
            </property>
           </spacer>
          </item>
-         <item row="7" column="3" >
+         <item row="6" column="3" >
           <widget class="QPushButton" name="customResetButton" >
            <property name="text" >
             <string>Reset</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="4" >
+         <item row="6" column="4" >
           <widget class="QPushButton" name="customApplyButton" >
            <property name="text" >
             <string>Apply</string>
@@ -492,8 +619,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>779</width>
-     <height>26</height>
+     <width>703</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAuthentification" >
