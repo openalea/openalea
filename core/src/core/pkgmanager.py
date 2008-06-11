@@ -131,11 +131,19 @@ class PackageManager(object):
 
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
-            base = epoint.dist.location
-            m = epoint.module_name.split('.')
-            p = os.path.join(base, *m)
-            print "Wralea entry point: ", p
-            self.add_wraleapath(p)
+            #base = epoint.dist.location
+            #m = epoint.module_name.split('.')
+            #p = os.path.join(base, *m)
+            try:
+                m = __import__(epoint.module_name, fromlist=epoint.module_name)
+            except ImportError:
+                print "Cannot load %s"%(epoint.module_name)
+
+            l = list(m.__path__)
+            for p in l :
+                p = os.path.abspath(p)
+                print "Wralea entry point: ", p
+                self.add_wraleapath(p)
 
         # Search in openalea namespace
         if(self.include_namespace):
@@ -145,7 +153,7 @@ class PackageManager(object):
 
         self.add_wraleapath(os.path.dirname(__file__))
         self.add_wraleapath(get_userpkg_dir())
-        
+
 
     def init(self, dirname=None, verbose=True):
         """ Initialize package manager
@@ -171,8 +179,6 @@ class PackageManager(object):
             if(not verbose):
                 sys.stdout.close()
                 sys.stdout = sysout
-
-        
 
 
     def reload(self):
@@ -347,6 +353,7 @@ class PackageManager(object):
             return []
             
         p = path(directory).abspath()
+
 
         # search for wralea.py
         if(recursive):
