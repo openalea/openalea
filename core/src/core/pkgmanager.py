@@ -138,11 +138,12 @@ class PackageManager(object):
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
             except ImportError:
                 print "Cannot load %s"%(epoint.module_name)
+                continue
 
             l = list(m.__path__)
             for p in l :
                 p = os.path.abspath(p)
-                print "Wralea entry point: ", p
+                print "Wralea entry point: %s (%s) "%(epoint.module_name, p)
                 self.add_wraleapath(p)
 
         # Search in openalea namespace
