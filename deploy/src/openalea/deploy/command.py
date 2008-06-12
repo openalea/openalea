@@ -792,8 +792,14 @@ from %s.__init__ import *
             nsprefix = name + '.'
             if(not pkg_name.startswith(nsprefix)) : continue
 
+            # split name
+            splitted = pkg_name.split('.')[1:]
+
+            # keep only first order packages
+            if(len(splitted)>1) : continue
+
             # remove first component (ex for openalea.core.algo, we keep core.algo)
-            pkg_name = os.sep.join(pkg_name.split('.')[1:])
+            pkg_name = splitted[0]
 
             # Create an __init__.py to redirect to real package directory
             pkg_dir = os.path.join(nsdir, pkg_name)
