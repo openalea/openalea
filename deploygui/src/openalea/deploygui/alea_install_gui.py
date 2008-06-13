@@ -96,6 +96,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.customPackageDirButton,QtCore.SIGNAL("clicked()"), lambda : self.get_base_custom_dirname())
         self.connect(self.customPackageIncludeButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageIncludeEdit,self.customPackageDirEdit))
         self.connect(self.customPackageLibButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageLibEdit,self.customPackageDirEdit))
+        self.connect(self.customPackageBinButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPackageBinEdit,self.customPackageDirEdit))
         self.connect(self.customPythonPackageButton,QtCore.SIGNAL("clicked()"), lambda : self.get_custom_dirname(self.customPythonPackageEdit,self.customPackageDirEdit))
         self.connect(self.customCppPackageFrame,QtCore.SIGNAL("toggled(bool)"),self.updateCppFrame)
         self.connect(self.customPythonPackageFrame,QtCore.SIGNAL("toggled(bool)"),self.updatePythonFrame)
