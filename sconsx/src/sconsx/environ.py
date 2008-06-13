@@ -47,7 +47,7 @@ def ALEALibrary(env, target, source, *args, **kwds):
   Install the build library and associated files in specific directories.
   Define 'build' and 'install' target.
   """
-  if env["static"]:
+  if env.get("static"):
     lib = env.StaticLibrary("$build_libdir/%s" % (target,), source, *args, **kwds)
   else:
     if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):

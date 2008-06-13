@@ -57,14 +57,16 @@ def import_tool(name, import_dir):
     Import a module based on its name from a list of directories.
     """
     old_syspath = sys.path
-
+    
     if tool_path not in sys.path: 
         sys.path.insert(0, tool_path)
     
     sys.path = import_dir + sys.path
+    sys.path.insert(0, os.path.dirname(__file__))
 
     try:
-        mod = __import__(name)
+        mod = __import__('tools.'+name)
+        mod = getattr(mod, name)
     except ImportError:
         sys.path = old_syspath
         raise ToolNotFound(name)

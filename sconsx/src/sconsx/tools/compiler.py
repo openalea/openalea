@@ -84,7 +84,6 @@ class Compiler:
       opts.Add('EXTRA_LIBPATH', 'Specific user library path', '')
       opts.Add('EXTRA_LIBS', 'Specific user libraries', '')
 
-
    def update(self, env):
       """ Update the environment with specific flags """
 

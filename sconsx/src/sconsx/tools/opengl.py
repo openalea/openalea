@@ -72,11 +72,11 @@ class OpenGL:
 
    def update(self, env):
       """ Update the environment with specific flags """
-      if env['compiler'] == 'mingw':
-        if env['gl_includes'] == self._default['msvc_include']:
-            env['gl_includes'] = self._default['mgw_include']
-        if env['gl_lib'] == self._default['msvc_lib']:
-            env['gl_lib'] = self._default['mgw_lib']
+      if env.get('compiler', 'mingw') == 'mingw':
+        if env['gl_includes'] == self._default['mgw_include']:
+            env['gl_includes'] = self._default['msvc_include']
+        if env['gl_lib'] == self._default['mgw_lib']:
+            env['gl_lib'] = self._default['msvc_lib']
 
       env.AppendUnique(CPPPATH=[env['gl_includes']])
       env.AppendUnique(LIBPATH=[env['gl_lib']])
