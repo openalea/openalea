@@ -96,6 +96,9 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
             cursor.clearSelection()
             self.setTextCursor(cursor)
 
+        if(self.toPlainText() != self.subnode.internal_data.get('txt', '')):
+            self.subnode.set_data('txt', str(self.toPlainText()))
+
         return QtGui.QGraphicsTextItem.focusOutEvent(self, event)
 
 
@@ -111,8 +114,6 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
             self.subnode.set_data('posy', point.y())
          
             #self.graphview.itemMoved(self, value)
-        else:
-            self.subnode.set_data('txt', str(self.toPlainText()))
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
