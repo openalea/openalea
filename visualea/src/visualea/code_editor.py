@@ -354,14 +354,6 @@ class NodeCodeEditor(PythonCodeEditor):
 
 
 
-
-def code_editor(parent):
-    # Code Editor
-    from openalea.visualea.code_editor import get_editor
-    
-    return w 
-
-
 class Command(object):
     """
     Execute a command depending on a filename.
@@ -370,10 +362,12 @@ class Command(object):
     def __init__(self, command):
         self.p = None
         self.command = command
+
     def __del__(self):
         if self.p and (self.p.poll() is None):
             os.kill(self.p.pid,1)
         self.p = None
+
     def __call__(self, filename):
         fn = path(filename)
         cwd = fn.dirname()
@@ -381,6 +375,7 @@ class Command(object):
         if self.p and (self.p.poll() is None):
             os.kill(self.p.pid, 1)
         self.p = Popen(self.command%name, shell = True, cwd = cwd)
+
 
 
 class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
@@ -419,7 +414,6 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
                     self.editors[k] = Command(command)
             else:
                 self.editors[k] = get_editor()(self)
-
 
             self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
