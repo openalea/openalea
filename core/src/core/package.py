@@ -343,7 +343,7 @@ class UserPackage(Package):
         # build function parameters
         ins = []
 	for input in inputs:
-            in_name= input['name'].replace(' ', '_')
+            in_name = input['name'].replace(' ', '_').lower()
             in_value = input['value']
             if in_value is not None:
                 arg = '%s=%s'%(in_name,in_value)
@@ -357,7 +357,7 @@ class UserPackage(Package):
 	out_values = ""
         return_values = []
 	for output in outputs:
-            arg = output['name'].replace(' ', '_')
+            arg = output['name'].replace(' ', '_').lower()
             out_values += '%s = None; '%(arg,)
             return_values.append('%s, '%(arg,))
 
