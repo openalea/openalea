@@ -56,23 +56,28 @@ def import_tool(name, import_dir):
     """
     Import a module based on its name from a list of directories.
     """
-    old_syspath = sys.path
+    old_syspath = list(sys.path)
     
-    if tool_path not in sys.path: 
-        sys.path.insert(0, tool_path)
+    #if tool_path not in sys.path: 
+    #    sys.path.insert(0, tool_path)
     
     sys.path = import_dir + sys.path
-    sys.path.insert(0, os.path.dirname(__file__))
-
+    sconsx_tools = os.path.dirname(__file__)
+    sys.path.insert(0, sconsx_tools)
+        
     try:
-        mod = __import__('tools.'+name)
+        mod = __import__('sconsx_ext.'+name)
+        print "import local definition of tool '"+name+"'"
         mod = getattr(mod, name)
     except ImportError:
-        sys.path = old_syspath
-        raise ToolNotFound(name)
-
+        try:
+            mod = __import__('tools.'+name)
+            mod = getattr(mod, name)
+        except ImportError:
+            sys.path = old_syspath
+            raise ToolNotFound(name)
+    
     sys.path = old_syspath
-
     return mod
 
    
@@ -96,8 +101,8 @@ def getLocalPath():
 #--------------------------------------------------------------------------------
 # Global Path settings
 
-tool_path = os.path.join(getLocalPath() , 'tools')
-sys.path = [tool_path] + sys.path
+#tool_path = os.path.join(getLocalPath() , 'tools')
+#sys.path = [tool_path] + sys.path
 
 
 #--------------------------------------------------------------------------------
@@ -210,8 +215,7 @@ class Config(object):
         self.tools = []
         self.tools_dict = {}
         self._walk = []
-        if not dir: 
-            self.dir = [os.getcwd()]
+        self.dir = [os.getcwd()]+dir
         self.custom_tests = { }
 
         for t in self.init_tools:
@@ -244,7 +248,14 @@ class Config(object):
             
         self._walk.pop()
         self.tools.append(t)
-
+    
+    def find_tool(self, toolname):
+        """
+        Search for a specific tool
+        """
+        for tool in self.tools:
+            if tool.name == toolname:
+                return tool
 
     def __str__(self):
         return str([t.name for t in self.tools])
@@ -273,7 +284,10 @@ class Config(object):
         self.conf = SConf(env, self.custom_tests)
 
         for tool in self.tools:
-            tool.configure(self)
+          try:
+             tool.configure(self,env)
+          except:
+             tool.configure(self)
 
         env = self.conf.Finish()
         return env
