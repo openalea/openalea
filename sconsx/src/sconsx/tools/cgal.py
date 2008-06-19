@@ -101,14 +101,15 @@ class CGAL:
 
    def update(self, env):
       """ Update the environment with specific flags """
-      cgal_inc = env['cgal_includes']
-      if type(cgal_inc) == str:
-        cgal_inc = cgal_inc.split()
-      cgal_inc = cgal_inc[0]
-      if not os.path.exists(os.path.join(cgal_inc,'CGAL')):
-        import warnings
-        warnings.warn("Error: CGAL headers not found. CGAL disabled ...")
-        env['WITH_CGAL'] = False      
+      if env['WITH_CGAL'] :
+        cgal_inc = env['cgal_includes']
+        if type(cgal_inc) == str:
+          cgal_inc = cgal_inc.split()
+        cgal_inc = cgal_inc[0]
+        if not os.path.exists(os.path.join(cgal_inc,'CGAL')):
+          import warnings
+          warnings.warn("Error: CGAL headers not found. CGAL disabled ...")
+          env['WITH_CGAL'] = False      
       if env['WITH_CGAL']:
         env.AppendUnique(CPPPATH=[env['cgal_includes']])
         env.AppendUnique(LIBPATH=[env['cgal_libpath']])
