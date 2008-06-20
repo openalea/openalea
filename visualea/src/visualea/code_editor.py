@@ -408,12 +408,6 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
             but = QtGui.QPushButton(self)
             but.setText(k)
             vboxlayout.addWidget(but)
-            if k != 'edit':
-                command = self.editors[k]
-                if isinstance(command, str):
-                    self.editors[k] = Command(command)
-            else:
-                self.editors[k] = get_editor()(self)
 
             self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
@@ -432,20 +426,23 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
         
         
     def button_clicked(self):
+
         name = str(self.sender().text())
         command = self.editors[name]
         fn = str(self.params[0])
+        
+        if(not command):
+            widget = get_editor()(self.parent())
+            
+            if(widget.is_widget()):
+                open_dialog(self.parent(), widget, fn, 
+                            delete_on_close=True)
 
-        if name.lower() == 'edit':
-            # Edit file
-            text_editor = command
-            text_editor.edit_file(fn)
-            if(text_editor.is_widget()): 
-                open_dialog(self, text_editor, fn, 
-                            delete_on_close=False)
+            widget.edit_file(fn)
 
         else:
-            command(fn)
+            c = Command(command)
+            c(fn)
 
 
 
