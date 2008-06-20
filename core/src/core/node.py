@@ -114,7 +114,7 @@ class AbstractPort(dict):
     """ The class describing the ports """
     
     def get_desc(self):
-        """Gets default description   """
+        """ Gets default description """
         return self.get("desc", None )
 
 
@@ -152,14 +152,12 @@ class InputPort(AbstractPort):
     """ The class describing the input ports """
 
     def get_label( self ):
-        """Gets defult label"""
+        """Gets default label"""
         return self.get("label", self["name"] )
 
 
-
-
     def is_hidden( self ):
-        """True iff the port should be displayed."""
+        """True if the port should not be displayed."""
         return self.get("hide", None )
 
 

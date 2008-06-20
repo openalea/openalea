@@ -134,12 +134,11 @@ class DataFactory(AbstractFactory):
         if(not isinstance(editors, dict)):
             editors = {}
 
+        # Add a text editor
         _edit = [x for x in editors if x.lower() == 'edit']
         if not _edit:
-            _edit = ['edit']
+            editors['edit'] = None
 
-        # Add a text editor
-        editors[_edit[0]] = None
                 
         from openalea.visualea.code_editor import EditorSelector
         return EditorSelector(parent, editors, (self.get_pkg_data(),) )
