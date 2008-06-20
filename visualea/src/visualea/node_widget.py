@@ -177,47 +177,33 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def run(self):
         self.node.eval()
 
+
     def exit(self):
         self.parent().close()
 
     
     def place( self, widget,  item, layout ):
-        """<Short description of the function functionality.>
-        
-        <Long description of the function functionality.>
-        
-        :parameters:
-            arg1 : `T`
-                <Description of `arg1` meaning>
-        :rtype: `T`
-        :return: <Description of ``return_object`` meaning>
-        :raise Exception: <Description of situation raising `Exception`>
+        """
+        Place
         """
         if isinstance( item, Item ):
             p = self.node.get_input_port( item.name )
             self.place_item( widget, p, layout)
+
         elif isinstance( item, Group ):
             self.place_group(widget, item, layout)
 
     
     def place_item( self,  widget, port,  layout ):
-        """<Short description of the function functionality.>
-        
-        <Long description of the function functionality.>
-        
-        :parameters:
-            arg1 : `T`
-                <Description of `arg1` meaning>
-        :rtype: `T`
-        :return: <Description of ``return_object`` meaning>
-        :raise Exception: <Description of situation raising `Exception`>
+        """
+        Place item : ?
         """
         name = port['name']
         interface = port.get_interface()
 
         ## Hidden state
         ## TODO
-        if(port.is_hidden()) :
+        if(port.is_hidden() or not port.get('showwidget', True)) :
             self.widgets.append(None)
             return
         
