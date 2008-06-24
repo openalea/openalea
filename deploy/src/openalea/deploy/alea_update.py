@@ -17,8 +17,14 @@ import pkg_resources
 import os, sys
 import shutil
 
-def remove_egg(project_name, version, location):
+def remove_egg(project_name, dist):
     """ Remove an egg from the system (use rm) """
+
+    if(dist.precedence != pkg_resources.EGG_DIST):
+        return
+
+    version = dist.version
+    location = dist.location
 
     try:
         print "Remove ", project_name, version, location
@@ -26,7 +32,7 @@ def remove_egg(project_name, version, location):
             print "Remove directory : %s"%(location,)
             shutil.rmtree(location)
         else:
-            print "Remove file %s"%(location),
+            print "Remove file %s"%(location)
             os.remove(location)
             return True
 
@@ -53,7 +59,7 @@ def clean_version():
             max_version = max(installed_version)
 
             for dist in env[project_name]:
-                if(dist.version < max_version): remove_egg(project_name, dist.version, dist.location)
+                if(dist.version < max_version): remove_egg(project_name, dist)
 
 
 
