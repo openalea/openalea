@@ -215,6 +215,7 @@ class Package(NoCaseDict):
         self[factory.name] = factory
         factory.package = self
         
+        # Check validity
         try:
             factory.is_valid()
 
@@ -635,7 +636,17 @@ class PyPackageReaderWralea(PyPackageReader):
             except Exception, e:
                 print e
 
+        # Add Factory Aliases
+        aliases = wraleamodule.__dict__.get('__factory_alias__', {})
+        for name in aliases:
+            p[name] = aliases[name]
+
         pkgmanager.add_package(p)
+
+        # Add Package Aliases
+        palias = wraleamodule.__dict__.get('__alias__', [])
+        for name in palias:
+            pkgmanager[name] = p
         
 
 ######################

@@ -9,6 +9,7 @@
 	   Add PseudoPackages for hierarchical package organisation
 	   Better search function
 	   Improve loading performance of package manager (use of cache)
+	   Add alias
 	   
 	   Composite node
 	   --------------

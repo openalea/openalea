@@ -741,7 +741,10 @@ class AbstractFactory(Observed):
         """ Remove files depending of factory """
         pass
         
-    
+
+
+
+
 
 
 class NodeFactory(AbstractFactory):
