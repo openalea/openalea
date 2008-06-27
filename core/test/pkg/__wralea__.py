@@ -1,7 +1,7 @@
 
 
 
-from openalea.core import *
+from openalea.core.external import *
 
 
 
@@ -16,9 +16,17 @@ __url__ = 'http://openalea.gforge.inria.fr'
 
 __icon__ = 'icon.png'
 
+__alias__ = ['pkg_alias',]
 
-__all__ = ['file1', 'file2']
+
+__all__ = ['file1', 'file2', 'alias1', 'alias2']
 
 
 file1 = DataFactory(name="file1.txt", editors={'gvim' : 'gvim %s', 'emacs' :'emacs %s'})
 file2 = DataFactory(name="file2.txt")
+
+__factory_alias__ = {"filealias" : file1,
+                     "filealias2": file2
+                     }
+
+

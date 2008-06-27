@@ -203,12 +203,11 @@ class MainWindow(QtGui.QMainWindow,
         """ Display About Dialog """
         
         mess = QtGui.QMessageBox.about(self, "About Visualea",
-                                       "Version %s\n\n"%(metainfo.version) +
+                                       "Version %s\n\n"%(metainfo.get_version()) +
                                        "VisuAlea is part of the OpenAlea framework.\n"+
-                                       u"Copyright \xa9  2006-2007 INRIA - CIRAD - INRA\n"+
+                                       metainfo.get_copyrigth()+
                                        "This Software is distributed under the Cecill-V2 License.\n\n"+
-                                       
-                                       "Visit http://openalea.gforge.inria.fr\n\n"
+                                       "Visit " + metainfo.url +"\n\n"
                                        )
 
     def help(self):

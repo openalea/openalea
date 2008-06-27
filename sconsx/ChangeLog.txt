@@ -1,3 +1,6 @@
+SconsX 0.4.5:
+
+
 SconsX 0.4.2:
   * Add egglib tool to retrieve binary egg compilation info (include and lib).
   * Modify qt4, qhull, boost, bison, flex tools to work with eggs.

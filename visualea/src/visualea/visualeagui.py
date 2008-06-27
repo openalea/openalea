@@ -59,9 +59,18 @@ def main(args):
         return 
 
     #splash screen
+    import metainfo
+
     pix=QtGui.QPixmap(":/icons/splash.png")
     splash = QtGui.QSplashScreen(pix)
+
     splash.show()
+    splash.showMessage(
+        metainfo.get_copyrigth() +
+        "Version : %s \n"%(metainfo.get_version(),) + 
+        "Loading modules...",
+        QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
+
     QtGui.QApplication.processEvents()
     
     session = Session()
