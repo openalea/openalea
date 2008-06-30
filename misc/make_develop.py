@@ -13,9 +13,9 @@ develop_cmd = "python setup.py develop"
 uninstall_cmd = "python setup.py develop -u"
 dist_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
 
-cmd = develop_cmd
-cmd = uninstall_cmd
 cmd = dist_cmd
+cmd = uninstall_cmd
+cmd = develop_cmd
 
 cwd = path(os.getcwd())
 if cmd == dist_cmd:
@@ -28,10 +28,10 @@ if cmd == dist_cmd:
 
     #dist.mkdir()
 oa_dirs = """core visualea catalog deploy deploygui spatial stand stat plotools image"""
-vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml PyLsystems"""
+vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml PyLsystems fractalysis"""
 
-dirs = vp_dirs
 dirs = oa_dirs
+dirs = vp_dirs
 
 dirs = dirs.split()
 
