@@ -136,8 +136,8 @@ class PackageManager(object):
             #p = os.path.join(base, *m)
             try:
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
-            except ImportError:
-                print "Cannot load %s"%(epoint.module_name)
+            except ImportError, e:
+                print "Cannot load %s : %s"%(epoint.module_name, e)
                 continue
 
             l = list(m.__path__)
