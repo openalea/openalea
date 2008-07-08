@@ -1,3 +1,8 @@
+Version 0.4.1:
+
+    * Fix configuration when installing/removing a package
+
+
 Version 0.4:
     * Improve interface (check all, link for documentation)
     * Add custom egg creation tab (thanks to Frederic Boudon)

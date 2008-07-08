@@ -33,13 +33,16 @@ from PyQt4 import QtCore
 
 import ui_mainwindow
 
+from openalea.deploy.command import set_env
 from openalea.deploy.util import get_repo_list as util_get_repo_list
+
 from fake_pkg_generation import *
 
 from setuptools.package_index import PackageIndex
 import pkg_resources
 from setuptools import setup, find_packages
 from auth import cookie_login
+
 
 url = "http://openalea.gforge.inria.fr"
 
@@ -339,9 +342,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     ret = self.install_package(pname, dist.location)
                     ok = ret and ok
                     
+        if(ok):
+            self.configuration()
 
         self.display_finish_message(ok)
         self.refresh()
+
+
+    @busy_pointer
+    def configuration(self):
+        """ Call alea_config """
+        set_env()
         
 
     @busy_pointer
@@ -470,19 +481,24 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         init_path = ''
         if not widget_to_fill.text().isEmpty() : 
             init_path = str(widget_to_fill.text())
+
         if not widget_to_use_to_start is None: 
             init_path = str(widget_to_use_to_start.text())
+
         if len(init_path) == 0:
             init_path = QtCore.QDir.homePath()
+
         dirname = QtGui.QFileDialog.getExistingDirectory (
             self, "Local Custom Package Directory", init_path )
         dirname = str(dirname)
         if(dirname) : widget_to_fill.setText(dirname)
         
+
     def get_base_custom_dirname(self):
         """ select a base dirname for custom package """
         
         self.get_custom_dirname(self.customPackageDirEdit)
+
         
     def resetCustom(self):
         """ reset custom package form """
@@ -498,63 +514,89 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pythonNamespaceFrame.setChecked(False)
         self.namespaceEdit.setText(self.recommended_prefix[0])
         
+
     def updateCppFrame(self, enabled):
         """ update cpp information frame of custom package """
         
         if enabled:
           if not self.customPackageDirEdit.text().isEmpty():
-            self.customPackageIncludeEdit.setText(os.path.join(str(self.customPackageDirEdit.text()),'include'))
-            self.customPackageLibEdit.setText(os.path.join(str(self.customPackageDirEdit.text()),'lib'))
-            self.customPackageBinEdit.setText(os.path.join(str(self.customPackageDirEdit.text()),'bin'))
+            self.customPackageIncludeEdit.setText(
+                os.path.join(str(self.customPackageDirEdit.text()),'include'))
+            self.customPackageLibEdit.setText(
+                os.path.join(str(self.customPackageDirEdit.text()),'lib'))
+            self.customPackageBinEdit.setText(
+                os.path.join(str(self.customPackageDirEdit.text()),'bin'))
         else:
             self.customPackageIncludeEdit.clear()
             self.customPackageLibEdit.clear()
             self.customPackageBinEdit.clear()
         
+
     def updatePythonFrame(self, enabled):
         """ update python information frame of custom package """
         
         if enabled:
           if self.customPackageDirEdit.text():
-            self.customPythonPackageEdit.setText(os.path.join(str(self.customPackageDirEdit.text()),'src','openalea'))
+            self.customPythonPackageEdit.setText(
+                os.path.join(str(self.customPackageDirEdit.text()),'src','openalea'))
         else:
             self.customPythonPackageEdit.clear()
         
+
     def applyCustom(self):
-        """ apply custom package form """
+        """ Apply custom package form """
         
         pkg_name = str(self.customPackageNameEdit.text())
         pkg_version = str(self.customPackageVersionEdit.text())
         pkg_dir = str(self.customPackageDirEdit.text())
+
         # Test parameters
         if len(pkg_name) == 0 or len(pkg_version) == 0 or len(pkg_dir) == 0:
             QtGui.QMessageBox.warning(self,'Invalid custom package',
                                       'Properties of custom package are not set properly !')
             return
+
         if not os.path.exists(pkg_dir):
                 QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+pkg_dir)
                 return
+
         os.chdir(pkg_dir)
-        args = { 'name' : pkg_name, 'version':pkg_version,  'zip_safe' : False, 'script_args':['-q', 'develop'], 'script_name':"" }
+        args = { 'name' : pkg_name, 'version':pkg_version,  
+                 'zip_safe' : False, 
+                 'script_args':['-q', 'develop'], 'script_name':"" }
 
         # build lib and inc dirs
         if self.customCppPackageFrame.isChecked() :
             # Cpp module arguments
             pkg_lib = os.path.normpath(relative_path(pkg_dir,str(self.customPackageLibEdit.text())))
             if not os.path.exists(str(self.customPackageLibEdit.text())):
-                QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+str(self.customPackageLibEdit.text()))
+                QtGui.QMessageBox.warning(self,'Invalid package path', 
+                                          'Invalid path : '
+                                          + str(self.customPackageLibEdit.text()))
                 return
+
             args['lib_dirs'] = {'lib' : pkg_lib,}
-            pkg_inc = os.path.normpath(relative_path(pkg_dir,str(self.customPackageIncludeEdit.text())))
+            pkg_inc = os.path.normpath(
+                relative_path(pkg_dir,str(self.customPackageIncludeEdit.text())))
+            
             if not os.path.exists(str(self.customPackageIncludeEdit.text())):
-                QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+str(self.customPackageIncludeEdit.text()))
+                QtGui.QMessageBox.warning(self,
+                                          'Invalid package path', 
+                                          'Invalid path : ' + 
+                                          str(self.customPackageIncludeEdit.text()))
                 return
+
             args['inc_dirs'] = {'include' : pkg_inc,}
             if len(self.customPackageBinEdit.text()) > 0:
-                pkg_bin = os.path.normpath(relative_path(pkg_dir,str(self.customPackageBinEdit.text())))
+                pkg_bin = os.path.normpath(
+                    relative_path(pkg_dir,str(self.customPackageBinEdit.text())))
+
                 if not os.path.exists(str(self.customPackageBinEdit.text())):
-                    QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+str(self.customPackageBinEdit.text()))
+                    QtGui.QMessageBox.warning(self,'Invalid package path', 
+                                              'Invalid path : ' + 
+                                              str(self.customPackageBinEdit.text()))
                     return
+
                 args['bin_dirs'] = {'bin' : pkg_bin,}
         
         if self.customPythonPackageFrame.isChecked():
@@ -562,35 +604,47 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # module base name and path
             py_base_path = os.path.normpath(str(self.customPythonPackageEdit.text()))
             if not os.path.exists(py_base_path):
-                    QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+py_base_path)
+                    QtGui.QMessageBox.warning(self,'Invalid package path', 
+                                              'Invalid path : '+py_base_path)
                     return
+
             py_base_relative_path = os.path.normpath(relative_path(pkg_dir,py_base_path))
             py_base_module      = os.path.basename(py_base_path)
             py_base_module_path = os.path.dirname(py_base_relative_path)
             
             # submodule
             submodules = find_packages(py_base_path)
+
             #including namespace
             if self.pythonNamespaceFrame.isChecked() :
                 namespace = str(self.namespaceEdit.text())
                 args['namespace_packages'] =  [namespace]
                 args['create_namespaces'] = True
                 py_base_module = namespace+'.'+py_base_module
+
             if len(py_base_module) == 0:
                 QtGui.QMessageBox.warning(self,'Invalid custom python package',
-                                      'python package name for path "'+py_base_relative_path+'" is invalid !')
+                                          'python package name for path "' + 
+                                          py_base_relative_path+'" is invalid !')
                 return
+
             py_module_map = { py_base_module : py_base_relative_path }
+
             for submodule in submodules:
                     m = submodule.split('.')
-                    py_module_map[ py_base_module+'.'+submodule ] = os.path.join(py_base_relative_path,*m)
+                    py_module_map[ py_base_module+'.'+submodule ] = \
+                        os.path.join(py_base_relative_path,*m)
+
             args['packages'] = py_module_map.keys()
+
             if len(py_base_module_path) > 0:
                     py_module_map[''] = py_base_module_path
             args['package_dir'] = py_module_map
+
         os.chdir(pkg_dir)
         ok = True
         print 'setup('+','.join([key+'='+repr(value) for key,value in args.iteritems()])+')\n\n'
+
         try:
             setup(**args)
         except Exception, e:
