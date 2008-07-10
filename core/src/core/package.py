@@ -33,7 +33,7 @@ import imp
 import time
 import shutil
 
-from openalea.core.dict import PackageDict
+from openalea.core.pkgdict import PackageDict
 from openalea.core.path import path as _path
 from openalea.core.vlab import vlab_object
 

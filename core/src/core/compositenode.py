@@ -135,25 +135,26 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
 
-        error_nodes = set() # non instantiated nodes
         cont_eval = set() # continuous evaluated nodes
         
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             try:
                 n = self.instantiate_node(vid, call_stack)
-                new_df.add_node(n, vid, False)
 
                 # Manage continuous eval
                 if(n.user_application): 
                     cont_eval.add(vid)
 
             except (UnknownNodeError, UnknownPackageError):
-                error_nodes.add(vid)
+
                 print "WARNING : The graph is not fully operational "  
                 (pkg, fact) = self.elt_factory[vid]
                 print "-> Cannot find '%s:%s'"%(pkg, fact)
 
+                n = self.create_fake_node(vid)
+
+            new_df.add_node(n, vid, False)
 
         # Set IO internal data
         try:
@@ -163,11 +164,8 @@ class CompositeNodeFactory(AbstractFactory):
             pass
 
         # Create the connections
-        for eid,link in self.connections.iteritems() :
+        for eid, link in self.connections.iteritems() :
             (source_vid, source_port, target_vid, target_port) = link
-
-            if(source_vid in error_nodes or target_vid in error_nodes): 
-                continue
 
             # Replace id for in and out nodes
             if(source_vid == '__in__') :  source_vid = new_df.id_in
@@ -189,6 +187,34 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.graph_modified = False # Graph is not modifyied
 
         return new_df
+
+
+    def create_fake_node(self, vid):
+        """ Return an empty node with the correct number of inputs and output """
+
+        # Count in and out needed
+        ins = 0
+        outs = 0
+
+        for eid, link in self.connections.iteritems() :
+            (source_vid, source_port, target_vid, target_port) = link
+
+            if(source_vid == vid):
+                outs = max(outs, source_port)
+            elif(target_vid == vid):
+                ins = max(ins, target_port)
+                    
+        n = Node()
+        n.__color__ =  (250,100,100)
+        for p in range(ins+1):
+            n.add_input(name="In"+str(p))
+            
+        for p in range(outs+1):
+            n.add_output(name="Out"+str(p))
+        
+        n.internal_data.update(self.elt_data[vid])
+
+        return n
 
 
     def paste(self, cnode, data_modifiers=[], call_stack=None):

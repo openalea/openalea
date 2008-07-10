@@ -22,7 +22,7 @@ Wralea for System nodes
 __revision__=" $Id$ "
 
 
-from openalea.core import *
+from openalea.core.external import *
 
 
 __name__ = "system"
