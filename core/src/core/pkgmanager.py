@@ -37,7 +37,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.package import UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
-from openalea.core.nocasedict import NoCaseDict
+from openalea.core.dict import PackageDict
 
 # Exceptions 
 
@@ -73,7 +73,7 @@ class PackageManager(object):
         self.old_syspath = sys.path[:]
 
         # dictionnary of packages
-        self.pkgs = NoCaseDict()
+        self.pkgs = PackageDict()
 
         # dictionnary of category
         self.category = PseudoGroup("")
@@ -194,7 +194,7 @@ class PackageManager(object):
     def clear(self):
         """ Remove all packages """
 
-        self.pkgs = NoCaseDict()
+        self.pkgs = PackageDict()
         self.recover_syspath()
         self.category = PseudoGroup('Root')
         
@@ -245,8 +245,12 @@ class PackageManager(object):
         """ Return a pseudopackage structure """
 
         pt = PseudoPackage('Root')
+
+        # Build the name tree (on uniq objects)
+        s = set()
         for k, v in self.pkgs.iteritems():
-            pt.add_name(k, v)
+            if(not k.startswith('_')):
+                pt.add_name(k, v)
 
         return pt
 
@@ -601,7 +605,8 @@ def cmp_name(x, y):
     return cmp(x.name.lower(), y.name.lower())
 
 
-class PseudoGroup(dict):
+
+class PseudoGroup(PackageDict):
     """ Data structure used to separate dotted naming (packages, category) """
 
     sep = '.' # Separator

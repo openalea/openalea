@@ -15,6 +15,10 @@ def test_alias():
     pkgman = PackageManager()
     pkgman.load_directory("pkg")
 
-    assert pkgman["pkg_test"]["file1.txt"] 
-    assert pkgman["pkg_test"]["file1.txt"] is pkgman["pkg_test"]["filealias"]
+    assert pkgman["pkg_test"]["file2.txt"] 
+    assert pkgman["pkg_test"]["file2.txt"] is pkgman["pkg_test"]["f"]
+    assert pkgman["pkg_test"]["file2.txt"] is pkgman["pkg_test"]["g"]
 
+    assert pkgman["pkg_test"]["file1.txt"] 
+    assert pkgman["pkg_test"]["aliasf1"] is pkgman["pkg_test"]["file1.txt"]
+    

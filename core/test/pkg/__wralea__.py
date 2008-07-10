@@ -23,10 +23,7 @@ __all__ = ['file1', 'file2', 'alias1', 'alias2']
 
 
 file1 = DataFactory(name="file1.txt", editors={'gvim' : 'gvim %s', 'emacs' :'emacs %s'})
-file2 = DataFactory(name="file2.txt")
+file2 = DataFactory(name="file2.txt", alias=['f', 'g'])
 
-__factory_alias__ = {"filealias" : file1,
-                     "filealias2": file2
-                     }
-
+Alias(file1, "aliasf1")
 

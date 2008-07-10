@@ -33,7 +33,7 @@ import imp
 import time
 import shutil
 
-from openalea.core.nocasedict import NoCaseDict
+from openalea.core.dict import PackageDict
 from openalea.core.path import path as _path
 from openalea.core.vlab import vlab_object
 
@@ -53,7 +53,7 @@ class FactoryExistsError(Exception):
 ###############################################################################
 
 
-class Package(NoCaseDict):
+class Package(PackageDict):
     """
     A Package is a dictionnary of node factory.
     Each node factory is able to generate node and their widgets.
@@ -214,7 +214,7 @@ class Package(NoCaseDict):
 
         self[factory.name] = factory
         factory.package = self
-        
+
         # Check validity
         try:
             factory.is_valid()
@@ -223,6 +223,12 @@ class Package(NoCaseDict):
             factory.package = None
             del(self[factory.name])
             raise e
+
+        # Add Aliases
+        if(factory.alias):
+            for a in factory.alias:
+                self['_' + a] = factory
+        
         
 
     def update_factory(self, old_name, factory):
@@ -636,17 +642,12 @@ class PyPackageReaderWralea(PyPackageReader):
             except Exception, e:
                 print e
 
-        # Add Factory Aliases
-        aliases = wraleamodule.__dict__.get('__factory_alias__', {})
-        for name in aliases:
-            p[name] = aliases[name]
-
         pkgmanager.add_package(p)
 
         # Add Package Aliases
         palias = wraleamodule.__dict__.get('__alias__', [])
         for name in palias:
-            pkgmanager[name] = p
+            pkgmanager['_' + name] = p
         
 
 ######################

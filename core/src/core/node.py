@@ -605,6 +605,7 @@ class AbstractFactory(Observed):
                  outputs = (),
                  lazy = True,
                  view=None,
+                 alias=None,
                  **kargs):
         
         """
@@ -617,6 +618,7 @@ class AbstractFactory(Observed):
         @param outputs : outputs description, value=0
         @param lazy : enable lazy evaluation (default = False)
         @param view : custom view (default = None)
+        @param alias : list of alias name
 
         Nota : inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
@@ -638,6 +640,9 @@ class AbstractFactory(Observed):
 
         self.lazy = lazy
         self.view = view
+
+        self.alias = alias
+
         
 
 
@@ -744,6 +749,12 @@ class AbstractFactory(Observed):
 
 
 
+def Alias(factory, name):
+    """ Create a alias for factory """
+    if(factory.alias is None): 
+        factory.alias = [name]
+    else:
+        factory.alias.append(name)
 
 
 
