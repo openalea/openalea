@@ -7,7 +7,7 @@ __revision__=" $Id$"
 
 
 from openalea.core.package import Package, UserPackage
-from openalea.core.node import Factory, Node, NodeFactory
+from openalea.core.node import Factory, Node, NodeFactory, Alias
 from openalea.core.data import DataFactory
 from openalea.core.compositenode import CompositeNode, CompositeNodeFactory
 from openalea.core.interface import *
