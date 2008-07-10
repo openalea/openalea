@@ -186,7 +186,7 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
         for obj in objList :
             pylab.plot( obj.x, obj.y, linestyle=obj.linestyle, marker=obj.marker, color=obj.color, markerfacecolor=obj.color, **keys )
             if obj.legend:
-                legend.append(r''+obj.legend )
+                legend.append(obj.legend )
                 legend_printed = True
         if legend_printed: pylab.legend( tuple( legend ), loc='best', shadow=True )
     except  TypeError:
