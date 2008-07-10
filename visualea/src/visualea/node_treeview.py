@@ -106,14 +106,12 @@ class PkgModel (QAbstractItemModel) :
 
         self.parent_map = {}
         self.row_map = {}
-        self.index_map = {}
+        self.index_map = {} # map between name and Index object
         
+
     def reset(self):
 
         self.rootItem = self.pman.get_pseudo_pkg()
-        #self.parent_map = {}
-        #self.row_map = {}
-        
         QAbstractItemModel.reset(self)
 
 
@@ -134,7 +132,8 @@ class PkgModel (QAbstractItemModel) :
             # Add size info
             lenstr=''
             try:
-                if( len (item) ) : lenstr = " ( %i )"%(len(item),)
+                l = item.nb_public_values()
+                if(l) : lenstr = " ( %i )"%(l,)
             except: pass
 
             return QtCore.QVariant(str(item.get_id()) + lenstr)
@@ -171,7 +170,7 @@ class PkgModel (QAbstractItemModel) :
         else:
             parentItem = parent.internalPointer()
 
-        l = parentItem.values()
+        l = list(parentItem.iter_public_values())
         l.sort((lambda x,y : cmp(x.get_id(), y.get_id())))
         childItem = l[row]
 
@@ -214,7 +213,11 @@ class PkgModel (QAbstractItemModel) :
         if isinstance(parentItem, AbstractFactory):
             return 0
 
-        return len(parentItem)
+        # Return the number of DIFFERENT OBJECTS        
+
+        l = parentItem.nb_public_values()
+        
+        return l
         
 
 

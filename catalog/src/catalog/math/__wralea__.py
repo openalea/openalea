@@ -19,7 +19,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-from openalea.core import *
+from openalea.core.external import *
 import math
 
 __name__ = "catalog.math"

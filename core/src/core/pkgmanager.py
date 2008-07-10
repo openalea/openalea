@@ -37,7 +37,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.package import UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
-from openalea.core.dict import PackageDict
+from openalea.core.pkgdict import PackageDict
 
 # Exceptions 
 

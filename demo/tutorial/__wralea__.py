@@ -1,7 +1,7 @@
 
 # This file has been generated at Thu Jan 31 18:50:20 2008
 
-from openalea.core import *
+from openalea.core.external import *
 
 
 __name__ = 'Demo.Tutorial.Functional'
