@@ -282,11 +282,24 @@ class DataPoolModel (QAbstractListModel) :
             l = self.datapool.keys()
             l.sort()
             name = l[index.row()]
-            tipstr = "%s\n\n"%(str(self.datapool[name]),)
-            tipstr +="Dir :\n  "
-            tip = filter( lambda x : not x.startswith('__'),
-                          dir(self.datapool[name]))
-            tipstr += '\n  '.join(tip)
+            
+            tips = [name]
+
+            tips.append("%s\n"%(str(self.datapool[name]),))
+            tips.append("Dir :")
+            
+            temp = ""
+            for i, n in enumerate(dir(self.datapool[name])):
+                s = str(n)
+                if(len(s) > 20): s = s[:20]
+                temp += s + "\t\t"
+                # 2 column view
+                if(i%2): 
+                    tips.append(temp)
+                    temp = ""
+
+            if(temp) : tips.append(temp)
+            tipstr = '\n'.join(tips)
 
             return QtCore.QVariant(str(tipstr))
      
