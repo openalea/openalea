@@ -1,5 +1,8 @@
-SconsX 0.4.5:
+SconsX 0.4.6:
+  * Improve Visual C++ 2005 support by embedding generated manifest into dll/prog.
 
+SconsX 0.4.5:
+  * Local tool can be created into project/sconsx_ext/
 
 SconsX 0.4.2:
   * Add egglib tool to retrieve binary egg compilation info (include and lib).
