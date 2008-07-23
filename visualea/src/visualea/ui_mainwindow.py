@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri May 16 17:18:34 2008
+# Created: Tue Jul 22 11:19:15 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -428,6 +428,7 @@ class Ui_MainWindow(object):
         self.action_New_Empty_Workspace.setText(QtGui.QApplication.translate("MainWindow", "&New Empty Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Empty_Workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReload_from_Model.setText(QtGui.QApplication.translate("MainWindow", "Reload", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionReload_from_Model.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConfigure_I_O.setText(QtGui.QApplication.translate("MainWindow", "Configure I/O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGroup_Selection.setText(QtGui.QApplication.translate("MainWindow", "Group", None, QtGui.QApplication.UnicodeUTF8))

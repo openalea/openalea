@@ -214,7 +214,6 @@ class PkgModel (QAbstractItemModel) :
             return 0
 
         # Return the number of DIFFERENT OBJECTS        
-
         l = parentItem.nb_public_values()
         
         return l
@@ -669,7 +668,7 @@ class NodeFactoryView(object):
     
 
     def edit_pkg_code(self):
-        """ Reload package """
+        """ Edit __wralea__ """
 
         pkg = self.get_current_pkg()
         pman = self.model().pman # pkgmanager
