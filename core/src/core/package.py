@@ -33,7 +33,7 @@ import imp
 import time
 import shutil
 
-from openalea.core.pkgdict import PackageDict
+from openalea.core.pkgdict import PackageDict, protected
 from openalea.core.path import path as _path
 from openalea.core.vlab import vlab_object
 
@@ -81,7 +81,7 @@ class Package(PackageDict):
         @param path : path where the package lies (a directory or a full wralea path)
         """
 
-        dict.__init__(self)
+        PackageDict.__init__(self)
         
         self.name = name
         self.metainfo = metainfo
@@ -227,7 +227,7 @@ class Package(PackageDict):
         # Add Aliases
         if(factory.alias):
             for a in factory.alias:
-                self['_' + a] = factory
+                self[protected(a)] = factory
         
         
 
@@ -647,7 +647,7 @@ class PyPackageReaderWralea(PyPackageReader):
         # Add Package Aliases
         palias = wraleamodule.__dict__.get('__alias__', [])
         for name in palias:
-            pkgmanager['_' + name] = p
+            pkgmanager[protected(name)] = p
         
 
 ######################
