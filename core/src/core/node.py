@@ -407,7 +407,7 @@ class Node(AbstractNode):
         """
 
         index = self.map_index_in[key]
-
+        
         changed = True
         if(self.lazy):
             # Test if the inputs has changed

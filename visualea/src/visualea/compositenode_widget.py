@@ -1190,6 +1190,10 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
         action = menu.addAction("Replace By")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.replace_by)
+
+        action = menu.addAction("Reload")
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.reload)
+
         
         menu.addSeparator()
 
@@ -1216,10 +1220,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
         
-        
-#         action = menu.addAction("Edit")
-#         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.edit_code)
-
         menu.move(event.screenPos())
         menu.show()
 
@@ -1297,6 +1297,23 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
         self.graphview.rebuild_scene()
 
+
+    def reload(self):
+        """ Reload the node """
+
+        # Reload package
+        factory = self.subnode.factory
+        package = factory.package
+        if(package):
+            package.reload()
+
+        # Reinstantiate the node
+        newnode = factory.instantiate()
+        self.graphview.node.set_actor(self.elt_id, newnode)
+        newnode.internal_data.update(self.subnode.internal_data)
+        self.subnode = newnode
+
+        
 
 ################################################################################
 

@@ -24,6 +24,7 @@ from colorsys import rgb_to_hsv, hsv_to_rgb
 
 def color_map(val,minval = 0,maxval = 1,coul1 = 80,coul2 = 20):
     map = colormap.ColorMap()
+    
     if val is None:
 	return lambda x: map(x,minval,maxval,coul1,coul2)
     elif callable(val):

@@ -37,7 +37,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.package import UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
-from openalea.core.pkgdict import PackageDict
+from openalea.core.pkgdict import PackageDict, is_protected
 
 # Exceptions 
 
@@ -249,7 +249,7 @@ class PackageManager(object):
         # Build the name tree (on uniq objects)
         s = set()
         for k, v in self.pkgs.iteritems():
-            if(not k.startswith('_')):
+            if(not is_protected(k)):
                 pt.add_name(k, v)
 
         return pt
@@ -614,6 +614,8 @@ class PseudoGroup(PackageDict):
 
     def __init__(self, name):
         """ Name is the pseudo package name """
+
+        PackageDict.__init__(self)
         self.name = name
         self.item = None
 
@@ -637,7 +639,7 @@ class PseudoGroup(PackageDict):
                 for k, v in value.iteritems():
                     self[k] = v
             except:
-                self[id(value)] = value
+                self[str(id(value))] = value
             return
         
         splitted = name.split(self.sep, 1)

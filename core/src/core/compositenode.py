@@ -482,13 +482,16 @@ class CompositeNode(Node, DataFlow):
         ins, in_edges = self._compute_inout_connection(vertex_selection, is_input=True)
         outs, out_edges = self._compute_inout_connection(vertex_selection, is_input=False)
         
-        in_edges = self._compute_outside_connection(vertex_selection, in_edges, new_vid, is_input=True)
-        out_edges = self._compute_outside_connection(vertex_selection, out_edges, new_vid, is_input=False)
+        in_edges = self._compute_outside_connection(vertex_selection, 
+                                                    in_edges, new_vid, is_input=True)
+        out_edges = self._compute_outside_connection(vertex_selection, out_edges, 
+                                                     new_vid, is_input=False)
         
         return in_edges + out_edges
 
 
-    def _compute_outside_connection(self, vertex_selection, new_connections, new_vid, is_input = True):
+    def _compute_outside_connection(self, vertex_selection, new_connections, 
+                                    new_vid, is_input = True):
         """ 
         Return external connections of a composite node 
         with input and output ports.
@@ -518,7 +521,7 @@ class CompositeNode(Node, DataFlow):
                         
         for edge in new_connections:
             if is_input:
-                if not (edge[0] == '__in__'):
+                if(edge[0] != '__in__'):
                     continue
                 target_id, target_port = edge[2:]
                 if (target_id, target_port) in selected_port:
@@ -528,8 +531,8 @@ class CompositeNode(Node, DataFlow):
                         port_id = self.local_id(self.source_port(e))
                         connections.append((vid, port_id, new_vid, edge[1]))
             else:
-                if not (edge[2] == '__out__'):
-                    continue
+                if(edge[2] != '__out__'):  continue
+
                 source_id, source_port = edge[0:2]
                 if (source_id, source_port) in selected_port:
                     source_edges= selected_port[(source_id, source_port)]
