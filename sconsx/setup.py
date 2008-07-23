@@ -9,7 +9,7 @@ name = 'OpenAlea.SConsx'
 namespace = 'openalea'
 pkg_name = 'openalea.sconsx'
 
-version = '0.4.5'
+version = '0.4.6'
 
 description = 'Scons Extension to build multi-platform packages for OpenAlea and others.' 
 long_description = \
