@@ -205,7 +205,7 @@ platform= GetPlatform()
 #--------------------------------------------------------------------------------
 # User Configuration class
 
-default_tools= ['compiler', 'builddir']
+default_tools= ['compiler', 'builddir', 'multicpu']
 
 class Config(object):
 

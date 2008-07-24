@@ -1,5 +1,6 @@
 SconsX 0.4.6:
   * Improve Visual C++ 2005 support by embedding generated manifest into dll/prog.
+  * Add 'num_jobs' options support
 
 SconsX 0.4.5:
   * Local tool can be created into project/sconsx_ext/
