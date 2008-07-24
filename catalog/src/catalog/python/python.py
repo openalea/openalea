@@ -19,7 +19,7 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 import os
-
+import operator
 
 def py_ifelse(c=True,a=None,b=None):
     """ Return a if c is true else b """
@@ -72,6 +72,17 @@ def pylen(obj):
 
     f = len(obj)
     return ( f, )
+
+
+def py_getitem(obj, index):
+    """ obj.__getitem__ """
+
+    try:
+        return operator.getitem(obj, index)
+    except IndexError, e:
+        print "getitem: Bad Index", e
+        
+        return None
 
 
 def py_print(x):
@@ -214,11 +225,12 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
 
         # Read Inputs
         seq = self.node.get_input(0)
+
         index = self.node.get_input(1)
 
         if(event[1] == 0): # index of modified input
             
-            # Define the mode depending of the type of inut
+            # Define the mode depending of the type of input
             if(isinstance(seq, dict)) :
                 self.mode = "DICT"
             else :
@@ -244,6 +256,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         """ Rebuild the list """
         
         self.clear()
+        if(not seq) : return
 
         if(self.mode == "DICT") : seq = seq.keys()
 
@@ -254,6 +267,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
                           QtCore.Qt.ItemIsSelectable)
             self.addItem(item)
     
+
     @lock_notify
     def changed(self, p):
         """ Update the index"""

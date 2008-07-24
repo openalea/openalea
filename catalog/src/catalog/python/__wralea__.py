@@ -45,9 +45,10 @@ getitem = Factory( name="getitem",
                    description="Python __getitem__",
                    category="Python",
                    
-                   inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
-                   nodemodule="operator",
-                   nodeclass="getitem",
+                   inputs=[dict(name="a", interface=None), 
+                           dict(name="b", interface=None, value=0),],
+                   nodemodule="python",
+                   nodeclass="py_getitem",
                    widgetmodule="python",
                    widgetclass="ListSelectorWidget",
                    )
