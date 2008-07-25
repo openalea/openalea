@@ -695,8 +695,7 @@ class NodeFactoryView(object):
                                              "Cannot reload old style package\n")
             return
 
-        pkg.reload()
-        pman.load_directory(pkg.path)
+        pman.reload(pkg)
         self.main_win().reinit_treeview()
 
 
