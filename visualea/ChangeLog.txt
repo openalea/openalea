@@ -8,7 +8,7 @@
            Support for icon (menu + icon grabber)
            New reload function for package 
 	   Tree state is not changed when adding/deleting nodes
-           
+	              
 	   Widget
            ------
            Better code edition (external editor)
