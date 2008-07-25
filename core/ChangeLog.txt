@@ -4,6 +4,7 @@
            ------------------
            New Package directory layout (__wralea__) 
            Better package management (copy, add file etc...)
+	   Improved reload
 	   Support for Data file in packages with DataFactory and DataNode
 	   Add a package icon
 	   Add PseudoPackages for hierarchical package organisation

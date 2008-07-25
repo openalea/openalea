@@ -138,50 +138,6 @@
           </property>
          </layout>
         </widget>
-        <widget class="QWidget" name="sensortab" >
-         <attribute name="title" >
-          <string>Sensors</string>
-         </attribute>
-         <attribute name="icon" >
-          <iconset resource="images.qrc" >:/icons/info.png</iconset>
-         </attribute>
-        </widget>
-        <widget class="QWidget" name="UseTabWidget" >
-         <attribute name="title" >
-          <string>Use</string>
-         </attribute>
-         <layout class="QVBoxLayout" >
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <property name="leftMargin" >
-           <number>6</number>
-          </property>
-          <property name="topMargin" >
-           <number>6</number>
-          </property>
-          <property name="rightMargin" >
-           <number>6</number>
-          </property>
-          <property name="bottomMargin" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QTableWidget" name="useTable" >
-            <column>
-             <property name="text" >
-              <string>Variable</string>
-             </property>
-            </column>
-            <column>
-             <property name="text" >
-              <string>Port</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </widget>
       </widget>
       <widget class="QSplitter" name="splitter" >
