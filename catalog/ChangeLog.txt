@@ -2,7 +2,9 @@
            Refactoring for new package layout (__wralea__)
 	   Use operator for math
 	   Separate file function, data functions and string function in differents subpackage
-	   Adds nodes
+	   Fix getitem widget
+	   Minor bug fixes
+
 
 24/09/07 : 0.3.0a Alpha release
 	   Refactoring (caption, names, ...)

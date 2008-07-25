@@ -835,30 +835,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         
         # Set ToolTip
-        doc = self.subnode.__doc__
-        try:
-            node_name = self.subnode.factory.name
-        except:
-            node_name = self.subnode.__class__.__name__
+        self.set_tooltip(self.subnode.__doc__)
 
-        try:
-            pkg_name = self.subnode.factory.package.get_id()
-        except:
-            pkg_name = ''
-
-        if doc:
-            doc = doc.split('\n')
-            doc = [x.strip() for x in doc] 
-            doc = '\n'.join(doc)
-        else:
-            if(self.subnode.factory):
-                doc = self.subnode.factory.description
-
-        self.setToolTip( "Name : %s\n"%(node_name) +
-                         "Package : %s\n"%(pkg_name) +
-                         "Documentation : \n%s"%(doc,))
-
-        #self.fullname = node_name
                               
         # Font and box size
         self.sizex = 20
@@ -897,6 +875,33 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.modified_item.setBrush(self.modified_color)
         
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+
+
+
+    def set_tooltip(self, doc):
+        """ Set tooltip """
+        try:
+            node_name = self.subnode.factory.name
+        except:
+            node_name = self.subnode.__class__.__name__
+
+        try:
+            pkg_name = self.subnode.factory.package.get_id()
+        except:
+            pkg_name = ''
+
+        if doc:
+            doc = doc.split('\n')
+            doc = [x.strip() for x in doc] 
+            doc = '\n'.join(doc)
+        else:
+            if(self.subnode.factory):
+                doc = self.subnode.factory.description
+
+        self.setToolTip( "Name : %s\n"%(node_name) +
+                         "Package : %s\n"%(pkg_name) +
+                         "Documentation : \n%s"%(doc,))
+
 
 
     def set_connectors(self):
@@ -1006,10 +1011,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
             # del widget
             self.graphview.close_node_dialog(self.elt_id)
-             
-           
+                        
+        # Show/Hide modification mark (red square)
         elif(self.modified_item.isVisible() != sender.modified):
-            self.modified_item.setVisible(bool(sender.modified or not sender.lazy))
+            self.modified_item.setVisible(
+                self.isVisible() and
+                bool(sender.modified or not sender.lazy))
+
             self.update()
             QtGui.QApplication.processEvents()
 

@@ -182,13 +182,18 @@ class PackageManager(object):
                 sys.stdout = sysout
 
 
-    def reload(self):
-        """ Reload all packages """
+    def reload(self, pkg=None):
+        """ Reload all packages if pkg is None
+        else reload only pkg"""
 
-        self.clear()
-        self.find_and_register_packages(no_cache=True)
-        for p in self.pkgs.values():
-            p.reload()
+        if(not pkg):
+            self.clear()
+            self.find_and_register_packages(no_cache=True)
+            for p in self.pkgs.values():
+                p.reload()
+        else:
+            pkg.reload()
+            self.load_directory(pkg.path)
         
         
     def clear(self):

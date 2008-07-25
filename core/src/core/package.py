@@ -161,6 +161,7 @@ class Package(PackageDict):
             try:
                 modulefile = os.path.abspath(module.__file__)
                 if(modulefile in s):
+                    module.oa_invalidate = True
                     reload(module)
                     print "Reloaded ", module.__name__
             except:
