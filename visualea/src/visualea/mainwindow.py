@@ -366,8 +366,15 @@ class MainWindow(QtGui.QMainWindow,
 
     
     def reload_all(self):
+
+        # Reload package manager
         self.pkgmanager.reload()
         self.reinit_treeview()
+
+        # Reload workspace
+        for index in range(len(self.index_nodewidget)):
+            self.reload_from_factory(index)
+        
 
 
     @exception_display
@@ -385,6 +392,20 @@ class MainWindow(QtGui.QMainWindow,
         if(index<0): index = self.tabWorkspace.currentIndex()
 
         widget = self.index_nodewidget[index]
+        name = widget.node.factory.name
+
+        if(widget.node.graph_modified):
+            # Show message
+            ret = QtGui.QMessageBox.question(self, "Reload workspace '%s'"%(name),
+                                             "Reload will discard recent changes on "\
+                                                 + "workspace '%s'.\n"%(name)+
+                                             "Continue ?\n",
+                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+            
+            if(ret == QtGui.QMessageBox.No):
+                return
+
+
         newnode = widget.node.factory.instantiate()
         widget.node = newnode
         self.session.workspaces[index] = newnode
