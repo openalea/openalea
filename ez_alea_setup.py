@@ -245,6 +245,8 @@ def install_deploy():
         print "Cannot install openalea.deploy"
 
 
+############################ OpenAlea Installation #############################
+
 def install_pkg(name):
    """ Install package with alea_install """
    

@@ -220,7 +220,7 @@ class CompositeNodeFactory(AbstractFactory):
     def paste(self, cnode, data_modifiers=[], call_stack=None):
         """ Paste to an existing CompositeNode instance
         @param cnode : composite node instance
-        @param data_modifiers : list of 2 uple (key, function) to apply to internal
+        @param data_modifiers : list of 2-uple (key, function) to apply to internal
         data (for instance to move the node)
         @param call_stack : the list of NodeFactory id already in recursion stack
         (in order to avoid infinite loop)
@@ -235,10 +235,14 @@ class CompositeNodeFactory(AbstractFactory):
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
             
-            # Apply modifiers
+            # Apply modifiers (if callable)
             for (key, func) in data_modifiers:
+
                 try:
-                    n.internal_data[key] = func(n.internal_data[key])
+                    if(callable(func)):
+                        n.internal_data[key] = func(n.internal_data[key])
+                    else :
+                        n.internal_data[key] = func
                 except:
                     pass
 

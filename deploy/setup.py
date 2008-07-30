@@ -1,3 +1,5 @@
+
+# Install setuptools if necessary
 try:
     from ez_setup import use_setuptools
     use_setuptools()

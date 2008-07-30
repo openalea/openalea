@@ -512,8 +512,14 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     def paste(self, session):
         """ Paste from clipboard """
 
-        l = lambda x :  x + 30
-        modifiers = [('posx', l), ('posy', l)]
+        # Get Position from cursor
+        position = self.mapToScene(
+            self.mapFromGlobal(self.cursor().pos()))
+
+        # Translate new node
+        #l = lambda x :  x + 30
+        #modifiers = [('posx', l), ('posy', l)]
+        modifiers = [('posx', position.x()), ('posy', position.y())]
         new_ids = session.clipboard.paste(self.node, modifiers)
 
         self.rebuild_scene()
