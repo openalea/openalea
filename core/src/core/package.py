@@ -614,12 +614,13 @@ class PyPackageReaderWralea(PyPackageReader):
             description = '',
             url = '',
             icon = '',
+            alias = [],
             )
 
         for k,v in wraleamodule.__dict__.iteritems():
             
             if(not k.startswith('__')): continue
-            k = k[2:-2]
+            k = k[2:-2] # remove __
             if(not metainfo.has_key(k)): continue
             metainfo[k] = v
 

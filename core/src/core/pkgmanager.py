@@ -37,7 +37,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.package import UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
-from openalea.core.pkgdict import PackageDict, is_protected
+from openalea.core.pkgdict import PackageDict, is_protected, protected
 
 # Exceptions 
 
@@ -518,6 +518,20 @@ class PackageManager(object):
         """ Return the list of user packages """
 
         return [x for x in self.pkgs.values() if isinstance(x, UserPackage)]
+
+
+    def rename_package(self, old_name, new_name):
+        """ Rename package 'old_name' to 'new_name' """
+        
+        self.pkgs[protected(old_name)] = self.pkgs[old_name]
+        self.pkgs[new_name] = self.pkgs[old_name]
+        self.pkgs[old_name].name = new_name
+
+        if(self.pkgs[old_name].metainfo.has_key('alias')):
+               self.pkgs[old_name].metainfo['alias'].append(old_name)
+
+        self.pkgs[old_name].write()
+        del(self.pkgs[old_name])
        
 
     # Dictionnary behaviour
