@@ -553,6 +553,10 @@ class NodeFactoryView(object):
             
             menu.addSeparator()
 
+            action = menu.addAction("Move/Rename Package")
+            action.setEnabled(enabled and pkg.is_editable())
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.move_package)
+
             action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("triggered()"), self.duplicate_package)
@@ -723,6 +727,30 @@ class NodeFactoryView(object):
             self.main_win().reinit_treeview()
 
 
+    def move_package(self):
+        """ Move a package """
+        
+        pkg = self.get_current_pkg()
+        pman = self.model().pman # pkgmanager
+
+        if(not pkg.is_directory()):
+            QtGui.QMessageBox.warning(self, "Error",
+                                      "Cannot move old style package\n")
+            return
+
+
+        (result, ok) = QtGui.QInputDialog.getText(self, "Move/Rename Package", 
+                                                  "Full new name (ex: openalea.data)",
+                                                  QtGui.QLineEdit.Normal, )
+
+        if(ok):
+            new_name = str(result)
+            old_name = pkg.name
+            pman.rename_package(old_name, new_name)
+            self.main_win().reinit_treeview()
+
+
+
 
     def edit_package(self):
         """ Edit package Metadata """
@@ -855,7 +883,7 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
     def reset(self):
         QtGui.QTreeView.reset(self)
 
-        for n in self.expanded_items:
+        for n in list(self.expanded_items):
             i = self.model().index_map[n]
             self.setExpanded(i, True)
 
