@@ -879,9 +879,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         # modified
         self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
         self.modified_item.setBrush(self.modified_color)
-        
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
-
+        self.modified_item.setVisible(False)
 
 
     def set_tooltip(self, doc):
@@ -907,7 +906,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.setToolTip( "Name : %s\n"%(node_name) +
                          "Package : %s\n"%(pkg_name) +
                          "Documentation : \n%s"%(doc,))
-
 
 
     def set_connectors(self):
@@ -974,7 +972,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             self.set_symbols()
 
 
-
     def set_symbols(self):
         """ Set symbols around the box """
 
@@ -1002,6 +999,19 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
 
+        if(event and event[0] == "start_eval"):
+            self.modified_item.setVisible(self.isVisible())
+            self.modified_item.update()
+            self.update()
+            QtGui.QApplication.processEvents()
+
+        elif(event and event[0] == "stop_eval"):
+            self.modified_item.setVisible(False)
+            self.modified_item.update()
+            self.update()
+            QtGui.QApplication.processEvents()
+
+        
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
@@ -1018,15 +1028,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             # del widget
             self.graphview.close_node_dialog(self.elt_id)
                         
-        # Show/Hide modification mark (red square)
-        elif(self.modified_item.isVisible() != sender.modified):
-            self.modified_item.setVisible(
-                self.isVisible() and
-                bool(sender.modified or not sender.lazy))
-
-            self.update()
-            QtGui.QApplication.processEvents()
-
 
     def get_id(self):
         return self.elt_id
@@ -1097,10 +1098,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 secondcolor = self.not_modified_color
 
         # Draw Box
-
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)
         gradient.setColorAt(0.0, color)
-        gradient.setColorAt(1.0, secondcolor)
+        gradient.setColorAt(0.8, secondcolor)
         painter.setBrush(QtGui.QBrush(gradient))
         
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
@@ -1112,6 +1112,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
                          self.get_caption())
         
+        if(self.subnode.block):
+            painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
+            painter.drawRoundRect(0, 0, self.sizex, self.sizey)
 
         
 
@@ -1230,6 +1233,11 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         action.setChecked(self.subnode.lazy)
         self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_lazy)
 
+        action = menu.addAction("Block")
+        action.setCheckable(True)
+        action.setChecked(self.subnode.block)
+        self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_block)
+
 
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
@@ -1243,11 +1251,14 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def set_lazy(self, val):
         self.subnode.lazy = val
         self.update()
-        
 
+
+    def set_block(self, val):
+        self.subnode.block = val
+        self.update()
+
+    
     def set_user_application(self, val):
-        
-        #self.subnode.user_application = val
         self.graphview.node.set_continuous_eval(self.elt_id, bool(val))
         self.update()
 
