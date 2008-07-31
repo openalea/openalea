@@ -193,6 +193,7 @@ class Node(AbstractNode):
         # Internal Data
         self.internal_data['caption'] = '' #str(self.__class__.__name__)
         self.internal_data['lazy'] = True
+        self.internal_data['block'] = False # Do not evaluate the node
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
         self.internal_data['port_hide_changed']= set()
@@ -240,10 +241,7 @@ class Node(AbstractNode):
         return self.input_desc[ index ] 
         
 
-    
     # Properties
-
-
     def get_lazy(self):
         return self.internal_data.get("lazy", True)
 
@@ -252,6 +250,15 @@ class Node(AbstractNode):
         self.internal_data["lazy"] = v
 
     lazy = property(get_lazy, set_lazy)
+
+    def get_block(self):
+        return self.internal_data.get("block", False)
+
+
+    def set_block(self, v):
+        self.internal_data["block"] = v
+
+    block = property(get_block, set_block)
 
 
     def get_user_application(self):
@@ -477,10 +484,11 @@ class Node(AbstractNode):
         """
 
         # lazy evaluation
-        if(self.lazy
-           and not self.modified):
+        if(self.block or 
+           (self.lazy and not self.modified)):
             return False
 
+        self.notify_listeners(("start_eval",))
 
         # Run the node
         outlist = self.__call__(self.inputs)
@@ -504,7 +512,7 @@ class Node(AbstractNode):
 
         # Set State
         self.modified = False
-        self.notify_listeners( ("status_modified",self.modified) )
+        self.notify_listeners( ("stop_eval",) )
 
         return False
 
