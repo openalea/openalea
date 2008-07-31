@@ -17,7 +17,9 @@
 
 from openalea.core import *
 
-__name__ = "stat.descriptive"
+__name__ = "openalea.stat.descriptive"
+__alias__ = ["stat.descriptive"]
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea consortium'

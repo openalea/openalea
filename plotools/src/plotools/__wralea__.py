@@ -24,7 +24,8 @@ __revision__=" $Id: plotools_wralea.py 805 2007-10-01 17:01:00Z stymek $ "
 
 from openalea.core import *
  
-__name__ = "plottools"
+__name__ = "openalea.plottools"
+__alias__ = ["plottools"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'

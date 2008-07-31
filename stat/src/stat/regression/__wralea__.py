@@ -17,7 +17,9 @@
 
 from openalea.core import *
 
-__name__ = "stat.regression"
+__name__ = "openalea.stat.regression"
+__alias__ = ["stat.regression"]
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea consortium'

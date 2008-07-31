@@ -17,7 +17,9 @@
 
 from openalea.core import *
 
-__name__ = "stat.graphics"
+__name__ = "openalea.stat.graphics"
+__alias__ = ["stat.graphics"]
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea consortium'

@@ -19,7 +19,8 @@ __revision__ = " $Id$ "
 from openalea.core import *
 
 
-__name__ = "catalog.file"
+__name__ = "openalea.file"
+__alias__ = ['catalog.file']
 
 __version__ = '0.0.1'
 __license__ ='CECILL-C'

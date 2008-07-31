@@ -18,7 +18,9 @@ __revision__ = " $Id$ "
 
 from openalea.core import *
 
-__name__ = "catalog.pickle"
+__name__ = "openalea.pickle"
+__alias__ = ["catalog.pickle"]
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'

@@ -17,7 +17,9 @@
 
 from openalea.core import *
 
-__name__ = 'stand'
+__name__ = 'vplants.stand'
+__alias__ = ['stand']
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'F. Boudon and D. Da Silva'

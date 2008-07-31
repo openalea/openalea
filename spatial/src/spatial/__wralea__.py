@@ -18,7 +18,7 @@
 from openalea.core import *
 
 __name__ = "openalea.spatial"
-__alias__ = "spatial"
+__alias__ = ["spatial"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'

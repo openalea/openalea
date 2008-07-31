@@ -18,7 +18,8 @@ __revision__ = " $Id$ "
 
 from openalea.core import *
 
-__name__ = "catalog.color"
+__name__ = "openalea.color"
+__alias__ = ["catalog.color"]
 
 __all__ = ['colormap', 'rgbcolormap',]
 

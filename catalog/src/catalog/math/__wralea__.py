@@ -22,7 +22,9 @@ __revision__=" $Id$ "
 from openalea.core.external import *
 import math
 
-__name__ = "catalog.math"
+__name__ = "openalea.math"
+__alias__ = ["catalog.math"]
+
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'

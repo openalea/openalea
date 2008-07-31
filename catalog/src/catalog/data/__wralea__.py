@@ -21,13 +21,16 @@ __revision__ =" $Id: data_wralea.py 997 2007-12-13 14:38:21Z dufourko $ "
 from openalea.core import *
 
 
-__name__ = "catalog.data"
+__name__ = "openalea.data"
+__alias__ = ['catalog.data']
+
 __version__ = '0.0.1'
 __license__ = "Cecill-C"
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Base library'
 __url__ = 'http://openalea.gforge.inria.fr'
+
                
 
 __all__ = []

@@ -19,6 +19,8 @@ __revision__=" $Id$ "
 
 from openalea.core import *
 
+__name__ = "openalea.csv"
+__alias__ = ["catalog.csv"]
 
 __version__ = '0.0.1',
 __license__ = 'CECILL-C'
@@ -28,7 +30,6 @@ __description__ = 'Csv Node library.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
 
-__name__ = "catalog.csv"
 
 __all__ = ['csv2objs', 'obj2csv']
 
