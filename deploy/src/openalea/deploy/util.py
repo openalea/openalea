@@ -61,6 +61,30 @@ def get_egg_info(pkg_name, info_key):
     return pkg_resources.yield_lines(lstr)
 
 
+def get_metainfo(pkg_name, info):
+    """
+    Return the metainfo of a package named 'pkg_name'
+    Available info are:
+      - 'name'
+      - 'version'
+      - 'summary',
+      - 'home-page',
+      - 'author',     
+      - 'author-email'
+      - 'license'
+      - 'description'
+      - 'platform'
+    """
+    dist = pkg_resources.get_distribution(pkg_name)
+
+    for line in dist._get_metadata('PKG-INFO'):
+        if line.lower().startswith(info.lower() + ':'):
+            val = line.split(':',1)[1].strip()
+            return val
+
+    raise ValueError("Unknown info %s"%(info,))
+
+
 def get_lib_dirs(pkg_name):
     """ Return a generator which lists the shared lib directory """
 
