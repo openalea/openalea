@@ -292,7 +292,7 @@ class PackageManager(object):
 
         # Test if the package is deprecated
         if(package.name.lower() in self.deprecated_pkg):
-            self.log.add("Ignoring %s (deprecated)"%(package.name))
+            self.log.add("Deprecated : Ignoring %s"%(package.name))
             del(package)
             return
 
@@ -648,8 +648,10 @@ class PackageManager(object):
 
         best = None
         match = [] 
-        for pkg in self.values():
-            for factory  in pkg.values():
+        for name, pkg in self.iteritems():
+            if(is_protected(name)): continue
+
+            for factory in pkg.values():
                 
                 if(not best and (search_str == factory.name.upper())):
                     best = factory
