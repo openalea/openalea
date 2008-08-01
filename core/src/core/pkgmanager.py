@@ -651,8 +651,9 @@ class PackageManager(object):
         for name, pkg in self.iteritems():
             if(is_protected(name)): continue
 
-            for factory in pkg.values():
-                
+            for fname, factory in pkg.iteritems():
+                if(is_protected(fname)): continue
+
                 if(not best and (search_str == factory.name.upper())):
                     best = factory
                     continue
