@@ -142,7 +142,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionNew_Python_Node, SIGNAL("triggered()"), self.new_python_node)
         self.connect(self.actionNew_Package, SIGNAL("triggered()"), self.new_package)
         self.connect(self.action_Data_File, SIGNAL("triggered()"), self.new_data)
-
+        self.connect(self.actionShow_log, SIGNAL("triggered()"), self.pkgmanager.log.print_log)
+        
         # DataPool Menu
         self.connect(self.actionClear_Data_Pool, SIGNAL("triggered()"), self.clear_data_pool)
 
@@ -374,8 +375,8 @@ class MainWindow(QtGui.QMainWindow,
         # Reload workspace
         for index in range(len(self.index_nodewidget)):
             self.reload_from_factory(index)
-        
 
+  
 
     @exception_display
     @busy_cursor

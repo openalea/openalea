@@ -285,6 +285,8 @@
     <addaction name="actionFind_Node" />
     <addaction name="separator" />
     <addaction name="menuCreate" />
+    <addaction name="separator" />
+    <addaction name="actionShow_log" />
    </widget>
    <widget class="QMenu" name="menu_Window" >
     <property name="title" >
@@ -603,6 +605,11 @@
   <action name="action_Data_File" >
    <property name="text" >
     <string>&amp;Data File</string>
+   </property>
+  </action>
+  <action name="actionShow_log" >
+   <property name="text" >
+    <string>Show log</string>
    </property>
   </action>
  </widget>
