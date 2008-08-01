@@ -174,13 +174,15 @@ class PackageManager(object):
         self.wraleapath = set()
         self.deprecated_pkg = set()
 
-        # Get Deprecated packages
-        for epoint in iter_entry_points("deprecated_wralea"):
-            self.deprecated_pkg.add(epoint.name.lower())
-
-
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
+
+            # Get Deprecated packages
+            print epoint.name, epoint.module_name
+            if(epoint.module_name == "deprecated"):
+                self.deprecated_pkg.add(epoint.name.lower())
+                continue
+
             #base = epoint.dist.location
             #m = epoint.module_name.split('.')
             #p = os.path.join(base, *m)
