@@ -3,14 +3,15 @@
 	   Package management
            ------------------
            New Package directory layout (__wralea__) 
-           Better package management (copy, add file etc...)
+           Better package management (copy, move, delete, add file etc...)
 	   Improved reload
 	   Support for Data file in packages with DataFactory and DataNode
 	   Add a package icon
 	   Add PseudoPackages for hierarchical package organisation
 	   Better search function
 	   Improve loading performance of package manager (use of cache)
-	   Add alias
+	   Add alias capability
+	   Support for deprecated_wralea entry point
 	   
 	   Composite node
 	   --------------
@@ -23,6 +24,7 @@
 	   Continuous evaluation for selected nodes
 	   Function abstraction (with X node and map)
 	   Add File monitoring
+	   Evaluation can be blocked on a node
 
 	   Others
 	   ------

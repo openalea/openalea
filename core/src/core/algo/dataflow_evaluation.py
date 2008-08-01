@@ -74,6 +74,11 @@ class AbstractEvaluation (object) :
     
     def eval(self, *args):
         raise NotImplementedError()
+
+
+    def is_stopped(self, vid, actor):
+        """ Return True if evaluation must be stop at this vertex """
+        return actor.block
     
     
     def eval_vertex_code(self, vid):
@@ -131,6 +136,11 @@ class BrutEvaluation (AbstractEvaluation) :
         # a property to specify if the node has already been evaluated
         self._evaluated = set()
 
+
+    def is_stopped(self, vid, actor):
+        """ Return True if evaluation must be stop at this vertex """
+        return actor.block or vid in self._evaluated
+
     
     def eval_vertex (self, vid, *args) :
         """ Evaluate the vertex vid """
@@ -140,7 +150,6 @@ class BrutEvaluation (AbstractEvaluation) :
 
         self._evaluated.add(vid)
 
-
         # For each inputs
         for pid in df.in_ports(vid) :
             inputs = []
@@ -148,7 +157,7 @@ class BrutEvaluation (AbstractEvaluation) :
             cpt = 0 
             # For each connected node
             for npid, nvid, nactor in self.get_parent_nodes(pid):
-                if nvid not in self._evaluated:
+                if not self.is_stopped(nvid, nactor):
                     self.eval_vertex(nvid)
 
                 inputs.append(nactor.get_output(df.local_id(npid)))
@@ -211,6 +220,11 @@ class GeneratorEvaluation (AbstractEvaluation) :
         self._in_evaluation = set()
         self.reeval = False # Flag to force reevaluation (for generator)
 
+    
+    def is_stopped(self, vid, actor):
+        """ Return True if evaluation must be stop at this vertex """
+        return actor.block or vid in self._evaluated
+
 
     def clear(self):
         """ Clear evaluation variable """
@@ -234,7 +248,7 @@ class GeneratorEvaluation (AbstractEvaluation) :
             # For each connected node
             for npid, nvid, nactor in self.get_parent_nodes(pid):
                 # Do no reevaluate the same node
-                if (nvid not in self._evaluated):
+                if not self.is_stopped(nvid, nactor):
                     self.eval_vertex(nvid)
 
                 inputs.append(nactor.get_output(df.local_id(npid)))
@@ -327,7 +341,7 @@ class LambdaEvaluation (PriorityEvaluation) :
             for npid, nvid, nactor in self.get_parent_nodes(pid):
 
                 # Do no reevaluate the same node
-                if (nvid not in self._evaluated):
+                if not self.is_stopped(nvid, nactor):
                     self.eval_vertex(nvid, transmit_cxt, transmit_lambda)
 
                 outval = nactor.get_output(df.local_id(npid))
