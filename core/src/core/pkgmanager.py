@@ -642,17 +642,22 @@ class PackageManager(object):
 
 
     def search_node(self, search_str, nb_inputs=-1, nb_outputs=-1):
-        """ Return a list of Factory corresponding to search_str """
+        """ 
+        Return a list of Factory corresponding to search_str 
+        If nb_inputs or nb_outputs is specified, 
+        return only node with the same number of (in/out) ports
+        """
 
         search_str = search_str.upper()
 
         best = None
         match = [] 
+        # Search for each package and for each factory
         for name, pkg in self.iteritems():
-            if(is_protected(name)): continue
+            if(is_protected(name)): continue # alias
 
             for fname, factory in pkg.iteritems():
-                if(is_protected(fname)): continue
+                if(is_protected(fname)): continue # alias
 
                 if(not best and (search_str == factory.name.upper())):
                     best = factory
@@ -666,7 +671,7 @@ class PackageManager(object):
 
                     match.append(factory)
                        
-
+        # Filter ports
         if(nb_inputs>=0):
             match = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, match)
         if(nb_outputs>=0):
