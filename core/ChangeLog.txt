@@ -11,7 +11,7 @@
 	   Better search function
 	   Improve loading performance of package manager (use of cache)
 	   Add alias capability
-	   Support for deprecated_wralea entry point
+	   Support for deprecated in wralea entry point
 	   
 	   Composite node
 	   --------------
