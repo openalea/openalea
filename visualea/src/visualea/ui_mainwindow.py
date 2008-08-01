@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Jul 25 16:10:38 2008
+# Created: Fri Aug  1 11:42:54 2008
 #      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -279,6 +279,9 @@ class Ui_MainWindow(object):
 
         self.action_Data_File = QtGui.QAction(MainWindow)
         self.action_Data_File.setObjectName("action_Data_File")
+
+        self.actionShow_log = QtGui.QAction(MainWindow)
+        self.actionShow_log.setObjectName("actionShow_log")
         self.menu_Export.addAction(self.action_Image)
         self.menu_Export.addAction(self.action_Application)
         self.menu_File.addAction(self.action_New_Session)
@@ -325,6 +328,8 @@ class Ui_MainWindow(object):
         self.menu_Package.addAction(self.actionFind_Node)
         self.menu_Package.addSeparator()
         self.menu_Package.addAction(self.menuCreate.menuAction())
+        self.menu_Package.addSeparator()
+        self.menu_Package.addAction(self.actionShow_log)
         self.menu_Window.addAction(self.actionDisplay_Package_Manager)
         self.menu_Window.addAction(self.actionDisplay_Workspaces)
         self.menu_Window.addSeparator()
@@ -424,5 +429,6 @@ class Ui_MainWindow(object):
         self.action_Image.setText(QtGui.QApplication.translate("MainWindow", "&Image", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Application.setText(QtGui.QApplication.translate("MainWindow", "&Application", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Data_File.setText(QtGui.QApplication.translate("MainWindow", "&Data File", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionShow_log.setText(QtGui.QApplication.translate("MainWindow", "Show log", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
