@@ -209,8 +209,7 @@ class Package(PackageDict):
         """ Add to the package a factory ( node or subgraph ) """
 
         if(self.has_key(factory.name)):
-            print "Factory %s already defined. Ignored !"%(factory.name,)
-            return
+            raise Exception("Factory %s already defined. Ignored !"%(factory.name,))
 
 
         self[factory.name] = factory
@@ -566,10 +565,10 @@ class PyPackageReader(AbstractPackageReader):
             pkg = self.build_package(wraleamodule, pkgmanager)
 
         except Exception, e:
-            print '%s is invalid :'%(self.filename,), e
+            pkgmanager.log.add('%s is invalid : %s'%(self.filename, e))
 
         except: # Treat all exception
-            print '%s is invalid :'%(self.filename,)
+            pkgmanager.add('%s is invalid :'%(self.filename,))
 
         if(file) :
             file.close()
@@ -642,7 +641,7 @@ class PyPackageReaderWralea(PyPackageReader):
             try:
                 if(f): p.add_factory(f)
             except Exception, e:
-                print e
+                pkgmanager.log.add(str(e))
 
         pkgmanager.add_package(p)
 
