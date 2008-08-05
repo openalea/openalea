@@ -37,7 +37,6 @@ from SCons.Environment import Environment
 from SCons.Builder import Builder
 from SCons.Node.FS import Dir, File
 
-
 #--------------------------------------------------------------------------------
 # Errors
 
@@ -326,4 +325,23 @@ def ALEAEnvironment(conf, *args, **kwds):
     conf.Update(env)
     env.Prepend(CPPPATH='$build_includedir')
     env.Prepend(LIBPATH='$build_libdir')
+    return env
+
+def ALEASolution(options, tools=[], dir=[]):
+    SConsignFile()
+    conf = Config(tools, dir)
+    conf.UpdateOptions(options)
+
+    env = Environment(options=options)
+    options.Update(env)
+    conf.Update(env)
+
+    Help(options.GenerateHelpText(env))
+
+    prefix = env['build_prefix']
+    BuildDir(prefix, '.')
+
+    env.Prepend(CPPPATH='$build_includedir')
+    env.Prepend(LIBPATH='$build_libdir')
+
     return env

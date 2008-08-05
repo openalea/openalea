@@ -22,6 +22,7 @@ __revision__ = "$Id$"
 
 
 import os, sys
+import types
 from openalea.sconsx.config import *
 
 
@@ -42,7 +43,12 @@ class MinGW:
       if '/nologo' in CCFLAGS:
         CCFLAGS.remove('/nologo') 
         env['CCFLAGS'] = CCFLAGS
-        del env['SHLIBEMITTER'][0]
+        #del env['SHLIBEMITTER'][0]
+
+      # Big HACK, sorry...
+      # delete all function unlike qt4 emmiter which is an instance.
+      env['SHLIBEMITTER'] = [f for f in env['SHLIBEMITTER'] if type(f) is types.InstanceType]
+
       t = Tool('mingw')
       t(env)
      

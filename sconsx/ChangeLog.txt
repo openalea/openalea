@@ -1,3 +1,8 @@
+SconsX 0.4.7:
+  * Enhance MinGW tool to support newer version of SCons (>0.98)
+  * Add ALEASolution function to simplify SConstruct in most cases.
+  This function build an environment based on an option object and a set of tools.
+
 SconsX 0.4.6:
   * Improve Visual C++ 2005 support by embedding generated manifest into dll/prog.
   * Add 'num_jobs' options support

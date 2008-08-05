@@ -47,13 +47,14 @@ def ALEALibrary(env, target, source, *args, **kwds):
   Install the build library and associated files in specific directories.
   Define 'build' and 'install' target.
   """
+  _target = env.subst("$build_libdir/%s"%target)
   if env.get("static"):
-    lib = env.StaticLibrary("$build_libdir/%s" % (target,), source, *args, **kwds)
+    lib = env.StaticLibrary(_target, source, *args, **kwds)
   else:
     if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
       kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
         'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
-    lib = env.SharedLibrary("$build_libdir/%s" % (target,), source, *args, **kwds)
+    lib = env.SharedLibrary(_target, source, *args, **kwds)
   # Bug on mingw with .exp
   #if env["compiler"] == "mingw":
   #  lib = [l for l in lib if not str(l).endswith('.exp')]
