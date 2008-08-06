@@ -28,7 +28,7 @@ if cmd == dist_cmd:
 
     #dist.mkdir()
 oa_dirs = """core visualea catalog deploy deploygui spatial stand stat plotools image"""
-vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml PyLsystems fractalysis"""
+vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml lpy fractalysis"""
 
 dirs = oa_dirs
 dirs = vp_dirs
