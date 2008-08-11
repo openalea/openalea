@@ -416,7 +416,7 @@ class PackageManager(object):
 
         wralea_files = set()
         if(not os.path.isdir(directory)):
-            self.log.add("Not a directory", directory, repr(directory))
+            self.log.add("%s Not a directory"%repr(directory))
             return []
             
         p = path(directory).abspath()
