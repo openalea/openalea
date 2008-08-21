@@ -5,18 +5,17 @@ Import("env")
 
 # 1. Select and install the headers
 
-include_dir = str(env.Dir("../include").srcnode())
-h_pattern = re.compile(r".*\.(h|hpp)$")
-includes = ["../include/%s" % ( s, ) for s in os.listdir(include_dir) if h_pattern.match( s )]
-
+includes = env.ALEAGlob('*.h', dir='../include')
 env.ALEAIncludes("starter", includes)
-
 
 # Build shared libraries
 
+# 1. If you have only one shared library:
+# sources = env.ALEAGlob('*.cpp')
+
 # 2. Build first library
 sources = "scene_object.cpp"
-target = "libsceneobject"
+target = "sceneobject"
 
 # Add defines to export symbols on Windows
 DEFINES = list(env['CPPDEFINES'])
@@ -26,13 +25,14 @@ DEFINES.append('SCENEOBJ_DLL')
 lib1 = env.ALEALibrary(target, sources, CPPDEFINES=DEFINES)
 
 # 3. Build the second library
-env2 = env.Copy()
-env2.AppendUnique(LIBS= ["libsceneobject"])
+env2 = env.Clone()
+env2.AppendUnique(LIBS= ["sceneobject"])
 
 sources = ["scene_container.cpp"]
-target = "libscenecontainer"
+target = "scenecontainer"
 
 DEFINES = list(env['CPPDEFINES'])
 DEFINES.append('SCENECONT_DLL')
 
 lib2 = env2.ALEALibrary(target, sources, CPPDEFINES=DEFINES)
+
