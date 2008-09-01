@@ -1,4 +1,4 @@
-09/04/08 : 0.4.0
+01/08/08 : 0.4.0
 
 	   Package Manager
 	   ---------------
@@ -8,6 +8,8 @@
            Support for icon (menu + icon grabber)
            New reload function for package 
 	   Tree state is not changed when adding/deleting nodes
+	   New package command (copy, move, delete)
+	   Add show log command
 	              
 	   Widget
            ------
@@ -19,24 +21,25 @@
 	   Node
            ----
            Support for port description
-	   Function to replace a node by an other 
 	   Node context menu improved
 	   Add a symbol for hidden ports (>>)
 	   Add color zone for node state
 	   Change color scheme
 	   Add "user_application" property for final nodes
-	   
-           
+	   Add "Block" property
+	   Add a reload command
+	   Add a replace_by command
+	              
            Dataflow
 	   --------
 	   Change color scheme
 	   Improved node manipulation (performance)
 	   Interactive port coloration 
-
+	   A node is shown even if it can not be loaded
+	   
 	   Python interpreter
            ------------------
-	   Add drag and drop capabilities from  the workspace to the interpreter
-
+	   Add drag and drop capabilities from the workspace/datapool to the interpreter
 	   
 	   Others
            ------
