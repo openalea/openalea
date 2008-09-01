@@ -36,7 +36,7 @@ __all__ = []
 from openalea.core import Factory
 from openalea.core.interface import *
 
-from openalea.image.interface import IPix, interIImageMode
+from openalea.image.interface import IPix, IImageMode
 
 
 
@@ -82,7 +82,7 @@ viewimg = Factory( name= "view image",
                    category = "Image", 
                    nodemodule = "basics",
                    nodeclass = "pix_visu",
-                   widgetmodule = "images_wralea",
+                   widgetmodule = "widgets",
                    widgetclass = "PixVisu",
                    inputs=(dict(name="Image", interface=IPix,),),
                    outputs=(dict(name="Image", interface=IPix,),),
