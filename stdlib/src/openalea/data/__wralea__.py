@@ -15,7 +15,7 @@
 
 __doc__ = """ Catalog.Data """
 __license__ = "Cecill-C"
-__revision__ =" $Id: data_wralea.py 997 2007-12-13 14:38:21Z dufourko $ "
+__revision__ =" $Id$ "
 
 
 from openalea.core import *

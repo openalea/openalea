@@ -19,7 +19,7 @@ __doc__="""
 Wralea for PlotTools 
 """
 
-__revision__=" $Id: plotools_wralea.py 805 2007-10-01 17:01:00Z stymek $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *

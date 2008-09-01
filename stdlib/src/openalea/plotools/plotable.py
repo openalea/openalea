@@ -25,7 +25,7 @@ __license__="Cecill-C"
 __date__="<Timestamp>"
 __version__="0.1"
 __docformat__= "restructuredtext en"
-__revision__="$Id: plotable.py 805 2007-10-01 17:01:00Z stymek $"
+__revision__="$Id$"
 
 
 import copy
