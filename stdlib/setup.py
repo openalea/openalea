@@ -10,7 +10,7 @@ setup(
     description = 'OpenAlea standard logical component library.', 
     long_description = '',
     author = 'OpenAlea consortium',
-    author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr',
+    author_email = '',
     url = 'http://openalea.gforge.inria.fr',
     license = 'Cecill-C',
 
@@ -25,6 +25,10 @@ setup(
               'openalea.math', 'openalea.model',
               'openalea.pickling', 'openalea.python',
               'openalea.string',
+              'openalea.plotools',
+              'openalea.image',
+              'openalea.stat',
+              'openalea.spatial',
               ],
 
     package_dir={"":"src" },
@@ -46,6 +50,11 @@ setup(
                    'openalea.pickling = openalea.pickling', 
                    'openalea.python = openalea.python',
                    'openalea.string = openalea.string',
+                   'openalea.plotools = openalea.plotools',
+                   'openalea.image = openalea.image',
+                   'openalea.stat = openalea.stat',
+                   'openalea.spatial = openalea.spatial',
+                   
 
                    # Deprecated
                    'catalog.color = deprecated', 
@@ -57,7 +66,7 @@ setup(
                    'catalog.model = deprecated',
                    'catalog.pickling = deprecated', 
                    'catalog.python = deprecated',
-                   'catalog.string = deprecate'
+                   'catalog.string = deprecated',
               ],
 
         },
