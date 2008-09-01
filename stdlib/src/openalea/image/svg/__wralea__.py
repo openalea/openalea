@@ -36,7 +36,7 @@ __all__ = ["loadsc", "writesc", "getelm", "img",
 
 from openalea.core import *
 from openalea.core.interface import *
-from images_wralea import IPix
+from openalea.image.interface import IPix
 
 class ISvgElm(IInterface):
     """ Image interface """

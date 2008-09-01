@@ -39,7 +39,7 @@ __all__ = ["blend", "composite", "merge", "merge_rgb", "merge_rgb_data",
 
 from openalea.core import Factory
 from openalea.core.interface import *
-from ...interface import IPix
+from openalea.image.interface import IPix
 
 blend = Factory( name= "blend", 
                  description= "create an interpolation between two images", 

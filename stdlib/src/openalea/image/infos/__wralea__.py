@@ -19,7 +19,7 @@ __revision__ = " $Id: __wralea__.py 1344 2008-08-01 13:05:28Z dufourko $ "
 
 from openalea.core import Factory
 from openalea.core.interface import *
-from ...interface import IImageMode,IPix
+from openalea.image.interface import IImageMode,IPix
 
 __name__ = "openalea.image.infos"
 __alias__ = ["image.infos"]

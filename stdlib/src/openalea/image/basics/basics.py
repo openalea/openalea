@@ -26,7 +26,7 @@ __revision__=" $Id: graph.py 116 2007-02-07 17:44:59Z tyvokka $ "
 import Image
 from Image import Image as Im
 from openalea.core import Node
-from ...interface import IPix
+from openalea.image.interface import IPix
 
 
 def load2rgb (filename) :

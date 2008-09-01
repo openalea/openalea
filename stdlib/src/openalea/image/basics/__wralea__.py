@@ -35,7 +35,9 @@ __all__ = []
 
 from openalea.core import Factory
 from openalea.core.interface import *
-from ...interface import interIImageMode,IPix
+
+from openalea.image.interface import IPix, interIImageMode
+
 
 
 load2rgb = Factory( name= "load2rgb", 

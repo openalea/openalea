@@ -33,7 +33,7 @@ __all__ = ["mirror", "crop", "resize", "rotate"]
 
 from openalea.core import Factory
 from openalea.core.interface import *
-from ...interface import IPix
+from openalea.image.interface import IPix
 from openalea.core.traitsui import View, Group, Item
 
 
