@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Core.Library: OpenAlea Core Library module
+#       OpenAlea.StdLib
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): CHAUBERT Florence <florence.chaubert@cirad.fr>
 #                       Da SILVA David <david.da_silva@cirad.fr>

@@ -1,12 +1,12 @@
-# -*- coding: latin-1 -*-
+# -*- python -*-
 #
 #       basics : image package
 #
-#       Copyright or © or Copr. 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
 #
 #       File author(s): Da SILVA David <david.da_silva@cirad.fr>
-#						Jerome Chopard <jerome.chopard@sophia.inria.fr>
-#						Fernandez Romain <romain.fernandez@sophia.inria.fr>
+#			Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#			Fernandez Romain <romain.fernandez@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
