@@ -29,6 +29,7 @@ setup(
               'openalea.image',
               'openalea.stat',
               'openalea.spatial',
+              'openalea.stand',
               ],
 
     package_dir={"":"src" },
@@ -54,6 +55,7 @@ setup(
                    'openalea.image = openalea.image',
                    'openalea.stat = openalea.stat',
                    'openalea.spatial = openalea.spatial',
+                   'openalea.stand = openalea.stand',
                    
 
                    # Deprecated
