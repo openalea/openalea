@@ -13,10 +13,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-
-from openalea.core import *
-
-
 ##### declaration of pix interface and its widget ###########
 
 from openalea.core.interface import *
@@ -47,11 +43,15 @@ class IImageModeWidget (IEnumStrWidget) :
     def __init__ (self, node, parent, parameter_str, interface) :
         IEnumStrWidget.__init__(self,node,parent,parameter_str,interface)
 
+
+
 class IPix(IInterface):
     """ Image interface """
     __metaclass__ = IInterfaceMetaClass
  
     # interface methods
+
+
 
 class IPixWidget(IInterfaceWidget, PixView):
     """
@@ -94,6 +94,8 @@ class IPixWidget(IInterfaceWidget, PixView):
         else :
             pix=QPixmap()
             self.set_image(pix)
+
+
             
 class PixVisu(PixView, NodeWidget):
 
@@ -121,38 +123,3 @@ class PixVisu(PixView, NodeWidget):
     #def resizeEvent(self, event):
     #  print "resized", event
 ##### end of declaration of pix interface and its widget ###########
-
-
-import basics_factory
-import data_access_factory
-import geom_transfo_factory
-import image_transfo_factory
-
-
-def register_packages(pkg_manager):
-    
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'D. Da Silva',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'PIL wrapping and utils module.',
-               'url' : 'http://www.PIL.org'
-               }
-    
-    
-    package = Package("image.basics", metainfo)
-    basics_factory.define_factory(package)
-    pkg_manager.add_package(package)
-
-    package = Package("image.infos", metainfo)
-    data_access_factory.define_factory(package)
-    pkg_manager.add_package(package)
-    
-    package = Package("image.geometry", metainfo)
-    geom_transfo_factory.define_factory(package)
-    pkg_manager.add_package(package)
-
-    package = Package("image.transformations", metainfo)
-    image_transfo_factory.define_factory(package)
-    pkg_manager.add_package(package)
-
