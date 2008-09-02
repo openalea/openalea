@@ -104,8 +104,6 @@ class PackageDict(dict):
         for k, v in self.iteritems():
             if(not is_protected(k)):
                 yield v
-            else:
-                print k, v
 
     def nb_public_values(self):
         """ Return the number of unprotected values """
