@@ -127,8 +127,8 @@ class PackageManager(object):
 
         # include namespace
         try:
-            str = config.get("pkgmanager", "include_namespace")
-            self.include_namespace = bool(eval(str))
+            s = config.get("pkgmanager", "include_namespace")
+            self.include_namespace = bool(eval(s))
             
         except:
             self.include_namespace = False
@@ -143,8 +143,8 @@ class PackageManager(object):
 
         # wralea path
         try:
-            str = config.get("pkgmanager", "path")
-            l = eval(str)
+            s = config.get("pkgmanager", "path")
+            l = eval(s)
             
             for p in l:
                 self.add_wraleapath(os.path.abspath(p))
