@@ -91,8 +91,12 @@ class CompositeNodeFactory(AbstractFactory):
         
     
     def copy(self, **args):
-        """ Copy factory 
-        @param path : new search path"""
+        """ 
+        Copy factory.
+        @param path : new search path
+        @param replace_pkg: old and new package names.
+        When replace package is set, change the package id for all the elt factories.
+        """
 
         ret = AbstractFactory.copy(self, **args)
         
@@ -480,7 +484,7 @@ class CompositeNode(Node, DataFlow):
 
     def compute_external_io(self, vertex_selection, new_vid):
         """ 
-        Return the list of input and output edges to connect the composite node
+        Return the list of input and output edges to connect the composite node.
         """
 
         ins, in_edges = self._compute_inout_connection(vertex_selection, is_input=True)
@@ -833,7 +837,7 @@ class CompositeNode(Node, DataFlow):
         if(node.user_application and hasattr(node, 'continuous_listener')):
             l = node.continuous_listener
             node.continuous_listener = None
-            if(l):  del(l)
+            if l:  del l
 
         node.user_application = state
            

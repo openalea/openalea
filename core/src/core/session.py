@@ -124,6 +124,8 @@ class Session(Observed):
         """
         Save session in filename
         user_pkg and workspaces data are saved
+
+        Be carefull, this method do not work very well if data are not persistent.
         """
 
         if(filename):
