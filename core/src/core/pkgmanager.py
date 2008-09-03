@@ -475,7 +475,7 @@ class PackageManager(object):
         """ Return the pkg reader corresponding to the filename """
 
         reader = None
-        if filename == "__wralea__.py":
+        if filename.endswith("__wralea__.py"):
             reader = PyPackageReaderWralea(filename)
         elif(filename.endswith('wralea.py')):
             reader = PyPackageReader(filename)

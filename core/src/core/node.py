@@ -63,7 +63,16 @@ def gen_port_list(size):
 
 ###############################################################################
 class AbstractNode(Observed):
-    """ An AbstractNode is the atomic entity in a dataflow."""
+    """ 
+    An AbstractNode is the atomic entity in a dataflow.
+    
+    internal_data contains properties specified by users.
+    They can be extended nd the number is not fixed.
+    We use a dict to distinguish these public properties to the others 
+    which are used for protected management.
+
+    TODO : rename internal_data into attributes.
+    """
 
     def __init__(self):
         """
@@ -111,7 +120,10 @@ class AbstractNode(Observed):
 
 
 class AbstractPort(dict):
-    """ The class describing the ports """
+    """ 
+    The class describing the ports.
+    AbstractPort is a dict for historic reason.
+    """
     
     def get_desc(self):
         """ Gets default description """
@@ -143,8 +155,13 @@ class AbstractPort(dict):
                     iname = interface.__class__.__name__
                 except AttributeError:
                     iname = str(interface)
-        
-        return '%s(%s): %s [default=%s] '%(name,iname,  desc, str(value))
+
+        # A way to avoid displaying too long strings.
+        v = str(value)
+        if len(v) > 100:
+            v  = v[:100] + ' ...'
+
+        return '%s(%s): %s [default=%s] '%(name,iname,  desc, v)
 
 
 
@@ -254,7 +271,6 @@ class Node(AbstractNode):
     def get_block(self):
         return self.internal_data.get("block", False)
 
-
     def set_block(self, v):
         self.internal_data["block"] = v
 
@@ -264,10 +280,8 @@ class Node(AbstractNode):
     def get_user_application(self):
         return self.internal_data.get("user_application", False)
 
-
     def set_user_application(self, v):
         self.internal_data["user_application"] = v
-
 
     user_application = property(get_user_application, set_user_application)
 
@@ -276,7 +290,6 @@ class Node(AbstractNode):
         """ Define the node caption """
         self.internal_data['caption'] = newcaption
         self.notify_listeners( ("caption_modified",) )
-
 
     def get_caption(self):
         """ Return the node caption """
@@ -318,7 +331,11 @@ class Node(AbstractNode):
 
     # Status
     def unvalidate_input(self, index_key, notify=True):
-        """ Unvalidate node and notify listeners """
+        """ 
+        Unvalidate node and notify listeners.
+
+        This method is called when the input value has changed.
+        """
         self.modified = True
         index = self.map_index_in[index_key]
         if(notify):
@@ -495,7 +512,7 @@ class Node(AbstractNode):
 
         # Copy outputs
         # only one output
-        if(len(self.outputs)==1):
+        if len(self.outputs) == 1:
             if(isinstance(outlist, tuple) and
                len(outlist) == 1):
                 self.outputs[0] = outlist[0]
@@ -656,6 +673,11 @@ class AbstractFactory(Observed):
 
     # Package property
     def set_pkg(self, p):
+        """
+        An openalea package contains factories.
+        The factory has a link to this package (weakref).
+        The package id is the name of the package when the package is the Python object.
+        """
         if(not p): 
             self.__pkg__ = None
             self.__pkg_id = None
@@ -674,7 +696,7 @@ class AbstractFactory(Observed):
             p = None
         
         # Test if pkg has been reloaded
-        # In this case the wekref is not valid anymore
+        # In this case the weakref is not valid anymore
         if(not p and self.__pkg_id__):
             from openalea.core.pkgmanager import PackageManager
             p = self.set_pkg(PackageManager()[self.__pkg_id__])
@@ -692,12 +714,15 @@ class AbstractFactory(Observed):
 
 
     def get_id(self):
-        """ Return the node factory Id """
+        """ Returns the node factory Id """
         return self.name
 
 
     def get_python_name(self):
-        """ Return a python valid name """
+        """ 
+        Returns a valid python variable as name.
+        This is used to store the factory into a python list (i.e. __all__).
+        """
 
         name = self.name
 
@@ -859,11 +884,13 @@ class NodeFactory(AbstractFactory):
 
        
     def instantiate(self, call_stack=[]):
-        """ Return a node instance
+        """ 
+        Returns a node instance.
         @param call_stack : the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
 
+        # The module contains the node implementation.
         module = self.get_node_module()
         classobj = module.__dict__.get(self.nodeclass_name, None)
 
@@ -1009,7 +1036,7 @@ class NodeFactory(AbstractFactory):
         
     def apply_new_src(self, newsrc):
         """
-        Execute new src
+        Execute new src and store the source into the factory.
         """
         module = self.get_node_module()
         
@@ -1021,7 +1048,9 @@ class NodeFactory(AbstractFactory):
 
 
     def save_new_src(self, newsrc):
-        
+        """
+        Execute the new source and replace the text into the old file containing the source.
+        """
         module = self.get_node_module()
         nodesrc = self.get_node_src(cache=False)
         
@@ -1104,18 +1133,8 @@ $NAME = Factory(name=$PNAME,
                                       WIDGETMODULE=repr(f.widgetmodule_name),
                                       WIDGETCLASS=repr(f.widgetclass_name),)
         return result
-           
 
 
 
-
-   
-        
-
-
-
-
-
-        
 
 
