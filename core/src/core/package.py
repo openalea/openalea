@@ -61,6 +61,7 @@ class Package(PackageDict):
     Meta informations are associated with a package.
     """
 
+    # type information for drag and drop.
     mimetype = "openalea/package"
 
 
@@ -112,16 +113,27 @@ class Package(PackageDict):
         
 
     def is_directory(self):
-        """ Return if the package is embeded in a directory """
+        """ 
+        New style package.
+        A package is embeded in a unique directory.
+        This directory can not contain more than one package.
+        Thus, you can move, copy or delete a package by acting on the directory without ambiguity.
+
+        Return True if the package is embeded in a directory. 
+        """
         return self.wralea_path.endswith("__wralea__.py")
 
 
     def is_editable(self):
+        """ 
+        A convention (for the GUI) to ensure that the user can modify the package.
+        """
         return False
 
 
     def get_pkg_files(self):
-        """ Return the list of python filename of the package.
+        """ 
+        Return the list of python filename of the package.
         The filename are relative to self.path
         """
         
@@ -198,10 +210,7 @@ class Package(PackageDict):
         Return a meta information.
         See the standard key in the __init__ function documentation.
         """
-        try:
-            return self.metainfo[key]
-        except:
-            return ""
+        return self.metainfo.get(key, "")
 
 
 
@@ -216,6 +225,9 @@ class Package(PackageDict):
         factory.package = self
 
         # Check validity
+        # oops: this is a hack. 
+        # When the factory is a data factory that do not reference a file, raise an error.
+        # This function return True or raise an error to have a specific diagnostic.
         try:
             factory.is_valid()
 
@@ -338,7 +350,8 @@ class UserPackage(Package):
         Return a new user node factory
         This function create a new python module in the package directory
         The factory is added to the package
-        and the package is saved """
+        and the package is saved.
+        """
 
         if(self.has_key(name)):
             raise FactoryExistsError()
@@ -411,10 +424,13 @@ def %s(%s):
     def create_user_compositenode(self, name, category, description,
                                    inputs, outputs):
         """
-        Return a new user composite node factory
-        and save the package
+        Add a new user composite node factory to the package
+        and save the package.
+        Returns the cn factory.
         """
 
+        # Avoid cyclic import:
+        # composite node factory import package...
         from compositenode import CompositeNodeFactory
 
         newfactory = CompositeNodeFactory(name=name,
@@ -618,7 +634,7 @@ class PyPackageReaderWralea(PyPackageReader):
 
         for k,v in wraleamodule.__dict__.iteritems():
             
-            if(not k.startswith('__')): continue
+            if not (k.startswith('__') and k.endswith('__')): continue
             k = k[2:-2] # remove __
             if(not metainfo.has_key(k)): continue
             metainfo[k] = v
@@ -762,7 +778,7 @@ $FACTORY_DECLARATION
         return result
         
 
-    def write_wralea(self, fullfilename):
+    def write_wralea(self, full_filename):
         """ Write the wralea.py in the specified filename """
 
         try:
@@ -772,13 +788,13 @@ $FACTORY_DECLARATION
             print "FILE HAS NOT BEEN SAVED !!"
             return
             
-        handler = open(fullfilename, 'w')
+        handler = open(full_filename, 'w')
         handler.write(result)
         handler.close()
 
         # Recompile
         import py_compile
-        py_compile.compile(fullfilename)
+        py_compile.compile(full_filename)
 
         
 
