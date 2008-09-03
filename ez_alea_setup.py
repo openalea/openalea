@@ -282,7 +282,7 @@ def install_openalea():
     pkgs = ["openalea.deploygui",]
 
     if("win32" in sys.platform or "win64" in sys.platform):
-        pkgs = ["pywin32", "qt4",] + pkgs
+        pkgs = ["qt4",] + pkgs
         
     for pkg in pkgs:
         install_pkg(pkg)
