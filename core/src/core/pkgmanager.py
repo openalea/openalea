@@ -186,6 +186,9 @@ class PackageManager(object):
             #base = epoint.dist.location
             #m = epoint.module_name.split('.')
             #p = os.path.join(base, *m)
+
+            # Be carfull, this lines will import __init__.py and all its predecessor
+            # to find the path.
             try:
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
             except ImportError, e:
@@ -198,6 +201,7 @@ class PackageManager(object):
                 self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
                 self.add_wraleapath(p)
 
+        # Search the path based on the old method (by hand).
         # Search in openalea namespace
         if(self.include_namespace):
             l = list(openalea.__path__)
@@ -318,7 +322,7 @@ class PackageManager(object):
 
     
     def get_pseudo_cat(self):
-        """ Return a pseudocategory structure """
+        """ Return a pseudo category structure """
         return self.category 
 
 
@@ -471,7 +475,7 @@ class PackageManager(object):
         """ Return the pkg reader corresponding to the filename """
 
         reader = None
-        if(filename.endswith("__wralea__.py")):
+        if filename == "__wralea__.py":
             reader = PyPackageReaderWralea(filename)
         elif(filename.endswith('wralea.py')):
             reader = PyPackageReader(filename)
