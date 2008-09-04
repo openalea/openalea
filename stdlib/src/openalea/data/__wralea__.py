@@ -143,20 +143,6 @@ int_ = Factory( name="int",
 __all__.append('int_')
 
 
-rgb_ = Factory( name="rgb",
-              description="RGB tuple",
-              category="Type,Color",
-              nodemodule="data",
-              nodeclass="RGB",
-              
-              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
-              outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
-              )
-
-
-__all__.append('rgb_')
-
-
 list_ = Factory( name="list",
               description="Python list",
               category="Type",

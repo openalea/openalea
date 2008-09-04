@@ -16,6 +16,8 @@ __doc__ = """ Colormap class """
 __license__ = "Cecill-C"
 __revision__=" $Id$ "
 
+
+
 class ColorMap(object):
     """  A RGB color map, between 2 colors defined in HSV code """ 
     

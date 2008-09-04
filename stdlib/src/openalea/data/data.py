@@ -38,14 +38,6 @@ class Variable(Node):
     
 
 
-class RGB(Node):
-    """
-RGB Color
-    """
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-        return ( inputs[0], )
 
 
 class Bool(Node):

@@ -22,6 +22,18 @@ from openalea.core import *
 import colormap
 from colorsys import rgb_to_hsv, hsv_to_rgb
 
+
+class RGB:
+    """
+    RGB Color
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        return ( inputs, )
+
+
+
 def color_map(val,minval = 0,maxval = 1,coul1 = 80,coul2 = 20):
     map = colormap.ColorMap()
     
@@ -30,6 +42,8 @@ def color_map(val,minval = 0,maxval = 1,coul1 = 80,coul2 = 20):
     elif callable(val):
 	return lambda x: map(val(x),minval,maxval,coul1,coul2)
     else: return map(val,minval,maxval,coul1,coul2),
+
+
 
 def rgb_color_map(value, minval=0, maxval=1, hue1=0, hue2=100, sat=220, val=220):
   newHue = ((value - minval)/(maxval - minval))*(hue2 - hue1) + hue1

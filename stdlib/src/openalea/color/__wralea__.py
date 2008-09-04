@@ -21,7 +21,22 @@ from openalea.core import *
 __name__ = "openalea.color"
 __alias__ = ["catalog.color"]
 
-__all__ = ['colormap', 'rgbcolormap',]
+__all__ = ['colormap', 'rgbcolormap', 'rgb']
+
+
+rgb = Factory( name="rgb",
+              description="RGB tuple",
+              category="Type,Color",
+              nodemodule="py_color",
+              nodeclass="RGB",
+              
+              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
+              outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
+              )
+
+
+__all__.append('rgb')
+
 
 colormap = Factory(name='colormap', 
                    description='defines a color map from a range of values [I,J] to RGB', 
