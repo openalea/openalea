@@ -680,8 +680,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         pkgmanager.include_namespace = bool( \
             self.includenmspace.checkState() == QtCore.Qt.Checked)
 
-        pkgmanager.set_default_wraleapath()
-
         for i in xrange(self.pathList.count()):
             path = self.pathList.item(i).text()
             pkgmanager.add_wraleapath(os.path.abspath(str(path)))
