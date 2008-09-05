@@ -581,7 +581,11 @@ class PyPackageReader(AbstractPackageReader):
             pkg = self.build_package(wraleamodule, pkgmanager)
 
         except Exception, e:
-            pkgmanager.log.add('%s is invalid : %s'%(self.filename, e))
+            try:
+                pkgmanager.log.add('%s is invalid : %s'%(self.filename, e))
+            except Exception, e:
+                print '%s is invalid : %s'%(self.filename, e)
+                pass
 
         except: # Treat all exception
             pkgmanager.add('%s is invalid :'%(self.filename,))
