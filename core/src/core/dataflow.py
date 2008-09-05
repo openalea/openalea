@@ -402,9 +402,9 @@ class SubDataflow(object):
     def __init__(self, dataflow, algo, node_id, port_index):
         """ Constructor
         @param dataflow
-        @param algo
+        @param algo: algorithm for evaluation.
         @param node_id
-        @param port_index
+        @param port_index: output port index in node_id
         """
 
         self.dataflow = dataflow

@@ -77,12 +77,15 @@ class AbstractEvaluation (object) :
 
 
     def is_stopped(self, vid, actor):
-        """ Return True if evaluation must be stop at this vertex """
+        """ Return True if evaluation must be stop at this vertex. """
         return actor.block
     
     
     def eval_vertex_code(self, vid):
-        """ Evaluate the vertex vid. Can raise an exception if evaluation failed """
+        """ 
+        Evaluate the vertex vid. 
+        Can raise an exception if evaluation failed. 
+        """
 
         node = self._dataflow.actor(vid)
 
@@ -109,7 +112,8 @@ class AbstractEvaluation (object) :
 
     
     def get_parent_nodes(self, pid):
-        """ Return the list of parent node connected to pid
+        """ 
+        Return the list of parent node connected to pid
         The list contains tuples (port_pid, node_pid, actor)
         This list is sorted by the x value of the node
         """
@@ -305,8 +309,15 @@ class LambdaEvaluation (PriorityEvaluation) :
 
 
     def eval_vertex (self, vid, context, lambda_value, *args) :
-        """ Evaluate the vertex vid 
+        """ 
+        Evaluate the vertex vid 
         @param context is a list a value to assign to lambdas
+
+        This function is called both by the user (eval a node and its parents)
+        and by the SubDataFlow evaluation.
+        
+        First the graph is traversed by the algorithm in a bottom-up way.
+        The SubDataflow is stored in the inputs.
         """
 
         df = self._dataflow
@@ -347,11 +358,11 @@ class LambdaEvaluation (PriorityEvaluation) :
                 outval = nactor.get_output(df.local_id(npid))
                 # Lambda 
 
-                # We must consider 2 cases
+                # We must consider 3 cases
                 #  1) Lambda detection (receive a SubDataflow and interface != IFunction)
                 #         
                 #  2) Resolution mode (context is not None) : we 
-                #      replace the lambda with value
+                #      replace the lambda with value.
 
                 if(isinstance(outval, SubDataflow)
                    and interface is not IFunction):
@@ -360,7 +371,11 @@ class LambdaEvaluation (PriorityEvaluation) :
                         # we are not in resolution mode
                         use_lambda = True
                     else:
-                        # We set the context value for later use
+                        # We set the context value for later use.
+                        # We set resolved values into the dataflow.
+                        # outval is a SubDataFlow. For this object, we have now a value.
+                        # E.g. f(x=3). We replace x subdf by 3.
+                        # If x is used elsewhere (f(x,x)), we referenced it in a dict.
                         if(not lambda_value.has_key(outval)):
                             try:
                                 lambda_value[outval] = context.pop()
@@ -397,7 +412,12 @@ class LambdaEvaluation (PriorityEvaluation) :
         """
 
         self.lambda_value.clear() 
-        if(context) : context.reverse()
+
+        if(context) : 
+            # The evaluate, due to the recursion, is done fisrt in last out.
+            # thus, we have to reverse the arguments to evaluate the function (FIFO).
+            context.reverse()
+
         PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
         self.lambda_value.clear() # do not keep context in memory
 
