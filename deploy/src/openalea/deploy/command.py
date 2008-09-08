@@ -897,35 +897,35 @@ class alea_upload(Command):
         import gforge
 
         print "Login...."
-        gforge.login(self.username, self. password)
+        server = gforge.GForgeProxy()
+
+        server.login(self.username, self. password)
 
         # Check package
-        if(gforge.get_package_id(self.project, self.package) < 0):
-            gforge.add_package(self.project, self.package)
+        if(server.get_package_id(self.project, self.package) < 0):
+            server.add_package(self.project, self.package)
 
         # Check release
-        if(gforge.get_release_id(self.project, self.package, self.release) < 0):
+        if(server.get_release_id(self.project, self.package, self.release) < 0):
             notes = ""
             changes = ""
-            gforge.add_release(self.project, self.package, self.release, notes, changes)
+            server.add_release(self.project, self.package, self.release, notes, changes)
 
         
         for command, pyversion, filename in self.distribution.dist_files:
             self.upload_file(command, pyversion, filename)
 
         print "Logout..."
-        gforge.logout()
+        server.logout()
 
 
-    def upload_file(self, command, pyversion, filename):
-
-        import gforge
+    def upload_file(self, server, command, pyversion, filename):
 
         print "Project: ", self.project
         print "Package: ", self.package
         print "Release: ", self.release
         print "Filename: ", filename
-
-        gforge.add_file(self.project, self.package, self.release, filename)
+        
+        server.add_file(self.project, self.package, self.release, filename)
 
         
