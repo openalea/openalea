@@ -182,3 +182,16 @@ def delete_package(group_id, pkg_id):
     fp = urlOpener.open(url, values)
 
 
+def delete_release(group_id, pkg_id, release_id):
+    """ Delete a release """
+    url = "https://gforge.inria.fr/frs/admin/" +\
+        "showreleases.php?group_id=%i&package_id=%i"%(group_id, pkg_id)
+    values = { 'func' : "delete_release",
+               'release_id' : release_id,
+               'sure' : 1,
+               'really_sure' : 1,
+               }
+     
+    fp = urlOpener.open(url, values)
+
+

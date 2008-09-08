@@ -164,8 +164,8 @@ class GForgeProxy(object):
             releases = self.server.getReleases(self.session, project_id, package_id)
 
             for rel in releases:
-                if(rel['name'].lower() == rel['release_id']):
-                    return id
+                if(rel['name'].lower() == release_name):
+                    return rel['release_id']
         except:
             pass
 
@@ -343,8 +343,8 @@ class GForgeProxy(object):
         project_id, package_id = self.convert_to_id(project_id, package_id,)
 
         try:
-            return server.addRelease(session, project_id, package_id, 
-                                     release_name, notes, changes)
+            return self.server.addRelease(self.session, project_id, package_id, 
+                                          release_name, notes, changes)
         except Exception, e:
             print e
         
@@ -403,6 +403,20 @@ class GForgeProxy(object):
 
 
 
+    def remove_release(self, project_id, package_id, release_id):
+        """
+        Remove a package
+        """
+
+        project_id, package_id, release_id = \
+            self.convert_to_id(project_id, package_id, release_id)
+
+        import gforge_util
+        gforge_util.gforge_login(self.userid, self.passwd)
+        gforge_util.delete_release(project_id, package_id, release_id)
+
+
+
 
 
 # CONST
@@ -441,109 +455,117 @@ type_id = { ".deb" : 1000,
 				
 
 ################################################################################
-def test_login():
-    server = GForgeProxy()
+import sys
+if __name__ == "__main__" or "nose" in sys.argv[0]:
 
-    server.login()
-    assert session
-    server.logout()
+    def test_login():
+        server = GForgeProxy()
 
-
-def test_project():
-    server = GForgeProxy()
-
-    id = server.get_project_id("openaleaa")
-    assert id == -1
-
-    id = server.get_project_id("openalea")
-
-    assert id == 79
-    details = server.get_project_details(id)
-    assert details['homepage'] == 'openalea.gforge.inria.fr/dokuwiki'
-    assert details['unix_group_name'] == 'openalea'
-
-    details = server.get_project_details("openalea")
-    assert details['homepage'] == 'openalea.gforge.inria.fr/dokuwiki'
-    assert details['unix_group_name'] == 'openalea'
+        server.login()
+        assert session
+        server.logout()
 
 
+    def test_project():
+        server = GForgeProxy()
 
-def test_package():
-    server = GForgeProxy()
+        id = server.get_project_id("openaleaa")
+        assert id == -1
 
-    assert len(server.get_packages(79)) > 4
-    assert server.get_packages(79) == server.get_packages("openalea")
-    assert server.get_package_id(79, "openalea.deploy") == 1176
+        id = server.get_project_id("openalea")
 
-    assert server.get_package_id("openalea", "openalea.deploy") == \
-        server.get_package_id(79, "openalea.deploy")
+        assert id == 79
+        details = server.get_project_details(id)
+        assert details['homepage'] == 'openalea.gforge.inria.fr/dokuwiki'
+        assert details['unix_group_name'] == 'openalea'
+
+        details = server.get_project_details("openalea")
+        assert details['homepage'] == 'openalea.gforge.inria.fr/dokuwiki'
+        assert details['unix_group_name'] == 'openalea'
+
+
+    def test_package():
+        server = GForgeProxy()
+
+        assert len(server.get_packages(79)) > 4
+        assert server.get_packages(79) == server.get_packages("openalea")
+        assert server.get_package_id(79, "openalea.deploy") == 1176
+
+        assert server.get_package_id("openalea", "openalea.deploy") == \
+            server.get_package_id(79, "openalea.deploy")
     
-
-def test_release():
-    server = GForgeProxy()
+        
+    def test_release():
+        server = GForgeProxy()
             
-    assert len(server.get_releases(79, 1176)) > 0
-    assert server.get_releases(79, 1176) == server.get_releases("openalea", "openalea.deploy")
+        assert len(server.get_releases(79, 1176)) > 0
+        assert server.get_releases(79, 1176) == server.get_releases("openalea", "openalea.deploy")
+        
+        assert server.get_release_id(79, 1176, "0.3" ) == 1304
+        assert server.get_release_id(79, 1176, "0.3" ) == \
+            server.get_release_id("openalea", "openalea.deploy", "0.3")
 
-    assert server.get_release_id(79, 1176, "0.3" ) == 1304
-    assert server.get_release_id(79, 1176, "0.3" ) == \
-        server.get_release_id("openalea", "openalea.deploy", "0.3")
-
-    assert server.get_release_details(79, 1176, 1304)[1] == 1185961860
-    assert server.get_release_details(79, 1176, 1304) == \
-        server.get_release_details("openalea", "openalea.deploy", "0.3")
+        assert server.get_release_details(79, 1176, 1304)[1] == 1185961860
+        assert server.get_release_details(79, 1176, 1304) == \
+            server.get_release_details("openalea", "openalea.deploy", "0.3")
 
 
-def test_file():
-    server = GForgeProxy()
+    def test_file():
+        server = GForgeProxy()
 
-    assert len(server.get_files(79, 1176, 1304)) > 0
-    assert server.get_files(79, 1176, 1304) == \
-        server.get_files("openalea", "openalea.deploy", "0.3")
+        assert len(server.get_files(79, 1176, 1304)) > 0
+        assert server.get_files(79, 1176, 1304) == \
+            server.get_files("openalea", "openalea.deploy", "0.3")
                                                  
-    assert server.get_file_id(79, 1176, 1304, 'OpenAlea.Deploy-0.3.3.tar.gz') == 3698
+        assert server.get_file_id(79, 1176, 1304, 'OpenAlea.Deploy-0.3.3.tar.gz') == 3698
 
-    assert server.get_file_id(79, 1176, 1304, 'OpenAlea.Deploy-0.3.3.tar.gz') == \
-        server.get_file_id("openalea", "openalea.deploy", "0.3", 'OpenAlea.Deploy-0.3.3.tar.gz')
+        assert server.get_file_id(79, 1176, 1304, 'OpenAlea.Deploy-0.3.3.tar.gz') == \
+            server.get_file_id("openalea", "openalea.deploy", "0.3", 'OpenAlea.Deploy-0.3.3.tar.gz')
 
-    filename = server.get_file(79, 1176, 1304, 3698)
-    assert server.get_file(79, 1176, 1304, 3698) == \
-        server.get_file("openalea", "openalea.deploy", "0.3", 'OpenAlea.Deploy-0.3.3.tar.gz')
+        filename = server.get_file(79, 1176, 1304, 3698)
+        assert server.get_file(79, 1176, 1304, 3698) == \
+            server.get_file("openalea", "openalea.deploy", "0.3", 'OpenAlea.Deploy-0.3.3.tar.gz')
 
-    assert filename
+        assert filename
 
-    import gzip
-    f = gzip.GzipFile(filename)
-    assert f
-    assert f.read()
-    f.close()
-    os.remove(filename)
-
-
-def test_add_file():
-
-    server = GForgeProxy()
-    server.login()
-    server.add_package("openalea", "test_pkg")
-    assert server.get_package_id("openalea", "test_pkg") > 0
-
-    server.add_release("openalea", "test_pkg", "0.1", "notes", "changes")
-    assert server.get_release_id("openalea", "test_pkg", "0.1") > 0
+        import gzip
+        f = gzip.GzipFile(filename)
+        assert f
+        assert f.read()
+        f.close()
+        os.remove(filename)
 
 
-    server.add_file("openalea", "test_pkg", "0.1", "./core.tgz", file_type="srcgz")
-    assert server.get_file_id("openalea", "test_pkg", "0.1", "core.tgz") > 0
+    def test_add_file():
 
-
-def test_remove():    
-
-    server = GForgeProxy()
-    server.login()
-    try:
+        server = GForgeProxy()
+        server.login()
         server.add_package("openalea", "test_pkg")
-    except:
-        pass
+        assert server.get_package_id("openalea", "test_pkg") > 0
 
-    assert server.get_package_id("openalea", "test_pkg") > 0
-    server.remove_package("openalea", "test_pkg")
+        server.add_release("openalea", "test_pkg", "0.1", "notes", "changes")
+        assert server.get_release_id("openalea", "test_pkg", "0.1") > 0
+
+
+        server.add_file("openalea", "test_pkg", "0.1", "./core.tgz", file_type="srcgz")
+        assert server.get_file_id("openalea", "test_pkg", "0.1", "core.tgz") > 0
+
+    def test_remove():    
+
+        server = GForgeProxy()
+        server.login()
+        try:
+            server.add_package("openalea", "test_pkg")
+        except:
+            pass
+
+        try:
+            server.add_release("openalea", "test_pkg", "test_release", "Test", "")
+        except:
+            pass
+
+
+        assert server.get_release_id("openalea", "test_pkg", "test_release") > 0
+        server.remove_release("openalea", "test_pkg", "test_release")
+        server.remove_package("openalea", "test_pkg")
 
