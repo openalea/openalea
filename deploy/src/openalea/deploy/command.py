@@ -913,7 +913,7 @@ class alea_upload(Command):
 
         
         for command, pyversion, filename in self.distribution.dist_files:
-            self.upload_file(command, pyversion, filename)
+            self.upload_file(server, command, pyversion, filename)
 
         print "Logout..."
         server.logout()
