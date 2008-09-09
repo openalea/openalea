@@ -379,7 +379,7 @@ class GForgeProxy(object):
         print "Uploading %s..."%(name,)
 
         try:
-            ret = server.addFile(session, project_id, package_id, release_id,
+            ret = self.server.addFile(self.session, project_id, package_id, release_id,
                                  name, filestr, type, processor, release_time)
             print "Done."
             return ret
