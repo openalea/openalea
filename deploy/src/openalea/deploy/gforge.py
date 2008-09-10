@@ -18,8 +18,8 @@ INRIA GForge SOAP python API wrappers (based on SOAPpy)
 See test functions below 
 """
 
-import pkg_resources
-pkg_resources.require('soappy')
+#import pkg_resources
+#pkg_resources.require('soappy')
 
 import os
 from SOAPpy import SOAPProxy
