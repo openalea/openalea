@@ -195,3 +195,14 @@ def delete_release(group_id, pkg_id, release_id):
     fp = urlOpener.open(url, values)
 
 
+def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
+
+    url = "https://gforge.inria.fr/frs/admin/editrelease.php?" \
+        + "group_id=%i&release_id=%i&package_id=%i"%(group_id, release_id, pkg_id)
+
+    values = { 'step2' : "1",
+               'type_id' : str(type_id),
+               'processor_id' : str(proc_id),
+               'userfile' : open(filename, "rb"),
+               }
+    fp = urlOpener.open(url, values)

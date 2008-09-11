@@ -350,6 +350,37 @@ class GForgeProxy(object):
         
 
 
+    def add_big_file(self, project_id, package_id, release_id, filename, 
+                 proc_type="any", file_type="other"):
+        """ 
+        Add a file in a particular release (for big file)
+        @param project_id : a number or a name
+        @param package_id : a number or a name
+        @param release_id : a number or a name
+        """
+
+        project_id, package_id, release_id = \
+            self.convert_to_id(project_id, package_id, release_id)
+
+        name = os.path.basename(filename)
+
+        # get type and processor
+        type = type_id.get(file_type, type_id['other'])
+        processor = proc_id.get(proc_type, proc_id['any'])
+
+        print "Uploading %s..."%(name,)
+
+        try:
+            import gforge_util
+            gforge_util.gforge_login(self.userid, self.passwd)
+            gforge_util.upload_file(filename, project_id, package_id, release_id, type, processor)
+
+            print "Done."
+            
+        except Exception, e:
+            print e
+
+    
     def add_file(self, project_id, package_id, release_id, filename, 
                  proc_type="any", file_type="other"):
         """ 
@@ -386,7 +417,6 @@ class GForgeProxy(object):
         
         except Exception, e:
             print e
-
 
 
     def remove_package(self, project_id, package_id):
