@@ -19,7 +19,10 @@
 __license__ = "Cecill-C"
 __revision__ =" $Id$"
 
-__doc__ = """ Install dynamic library """
+__doc__ = """ 
+Install dynamic library.
+The egm file describes the directory the dynamic library is originated from.
+"""
 
 
 import os
@@ -202,7 +205,8 @@ def install_lib(lib_dir):
     if(changed):
         set_dyn_lib_dir(lib_dir)
     
-    # get all lib_dir
+    # get all the intial package lib_dirs before the copy of the sh lib.
+    # Copy only libraries of the installed eggs.
     egglibdirs = set(get_all_lib_dirs(precedence=INSTALL_DIST))
 
     # install lib

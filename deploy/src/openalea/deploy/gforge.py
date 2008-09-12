@@ -16,6 +16,10 @@
 __doc__ = """
 INRIA GForge SOAP python API wrappers (based on SOAPpy)
 See test functions below 
+The specification has been found on the web : http://gforge.inria.fr/soap
+
+Creation of a soap server, which serve as proxy to redirect python function
+and args into valid soap request and return results into Python.
 """
 
 #import pkg_resources

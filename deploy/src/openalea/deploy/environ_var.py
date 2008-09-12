@@ -68,6 +68,7 @@ def set_lsb_env(name, vars):
         print "Warning : Cannot create /etc/profile.d/%s.sh"%(name)
         print "Trying to setup environment in the ~/.bashrc file"
 
+        # If profile.d directory is not writable, try to update $HOM/.bashrc
         try:
             script_name = ".%s.sh"%(name)
             filename = os.path.join(os.path.expanduser( '~' ), ".bashrc")

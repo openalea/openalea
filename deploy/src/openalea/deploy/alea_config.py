@@ -1,5 +1,8 @@
-# Configure openalea environment variables
-
+# Update all the shared libraries in the openalea global share lib directory.
+# Try to update environment variable by:
+#   + changing PATH value from the registry in Windows
+#   + Create a new file in /etc/profile.d or .bashrc.
+# The global shared dir can be set by this command.
 
 from install_lib import get_default_dyn_lib, get_dyn_lib_dir
 # from util import check_system

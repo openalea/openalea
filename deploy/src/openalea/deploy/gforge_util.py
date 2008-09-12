@@ -157,6 +157,12 @@ def cookie_login(loginurl, values):
 
 
 ########################################
+# To add a new function:
+#  + go to the web page and display the source.
+#  + search the tag <form /> (function) and the name of the <input />
+#  + copy also the url
+#  + check the type or the domain of the values.
+#  + Create the function (dict+ post url)
 
 def gforge_login(userid, passwd):
     """ Login on Gforge """

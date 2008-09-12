@@ -14,7 +14,9 @@
 #
 
 __doc__ = """
-Setuptools commands
+Setuptools commands.
+
+To extend setuptools, we have to replace setuptools function with our own function.
 """
 
 __license__ = "Cecill-C"
@@ -35,7 +37,7 @@ from setuptools.command.install_lib import install_lib as old_install_lib
 from setuptools.command.build_py import build_py as old_build_py
 from setuptools.command.build_ext import build_ext as old_build_ext
 from setuptools.command.install import install as old_install
-from setuptools.command.easy_install import easy_install
+from setuptools.command.easy_install import easy_install as old_easy_install
 from setuptools.command.develop import develop as old_develop
 
 import distutils.command.build
@@ -118,6 +120,10 @@ def set_has_ext_modules(dist):
 
 class build(old_build):
     """ Override sub command order in build command """
+
+    # We change the order of distutils because scons will install 
+    # extension libraries inside python repository.
+
     sub_commands = [('build_ext',     old_build.has_ext_modules),
                     ('build_py',      old_build.has_pure_modules),
                     ('build_clib',    old_build.has_c_libraries),
@@ -185,10 +191,12 @@ class build_ext(old_build_ext):
         self.run_command("scons")
 
         # Add lib_dirs and include_dirs in packages
+        # Copy the directories containing the files generated 
+        # by scons and the like.
         for d in (self.distribution.lib_dirs,
                   self.distribution.inc_dirs,
                   self.distribution.bin_dirs,
-                  self.distribution.share_dirs,
+                  #self.distribution.share_dirs,
                   ):
 
             if(not d or self.inplace == 1): continue
@@ -203,7 +211,7 @@ class build_ext(old_build_ext):
 
 
 class cmd_install_lib(old_install_lib):
-    """ Overide install_lib command (execute build_ext before build_py"""
+    """ Overide install_lib command (execute build_ext before build_py)"""
     
     def build (self):
         if not self.skip_build:
@@ -322,16 +330,16 @@ class scons(Command):
                     'External parameters to pass to scons.' ),
 		  ( 'scons-path=',
                     None,
-                    'Optional scons executable path. eg : C:\Python24\scons.bat for windows.' )]
+                    'Optional scons executable path. eg : C:\Python25\scons.bat for windows.' )]
 
 
     def initialize_options (self):
         self.outfiles = None
         self.scons_scripts = []   #scons directory
         self.scons_parameters = [] #scons parameters
-	self.build_dir = None        #build directory
-	self.scons_ext_param = None  #scons external parameters
-	self.scons_path = None
+        self.build_dir = None        #build directory
+        self.scons_ext_param = None  #scons external parameters
+        self.scons_path = None
 
 
     def finalize_options (self):
@@ -434,13 +442,6 @@ except ImportError:
     import pkgutil
     __path__ = pkgutil.extend_path(__path__, __name__)
 
-# Local setup for openalea subversion
-try:
-    from __init_path__ import set_path
-    set_path()
-except:
-    pass
-
 """
 
     user_options = []
@@ -498,7 +499,7 @@ except:
 class install(old_install):
     """
     Overload install command
-    Use alea_install instead of easy_install
+    Use alea_install instead of old_easy_install
     """
 
     user_options = []
@@ -545,22 +546,22 @@ class install(old_install):
 
 
 
-class alea_install(easy_install):
+class alea_install(old_easy_install):
     """
-    Overload easy_install to add
+    Overload old_easy_install to add
     - Environment variable
     - Postinstall Scripts
     """
     
     user_options = []
-    user_options.extend( easy_install.user_options )
+    user_options.extend( old_easy_install.user_options )
     user_options.append( ( 'install-dyn-lib=',
                            None,
                            'Directory to install dynamic library.' ) )
 
 
     def initialize_options (self):
-        easy_install.initialize_options(self)
+        old_easy_install.initialize_options(self)
         self.install_dyn_lib = None
 
 
@@ -579,13 +580,13 @@ class alea_install(easy_install):
             
         self.install_dyn_lib = os.path.expanduser(self.install_dyn_lib)
 
-        easy_install.finalize_options(self)
+        old_easy_install.finalize_options(self)
 
 
     def run(self):
 
         self.set_system()
-        easy_install.run(self)
+        old_easy_install.run(self)
 
         # Activate the correct egg
         self.dist.activate()
@@ -625,7 +626,10 @@ class alea_install(easy_install):
 
 
     def process_distribution(self, requirement, dist, deps=True, *info):
-        ret = easy_install.process_distribution(self, requirement, dist, deps, *info)
+        """
+        Just a way to retrieve the current distribution object.
+        """
+        ret = old_easy_install.process_distribution(self, requirement, dist, deps, *info)
         # save distribution
         self.dist = dist
  
@@ -686,6 +690,8 @@ def set_env(dyn_lib=None):
     
     print "Setting environment variables"
 
+    # Get all the dirs containing shared libs of the devel pkg
+    # plus the global shared lib directory.
     lib_dirs = list(get_all_lib_dirs(precedence=DEV_DIST)) + [dyn_lib]
     bin_dirs = list(get_all_bin_dirs())
 
@@ -719,6 +725,11 @@ class develop(old_develop):
     Overloaded develop command
     """
 
+    # Redirect namespace
+    # This is done when you have meta pacckages
+    # in development mode.
+    # It is an indirection to look for development directory
+    # even if the directory path do not contain the namespace.
     redirect_ns = """
 # Redirect path
 import os
@@ -753,6 +764,9 @@ from %s.__init__ import *
         
         # !! HACK !!
         # Modify inc, lib, share directory
+        # We have to modify the path of the directories for scons.
+        # When scons look for installation path of lib and inc,
+        # we need build_scons/lib rather than lib because nothing is copied.
         
         for d in (self.distribution.lib_dirs,
                   self.distribution.inc_dirs,
@@ -823,7 +837,8 @@ from %s.__init__ import *
             for namespace in self.namespaces:
                 self.create_fake_namespace(namespace)
 
-        # Set environment
+        # Set environment (i.e. copy libraries and env vars).
+        # For develop, the libraries stay in place.
         set_env()
 
 
@@ -928,4 +943,4 @@ class alea_upload(Command):
         
         server.add_file(self.project, self.package, self.release, filename)
 
-        
+

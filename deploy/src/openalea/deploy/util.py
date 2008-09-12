@@ -174,7 +174,9 @@ def get_all_bin_dirs(namespace=None, precedence=ALL_DIST):
 
 def check_system():
     """
-    Check system configuration and return environment variables dictionary
+    Check system configuration and 
+    return a dictionnary containing environment variables to be set.
+    
     """
     from install_lib import get_dyn_lib_dir
     
