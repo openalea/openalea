@@ -230,7 +230,7 @@ def update_md5(filenames):
     f.close()
 
 
-
+############################ OpenAlea Installation #############################
 
 def install_deploy():
     """ Install OpenAlea.Deploy with setuptools"""
@@ -244,8 +244,6 @@ def install_deploy():
     except:
         print "Cannot install openalea.deploy"
 
-
-############################ OpenAlea Installation #############################
 
 def install_pkg(name):
    """ Install package with alea_install """
@@ -319,14 +317,21 @@ def finalize_installation():
 if(__name__ == "__main__"):
 
     # Excecute the script in 2 process
+    # This part is called the second time.
     if("openalea" in sys.argv):
+        # Second call: install openalea.
         install_openalea()
         finalize_installation()
 
     else:
+        # First call
+        # Install setup tools
         install_setuptools()
         d = os.path.dirname(__file__)
         if(d) : os.chdir(d)
+
+        # Start again in an other process with openalea option 
+        # to take into account modifications
         os.system('%s "%s" openalea'%(sys.executable, os.path.basename(__file__)))
         raw_input("\n== Press Enter to finish. ==")
 
