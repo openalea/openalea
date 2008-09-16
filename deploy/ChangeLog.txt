@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.4.9
+    * add binary dependency declaration in binray_deps.py
 OpenAlea.Deploy 0.4.8
     * Fix upload for big files
 OpenAlea.Deploy 0.4.7
