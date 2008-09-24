@@ -1,5 +1,7 @@
-Version 0.4.1:
+Version 0.4.3:
+    * Fix version comparison to update and select the last package.
 
+Version 0.4.1:
     * Fix configuration when installing/removing a package
 
 
