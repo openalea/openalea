@@ -1,3 +1,5 @@
+OpenAlea.Deploy 0.4.11
+    * Fix version comparison by using parse_version rather than lexical cmp.
 OpenAlea.Deploy 0.4.9
     * add binary dependency declaration in binray_deps.py
 OpenAlea.Deploy 0.4.8

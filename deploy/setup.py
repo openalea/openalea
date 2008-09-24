@@ -15,7 +15,7 @@ import sys, os
 setup(
     # Metadata for PyPi
     name = "OpenAlea.Deploy",
-    version = "0.4.10",
+    version = "0.4.11",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "Setuptools extension for OpenAlea",
