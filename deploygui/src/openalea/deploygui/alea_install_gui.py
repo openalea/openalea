@@ -40,6 +40,7 @@ from fake_pkg_generation import *
 
 from setuptools.package_index import PackageIndex
 import pkg_resources
+from pkg_resources import parse_version
 from setuptools import setup, find_packages
 from auth import cookie_login
 
@@ -203,9 +204,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         for project_name in self.pi:
             
             # Sort list by version
+            # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
-            dist_list.sort(cmp = (lambda x,y : cmp(y.version, x.version)))
+            dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
             
             for dist in dist_list :
                 
@@ -226,8 +228,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 # compare with already installed egg
                 if(mode != "INSTALLED"):
                     installed_version = [d.version for d in env[project_name]]
-                    if(installed_version):
-                        if(max(installed_version) < version):
+                    if installed_version:
+                        if parse_version(max(installed_version, key=parse_version)) < parse_version(version):
                             update = True
                         else:
                             ignore = True

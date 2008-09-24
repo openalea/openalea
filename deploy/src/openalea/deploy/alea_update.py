@@ -13,14 +13,15 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-import pkg_resources
 import os, sys
 import shutil
+
+from pkg_resources import Environment, parse_version, EGG_DIST
 
 def remove_egg(project_name, dist):
     """ Remove an egg from the system (use rm) """
 
-    if(dist.precedence != pkg_resources.EGG_DIST):
+    if(dist.precedence != EGG_DIST):
         return
 
     version = dist.version
@@ -50,23 +51,24 @@ def remove_egg(project_name, dist):
 def clean_version():
     """ Keep only most recent version of each package """
 
-    env = pkg_resources.Environment()
+    env = Environment()
 
     for project_name in env._distmap.keys():
 
         installed_version = [d.version for d in env[project_name]]
         if(installed_version):
-            max_version = max(installed_version)
+            max_version = max(installed_version, key=parse_version)
 
             for dist in env[project_name]:
-                if(dist.version < max_version): remove_egg(project_name, dist)
+                if parse_version(dist.version) < parse_version(max_version): 
+                    remove_egg(project_name, dist)
 
 
 
 def update_all():
     """ Update all packages """
 
-    env = pkg_resources.Environment()
+    env = Environment()
 
     for project_name in env._distmap.keys():
         print "Update %s"%(project_name)
