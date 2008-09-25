@@ -172,47 +172,59 @@ def get_all_bin_dirs(namespace=None, precedence=ALL_DIST):
 
 # System config
 
+def merge_uniq(list1, list2):
+    """
+    Merge two lists into one with only uniq elements.
+    """
+
+    full_list = list(list1)
+    full_list.extend([elt for elt in list2 if elt not in list1])
+    return full_list
+
 def check_system():
     """
     Check system configuration and 
-    return a dictionnary containing environment variables to be set.
-    
+
+    Return a dictionnary containing environment variables to be set.
     """
+
     from install_lib import get_dyn_lib_dir
-    
-    inenv = dict(os.environ)
-    outenv = {}
-    
+
+    in_env = dict(os.environ)
+    out_env = {}
+
     try:
 
         # Linux
-        if(("posix" in os.name) and ("linux" in sys.platform.lower())):
+        if ("posix" in os.name) and ("linux" in sys.platform.lower()):
 
-            paths = set(get_all_bin_dirs())
-            paths.update(set(inenv['PATH'].split(':')))
+            paths = list(get_all_bin_dirs())
+            paths = merge_uniq(paths, in_env['PATH'].split(':'))
             
-            libs = set([get_dyn_lib_dir()])
-            libs.update(set(inenv['LD_LIBRARY_PATH'].split(':')))
+            libs = [get_dyn_lib_dir()]
+            libs = merge_uniq(libs, in_env['LD_LIBRARY_PATH'].split(':'))
 
-            # libs
-            outenv['LD_LIBRARY_PATH'] = ':'.join(libs)
-            outenv['PATH'] = ':'.join(paths)
-
-                
+            # update the environment
+            out_env['LD_LIBRARY_PATH'] = ':'.join(libs)
+            out_env['PATH'] = ':'.join(paths)
 
         # Windows
-        elif("win" in sys.platform.lower()):
+        elif sys.platform.lower().startswith('win'):
 
-            libs = set(get_all_bin_dirs())
-            libs.add(get_dyn_lib_dir())
-            libs.update(set(inenv['PATH'].split(';')))
-            
-            outenv['PATH'] = ';'.join(libs)
+            bin = [d.lower() for d in get_all_bin_dirs()]
+            lib = get_dyn_lib_dir().lower()
+            if lib not in bin:
+                bin.append(lib)
+
+            paths = [d.lower() for d in in_env['PATH'].split(';')]
+            libs = merge_uniq(bin, paths) 
+
+            out_env['PATH'] = ';'.join(libs)
                   
     except Exception, e:
         print e
 
-    return outenv
+    return out_env
 
 
 # Repository management
@@ -253,3 +265,5 @@ def is_virtual_env():
 
     import site
     return hasattr(site, "virtual_addsitepackages")
+
+    

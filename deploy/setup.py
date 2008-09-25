@@ -15,9 +15,9 @@ import sys, os
 setup(
     # Metadata for PyPi
     name = "OpenAlea.Deploy",
-    version = "0.4.11",
-    author = "Samuel Dufour-Kowalski",
-    author_email = "samuel.dufour@sophia.inria.fr",
+    version = "0.4.12",
+    author = "Samuel Dufour-Kowalski, Christophe Pradal",
+    author_email = "christophe.pradal@cirad.fr",
     description = "Setuptools extension for OpenAlea",
     license = 'Cecill-C',
     keywords = ['setuptools', 'shared lib'],
