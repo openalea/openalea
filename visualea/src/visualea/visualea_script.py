@@ -54,7 +54,7 @@ def start_gui():
         envdict = os.environ
         print e
     
-    if('win' in sys.platform.lower()):
+    if sys.platform.lower().startswith('win'):
         os.execle(sys.executable, sys.executable, '-c',
                   '"import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)"',
                   envdict)
