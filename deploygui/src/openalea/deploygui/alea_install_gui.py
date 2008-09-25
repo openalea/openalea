@@ -664,7 +664,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         
                
 
-def main(args=None):
+def main_app(args=None):
 
     if args is None : args = sys.argv
     
@@ -675,10 +675,26 @@ def main(args=None):
 
     win = MainWindow()
     win.show()
-    
     return app.exec_()
 
+def main(args=None):
+    """
+    Start the GUI to install packages.
+    If the GUI use QT and a new version of QT has been installed, we need to start a new process
+    which setup the environment (shared libs and so on).
+    """
+    status = main_app(args)
 
+    print "Update environment"
+
+    if sys.platform.lower().startswith('win'):
+        os.execl(sys.executable, sys.executable, '-c',
+                  '"from openalea.deploy.command import set_env; set_env()"')
+    else:
+        os.execl(sys.executable, sys.executable, '-c',
+                  'from openalea.deploy.command import set_env; set_env()')
+
+    return status
 
 if __name__ == "__main__":
     main(sys.argv)

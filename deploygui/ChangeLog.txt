@@ -1,3 +1,7 @@
+Version 0.4.4:
+    * Restart alea_config after closing OPenAlea.Installer in an other process
+to update env variables. Thus, used libs can be replaced by new ones.
+
 Version 0.4.3:
     * Fix version comparison to update and select the last package.
 
