@@ -190,7 +190,7 @@ def GetPlatform():
             return Irix()
         else:
             return Posix()
-    elif(osname == "nt" and pfname== "win32"):
+    elif osname == "nt" and pfname.startswith("win"):
         return Win32()
     else:
         raise "Unknown Platform (%s,%s)" % (osname,pfname)

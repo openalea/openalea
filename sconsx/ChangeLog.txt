@@ -1,3 +1,6 @@
+SconsX 0.4.8:
+  * Change SharedLibrary by LoadableModule to build extension library on Mac OS X.
+
 SconsX 0.4.7:
   * Enhance MinGW tool to support newer version of SCons (>0.98)
   * Add ALEASolution function to simplify SConstruct in most cases.

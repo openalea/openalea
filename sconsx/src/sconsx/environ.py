@@ -113,12 +113,14 @@ def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
 
   if os.name == 'nt':
     kwds['SHLIBSUFFIX']='.pyd'
+  else: 
+    kwds['SHLIBSUFFIX']='.so'
 
   if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
     kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
       'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
 
-  wrap = env.SharedLibrary(real_target, source, 
+  wrap = env.LoadableModule(real_target, source, 
                            SHLIBPREFIX='',
                            *args, **kwds)
 
