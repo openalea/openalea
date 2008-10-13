@@ -120,7 +120,13 @@ def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
     kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
       'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
 
-  wrap = env.LoadableModule(real_target, source, 
+  if os.name == 'nt':
+    # Fix bug with Scons 0.97, Solved in newer versions.
+    wrap = env.SharedLibrary(real_target, source, 
+                           SHLIBPREFIX='',
+                           *args, **kwds)
+  else:
+    wrap = env.LoadableModule(real_target, source, 
                            SHLIBPREFIX='',
                            *args, **kwds)
 
