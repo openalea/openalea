@@ -13,22 +13,23 @@
 ################################################################################
 
 
-__doc__ = """ Catalog.Data """
+__doc__ = """ OpenAlea.Data Structure."""
 __license__ = "Cecill-C"
 __revision__ =" $Id$ "
 
 
 from openalea.core import *
+from openalea.core.pkgdict import protected
 
 
-__name__ = "openalea.data"
-__alias__ = ['catalog.data']
+__name__ = "openalea.data structure"
+__alias__ = ['catalog.data', 'openalea.data']
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __license__ = "Cecill-C"
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
-__description__ = 'Base library'
+__description__ = 'Nodes for standard data structure creation, edition and visualisation.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
                
@@ -49,7 +50,7 @@ var_ = Factory( name="variable",
 
 __all__.append('var_')
 
-str_ = Factory( name="string", 
+str_ = Factory( name=protected("string"), 
               description="String", 
               category="Type", 
               nodemodule="data",
@@ -62,7 +63,7 @@ str_ = Factory( name="string",
 __all__.append('str_')
 
 
-text = Factory( name="text", 
+text = Factory( name=protected("text"), 
               description="Text", 
               category="Type", 
               nodemodule="data",
@@ -143,7 +144,21 @@ int_ = Factory( name="int",
 __all__.append('int_')
 
 
-list_ = Factory( name="list",
+rgb_ = Factory( name=protected("rgb"),
+              description="RGB tuple",
+              category="Type,Color",
+              nodemodule="data",
+              nodeclass="RGB",
+              
+              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
+              outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
+              )
+
+
+__all__.append('rgb_')
+Alias(rgb_, 'rgb')
+
+list_ = Factory( name=protected("list"),
               description="Python list",
               category="Type",
               nodemodule="data",
@@ -157,7 +172,7 @@ list_ = Factory( name="list",
 __all__.append('list_')
 
 
-dict_ = Factory( name="dict",
+dict_ = Factory( name=protected("dict"),
               description="Python dictionary",
               category="Type",
               nodemodule="data",
@@ -171,7 +186,7 @@ dict_ = Factory( name="dict",
 __all__.append('dict_')
 
 
-pair = Factory( name="pair",
+pair = Factory( name=protected("pair"),
               description="Python 2-uples",
               category="Type",
               nodemodule="data",
@@ -183,7 +198,7 @@ pair = Factory( name="pair",
 
 __all__.append('pair')
 
-tuple3 = Factory( name="tuple3",
+tuple3 = Factory( name=protected("tuple3"),
               description="Python 3-uples",
               category="Type",
               nodemodule="data",
@@ -198,7 +213,7 @@ tuple3 = Factory( name="tuple3",
 __all__.append('tuple3')
 
 # DEPRECATED
-fname = Factory( name="filename", 
+fname = Factory( name=protected("filename"), 
               description="File name", 
               category="Type", 
               nodemodule="data",
@@ -213,7 +228,7 @@ fname = Factory( name="filename",
 __all__.append('fname')
 
 
-dname = Factory( name="dirname", 
+dname = Factory( name=protected("dirname"), 
               description="Directory name", 
               category="Type", 
               nodemodule="data",
@@ -228,7 +243,7 @@ dname = Factory( name="dirname",
 __all__.append('dname')
 
 
-pdir = Factory( name="packagedir", 
+pdir = Factory( name=protected("packagedir"), 
               description="Package Directory", 
               category="Type", 
               nodemodule="data",

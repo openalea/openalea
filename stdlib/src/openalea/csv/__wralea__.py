@@ -13,16 +13,17 @@
 ################################################################################
 
 
-__doc__ = """ Catalog.CSV """
+__doc__ = """ OpenAlea.file.CSV """
 __revision__=" $Id$ "
 
 
 from openalea.core import *
+from openalea.core.pkgdict import protected
 
-__name__ = "openalea.csv"
-__alias__ = ["catalog.csv"]
+__name__ = "openalea.file.csv"
+__alias__ = ["catalog.csv", "openalea.csv"]
 
-__version__ = '0.0.1',
+__version__ = '0.0.2',
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
@@ -31,26 +32,26 @@ __url__ = 'http://openalea.gforge.inria.fr'
 
 
 
-__all__ = ['csv2objs', 'obj2csv']
-
-csv2objs = Factory(name="csv2objs", 
-                   description="Csv converter", 
-                   category="Csv", 
-                   nodemodule="csv",
-                   nodeclass="parseText",
+__all__ = [ 'read_csv', 'write_csv']
+read_csv = Factory(name='read csv', 
+                   description='Csv converter', 
+                   category='Csv', 
+                   nodemodule='csv',
+                   nodeclass='parseText',
                    lazy = False,
                    outputs=(dict(name='objects', interface=None),
                             dict(name='header', interface=None),)
                    )
 
+Alias(read_csv, 'csv2objs')
 
-obj2csv = Factory(name="obj2csv", 
-                  description="Csv exporter", 
-                  category="Csv", 
-                  nodemodule="csv",
-                  nodeclass="writeObjs",
+write_csv = Factory(name='write csv', 
+                  description='Csv exporter', 
+                  category='Csv', 
+                  nodemodule='csv',
+                  nodeclass='writeObjs',
                   lazy = False,
                   outputs=(dict(name='string', interface=IStr),)
                   )
-
+Alias(write_csv, 'obj2csv')
 

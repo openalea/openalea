@@ -19,8 +19,8 @@ __revision__ = " $Id$ "
 from openalea.core import *
 
 
-__name__ = "openalea.string"
-__alias__ = ["catalog.string"]
+__name__ = "openalea.data structure.string"
+__alias__ = ["catalog.string", "openalea.string", "catalog.data", "openalea.data"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -68,4 +68,28 @@ join = Factory( name="join",
                 outputs=(dict(name="List", interface=IStr),),
                 )
 
+str_ = Factory( name="string", 
+              description="String", 
+              category="Type", 
+              nodemodule="strings",
+              nodeclass="String",
+              
+              inputs=(dict(name="String", interface=IStr, value=''),),
+              outputs=(dict(name="String", interface=IStr),),
+              )
+
+__all__.append('str_')
+
+text = Factory( name="text", 
+              description="Text", 
+              category="Type", 
+              nodemodule="strings",
+              nodeclass="Text",
+              
+              inputs=(dict(name="Text", interface=ITextStr, value=''),),
+              outputs=(dict(name="Text", interface=ITextStr),),
+              )
+
+
+__all__.append('text')
 

@@ -24,7 +24,7 @@ __revision__=" $Id$ "
 
 def pymap(func, seq):
     """ map(func, seq) """
-
+    
     if func and seq:
         return ( map(func,seq), )
     else:

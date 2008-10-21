@@ -17,9 +17,10 @@ __revision__ = " $Id$ "
 
 
 from openalea.core import *
+from openalea.core.pkgdict import protected
 
-__name__ = "openalea.pickle"
-__alias__ = ["catalog.pickle"]
+__name__ = "openalea.file.pickle"
+__alias__ = ["catalog.pickle", "openalea.pickle"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'

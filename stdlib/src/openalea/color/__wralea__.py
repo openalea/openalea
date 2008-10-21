@@ -35,9 +35,6 @@ rgb = Factory( name="rgb",
               )
 
 
-__all__.append('rgb')
-
-
 colormap = Factory(name='colormap', 
                    description='defines a color map from a range of values [I,J] to RGB', 
                    category='Visualisation.Color', 

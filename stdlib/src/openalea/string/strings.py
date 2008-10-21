@@ -17,7 +17,7 @@ __doc__=""" String manipulation """
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-#from openalea.core import *
+from openalea.core import *
 
 # File name manipulation
 
@@ -48,3 +48,21 @@ def str_strip(string, chars):
     """
     return (string.strip(chars),)
 
+
+class String(Node):
+    """
+String Variable
+Input 0 : The stored value
+Ouput 0 : Transmit the stored value
+    """
+
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        s = str(inputs[0])
+        self.set_caption(repr(s))
+        return ( s, )
+
+def text( long_str ):
+    """ Return a copy of the input string. """
+    return (str(text),)

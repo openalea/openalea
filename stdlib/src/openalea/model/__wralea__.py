@@ -18,9 +18,11 @@ __revision__=" $Id$ "
 
 
 from openalea.core import *
+from openalea.core.pkgdict import protected
 
-__name__ = "openalea.model"
-__alias__ = ["catalog.model"]
+__name__ = protected("openalea.model")
+#__name__ = "openalea.model"
+__alias__ = ["catalog.model", ]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -32,13 +34,12 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = ['linear']
 
     
-linear = Factory( name="linearmodel", 
+linear = Factory( name=protected("linearmodel"), 
                   description="Linear Model", 
                   category="Model", 
                   nodemodule="models",
                   nodeclass="linearmodel",
                   )
-
 
 
 
