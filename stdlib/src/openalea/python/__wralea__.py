@@ -238,6 +238,15 @@ extract_ = Factory( name= "extract",
 
 __all__.append('extract_')
 
+pysum = Factory( name = "sum",
+                 description= sum.__doc__, 
+                 category = "Python", 
+                 nodemodule = "python",
+                 nodeclass = "pysum",
+                 inputs = [dict(name='sequence' , interface=ISequence, value=[]),],
+                 outputs = [dict(name='value')],
+               )
+__all__.append('pysum')
 
 # DEPRECATED
 fwrite = Factory(name="fwrite", 

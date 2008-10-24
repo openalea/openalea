@@ -149,7 +149,8 @@ def extract(indexable, keys):
 
     return (outlist,)
 
-
+def pysum(sequence):
+    return (sum(sequence), )
 
 # DEPRECATED
 

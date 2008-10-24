@@ -50,6 +50,8 @@ class ColorMap(object):
        return self.greycolor(self.normU(u))
    
     def normU(self,u):
+        if self.minval == self.maxval:
+            return 0.5
 	return (u - self.minval) / (self.maxval - self.minval)
     
     def __call__(self,u,minval = 0,maxval = 1,coul1 = 80,coul2 = 20):
