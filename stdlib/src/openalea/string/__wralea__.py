@@ -84,7 +84,7 @@ text = Factory( name="text",
               description="Text", 
               category="Type", 
               nodemodule="strings",
-              nodeclass="Text",
+              nodeclass="text",
               
               inputs=(dict(name="Text", interface=ITextStr, value=''),),
               outputs=(dict(name="Text", interface=ITextStr),),

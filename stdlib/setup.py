@@ -31,7 +31,7 @@ setup(
     entry_points = {
         "wralea": ['openalea.color = openalea.color', 
                    'openalea.csv = openalea.csv', 
-                   'openalea.data_structure = openalea.data',
+                   'openalea.data structure = openalea.data',
                    'openalea.file = openalea.file',
                    'openalea.functional = openalea.functional',
                    'openalea.image = openalea.image',
@@ -43,7 +43,7 @@ setup(
                    'openalea.spatial = openalea.spatial',
                    'openalea.stand = openalea.stand',
                    'openalea.stat = openalea.stat',
-                   'openalea.data_structure.string= openalea.string',
+                   'openalea.string = openalea.string',
 
                    # Deprecated
                    'catalog.color = deprecated', 
@@ -56,8 +56,6 @@ setup(
                    'catalog.pickling = deprecated', 
                    'catalog.python = deprecated',
                    'catalog.string = deprecated',
-                   'openalea.string = deprecated',
-                   'openalea.data = deprecated',
               ],
 
         },
