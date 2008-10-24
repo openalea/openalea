@@ -152,6 +152,9 @@ def extract(indexable, keys):
 def pysum(sequence):
     return (sum(sequence), )
 
+def pymean(sequence):
+    return (sum(sequence)/float(len(sequence)), )
+
 # DEPRECATED
 
 def py_fwrite(x="", filename="", mode="w"):

@@ -247,6 +247,15 @@ pysum = Factory( name = "sum",
                  outputs = [dict(name='value')],
                )
 __all__.append('pysum')
+pymean = Factory( name = "mean",
+                 description= "Compute the mean of a sequence", 
+                 category = "Python", 
+                 nodemodule = "python",
+                 nodeclass = "pymean",
+                 inputs = [dict(name='sequence' , interface=ISequence, value=[]),],
+                 outputs = [dict(name='value')],
+               )
+__all__.append('pymean')
 
 # DEPRECATED
 fwrite = Factory(name="fwrite", 
