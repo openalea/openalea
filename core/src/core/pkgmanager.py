@@ -742,7 +742,11 @@ class PseudoGroup(PackageDict):
         else:
             remain = None
 
-        self[key].add_name(remain, value)
+        try:
+            self[key].add_name(remain, value)
+        except:
+            print 'Unable to found the nodes: %s'%value
+            pass
          
    
 
