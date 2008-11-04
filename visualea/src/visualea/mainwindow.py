@@ -900,6 +900,7 @@ class MainWindow(QtGui.QMainWindow,
 
         svg_gen = QtSvg.QSvgGenerator()
         svg_gen.setFileName(filename)
+        svg_gen.setSize(rect.size())
 
         painter = QtGui.QPainter(svg_gen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
