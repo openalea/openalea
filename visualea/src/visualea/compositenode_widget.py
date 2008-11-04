@@ -1365,11 +1365,15 @@ class Connector(QtGui.QGraphicsEllipseItem):
         self.base_tooltip = tooltip
         self.setRect(0, 0, self.WIDTH, self.HEIGHT)
 
-        gradient = QtGui.QRadialGradient(-3, -3, 10)
-        gradient.setCenter(3, 3)
-        gradient.setFocalPoint(3, 3)
+        gradient = QtGui.QLinearGradient(0, 0, 10, 0)
         gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
         gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+
+        #gradient = QtGui.QRadialGradient(-3, -3, 10)
+        #gradient.setCenter(3, 3)
+        #gradient.setFocalPoint(3, 3)
+        #gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
+        #gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
         
         self.setBrush(QtGui.QBrush(gradient))
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
