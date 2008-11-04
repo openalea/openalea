@@ -23,7 +23,7 @@ __license__= "CeCILL v2"
 __revision__=" $Id$ "
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtSvg
 from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
@@ -132,6 +132,7 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Quit, SIGNAL("triggered()"), self.quit)
         
         self.connect(self.action_Image, SIGNAL("triggered()"), self.export_image)
+        self.connect(self.action_Svg, SIGNAL("triggered()"), self.export_image_svg)
 
         # Package Manager Menu
         self.connect(self.action_Auto_Search, SIGNAL("triggered()"), self.reload_all)
@@ -882,3 +883,27 @@ class MainWindow(QtGui.QMainWindow,
         view.scene().render(painter, )
         painter.end()
         pixmap.save(filename)
+
+    def export_image_svg(self):
+        """ Export current workspace to an image """
+        
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, "Export svg image",  QtCore.QDir.homePath(), "SVG Image (*.svg)")
+
+        filename = str(filename)
+        if(not filename) : return
+        
+        # Get current workspace
+        cindex = self.tabWorkspace.currentIndex()
+        view = self.index_nodewidget[cindex]
+        rect = view.viewport().rect()
+
+        svg_gen = QtSvg.QSvgGenerator()
+        svg_gen.setFileName(filename)
+
+        painter = QtGui.QPainter(svg_gen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        view.scene().render(painter, )
+        painter.end()
+        #pixmap.save(filename)
+

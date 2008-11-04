@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'preferences.ui'
 #
-# Created: Wed Jan 30 18:44:42 2008
-#      by: PyQt4 UI code generator 4.3.1
+# Created: Wed Oct 22 16:38:33 2008
+#      by: PyQt4 UI code generator 4.4.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,120 +12,100 @@ from PyQt4 import QtCore, QtGui
 class Ui_Preferences(object):
     def setupUi(self, Preferences):
         Preferences.setObjectName("Preferences")
-        Preferences.resize(QtCore.QSize(QtCore.QRect(0,0,480,350).size()).expandedTo(Preferences.minimumSizeHint()))
-
+        Preferences.resize(480, 350)
         self.gridlayout = QtGui.QGridLayout(Preferences)
         self.gridlayout.setMargin(9)
         self.gridlayout.setSpacing(6)
         self.gridlayout.setObjectName("gridlayout")
-
         self.tabWidget = QtGui.QTabWidget(Preferences)
         self.tabWidget.setObjectName("tabWidget")
-
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
-
         self.gridlayout1 = QtGui.QGridLayout(self.tab)
         self.gridlayout1.setMargin(9)
         self.gridlayout1.setSpacing(6)
         self.gridlayout1.setObjectName("gridlayout1")
-
         self.label_2 = QtGui.QLabel(self.tab)
         self.label_2.setObjectName("label_2")
-        self.gridlayout1.addWidget(self.label_2,0,0,1,1)
-
+        self.gridlayout1.addWidget(self.label_2, 0, 0, 1, 1)
         self.pathList = QtGui.QListWidget(self.tab)
         self.pathList.setObjectName("pathList")
-        self.gridlayout1.addWidget(self.pathList,0,1,3,1)
-
+        self.gridlayout1.addWidget(self.pathList, 0, 1, 3, 1)
         self.addButton = QtGui.QPushButton(self.tab)
         self.addButton.setObjectName("addButton")
-        self.gridlayout1.addWidget(self.addButton,1,0,1,1)
-
+        self.gridlayout1.addWidget(self.addButton, 1, 0, 1, 1)
         self.removeButton = QtGui.QPushButton(self.tab)
         self.removeButton.setObjectName("removeButton")
-        self.gridlayout1.addWidget(self.removeButton,2,0,1,1)
-
+        self.gridlayout1.addWidget(self.removeButton, 2, 0, 1, 1)
         self.includenmspace = QtGui.QCheckBox(self.tab)
         self.includenmspace.setObjectName("includenmspace")
-        self.gridlayout1.addWidget(self.includenmspace,3,1,1,1)
-        self.tabWidget.addTab(self.tab,"")
-
+        self.gridlayout1.addWidget(self.includenmspace, 3, 1, 1, 1)
+        self.tabWidget.addTab(self.tab, "")
         self.tab_4 = QtGui.QWidget()
         self.tab_4.setObjectName("tab_4")
-
         self.label_3 = QtGui.QLabel(self.tab_4)
-        self.label_3.setGeometry(QtCore.QRect(20,20,56,17))
+        self.label_3.setGeometry(QtCore.QRect(20, 20, 56, 17))
         self.label_3.setObjectName("label_3")
-
         self.listAlgo = QtGui.QListWidget(self.tab_4)
-        self.listAlgo.setGeometry(QtCore.QRect(20,40,171,211))
+        self.listAlgo.setGeometry(QtCore.QRect(20, 40, 171, 211))
         self.listAlgo.setObjectName("listAlgo")
-        self.tabWidget.addTab(self.tab_4,"")
-
+        self.tabWidget.addTab(self.tab_4, "")
         self.tab_2 = QtGui.QWidget()
         self.tab_2.setObjectName("tab_2")
-
         self.vboxlayout = QtGui.QVBoxLayout(self.tab_2)
         self.vboxlayout.setObjectName("vboxlayout")
-
         self.externalBool = QtGui.QCheckBox(self.tab_2)
         self.externalBool.setObjectName("externalBool")
         self.vboxlayout.addWidget(self.externalBool)
-
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setObjectName("hboxlayout")
-
         self.label_4 = QtGui.QLabel(self.tab_2)
         self.label_4.setObjectName("label_4")
         self.hboxlayout.addWidget(self.label_4)
-
         self.commandStr = QtGui.QLineEdit(self.tab_2)
         self.commandStr.setObjectName("commandStr")
         self.hboxlayout.addWidget(self.commandStr)
-
         self.commandPath = QtGui.QPushButton(self.tab_2)
         self.commandPath.setObjectName("commandPath")
         self.hboxlayout.addWidget(self.commandPath)
         self.vboxlayout.addLayout(self.hboxlayout)
-        self.tabWidget.addTab(self.tab_2,"")
-
+        self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtGui.QWidget()
         self.tab_3.setObjectName("tab_3")
-
         self.gridlayout2 = QtGui.QGridLayout(self.tab_3)
         self.gridlayout2.setMargin(9)
         self.gridlayout2.setSpacing(6)
         self.gridlayout2.setObjectName("gridlayout2")
-
         self.label = QtGui.QLabel(self.tab_3)
         self.label.setObjectName("label")
-        self.gridlayout2.addWidget(self.label,0,0,1,1)
-
+        self.gridlayout2.addWidget(self.label, 0, 0, 1, 1)
         self.dbclickBox = QtGui.QComboBox(self.tab_3)
         self.dbclickBox.setObjectName("dbclickBox")
-        self.gridlayout2.addWidget(self.dbclickBox,0,1,1,1)
-
+        self.dbclickBox.addItem(QtCore.QString())
+        self.dbclickBox.addItem(QtCore.QString())
+        self.dbclickBox.addItem(QtCore.QString())
+        self.gridlayout2.addWidget(self.dbclickBox, 0, 1, 1, 1)
         self.comboBox = QtGui.QComboBox(self.tab_3)
         self.comboBox.setObjectName("comboBox")
-        self.gridlayout2.addWidget(self.comboBox,1,1,1,1)
-
+        self.comboBox.addItem(QtCore.QString())
+        self.comboBox.addItem(QtCore.QString())
+        self.comboBox.addItem(QtCore.QString())
+        self.gridlayout2.addWidget(self.comboBox, 1, 1, 1, 1)
         self.label_edge_style = QtGui.QLabel(self.tab_3)
         self.label_edge_style.setObjectName("label_edge_style")
-        self.gridlayout2.addWidget(self.label_edge_style,1,0,1,1)
-        self.tabWidget.addTab(self.tab_3,"")
-        self.gridlayout.addWidget(self.tabWidget,0,0,1,1)
-
+        self.gridlayout2.addWidget(self.label_edge_style, 1, 0, 1, 1)
+        self.tabWidget.addTab(self.tab_3, "")
+        self.gridlayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         self.buttonBox = QtGui.QDialogButtonBox(Preferences)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.NoButton|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.gridlayout.addWidget(self.buttonBox,1,0,1,1)
+        self.gridlayout.addWidget(self.buttonBox, 1, 0, 1, 1)
 
         self.retranslateUi(Preferences)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),Preferences.accept)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),Preferences.reject)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), Preferences.accept)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), Preferences.reject)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
 
     def retranslateUi(self, Preferences):
@@ -142,12 +122,12 @@ class Ui_Preferences(object):
         self.commandPath.setText(QtGui.QApplication.translate("Preferences", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Preferences", "Editor", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Preferences", "Double click on item", None, QtGui.QApplication.UnicodeUTF8))
-        self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))
-        self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run", None, QtGui.QApplication.UnicodeUTF8))
-        self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Open", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Line (Default)", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Polyline", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Spline", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbclickBox.setItemText(0, QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbclickBox.setItemText(1, QtGui.QApplication.translate("Preferences", "Run", None, QtGui.QApplication.UnicodeUTF8))
+        self.dbclickBox.setItemText(2, QtGui.QApplication.translate("Preferences", "Open", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.setItemText(0, QtGui.QApplication.translate("Preferences", "Line (Default)", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.setItemText(1, QtGui.QApplication.translate("Preferences", "Polyline", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.setItemText(2, QtGui.QApplication.translate("Preferences", "Spline", None, QtGui.QApplication.UnicodeUTF8))
         self.label_edge_style.setText(QtGui.QApplication.translate("Preferences", "Edge Style", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("Preferences", "UI", None, QtGui.QApplication.UnicodeUTF8))
 

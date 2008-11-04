@@ -206,6 +206,7 @@
       <string>&amp;Export</string>
      </property>
      <addaction name="action_Image" />
+     <addaction name="action_Svg" />
      <addaction name="action_Application" />
     </widget>
     <addaction name="action_New_Session" />
@@ -595,6 +596,11 @@
   <action name="action_Image" >
    <property name="text" >
     <string>&amp;Image</string>
+   </property>
+  </action>
+  <action name="action_Svg" >
+   <property name="text" >
+    <string>&amp;Svg</string>
    </property>
   </action>
   <action name="action_Application" >
