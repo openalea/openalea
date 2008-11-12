@@ -62,8 +62,8 @@ def load_package_manager(pkg_id, node_id):
     return pm
 
 
-def run(component, inputs, gui=False, pm=None):
-    """ run component with inputs"""
+def get_node(component, inputs, pm=None):
+    """ retrieve a node from its component name and inputs"""
     
     pkg_id, node_id = component
     
@@ -92,6 +92,14 @@ def run(component, inputs, gui=False, pm=None):
                 print "Unknown input %s"%(k,)
                 query(component, pm)
                 return
+    
+    return node
+    
+    
+def run(component, inputs, gui=False, pm=None):
+    """ run component with inputs. """
+    
+    node = get_node(component, inputs, pm)
 
     if(not gui):
         
@@ -106,6 +114,15 @@ def run(component, inputs, gui=False, pm=None):
 
     else:
         start_qt(factory, node)
+
+def noserun(component, inputs, pm=None):
+    """ run component with inputs. can exit by exception. """
+    
+    node = get_node(component, inputs, pm)
+    
+    node.eval()
+    return node.outputs
+
 
 
 
@@ -282,7 +299,6 @@ or
         parser.error("Incomplete command : specify a 'package_id:node_id'")
 
     component = parse_component(args[0])
-
 
     # Execute
     if(options.local_data):
