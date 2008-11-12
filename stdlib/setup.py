@@ -22,6 +22,10 @@ setup(
 
     package_dir={"":"src" },
 
+    # Add package platform libraries if any
+    include_package_data=True,
+    package_data = {'' : ['*.csv'],},
+
     # Dependencies
     setup_requires = ['openalea.deploy'],
     install_requires = ['openalea.core'],
@@ -44,6 +48,7 @@ setup(
                    'openalea.spatial = openalea.spatial',
                    'openalea.stand = openalea.stand',
                    'openalea.stat = openalea.stat',
+                   'openalea.system = openalea.system',
 
                    # Deprecated
                    'catalog.color = deprecated', 

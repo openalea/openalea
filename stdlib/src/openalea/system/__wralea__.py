@@ -23,7 +23,6 @@ __revision__=" $Id: __wralea__.py 1317 2008-07-10 16:06:28Z dufourko $ "
 
 
 from openalea.core.external import *
-from openalea.core.pkgdict import protected
 
 
 __name__ = "openalea.system"
@@ -40,7 +39,7 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = []
 
 
-cmd = Factory(name=protected("command"), 
+cmd = Factory(name="command", 
              description="Call a system command", 
              category="System", 
              nodemodule="systemnodes",
