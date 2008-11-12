@@ -12,17 +12,17 @@
 #
 ################################################################################
 
-__doc__ = """ catalog.functional """
+__doc__ = """ openalea.function operator """
 __revision__=" $Id$ "
 
 
 from openalea.core import *
 
-__name__ = "openalea.functional"
+__name__ = "openalea.function operator"
 
-__alias__ = ["catalog.functional"]
+__alias__ = ["catalog.functional", "openalea.functional"]
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'

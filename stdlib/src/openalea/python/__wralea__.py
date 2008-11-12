@@ -12,17 +12,17 @@
 #
 ################################################################################
 
-__doc__ = """ openalea.python """
+__doc__ = """ openalea.python method"""
 __revision__ = " $Id$ "
 
 
 from openalea.core import *
 
 
-__name__ = "openalea.python"
-__alias__ = ["catalog.python"]
+__name__ = "openalea.python method"
+__alias__ = ["catalog.python", "openalea.python"]
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __license__ = 'CECILL-C'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
