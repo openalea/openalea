@@ -42,7 +42,7 @@ __all__ = []
 
 annotation = Factory(name="annotation", 
                      description="Annotation", 
-                     category="System", 
+                     category="flow control", 
                      nodemodule="systemnodes",
                      nodeclass="AnnotationNode",
                      )
@@ -62,7 +62,7 @@ __all__.append('annotation')
 
 rdv = Factory(name="rendez vous", 
               description="Synchronize 2 inputs", 
-              category="System", 
+              category="flow control", 
               nodemodule="systemnodes",
               nodeclass="RDVNode",
               inputs = (dict(name="value", interface=None, value=None),
@@ -76,7 +76,7 @@ __all__.append('rdv')
 
 poolreader = Factory( name="pool reader",
               description="Read data from the data pool.",
-              category="System",
+              category="flow control",
               nodemodule="systemnodes",
               nodeclass="PoolReader",
               inputs = (dict(name='Key', interface=IStr),),
@@ -89,7 +89,7 @@ __all__.append('poolreader')
 
 poolwriter = Factory(name="pool writer",
              description="Write data to the data pool.",
-             category="System",
+             category="flow control",
              nodemodule="systemnodes",
              nodeclass="PoolWriter",
              inputs = (dict(name='Key', interface=IStr),
@@ -133,7 +133,7 @@ __all__.append('poolwriter')
 
 init = Factory(name="init", 
              description="Value selector for graph initialisation", 
-             category="System", 
+             category="flow control", 
              nodemodule="systemnodes",
              nodeclass="InitNode",
              inputs = (dict(name="val_init", interface=None, value=0.),
@@ -149,7 +149,7 @@ __all__.append('init')
     
 X = Factory(name="X", 
              description="Function variable", 
-             category="System", 
+             category="flow control", 
              nodemodule="systemnodes",
              nodeclass="LambdaVar",
              inputs = (dict(name="name", interface=IStr, value='x'),  ),
@@ -161,7 +161,7 @@ __all__.append('X')
     
 whileuni = Factory(name="while univariate", 
              description="While Loop (Univariate)", 
-             category="System", 
+             category="flow control", 
              nodemodule="systemnodes",
              nodeclass="WhileUniVar",
              inputs = (dict(name="InitValue", interface=None, value=None),  
@@ -176,7 +176,7 @@ __all__.append('whileuni')
     
 whilemulti = Factory(name="while multivariate", 
              description="While Loop (Multivariate)", 
-             category="System", 
+             category="flow control", 
              nodemodule="systemnodes",
              nodeclass="WhileMultiVar",
              inputs = (dict(name="InitValues", interface=ISequence, value=[]),  
@@ -206,6 +206,16 @@ cmd = Factory(name=protected("command"),
 
 __all__.append('cmd')
 
+_delay = Factory(name="delay", 
+             description="Delay return the previous or an init value.", 
+             category="flow control", 
+             nodemodule="systemnodes",
+             nodeclass="Delay",
+             inputs = (dict(name="init", interface=None), dict(name="x", interface=None), ),
+             outputs = ( dict(name="previous", interface=None), ),
+             )
+
+__all__.append('_delay')
 
 
 

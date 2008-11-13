@@ -50,7 +50,7 @@ setup(
 
     # entry_points
     entry_points = {
-              "wralea": ["system = openalea.core.system",],
+              "wralea": ["openalea.flow control = openalea.core.system",],
               "console_scripts": ["alea = openalea.core.alea:main"],
               },
 

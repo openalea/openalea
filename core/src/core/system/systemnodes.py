@@ -250,6 +250,23 @@ class LambdaVar(Node):
     def __call__(self, inputs):
         return SubDataflow(None, None, 0, 0)
 
+class Delay(Node):    
+    """ Return the previous value or an initial value """
+
+    def __init__(self, *args):
+        Node.__init__(self, *args)
+        self.previous = None
+
+    def __call__(self, inputs):
+        init, x = inputs[:2]
+        if self.previous is None:
+            self.previous = x
+            res = init
+        else:
+            res = self.previous
+            self.previous = x
+
+        return res,
 
 class WhileUniVar(Node):
     """ While Loop Univariate
