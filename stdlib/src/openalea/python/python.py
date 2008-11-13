@@ -26,13 +26,6 @@ def py_ifelse(c=True,a=None,b=None):
     return bool(c) and a or b
 
 
-def delitem(obj, key):
-    """ call __delitem__ on obj"""
-    
-    ret = obj.__delitem__(key)
-    return (obj,)
-
-
 def keys(obj):
     """ call keys() on obj """
 
@@ -74,34 +67,38 @@ def pylen(obj):
     return ( f, )
 
 
-def py_getitem(obj, index):
-    """ obj.__getitem__ """
+# def py_getitem(obj, index):
+    # """ obj.__getitem__ """
+    
+    # return operator.getitem(obj, index)
 
-    try:
-        return operator.getitem(obj, index)
-    except IndexError, e:
-        print "getitem: Bad Index", e
-        
-        return None
+def py_setitem(obj, index, value):
+    """ obj.__setitem__ """
+    
+    operator.setitem(obj, index,value)
+    return (obj,)
 
+def py_delitem(obj, key):
+    """ call __delitem__ on obj"""
+    operator.delitem(obj,key)
+    return (obj,)
 
 def py_print(x):
     """ Print to the console """
     print x
+    return (x,)
 
 
-def py_method(obj=None, name="", args=()):
+def py_method(obj=None, member_name="", args=()):
     """ call obj.name(*args) """
-    m = getattr(obj, name)
+    m = getattr(obj, member_name)
     m(*args)
+    return obj
 
 
 def py_getattr(items, member_name):
-    """__getitem on class dictionary"""
-    try:
-	return getattr(items, member_name)
-    except:
-	return None
+    """ getattr """
+    return getattr(items, member_name)
 
 
 def py_eval(str):
@@ -119,18 +116,18 @@ def py_zip(s1=(), s2=()):
     return (zip(s1,s2),)
 
 
-def py_flatten( l = []):
+def py_flatten( obj = []):
     """ Flatten nested list """
     tobeflatten = False
-    for v in iter(l):
+    for v in iter(obj):
         if hasattr(v,'__iter__'):
             tobeflatten = True
             break
     if not tobeflatten:
-        return (l,)
+        return (obj,)
     else:
         nl = []
-        for v in iter(l):
+        for v in iter(obj):
             for x in iter(py_flatten(v)[0]):
                 nl.append(x)
         #print nl

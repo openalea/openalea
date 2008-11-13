@@ -46,10 +46,10 @@ getitem = Factory( name="getitem",
                    description="Python __getitem__",
                    category="Python",
                    
-                   inputs=[dict(name="a", interface=None), 
-                           dict(name="b", interface=None, value=0),],
-                   nodemodule="python",
-                   nodeclass="py_getitem",
+                   inputs=[dict(name="obj", interface=None), 
+                           dict(name="key", interface=None, value=0),],
+                   nodemodule="operator",
+                   nodeclass="getitem",
                    widgetmodule="python",
                    widgetclass="ListSelectorWidget",
                    )
@@ -60,9 +60,9 @@ __all__.append('getitem')
 setitem = Factory(name="setitem",
                   description="Python __setitem__",
                   category="Python",
-                  inputs=[dict(name="a", interface=None), dict(name="b", interface=None),],
-                  nodemodule="operator",
-                  nodeclass="setitem",
+                  inputs=[dict(name="obj", interface=None), dict(name="key", interface=None), dict(name="value", interface=None)],
+                  nodemodule="python",
+                  nodeclass="py_setitem",
                   )
 
 __all__.append('setitem')
@@ -72,7 +72,7 @@ delitem = Factory(name="delitem",
                  description="Python __delitem__",
                  category="Python",
                  nodemodule="python",
-                 nodeclass="delitem",
+                 nodeclass="py_delitem",
                  )
 
 __all__.append('delitem')
@@ -145,7 +145,7 @@ print_ = Factory(name="print",
                  category="Python", 
                  nodemodule="python",
                  nodeclass="py_print",
-                 outputs=(),
+                 #outputs=(),
                  lazy=False,
                  )
 
@@ -158,6 +158,10 @@ method_ = Factory(name="method",
                   category="Python", 
                   nodemodule="python",
                   nodeclass="py_method",
+                  inputs=(dict(name="obj", interface=None),
+                          dict(name="member_name", interface=IStr),
+                          dict(name="args", interface=IDict)),
+                    outputs=(dict(name="member"),),
                   )
 
 __all__.append('method_')
@@ -170,9 +174,9 @@ getattr_ = Factory( name="getattr",
                     nodemodule="python",
                     nodeclass="py_getattr",
                     
-                    inputs=(dict(name="IN0", interface=None),
-                            dict(name="class_attribute_name", interface=IStr)),
-                    outputs=(dict(name="class_attribute", interface=None),),
+                    inputs=(dict(name="obj", interface=None),
+                            dict(name="member_name", interface=IStr)),
+                    outputs=(dict(name="member"),),
                     )
 
 __all__.append('getattr_')
@@ -185,7 +189,7 @@ eval_ = Factory( name="eval",
                   nodeclass="py_eval",
 
                   inputs=(dict(name="expression", interface=ITextStr),),
-                  outputs=(dict(name="result", interface=None),),
+                  outputs=(dict(name="result"),),
                   )
 
 
