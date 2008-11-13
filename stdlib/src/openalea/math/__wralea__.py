@@ -66,7 +66,7 @@ sup = Factory( name=">",
         inputs=(dict(name="a", interface=IInt, value=0), 
             dict(name="b", interface=IInt, value=0),),
         nodemodule="operator",
-        nodeclass="ge",
+        nodeclass="gt",
         )
 
 __all__.append('sup')
@@ -82,6 +82,29 @@ supeq = Factory( name=">=",
         )
 
 __all__.append('supeq')
+
+inf = Factory( name="<", 
+        description="Lesser than test", 
+        category="Math", 
+        inputs=(dict(name="a", interface=IInt, value=0), 
+            dict(name="b", interface=IInt, value=0),),
+        nodemodule="operator",
+        nodeclass="lt",
+        )
+
+__all__.append('inf')
+
+
+infeq = Factory( name="<=", 
+        description="Less or Equal test", 
+        category="Math", 
+        inputs=(dict(name="a", interface=IInt, value=0), 
+            dict(name="b", interface=IInt, value=0),),
+        nodemodule="operator",
+        nodeclass="le",
+        )
+
+__all__.append('infeq')
 
 and_ = Factory( name="and", 
                description="Boolean And", 
