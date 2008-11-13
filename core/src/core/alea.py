@@ -88,18 +88,18 @@ def get_node(component, inputs, pm=None):
         for k,v in inputs.iteritems():
             try:
                 node.set_input(k, v)
-            except KeyError:
+            except KeyError, e:
                 print "Unknown input %s"%(k,)
                 query(component, pm)
-                return
+                raise e
     
-    return node
+    return factory, node
     
     
-def run(component, inputs, gui=False, pm=None):
+def run_and_display(component, inputs, gui=False, pm=None):
     """ run component with inputs. """
     
-    node = get_node(component, inputs, pm)
+    factory, node = get_node(component, inputs, pm)
 
     if(not gui):
         
@@ -115,10 +115,10 @@ def run(component, inputs, gui=False, pm=None):
     else:
         start_qt(factory, node)
 
-def noserun(component, inputs, pm=None):
+def run(component, inputs, pm=None):
     """ run component with inputs. can exit by exception. """
     
-    node = get_node(component, inputs, pm)
+    factory, node = get_node(component, inputs, pm)
     
     node.eval()
     return node.outputs
@@ -306,7 +306,7 @@ or
         openalea.core.data.PackageData.__local__ = True
 
     if(options.run):
-        run(component, options.input, options.gui)
+        run_and_display(component, options.input, options.gui)
     else:
         query(component,)
 
