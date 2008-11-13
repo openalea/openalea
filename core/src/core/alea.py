@@ -72,16 +72,11 @@ def get_node(component, inputs, pm=None):
 
     try:
         factory = pm[pkg_id][ node_id]
-    except Exception, e:
-        factory = None
-    
-    if(not factory):
-
+    except Exception, e:    
         print "Cannot run node %s:%s"%(pkg_id, node_id)
         query(component, pm)
-        return
-
-
+        raise e
+    
     node = factory.instantiate()
     
     if(inputs):
