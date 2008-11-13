@@ -68,7 +68,8 @@ rdv = Factory(name="rendez vous",
               inputs = (dict(name="value", interface=None, value=None),
                         dict(name="control_flow", interface=None, value=None),
                         ),
-              outputs = ( dict(name="value", interface=None), ),
+              outputs = ( dict(name="value", interface=None), 
+                          dict(name="flow result", interface=None),),
 
                  )
 
@@ -211,8 +212,11 @@ _delay = Factory(name="delay",
              category="flow control", 
              nodemodule="systemnodes",
              nodeclass="Delay",
-             inputs = (dict(name="init", interface=None), dict(name="x", interface=None), ),
+             inputs = (dict(name="init", interface=None), 
+                       dict(name="x", interface=None),
+                       dict(name="reset", interface=IBool )),
              outputs = ( dict(name="previous", interface=None), ),
+             lazy = False,
              )
 
 __all__.append('_delay')

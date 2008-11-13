@@ -89,12 +89,12 @@ class RDVNode(Node):
     Rendez Vous node (synchronisation)
     In1 : Value
     In2 : Unused (control flow)
-    Out : Value
+    Out : Value, result of the control flow evaluation
     """
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        return inputs
+        return inputs[0], inputs[1]
 
 
 from openalea.core.datapool import DataPool
@@ -258,7 +258,10 @@ class Delay(Node):
         self.previous = None
 
     def __call__(self, inputs):
-        init, x = inputs[:2]
+        init, x, reset = inputs[:3]
+        if reset:
+            self.previous = None
+
         if self.previous is None:
             self.previous = x
             res = init
