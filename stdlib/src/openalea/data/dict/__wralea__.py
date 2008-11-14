@@ -41,7 +41,7 @@ __all__ = []
 dict_ = Factory( name="dict",
               description="Python dictionary",
               category="Type",
-              nodemodule="dict",
+              nodemodule="dicts",
               nodeclass="Dict",
               
               inputs=(dict(name="Dict", interface=IDict),),

@@ -41,7 +41,7 @@ __all__ = []
 list_ = Factory( name="list",
               description="Python list",
               category="Type",
-              nodemodule="list",
+              nodemodule="lists",
               nodeclass="List",
               
               inputs=(dict(name="list", interface=ISequence),),

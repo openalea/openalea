@@ -4,7 +4,7 @@
 from openalea.core.external import *
 
 
-__name__ = 'Demo.Tutorial.Functional'
+__name__ = 'openalea.tutorial.functional'
 
 __editable__ = True
 __version__ = ''
@@ -34,7 +34,7 @@ _173141592 = CompositeNodeFactory(name='multi_file',
    8: ('catalog.file', 'joinpath'),
    9: ('catalog.string', 'join'),
    10: ('catalog.data', 'string'),
-   11: ('system', 'os.system'),
+   11: ('openalea.system', 'os.system'),
    12: ('system', 'X'),
    13: ('system', 'annotation')},
                              elt_connections={  159395648: (11, 0, 2, 0),

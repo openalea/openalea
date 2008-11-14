@@ -49,6 +49,7 @@ setup(
                    'openalea.stand = openalea.stand',
                    'openalea.stat = openalea.stat',
                    'openalea.system = openalea.system',
+                   'openalea.tutorial = openalea.tutorial',
 
                    # Deprecated
                    'catalog.color = deprecated', 
