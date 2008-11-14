@@ -735,14 +735,18 @@ class PseudoGroup(PackageDict):
                 for k, v in value.iteritems():
                     self[k] = v
             except:
-                self[str(id(value))] = value
+                try:
+                    self[str(id(value))] = value
+                except Exception, e:
+                    print e
+                    pass
             return
         
         splitted = name.split(self.sep, 1)
         key = splitted[0]
 
         # Create sub dict if necessary
-        if(not self.has_key(key)):
+        if not dict.has_key(self, key.lower()):
             self[key] = self.new(key)
 
         if(len(splitted)>1):
@@ -752,9 +756,14 @@ class PseudoGroup(PackageDict):
 
         try:
             self[key].add_name(remain, value)
-        except:
-            print 'Unable to found the nodes: %s'%value
-            pass
+        except Exception, e:
+            print e
+            try:
+                self[str(id(key))].add_name(remain, value)
+            except Exception, e:
+                print 'Unable to found the nodes: %s'%value
+                print e
+                pass
          
    
 
