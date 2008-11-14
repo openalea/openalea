@@ -549,16 +549,16 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             pass
 
-        try:
-            str = config.get("pkgmanager", "include_namespace")
-            enabled = bool(eval(str))
-            
-            if(enabled):
-                self.includenmspace.setCheckState(QtCore.Qt.Checked)
-            else:
-                self.includenmspace.setCheckState(QtCore.Qt.Unchecked)
-        except:
-            pass
+#        try:
+            #str = config.get("pkgmanager", "include_namespace")
+            #enabled = bool(eval(str))
+
+#            if(enabled):
+#                self.includenmspace.setCheckState(QtCore.Qt.Checked)
+#            else:
+#                self.includenmspace.setCheckState(QtCore.Qt.Unchecked)
+#        except:
+#            pass
 
         # Editor
         try:
@@ -677,12 +677,11 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         pkgmanager = PackageManager()
 
-        pkgmanager.include_namespace = bool( \
-            self.includenmspace.checkState() == QtCore.Qt.Checked)
+        pkgmanager.user_wralea_path.clear()
 
         for i in xrange(self.pathList.count()):
             path = self.pathList.item(i).text()
-            pkgmanager.add_wraleapath(os.path.abspath(str(path)))
+            pkgmanager.add_wralea_path(os.path.abspath(str(path)), pkgmanager.user_wralea_path)
 
         pkgmanager.write_config()
 

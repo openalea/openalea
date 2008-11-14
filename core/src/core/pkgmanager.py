@@ -100,8 +100,8 @@ class PackageManager(object):
 
         self.log = Logger()
 
-        
-        self.include_namespace = self.get_include_namespace()
+        # remove namespace option
+        #self.include_namespace = self.get_include_namespace()
 
         # save system path
         self.old_syspath = sys.path[:]
@@ -112,33 +112,39 @@ class PackageManager(object):
         # dictionnary of category
         self.category = PseudoGroup("")
 
-        # list of path to search wralea file
-        self.set_search_path()
+        # list of path to search wralea file related to the system
+        self.set_sys_wralea_path()
 
         
 
 
 
 
-    def get_include_namespace(self):
-        """ Read user config and return include namespace status """
+#    def get_include_namespace(self):
+#        """ Read user config and return include namespace status """
+#
+#        config = Settings()
+#
+#        # include namespace
+#        try:
+#            s = config.get("pkgmanager", "include_namespace")
+#            self.include_namespace = bool(eval(s))
+#            
+#        except:
+#            self.include_namespace = False
+#
+#        return self.include_namespace
+#
+    def get_wralea_path(self):
+        """ return the list of wralea path (union of user and system)"""
 
-        config = Settings()
-
-        # include namespace
-        try:
-            s = config.get("pkgmanager", "include_namespace")
-            self.include_namespace = bool(eval(s))
-            
-        except:
-            self.include_namespace = False
-
-        return self.include_namespace
-
-
-    def read_wralea_path(self):
+        return list(self.sys_wralea_path.union(self.user_wralea_path))
+  
+ 
+    def set_user_wralea_path(self):
         """ Read user config """
 
+        self.user_wralea_path = set()
         config = Settings()
 
         # wralea path
@@ -147,7 +153,7 @@ class PackageManager(object):
             l = eval(s)
             
             for p in l:
-                self.add_wraleapath(os.path.abspath(p))
+                self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
                 
         except Exception, e:
             self.log.add(str(e))
@@ -157,12 +163,12 @@ class PackageManager(object):
         """ Write user config """
         
         config = Settings()
-        config.set("pkgmanager", "path", repr(list(self.wraleapath)))
-        config.set("pkgmanager", "include_namespace", repr(self.include_namespace))
+        config.set("pkgmanager", "path", repr(list(self.user_wralea_path)))
+#        config.set("pkgmanager", "include_namespace", repr(self.include_namespace))
         config.write_to_disk()
 
 
-    def set_search_path(self):
+    def set_sys_wralea_path(self):
         """ 
         Define the default wralea search path 
         For that, we look for "wralea" entry points
@@ -171,7 +177,7 @@ class PackageManager(object):
         the module is not load
         """
         
-        self.wraleapath = set()
+        self.sys_wralea_path = set()
         self.deprecated_pkg = set()
 
         # Use setuptools entry_point
@@ -199,17 +205,17 @@ class PackageManager(object):
             for p in l :
                 p = os.path.abspath(p)
                 self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
-                self.add_wraleapath(p)
+                self.add_wralea_path(p, self.sys_wralea_path)
 
         # Search the path based on the old method (by hand).
         # Search in openalea namespace
-        if(self.include_namespace):
-            l = list(openalea.__path__)
-            for p in l :
-                self.add_wraleapath(p)
+#        if(self.include_namespace):
+#            l = list(openalea.__path__)
+#            for p in l :
+#                self.add_wralea_path(p, self.sys_wralea_path)
 
-        self.add_wraleapath(os.path.dirname(__file__))
-        self.add_wraleapath(get_userpkg_dir())
+        self.add_wralea_path(os.path.dirname(__file__), self.sys_wralea_path)
+        self.add_wralea_path(get_userpkg_dir(), self.sys_wralea_path)
 
 
     def init(self, dirname=None, verbose=True):
@@ -261,17 +267,18 @@ class PackageManager(object):
         
 
     # Path Functions
-    def add_wraleapath(self, path):
+    def add_wralea_path(self, path, container):
         """
         Add a search path for wralea files
         @param path : a path string
+        @param container : set containing the path
         """
 
         if(not os.path.isdir(path)): return
                 
 
         # Ensure to add a non existing path
-        for p in self.wraleapath:
+        for p in container:
             common = os.path.commonprefix((p, path))
             # the path is already in wraleapth
             if( common == p and
@@ -280,11 +287,11 @@ class PackageManager(object):
             # the new path is more generic, we keep it
             if(common == path and
                os.path.join(common, p[len(common):]) == p):
-                self.wraleapath.remove(p)
-                self.wraleapath.add(path)
+                container.remove(p)
+                container.add(path)
                 return
         # the path is absent
-        self.wraleapath.add(path)
+        container.add(path)
                 
 
     def recover_syspath(self):
@@ -359,7 +366,7 @@ class PackageManager(object):
             self.log.add("Package directory : %s does not exists."%(dirname,))
             return None
 
-        self.add_wraleapath(dirname)
+        self.add_wralea_path(dirname, self.user_wralea_path)
 
         # find wralea
         readers = self.find_wralea_dir(dirname)
@@ -375,7 +382,7 @@ class PackageManager(object):
                 ret = None
         
         if(readers): 
-            self.save_cache()
+#            self.save_cache()
             self.rebuild_category()
 
         return ret
@@ -448,19 +455,18 @@ class PackageManager(object):
         
         readers = []
 
-        try:
-            # Try to load cache file
-            directories = set(self.get_cache())
-            assert(len(directories))
-            recursive = False
+#        try:
+#            # Try to load cache file
+#            directories = set(self.get_cache())
+#            assert(len(directories))
+#            recursive = False
 
-        except Exception, e:
+#        except Exception, e:
             # No cache : search recursively on the disk
-            
-            self.read_wralea_path()
 
-            directories = self.wraleapath
-            recursive = True
+
+        directories = self.get_wralea_path()
+        recursive = True
 
         for wp in directories:
             ret = self.find_wralea_dir(wp, recursive)
@@ -494,52 +500,54 @@ class PackageManager(object):
         If no_cache is True, ignore cache file
         """
 
-        if(no_cache):
-            self.delete_cache()
+#        if(no_cache):
+#            self.delete_cache()
+	self.set_sys_wralea_path()
+	self.set_user_wralea_path()
 
         readerlist = self.find_wralea_files()
         for x in readerlist:
             x.register_packages(self)
 
-        self.save_cache()
+#        self.save_cache()
         self.rebuild_category()
 
 
     # Cache functions
-    def get_cache_filename(self):
-        """ Return the cache filename """
-
-        return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
-
-
-    def save_cache(self):
-        """ Save in cache current package manager state """
-        
-        f = open(self.get_cache_filename(),'w')
-        s = set([pkg.path + "\n" for pkg in self.pkgs.itervalues()])
-        f.writelines(list(s))
-        f.close()
+#    def get_cache_filename(self):
+#        """ Return the cache filename """
+#
+#        return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
 
 
-    def delete_cache(self):
-        """ Remove cache """
-        
-        n = self.get_cache_filename()
-
-        if(os.path.exists(n)):
-            os.remove(n)
-
-
-    def get_cache(self):
-        """ Return cache contents """
-        
-        f = open(self.get_cache_filename(), "r")
-        
-        for d in f:
-            d = d.strip()
-            yield d
-        
-        f.close()
+#    def save_cache(self):
+#        """ Save in cache current package manager state """
+#        
+#        f = open(self.get_cache_filename(),'w')
+#        s = set([pkg.path + "\n" for pkg in self.pkgs.itervalues()])
+#        f.writelines(list(s))
+#        f.close()
+#
+#
+#    def delete_cache(self):
+#        """ Remove cache """
+#        
+#        n = self.get_cache_filename()
+#
+#        if(os.path.exists(n)):
+#            os.remove(n)
+#
+#
+#    def get_cache(self):
+#        """ Return cache contents """
+#        
+#        f = open(self.get_cache_filename(), "r")
+#        
+#        for d in f:
+#            d = d.strip()
+#            yield d
+#        
+#        f.close()
         
         
     # Package creation
