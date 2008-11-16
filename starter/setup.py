@@ -1,29 +1,48 @@
-# standard imports
+# This Setup script has been commented to ease the writing of your own file. 
+
+# A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
+# In the context of OpenAlea, this function has been extended by the openalea.deploy module to ease the simultaneaous distribution of binaries and libraries.
+
+
+
+# (To adapt this script for your package, you mainly have to change the content of the variable defined before the call to setup function, and comment out unused options in the call of the function)
+
 import sys
 import os
 
 from setuptools import setup, find_packages
 
 
-# User defined variables used to facilitate the adaptation of the setup script: TO BE ADAPTED FOR YOUR PACKAGE
+# Name and version of for your 'distribution archive'
 
-
-# Name and version of the 'distribution package'
-# (This will determine the name of the egg, and of the installation directory of the package)
-# (This name is also the one to use in other packages to declare a dependency to this package)
+# (This will determine the name of the egg, as well as the name of the pakage directory under Python/lib/site-packages)
+# (This name is also the one to use in setup script of other packages to declare a dependency to this package)
 # (The version number is used by deploy to detect UPDATES)
+
 name = 'OpenAlea.Starter'
 version= '0.0.2a2' 
 
-# Name of the 'root' python package 
-# (the one shiped within your 'distribution package')
-# (this name is the one use by the import command)
-# (This is generally the name of the 'top package': Sub package living under this one will be automatically detected in this script)
-# (namespace is used by deploy to make your module declared,imported and used as a submodule of a larger collection (eg openalea,alinea,vplants) 
+# Packages list, namespace and root directory of packages
+
+# (this will determine the archive content and the names of your modules)
+# (with the loop used bellow,all packages,ie all directories with a __init__.py, under pkg_root_dir will be recursively detected and named according to the directory hirearchy)
+# (namespace allows you to choose a prefix for package names (eg alinea, openalea,...). 
+# (This functionality needs deploy to be installed)
+# (if you want more control on what to put in your distribution, you can manually edit the' packages' list 
+# (the 'package_dir' dictionary must content the pkg_rootdir and all top-level pakages under it)
+
 namespace = 'openalea'
-short_pkg_name = 'starter'
-src_dir = 'src/starter'
-# Meta information 
+pkg_root_dir = 'src'
+pkgs = [ pkg for pkg in find_packages(pkg_root_dir) if namespace not in pkg]
+top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
+packages = [ namespace + "." + pkg for pkg in pkgs]
+package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs] )
+
+# List of top level wralea packages (directories with __wralea__.py) 
+# (to be kept only if you have visual components)
+#wralea_entry_points = ['%s = %s'%(pkg,namespace + '.' + pkg) for pkg in top_pkgs]
+
+# Meta information
 # (used to construct egg infos)
 description= 'Starter package for OpenAlea.' 
 long_description= '''
@@ -43,7 +62,7 @@ license= 'Cecill-C'
 # (This is used by deploy to automatically downloads eggs during the installation of your package)
 # (allows 'one click' installation for windows user)
 # (linux users generally want to void this behaviour and will use the dependance list of your documentation)
-# (dependance to deploy is mandatory for runig this script)
+# (dependance to deploy is mandatory for runing this script)
 setup_requires = ['openalea.deploy']
 if("win32" in sys.platform):
     install_requires = ['PlantGL']
@@ -53,20 +72,12 @@ else:
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
 
 
-# Following variable is used only for non pure-python packages (like this one, which includes C++ libs)
-# (could be removed for pure python packages)
-# (The build prefix is the directory where you told scons to put all the includes, binaries and libs.)
+# scons build-prefix 
+#(to be kept only if you contruct C/C++ binaries)
+
 build_prefix = "build-scons"
 
 
-
-# Research of all packages under your root (do not edit) 
-pkg_name = '%s.%s'%(namespace,short_pkg_name)
-packages = [pkg_name]+['%s.%s'%(pkg_name,x) for x in find_packages(src_dir)]
-# expeted key and value of your top level wralea file 
-# (mandatory if you have visualea components)
-wralea_key = short_pkg_name
-wralea_path = pkg_name
 
 # setup function call
 #
@@ -83,7 +94,7 @@ setup(
     keywords = '',	
     # package installation
     packages= packages,	
-    package_dir= {pkg_name : src_dir},
+    package_dir= package_dir,
     # Namespace packages creation by deploy
     namespace_packages = [namespace],
     create_namespaces = True,
@@ -95,21 +106,20 @@ setup(
     dependency_links = dependency_links,
 
 
-    # optional stuff 
-    # (to be used if you want other things than pure python package installation)
- 
-    # Code compilation (with scons)
-    # Define what to execute with scons
+    # Binary installation (if necessary)
+    # Define what to execute with scons	
     scons_scripts=['SConstruct'],
     # Tell deploy where to find libs, includes and bins generated by scons.
     lib_dirs = {'lib' : build_prefix+'/lib' },
     inc_dirs = { 'include' : build_prefix+'/include' },
     #bin_dirs = { 'bin' : build_prefix+'/bin' },
 
-    # Install data (for demos) which are not python file.
-    # Extension have to be declared in package_data. 
+    # Eventually include data in your package
+    # (flowing is to include all versioned files other than .py)
     include_package_data = True,
-    package_data = {'' : ['*.pyd', '*.so'],},
+    # (you can provide an exclusion dictionary named exclude_package_data to remove parasites).
+    # alternatively to global inclusion, list the file to include   
+    #package_data = {'' : ['*.pyd', '*.so'],},
 
     # postinstall_scripts = ['',],
 
@@ -119,8 +129,7 @@ setup(
                      #       'fake_script = openalea.fakepackage.amodule:console_script', ],
                      # 'gui_scripts': [
                       #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-		#	'wralea': ['%s = %s'%(wralea_key,wralea_path),
-		#]
+		#	'wralea': wralea_entry_points
 		},
     )
 
