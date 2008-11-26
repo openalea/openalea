@@ -670,8 +670,8 @@ class PyPackageReaderWralea(PyPackageReader):
         for name in palias:
             if protected(name) in pkgmanager:
                 alias_pkg = pkgmanager[protected(name)]
-                for name, factory in p.iteritems():
-                    alias_pkg[name] = factory
+                for name_factory, factory in p.iteritems():
+                    alias_pkg[name_factory] = factory
             else:
                 pkgmanager[protected(name)] = p
         

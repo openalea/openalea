@@ -24,7 +24,7 @@ Test the node src edition
 import os
 import openalea
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.core import Package, RecursionError 
+from openalea.core import Package, RecursionError 
 
 def setup_func():
     """ Create test_module  and wralea """

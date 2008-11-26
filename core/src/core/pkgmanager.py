@@ -113,6 +113,7 @@ class PackageManager(object):
         self.category = PseudoGroup("")
 
         # list of path to search wralea file related to the system
+	self.set_user_wralea_path()
         self.set_sys_wralea_path()
 
         
@@ -622,6 +623,9 @@ class PackageManager(object):
         self.rebuild_category()
         return r
     
+    def __contains__(self, key):
+        return self.has_key(key)
+
     def keys(self):
         return self.pkgs.keys()
 

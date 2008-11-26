@@ -26,4 +26,4 @@ def test_catalog():
     pkgman = PackageManager()
     pkgman.init(verbose=False)
 
-    assert pkgman["catalog.data"["int"] is pkgman["openalea.data structure"["int"]
+    assert pkgman["catalog.data"]["int"] is pkgman["openalea.data structure"]["int"]

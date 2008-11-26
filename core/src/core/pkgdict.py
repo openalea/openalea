@@ -75,6 +75,8 @@ class PackageDict(dict):
 
         return dict.__setitem__(self, lower(item), y)
 
+    def __contains__(self, key):
+        return self.has_key(key)
 
     def has_key(self, key):
         
