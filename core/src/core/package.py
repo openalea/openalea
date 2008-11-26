@@ -668,7 +668,12 @@ class PyPackageReaderWralea(PyPackageReader):
         # Add Package Aliases
         palias = wraleamodule.__dict__.get('__alias__', [])
         for name in palias:
-            pkgmanager[protected(name)] = p
+            if protected(name) in pkgmanager:
+                alias_pkg = pkgmanager[protected(name)]
+                for name, factory in p.iteritems():
+                    alias_pkg[name] = factory
+            else:
+                pkgmanager[protected(name)] = p
         
 
 ######################
