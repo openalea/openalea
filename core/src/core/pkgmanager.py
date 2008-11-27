@@ -112,8 +112,9 @@ class PackageManager(object):
         # dictionnary of category
         self.category = PseudoGroup("")
 
+        
         # list of path to search wralea file related to the system
-	self.set_user_wralea_path()
+        self.set_user_wralea_path()
         self.set_sys_wralea_path()
 
         
