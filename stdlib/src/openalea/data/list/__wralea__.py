@@ -40,7 +40,7 @@ __all__ = []
 
 list_ = Factory( name="list",
               description="Python list",
-              category="Type",
+              category="Type,datatype",
               nodemodule="lists",
               nodeclass="List",
               

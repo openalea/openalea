@@ -34,7 +34,7 @@ __all__ = ['split', 'join', 'strip']
 
 split = Factory( name="split", 
               description="split a string", 
-              category="String", 
+              category="String,Python", 
               nodemodule="strings",
               nodeclass="str_split",
               
@@ -46,7 +46,7 @@ split = Factory( name="split",
 
 strip = Factory( name="strip", 
               description="Return a copy of the string s with leading and trailing whitespace removed.", 
-              category="String", 
+              category="String,Python", 
               nodemodule="strings",
               nodeclass="str_strip",
               
@@ -58,7 +58,7 @@ strip = Factory( name="strip",
    
 join = Factory( name="join", 
                 description="Join a list of string", 
-                category="String", 
+                category="String,Python", 
                 nodemodule="strings",
                 nodeclass="str_join",
                 

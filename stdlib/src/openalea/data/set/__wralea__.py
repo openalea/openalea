@@ -38,7 +38,7 @@ __all__ = []
 
 set_= Factory( name="set",
               description="Python set",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_set",
               inputs=(dict(name="sequence", interface=ISequence,),), 
@@ -49,7 +49,7 @@ __all__.append('set_')
 
 clear_= Factory( name="clear",
               description="Remove all elements from a set.",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_clear",
               inputs=(dict(name="set", interface=ISequence,),), 
@@ -60,7 +60,7 @@ __all__.append('clear_')
 
 add_= Factory( name="add",
               description="Add an element to a set.",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_add",
               inputs=(dict(name="set", interface=ISequence),dict(name="obj")), 
@@ -71,7 +71,7 @@ __all__.append('add_')
 
 diff_= Factory( name="difference",
               description=" Return the difference of two sets as a new sets.",
-              category="Type",
+              category="Type, datatype",
               nodemodule="sets",
               nodeclass="py_difference",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -82,7 +82,7 @@ __all__.append('diff_')
 
 intersect_= Factory( name="intersection",
               description=" Return the intersection of two sets as a new sets.",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_intersection",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -93,7 +93,7 @@ __all__.append('intersect_')
 
 issubset_= Factory( name="issubset",
               description=" Report whether another set contains this set. ",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_issubset",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -104,7 +104,7 @@ __all__.append('issubset_')
 
 issuperset_= Factory( name="issuperset",
               description=" Report whether a set contains another set. ",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_issuperset",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -115,7 +115,7 @@ __all__.append('issuperset_')
 
 sym_= Factory( name="symmetric_difference",
               description="Return the symmetric difference of two sets as a new set. ",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_symmetric_difference",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -126,7 +126,7 @@ __all__.append('sym_')
 
 union_= Factory( name="union",
               description="Return the union of two sets as a new set.",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_union",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 
@@ -137,7 +137,7 @@ __all__.append('union_')
 
 update_= Factory( name="update",
               description="Update a set with the union of set1 and set2..",
-              category="Type",
+              category="Type,datatype",
               nodemodule="sets",
               nodeclass="py_update",
               inputs=(dict(name="set1", interface=ISequence),dict(name="set2", interface=ISequence)), 

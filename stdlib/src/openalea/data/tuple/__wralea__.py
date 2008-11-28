@@ -38,7 +38,7 @@ __all__ = []
 
 pair = Factory( name="pair",
               description="Python 2-uples",
-              category="Type",
+              category="Type,datatype",
               nodemodule="tuples",
               nodeclass="Pair",
               inputs=(dict(name="IN0", interface=None,),
@@ -50,7 +50,7 @@ __all__.append('pair')
 
 tuple3 = Factory( name="tuple3",
               description="Python 3-uples",
-              category="Type",
+              category="Type,datatype",
               nodemodule="tuples",
               nodeclass="Tuple3",
               inputs=(dict(name="IN0", interface=None,),

@@ -23,7 +23,7 @@ __all__ = ['_149001708', '_149000780']
 
 _149001708 = CompositeNodeFactory(name='Stand_Reconstruction', 
                              description='', 
-                             category='Unclassified',
+                             category='Demo',
                              doc='',
                              inputs=[],
                              outputs=[],
