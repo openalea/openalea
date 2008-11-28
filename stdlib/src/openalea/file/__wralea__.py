@@ -35,7 +35,7 @@ __all__ = []
 
 filename = Factory( name="filename", 
                   description="File name", 
-                  category="File", 
+                  category="File,IO", 
                   nodemodule="files",
                   nodeclass="FileName",
 
@@ -47,7 +47,7 @@ __all__.append('filename')
 
 dirname = Factory( name="dirname", 
                    description="Directory name", 
-                   category="File", 
+                   category="File,IO", 
                    nodemodule="files",
                    nodeclass="DirName",
                    
@@ -61,7 +61,7 @@ __all__.append('dirname')
 
 pkgdir = Factory( name="packagedir", 
                   description="Package Directory", 
-                  category="File", 
+                  category="File,IO", 
                   nodemodule="files",
                   nodeclass="PackageDir",
 
@@ -75,7 +75,7 @@ __all__.append('pkgdir')
 # Path
 joinpath = Factory( name="joinpath", 
                     description="Join several strings to form a path", 
-                    category="File", 
+                    category="File,IO", 
                     nodemodule="files",
                     nodeclass="joinpath",
                     
@@ -89,7 +89,7 @@ __all__.append('joinpath')
 
 glob = Factory( name="glob", 
                 description="Return a list of path that math the pattern", 
-                category="File", 
+                category="File,IO", 
                 nodemodule="files",
                 nodeclass="glob",
 
@@ -103,7 +103,7 @@ __all__.append('glob')
 # IO
 read = Factory(name="read", 
                description="read a file", 
-               category="File", 
+               category="File,IO", 
                inputs=(dict(name="filename", interface=IFileStr),  ),
                outputs=(dict(name="string", interface=IStr),),
                
@@ -118,7 +118,7 @@ __all__.append('read')
 
 readlines = Factory(name="readlines", 
                     description="read a file as a sequence of lines", 
-                    category="File", 
+                    category="File,IO", 
                     inputs=(dict(name="filename", interface=IFileStr),
                             ),
                     outputs=(dict(name="string", interface=ISequence),),
@@ -132,7 +132,7 @@ __all__.append('readlines')
 
 write = Factory( name="write",
               description="write to a file",
-              category="File",
+              category="File,IO",
               inputs=(dict(name="x", interface=IStr),
                       dict(name="filename", interface=IFileStr),
                       dict(name="mode", interface=IStr, value="w"),
@@ -148,7 +148,7 @@ __all__.append('write')
 
 tmpnam = Factory( name="tmpnam",
               description="return a unique name for a temporary file.",
-              category="File",
+              category="File,IO",
               inputs=(),
               outputs=(dict(name="filename", interface=IStr),),
               nodemodule="files",
@@ -161,7 +161,7 @@ __all__.append('tmpnam')
 
 viewfile = CompositeNodeFactory(name='viewfile', 
                              description='View the content of a file.', 
-                             category='File',
+                             category='File,IO,composite',
                              doc='',
                              inputs=[{'interface': IFileStr, 'name': 'filename(read)', 'value': ''}],
                              outputs=[{'interface': ITextStr, 'name': 'Text(text)'}],
