@@ -11,7 +11,7 @@ pkg_name = 'openalea.visualea'
 sys.path.append("src")
 import visualea.metainfo as metainfo
 
-version = '0.4.2'
+version = '0.6.0'
 
 description = 'OpenAlea visual programming environment.' 
 long_description = ''
