@@ -41,7 +41,7 @@ __all__ = []
 
 cmd = Factory(name="command", 
              description="Call a system command", 
-             category="System", 
+             category="misc,Python", 
              nodemodule="systemnodes",
              nodeclass="system_cmd",
              inputs = (dict(name="commands", interface=ISequence, value=[], 
@@ -58,7 +58,7 @@ __all__.append('cmd')
 
 vprint = Factory(name="vprint", 
              description="Visual Print", 
-             category="System", 
+             category="IO", 
              nodemodule="vprint",
              nodeclass="VPrint",
              inputs = (dict(name="obj", interface=None, desc='The object to display'), 
