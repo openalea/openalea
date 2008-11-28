@@ -25,8 +25,9 @@ from openalea.core import *
 
 class FileName(object):
     """
-A file path
-Out :  the file path string
+    A file path
+    @param object:
+    @return:  the filename path string
     """
 
     def __call__(self, input):
@@ -38,8 +39,9 @@ Out :  the file path string
 
 class DirName(object):
     """
-A file path
-Out :  the path string
+    a file path 
+    @param object: 
+    @return: the path string
     """
 
     def __call__(self, input):
@@ -51,8 +53,8 @@ Out :  the path string
 
 class PackageDir(Node):
     """
-    In : A Package Name
-    Out : The Path of the package wralea
+    @param Node: a package name
+    @return:  path of the package wralea
     """
 
     def __call__(self, inputs):
@@ -75,7 +77,10 @@ class PackageDir(Node):
 import openalea.core.path as path
 
 def glob(pattern):
-    """Return a list of path that math the pattern"""
+    """Return a list of path that math the pattern
+    @param pattern: a pattern to glob
+    @return: a list of paths that match the pattern
+    """
     ret = path.glob.glob(pattern)
     return (ret,)
 
