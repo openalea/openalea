@@ -21,7 +21,7 @@ alea_dependencies = [
 
 install_requires = alea_dependencies
 if sys.platform.startswith('win'):
-    install_requires = external_dependencies 
+    install_requires += external_dependencies 
 
 setup(
     name = 'OpenAlea',
