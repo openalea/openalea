@@ -14,10 +14,8 @@ the appropriate options to ``use_setuptools()``.
 This file can also be run as a script to install or upgrade setuptools.
 """
 import sys
-DEFAULT_VERSION = "0.6c8"
+DEFAULT_VERSION = "0.6c9"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
-ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi"
-
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -50,13 +48,18 @@ md5_data = {
     'setuptools-0.6c8-py2.3.egg': '50759d29b349db8cfd807ba8303f1902',
     'setuptools-0.6c8-py2.4.egg': 'cba38d74f7d483c06e9daa6070cce6de',
     'setuptools-0.6c8-py2.5.egg': '1721747ee329dc150590a58b3e1ac95b',
+    'setuptools-0.6c9-py2.3.egg': 'a83c4020414807b496e4cfbe08507c03',
+    'setuptools-0.6c9-py2.4.egg': '260a2be2e5388d66bdaee06abec6342a',
+    'setuptools-0.6c9-py2.5.egg': 'fe67c3e5a17b12c0e7c541b7ea43a8e6',
+    'setuptools-0.6c9-py2.6.egg': 'ca37b1ff16fa2ede6e19383e7b59245a',
 }
 
 import sys, os
+try: from hashlib import md5
+except ImportError: from md5 import md5
 
 def _validate_md5(egg_name, data):
     if egg_name in md5_data:
-        from md5 import md5
         digest = md5(data).hexdigest()
         if digest != md5_data[egg_name]:
             print >>sys.stderr, (
@@ -65,7 +68,6 @@ def _validate_md5(egg_name, data):
             )
             sys.exit(2)
     return data
-
 
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
@@ -154,7 +156,6 @@ and place it in this directory before rerunning this script.)
             if src: src.close()
             if dst: dst.close()
     return os.path.realpath(saveto)
-
 
 
 def main(argv, version=DEFAULT_VERSION):
