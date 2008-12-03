@@ -16,6 +16,7 @@ This file can also be run as a script to install or upgrade setuptools.
 import sys
 DEFAULT_VERSION = "0.6c9"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
+ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi"
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -60,6 +61,7 @@ except ImportError: from md5 import md5
 
 def _validate_md5(egg_name, data):
     if egg_name in md5_data:
+        from md5 import md5
         digest = md5(data).hexdigest()
         if digest != md5_data[egg_name]:
             print >>sys.stderr, (
