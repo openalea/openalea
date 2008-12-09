@@ -44,8 +44,10 @@ class TypeInterfaceMap(dict):
     def declare_interface(self, type, interface):
         """
         Declare an interface and its optional widget
-        @param interface : IInterface class object
-        @param type : Python type
+        
+        :param interface: IInterface class object
+        
+        :param type: Python type
         """
         
         if(type and not self.has_key(type)):
