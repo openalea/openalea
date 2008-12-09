@@ -24,8 +24,8 @@ Test the composite node module
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
-from openalea.core.node import gen_port_list
-from openalea.core.core import Package, RecursionError 
+from openalea.core.node import gen_port_list, RecursionError
+from openalea.core import Package
 
 
 # Test instantiation
