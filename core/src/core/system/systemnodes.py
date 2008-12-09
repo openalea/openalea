@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       OpenAlea.Core 
+#       OpenAlea.Core
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,22 +10,18 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-################################################################################
+###############################################################################
 
-__doc__="""
-System Nodes
-"""
-
+__doc__="""System Nodes"""
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-
 from openalea.core.node import AbstractNode, Node
 from openalea.core.dataflow import SubDataflow
-        
+
 
 class AnnotationNode(AbstractNode):
     """ A DummyNode is a fake node."""
@@ -36,7 +32,6 @@ class AnnotationNode(AbstractNode):
         """ Return the nb of input ports """
         return 0
 
-    
     def get_nb_output(self):
         """ Return the nb of output ports """
         return 0
@@ -54,7 +49,6 @@ class IterNode(Node):
         Node.__init__(self, *args)
         self.iterable = "Empty"
 
-        
     def eval(self):
         """
         Return True if the node need a reevaluation
@@ -64,24 +58,22 @@ class IterNode(Node):
                 self.iterable = iter(self.inputs[0])
 
             if(hasattr(self, "nextval")):
-               self.outputs[0] = self.nextval
+                self.outputs[0] = self.nextval
             else:
                 self.outputs[0] = self.iterable.next()
 
             self.nextval = self.iterable.next()
             return True
 
-            
         except TypeError, e:
             self.outputs[0] = self.inputs[0]
             return False
-        
+
         except StopIteration, e:
             self.iterable = "Empty"
             if(hasattr(self, "nextval")):
                 del self.nextval
             return False
-
 
 
 class RDVNode(Node):
@@ -99,17 +91,17 @@ class RDVNode(Node):
 
 from openalea.core.datapool import DataPool
 
+
 class PoolReader(Node):
     """
-In : Name (key)
-Out : Object (value)
+    In : Name (key)
+    Out : Object (value)
     """
 
     def __init__(self, inputs, outputs):
 
         Node.__init__(self, inputs, outputs)
         self.pool = DataPool()
-
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
@@ -117,13 +109,13 @@ Out : Object (value)
         key = inputs[0]
         obj = self.pool.get(key)
         if key in self.pool:
-            self.set_caption("pool [%s]"%(repr(key),))
+            self.set_caption("pool [%s]"%(repr(key), ))
         return (obj, )
 
 
 class PoolWriter(Node):
     """
-In :  Name (String), Object (Any)
+    In :  Name (String), Object (Any)
     """
 
     def __init__(self, inputs, outputs):
@@ -131,26 +123,24 @@ In :  Name (String), Object (Any)
         Node.__init__(self, inputs, outputs)
         self.pool = DataPool()
 
-
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
         key = inputs[0]
         obj = inputs[1]
-        self.set_caption("pool [%s]=%s"%(repr(key),str(obj)))
+        self.set_caption("pool [%s]=%s"%(repr(key), str(obj)))
         self.pool[key] = obj
 
 
 class InitNode(Node):
     """
-In0 : Init value
-In1 : Current Value
-In2 : State (Bool)
+    In0 : Init value
+    In1 : Current Value
+    In2 : State (Bool)
 
-If state is true, return In0, else return In1
-state is set to false in the first execution.
+    If state is true, return In0, else return In1
+    state is set to false in the first execution.
     """
-
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
@@ -159,19 +149,15 @@ state is set to false in the first execution.
 
         if(state):
             ret = inputs[0]
-        else :
+        else:
             ret = inputs[1]
 
         self.set_input(2, False)
-        return (ret,)
-
+        return (ret, )
 
     def reset(self):
         Node.reset(self)
         self.set_input(2, True)
-        
-            
-
 
 
 class AccuList(Node):
@@ -186,14 +172,13 @@ class AccuList(Node):
         Node.__init__(self, inputs, outputs)
         self.pool = DataPool()
 
-
-    def __call__(self,inputs):
+    def __call__(self, inputs):
 
         varname = inputs[1]
         value = inputs[0]
         if(not varname):
             varname = "AccuList_%i"%(id(self))
-            
+
         # Create datapool variable if necessary
         if(not self.pool.has_key(varname) or
            not isinstance(self.pool[varname], list)):
@@ -204,9 +189,9 @@ class AccuList(Node):
 
         self.set_caption("list accumulator : %s"%(repr(str(varname))))
         l.append(value)
-        
-        return (l,)
-        
+
+        return (l, )
+
 
 class AccuFloat(Node):
     """ Float Accumulator
@@ -220,14 +205,13 @@ class AccuFloat(Node):
         Node.__init__(self, inputs, outputs)
         self.pool = DataPool()
 
-
-    def __call__(self,inputs):
+    def __call__(self, inputs):
 
         varname = inputs[1]
         value = inputs[0]
         if(not varname):
             varname = "AccuFloat_%i"%(id(self))
-            
+
         # Create datapool variable if necessary
         if(not self.pool.has_key(varname) or
            not isinstance(self.pool[varname], float)):
@@ -235,10 +219,10 @@ class AccuFloat(Node):
 
         self.set_caption("float accumulator : %s"%(repr(str(varname))))
         self.pool[varname] += float(value)
-        return (self.pool[varname],)
+        return (self.pool[varname], )
 
 
-class LambdaVar(Node):    
+class LambdaVar(Node):
     """ Return a lambda variable """
     cpt = 0
 
@@ -250,7 +234,8 @@ class LambdaVar(Node):
     def __call__(self, inputs):
         return SubDataflow(None, None, 0, 0)
 
-class Delay(Node):    
+
+class Delay(Node):
     """ Return the previous value or an initial value """
 
     def __init__(self, *args):
@@ -271,6 +256,7 @@ class Delay(Node):
 
         return res,
 
+
 class WhileUniVar(Node):
     """ While Loop Univariate
     In 0 : Initial value
@@ -279,9 +265,9 @@ class WhileUniVar(Node):
 
     Out 0 : Result value
     """
-    
+
     def __call__(self, inputs):
-        
+
         value = inputs[0]
         test = inputs[1]
         func = inputs[2]
@@ -294,12 +280,13 @@ class WhileUniVar(Node):
             # Test for infinite loop
             if(value == newvalue):
                 cpt +=1
-                if(cpt > 1000): raise RuntimeError("Infinite Loop")
+                if(cpt > 1000):
+                    raise RuntimeError("Infinite Loop")
             else:
                 value = newvalue
             print value
 
-        return (value,)
+        return (value, )
 
 
 class WhileMultiVar(Node):
@@ -310,13 +297,13 @@ class WhileMultiVar(Node):
 
     Out 0 : Result variables
     """
-    
+
     def __call__(self, inputs):
-        
+
         values = inputs[0]
         test = inputs[1]
         funcs = inputs[2]
-        
+
         cpt = 0
         while(test(*values)):
             newvals = []
@@ -329,7 +316,8 @@ class WhileMultiVar(Node):
             # Test for infinite loop
             if(values == newvals):
                 cpt +=1
-                if(cpt > 1000): raise RuntimeError("Infinite Loop")
+                if(cpt > 1000):
+                    raise RuntimeError("Infinite Loop")
             else:
                 values = newvals
 
