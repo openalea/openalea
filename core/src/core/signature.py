@@ -33,10 +33,9 @@ class Signature(object):
     """Object to represent the signature of a function/method.
     
         Attributes:
-        * name
-            Name of the function/method.
-        * parameters
-            List of dict keyed on the variable name, interface and value for default value
+
+        :name: Name of the function/method.
+        :parameters: List of dict keyed on the variable name, interface and value for default value
         """
 
     def __init__(self, f):
