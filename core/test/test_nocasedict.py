@@ -1,8 +1,8 @@
-from openalea.core.nocasedict import NoCaseDict
+from openalea.core.pkgdict import PackageDict
 
 def test_dict():
     
-    d = NoCaseDict()
+    d = PackageDict()
     d['AbC'] = 3
     assert d['aBc'] == 3
     print d
