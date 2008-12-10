@@ -21,12 +21,12 @@ def test_pseudopkg():
         p.add_name("A", va)
         
         
-        assert p['A'][id(va)] == va
-        assert p['B']['A'][id(vba)] == vba
-        assert p['A']['E'][id(vae)] == vae
-        assert p['A']['B'][id(vab)] == vab
-        assert p['A']['B']['D'][id(vabd)] == vabd
-        assert p['A']['B']['C'][id(vabc)] == vabc
+        assert p['A'][str(id(va))] == va
+        assert p['B']['A'][str(id(vba))] == vba
+        assert p['A']['E'][str(id(vae))] == vae
+        assert p['A']['B'][str(id(vab))] == vab
+        assert p['A']['B']['D'][str(id(vabd))] == vabd
+        assert p['A']['B']['C'][str(id(vabc))] == vabc
 
 
     
