@@ -32,15 +32,16 @@ from openalea.core.settings import Settings
 def test_wraleapath():
 
     pkgman = PackageManager()
-    
-    assert bool(openalea.__path__[0] in  pkgman.wraleapath) == pkgman.include_namespace
+ 
+# this option (include_namespace has been removed)   
+#    assert bool(openalea.__path__[0] in  pkgman.get_wralea_path()) == pkgman.include_namespace
 
     if(os.name == 'posix'):
-        pkgman.add_wraleapath("/usr/bin")
-        assert "/usr/bin" in pkgman.wraleapath
+        pkgman.add_wralea_path("/usr/bin", pkgman.user_wralea_path)
+        assert "/usr/bin" in pkgman.get_wralea_path()
     else:
-        pkgman.add_wraleapath("C:\\Windows")
-        assert "C:\\Windows" in pkgman.wraleapath
+        pkgman.add_wralea_path("C:\\Windows", pkgman.user_wralea_path)
+        assert "C:\\Windows" in pkgman.get_wralea_path()
                       
 
 
@@ -86,9 +87,12 @@ def test_search():
     print res
     assert "command" in res[0].name
 
-    res = pkgman.search_node("system.command")
-    print res
-    assert "command" in res[0].name
+
+    # comment these 3 lines because system.command is not part 
+    # of any nodes anymore. 
+    #res = pkgman.search_node("system.command")
+    #print res
+    #assert "command" in res[0].name
     
 
 def test_write_config():
@@ -96,7 +100,7 @@ def test_write_config():
     pkgman = PackageManager()
     pkgman.load_directory("./")
     pkgman.write_config()
-    p = pkgman.wraleapath
+    p = pkgman.user_wralea_path
 
     s = Settings()
     path = s.get("pkgmanager", "path")
