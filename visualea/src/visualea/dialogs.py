@@ -595,11 +595,11 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         try:
             self.edge_style = config.get("UI", "EdgeStyle")
-            if(self.edge_style == "Line"):
+            if(self.edge_style == "Spline"):
                 self.comboBox.setCurrentIndex(0)
             elif(self.edge_style == "Polyline"):
                 self.comboBox.setCurrentIndex(1)
-            elif(self.edge_style == "Spline"):
+            elif(self.edge_style == "Line"):
                 self.comboBox.setCurrentIndex(2)
         except:
             self.edge_style = "Spline"
@@ -692,7 +692,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         d = [["run", "open"], ["run"], ["open"],]
         index = self.dbclickBox.currentIndex()
 
-        styles = ["Line", "Polyline", "Spline"]
+        styles = ["Spline", "Polyline", "Line"]
         edge_style_index = self.comboBox.currentIndex()
         edge_style = styles[edge_style_index]
         

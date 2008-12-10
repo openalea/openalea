@@ -165,7 +165,7 @@
         <widget class="QComboBox" name="comboBox" >
          <item>
           <property name="text" >
-           <string>Line (Default)</string>
+           <string>Spline (Default)</string>
           </property>
          </item>
          <item>
@@ -175,7 +175,7 @@
          </item>
          <item>
           <property name="text" >
-           <string>Spline</string>
+           <string>Line</string>
           </property>
          </item>
         </widget>

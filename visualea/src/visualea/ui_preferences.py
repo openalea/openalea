@@ -115,9 +115,9 @@ class Ui_Preferences(object):
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run + Open (Default)", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Run", None, QtGui.QApplication.UnicodeUTF8))
         self.dbclickBox.addItem(QtGui.QApplication.translate("Preferences", "Open", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Line (Default)", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Spline (Default)", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Polyline", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Spline", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox.addItem(QtGui.QApplication.translate("Preferences", "Line", None, QtGui.QApplication.UnicodeUTF8))
         self.label_edge_style.setText(QtGui.QApplication.translate("Preferences", "Edge Style", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("Preferences", "UI", None, QtGui.QApplication.UnicodeUTF8))
 
