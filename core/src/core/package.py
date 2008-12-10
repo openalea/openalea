@@ -362,28 +362,28 @@ class UserPackage(Package):
 	
         # build function parameters
         ins = []
-	for input in inputs:
+        for input in inputs:
             in_name = input['name'].replace(' ', '_').lower()
             in_value = input['value']
             if in_value is not None:
-                arg = '%s=%s'%(in_name,in_value)
+                arg = '%s=%s'%(in_name,repr(in_value))
             else:
                 arg = '%s'%(in_name,)
             ins.append(arg)
-	in_args = ', '.join(ins)
+        in_args = ', '.join(ins)
 
         
         # build output
-	out_values = ""
+        out_values = ""
         return_values = []
-	for output in outputs:
+        for output in outputs:
             arg = output['name'].replace(' ', '_').lower()
             out_values += '%s = None; '%(arg,)
-            return_values.append('%s, '%(arg,))
+            return_values.append('%s'%(arg,))
 
-
+        return_values = ', '.join(return_values)
         # Create the module file
-	my_template = \
+        my_template = \
 """\
 def %s(%s):
     '''\
@@ -393,7 +393,7 @@ def %s(%s):
     # write the node code here.
 
     # return outputs
-    return %s
+    return [%s]
 """%(classname, in_args, description, out_values, return_values)
 
         module_path = os.path.join(localdir, "%s.py"%(classname))
