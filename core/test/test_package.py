@@ -7,12 +7,13 @@ import os
 def test_package():
 
 
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'OpenAlea Consortium',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
-               'url' : 'http://openalea.gforge.inria.fr'
+    metainfo={  'version' : '0.0.1',
+                'license' : 'CECILL-C',
+                'authors' : 'OpenAlea Consortium',
+                'institutes' : 'INRIA/CIRAD',
+                'description' : 'Base library.',
+                'url' : 'http://openalea.gforge.inria.fr',
+                'icon' : ''
                }
     
 
@@ -25,12 +26,13 @@ def test_package():
 def test_userpackage():
 
 
-    metainfo={ 'version' : '0.0.1',
-               'license' : 'CECILL-C',
-               'authors' : 'OpenAlea Consortium',
-               'institutes' : 'INRIA/CIRAD',
-               'description' : 'Base library.',
-               'url' : 'http://openalea.gforge.inria.fr'
+    metainfo={  'version' : '0.0.1',
+                'license' : 'CECILL-C',
+                'authors' : 'OpenAlea Consortium',
+                'institutes' : 'INRIA/CIRAD',
+                'description' : 'Base library.',
+                'url' : 'http://openalea.gforge.inria.fr',
+                'icon' : ''
                }
     
     try:
@@ -50,8 +52,7 @@ def test_userpackage():
     package = UserPackage("DummyPkg", metainfo, path)
 
 
-
-    factory = package.create_user_node("TestFact", "", "",
+    factory = package.create_user_node("TestFact", "category test", "this is a test",
                                        gen_port_list(3),
                                        gen_port_list(2))
     
@@ -73,6 +74,8 @@ def test_userpackage():
     path = os.path.join(os.path.curdir, "clonepkg")
     pkg2 = UserPackage("ClonePkg", metainfo, path)
     print pkg2.wralea_path
+
+
 
     pkg2.clone_from_package(package)
     pkg2.write()
