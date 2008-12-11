@@ -38,6 +38,7 @@ from openalea.core.package import UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.pkgdict import PackageDict, is_protected, protected
+from openalea.core.category import PackageManagerCategory
 
 # Exceptions 
 
@@ -111,7 +112,9 @@ class PackageManager(object):
 
         # dictionnary of category
         self.category = PseudoGroup("")
-
+        
+        # dictionary of standard categories
+        self.user_category = PackageManagerCategory()
         
         # list of path to search wralea file related to the system
         self.set_user_wralea_path()
@@ -340,12 +343,32 @@ class PackageManager(object):
         """ Update the category dictionary with package contents """
         
         for nf in package.itervalues():
+            # skip the deprecated name (starting with #)
+            if is_protected(nf.name):
+                continue
+
+            # empty category
             if not nf.category: 
                 nf.category = "Unclassified"
             
+            # parse the category
             for c in nf.category.split(","):
-                c = c.strip()
-                self.category.add_name(c, nf)
+                # we work in lower case by convention
+                c = c.strip().lower()
+                
+                # search for the sub category (split by .)
+                try: 
+                    c_root, c_others = c.split('.',1)
+                except: #if there is no '.', c_others is empty
+                    c_root = c
+                    c_others = '' 
+                
+                if c_root in self.user_category.keywords:
+                    # reconstruct the name of the category
+                    c_temp = self.user_category.keywords[c_root]+'.'+c_others.title()
+                    self.category.add_name(c_temp, nf)
+                else:
+                    self.category.add_name(c.title(), nf)
 
 
     def rebuild_category(self):
