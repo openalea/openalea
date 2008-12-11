@@ -25,10 +25,10 @@ __all__ = ['colormap', 'rgbcolormap', 'rgb']
 
 
 rgb = Factory( name="rgb",
-              description="RGB tuple",
-              category="Type,Color",
-              nodemodule="py_color",
-              nodeclass="RGB",
+               description="RGB tuple",
+               category="Type,image",
+               nodemodule="py_color",
+               nodeclass="RGB",
               
               inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
               outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
@@ -37,7 +37,7 @@ rgb = Factory( name="rgb",
 
 colormap = Factory(name='colormap', 
                    description='defines a color map from a range of values [I,J] to RGB', 
-                   category='Visualisation.Color', 
+                   category='Visualization,image', 
                    nodemodule='py_color',
                    nodeclass='color_map',
                    inputs=({'interface': IFloat, 'name': 'val'}, 
@@ -53,7 +53,7 @@ colormap = Factory(name='colormap',
 		 
 rgbcolormap = Factory(name='rgbcolormap', 
                    description='defines a RGB color map from 2 colors given in HSV', 
-                   category='Visualisation.Color', 
+                   category='Visualization,image', 
                    nodemodule='py_color',
                    nodeclass='rgb_color_map',
                    inputs=({'interface': IFloat, 'name': 'val'}, 

@@ -29,14 +29,15 @@ __url__ = 'http://rpy.sourceforge.net and http://www.scipy.org/'
  
 __editable__ = 'False' 
  
-__all__ = ['log','statsummary','correlation', 'mean', 'median', 'mode', 'variance', 'standarddeviation', 'frequencies', 'density', ]
+__all__ = [ 'log','statsummary','correlation', 'mean', 'median', 'mode', \
+            'variance', 'standarddeviation', 'frequencies', 'density', ]
  
 
 ###### begin nodes definitions #############
 
 log = Factory( name="log",
                description="Compute the log of each item of the input list",
-               category="Math",
+               category="Math,stat",
                nodemodule="descriptive",
                nodeclass="list_log",
                inputs= ( dict( name = "x", interface=ISequence, showwidget=True ),

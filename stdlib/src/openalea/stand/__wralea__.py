@@ -32,7 +32,7 @@ __all__ = ['stand_pos', 'stand_dresser']
 
 stand_pos = Factory( name="Stand Positioner",
                      description="Add spatial position to each object from list",
-                     category="Stand",
+                     category="Stand,scene",
                      nodemodule="stand_modelling",
                      nodeclass="stand_positioner",
                      inputs= ( dict( name = "Object List", interface=ISequence, showwidget = False),

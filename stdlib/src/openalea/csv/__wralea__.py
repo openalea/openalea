@@ -35,7 +35,7 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = [ 'read_csv', 'write_csv']
 read_csv = Factory(name='read csv', 
                    description='Csv converter', 
-                   category='Csv', 
+                   category='io', 
                    nodemodule='csv',
                    nodeclass='parseText',
                    lazy = False,
@@ -47,7 +47,7 @@ Alias(read_csv, 'csv2objs')
 
 write_csv = Factory(name='write csv', 
                   description='Csv exporter', 
-                  category='Csv', 
+                  category='io', 
                   nodemodule='csv',
                   nodeclass='writeObjs',
                   lazy = False,
