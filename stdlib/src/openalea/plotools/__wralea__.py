@@ -41,7 +41,7 @@ __all__ = []
 
 vsplot = Factory( name= "VS Plot", 
               description="Plot a list of 2D points plotable objects", 
-              category="Vizualisation", 
+              category="Visualization,plot", 
               nodemodule="plotable",
               nodeclass="display_VisualSequence",
               inputs=(dict(name='vis_seq_list', interface=None, showwidget=False),
@@ -60,7 +60,7 @@ __all__.append('vsplot')
 
 ptline_style = Factory( name= "PointLine Style", 
               description="Allows us to edit VisualSequence plot", 
-              category="Vizualisation", 
+              category="Visualization,plot", 
               nodemodule="plotable",
               nodeclass="change_VisualSequence_PointLineView",
               inputs=(dict(name='vis_seq', interface=None, showwidget=False),
@@ -82,7 +82,7 @@ __all__.append('ptline_style')
 
 hist_style = Factory( name= "Hist Style", 
                       description="Allows us to edit VisualSequence Hist style properties", 
-                      category="Vizualisation", 
+                      category="Visualization,plot", 
                       nodemodule="plotable",
                       nodeclass="change_VisualSequence_HistView",
                       inputs=(dict(name='vis_seq', interface=None, showwidget=False),
@@ -97,7 +97,7 @@ __all__.append('hist_style')
 
 it2seq = Factory( name= "Iterables to Sequence", 
                   description="Generates VisualSequence from 2 iterables", 
-                  category="Vizualisation", 
+                  category="codec", 
                   nodemodule="plotable",
                   nodeclass="seqs2VisualSequence",
                   inputs=(dict(name='seq1', interface=ISequence),
@@ -110,7 +110,7 @@ __all__.append('it2seq')
     
 tuples2seq = Factory( name= "tuples2seq", 
                       description="Generates VisualSequence from 2-uples", 
-                      category="Vizualisation", 
+                      category="codec", 
                       nodemodule="plotable",
                       nodeclass="tuples2VisualSequence",
                       inputs=(dict(name='seq1', interface=ISequence, desc='list of 2 uples'),                          ),
@@ -122,7 +122,7 @@ __all__.append('tuples2seq')
 
 dict2seq = Factory( name= "Dict to Sequence", 
                     description="Generates VisualSequence from a dictionary", 
-                    category="Vizualisation", 
+                    category="codec", 
                     nodemodule="plotable",
                     nodeclass="dict2VisualSequence",
                     inputs=(dict(name='dict', interface=IDict),
