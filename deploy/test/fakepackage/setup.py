@@ -37,8 +37,8 @@ setup(
     zip_safe= False,
 
     # Specific options of openalea.deploy
-    lib_dirs = {'lib' : pj(build_prefix, 'lib') ,
-    inc_dirs = { 'include' : pj(build_prefix, 'include') },
+    lib_dirs = {'lib': pj(build_prefix, 'lib') },
+    inc_dirs = {'include': pj(build_prefix, 'include') } ,
     share_dirs = { 'share' : 'examples'},
     postinstall_scripts = ['openalea.fakepackage.postinstall',],
     
