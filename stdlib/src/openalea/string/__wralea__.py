@@ -69,7 +69,7 @@ join = Factory( name="join",
                 )
 
 str_ = Factory( name="string", 
-              description="String", 
+              description="String,Python", 
               category="Type", 
               nodemodule="strings",
               nodeclass="String",
@@ -82,7 +82,7 @@ __all__.append('str_')
 
 text = Factory( name="text", 
               description="Text", 
-              category="Type", 
+              category="Type,Python", 
               nodemodule="strings",
               nodeclass="text",
               
