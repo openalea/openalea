@@ -23,7 +23,7 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 from numpy import zeros,ones, array
-from openalea.image.image_transfo import hsl2rgb,merge_rgbData
+from openalea.image.transformations.image_transfo import hsl2rgb,merge_rgbData
 
 class ILookupTable (object) :
     """
