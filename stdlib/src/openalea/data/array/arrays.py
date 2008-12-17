@@ -23,7 +23,7 @@ from openalea.core import *
 
 class PyArray(Node):
     """
-Python array
+    Python array
     """
     typecodes = ['c', 'b', 'B', 'u', 'i', 'I', 'l', 'L', 'f', 'd']
     codename = ['character',

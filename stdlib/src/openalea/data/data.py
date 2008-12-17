@@ -22,10 +22,13 @@ from openalea.core import *
 
 class Variable(Node):
     """
-    :param: Caption, Obj
-    :returns: Obj
     Transmit obj to output
     Display str as caption
+    
+    :param inputs[0]: Caption, Obj
+    :param inputs[1]: obj
+    :returns: Obj
+
     """
 
     def __call__(self, inputs):
@@ -39,7 +42,10 @@ class Bool(Node):
     """
     Boolean value
 
+    :param ins:
+    :param outs:
     :returns: the value
+
     """
 
     def __init__(self, ins, outs):
@@ -55,8 +61,10 @@ class Bool(Node):
 
 class Int(Node):
     """
-    :param: The stored value
-    :returns: Transmit the stored value
+    :param ins: The stored value
+    :param outs: 
+    :returns outs: Transmit the stored value
+
     """
 
     def __init__(self, ins, outs):
@@ -71,8 +79,10 @@ class Int(Node):
 
 class Float(Node):
     """
-    :param: The stored value
-    :returns: Transmit the stored value
+    :param ins: The stored value
+    :param outs: 
+    :returns outs: Transmit the stored value
+
     """
 
     def __init__(self, ins, outs):
@@ -89,8 +99,10 @@ class Float(Node):
 class FloatScy(Node):
     """Float Variable
 
-    :param: The stored value in string format
+    :param Node: The stored value in string format
+    :param outs: 
     :returns: Transmit the stored value
+
     """
 
     def __init__(self, ins, outs):
@@ -107,8 +119,9 @@ class FloatScy(Node):
 class String(Node):
     """String Variable
 
-    :param : The stored value
+    :param inputs: The stored value
     :returns: Transmit the stored value
+
     """
 
     def __call__(self, inputs):
@@ -121,8 +134,9 @@ class String(Node):
 class Text(Node):
     """Text Variable
 
-    :param: The stored value
+    :param inputs[0]: The stored value
     :returns: Transmit the stored value
+
     """
 
     def __call__(self, inputs):
@@ -133,6 +147,7 @@ class Text(Node):
 class DateTime(Node):
     """
     DateTime
+    :param inputs[0]: The stored value
     """
 
     def __call__(self, inputs):
@@ -143,6 +158,7 @@ class DateTime(Node):
 class List(Node):
     """
     Python List
+    :param inputs: The stored value
     """
 
     def __call__(self, inputs):
@@ -158,6 +174,7 @@ class List(Node):
 class Dict(Node):
     """
     Python Dictionary
+    :param inputs[0]: The stored value
     """
 
     def __call__(self, inputs):
@@ -169,6 +186,7 @@ class Dict(Node):
 class Pair(Node):
     """
     Python 2-uple generator
+    :param inputs: The stored value
     """
 
     def __call__(self, inputs):
@@ -178,6 +196,9 @@ class Pair(Node):
 class Tuple3(Node):
     """
     Python 2-uple generator
+    :param inputs[0]: The stored value
+    :param inputs[1]: The stored value
+    :param inputs[2]: The stored value
     """
 
     def __call__(self, inputs):
@@ -199,6 +220,7 @@ class FileName(Node):
     """A file path
 
     :returns:  the file path string
+
     """
 
     def __call__(self, inputs):
@@ -216,6 +238,7 @@ class DirName(Node):
     """A directory path
 
     :returns:  the path string
+
     """
 
     def __call__(self, inputs):
@@ -231,8 +254,9 @@ class DirName(Node):
 
 class PackageDir(Node):
     """
-    :param: A Package Name
+    :param Node: A Package Name
     :returns: The Path of the package wralea
+
     """
 
     def __call__(self, inputs):
