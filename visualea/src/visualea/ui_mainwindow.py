@@ -310,6 +310,7 @@ class Ui_MainWindow(object):
         self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Load Package/Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "&Reload All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "&Close Workspace", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Close_current_workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Z", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&Composite Node", None, QtGui.QApplication.UnicodeUTF8))
