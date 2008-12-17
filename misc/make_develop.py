@@ -1,5 +1,17 @@
 #!/usr/python
+"""
+A script to install all modules (listed in this script) within a package.
 
+Should work like setup.py script
+
+:Example:
+>>> python make_develop install -p vplants -d ./vplants/trunk  
+python make_develop install -p alinea -d ./openaleapkg
+
+type --help to get more help and usage  
+
+
+"""
 import sys, os
 from optparse import OptionParser
 
@@ -40,13 +52,17 @@ def setup( project, command, directory):
             pass
     
     oa_dirs = """deploy deploygui core visualea sconsx stdlib"""
-    vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml lpy fractalysis newmtg tree tree_statistic"""
+    vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml lpy fractalysis newmtg tree tree_statistic svgdraw"""
+    al_dirs = """adel caribu graphtal groimp topvine"""
+    
     
     if project == 'openalea':
         dirs = oa_dirs
     elif project == 'vplants':
         dirs = vp_dirs
-    
+    elif project == 'alinea':
+        dirs = al_dirs
+         
     dirs = dirs.split()
     
     root_dir = path(directory)
@@ -88,7 +104,7 @@ def main():
     parser = OptionParser(usage=usage)
 
     parser.add_option( "-p", "--project", dest="project",
-                       help="project: openalea or vplants [default: %default]",
+                       help="project: openalea or vplants or alinea [default: %default]",
                        default='openalea')
 
     parser.add_option( "-d", "--dir", dest="directory",
