@@ -353,6 +353,7 @@
   <action name="action_Close_current_workspace" >
    <property name="text" >
     <string>&amp;Close Workspace</string>
+     <string>Ctrl+Z</string>
    </property>
   </action>
   <action name="action_Run" >
