@@ -182,10 +182,10 @@ class Node(AbstractNode):
 
     def __init__(self, inputs=(), outputs=()):
         """
-        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
-        @param outputs   : list of dict(name='X', interface=IFloat)
+        :param inputs: list of dict(name='X', interface=IFloat, value=0)
+        :param outputs: list of dict(name='X', interface=IFloat)
 
-        Nota : if IO names are not a string, they will be converted to
+        :note: if IO names are not a string, they will be converted to
         with str()
         """
 
@@ -229,11 +229,10 @@ class Node(AbstractNode):
 
         <Long description of the function functionality.>
 
-        :parameters:
-            name : string
-                The name of the port
-        :rtype: `InputPort`
+        :param name: the name of the port
+        :rtype name: string
         :return: Input port characterized by name
+        :rtype: InputPort
         """
         index = self.map_index_in[name]
         return self.input_desc[index]
@@ -321,8 +320,8 @@ class Node(AbstractNode):
     def set_io(self, inputs, outputs):
         """
         Define the number of inputs and outputs
-        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
-        @param outputs   : list of dict(name='X', interface=IFloat)
+        :param inputs: list of dict(name='X', interface=IFloat, value=0)
+        :param outputs: list of dict(name='X', interface=IFloat)
         """
 
         # Values
@@ -540,9 +539,9 @@ class FuncNode(Node):
 
     def __init__(self, inputs, outputs, func):
         """
-        @param inputs    : list of dict(name='X', interface=IFloat, value=0)
-        @param outputs   : list of dict(name='X', interface=IFloat)
-        @param func : A function
+        :param inputs: list of dict(name='X', interface=IFloat, value=0)
+        :param outputs: list of dict(name='X', interface=IFloat)
+        :param func: A function
         """
 
         Node.__init__(self, inputs, outputs)
@@ -581,16 +580,16 @@ class AbstractFactory(Observed):
                  **kargs):
         """
         Create a factory.
-        @param name : user name for the node (must be unique) (String)
-        @param description : description of the node (String)
-        @param category : category of the node (String)
-        @param inputs : inputs description
-        @param outputs : outputs description, value=0
-        @param lazy : enable lazy evaluation (default = False)
-        @param view : custom view (default = None)
-        @param alias : list of alias name
+        :param name: user name for the node (must be unique) (String)
+        :param description: description of the node (String)
+        :param category: category of the node (String)
+        :param inputs: inputs description
+        :param outputs: outputs description, value=0
+        :param lazy: enable lazy evaluation (default = False)
+        :param view: custom view (default = None)
+        :param alias: list of alias name
 
-        Nota : inputs and outputs parameters are list of dictionnary such
+        :note: inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
         """
@@ -678,7 +677,7 @@ class AbstractFactory(Observed):
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
-        @param call_stack : the list of NodeFactory id already in call stack
+        :param call_stack: the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
         raise NotImplementedError()
@@ -741,19 +740,19 @@ class NodeFactory(AbstractFactory):
         """
         Create a node factory.
 
-        @param name : user name for the node (must be unique) (String)
-        @param description : description of the node (String)
-        @param category : category of the node (String)
-        @param nodemodule : python module to import for node (String)
-        @param nodeclass :  node class name to be created (String)
-        @param widgetmodule : python module to import for widget (String)
-        @param widgetclass : widget class name (String)
-        @param inputs : inputs description
-        @param outputs : outputs description
-        @param seach_path (opt) : list of directories where to search for
+        :param name: user name for the node (must be unique) (String)
+        :param description: description of the node (String)
+        :param category: category of the node (String)
+        :param nodemodule: python module to import for node (String)
+        :param nodeclass:  node class name to be created (String)
+        :param widgetmodule: python module to import for widget (String)
+        :param widgetclass: widget class name (String)
+        :param inputs: inputs description
+        :param outputs: outputs description
+        :param seach_path (opt): list of directories where to search for
             module
 
-        Nota : inputs and outputs parameters are list of dictionnary such
+        :note: inputs and outputs parameters are list of dictionnary such
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
         """
@@ -811,7 +810,7 @@ class NodeFactory(AbstractFactory):
     def instantiate(self, call_stack=[]):
         """
         Returns a node instance.
-        @param call_stack : the list of NodeFactory id already in call stack
+        :param call_stack: the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
 
