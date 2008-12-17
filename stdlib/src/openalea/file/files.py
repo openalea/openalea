@@ -2,16 +2,15 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-################################################################################
-
+###############################################################################
 
 __doc__=""" File manipulation """
 __license__= "Cecill-C"
@@ -23,38 +22,39 @@ from openalea.core import *
 
 # File name manipulation
 
+
 class FileName(object):
     """
     A file path
-    @param object:
-    @return:  the filename path string
+    :param object:
+    :returns:  the filename path string
     """
 
     def __call__(self, input):
         """ inputs is the list of input values """
 
         fname = input
-        return (str(fname),)
+        return (str(fname), )
 
 
 class DirName(object):
-    """
-    a file path 
-    @param object: 
-    @return: the path string
+    """a file path
+
+    :param object:
+    :returns: the path string
     """
 
     def __call__(self, input):
         """ inputs is the list of input values """
 
         fname = input
-        return (str(fname),)
+        return (str(fname), )
 
 
 class PackageDir(Node):
     """
-    @param Node: a package name
-    @return:  path of the package wralea
+    :param Node: a package name
+    :returns:  path of the package wralea
     """
 
     def __call__(self, inputs):
@@ -64,25 +64,26 @@ class PackageDir(Node):
 
         from openalea.core.pkgmanager import PackageManager
         pm = PackageManager()
-        pkg = pm.get(pname) 
+        pkg = pm.get(pname)
         path = ''
 
-        if pkg :
+        if pkg:
             path = pkg.path
 
-        return (path,  )
-
+        return (path, )
 
 # Path
 import openalea.core.path as path
 
+
 def glob(pattern):
     """Return a list of path that math the pattern
-    @param pattern: a pattern to glob
-    @return: a list of paths that match the pattern
+
+    :param pattern: a pattern to glob
+    :return: a list of paths that match the pattern
     """
     ret = path.glob.glob(pattern)
-    return (ret,)
+    return (ret, )
 
 
 def joinpath(pathlist):
@@ -90,7 +91,7 @@ def joinpath(pathlist):
 
     p = path.path(pathlist[0])
     ret = p.joinpath(*pathlist[1:])
-    return (ret,)
+    return (ret, )
 
 # File contents
 
@@ -110,33 +111,30 @@ class FileRead(object):
     def __init__(self):
         self.mtime = 0 # modification time
         self.filename = ''
-        self.s = '' 
+        self.s = ''
 
-    
     def read_contents(self, f):
         self.s = f.read()
 
-    
     def __call__(self, filename=""):
 
         if(not isinstance(filename, basestring)):
-               filename = str(filename)
+            filename = str(filename)
 
         try:
             mtime = os.stat(filename).st_mtime
         except:
             mtime = 0
-        
+
         if(filename != self.filename or
            mtime != self.mtime):
 
             self.filename = filename
             self.mtime = mtime
-            
             f = open(filename, 'r')
             self.read_contents(f)
             f.close()
-            
+
         return self.s
 
 
@@ -144,17 +142,13 @@ class FileReadlines(FileRead):
     """ Read a file as a list of strings """
 
     def __init__(self):
-        
+
         FileRead.__init__(self)
         self.s = []
-
 
     def read_contents(self, f):
         self.s = f.readlines()
 
 
-
 def py_tmpnam():
     return tempfile.mktemp(),
-
-
