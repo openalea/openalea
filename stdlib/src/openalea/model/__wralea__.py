@@ -36,7 +36,7 @@ __all__ = ['linear']
     
 linear = Factory( name=protected("linearmodel"), 
                   description="Linear Model", 
-                  category="Model,misc", 
+                  category="misc", 
                   nodemodule="models",
                   nodeclass="linearmodel",
                   )

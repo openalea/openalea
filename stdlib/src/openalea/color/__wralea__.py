@@ -26,7 +26,7 @@ __all__ = ['colormap', 'rgbcolormap', 'rgb']
 
 rgb = Factory( name="rgb",
                description="RGB tuple",
-               category="Type,image",
+               category="datatype,image",
                nodemodule="py_color",
                nodeclass="RGB",
               
