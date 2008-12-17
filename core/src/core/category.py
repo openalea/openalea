@@ -58,7 +58,6 @@ class PackageManagerCategory():
     image                   Image Processing.standard               
     svg                     Image Processing.svg 
     datatype                Python Functionalities.Datatype 
-    type                    Python Functionalities.Datatype 
     functional              Python Functionalities.functional
     math                    Python Functionalities.math
     python                  Python Functionalities.standard
@@ -107,7 +106,6 @@ class PackageManagerCategory():
             'image':        'Image Processing.standard',
             'svg':          'Image Processing.svg',
             'datatype':     'Python Functionalities.Datatype',
-            'type':         'Python Functionalities.Datatype',
             'functional':   'Python Functionalities.functional',
             'math':         'Python Functionalities.math',
             'python':       'Python Functionalities.standard',
