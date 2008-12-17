@@ -38,7 +38,7 @@ __all__ = []
 
 var_ = Factory( name="variable", 
                description="Variable", 
-               category="Type,datatype", 
+               category="datatype", 
                nodemodule="data",
                nodeclass="Variable",
                
@@ -52,7 +52,7 @@ __all__.append('var_')
 
 str_ = Factory( name=protected("string"), 
               description="String", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="String",
               
@@ -65,7 +65,7 @@ __all__.append('str_')
 
 text = Factory( name=protected("text"), 
               description="Text", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="Text",
               
@@ -78,7 +78,7 @@ __all__.append('text')
 
 datetime_ = Factory( name="datetime", 
               description="DateTime", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="DateTime",
               
@@ -91,7 +91,7 @@ __all__.append('datetime_')
 
 bool_ = Factory( name="bool", 
               description="boolean", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="Bool",
               
@@ -105,7 +105,7 @@ __all__.append('bool_')
 
 float_ = Factory( name="float",
               description="Float Value",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="Float",
               
@@ -119,7 +119,7 @@ __all__.append('float_')
 
 floatscy = Factory( name="float scy",
               description="Float Value",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="FloatScy",
               
@@ -133,7 +133,7 @@ __all__.append('floatscy')
 
 int_ = Factory( name="int",
               description="Int Value",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="Int",
               
@@ -146,7 +146,7 @@ __all__.append('int_')
 
 rgb_ = Factory( name=protected("rgb"),
               description="RGB tuple",
-              category="Type,Color,datatype",
+              category="Color,datatype",
               nodemodule="data",
               nodeclass="RGB",
               
@@ -160,7 +160,7 @@ Alias(rgb_, 'rgb')
 
 list_ = Factory( name=protected("list"),
               description="Python list",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="List",
               
@@ -174,7 +174,7 @@ __all__.append('list_')
 
 dict_ = Factory( name=protected("dict"),
               description="Python dictionary",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="Dict",
               
@@ -188,7 +188,7 @@ __all__.append('dict_')
 
 pair = Factory( name=protected("pair"),
               description="Python 2-uples",
-              category="Type",
+              category="datatype",
               nodemodule="data",
               nodeclass="Pair",
               inputs=(dict(name="IN0", interface=None,),
@@ -200,7 +200,7 @@ __all__.append('pair')
 
 tuple3 = Factory( name=protected("tuple3"),
               description="Python 3-uples",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="data",
               nodeclass="Tuple3",
               inputs=(dict(name="IN0", interface=None,),
@@ -215,7 +215,7 @@ __all__.append('tuple3')
 # DEPRECATED
 fname = Factory( name=protected("filename"), 
               description="File name", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="FileName",
               
@@ -230,7 +230,7 @@ __all__.append('fname')
 
 dname = Factory( name=protected("dirname"), 
               description="Directory name", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="DirName",
               
@@ -245,7 +245,7 @@ __all__.append('dname')
 
 pdir = Factory( name=protected("packagedir"), 
               description="Package Directory", 
-              category="Type,datatype", 
+              category="datatype", 
               nodemodule="data",
               nodeclass="PackageDir",
               

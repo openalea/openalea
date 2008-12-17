@@ -38,7 +38,7 @@ __all__ = []
 
 array_= Factory( name="array",
               description="Python array",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="arrays",
               nodeclass="PyArray",
               )

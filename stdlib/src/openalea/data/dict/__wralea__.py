@@ -40,7 +40,7 @@ __all__ = []
 
 dict_ = Factory( name="dict",
               description="Python dictionary",
-              category="Type,datatype",
+              category="datatype",
               nodemodule="dicts",
               nodeclass="Dict",
               
