@@ -14,7 +14,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-
 from openalea.core import *
 from openalea.plotools import plotable
 
@@ -24,24 +23,23 @@ import scipy
 
 __docformat__ = "restructuredtext en"
 
+
 def Glm(x, y, famil = 'gaussian'): 
     """
     Compute the slope and intercept of the 2 given vector generalized linear regression.
     
-    :Parameters:
-     - `x`: X-axis values
-     - `y`: Y-axis values
-     - `famil`: family objects for models and link function
+    :param x: X-axis values
+    :param y: Y-axis values
+    :param famil: family objects for models and link function
     
-    :Types:
-     - `x`: float list
-     - `y`: float list
-     - `famil`: string
+    :rtype x: float list
+    :rtype y: float list
+    :rtype famil: string
     
     :returns: the slope and the intercept of the generalized linear regression
     :returntype: float cople
 
-    :attention: the 2 vector/list must have the same size
+    :note: the 2 vector/list must have the same size
     """
     
     model = rpy.r("Y~X")
@@ -65,12 +63,17 @@ def Glm(x, y, famil = 'gaussian'):
 
 ############## Linear regression section ##########################
 
+
 class LinearRegression( Node ):
     """Linear regression 
-    Input 0 : X values
-    Input 1 : Y values
-    Input 2 : alpha
-    Output 0 : linear regression output"""
+    
+    :param intputs[0] : X values
+    :param intputs[0] : Y values
+    :param intputs[0] : alpha
+    
+    :returns: linear regression output
+
+    """
 
     def __init__( self, inputs, outputs ):
 
@@ -85,12 +88,15 @@ class LinearRegression( Node ):
             reg = regLin(self.get_input( "X" ),self.get_input( "Y" ),self.get_input( "alpha" ) )
         return ( reg, )
 
+
 class LR2Plot( Node ):
-    """
-    Generate 2 plotable object from a linear regression
-    Input 0 : linear regression object
-    Output 0 : plotable object from points
-    Output 1 : plotable object from regression line
+    """Generate 2 plotable objects from a linear regression
+
+    :param intputs[0]: linear regression object
+    
+    :returns outputs[0]: plotable object from points
+    :returns outputs[1]: plotable object from regression line
+
     """
 
     def __init__( self, inputs, outputs):
