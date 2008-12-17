@@ -902,6 +902,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         else:
             if(self.subnode.factory):
                 doc = self.subnode.factory.description
+        
+        # here, we could process the doc so that the output is nicer 
+        # e.g., doc.replace(":params","Parameters ") and so on
 
         self.setToolTip( "Name : %s\n"%(node_name) +
                          "Package : %s\n"%(pkg_name) +
