@@ -6,9 +6,9 @@ from setuptools import setup, find_packages
 external_dependencies = [
 'numpy>=1.4',
 'scipy == 0.6',
-'matplotlib',
-'PIL',
-'qt4==4.4.3_2'
+'matplotlib<=0.91.4',
+'PIL<=1.1.6',
+'qt4>=4.4.3_2'
 ]
 
 alea_dependencies = [
