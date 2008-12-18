@@ -31,8 +31,13 @@ def setup( project, command, directory):
     undevelop_cmd = "python setup.py develop -u"
     #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     install_cmd = "python setup.py install"
-    release_cmd = "python setup.py bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
-    
+    release_cmd = "python setup.py install bdist_egg -b .dev -d ../../dist sdist -d ../../dist --format=gztar alea_upload --project=openalea --release=0.6 "
+
+    if project == 'vplants':
+        release_cmd += '--package=VPlants'
+    elif project == 'alinea':
+        release_cmd += '--package=Alinea'
+
     if command == 'develop':
         cmd = develop_cmd
     elif command == 'undevelop':
@@ -51,9 +56,9 @@ def setup( project, command, directory):
         except:
             pass
     
-    oa_dirs = """deploy deploygui core visualea sconsx stdlib"""
-    vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml lpy fractalysis newmtg tree tree_statistic svgdraw"""
-    al_dirs = """adel caribu graphtal groimp topvine"""
+    oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta"""
+    vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
+    alinea_dirs = """caribu graphtal adel topvine"""
     
     
     if project == 'openalea':
@@ -61,8 +66,8 @@ def setup( project, command, directory):
     elif project == 'vplants':
         dirs = vp_dirs
     elif project == 'alinea':
-        dirs = al_dirs
-         
+        dirs = alinea_dirs
+    
     dirs = dirs.split()
     
     root_dir = path(directory)
@@ -104,7 +109,7 @@ def main():
     parser = OptionParser(usage=usage)
 
     parser.add_option( "-p", "--project", dest="project",
-                       help="project: openalea or vplants or alinea [default: %default]",
+                       help="project: openalea, vplants or alinea [default: %default]",
                        default='openalea')
 
     parser.add_option( "-d", "--dir", dest="directory",
@@ -121,7 +126,7 @@ def main():
         return
 
     if(len(args) < 1 or args[0] not in available_mode):
-        parser.error("Incomplete command : specify develop, unde")
+        parser.error("Incomplete command : specify develop, undevelop, install or release")
 
     mode = args[0]
 
