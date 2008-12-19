@@ -17,6 +17,7 @@ alea_dependencies = [
 'openalea.core > 0.5',
 'openalea.visualea > 0.5',
 'openalea.stdlib > 0.5',
+'openalea.sconsx > 0.5',
 ]
 
 install_requires = alea_dependencies
