@@ -16,7 +16,7 @@
 ###############################################################################
 
 __doc__="""
-This module defines the category keywords to be used within __wralea__.py files
+This module defines category keywords to be used within wralea files
 """
 
 __license__= "Cecill-C"

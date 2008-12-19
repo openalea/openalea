@@ -553,11 +553,10 @@ class CompositeNode(Node, DataFlow):
 
 
     def _compute_inout_connection(self, vertex_selection, is_input=True):
-        """ Return internal connections of a composite node 
-            with input port or output port.
+        """ Return internal connections of a composite node with input or output port.
+        
             - vertex_selection is a sorted set of node.
-            - is_input is a boolean indicated if connection
-             have to be created with input or output ports.
+            - is_input is a boolean indicated if connection have to be created with input or output ports.
         """
         nodes = []
         connections = []

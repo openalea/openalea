@@ -33,11 +33,10 @@ class Graph (IGraph,
              IVertexListGraph, IEdgeListGraph,
              IMutableVertexGraph, IMutableEdgeGraph,
              IExtendGraph):
-    """
-    Directed graph with multiple links
-    in this implementation :
+    """Directed graph with multiple links in this implementation:
         - vertices are tuple of edge_in, edge_out
         - edges are tuple of source,target
+
     """
 
     def __init__(self, graph=None):

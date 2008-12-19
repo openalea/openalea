@@ -182,11 +182,11 @@ class Node(AbstractNode):
 
     def __init__(self, inputs=(), outputs=()):
         """
+
         :param inputs: list of dict(name='X', interface=IFloat, value=0)
         :param outputs: list of dict(name='X', interface=IFloat)
 
-        :note: if IO names are not a string, they will be converted to
-        with str()
+        :note: if IO names are not a string, they will be converted to with str()
         """
 
         AbstractNode.__init__(self)
@@ -227,12 +227,13 @@ class Node(AbstractNode):
     def get_input_port(self, name=None):
         """Gets port by name.
 
-        <Long description of the function functionality.>
+        Long description of the function functionality.
 
         :param name: the name of the port
-        :rtype name: string
-        :return: Input port characterized by name
+        :type name: string
+        :returns: Input port characterized by name
         :rtype: InputPort
+
         """
         index = self.map_index_in[name]
         return self.input_desc[index]
@@ -590,6 +591,7 @@ class AbstractFactory(Observed):
         :param alias: list of alias name
 
         :note: inputs and outputs parameters are list of dictionnary such
+
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
         """
@@ -737,22 +739,22 @@ class NodeFactory(AbstractFactory):
                  widgetclass = None,
                  search_path = None,
                  **kargs):
-        """
-        Create a node factory.
+        """Create a node factory.
 
         :param name: user name for the node (must be unique) (String)
         :param description: description of the node (String)
         :param category: category of the node (String)
+        :param inputs: inputs description
+        :param outputs: outputs description
         :param nodemodule: python module to import for node (String)
         :param nodeclass:  node class name to be created (String)
         :param widgetmodule: python module to import for widget (String)
         :param widgetclass: widget class name (String)
-        :param inputs: inputs description
-        :param outputs: outputs description
-        :param seach_path (opt): list of directories where to search for
+        :param search_path: list of directories where to search for
             module
 
         :note: inputs and outputs parameters are list of dictionnary such
+
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
         """
