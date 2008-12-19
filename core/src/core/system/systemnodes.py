@@ -162,9 +162,12 @@ class InitNode(Node):
 
 class AccuList(Node):
     """ List Accumulator
+    
     Add to a list (in datapool) the receive value
-    Inputs : value : value to append
-             var_name : name of the datapool variable
+    
+    :param inputs: a list containing the value to append and 
+        the name of the datapool variable
+    
     """
 
     def __init__(self, inputs, outputs):
@@ -195,9 +198,12 @@ class AccuList(Node):
 
 class AccuFloat(Node):
     """ Float Accumulator
+
     Add to a Float (in datapool) the receive value
-    Inputs : value : value to append
-             var_name : name of the datapool variable
+
+    :param inputs: a list containing the value to append and 
+        the name of the datapool variable
+
     """
 
     def __init__(self, inputs, outputs):

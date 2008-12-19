@@ -31,12 +31,9 @@ from openalea.core.interface import TypeInterfaceMap
 
 class Signature(object):
     """Object to represent the signature of a function/method.
-    
-        Attributes:
 
-        :name: Name of the function/method.
-        :parameters: List of dict keyed on the variable name, interface and value for default value
-        """
+    :param f: a function object containing __name__ variable
+    """
 
     def __init__(self, f):
         """ f is a function object or instance method, 
