@@ -55,7 +55,7 @@
 #   package.add_factory( nf )
 
 
-from openalea.core.core import Node
+from openalea.core import Node
 from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict
 from openalea.core.traitsui import View, Item, Group
 import model as m
