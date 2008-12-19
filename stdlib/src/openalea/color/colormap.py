@@ -21,7 +21,6 @@ class ColorMap(object):
     """A RGB color map, between 2 colors defined in HSV code
 
     :Example:
-    
     >>> minh,maxh = minandmax([height(i) for i in s2])
     colormap = ColorMap(minh,maxh)
     s3 = [ Shape(i.geometry, Material

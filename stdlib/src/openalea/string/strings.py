@@ -27,6 +27,7 @@ def str_split(string_, char):
 
     :param string_ : a string
     :param char : a split character
+    
     :returns: a split string
     """
     return (string_.split(char), )
@@ -37,6 +38,7 @@ def str_join(list_, char):
 
     :param list_: a list of string
     :param char: a join character
+    
     :returns: a joined string
     """
     return (char.join(list_), )
@@ -48,17 +50,20 @@ def str_strip(string_, chars):
 
     :param string_: a list of string
     :param chars: a join character
+
     :returns: a stripped string
+
     """
     return (string_.strip(chars), )
 
 
 class String(Node):
-    """
-    String Variable
+    """tring Variable
 
     :param Node: the stored value
+
     :returns : transmit the stored value
+
     """
 
     def __call__(self, inputs):
@@ -72,5 +77,6 @@ def text(long_str):
     """ Return a copy of the input string.
 
     :param long_str: cast to a string
+
     """
     return (str(long_str), )

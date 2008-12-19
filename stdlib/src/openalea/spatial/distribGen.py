@@ -28,12 +28,14 @@ def _testDistance(x, y, xctr, yctr, d):
 
     :param x: x-axis point value
     :param y: y-axis point value
-    :param ctr: list of center coordinates as [(x1,y1) .. (xn,yn)]
+    :param xctr: list of center coordinates as [(x1,y1) .. (xn,yn)]
+    :param yctr: list of center coordinates as [(x1,y1) .. (xn,yn)]
     :param d: cluster radius
 
     :type x: float
     :type y: float
-    :type ctr: cople list
+    :type xctr: cople list
+    :type yctr: cople list
     :type d: float
 
     :returns: True if the point is inside a cluster, False otherwise
@@ -73,7 +75,7 @@ def _minDistPtClstr(x, y, ptX, ptY):
     :param x: x-axis point value
     :param y: y-axis point value
     :param ptX: list of X coordinates
-    :param pty: list of Y coordinates
+    :param ptY: list of Y coordinates
 
     :type x:float
     :type y:float
@@ -308,8 +310,8 @@ class aggregative_distrib(Node):
     """
     Basic distribution(type) -> distribution func
 
-    :input: Type of the function.
-    :output: function that generates distribution.
+    .. :param input: Type of the function.
+    .. :param output: function that generates distribution.
 
     """
 

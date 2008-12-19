@@ -32,12 +32,12 @@ def Glm(x, y, famil = 'gaussian'):
     :param y: Y-axis values
     :param famil: family objects for models and link function
     
-    :rtype x: float list
-    :rtype y: float list
-    :rtype famil: string
+    :type x: float list
+    :type y: float list
+    :type famil: string
     
     :returns: the slope and the intercept of the generalized linear regression
-    :returntype: float cople
+    :rtype: float 
 
     :note: the 2 vector/list must have the same size
     """
@@ -67,11 +67,9 @@ def Glm(x, y, famil = 'gaussian'):
 class LinearRegression( Node ):
     """Linear regression 
     
-    :param intputs[0] : X values
-    :param intputs[0] : Y values
-    :param intputs[0] : alpha
+    :param inputs: a list containing X, Y and alpha values
     
-    :returns: linear regression output
+    .. :returns: linear regression output
 
     """
 
@@ -89,13 +87,12 @@ class LinearRegression( Node ):
         return ( reg, )
 
 
-class LR2Plot( Node ):
+class LR2Plot(Node):
     """Generate 2 plotable objects from a linear regression
 
-    :param intputs[0]: linear regression object
+    :param inputs: linear regression object
     
-    :returns outputs[0]: plotable object from points
-    :returns outputs[1]: plotable object from regression line
+    .. :returns: plotable object from points and regression line
 
     """
 
@@ -191,7 +188,7 @@ def regLin(x, y, alpha=5):
      - `y`: float list
     
     :returns: the slope and the intercept of the linear regression
-    :returntype: float cople
+    :rtype: float cople
 
     :attention: the 2 vector/list must have the same size
     """
