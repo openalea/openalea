@@ -31,13 +31,13 @@ def setup( project, command, directory):
     undevelop_cmd = "python setup.py develop -u"
     #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     install_cmd = "python setup.py install"
-    release_cmd = "python setup.py install bdist_egg -b .dev -d ../../dist sdist -d ../../dist --format=gztar alea_upload --project=openalea --release=0.6 "
-
+    release_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist "
+    """
     if project == 'vplants':
         release_cmd += '--package=VPlants'
     elif project == 'alinea':
         release_cmd += '--package=Alinea'
-
+    """
     if command == 'develop':
         cmd = develop_cmd
     elif command == 'undevelop':
