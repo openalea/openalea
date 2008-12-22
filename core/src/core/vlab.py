@@ -19,6 +19,7 @@ import re
 from random import randint
 from openalea.core.path import path
 
+
 def vlab_object(directory, pkgmanager):
     """
     Create an openalea package from a vlab object.
@@ -467,8 +468,7 @@ def test1(directory):
     from openalea.core.pkgmanager import PackageManager
     pm = PackageManager()
     pm.init(verbose=False)
-    obj = vlab_object(directory)
+    obj = vlab_object(directory,pm)
     pkg = obj.get_package()
     pkg.write()
-
 

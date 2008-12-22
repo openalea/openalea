@@ -20,7 +20,8 @@ __revision__=" $Id$ "
 class ColorMap(object):
     """A RGB color map, between 2 colors defined in HSV code
 
-    :Example:
+    :example:
+
     >>> minh,maxh = minandmax([height(i) for i in s2])
     colormap = ColorMap(minh,maxh)
     s3 = [ Shape(i.geometry, Material

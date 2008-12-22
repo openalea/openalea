@@ -21,19 +21,14 @@ from openalea.core import *
 
 
 class Variable(Node):
-    """
-    Transmit obj to output
-    Display str as caption
-    
-    :param inputs[0]: Caption, Obj
-    :param inputs[1]: obj
-    :returns: Obj
-
+    """ Transmit obj to output and display str as caption
     """
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
-
+        """
+        :param inputs: list of input values
+        :returns: Obj
+        """
         self.set_caption(str(inputs[0]))
         return (inputs[1], )
 
@@ -42,10 +37,8 @@ class Bool(Node):
     """
     Boolean value
 
-    :param ins:
-    :param outs:
-    :returns: the value
-
+    :param ins: input 1
+    :param outs: input 2
     """
 
     def __init__(self, ins, outs):
@@ -53,7 +46,10 @@ class Bool(Node):
         self.set_caption(str(False))
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values 
+
+        :returns: the value
+        """
         res= bool(inputs[0])
         self.set_caption(str(res))
         return (res, )
@@ -62,9 +58,8 @@ class Bool(Node):
 class Int(Node):
     """
     :param ins: The stored value
-    :param outs: 
-    :returns outs: Transmit the stored value
-
+    :param outs: todo
+    
     """
 
     def __init__(self, ins, outs):
@@ -72,6 +67,9 @@ class Int(Node):
         self.set_caption(str(0))
 
     def __call__(self, inputs):
+        """
+        :returns: Transmit the stored value
+        """
         v = int(inputs[0])
         self.set_caption(str(v))
         return (v, )
@@ -80,9 +78,7 @@ class Int(Node):
 class Float(Node):
     """
     :param ins: The stored value
-    :param outs: 
-    :returns outs: Transmit the stored value
-
+    :param outs: todo
     """
 
     def __init__(self, ins, outs):
@@ -90,7 +86,10 @@ class Float(Node):
         self.set_caption(str(0.0))
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values 
+
+        :returns: Transmit the stored value
+        """
         res = float(inputs[0])
         self.set_caption('%.1f'%res)
         return (res, )
@@ -99,9 +98,8 @@ class Float(Node):
 class FloatScy(Node):
     """Float Variable
 
-    :param Node: The stored value in string format
-    :param outs: 
-    :returns: Transmit the stored value
+    :param ins: The stored value in string format
+    :param outs: todo
 
     """
 
@@ -110,59 +108,60 @@ class FloatScy(Node):
         self.set_caption(str(0.0))
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values 
+
+        :returns: Transmit the stored value
+        """
         res = float(inputs[0])
         self.set_caption('%.1e'%res)
         return (res, )
 
 
 class String(Node):
-    """String Variable
-
-    :param inputs: The stored value
-    :returns: Transmit the stored value
-
-    """
+    """String Variable"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """
+        
+        :param inputs: list of input values
+        :returns: Transmit the stored value
+        """
         s = str(inputs[0])
         self.set_caption(repr(s))
         return (s, )
 
 
 class Text(Node):
-    """Text Variable
-
-    :param inputs[0]: The stored value
-    :returns: Transmit the stored value
-
-    """
+    """Text Variable"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values
+        
+        :param inputs: list of  input values
+        :type inputs: a list with 1 element
+        :returns: Transmit the stored value
+        """
         return (str(inputs[0]), )
 
 
 class DateTime(Node):
-    """
-    DateTime
-    :param inputs[0]: The stored value
-    """
+    """DateTime"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values
+        
+        :param inputs: The stored value
+        """
         return (inputs[0], )
 
 
 class List(Node):
-    """
-    Python List
-    :param inputs: The stored value
-    """
+    """Python List"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input value
+        :param inputs: The stored value
+        """
         import copy
         try:
             iter(inputs[0])
@@ -172,36 +171,38 @@ class List(Node):
 
 
 class Dict(Node):
-    """
-    Python Dictionary
-    :param inputs[0]: The stored value
-    """
+    """Python Dictionary"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values
+        :param inputs: The stored value
+        """
         import copy
         return (copy.copy(inputs[0]), )
 
 
 class Pair(Node):
-    """
-    Python 2-uple generator
-    :param inputs: The stored value
-    """
+    """Python 2-uple generator"""
 
     def __call__(self, inputs):
+        """
+        :param inputs: list of 2 values
+        :returns: tuple of the 3 inputs
+        """
         return ((inputs[0], inputs[1]), )
 
 
 class Tuple3(Node):
     """
-    Python 2-uple generator
-    :param inputs[0]: The stored value
-    :param inputs[1]: The stored value
-    :param inputs[2]: The stored value
+    Python 3-uple generator
     """
 
     def __call__(self, inputs):
+        """ returns 3-tuple
+
+        :param inputs: list of 3 values
+        :returns: tuple of the 3 inputs
+        """
         return ((inputs[0], inputs[1], inputs[2]), )
 
 
@@ -219,12 +220,13 @@ def list_select(items, index):
 class FileName(Node):
     """A file path
 
-    :returns:  the file path string
-
     """
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ 
+        :param inputs: the list of input values
+        :returns:  the file path string
+        """
 
         print "This node is DEPRECATED. Use %s instead"%("Catalog.File.FileName")
         fname, cwd = inputs
@@ -237,12 +239,14 @@ class FileName(Node):
 class DirName(Node):
     """A directory path
 
-    :returns:  the path string
 
     """
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ 
+        :param inputs: the list of input values
+        :returns:  the path string
+        """
 
         print "This node is DEPRECATED. Use %s instead"%("Catalog.File.DirName")
         rep, cwd = inputs
@@ -254,13 +258,15 @@ class DirName(Node):
 
 class PackageDir(Node):
     """
-    :param Node: A Package Name
-    :returns: The Path of the package wralea
 
     """
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """
+        :param inputs: list of input values
+
+        :returns: The Path of the package wralea
+        """
 
         print "This node is DEPRECATED. Use %s instead"%("Catalog.File.PackageDir")
         pname = str(inputs[0])

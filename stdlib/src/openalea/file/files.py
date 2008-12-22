@@ -38,27 +38,26 @@ class FileName(object):
 
 
 class DirName(object):
-    """a file path
-
-    :param object:
-    :returns: the path string
-    """
+    """a file path"""
 
     def __call__(self, input):
-        """ inputs is the list of input values """
+        """
+        :param input: list of input values 
+        :returns: the path string
+        """
 
         fname = input
         return (str(fname), )
 
 
 class PackageDir(Node):
-    """
-    :param Node: a package name
-    :returns:  path of the package wralea
-    """
+    """Package dir"""
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values
+        :param inputs: a package name
+        :returns:  path of the package wralea
+        """
 
         pname = str(inputs[0])
 

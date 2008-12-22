@@ -23,7 +23,7 @@ from openalea.core import *
 
 
 def str_split(string_, char):
-    """Split a string
+    """ Split a string
 
     :param string_ : a string
     :param char : a split character
@@ -58,16 +58,16 @@ def str_strip(string_, chars):
 
 
 class String(Node):
-    """tring Variable
+    """String Variable
 
-    :param Node: the stored value
-
-    :returns : transmit the stored value
-
+    :param inputs: the stored value
     """
 
     def __call__(self, inputs):
-        """ inputs is the list of input values """
+        """ inputs is the list of input values 
+
+        :returns : transmit the stored value
+        """
         s = str(inputs[0])
         self.set_caption(repr(s))
         return (s, )

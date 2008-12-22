@@ -70,9 +70,9 @@ class VisualSequence(object):
         It use the syntax of mathplot lib so go there for details.
         
         :parameters:
-            x : `[float]`
+            x : `float`
                 X coordinates
-            y : `[float]`
+            y : `float`
                 values f(X)
             legend : `string`
                 legend of a line
@@ -122,13 +122,13 @@ def change_VisualSequence_PointLineView( vis_seq, new_legend, new_linestyle, new
         :parameters:
             vis_seq : `VisualSequence`
                 object to be modified
-            legend : `string`
+            new_legend : `string`
                 legend of a line
-            linestyle : `string`
+            new_linestyle : `string`
                 One of - : -. -
-            marker : `string`
+            new_marker : `string`
                 One of + , o . s v x > <,
-            color : `string`
+            new_color : `string`
                 A matplotlib color arg
         :rtype: `VisualSequence`
         :return: Updated object.
@@ -148,7 +148,7 @@ def display_VisualSequence(  vis_seq_list=list(), visualisation="", title="", xl
     """Plots 2D visual sequences.
     
     :parameters:
-        vis_seq_list : `[VisualSequence]`
+        vis_seq_list : `VisualSequence`
             Contains a list of object to display
         title : `string`
             Title of the plot.
@@ -167,7 +167,7 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
     """Plots 2D visual sequences.
     
     :parameters:
-        vis_seq_list : `[VisualSequence]`
+        vis_seq_list : `VisualSequence`
             Contains a list of object to display
         title : `string`
             Title of the plot.
@@ -210,18 +210,13 @@ def display_VisualSequence_as_PointLine(  vis_seq_list=list(), title="", xlabel=
 def change_VisualSequence_HistView( vis_seq,  new_bins, new_color ): 
         """Returns vis_seq object with values changed from default
         
-        :parameters:
-            vis_seq : `VisualSequence`
-                object to be modified
-            legend : `string`
-                legend of a line
-            linestyle : `string`
-                One of - : -. -
-            marker : `string`
-                One of + , o . s v x > <,
-            color : `string`
-                A matplotlib color arg
-        :rtype: `VisualSequence`
+        :param vis_seq: object to be modified
+        :param new_bins: binning for the histogram
+        :param new_color: a matplotlib color arg
+        :type vis_seq: `VisualSequence`
+        :type new_bins: int
+        :type new_color: `string`
+        
         :return: Updated object.
         """
         plotable = copy.copy(vis_seq)
@@ -232,18 +227,20 @@ def change_VisualSequence_HistView( vis_seq,  new_bins, new_color ):
         return  plotable
 
 
-def display_VisualSequence_as_Hist(  vis_seq=[], title="", xlabel="", ylabel="", figure=0, **keys ):
-    """Plots 2D visual sequences.
+def display_visualsequence_as_hist(vis_seq=[], title="", xlabel="", ylabel="", figure=0, **keys ):
+    """plots 2d visual sequences.
     
-    :parameters:
-        vis_seq_list : `[VisualSequence]`
-            Contains a list of object to display
-        title : `string`
-            Title of the plot.
-        xlabel : `string`
-            X axis description
-        ylabel : `string`
-            Y label description
+    :param vis_seq: contains a list of object to display
+    :param title: title of the plot
+    :param xlabel: x-axis description 
+    :param ylabel: y-axis description 
+    :param figure: figure's number
+
+    :type vis_seq: `VisualSequence`
+    :type title: `string`
+    :type ylabel: `string`
+    :type xlabel: `string`
+
     """
     pylab.figure( figure )
     pylab.cla()
@@ -257,13 +254,14 @@ def display_VisualSequence_as_Hist(  vis_seq=[], title="", xlabel="", ylabel="",
 def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
     """generates visual sequence2D from a list a 2uples (x,y)
     
-    :parameters:
-        seq1 : `iterable`
-            Contains the list of (x,y)
-        marker : `string`
-            The marker for the Point-Line.
-        color : `string`
-            The color.
+    :param seq1: contains the list of (x,y)
+    :param marker: the marker for the point-line
+    :param color: the color    
+
+    :type seq1: `iterable`
+    :type marker: `string`
+    :type color: `string`
+    
     """
     sx, sy = zip(*seq1)
     
@@ -273,15 +271,16 @@ def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
 def seqs2VisualSequence( seq1=[], seq2=[], marker="o", color="b", **keys ):
     """generates visual sequence2D with list1 as x  and list2 as y
     
-    :parameters:
-        seq1 : `iterable`
-            Contains the x sequence
-        seq2 : `iterable`
-            Contains the x sequence
-        marker : `string`
-            The marker for the Point-Line.
-        color : `string`
-            The color.
+    :param seq1: contains the x-sequence
+    :param seq2: contains the y-sequence
+    :param marker: the marker for the point-line
+    :param color: the color    
+
+    :type seq1: `iterable`
+    :type seq2: `iterable`
+    :type marker: `string`
+    :type color: `string`
+    
     """
     return VisualSequence(x=seq1, y=seq2,z=None, marker=marker, color=color, **keys )
        
@@ -289,13 +288,13 @@ def seqs2VisualSequence( seq1=[], seq2=[], marker="o", color="b", **keys ):
 def dict2VisualSequence(  dict2vis_seq={}, marker="o", color="g", **keys ):
     """generates visual sequence2D with keys as x  and values as y
     
-    :parameters:
-        dict2vis_seq : `dict{float:float}`
-            Contains a list of object to display
-        marker : `string`
-            The marker for the Point-Line.
-        color : `string`
-            The color.
+    :param dict2vis_seq: contains a list of object to display
+    :param marker: the marker for the point-line
+    :param color: the color    
+    
+    :type dict2vis_seq: `dict{float:float}`
+    :type marker: `string`
+    :type color: `string`
     """
     r=list(dict2vis_seq.items())
     r.sort()

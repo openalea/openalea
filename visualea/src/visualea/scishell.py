@@ -234,8 +234,10 @@ class SciShell(QsciScintilla):
     def __executeLines(self, lines):
         """
         Private method to execute a set of lines as multiple commands.
-        @param lines multiple lines of text to be executed as single
+        
+        :param lines: multiple lines of text to be executed as single
             commands (string)
+
         """
         
         for line in lines.splitlines(True):

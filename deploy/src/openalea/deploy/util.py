@@ -12,12 +12,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-
-__doc__ = """
-Deployment utilities
-"""
-
+__doc__ = """Deployment utilities"""
 __license__ = "Cecill-C"
 __revision__ =" $Id$ "
 

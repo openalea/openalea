@@ -90,7 +90,7 @@ def py_print(x):
 
 
 def py_method(obj=None, member_name="", args=()):
-    """ call obj.name(*args) """
+    """ call obj.name(\*args) """
     m = getattr(obj, member_name)
     m(*args)
     return obj

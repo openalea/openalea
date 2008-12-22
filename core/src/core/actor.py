@@ -13,9 +13,8 @@
 #       OpenAlea WebSite: http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-__doc__ = """This module provide an actor interface"""
-__license__ =  "Cecill-C"
+"""This module provide an actor interface"""
+__license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
@@ -23,6 +22,7 @@ class IActor(object):
     """
     interface to emulate a function
     """
+
     def inputs(self):
         """
         iterate on all input description
@@ -55,4 +55,3 @@ class IActor(object):
         get value computed for output
         """
         raise NotImplementedError
-
