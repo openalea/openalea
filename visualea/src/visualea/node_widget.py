@@ -233,17 +233,17 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 #             layout.addWidget(label)
 
                 
-    def place_group( self,  widget, group,  layout ):
+    def place_group( self, widget, group, layout ):
         """<Short description of the function functionality.>
         
         <Long description of the function functionality.>
         
-        :parameters:
-            arg1 : `T`
-                <Description of `arg1` meaning>
-        :rtype: `T`
+        :param widget: <Description of `arg1` meaning>
+        :type widget: `T`
+
         :return: <Description of ``return_object`` meaning>
         :raise Exception: <Description of situation raising `Exception`>
+
         """
         
         if group.layout=="-" or  group.layout=="|":

@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,13 +10,11 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-################################################################################
-
+###############################################################################
 __doc__="""QT4 Main window"""
-
 __license__= "CeCILL v2"
 __revision__=" $Id$ "
 
@@ -907,11 +905,12 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
 
 
 class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
-    """
-    Dictionnary editor (used for node internals)
+    """Dictionnary editor (used for node internals)
+
     If accepted :
-      self.pdict contains the modified dictionary
-      self.modified_key  contains the list of modified key
+        - self.pdict contains the modified dictionary
+        - self.modified_key  contains the list of modified key
+
     """
     
     def __init__(self, pdict, parent):
