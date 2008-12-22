@@ -8,7 +8,7 @@ external_dependencies = [
 'scipy == 0.6',
 'matplotlib<=0.91.4',
 'PIL<=1.1.6',
-'qt4>=4.4.3_2'
+'qt4>=4.4.3'
 ]
 
 alea_dependencies = [
