@@ -65,21 +65,23 @@ class Package(PackageDict):
     mimetype = "openalea/package"
 
 
-    def __init__(self, name, metainfo, path=None) :
+    def __init__(self, name, metainfo, path=None):
         """
         Create a Package
 
         :param name: a unique string used as a unique identifier for the package
         :param path: path where the package lies (a directory or a full wralea path)
-        :param metainfo: a dictionnary for metainformation. Attended keys are: 
-        license : a string ex GPL, LGPL, Cecill, Cecill-C
-        version : a string
-        authors : a string
-        institutes : a string
-        url : a string
-        description : a string for the package description
-        publication : optional string for publications
-        
+        :param metainfo: a dictionnary for metainformation. 
+
+        Attended keys for the metainfo parameters are: 
+            - license: a string ex GPL, LGPL, Cecill, Cecill-C
+            - version: a string
+            - authors: a string
+            - institutes: a string
+            - url: a string
+            - description: a string for the package description
+            - publication: optional string for publications
+       
         """
 
         PackageDict.__init__(self)
@@ -209,6 +211,8 @@ class Package(PackageDict):
         """
         Return a meta information.
         See the standard key in the __init__ function documentation.
+    
+        :param key: todo
         """
         return self.metainfo.get(key, "")
 

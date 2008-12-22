@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,36 +10,36 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-###############################################################################
-
-__doc__="""
-A CompositeNode is a Node that contains other nodes connected in a directed graph.
-A CompositeNodeFactory instance is a factory that build CompositeNode instances.
-Different instances of the same factory can coexist and can be modified in a
-dataflow. 
+##############################################################################
+"""A CompositeNode is a Node that contains other nodes connected in a directed
+graph. A CompositeNodeFactory instance is a factory that build CompositeNode
+instances. Different instances of the same factory can coexist and can be
+modified in a dataflow.
 """
-
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import string
 import copy
 import pprint
 
 from openalea.core.node import AbstractFactory, Node
-from openalea.core.node import RecursionError, InstantiationError
+from openalea.core.node import RecursionError
+#from openalea.core.node import InstantiationError
 from openalea.core.pkgmanager import PackageManager, UnknownPackageError
 from openalea.core.package import UnknownNodeError
-from openalea.core.dataflow import DataFlow, InvalidEdge, PortError
-from openalea.core.algo.dataflow_copy import structural_copy
-from openalea.core.settings import Settings
+from openalea.core.dataflow import DataFlow, InvalidEdge
+#from openalea.core.dataflow import PortError
+#from openalea.core.algo.dataflow_copy import structural_copy
+#from openalea.core.settings import Settings
 
 
-class IncompatibleNodeError(Exception): pass
+class IncompatibleNodeError(Exception):
+    """todo"""
+    pass
 
 
 class CompositeNodeFactory(AbstractFactory):
@@ -48,14 +48,14 @@ class CompositeNodeFactory(AbstractFactory):
     Each node has an unique id : the element id (elt_id)
     """
 
-    def __init__ (self, *args, **kargs):
+    def __init__(self, *args, **kargs):
         """
         CompositeNodeFactory accept more optional parameters :
         inputs : list of dict(name = '', interface='', value='')
         outputs : list of dict(name = '', interface='', value='')
         doc : documentation
         elt_factory : map of elements with its corresponding factory
-        elt_connections : map of ( dst_id , input_port ) : ( src_id, output_port )
+        elt_connections : map of ( dst_id , input_port ):(src_id,output_port)
         elt_data : Dictionary containing associated data
         elt_value : Dictionary containing Lists of 2-uples (port, value)
         """
@@ -80,55 +80,53 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Documentation
         self.doc = kargs.get('doc', "")
-        
 
-    def clear(self) :
-        
+    def clear(self):
+        """todo"""
         self.elt_factory.clear()
         self.connections.clear()
         self.elt_data.clear()
         self.elt_value.clear()
-        
-    
+
     def copy(self, **args):
-        """ 
+        """
         Copy factory.
         @param path : new search path
         @param replace_pkg: old and new package names.
-        When replace package is set, change the package id for all the elt factories.
+        When replace package is set, change the package id for all the
+        elt factories.
         """
 
         ret = AbstractFactory.copy(self, **args)
-        
+
         # Replace old pkg name to new pkg name
         (old_pkg, new_pkg) = args['replace_pkg']
-        
+
         for k, v in ret.elt_factory.iteritems():
             pkg_id, factory_id = v
 
             if(pkg_id == old_pkg.get_id()):
                 pkg_id = new_pkg.get_id()
                 ret.elt_factory[k] = pkg_id, factory_id
-        
+
         return ret
-        
 
     def get_writer(self):
         """ Return the writer class """
 
         return PyCNFactoryWriter(self)
 
-
     def instantiate(self, call_stack=None):
         """ Create a CompositeNode instance and allocate all elements
         This function overide default implementation of NodeFactory
 
-        @param call_stack : the list of NodeFactory id already in recursion stack
-        (in order to avoid infinite loop)
+        @param call_stack : the list of NodeFactory id already in recursion
+        stack (in order to avoid infinite loop)
         """
-        
+
         # Test for infinite loop
-        if (not call_stack) : call_stack = []
+        if (not call_stack):
+            call_stack = []
         if (self.get_id() in call_stack):
             raise RecursionError()
 
@@ -140,41 +138,45 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.set_caption(self.get_id())
 
         cont_eval = set() # continuous evaluated nodes
-        
+
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             try:
-                n = self.instantiate_node(vid, call_stack)
+                node = self.instantiate_node(vid, call_stack)
 
                 # Manage continuous eval
-                if(n.user_application): 
+                if(node.user_application):
                     cont_eval.add(vid)
 
             except (UnknownNodeError, UnknownPackageError):
 
-                print "WARNING : The graph is not fully operational "  
+                print "WARNING : The graph is not fully operational "
                 (pkg, fact) = self.elt_factory[vid]
-                print "-> Cannot find '%s:%s'"%(pkg, fact)
+                print "-> Cannot find '%s:%s'" % (pkg, fact)
 
-                n = self.create_fake_node(vid)
+                node = self.create_fake_node(vid)
 
-            new_df.add_node(n, vid, False)
+            new_df.add_node(node, vid, False)
 
         # Set IO internal data
         try:
-            new_df.node(new_df.id_in).internal_data = self.elt_data['__in__'].copy()
-            new_df.node(new_df.id_out).internal_data = self.elt_data['__out__'].copy()
+            new_df.node(new_df.id_in).internal_data = \
+                self.elt_data['__in__'].copy()
+            new_df.node(new_df.id_out).internal_data = \
+                self.elt_data['__out__'].copy()
         except:
             pass
 
         # Create the connections
-        for eid, link in self.connections.iteritems() :
+        for eid, link in self.connections.iteritems():
             (source_vid, source_port, target_vid, target_port) = link
 
             # Replace id for in and out nodes
-            if(source_vid == '__in__') :  source_vid = new_df.id_in
-            if(target_vid == '__out__') : target_vid = new_df.id_out
-                
+            if(source_vid == '__in__'):
+                source_vid = new_df.id_in
+            if(target_vid == '__out__'):
+                target_vid = new_df.id_out
+
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
 
@@ -192,60 +194,60 @@ class CompositeNodeFactory(AbstractFactory):
 
         return new_df
 
-
     def create_fake_node(self, vid):
-        """ Return an empty node with the correct number of inputs and output """
+        """ Return an empty node with the correct number of inputs
+        and output """
 
         # Count in and out needed
         ins = 0
         outs = 0
 
-        for eid, link in self.connections.iteritems() :
+        for eid, link in self.connections.iteritems():
             (source_vid, source_port, target_vid, target_port) = link
 
             if(source_vid == vid):
                 outs = max(outs, source_port)
             elif(target_vid == vid):
                 ins = max(ins, target_port)
-                    
+
         n = Node()
-        n.__color__ =  (250,100,100)
+        n.__color__ = (250, 100, 100)
         for p in range(ins+1):
             n.add_input(name="In"+str(p))
-            
+
         for p in range(outs+1):
             n.add_output(name="Out"+str(p))
-        
+
         n.internal_data.update(self.elt_data[vid])
 
         return n
 
-
     def paste(self, cnode, data_modifiers=[], call_stack=None):
         """ Paste to an existing CompositeNode instance
-        @param cnode : composite node instance
-        @param data_modifiers : list of 2-uple (key, function) to apply to internal
-        data (for instance to move the node)
-        @param call_stack : the list of NodeFactory id already in recursion stack
+
+        :param cnode: composite node instance
+        :param data_modifiers: list of 2-uple (key, function) to apply to
+        internal data (for instance to move the node)
+        :param call_stack:the list of NodeFactory id already in recursion stack
         (in order to avoid infinite loop)
 
-        @return the list of created id
+        :returns: the list of created id
         """
 
         # map to convert id
         idmap = {}
-        
+
         # Instantiate the node with each factory
         for vid in self.elt_factory:
             n = self.instantiate_node(vid, call_stack)
-            
+
             # Apply modifiers (if callable)
             for (key, func) in data_modifiers:
 
                 try:
                     if(callable(func)):
                         n.internal_data[key] = func(n.internal_data[key])
-                    else :
+                    else:
                         n.internal_data[key] = func
                 except:
                     pass
@@ -254,18 +256,16 @@ class CompositeNodeFactory(AbstractFactory):
             idmap[vid] = newid
 
         # Create the connections
-        for eid,link in self.connections.iteritems():
+        for eid, link in self.connections.iteritems():
             (source_vid, source_port, target_vid, target_port) = link
-            
+
             # convert id
             source_vid = idmap[source_vid]
             target_vid = idmap[target_vid]
-            
+
             cnode.connect(source_vid, source_port, target_vid, target_port)
 
         return idmap.values()
-
-
 
     def instantiate_node(self, vid, call_stack=None):
         """
@@ -285,15 +285,14 @@ class CompositeNodeFactory(AbstractFactory):
         values = self.elt_value.get(vid, ())
         for (port, v) in values:
             try:
-               node.set_input(port, eval(v))
+                node.set_input(port, eval(v))
             except:
                 continue
 
-            
         return node
 
-        
-    def instantiate_widget(self, node=None, parent=None, edit=False, autonomous=False):
+    def instantiate_widget(self, node=None, parent=None, \
+            edit=False, autonomous=False):
         """
         Return the corresponding widget initialised with node
         if node is None, the node is allocated
@@ -303,37 +302,34 @@ class CompositeNodeFactory(AbstractFactory):
         if(edit):
             from openalea.visualea.compositenode_widget import EditGraphWidget
             return EditGraphWidget(node, parent)
-            
-        if(node == None):  node = self.instantiate()
+
+        if(node == None):
+            node = self.instantiate()
 
         from openalea.visualea.compositenode_widget import DisplayGraphWidget
         return DisplayGraphWidget(node, parent, autonomous)
 
 
-
-################################################################################
-
 class CompositeNode(Node, DataFlow):
     """
-    The CompositeNode is a container that interconnect 
+    The CompositeNode is a container that interconnect
     different node instances between them in directed graph.
     """
 
-
     def __init__(self, inputs=(), outputs=()):
-        """ Inputs and outputs are list of dict(name='', interface='', value='') """
+        """ Inputs and outputs are list of
+        dict(name='', interface='', value='') """
 
         DataFlow.__init__(self)
 
         self.id_in = None
         self.id_out = None
-        
+
         Node.__init__(self, inputs, outputs)
-     
+
         # graph modification status
         self.graph_modified = False
         self.evaluating = False
-
 
     def reset(self):
         """ Reset nodes """
@@ -344,7 +340,6 @@ class CompositeNode(Node, DataFlow):
             node = self.actor(vid)
             node.reset()
 
-    
     def invalidate(self):
         """ Invalidate nodes """
 
@@ -354,11 +349,10 @@ class CompositeNode(Node, DataFlow):
             node = self.actor(vid)
             node.invalidate()
 
-
     def set_io(self, inputs, outputs):
         """
         Define inputs and outputs
-        Inputs and outputs are list of dict(name='', interface='', value='') 
+        Inputs and outputs are list of dict(name='', interface='', value='')
         """
 
         #I/O ports
@@ -368,9 +362,9 @@ class CompositeNode(Node, DataFlow):
             self.remove_vertex(self.id_in)
             self.id_in = None
 
-            
+
         if(self.id_out is not None
-           and len(outputs) != self.node(self.id_out).get_nb_input() ):
+           and len(outputs) != self.node(self.id_out).get_nb_input()):
             self.remove_vertex(self.id_out)
             self.id_out = None
 
@@ -378,43 +372,39 @@ class CompositeNode(Node, DataFlow):
         if(self.id_in is None):
             self.id_in = self.add_node(CompositeNodeInput(inputs))
         else:
-            self.node(self.id_in).set_io((),inputs)
-            
+            self.node(self.id_in).set_io((), inputs)
+
         if(self.id_out is None):
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
-            self.node(self.id_out).set_io(outputs,())
-            
-            
+            self.node(self.id_out).set_io(outputs, ())
+
+
         Node.set_io(self, inputs, outputs)
-                
-        
-    def set_input (self, index_key, val=None, *args) :
+
+    def set_input(self, index_key, val=None, *args):
         """ Copy val into input node output ports """
         self.node(self.id_in).set_input(index_key, val)
 
-
-    def get_input (self, index_key) :
+    def get_input(self, index_key):
         """ Return the composite node input"""
         return self.node(self.id_in).get_input(index_key)
-        
-    
-    def get_output (self, index_key) :
+
+    def get_output(self, index_key):
         """ Retrieve values from output node input ports """
 
         return self.node(self.id_out).get_output(index_key)
 
-    def set_output (self, index_key, val) :
+    def set_output(self, index_key, val):
         """ Set a value to an output """
 
         return self.node(self.id_out).set_output(index_key, val)
-    
 
     def get_eval_algo(self):
         """ Return the evaluation algo instance """
 
 #         config = Settings()
-        
+
 #         try:
 #             str = config.get("eval", "type")
 
@@ -430,15 +420,16 @@ class CompositeNode(Node, DataFlow):
         from  openalea.core.algo.dataflow_evaluation import DefaultEvaluation
         return DefaultEvaluation(self)
 
-
     def eval_as_expression(self, vtx_id=None):
         """
         Evaluate a vtx_id
         if node_id is None, then all the nodes without sons are evaluated
         """
 
-        if(self.evaluating) : return
-        if(vtx_id != None) : self.node(vtx_id).modified = True
+        if(self.evaluating):
+            return
+        if(vtx_id != None):
+            self.node(vtx_id).modified = True
         algo = self.get_eval_algo()
 
         try:
@@ -447,8 +438,8 @@ class CompositeNode(Node, DataFlow):
         finally:
             self.evaluating = False
 
-
     # Functions used by the node evaluator
+
     def eval(self):
         """
         Evaluate the graph
@@ -457,10 +448,9 @@ class CompositeNode(Node, DataFlow):
         self.__call__()
 
         self.modified = False
-        self.notify_listeners( ("status_modified",self.modified) )
-        
-        return False
+        self.notify_listeners(("status_modified", self.modified))
 
+        return False
 
     def __call__(self, inputs=()):
         """
@@ -474,35 +464,35 @@ class CompositeNode(Node, DataFlow):
 
         return ()
 
-
-    def node (self, vid):
+    def node(self, vid):
         """ Convenience function """
         return self.actor(vid)
 
-
-    ############################################################################
-
     def compute_external_io(self, vertex_selection, new_vid):
-        """ 
-        Return the list of input and output edges to connect the composite node.
+        """
+        Return the list of input and output edges to connect the composite
+        node.
         """
 
-        ins, in_edges = self._compute_inout_connection(vertex_selection, is_input=True)
-        outs, out_edges = self._compute_inout_connection(vertex_selection, is_input=False)
-        
-        in_edges = self._compute_outside_connection(vertex_selection, 
-                                                    in_edges, new_vid, is_input=True)
-        out_edges = self._compute_outside_connection(vertex_selection, out_edges, 
-                                                     new_vid, is_input=False)
-        
+        ins, in_edges = \
+            self._compute_inout_connection(vertex_selection, is_input=True)
+        outs, out_edges = \
+            self._compute_inout_connection(vertex_selection, is_input=False)
+
+        in_edges = \
+            self._compute_outside_connection(vertex_selection, in_edges, \
+                new_vid, is_input=True)
+        out_edges = \
+            self._compute_outside_connection(vertex_selection, out_edges,\
+                new_vid, is_input=False)
+
         return in_edges + out_edges
 
-
-    def _compute_outside_connection(self, vertex_selection, new_connections, 
+    def _compute_outside_connection(self, vertex_selection, new_connections,
                                     new_vid, is_input = True):
-        """ 
-        Return external connections of a composite node 
-        with input and output ports.
+        """
+        Return external connections of a composite node with input and output
+        ports.
         - vertex_selection is a sorted set of node.
         """
         connections = []
@@ -520,13 +510,13 @@ class CompositeNode(Node, DataFlow):
         for vid in vertex_selection:
             for pid in ports(vid):
                 connected_edges = self.connected_edges(pid)
-                
+
                 for e in connected_edges:
                     s = get_vertex_io(e)
                     if s not in vertex_selection:
                         pname = self.local_id(pid)
                         selected_port.setdefault((vid, pname), []).append(e)
-                        
+
         for edge in new_connections:
             if is_input:
                 if(edge[0] != '__in__'):
@@ -539,11 +529,12 @@ class CompositeNode(Node, DataFlow):
                         port_id = self.local_id(self.source_port(e))
                         connections.append((vid, port_id, new_vid, edge[1]))
             else:
-                if(edge[2] != '__out__'):  continue
+                if(edge[2] != '__out__'):
+                    continue
 
                 source_id, source_port = edge[0:2]
                 if (source_id, source_port) in selected_port:
-                    source_edges= selected_port[(source_id, source_port)]
+                    source_edges = selected_port[(source_id, source_port)]
                     for e in source_edges:
                         vid = self.target(e)
                         port_id = self.local_id(self.target_port(e))
@@ -551,12 +542,13 @@ class CompositeNode(Node, DataFlow):
 
         return connections
 
-
     def _compute_inout_connection(self, vertex_selection, is_input=True):
-        """ Return internal connections of a composite node with input or output port.
-        
+        """ Return internal connections of a composite node with input or
+        output port.
+
             - vertex_selection is a sorted set of node.
-            - is_input is a boolean indicated if connection have to be created with input or output ports.
+            - is_input is a boolean indicated if connection have to be
+                created with input or output ports.
         """
         nodes = []
         connections = []
@@ -577,7 +569,7 @@ class CompositeNode(Node, DataFlow):
         for vid in vertex_selection:
             for pid in ports(vid):
                 connected_edges = list(self.connected_edges(pid))
-                
+
                 is_io = False
                 for e in connected_edges:
                     s = get_vertex_io(e)
@@ -592,14 +584,14 @@ class CompositeNode(Node, DataFlow):
                 n = self.node(vid)
                 desc = dict(io_desc(n)[pname])
 
-                caption= '(%s)'%(n.get_caption())
-                count = '' 
+                caption= '(%s)' % (n.get_caption())
+                count = ''
                 name = desc['name']
 
                 while name + str(count) + caption in name_port:
                     if count:
                         count += 1
-                    else: 
+                    else:
                         count = 1
 
                 desc['name'] = name + str(count) + caption
@@ -609,40 +601,39 @@ class CompositeNode(Node, DataFlow):
                     # set default value on cn input port
                     if n.inputs[pname]:
                         v = n.inputs[pname]
-                        
+
                         try:
                             eval(repr(v))
                             desc['value'] = v
                         except:
                             pass
-                        
+
                     if 'value' not in desc:
                         if 'interface' in desc and desc['interface']:
                             desc['value'] = desc['interface'].default()
 
-                    connections.append( ('__in__', len(nodes), vid, pname) )
+                    connections.append(('__in__', len(nodes), vid, pname))
                 else: # output
-                    connections.append( (vid , pname, '__out__', len(nodes)) )
-                
+                    connections.append((vid, pname, '__out__', len(nodes)))
+
                 nodes.append(desc)
 
         return (nodes, connections)
 
-        
     def compute_io(self, v_list=None):
         """
         Return (inputs, outputs, connections)
         representing the free port of node
-        v_list is a vertex id list 
+        v_list is a vertex id list
         """
 
-        
+
         ins, in_edges = self._compute_inout_connection(v_list, is_input=True)
-        outs, out_edges = self._compute_inout_connection(v_list, is_input=False)
+        outs, out_edges = \
+            self._compute_inout_connection(v_list, is_input=False)
         connections = in_edges + out_edges
 
         return (ins, outs, connections)
-
 
     def to_factory(self, sgfactory, listid = None, auto_io=False):
         """
@@ -651,13 +642,13 @@ class CompositeNode(Node, DataFlow):
         if auto_io is true :  inputs and outputs are connected to the free
         ports
         """
-        
+
         # Clear the factory
         sgfactory.clear()
 
         # Properties
         sgfactory.lazy = self.lazy
-        
+
         # I / O
         if(auto_io):
             (ins, outs, sup_connect) = self.compute_io(listid)
@@ -668,37 +659,43 @@ class CompositeNode(Node, DataFlow):
             sgfactory.outputs = [dict(val) for val in self.output_desc]
             sup_connect = []
 
-        if listid is None: 
+        if listid is None:
             listid = set(self.vertices())
 
         # Copy Connections
-        for eid in self.edges() :
+        for eid in self.edges():
 
             src = self.source(eid)
             tgt = self.target(eid)
 
-            if((src not in listid) or (tgt not in listid)) : continue
-            if(src == self.id_in) : src = '__in__'
-            if(tgt == self.id_out) : tgt = '__out__'
-            
+            if((src not in listid) or (tgt not in listid)):
+                continue
+            if(src == self.id_in):
+                src = '__in__'
+            if(tgt == self.id_out):
+                tgt = '__out__'
+
             source_port = self.local_id(self.source_port(eid))
             target_port = self.local_id(self.target_port(eid))
-            sgfactory.connections[id(eid)] = (src, source_port, tgt, target_port)
+            sgfactory.connections[id(eid)] = \
+                (src, source_port, tgt, target_port)
 
         # Add supplementary connections
-        for e in  sup_connect:
+        for e in sup_connect:
             sgfactory.connections[id(e)] = e
-            
+
 
         # Copy node
         for vid in listid:
 
             node = self.actor(vid)
             kdata = node.internal_data
-                
+
             # Do not copy In and Out
-            if(vid == self.id_in):  vid = "__in__"
-            elif(vid == self.id_out): vid = "__out__"                
+            if(vid == self.id_in):
+                vid = "__in__"
+            elif(vid == self.id_out):
+                vid = "__out__"
             else:
                 pkg_id = node.factory.package.get_id()
                 factory_id = node.factory.get_id()
@@ -712,44 +709,41 @@ class CompositeNode(Node, DataFlow):
                 sgfactory.elt_value[vid] = []
             else:
                 sgfactory.elt_value[vid] = \
-                                         [(port, repr(node.get_input(port))) for port
-                                          in xrange(len(node.inputs))
-                                          if node.input_states[port] is not "connected"]
-     
+                    [(port, repr(node.get_input(port))) for port
+                        in xrange(len(node.inputs))
+                        if node.input_states[port] is not "connected"]
+
         self.graph_modified = False
 
         # Set node factory if all node have been exported
         if(listid is None):
             self.factory = sgfactory
-        
-
 
     def add_node(self, node, vid = None, modify=True):
         """
         Add a node in the Graph with a particular id
         if id is None, autogenrate one
-        
+
         @param node : the node instance
         @param vtx_id : element id
 
         @param return the id
         """
-        vid = self.add_vertex( vid )
-        
-        for local_pid in xrange(node.get_nb_input()) :
+        vid = self.add_vertex(vid)
+
+        for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
-            
-        for local_pid in xrange(node.get_nb_output()) :
+
+        for local_pid in xrange(node.get_nb_output()):
             self.add_out_port(vid, local_pid)
-            
+
         self.set_actor(vid, node)
         #self.id_cpt += 1
         if(modify):
-            self.notify_listeners(("graph_modified",))
+            self.notify_listeners(("graph_modified", ))
             self.graph_modified = True
 
         return vid
-    
 
     def remove_node(self, vtx_id):
         """
@@ -757,12 +751,12 @@ class CompositeNode(Node, DataFlow):
         @param vtx_id : element id
         """
 
-        if(vtx_id == self.id_in or vtx_id == self.id_out): return
+        if(vtx_id == self.id_in or vtx_id == self.id_out):
+            return
         self.remove_vertex(vtx_id)
 
-        self.notify_listeners(("graph_modified",))
+        self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
-               
 
     def connect(self, src_id, port_src, dst_id, port_dst):
         """ Connect 2 elements :
@@ -771,17 +765,16 @@ class CompositeNode(Node, DataFlow):
         @param dst_id : destination node id
         @param port_dst : destination input port number
         """
-        
+
         source_pid = self.out_port(src_id, port_src)
         target_pid = self.in_port(dst_id, port_dst)
         DataFlow.connect(self, source_pid, target_pid)
-        
+
         self.actor(dst_id).set_input_state(port_dst, "connected")
-        self.notify_listeners(("connection_modified",))
+        self.notify_listeners(("connection_modified", ))
         self.graph_modified = True
 
         self.update_eval_listeners(src_id)
-
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements :
@@ -794,19 +787,18 @@ class CompositeNode(Node, DataFlow):
         source_pid = self.out_port(src_id, port_src)
         target_pid = self.in_port(dst_id, port_dst)
 
-        for eid in self.connected_edges(source_pid) :
+        for eid in self.connected_edges(source_pid):
 
-            if self.target_port(eid) == target_pid :
+            if self.target_port(eid) == target_pid:
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
-                self.notify_listeners(("connection_modified",))
+                self.notify_listeners(("connection_modified", ))
                 self.graph_modified = True
 
                 self.update_eval_listeners(src_id)
                 return
-            
-        raise InvalidEdge("Edge not found")
 
+        raise InvalidEdge("Edge not found")
 
     def replace_node(self, vid, newnode):
         """ Replace the node vid by newnode """
@@ -814,13 +806,11 @@ class CompositeNode(Node, DataFlow):
         oldnode = self.actor(vid)
         newnode.internal_data.update(oldnode.internal_data)
 
-        if(oldnode.get_nb_input() !=newnode.get_nb_input()
-           or
-           oldnode.get_nb_output() != newnode.get_nb_output()):
-               raise IncompatibleNodeError()
-        
-        self.set_actor(vid, newnode)
+        if(oldnode.get_nb_input() != newnode.get_nb_input() or
+            oldnode.get_nb_output() != newnode.get_nb_output()):
+            raise IncompatibleNodeError()
 
+        self.set_actor(vid, newnode)
 
     # Continuous eval functions
 
@@ -828,27 +818,27 @@ class CompositeNode(Node, DataFlow):
         """ set vid as a continuous evaluated node """
 
         node = self.actor(vid)
-        
+
         if(not node.user_application and not state):
-           return
+            return
 
         # Remove previous listener
         if(node.user_application and hasattr(node, 'continuous_listener')):
-            l = node.continuous_listener
+            listener = node.continuous_listener
             node.continuous_listener = None
-            if l:  del l
+            if listner:
+                del listener
 
         node.user_application = state
-           
+
         if(state):
-            l = ContinuousEvalListener(self, vid)
-            node.continuous_listener = l
+            listener = ContinuousEvalListener(self, vid)
+            node.continuous_listener = listener
 
             # Add node as observed in all parent node
             for v in self.get_all_parent_nodes(vid):
                 n = self.actor(v)
-                n.continuous_eval.register_listener(l)
-        
+                n.continuous_eval.register_listener(listener)
 
     def update_eval_listeners(self, vid):
         """ Update continuous evaluation listener for node vid """
@@ -858,25 +848,25 @@ class CompositeNode(Node, DataFlow):
 
         # For each output
         for pid in self.out_ports(vid):
-            
+
             # For each connected node
             for npid in self.connected_ports(pid):
                 dst_id = self.vertex(npid)
-                
+
                 dst_node = self.node(dst_id)
                 listeners = dst_node.continuous_eval.listeners
                 src_node.continuous_eval.listeners.update(listeners)
 
-
-
 from openalea.core.observer import AbstractListener
 
+
 class ContinuousEvalListener(AbstractListener):
-    """ When notified this listener reexecute a dataflow on a particular vid) """
+    """ When notified this listener reexecute a dataflow on a particular vid)
+    """
 
     def __init__(self, dataflow, vid):
         """ dataflow, vid : dataflow.eval_as_expression(vid)"""
-        
+
         self.dataflow = dataflow
         self.vid = vid
 
@@ -884,8 +874,6 @@ class ContinuousEvalListener(AbstractListener):
         """ Notification """
 
         self.dataflow.eval_as_expression(self.vid)
-
-
 
 
 class CompositeNodeInput(Node):
@@ -897,7 +885,7 @@ class CompositeNodeInput(Node):
         """
 
         Node.__init__(self)
-        
+
         for d in inputs:
             self.add_output(**d)
 
@@ -905,22 +893,18 @@ class CompositeNodeInput(Node):
         self.internal_data['posy'] = 5
         self.internal_data['caption'] = "In"
 
-
-    def set_input (self, input_pid, val=None, *args) :
+    def set_input(self, input_pid, val=None, *args):
         """ Define input value """
         index = self.map_index_out[input_pid]
         self.outputs[index] = val
 
-
-    def get_input (self, input_pid) :
+    def get_input(self, input_pid):
         """ Return the input value """
         index = self.map_index_out[input_pid]
         return self.outputs[index]
 
-   
     def eval(self):
         return False
-
 
 
 class CompositeNodeOutput(Node):
@@ -931,7 +915,7 @@ class CompositeNodeOutput(Node):
         outputs : list of dict(name='', interface='', value'',...)
         """
         Node.__init__(self)
-        
+
         for d in outputs:
             self.add_input(**d)
 
@@ -939,34 +923,29 @@ class CompositeNodeOutput(Node):
         self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
-
-    def get_output(self, output_pid) :
+    def get_output(self, output_pid):
         """ Return Output value """
 
         index = self.map_index_in[output_pid]
         return self.inputs[index]
-    
 
-    def set_output(self, output_pid, val) :
+    def set_output(self, output_pid, val):
         """ Define output """
- 
+
         index = self.map_index_in[output_pid]
         self.inputs[index] = val
-
 
     def eval(self):
         return False
 
-
-################################################################################
 
 class PyCNFactoryWriter(object):
     """ CompositeNodeFactory python Writer """
 
     sgfactory_template = """
 
-$NAME = CompositeNodeFactory(name=$PNAME, 
-                             description=$DESCRIPTION, 
+$NAME = CompositeNodeFactory(name=$PNAME,
+                             description=$DESCRIPTION,
                              category=$CATEGORY,
                              doc=$DOC,
                              inputs=$INPUTS,
@@ -982,12 +961,10 @@ $NAME = CompositeNodeFactory(name=$PNAME,
 
     def __init__(self, factory):
         self.factory = factory
-        
-    
-    def pprint_repr(self,obj, indent=3): 	 
-         """ Pretty print repr """ 	 
-         return pprint.pformat(obj, indent=indent) 	 
- 
+
+    def pprint_repr(self, obj, indent=3):
+        """ Pretty print repr """
+        return pprint.pformat(obj, indent=indent)
 
     def __repr__(self):
         """ Return the python string representation """
@@ -996,23 +973,15 @@ $NAME = CompositeNodeFactory(name=$PNAME,
         fstr = string.Template(self.sgfactory_template)
 
         result = fstr.safe_substitute(NAME=f.get_python_name(),
-                                      PNAME=self.pprint_repr(f.name),
-                                      DESCRIPTION=self.pprint_repr(f.description),
-                                      CATEGORY=self.pprint_repr(f.category),
-                                      DOC=self.pprint_repr(f.doc),
-                                      INPUTS=self.pprint_repr(f.inputs),
-                                      OUTPUTS=self.pprint_repr(f.outputs),
-                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
-                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
-                                      ELT_DATA=self.pprint_repr(f.elt_data),
-                                      ELT_VALUE=self.pprint_repr(f.elt_value),
-                                      LAZY=self.pprint_repr(f.lazy),
-                                      )
+            PNAME=self.pprint_repr(f.name),
+            DESCRIPTION=self.pprint_repr(f.description),
+            CATEGORY=self.pprint_repr(f.category),
+            DOC=self.pprint_repr(f.doc),
+            INPUTS=self.pprint_repr(f.inputs),
+            OUTPUTS=self.pprint_repr(f.outputs),
+            ELT_FACTORY=self.pprint_repr(f.elt_factory),
+            ELT_CONNECTIONS=self.pprint_repr(f.connections),
+            ELT_DATA=self.pprint_repr(f.elt_data),
+            ELT_VALUE=self.pprint_repr(f.elt_value),
+            LAZY=self.pprint_repr(f.lazy), )
         return result
-
-
-
-
-
-    
-
