@@ -400,12 +400,12 @@ class SubDataflow(object):
     def __call__(self, *args):
         """ Consider the Subdataflow as a function """
 
-    if(not self.dataflow):
-        return args[0]
-        # Identity function
-        #if(len(args)==1): return args[0]
-        #else: return args
+        if(not self.dataflow):
+            return args[0]
+            # Identity function
+            #if(len(args)==1): return args[0]
+            #else: return args
 
-    self.algo.eval(self.node_id, list(args))
-    ret = self.dataflow.actor(self.node_id).get_output(self.port_index)
-    return ret
+        self.algo.eval(self.node_id, list(args))
+        ret = self.dataflow.actor(self.node_id).get_output(self.port_index)
+        return ret
