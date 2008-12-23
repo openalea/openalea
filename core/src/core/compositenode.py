@@ -826,7 +826,7 @@ class CompositeNode(Node, DataFlow):
         if(node.user_application and hasattr(node, 'continuous_listener')):
             listener = node.continuous_listener
             node.continuous_listener = None
-            if listner:
+            if listener:
                 del listener
 
         node.user_application = state
