@@ -14,24 +14,21 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-
-__doc__="""
-Node and NodeFactory classes.
+"""Node and NodeFactory classes.
 
 A Node is generalized functor which is embeded in a dataflow.
 A Factory build Node from its description. Factories instantiate
 Nodes on demand for the dataflow.
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import imp
 import inspect
 import os
 import sys
-import string
+#import string
 import types
 from copy import copy, deepcopy
 from weakref import ref
@@ -46,10 +43,12 @@ from actor import IActor
 
 
 class RecursionError (Exception):
+    """todo"""
     pass
 
 
 class InstantiationError(Exception):
+    """todo"""
     pass
 
 
@@ -59,10 +58,10 @@ class InstantiationError(Exception):
 
 def gen_port_list(size):
     """ Generate a list of port description """
-    l = []
+    mylist = []
     for i in range(size):
-        l.append(dict(name='t'+str(i), interface=None, value=i))
-    return l
+        mylist.append(dict(name='t'+str(i), interface=None, value=i))
+    return mylist
 
 
 class AbstractNode(Observed):
@@ -126,6 +125,7 @@ class AbstractPort(dict):
         return self.get("desc", None)
 
     def get_default(self):
+        """todo"""
         return self.get("value", None)
 
     def get_interface(self):
@@ -150,11 +150,11 @@ class AbstractPort(dict):
                     iname = str(interface)
 
         # A way to avoid displaying too long strings.
-        v = str(value)
-        if len(v) > 100:
-            v = v[:100] + ' ...'
+        comment = str(value)
+        if len(comment) > 100:
+            comment = comment[:100] + ' ...'
 
-        return '%s(%s): %s [default=%s] '%(name, iname, desc, v)
+        return '%s(%s): %s [default=%s] ' % (name, iname, desc, comment)
 
 
 class InputPort(AbstractPort):
@@ -186,7 +186,7 @@ class Node(AbstractNode):
         :param inputs: list of dict(name='X', interface=IFloat, value=0)
         :param outputs: list of dict(name='X', interface=IFloat)
 
-        :note: if IO names are not a string, they will be converted to with str()
+        :note: if IO names are not a string, they will be converted with str()
         """
 
         AbstractNode.__init__(self)
@@ -201,7 +201,7 @@ class Node(AbstractNode):
         self.internal_data['block'] = False # Do not evaluate the node
         self.internal_data['priority'] = 0
         self.internal_data['hide'] = True # hide in composite node widget
-        self.internal_data['port_hide_changed']= set()
+        self.internal_data['port_hide_changed'] = set()
 
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
@@ -241,27 +241,36 @@ class Node(AbstractNode):
     # Properties
 
     def get_lazy(self):
+        """todo"""
         return self.internal_data.get("lazy", True)
 
-    def set_lazy(self, v):
-        self.internal_data["lazy"] = v
+    def set_lazy(self, data):
+        """todo"""
+        self.internal_data["lazy"] = data
 
+    # if this is a class attributes, it should be moved to the top
     lazy = property(get_lazy, set_lazy)
 
     def get_block(self):
+        """todo"""
         return self.internal_data.get("block", False)
 
-    def set_block(self, v):
-        self.internal_data["block"] = v
+    def set_block(self, data):
+        """todo"""
+        self.internal_data["block"] = data
 
+    # if this is a class attributes, it should be moved to the top
     block = property(get_block, set_block)
 
     def get_user_application(self):
+        """todo"""
         return self.internal_data.get("user_application", False)
 
-    def set_user_application(self, v):
-        self.internal_data["user_application"] = v
+    def set_user_application(self, data):
+        """todo"""
+        self.internal_data["user_application"] = data
 
+    # if this is a class attributes, it should be moved to the top
     user_application = property(get_user_application, set_user_application)
 
     def set_caption(self, newcaption):
@@ -273,6 +282,7 @@ class Node(AbstractNode):
         """ Return the node caption """
         return self.internal_data.get('caption', "")
 
+    # if this is a class attributes, it should be moved to the top
     caption = property(get_caption, set_caption)
 
     def is_port_hidden(self, index_key):
@@ -321,6 +331,7 @@ class Node(AbstractNode):
     def set_io(self, inputs, outputs):
         """
         Define the number of inputs and outputs
+        
         :param inputs: list of dict(name='X', interface=IFloat, value=0)
         :param outputs: list of dict(name='X', interface=IFloat)
         """
@@ -366,14 +377,14 @@ class Node(AbstractNode):
         name = str(name) #force to have a string
         self.inputs.append(None)
 
-        p = InputPort()
-        p.update(kargs)
-        self.input_desc.append(p)
+        port = InputPort()
+        port.update(kargs)
+        self.input_desc.append(port)
 
         self.input_states.append(None)
         index = len(self.inputs) - 1
         self.map_index_in[name] = index
-        self.map_index_in[index]= index
+        self.map_index_in[index] = index
 
         self.set_input(name, value, False)
 
@@ -384,10 +395,10 @@ class Node(AbstractNode):
         name = str(kargs['name'])
         self.outputs.append(None)
 
-        p = OutputPort()
-        p.update(kargs)
+        port = OutputPort()
+        port.update(kargs)
 
-        self.output_desc.append(p)
+        self.output_desc.append(port)
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index
@@ -615,34 +626,34 @@ class AbstractFactory(Observed):
 
     # Package property
 
-    def set_pkg(self, p):
+    def set_pkg(self, port):
         """
         An openalea package contains factories.
         The factory has a link to this package (weakref).
         The package id is the name of the package when the package is the
         Python object.
         """
-        if(not p):
+        if(not port):
             self.__pkg__ = None
             self.__pkg_id = None
         else:
-            self.__pkg__ = ref(p)
-            self.__pkg_id__ = p.get_id()
+            self.__pkg__ = ref(port)
+            self.__pkg_id__ = port.get_id()
 
-        return p
+        return port
 
     def get_pkg(self):
-
+        """todo"""
         if(self.__pkg__):
-            p = self.__pkg__()
+            port = self.__pkg__()
         else:
-            p = None
+            port = None
         # Test if pkg has been reloaded
         # In this case the weakref is not valid anymore
-        if(not p and self.__pkg_id__):
+        if(not port and self.__pkg_id__):
             from openalea.core.pkgmanager import PackageManager
-            p = self.set_pkg(PackageManager()[self.__pkg_id__])
-        return p
+            port = self.set_pkg(PackageManager()[self.__pkg_id__])
+        return port
 
     package = property(get_pkg, set_pkg)
 
@@ -666,16 +677,16 @@ class AbstractFactory(Observed):
         name = self.name
 
         if(not name.isalnum()):
-            name = '_%s'%(id(self))
+            name = '_%s' % (id(self))
         return name
 
     def get_tip(self):
         """ Return the node description """
 
-        return "Name : %s\n"%(self.name, ) +\
-               "Category  : %s\n"%(self.category, ) +\
-               "Description : %s\n"%(self.description, ) +\
-               "Package : %s\n"%(self.package.name, )
+        return "Name : %s\n" % (self.name, ) + \
+               "Category  : %s\n" % (self.category, ) + \
+               "Description : %s\n" % (self.description, ) + \
+               "Package : %s\n" % (self.package.name, )
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
@@ -789,7 +800,7 @@ class NodeFactory(AbstractFactory):
     def get_python_name(self):
         """ Return a python valid name """
 
-        return "%s_%s"%(self.nodemodule_name, self.nodeclass_name)
+        return "%s_%s" % (self.nodemodule_name, self.nodeclass_name)
 
     def __getstate__(self):
         """ Pickle function """
@@ -829,8 +840,8 @@ class NodeFactory(AbstractFactory):
 
             # Check inputs and outputs
             if(self.inputs is None):
-                s = sgn.Signature(classobj)
-                self.inputs = s.get_parameters()
+                sign = sgn.Signature(classobj)
+                self.inputs = sign.get_parameters()
             if(self.outputs is None):
                 self.outputs = (dict(name="out", interface=None), )
 
@@ -888,8 +899,8 @@ class NodeFactory(AbstractFactory):
 
         else:
             # load module
-            (file, pathname, desc) = imp.find_module(modulename,\
-                                                 self.search_path + sys.path)
+            (file, pathname, desc) = imp.find_module(modulename, \
+                self.search_path + sys.path)
 
             sys.path.append(os.path.dirname(pathname))
             module = imp.load_module(modulename, file, pathname, desc)
@@ -997,13 +1008,13 @@ class NodeFactory(AbstractFactory):
 
 
         # write file
-        file = open(self.nodemodule_path, 'w')
-        file.write(modulesrc)
-        file.close()
+        myfile = open(self.nodemodule_path, 'w')
+        myfile.write(modulesrc)
+        myfile.close()
 
         # reload module
         if(self.module_cache):
-                self.module_cache.invalidate_oa = True
+            self.module_cache.invalidate_oa = True
 
         self.src_cache = None
         m = self.get_node_module()
@@ -1033,7 +1044,7 @@ $NAME = Factory(name=$PNAME,
                )
 
 """
-
+    
     def __init__(self, factory):
         self.factory = factory
 
