@@ -3,7 +3,7 @@
 # CODE from ASPN language cookbook
 # License BSD
 
-################################################################################
+###############################################################################
 
 # Functions from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/204197
 # They resolv metaclass conflicts
@@ -13,7 +13,7 @@
 # Version no: 1.4
 # Category: OOP
 
-################################################################################
+###############################################################################
 
 # The simplest case where a metatype conflict happens is the following.
 # Consider a class ``A`` with metaclass ``M_A`` and a class ``B`` with
@@ -69,24 +69,28 @@
 # In order to avoid to generate twice the same metaclass, they
 # are stored in a dictionary. In particular, when ``_generatemetaclass``
 # is invoked with the same arguments it returns the same metaclass.
+""" todo """
 
+__revision__ = " $Id$ "
 
-__revision__=" $Id$ "
-
-import inspect, types
+import inspect
+import types
 
  ############## preliminary: two utility functions #####################
 
+
 def skip_redundant(iterable, skipset=None):
     "Redundant items are repeated items or items in the original skipset."
-    if skipset is None: skipset = set()
+    if skipset is None:
+        skipset = set()
     for item in iterable:
         if item not in skipset:
             skipset.add(item)
             yield item
 
-            
+
 def remove_redundant(metaclasses):
+    """todo"""
     skipset = set([types.ClassType])
     for meta in metaclasses: # determines the metaclasses to be skipped
         skipset.update(inspect.getmro(meta)[1:])
@@ -96,13 +100,14 @@ def remove_redundant(metaclasses):
 # Store already generated class here
 memoized_metaclasses_map = {}
 
+
 def get_noconflict_metaclass(bases, left_metas, right_metas):
     """Not intended to be used outside of this module, unless you know
     what you are doing."""
     # make tuple of needed metaclasses in specified priority order
     metas = left_metas + tuple(map(type, bases)) + right_metas
     needed_metas = remove_redundant(metas)
-     
+
     # return existing confict-solving meta, if any
     if needed_metas in memoized_metaclasses_map:
         return memoized_metaclasses_map[needed_metas]
@@ -112,7 +117,7 @@ def get_noconflict_metaclass(bases, left_metas, right_metas):
     elif len(needed_metas) == 1: # another trivial case
         meta = needed_metas[0]
     # check for recursion, can happen i.e. for Zope ExtensionClasses
-    elif needed_metas == bases: 
+    elif needed_metas == bases:
         raise TypeError("Incompatible root metatypes", needed_metas)
     else: # gotta work ...
         metaname = '_' + ''.join([m.__name__ for m in needed_metas])
@@ -123,9 +128,12 @@ def get_noconflict_metaclass(bases, left_metas, right_metas):
 
 # Main factory Function
 
+
 def make_metaclass(left_metas=(), right_metas=()):
     """ Generate a metaclass for multi-inherited class """
+
     def make_class(name, bases, adict):
+        """todo"""
         metaclass = get_noconflict_metaclass(bases, left_metas, right_metas)
         return metaclass(name, bases, adict)
     return make_class

@@ -14,14 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""Export application functions"""
 
-
-__doc__="""
-Export application functions
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import os
@@ -44,6 +40,7 @@ def export_app(name, filename, cn_factory):
     template = f.read()
     f.close()
 
+    #todo replace this line so as to remove string import that is deprecated
     template_str = string.Template(template)
 
     import version as versionmodule
