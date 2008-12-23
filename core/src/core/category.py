@@ -124,14 +124,14 @@ class PackageManagerCategory():
             'fitting':      'Data Processing.fitting',
             'distribution': 'Data Processing.distribution',
             'test':         'Data Processing.statistical tests',
-            'string':'Data processing.Data Manipulation and Transformation',
-            'codec':'Data processing.Data Manipulation and Transformation',
+            'string': 'Data processing.Data Manipulation and Transformation',
+            'codec': 'Data processing.Data Manipulation and Transformation',
             'fractal analysis':'Scene Design.Fractal Analysis',
             'plot':         'Visualisation',
             'graphics':     'Visualisation',
             'graphic':      'Visualisation',
-            'visualization':'Visualisation',
-            'visualisation':'Visualisation',
+            'visualization': 'Visualisation',
+            'visualisation': 'Visualisation',
             'web':          'Web Services',
             'unclassified': 'to Classify'}
             # here, I keep "to Classify with a lower case so that it appears
