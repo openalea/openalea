@@ -1,4 +1,4 @@
-from openalea.plantgl.all import Viewer
+from vplants.plantgl.all import Viewer
  
 class scene_writer(object):
     """  Write a plantgl scene to a PNG file """ 
