@@ -28,7 +28,7 @@ import imp
 import inspect
 import os
 import sys
-#import string
+import string
 import types
 from copy import copy, deepcopy
 from weakref import ref
