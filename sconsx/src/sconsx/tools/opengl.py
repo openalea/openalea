@@ -83,6 +83,8 @@ class OpenGL:
 
       if isinstance(platform, Cygwin):
          env.AppendUnique(LIBS=['opengl32','glu32', 'glut32'])
+      elif isinstance(platform, Darwin):
+         env.AppendUnique(LIBS=['GLU'])
       elif isinstance(platform, Posix):
          env.AppendUnique(LIBS=['GLU', 'glut'])
       elif isinstance(platform, Win32):
