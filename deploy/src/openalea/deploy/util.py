@@ -57,18 +57,18 @@ def get_egg_info(pkg_name, info_key):
 
 
 def get_metainfo(pkg_name, info):
-    """
-    Return the metainfo of a package named 'pkg_name'
+    """ Return the metainfo of a package named pkg_name
+    
     Available info are:
-      - 'name'
-      - 'version'
-      - 'summary',
-      - 'home-page',
-      - 'author',     
-      - 'author-email'
-      - 'license'
-      - 'description'
-      - 'platform'
+      - name
+      - version
+      - summary
+      - home-page
+      - author
+      - author-email
+      - license
+      - description
+      - platform
     """
     dist = pkg_resources.get_distribution(pkg_name)
 

@@ -1,14 +1,5 @@
-
 #!/usr/bin/python
-
-
-# Utility script to upload package on the Gforge
-
-
 #####################################################################"
-
-
-####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
 # 
 # This library is free software; you can redistribute it and/or
@@ -21,17 +12,20 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 #
-"""
-:Usage: Enables the use of multipart/form-data for posting forms
 
-:Inspirations:
-  Upload files in python:
-    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
-  urllib2_file:
-    Fabien Seisen: <fabien@seisen.org>
+"""Utility script to upload package on the Gforge
 
-:Example:
+Enables the use of multipart/form-data for posting forms
 
+Inspirations
+------------
+    Upload files in python:
+        http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
+    urllib2_file:
+        Fabien Seisen: <fabien@seisen.org>
+
+Example
+-------
 >>> import MultipartPostHandler, urllib2, cookielib
     cookies = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies),
@@ -40,7 +34,8 @@
         "file" : open("filename", "rb") }
     opener.open("http://wwww.bobsite.com/upload/", params)
 
-:Further Example:
+Further Example
+---------------
   The main function of this file is a sample which downloads a page and
   then uploads it to the W3C validator.
 """
