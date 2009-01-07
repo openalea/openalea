@@ -226,12 +226,11 @@ class CompositeNodeFactory(AbstractFactory):
         """ Paste to an existing CompositeNode instance
 
         :param cnode: composite node instance
-        :param data_modifiers: list of 2-uple (key, function) to apply to
-        internal data (for instance to move the node)
-        :param call_stack:the list of NodeFactory id already in recursion stack
-        (in order to avoid infinite loop)
+        :param data_modifiers: list of 2-uple (key, function) to apply to internal data (for instance to move the node)
+        :param call_stack: the list of NodeFactory id already in recursion stack (in order to avoid infinite loop)
 
         :returns: the list of created id
+
         """
 
         # map to convert id

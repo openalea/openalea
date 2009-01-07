@@ -60,11 +60,11 @@ def str_strip(string_, chars):
 class String(Node):
     """String Variable
 
-    :param inputs: the stored value
     """
 
     def __call__(self, inputs):
         """ inputs is the list of input values 
+        :param inputs: the stored value
 
         :returns : transmit the stored value
         """

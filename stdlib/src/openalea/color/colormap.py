@@ -11,7 +11,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
 __doc__ = """Colormap class"""
 __license__ = "Cecill-C"
 __revision__=" $Id$ "
@@ -20,7 +19,7 @@ __revision__=" $Id$ "
 class ColorMap(object):
     """A RGB color map, between 2 colors defined in HSV code
 
-    :example:
+    :newfield example: 
 
     >>> minh,maxh = minandmax([height(i) for i in s2])
     colormap = ColorMap(minh,maxh)

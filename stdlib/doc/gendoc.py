@@ -8,10 +8,10 @@ sys.path.append(os.path.abspath("../../core/src/core"))
 from openalea.core.path import path
 import version
 
-module='visualea'
-filepattern = "../src/visualea"
+module='stdlib'
+filepattern = "../src/openalea"
 outdir = module + "-%s"%(version.version)
-exclude_pattern=["process_res"]
+exclude_pattern=[]
 
 # in test mode
 test=False
