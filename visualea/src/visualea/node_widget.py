@@ -238,8 +238,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         
         <Long description of the function functionality.>
         
-        :param widget: <Description of `arg1` meaning>
-        :type widget: `T`
+        :param widget: <Description of arg1 meaning>
+        :type widget:  <Description of arg1 type>
 
         :return: <Description of ``return_object`` meaning>
         :raise Exception: <Description of situation raising `Exception`>
