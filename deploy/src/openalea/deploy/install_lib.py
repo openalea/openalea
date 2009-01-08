@@ -104,7 +104,7 @@ def set_dyn_lib_dir(path):
 def is_lib(filename):
     """ Return true if filename is a library """
 
-    for pat in (".dll", ".so", ".a", ".lib"):
+    for pat in (".dll", ".so", ".a", ".lib", ".dylib"):
         if filename.endswith(pat):
             return True
 
