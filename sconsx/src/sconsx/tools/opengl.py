@@ -34,61 +34,73 @@ class OpenGL:
 
 
    def default(self):
-
-        if isinstance(platform, Win32):
-            #MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
-            MVSdir = r'C:\Program Files\Microsoft Platform SDK'
-            self._default['msvc_include'] = pj(MVSdir, 'Include')
-            self._default['msvc_lib'] = pj(MVSdir, 'Lib')
-            
-            mgw_dir = r'C:\MinGW'
-            self._default['mgw_include'] = pj(mgw_dir, 'include')
-            self._default['mgw_lib'] = pj(mgw_dir, 'lib', 'GL')
-            
-            self._default['include'] = self._default['msvc_include']
-            self._default['lib'] = self._default['msvc_lib']
-            
-        elif isinstance(platform, Posix):
-            if exists ('/usr/include/GL/gl.h'):
-                self._default['include'] = '/usr/include'
-                self._default['lib'] = '/usr/lib'
-            else: 
-                self._default['include'] = '/usr/X11R6/include'
-                self._default['lib'] = '/usr/X11R6/lib'
+       if isinstance(platform, Win32):
+           #MVSdir = r'C:\Program Files\Microsoft Visual Studio\VC98'
+           MVSdir = r'C:\Program Files\Microsoft Platform SDK'
+           self._default['msvc_include'] = pj(MVSdir, 'Include')
+           self._default['msvc_lib'] = pj(MVSdir, 'Lib')
+        
+           mgw_dir = r'C:\MinGW'
+           self._default['mgw_include'] = pj(mgw_dir, 'include')
+           self._default['mgw_lib'] = pj(mgw_dir, 'lib', 'GL')
+        
+           self._default['include'] = self._default['msvc_include']
+           self._default['lib'] = self._default['msvc_lib']
+       elif isinstance(platform, Posix):
+           if exists ('/usr/include/GL/gl.h'):
+               
+               self._default['include'] = '/usr/include'
+               self._default['lib'] = '/usr/lib'
+           else: 
+               self._default['include'] = '/usr/X11R6/include'
+               self._default['lib'] = '/usr/X11R6/lib'
 
 
    def option( self, opts):
+       self.default()
 
-      self.default()
-                
-      opts.AddOptions(
-         ('gl_includes', 'GL include files', 
-          self._default['include']),
+       if isinstance(platform, Darwin):
+           opts.AddOptions(
+                           ('gl_includes', 'GL include files', 
+                            self._default['include']),
+                           ('gl_framework_path', 'GL framework path',
+                            '/System/Library/Frameworks'),
+                           ('gl_frameworks', 'OpenGL frameworks',
+                            ['AGL', 'OpenGL', 'GLUT'])
+                           )
+       else:
+           opts.AddOptions(
+                           ('gl_includes', 'GL include files', 
+                            self._default['include']),
 
-         ('gl_lib', 'GL library path', 
-         self._default['lib'])
-        )
+                            ('gl_lib', 'GL library path', 
+                             self._default['lib'])
+                            )
 
 
    def update(self, env):
       """ Update the environment with specific flags """
+      if isinstance(platform, Darwin):
+          env.AppendUnique(CPPPATH=[env['gl_includes']])
+          env.AppendUnique(LINKFLAGS="-F%s"%str(env['gl_framework_path']))
+          for fmk in env['gl_frameworks']:
+              env.Append(LINKFLAGS=['-framework',str(fmk)])
+          return
       if env.get('compiler', 'mingw') == 'mingw':
-        if env['gl_includes'] == self._default['mgw_include']:
-            env['gl_includes'] = self._default['msvc_include']
-        if env['gl_lib'] == self._default['mgw_lib']:
-            env['gl_lib'] = self._default['msvc_lib']
+          if env['gl_includes'] == self._default['mgw_include']:
+              env['gl_includes'] = self._default['msvc_include']
+          if env['gl_lib'] == self._default['mgw_lib']:
+              env['gl_lib'] = self._default['msvc_lib']
 
       env.AppendUnique(CPPPATH=[env['gl_includes']])
       env.AppendUnique(LIBPATH=[env['gl_lib']])
 
       if isinstance(platform, Cygwin):
-         env.AppendUnique(LIBS=['opengl32','glu32', 'glut32'])
-      elif isinstance(platform, Darwin):
-         env.AppendUnique(LIBS=['GLU'])
+          env.AppendUnique(LIBS=['opengl32','glu32', 'glut32'])
       elif isinstance(platform, Posix):
-         env.AppendUnique(LIBS=['GLU', 'glut'])
+          env.AppendUnique(LIBS=['GLU', 'glut'])
       elif isinstance(platform, Win32):
-         env.AppendUnique(LIBS=['opengl32','GLU32'])
+          env.AppendUnique(LIBS=['opengl32','GLU32'])
 
 
    def configure(self, config):

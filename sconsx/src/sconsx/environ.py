@@ -30,7 +30,7 @@ Each function defines or populate global aliases like build or install.
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
-import os
+import os, sys
 
 #from path import path
 from SCons.Script.SConscript import SConsEnvironment, DefaultEnvironmentCall
@@ -124,6 +124,12 @@ def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
     # Fix bug with Scons 0.97, Solved in newer versions.
     wrap = env.SharedLibrary(real_target, source, 
                            SHLIBPREFIX='',
+                           *args, **kwds)
+  elif sys.platform == 'darwin':
+    wrap = env.LoadableModule(real_target, source, 
+                           SHLIBPREFIX='', 
+                           LDMODULESUFFIX='.so',
+                           FRAMEWORKSFLAGS = '-flat_namespace -undefined suppress',
                            *args, **kwds)
   else:
     wrap = env.LoadableModule(real_target, source, 
