@@ -1,12 +1,5 @@
-
 #!/usr/bin/python
-
-
 # Utility script to upload package on the Gforge
-
-
-#####################################################################"
-
 
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
@@ -184,43 +177,72 @@ def upload(filename, url, extension, proc):
 
 
 
-def glob_upload(pattern):
-    
+def glob_upload(pattern, verbose=True):
+    """ Upload files with a given pattern
+    """
+
+    # loop over the files
+    print pattern
     for file in glob.glob(pattern):
+        print file
         filename = os.path.abspath(file)
+        print filename
 
         url = None
         for k,v in urlmap.iteritems():
             if(k in filename.lower()):
                 url = v
-
+        
+        # check existence of an URL matching the pattern
         if(url):
             if(filename.endswith("egg")):
                 ext = "egg"
             else:
                 ext = "srcgz"
-            print "upload", filename, url
+            if verbose:
+                print "upload", filename, url
             upload(filename, url, ext, "any")
             #break
+        else:
+            print file
+            s= """!!! Could not find file(%s) in any URLs provided. Check the group, 
+release and package Ids on the gforge.inria.fr webpage""" % file
+            print s
+            print '\nCurrent hardcoded values are : '
+            for k,v in urlmap.iteritems():
+                print k,v
+            sys.exit()
     
-
+#-----------------------------------------------------------------------------
 urlmap = {
-    'deploygui-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
-    'deploy-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1304&package_id=1176',
-    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1749&package_id=840',
-    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1748&package_id=841',
-    'catalog-0.4' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'stat-0.1' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'plotools-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'spatial-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'stand-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'image-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-
+    'deploygui-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3184&package_id=2144',
+    'deploy-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3178&package_id=1176',
+#    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1749&package_id=840',
+    'core-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3180&package_id=840',
+    'openalea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3180&package_id=840',
+#    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1748&package_id=841',
+    'visualea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3181&package_id=841',
+#    'catalog-0.4' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+#    'stat-0.1' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+#    'plotools-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+#    'spatial-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+#    'stand-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+#    'image-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
+    'stdlib-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3183&package_id=1913',
+    'vplants.plantgl-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.amlobj-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.tool-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.mtg-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.stat_tool-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.sequence_analysis-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.tree_matching-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.aml-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.fractalysis' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'alinea.' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
     }
 
-
 #     'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-
 #     'scipy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
 #     'rpy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
 #     'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
@@ -233,7 +255,7 @@ if( __name__ == "__main__"):
 
     global password, login
 
-    print "login :"
+    print "Enter your gforge login:"
     login = raw_input()
     password = getpass.getpass()
 
@@ -247,7 +269,14 @@ if( __name__ == "__main__"):
     url = "https://gforge.inria.fr/account/login.php"
 
     cookie_login(url, values)
-
     
-    glob_upload("dist/*.egg")
-    glob_upload("dist/*.tar.gz")
+    if "linux" in os.sys.platform:
+        print '---------------------------------------------------------------' 
+        print 'glob upload of dist/*egg'
+        glob_upload("dist/*.egg")
+        print '---------------------------------------------------------------' 
+        print 'glob upload of dist/*tar.gz'
+        glob_upload("dist/*.tar.gz")
+    else:
+        glob_upload('dist/*egg')
+        glob_upload('dist/*zip')
