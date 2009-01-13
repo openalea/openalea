@@ -25,7 +25,7 @@ except:
     except:
         from openalea.core.path import path
 
-def setup( project, command, directory):
+def setup( project, command, directory, options=None):
     
     develop_cmd = "python setup.py develop"
     undevelop_cmd = "python setup.py develop -u"
@@ -46,6 +46,8 @@ def setup( project, command, directory):
         cmd = install_cmd
     elif command == 'release':
         cmd = release_cmd
+    if options and options.install_dir: 
+        cmd += ' --install-dir ' + options.install_dir
 
     cwd = path(os.getcwd())
     if command == 'release':
@@ -111,10 +113,13 @@ def main():
     parser.add_option( "-p", "--project", dest="project",
                        help="project: openalea, vplants or alinea [default: %default]",
                        default='openalea')
-
     parser.add_option( "-d", "--dir", dest="directory",
                        help="Directory which contains the various modules [default: %default]",
                        default='.')
+    parser.add_option( "-i", "--install-dir", dest="install_dir",
+                       help="Directory where to install librairies",
+                       default=None)
+
 
     available_mode = ['develop', 'undevelop', 'install', 'release']
 
@@ -130,7 +135,7 @@ def main():
 
     mode = args[0]
 
-    status = setup(options.project, mode, options.directory)
+    status = setup(options.project, mode, options.directory, options)
 
 
 
