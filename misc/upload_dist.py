@@ -1,37 +1,26 @@
-#!/usr/bin/python
-# Utility script to upload package on the Gforge
-
-####
-# 02/2006 Will Holcomb <wholcomb@gmail.com>
-# 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-# 
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
+#!/usr/python
 """
-Usage:
-  Enables the use of multipart/form-data for posting forms
+Utility script to upload package on the Gforge
 
-Inspirations:
+Example:
+  >>> cd vplants/PlantGL; python upload.py
+
+This script requires to enable the use of multipart/form-data 
+for posting forms, which was inspired by 
+
+Python cookbook:  
   Upload files in python:
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
   urllib2_file:
     Fabien Seisen: <fabien@seisen.org>
 
 Example:
-  import MultipartPostHandler, urllib2, cookielib
-
+  >>> import MultipartPostHandler, urllib2, cookielib
   cookies = cookielib.CookieJar()
   opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies),
-                                MultipartPostHandler.MultipartPostHandler)
+    MultipartPostHandler.MultipartPostHandler)
   params = { "username" : "bob", "password" : "riviera",
-             "file" : open("filename", "rb") }
+    "file" : open("filename", "rb") }
   opener.open("http://wwww.bobsite.com/upload/", params)
 
 Further Example:
@@ -39,19 +28,36 @@ Further Example:
   then uploads it to the W3C validator.
 """
 
-import urllib
+####
+# 02/2006 Will Holcomb <wholcomb@gmail.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
 import urllib2
-import mimetools, mimetypes
-import os, stat, sys
+import mimetypes
+import os
+import stat
+import sys
 from cStringIO import StringIO
 
+
 class Callable:
+
     def __init__(self, anycallable):
         self.__call__ = anycallable
 
-# Controls how sequences are uncoded. If true, elements may be given multiple values by
-#  assigning a sequence.
+# Controls how sequences are uncoded. If true, elements may be given multiple
+# values by assigning a sequence.
 doseq = 1
+
 
 class MultipartPostHandler(urllib2.BaseHandler):
     handler_order = urllib2.HTTPHandler.handler_order - 10 # needs to run first
@@ -62,11 +68,11 @@ class MultipartPostHandler(urllib2.BaseHandler):
             v_files = []
             v_vars = []
             try:
-                 for(key, value) in data.items():
-                     if key == "userfile":
-                         v_files.append((key, value))
-                     else:
-                         v_vars.append((key, value))
+                for (key, value) in data.items():
+                    if key=="userfile":
+                        v_files.append((key, value))
+                    else:
+                        v_vars.append((key, value))
             except TypeError:
                 systype, value, traceback = sys.exc_info()
                 raise TypeError, "not a valid non-string sequence or mapping object", traceback
@@ -83,7 +89,6 @@ class MultipartPostHandler(urllib2.BaseHandler):
                 request.add_unredirected_header('Content-Type', contenttype)
 
             request.add_data(data)
-        
         return request
 
     def multipart_encode(vars, files, boundary = None, buf = None):
@@ -115,24 +120,26 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
 ##########################################################"
 
-
-
-import cookielib, urllib, urllib2, urlparse
+import cookielib
+import urllib
+import urlparse
 import os
 import glob
 urlOpener = None
 
+
 def cookie_login(loginurl, values):
     """ Open a session
-    login_url : the login url
-    values : dictionnary containing login form field
+
+    :param loginurl: a valid URL
+    :param values: dictionnary containing login form field
     """
     global urlOpener
     # Enable cookie support for urllib2
     cookiejar = cookielib.CookieJar()
     urlOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar),
                                      MultipartPostHandler)
-    
+
     data = urllib.urlencode(values)
     request = urllib2.Request(loginurl, data)
     url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
@@ -146,11 +153,7 @@ def cookie_login(loginurl, values):
     else:
         print "We are logged in !"
 
-        
-
-
 ########################################
-
 
 
 def upload(filename, url, extension, proc):
@@ -165,16 +168,15 @@ def upload(filename, url, extension, proc):
     elif(proc == "any"):
         proc = "8000"
 
-    values = { 'step2' : "1",
-               'type_id' : type_id,
-               'processor_id' : proc,
-               'userfile' : open(filename, "rb"),
-               }
-     
+    values = {'step2': "1",
+              'type_id': type_id,
+              'processor_id': proc,
+              'userfile': open(filename, "rb"),
+              }
+
     fp = urlOpener.open(url, values)
 
     #print fp.read()
-
 
 
 def glob_upload(pattern, verbose=True):
@@ -189,92 +191,86 @@ def glob_upload(pattern, verbose=True):
         print filename
 
         url = None
-        for k,v in urlmap.iteritems():
-            if(k in filename.lower()):
+        for k, v in urlmap.iteritems():
+            if (k in filename.lower()):
                 url = v
-        
+
         # check existence of an URL matching the pattern
-        if(url):
-            if(filename.endswith("egg")):
+        if (url):
+            if (filename.endswith("egg")):
                 ext = "egg"
             else:
                 ext = "srcgz"
-            if verbose:
-                print "upload", filename, url
-            upload(filename, url, ext, "any")
+            
+            try:
+                if verbose:
+                    print "upload", filename, url
+                upload(filename, url, ext, "any")
+            except:
+                print 'Failed to upload the file !'
+                sys.exit(0)
+            finally:
+                print 'File copied'
+
             #break
         else:
             print file
-            s= """!!! Could not find file(%s) in any URLs provided. Check the group, 
-release and package Ids on the gforge.inria.fr webpage""" % file
+            s= """!!! Could not find file(%s) in any URLs provided""" % file
+            s += """Check the group, release and package Ids on the
+gforge.inria.fr webpage"""
             print s
             print '\nCurrent hardcoded values are : '
-            for k,v in urlmap.iteritems():
-                print k,v
+            for k, v in urlmap.iteritems():
+                print k, v
             sys.exit()
-    
+
 #-----------------------------------------------------------------------------
 urlmap = {
-    'deploygui-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3184&package_id=2144',
-    'deploy-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3178&package_id=1176',
-#    'core-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1749&package_id=840',
+    'deploygui-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3184&package_id=2144',
+    'deploy-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3178&package_id=1176',
     'core-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3180&package_id=840',
-    'openalea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3180&package_id=840',
-#    'visualea-0.4': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1748&package_id=841',
+    'openalea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3199&package_id=2147',
     'visualea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3181&package_id=841',
-#    'catalog-0.4' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-#    'stat-0.1' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-#    'plotools-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-#    'spatial-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-#    'stand-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-#    'image-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1750&package_id=842',
-    'stdlib-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3183&package_id=1913',
-    'vplants.plantgl-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.amlobj-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.tool-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.mtg-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.stat_tool-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.sequence_analysis-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.tree_matching-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.aml-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants-' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.fractalysis' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'alinea.' : 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
+    'stdlib-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3183&package_id=1913',
+    'vplants.plantgl-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.amlobj-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.tool-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.mtg-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.stat_tool-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.sequence_analysis-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.tree_matching-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.aml-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'vplants.fractalysis': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
+    'alinea.': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
     }
-
-#     'catalog' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-#     'scipy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-#     'rpy' : 'https://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1451&package_id=842',
-#     'core-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1450&package_id=840',
-#     'visualea-0.3': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=1452&package_id=841',
 
 
 import getpass
 
-if( __name__ == "__main__"):
+if (__name__=="__main__"):
 
     global password, login
-
+    print 'This script will copy the EGG,zip and tar.gz files in ./dist.'
     print "Enter your gforge login:"
     login = raw_input()
     password = getpass.getpass()
 
-
     # Create login/password values
     values = {'form_loginname': login,
               'form_pw': password,
-              'return_to' : '',
-              'login' : "Connexion avec SSL" }
-    
+              'return_to': '',
+              'login': "Connexion avec SSL"}
+
     url = "https://gforge.inria.fr/account/login.php"
 
-    cookie_login(url, values)
-    
+    status = cookie_login(url, values)
+
     if "linux" in os.sys.platform:
-        print '---------------------------------------------------------------' 
+        print '---------------------------------------------------------------'
         print 'glob upload of dist/*egg'
         glob_upload("dist/*.egg")
-        print '---------------------------------------------------------------' 
+        print '---------------------------------------------------------------'
         print 'glob upload of dist/*tar.gz'
         glob_upload("dist/*.tar.gz")
     else:
