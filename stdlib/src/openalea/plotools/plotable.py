@@ -31,15 +31,15 @@ __revision__="$Id$"
 import copy
 import sys
 from matplotlib import rc, rcParams,use
-if("win" in sys.platform):
+if sys.platform.startswith('win'):
   print "LateX writing is not available under Windows, try real OS"
   rc('text', usetex=False )
 else:
   rc('text', usetex=True )
 use('Qt4Agg')
-rcParams.update( {
-        'font.family'  : 'serif',
-        })
+#rcParams.update( {
+#        'font.family'  : 'serif',
+#        })
 
 
 #the following allows a smooth use of pylab windows with Qt4.2#
@@ -55,7 +55,6 @@ except ImportError:
 import pylab
 #=============================================================#
 
-import pylab
 
         
 class VisualSequence(object):
