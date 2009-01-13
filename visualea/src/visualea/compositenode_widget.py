@@ -1554,7 +1554,7 @@ def edge_factory():
         settings = Settings()
         style = settings.get('UI', 'EdgeStyle')
     except:
-        style = 'Line'
+        style = 'Spline'
 
     if style == 'Line':
         return LinearEdgePath()
