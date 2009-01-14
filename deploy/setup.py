@@ -54,6 +54,7 @@ setup(
                  "create_namespaces = openalea.deploy.command:create_namespaces",
                  "alea_install = openalea.deploy.command:alea_install",
                  "alea_upload = openalea.deploy.command:alea_upload",
+                 "clean = openalea.deploy.command:clean",
                  
                  ],
               
