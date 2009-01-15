@@ -2,7 +2,7 @@
 #
 #       OpenAlea.SoftBus: OpenAlea Software Bus
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -10,39 +10,32 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-
-
-__doc__= """
-Test the Package Manager
-"""
-
-
+"""Test the Package Manager"""
 from openalea.core.pkgmanager import PackageManager
 import os
 import openalea
 from openalea.core.settings import Settings
-# Test package manager configuration
-
 
 
 def test_wraleapath():
-
+    """test wraleapath"""
     pkgman = PackageManager()
- 
-# this option (include_namespace has been removed)   
-#    assert bool(openalea.__path__[0] in  pkgman.get_wralea_path()) == pkgman.include_namespace
+
+# this option (include_namespace has been removed)
+#    assert bool(openalea.__path__[0] in  \
+#      pkgman.get_wralea_path()) == pkgman.include_namespace
 
     if(os.name == 'posix'):
-        pkgman.add_wralea_path("/usr/bin", pkgman.user_wralea_path)
+        pkgman.add_wralea_path("/usr/bin", \
+            pkgman.user_wralea_path)
         assert "/usr/bin" in pkgman.get_wralea_path()
     else:
-        pkgman.add_wralea_path("C:\\Windows", pkgman.user_wralea_path)
+        pkgman.add_wralea_path("C:\\Windows", \
+            pkgman.user_wralea_path)
         assert "C:\\Windows" in pkgman.get_wralea_path()
-                      
 
 
 def test_load_pm():
@@ -59,7 +52,6 @@ def test_load_pm():
     valfactory = simpleop.get_factory('float')
     assert valfactory != None
 
-   
 
 def test_category():
 
@@ -81,19 +73,19 @@ def test_search():
     pkgman = PackageManager()
     pkgman.load_directory("./")
 
-    assert pkgman.has_key('Test')
+    assert 'Test' in pkgman
 
     res = pkgman.search_node("command")
     print res
     assert "command" in res[0].name
 
 
-    # comment these 3 lines because system.command is not part 
-    # of any nodes anymore. 
+    # comment these 3 lines because system.command is not part
+    # of any nodes anymore.
     #res = pkgman.search_node("system.command")
     #print res
     #assert "command" in res[0].name
-    
+
 
 def test_write_config():
 
@@ -105,18 +97,5 @@ def test_write_config():
     s = Settings()
     path = s.get("pkgmanager", "path")
     paths = list(eval(path)) # path is a string
-    
+
     assert set(paths) == set(p)
-
-        
-    
-    
-    
-    
-
-
-
-
-                
-            
-

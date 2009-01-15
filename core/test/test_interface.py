@@ -1,12 +1,10 @@
-# Core interface test
-
-
 from openalea.core.interface import *
 from types import *
+""" Core interface test"""
 
 
-# Test declation of a new interface
 class IMyInterface(IInterface):
+    """Test declation of a new interface"""
 
     __pytype__ = InstanceType
 
@@ -21,8 +19,5 @@ def test_mapper():
     assert map[StringType] == IStr
     assert map[ListType] == ISequence
     assert map[DictType] == IDict
-    
-    assert map[InstanceType] == IMyInterface
-    
 
-    
+    assert map[InstanceType] == IMyInterface

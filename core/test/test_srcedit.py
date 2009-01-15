@@ -1,8 +1,7 @@
-
 #
 #       OpenAlea.Core: OpenAlea Core
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -10,22 +9,17 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-
-
-__doc__= """
-Test the node src edition
-"""
-
+"""Test the node src edition"""
 
 import os
 import openalea
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
 from openalea.core import Package
+
 
 def setup_func():
     """ Create test_module  and wralea """
@@ -63,11 +57,11 @@ def register_packages(pkgmanager):
                  description = "",
                  nodemodule = "mymodule",
                  nodeclass = "MyNode",
-                 
+
                  )
 
     package1.add_factory(f)
-    
+
     pkgmanager.add_package(package1)
 """
 
@@ -89,10 +83,11 @@ def teardown_func():
 
 from nose import with_setup
 
-@with_setup(setup_func,teardown_func)
+
+@with_setup(setup_func, teardown_func)
 def test_srcedit():
     """ Test src edition """
-    
+
     # Change src
     pm = PackageManager()
     pm.wraleapath = '.'
@@ -101,8 +96,8 @@ def test_srcedit():
     factory = pm['TestPackage']['test']
 
     node1 = factory.instantiate()
-    assert node1.func( (1,2,3) ) == (1,2,3)
-    
+    assert node1.func((1, 2, 3)) == (1, 2, 3)
+
     src = factory.get_node_src()
     assert src
 
@@ -111,7 +106,7 @@ def test_srcedit():
 
     factory.apply_new_src(newsrc)
     node2 = factory.instantiate()
-    assert node2.func( (1,2,3) ) == 6
+    assert node2.func((1, 2, 3)) == 6
 
     factory.save_new_src(newsrc)
 
@@ -119,7 +114,7 @@ def test_srcedit():
     print src
 
     return
-    
+
     # Reinit src
     pm = PackageManager()
     pm.wraleapath = '.'
@@ -130,10 +125,4 @@ def test_srcedit():
 
     node = factory.instantiate()
 
-    assert node( ((1,2,3),) ) == 6
-
-    
-
-    
-
-    
+    assert node(((1, 2, 3), )) == 6

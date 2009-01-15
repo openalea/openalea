@@ -1,10 +1,13 @@
 from openalea.core.pkgdict import PackageDict
 
+
 def test_dict():
-    
+    """Test packageDict"""
     d = PackageDict()
     d['AbC'] = 3
     assert d['aBc'] == 3
     print d
 
-test_dict()
+
+if __name__=="__main__":
+    test_dict()
