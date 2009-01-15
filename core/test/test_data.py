@@ -1,6 +1,8 @@
 from openalea.core.pkgmanager import PackageManager
 
+
 def test_data():
+    """test data"""
     pm = PackageManager()
     pm.init()
 

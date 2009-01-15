@@ -3,24 +3,25 @@
 from openalea.core.observer import *
 import gc
 
+
 class NotifyException(Exception):
     pass
 
 
 destroyflag = False
 notified = False
+
+
 class mylistener(AbstractListener):
 
-    def notify (self, *args):
-        global notified 
+    def notify(self, *args):
+        global notified
         notified = True
         raise NotifyException()
-
 
     def __del__(self):
         global destroyflag
         destroyflag = True
-
 
     @lock_notify
     def process(self, obv):
@@ -28,27 +29,24 @@ class mylistener(AbstractListener):
         obv.notify_listeners()
 
 
-
-
 class myobserved(Observed):
     pass
 
 
-# Normal notification
 def test_notification():
+    """ test normal notification"""
 
     l = mylistener()
     o = myobserved()
 
     l.initialise(o)
 
-    global notified 
+    global notified
     notified = False
 
     o.notify_listeners()
     assert notified == True
-    
-    
+
 
 def test_destruction():
 
@@ -67,6 +65,7 @@ def test_destruction():
 
 # Test notification lock
 
+
 def test_lock():
 
     l = mylistener()
@@ -80,4 +79,3 @@ def test_lock():
         assert True
     except NotifyException:
         assert False
-
