@@ -503,11 +503,12 @@ def non_root_initialisation():
         os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
 
     # check that ~/.pydistutils is not present
-    if not opts.install_dir:
-        home = os.environ['HOME']
-        file = home + '/.pydistutils.cfg'
-        if os.path.isfile(file):
-            print """
+    if(not 'win32' in sys.platform):
+        if not opts.install_dir:
+            home = os.environ['HOME']
+            file = home + '/.pydistutils.cfg'
+            if os.path.isfile(file):
+                print """
 Remove the ~/.pydistutils.cfg present in your HOME directory if you want a root
 installation."""
 
