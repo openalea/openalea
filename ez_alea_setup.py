@@ -571,6 +571,6 @@ if (__name__ == "__main__"):
             os.system('%s "%s" openalea --install-dir %s ' % \
                 (sys.executable, __file__, opts.install_dir))
         else:
-            os.system('%s "%s" openalea'%(sys.executable, os.path.basename(__file__)))
+            os.system('%s "%s" openalea'%(sys.executable, __file__))
 
         raw_input("\n== Press Enter to finish. ==")
