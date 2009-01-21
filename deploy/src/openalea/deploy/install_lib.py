@@ -188,7 +188,6 @@ def install_lib(lib_dir):
     if None, use previous dir or default
     Return real lib_dir
     """
-    print 'LIBDIR in install_lib is :'+lib_dir
     if(not lib_dir):
         lib_dir = get_dyn_lib_dir()
 
