@@ -14,9 +14,13 @@ the appropriate options to ``use_setuptools()``.
 This file can also be run as a script to install or upgrade setuptools.
 """
 import sys
+import os
+from optparse import *
+
 DEFAULT_VERSION = "0.6c9"
-DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
-ALEA_PI_URL     = "http://openalea.gforge.inria.fr/pi"
+DEFAULT_URL = "http://pypi.python.org/packages/%s/s/setuptools/" \
+    % sys.version[:3]
+ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -55,9 +59,22 @@ md5_data = {
     'setuptools-0.6c9-py2.6.egg': 'ca37b1ff16fa2ede6e19383e7b59245a',
 }
 
-import sys, os
-try: from hashlib import md5
-except ImportError: from md5 import md5
+PYDISTUTILS_NOTE = """
+Note that the file ~/.pydistutils will be used for any future use of
+distutils (setup.py). You can delete this file to get back to normal
+usage. However, this file will be automatically created again if you
+use ez_alea_setup with --install-dir argument.
+"""
+
+
+import sys
+import os
+
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
+
 
 def _validate_md5(egg_name, data):
     if egg_name in md5_data:
@@ -66,15 +83,14 @@ def _validate_md5(egg_name, data):
         if digest != md5_data[egg_name]:
             print >>sys.stderr, (
                 "md5 validation of %s failed!  (Possible download problem?)"
-                % egg_name
-            )
+                % egg_name)
             sys.exit(2)
     return data
 
+
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
-    download_delay=15
-):
+    download_delay=15):
     """Automatically find/download setuptools and make it available on sys.path
 
     `version` should be a valid setuptools version number that is available
@@ -86,25 +102,29 @@ def use_setuptools(
     this routine will print a message to ``sys.stderr`` and raise SystemExit in
     an attempt to abort the calling script.
     """
-    was_imported = 'pkg_resources' in sys.modules or 'setuptools' in sys.modules
+    was_imported = \
+        'pkg_resources' in sys.modules or 'setuptools' in sys.modules
+
     def do_download():
-        egg = download_setuptools(version, download_base, to_dir, download_delay)
+        egg = \
+            download_setuptools(version, download_base, to_dir, download_delay)
         sys.path.insert(0, egg)
-        import setuptools; setuptools.bootstrap_install_from = egg
+        import setuptools
+        setuptools.bootstrap_install_from = egg
     try:
         import pkg_resources
     except ImportError:
-        return do_download()       
+        return do_download()
     try:
-        pkg_resources.require("setuptools>="+version); return
+        pkg_resources.require("setuptools>="+version)
+        return
     except pkg_resources.VersionConflict, e:
         if was_imported:
             print >>sys.stderr, (
             "The required version of setuptools (>=%s) is not available, and\n"
             "can't be installed while this script is running. Please install\n"
             " a more recent version first, using 'easy_install -U setuptools'."
-            "\n\n(Currently using %r)"
-            ) % (version, e.args[0])
+            "\n\n(Currently using %r)") % (version, e.args[0])
             sys.exit(2)
         else:
             del pkg_resources, sys.modules['pkg_resources']    # reload ok
@@ -112,19 +132,21 @@ def use_setuptools(
     except pkg_resources.DistributionNotFound:
         return do_download()
 
+
 def download_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
-    delay = 15
-):
+    delay = 15):
     """Download setuptools from a specified location and return its filename
 
     `version` should be a valid setuptools version number that is available
     as an egg for download under the `download_base` URL (which should end
     with a '/'). `to_dir` is the directory where the egg will be downloaded.
-    `delay` is the number of seconds to pause before an actual download attempt.
+    `delay` is the number of seconds to pause before an actual download
+    attempt.
     """
-    import urllib2, shutil
-    egg_name = "setuptools-%s-py%s.egg" % (version,sys.version[:3])
+    import urllib2
+    import shutil
+    egg_name = "setuptools-%s-py%s.egg" % (version, sys.version[:3])
     url = download_base + egg_name
     saveto = os.path.join(to_dir, egg_name)
     src = dst = None
@@ -133,30 +155,33 @@ def download_setuptools(
             from distutils import log
             if delay:
                 log.warn("""
----------------------------------------------------------------------------
-This script requires setuptools version %s to run (even to display
-help).  I will attempt to download it for you (from
-%s), but
-you may need to enable firewall access for this script first.
-I will start the download in %d seconds.
+-------------------------------------------------------------------------------
+This script requires setuptools version %s to run (even to display help). I
+will attempt to download it for you (from %s), but you may need to enable
+firewall access for this script first. I will start the download in %d seconds.
 
 (Note: if this machine does not have network access, please obtain the file
 
    %s
 
 and place it in this directory before rerunning this script.)
----------------------------------------------------------------------------""",
-                    version, download_base, delay, url
-                ); from time import sleep; sleep(delay)
+------------------------------------------------------------------------------
+""", version, download_base, delay, url)
+                from time import sleep
+                sleep(delay)
+
             log.warn("Downloading %s", url)
             src = urllib2.urlopen(url)
             # Read/write all in one block, so we don't create a corrupt file
             # if the download is interrupted.
             data = _validate_md5(egg_name, src.read())
-            dst = open(saveto,"wb"); dst.write(data)
+            dst = open(saveto, "wb")
+            dst.write(data)
         finally:
-            if src: src.close()
-            if dst: dst.close()
+            if src:
+                src.close()
+            if dst:
+                dst.close()
     return os.path.realpath(saveto)
 
 
@@ -168,7 +193,7 @@ def main(argv, version=DEFAULT_VERSION):
         egg = None
         try:
             egg = download_setuptools(version, delay=0)
-            sys.path.insert(0,egg)
+            sys.path.insert(0, egg)
             from setuptools.command.easy_install import main
             return main(list(argv)+[egg])   # we're done here
         finally:
@@ -178,8 +203,8 @@ def main(argv, version=DEFAULT_VERSION):
         if setuptools.__version__ == '0.0.1':
             print >>sys.stderr, (
             "You have an obsolete version of setuptools installed.  Please\n"
-            "remove it from your system entirely before rerunning this script."
-            )
+            "remove it from your system entirely before rerunning this script.
+            ")
             sys.exit(2)
 
     req = "setuptools>="+version
@@ -194,11 +219,16 @@ def main(argv, version=DEFAULT_VERSION):
         main(list(argv)+[download_setuptools(delay=0)])
         sys.exit(0) # try to force an exit
     else:
+        # hardcoded version of --install-dir
+        if '--install-dir' in argv:
+            argv = None
+
         if argv:
             from setuptools.command.easy_install import main
             main(argv)
         else:
-            print "Setuptools version",version,"or greater has been installed."
+            print "Setuptools version %s or greater has been installed." % \
+                version
             print '(Run "ez_setup.py -U setuptools" to reinstall or upgrade.)'
 
 
@@ -210,7 +240,7 @@ def update_md5(filenames):
 
     for name in filenames:
         base = os.path.basename(name)
-        f = open(name,'rb')
+        f = open(name, 'rb')
         md5_data[base] = md5(f.read()).hexdigest()
         f.close()
 
@@ -220,7 +250,9 @@ def update_md5(filenames):
 
     import inspect
     srcfile = inspect.getsourcefile(sys.modules[__name__])
-    f = open(srcfile, 'rb'); src = f.read(); f.close()
+    f = open(srcfile, 'rb')
+    src = f.read()
+    f.close()
 
     match = re.search("\nmd5_data = {\n([^}]+)}", src)
     if not match:
@@ -228,114 +260,317 @@ def update_md5(filenames):
         sys.exit(2)
 
     src = src[:match.start(1)] + repl + src[match.end(1):]
-    f = open(srcfile,'w')
+    f = open(srcfile, 'w')
     f.write(src)
     f.close()
 
 
-############################ OpenAlea Installation #############################
+########################## OpenAlea Installation #############################
+
 
 def install_deploy():
-    """ Install OpenAlea.Deploy with setuptools"""
+    """ Install OpenAlea.Deploy with setuptools
+
+    :param opts: contain a field install_dir to indicate the
+    root directory of the lib and bin directories for a non-root
+    installation.
+    """
 
     from pkg_resources import require
     require('setuptools')
     from setuptools.command.easy_install import main
 
     try:
+        print 'Installing openalea.Deploy'
         main(['-f', ALEA_PI_URL, "openalea.deploy"])
+        print 'OpenAlea.Deploy installed'
     except:
-        print "Cannot install openalea.deploy"
+        print "Cannot install openalea.deploy. Do you have root permission ?"
+        print "Add sudo before your python command, or use --install-dir."
+        sys.exit(0)
 
 
 def install_pkg(name):
-   """ Install package with alea_install """
-   
-   from pkg_resources import require
-   require('openalea.deploy')
-   from openalea.deploy.alea_install import main
+    """ Install package with alea_install """
 
-   main(['-f', ALEA_PI_URL, name])
+    from pkg_resources import require
+    require('openalea.deploy')
+    from openalea.deploy.alea_install import main
+
+    try:
+        print 'Installing ' + name
+        main(['-f', ALEA_PI_URL, name])
+        print '%s installed' % name
+    except:
+        print "Cannot install %s. Do you have root permission ?" % name
+        print "Add sudo before your python command, or use --install-dir."
 
 
 def welcome():
     """ Print welcome message """
 
-    print
-    print "------------------------"
-    print " OPENALEA Installation  "
-    print "------------------------"
-    print
-    print "This script will download and install OpenAlea Installer."
-    print "The process can take a long time depending of your network connection."
-    print "Please, be patient !"
-    print
+    print """
+-----------------------------------------------------------------------------
+-                       OPENALEA Installation                               -
+-----------------------------------------------------------------------------
+This script will download and install OpenAlea Installer.
+The process can take a long time depending of your network connection.
+Please, be patient !"""
     raw_input("Press Enter to continue...")
-    
+    print "\n"
+
 
 def install_openalea():
     """ Install the base packages """
 
     welcome()
-
     install_deploy()
-    
-    pkgs = ["openalea.deploygui",]
+    pkgs = ["openalea.deploygui", ]
 
     if("win32" in sys.platform or "win64" in sys.platform):
-        pkgs = ["qt4",] + pkgs
-        
+        pkgs = ["qt4", ] + pkgs
+
     for pkg in pkgs:
         install_pkg(pkg)
-        
+
 
 def install_setuptools():
-    # INSTALL Setup tools
-    if len(sys.argv)>2 and sys.argv[1]=='--md5update':
+    """INSTALL Setup tools"""
+
+    if len(sys.argv)>2 and '--md5update' in sys.argv:
         update_md5(sys.argv[2:])
     else:
         main(sys.argv[1:])
 
-        
 
 def finalize_installation():
     try:
-        from openalea.deploy import  check_system
+        from openalea.deploy import check_system
         import os
-        
-        print "\nTo install OpenAlea packages you can start the graphical Installer:"
-        print "  - On Windows : Start Menu -> OpenAlea -> Installer"
-        print "  - On Linux/Unix : use the shell command 'alea_install_gui'"
-        print "  - You can also use the command 'alea_install' in a shell"
+
+        print """
+\nTo install OpenAlea packages you can start the graphical Installer:
+  - On Windows : Start Menu -> OpenAlea -> Installer
+  - On Linux/Unix : use the shell command 'alea_install_gui'
+  - You can also use the command 'alea_install' in a shell
+"""
 
         env = check_system()
         os.environ.update(env)
-        
+
         os.system('%s -c "import openalea.deploygui.alea_install_gui as gui; gui.main()"'%(sys.executable))
     except:
         print "OpenAlea is not installed properly."
 
 
+def finalize_non_root_installation(opts):
+    """print information to update environmental variables"""
 
-if(__name__ == "__main__"):
+    if opts.install_dir:
+        dirname = os.path.abspath(opts.install_dir)
+        print PYDISTUTILS_NOTE
+        print """
+==============================================================================
+As a non root installation, your PYTHON libraries have been installed in:
+%(dirname)s/lib
+Therefore, you need to update your PYTHONPATH environmental variable by adding
+this line in your .bashrc (in bash shell):
 
-    # Excecute the script in 2 process
+export PYTHONPATH=$PYTHONPATH:%(dirname)s/lib
+
+Moreover, the visualea script can be found in:
+%(dirname)s/bin.
+You can create an alias in your bashrc:
+
+alias visualea='%(dirname)s/bin/visualea'
+==============================================================================
+""" % {'dirname': dirname}
+    else:
+        return
+
+
+def non_root_initialisation():
+    """ Creating directories where to install the data (non-root usage)
+
+    If a non-root installation is required, we need to :
+        - check the existence of the opts.install_die directory
+        - create the lib and bin directories
+        - add a shared-lib.pth file with the appropriate path to the libs
+        - create and/or check the .pydistutils content
+        - update the PYTHONPATH for this session
+    """
+
+    # check existence of ./lib and ./bin if non-root
+    if opts.install_dir:
+        print """
+-----------------------------------------------------------------------------
+-                alea_install_gui NON-ROOT pre-installation                 -
+-----------------------------------------------------------------------------
+ * Checking existence of the %s directory and its sub-directories""" % opts.install_dir
+
+        # check the presence of the main directory
+        if not os.path.isdir(opts.install_dir):
+            print 'Creating directory %s and subdirectories (lib and bin) done'\
+                % opts.install_dir
+            # create the main and sub-directories
+            os.mkdir(opts.install_dir)
+            os.mkdir(opts.install_dir+'/bin')
+            os.mkdir(opts.install_dir+'/lib')
+
+        # the previous command guarantee to enter in this if-block
+        if os.path.isdir(opts.install_dir):
+            # create the main directory if needed
+            try:
+                os.mkdir(opts.install_dir+'/bin')
+            except:
+                print ' -- Using existing directory ' + opts.install_dir + '/bin'
+            # create the sub-directories lib if neede
+            try:
+                os.mkdir(opts.install_dir+'/lib')
+            except:
+                print ' -- Using existing directory ' + opts.install_dir + '/lib'
+
+            # create the shared-lib.pth that will be read by deploy to add the link
+            # to dynamic librairies
+            dirname = os.path.abspath(opts.install_dir) + '/lib/'
+            filename = dirname + 'shared-lib.pth'
+            try:
+                # overwrite the shared-lib.pth for non-root installation so that
+                # deploy/install_lib.py uses the install-dyn-lib option
+                print " * Creating the shared-lib.pth file in %s done " % filename
+                f = open(filename, 'w')
+                f.write(dirname)
+                f.close()
+            except:
+                print 'Error: could not create the file shared-lib.pth in %s' % (filename)
+                sys.exit(0)
+        else:
+            print 'Creating directory %s and subdirectories (lib and bin)' % opts.install_dir
+            # create the main and sub-directories
+            os.mkdir(os.path.abspath(opts.install_dir))
+            os.mkdir(opts.install_dir+'/bin')
+            os.mkdir(opts.install_dir+'/lib')
+
+    raw_input("\n== Press Enter to continue. ==\n")
+
+    # check presence of ~/.pydistutils
+    if opts.install_dir:
+        print " * .pydistutils configuration "
+        # this file must be present and valid for non-root installation.
+        home = os.environ['HOME']
+        file = home + '/.pydistutils.cfg'
+
+        # check the presence of the file and check its content
+        print """ -- ~/.pydistutils is required for a non-root installation"""
+        if os.path.isfile(file):
+            print(" -- File ~/.pydistutils found. Reading its content ([install] section).")
+        else:
+            # create the pydisutils file
+            print " -- File ~/.pydistutils not found. Creating it. Done"
+            f = open(home + '/.pydistutils.cfg', 'w')
+            f.write("[install]\n")
+            f.write("install_lib = %s \n" % (os.path.abspath(opts.install_dir) + '/lib'))
+            f.write("install_scripts = %s\n" % (os.path.abspath(opts.install_dir) + '/bin'))
+            f.close()
+
+        print PYDISTUTILS_NOTE
+
+        import ConfigParser
+        config = ConfigParser.RawConfigParser()
+        config.read(file)
+
+        # check the pydistutils config file (lib path)
+        try:
+            lib = config.get('install', 'install_lib')
+            bin = config.get('install', 'install_scripts')
+            lib = os.path.expanduser(lib) # append the home
+            bin = os.path.expanduser(bin) # append the home
+        except:
+            print 'Error: install_lib or install_scripts not found in ~/.pydistutils'
+            sys.exit(0)
+
+        # print some information
+        if os.path.isdir(lib) and os.path.isdir(bin):
+            print 'Librairies will be installed in: %s' % lib
+            print 'Binaries will be installed in: %s\n' % bin
+        else:
+            print 'Error: the directory specified in ~.pydistutils %s does not exists. ' % lib
+            print 'You provided the directory (--install-dir) %s' % os.path.abspath(opts.install_dir)
+            print "Solution: edit the .pydistutils or simply remove it !"
+            sys.exit(0)
+
+    # temporary update of the pythonpath to put share-lib.pth in the PYTHONPATH
+    if opts.install_dir:
+        os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
+
+    # check that ~/.pydistutils is not present
+    if not opts.install_dir:
+        home = os.environ['HOME']
+        file = home + '/.pydistutils.cfg'
+        if os.path.isfile(file):
+            print """
+Remove the ~/.pydistutils.cfg present in your HOME directory if you want a root
+installation."""
+
+
+def ParseParameters():
+    """This is the main parsing function to get user arguments"""
+
+    usage = """Usage: %prog [options]
+
+    Example:
+      >>> python ez_alea_setup.py --install-dir /home/user/openalea
+      >>> python ez_alea_setup.py
+    """
+    parser = OptionParser(usage=usage, \
+        version="%prog CVS $Id: download.py 1546 2009-01-15 14:20:37Z cokelaer $ \n" \
+      + "$Name:  $\n")
+    parser.add_option("-i", "--install-dir", action="store", \
+        help="the path where to install openalea (non-root installation)")
+
+    (opts, args) = parser.parse_args()
+    return opts, args
+
+
+# main part
+
+
+if (__name__ == "__main__"):
+
+    # parse user's parameters
+    command_line = sys.argv[1:]
+    (opts, args) = ParseParameters()
+
+    # Execute the script in 2 process
     # This part is called the second time.
     if("openalea" in sys.argv):
         # Second call: install openalea.
         install_openalea()
+
         finalize_installation()
+        if opts.install_dir:
+            finalize_non_root_installation(opts)
 
     else:
         # First call
+        # on linux, check that sudo and -non-root option (--install-dir) are not called together
+        if(not 'win32' in sys.platform):
+            if 'SUDO_COMMAND' in os.environ and '--install-dir' in sys.argv[:]:
+                print """root installation (sudo) and non-root installation (--install-dir) forbidden."""
+                sys.exit(0)
+
+        # create the directories if needed (non-root installation).
+        non_root_initialisation()
+
         # Install setup tools
         install_setuptools()
-        d = os.path.dirname(__file__)
-        if(d) : os.chdir(d)
 
-        # Start again in an other process with openalea option 
+        # Start again in an other process with openalea option
         # to take into account modifications
-        os.system('%s "%s" openalea'%(sys.executable, os.path.basename(__file__)))
+        if opts.install_dir:
+            os.system('%s "%s" openalea --install-dir %s ' % \
+                (sys.executable, __file__, opts.install_dir))
+        else:
+            os.system('%s "%s" openalea'%(sys.executable, os.path.basename(__file__)))
+
         raw_input("\n== Press Enter to finish. ==")
-
-
