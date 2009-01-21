@@ -504,8 +504,15 @@ def non_root_initialisation():
 
     # temporary update of the pythonpath to put share-lib.pth in the PYTHONPATH
     if opts.install_dir:
-        os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
-        os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) 
+        if 'PYTHONPATH' in os.environ:
+            os.environ['PYTHONPATH'] = \
+                os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
+        else:
+            os.environ['PYTHONPATH'] = + os.path.abspath(opts.install_dir) +'/lib'
+        
+        os.environ['PYTHONPATH'] = \
+                os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) 
+
 
     # check that ~/.pydistutils is not present
     if(not 'win32' in sys.platform):
