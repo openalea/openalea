@@ -104,7 +104,7 @@ def use_setuptools(
     """
     was_imported = \
         'pkg_resources' in sys.modules or 'setuptools' in sys.modules
-
+    
     def do_download():
         egg = \
             download_setuptools(version, download_base, to_dir, download_delay)
@@ -115,6 +115,7 @@ def use_setuptools(
         import pkg_resources
     except ImportError:
         return do_download()
+
     try:
         pkg_resources.require("setuptools>="+version)
         return
@@ -187,6 +188,8 @@ and place it in this directory before rerunning this script.)
 
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
+
+
     try:
         import setuptools
     except ImportError:
@@ -376,6 +379,7 @@ Therefore, you need to update your PYTHONPATH environmental variable by adding
 this line in your .bashrc (in bash shell):
 
 export PYTHONPATH=$PYTHONPATH:%(dirname)s/lib
+export PYTHONPATH=$PYTHONPATH:%(dirname)s    (if setuptools was installed)
 
 Moreover, the visualea script can be found in:
 %(dirname)s/bin.
@@ -500,15 +504,8 @@ def non_root_initialisation():
 
     # temporary update of the pythonpath to put share-lib.pth in the PYTHONPATH
     if opts.install_dir:
-        # check whether the variable exists or not
-        if 'PYTHONPATH' in os.environ:
-            os.environ['PYTHONPATH'] = \
-                os.environ['PYTHONPATH'] + ':' + \
-                os.path.abspath(opts.install_dir) +'/lib'
-        else:
-            os.environ['PYTHONPATH'] = \
-                os.path.abspath(opts.install_dir) +'/lib'
-            
+        os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
+        os.environ['PYTHONPATH'] = os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) 
 
     # check that ~/.pydistutils is not present
     if(not 'win32' in sys.platform):
