@@ -203,8 +203,7 @@ def main(argv, version=DEFAULT_VERSION):
         if setuptools.__version__ == '0.0.1':
             print >>sys.stderr, (
             "You have an obsolete version of setuptools installed.  Please\n"
-            "remove it from your system entirely before rerunning this script.
-            ")
+            "remove it from your system entirely before rerunning this script.")
             sys.exit(2)
 
     req = "setuptools>="+version
