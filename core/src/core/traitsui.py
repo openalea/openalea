@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Szymon Stoma <szymon.stoma@inria.fr>
 #
