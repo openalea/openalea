@@ -331,7 +331,7 @@ class Node(AbstractNode):
     def set_io(self, inputs, outputs):
         """
         Define the number of inputs and outputs
-        
+
         :param inputs: list of dict(name='X', interface=IFloat, value=0)
         :param outputs: list of dict(name='X', interface=IFloat)
         """
@@ -1044,7 +1044,7 @@ $NAME = Factory(name=$PNAME,
                )
 
 """
-    
+
     def __init__(self, factory):
         self.factory = factory
 

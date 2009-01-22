@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
@@ -10,12 +10,10 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-
 __doc__="""
 Setting class retrieve and set user configuration
 """
@@ -24,7 +22,8 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 
-import os, sys
+import os
+import sys
 from ConfigParser import SafeConfigParser
 from openalea.core.singleton import Singleton
 
@@ -39,22 +38,20 @@ class Settings(object):
 
     def __init__(self):
         self.parser = SafeConfigParser()
-        
+
         filename = 'openalea.cfg'
         home = get_openalea_home_dir()
-        self.configfile = os.path.join(home,filename)
-        
-        self.parser.read([self.configfile])
+        self.configfile = os.path.join(home, filename)
 
+        self.parser.read([self.configfile])
 
     def write_to_disk(self):
         f = open(self.configfile, 'w')
         self.parser.write(f)
         f.close()
 
-
     def get(self, section, option):
-        
+
         return self.parser.get(section, option)
 
     def set(self, section, option, value):
@@ -63,40 +60,39 @@ class Settings(object):
 
         self.parser.set(section, option, value)
 
-        
 
-
-################################################################################
+##############################################################################
 # Directories functions
-################################################################################
+##############################################################################
 
-def get_default_home_dir() :
-    
+
+def get_default_home_dir():
     """ Return the home directory (valid on linux and windows) """
-    if sys.platform != 'win32' :
-        return os.path.expanduser( '~' )
 
-    def valid(path) :
-        if path and os.path.isdir(path) :
+    if sys.platform != 'win32':
+        return os.path.expanduser('~')
+
+    def valid(path):
+        if path and os.path.isdir(path):
             return True
         return False
-    
-    def env(name) :
-        return os.environ.get( name, '' )
 
-    homeDir = env( 'USERPROFILE' )
-    if not valid(homeDir) :
-        homeDir = env( 'HOME' )
-    elif not valid(homeDir) :
-        homeDir = '%s%s' % (env('HOMEDRIVE'),env('HOMEPATH'))
-    elif not valid(homeDir) :
-        homeDir = env( 'SYSTEMDRIVE' )
-    elif not valid(homeDir) :
+    def env(name):
+        return os.environ.get(name, '')
+
+    homeDir = env('USERPROFILE')
+    if not valid(homeDir):
+        homeDir = env('HOME')
+    elif not valid(homeDir):
+        homeDir = '%s%s' % (env('HOMEDRIVE'), env('HOMEPATH'))
+    elif not valid(homeDir):
+        homeDir = env('SYSTEMDRIVE')
+    elif not valid(homeDir):
         homeDir = 'C:\\'
 
-    if homeDir and (not homeDir.endswith('\\')) :
+    if homeDir and (not homeDir.endswith('\\')):
         homeDir += '\\'
-        
+
     return homeDir
 
 
@@ -111,9 +107,8 @@ def get_openalea_home_dir(name='.openalea'):
     aleahome = os.path.join(home, name)
     if(not os.path.exists(aleahome)):
         os.mkdir(aleahome)
-        
-    return aleahome
 
+    return aleahome
 
 
 def get_userpkg_dir(name='user_pkg'):
@@ -129,4 +124,3 @@ def get_userpkg_dir(name='user_pkg'):
         os.mkdir(wraleahome)
 
     return wraleahome
-

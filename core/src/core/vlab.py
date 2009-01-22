@@ -2,19 +2,20 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Christophe Pradal <christophe pradal at cirad fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
 
-import os, sys
+import os
+import sys
 import re
 from random import randint
 from openalea.core.path import path
@@ -24,12 +25,12 @@ def vlab_object(directory, pkgmanager):
     """
     Create an openalea package from a vlab object.
     First, read the specification file and parse it.
-    Create the list of data, the list of editors, 
+    Create the list of data, the list of editors,
     and the list of programs.
     Build the graph of dependencies.
-    Compute the layout of the graph. 
+    Compute the layout of the graph.
     Create a package with data and a composite node.
-    
+
     """
     directory = path(directory)
     obj = VlabObject2(directory, pkgmanager)
@@ -41,32 +42,34 @@ def vlab_object(directory, pkgmanager):
 # an editor have the same output value than its input,
 # and a program may have many inputs but unknow outputs.
 
+
 class VlabFile(object):
-    def __init__(self,name):
+
+    def __init__(self, name):
         self.name = name
         self.deps = []
         self.editors = {}
+
 
 class VlabObject(object):
     """
     A vlab object is a directory containing a specification file,
     and a set of data.
     """
-    text = ['TEXT','HINTS']
-    editors = ['MAP', 'loadmap', 'savemap', 'EDIT', 'SURFACE', 
-               'bezieredit','PALETTE', 'palette', 'MEDIT', 'medit',
-               'GALLERY', 'gallery', 'EDIT', 'funcedit','panel', 'CHAR'] # panel
+    text = ['TEXT', 'HINTS']
+    editors = ['MAP', 'loadmap', 'savemap', 'EDIT', 'SURFACE',
+               'bezieredit', 'PALETTE', 'palette', 'MEDIT', 'medit',
+               'GALLERY', 'gallery', 'EDIT', 'funcedit', 'panel', 'CHAR']#panel
     programs = ['cpfg', 'lpfg']
     ignore = [';', '#']
-    name2program = {'MAP' : 'medit',
-                'SURFACE' : 'bezieredit',
-                'PALETTE' : 'palette',
-                'MEDIT' : 'medit',
-                'GALLERY' : 'gallery',
-                'EDIT' : 'edit',
-                'CHAR' : 'edit',
-                'loadmap':'palette'}
-
+    name2program = {'MAP': 'medit',
+                'SURFACE': 'bezieredit',
+                'PALETTE': 'palette',
+                'MEDIT': 'medit',
+                'GALLERY': 'gallery',
+                'EDIT': 'edit',
+                'CHAR': 'edit',
+                'loadmap': 'palette'}
 
     def __init__(self, directory, pkgmanager):
         self.dir = directory
@@ -83,12 +86,13 @@ class VlabObject(object):
 
     def pkgname(self):
         names = []
+
         def search_name(d):
             name= d.name
             if name == 'ext':
                 search_name(d.dirname())
             elif (d/'.id').isfile() or (d/'specifications').isfile():
-                names.insert(0,name)
+                names.insert(0, name)
                 search_name(d.dirname())
             else:
                 return
@@ -122,7 +126,7 @@ class VlabObject(object):
 
         if not self.sgfactory:
             self.read_specification()
-       
+
         # Add factorie of the dataflow
         self._package.add_factory(self.sgfactory)
         #  Add data factories there
@@ -131,7 +135,8 @@ class VlabObject(object):
 
     def read_specification(self):
         spec = self.dir / 'specifications'
-        from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
+        from openalea.core.compositenode import CompositeNodeFactory
+        from openalea.core.compositenode import CompositeNode
 
         f = spec.open()
         self.sg = CompositeNode()
@@ -152,7 +157,7 @@ class VlabObject(object):
             if 'ignore:' in l or l is '*':
                 break
             fn = l.strip()
-            if ':' not in fn and re.match(pattern,fn):
+            if ':' not in fn and re.match(pattern, fn):
                 self._files[fn]=[]
 
     def read_commands(self, f):
@@ -179,21 +184,21 @@ class VlabObject(object):
     def process_command(self, name, cmd):
         command = cmd.split()
         prog = command[0]
-        command[0] = self.name2program.get(prog,prog)
+        command[0] = self.name2program.get(prog, prog)
         if prog in self.programs:
             self.process_program(name, command)
         elif prog in self.editors:
             self.process_editor(name, command)
         elif prog in self.text:
             self.process_text(name, command)
-        else: 
-            print 'Do not know how to process this command: %s'%cmd
+        else:
+            print 'Do not know how to process this command: %s' % cmd
 
     def process_program(self, name, command):
         """ Build a process node from the command.
         """
-        node = self.pm.get_node("vlab.bin","process")
-        node.set_input(1,' '.join(command))
+        node = self.pm.get_node("vlab.bin", "process")
+        node.set_input(1, ' '.join(command))
         prog_node = self.sg.add_node(node)
         self._programs.append(prog_node)
 
@@ -209,19 +214,19 @@ class VlabObject(object):
                 print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
                 return
                 #self._files[fn] = []
-        
+
         prog = command[0]
         if prog != 'EDIT':
             node = self.pm.get_node("vlab.bin", "editor")
-            node.set_input(1,cmd)
-            node.set_input(2,str(self.dir))
+            node.set_input(1, cmd)
+            node.set_input(2, str(self.dir))
         else:
             node = self.pm.get_node("vlab.bin", "text editor")
             filename = self.dir/fn
-            node.set_input(0,str(filename))
+            node.set_input(0, str(filename))
 
         edit_node = self.sg.add_node(node)
-        self._editors.setdefault(fn,[]).append(edit_node)
+        self._editors.setdefault(fn, []).append(edit_node)
 
     def process_text(self, name, command):
         node = self.pm.get_node('catalog.file', 'viewfile')
@@ -235,21 +240,20 @@ class VlabObject(object):
         files = deps.keys()
         for f in files:
             fn = self.dir/f
-            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']: 
+            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']:
                 continue #binary file or other
             deps[f] = search(fn, files)
-            
+
         self._filenodes = {}
         for f in files:
             factory = DataFactory(f)
             factory.package = self._package
             self.factories.append(factory)
-    
+
             node = self.pm.get_node("vlab.bin", "vlab file stamp")
-            node.set_input(1,str(self.dir/f))
+            node.set_input(1, str(self.dir/f))
             fnode = self.sg.add_node(node)
             self._filenodes[f] = fnode
-            
 
     def build_graph(self):
         """
@@ -259,7 +263,7 @@ class VlabObject(object):
         files = self._files.keys()
         for p in self._programs:
             cmd = self.sg.node(p).inputs[1].split()
-            fdeps = [ f for f in files if f in cmd]
+            fdeps = [f for f in files if f in cmd]
             for f in fdeps:
                 fnode = self._filenodes[f]
                 self.sg.connect(fnode, 0, p, 0)
@@ -267,13 +271,13 @@ class VlabObject(object):
             for fdep in self._files[f]:
                 depnode = self._filenodes[fdep]
                 node = self._filenodes[f]
-                self.sg.connect(depnode,0,node,0)
+                self.sg.connect(depnode, 0, node, 0)
         for f, nodes in self._editors.iteritems():
             if not f: # an editor can act withouot a file
                 continue
             fnode = self._filenodes[f]
             for node in nodes:
-                self.sg.connect(node,0,fnode,0)
+                self.sg.connect(node, 0, fnode, 0)
         for f, nodes in self._text.iteritems():
             fnode = self._filenodes[f]
             for node in nodes:
@@ -281,7 +285,8 @@ class VlabObject(object):
         layout(self)
         self.sg.to_factory(self.sgfactory)
 
-def search (file, filenames):
+
+def search(file, filenames):
     """
     Returns the filenames that are referenced in a file.
     """
@@ -290,18 +295,21 @@ def search (file, filenames):
     f.close()
     l = [fn for fn in filenames if fn != file and (' %s '%fn in text)]
     return l
-    
+
+
 def random_layout(obj):
     sg = obj.sg
     size = 600
     for vid in sg:
-        x, y = randint(0,size), randint(0,size)
+        x, y = randint(0, size), randint(0, size)
         data = sg.node(vid).internal_data
         data['posx'] = x
         data['posy'] = y
 
 min_dx = 100
 size=(800, 250)
+
+
 def layout(obj):
     # compute a layout of the graph
     size = 500
@@ -325,7 +333,7 @@ def layout(obj):
             continue
         n1 = sg.node(vid)
         x0, y0 = n1.internal_data['posx'], n1.internal_data['posy']
-        dx1 = max(min_dx,size/(2*len(l)+1))
+        dx1 = max(min_dx, size/(2*len(l)+1))
         y1 = y0 - dy
         x1 = x0 - size/2
         for node_id in l:
@@ -333,27 +341,28 @@ def layout(obj):
             data['posx'] = x1
             data['posy'] = y1
             x1 += dx1
-            compute_layout(sg, node_id, x1, dx1, y1,dy)
-    
+            compute_layout(sg, node_id, x1, dx1, y1, dy)
+
     # compute layout for nodes which are not connected to a program
     x = 60
     y = 40
     for vid in obj._filenodes.values():
         data = sg.node(vid).internal_data
-        
+
         if not data.get('posx'):
             data['posx'], data['posy'] = x, y
             x+= min_dx
-            compute_layout(sg, vid,x, 0, y, dy) 
+            compute_layout(sg, vid, x, 0, y, dy)
     # add editor
-    
+
+
 def compute_layout(sg, vid, x, dx, y, dy):
     l = list(sg.in_neighbors(vid))
-    if not l: 
+    if not l:
         return
     x = x - dx/2
     dx /= len(l)
-    dx = max(min_dx,dx)
+    dx = max(min_dx, dx)
     y -= dy
     for node_id in l:
         data = sg.node(node_id).internal_data
@@ -363,14 +372,16 @@ def compute_layout(sg, vid, x, dx, y, dy):
         data['posy'] = y
         x += dx
         compute_layout(sg, node_id, x, dx, y, dy)
-        
+
 #######################################################################
 # new implementation
 # add files as data with editors inside.
 
+
 class VlabObject2(VlabObject):
+
     def __init__(self, *args, **kwds):
-        VlabObject.__init__(self,*args, **kwds)
+        VlabObject.__init__(self, *args, **kwds)
 
     def read_files(self, f):
         pattern ='\w+\.\w+'
@@ -378,7 +389,7 @@ class VlabObject2(VlabObject):
             if 'ignore:' in l or l is '*':
                 break
             fn = l.strip()
-            if re.match(pattern,fn) and fn[-1] != ':':
+            if re.match(pattern, fn) and fn[-1] != ':':
                 self._files[fn] = VlabFile(fn)
 
     def process_editor(self, name, command):
@@ -391,7 +402,7 @@ class VlabObject2(VlabObject):
             fn = command[-1]
             if fn not in self._files.keys():
                 print "WARNING: the file %s used by the editor %s in not in the specification file." %(fn, cmd)
-        
+
         prog = command[0]
         if prog.lower() != 'edit':
             if fn and fn in self._files:
@@ -410,10 +421,10 @@ class VlabObject2(VlabObject):
         for f, vf in deps.iteritems():
             assert f[-1] != ':'
             fn = self.dir/f
-            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']: 
+            if fn.ext in ['.map', '.txt', '.s', '.e', '.rgb']:
                 continue #binary file or other
             vf.deps = search(fn, files)
-            
+
         # create the data here
         # Create vlab data rather than simple data
         self._filenodes = {}
@@ -421,7 +432,7 @@ class VlabObject2(VlabObject):
             factory = DataFactory(vf.name, editors=vf.editors)
             self._package.add_factory(factory)
             self.factories.append(factory)
-            
+
             # TODO: Create data rather than files
             node = factory.instantiate()
             #self.pm.get_node("vlab.bin", "vlab file stamp")
@@ -438,7 +449,7 @@ class VlabObject2(VlabObject):
         files = self._files.keys()
         for p in self._programs:
             cmd = self.sg.node(p).inputs[1].split()
-            fdeps = [ f for f in files if f in cmd]
+            fdeps = [f for f in files if f in cmd]
             for f in fdeps:
                 fnode = self._filenodes[f]
                 self.sg.connect(fnode, 0, p, 0)
@@ -446,7 +457,7 @@ class VlabObject2(VlabObject):
             for fdep in self._files[f].deps:
                 depnode = self._filenodes[fdep]
                 node = self._filenodes[f]
-                self.sg.connect(depnode,0,node,2)
+                self.sg.connect(depnode, 0, node, 2)
         #for f, nodes in self._editors.iteritems():
         #    if not f: # an editor can act withouot a file
         #        continue
@@ -459,16 +470,15 @@ class VlabObject2(VlabObject):
         #        self.sg.connect(fnode, 0, node, 0)
         layout(self)
         self.sg.to_factory(self.sgfactory)
-    
-    
 
 
 # TESTS
+
+
 def test1(directory):
     from openalea.core.pkgmanager import PackageManager
     pm = PackageManager()
     pm.init(verbose=False)
-    obj = vlab_object(directory,pm)
+    obj = vlab_object(directory, pm)
     pkg = obj.get_package()
     pkg.write()
-
