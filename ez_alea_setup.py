@@ -508,7 +508,7 @@ def non_root_initialisation():
             os.environ['PYTHONPATH'] = \
                 os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
         else:
-            os.environ['PYTHONPATH'] = + os.path.abspath(opts.install_dir) +'/lib'
+            os.environ['PYTHONPATH'] =  os.path.abspath(opts.install_dir) +'/lib'
         
         os.environ['PYTHONPATH'] = \
                 os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) 
