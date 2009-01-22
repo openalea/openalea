@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
@@ -25,11 +25,12 @@ __revision__=" $Id$ "
 
 class Singleton(type):
     """ Singleton Metaclass """
-    def __init__(cls,name,bases,dic):
-        super(Singleton,cls).__init__(name,bases,dic)
+
+    def __init__(cls, name, bases, dic):
+        super(Singleton, cls).__init__(name, bases, dic)
         cls.instance=None
-        
-    def __call__(cls,*args,**kw):
+
+    def __call__(cls, *args, **kw):
         if cls.instance is None:
-            cls.instance=super(Singleton,cls).__call__(*args,**kw)
+            cls.instance=super(Singleton, cls).__call__(*args, **kw)
         return cls.instance

@@ -2,14 +2,14 @@
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Szymon Stoma <szymon.stoma@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
@@ -23,37 +23,42 @@ __license__= "Cecill-C"
 __revision__=" $Id: node.py 1016 2008-01-10 10:44:12Z dufourko $ "
 
 
-class View( object ):
+class View(object):
     """Describes the layout of widget.
-    
+
     <Long description of the class functionality.>
     """
-    def __init__( self, *values, **kargs ):
+
+    def __init__(self, *values, **kargs):
         """Basic constructor.
         """
         self.content = values
-        self.layout = kargs.get("layout","|")
-        self.label=kargs.get("label","")
-    
-class Item( object ):
+        self.layout = kargs.get("layout", "|")
+        self.label=kargs.get("label", "")
+
+
+class Item(object):
     """Describes the atom of View.
-    
+
     <Long description of the class functionality.>
     """
-    def __init__( self, name, **keys ):
+
+    def __init__(self, name, **keys):
         """Basic constructor.
         """
         self.name = name
-        self.show_label = keys.get("show_label",True)
+        self.show_label = keys.get("show_label", True)
 
-class Group( object ):
+
+class Group(object):
     """Describes the group for  View.
-    
+
     <Long description of the class functionality.>
     """
-    def __init__( self, label, *values, **keys ):
+
+    def __init__(self, label, *values, **keys):
         """Basic constructor.
         """
         self.content = values
         self.label = label
-        self.layout = keys.get("layout","|")
+        self.layout = keys.get("layout", "|")

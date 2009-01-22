@@ -91,8 +91,8 @@ class CompositeNodeFactory(AbstractFactory):
     def copy(self, **args):
         """
         Copy factory.
-        @param path : new search path
-        @param replace_pkg: old and new package names.
+        :param path: new search path
+        :param replace_pkg: old and new package names.
         When replace package is set, change the package id for all the
         elt factories.
         """
@@ -226,8 +226,10 @@ class CompositeNodeFactory(AbstractFactory):
         """ Paste to an existing CompositeNode instance
 
         :param cnode: composite node instance
-        :param data_modifiers: list of 2-uple (key, function) to apply to internal data (for instance to move the node)
-        :param call_stack: the list of NodeFactory id already in recursion stack (in order to avoid infinite loop)
+        :param data_modifiers: list of 2-uple (key, function) to apply
+        to internal data (for instance to move the node)
+        :param call_stack: the list of NodeFactory id already in recursion
+        stack (in order to avoid infinite loop)
 
         :returns: the list of created id
 
@@ -492,7 +494,8 @@ class CompositeNode(Node, DataFlow):
         """
         Return external connections of a composite node with input and output
         ports.
-        - vertex_selection is a sorted set of node.
+
+        :param vertex_selection: a sorted set of node.
         """
         connections = []
         selected_port = {}
@@ -723,10 +726,10 @@ class CompositeNode(Node, DataFlow):
         Add a node in the Graph with a particular id
         if id is None, autogenrate one
 
-        @param node : the node instance
-        @param vtx_id : element id
+        :param node: the node instance
+        :param vid : element id
 
-        @param return the id
+        :return: the id
         """
         vid = self.add_vertex(vid)
 

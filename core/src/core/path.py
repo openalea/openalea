@@ -11,7 +11,7 @@ This module requires Python 2.2 or later.
 
 
 URL:     http://www.jorendorff.com/articles/python/path
-Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (and others - see the url!)
+Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (et al;see the url)
 Date:    9 Mar 2007
 """
 
@@ -29,7 +29,14 @@ Date:    9 Mar 2007
 
 from __future__ import generators
 
-import sys, warnings, os, fnmatch, glob, shutil, codecs, md5
+import sys
+import warnings
+import os
+import fnmatch
+import glob
+import shutil
+import codecs
+import md5
 
 __version__ = '2.2'
 __all__ = ['path']
@@ -77,6 +84,7 @@ if hasattr(file, 'newlines'):
 class TreeWalkWarning(Warning):
     pass
 
+
 class path(_base):
     """ Represents a filesystem path.
 
@@ -90,6 +98,7 @@ class path(_base):
         return 'path(%s)' % _base.__repr__(self)
 
     # Adding a path and a string yields a path.
+
     def __add__(self, more):
         try:
             resultStr = _base.__add__(self, more)
@@ -106,6 +115,7 @@ class path(_base):
             return NotImplemented
 
     # The / operator joins paths.
+
     def __div__(self, rel):
         """ fp.__div__(rel) == fp / rel == fp.joinpath(rel)
 
@@ -126,13 +136,28 @@ class path(_base):
     # --- Operations on path strings.
 
     isabs = os.path.isabs
-    def abspath(self):       return self.__class__(os.path.abspath(self))
-    def normcase(self):      return self.__class__(os.path.normcase(self))
-    def normpath(self):      return self.__class__(os.path.normpath(self))
-    def realpath(self):      return self.__class__(os.path.realpath(self))
-    def expanduser(self):    return self.__class__(os.path.expanduser(self))
-    def expandvars(self):    return self.__class__(os.path.expandvars(self))
-    def dirname(self):       return self.__class__(os.path.dirname(self))
+
+    def abspath(self):
+        return self.__class__(os.path.abspath(self))
+
+    def normcase(self):
+        return self.__class__(os.path.normcase(self))
+
+    def normpath(self):
+        return self.__class__(os.path.normpath(self))
+
+    def realpath(self):
+        return self.__class__(os.path.realpath(self))
+
+    def expanduser(self):
+        return self.__class__(os.path.expanduser(self))
+
+    def expandvars(self):
+        return self.__class__(os.path.expandvars(self))
+
+    def dirname(self):
+        return self.__class__(os.path.dirname(self))
+
     basename = os.path.basename
 
     def expand(self):
@@ -225,6 +250,7 @@ class path(_base):
         return self.splitext()[0]
 
     if hasattr(os.path, 'splitunc'):
+
         def splitunc(self):
             unc, rest = os.path.splitunc(self)
             return self.__class__(unc), rest
@@ -353,7 +379,7 @@ class path(_base):
         whose names match the given pattern.  For example,
         d.files('\*.pyc').
         """
-        
+
         return [p for p in self.listdir(pattern) if p.isfile()]
 
     def walk(self, pattern=None, errors='strict'):
@@ -810,6 +836,7 @@ class path(_base):
         """ Size of the file, in bytes. """)
 
     if hasattr(os, 'access'):
+
         def access(self, mode):
             """ Return true if current user has access to this path.
 
@@ -852,14 +879,15 @@ class path(_base):
         """ Name of the owner of this file or directory. """)
 
     if hasattr(os, 'statvfs'):
+
         def statvfs(self):
             """ Perform a statvfs() system call on this path. """
             return os.statvfs(self)
 
     if hasattr(os, 'pathconf'):
+
         def pathconf(self, name):
             return os.pathconf(self, name)
-
 
     # --- Modifying operations on files and directories
 
@@ -871,6 +899,7 @@ class path(_base):
         os.chmod(self, mode)
 
     if hasattr(os, 'chown'):
+
         def chown(self, uid, gid):
             os.chown(self, uid, gid)
 
@@ -916,16 +945,19 @@ class path(_base):
     # --- Links
 
     if hasattr(os, 'link'):
+
         def link(self, newpath):
             """ Create a hard link at 'newpath', pointing to this file. """
             os.link(self, newpath)
 
     if hasattr(os, 'symlink'):
+
         def symlink(self, newlink):
             """ Create a symbolic link at 'newlink', pointing here. """
             os.symlink(self, newlink)
 
     if hasattr(os, 'readlink'):
+
         def readlink(self):
             """ Return the path to which this symbolic link points.
 
@@ -961,10 +993,11 @@ class path(_base):
     # --- Special stuff from os
 
     if hasattr(os, 'chroot'):
+
         def chroot(self):
             os.chroot(self)
 
     if hasattr(os, 'startfile'):
+
         def startfile(self):
             os.startfile(self)
-
