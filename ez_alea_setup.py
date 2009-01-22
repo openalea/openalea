@@ -1,4 +1,11 @@
 #!python
+__Id__ = "$Id$"
+__author__ = """Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>, 
+    Thomas Cokelaer, Thomas.Cokelaer@sophia.inria.fr """
+__version__ = "$Revision$"[11:-2]
+__date__ = "$Date$"[7:-2]
+__name__ = "ez_alea_setup installation tool"
+
 """Bootstrap setuptools installation
 
 If you want to use setuptools in your package's setup.py, just include this
@@ -535,7 +542,7 @@ def ParseParameters():
       >>> python ez_alea_setup.py
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id: download.py 1546 2009-01-15 14:20:37Z cokelaer $ \n" \
+        version="%prog CVS $Id$ \n" \
       + "$Name:  $\n")
     parser.add_option("-i", "--install-dir", action="store", \
         help="the path where to install openalea (non-root installation)")
