@@ -22,7 +22,7 @@ Nota : Cecill-C license is a LGPL compatible license.
 Dependances
 -----------
 
-Python >= 2.4   (See http://www.python.org)
+Python >= 2.5   (See http://www.python.org)
 OpenAlea.Config (See http://openalea.gforge.inria.fr)
 
 
