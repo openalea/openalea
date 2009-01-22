@@ -6,7 +6,7 @@ from os.path import join as pj
 setup(
     # Metadata for PyPi
     name = "OpenAlea.DeployGui",
-    version = "0.6.0",
+    version = "0.6.2",
     author = "Samuel Dufour-Kowalski",
     author_email = "samuel.dufour@sophia.inria.fr",
     description = "OpenAlea graphical installer",
