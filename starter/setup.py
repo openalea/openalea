@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 # (The version number is used by deploy to detect UPDATES)
 
 name = 'OpenAlea.Starter'
-version= '0.6.0b1' 
+version= '0.6.2' 
 
 # Packages list, namespace and root directory of packages
 

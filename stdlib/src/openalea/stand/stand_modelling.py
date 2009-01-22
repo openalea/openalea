@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Core.Library: OpenAlea Core Library module
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA  
 #
 #       File author(s): BOUDON Frederic <frederic.boudon@cirad.fr>
 #                       Da SILVA David <david.da_silva@cirad.fr>

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'OpenAlea.StdLib',
-    version = '0.6.0' ,
+    version = '0.6.2' ,
     description = 'OpenAlea standard logical component library.', 
     long_description = '',
     author = 'OpenAlea consortium',

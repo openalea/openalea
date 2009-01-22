@@ -4,7 +4,7 @@ LOCPATH=$(pwd)
 rm -Rf dist
 mkdir dist
 
-for DIR in core visualea catalog deploy deploygui spatial stand stat plotools image
+for DIR in core visualea deploy deploygui stdlib
 do
 cd $DIR &&
 rm -Rf build &&

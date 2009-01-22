@@ -4,7 +4,7 @@
 #
 #       OpenAlea.DeployGui: OpenAlea installation frontend
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA  
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>

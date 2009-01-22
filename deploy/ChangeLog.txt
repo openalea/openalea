@@ -1,3 +1,7 @@
+
+OpenAlea.Deploy 0.6.0
+    * Fix PATH problem on Windows to take into account OpenAlea libraries.
+
 OpenAlea.Deploy 0.4.12
     * Fix PATH problem on Windows to take into account OpenAlea libraries.
 

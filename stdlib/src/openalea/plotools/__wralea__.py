@@ -2,7 +2,7 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA  
 #
 #       File author(s): David Da SILVA <david.da_silva@cirad.fr>
 #                       Szymon STOMA <szymon.stoma@sophia.inria.fr>

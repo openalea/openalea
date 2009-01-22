@@ -1,10 +1,4 @@
 #!python
-__Id__ = "$Id$"
-__author__ = """Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>, 
-    Thomas Cokelaer, Thomas.Cokelaer@sophia.inria.fr """
-__version__ = "$Revision$"[11:-2]
-__date__ = "$Date$"[7:-2]
-__name__ = "ez_alea_setup installation tool"
 
 """Bootstrap setuptools installation
 
@@ -546,6 +540,8 @@ def ParseParameters():
       + "$Name:  $\n")
     parser.add_option("-i", "--install-dir", action="store", \
         help="the path where to install openalea (non-root installation)")
+    parser.add_option("-s", "--install-setuptools", action="store_true", default=False, \
+        help="install setuptools (root installation)")
 
     (opts, args) = parser.parse_args()
     return opts, args
@@ -560,6 +556,12 @@ if (__name__ == "__main__"):
     command_line = sys.argv[1:]
     (opts, args) = ParseParameters()
 
+    # to install setuptools only
+    if opts.install_setuptools:
+        sys.argv.remove('--install-setuptools')
+        install_setuptools()
+        sys.exit(0)
+        
     # Execute the script in 2 process
     # This part is called the second time.
     if("openalea" in sys.argv):
