@@ -1,0 +1,29 @@
+# -*-python-*-
+
+Import("env")
+
+py_dir = '../starter'
+
+# Build wrappers as shared libraries
+# First wrapper
+env1 = env.Clone()
+
+sources = ["sceneobject_wrap.cpp", "export_scene_object.cpp"]
+target = "_sceneobject"
+lib1 = ["sceneobject"]
+
+env1.AppendUnique(LIBS=lib1)
+env1.ALEAWrapper(py_dir, target, sources)
+
+# Second wrapper
+env2=env.Clone()
+
+sources = ["scenecontainer_wrap.cpp", "export_scene_container.cpp"]
+target = "_scenecontainer"
+lib2 = ["scenecontainer"]
+
+env2.AppendUnique(LIBS=lib2)
+
+env2.ALEAWrapper(py_dir, target, sources)
+
+
