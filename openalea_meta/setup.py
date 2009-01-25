@@ -4,7 +4,7 @@ pj = os.path.join
 from setuptools import setup, find_packages
 
 external_dependencies = [
-'numpy>=1.0.4',
+'numpy>=1.0.4-1',
 'scipy == 0.6',
 'matplotlib<=0.91.4',
 'PIL<=1.1.6',
