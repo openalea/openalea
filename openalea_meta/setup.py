@@ -26,7 +26,7 @@ if sys.platform.startswith('win'):
 
 setup(
     name = 'OpenAlea',
-    version = '0.6.2' ,
+    version = '0.6.3' ,
     description = 'OpenAlea packages and all its dependencies.', 
     long_description = '',
     author = 'OpenAlea consortium',
