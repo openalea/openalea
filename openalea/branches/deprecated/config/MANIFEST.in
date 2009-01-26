@@ -1,4 +1,0 @@
-# include Meta Data
-include MANIFEST.in
-include *.txt
-include *.py

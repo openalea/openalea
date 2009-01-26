@@ -1,4 +1,0 @@
-09/02/06 : First release for testing purpose
-	   Add some python builtins function
-	   Add Standard data constructor (list, dict, float...)
-	   Add binary operators

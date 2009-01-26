@@ -1,2 +1,0 @@
-from external import *
-

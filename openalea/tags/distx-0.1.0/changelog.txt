@@ -1,2 +1,0 @@
-20/11/06 : First tag 0.0.1
-10/11/06 : First implementation

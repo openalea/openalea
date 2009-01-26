@@ -1,4 +1,0 @@
-#!/usr/bin/python
-import os
-os.chdir("../visualea/scripts")
-execfile("visualea")

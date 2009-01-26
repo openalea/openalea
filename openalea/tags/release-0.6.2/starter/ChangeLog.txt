@@ -1,1 +1,0 @@
-08/07 : setup.py use OpenAlea.Deploy (and not DistX anymore)
