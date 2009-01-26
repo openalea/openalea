@@ -1,0 +1,50 @@
+19/10/07 : 0.3.0 final release
+       Bug fix
+       Show/Hide node ports
+       Edit node properties
+       New window menu
+       Reset nodes
+
+24/09/07 : 0.3.0 Alpha release
+	   New edge draw functions (polylines and splines) in preferences
+	   Support new core function (copy/paste, export application, save session)
+	   Improved QScintilla shell (help, copy/paste)
+	   A lot of bug fixes 
+
+
+06/07/07 : 0.2.1a Alpha release
+	   Add node property editor
+	   Add in preference dataflow algorithm configuration
+	   Annotations are now saved in dataflow (considered as a particular node)
+	   IO configuration now works
+	   Node group export and auto-connection works
+	   Setup PATH or LD_LIBRARY_PATH variable in starting script
+	   Change Splashscreen
+	   Bug fixes
+           
+
+13/06/07 : Alpha release 0.2.0a. For this release, 
+Visualea has been refactorised since first prototype :
+	 - A lot of bug fixes.
+	 - New Workspace Management
+	 - Graph manipulation improved
+	 - Dynamic node code edition
+	 - QScintialla based python interpreter
+	 - Search tab
+	 - Datapool view and manipulation
+	 - Multi inputs in a node
+	 - Export Dataflow as a Node
+	 - List/Dictionary Widgets
+	 - Persistence (experimental)
+	 - Graph Annotations (experimental)
+	 - Preference dialog
+	 - Save configuration
+	 
+
+
+09/02/07 : First release for testing purpose.
+	 - GUI in PyQT4
+	 - Package manager view by package / category
+	 - Build/Edit graph
+	 - Simple python interpreter
+	 - Dataflow view

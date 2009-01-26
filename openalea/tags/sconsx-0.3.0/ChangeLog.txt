@@ -1,0 +1,12 @@
+SConsX 0.3.0:
+ * Add ALEAGlob and ALEAGlobDir methods to the environment.
+   For instance, cpp files can be found by env.ALEAGlob('*.cpp',dir='.')
+   
+ * Enhance default settings on Windows and Linux mainly for qt and OpenGL.
+ * Improve windows support, mainly for Visual C++ 2005.
+ 
+ SConsX 0.2.0:
+ * Add high-level functions such as:
+   + ALEALibrary, ALEAProgram and ALEAIncludes that build and install 
+     stuff independently of the platform.
+  * Add support for MinGW and Visual on Windows.

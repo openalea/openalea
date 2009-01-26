@@ -1,0 +1,7 @@
+30/01/07 : Version 0.2.0
+    Add directory creation 
+    Environment variable on windows and linux
+    Create a variable OPENALEADIR
+    
+27/11/06 : Rename to OpenAlea.Config
+09/11/06 : First release

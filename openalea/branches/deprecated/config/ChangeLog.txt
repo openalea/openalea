@@ -1,0 +1,10 @@
+13/02/07 : Version 0.2.2
+    Fix bug when setting environ variable (forgot lib suffix)
+    Add OpenAlea Bin directory to PATH
+30/01/07 : Version 0.2.0
+    Add directory creation 
+    Environment variable on windows and linux
+    Create a variable OPENALEADIR
+    
+27/11/06 : Rename to OpenAlea.Config
+09/11/06 : First release

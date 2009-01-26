@@ -1,0 +1,119 @@
+Coding sprint summary
+=====================
+=====================
+
+Date:7/11/05 - 10/11/05
+Authors: 
+  * Pierre Barbier de Reuille,
+  * Loïc Calvino,
+  * David DaSilva, 
+  * Nicolas Donès,
+  * Christophe Pradal, 
+  * Szymon Stoma,
+  * Frédéric Théveny 
+
+Concepts
+--------
+
+GUI 
+====
+
+Python Interpreter
+    - PyCute (should be changed)
+
+Workspaces (visual programming)
+  * Canvas + CanvasItems
+    - Connection between CanvasItems
+    - Link deletion
+    - CanvasItems movement capability
+
+Software Bus
+  * Packages (menu)
+    - Name, Short description, System name, Visible Status
+
+  * Node (only for visible packages)
+    - package sorting (Name, Short description, System name, Long Description, Loaded status, Installation status)
+    - category sorting (2 levels ?)
+    
+  * Object
+    - Name and type of instanciated objects
+    
+  * Applications (only for visible packages)
+    - ?
+
+Applications
+  * A Separated windows per application
+  * Communication via software bus (drag & drop)
+
+
+KERNEL
+======
+
+Workflow
+  - Node network (DAG)
+  - Communication between nodes
+  - Workflow evaluation (semi-lazy) 
+  
+Package Manager
+  - Available Package list
+  - Registration process
+  - Installation process
+  - Depedencies management
+  
+Package
+  - Legal informations, Name, System name, Short and Long description, Version 
+  - Directories
+  - Available Nodes
+  - Available Widgets
+  - Available Applications
+
+Node
+  - Legal informations, Name, System name, Short and Long description, Version 
+  - Typed Inputs and Outputs
+  - Callable object
+  - Subset of Inputs for the GUI --> parameters
+  
+  
+ROADMAP
+=======
+ - Cross review and integration
+ - Some packages
+ - Having a 'import alea' working with packages from regular interpretor
+ - Simple scenario
+ - Documentation
+ 
+ 
+ GUI
+ 
+  - Finish nodes visualization
+  - Create objects visualization
+  - Create applications visualization
+  - Continue the workspace
+  - Interaction between differents parts (drag and drop)
+
+----> Problem PyQt3 does not exist on Windows, PyQt4 coming ?
+
+ Kernel
+ 
+  - Finish Package Manager implementation
+     Stable API
+     Installation process
+     Dependencies management
+  - Settings implementation
+  - Signaling system
+  - Data Store implementation
+
+ Workflow
+
+  - Finish and improve lazy evaluation implementation
+  - Integration with main window --> API
+  - Node definition and API
+  - Type system
+
+The next coding Sprint should take place in beginning 2006
+and before we should :
+
+  * Finish the kernel Package Manager and Data Store parts without signal system
+  * Console mode Integration and scenario definition
+
+

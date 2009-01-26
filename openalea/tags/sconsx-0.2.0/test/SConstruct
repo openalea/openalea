@@ -1,0 +1,42 @@
+# -*- python -*-
+import os, sys
+
+import openalea.sconsx
+from openalea.sconsx.config import *
+
+env= Environment()
+
+conf= Config( [ 'boost_python', 'opengl', 'qt', 
+                'bison', 'flex', 'gnuplot', 'install' ] )
+
+print conf
+
+# Set tools options
+opts= conf.Options( 'options.py', ARGUMENTS )
+
+# Generate Help Text
+Help(opts.GenerateHelpText(env))
+
+# Add option settings to the environment
+opts.Update(env)
+
+# Configure the environment depending on options, tools and platform
+conf.Update( env )
+
+# Configure each tools
+configure= ARGUMENTS.get('configure','0')
+
+if configure:
+    conf.Configure( env )	
+
+#X def configure( target= None, source= None, env= None ):
+#X     print target
+#X     print source
+#X     conf.Configure( env )
+#X     return 0
+#X 
+#X Configure= Action( configure )
+#X env.Command('conf',[], Configure)
+#X # Alias( 'configure', conf.Configure( env ) )
+#X #Alias( 'configure', env.Command( Configure ) )
+#X 

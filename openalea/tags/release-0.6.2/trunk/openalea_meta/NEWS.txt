@@ -1,0 +1,6 @@
+This package is used to simplify the installation of all the OpenAlea package.
+
+It specifies:
+  - the OpenALea packages, 
+  - their dependencies, 
+  - and add an icon for the OpenAlea package in Visualea.
