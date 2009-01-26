@@ -1,2 +1,0 @@
-28/November/08 : 
-    Creation of this meta package
