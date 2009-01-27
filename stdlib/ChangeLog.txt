@@ -1,0 +1,11 @@
+release_0.6.2
+=============
+**revision 1562**
+
+- creation of this package that contains the former catalog packages and modules
+such as plottools, image, spatial, stat, ....
+- Bug fixing and refactoring
+- Add unit tests in maths
+- updates on the catagory labels
+- API documentation: clean the warnings
+- MAC OS X support

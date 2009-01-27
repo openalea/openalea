@@ -3,7 +3,7 @@ OpenAlea.Core
 
 OpenAlea.Core is able to :
    - Discover and manage packages and logical components
-   - Build and evaluate dataflow
+   - Build and evaluate dataflows
    - Generate final applications
 
 It doesn't include any GUI interface (See OpenAlea.Visualea for that).
@@ -42,4 +42,5 @@ In a python interpreter :
 
 Openlea : http://openalea.gforge.inria.fr
 
-API documentation : http://openalea.gforge.inria.fr/doc_api
+API documentation : http://openalea.gforge.inria.fr/doc
+

@@ -1,2 +1,4 @@
-28/November/08 : 
-    Creation of this meta package
+
+release_0.6.0
+=============
+- 28/11/08 Creation of this meta package

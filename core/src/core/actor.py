@@ -13,7 +13,7 @@
 #       OpenAlea WebSite: http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""This module provide an actor interface"""
+"""This module provides an actor interface"""
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
@@ -33,7 +33,7 @@ class IActor(object):
     def outputs(self):
         """
         iterate on all output descriptions
-        return iter of (otuput key,output interface)
+        return iter of (output key,output interface)
         """
         raise NotImplementedError
 
