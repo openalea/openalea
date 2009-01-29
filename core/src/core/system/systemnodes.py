@@ -128,8 +128,9 @@ class PoolWriter(Node):
 
         key = inputs[0]
         obj = inputs[1]
-        self.set_caption("pool [%s]=%s"%(repr(key), str(obj)))
+        self.set_caption("set pool[%s]"%(key))
         self.pool[key] = obj
+        return (obj, )
 
 
 class InitNode(Node):
@@ -341,3 +342,4 @@ def system_cmd(str_list):
     import subprocess
 
     return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
+

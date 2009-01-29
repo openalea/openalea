@@ -95,6 +95,7 @@ poolwriter = Factory(name="pool writer",
              nodeclass="PoolWriter",
              inputs = (dict(name='Key', interface=IStr),
                        dict(name='Obj', interface=None),),
+             outputs = (dict(name='Obj', interface=None),),
              lazy = False,
              )
 
