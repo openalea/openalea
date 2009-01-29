@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,23 +10,17 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Annotation node"""
 
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
-__doc__="""
-Annotation node
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
-
-
-
-import sys
-import math
+#import sys
+#import math
 
 from PyQt4 import QtCore, QtGui
 
@@ -49,8 +43,9 @@ def is_available():
 
 class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
     """ Text annotation on the data flow """
-    
+
     def __init__(self, graphview, elt_id):
+        """ todo """
 
         scene = graphview.scene()
         QtGui.QGraphicsTextItem.__init__(self)
@@ -73,20 +68,17 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
 
         scene.addItem(self)
 
-        
-        
     def mouseDoubleClickEvent(self, event):
-
+        """ todo """
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setSelected(True)
         self.setFocus()
         cursor = self.textCursor()
         cursor.select(QtGui.QTextCursor.Document)
         self.setTextCursor(cursor)
-        
 
     def focusOutEvent(self, event):
-
+        """ todo """
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
         #self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
@@ -100,8 +92,6 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
             self.subnode.set_data('txt', str(self.toPlainText()))
 
         return QtGui.QGraphicsTextItem.focusOutEvent(self, event)
-
-
 
     @lock_notify
     def itemChange(self, change, value):
@@ -117,7 +107,6 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
-    
     def notify(self, sender, event):
         """ Notification sended by the node associated to the item """
 
@@ -128,7 +117,7 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
             x = self.subnode.internal_data['posx']
             y = self.subnode.internal_data['posy']
         except:
-            (x,y) = (10,10)
+            (x, y) = (10, 10)
 
         try:
             txt = self.subnode.internal_data['txt']
@@ -136,7 +125,7 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
             txt = "Comments..."
 
         self.setPlainText(txt)
-        self.setPos(QtCore.QPointF(x,y))
+        self.setPos(QtCore.QPointF(x, y))
         
 
         

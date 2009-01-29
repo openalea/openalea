@@ -13,7 +13,7 @@
 ###############################################################################
 __doc__ = """Colormap class"""
 __license__ = "Cecill-C"
-__revision__=" $Id$ "
+__revision__ = " $Id$ "
 
 
 class ColorMap(object):
@@ -33,10 +33,12 @@ class ColorMap(object):
         pass
 
     def color(self, normedU):
+        """todo"""
         inter = 1/5.
         winter = int(normedU/inter)
         a = (normedU % inter)/inter
         b = 1 - a
+        
         if winter < 0:
             col = (self.coul2, self.coul2, self.coul1)
         elif winter == 0:
@@ -52,12 +54,15 @@ class ColorMap(object):
         return (int(col[0]), int(col[1]), int(col[2]))
 
     def greycolor(self, normedU):
+        """todo"""
         return (int(255*normedU), int(255*normedU), int(255*normedU))
 
     def grey(self, u):
+        """todo"""
         return self.greycolor(self.normU(u))
 
     def normU(self, u):
+        """todo"""
         if self.minval == self.maxval:
             return 0.5
         return (u - self.minval) / (self.maxval - self.minval)

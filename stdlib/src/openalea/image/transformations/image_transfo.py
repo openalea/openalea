@@ -113,11 +113,11 @@ split.__doc__=Im.split.__doc__
 
 def __threshold(x, low, high):
     if x < low :
-      return 0
+        return 0
     elif x > high :
-      return 255
+        return 255
     else :
-      return x
+        return x
 
 
 

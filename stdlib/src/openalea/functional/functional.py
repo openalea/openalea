@@ -11,32 +11,26 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+""" Standard python functions for functional programming. """
 
+__license__ =  "Cecill-C"
+__revision__ = " $Id$ "
 
-__doc__=""" Standard python functions for functional programming. """
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
-
-
-
-#//////////////////////////////////////////////////////////////////////////////
 
 def pymap(func, seq):
     """ map(func, seq) """
     
     if func and seq:
-        return ( map(func,seq), )
+        return ( map(func, seq), )
     else:
         return ( [], )
-
 
 
 def pyfilter(func, seq):
     """ filter(func, seq) """
     
     if func and seq:
-        return ( filter(func,seq), )
+        return ( filter(func, seq), )
     else:
         return ( [], )
 
@@ -45,7 +39,7 @@ def pyreduce(func, seq):
     """ reduce(func, seq) """
 
     if func and seq:
-        return ( reduce(func,seq), )
+        return ( reduce(func, seq), )
     else:
         return ( [], )
 
@@ -73,18 +67,18 @@ def pyfunction(func_str):
     if func_str:
         func_str = str(func_str)
         # Extract the function name
-        l= func_str.split('\n')
+        l = func_str.split('\n')
         for line in l:
             if 'def ' in line:
                 break
-        name=line.split('def ')[1]
-        name=name.split('(')[0]
+        name = line.split('def ')[1]
+        name = name.split('(')[0]
 
         # local dictionary
         d = {}
-        exec(str(func_str),d)
+        exec(str(func_str), d)
         
-        return d.get(name,None)
+        return d.get(name, None)
     else:
         return None
 
@@ -150,7 +144,8 @@ def pyfunction(func_str):
 #         Node.__init__(self)
 
 #         self.add_input( name = "f", interface = IFunction ) 
-#         self.add_input( name = "op", interface = IEnumStr(self.op_name),value= "==" ) 
+#         self.add_input( name = "op", interface = \
+#            IEnumStr(self.op_name),value= "==" ) 
 #         self.add_input( name = "g", interface = IFunction ) 
 #         self.add_output( name = "h", interface = IFunction ) 
 

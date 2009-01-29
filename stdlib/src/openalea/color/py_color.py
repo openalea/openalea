@@ -11,16 +11,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-
-__doc__="""Colormap Nodes"""
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+"""Colormap Nodes"""
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 from openalea.core import *
 import colormap
-from colorsys import rgb_to_hsv, hsv_to_rgb
+from colorsys import hsv_to_rgb
 
 
 class RGB:
@@ -50,4 +48,5 @@ def rgb_color_map(value, minval=0, maxval=1, hue1=0,
     """todo"""
     newHue = ((value - minval)/(maxval - minval))*(hue2 - hue1) + hue1
     r, g, b = hsv_to_rgb(newHue/400., sat/255., val/255.)
+    
     return (int(r*255), int(g*255), int(b*255)),

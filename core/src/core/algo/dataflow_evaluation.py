@@ -14,14 +14,10 @@
 #       OpenAlea WebSite: http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""This module provide an algorithm to evaluate a dataflow"""
 
-
-__doc__="""
-This module provide an algorithm to evaluate a dataflow
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import sys
 import traceback as tb
@@ -280,11 +276,10 @@ class GeneratorEvaluation(AbstractEvaluation):
 
         # Execute
         for vid, actor in leafs:
-                    self.reeval = True
-
-                    while(self.reeval):
-                        self.clear()
-                        self.eval_vertex(vid)
+            self.reeval = True
+            while(self.reeval):
+                self.clear()
+                self.eval_vertex(vid)
 
         return False
 

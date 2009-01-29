@@ -14,13 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""QT4 Main window"""
 
-__doc__="""
-QT4 Main window 
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 
 from PyQt4 import QtCore, QtGui, QtSvg
@@ -49,10 +46,8 @@ class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  SignalSlotListener) :
 
-
     def __init__(self, session, parent=None):
-        """
-        @param pkgman : the package manager
+        """        
         @param session : user session
         @param parent : parent window
         """
@@ -84,26 +79,30 @@ class MainWindow(QtGui.QMainWindow,
 
         # package tree view
         self.pkg_model = PkgModel(self.pkgmanager)
-        self.packageTreeView = NodeFactoryTreeView(self, self.packageview)
+        self.packageTreeView = \
+            NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout1.addWidget(self.packageTreeView)
 
         # category tree view
         self.cat_model = CategoryModel(self.pkgmanager)
-        self.categoryTreeView = NodeFactoryTreeView(self, self.categoryview)
+        self.categoryTreeView = \
+            NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout2.addWidget(self.categoryTreeView)
 
         # search list view
         self.search_model = SearchModel()
-        self.searchListView = SearchListView(self, self.searchview)
+        self.searchListView = \
+            SearchListView(self, self.searchview)
         self.searchListView.setModel(self.search_model)
         self.vboxlayout3.addWidget(self.searchListView)
 
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
-        self.datapoolListView = DataPoolListView(self, session.datapool, self.pooltab)
+        self.datapoolListView = \
+            DataPoolListView(self, session.datapool, self.pooltab)
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout4.addWidget(self.datapoolListView)
 
@@ -125,9 +124,12 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.action_Help, SIGNAL("triggered()"), self.help)
 
         # File Menu
-        self.connect(self.action_New_Session, SIGNAL("triggered()"), self.new_session)
-        self.connect(self.action_Open_Session, SIGNAL("triggered()"), self.open_session)
-        self.connect(self.action_Save_Session, SIGNAL("triggered()"), self.save_session)
+        self.connect(self.action_New_Session, SIGNAL("triggered()"),\
+                     self.new_session)
+        self.connect(self.action_Open_Session, SIGNAL("triggered()"),\
+                     self.open_session)
+        self.connect(self.action_Save_Session, SIGNAL("triggered()"),\
+                     self.save_session)
         self.connect(self.actionSave_as, SIGNAL("triggered()"), self.save_as)
         self.connect(self.action_Quit, SIGNAL("triggered()"), self.quit)
         
@@ -275,6 +277,7 @@ class MainWindow(QtGui.QMainWindow,
                     self.export_to_factory(cindex)
 
         except Exception, e:
+            print e
             pass
 
         # Update session
@@ -515,7 +518,8 @@ class MainWindow(QtGui.QMainWindow,
                 break
 
         # if no bar was hit, return
-        if (index<0) :  return 
+        if (index<0):
+            return 
 
         # set hitted bar to front
         self.tabWorkspace.setCurrentIndex(index)
@@ -534,11 +538,9 @@ class MainWindow(QtGui.QMainWindow,
         menu.move(event.globalPos())
         menu.show()
 
-
     def new_workspace(self):
         """ Create an empty workspace """
         self.session.add_workspace()
-
 
     def new_graph(self):
         """ Create a new graph """
@@ -551,10 +553,8 @@ class MainWindow(QtGui.QMainWindow,
             self.reinit_treeview()
             self.open_compositenode(newfactory)
 
-
     def new_python_node(self):
         """ Create a new node """
-
 
         dialog = NewGraph("New Python Node", self.pkgmanager, self)
         ret = dialog.exec_()
@@ -562,7 +562,6 @@ class MainWindow(QtGui.QMainWindow,
         if(ret>0):
             dialog.create_nodefactory(self.pkgmanager)
             self.reinit_treeview()
-            
 
     def new_data(self):
         """ Import file """
@@ -573,8 +572,6 @@ class MainWindow(QtGui.QMainWindow,
         if(ret>0):
             dialog.create_datafactory(self.pkgmanager)
             self.reinit_treeview()
-
-
 
     def new_package(self):
         """ Create a new user package """
@@ -588,7 +585,6 @@ class MainWindow(QtGui.QMainWindow,
             self.pkgmanager.create_user_package(name, metainfo, path)
             self.reinit_treeview()
         
-
     def exec_python_script(self):
         """ Choose a python source and execute it """
             
@@ -612,23 +608,17 @@ class MainWindow(QtGui.QMainWindow,
                 self.interpreterWidget.get_interpreter().runcode(compiled)
                 sources = ''
 
-
     def open_python_console(self):
         """ Set focus on the python shell """
         self.interpreterWidget.setFocus(QtCore.Qt.ShortcutFocusReason)
-
     
     def clear_python_console(self):
         """ Clear python shell """
-
         self.interpreterWidget.clear()
-
-        
 
     def new_session(self):
         self.session.clear()
-
-        
+       
     def open_session(self):
 
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -639,7 +629,6 @@ class MainWindow(QtGui.QMainWindow,
 
         self.session.load(filename)
 
-
     def save_session(self):
         """ Save menu entry """
         
@@ -648,7 +637,6 @@ class MainWindow(QtGui.QMainWindow,
         else :
             self.session.save(self.session.session_filename)
 
-        
     def save_as(self):
         """ Save as menu entry """
         
@@ -660,12 +648,10 @@ class MainWindow(QtGui.QMainWindow,
 
         self.session.save(filename)
         
-
     def clear_data_pool(self):
         """ Clear the data pool """
 
         self.session.datapool.clear()
-
 
     def search_node(self):
         """ Activated when search line edit is validated """
@@ -673,14 +659,12 @@ class MainWindow(QtGui.QMainWindow,
         results = self.pkgmanager.search_node(str(self.search_lineEdit.text()))
         self.search_model.set_results(results)
         
-
     def find_node(self):
         """ Find node Command """
 
         i = self.tabPackager.indexOf(self.searchview)
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
-
 
     def delete_selection(self):
         """ Delete selection in current workspace """
@@ -753,15 +737,16 @@ class MainWindow(QtGui.QMainWindow,
 
         dialog = PreferencesDialog(self)
         ret = dialog.exec_()
+        # ! does not return anythin and do not use ret ? 
 
 
     def reset(self):
         """ Reset current workspace """
 
-        ret = QtGui.QMessageBox.question(self, "Reset Workspace",
-                                         "Reset will delete all input values.\n"+
-                                         "Continue ?\n",
-                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+        ret = QtGui.QMessageBox.question(self, 
+            "Reset Workspace",
+            "Reset will delete all input values.\n" + "Continue ?\n",
+            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
         if(ret == QtGui.QMessageBox.No):
             return
@@ -809,15 +794,18 @@ class MainWindow(QtGui.QMainWindow,
 
         # Get Filename
         filename = QtGui.QFileDialog.getSaveFileName(
-            self, "Python Application", QtCore.QDir.homePath(), "Python file (*.py)")
+            self, "Python Application", QtCore.QDir.homePath(),\
+            "Python file (*.py)")
         
         filename = str(filename)
-        if(not filename) : return
+        if(not filename):
+            return
 
         # Get Application Name
         (result, ok) = QtGui.QInputDialog.getText(self, "Application Name", "",
                                    QtGui.QLineEdit.Normal, "")
-        if(not ok): return
+        if(not ok):
+            return
 
         name = str(result)
         if(not name) : name = "OpenAlea Application"
@@ -828,18 +816,16 @@ class MainWindow(QtGui.QMainWindow,
         from openalea.core import export_app
         export_app.export_app(name, filename, tempfactory)
         
-
     # Drag and drop support 
     def dragEnterEvent(self, event):
-        
+        """todo"""
         if event.mimeData().hasUrls():
             event.accept()
         else:
             event.ignore()
 
-
     def dropEvent(self, event):
-
+        """todo"""
         urls = event.mimeData().urls()
         try:
             file = urls[0]

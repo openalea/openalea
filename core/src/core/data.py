@@ -105,7 +105,7 @@ class DataFactory(AbstractFactory):
     def instantiate(self, call_stack=[]):
         """ Return a node instance
         @param call_stack : the list of NodeFactory id already in call stack
-        (in order to avoir infinite recursion)
+        (in order to avoid infinite recursion)
         """
 
         node = DataNode(self.get_pkg_data(), self.editors, self.includes)
@@ -114,7 +114,7 @@ class DataFactory(AbstractFactory):
 
     def instantiate_widget(self, node=None, parent=None, \
             edit=False, autonomous=False):
-        """ Return the corresponding widget initialised with node """
+        """ Return the corresponding widget initialized with node """
 
         if(node):
             editors = node.get_input(1)
@@ -125,7 +125,7 @@ class DataFactory(AbstractFactory):
         if(editors and isinstance(editors, str)):
             editors = {'edit': editors}
 
-        # multi command
+        # multiple command
         # Add systematically a text editor.
         if(not isinstance(editors, dict)):
             editors = {}

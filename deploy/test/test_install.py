@@ -28,7 +28,6 @@ def test_build():
 
 
 def test_get_eggs():
-
     from openalea.deploy import get_eggs
     assert len(set(get_eggs('openalea'))) == 2
 
@@ -55,5 +54,3 @@ def test_get_postinstall_scripts():
 
 
     
-
-

@@ -14,21 +14,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Catalog of InterfaceWidgets"""
+__license__ = "CeCILL V2"
+__revision__ = " $Id$"
 
-__doc__="""
-Catalog of InterfaceWidgets
-"""
-
-__license__= "CeCILL V2"
-__revision__=" $Id$"
-
-
-
-import sys
-import os
 
 from PyQt4 import QtCore, QtGui
-from openalea.core.interface import *
+from openalea.core.interface import * #IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify         
 
 
@@ -40,7 +32,6 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
     # Corresponding Interface & Metaclass
     __interface__ = IFloat
     __metaclass__ = make_metaclass()
-
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -64,25 +55,26 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
         
         hboxlayout.addWidget(self.spin)
 
-        self.notify(None,None)
+        self.notify(None, None)
         
-        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
-
+        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), \
+                     self.valueChanged)
 
     @lock_notify      
     def valueChanged(self, newval):
+        """ todo """
         self.node.set_input(self.param_str, newval)
 
-        
     def notify(self, sender, event):
         """ Notification sent by node """
         try:
             v = float(self.node.get_input(self.param_str))
         except:
             v = 0.
-            #print "FLOAT SPIN : cannot set value : ", self.node.get_input(self.param_str)
+            #print "FLOAT SPIN : cannot set value : ", \
+            #    self.node.get_input(self.param_str)
             
-        self.spin.setValue(v)
+        self.spin.setValue(vv)
         
 
 
@@ -118,7 +110,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
         
         hboxlayout.addWidget(self.spin)
 
-        self.notify(None,None)
+        self.notify(None, None)
 
         self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 

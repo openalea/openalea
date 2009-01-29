@@ -19,12 +19,14 @@ graph. A CompositeNodeFactory instance is a factory that build CompositeNode
 instances. Different instances of the same factory can coexist and can be
 modified in a dataflow.
 """
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import string
 import copy
 import pprint
+
 
 from openalea.core.node import AbstractFactory, Node
 from openalea.core.node import RecursionError
@@ -300,7 +302,7 @@ class CompositeNodeFactory(AbstractFactory):
         else a composite widget composed with the node sub widget is returned
 
         """
-        if(edit):
+        if(edit):            
             from openalea.visualea.compositenode_widget import EditGraphWidget
             return EditGraphWidget(node, parent)
 
@@ -874,7 +876,6 @@ class ContinuousEvalListener(AbstractListener):
 
     def notify(self, sender, event):
         """ Notification """
-
         self.dataflow.eval_as_expression(self.vid)
 
 
