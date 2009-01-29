@@ -15,7 +15,6 @@
 ###############################################################################
 """todo"""
 
-#import os
 import sys
 from optparse import OptionParser
 #import threading
@@ -100,7 +99,6 @@ def run_and_display(component, inputs, gui=False, pm=None):
         try:
             node.eval()
             print node.outputs
-
         except Exception, error:
             print "Error while executing component : ", error
             print "Try with -g flag"
@@ -208,7 +206,7 @@ def parse_component(name):
 def get_intput_callback(option, opt_str, value, parser):
     """todo"""
     assert value is None
-    done = 0
+
     value = {}
     rargs = parser.rargs
     while rargs:

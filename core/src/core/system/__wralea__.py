@@ -14,29 +14,22 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-__doc__="""
-Wralea for System nodes
-"""
-
-__revision__=" $Id$ "
+"""Wralea for System nodes"""
+__revision__ = " $Id$ "
 
 
-from openalea.core.external import *
+from openalea.core.external import * #IGNORE:W0614
 from openalea.core.pkgdict import protected
 
 
 __name__ = "openalea.flow control"
 __alias__ = ["system"]
-
 __version__ = '0.0.2'
-__license__= "Cecill-C"
+__license__ = "Cecill-C"
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'System Node library.'
 __url__ = 'http://openalea.gforge.inria.fr'
-
-
 
 __all__ = []
 

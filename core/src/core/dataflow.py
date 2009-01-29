@@ -36,7 +36,7 @@ class Port (object):
     """
 
     def __init__(self, vid, local_pid, is_out_port):
-        #internal data to acces from dataflow
+        #internal data to access from dataflow
         self._vid = vid
         self._local_pid = local_pid
         self._is_out_port = is_out_port
@@ -290,7 +290,7 @@ class DataFlow(PropertyGraph):
         return pid used
         :rtyp: pid
         """
-        pid=self._pid_generator.get_id(pid)
+        pid = self._pid_generator.get_id(pid)
         self._ports[pid] = Port(vid, local_pid, True)
         self.vertex_property("_ports")[vid].add(pid)
         return pid
@@ -331,6 +331,7 @@ class DataFlow(PropertyGraph):
         return eid
 
     def add_vertex(self, vid=None):
+        """todo"""
         vid = PropertyGraph.add_vertex(self, vid)
         self.vertex_property("_ports")[vid] = set()
         return vid
@@ -338,6 +339,7 @@ class DataFlow(PropertyGraph):
     add_vertex.__doc__ = PropertyGraph.add_vertex.__doc__
 
     def remove_vertex(self, vid):
+        """todo"""
         for pid in list(self.ports(vid)):
             self.remove_port(pid)
         PropertyGraph.remove_vertex(self, vid)
@@ -345,6 +347,7 @@ class DataFlow(PropertyGraph):
     remove_vertex.__doc__ = PropertyGraph.remove_vertex.__doc__
 
     def clear(self):
+        """todo"""
         self._ports.clear()
         self._pid_generator = IdGenerator()
         PropertyGraph.clear(self)
