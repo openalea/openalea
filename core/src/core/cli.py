@@ -17,6 +17,7 @@
 """This module defines the command line interface.
 It is composed by a set of functions useable directly in the interpreter
 """
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 

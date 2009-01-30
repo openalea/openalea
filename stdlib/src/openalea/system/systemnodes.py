@@ -14,13 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""System Nodes"""
 
-__doc__="""
-System Nodes
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id: systemnodes.py 1137 2008-02-01 09:25:46Z dufourko $ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 from openalea.core import *

@@ -14,6 +14,9 @@
 #
 """Test the node src edition"""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 import os
 import openalea
 from openalea.core.pkgmanager import PackageManager

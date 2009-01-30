@@ -1,4 +1,8 @@
-# Test installation of fake package
+"""Test installation of fake package"""
+
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 import os, sys
 
 

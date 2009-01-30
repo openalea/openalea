@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Termcap configure environment. """
 
-__doc__ = """ Termcap configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

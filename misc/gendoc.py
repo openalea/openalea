@@ -3,7 +3,7 @@ Script to automatically generate epydoc documentation of the openalea and
 vplants modules.
 """
 __author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__="$Id: $"
+__revision__="$Id$"
 
 import os
 import sys
@@ -150,7 +150,7 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id: download.py 1546 2009-01-15 14:20:37Z cokelaer $ \n" \
+        version="%prog CVS $Id$ \n" \
       + "$Name:  $\n")
     parser.add_option("-m", "--module", \
         default=None, help="name of the module. E.g., core, visualea, stdlib")

@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Boost.Python configure environment. """
 
-__doc__ = """ Boost.Python configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

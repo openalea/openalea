@@ -6,6 +6,8 @@ Snow&Snow phyllotaxis model.
 :version: 
 :author:  szymon stoma
 """
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 #from visual import *

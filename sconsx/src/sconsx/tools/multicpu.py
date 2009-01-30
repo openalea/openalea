@@ -15,10 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" QHull configure environment. """
 
-__doc__ = """ QHull configure environment. """
 __license__ = "Cecill-C"
-__revision__ = "$Id: qhull.py 679 2007-08-01 09:46:26Z dufourko $"
+__revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import *

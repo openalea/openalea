@@ -17,11 +17,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" See OpenAlea WebSite / Packages / SConsX """
 
 __license__= "Cecill-C"
 __revision__="$Id$"
 
-__doc__=""" See OpenAlea WebSite / Packages / SConsX """
+
 
 
 import os, sys

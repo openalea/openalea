@@ -12,6 +12,10 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""todo"""
+
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
 
 import os, sys
 import shutil

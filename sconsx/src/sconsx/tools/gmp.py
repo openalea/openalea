@@ -15,10 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" GMP configure environment. """
 
-__doc__ = """ GMP configure environment. """
 __license__ = "Cecill-C"
-__revision__ = "$Id:  $"
+__revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import *

@@ -11,7 +11,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__doc__ = """Colormap class"""
+"""Colormap class"""
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 

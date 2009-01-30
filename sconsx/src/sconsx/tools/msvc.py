@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Visual Studio C++ configure environment. """
 
-__doc__ = """ Visual Studio C++ configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

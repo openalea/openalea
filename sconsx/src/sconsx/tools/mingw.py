@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" MinGW configure environment. """
 
-__doc__ = """ MinGW configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

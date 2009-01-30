@@ -7,6 +7,10 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
+
 from PyQt4 import QtCore, QtGui
 
 class Ui_FactorySelector(object):

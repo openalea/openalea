@@ -18,9 +18,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
-
-__doc__ = """
-This module add some facilities to simplify the SConscript files to
+"""This module add some facilities to simplify the SConscript files to
 the minimum.  It contains wrapper functions that extend the SCons
 environment and abstract the operating system.
 

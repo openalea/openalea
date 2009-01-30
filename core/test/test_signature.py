@@ -1,3 +1,6 @@
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 import openalea.core.signature as sgn
 from openalea.core.interface import *
 

@@ -4,6 +4,9 @@
 #   + Create a new file in /etc/profile.d or .bashrc.
 # The global shared dir can be set by this command.
 
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 from install_lib import get_default_dyn_lib, get_dyn_lib_dir
 # from util import check_system
 from command import set_env

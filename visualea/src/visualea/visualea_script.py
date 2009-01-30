@@ -16,16 +16,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
-
-__doc__ = """
-Wrapper to start Visualea with correct environment variables
-"""
+"""Wrapper to start Visualea with correct environment variables"""
 
 __license__ = "CeCILL v2"
-__revision__ =" $Id$"
-
-
-
+__revision__ = " $Id$"
 
 import os, sys
 

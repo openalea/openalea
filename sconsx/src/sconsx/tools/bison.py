@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Bison configure environment. """
 
-__doc__ = """ Bison configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

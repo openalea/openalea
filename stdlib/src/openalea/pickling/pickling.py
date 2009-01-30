@@ -11,9 +11,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+""" Python Nodes """
 
 
-__doc__=""" Python Nodes """
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 from openalea.core import *
 import cPickle

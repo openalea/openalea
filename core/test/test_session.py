@@ -16,6 +16,10 @@
 """Test the session"""
 
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 from openalea.core.session import Session
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode

@@ -1,3 +1,7 @@
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 # Test node module
 from openalea.core.graph.property_graph import PropertyGraph
 

@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Gcc configure environment. """
 
-__doc__ = """ Gcc configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

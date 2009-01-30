@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" OpenGL configure environment. """
 
-__doc__ = """ OpenGL configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

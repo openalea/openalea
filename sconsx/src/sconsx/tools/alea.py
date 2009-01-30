@@ -16,8 +16,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" OpenAlea configure environment. """
 
-__doc__=""" OpenAlea configure environment. """
 __license__= "Cecill-C"
 __revision__="$Id$"
 

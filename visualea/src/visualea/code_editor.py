@@ -14,14 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Python code editor"""
 
-
-__doc__="""
-Python code editor
-"""
-
-__license__= "CeCILL V2"
-__revision__=" $Id$"
+__license__ = "CeCILL V2"
+__revision__ = " $Id$"
 
 
 from PyQt4 import QtCore, QtGui

@@ -14,15 +14,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
-
-__doc__="""
-This module defines the thread manager
+"""This module defines the thread manager
 The Thread manager provides thread on demand
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 from threading import Thread

@@ -1,9 +1,7 @@
 __Id__ = "$Id$"
 __author__ = "Thomas Cokelaer, Thomas.Cokelaer@inria.fr "
-__version__ = "$Revision$"[11:-2]
-__date__ = "$Date$"[7:-2]
 __name__ = "openalea_tools"
-__title__ = "title to do "
+__license__ = "Cecill-C"
 
 import getopt
 import sys

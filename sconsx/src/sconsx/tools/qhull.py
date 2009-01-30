@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" QHull configure environment. """
 
-__doc__ = """ QHull configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

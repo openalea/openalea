@@ -9,6 +9,8 @@ selection method.
 
 """
 
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
 #
 # Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
 #

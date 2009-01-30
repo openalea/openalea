@@ -15,9 +15,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+""" Environment variable manipulation functions """
+
 __license__ = "Cecill-C"
 __revision__ =" $Id$"
-__doc__ = """ Environment variable manipulation functions """
+
 
 import os
 import sys

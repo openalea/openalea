@@ -15,6 +15,9 @@
 
 ##### declaration of pix interface and its widget ###########
 
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 from openalea.core.interface import *
 
 class IImageMode (IEnumStr) :

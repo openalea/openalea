@@ -11,9 +11,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #############################################################################
+"""String manipulation"""
 
-
-__doc__="""String manipulation"""
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 

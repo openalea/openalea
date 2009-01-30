@@ -11,11 +11,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+""" Data Nodes """
 
-
-__doc__=""" Data Nodes """
-__license__= "Cecill-C"
-__revision__=" $Id: $ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 from array import array
 from openalea.core import *

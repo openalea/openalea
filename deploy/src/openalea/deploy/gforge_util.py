@@ -12,7 +12,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 #
-
 """Utility script to upload package on the Gforge
 
 Enables the use of multipart/form-data for posting forms
@@ -39,6 +38,9 @@ Further Example
   The main function of this file is a sample which downloads a page and
   then uploads it to the W3C validator.
 """
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import urllib
 import urllib2

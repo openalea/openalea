@@ -1,3 +1,6 @@
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.package import *
 from openalea.core.node import gen_port_list
 import os
@@ -5,7 +8,7 @@ import os
 
 def test_package():
     """Test package"""
-    metainfo={'version': '0.0.1',
+    metainfo = {'version': '0.0.1',
               'license': 'CECILL-C',
               'authors': 'OpenAlea Consortium',
               'institutes': 'INRIA/CIRAD',
@@ -19,7 +22,7 @@ def test_package():
 
 def test_userpackage():
     """Test user package"""
-    metainfo={'version': '0.0.1',
+    metainfo = {'version': '0.0.1',
               'license': 'CECILL-C',
               'authors': 'OpenAlea Consortium',
               'institutes': 'INRIA/CIRAD',

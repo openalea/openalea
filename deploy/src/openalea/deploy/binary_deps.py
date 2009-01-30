@@ -1,3 +1,5 @@
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
 
 import pkg_resources
 import warnings

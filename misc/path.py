@@ -15,6 +15,8 @@ Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (and others - see the
 Date:    9 Mar 2007
 """
 
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
 
 # TODO
 #   - Tree-walking functions don't avoid symlink loops.  Matt Harrison

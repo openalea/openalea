@@ -1,3 +1,8 @@
+"""Alias tests"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.pkgmanager import PackageManager
 
 

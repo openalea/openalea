@@ -1,3 +1,8 @@
+"""Dataflow Tests"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.dataflow import DataFlow, PortError
 
 

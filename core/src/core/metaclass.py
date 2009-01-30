@@ -71,6 +71,7 @@
 # is invoked with the same arguments it returns the same metaclass.
 """ todo """
 
+__license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import inspect

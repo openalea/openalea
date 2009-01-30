@@ -14,14 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Composite Node Widgets"""
 
-
-__doc__="""
-Composite Node Widgets
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 
 

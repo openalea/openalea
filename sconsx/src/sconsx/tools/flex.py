@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Flex configure environment. """
 
-__doc__ = """ Flex configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

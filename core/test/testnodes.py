@@ -1,3 +1,5 @@
+_license__= "Cecill-C"
+__revision__ = " $Id$ "
 
 # This file has been generated at $TIME
 

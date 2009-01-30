@@ -67,10 +67,6 @@ usage. However, this file will be automatically created again if you
 use ez_alea_setup with --install-dir argument.
 """
 
-
-import sys
-import os
-
 try:
     from hashlib import md5
 except ImportError:
@@ -107,6 +103,7 @@ def use_setuptools(
         'pkg_resources' in sys.modules or 'setuptools' in sys.modules
     
     def do_download():
+        """todo"""
         egg = \
             download_setuptools(version, download_base, to_dir, download_delay)
         sys.path.insert(0, egg)
@@ -147,7 +144,7 @@ def download_setuptools(
     attempt.
     """
     import urllib2
-    import shutil
+    #import shutil
     egg_name = "setuptools-%s-py%s.egg" % (version, sys.version[:3])
     url = download_base + egg_name
     saveto = os.path.join(to_dir, egg_name)

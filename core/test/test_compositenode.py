@@ -15,6 +15,9 @@
 #
 """Test the composite node module"""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 from openalea.core.node import gen_port_list, RecursionError

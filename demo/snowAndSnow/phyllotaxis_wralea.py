@@ -1,3 +1,6 @@
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.external import Package, Factory
 from openalea.core.traitsui import View, Item, Group
 from openalea.core.interface import IBool, IFloat, IInt, IStr, IDict

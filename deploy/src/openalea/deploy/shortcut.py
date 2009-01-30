@@ -15,8 +15,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+ """ Os Functions to add shortcut and Mime type association """
  
-__doc__ = """ Os Functions to add shortcut and Mime type association """
+ __license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 
  
 import os

@@ -13,6 +13,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""doc todo"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 
 import os
 import sys

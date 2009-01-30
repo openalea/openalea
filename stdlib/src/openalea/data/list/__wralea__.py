@@ -15,7 +15,7 @@
 
 __doc__ = """ OpenAlea dictionary data structure"""
 __license__ = "Cecill-C"
-__revision__ =" $Id: __wralea__.py 1362 2008-09-01 12:41:47Z dufourko $ "
+__revision__ =" $Id$ "
 
 
 from openalea.core import *

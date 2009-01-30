@@ -15,8 +15,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" Gnuplot configure environment. """
 
-__doc__ = """ Gnuplot configure environment. """
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 

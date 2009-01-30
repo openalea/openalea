@@ -1,4 +1,7 @@
-# Postinstall scripts
+""" Postinstall scripts"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 
 def install():

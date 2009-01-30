@@ -11,9 +11,9 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""CSV Nodes"""
 
-__doc__="""CSV Nodes"""
-__license__= "Cecill-C"
+__license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 

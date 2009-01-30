@@ -13,14 +13,11 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-################################################################################
+###############################################################################
+"""Default Node Widget"""
 
-__doc__="""
-Default Node Widget
-"""
-
-__license__= "CeCILL V2"
-__revision__=" $Id$"
+__license__ = "CeCILL V2"
+__revision__ = " $Id$"
 
 
 

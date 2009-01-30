@@ -1,6 +1,11 @@
+""" Core interface test"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core.interface import *
 from types import *
-""" Core interface test"""
+
 
 
 class IMyInterface(IInterface):

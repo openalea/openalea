@@ -14,13 +14,10 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""This module provide basics function to handle 2D images"""
 
-__doc__="""
-This module provide basics function to handle 2D images
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import numpy
 from numpy import zeros

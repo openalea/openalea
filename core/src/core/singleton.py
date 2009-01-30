@@ -14,13 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""This module defines the singleton metaclass"""
 
-__doc__="""
-This module defines the singleton metaclass
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 class Singleton(type):

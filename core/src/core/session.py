@@ -14,14 +14,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""Session regroups all the data which can be stored between different 
+executions of the system."""
 
-__doc__="""
-Session regroups all the data which can be stored between different executions
-of the system.
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import os

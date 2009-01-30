@@ -13,14 +13,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""View for organizing the compontent lookout."""
 
-
-__doc__="""
-View for organizing the compontent lookout.
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id: node.py 1016 2008-01-10 10:44:12Z dufourko $ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 class View(object):

@@ -16,13 +16,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Main Module for graphical interface"""
 
-__doc__="""
-Main Module for graphical interface
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$"
+__license__ = "CeCILL v2"
+__revision__ = "$Id$"
 
 
 import sys, os
@@ -33,7 +30,8 @@ from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
 
 # Restore default signal handler for CTRL+C
-import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def set_stdout():

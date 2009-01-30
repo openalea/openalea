@@ -19,7 +19,7 @@ __doc__="""
 Wralea for System nodes
 """
 
-__revision__=" $Id: __wralea__.py 1317 2008-07-10 16:06:28Z dufourko $ "
+__revision__=" $Id$ "
 
 
 from openalea.core.external import *

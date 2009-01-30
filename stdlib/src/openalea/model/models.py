@@ -11,11 +11,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+""" Model nodes """
 
-
-__doc__=""" Model nodes """
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 from openalea.core import global_module

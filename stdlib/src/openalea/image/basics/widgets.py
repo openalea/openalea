@@ -13,7 +13,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-##### declaration of pix interface and its widget ###########
+"""declaration of pix interface and its widget"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 from openalea.image.interface import *
 from openalea.visualea.gui_catalog import IEnumStrWidget

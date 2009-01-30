@@ -53,7 +53,7 @@ class PackageData(object):
             self.repr = os.path.join(path, self.name)
 
     def __repr__(self):
-        return "PackageData(%s, %s)"%(self.pkg_name, self.name)
+        return "PackageData(%s, %s)" % (self.pkg_name, self.name)
 
     def __str__(self):
         return self.repr
@@ -153,10 +153,7 @@ class DataNode(Node):
 
     __color__ = (200, 200, 200)
 
-    def __init__(self,
-                 packagedata,
-                 editors=None,
-                 includes= []):
+    def __init__(self, packagedata, editors=None, includes= []):
         """
         @packagedata : A file contained in a defined package.
         @editors : A dictionary of commands which act on the file.
@@ -167,7 +164,7 @@ class DataNode(Node):
              dict(name='editors', interface=None, value=editors),
              dict(name='includes', interface=None, value=includes)),
              outputs=(dict(name='data', interface=IData), ), )
-        self.caption = '%s'%(packagedata.name)
+        self.caption = '%s' % (packagedata.name)
         self.watch = None
         self.monitor_file(str(packagedata))
 

@@ -28,6 +28,9 @@ Further Example:
   then uploads it to the W3C validator.
 """
 
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
 #

@@ -16,10 +16,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
+""" OpenAlea configure environment. """
 
-__doc__=""" OpenAlea configure environment. """
 __license__= "Cecill-C"
-__revision__="$Id: alea.py 593 2007-06-20 08:04:14Z pradal $"
+__revision__="$Id$"
 
 import os, sys
 from openalea.sconsx.config import *

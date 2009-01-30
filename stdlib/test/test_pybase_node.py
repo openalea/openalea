@@ -1,3 +1,8 @@
+"""pybase node Tests"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
+
 from openalea.core.alea import run
 from openalea.core.pkgmanager import PackageManager
 from random import random, randint

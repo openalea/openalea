@@ -39,6 +39,7 @@ class EvaluationException(Exception):
 
 
 def cmp_priority(x, y):
+    """todo"""
     (xvid, xactor) = x
     (yvid, yactor) = y
     px = xactor.internal_data.get('priority', 0)
@@ -52,6 +53,7 @@ def cmp_priority(x, y):
 
 
 def cmp_posx(x, y):
+    """todo"""
     (xpid, xvid, xactor) = x
     (ypid, yvid, yactor) = y
     px = xactor.internal_data.get('posx', 0)
@@ -74,6 +76,7 @@ class AbstractEvaluation(object):
         self._dataflow = dataflow
 
     def eval(self, *args):
+        """todo"""
         raise NotImplementedError()
 
     def is_stopped(self, vid, actor):
@@ -186,6 +189,7 @@ class PriorityEvaluation(BrutEvaluation):
     """ Support priority between nodes and selective"""
 
     def eval(self, vtx_id=None, *args):
+        """todo"""
 
         df = self._dataflow
         # Unvalidate all the nodes

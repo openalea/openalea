@@ -15,15 +15,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Install dynamic library.
 
-__license__ = "Cecill-C"
-__revision__ =" $Id$"
-
-__doc__ = """ 
-Install dynamic library.
 The egm file describes the directory the dynamic library is originated from.
 """
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 import os
 import sys

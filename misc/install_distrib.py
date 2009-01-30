@@ -1,3 +1,6 @@
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 import os, sys
 import glob
 
