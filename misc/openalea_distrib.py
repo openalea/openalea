@@ -1,3 +1,6 @@
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 import pkg_resources
 
 def dependencies(name, full_deps = None ):

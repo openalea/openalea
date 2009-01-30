@@ -10,8 +10,11 @@ python make_develop install -p alinea -d ./openaleapkg
 
 type --help to get more help and usage  
 
-
 """
+
+__license__ = "Cecill-C"
+__revision__ =" $Id$"
+
 import sys, os
 from optparse import OptionParser
 
