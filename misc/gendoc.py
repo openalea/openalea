@@ -7,7 +7,7 @@ __revision__="$Id: $"
 
 import os
 import sys
-from optparse import *
+from optparse import OptionParser
 
 # do not change anything below in principle !
 epydoc_options = """
@@ -61,7 +61,7 @@ class GenDoc():
         :param opts: an optparse structure
         """
         # todo : make it robust to look in ./module/src/module or
-        # ./module/src/openalea/module
+        # ./module/src/openalea/module        
         self.parent = os.path.abspath(opts.parent_directory) +'/'
 
         # make it robust with respect to commas, spaces
@@ -153,9 +153,10 @@ def ParseParameters():
         version="%prog CVS $Id: download.py 1546 2009-01-15 14:20:37Z cokelaer $ \n" \
       + "$Name:  $\n")
     parser.add_option("-m", "--module", \
-        default=False, help="name of the module. E.g., core, visualea, stdlib")
+        default=None, help="name of the module. E.g., core, visualea, stdlib")
     parser.add_option("-d", "--parent-directory", \
-        default=False, help="give the parent directory where is the module. API doc will be copied in parent_directory/module/doc")
+        default=None, action="store", type="string",
+        help="give the parent directory where is the module. API doc will be copied in parent_directory/module/doc")
     parser.add_option("-v", "--verbose", action="store_true", \
         default=False, help="verbose option")
     parser.add_option("-t", "--test", action="store_true", \
@@ -170,6 +171,11 @@ def ParseParameters():
         default=False, help="add extra epydoc options")
 
     (opts, args) = parser.parse_args()
+    #checking 
+    if not os.path.isdir(opts.parent_directory):
+         raise ValueError, "--parent-directory must be a valid directory"
+    if not opts.module or not opts.parent_directory:
+         raise ValueError, "--parent-directory and --module must be provided"
     return opts, args
 
 
