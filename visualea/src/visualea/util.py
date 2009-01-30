@@ -15,14 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Decorator and Utilities"""
 
-
-__doc__="""
-Decorator and Utilities
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 
 from PyQt4 import QtGui, QtCore

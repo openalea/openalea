@@ -14,16 +14,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Tree Item model for package manager.
 
-
-__doc__="""
-Tree Item model for package manager.
 Only Package and Category objects are view as a tree item.
 Others are view as leaves.
 """
 
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 import os
 from weakref import ref

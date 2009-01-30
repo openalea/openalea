@@ -14,9 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__doc__="""QT4 Main window"""
-__license__= "CeCILL v2"
-__revision__=" $Id$ "
+"""QT4 Main window"""
+
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 import os
 from subprocess import Popen

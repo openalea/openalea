@@ -14,14 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""This module implements a QT4 python interpreter widget."""
 
-
-__doc__="""
-This module implements a QT4 python interpreter widget.
-"""
-
-__license__= "CeCILL V2"
-__revision__=" $Id$"
+__license__ = "CeCILL V2"
+__revision__ = " $Id$"
 
 
 import os, sys
