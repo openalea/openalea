@@ -8,12 +8,13 @@ namespace = 'openalea'
 
 execfile("src/core/version.py")
 
-description= 'OpenAlea Component platform core.' 
-long_description= ''
-author= 'OpenAlea consortium'
-author_email= 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-url= 'http://openalea.gforge.inria.fr'
-license= 'Cecill-C' 
+description = 'OpenAlea Component platform core.' 
+long_description = ''
+author = 'OpenAlea consortium'
+author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
+url = 'http://openalea.gforge.inria.fr'
+__license__= 'Cecill-C' 
+__revision__ = "$Id$"
 
 from setuptools import setup
 

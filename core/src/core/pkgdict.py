@@ -13,12 +13,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""Special Dict with case insensitive key and protected field"""
 
-__doc__="""
-Special Dict with case insensitive key and protected field
-"""
-__license__= "Cecill-C"
-__revision__=" $Id: nocasedict.py 999 2007-12-13 18:17:41Z dufourko $ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 def lower(item):

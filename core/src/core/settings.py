@@ -14,12 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__doc__="""
-Setting class retrieve and set user configuration
-"""
+"""Setting class retrieve and set user configuration"""
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import os

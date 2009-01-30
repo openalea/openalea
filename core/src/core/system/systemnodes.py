@@ -14,10 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""System Nodes"""
 
-__doc__="""System Nodes"""
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 from openalea.core.node import AbstractNode, Node
 from openalea.core.dataflow import SubDataflow

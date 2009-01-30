@@ -14,6 +14,7 @@
 #
 ###############################################################################
 """This module provides an actor interface"""
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 

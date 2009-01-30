@@ -42,11 +42,10 @@ class GraphConcept(object):
 
 
     def target(self, edge_id):
-        """
-        Return the target vertex of the edge.
+        """Return the target vertex of the edge.
 
         :Parameters:
-        - `edge_id`: The edge identifier.
+         - `edge_id`: The edge identifier.
 
         :Return: vertex identifier
         """
@@ -54,13 +53,12 @@ class GraphConcept(object):
 
 
     def edge(self, source, target):
-        """
-        Return the edge identifier or an iterator if the graph is a
+        """Return the edge identifier or an iterator if the graph is a  
         multiplegraph.
-
+        
         :Parameters:
-        - `source`: vtx_id 
-        - `target`: vtx_id
+         - `source`: vtx_id 
+         - `target`: vtx_id
 
         :Return: iter of edge_id
         """

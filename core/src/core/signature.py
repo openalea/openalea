@@ -1,4 +1,4 @@
-# -*- python -*-
+        # -*- python -*-
 #
 #       OpenAlea.Core
 #
@@ -14,14 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""Signature class that instropect python functor based on the code"""
 
-
-__doc__="""
-Signature class that instropect python functor based on the code
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import inspect

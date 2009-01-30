@@ -12,7 +12,7 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-"""Test evaluation alogrithme"""
+"""Test evaluation alogrithm"""
 
 
 #see test_compositenode.py

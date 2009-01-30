@@ -14,15 +14,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""This module defines the package manager.
 
-__doc__="""
-This module defines the package manager.
 It is able to find installed package and their wralea.py
 It stores the packages and nodes informations
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import openalea
 

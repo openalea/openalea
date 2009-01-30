@@ -15,6 +15,9 @@
 ###############################################################################
 """todo"""
 
+__license__ = "Cecill-C"
+__revision__ = "$Id$"
+
 import sys
 from optparse import OptionParser
 #import threading

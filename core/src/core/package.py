@@ -14,14 +14,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__doc__=""" This module defines Package classes.
+""" This module defines Package classes.
 
 A Package is a deplyment unit and contains a factories (Node generator)
 and meta informations (authors, license, doc...)
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import inspect

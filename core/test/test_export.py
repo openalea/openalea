@@ -1,3 +1,8 @@
+"""Export Tests"""
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 from openalea.core import export_app
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import *

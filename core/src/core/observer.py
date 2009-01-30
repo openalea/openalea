@@ -14,12 +14,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__doc__="""
-This module defines all the classes for the Observer design Pattern
-"""
+"""This module defines all the classes for the Observer design Pattern"""
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 ###############################################################################
 
