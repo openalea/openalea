@@ -58,7 +58,7 @@ class VisualSequence(object):
     <Long description of the function functionality.>    
     """
 
-    def __init__(self, x=[], y=[], z=[], legend="", linestyle="", \
+    def __init__(self, x=[], y=[], z=[], legend="", linestyle="", 
                   marker="", color="", bins=10, **keys):
         """Object used to store plot information. 
         
@@ -95,29 +95,29 @@ class VisualSequence(object):
         self.bins = int(bins)
 
     def get_x(self):
-        """todo"""
+        """Returrns the X array."""
         if len(self.abs) == len(self.ord):
             return self.abs
         else:
             return range(len(self.ord))
         
     def set_x(self, value):
-        """todo"""
+        """Set the x array of values"""
         self.abs = value
         
     def get_y(self):
-        """todo"""
+        """Get the y array of values."""
         return self.ord
     
     def set_y(self, value):
-        """todo"""
+        """Set the y array of values."""
         self.ord = value
 
     x = property(get_x, set_x)
     y = property(get_y, set_y)
 
 
-def change_VisualSequence_PointLineView(vis_seq, new_legend,\
+def change_VisualSequence_PointLineView(vis_seq, new_legend,
     new_linestyle, new_marker, new_color ): 
     """Returns vis_seq object with values changed from default
         
@@ -147,7 +147,7 @@ def change_VisualSequence_PointLineView(vis_seq, new_legend,\
     return  plotable
 
 
-def display_VisualSequence(vis_seq_list=list(), visualisation="", \
+def display_VisualSequence(vis_seq_list=list(), visualisation="",
                            title="", xlabel="", ylabel="", figure=0, **keys):
     """Plots 2D visual sequences.
     
@@ -162,19 +162,16 @@ def display_VisualSequence(vis_seq_list=list(), visualisation="", \
             Y label description
     """
     if visualisation == 'Hist':
-        return display_VisualSequence_as_Hist( vis_seq=vis_seq_list,\
-                                               title=title, xlabel=xlabel,\
-                                               ylabel=ylabel, figure=figure,\
-                                               **keys )
+        return display_visualsequence_as_hist( vis_seq=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
     elif visualisation == 'PointLine':
-        return display_VisualSequence_as_PointLine(vis_seq_list=vis_seq_list,\
-                                                   title=title, xlabel=xlabel,\
-                                                   ylabel=ylabel, \
+        return display_VisualSequence_as_PointLine(vis_seq_list=vis_seq_list,
+                                                   title=title, xlabel=xlabel,
+                                                   ylabel=ylabel, 
                                                    figure=figure, **keys )
     raise TypeError("Any know plot type")
 
-def display_VisualSequence_as_PointLine(vis_seq_list=list(), title="", \
-                                        xlabel="", ylabel="", figure=0, \
+def display_VisualSequence_as_PointLine(vis_seq_list=list(), title="", 
+                                        xlabel="", ylabel="", figure=0, 
                                         **keys ):
     """Plots 2D visual sequences.
     
@@ -196,8 +193,8 @@ def display_VisualSequence_as_PointLine(vis_seq_list=list(), title="", \
         iter( objList )
         legend = []
         for obj in objList :
-            pylab.plot(obj.x, obj.y, linestyle=obj.linestyle, \
-                       marker=obj.marker, color=obj.color, \
+            pylab.plot(obj.x, obj.y, linestyle=obj.linestyle, 
+                       marker=obj.marker, color=obj.color, 
                        markerfacecolor=obj.color, **keys )
             if obj.legend:
                 legend.append(obj.legend)
@@ -208,8 +205,8 @@ def display_VisualSequence_as_PointLine(vis_seq_list=list(), title="", \
         # do sth with exceptions
         obj = vis_seq_list
         #print figure
-        pylab.plot(obj.x, obj.y, linestyle=obj.linestyle, \
-                   marker=obj.marker, color=obj.color, \
+        pylab.plot(obj.x, obj.y, linestyle=obj.linestyle, 
+                   marker=obj.marker, color=obj.color, 
                    markerfacecolor=obj.color,  **keys )
 
     xmin, xmax = pylab.xlim()
@@ -244,7 +241,7 @@ def change_VisualSequence_HistView( vis_seq,  new_bins, new_color ):
     return  plotable
 
 
-def display_VisualSequence_as_Hist(vis_seq=[], title="", xlabel="", \
+def display_VisualSequence_as_Hist(vis_seq=[], title="", xlabel="", 
                                    ylabel="", figure=0, **keys ):
     """plots 2d visual sequences.
     
@@ -263,12 +260,13 @@ def display_VisualSequence_as_Hist(vis_seq=[], title="", xlabel="", \
     
     pylab.figure( figure )
     pylab.cla()
-    pylab.hist(vis_seq.y, vis_seq.bins, **keys )
+    pylab.hist(vis_seq.y, vis_seq.bins,range=vis_seq.x, **keys )
     pylab.title( title )
     pylab.xlabel( xlabel )
     pylab.ylabel( ylabel )
     pylab.show()
 
+display_VisualSequence_as_Hist = display_visualsequence_as_hist
 
 def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
     """generates visual sequence2D from a list a 2uples (x,y)
