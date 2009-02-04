@@ -343,3 +343,23 @@ def system_cmd(str_list):
 
     return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
 
+class For(Node):
+    """ While Loop Univariate
+    In 0 : Initial value
+    In 1 : Sequence
+    In 2 : Process Function
+
+    Out 0 : Result value
+    """
+
+    def __call__(self, inputs):
+
+        value = inputs[0]
+        l = inputs[1]
+        func = inputs[2]
+
+        for i in l:
+            value = func(value)
+
+        return (value, )
+

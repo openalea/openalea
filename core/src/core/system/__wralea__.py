@@ -42,16 +42,17 @@ annotation = Factory(name="annotation",
 
 __all__.append('annotation')
 
-#     nf = Factory(name="iter", 
-#                  description="Iteration", 
-#                  category="System", 
-#                  nodemodule="systemnodes",
-#                  nodeclass="IterNode",
-#                  inputs = (dict(name="generator", interface=None, value=None),
-#                            ),
-#                  outputs = ( dict(name="value", interface=None), ),
+iter = Factory(name="iter", 
+                  description="Iteration", 
+                  category="System", 
+                  nodemodule="systemnodes",
+                  nodeclass="IterNode",
+                  inputs = (dict(name="generator", interface=None, value=None),
+                            ),
+                  outputs = ( dict(name="value", interface=None), ),
 
-#                  )
+                  )
+__all__.append('iter')
 
 rdv = Factory(name="rendez vous", 
               description="Synchronize 2 inputs", 
@@ -216,4 +217,17 @@ _delay = Factory(name="delay",
 __all__.append('_delay')
 
 
+_for = Factory(name="for", 
+             description="for Loop (Univariate)", 
+             category="flow control", 
+             nodemodule="systemnodes",
+             nodeclass="For",
+             inputs = (dict(name="InitValue", interface=None, value=None),  
+                       dict(name="list", interface=ISequence, value=None),  
+                       dict(name="Function", interface=IFunction, value=None),  
+                       ),
+             outputs = ( dict(name="Result", interface=None), ),
+             )
+
+__all__.append('_for')
 
