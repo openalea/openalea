@@ -450,8 +450,9 @@ def %s(%s):
             if (src != dst):
                 shutil.copyfile(src, dst)
         except shutil.Error:
-            f = open(dst, 'w')
-            f.close()
+            if not os.path.exists(dst):
+                f = open(dst, 'w')
+                f.close()
 
         newfactory = DataFactory(bname, description)
 

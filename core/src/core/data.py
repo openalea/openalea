@@ -77,7 +77,7 @@ class DataFactory(AbstractFactory):
         includes : List of data files that are included in the file.
         """
 
-        AbstractFactory.__init__(self, name, description, \
+        AbstractFactory.__init__(self, name, description, 
             category='data', **kargs)
         self.pkgdata_cache = None
 

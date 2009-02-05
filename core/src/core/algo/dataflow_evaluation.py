@@ -416,7 +416,8 @@ class LambdaEvaluation(PriorityEvaluation):
         self.lambda_value.clear() # do not keep context in memory
 
 
-DefaultEvaluation = LambdaEvaluation
+#DefaultEvaluation = LambdaEvaluation
+DefaultEvaluation = GeneratorEvaluation
 
 
 # from collections import deque
