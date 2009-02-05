@@ -36,7 +36,7 @@ from openalea.core.package import UnknownNodeError
 from openalea.core.dataflow import DataFlow, InvalidEdge
 #from openalea.core.dataflow import PortError
 #from openalea.core.algo.dataflow_copy import structural_copy
-#from openalea.core.settings import Settings
+from openalea.core.settings import Settings
 
 
 class IncompatibleNodeError(Exception):
@@ -406,22 +406,22 @@ class CompositeNode(Node, DataFlow):
     def get_eval_algo(self):
         """ Return the evaluation algo instance """
 
-#         config = Settings()
+        config = Settings()
 
-#         try:
-#             str = config.get("eval", "type")
+        try:
+            str = config.get("eval", "type")
 
-#             str = str.strip('"'); str = str.strip("'")
+            str = str.strip('"'); str = str.strip("'")
 
-#             # import module
-#             baseimp = "algo.dataflow_evaluation"
-#             module = __import__(baseimp, globals(), locals(), [str])
-#             classobj = module.__dict__[str]
-#             return classobj(self)
+            # import module
+            baseimp = "algo.dataflow_evaluation"
+            module = __import__(baseimp, globals(), locals(), [str])
+            classobj = module.__dict__[str]
+            return classobj(self)
 
-#         except Exception, e:
-        from  openalea.core.algo.dataflow_evaluation import DefaultEvaluation
-        return DefaultEvaluation(self)
+        except Exception, e:
+            from  openalea.core.algo.dataflow_evaluation import DefaultEvaluation
+            return DefaultEvaluation(self)
 
     def eval_as_expression(self, vtx_id=None):
         """
