@@ -82,6 +82,7 @@ class NodeModel(object):
             self.model.c_show_primordia = True
             
         self.model.run(nbr_prims)
+        print  "current_prim: ",self.model.current_prim
         return ({"prim2init_pos":self.model.i_prim2init_pos.copy(), "prim2time":self.model.i_prim2time.copy(), "current_prim":self.model.current_prim}, )
             
 	
