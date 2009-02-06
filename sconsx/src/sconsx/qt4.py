@@ -1,4 +1,3 @@
-
 """SCons.Tool.qt
 
 Tool-specific initialization for Qt.
@@ -9,10 +8,8 @@ selection method.
 
 """
 
-__license__ = "Cecill-C"
-__revision__ =" $Id$"
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -45,6 +42,7 @@ import SCons.Defaults
 import SCons.Scanner
 import SCons.Tool
 import SCons.Util
+from SCons.Script.SConscript import SConsEnvironment
 
 class ToolQtWarning(SCons.Warnings.Warning):
 	pass
@@ -59,14 +57,10 @@ SCons.Warnings.enableWarningClass(ToolQtWarning)
 
 qrcinclude_re = re.compile(r'<file>([^<]*)</file>', re.M)
 
-def transformToWinePath(path) :
-	return os.popen('winepath -w "%s"'%path).read().strip().replace('\\','/')
 
 header_extensions = [".h", ".hxx", ".hpp", ".hh"]
 if SCons.Util.case_sensitive_suffixes('.h', '.H'):
 	header_extensions.append('.H')
-# TODO: The following two lines will work when integrated back to SCons
-# TODO: Meanwhile the third line will do the work
 #cplusplus = __import__('c++', globals(), locals(), [])
 #cxx_suffixes = cplusplus.CXXSuffixes
 cxx_suffixes = [".c", ".cxx", ".cpp", ".cc"]
@@ -85,6 +79,7 @@ def checkMocIncluded(target, source, env):
 			(str(moc), str(cpp)))
 
 def find_file(filename, paths, node_factory):
+	retval = None
 	for dir in paths:
 		node = node_factory(filename, dir)
 		if node.rexists():
@@ -116,6 +111,7 @@ class _Automoc:
 			debug = 0
 		
 		# some shortcuts used in the scanner
+		FS = SCons.Node.FS.default_fs
 		splitext = SCons.Util.splitext
 		objBuilder = getattr(env, self.objBuilderName)
 
@@ -125,7 +121,7 @@ class _Automoc:
 		# cxx and c comment 'eater'
 		#comment = re.compile(r'(//.*)|(/\*(([^*])|(\*[^/]))*\*/)')
 		# CW: something must be wrong with the regexp. See also bug #998222
-		#	 CURRENTLY THERE IS NO TEST CASE FOR THAT
+		#     CURRENTLY THERE IS NO TEST CASE FOR THAT
 		
 		# The following is kind of hacky to get builders working properly (FIXME)
 		objBuilderEnv = objBuilder.env
@@ -137,9 +133,6 @@ class _Automoc:
 		out_sources = source[:]
 
 		for obj in source:
-			if isinstance(obj,basestring):  # big kludge!
-				print "scons: qt4: '%s' MAYBE USING AN OLD SCONS VERSION AND NOT CONVERTED TO 'File'. Discarded." % str(obj)
-				continue
 			if not obj.has_builder():
 				# binary obj file provided
 				if debug:
@@ -196,48 +189,46 @@ AutomocStatic = _Automoc('StaticObject')
 
 def _detect(env):
 	"""Not really safe, but fast method to detect the QT library"""
-	try: return env['QTDIR']
-	except KeyError: pass
 
-	try: return os.environ['QTDIR']
-	except KeyError: pass
+	QTDIR = env.get('QTDIR',None)
+	if QTDIR!=None : return QTDIR
+
+	QTDIR = os.environ.get('QTDIR',None)
+	if QTDIR!=None : return QTDIR
 
 	moc = env.WhereIs('moc-qt4') or env.WhereIs('moc4') or env.WhereIs('moc')
 	if moc:
-		QTDIR = os.path.dirname(os.path.dirname(moc))
 		SCons.Warnings.warn(
 			QtdirNotFound,
 			"QTDIR variable is not defined, using moc executable as a hint (QTDIR=%s)" % QTDIR)
-		return QTDIR
+		return os.path.dirname(os.path.dirname(moc))
 
-	raise SCons.Errors.StopError(
+	SCons.Warnings.warn(
 		QtdirNotFound,
-		"Could not detect Qt 4 installation")
+		"Could not detect qt, using empty QTDIR")
 	return None
 
 def generate(env):
 	"""Add Builders and construction variables for qt to an Environment."""
 
-	def locateQt4Command(env, command, qtdir) :
-		suffixes = [
-			'-qt4',
-			'-qt4.exe',
-			'4',
-			'4.exe',
-			'',
-			'.exe',
-		]
-		triedPaths = []
-		for suffix in suffixes :
-			fullpath = os.path.join(qtdir,'bin',command + suffix)
-			if os.access(fullpath, os.X_OK) :
-				return fullpath
-			triedPaths.append(fullpath)
+	print "Loading qt4 tool..."
 
+	def locateQt4Command(env, command, qtdir) :
+		fullpath1 = os.path.join(qtdir,'bin',command +'-qt4')
+		if os.access(fullpath1, os.X_OK) or \
+			os.access(fullpath1+".exe", os.X_OK):
+			return fullpath1
+		fullpath3 = os.path.join(qtdir,'bin',command +'4')
+		if os.access(fullpath3, os.X_OK) or \
+			os.access(fullpath3+".exe", os.X_OK):
+			return fullpath3
+		fullpath2 = os.path.join(qtdir,'bin',command)
+		if os.access(fullpath2, os.X_OK) or \
+			os.access(fullpath2+".exe", os.X_OK):
+			return fullpath2
 		fullpath = env.Detect([command+'-qt4', command+'4', command])
 		if not (fullpath is None) : return fullpath
-
-		raise Exception("Qt4 command '" + command + "' not found. Tried: " + ', '.join(triedPaths))
+		raise "Qt4 command '" + command + "' not found. Tried: " + fullpath1 + " and "+ fullpath2
 		
 
 	CLVar = SCons.Util.CLVar
@@ -281,14 +272,12 @@ def generate(env):
 		QT4_QRCSUFFIX = '.qrc',
 		QT4_QRCCXXSUFFIX = '$CXXFILESUFFIX',
 		QT4_QRCCXXPREFIX = 'qrc_',
-		QT4_MOCCPPPATH = [],
-		QT4_MOCINCFLAGS = '$( ${_concat(INCPREFIX, QT4_MOCCPPPATH, INCSUFFIX, __env__, RDirs)} $)',
 
 		# Commands for the qt support ...
 		QT4_UICCOM = '$QT4_UIC $QT4_UICFLAGS -o $TARGET $SOURCE',
-		QT4_MOCFROMHCOM = '$QT4_MOC $QT4_MOCFROMHFLAGS $QT4_MOCINCFLAGS -o $TARGET $SOURCE',
+		QT4_MOCFROMHCOM = '$QT4_MOC $QT4_MOCFROMHFLAGS -o $TARGET $SOURCE',
 		QT4_MOCFROMCXXCOM = [
-			'$QT4_MOC $QT4_MOCFROMCXXFLAGS $QT4_MOCINCFLAGS -o $TARGET $SOURCE',
+			'$QT4_MOC $QT4_MOCFROMCXXFLAGS -o $TARGET $SOURCE',
 			Action(checkMocIncluded,None)],
 		QT4_LUPDATECOM = '$QT4_LUPDATE $SOURCE -ts $TARGET',
 		QT4_LRELEASECOM = '$QT4_LRELEASE $SOURCE',
@@ -311,25 +300,8 @@ def generate(env):
 
 	# Resource builder
 	def scanResources(node, env, path, arg):
-		# I've being careful on providing names relative to the qrc file
-		# If that was not needed that code could be simplified a lot
-		def recursiveFiles(basepath, path) :
-			result = []
-			for item in os.listdir(os.path.join(basepath, path)) :
-				itemPath = os.path.join(path, item)
-				if os.path.isdir(os.path.join(basepath, itemPath)) :
-					result += recursiveFiles(basepath, itemPath)
-				else:
-					result.append(itemPath)
-			return result
 		contents = node.get_contents()
 		includes = qrcinclude_re.findall(contents)
-		qrcpath = os.path.dirname(node.path)
-		dirs = [included for included in includes if os.path.isdir(os.path.join(qrcpath,included))]
-		# dirs need to include files recursively
-		for dir in dirs :
-			includes.remove(dir)
-			includes+=recursiveFiles(qrcpath,dir)
 		return includes
 	qrcscanner = SCons.Scanner.Scanner(name = 'qrcfile',
 		function = scanResources,
@@ -354,7 +326,7 @@ def generate(env):
 		single_source = True
 		#TODO: Consider the uiscanner on new scons version
 		)
-	env['BUILDERS']['Uic4'] = uic4builder
+	env.Append( BUILDERS = { 'Uic4': uic4builder } )
 
 	# Metaobject builder
 	mocBld = Builder(action={}, prefix={}, suffix={})
@@ -368,7 +340,7 @@ def generate(env):
 		mocBld.add_action(cxx, act)
 		mocBld.prefix[cxx] = '$QT4_MOCCXXPREFIX'
 		mocBld.suffix[cxx] = '$QT4_MOCCXXSUFFIX'
-	env['BUILDERS']['Moc4'] = mocBld
+	env.Append( BUILDERS = { 'Moc4': mocBld } )
 
 	# er... no idea what that was for
 	static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -384,14 +356,17 @@ def generate(env):
 					 SHLIBEMITTER=[AutomocShared],
 					 LIBEMITTER  =[AutomocStatic],
 					 # Of course, we need to link against the qt libraries
-#					 CPPPATH=["$QT4_CPPPATH"],
+					 CPPPATH=["$QT4_CPPPATH"],
 					 LIBPATH=["$QT4_LIBPATH"],
 					 LIBS=['$QT4_LIB'])
+	
+	#import new
+	#method = new.instancemethod(enable_modules, env, SCons.Environment)
+	#env.EnableQt4Modules=method
+	SConsEnvironment.EnableQt4Modules = enable_modules
 
-	# TODO: Does dbusxml2cpp need an adapter
-	env.AddMethod(enable_modules, "EnableQt4Modules")
 
-def enable_modules(self, modules, debug=False, crosscompiling=False) :
+def enable_modules(self, modules, debug=False) :
 	import sys
 
 	validModules = [
@@ -399,28 +374,20 @@ def enable_modules(self, modules, debug=False, crosscompiling=False) :
 		'QtGui',
 		'QtOpenGL',
 		'Qt3Support',
-		'QtAssistant',
-		'QtScript',
-		'QtDBus',
-		'QtSql',
 		# The next modules have not been tested yet so, please
 		# maybe they require additional work on non Linux platforms
+		'QtSql',
 		'QtNetwork',
 		'QtSvg',
 		'QtTest',
 		'QtXml',
-		'QtXmlPatterns',
 		'QtUiTools',
 		'QtDesigner',
-		'QtDesignerComponents',
-		'QtWebKit',
-		'QtHelp',
-		'QtScript',
+		'QtDBUS',
 		]
 	pclessModules = [
-# in qt <= 4.3 designer and designerComponents are pcless, on qt4.4 they are not, so removed.	
-#		'QtDesigner',
-#		'QtDesignerComponents',
+		'QtUiTools',
+		'QtDesigner',
 	]
 	staticModules = [
 		'QtUiTools',
@@ -430,69 +397,45 @@ def enable_modules(self, modules, debug=False, crosscompiling=False) :
 		if module not in validModules :
 			invalidModules.append(module)
 	if invalidModules :
-		raise Exception("Modules %s are not Qt4 modules. Valid Qt4 modules are: %s"% (
-			str(invalidModules),str(validModules)))
+		raise "Modules %s are not Qt4 modules. Valid Qt4 modules are: %s"% \
+			(str(invalidModules),str(validModules))
 
-	moduleDefines = {
-		'QtScript'   : ['QT_SCRIPT_LIB'],
-		'QtSvg'      : ['QT_SVG_LIB'],
-		'Qt3Support' : ['QT_QT3SUPPORT_LIB','QT3_SUPPORT'],
-		'QtSql'      : ['QT_SQL_LIB'],
-		'QtXml'      : ['QT_XML_LIB'],
-		'QtOpenGL'   : ['QT_OPENGL_LIB'],
-		'QtGui'      : ['QT_GUI_LIB'],
-		'QtNetwork'  : ['QT_NETWORK_LIB'],
-		'QtCore'     : ['QT_CORE_LIB'],
-	}
-	for module in modules :
-		try : self.AppendUnique(CPPDEFINES=moduleDefines[module])
-		except: pass
+	# TODO: Check whether we should add QT_CORE_LIB, QT_XML_LIB, QT_NETWORK_LIB...
+	if 'QtGui' in modules:
+		self.AppendUnique(CPPFLAGS=['-DQT_GUI_LIB'])
+
 	debugSuffix = ''
-	if sys.platform in ["darwin", "linux2"] and not crosscompiling :
+	if sys.platform == "linux2" :
 		if debug : debugSuffix = '_debug'
-		for module in modules :
-			if module not in pclessModules : continue
-			self.AppendUnique(LIBS=[module+debugSuffix])
-			self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4")])
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4",module)])
+		
+		self.AppendUnique(LIBPATH=["$QT4_LIBPATH"])
+		qt4_inc = self.subst('$QT4_CPPPATH')
+		if os.path.exists(os.path.join(qt4_inc,"qt4")):
+			self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH","qt4")])
+			for module in modules :
+				if module not in pclessModules : continue
+				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+				self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH","qt4",module)])
+		else:
+			#self.AppendUnique(CPPPATH=["$QT4_CPPPATH"])
+			for module in modules :
+				if module not in pclessModules : continue
+				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+				self.AppendUnique(CPPPATH=[os.path.join("$QT4_CPPPATH",module)])
+				print self.subst("$QT4_CPPPATH")
 		pcmodules = [module+debugSuffix for module in modules if module not in pclessModules ]
-		if 'QtDBus' in pcmodules:
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4","QtDBus")])
-		if "QtAssistant" in pcmodules:
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","qt4","QtAssistant")])
-			pcmodules.remove("QtAssistant")
-			pcmodules.append("QtAssistantClient")
 		self.ParseConfig('pkg-config %s --libs --cflags'% ' '.join(pcmodules))
-		self["QT4_MOCCPPPATH"] = self["CPPPATH"]
 		return
-	if sys.platform == "win32" or crosscompiling :
-		if crosscompiling:
-			transformedQtdir = transformToWinePath(self['QTDIR'])
-			self['QT4_MOC'] = "QTDIR=%s %s"%( transformedQtdir, self['QT4_MOC'])
-		self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
-		try: modules.remove("QtDBus")
-		except: pass
+	if sys.platform == "win32" :
 		if debug : debugSuffix = 'd'
-		if "QtAssistant" in modules:
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include","QtAssistant")])
-			modules.remove("QtAssistant")
-			modules.append("QtAssistantClient")
 		self.AppendUnique(LIBS=[lib+'4'+debugSuffix for lib in modules if lib not in staticModules])
-		self.PrependUnique(LIBS=[lib+debugSuffix for lib in modules if lib in staticModules])
+		self.AppendUnique(LIBS=[lib+debugSuffix for lib in modules if lib in staticModules])
 		if 'QtOpenGL' in modules:
 			self.AppendUnique(LIBS=['opengl32'])
-		self.AppendUnique(CPPPATH=[ '$QTDIR/include/'])
-		self.AppendUnique(CPPPATH=[ '$QTDIR/include/'+module for module in modules])
-		if crosscompiling :
-			self["QT4_MOCCPPPATH"] = [
-				path.replace('$QTDIR', transformedQtdir)
-					for path in self['CPPPATH'] ]
-		else :
-			self["QT4_MOCCPPPATH"] = self["CPPPATH"]
+		self.AppendUnique(CPPPATH=[ '$QTDIR/include/'+module
+			for module in modules])
 		self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
 		return
-	"""
 	if sys.platform=="darwin" :
 		# TODO: Test debug version on Mac
 		self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
@@ -500,29 +443,26 @@ def enable_modules(self, modules, debug=False, crosscompiling=False) :
 		self.AppendUnique(LINKFLAGS="-L$QTDIR/lib") #TODO clean!
 		if debug : debugSuffix = 'd'
 		for module in modules :
-#			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
-#			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include",module)])
-# port qt4-mac:
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include", "qt4")])
-			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include", "qt4", module)])
-			if module in staticModules :
+			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
+			self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include",module)])
+			if module in pclessModules :
 				self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
 				self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
 			else :
-#				self.Append(LINKFLAGS=['-framework', module])
-# port qt4-mac:
-				self.Append(LIBS=module)
+				self.Append(LINKFLAGS=['-framework', module])
 		if 'QtOpenGL' in modules:
 			self.AppendUnique(LINKFLAGS="-F/System/Library/Frameworks")
 			self.Append(LINKFLAGS=['-framework', 'AGL']) #TODO ughly kludge to avoid quotes
 			self.Append(LINKFLAGS=['-framework', 'OpenGL'])
-		self["QT4_MOCCPPPATH"] = self["CPPPATH"]
 		return
 # This should work for mac but doesn't
 #	env.AppendUnique(FRAMEWORKPATH=[os.path.join(env['QTDIR'],'lib')])
 #	env.AppendUnique(FRAMEWORKS=['QtCore','QtGui','QtOpenGL', 'AGL'])
-	"""
 
 
 def exists(env):
 	return True
+        #return _detect(env)
+
+
+
