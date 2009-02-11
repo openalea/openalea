@@ -11,11 +11,13 @@ from setuptools import setup, find_packages
 from os.path import join as pj
 import sys, os
 
+name = "OpenAlea.Deploy"
+version = "0.6.2"
 
 setup(
     # Metadata for PyPi
-    name = "OpenAlea.Deploy",
-    version = "0.6.2",
+    name = name,
+    version = version, 
     author = "Samuel Dufour-Kowalski, Christophe Pradal",
     author_email = "christophe.pradal@cirad.fr",
     description = "Setuptools extension for OpenAlea",
