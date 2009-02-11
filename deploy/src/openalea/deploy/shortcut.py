@@ -15,40 +15,39 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
- """ Os Functions to add shortcut and Mime type association """
+"""OS Functions to add shortcut and Mime type association """
  
- __license__ = "Cecill-C"
+__license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
- 
 import os
 import sys
+
 
 def create_win_shortcut(name, target, arguments = "",
                         startin = "", icon = "", description = "",
                         menugroup = "OpenAlea"):
     
     """ Create windows shortcut
-    @param name : link name
-    @param target : executable file path (ex : Pythonroot + pythonw.exe)
-    @param arguments : (ex python module path)
-    @param startin : execution path (same as python module path)
-    @param icon : icon path (ex Pythonroot + '\\py.ico')
-    @param description : ...
-    @param menugroup : Menu group entry
+    
+    :param name: link name
+    :param target: executable file path (ex : Pythonroot + pythonw.exe)
+    :param arguments: (ex python module path)
+    :param startin: execution path (same as python module path)
+    :param icon: icon path (ex Pythonroot + '\\py.ico')
+    :param description: ...
+    :param menugroup: Menu group entry
 
-    ex :
-    	TempDir = os.environ["TEMP"]
- 
-	Name        =  "New Link"
-	Target      =  Pythonroot + "pythonw.exe "
-	Arguments   =  TempDir + "\\test.py"
-	StartIn     =  TempDir
-	Icon        =  Pythonroot + "\\py.ico"
-	Description = "New Link"
- 
-	CreateWinShortCut(Path,Target,Arguments,StartIn,Icon,Description)
+    :example:
+    
+    >>>	TempDir = os.environ["TEMP"]
+    >>>	Name        =  "New Link"
+	>>> Target      =  Pythonroot + "pythonw.exe "
+	>>> Arguments   =  TempDir + "\\test.py"
+	>>> StartIn     =  TempDir
+	>>> Icon        =  Pythonroot + "\\py.ico"
+	>>> Description = "New Link"
+    >>> CreateWinShortCut(Path,Target,Arguments,StartIn,Icon,Description)
     """
 
     (Name, Target, Arguments, StartIn, Icon, Description, MenuGroup) = \
@@ -76,7 +75,7 @@ def create_win_shortcut(name, target, arguments = "",
     if(not os.path.isdir(MenuRoot)):
         os.mkdir(MenuRoot)
     
-    Path =   MenuRoot + "\\%s.lnk"%(Name)
+    Path = MenuRoot + "\\%s.lnk"%(Name)
     Icon = (Icon, 0) 
     
     # Get the shell interface.
@@ -89,10 +88,10 @@ def create_win_shortcut(name, target, arguments = "",
     sh.SetArguments(Arguments)
     sh.SetWorkingDirectory(StartIn)
     if(Icon[0]):
-        sh.SetIconLocation(Icon[0],Icon[1])
+        sh.SetIconLocation(Icon[0], Icon[1])
  
     # Save the link itself.
-    sh.QueryInterface(pythoncom.IID_IPersistFile).Save(Path,0)
+    sh.QueryInterface(pythoncom.IID_IPersistFile).Save(Path, 0)
  
 
 def set_win_reg(key, subkey, name, value):
@@ -126,11 +125,12 @@ def set_win_reg(key, subkey, name, value):
                'HKU' :_winreg.HKEY_USERS,                                  
                }
 
-    if(name) : subkey += '/' + name
+    if(name):
+        subkey += '/' + name
     try:
         _winreg.SetValue(keymap[key], subkey, _winreg.REG_SZ, value)
     except:
-        print "Cannot set %s/%s/%s registery key"%(key, subkey, name)
+        print "Cannot set %s/%s/%s registery key" % (key, subkey, name)
 
 
 
@@ -138,38 +138,40 @@ def set_win_reg(key, subkey, name, value):
 def create_fd_shortcut(name, target, arguments = "", version="",
                        icon = "", description = "", menugroup="OpenAlea"):
     """ Create a desktop shortcut on freedesktop compatible system
-    @param Name : Shortcut name
-    @param Target : executable file path (ex : Pythonroot + pythonw.exe)
-    @param Arguments : (ex python module path)
-    @param Version
-    @param Icon : Icon name
-    @param Description : ...
-    @param MenuGroup : category
+    
+    :param Name: Shortcut name
+    :param Target: executable file path (ex : Pythonroot + pythonw.exe)
+    :param Arguments: (ex python module path)
+    :param Version:
+    :param Icon: Icon name
+    :param Description: ...
+    :param MenuGroup: category
     """
 
     (Name, Target, Arguments, Version, Icon, Description, MenuGroup) = \
                (name, target, arguments, version, icon, description, menugroup)
             
-    if(not 'posix' in os.name): return
+    if (not 'posix' in os.name):
+        return
 
-    Exec = "%s %s"%(Target, Arguments)
+    Exec = "%s %s" % (Target, Arguments)
 
     # Generate .desktop file
-    deskfilename = "%s.desktop"%(Name)
+    deskfilename = "%s.desktop" % (Name)
     deskfile = open(deskfilename, 'w')
 
     deskfile.write('[Desktop Entry]\n')
-    deskfile.write('Version=%s\n'%(Version))
+    deskfile.write('Version=%s\n' % (Version))
     deskfile.write('Type=Application\n')
-    deskfile.write('Name=%s\n'%(Name))
-    deskfile.write('Comment=%s\n'%(Description))
-    deskfile.write('TryExec=%s\n'%(Exec))
-    deskfile.write('Exec=%s %s\n'%(Exec, '%F'))
-    deskfile.write('Icon=%s\n'%(Icon))
+    deskfile.write('Name=%s\n' % (Name))
+    deskfile.write('Comment=%s\n' % (Description))
+    deskfile.write('TryExec=%s\n' % (Exec))
+    deskfile.write('Exec=%s %s\n' % (Exec, '%F'))
+    deskfile.write('Icon=%s\n' % (Icon))
     #deskfile.write('MimeType=image/x-foo;\n')
 
     deskfile.close()
 
     os.system('desktop-file-install %s \
-    --vendor="openalea" --add-category="%s"'%(deskfilename, MenuGroup))
+    --vendor="openalea" --add-category="%s"' % (deskfilename, MenuGroup))
 

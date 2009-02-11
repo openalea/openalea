@@ -7,8 +7,6 @@ __requires__ = 'setuptools'
 import sys, os
 
 
-
-
 def main(argv=None, **kw):
     from setuptools import setup
     from setuptools.dist import Distribution
@@ -19,7 +17,7 @@ usage: %(script)s [options] requirement_or_url ...
    or: %(script)s --help
 """
 
-    def gen_usage (script_name):
+    def gen_usage(script_name):
         script = os.path.basename(script_name)
         return USAGE % vars()
 

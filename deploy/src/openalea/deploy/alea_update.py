@@ -15,7 +15,7 @@
 """todo"""
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 
 import os, sys
 import shutil
@@ -34,10 +34,10 @@ def remove_egg(project_name, dist):
     try:
         print "Remove ", project_name, version, location
         if(os.path.isdir(location)):
-            print "Remove directory : %s"%(location,)
+            print "Remove directory : %s" % (location,)
             shutil.rmtree(location)
         else:
-            print "Remove file %s"%(location)
+            print "Remove file %s" % (location)
             os.remove(location)
             return True
 
@@ -75,9 +75,8 @@ def update_all():
     env = Environment()
 
     for project_name in env._distmap.keys():
-        print "Update %s"%(project_name)
+        print "Update %s" % (project_name)
         alea_install_U(project_name)
-
 
 
 def alea_install_U(project_name):

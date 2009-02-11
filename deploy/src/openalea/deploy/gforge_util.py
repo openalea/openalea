@@ -16,27 +16,27 @@
 
 Enables the use of multipart/form-data for posting forms
 
-Inspirations
-------------
-    Upload files in python:
-        http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
-    urllib2_file:
-        Fabien Seisen: <fabien@seisen.org>
+:Inspirations:
 
-Example
--------
+Upload files in python:
+    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
+urllib2_file:
+    Fabien Seisen: <fabien@seisen.org>
+
+:Example:
+
 >>> import MultipartPostHandler, urllib2, cookielib
-    cookies = cookielib.CookieJar()
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies),
-        MultipartPostHandler.MultipartPostHandler)
-    params = { "username" : "bob", "password" : "riviera",
-        "file" : open("filename", "rb") }
-    opener.open("http://wwww.bobsite.com/upload/", params)
+>>>    cookies = cookielib.CookieJar()
+>>>    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies),
+>>>        MultipartPostHandler.MultipartPostHandler)
+>>>    params = { "username" : "bob", "password" : "riviera",
+>>>        "file" : open("filename", "rb") }
+>>>    opener.open("http://wwww.bobsite.com/upload/", params)
 
-Further Example
----------------
-  The main function of this file is a sample which downloads a page and
-  then uploads it to the W3C validator.
+:Further Example:
+
+The main function of this file is a sample which downloads a page and
+then uploads it to the W3C validator.
 """
 
 __license__ = "Cecill-C"
@@ -49,14 +49,16 @@ import os, stat, sys
 from cStringIO import StringIO
 
 class Callable:
+    """ todo """
     def __init__(self, anycallable):
         self.__call__ = anycallable
 
-# Controls how sequences are uncoded. If true, elements may be given multiple values by
-#  assigning a sequence.
+# Controls how sequences are uncoded. If true, elements may be given multiple 
+# values by  assigning a sequence.
 doseq = 1
 
 class MultipartPostHandler(urllib2.BaseHandler):
+    """ todo """
     handler_order = urllib2.HTTPHandler.handler_order - 10 # needs to run first
 
     def http_request(self, request):
@@ -65,11 +67,11 @@ class MultipartPostHandler(urllib2.BaseHandler):
             v_files = []
             v_vars = []
             try:
-                 for(key, value) in data.items():
-                     if key == "userfile":
-                         v_files.append((key, value))
-                     else:
-                         v_vars.append((key, value))
+                for(key, value) in data.items():
+                    if key == "userfile":
+                        v_files.append((key, value))
+                    else:
+                        v_vars.append((key, value))
             except TypeError:
                 systype, value, traceback = sys.exc_info()
                 raise TypeError, "not a valid non-string sequence or mapping object", traceback
@@ -94,10 +96,12 @@ class MultipartPostHandler(urllib2.BaseHandler):
             boundary = mimetools.choose_boundary()
         if buf is None:
             buf = StringIO()
+        
         for(key, value) in vars:
             buf.write('--%s\r\n' % boundary)
             buf.write('Content-Disposition: form-data; name="%s"' % key)
             buf.write('\r\n\r\n' + value + '\r\n')
+        
         for(key, fd) in files:
             file_size = os.fstat(fd.fileno())[stat.ST_SIZE]
             filename = fd.name.split('/')[-1]
@@ -118,8 +122,6 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
 ##########################################################"
 
-
-
 import cookielib, urllib, urllib2, urlparse
 import os
 import glob
@@ -127,6 +129,7 @@ urlOpener = None
 
 def cookie_login(loginurl, values):
     """ Open a session
+
     login_url : the login url
     values : dictionnary containing login form field
     """
@@ -149,9 +152,6 @@ def cookie_login(loginurl, values):
     else:
         print "We are logged in !"
 
-        
-
-
 ########################################
 # To add a new function:
 #  + go to the web page and display the source.
@@ -159,6 +159,7 @@ def cookie_login(loginurl, values):
 #  + copy also the url
 #  + check the type or the domain of the values.
 #  + Create the function (dict+ post url)
+
 
 def gforge_login(userid, passwd):
     """ Login on Gforge """

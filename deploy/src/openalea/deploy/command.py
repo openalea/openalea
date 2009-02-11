@@ -70,7 +70,8 @@ import install_lib
 def copy_data_tree(src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
     """
     Copy an entire directory tree 'src' to a new location 'dst'.
-    @param exclude_pattern: a list of pattern to exclude.
+    
+    :param exclude_pattern: a list of pattern to exclude.
     """
     names = os.listdir(src)
     mkpath(dst)
@@ -705,11 +706,13 @@ from %s.__init__ import *
 """
 
     def initialize_options(self):
+        """todo"""
         self.namespaces = []
         self.create_namespaces = False
         old_develop.initialize_options(self)
 
     def finalize_options(self):
+        """todo"""
         try:
             self.namespaces = self.distribution.namespace_packages
             if (self.namespaces is None):

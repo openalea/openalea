@@ -17,12 +17,9 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
-
 import pkg_resources
 import os, sys
 from os.path import join as pj
-
 
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"

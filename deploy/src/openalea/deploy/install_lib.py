@@ -24,7 +24,6 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
 import os
-import sys
 import shutil
 import glob
 from os.path import join
@@ -114,8 +113,9 @@ def link_lib(src, dst):
     """ 
     Symlink/copy library if necessary
     and create a marker file (egm) if it is absent
-    src : source lib file
-    dst : destination lib file
+    
+    :param src : source lib file
+    :param dst : destination lib file
     """
 
     mark_file = dst + EGG_MARKER_EXTENSION
@@ -129,12 +129,11 @@ def link_lib(src, dst):
         # File is identical : return
         if(mark == src and os.path.exists(dst)):
             return False
-
     except:
         pass
     
     # copy
-    print "Installing %s -> %s"%(src, dst)
+    print "Installing %s -> %s" % (src, dst)
     if(os.path.exists(dst)):
         os.unlink(dst)
 
@@ -170,13 +169,13 @@ def clean_lib(lib_dir, clean_all=False):
                 print "Removing ", libfile
                 os.remove(libfile)
             except Exception, e:
-                print "Cannot remove %s : %s"%(libfile, e)
+                print "Cannot remove %s : %s" % (libfile, e)
             
             try:
                 print "Removing ", egm
                 os.remove(egm)
             except Exception, e:
-                print "Cannot remove %s : %s"%(egm, e)
+                print "Cannot remove %s : %s" % (egm, e)
 
 
 
@@ -225,14 +224,4 @@ def install_lib(lib_dir):
         except Exception, e:
             print e
             
-
-
     return lib_dir
-                
-
-
-
-
-    
-
-

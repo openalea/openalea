@@ -18,8 +18,7 @@
 """ Environment variable manipulation functions """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
-
+__revision__ = " $Id$"
 
 import os
 import sys
