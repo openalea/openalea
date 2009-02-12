@@ -1,0 +1,28 @@
+.. module:: dicts
+    :synopsis:  Data Nodes 
+            
+openalea.data.dict.dicts API
+############################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_data_dict_dicts_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.data.dict.dicts
+    :parts: 2
+
+
+.. automodule:: openalea.data.dict.dicts
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis:  Data Nodes      

@@ -1,0 +1,23 @@
+.. module:: image_transfo
+    :synopsis: This module provide basics function to handle 2D images
+            
+openalea.image.transformations.image_transfo API
+################################################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_image_transformations_image_transfo_src.rst
+
+
+
+.. automodule:: openalea.image.transformations.image_transfo
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: This module provide basics function to handle 2D images     

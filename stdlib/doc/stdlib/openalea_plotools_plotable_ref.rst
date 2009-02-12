@@ -1,0 +1,28 @@
+.. module:: plotable
+    :synopsis: Definition of plotable object
+            
+openalea.plotools.plotable API
+##############################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_plotools_plotable_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.plotools.plotable
+    :parts: 2
+
+
+.. automodule:: openalea.plotools.plotable
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: Definition of plotable object     
