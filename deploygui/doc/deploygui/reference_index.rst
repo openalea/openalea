@@ -1,0 +1,31 @@
+.. _deploygui_reference:
+
+Deploygui Reference Guide
+#########################
+
+:Version: |version|
+:Release: |release|
+:Date: |today|
+
+This reference manual details functions, modules, and objects included in 
+Openalea.Deploygui, describing what they are and what they do. For learning
+how to use Openalea.Deploygui see :ref:`deploygui_user`.
+
+.. warning::
+
+   This "Reference Guide" is still very much work in progress; the material
+   is not organized, and many aspects of Openalea.Deploygui are not 
+   covered.
+
+   More documentation can be found on the
+   `openalea <http://openalea.gforge.inria.fr>`__ wiki.
+
+.. toctree::
+    :maxdepth: 1
+        
+    openalea_deploygui_postinstall_ref.rst
+    openalea_deploygui_alea_install_gui_ref.rst
+    openalea_deploygui_auth_ref.rst
+    openalea_deploygui_fake_pkg_generation_ref.rst
+    openalea_deploygui_images_rc_ref.rst
+    openalea_deploygui_ui_mainwindow_ref.rst
