@@ -13,14 +13,11 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""This module provide an algorithm to create a factory from an instance of a
+dataflow"""
 
-__doc__="""
-This module provide an algorithm to create a factory from an instance of a
-dataflow
-"""
-
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 def structural_copy(dataflow_pattern, dataflow_copy):
