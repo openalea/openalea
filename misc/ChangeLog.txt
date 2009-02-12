@@ -1,0 +1,12 @@
+
+Release 
+=======
+
+- Add sphinx_tools and create_rest_files modules to help managing the sphinx documentation
+
+
+
+Release 0.6
+===========
+
+
