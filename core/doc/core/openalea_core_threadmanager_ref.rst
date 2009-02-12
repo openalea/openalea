@@ -1,0 +1,28 @@
+.. module:: threadmanager
+    :synopsis: This module defines the thread manager
+            
+openalea.core.threadmanager API
+###############################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_core_threadmanager_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.core.threadmanager
+    :parts: 2
+
+
+.. automodule:: openalea.core.threadmanager
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: This module defines the thread manager     

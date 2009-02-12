@@ -1,0 +1,28 @@
+.. module:: vlab
+    :synopsis: doc todo
+            
+openalea.core.vlab API
+######################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_core_vlab_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.core.vlab
+    :parts: 2
+
+
+.. automodule:: openalea.core.vlab
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: doc todo     
