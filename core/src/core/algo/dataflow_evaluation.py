@@ -303,13 +303,17 @@ class LambdaEvaluation(PriorityEvaluation):
     def eval_vertex(self, vid, context, lambda_value, *args):
         """
         Evaluate the vertex vid
-        @param context is a list a value to assign to lambdas
-
+        
         This function is called both by the user (eval a node and its parents)
         and by the SubDataFlow evaluation.
 
         First the graph is traversed by the algorithm in a bottom-up way.
         The SubDataflow is stored in the inputs.
+        
+
+        :param context: is a list a value to assign to lambdas
+
+        .. todo:: complete this docstring
         """
 
         df = self._dataflow
@@ -401,8 +405,9 @@ class LambdaEvaluation(PriorityEvaluation):
     def eval(self, vtx_id=None, context=None):
         """
         Eval the dataflow from vtx_id with a particular context
-        @param vtx_id: vertex id to start the evaluation
-        @param context: list a value to assign to lambda variables
+        
+        :param vtx_id: vertex id to start the evaluation
+        :param context: list a value to assign to lambda variables
         """
 
         self.lambda_value.clear()
