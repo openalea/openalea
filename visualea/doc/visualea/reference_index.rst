@@ -1,0 +1,51 @@
+.. _visualea_reference:
+
+Visualea Reference Guide
+########################
+
+:Version: |version|
+:Release: |release|
+:Date: |today|
+
+This reference manual details functions, modules, and objects included in 
+Openalea.Visualea, describing what they are and what they do. For learning
+how to use Openalea.Visualea see :ref:`visualea_user`.
+
+.. warning::
+
+   This "Reference Guide" is still very much work in progress; the material
+   is not organized, and many aspects of Openalea.Visualea are not 
+   covered.
+
+   More documentation can be found on the
+   `openalea <http://openalea.gforge.inria.fr>`__ wiki.
+
+.. toctree::
+    :maxdepth: 1
+        
+    openalea_visualea_annotation_ref.rst
+    openalea_visualea_code_editor_ref.rst
+    openalea_visualea_compositenode_widget_ref.rst
+    openalea_visualea_dialogs_ref.rst
+    openalea_visualea_gui_catalog_ref.rst
+    openalea_visualea_images_rc_ref.rst
+    openalea_visualea_mainwindow_ref.rst
+    openalea_visualea_metainfo_ref.rst
+    openalea_visualea_node_treeview_ref.rst
+    openalea_visualea_node_widget_ref.rst
+    openalea_visualea_scishell_ref.rst
+    openalea_visualea_shell_ref.rst
+    openalea_visualea_ui_ioconfig_ref.rst
+    openalea_visualea_ui_listedit_ref.rst
+    openalea_visualea_ui_mainwindow_ref.rst
+    openalea_visualea_ui_newdata_ref.rst
+    openalea_visualea_ui_newgraph_ref.rst
+    openalea_visualea_ui_newpackage_ref.rst
+    openalea_visualea_ui_nodechooser_ref.rst
+    openalea_visualea_ui_preferences_ref.rst
+    openalea_visualea_ui_tableedit_ref.rst
+    openalea_visualea_ui_tofactory_ref.rst
+    openalea_visualea_util_ref.rst
+    openalea_visualea_visualea_script_ref.rst
+    openalea_visualea_visualeagui_ref.rst
+    openalea_visualea_postinstall_ref.rst
