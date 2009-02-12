@@ -1,6 +1,7 @@
+"""script to download projects from the SVN and compile them"""
+
 __Id__ = "$Id$"
 __author__ = "Thomas Cokelaer, Thomas.Cokelaer@inria.fr "
-__name__ = "openalea_tools"
 __license__ = "Cecill-C"
 
 import getopt
@@ -57,22 +58,22 @@ def question(question, action=None, force=False):
     :param question: a string containing the question
     """
     question += '(yes/no?)'
-    _answer=''
+    _answer = ''
     while (_answer!='yes') and (_answer!='no'):
         if force:
             _answer = 'yes'
         else:
             _answer = raw_input(question)
-        if _answer=='yes':
+        if _answer == 'yes':
             try:
                 if action is not None:
                     status = os.system(action)
                 else:
-                    status=0
+                    status = 0
             except:
                 print 'Error. check the error and try again.'
             finally:
-                if status!=0:
+                if status != 0:
                     print 'Error status' + str(status)
                     sys.exit(0)
         elif _answer=='no':
@@ -105,7 +106,7 @@ def create_svn_command(package, login='anonymous', \
      """
     # First, we use either an anonymous access or a login.
     # todo: check that the login is correct, otherwise quit
-    if login=='anonymous':
+    if login == 'anonymous':
         cmd = 'svn checkout svn://' + login + '@scm.gforge.inria.fr/svn/'
     else:
         cmd = 'svn checkout svn+ssh://' + login + '@scm.gforge.inria.fr/svn/'
@@ -115,7 +116,7 @@ def create_svn_command(package, login='anonymous', \
     cmd += '/' + branch + ' ' # keep the extra space
 
     # where to place the SVN archive
-    if target==None or target=='Default':
+    if target == None or target == 'Default':
         cmd += os.environ['OPENALEA_HOME'] + '/'+package
     else:
         cmd += os.environ['OPENALEA_HOME'] + '/' + target
@@ -126,7 +127,7 @@ def create_svn_command(package, login='anonymous', \
 def compile_all():
     """todo"""
     for package in packages:
-        if package=='openaleapkg':
+        if package == 'openaleapkg':
             pkgname = 'alinea'
             cmd = 'python ' + os.environ['OPENALEA_HOME'] + \
                 '/openalea/misc/make_develop.py develop' +\
@@ -144,7 +145,7 @@ def compile_all():
         start_cmd(cmd, opts.force)
 
 
-if __name__ == 'openalea_tools':
+if __name__ == '__main__':
 
     command_line = sys.argv[1:]
     (opts, args) = ParseParameters()
@@ -207,7 +208,7 @@ if __name__ == 'openalea_tools':
             except:
                 print 'Problem while trying to SVN update this package '\
                     + package
-                if opts.login=='anonymous':
+                if opts.login == 'anonymous':
                     print """
 Since your login is anonymous, you can only obtain openalea package and not
 vplants or openaleapkg. Consider adding the options --skip-vplants and

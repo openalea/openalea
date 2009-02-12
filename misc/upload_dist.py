@@ -1,6 +1,5 @@
 #!/usr/python
-"""
-Utility script to upload package on the Gforge
+"""Utility script to upload package on the Gforge
 
 Example:
   >>> cd vplants/PlantGL; python upload.py

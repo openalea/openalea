@@ -1,19 +1,19 @@
 #!/usr/python
-"""
-A script to install all modules (listed in this script) within a package.
+"""A script to install all modules (listed in this script) within a package.
 
 Should work like setup.py script
 
 :Example:
+
 >>> python make_develop install -p vplants -d ./vplants/trunk  
-python make_develop install -p alinea -d ./openaleapkg
+>>> python make_develop install -p alinea -d ./openaleapkg
 
 type --help to get more help and usage  
 
 """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 
 import sys, os
 from optparse import OptionParser
