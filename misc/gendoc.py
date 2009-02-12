@@ -1,9 +1,13 @@
-"""
-Script to automatically generate epydoc documentation of the openalea and
+"""Script to automatically generate epydoc documentation of the openalea and
 vplants modules.
+
+.. warning :: documentation currently moving to sphinx. This module becomes 
+    deprecated
+
 """
+
 __author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__="$Id$"
+__revision__ = "$Id$"
 
 import os
 import sys
