@@ -187,7 +187,7 @@ class MultiscaleContainer(ScaleLattice, Container):
 
     def nb_components(self, seid, sid):
         """
-        Return the numberof components of the complex seid at the scale sid
+        Return the number of components of the complex seid at the scale sid
 
         :Parameters:
           - `seid`: the complex scale and element identifier
@@ -205,7 +205,7 @@ class MultiscaleContainer(ScaleLattice, Container):
           - `seid`: the component scale and element identifier
           - `sid`: the complex scale identifier
 
-      :Return: seid
+        :Return: seid
         """
         pass
 
