@@ -1,0 +1,28 @@
+.. module:: gforge
+    :synopsis: INRIA GForge SOAP python API wrappers (based on SOAPpy)
+            
+openalea.deploy.gforge API
+##########################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_deploy_gforge_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.deploy.gforge
+    :parts: 2
+
+
+.. automodule:: openalea.deploy.gforge
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: INRIA GForge SOAP python API wrappers (based on SOAPpy)     

@@ -38,7 +38,6 @@ except NameError:
 sys.path.append(os.path.abspath('../../doc/sphinxext'))
 sys.path.append(os.path.abspath('../../doc/sphinxext/numpyext'))
 sys.path.append(os.path.abspath('./'+name))
-sys.path.append(os.path.abspath('./stdlib'))
 
 # Sometimes, modules are not parsed (because a metaclass was found).
 # import_modules.py contain a list of import that can be called to
@@ -165,7 +164,7 @@ html_logo = '../../doc/images/wiki_logo_openalea.png'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['../../doc/.static']
+html_static_path = ['.static', '../../doc/.static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

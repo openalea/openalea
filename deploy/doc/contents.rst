@@ -1,7 +1,5 @@
 .. _deploy:
 
-.. module:: deploy
-
 OpenAlea Deploy documentation
 #############################
 
@@ -37,19 +35,14 @@ Module description
 Deploy documentation
 ==================== 
 
-.. contents:: Table of Contents
-   :depth: 3
-
 .. toctree::
     :maxdepth: 1
 
     deploy/user_index.rst   
     deploy/reference_index.rst
 
-A `PDF <../latex/deploy.pdf>`_ version of |deploy| documentation is available.
-
- 
-    
+- A `PDF <../latex/deploy.pdf>`_ version of |deploy| documentation is available.
+  
 .. seealso::
 
    More documentation can be found on the
