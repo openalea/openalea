@@ -1,22 +1,21 @@
-"""
-Script to automatically generate sphinx documentation of an openalea package.
+"""Script to automatically generate sphinx documentation of an openalea package.
 
  
 Example:
 
->>> python sphinx_tools 
-    --package core 
-    --parent-directory /home/user/openalea/core
-    --verbose
-    --project openalea
-    --inheritance
+>>> python sphinx_tools --package core
+>>>    --parent-directory /home/user/openalea/core
+>>>    --verbose  --project openalea   --inheritance
 
-..todo ::
-    - create a python script with all the import needed, which can be read by conf.py
-      in order to prevent issues with metaclass when create inheritance diagrams
+.. todo ::
+    - create a python script with all the import needed, which can be read 
+      by conf.py in order to prevent issues with metaclass when create 
+      inheritance diagrams
+           
 """
 __author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__ = "$Id: gendoc.py 1586 2009-01-30 15:56:25Z cokelaer $"
+__revision__ = "$Id$"
+__license__ = "Cecill-C"
 
 import os
 import sys
@@ -25,53 +24,37 @@ from optparse import OptionParser
 # Some template to include in the reST files.
 
 
-template_release = \
-""".. _%(reference)s_release:
-
-%(title)s
-
-:Version: |version|
-:Release: |release|
-:Date: |today|
-
-.. versionadded:: x.y.z
-   to be filled
-   
-"""
 
 
 template_index = \
 """.. _%(package)s_%(type1)s:
 
-
 %(title)s
 
 :Version: |version|
 :Release: |release|
 :Date: |today|
 
-This reference manual details functions, modules, and objects include in 
-%(project)s.%(package)s, describing what they are and what they do. For learning
-how to use %(project)s.%(package)s see :ref:`%(package)s_%(type2)s`.
+This reference manual details functions, modules, and objects included in 
+%(Project)s.%(Package)s, describing what they are and what they do. For learning
+how to use %(Project)s.%(Package)s see :ref:`%(package)s_%(type2)s`.
 
 .. warning::
 
    This "Reference Guide" is still very much work in progress; the material
-   is not organized, and many aspects of %(project)s.%(package)s are not 
+   is not organized, and many aspects of %(Project)s.%(Package)s are not 
    covered.
 
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.
 
 .. toctree::
-    :maxdepth: 1
+    
 """
 
 template_source = \
 """
 %(underline)s
-
-.. module:: %(title)s
 
 .. note:: This source code is not included in the LaTeX output file.
 
@@ -83,37 +66,28 @@ template_source = \
 
 template_reference = \
 """.. module:: %(module)s
-    :synopsis: todo
-    
+        
 %(title)s
 
-Description
-***********
 
-.. htmlonly::
 
-    This documentation is automatically extracted from the docstrings contained 
-    in the python modules. 
+Reference
+********* 
 
 .. toctree::
 
     %(import_name_underscored)s_src.rst
 
-Reference
-********* 
-
-- Inheritance diagram:
-
-.. inheritance-diagram:: %(import_name_for_diagram)s
-    :parts: 2
-
-------
+%(inheritance_diagram)s
 
 .. automodule:: %(import_name)s
     :members:
     :undoc-members:%(inheritance)s
-    :show-inheritance:     
+    :show-inheritance:
+    :synopsis: %(synopsis)s     
 """
+
+
 
 
 
@@ -132,7 +106,10 @@ def underline(text, symbol='^'):
 
 
 def contains(this_file, words):
-    """check the existence of kwywords such as class and def in a file
+    """check the existence of keywords such as class and def in a file
+    
+    :param this_file: a filename
+    :param words: words to find in the file
     """
     text = open(this_file,'r').read()
     lines = text.split('\n')
@@ -146,7 +123,7 @@ def contains(this_file, words):
                 # remove all spaces. The class keyword should then be first,
                 # otherwise, it is either commented or a different 
                 # keyword (e.g., metaclass)
-                line = line.replace(' ','')
+                #line = line.replace(' ','')
                 if line.startswith(word):
                     return True
               
@@ -178,7 +155,7 @@ class Globber():
     
     It excludes the __init__ and __wralea__ files.
     
-    The :func:`exclude` function allows to exclude more files, 
+    The :func:`exclude_files` function allows to exclude more files, 
     
     The :func:`exclude_non_code` function excludes files that contains 
     no functions
@@ -246,14 +223,14 @@ class Globber():
         """do not consider files that contain neither classes nor 
         definitions
 
-        ..note :: changes self.file 
+        .. note :: changes self.file 
         """
         _copy = self.files[:]
         for this_file in _copy:            
             if not contains(this_file, ['class', 'def']):
                 self.files.remove(this_file)
                 
-        self.print_len(self)
+        self.print_len()
 
         
 class reST():
@@ -274,47 +251,74 @@ class reST():
         
         self.path = os.path.join(parent_directory, 'doc',  self.package) 
         self.title = self.project + '.' + self.package + '.' + self.module
-        self.import_name ='to be done in next call'
+        self.import_name = 'to be done in next call'
         self.get_path_to_module(delimiter=self.project)
         
                                                 
     def get_path_to_module(self, delimiter='openalea'):
         """Create the import name """
         
-        openalea_packages = ['core', 'stdlib']
+        openalea_packages = ['core', 'stdlib', 'deploy', 'deploygui', 'misc']
         
         if self.project == 'openalea' and self.package in openalea_packages:
-            
-            _module = self.fullname.split(self.package+'/src')[1]
+            try:
+                _module = self.fullname.split(self.package+'/src')[1]
+            except:
+                _module = self.fullname.split(self.package)[1]
+            else:
+                print 'PROBLEM in sphinx_tools'
             _module = _module.replace('.py','') # has to be at the beginning
             _module = _module.replace('openalea/', '.')
             _module = _module.replace('/', '.')
             _module = _module.replace('..', '.')
-            self.import_name = 'openalea' + _module            
+            if self.package=='misc':
+                # misc is not in openalea namespace yet
+                # do not include openalea and replace first '.' character
+                self.import_name = _module[1:]
+            else:     
+                self.import_name = 'openalea' + _module
         else:
             raise 'Combinaison of package and module not implemented' 
                    
+                   
+    def synopsis(self):
+        _dirname = os.path.dirname(self.fullname)
+        sys.path.append(_dirname)
+        try:
+            _module = 'dummy' # to prevent errors with pylint
+            exec("import " + self.module + " as _module")
+            _doc = _module.__doc__.split('\n')[0]
+        except:
+            return ""                
+        return _doc
+                
     def _create_text_reference(self):
         """todo"""
-        a = underline(self.import_name,'#')
+        
         if opts.inheritance:
             inheritance = "\n    :inherited-members:"
             if contains(self.fullname, ['class']):
-                import_name_for_diagram = self.import_name
+                inheritance_diagram = \
+"""
+- Inheritance diagram:
+
+.. inheritance-diagram:: %s
+    :parts: 2
+""" % self.import_name                
             else:
-                import_name_for_diagram = ''
+                inheritance_diagram = ''
         else: 
-            inheritance='' 
-            import_name_for_diagram = ''
-        
+            inheritance = '' 
+            inheritance_diagram = ''
                 
         _params = {
                 "module": self.module, 
-                "title": underline(self.import_name + " API", '#'),                  
+                "title": underline(self.import_name + " API", '#'),
                 "import_name_underscored": self.import_name.replace('.','_'),
-                "import_name_for_diagram": import_name_for_diagram,
+                "inheritance_diagram": inheritance_diagram,
                 "import_name": self.import_name, 
-                "inheritance":inheritance
+                "inheritance":inheritance,
+                "synopsis":self.synopsis()
                   }
         self.text_reference = template_reference % _params
 
@@ -354,7 +358,9 @@ def ParseParameters():
     """This is the main parsing function to get user arguments
 
     Example:
-    >>> python sphinx_tools.py --module core --parent-directory . --verbose
+    
+    >>> python sphinx_tools.py --package core --parent-directory ./ --verbose
+        --inheritance
     """
 
     usage = """Usage: %prog [options]
@@ -364,13 +370,13 @@ def ParseParameters():
           scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/
 
     Example:
+    
     >>> python sphinx_tools.py --project openalea --package core --parent-directory ./ --verbose
-
     >>> python sphinx_tools.py --help
 
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog CVS $Id: gendoc.py 1586 2009-01-30 15:56:25Z cokelaer $ \n" \
+        version = "%prog CVS $Id$ \n" \
       + "$Name:  $\n")
 
     parser.add_option("-m", "--package", metavar='PACKAGE',
@@ -402,15 +408,15 @@ def ParseParameters():
     
     (_opts, _args) = parser.parse_args()
      
-    if not opts.project:
+    if not _opts.project:
         print "--project must be provided! type --help to get help"
         sys.exit()
    
-    if not opts.package:
+    if not _opts.package:
         print "--package must be provided! type --help to get help"
         exit()
     
-    if not opts.parent_directory:
+    if not _opts.parent_directory:
         print "--parent-directory must be provided! type --help to get help"
         exit()
      
@@ -442,13 +448,15 @@ if __name__ == '__main__':
     try:        
         os.mkdir(output_dir)
     except:
-        print 'Directory %s already existing. ' % output_dir
+        print 'Directory %s already exists. ' % output_dir
         print 'Copying reSt files into %s.' % output_dir
     
     # create the indivual file for each module
     foutput = open(output_dir + '/import_modules.py','w')
-    for item in globber.files:    
+    for item in globber.files:
+        print item    
         output = reST(item, opts.package, opts.project, parent_directory)
+        
         output.write_reference()
         output.write_source()
         foutput.write('import ' + output.import_name + '\n')
@@ -473,40 +481,41 @@ if __name__ == '__main__':
                     
     params_ref = {'title': underline(opts.package.capitalize() + ' Reference Guide', '#'),
                   'package': opts.package,
-                  'project': opts.project.capitalize(),
+                  'project': opts.project,
+                  'Package': opts.package.capitalize(),
+                  'Project': opts.project.capitalize(),                  
                   'reference': opts.package,
                   'type1':'reference','type2':'user'}
 
     params_user = {'title': underline(opts.package.capitalize() + ' User Guide', '#'),
+                  'Package': opts.package.capitalize(),
+                  'Project': opts.project.capitalize(),
                   'package': opts.package,
-                  'project': opts.project.capitalize(),
-                  'reference': opts.package,
+                  'project': opts.project,                                    
                   'type1':'user','type2':'reference'}
 
-    foutput_ref.write(template_index % params_ref)
+    # specific to the user guide-------------------------------
     foutput_user.write(template_index % params_user)
-    
-    foutput_ref.write('\n')
-    foutput_user.write('\n')
+    foutput_user.write("    ../user/index.rst")
+    foutput_user.close()
             
+    # specific to the reference guide-------------------------------
+    foutput_ref.write(template_index % params_ref)
     for item in globber.files:   
         data = reST(item,
                     opts.package, 
                     opts.project, 
                     opts.parent_directory)
          
-        foutput_ref.write('    ' + data.import_name.replace('.', '_') +  '_ref.rst\n')
+        foutput_ref.write('    ' + data.import_name.replace('.', '_') 
+                          +  '_ref.rst\n')
     foutput_ref.close()
-    foutput_user.close()
     
-    # create the release
-    foutput = open(output_dir + '/release.rst', 'w')
-    params = {'title': underline(opts.package.capitalize() + ' Release', '#'),
-              'package': opts.package.capitalize(),
-              'project': opts.project,
-              'reference': opts.package}
-
-    foutput.write(template_release % params)
-    foutput.close()
-    
+        
     print 'Done'
+    print """ 
+    
+    You may want to run the postprocess.py python file within the 
+    .%s/doc directory to clean up some known issues within the
+    reST files that have just been automatically generated
+    """ % opts.package
