@@ -1,0 +1,27 @@
+        
+path API
+########
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    path_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: path
+    :parts: 2
+
+
+.. automodule:: path
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: An object representing a path to a file or directory.     
+
