@@ -1,0 +1,28 @@
+.. module:: msvc
+    :synopsis:  Visual Studio C++ configure environment. 
+            
+openalea.sconsx.tools.msvc API
+##############################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_sconsx_tools_msvc_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.sconsx.tools.msvc
+    :parts: 2
+
+
+.. automodule:: openalea.sconsx.tools.msvc
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis:  Visual Studio C++ configure environment.      

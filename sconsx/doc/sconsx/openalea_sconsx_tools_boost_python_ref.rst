@@ -1,0 +1,28 @@
+.. module:: boost_python
+    :synopsis:  Boost.Python configure environment. 
+            
+openalea.sconsx.tools.boost_python API
+######################################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_sconsx_tools_boost_python_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.sconsx.tools.boost_python
+    :parts: 2
+
+
+.. automodule:: openalea.sconsx.tools.boost_python
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis:  Boost.Python configure environment.      

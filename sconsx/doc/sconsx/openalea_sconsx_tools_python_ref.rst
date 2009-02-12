@@ -1,0 +1,28 @@
+.. module:: python
+    :synopsis:  Python configure environment. 
+            
+openalea.sconsx.tools.python API
+################################
+
+
+
+Reference
+********* 
+
+.. toctree::
+
+    openalea_sconsx_tools_python_src.rst
+
+
+- Inheritance diagram:
+
+.. inheritance-diagram:: openalea.sconsx.tools.python
+    :parts: 2
+
+
+.. automodule:: openalea.sconsx.tools.python
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis:  Python configure environment.      
