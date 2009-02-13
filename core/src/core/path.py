@@ -1,18 +1,18 @@
 """ path.py - An object representing a path to a file or directory.
 
-Example:
+:Example:
 
 >>> from path import path
-d = path('/home/guido/bin')
-for f in d.files('*.py'):
-    f.chmod(0755)
+>>> d = path('/home/guido/bin')
+>>> for f in d.files('*.py'):
+>>>    f.chmod(0755)
 
 This module requires Python 2.2 or later.
 
 
-URL:     http://www.jorendorff.com/articles/python/path
-Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (et al;see the url)
-Date:    9 Mar 2007
+:URL:     http://www.jorendorff.com/articles/python/path
+:Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (et al;see the url)
+:Date:    9 Mar 2007
 """
 
 
@@ -616,7 +616,7 @@ class path(_base):
         path.write_bytes(): newline handling and Unicode handling.
         See below.
 
-        Parameters:
+        :Parameters:
 
           - text - str/unicode - The text to be written.
 
@@ -840,7 +840,7 @@ class path(_base):
         def access(self, mode):
             """ Return true if current user has access to this path.
 
-            mode - One of the constants os.F_OK, os.R_OK, os.W_OK, os.X_OK
+            :param mode: one of the constants: os.F_OK, os.R_OK, os.W_OK, os.X_OK
             """
             return os.access(self, mode)
 

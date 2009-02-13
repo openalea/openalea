@@ -77,7 +77,7 @@ class DataFactory(AbstractFactory):
         includes : List of data files that are included in the file.
         """
 
-        AbstractFactory.__init__(self, name, description, 
+        AbstractFactory.__init__(self, name, description,
             category='data', **kargs)
         self.pkgdata_cache = None
 
@@ -104,8 +104,9 @@ class DataFactory(AbstractFactory):
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
-        @param call_stack : the list of NodeFactory id already in call stack
-        (in order to avoid infinite recursion)
+
+        :param call_stack: the list of NodeFactory id already in call stack
+            (in order to avoid infinite recursion)
         """
 
         node = DataNode(self.get_pkg_data(), self.editors, self.includes)

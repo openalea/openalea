@@ -1,4 +1,4 @@
-# -*- python -*-
+# -*- utf-8 -*-
 #
 #       OpenAlea.Core
 #
@@ -13,46 +13,77 @@
 #       OpenAlea WebSite: http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""This module provides an actor interface"""
+"""This module provides an actor interface
+
+
+"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
+__docformat__ = 'restructuredtext'
 
 
 class IActor(object):
-    """
-    interface to emulate a function
+    """Interface to emulate a function
+
+    The class :class:`IActor` implements an interface to emulate a function.
+    It has some functions to set the input and outputs: :func:`inputs`
+    and :func:`outputs`.
+
+
+    :param object: inheritance class
+    :type object: a python object
+    :returns: todo
+
+    Examples
+    --------
+
+    >>> import openalea.core
+    >>> a = openalea.core.actor.IActor()
+
+    .. todo::
+        - finalize docstring documentation
+
     """
 
     def inputs(self):
-        """
-        iterate on all input description
-        return iter of (input key,input interface)
+        """Iterates on all input descriptions
+
+        :returns: iter of (input key, input interface)
         """
         raise NotImplementedError
 
     def outputs(self):
-        """
-        iterate on all output descriptions
-        return iter of (output key,output interface)
+        """Iterates on all output descriptions
+
+        :returns: iter of (output key, output interface)
         """
         raise NotImplementedError
 
     def eval(self):
-        """
-        function called after setting the input
-        to compute output values
+        """Computes output values when input is set
+
         """
         raise NotImplementedError
 
     def set_input(self, key, value):
-        """
-        set input specified by a key to value
+        """Set input specified by a key to the given value
+
+        :param key: the input key
+        :param value: the value key corresponding to the key
         """
         raise NotImplementedError
 
     def output(self, key):
-        """
-        get value computed for output
+        """Get value computed of the output
+
+        :param key: a specified key
+        :returns: the corresponding value
+
         """
         raise NotImplementedError
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

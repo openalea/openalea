@@ -27,9 +27,9 @@ import string
 def export_app(name, filename, cn_factory):
     """Export application
 
-    :param name : name of the application
-    :param filename : python file to write$
-    :param cn_factory : composite node factory
+    :param name: name of the application
+    :param filename: python file to write$
+    :param cn_factory:  composite node factory
     """
 
     # Read template

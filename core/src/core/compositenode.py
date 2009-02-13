@@ -53,13 +53,14 @@ class CompositeNodeFactory(AbstractFactory):
     def __init__(self, *args, **kargs):
         """
         CompositeNodeFactory accept more optional parameters :
-        inputs : list of dict(name = '', interface='', value='')
-        outputs : list of dict(name = '', interface='', value='')
-        doc : documentation
-        elt_factory : map of elements with its corresponding factory
-        elt_connections : map of ( dst_id , input_port ):(src_id,output_port)
-        elt_data : Dictionary containing associated data
-        elt_value : Dictionary containing Lists of 2-uples (port, value)
+        
+         - inputs : list of dict(name = '', interface='', value='')
+         - outputs : list of dict(name = '', interface='', value='')
+         - doc : documentation
+         - elt_factory : map of elements with its corresponding factory
+         - elt_connections : map of ( dst_id , input_port ):(src_id,output_port)
+         - elt_data : Dictionary containing associated data
+         - elt_value : Dictionary containing Lists of 2-uples (port, value)
         """
 
         # Init parent (name, description, category, doc, node, widget=None)
@@ -93,8 +94,10 @@ class CompositeNodeFactory(AbstractFactory):
     def copy(self, **args):
         """
         Copy factory.
+        
         :param path: new search path
         :param replace_pkg: old and new package names.
+        
         When replace package is set, change the package id for all the
         elt factories.
         """
@@ -122,8 +125,8 @@ class CompositeNodeFactory(AbstractFactory):
         """ Create a CompositeNode instance and allocate all elements
         This function overide default implementation of NodeFactory
 
-        @param call_stack : the list of NodeFactory id already in recursion
-        stack (in order to avoid infinite loop)
+        :param call_stack: the list of NodeFactory id already in recursion stack (in order to avoid infinite loop)
+        
         """
 
         # Test for infinite loop
@@ -229,9 +232,9 @@ class CompositeNodeFactory(AbstractFactory):
 
         :param cnode: composite node instance
         :param data_modifiers: list of 2-uple (key, function) to apply
-        to internal data (for instance to move the node)
+            to internal data (for instance to move the node)
         :param call_stack: the list of NodeFactory id already in recursion
-        stack (in order to avoid infinite loop)
+            stack (in order to avoid infinite loop)
 
         :returns: the list of created id
 
@@ -271,10 +274,11 @@ class CompositeNodeFactory(AbstractFactory):
         return idmap.values()
 
     def instantiate_node(self, vid, call_stack=None):
-        """
-        Partial instantiation
+        """ Partial instantiation
+        
         instantiate only elt_id in CompositeNode
-        @param call_stack : a list of parent id (to avoid infinite recursion)
+        
+        :param call_stack: a list of parent id (to avoid infinite recursion)
         """
 
         (package_id, factory_id) = self.elt_factory[vid]
@@ -298,8 +302,9 @@ class CompositeNodeFactory(AbstractFactory):
             edit=False, autonomous=False):
         """
         Return the corresponding widget initialised with node
-        if node is None, the node is allocated
-        else a composite widget composed with the node sub widget is returned
+
+        If node is None, the node is allocated else a composite
+        widget composed with the node sub widget is returned.
 
         """
         if(edit):            
@@ -355,6 +360,7 @@ class CompositeNode(Node, DataFlow):
     def set_io(self, inputs, outputs):
         """
         Define inputs and outputs
+        
         Inputs and outputs are list of dict(name='', interface='', value='')
         """
 
@@ -426,6 +432,7 @@ class CompositeNode(Node, DataFlow):
     def eval_as_expression(self, vtx_id=None):
         """
         Evaluate a vtx_id
+
         if node_id is None, then all the nodes without sons are evaluated
         """
 
@@ -446,6 +453,7 @@ class CompositeNode(Node, DataFlow):
     def eval(self):
         """
         Evaluate the graph
+
         Return True if the node need a reevaluation (like generator)
         """
         self.__call__()
@@ -627,6 +635,7 @@ class CompositeNode(Node, DataFlow):
     def compute_io(self, v_list=None):
         """
         Return (inputs, outputs, connections)
+
         representing the free port of node
         v_list is a vertex id list
         """
@@ -642,6 +651,7 @@ class CompositeNode(Node, DataFlow):
     def to_factory(self, sgfactory, listid = None, auto_io=False):
         """
         Update CompositeNodeFactory to fit with the graph
+
         listid is a list of element to export. If None, select all id.
         if auto_io is true :  inputs and outputs are connected to the free
         ports
@@ -729,7 +739,7 @@ class CompositeNode(Node, DataFlow):
         if id is None, autogenrate one
 
         :param node: the node instance
-        :param vid : element id
+        :param vid: element id
 
         :return: the id
         """
@@ -752,7 +762,8 @@ class CompositeNode(Node, DataFlow):
     def remove_node(self, vtx_id):
         """
         remove a node from the graph
-        @param vtx_id : element id
+        
+        :param vtx_id: element id
         """
 
         if(vtx_id == self.id_in or vtx_id == self.id_out):
@@ -763,11 +774,12 @@ class CompositeNode(Node, DataFlow):
         self.graph_modified = True
 
     def connect(self, src_id, port_src, dst_id, port_dst):
-        """ Connect 2 elements :
-        @param src_id : source node id
-        @param port_src : source output port number
-        @param dst_id : destination node id
-        @param port_dst : destination input port number
+        """ Connect 2 elements 
+        
+        :param src_id: source node id
+        :param port_src: source output port number
+        :param dst_id: destination node id
+        :param port_dst: destination input port number
         """
 
         source_pid = self.out_port(src_id, port_src)
@@ -781,11 +793,12 @@ class CompositeNode(Node, DataFlow):
         self.update_eval_listeners(src_id)
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
-        """ Deconnect 2 elements :
-        @param src_id : source node id
-        @param port_src : source output port number
-        @param dst_id : destination node id
-        @param port_dst : destination input port number
+        """ Deconnect 2 elements
+        
+        :param src_id: source node id
+        :param port_src: source output port number
+        :param dst_id: destination node id
+        :param port_dst: destination input port number
         """
 
         source_pid = self.out_port(src_id, port_src)

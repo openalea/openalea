@@ -224,6 +224,7 @@ class PackageManager(object):
 
     def init(self, dirname=None, verbose=True):
         """ Initialize package manager
+    
         If dirname is None, find wralea files on the system
         else load directory
         If verbose is False, don't print any output
@@ -274,8 +275,9 @@ class PackageManager(object):
     def add_wralea_path(self, path, container):
         """
         Add a search path for wralea files
-        @param path : a path string
-        @param container : set containing the path
+
+        :param path: a path string
+        :param container: set containing the path
         """
 
         if(not os.path.isdir(path)): return
@@ -402,7 +404,7 @@ class PackageManager(object):
             if r: 
                 ret = r.register_packages(self)
             else:
-                self.log.add("Unable to load package %s."%(filename,))
+                self.log.add("Unable to load package %s."%(dirname, ))
                 ret = None
         
         if(readers): 
@@ -415,8 +417,10 @@ class PackageManager(object):
     def find_vlab_dir(self, directory, recursive=True):
         """
         Find in a directory vlab specification file.
+
         Search recursivly is recursive is True
-        @return : a list of pkgreader instances
+
+        :return: a list of pkgreader instances
         """
 
         from path import path
@@ -444,7 +448,8 @@ class PackageManager(object):
         """
         Find in a directory wralea files,
         Search recursivly is recursive is True
-        @return : a list of pkgreader instances
+
+        :return : a list of pkgreader instances
         """
 
         from path import path
@@ -474,7 +479,8 @@ class PackageManager(object):
     def find_wralea_files (self):
         """
         Find on the system all wralea.py files
-        @return : a list of pkgreader instances
+
+        :return : a list of pkgreader instances
         """
         
         readers = []
@@ -580,7 +586,7 @@ class PackageManager(object):
         """
         Create a new package in the user space and register it
         Return the created package
-        @param path : the directory where to create the package
+        :param path : the directory where to create the package
         """
 
         if(self.pkgs.has_key(name)):
@@ -743,12 +749,15 @@ class PseudoGroup(PackageDict):
         self.item = None
 
     def new(self, name):
+        """todo"""
         return PseudoGroup(name)
 
     def get_id(self):
+        """todo"""
         return self.name
 
     def get_tip(self):
+        """todo"""
         return self.name
 
 
@@ -798,19 +807,22 @@ class PseudoPackage(PseudoGroup):
     """ Package structure used to separate dotted naming (packages, category) """
 
     def new(self, name):
+        """todo"""
         return PseudoPackage(name) 
 
     def is_real_package(self):
+        """todo"""
         return self.item != None
 
 
     def get_tip(self):
+        """todo"""
         if(self.item) : return self.item.get_tip()
 
-        return "Sub Package : %s"%(self.name,)
+        return "Sub Package : %s" % (self.name, )
    
-    
     def get_metainfo(self, key):
+        """todo"""
         if(self.item):
             return self.item.get_metainfo(key)
         return "" 

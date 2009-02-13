@@ -12,7 +12,7 @@
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-###############################################################################
+############################################################################
 """doc todo"""
 
 __license__ = "Cecill-C"
@@ -378,7 +378,7 @@ def compute_layout(sg, vid, x, dx, y, dy):
         x += dx
         compute_layout(sg, node_id, x, dx, y, dy)
 
-#######################################################################
+#--------------------------------------------------------------------
 # new implementation
 # add files as data with editors inside.
 
