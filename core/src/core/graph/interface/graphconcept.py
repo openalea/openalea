@@ -228,7 +228,7 @@ class MutableVertexGraphConcept(VertexListGraphConcept):
         """
         Return a free vertex identifier
 
-        :Return: vtx_id
+        :returns: vtx_id
         """
         raise NotImplementedError
 
@@ -237,8 +237,7 @@ class MutableVertexGraphConcept(VertexListGraphConcept):
         """
         Add a vertex to the graph.
 
-        :Parameters:
-         - `vtx_id` : optional vertex identifier
+        :param vtx_id: optional vertex identifier
         """
         raise NotImplementedError
 
@@ -246,8 +245,7 @@ class MutableVertexGraphConcept(VertexListGraphConcept):
         """
         Remove vertex from the graph
 
-        :Parameters:
-         - `vtx_id` 
+        :param vtx_id: todo
         """
         raise NotImplementedError
 

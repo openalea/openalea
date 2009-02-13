@@ -42,7 +42,8 @@ class IPropertyGraph (object):
         """
         return a map between vid and data for all vertices where
         property_name is defined
-        :rtype: dict of {vid:data}
+    
+        :rtype: dict of ``{vid:data}``
         """
         raise NotImplementedError
     
@@ -57,14 +58,17 @@ class IPropertyGraph (object):
         """
         return a map between eid and data for all edges where
         property_name is defined
-        :rtype: dict of {eid:data}
+   
+        :rtype: dict of ``{eid:data}``
         """
         raise NotImplementedError
+
     ###########################################################
     #
     #        mutable property concept
     #
     ###########################################################
+    
     def add_vertex_property (self, property_name) :
         """
         add a new map between vid and a data

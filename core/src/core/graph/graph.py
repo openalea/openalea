@@ -14,13 +14,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ############################################################################
-
-__doc__="""This module provide a simple pure python implementation for a
+"""This module provide a simple pure python implementation for a 
 graph interface do not implement copy concept.
 """
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 from interface.graph import InvalidEdge, InvalidVertex, IGraph, \
                     IVertexListGraph, IEdgeListGraph, \
@@ -47,12 +46,12 @@ class Graph (IGraph,
         :param graph: the graph to copy, default=None
         :type graph: Graph
         """
-        self._vertices={}
-        self._edges={}
-        self._vid_generator=IdGenerator()
-        self._eid_generator=IdGenerator()
+        self._vertices = {}
+        self._edges = {}
+        self._vid_generator = IdGenerator()
+        self._eid_generator = IdGenerator()
         if graph is not None:
-            dummy=self.extend(graph)
+            dummy = self.extend(graph)
 
     # ##########################################################
     #
@@ -115,37 +114,37 @@ class Graph (IGraph,
     def in_neighbors(self, vid):
         if vid not in self:
             raise InvalidVertex(vid)
-        neighbors_list=[self.source(eid) for eid in self._vertices[vid][0]]
+        neighbors_list = [self.source(eid) for eid in self._vertices[vid][0]]
         return iter(set(neighbors_list))
     in_neighbors.__doc__=IVertexListGraph.in_neighbors.__doc__
 
     def out_neighbors(self, vid):
         if vid not in self:
             raise InvalidVertex(vid)
-        neighbors_list=[self.target(eid) for eid in self._vertices[vid][1]]
+        neighbors_list = [self.target(eid) for eid in self._vertices[vid][1]]
         return iter(set(neighbors_list))
     out_neighbors.__doc__=IVertexListGraph.out_neighbors.__doc__
 
     def neighbors(self, vid):
-        neighbors_list=list(self.in_neighbors(vid))
+        neighbors_list = list(self.in_neighbors(vid))
         neighbors_list.extend(self.out_neighbors(vid))
         return iter(set(neighbors_list))
-    neighbors.__doc__=IVertexListGraph.neighbors.__doc__
+    neighbors.__doc__ = IVertexListGraph.neighbors.__doc__
 
     def nb_in_neighbors(self, vid):
-        neighbors_set=list(self.in_neighbors(vid))
+        neighbors_set = list(self.in_neighbors(vid))
         return len(neighbors_set)
-    nb_in_neighbors.__doc__=IVertexListGraph.nb_in_neighbors.__doc__
+    nb_in_neighbors.__doc__ = IVertexListGraph.nb_in_neighbors.__doc__
 
     def nb_out_neighbors(self, vid):
-        neighbors_set=list(self.out_neighbors(vid))
+        neighbors_set = list(self.out_neighbors(vid))
         return len(neighbors_set)
-    nb_out_neighbors.__doc__=IVertexListGraph.nb_out_neighbors.__doc__
+    nb_out_neighbors.__doc__ = IVertexListGraph.nb_out_neighbors.__doc__
 
     def nb_neighbors(self, vid):
-        neighbors_set=list(self.neighbors(vid))
+        neighbors_set = list(self.neighbors(vid))
         return len(neighbors_set)
-    nb_neighbors.__doc__=IVertexListGraph.nb_neighbors.__doc__
+    nb_neighbors.__doc__ = IVertexListGraph.nb_neighbors.__doc__
 
     # ##########################################################
     #
@@ -157,7 +156,7 @@ class Graph (IGraph,
         """
         internal function that perform 'edges' with vid not None
         """
-        link_in, link_out=self._vertices[vid]
+        link_in, link_out = self._vertices[vid]
         for eid in link_in:
             yield eid
         for eid in link_out:
@@ -169,7 +168,7 @@ class Graph (IGraph,
         if vid not in self:
             raise InvalidVertex(vid)
         return self._iteredges(vid)
-    edges.__doc__=IEdgeListGraph.edges.__doc__
+    edges.__doc__ = IEdgeListGraph.edges.__doc__
 
     def nb_edges(self, vid=None):
         if vid is None:
@@ -177,7 +176,7 @@ class Graph (IGraph,
         if vid not in self:
             raise InvalidVertex(vid)
         return len(self._vertices[vid][0])+len(self._vertices[vid][1])
-    nb_edges.__doc__=IEdgeListGraph.nb_edges.__doc__
+    nb_edges.__doc__ = IEdgeListGraph.nb_edges.__doc__
 
     def in_edges(self, vid):
         if vid not in self:
@@ -242,13 +241,13 @@ class Graph (IGraph,
     #
     # ##########################################################
 
-    def add_edge(self, edge=(None, None), eid= None):
+    def add_edge(self, edge=(None, None), eid=None):
         vs, vt=edge
         if vs not in self:
             raise InvalidVertex(vs)
         if vt not in self:
             raise InvalidVertex(vt)
-        eid=self._eid_generator.get_id(eid)
+        eid = self._eid_generator.get_id(eid)
         self._edges[eid]=(vs, vt)
         self._vertices[vs][1].add(eid)
         self._vertices[vt][0].add(eid)

@@ -45,7 +45,8 @@ class Observed(object):
     def notify_listeners(self, event=None):
         """
         Send a notification to all listeners
-        @param event : an object to pass to the notify function
+        
+        :param event: an object to pass to the notify function
         """
 
         for ref in self.listeners:
@@ -90,6 +91,7 @@ class AbstractListener(object):
     def notify(self, sender, event=None):
         """
         This function is called by observed object
+        
         :param sender: the observed object which send notification
         :param event: the data associated to the notification
         """

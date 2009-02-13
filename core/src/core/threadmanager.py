@@ -53,8 +53,8 @@ class ThreadManager(object):
     def add_task(self, func, params):
         """
         Add a task to perform
-        @param : function to call
-        @param params : tuple of parameters
+        :param func: function to call
+        :param params : tuple of parameters
         """
 
         self.queue.put((func, params))

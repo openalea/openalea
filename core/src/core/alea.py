@@ -13,7 +13,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""todo"""
+""" a script to run alea dataflow and scripts
+
+.. moduleauthor:: openalea consortium
+.. todo::
+    - write a detailled description of this module
+"""
 
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
@@ -25,7 +30,15 @@ from openalea.core.pkgmanager import PackageManager
 
 
 def start_qt(factory, node):
-    """ Start QT, and open widget of factory, node """
+    """ Start QT, and open widget of factory, node
+
+    :param factory: todo
+    :param node: todo
+
+    .. todo::
+        - complete this docstring
+
+    """
 
     from PyQt4 import QtGui, QtCore
 
@@ -53,7 +66,14 @@ def start_qt(factory, node):
 
 
 def load_package_manager(pkg_id, node_id):
-    """ Return the package manager """
+    """ Return the package manager
+
+    :param pkg_id: todo
+    :param node_id: todo
+
+    .. todo::
+        - complete this docstring
+    """
 
     print "\nSearching '%s:%s'..." % (pkg_id, node_id)
 
@@ -64,7 +84,14 @@ def load_package_manager(pkg_id, node_id):
 
 
 def get_node(component, inputs, pm=None):
-    """ retrieve a node from its component name and inputs"""
+    """ retrieve a node from its component name and inputs
+
+    :param pkg_id: todo
+    :param node_id: todo
+
+    .. todo::
+        - complete this docstring
+    """
 
     pkg_id, node_id = component
 
@@ -93,7 +120,18 @@ def get_node(component, inputs, pm=None):
 
 
 def run_and_display(component, inputs, gui=False, pm=None):
-    """ run component with inputs. """
+    """ run component with inputs
+
+    :param component: todo
+    :param inputs: todo
+    :param gui: todo
+    :param pm: todo
+    :type gui: boolean (default is False)
+    :type pm: package manager
+
+    .. todo::
+        - complete this docstring
+    """
 
     factory, node = get_node(component, inputs, pm)
 

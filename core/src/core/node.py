@@ -52,7 +52,6 @@ class InstantiationError(Exception):
     pass
 
 
-##############################################################################
 # Utility function
 
 
@@ -73,7 +72,8 @@ class AbstractNode(Observed):
     We use a dict to distinguish these public properties to the others
     which are used for protected management.
 
-    TODO : rename internal_data into attributes.
+    .. todo::
+        - rename internal_data into attributes.
     """
 
     def __init__(self):
@@ -186,7 +186,8 @@ class Node(AbstractNode):
         :param inputs: list of dict(name='X', interface=IFloat, value=0)
         :param outputs: list of dict(name='X', interface=IFloat)
 
-        :note: if IO names are not a string, they will be converted with str()
+        .. note::
+            if IO names are not a string, they will be converted with str()
         """
 
         AbstractNode.__init__(self)
@@ -299,8 +300,9 @@ class Node(AbstractNode):
     def set_port_hidden(self, index_key, state):
         """
         Set the hidden state of a port.
-        @index_key : the input port index.
-        @state: a boolean value.
+        
+        :param index_key: the input port index.
+        :param state: a boolean value.
         """
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
@@ -592,6 +594,7 @@ class AbstractFactory(Observed):
                  **kargs):
         """
         Create a factory.
+
         :param name: user name for the node (must be unique) (String)
         :param description: description of the node (String)
         :param category: category of the node (String)
@@ -601,7 +604,7 @@ class AbstractFactory(Observed):
         :param view: custom view (default = None)
         :param alias: list of alias name
 
-        :note: inputs and outputs parameters are list of dictionnary such
+        .. note:: inputs and outputs parameters are list of dictionnary such
 
         inputs = (dict(name='x', interface=IInt, value=0,)
         outputs = (dict(name='y', interface=IInt)
@@ -690,8 +693,9 @@ class AbstractFactory(Observed):
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
+        
         :param call_stack: the list of NodeFactory id already in call stack
-        (in order to avoir infinite recursion)
+            (in order to avoir infinite recursion)
         """
         raise NotImplementedError()
 

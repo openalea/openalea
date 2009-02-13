@@ -19,7 +19,7 @@ class RootedTreeConcept(VertexListGraphConcept):
     def get_root(self): 
         """ Return the tree root.
 
-        :returns : vertex identifier
+        :returns: vertex identifier
 
         """
         raise NotImplementedError

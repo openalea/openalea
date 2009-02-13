@@ -70,6 +70,8 @@ class DataFlow(PropertyGraph):
         """
         out port of the source vertex
         of the edge
+
+        :param eid: todo
         :rtype: pid
         """
         return self.edge_property("_source_port")[eid]
@@ -78,10 +80,11 @@ class DataFlow(PropertyGraph):
         """
         in port of the target vertex
         of the edge
+
+        :param eid: todo
         :rtype: pid
         """
         return self.edge_property("_target_port")[eid]
-
 
     ####################################################
     #
@@ -94,6 +97,8 @@ class DataFlow(PropertyGraph):
         iter on all out ports of a given vertex
         iter on all out ports of the dataflow
         if vid is None
+
+        :param vid: todo
         :rtype: iter of pid
         """
         for pid in self.ports(vid):
@@ -105,6 +110,7 @@ class DataFlow(PropertyGraph):
         iter on all in ports of a given vertex
         iter on all in ports of the dataflow
         if vid is None
+
         :rtype: iter of pid
         """
         for pid in self.ports(vid):
@@ -116,6 +122,7 @@ class DataFlow(PropertyGraph):
         iter on all ports of a given vertex
         iter on all ports of the dataflow
         if vid is None
+
         :rtype: iter of pid
         """
         if vid is None:
@@ -182,7 +189,7 @@ class DataFlow(PropertyGraph):
                 if self.target_port(eid)==pid:
                     yield eid
 
-    ####################################################
+  ####################################################
     #
     #        local port concept
     #
@@ -273,8 +280,9 @@ class DataFlow(PropertyGraph):
         use pid as global port id if specified or
         create a new one if None
         raise an error if pid is already used
-        return pid used
-        :rtyp: pid
+
+        :returns: pid used
+        :rtype: pid
         """
         pid = self._pid_generator.get_id(pid)
         self._ports[pid] = Port(vid, local_pid, False)
@@ -287,8 +295,9 @@ class DataFlow(PropertyGraph):
         use pid as global port id if specified or
         create a new one if None
         raise an error if pid is already used
-        return pid used
-        :rtyp: pid
+
+        :returns: pid used
+        :rtype: pid
         """
         pid = self._pid_generator.get_id(pid)
         self._ports[pid] = Port(vid, local_pid, True)
@@ -312,7 +321,8 @@ class DataFlow(PropertyGraph):
         the in_port target_pid
         use eid if not None or create a new one
         raise an error if eid is already used
-        return eid used
+
+        :returns: eid used
         :rtype: eid
         """
         if not self.is_out_port(source_pid):
@@ -389,10 +399,11 @@ class SubDataflow(object):
 
     def __init__(self, dataflow, algo, node_id, port_index):
         """ Constructor
-        @param dataflow
-        @param algo: algorithm for evaluation.
-        @param node_id
-        @param port_index: output port index in node_id
+
+        :param dataflow: todo
+        :param algo: algorithm for evaluation.
+        :param node_id: todo
+        :param port_index: output port index in node_id
         """
 
         self.dataflow = dataflow
