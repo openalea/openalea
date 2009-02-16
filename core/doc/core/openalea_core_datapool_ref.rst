@@ -4,8 +4,6 @@
 openalea.core.datapool API
 ##########################
 
-
-
 Reference
 ********* 
 

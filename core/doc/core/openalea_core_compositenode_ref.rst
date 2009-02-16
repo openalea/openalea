@@ -4,8 +4,6 @@
 openalea.core.compositenode API
 ###############################
 
-
-
 Reference
 ********* 
 

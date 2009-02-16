@@ -4,8 +4,6 @@
 openalea.core.path API
 ######################
 
-
-
 Reference
 ********* 
 

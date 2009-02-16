@@ -4,8 +4,6 @@
 openalea.core.interface API
 ###########################
 
-
-
 Reference
 ********* 
 

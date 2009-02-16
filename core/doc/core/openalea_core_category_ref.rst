@@ -4,8 +4,6 @@
 openalea.core.category API
 ##########################
 
-
-
 Reference
 ********* 
 

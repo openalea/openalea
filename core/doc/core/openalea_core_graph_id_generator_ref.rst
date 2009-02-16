@@ -4,8 +4,6 @@
 openalea.core.graph.id_generator API
 ####################################
 
-
-
 Reference
 ********* 
 

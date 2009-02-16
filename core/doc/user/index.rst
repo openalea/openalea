@@ -1,7 +1,25 @@
-User documentation
-##################
+.. _core_user:
 
-.. warning:: The Authors of this package should provide a user guid with examples, tutorial and full description of the modules that would complete the API reference guide.
+Core User Guide
+###############
 
+:Version: |version|
+:Release: |release|
+:Date: |today|
 
+This reference manual details functions, modules, and objects included in 
+OpenAlea.Core, describing what they are and what they do. For learning
+how to use OpenAlea.Core see :ref:`core_reference`.
 
+.. warning::
+
+   This "Reference Guide" is still very much work in progress; the material
+   is not organized, and many aspects of OpenAlea.Core are not 
+   covered.
+
+   More documentation can be found on the
+   `openalea <http://openalea.gforge.inria.fr>`__ wiki.
+
+.. toctree::
+    :maxdepth: 1
+            

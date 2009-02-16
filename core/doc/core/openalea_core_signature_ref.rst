@@ -4,8 +4,6 @@
 openalea.core.signature API
 ###########################
 
-
-
 Reference
 ********* 
 

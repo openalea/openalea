@@ -4,8 +4,6 @@
 openalea.core.data API
 ######################
 
-
-
 Reference
 ********* 
 

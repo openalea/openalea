@@ -4,8 +4,6 @@
 openalea.core.graph.graph API
 #############################
 
-
-
 Reference
 ********* 
 

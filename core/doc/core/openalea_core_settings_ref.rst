@@ -4,8 +4,6 @@
 openalea.core.settings API
 ##########################
 
-
-
 Reference
 ********* 
 

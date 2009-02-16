@@ -4,8 +4,6 @@
 openalea.core.pkgmanager API
 ############################
 
-
-
 Reference
 ********* 
 
