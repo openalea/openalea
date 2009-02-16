@@ -313,7 +313,6 @@ class LambdaEvaluation(PriorityEvaluation):
 
         :param context: is a list a value to assign to lambdas
 
-        .. todo:: complete this docstring
         """
 
         df = self._dataflow

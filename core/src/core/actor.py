@@ -30,19 +30,16 @@ class IActor(object):
     It has some functions to set the input and outputs: :func:`inputs`
     and :func:`outputs`.
 
+    .. all standard fields : param, type, rtype, returns
 
     :param object: inheritance class
     :type object: a python object
     :returns: todo
 
-    Examples
-    --------
+    :Examples:
 
     >>> import openalea.core
     >>> a = openalea.core.actor.IActor()
-
-    .. todo::
-        - finalize docstring documentation
 
     """
 

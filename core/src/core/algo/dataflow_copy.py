@@ -23,8 +23,13 @@ __revision__ = " $Id$ "
 def structural_copy(dataflow_pattern, dataflow_copy):
     """
     make a copy of dataflow_pattern into dataflow_copy
+    
     copy only structural informations and not informations
     related to vertices like actors
+    
+    :param dataflow_pattern: the pattern to copy
+    :param dataflow_copy: the destination
+    
     """
     dfp = dataflow_pattern
     dfc = dataflow_copy
