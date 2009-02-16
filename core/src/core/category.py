@@ -22,14 +22,14 @@ __revision__ = "$Id$"
 
 class PackageManagerCategory():
     """
-    The PackageManagerCategory is a Dictionary of keywords and categories.
+    The PackageManagerCategory provides a Dictionary of keywords and categories.
 
-    This category list is used by PackageManager to create the list of
-    categories in visualea. To do so, it extracts the category fields
-    of each node found in the__wralea__.py file.
+    This dictionary is used by the :class:`PackageManager` class so as to 
+    extract the category fields that are found in the **__wralea__.py** files. Those
+    fields are gathered into a list that is shown within Visualea.
 
-    Here below is the list of keywords to be used within the __wralea__ files;
-    inside the category field. Each of these keywords (left column) corresponds
+    Here below is the list of keywords to be used within the __wralea__ files 
+    -- inside the category field. Each of these keywords (left column) corresponds
     to a label (right column) that will appear in the visualea interface.
     For instance, if "image" is found in the __wralea__ file, then the
     corresponding node will appear in "Image Processing/standard category".
@@ -45,7 +45,7 @@ class PackageManagerCategory():
     only 1 keyword per category.
 
     =====================   =======================================
-    keywords                Category names in VisuAlea
+    keywords(__wralea__)      Category names in VisuAlea
     =====================   =======================================
     image                   Image Processing.standard
     svg                     Image Processing.svg
@@ -126,7 +126,7 @@ class PackageManagerCategory():
             'test':         'Data Processing.statistical tests',
             'string': 'Data processing.Data Manipulation and Transformation',
             'codec': 'Data processing.Data Manipulation and Transformation',
-            'fractal analysis':'Scene Design.Fractal Analysis',
+            'fractal analysis': 'Scene Design.Fractal Analysis',
             'plot':         'Visualisation',
             'graphics':     'Visualisation',
             'graphic':      'Visualisation',

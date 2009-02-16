@@ -35,9 +35,6 @@ def start_qt(factory, node):
     :param factory: todo
     :param node: todo
 
-    .. todo::
-        - complete this docstring
-
     """
 
     from PyQt4 import QtGui, QtCore
@@ -71,8 +68,6 @@ def load_package_manager(pkg_id, node_id):
     :param pkg_id: todo
     :param node_id: todo
 
-    .. todo::
-        - complete this docstring
     """
 
     print "\nSearching '%s:%s'..." % (pkg_id, node_id)
@@ -89,8 +84,6 @@ def get_node(component, inputs, pm=None):
     :param pkg_id: todo
     :param node_id: todo
 
-    .. todo::
-        - complete this docstring
     """
 
     pkg_id, node_id = component
@@ -129,8 +122,6 @@ def run_and_display(component, inputs, gui=False, pm=None):
     :type gui: boolean (default is False)
     :type pm: package manager
 
-    .. todo::
-        - complete this docstring
     """
 
     factory, node = get_node(component, inputs, pm)

@@ -52,15 +52,15 @@ class CompositeNodeFactory(AbstractFactory):
 
     def __init__(self, *args, **kargs):
         """
-        CompositeNodeFactory accept more optional parameters :
+        CompositeNodeFactory accept more optional parameters:
         
-         - inputs : list of dict(name = '', interface='', value='')
-         - outputs : list of dict(name = '', interface='', value='')
-         - doc : documentation
-         - elt_factory : map of elements with its corresponding factory
-         - elt_connections : map of ( dst_id , input_port ):(src_id,output_port)
-         - elt_data : Dictionary containing associated data
-         - elt_value : Dictionary containing Lists of 2-uples (port, value)
+        - inputs: list of dict(name = '', interface='', value='')
+        - outputs: list of dict(name = '', interface='', value='')
+        - doc: documentation
+        - elt_factory: map of elements with its corresponding factory
+        - elt_connections: map of ( dst_id , input_port ):(src_id,output_port)
+        - elt_data: Dictionary containing associated data
+        - elt_value: Dictionary containing Lists of 2-uples (port, value)
         """
 
         # Init parent (name, description, category, doc, node, widget=None)
