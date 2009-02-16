@@ -4,8 +4,6 @@
 openalea.core.threadmanager API
 ###############################
 
-
-
 Reference
 ********* 
 

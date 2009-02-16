@@ -4,8 +4,6 @@
 openalea.core.export_app API
 ############################
 
-
-
 Reference
 ********* 
 

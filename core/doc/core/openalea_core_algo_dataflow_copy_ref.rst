@@ -4,8 +4,6 @@
 openalea.core.algo.dataflow_copy API
 ####################################
 
-
-
 Reference
 ********* 
 

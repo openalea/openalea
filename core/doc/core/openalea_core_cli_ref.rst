@@ -4,8 +4,6 @@
 openalea.core.cli API
 #####################
 
-
-
 Reference
 ********* 
 

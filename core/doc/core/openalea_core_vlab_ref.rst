@@ -4,8 +4,6 @@
 openalea.core.vlab API
 ######################
 
-
-
 Reference
 ********* 
 

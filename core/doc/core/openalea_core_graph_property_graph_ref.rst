@@ -1,10 +1,8 @@
 .. module:: property_graph
-    :synopsis: This module provide a set of concepts to add properties to graph elements
+    :synopsis: 
             
 openalea.core.graph.property_graph API
 ######################################
-
-
 
 Reference
 ********* 
@@ -25,4 +23,4 @@ Reference
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: This module provide a set of concepts to add properties to graph elements     
+    :synopsis:      

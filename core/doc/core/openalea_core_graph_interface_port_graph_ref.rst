@@ -4,8 +4,6 @@
 openalea.core.graph.interface.port_graph API
 ############################################
 
-
-
 Reference
 ********* 
 

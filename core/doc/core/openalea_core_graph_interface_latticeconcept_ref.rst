@@ -4,8 +4,6 @@
 openalea.core.graph.interface.latticeconcept API
 ################################################
 
-
-
 Reference
 ********* 
 

@@ -4,8 +4,6 @@
 openalea.core.dataflow API
 ##########################
 
-
-
 Reference
 ********* 
 
