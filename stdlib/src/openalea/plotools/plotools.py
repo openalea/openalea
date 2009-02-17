@@ -14,20 +14,15 @@ Mainly based on mathplotlib.
     INRIA
 
 """
-# Module documentation variables:
-__authors__="""David Da Silva,
-Szymon Stoma    
-"""
-__contact__=""
-__license__="Cecill-C"
-__date__="<Timestamp>"
-__version__="0.1"
-__docformat__= "restructuredtext en"
-__revision__="$Id$"
 
-__doc__="""
-plotting tools
-"""
+__authors__ = """David Da Silva, Szymon Stoma"""
+__contact__ = ""
+__license__ = "Cecill-C"
+__date__ = "<Timestamp>"
+__version__ = "0.1"
+__docformat__ =  "restructuredtext en"
+__revision__ = "$Id$"
+
 
 
 from openalea.core import *

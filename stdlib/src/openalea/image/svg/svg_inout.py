@@ -24,6 +24,7 @@ from openalea.svgdraw import open_svg,SVGImage,SVGSphere\
                             ,Color3
 
 def loadsc (filename) :
+    """todo"""
     f=open_svg(filename,'r')
     sc=f.read()
     f.close()

@@ -15,10 +15,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-__doc__="""
-This module provide basics function to handle 2D images
-"""
+"""This module provide basics function to handle 2D images"""
 
 __license__= "Cecill-C"
 __revision__=" $Id$ "

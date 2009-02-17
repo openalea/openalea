@@ -20,13 +20,13 @@ __revision__ = " $Id$ "
 class ColorMap(object):
     """A RGB color map, between 2 colors defined in HSV code
 
-    :newfield example: 
+    :Examples: 
 
     >>> minh,maxh = minandmax([height(i) for i in s2])
-    colormap = ColorMap(minh,maxh)
-    s3 = [ Shape(i.geometry, Material
-        (Color3(colormap(height(i))), 1), i.id)
-        for i in s2]
+    >>> colormap = ColorMap(minh,maxh)
+    >>> s3 = [ Shape(i.geometry, Material
+    >>>    (Color3(colormap(height(i))), 1), i.id)
+    >>>    for i in s2]
 
     """
 
@@ -34,7 +34,11 @@ class ColorMap(object):
         pass
 
     def color(self, normedU):
-        """todo"""
+        """
+        
+        :param normedU: todo
+        
+        """
         inter = 1/5.
         winter = int(normedU/inter)
         a = (normedU % inter)/inter
@@ -55,15 +59,25 @@ class ColorMap(object):
         return (int(col[0]), int(col[1]), int(col[2]))
 
     def greycolor(self, normedU):
-        """todo"""
+        """
+        
+        :param normedU: todo
+        :returns: todo
+        """
         return (int(255*normedU), int(255*normedU), int(255*normedU))
 
     def grey(self, u):
-        """todo"""
+        """
+        :param u: 
+        :returns: todo
+        """
         return self.greycolor(self.normU(u))
 
     def normU(self, u):
-        """todo"""
+        """
+        :param u:
+        :returns: todo
+        """
         if self.minval == self.maxval:
             return 0.5
         return (u - self.minval) / (self.maxval - self.minval)

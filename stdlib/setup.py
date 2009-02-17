@@ -1,19 +1,30 @@
-import os, sys
+"""setup file for stdlib package"""
+import os
+from setuptools import setup, find_packages
+
+__license__ = 'Cecill-C' 
+__revision__ = "$Id$"
+
 pj = os.path.join
 
-from setuptools import setup, find_packages
+name = 'OpenAlea.StdLib'
+version = '0.6.2'
+description = 'OpenAlea standard logical component library.' 
+long_description = ''
+author = 'OpenAlea consortium'
+author_email = ''
+url = 'http://openalea.gforge.inria.fr'
 
 
 setup(
-    name = 'OpenAlea.StdLib',
-    version = '0.6.2' ,
-    description = 'OpenAlea standard logical component library.', 
+    name=name,
+    version=version,
+    description=description, 
     long_description = '',
-    author = 'OpenAlea consortium',
+    author = author,
     author_email = '',
-    url = 'http://openalea.gforge.inria.fr',
-    license = 'Cecill-C',
-
+    url = url,
+    license = license,
 
     create_namespaces=False,
     zip_safe=False,
@@ -63,10 +74,7 @@ setup(
                    'catalog.python = deprecated',
                    'catalog.string = deprecated',
               ],
-
         },
-
-                     
     )
 
 

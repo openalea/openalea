@@ -162,7 +162,7 @@ def display_VisualSequence(vis_seq_list=list(), visualisation="",
             Y label description
     """
     if visualisation == 'Hist':
-        return display_visualsequence_as_hist( vis_seq=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
+        return display_VisualSequence_as_Hist( vis_seq=vis_seq_list, title=title, xlabel=xlabel, ylabel=ylabel, figure=figure, **keys )
     elif visualisation == 'PointLine':
         return display_VisualSequence_as_PointLine(vis_seq_list=vis_seq_list,
                                                    title=title, xlabel=xlabel,
@@ -266,7 +266,6 @@ def display_VisualSequence_as_Hist(vis_seq=[], title="", xlabel="",
     pylab.ylabel( ylabel )
     pylab.show()
 
-display_VisualSequence_as_Hist = display_visualsequence_as_hist
 
 def tuples2VisualSequence( seq1=[], marker="o", color="b", **keys ):
     """generates visual sequence2D from a list a 2uples (x,y)

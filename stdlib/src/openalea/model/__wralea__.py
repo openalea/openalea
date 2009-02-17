@@ -11,9 +11,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+""" catalog.model """
 
-
-__doc__=""" catalog.model """
 __revision__=" $Id$ "
 
 

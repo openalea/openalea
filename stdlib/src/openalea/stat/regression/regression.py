@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+""" todo """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
@@ -51,7 +52,6 @@ def Glm(x, y, famil = 'gaussian'):
 
     reg = rpy.r.glm(model, data = d, family = famil)
 
-
     #print reg
     
     intercept = reg['coefficients']['(Intercept)']
@@ -62,17 +62,12 @@ def Glm(x, y, famil = 'gaussian'):
     data = {'Intercept':intercept, 'Slope':slope, 'Family': famil}#, 'Link':lin}
     return data
     
-
-
-############## Linear regression section ##########################
-
-
-class LinearRegression( Node ):
+class LinearRegression(Node):
     """Linear regression 
     
     :param inputs: a list containing X, Y and alpha values
     
-    .. :returns: linear regression output
+    :returns: linear regression output
 
     """
 
@@ -223,7 +218,6 @@ def regLinOri(x, y, alpha=5):
     data = regression(x, y, model, alpha )
     return data
  
-############## End of section #####################################
 
 def linearregress(x, y):
     """
