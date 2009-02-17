@@ -1,0 +1,14 @@
+|deploy| supports the installation of OpenAlea packages via 
+the network and manages their dependencies . It is an 
+extension of Setuptools.
+
+Additional Features:
+ - Discover and manage packages in EGG format
+ - Declare shared libraries directory and include directories
+ - Call SCons scripts
+ - Create namespaces if necessary
+ - Support post_install scripts
+ - Support 'develop' command
+ - OpenAlea GForge upload
+
+It doesn't include any GUI interface (See OpenAlea.DeployGUI for that).
