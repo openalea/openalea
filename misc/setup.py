@@ -1,19 +1,24 @@
-#Check dependencies
+""" This setup file is not yet operational for installation, or egg creation. 
+
+However, the following command can be used to build the sphinx documentation  
+
+>>> python setup.py sphinx_build
+
+"""
 
 import os, sys
 pj = os.path.join
 
 name = 'OpenAlea.misc'
 namespace = 'misc'
-
-version=0.1
+version='0.6.2'
 description = 'OpenAlea documentation.' 
 long_description = ''
 author = 'OpenAlea consortium'
-author_email = 'thomas.Cokelaer@inria.fr'
+author_email = 'Thomas.Cokelaer@inria.fr'
 url = 'http://openalea.gforge.inria.fr'
 __license__= 'Cecill-C' 
-__revision__ = "$Id: setup.py 1586 2009-01-30 15:56:25Z cokelaer $"
+__revision__ = "$Id$"
 
 from setuptools import setup
 

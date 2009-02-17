@@ -1,12 +1,8 @@
 
-Release 
-=======
 
-- Add sphinx_tools and create_rest_files modules to help managing the sphinx documentation
-
-
+- Add sphinx_tools.py and create_rest_files.py modules to help managing the sphinx documentation
 
 Release 0.6
-===========
+-----------
 
 
