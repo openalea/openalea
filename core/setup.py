@@ -1,22 +1,22 @@
-#Check dependencies
+"""setup file for core package"""
+import os
+from setuptools import setup
 
-import os, sys
 pj = os.path.join
 
 name = 'OpenAlea.Core'
 namespace = 'openalea'
-
+# to get the version
 execfile("src/core/version.py")
-
+version="0.6.2"
 description = 'OpenAlea Component platform core.' 
 long_description = ''
 author = 'OpenAlea consortium'
 author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url = 'http://openalea.gforge.inria.fr'
-__license__= 'Cecill-C' 
+__license__ = 'Cecill-C' 
 __revision__ = "$Id$"
 
-from setuptools import setup
 
 setup(
     name=name,
