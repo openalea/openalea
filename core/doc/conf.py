@@ -47,7 +47,6 @@ except NameError:
 # This paths are required to access the extension and the import_modules.py file
 sys.path.append(openalea + '/doc/sphinxext')
 sys.path.append(openalea + '/doc/sphinxext/numpyext')
-#sys.path.append(os.path.abspath('./'+str(name)))
 
 
 
@@ -107,7 +106,7 @@ copyright = unicode('2009,'+ Project + '.' + Name)
 today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['/home/cokelaer/Work/eclipse_env/openalea/core/doc/user/index.rst']
+#unused_docs = []
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
@@ -244,6 +243,11 @@ latex_preamble = """
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/dev': None}
-
-
+intersphinx_mapping = {'http://docs.python.org/dev': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/core/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/visualea/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/deploy/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/deploygui/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/sconsx/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/misc/html/': None,
+'http://openalea.gforge.inria.fr/doc/sphinx/stdlib/html/': None }
