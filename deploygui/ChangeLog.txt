@@ -2,27 +2,27 @@
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
 release 0.6.2
-=============
+-------------
 
 release 0.4.4
-=============
+-------------
 - Restart alea_config after closing OPenAlea.Installer in an other process to update env variables. Thus, used libs can be replaced by new ones.
 
 release 0.4.3
-=============
+-------------
 - Fix version comparison to update and select the last package.
 
 release 0.4.1
-=============
+-------------
 - Fix configuration when installing/removing a package
 
 release 0.4
-===========
+-----------
 - Improve interface (check all, link for documentation)
 - Add custom egg creation tab (thanks to Frederic Boudon)
 
 release 0.3
-===========
+-----------
 - Add button to select all package in a list	
 - Improve recommended packages
 - Update shows only most recent packages
@@ -30,7 +30,7 @@ release 0.3
 - Minor bug fixes
 
 release 0.2
-===========
+-----------
 - Add Authentification
 - Add Remove packages tab
 - Add Custom Egg Installation tab
@@ -38,5 +38,5 @@ release 0.2
 - Bug Fixes
 
 release 0.1
-===========
+-----------
 **First implementation**
