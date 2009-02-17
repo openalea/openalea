@@ -1,9 +1,10 @@
-""" alea config 
+"""Alea config 
 
 Update all the shared libraries in the openalea global share lib directory.
 Try to update environment variable by:
-- changing PATH value from the registry in Windows
-- Create a new file in /etc/profile.d or .bashrc.
+ - changing PATH value from the registry in Windows
+ - Create a new file in /etc/profile.d or .bashrc.
+
 The global shared dir can be set by this command.
 """
 
@@ -46,9 +47,6 @@ def main():
 #     elif('win' in sys.platform):
 #         for k, v in env.items():
 #             print "set %s=%s\n"%(k, v)
-
-
-
 
 
 if(__name__ == '__main__'):

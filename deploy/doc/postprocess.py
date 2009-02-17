@@ -16,18 +16,19 @@ switch the automodule to autofunction and remove all the fields below
 '.. autofunction::' that are not required anymore.
 """
 import os
+import sys
+sys.path.append(os.path.abspath('../../misc'))
+import sphinx_tools
 
+
+
+filenames = ['deploy/openalea_deploy_binary_deps_ref.rst']
 print 'Fixing the binary_deps_ref.rst case.'
-text = open('./deploy/openalea_deploy_binary_deps_ref.rst','r').read()
-if text.find('.. automodule::')!=-1:
 
-    foutput = open('./deploy/openalea_deploy_binary_deps_ref.rst','w')
-    foutput.write(text.split(".. automodule::")[0])
-    text = text.split(".. automodule::")[1]
-    foutput.write('.. autofunction:: ' + text.split('\n')[0])
-    foutput.close()
-else:
-    print 'Seems to be done already.'
-    
+for file in filenames:
+    process = sphinx_tools.PostProcess(file)
+    process.switch_automodule_to_autofunction()
+
+
 print 'Try python setup.py build_sphinx now.'
 

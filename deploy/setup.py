@@ -1,4 +1,3 @@
-
 # Install setuptools if necessary
 try:
     from ez_setup import use_setuptools
@@ -9,21 +8,27 @@ except:
 
 from setuptools import setup, find_packages
 from os.path import join as pj
-import sys, os
+
 
 name = "OpenAlea.Deploy"
 version = "0.6.2"
+author = "Samuel Dufour-Kowalski, Christophe Pradal"
+author_email = "christophe.pradal@cirad.fr"
+description = "Setuptools extension for OpenAlea"
+license = 'Cecill-C'
+url = 'openalea.gforge.inria.fr'
+keywords = ['setuptools', 'shared lib'],
 
 setup(
     # Metadata for PyPi
     name = name,
     version = version, 
-    author = "Samuel Dufour-Kowalski, Christophe Pradal",
-    author_email = "christophe.pradal@cirad.fr",
-    description = "Setuptools extension for OpenAlea",
-    license = 'Cecill-C',
-    keywords = ['setuptools', 'shared lib'],
-    url = 'openalea.gforge.inria.fr',
+    author = author,
+    author_email = author_email,
+    description = description,
+    license = license,
+    keywords = keywords,
+    url = url,
 
     namespace_packages = ["openalea"],
     
@@ -72,4 +77,3 @@ setup(
 
     #install_requires = plat_requires,
 )
-

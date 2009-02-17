@@ -1,4 +1,6 @@
 
+- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+
 OpenAlea.Deploy 0.6.2
 =====================
 **Revision 1562**
@@ -80,7 +82,7 @@ OpenAlea.Deploy 0.3.6
 
 OpenAlea.Deploy 0.3.5
 ======================
-- add alea_clean and alea_update_all scritps
+- add alea_clean and alea_update_all scripts
 
 OpenAlea.Deploy 0.3.4a
 ======================

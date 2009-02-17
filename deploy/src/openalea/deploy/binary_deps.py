@@ -12,6 +12,7 @@ def binary_deps(pkg, verbose=True):
     
     :param pkg: package
     :param verbose: default is True
+    
     """
     
     try:
