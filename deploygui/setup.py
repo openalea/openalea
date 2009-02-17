@@ -1,18 +1,26 @@
-
-
 from setuptools import setup, find_packages
 from os.path import join as pj
+    
+
+version = "0.6.2"
+name = "OpenAlea.DeployGui"
+author = "Samuel Dufour-Kowalski"
+author_email = "samuel.dufour@sophia.inria.fr"
+description = "OpenAlea graphical installer"
+license = 'Cecill-V2'
+keywords = ['Graphical installer']
+url = 'openalea.gforge.inria.fr'
 
 setup(
     # Metadata for PyPi
-    name = "OpenAlea.DeployGui",
-    version = "0.6.2",
-    author = "Samuel Dufour-Kowalski",
-    author_email = "samuel.dufour@sophia.inria.fr",
-    description = "OpenAlea graphical installer",
-    license = 'Cecill-V2',
-    keywords = ['Graphical installer'],
-    url = 'openalea.gforge.inria.fr',
+    name = name,
+    version = version,
+    author = author,
+    author_email = author_email,
+    description = description,
+    license = license,
+    keywords = keywords,
+    url = url,
 
     namespace_packages = ["openalea"],
 

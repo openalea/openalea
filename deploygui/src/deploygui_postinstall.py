@@ -1,8 +1,8 @@
-# Postinstall scripts
+""" Postinstall scripts"""
 
 
 def install():
-    
+    """todo"""    
     from openalea.deploy.shortcut import create_win_shortcut, set_win_reg, create_fd_shortcut
     from openalea.deploy import get_base_dir
     import sys
