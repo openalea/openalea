@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+<h1>Welcome</h1>
+
+<p>  This is the portal of <b>{{project|title}}</b>, a python package of <b>OpenAlea</b>. Here below, you can find a detailled description of the project for users and developpers. </p>
+
+<p>This documentation is in progress; the material is not organized, and many aspects of {{project|title}} are not covered yet. More documentation can be found on the <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=openalea">OpenAlea Wiki</a>
+</p>
+
+
+  <h2>Documentation</h2>
+<table class="contentstable" align="center" style="margin-left: 30px"><tr>
+<td width="50%">
+  <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Contents</a><br/>
+   <span class="linkdescr">for a complete overview</span></p>
+ <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">Search page</a><br/>
+  <span class="linkdescr">search the documentation</span></p>
+  </td><td width="50%">
+<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">General Index</a><br/>
+ <span class="linkdescr">all functions, classes, terms</span></p>
+   <p class="biglink"><a class="biglink" href="{{ pathto("modindex") }}">Module Index</a><br/>
+<span class="linkdescr">quick access to all documented modules</span></p>
+</td></tr>
+  </table>
+
+  
+{% endblock %}
+

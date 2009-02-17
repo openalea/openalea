@@ -1,0 +1,85 @@
+@import "sphinxdoc.css";
+
+/* see field names in blue */
+
+div.admonition-todo {
+border-top: 2px solid red;
+border-bottom: 2px solid red;
+border-left: 2px solid red;
+border-right: 2px solid red;
+background-color: #ff6347
+}
+
+p.rubric {
+color:blue;
+}
+
+th.field-name {
+color:blue;
+}
+
+/* surround the classes, functions and exceptions with boxes*/
+dl.class, dl.function, dl.exception{
+    border-top: 2px solid #888;
+    border-bottom: 2px solid #888;
+    border-left: 2px solid #888;
+    border-right: 2px solid #888;
+}
+
+
+dl.method, dl.attribute {
+    border-top: 1px solid #aaa;
+}
+
+img.inheritance {
+    border: 1px solid blue;
+    max-width:90%;
+    align:center;
+}
+
+
+/* these div and table fixes are required to have a nice layout of the source code 
+ * needs to check that the layout is still corect when crtl+ - or + is used 
+ * */
+div.highlight-python{
+table-layout:auto;
+overflow-x:hidden;
+width:100%;
+}
+table.highlighttable {
+table-layout:auto;
+}
+
+
+/** 
+ *  * Styling for footnotes
+ *   */
+
+table.footnote td, table.footnote th {
+  border: none;
+}
+
+
+table indextable{
+    border-collapse: collapse;
+    margin: 0 -0.5em 0 -0.5em;
+    table-layout:auto;
+    width:100%;
+    overflow:hidden;
+    word-wrap:break-word;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+
+ }
+
+table.docutils{
+border-left: 2px solid gray;*/
+width:100%;
+}
+
+h2 {
+background-color: #FFDEAD;
+}

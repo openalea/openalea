@@ -1,0 +1,29 @@
+{% extends "!layout.html" %}
+
+{% block rootrellink %}
+
+
+{%- if project=="openalea.Main page" -%}
+
+<li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
+<li><a href="{{ pathto('openalea') }}">openalea Home </a> |&nbsp;</li>
+<li><a href="{{ pathto('contents') }}">Documentation </a> &raquo;</li>
+
+{%- else -%}
+<li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
+<li><a href="{{ pathto('contents') }}">Documentation</a> &raquo;</li>
+{%- endif -%}
+
+{% endblock %}
+
+{% block relbar1 %}
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+</div>
+{{ super() }}
+{% endblock %}
+
+<img src="{{ pathto("_static/wiki_logo_openalea.png", 1) }}" alt="Openalea logo" />_
+{# put the sidebar before the body #}
+{% block sidebar1 %}{{ sidebar() }}{% endblock %}
+{% block sidebar2 %}{% endblock %}
+
