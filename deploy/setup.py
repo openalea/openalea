@@ -17,7 +17,7 @@ author_email = "christophe.pradal@cirad.fr"
 description = "Setuptools extension for OpenAlea"
 license = 'Cecill-C'
 url = 'openalea.gforge.inria.fr'
-keywords = ['setuptools', 'shared lib'],
+keywords = ['setuptools', 'shared lib']
 
 setup(
     # Metadata for PyPi
