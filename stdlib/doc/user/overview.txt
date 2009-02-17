@@ -1,0 +1,14 @@
+|stdlib| provides standard logical components based on python libraries.
+
+* :mod:`data` : simple data structures (int, float, datetime, list, tuple3, …)
+* :mod:`file` : manipulation nodes (read, write, filename, dirname, …)
+* :mod:`maths` : simple math function (arithmetic, boolean operation, …)
+* :mod:`python` : python standard function (getitem, keys, eval, range, …)
+* :mod:`strings` : string manipulation nodes ( join, split, strip, …)
+* :mod:`functional` : python functional node (function, map, reduce, filter, apply, …)
+* :mod:`models` : simple models (linear…)
+* :mod:`csv` : csv manipulation structure
+* :mod:`colormap` : colormap nodes
+
+It doesn't include any GUI interface (See OpenAlea.Visualea for that).
+
