@@ -1,38 +1,42 @@
-release_0.6.2
-=============
+
+- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+
+
+SconsX 0.6.2
+------------
 **revision 1562**
 
 - fix API documentation to remove epydoc warnings
 - add MAC OS X support
 
-SconsX 0.4.8:
-=============
+SconsX 0.4.8
+------------
 - Change SharedLibrary by LoadableModule to build extension library on Mac OS X.
 
-SconsX 0.4.7:
-=============
+SconsX 0.4.7
+------------
 - Enhance MinGW tool to support newer version of SCons (>0.98)
 - Add ALEASolution function to simplify SConstruct in most cases.
   This function build an environment based on an option object and a set of tools.
 
-SconsX 0.4.6:
-=============
+SconsX 0.4.6
+------------
 - Improve Visual C++ 2005 support by embedding generated manifest into dll/prog.
 - Add 'num_jobs' options support
 
-SconsX 0.4.5:
-=============
+SconsX 0.4.5
+------------
 - Local tool can be created into project/sconsx_ext/
 
-SconsX 0.4.2:
-=============
+SconsX 0.4.2
+------------
 - Add egglib tool to retrieve binary egg compilation info (include and lib).
 - Modify qt4, qhull, boost, bison, flex tools to work with eggs.
 - Minor bug fix (qt4)
 
 
 SconsX 0.4.0
-============
+------------
 - Improve qt support
 - Improve Mingw support
 - Change default build_prefix
@@ -40,14 +44,15 @@ SconsX 0.4.0
 
 
 SConsX 0.3.0
-============
+------------
 - Add ALEAGlob and ALEAGlobDir methods to the environment.
   For instance, cpp files can be found by env.ALEAGlob('*.cpp',dir='.')
 - Enhance default settings on Windows and Linux mainly for qt and OpenGL.
 - Improve windows support, mainly for Visual C++ 2005.
  
 SConsX 0.2.0
-============
+------------
 - Add high-level functions such as:
-  ALEALibrary, ALEAProgram and ALEAIncludes that build and install stuff independently of the platform.
+  - ALEALibrary
+  - ALEAProgram and ALEAIncludes that build and install stuff independently of the platform.
 - Add support for MinGW and Visual on Windows.

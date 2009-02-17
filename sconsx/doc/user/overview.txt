@@ -1,0 +1,12 @@
+|sconsx| is an extension package of the famous `SCons`_ build tool. SConsX aims to simplify the build of complex multi-platform packages (i.e. using C++, `Boost.Python`_ and Python).
+
+Like Boost.Jam or qmake, it knows about different types of compiler, and the different steps involved in compiling for Windows and Linux. This knowledge allows the user to describe what needs to be built in high-level terms, without concern for low-level details such as the compiler's specific flags, the way that the operating system handles dynamic libraries. The goal is to be able to write a single, simple, build description (**SConsctruct** and **SConscript** ) that is likely to work for several compilers on Linux and Windows. It also has built-in support for variant builds ( e.g.debug, release), options (e.g. include paths and threading options) and dependencies associated with the usage of particular libraries. The build objects are created in a separate build directory, not in the source directory.
+
+SConsX extend SCons by adding knowledge to existing tools that are system dependent (e.g. default options and path, dependencies between tools). All the internal options can be overwited in an external configuration file (named option.py). For each tools, SConsX add also configuration capabilities that mimic autoconf functionalities.
+
+SConsX is just a thin wrapper over SCons. It's easily extendible. You can add new tools as well as new high-level commands.
+
+SConsX is under development. Lot of work have to be done for a better support of new compiler (e.g. Visual C++, mingw), new tools and new functionalities
+    
+.. _Boost.Python: http://www.boost.org
+.. _scons: http://www.scons.org
