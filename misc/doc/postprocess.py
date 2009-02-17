@@ -19,10 +19,13 @@ solution is found.
 
 """
 import os
+import sys
+sys.path.append(os.path.abspath('../'))
+import sphinx_tools
 
 print 'Fixing the module and automodule conflict.'
 
-files = ['./misc/create_rest_files_ref.rst',
+files = [
     './misc/path_ref.rst',
     './misc/download_ref.rst',
     './misc/sphinx_tools_ref.rst',
@@ -30,25 +33,13 @@ files = ['./misc/create_rest_files_ref.rst',
     './misc/upload_dist_ref.rst',
     './misc/make_develop_ref.rst',
     './misc/openalea_distrib_ref.rst',]
+ 
 
 for file in files: 
-    text = open(file,'r').read()
-    
-    if text.find('.. automodule::')==-1:
-        print 'skip %s which do not contains any automodule directive' % file
-        continue
-    else:
-        lines = text.split('\n')
-        foutput = open(file, 'w')
-        for line in lines:
-            if '.. module::' not in line:
-                if '.. automodule::' in line:
-                    line = line.replace('openalea.','')
-                foutput.write(line+'\n')
-    foutput.close()
-    print file + ' done'
-
-
+    print file
+    process = sphinx_tools.PostProcess(file)
+    process.no_namespace_in_automodule()
+    process.remove_header(nline=2, start=4)
     
 print 'Try python setup.py build_sphinx now.'
 
