@@ -1,26 +1,19 @@
+import sys
 import os
 
-
-filename = './deploygui/openalea_deploygui_alea_install_gui_ref.rst'
-text = open(filename).read()
-
-
-foutput = open(filename, 'w')
-
-#search for everything before 'Inheritance diagram'
-# and write it
-text = text.split('- Inheritance diagram:')
+sys.path.append(os.path.abspath('../../misc'))
+import sphinx_tools
 
 
 
-foutput.write(text[0])
-
-#Then, all the remaining part except the diagram inheritance part
-for line in text[1].split('\n'):
-    if ':parts: 2' in line or 'inheritance-diagram' in line:
-        continue
-    else:
-        foutput.write(line +'\n')
-foutput.close()
+filenames = ['./deploygui/openalea_deploygui_alea_install_gui_ref.rst']
+for file in filenames:
+    process = sphinx_tools.PostProcess(file)
+    process.remove_inheritance()
 
 
+filenames = ['./deploygui/openalea_deploygui_postinstall_ref.rst']
+for file in filenames:
+    process = sphinx_tools.PostProcess(file)
+    process.remove_header(2)
+    process.no_namespace_in_automodule()

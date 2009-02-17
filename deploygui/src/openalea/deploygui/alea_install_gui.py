@@ -15,14 +15,11 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""Main Module for installation graphical frontend"""
 
-__doc__="""
-Main Module for installation graphical frontend
-"""
-
-__license__= "CeCILL v2"
-__revision__=" $Id$"
-
+__license__ = "CeCILL v2"
+__revision__ = " $Id$"
+url =  "http://openalea.gforge.inria.fr"
 
 import sys, os
 import shutil
@@ -45,7 +42,6 @@ from setuptools import setup, find_packages
 from auth import cookie_login
 
 
-url = "http://openalea.gforge.inria.fr"
 
 def busy_pointer(f):
     """ Decorator to display a busy pointer """
@@ -57,7 +53,6 @@ def busy_pointer(f):
         return ret
         
     return wrapped
-
 
 
 class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
@@ -123,20 +118,15 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def about(self):
          """ Display About Dialog """
         
-         mess = QtGui.QMessageBox.about(self, "About OpenAlea Installer",
-                                        
-                                        u"Copyright \xa9  2006-2008 INRIA - CIRAD - INRA\n"+
-                                        "This Software is distributed under the Cecill-V2 License.\n\n"+
-                                       
-                                        "Visit %s\n\n"%(url,)
-                                       )
-
+         mess = QtGui.QMessageBox.about(self, 
+                    "About OpenAlea Installer",
+                    u"Copyright \xa9  2006-2008 INRIA - CIRAD - INRA\n" +
+                    "This Software is distributed under the Cecill-V2 License.\n\n" +
+                    "Visit %s\n\n" % (url, )  )
 
     def web(self):
         """ Open OpenAlea website """
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
-
-
 
     def get_mode(self):
         """ Return a string corresponding to the package mode:
@@ -199,7 +189,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             self.pi.add_find_links(self.get_repo_list())
             self.pi.prescan()
 
-
         # Parse each distribution
         for project_name in self.pi:
             
@@ -214,7 +203,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 version = dist._version or ""
                 platform = dist.platform or ""
             
-                txt = "%s %s %s"%(project_name, version, platform,)
+                txt = "%s %s %s" % (project_name, version, platform, )
 
                 ignore = False
                 update = False
@@ -235,8 +224,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             ignore = True
                             continue
                 
-                if(ignore) : continue
-                if(update): txt += " -- UPDATE --"
+                if(ignore):
+                    continue
+                if(update): 
+                    txt += " -- UPDATE --"
 
                 # Filter depending of mode
                 if(mode == "ALL" or mode == "INSTALLED"):
@@ -258,18 +249,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             break;
 
                     if(not ok): continue
-
                     
                 elif(mode == "UPDATE" and update
                      and project_name not in in_list):
                     # Keep only most recent package
-
                     ok = True
 
-                else : ok = False
-                     
+                else:
+                    ok = False
+                    
                 
-                if(ok):
+                if (ok):
                     in_list.add(project_name)
                     listitem = QtGui.QListWidgetItem(txt, self.packageList)
                     listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
@@ -304,7 +294,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         QtGui.QApplication.processEvents()
         
-
     def flush(self):
         pass
 
