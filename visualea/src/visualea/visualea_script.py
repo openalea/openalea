@@ -40,7 +40,7 @@ def check_system_setuptools():
 
 
 def start_gui():
-
+    """todo"""
     try:
         envdict = check_system_setuptools()
 
