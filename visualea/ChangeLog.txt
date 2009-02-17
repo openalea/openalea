@@ -1,7 +1,10 @@
-01/08/08_release_0.4.0
-======================
+- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+
+
+01/08/08 release 0.4.0
+----------------------
 Package Manager
----------------
+^^^^^^^^^^^^^^^
 - Simplify menus and context menus with new package support
 - Simplify factory selector when exporting a package
 - Package code edition
@@ -12,51 +15,51 @@ Package Manager
 - Add show log command
 	              
 Widget
-------
+^^^^^^
 - Better code edition (external editor)
 - Support for Data editor (list of editors)
 - Composite widget improved
 - Customizable layout for standard NodeWidget
-           
+
 Node
-----
+^^^^
 - Support for port description
 - Node context menu improved
 - Add a symbol for hidden ports (>>)
 - Add color zone for node state
 - Change color scheme
-- Add "user_application" property for final nodes
+- Add "user application" property for final nodes
 - Add "Block" property
 - Add a reload command
 - Add a replace_by command
 	              
 Dataflow
---------
+^^^^^^^^
 - Change color scheme
 - Improved node manipulation (performance)
 - Interactive port coloration 
 - A node is shown even if it can not be loaded
 	   
 Python interpreter
-------------------
+^^^^^^^^^^^^^^^^^^
 - Add drag and drop capabilities from the workspace/datapool to the interpreter
 	   
 Others
-------
+^^^^^^
 - Change splash screen
 - Notification with QT Signal/Slot
 - Remove some QT compatibility warnings
 - Bug fix
  
-24/09/07_alpha_release_0.3.0
-============================
+24/09/07 alpha release 0.3.0
+----------------------------
 - New edge draw functions (polylines and splines) in preferences
 - Support new core function (copy/paste, export application, save session)
 - Improved QScintilla shell (help, copy/paste)
 - A lot of bug fixes 
 
-06/07/07_alpha_release_0.2.1a
-=============================
+06/07/07 alpha release 0.2.1a
+-----------------------------
 - Add node property editor
 - Add in preference dataflow algorithm configuration
 - Annotations are now saved in dataflow (considered as a particular node)
@@ -65,10 +68,10 @@ Others
 - Setup PATH or LD_LIBRARY_PATH variable in starting script
 - Change Splashscreen
 - Bug fixes
-           
 
-13/06/07_Alpha_release_0.2.0a
-============================= 
+
+13/06/07 Alpha release 0.2.0a
+----------------------------- 
 - Refactoring
 - A lot of bug fixes.
 - New Workspace Management
@@ -86,7 +89,7 @@ Others
 - Save configuration
 	 
 09/02/07 : First release for testing purpose.
-=============================================
+---------------------------------------------
 - GUI in PyQT4
 - Package manager view by package / category
 - Build/Edit graph

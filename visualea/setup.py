@@ -1,5 +1,7 @@
 import os, sys
 from setuptools import setup
+sys.path.append("src")
+import visualea.metainfo as metainfo
 pj = os.path.join
 
 
@@ -7,10 +9,6 @@ pj = os.path.join
 name = 'OpenAlea.Visualea'
 namespace = 'openalea'
 pkg_name = 'openalea.visualea'
-
-sys.path.append("src")
-import visualea.metainfo as metainfo
-
 version = '0.6.2'
 
 description = 'OpenAlea visual programming environment.' 
