@@ -15,5 +15,5 @@ for file in filenames:
 filenames = ['./deploygui/openalea_deploygui_postinstall_ref.rst']
 for file in filenames:
     process = sphinx_tools.PostProcess(file)
-    process.remove_header(2)
+    process.remove_header(nline=2, start=4)
     process.no_namespace_in_automodule()
