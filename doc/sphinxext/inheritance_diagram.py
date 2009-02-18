@@ -40,7 +40,12 @@ except ImportError:
 
 from docutils.nodes import Body, Element
 from docutils.writers.html4css1 import HTMLTranslator
-from sphinx.writers.latex import LaTeXTranslator
+try:
+    # sphinx 0.6 and later
+    from sphinx.writers.latex import LaTeXTranslator
+except:
+    # sphinx 0.5
+    from sphinx.latexwriter import LaTeXTranslator
 from docutils.parsers.rst import directives
 from sphinx.roles import xfileref_role
 
