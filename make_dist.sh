@@ -4,7 +4,7 @@ LOCPATH=$(pwd)
 rm -Rf dist
 mkdir dist
 
-for DIR in core visualea deploy deploygui stdlib
+for DIR in core visualea deploy deploygui stdlib sconsx openalea_meta
 do
 cd $DIR &&
 rm -Rf build &&
