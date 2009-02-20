@@ -28,7 +28,7 @@ Further Example:
 """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
@@ -45,11 +45,16 @@ __revision__ =" $Id$"
 #
 import urllib2
 import mimetypes
+import mimetools
 import os
 import stat
 import sys
 from cStringIO import StringIO
-
+from optparse import OptionParser
+import getpass
+import cookielib
+import urllib
+import glob
 
 class Callable:
 
@@ -122,11 +127,6 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
 ##########################################################"
 
-import cookielib
-import urllib
-import urlparse
-import os
-import glob
 urlOpener = None
 
 
@@ -146,10 +146,10 @@ def cookie_login(loginurl, values):
     request = urllib2.Request(loginurl, data)
     url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
     urllib2.install_opener(urlOpener)
-
-
-    # Make sure we are logged in by checking the presence of the cookie "session_ser".
-    # (which is the cookie containing the session identifier.)
+    urllib2.install_opener(urlOpener)
+            
+    # Make sure we are logged in by checking the presence of the cookie 
+    # "session_ser". (which is the cookie containing the session identifier.)
     if not 'session_ser' in [cookie.name for cookie in cookiejar]:
         print "Login failed !"
     else:
@@ -170,13 +170,18 @@ def upload(filename, url, extension, proc):
     elif(proc == "any"):
         proc = "8000"
 
-    values = {'step2': "1",
+    _values = {'step2': "1",
               'type_id': type_id,
               'processor_id': proc,
               'userfile': open(filename, "rb"),
               }
-
-    fp = urlOpener.open(url, values)
+  
+    try:
+        fp = urlOpener.open(url, _values)
+    except Exception, e:
+        
+        print 'urlOpener.open failed'
+        print e
 
     #print fp.read()
 
@@ -188,7 +193,6 @@ def glob_upload(pattern, verbose=True):
     # loop over the files
     print pattern
     for file in glob.glob(pattern):
-        print file
         filename = os.path.abspath(file)
         print filename
 
@@ -208,16 +212,15 @@ def glob_upload(pattern, verbose=True):
                 if verbose:
                     print "upload", filename, url
                 upload(filename, url, ext, "any")
-            except:
-                print 'Failed to upload the file !'
-                sys.exit(0)
-            finally:
                 print 'File copied'
-
+            except Exception, e:
+                print 'Failed to upload the file !'
+                print e
+                sys.exit(0)            
             #break
         else:
             print file
-            s= """!!! Could not find file(%s) in any URLs provided""" % file
+            s = """!!! Could not find file(%s) in any URLs provided""" % file
             s += """Check the group, release and package Ids on the
 gforge.inria.fr webpage"""
             print s
@@ -245,17 +248,56 @@ urlmap = {
     'vplants-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
     'vplants.fractalysis': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
     'alinea.': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
+    'openalea.source': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3542&package_id=2295',
     }
 
 
-import getpass
+
+
+
+def ParseParameters():
+    """
+    
+    """
+
+    usage = """Usage: %prog [options]
+
+   
+
+    """
+    parser = OptionParser(usage=usage, \
+        version = "%prog CVS $Id$ \n" \
+      + "$Name:  $\n")
+
+    parser.add_option("-l", "--login", metavar='LOGIN',
+        default=None, type='string', help="login name")
+
+    parser.add_option("-v", "--verbose", 
+        action="store_true",  default=False, help="verbose option")
+    
+    parser.add_option("-f", "--filename", 
+        default=None, help="name of the file to upload, provided that it matches\
+         one of the URLmap that is hardcoded") 
+    (_opts, _args) = parser.parse_args()
+     
+    return _opts, _args
+
 
 if (__name__=="__main__"):
 
     global password, login
-    print 'This script will copy the EGG,zip and tar.gz files in ./dist.'
-    print "Enter your gforge login:"
-    login = raw_input()
+    
+    (opts, args) = ParseParameters()
+
+    if opts.verbose:
+        print 'This script will copy the EGG,zip and tar.gz files in ./dist.'
+        print "Enter your gforge login:"
+        
+    if not opts.login:
+        login = raw_input()
+    else:
+        login = opts.login
+        
     password = getpass.getpass()
 
     # Create login/password values
@@ -266,15 +308,19 @@ if (__name__=="__main__"):
 
     url = "https://gforge.inria.fr/account/login.php"
 
-    status = cookie_login(url, values)
+    cookie_login(url, values)
 
-    if "linux" in os.sys.platform:
-        print '---------------------------------------------------------------'
-        print 'glob upload of dist/*egg'
-        glob_upload("dist/*.egg")
-        print '---------------------------------------------------------------'
-        print 'glob upload of dist/*tar.gz'
-        glob_upload("dist/*.tar.gz")
+    if not opts.filename:
+        if "linux" in os.sys.platform:
+            print '------------------------------------------------------------'
+            print 'glob upload of dist/*egg'
+            glob_upload("dist/*.egg")
+            print '------------------------------------------------------------'
+            print 'glob upload of dist/*tar.gz'
+            glob_upload("dist/*.tar.gz")
+        else:
+            glob_upload('dist/*egg')
+            glob_upload('dist/*zip')
     else:
-        glob_upload('dist/*egg')
-        glob_upload('dist/*zip')
+        print 'Uploading %s ' % opts.filename
+        glob_upload(opts.filename)
