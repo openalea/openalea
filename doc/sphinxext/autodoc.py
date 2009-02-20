@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+    Hacked version of autodoc (modified openalea_getmembers and is_static_method)
+
     sphinx.ext.autodoc
     ~~~~~~~~~~~~~~~~~~
 
@@ -44,7 +46,8 @@ def openalea_getmembers(object, predicate=None):
                 results.append((key, value))
         except:
             print '!!! Could not find key %s in obj %s' % (key, object)
-            pass
+            results.append((key, value))
+            
     results.sort()
     return results
 
@@ -57,14 +60,13 @@ def is_static_method(obj):
     """Check if the object given is a static method."""
     if isinstance(obj, (FunctionType, classmethod)):
         return True
-    elif isinstance(obj, MethodType):
-        return obj.im_self is not None
     elif isinstance(obj, BuiltinMethodType):
         try:
             return obj.__self__ is not None
         except:
-            print 'Warning OpenAlea:: __self__ not found in %s ' % obj 
-            return False
+            return True
+    elif isinstance(obj, MethodType):
+        return obj.im_self is not None
     return False
 
 
