@@ -4,7 +4,7 @@
 OpenAlea.Deploy 0.6.2
 ---------------------
 
-**Revision 1562**
+**Revision 1575**
 
 - add clean command to incorporate scons into setup.py
 - Port to Mac

@@ -4,7 +4,7 @@
 release 0.6.2
 -------------
 
-**revision 1562**
+**revision 1575**
 
 - creation of this package that contains the former catalog packages and modules
 such as plottools, image, spatial, stat, ....

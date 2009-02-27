@@ -101,7 +101,7 @@ this directory,
 
 ===== Documentation =====
 
-Have a look to the turorial "how to create an OpenAlea package" on the OpenAlea website.
+Have a look to the tutorial "how to create an OpenAlea package" on the OpenAlea website.
 
 
 

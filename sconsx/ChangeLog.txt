@@ -4,7 +4,7 @@
 
 SconsX 0.6.2
 ------------
-**revision 1562**
+**revision 1575**
 
 - fix API documentation to remove epydoc warnings
 - add MAC OS X support
