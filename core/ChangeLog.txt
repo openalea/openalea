@@ -5,7 +5,7 @@
 22/01/09 release 0.6.2
 ----------------------
 
-- Revision 1562
+- Revision 1575
 - Fix the API documentation (remove errors/warnings in epydoc):
 		http://openalea.gforge.inria.fr/doc/core-0.6.2
 - Fix the tests
