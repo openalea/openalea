@@ -72,8 +72,15 @@ def setup( project, command, directory, options=None):
         dirs = vp_dirs
     elif project == 'alinea':
         dirs = alinea_dirs
-    
+   
     dirs = dirs.split()
+    if command == 'undevelop':
+        # if undevelop, we uninstall in the reversed order
+        # of the installation. For instance, in OpenAlea case, we want
+        # deploy package to be installed first be removed last. This
+        # prevents warnings and potential errors due to original 
+        # distutils being used.
+        dirs.reverse() 
     
     root_dir = path(directory)
     dirs_under_root = root_dir.dirs()
