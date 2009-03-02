@@ -164,9 +164,7 @@ def underline(text, symbol='^'):
     :param symbol: symbol use to create the underline
     """
     _underline = text + '\n'
-    for _c in text:
-        _underline += symbol
-    #underline+='\n'
+    _underline += symbol * len(text)
     return _underline
 
 
