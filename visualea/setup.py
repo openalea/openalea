@@ -1,8 +1,9 @@
-import os, sys
+import sys
 from setuptools import setup
 sys.path.append("src")
 import visualea.metainfo as metainfo
-pj = os.path.join
+from os.path import join as pj
+
 
 
 # Meta Informations
