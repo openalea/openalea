@@ -58,7 +58,7 @@ template_source = \
 .. note:: This source code is not included in the LaTeX output file.
 
 .. htmlonly::
-    .. literalinclude:: %(fullpathname)s
+    .. literalinclude:: %(source)s
         :linenos:
         :language: python
 """
@@ -113,8 +113,8 @@ Documentation
 .. toctree::
     :maxdepth: 1
 
-    user/index.rst   
-    %(package)s/index.rst
+    USER Guide<user/index.rst>   
+    REFERENCE Guide<%(package)s/index.rst>
 
 - A `PDF <../latex/%(package)s.pdf>`_ version of |%(package)s| documentation is 
   available.
@@ -139,7 +139,8 @@ License
 
 |%(package)s| is released under a Cecill-C License.
 
-.. note:: `Cecill-C <http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html>`_ license is a LGPL compatible license.
+.. note:: `Cecill-C <http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html>`_ 
+    license is a LGPL compatible license.
 
 .. |%(package)s| replace:: %(Project)s.%(Package)s
 """                                                         
@@ -220,18 +221,19 @@ class PostProcess():
     :param verbose: a verbose option    
     """
     def __init__(self, source, verbose=True):
-        self.source = source
-        
+        self.source = source        
         self.text = open(self.source).read()
         self.backup_text = open(self.source).read()
-    
+        self.verbose = verbose
+        
     def no_namespace_in_automodule(self):
         """remove the namespace provided in the automodule name
         
         useful when a package does not have yet a namespace
         """
         text = self.text
-        print 'remove namespace in automodule' + self.source
+        if self.verbose:
+            print 'remove namespace in automodule' + self.source
         try:
             if text.find('.. automodule::')==-1:
                 print 'skip %s which do not contains any automodule directive' % self.source                
@@ -257,11 +259,13 @@ class PostProcess():
         :param start: starting line (default is 1)
         """
         text = self.text
-        print 'remove header from '+self.source
+        if self.verbose:
+            print 'remove header from '+self.source
         try:
             if text.find('.. module::')==-1:
-                print 'skip %s which do not contains any module directive' %  \
-                    self.source                
+                if self.verbose:
+                    print 'skip %s which do not contains any module directive' % \
+                        self.source                
             else:
                 lines = text.split('\n')
                 foutput = open(self.source, 'w')
@@ -282,7 +286,8 @@ class PostProcess():
         useful when a module contains only functions.
         """
         text = self.text        
-        print 'switching automodule to autofunction in ' +self.source
+        if self.verbose:
+            print 'switching automodule to autofunction in ' + self.source
         if text.find('.. automodule::')!=-1:
             try:
                 foutput = open(self.source,'w')
@@ -301,7 +306,8 @@ class PostProcess():
         """function to remove inheritance-diagram section in a file"""
         # read the file once for all 
         try:
-            print 'remove inheritance from ' +self.source
+            if self.verbose:
+                print 'remove inheritance from ' +self.source
             # open it to write the new file
             output = open(self.source,'w')
             # write the first part of the text before 'inheritance' bullet
@@ -417,21 +423,24 @@ class reST():
     
     def __init__(self, 
                  fullname, package=None, project=None,
-                 parent_directory=None):
+                 parent_directory=None, inheritance=None):
         """todo"""
         self.fullname = fullname
         self.filename = os.path.split(self.fullname)[1]
         self.module = self.filename.split('.')[0]
         self.text_reference = ""
         self.text_source = ""
-        self.package = opts.package
-        self.project = opts.project
-        
+        self.package = package
+        self.project = project
+        self.inheritance = inheritance
         self.path = os.path.join(parent_directory, 'doc',  self.package) 
         self.title = self.project + '.' + self.package + '.' + self.module
         self.import_name = 'to be done in next call'
         self.get_path_to_module(delimiter=self.project)
-        
+    
+    def get_source(self):
+        return self.fullname.split(self.package + '/src')[1]
+
     def get_path_to_module(self, delimiter='openalea'):
         """Create the import name """
         
@@ -442,7 +451,7 @@ class reST():
         
         if self.package in openalea_packages:
             try:
-                _module = self.fullname.split(self.package + '/src')[1]                                
+                _module = self.fullname.split(self.package + '/src')[1]
             except:
                 _module = self.fullname.split(self.package)[1]
                 
@@ -459,7 +468,7 @@ class reST():
             else:     
                 self.import_name = 'openalea' + _module
         elif self.project=='VPlants':
-            if self.package in ['newmtg','stat_tool', 'fractalysis', 'sequence_analysis']:
+            if self.package in ['PlantGL', 'newmtg','stat_tool', 'fractalysis', 'sequence_analysis']:
                 self.import_name = 'openalea' + _module
             else:
                 self.import_name = 'openalea.vplants' + _module
@@ -482,7 +491,7 @@ class reST():
     def _create_text_reference(self):
         """todo"""
         
-        if opts.inheritance:
+        if self.inheritance:
             inheritance = "\n    :inherited-members:"
             if contains(self.fullname, ['class']):
                 inheritance_diagram = \
@@ -505,7 +514,8 @@ class reST():
                 "inheritance_diagram": inheritance_diagram,
                 "import_name": self.import_name, 
                 "inheritance":inheritance,
-                "synopsis":self.synopsis()
+                "synopsis":self.synopsis(),
+                "source": '../../'+self.get_source()
                   }
         self.text_reference = template_reference % _params
 
@@ -515,6 +525,7 @@ class reST():
               "title": self.title, 
               "underline": underline("Source file", '#'),                  
               "fullpathname": self.fullname,
+              "source": '../../src/'+self.get_source()
               }
 
         self.text_source = template_source % _params
@@ -545,6 +556,40 @@ class reST():
         _output.write(self.text_source)
         _output.close()
         
+        
+def upload_sphinx(package):
+    """
+    
+    
+    """
+    
+    
+    if os.path.isdir('../../'+package) and \
+        os.path.isdir('../doc') and \
+        os.path.isdir('./html/') and \
+        os.path.isdir('./latex/') and \
+        os.path.isfile('./latex/'+package+'.pdf'):
+            
+        print 'Warning: these commands will be run. Is this what you want ? ' 
+        cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' % ('html', package.lower())
+        print cmd1                
+        cmd2 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' % ('latex', package.lower())
+        print cmd2
+        answer = raw_input('y/n ?')
+        print answer
+        if answer=='y':
+           run(cmd1, test=False)
+           run(cmd2, test=False)
+    else:
+        
+        
+        print 'ERROR: You must be in the doc/ directory of the package.'
+        print ' Maybe the html/ or latex/ directory does not exists'
+        print ' or the latex/ directory does not contain a pdf file'        
+        sys.exit()
+    # check that we are in ./opt.pacakge/doc and that there exists a latex and 
+    # html directory.
+    
 
 def ParseParameters():
     """This is the main parsing function to get user arguments
@@ -598,12 +643,21 @@ def ParseParameters():
         default=None,
         help="the project in which is contained the package <openalea, vplants, alinea>")
     
+    parser.add_option("-u", "--upload",  metavar='UPLOAD',
+        action="store_true",
+        default=False,
+        help="upload the project to the gforge")
+    
+    
     (_opts, _args) = parser.parse_args()
      
     if not _opts.package:
         print "--package must be provided! type --help to get help"
         exit()
     
+    if _opts.upload:
+        return _opts, _args
+
     if not _opts.parent_directory:
         print "--parent-directory must be provided! type --help to get help"
         exit()
@@ -611,9 +665,16 @@ def ParseParameters():
     return _opts, _args
 
 
-if __name__ == '__main__':
+def main():
+
     # get all python files
     (opts, args) = ParseParameters()
+    
+    # if upload is requested, nothing else to do
+    if opts.upload:
+        upload_sphinx(opts.package)
+        sys.exit()
+    
 
     # set some metadata and check arguments
     parent_directory = opts.parent_directory
@@ -656,7 +717,8 @@ if __name__ == '__main__':
         output = reST(module, 
                       package=opts.package, 
                       project=opts.project, 
-                      parent_directory=parent_directory)
+                      parent_directory=parent_directory,
+                      inheritance=opts.inheritance)
         output.write_reference()
         output.write_source()
             
@@ -715,3 +777,7 @@ if __name__ == '__main__':
     .%s/doc directory to clean up some known issues within the
     reST files that have just been automatically generated
     """ % opts.package
+
+
+if __name__ == '__main__':
+    main()
