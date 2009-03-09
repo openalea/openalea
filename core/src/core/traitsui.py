@@ -13,7 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""View for organizing the compontent lookout."""
+"""View for organizing the component lookout."""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
@@ -26,8 +26,7 @@ class View(object):
     """
 
     def __init__(self, *values, **kargs):
-        """Basic constructor.
-        """
+        """Basic constructor."""
         self.content = values
         self.layout = kargs.get("layout", "|")
         self.label=kargs.get("label", "")

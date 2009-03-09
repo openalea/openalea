@@ -97,7 +97,6 @@ class PackageManager(object):
 
     def __init__ (self):
         """ Constructor """
-
         self.log = Logger()
 
         # remove namespace option
@@ -532,13 +531,11 @@ class PackageManager(object):
 
 #        if(no_cache):
 #            self.delete_cache()
-	self.set_sys_wralea_path()
-	self.set_user_wralea_path()
-
+        self.set_sys_wralea_path()
+        self.set_user_wralea_path()
         readerlist = self.find_wralea_files()
         for x in readerlist:
             x.register_packages(self)
-
 #        self.save_cache()
         self.rebuild_category()
 
