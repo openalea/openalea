@@ -24,7 +24,8 @@ class PackageManagerCategory():
     """
     The PackageManagerCategory provides a Dictionary of keywords and categories.
 
-    This dictionary is used by the :class:`PackageManager` class so as to 
+    This dictionary is used by the :class:`PackageManager
+    <openalea.core.pkgmanager.PackageManager>` class so as to 
     extract the category fields that are found in the **__wralea__.py** files. Those
     fields are gathered into a list that is shown within Visualea.
 

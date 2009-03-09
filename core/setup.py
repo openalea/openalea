@@ -4,17 +4,19 @@ from setuptools import setup
 
 pj = os.path.join
 
+
 name = 'OpenAlea.Core'
 namespace = 'openalea'
 # to get the version
 execfile("src/core/version.py")
 version="0.6.2"
 description = 'OpenAlea Component platform core.' 
-long_description = ''
+long_description = """OpenAlea.Core is able to discover and manage packages and logical components, build and evaluate dataflows and Generate final applications"""
+
 author = 'OpenAlea consortium'
 author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url = 'http://openalea.gforge.inria.fr'
-__license__ = 'Cecill-C' 
+license = 'Cecill-C' 
 __revision__ = "$Id$"
 
 

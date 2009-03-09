@@ -13,28 +13,17 @@
 #       OpenAlea WebSite: http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""This module provides an actor interface
-
-
-"""
+"""This module provides an actor interface"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
-__docformat__ = 'restructuredtext'
 
 
 class IActor(object):
     """Interface to emulate a function
 
     The class :class:`IActor` implements an interface to emulate a function.
-    It has some functions to set the input and outputs: :func:`inputs`
-    and :func:`outputs`.
-
-    .. all standard fields : param, type, rtype, returns
-
-    :param object: inheritance class
-    :type object: a python object
-    :returns: todo
+    It has functions to :func:`inputs` and :func:`outputs`.
 
     :Examples:
 
@@ -46,21 +35,19 @@ class IActor(object):
     def inputs(self):
         """Iterates on all input descriptions
 
-        :returns: iter of (input key, input interface)
+        :Returns: iter of (input key, input interface)
         """
         raise NotImplementedError
 
     def outputs(self):
         """Iterates on all output descriptions
 
-        :returns: iter of (output key, output interface)
+        :Returns: iter of (output key, output interface)
         """
         raise NotImplementedError
 
     def eval(self):
-        """Computes output values when input is set
-
-        """
+        """Computes output values when input is set"""
         raise NotImplementedError
 
     def set_input(self, key, value):

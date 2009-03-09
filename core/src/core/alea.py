@@ -13,12 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-""" a script to run alea dataflow and scripts
-
-.. moduleauthor:: openalea consortium
-.. todo::
-    - write a detailled description of this module
-"""
+""" a script to run alea dataflow and scripts"""
 
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
@@ -65,11 +60,11 @@ def start_qt(factory, node):
 def load_package_manager(pkg_id, node_id):
     """ Return the package manager
 
-    :param pkg_id: todo
-    :param node_id: todo
+    :param pkg_id:  package id
+    :param node_id: node id
+    :returns: package manager
 
     """
-
     print "\nSearching '%s:%s'..." % (pkg_id, node_id)
 
     pm = PackageManager()
@@ -81,8 +76,9 @@ def load_package_manager(pkg_id, node_id):
 def get_node(component, inputs, pm=None):
     """ retrieve a node from its component name and inputs
 
-    :param pkg_id: todo
-    :param node_id: todo
+    :param component: todo
+    :param inputs: todo
+    :param pm: package manager
 
     """
 
@@ -118,12 +114,11 @@ def run_and_display(component, inputs, gui=False, pm=None):
     :param component: todo
     :param inputs: todo
     :param gui: todo
-    :param pm: todo
+    :param pm: package manager
     :type gui: boolean (default is False)
     :type pm: package manager
 
     """
-
     factory, node = get_node(component, inputs, pm)
 
     if (not gui):
@@ -143,7 +138,7 @@ def run_and_display(component, inputs, gui=False, pm=None):
 def run(component, inputs, pm=None):
     """ run component with inputs. can exit by exception. """
 
-    factory, node = get_node(component, inputs, pm)
+    _factory, node = get_node(component, inputs, pm)
 
     node.eval()
     return node.outputs

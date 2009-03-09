@@ -2,10 +2,10 @@
 
 :Example:
 
->>> from path import path
->>> d = path('/home/guido/bin')
+>>> from openalea.core.path import path
+>>> d = path('/tmp')
 >>> for f in d.files('*.py'):
->>>    f.chmod(0755)
+...    f.chmod(0755)   #doctest: +SKIP
 
 This module requires Python 2.2 or later.
 
