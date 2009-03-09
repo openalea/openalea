@@ -98,16 +98,9 @@ extensions = [
     ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/dev': None,}
+if not dev:
+    intersphinx_mapping = {}
 
-other = {
-'http://openalea.gforge.inria.fr/doc/sphinx/core/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/visualea/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/deploy/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/deploygui/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/sconsx/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/misc/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/stdlib/html/': None }
 
 
 

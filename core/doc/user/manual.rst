@@ -2,7 +2,7 @@
 
     import openalea.core as core
     import openalea.core.pkgmanager as pkgmanager
-    
+    import openalea.math    
 
 
 Manual
@@ -65,6 +65,7 @@ The module :mod:`openalea.core.pkgmanager` contains a class to manage the packag
 The `PackageManager` is a Dictionary of Packages. You can access to its keys using the standard :mod:`dict` methods. If you want to access to a particular `Package`, use the packageManager instance as a dictionary. r instance:
 
 .. doctest::
+    :options: +SKIP
     
     >>> pm.keys() 
     >>> pm['openalea.math']
