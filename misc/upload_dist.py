@@ -248,7 +248,7 @@ urlmap = {
     'vplants-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
     'vplants.fractalysis': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
     'alinea.': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
-    'openalea.source': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3542&package_id=2295',
+    '.source': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3542&package_id=2295',
     }
 
 
