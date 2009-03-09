@@ -33,15 +33,14 @@ template_index = \
 :Release: |release|
 :Date: |today|
 
-This reference manual details functions, modules, and objects included in 
+This manual details functions, modules, and objects included in 
 %(Project)s.%(Package)s, describing what they are and what they do. For learning
 how to use %(Project)s.%(Package)s see :ref:`%(package)s_%(link)s`.
 
 .. warning::
 
-   This "Reference Guide" is still very much work in progress; the material
-   is not organized, and many aspects of %(Project)s.%(Package)s are not 
-   covered.
+   This Guide is still very much in progress.
+   Many aspects of %(Project)s.%(Package)s are not covered.
 
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.
@@ -113,8 +112,8 @@ Documentation
 .. toctree::
     :maxdepth: 1
 
-    USER Guide<user/index.rst>   
-    REFERENCE Guide<%(package)s/index.rst>
+    User Guide<user/index.rst>   
+    Reference Guide<%(package)s/index.rst>
 
 - A `PDF <../latex/%(package)s.pdf>`_ version of |%(package)s| documentation is 
   available.
@@ -179,9 +178,6 @@ def contains(this_file, words):
     lines = text.split('\n')
      
     for line in lines:
-        # remove all data after the # (including the #)
-#        line = [0:line.find('#')]
-#        print line
         for word in words:
             if word+' ' in line:
                 # remove all spaces. The class keyword should then be first,
@@ -190,7 +186,6 @@ def contains(this_file, words):
                 #line = line.replace(' ','')
                 if line.startswith(word):
                     return True
-              
     return False
 
 
@@ -426,13 +421,14 @@ class reST():
                  parent_directory=None, inheritance=None):
         """todo"""
         self.fullname = fullname
+        self.package = package
+        self.project = project
+        self.inheritance = inheritance
+        
         self.filename = os.path.split(self.fullname)[1]
         self.module = self.filename.split('.')[0]
         self.text_reference = ""
         self.text_source = ""
-        self.package = package
-        self.project = project
-        self.inheritance = inheritance
         self.path = os.path.join(parent_directory, 'doc',  self.package) 
         self.title = self.project + '.' + self.package + '.' + self.module
         self.import_name = 'to be done in next call'
@@ -539,7 +535,7 @@ class reST():
         # save the resulting string in a text
         _stem = self.import_name.replace('.', '_')                
         _output = open(self.path +'/'+ _stem + '_ref.rst' , "w")
-        print self.path+'/' + _stem+'_ref.rst'
+        print  _stem+'_ref.rst',
         add_time(_output)
         _output.write(self.text_reference)
         _output.close()
@@ -648,6 +644,16 @@ def ParseParameters():
         default=False,
         help="upload the project to the gforge")
     
+    parser.add_option("-I", "--no-index",  metavar='NOINDEX',
+        action="store_true",
+        default=False,
+        help="do not generate the index files")
+    
+    parser.add_option("-o", "--no-contents",  metavar='NOCONTENT',
+        action="store_true",
+        default=False,
+        help="do not generate the content file")
+    
     
     (_opts, _args) = parser.parse_args()
      
@@ -735,11 +741,14 @@ def main():
               }
     
     # specific to the user guide-------------------------------
-    foutput_user = open(output_dir + '/../user/index.rst', 'w')
-    add_time(foutput_user)
-    foutput_user.write(template_index % params)
-    foutput_user.write("    *rst\n")    
-    foutput_user.close()
+    if opts.no_index:
+        pass
+    else:
+        foutput_user = open(output_dir + '/../user/index.rst', 'w')
+        add_time(foutput_user)
+        foutput_user.write(template_index % params)
+        foutput_user.write("    *rst\n")    
+        foutput_user.close()
     
     # specific to the reference guide
     # reset the title
@@ -748,25 +757,33 @@ def main():
     # and change the link
     params['link'] = 'user'
     params['ref'] = 'reference'    
-    foutput_ref = open(output_dir + '/index.rst', 'w')
-    add_time(foutput_ref)              
-    foutput_ref.write(template_index % params)
-    for item in globber.files:   
-        data = reST(item,
-                    opts.package, 
-                    opts.project, 
-                    opts.parent_directory)
-        foutput_ref.write('    ' + data.import_name.replace('.', '_') 
-                          +  '_ref.rst\n')
-    foutput_ref.close()
+
+
+    if opts.no_contents:
+        pass
+    else:
+        foutput_ref = open(output_dir + '/index.rst', 'w')
+        add_time(foutput_ref)              
+        foutput_ref.write(template_index % params)
+        for item in globber.files:   
+            data = reST(item,
+                        opts.package, 
+                        opts.project, 
+                        opts.parent_directory)
+            foutput_ref.write('    ' + data.import_name.replace('.', '_') 
+                              +  '_ref.rst\n')
+        foutput_ref.close()
     
     # create the contents rst file
-    foutput = open(output_dir + '/../contents.rst','w')
-    params['title'] = underline(opts.project+" "+opts.package.capitalize() 
+    if opts.no_contents:
+        pass
+    else:
+        foutput = open(output_dir + '/../contents.rst','w')
+        params['title'] = underline(opts.project+" "+opts.package.capitalize() 
                                   +" documentation", '#')
-    add_time(foutput)
-    foutput.write(template_contents % params)
-    foutput.close()
+        add_time(foutput)
+        foutput.write(template_contents % params)
+        foutput.close()
         
         
     # finalise
