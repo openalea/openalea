@@ -1,3 +1,4 @@
+
 |deploy| supports the installation of OpenAlea packages via 
 the network and manages their dependencies . It is an 
 extension of Setuptools.
@@ -12,3 +13,6 @@ Additional Features:
  - OpenAlea GForge upload
 
 It doesn't include any GUI interface (See OpenAlea.DeployGUI for that).
+
+.. |deploy| replace:: OpenAlea.Deploy
+
