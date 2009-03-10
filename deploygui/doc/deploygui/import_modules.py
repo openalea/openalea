@@ -1,6 +1,0 @@
-import openalea.deploygui_postinstall
-import openalea.deploygui.fake_pkg_generation
-import openalea.deploygui.auth
-import openalea.deploygui.ui_mainwindow
-import openalea.deploygui.images_rc
-import openalea.deploygui.alea_install_gui
