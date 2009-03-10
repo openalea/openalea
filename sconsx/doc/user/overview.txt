@@ -8,5 +8,3 @@ SConsX is just a thin wrapper over SCons. It's easily extendible. You can add ne
 
 SConsX is under development. Lot of work have to be done for a better support of new compiler (e.g. Visual C++, mingw), new tools and new functionalities
     
-.. _Boost.Python: http://www.boost.org
-.. _scons: http://www.scons.org

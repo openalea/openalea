@@ -5,6 +5,8 @@
 
 .. module:: sconsx
 
+.. include:: ../../doc/alias.rst
+
 OpenAlea Sconsx documentation
 #############################
 

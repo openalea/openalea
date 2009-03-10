@@ -46,7 +46,7 @@ SconsX 0.4.0
 SConsX 0.3.0
 ------------
 - Add ALEAGlob and ALEAGlobDir methods to the environment.
-  For instance, cpp files can be found by env.ALEAGlob('*.cpp',dir='.')
+  For instance, cpp files can be found by env.ALEAGlob('\*.cpp',dir='.')
 - Enhance default settings on Windows and Linux mainly for qt and OpenGL.
 - Improve windows support, mainly for Visual C++ 2005.
  
