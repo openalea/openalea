@@ -104,11 +104,12 @@ class MainClass1(object):
         :Example:        
 
         >>> import template
-        >>> a = MainClass()
-        >>> a.function2(1,1,1)
+        >>> a = MainClass1()
+        >>> a.function1(1,1,1)
         2
 
-        .. note:: can be useful to emphasize important feature
+        .. note:: can be useful to emphasize 
+            important feature
         .. seealso:: :class:`MainClass2`
         .. warning:: arg2 must be non-zero.
         .. todo:: check that arg2 is non zero.
@@ -180,12 +181,13 @@ class MainClass2(object):
         :Examples:        
 
         >>> import template
-        >>> a = MainClass()
-        >>> a.function2(1,1,1)
+        >>> a = MainClass2()
+        >>> a.function1(1,1,1)
         2
 
         :Note:
-            can be useful to emphasize important feature
+            can be useful to emphasize 
+            important feature
 
         :See Also:
             :class:`MainClass1`
@@ -195,6 +197,9 @@ class MainClass2(object):
             
         :Todo:
             check that arg2 is non zero.
+            
+        .. todo:: 
+            combine this kind of syntax (double column) with sphinx markups
         """
         return arg1/arg2 + arg3
 
@@ -261,8 +266,10 @@ class MainClass3(object):
            For instance, 'Your preferred section' needs to change the numpy 
            sphinx extension. Sensitive to typos obviously. **Examples** is 
            accepted but **Example** is not
-         - buggy. After 30 minutes I could not make what I wanted. 
+         - buggy. After more than 30 minutes I could not make what I wanted. 
            Not documented
+         - doctest complains about the underline text and therefore do not test 
+           the inlined code
         
         Parameters
         ----------
@@ -278,20 +285,21 @@ class MainClass3(object):
         
         Warnings
         --------
-            arg2 must be non-zero.      
+        arg2 must be non-zero.      
         
         Examples
         --------
 
         >>> import template
-        >>> a = MainClass()
-        >>> a.function2(1,1,1)
+        >>> a = MainClass3()
+        >>> a.function1(1,1,1)
         2
 
         Notes
         -----
      
-        can be useful to emphasize important feature
+        Can be useful to emphasize 
+        important feature
 
 
         See Also
