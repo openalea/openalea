@@ -23,7 +23,7 @@ how to use OpenAlea.Stdlib see :ref:`stdlib_reference`.
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.
 
-.. toctree::
+.. .. toctree::
     :maxdepth: 1
             
     *rst
