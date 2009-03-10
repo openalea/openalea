@@ -1,6 +1,6 @@
 |misc| contains a set of tools to help developpers to 
 
-- generate documentation :mod:`sphinx_tools`, :mod:`gendoc`, :mod:`create_rest_files`
+- generate documentation :mod:`sphinx_tools`, :mod:`gendoc` 
 - create eggs and upload them to the gforge :mod:`openalea_distrib`, :mod:`upload_dist`
 - install all packages from a project :mod:`make_develop`
     
