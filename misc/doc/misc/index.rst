@@ -31,5 +31,4 @@ how to use OpenAlea.Misc see :ref:`misc_user`.
     openalea_distrib_ref.rst
     path_ref.rst
     sphinx_tools_ref.rst
-    upload_ref.rst
     upload_dist_ref.rst

@@ -26,7 +26,6 @@ import sphinx_tools
 print 'Fixing the module and automodule conflict.'
 
 files = [
-    './misc/upload_ref.rst',
     './misc/path_ref.rst',
     './misc/download_ref.rst',
     './misc/sphinx_tools_ref.rst',
