@@ -13,7 +13,6 @@ Here is a quick reStructuredText tutorial :ref:`rst_tutorial`.
 Configuration and compilation
 =============================
 
-
 In order to manage a documentation with `Sphinx`_, you need a configuration file.
 
 To generate a template of configuration file, type **sphinx-quickstart** that 
@@ -23,6 +22,7 @@ Edit this file to your need.
 
 Then, create some reST files and type **make**
 
+Here below are a few markups and directives specific to Sphinx (not part of reST).
 
 Sphinx markup
 =============
@@ -110,6 +110,23 @@ links’s text will be the same as target.
 You may supply an explicit title and reference target, like in reST direct
 hyperlinks: ``:role:`title <target>``` will refer to target, but the link text
 will be title.
+
+How to add raw html
+^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <html style="border:2px color:red">
+    <tr>
+    <td>column 1</td>
+    <td>column 1</td>
+    </tr>
+    </html>
+
+
+
+
+
 
 
 .. ---------------------------------------------------
