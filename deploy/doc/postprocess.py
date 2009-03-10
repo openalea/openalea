@@ -23,11 +23,10 @@ import sphinx_tools
 
 
 filenames = ['deploy/openalea_deploy_binary_deps_ref.rst']
-print 'Fixing the binary_deps_ref.rst case.'
 
 for file in filenames:
     process = sphinx_tools.PostProcess(file)
-    process.switch_automodule_to_autofunction()
+    process.switch_automodule_to_autofunction('binary_deps')
 
 
 print 'Try python setup.py build_sphinx now.'

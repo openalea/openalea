@@ -5,8 +5,6 @@
 
 .. module:: deploy
 
-.. include:: ../../../openalea/doc/alias.rst
-
 OpenAlea Deploy documentation
 #############################
 
