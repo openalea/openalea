@@ -19,3 +19,9 @@ install:
 
 dist:
 	$(Executable) release -p $(Project) -d .
+
+html:
+	$(Executable) html -p $(Project) -d .
+
+latex:
+	$(Executable) latex -p $(Project) -d .
