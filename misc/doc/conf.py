@@ -41,11 +41,9 @@ try:
     Package = package.capitalize()
     version = version # just to check it exsits
     release = release # just to check it exists
-    api = api           # check if it exists
-    intersphinx = intersphinx
 except NameError:
     """
-Please, provide the \'api\', \'version\', \'release\', \'project\', 
+Please, provide the \'version\', \'release\', \'project\', 
 \'package\'variable within your setup.py file
 """
 
@@ -62,30 +60,42 @@ elif project=='alinea':
 else:
     print "openalea path not implemented yet for this configuration. FIXME"
 
-# create all the API documentation automatically (ref+src)
-# TODO: clean up this piece of code
-if api=='automated':
-    warnings.warn('API automatically generated. To avoid it, change the api option in sphinx.ini')
-    try:
-        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools.py --project %s --package %s --verbose --inheritance' %(project, package))
-        status = os.system(cmd)
-    except:
-        print 'sphinx_tools call failed'
-        sys.exit()
 
-
+# ! project is overwritten in common.ini, so keep track of it for future use
+project_ini = project
 
 # read common parameters -----------------------------------------------------
+# must be after setting the variable openalea
 print "...Reading common.ini file"
 config = ConfigParser.RawConfigParser()
 config.read(os.path.join(openalea, 'doc/common.ini'))
-
 # Read sections: general, HTML, Latex
 for section in config.sections():
     print "......Parsing section '%s' found in common.ini file. " % section ,
     for option in config.options(section):
         exec( ' '.join([option, "=", config.get(section, option)]) )
     print 'done'
+
+# create all the API documentation automatically (ref+src)
+# TODO: clean up this piece of code
+if 'api' in locals():
+    if api=='automated':
+        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
+        print cmd
+        if 'inheritance' in locals():
+            cmd += ' --inheritance '
+        if 'verbose' in locals():
+            cmd += ' --verbose '
+
+        warnings.warn('API automatically generated. To avoid it, change the api option in common.ini')
+        try:
+            status = os.system(cmd)
+        except:
+        
+            print 'sphinx_tools call failed'
+            print cmd
+            sys.exit()
+
 
 # Set the extensions --------------------------------------------------------- 
 # These paths are required to access extensions
@@ -111,9 +121,9 @@ extensions = [
     'only_directives'
     ]
 
-# Example configuration for intersphinx: refer to the Python standard library.
+# This test should be done after the intersphinx option has been read in common.ini
 try:
-    if intersphinx is not 'True':
+    if 'intersphinx' not in locals():
         intersphinx_mapping = {}
 except:
     pass
