@@ -1,9 +1,13 @@
+
+# This file should be mianted by the administrators only; not the users or developpers.
+# New functionalities and options should be handled by sphinx.ini, 
+# openalea/doc/common.ini and misc/sphinx_tools.py  files.
 # This file is execfile()d with the current directory set to its containing dir.
+
 import sys, os
 import time
 import ConfigParser
-
-
+import warnings
 
 sys.path.append(os.path.join('../'))
 
@@ -38,6 +42,7 @@ try:
     version = version # just to check it exsits
     release = release # just to check it exists
     api = api           # check if it exists
+    intersphinx = intersphinx
 except NameError:
     """
 Please, provide the \'api\', \'version\', \'release\', \'project\', 
@@ -60,8 +65,9 @@ else:
 # create all the API documentation automatically (ref+src)
 # TODO: clean up this piece of code
 if api=='automated':
+    warnings.warn('API automatically generated. To avoid it, change the api option in sphinx.ini')
     try:
-        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools --project %s --package %s' %(project, package))
+        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools.py --project %s --package %s --verbose --inheritance' %(project, package))
         status = os.system(cmd)
     except:
         print 'sphinx_tools call failed'
@@ -86,6 +92,7 @@ for section in config.sections():
 print "...Setting the extensions"
 sys.path.append(os.path.join(openalea , 'doc/sphinxext'))
 sys.path.append(os.path.join(openalea , 'doc/sphinxext/numpyext'))
+sys.path.append(os.path.join(openalea , package , 'src'))
 import ipython_console_highlighting
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
@@ -105,9 +112,8 @@ extensions = [
     ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-if not dev:
-    intersphinx_mapping = {}
-
-
-
-
+try:
+    if intersphinx is not 'True':
+        intersphinx_mapping = {}
+except:
+    pass
