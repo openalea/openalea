@@ -37,27 +37,34 @@ try:
     Package = package.capitalize()
     version = version # just to check it exsits
     release = release # just to check it exists
+    api = api           # check if it exists
 except NameError:
-    'Please, provide the \'version\', \'release\', \'project\', \'package\'variable within your setup.py file'
+    """
+Please, provide the \'api\', \'version\', \'release\', \'project\', 
+\'package\'variable within your setup.py file
+"""
 
 
 
 # set project path -----------------------------------------------------------
+# TODO: make it robust
 if project=='openalea':
     openalea = os.path.join(os.getcwd(), '../../')
 elif project=='vplants':
     openalea = os.path.join(os.getcwd() , '../../openalea/')
+elif project=='alinea':
+    openalea = os.path.join(os.getcwd() , '../../alinea/')
 else:
     print "openalea path not implemented yet for this configuration. FIXME"
 
 # create all the API documentation automatically (ref+src)
-
+# TODO: clean up this piece of code
 if api=='automated':
     try:
-        cmd = 'python ' + os.path.join(openalea, 'misc/create_rest_files.py')
+        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools --project %s --package %s' %(project, package))
         status = os.system(cmd)
-    except :
-        print status
+    except:
+        print 'sphinx_tools call failed'
         sys.exit()
 
 
@@ -98,16 +105,9 @@ extensions = [
     ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/dev': None,}
+if not dev:
+    intersphinx_mapping = {}
 
-other = {
-'http://openalea.gforge.inria.fr/doc/sphinx/core/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/visualea/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/deploy/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/deploygui/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/sconsx/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/misc/html/': None,
-'http://openalea.gforge.inria.fr/doc/sphinx/stdlib/html/': None }
 
 
 
