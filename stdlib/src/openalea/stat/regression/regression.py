@@ -18,7 +18,8 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-from openalea.core import *
+#from openalea.core import *
+from openalea.core.node import Node
 from openalea.plotools import plotable
 
 import rpy

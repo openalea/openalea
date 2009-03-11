@@ -21,13 +21,14 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QLabel,QPixmap,QImage
+from PyQt4.QtGui import QLabel, QPixmap, QImage
 
 class PixView (QLabel) :
     """
     minimalist widget to display an image
     """
-    def __init__ (self, parent=None, image=None) :
+    
+    def __init__ (self, parent=None, image=None):
         QLabel.__init__(self)
         self.setScaledContents(True)
         self.setAlignment(Qt.AlignCenter)
@@ -35,23 +36,23 @@ class PixView (QLabel) :
             image = QPixmap()
         self.set_image(image)
     
-    def scalable (self) :
+    def scalable(self):
         return self.hasScaledContents()
     
-    def set_scalable (self, scalable=True) :
+    def set_scalable(self, scalable=True):
         self.setScaledContents(scalable)
     
-    def image (self) :
+    def image(self):
         return self.pixmap().toImage()
     
-    def set_image (self, image) :
-        self.setMinimumSize(50,50)
+    def set_image(self, image):
+        self.setMinimumSize(50, 50)
         if image.isNull() :
-            self.resize(200,50)
+            self.resize(200, 50)
             self.setText("No Image to display")
         else :
             #pix=QPixmap.fromImage(image)
-            w,h = image.width(),image.height()
+            w,h = image.width(), image.height()
             self.setPixmap(image)
             self.resize(w,h)
     
@@ -60,9 +61,9 @@ class PixView (QLabel) :
 #        height=min(height,self.maximumHeight())
 #        QLabel.setMinimumSize(self,width,height)
 
-    def keyReleaseEvent (self, event) :
-        if event.key()==Qt.Key_Escape :
+    def keyReleaseEvent(self, event) :
+        if event.key() == Qt.Key_Escape :
             self.close()
         else :
-            QLabel.keyReleaseEvent(self,event)
+            QLabel.keyReleaseEvent(self, event)
 

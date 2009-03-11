@@ -1,3 +1,8 @@
+"""to be done"""
+
+__revision__ = "$Id$"
+__license__ = "Cecill-C"
+
 from openalea.core.node import AbstractNode, Node
 
 try:

@@ -6,6 +6,10 @@
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
+"""tobe done"""
+
+__revision__ = "$Id$"
+__license__ = "Cecill-C"
 
 from PyQt4 import QtCore, QtGui
 

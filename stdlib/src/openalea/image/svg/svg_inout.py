@@ -14,31 +14,33 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-"""#This module provide basics function to handle 2D images"""
+"""This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.svgdraw import open_svg,SVGImage,SVGSphere\
-                            ,SVGPath,SVGGroup,SVGLayer,SVGScene\
+# TODO: functionalities depends on vplants
+
+from openalea.svgdraw import open_svg, SVGImage, SVGSphere\
+                            ,SVGPath, SVGGroup, SVGLayer, SVGScene\
                             ,Color3
 
-def loadsc (filename) :
+def loadsc(filename) :
     """todo"""
     f=open_svg(filename,'r')
     sc=f.read()
     f.close()
     return sc
 
-def writesc (sc, filename) :
+def writesc(sc, filename) :
     f=open_svg(filename,'w')
     f.write(sc)
     f.close()
 
-def get_elm (svggr, svgid) :
+def get_elm(svggr, svgid) :
     return svggr.get_id(svgid)
 
-def svg_image (svgid, image, filename=None) :
+def svg_image(svgid, image, filename=None) :
     svgim=SVGImage(None,svgid)
     if filename is None :
         svgim.set_filename(svgid)
@@ -50,7 +52,7 @@ def svg_image (svgid, image, filename=None) :
         svgim.scale2D( (w,h,0) )
     return svgim
 
-def svg_point (svgid, x, y, radius=2, color=None) :
+def svg_point(svgid, x, y, radius=2, color=None) :
     svgelm=SVGSphere(None,svgid)
     svgelm.scale2D( (radius,radius,radius) )
     svgelm.translate2D( (x,y,0) )
@@ -60,7 +62,7 @@ def svg_point (svgid, x, y, radius=2, color=None) :
         svgelm.fill=Color3(*color)
     return svgelm
 
-def svg_polyline (svgid, pts, color=None, stroke_width=1.) :
+def svg_polyline(svgid, pts, color=None, stroke_width=1.) :
     svgelm=SVGPath(None,svgid)
     svgelm.append("M",[pts[0]])
     for pt in pts[1:] :
@@ -72,13 +74,13 @@ def svg_polyline (svgid, pts, color=None, stroke_width=1.) :
     svgelm.stroke_width=stroke_width
     return svgelm
 
-def svg_group (svgid, svg_elms) :
+def svg_group(svgid, svg_elms) :
     svggr=SVGGroup(None,svgid)
     for elm in svg_elms :
         svggr.append(elm)
     return svggr
 
-def svg_layer (svgid, svg_elms, name=None) :
+def svg_layer(svgid, svg_elms, name=None) :
     svglay=SVGLayer(None,svgid)
     if name is None :
         svglay.set_name(svgid)
@@ -88,21 +90,21 @@ def svg_layer (svgid, svg_elms, name=None) :
         svglay.append(elm)
     return svglay
 
-def svg_scene (width,height,layers) :
+def svg_scene(width,height,layers) :
     svgsc=SVGScene()
     svgsc.set_size(width,height)
     for lay in layers :
         svgsc.append(lay)
     return svgsc
 
-def svg_elements (svggr) :
+def svg_elements(svggr) :
     return list(svggr.elements())
 
-def svg_positions (svg_pts) :
+def svg_positions(svg_pts) :
     coords={}
     for pt in svg_pts :
-        x,y,z=pt.center()
-        coords[pt.svgid()]=(x,y)
+        x, y, z = pt.center()
+        coords[pt.svgid()] = (x, y)
     return coords
 
 __all__=["loadsc","writesc",

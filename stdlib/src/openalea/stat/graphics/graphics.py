@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""Plotting routines"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"

@@ -13,12 +13,13 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+""" Utilities to read files """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
 from openalea.core import *
-from openalea.plotools import plotable
+#from openalea.plotools import plotable
 
 import pylab
 
@@ -43,7 +44,7 @@ def Load(path):
     return f
 
 
-def ExtractLigne(data,l, val):
+def ExtractLigne(data, l, val):
     """
     Extract the lth row with elements different to val
 
@@ -65,9 +66,9 @@ def ExtractLigne(data,l, val):
 
     res = filter(lambda x: x!=val, data[l])
 
-    return (res,)
+    return (res, )
 
-def ExtractCol(data,c, val):
+def ExtractCol(data, c, val):
     """
     Extract the cth column with elements different to val
 
@@ -89,6 +90,6 @@ def ExtractCol(data,c, val):
 
     res = filter(lambda x: x!=val, data[:,c])
 
-    return (res,)
+    return (res, )
 
 

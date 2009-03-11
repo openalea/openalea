@@ -13,6 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""Set of spatial distribution for stands"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
