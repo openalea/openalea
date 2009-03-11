@@ -12,50 +12,58 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+"""
+STDLIB image tools 
+"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
 from openalea.core import *
-from PyQt4 import QtGui
 import Image
-import os
+from openalea.core.node import Node
+
 
 def image_size(width, height):
-  return (int(width), int(height)),
+    """ return the image size"""
+    return (int(width), int(height)),
+
 
 class Pix(Node):
     """
-Text Variable
-Input 0 : The stored image
-Ouput 0 : Transmit the stored image
+    Text Variable
+    Input 0 : The stored image
+    Ouput 0 : Transmit the stored image
     """
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        return ( str(inputs[0]), )
+        return (str(inputs[0]), )
 
 
 def loadimage(filename):
     """
-Load an image from a file:
-Input 0 : File name
-Output 0 : Image object
+    Load an image from a file:
+    Input 0 : File name
+    Output 0 : Image object
     """
     img_pil = Image.open(filename)
     return img_pil,
 
+
 def rotate(img, angle, clockwise=False):
-  if clockwise:
-    angle = -angle
-  return img.rotate(angle)
+    if clockwise:
+        angle = -angle
+    return img.rotate(angle)
+
 
 def perspectiveTransform(img):
-        # this is just an example to demonstrate that one can do
-        # perspective transformations with PIL (something not
-        # supported with Qt, it "only" can do affine transformations).
-        size = img.size
-        return img.transform(size,Image.PERSPECTIVE,[2,0,0,0,2,0,0.002,0.002,1],Image.BILINEAR)
+    # this is just an example to demonstrate that one can do
+    # perspective transformations with PIL (something not
+    # supported with Qt, it "only" can do affine transformations).
+    size = img.size
+    return img.transform(size, Image.PERSPECTIVE,
+                         [2, 0, 0, 0, 2, 0, 0.002, 0.002, 1], Image.BILINEAR)
         
 
 
