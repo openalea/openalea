@@ -12,20 +12,19 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-##### declaration of pix interface and its widget ###########
+"""declaration of pix interface and its widget """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 
-from openalea.core.interface import *
+from openalea.core.interface import IEnumStr, IInterface, IInterfaceMetaClass
 
-class IImageMode (IEnumStr) :
+class IImageMode(IEnumStr) :
     """
-    interface for differents mode of an image
+    interface for different modes of an image
     """
     def __init__ (self) :
-        IEnumStr.__init__(self, ["RGB","RGBA"])
+        IEnumStr.__init__(self, ["RGB", "RGBA"])
 
 
 
