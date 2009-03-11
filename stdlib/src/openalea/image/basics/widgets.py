@@ -18,15 +18,20 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-from openalea.image.interface import *
+from openalea.image.interface import IPix, IImageMode
 from openalea.visualea.gui_catalog import IEnumStrWidget
 from openalea.visualea.node_widget import NodeWidget
+from openalea.core.metaclass import make_metaclass
+from openalea.core.interface import IInterfaceWidget
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QLabel,QPixmap
+
+#from PyQt4 import QtGui, QtCore
+#from PyQt4.QtGui import QLabel, QPixmap
+from PyQt4.QtGui import QPixmap
+
 
 from ImageQt import ImageQt
-import Image
+#import Image
 from view import PixView
 
 
@@ -60,7 +65,7 @@ class IPixWidget(IInterfaceWidget, PixView):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.parent = parent
-        self.notify(node,None)
+        self.notify(node, None)
         #self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), self.valueChanged)
 
     def update_state(self):
@@ -71,7 +76,7 @@ class IPixWidget(IInterfaceWidget, PixView):
         """ Notification sent by node """
         img = self.node.get_input(self.param_str)
         img_pil = img.copy()
-        img_pil.thumbnail((100,100))
+        img_pil.thumbnail((100, 100))
         if img_pil != None:
             if img_pil.mode in ("RGB", "RGBA", "L"):
                 img = ImageQt(img_pil)
@@ -92,7 +97,7 @@ class PixVisu(PixView, NodeWidget):
         PixView.__init__(self, parent)
         NodeWidget. __init__(self, node)
         self.parent = parent
-        self.notify(node,None)
+        self.notify(node, None)
 
     def notify(self, sender, event):
         """ Notification sent by node """
@@ -102,10 +107,10 @@ class PixVisu(PixView, NodeWidget):
                 img = ImageQt(img_pil)
             else :
                 img = ImageQt(img_pil.convert("RGBA"))
-            pix=QPixmap.fromImage(img)
+            pix = QPixmap.fromImage(img)
             self.set_image(pix)
         else :
-            pix=QPixmap()
+            pix = QPixmap()
             self.set_image(pix)
 
 
