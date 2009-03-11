@@ -1,7 +1,13 @@
 {% extends "layout.html" %}
 {% set title = 'Overview' %}
+{% set wikiurl = 'http://openalea.gforge.inria.fr' %}
 {% block body %}
 <h1>Welcome</h1>
+{{wikiurl}}
+
+p
+
+{{ wikiurl }}
 
 <p>  This is the portal of <b>{{project|title}}</b>, a python package of <b>OpenAlea</b>. Here below, you can find a detailled description of the project for users and developpers. </p>
 
@@ -23,6 +29,42 @@
 <span class="linkdescr">quick access to all documented modules</span></p>
 </td></tr>
   </table>
+
+<h2>Other packages in {{project}}</h2>
+<table class="contentstable" align="center" style="margin-left: 30px"><tr>
+<td width="50%">
+  <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/core/html/index.html">Core</a><br/>
+   <span class="linkdescr">documentation, api, tutorial</span></p>
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/eploy/html/index.html">Deploy</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/deploygui/html/index.html">DeployGui</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+  </td><td width="50%">
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/misc/html/index.html">Misc</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/stdlib/html/index.html">Stdlib</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/sconsx/html/index.html">Sconsx</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+  </td><td width="50%">
+ <p class="biglink"><a class="biglink" href="{{wikieurl}}/doc/sphinx/visualea/html/index.html">Visualea</a><br/>
+  <span class="linkdescr">documentation, api, tutorial</span></p>
+  </td><td width="50%">
+</td></tr>
+  </table>
+
+<h2>Other projects</h2>
+<table class="contentstable" align="center" style="margin-left: 30px"><tr>
+<td width="50%">
+  <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/vplants">VPlants</a><br/>
+   <span class="linkdescr">VPlants sphinx documentaiton main page</span></p>
+ <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/alinea">Alinea</a><br/>
+  <span class="linkdescr">Alinea sphinx documentation main page</span></p>
+</td></tr>
+  </table>
+
+
+
 
   
 {% endblock %}

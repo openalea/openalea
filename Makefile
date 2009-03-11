@@ -4,8 +4,15 @@ Project=openalea
 main:
 	
 	@echo '============== $(Project) Makefile========================================='
-	@echo 'This is a simple Makefile that calls the scritp make_develop.py '
-	@echo 'This script has the following options: develop undevelop install or release'
+	@echo 'This is a simple Makefile that calls the script make_develop.py'
+	@echo 'This script has the following options:' 
+	@echo '					develop'
+	@echo '					undevelop'
+	@echo '					install'
+	@echo '					release'
+	@echo '					html'
+	@echo '					latex'
+	@echo '					upload_sphinx'
 	@echo '==========================================================================='
 
 develop:
@@ -25,3 +32,7 @@ html:
 
 latex:
 	$(Executable) latex -p $(Project) -d .
+
+upload_sphinx: 
+	$(Executable) upload_sphinx -p $(Project) -d . 
+	
