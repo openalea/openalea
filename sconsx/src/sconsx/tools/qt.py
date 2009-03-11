@@ -21,8 +21,8 @@ __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
 import os, sys
-from openalea.sconsx.config import *
-
+from openalea.sconsx.config import platform, Win32, Posix
+import os.path.join as pj
 exists = os.path.exists
 
 class QT:
@@ -72,24 +72,24 @@ class QT:
 
 
     def update(self, env):
-      """ Update the environment with specific flags """
+        """ Update the environment with specific flags """
 
-      t = Tool('qt')
-      t(env)
+        t = Tool('qt')
+        t(env)
 
-      if isinstance(platform, Win32):
-         qt_lib ='qt-mtnc321'
-      else:
-         qt_lib ='qt-mt' 
+        if isinstance(platform, Win32):
+            qt_lib ='qt-mtnc321'
+        else:
+            qt_lib ='qt-mt' 
       
-      libpath = str(env.subst(env['QT_LIBPATH']))
-      multithread = exist(qt_lib , libpath)
-      if multithread:
-         env.AppendUnique(CPPDEFINES=['QT_THREAD_SUPPORT'])
-         env.Replace(QT_LIB=qt_lib)
+        libpath = str(env.subst(env['QT_LIBPATH']))
+        multithread = exist(qt_lib , libpath)
+        if multithread:
+            env.AppendUnique(CPPDEFINES=['QT_THREAD_SUPPORT'])
+            env.Replace(QT_LIB=qt_lib)
 
-      if isinstance(platform, Win32):
-         env.AppendUnique(CPPDEFINES=['QT_DLL'])
+        if isinstance(platform, Win32):
+            env.AppendUnique(CPPDEFINES=['QT_DLL'])
 
     def configure(self, config):
       if not config.conf.CheckLibWithHeader('qt-mt', 
