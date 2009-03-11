@@ -1,4 +1,7 @@
-# Configuration file 
+"""Configuration file""" 
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 
 def get_version():
