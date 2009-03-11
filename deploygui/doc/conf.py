@@ -54,9 +54,9 @@ Please, provide the \'version\', \'release\', \'project\',
 if project=='openalea':
     openalea = os.path.join(os.getcwd(), '../../')
 elif project=='vplants':
-    openalea = os.path.join(os.getcwd() , '../../openalea/')
+    openalea = os.path.join(os.getcwd() , '../../../openalea/')
 elif project=='alinea':
-    openalea = os.path.join(os.getcwd() , '../../alinea/')
+    openalea = os.path.join(os.getcwd() , '../../../alinea/')
 else:
     print "openalea path not implemented yet for this configuration. FIXME"
 
