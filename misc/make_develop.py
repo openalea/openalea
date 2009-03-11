@@ -40,7 +40,7 @@ class Commands():
             'install':  '',
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
             'html': "--builder html",
-            'latex': "--builder latex"
+            'latex': "--builder latex",
             }
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
@@ -48,7 +48,7 @@ class Commands():
         self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta"""
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
-        
+                        
         self.project = project 
         self.command = command
         self.directory = directory
@@ -65,8 +65,56 @@ class Commands():
             
         return  _dirs.split()
 
+    def upload_sphinx(self):
+        """Upload sphinx documentation and PDF file into the wiki
+        
+        """
+        
+        answer = raw_input(
+            """All packages documentation will be uploaded to the wiki. 
+Is this what you want ? (y/n)""")
+        if answer != 'y':
+            return
+        dirs = self._setdirs(self.project)
+        if self.project == 'openalea':
+            dirs.remove('openalea_meta')
+            dirs.append('misc')
+            
+        
+        for dir in dirs:
+            cwd = path(os.getcwd())
+            cmd = 'python ../../misc/sphinx_tools.py --upload --package %s --project %s --force' % (dir, self.project)
+            print cmd
+        
+            print "--------------"
+            print "cd %s" % dir
+            os.chdir(dir)
+            print "cd doc"
+            os.chdir('doc')
+            print "cd latex"
+            os.chdir('latex')
+            print "make"
+            os.system('make')
+            
+            print "Executing %s" % cmd
+            print '\n'
+            print 'cd ..'
+            os.chdir('..')
+            
+            status = os.system(cmd)
+            if status != 0:
+                print "Error during the execution of %s" % cmd
+                print "---- EXIT ----"
+                return
+    
+            os.chdir(cwd)
+        
 
     def run(self):
+        """run the setup.py command
+        
+        TODO: clean part related to html/latex
+        """
 
         dirs = self._setdirs(self.project)
 
@@ -86,13 +134,17 @@ class Commands():
 
         # for the documentation, we skip some directories
         if command == 'html':
-            if self.project == 'openalea' : dirs.remove('openalea_meta')
-            if self.project == 'vplants' : dirs.remove('vplants_meta')
-            cmd = cmd.replace('html','build_sphinx',1)
+            if self.project == 'openalea' : 
+                dirs.remove('openalea_meta')
+            if self.project == 'vplants' : 
+                dirs.remove('vplants_meta')
+            cmd = cmd.replace('html', 'build_sphinx', 1)
         elif command == 'latex':
-            if self.project == 'openalea' : dirs.remove('openalea_meta')
-            if self.project == 'vplants' : dirs.remove('vplants_meta')
-            cmd = cmd.replace('latex','build_sphinx',1)
+            if self.project == 'openalea' : 
+                dirs.remove('openalea_meta')
+            if self.project == 'vplants': 
+                dirs.remove('vplants_meta')
+            cmd = cmd.replace('latex', 'build_sphinx' ,1)
 
         # if the options exists, we complete the command
         if options and options.install_dir: 
@@ -123,14 +175,15 @@ class Commands():
         # check if the dirs are under the given directory.
         for dir in dirs:
             if root_dir/dir not in dirs_under_root:
-                print "%s is not a directory of %s"%(dir,str(root_dir.realpath()))
+                print "%s is not a directory of %s" % \
+                    (dir, str(root_dir.realpath()))
                 print "---- EXIT ----"
                 return
 
         for dir in dirs:
             print "--------------"
-            print "cd %s"%dir
-            print "Executing %s"%cmd
+            print "cd %s" % dir
+            print "Executing %s" % cmd
             print '\n'
 
             dir = root_dir/dir
@@ -138,7 +191,7 @@ class Commands():
     
             status = os.system(cmd)
             if status != 0:
-                print "Error during the execution of %s"%cmd
+                print "Error during the execution of %s" % cmd
                 print "---- EXIT ----"
                 return
     
@@ -169,8 +222,9 @@ def main():
                        help="Directory where to install librairies",
                        default=None)
 
+    
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex']
+    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'upload_sphinx']
     available_project = ['openalea', 'vplants', 'alinea']
 
     try:
@@ -180,15 +234,19 @@ def main():
         print "Error while parsing args:", e
         return
 
-    if(len(args) < 1 or args[0] not in available_mode):
+    if (len(args) < 1 or args[0] not in available_mode):
         parser.error("Incomplete command : specify develop, undevelop, install release, clean, html or latex")
-    if(options.project not in available_project):
+    if (options.project not in available_project):
         parser.error("Incomplete command : project must be either alinea, openalea or vplants")
 
     mode = args[0]
 
     commands = Commands(options.project, mode, options.directory, options)
-    commands.run()
+    
+    if mode == 'upload_sphinx':
+        commands.upload_sphinx()
+    else:
+        commands.run()
     
 
 

@@ -1,6 +1,6 @@
-
+- make_develop: add html, latex, upload_sphinx options
 - upload_dist.py: add possiblity to upload a single file and fix missin import
-- Add sphinx_tools.py and create_rest_files.py modules to help managing the sphinx documentation
+- Add sphinx_tools.py module to help managing the sphinx documentation
 
 Release 0.6
 -----------

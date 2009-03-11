@@ -57,7 +57,12 @@ template_source = \
 
 .. note:: This source code is not included in the LaTeX output file.
 
+
 .. htmlonly::
+    
+    :Revision: %(revision)s
+    :License: %(license)s
+
     .. literalinclude:: %(source)s
         :linenos:
         :language: python
@@ -69,12 +74,19 @@ template_reference = \
             
 %(title)s
 
+:Revision: %(revision)s
+:License: %(license)s
+
+.. note:: The source file is available here below
+    
+.. toctree::
+    :maxdepth: 0
+       
+    %(import_name_underscored)s_src.rst
+
+
 Reference
 ********* 
-
-.. toctree::
-
-    %(import_name_underscored)s_src.rst
 
 %(inheritance_diagram)s
 
@@ -282,7 +294,7 @@ class PostProcess():
                 foutput = open(self.source, 'w')
                 count = 1             
                 for line in lines:
-                    if count < start or count>= start+nline+1:                    
+                    if count < start or count>= start + nline + 1:                    
                         foutput.write(line + '\n')
                     count += 1
                 foutput.close()
@@ -356,10 +368,12 @@ switch_automodule_to_aufunction""")
         self.text = open(self.source).read()
         
     def check_files(self):
-        try:
-            open(self.source).read()
-        except IOError,e:
-            raise e
+        """check that a file exist
+        """
+        if os.path.isfile(self.source):
+            pass
+        else:
+            raise SphinxToolsError("file %s was not found")
             
 
 
@@ -487,7 +501,7 @@ class reST():
         if os.path.isdir('../src'):
             _name = self.fullname.split(os.path.join(self.package , '/src'))[1]
             if _name.startswith('/'):
-                _name = _name.replace('/','',1)             
+                _name = _name.replace('/', '', 1)             
             return os.path.join('../../src', _name)            
         else:            
             _name = os.path.join('../../', self.filename)
@@ -513,37 +527,69 @@ class reST():
             _module = _module.replace('/', '.')
             _module = _module.replace('..', '.')
         
-        if self.project=='OpenAlea':
-            if self.package=='misc':
+        if self.project == 'OpenAlea':
+            if self.package == 'misc':
                 # misc is not in openalea namespace yet
                 # do not include openalea and replace first '.' character
                 self.import_name = _module[1:]
             else:     
                 self.import_name = 'openalea' + _module
-        elif self.project=='VPlants':
-            if self.package in ['PlantGL', 'newmtg','stat_tool', 'fractalysis', 'sequence_analysis']:
+        elif self.project == 'VPlants':
+            if self.package in ['PlantGL', 'newmtg','stat_tool', 
+                                'fractalysis', 'sequence_analysis']:
                 self.import_name = 'openalea' + _module
             else:
                 self.import_name = 'openalea.vplants' + _module
         elif self.project=='Alinea':
-            if self.package in ['adel','caribu']:
+            if self.package in ['adel', 'caribu']:
                 self.import_name = 'openalea' + _module
                 
         else:
             raise SphinxToolsError(
                     'package and module combinaison not implemented') 
                    
-                   
+    def get_vars(self, var=None):
+        """import a module in the local scope 
+        
+        if `var` is not empty, returns only the `var` value"""
+        _dirname = os.path.dirname(self.fullname)
+        sys.path.append(_dirname)        
+        _scope = {}
+        try:                     
+            exec("import " + self.module + " as _module") in _scope
+        except:
+            # no need to repeat this warning
+            if var==None:  
+                warnings.warn("Exec failed to import module %s. %s" \
+                              % (self.module, "Try to import manually to see the errors"))
+                print _dirname
+                print self.module
+            return ""
+        else:
+            if var == None:
+                return _scope
+            else:            
+                if _scope['_module'].__dict__.has_key(var):
+                    return _scope['_module'].__dict__[var]
+                else:
+                    return ""
+            
     def synopsis(self):
         """ returns the first line of the __doc__ string"""
-        _dirname = os.path.dirname(self.fullname)
-        sys.path.append(_dirname)
-        try:
-            _module = 'dummy' # to prevent errors with pylint
-            exec("import " + self.module + " as _module")
-            _doc = _module.__doc__.split('\n')[0]
-        except:
-            return ""
+        
+        scope = self.get_vars()
+        
+        if '_module' in scope:
+            if scope['_module'].__doc__ is None:
+                warnings.warn("Docstring of Module %s could not be parsed! (%s)" \
+                              % (self.module, self.fullname))
+                _doc = ".. note:: docstring of this module not parsed. Empty?"
+            else:
+                # allows 2 lines to be parsed
+                _doc = scope['_module'].__doc__[0:160]
+        else:
+            _doc = "Import of this module failed."
+        
         return _doc
                 
     def _create_text_reference(self):
@@ -572,7 +618,9 @@ class reST():
                 "inheritance_diagram": inheritance_diagram,
                 "import_name": self.import_name, 
                 "inheritance":inheritance,
-                "synopsis":self.synopsis()
+                "synopsis":self.synopsis(),
+                "revision": self.get_vars(var='__revision__'),
+                "license": self.get_vars(var='__license__')
                 }
         self.text_reference = template_reference % _params
 
@@ -582,7 +630,9 @@ class reST():
               "title": self.title, 
               "underline": Tools.underline("Source file", '#'),                  
               "fullpathname": self.fullname,
-              "source": self.get_source()
+              "source": self.get_source(),
+              "revision": self.get_vars(var='__revision__'),
+              "license": self.get_vars(var='__license__')
               }
 
         self.text_source = template_source % _params
@@ -615,33 +665,37 @@ class reST():
         _output.write(self.text_source)
         _output.close()
         
-        
-def upload_sphinx(package):
+
+def upload_sphinx(package, force=False):
     """
     Upload the relevant html documentation to the wiki. 
     should be replace by an option in the setuptools.
     
     """
     
-    if os.path.isdir('../../'+package) and \
+    
+    if os.path.isdir('../../' + package) and \
         os.path.isdir('../doc') and \
         os.path.isdir('./html/') and \
         os.path.isdir('./latex/') and \
-        os.path.isfile('./latex/'+package+'.pdf'):
+        os.path.isfile('./latex/' + package + '.pdf'):
             
         print 'Warning: these commands will be run. Is this what you want ? ' 
         cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' % ('html', package.lower())
         print cmd1                
         cmd2 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' % ('latex', package.lower())
         print cmd2
-        answer = raw_input('y/n ?')
-        print answer
+        
+        
+        if force:
+            answer = 'y'
+        else:
+            answer = raw_input('y/n ?')
+                
         if answer == 'y':
             Tools.run(cmd1, test=False)
             Tools.run(cmd2, test=False)
-    else:
-        
-        
+    else:        
         print 'ERROR: You must be in the doc/ directory of the package.'
         print ' Maybe the html/ or latex/ directory does not exists'
         print ' or the latex/ directory does not contain a pdf file'        
@@ -701,31 +755,40 @@ def ParseParameters():
     parser.add_option("-I", "--index",  metavar='INDEX',
         action="store_true",
         default=False,
-        help="do not generate the index files")
+        help="generate the index files")
     
     parser.add_option("-o", "--contents",  metavar='CONTENT',
         action="store_true",
         default=False,
-        help="do not generate the content file")
+        help="generate the content file")
     
-    (_opts, _args) = parser.parse_args()
-     
+    parser.add_option("-f", "--force-upload",  metavar='CONTENT',
+        action="store_true",
+        default=False,
+        help="do not request interactive session when uploading documentation")
+    
+    try:
+        (_opts, _args)= parser.parse_args()
+    except Exception,e:
+        parser.print_usage()
+        print "Error while parsing args:", e
+        return
+         
     if not _opts.package:
-        print "--package must be provided! type --help to get help"
-        exit()
+        parser.error("--package must be provided! type --help to get help")
         
     if not _opts.project:
-        print "--project must be provided! type --help to get help"
-        exit()
+        parser.error("--project must be provided! type --help to get help")
     
-    if _opts.project.lower()=='openalea':
+    
+    if _opts.project.lower() == 'openalea':
         _opts.project = 'OpenAlea'
-    elif _opts.project.lower()=='vplants':
+    elif _opts.project.lower() == 'vplants':
         _opts.project = 'VPlants'
-    elif _opts.project.lower()=='alinea':
+    elif _opts.project.lower() == 'alinea':
         _opts.project = 'Alinea'
     else:
-        raise("--project must be in ['openalea', 'vplants', 'alinea']")
+        parser.error("--project must be in ['openalea', 'vplants', 'alinea']")
         
         
     if _opts.upload:
@@ -743,7 +806,6 @@ def main(opts):
     
     :param opts: a structure containing the user parameters (--help for full help)
         
-    
     """
 
     # set some metadata and check arguments
@@ -871,7 +933,7 @@ if __name__ == '__main__':
         warnings.simplefilter("ignore")
     # if upload is requested, nothing else to do
     if _opts.upload:
-        upload_sphinx(_opts.package)
+        upload_sphinx(package=_opts.package, force=_opts.force_upload)
         sys.exit()
         
     # otherwise, go to the main function
