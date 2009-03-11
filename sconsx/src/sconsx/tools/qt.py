@@ -22,7 +22,9 @@ __revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import platform, Win32, Posix
-import os.path.join as pj
+
+
+pj = os.path.join
 exists = os.path.exists
 
 class QT:
