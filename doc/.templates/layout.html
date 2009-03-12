@@ -3,12 +3,15 @@
 {% block rootrellink %}
 
 
-{%- if project=="openalea.Main page" -%}
+
+{# Switch to the main page #}
+{%- if project=="openalea.Projects" -%}
 
 <li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
 <li><a href="{{ pathto('openalea') }}">openalea Home </a> |&nbsp;</li>
 <li><a href="{{ pathto('contents') }}">Documentation </a> &raquo;</li>
 
+{# Switch to the subpages (for each package) #}
 {%- else -%}
 <li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
 <li><a href="{{ pathto('contents') }}">Documentation</a> &raquo;</li>
