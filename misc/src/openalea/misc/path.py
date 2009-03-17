@@ -16,7 +16,7 @@ Date:    9 Mar 2007
 from __future__ import generators
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ =" $Id: path.py 1605 2009-02-12 12:50:15Z cokelaer $"
 
 # TODO
 #   - Tree-walking functions don't avoid symlink loops.  Matt Harrison

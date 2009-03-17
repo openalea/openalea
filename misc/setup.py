@@ -1,12 +1,14 @@
-""" This setup file is not yet operational for installation, or egg creation. 
-
-However, the following command can be used to build the sphinx documentation  
-
+""" 
 >>> python setup.py sphinx_build
 
 """
 
 import os, sys
+from setuptools import setup, find_packages
+
+__revision__ = "$Id$"
+
+# just an alias
 pj = os.path.join
 
 name = 'OpenAlea.misc'
@@ -15,22 +17,26 @@ version='0.6.2'
 description = 'OpenAlea documentation.' 
 long_description = ''
 author = 'OpenAlea consortium'
-author_email = 'Thomas.Cokelaer@inria.fr'
+author_email = 'Thomas.Cokelaer@inria.fr, Christophe.Pradal@cirar.fr'
 url = 'http://openalea.gforge.inria.fr'
-__license__= 'Cecill-C' 
-__revision__ = "$Id$"
-
-from setuptools import setup
+license= 'Cecill-C' 
+keywords = ['sphinx', 'make_develop']
 
 setup(
     name=name,
     version=version,
-    description=description,
-    long_description=long_description,
     author=author,
     author_email=author_email,
+    description=description,
+    long_description=long_description,
     url=url,
     license=license,
+    keywords=keywords,
+
+    namespace_packages = ['openalea'],
+    packages = find_packages('src'),
+
+    package_dir = { '' : 'src'}
     )
 
 

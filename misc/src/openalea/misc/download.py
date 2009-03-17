@@ -1,6 +1,6 @@
 """script to download projects from the SVN and compile them"""
 
-__Id__ = "$Id$"
+__Id__ = "$Id: download.py 1605 2009-02-12 12:50:15Z cokelaer $"
 __author__ = "Thomas Cokelaer, Thomas.Cokelaer@inria.fr "
 __license__ = "Cecill-C"
 
@@ -28,7 +28,7 @@ def ParseParameters():
       >>> python download.py --login <your gforge login> --skip openaleapkg
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id$ \n" \
+        version="%prog CVS $Id: download.py 1605 2009-02-12 12:50:15Z cokelaer $ \n" \
       + "$Name:  $\n")
     parser.add_option("-l", "--login-name", action="store", \
         default='anonymous', \

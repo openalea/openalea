@@ -7,7 +7,7 @@ vplants modules.
 """
 
 __author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__ = "$Id$"
+__revision__ = "$Id: gendoc.py 1605 2009-02-12 12:50:15Z cokelaer $"
 
 import os
 import sys
@@ -85,11 +85,15 @@ class GenDoc():
         """todo"""
         # this statement must be done once the parent directory is set.
         sys.path.append(os.path.abspath(self.parent + './core/src/core')) # to get the release version
-        import version
+        try:
+            import version
+            version = version.version
+        except:
+            version= "x"
         self.list_module = opts.module.split(',')
         if len(self.list_module)==1:
             self.outdir = self.parent + opts.module + '/doc/' + opts.module \
-                + "-%s"%(version.version) # where to copy the API
+                + "-%s"%(version) # where to copy the API
         else:
             self.outdir = self.parent + '/doc/'
             print self.outdir
@@ -154,7 +158,7 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id$ \n" \
+        version="%prog CVS $Id: gendoc.py 1605 2009-02-12 12:50:15Z cokelaer $ \n" \
       + "$Name:  $\n")
     parser.add_option("-m", "--module", \
         default=None, help="name of the module. E.g., core, visualea, stdlib")

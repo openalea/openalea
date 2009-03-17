@@ -7,7 +7,7 @@
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: install_distrib.py 1605 2009-02-12 12:50:15Z cokelaer $"
 
 import os, sys
 import glob
