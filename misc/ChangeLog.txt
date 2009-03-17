@@ -1,3 +1,4 @@
+- change this directory into a packages
 - make_develop: add html, latex, upload_sphinx options
 - upload_dist.py: add possiblity to upload a single file and fix missin import
 - Add sphinx_tools.py module to help managing the sphinx documentation

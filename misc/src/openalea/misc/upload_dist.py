@@ -28,7 +28,7 @@ Further Example:
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: upload_dist.py 1662 2009-03-09 12:25:57Z cokelaer $"
 
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
@@ -266,7 +266,7 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog CVS $Id$ \n" \
+        version = "%prog CVS $Id: upload_dist.py 1662 2009-03-09 12:25:57Z cokelaer $ \n" \
       + "$Name:  $\n")
 
     parser.add_option("-l", "--login", metavar='LOGIN',

@@ -36,7 +36,6 @@ files = [
  
 
 for file in files: 
-    print file
     process = sphinx_tools.PostProcess(file)
     process.no_namespace_in_automodule()
     process.remove_header(nline=2, start=4)

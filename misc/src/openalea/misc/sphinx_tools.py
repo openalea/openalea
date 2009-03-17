@@ -9,8 +9,8 @@ Example:
 
            
 """
-__author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__ = "$Id$"
+__author__ = "$Author: Thomas.Cokelaer@sophia.inria.fr $"
+__revision__ = "$Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $"
 __license__ = "Cecill-C"
 
 import os
@@ -161,7 +161,7 @@ class SphinxToolsError(Exception):
     def __init__(self, msg):
         self.msg = msg
     def __str__(self):
-        return self.msg + "$Name: $,  $Id$"
+        return self.msg + "$Name: $,  $Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $"
     
     
 class Tools(object):
@@ -498,12 +498,14 @@ class reST():
     def get_source(self):
         """.. todo:: make it robust"""
         
-        if os.path.isdir('../src'):
-            _name = self.fullname.split(os.path.join(self.package , '/src'))[1]
+        try:            
+            _name = self.fullname.split(os.path.join(self.package , 'src'))[1]
             if _name.startswith('/'):
                 _name = _name.replace('/', '', 1)             
-            return os.path.join('../../src', _name)            
-        else:            
+            return os.path.join('../../src', _name)
+        except:
+            
+                    
             _name = os.path.join('../../', self.filename)
             warnings.warn("source files should be in a src directory.")
             return _name
@@ -521,6 +523,7 @@ class reST():
                 _module = self.fullname.split(self.package + '/src')[1]
             except:
                 _module = self.fullname.split(self.package)[1]
+                    
                 
             _module = _module.replace('.py','') # has to be at the beginning
             _module = _module.replace('openalea/', '.')
@@ -551,19 +554,22 @@ class reST():
     def get_vars(self, var=None):
         """import a module in the local scope 
         
-        if `var` is not empty, returns only the `var` value"""
+        if `var` is not empty, returns only the `var` value
+        """
         _dirname = os.path.dirname(self.fullname)
         sys.path.append(_dirname)        
         _scope = {}
         try:                     
             exec("import " + self.module + " as _module") in _scope
         except:
+            
             # no need to repeat this warning
-            if var==None:  
+            if var == None:  
                 warnings.warn("Exec failed to import module %s. %s" \
                               % (self.module, "Try to import manually to see the errors"))
-                print _dirname
-                print self.module
+                print 'debug ', _dirname
+                print 'debug ', self.module
+                print 'debug ', self.import_name 
             return ""
         else:
             if var == None:
@@ -581,12 +587,22 @@ class reST():
         
         if '_module' in scope:
             if scope['_module'].__doc__ is None:
-                warnings.warn("Docstring of Module %s could not be parsed! (%s)" \
+                warnings.warn("Docstring of Module %s is None! (%s)" \
                               % (self.module, self.fullname))
-                _doc = ".. note:: docstring of this module not parsed. Empty?"
+                _doc = ".. note:: docstring of this module not found. Empty?"
             else:
-                # allows 2 lines to be parsed
-                _doc = scope['_module'].__doc__[0:160]
+                # only a limited numbers of characters () are shown in the 
+                # synopsis, so we select only characters
+                
+                _doc = scope['_module'].__doc__[0:63]
+                print _doc
+                # keep only the first line
+                _doc = _doc.split('\n')[0]
+                #if too long, add dots                
+                if len(_doc)==63:
+                    _doc = _doc[0:61] + '...'
+                print '###----', _doc
+                
         else:
             _doc = "Import of this module failed."
         
@@ -725,8 +741,8 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog CVS $Id$ \n" \
-      + "$Name:  $\n")
+        version = "%prog SVN $Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $ \n" \
+      + "$Name:  $\n"  + __author__)
 
     parser.add_option("-m", "--package", metavar='PACKAGE',
         default=None, 
@@ -811,6 +827,13 @@ def main(opts):
     # set some metadata and check arguments
     output_dir = '../doc/' + opts.package
     path = os.path.abspath('../')
+
+    (_, cwd) = os.path.split(os.getcwd())
+    if cwd == 'doc':
+        pass
+    else:
+        raise SphinxToolsError("you must be in the doc/ directory.")
+        
     
     # create an instance of globber to get the relevant python files
     globber = Globber(path=path, package=opts.package, verbose=opts.verbose)    
@@ -836,7 +859,8 @@ def main(opts):
     try:        
         os.mkdir(output_dir)
     except:
-        warnings.warn('Directory %s already exists. ' % output_dir)
+        pass
+        #warnings.warn('Directory %s already exists. ' % output_dir)
     
     if opts.verbose:
         print 'Creating reST files and copying them into %s.' % output_dir
@@ -865,7 +889,7 @@ def main(opts):
     
     # specific to the user guide
     if opts.index:
-        foutput_user = open(output_dir + '/../user/index.rst', 'w')
+        foutput_user = open(os.path.join(output_dir ,'../user/index.rst'), 'w')
         Tools.add_time(foutput_user)
         foutput_user.write(template_index % params)
         foutput_user.write("    *rst\n")    
@@ -880,8 +904,8 @@ def main(opts):
     params['ref'] = 'reference'    
 
 
-    if opts.contents:
-        foutput_ref = open(output_dir + '/index.rst', 'w')
+    if opts.index:
+        foutput_ref = open(os.path.join(output_dir, 'index.rst'), 'w')
         Tools.add_time(foutput_ref)              
         foutput_ref.write(template_index % params)
         for item in globber.files:   

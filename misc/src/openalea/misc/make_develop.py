@@ -13,7 +13,7 @@ type --help to get more help and usage
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 
 import sys, os
 from optparse import OptionParser
@@ -80,7 +80,7 @@ Is this what you want ? (y/n)""")
             dirs.remove('openalea_meta')
             dirs.append('misc')
             
-        
+        print dirs
         for dir in dirs:
             cwd = path(os.getcwd())
             cmd = 'python ../../misc/sphinx_tools.py --upload --package %s --project %s --force' % (dir, self.project)
@@ -95,13 +95,14 @@ Is this what you want ? (y/n)""")
             os.chdir('latex')
             print "make"
             os.system('make')
-            
-            print "Executing %s" % cmd
-            print '\n'
             print 'cd ..'
             os.chdir('..')
             
+            print "Executing %s" % cmd
+            print '\n'
+            
             status = os.system(cmd)
+            
             if status != 0:
                 print "Error during the execution of %s" % cmd
                 print "---- EXIT ----"
