@@ -11,7 +11,7 @@ __revision__ = "$Id$"
 # just an alias
 pj = os.path.join
 
-name = 'OpenAlea.misc'
+name = 'OpenAlea.Misc'
 namespace = 'misc'
 version='0.6.2'
 description = 'OpenAlea documentation.' 

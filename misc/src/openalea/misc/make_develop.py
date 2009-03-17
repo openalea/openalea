@@ -35,7 +35,7 @@ class Commands():
     def __init__(self, project, command, directory, options=None):
         self.extra_options = {
             'clean': '-a',
-            'undevelop': '-u',
+            'undevelop': '',
             'develop':  '',
             'install':  '',
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
@@ -45,7 +45,7 @@ class Commands():
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
-        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta"""
+        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc"""
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
                         
@@ -78,12 +78,11 @@ Is this what you want ? (y/n)""")
         dirs = self._setdirs(self.project)
         if self.project == 'openalea':
             dirs.remove('openalea_meta')
-            dirs.append('misc')
             
         print dirs
         for dir in dirs:
             cwd = path(os.getcwd())
-            cmd = 'python ../../misc/sphinx_tools.py --upload --package %s --project %s --force' % (dir, self.project)
+            cmd = 'python ../../misc/src/openalea/misc/sphinx_tools.py --upload --package %s --project %s --force' % (dir, self.project)
             print cmd
         
             print "--------------"
@@ -127,20 +126,22 @@ Is this what you want ? (y/n)""")
         """
 
         command = self.command
+        if command=='undevelop':
+            command = 'develop'
         directory = self.directory
         options = self.options
         # create the actual command to run
         _prefix =  "python setup.py"
-        cmd = ' '.join([_prefix, command, self.extra_options[command]])
+        cmd = ' '.join([_prefix, command, self.extra_options[self.command]])
 
         # for the documentation, we skip some directories
-        if command == 'html':
+        if self.command == 'html':
             if self.project == 'openalea' : 
                 dirs.remove('openalea_meta')
             if self.project == 'vplants' : 
                 dirs.remove('vplants_meta')
             cmd = cmd.replace('html', 'build_sphinx', 1)
-        elif command == 'latex':
+        elif self.command == 'latex':
             if self.project == 'openalea' : 
                 dirs.remove('openalea_meta')
             if self.project == 'vplants': 
@@ -153,7 +154,7 @@ Is this what you want ? (y/n)""")
 
         # setup for the release command
         cwd = path(os.getcwd())
-        if command == 'release':
+        if self.command == 'release':
             dist = cwd/'..'/'dist'
             try:
                 if dist.exists():
@@ -162,7 +163,7 @@ Is this what you want ? (y/n)""")
                 pass
     
         # setup for the undevelop command
-        if command == 'undevelop':
+        if self.command == 'undevelop':
             # if undevelop, we uninstall in the reversed order
             # of the installation. For instance, in OpenAlea case, we want
             # deploy package to be installed first be removed last. This
