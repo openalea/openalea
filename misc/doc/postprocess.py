@@ -21,7 +21,7 @@ solution is found.
 import os
 import sys
 sys.path.append(os.path.abspath('../'))
-import sphinx_tools
+from openalea.misc import sphinx_tools
 
 print 'Fixing the module and automodule conflict.'
 
