@@ -1,4 +1,4 @@
-Executable=python ./misc/make_develop.py
+Executable=python ./misc/src/openalea/misc/make_develop.py
 Project=openalea
 
 main:

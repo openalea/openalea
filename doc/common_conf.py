@@ -81,7 +81,7 @@ for section in config.sections():
 # TODO: clean up this piece of code
 if 'api' in locals():
     if api=='automated':
-        cmd = 'python ' + os.path.join(openalea, 'misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
+        cmd = 'python ' + os.path.join(openalea, 'misc/src/openalea/misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
         print cmd
         if 'inheritance' in locals():
             cmd += ' --inheritance '

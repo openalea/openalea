@@ -2,7 +2,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath('../../misc'))
-import sphinx_tools
+from openalea.misc import sphinx_tools
 
 
 

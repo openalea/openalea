@@ -18,7 +18,7 @@ switch the automodule to autofunction and remove all the fields below
 import os
 import sys
 sys.path.append(os.path.abspath('../../misc'))
-import sphinx_tools
+from openalea.misc import sphinx_tools
 
 
 
