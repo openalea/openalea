@@ -18,7 +18,10 @@ import sys
 from optparse import OptionParser
 import time
 import warnings
-
+try:
+    from path import path
+except ImportError:
+    from openalea.core.path import path
 
 # Some template to include in the reST files.
 
@@ -490,23 +493,26 @@ class reST():
         self.module = self.filename.split('.')[0]
         self.text_reference = ""
         self.text_source = ""
-        self.path = os.path.join('../doc',  self.package) 
+        self.path = path('..')/'doc'/self.package
+        #self.path =  os.path.join('../doc',  self.package) 
         self.title = self.project + '.' + self.package + '.' + self.module
         self.import_name = 'to be done in next call'
         self.get_path_to_module(delimiter=self.project)
     
     def get_source(self):
         """.. todo:: make it robust"""
+        print 'DEBUG get_source ::::::::::::::::'
+
         
         try:            
             _name = self.fullname.split(os.path.join(self.package , 'src'))[1]
-            if _name.startswith('/'):
-                _name = _name.replace('/', '', 1)             
-            return os.path.join('../../src', _name)
+            if _name.startswith(os.sep):
+                _name = _name.replace(os.sep, '', 1)             
+            return path('..')/'..'/'src'/ _name
         except:
             
                     
-            _name = os.path.join('../../', self.filename)
+            _name = path('..')/'..'/self.filename
             warnings.warn("source files should be in a src directory.")
             return _name
 
@@ -518,16 +524,17 @@ class reST():
                              'fractalysis','stat_tool', 'newmtg',
                             'sequence_analysis','adel', 'caribu']
         
+        print 'PACKAGE ::::::::::: ', self.package, self.fullname
         if self.package in openalea_packages:
             try:
-                _module = self.fullname.split(self.package + '/src')[1]
+                _module = self.fullname.split(self.package + os.sep+'src')[1]
             except:
                 _module = self.fullname.split(self.package)[1]
                     
                 
             _module = _module.replace('.py','') # has to be at the beginning
-            _module = _module.replace('openalea/', '.')
-            _module = _module.replace('/', '.')
+            _module = _module.replace('openalea'+os.sep, '.')
+            _module = _module.replace(os.sep, '.')
             _module = _module.replace('..', '.')
         
         if self.project == 'OpenAlea':
@@ -538,9 +545,13 @@ class reST():
             else:     
                 self.import_name = 'openalea' + _module
         elif self.project == 'VPlants':
-            if self.package in ['PlantGL', 'newmtg','stat_tool', 
+            if self.package in ['PlantGL', 'stat_tool', 
                                 'fractalysis', 'sequence_analysis']:
                 self.import_name = 'openalea' + _module
+            elif self.package == 'newmtg':
+                self.import_name = 'openalea'+_module
+                print '_module', _module
+                print self.import_name
             else:
                 self.import_name = 'openalea.vplants' + _module
         elif self.project=='Alinea':
@@ -661,7 +672,10 @@ class reST():
                 
         # save the resulting string in a text
         _stem = self.import_name.replace('.', '_')                
-        _output = open(self.path +'/'+ _stem + '_ref.rst' , "w")
+        
+        #_output = open(self.path + os.sep + _stem + '_ref.rst' , "w")
+        p = path(self.path) / _stem+'_ref.rst'
+        _output = p.open(mode='w')
         
         if self.opts.verbose:
             print  '...'+_stem + '_ref.rst'
@@ -676,7 +690,7 @@ class reST():
         
         # save the resulting string in a text
         _stem = self.import_name.replace('.', '_')
-        _output = open(self.path +'/'+ _stem + '_src.rst' , "w")
+        _output = open(self.path + os.sep + _stem + '_src.rst' , "w")
         Tools.add_time(_output)
         _output.write(self.text_source)
         _output.close()
