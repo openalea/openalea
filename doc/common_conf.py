@@ -19,7 +19,7 @@ except ImportError, e:
     print 'Could not find sphinx on your system'
 else:
     print sphinx.__version__
-    if float(sphinx.__version__.split('b')[0]) < 0.6:
+    if float(sphinx.__version__[0:3]) < 0.6:
         print 'Sphinx 0.6 or higher required. found %s' % sphinx.__version__
         sys.exit(0)
 
