@@ -14,8 +14,10 @@ p.rubric {
 color:blue;
 }
 
+/* color and width of the keywords (Parameters, examples, ...)*/
 th.field-name {
 color:blue;
+width:20%;
 }
 
 /* surround the classes, functions and exceptions with boxes*/
@@ -38,7 +40,8 @@ img.inheritance {
 }
 
 div.math img{
-width:90%
+/*width:90%*/
+text-align:center;
 }
 
 /* these div and table fixes are required to have a nice layout of the source code 
@@ -80,8 +83,8 @@ table indextable{
  }
 
 table.docutils{
-border-left: 2px solid gray;*/
-width:100%;
+width:90%;
+
 }
 
 h2 {
