@@ -36,4 +36,5 @@ def test_export():
     assert f
 
     import app
-    app.main(sys.argv)
+    # requires X server 
+    # app.main(sys.argv)
