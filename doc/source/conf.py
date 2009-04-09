@@ -159,7 +159,8 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {'index': 'indexsidebar.html'}
-html_additional_pages = {'index': 'main_index.html','openalea': 'openalea.html'}
+#html_additional_pages = {'index': 'main_index.html','openalea': 'openalea.html'}
+
 # If false, no module index is generated.
 html_use_modindex = True
 
@@ -175,7 +176,7 @@ html_copy_source = True
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-#html_use_opensearch = ''
+html_use_opensearch = ''
 
 # If nonempty, this is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = ''
@@ -230,4 +231,13 @@ latex_preamble = """
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/dev': None}
+intersphinx_mapping = {
+    'http://docs.python.org/dev': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/core/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/visualea/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/deploy/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/deploygui/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/sconsx/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/misc/html/': None,
+    'http://openalea.gforge.inria.fr/doc/sphinx/stdlib/html/': None }
+

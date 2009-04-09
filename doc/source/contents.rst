@@ -11,8 +11,7 @@ Welcome to OpenAlea documentation
 :Version: |version| 
 :Date: |today|
 
-.. note:: This documentation can be downloaded as a `PDF <../latex/Openalea.pdf>`_
-
+.. include:: ../README.txt
 
 |text1|  
 
@@ -27,15 +26,10 @@ OpenAlea_ documentation
 
 +---------------------------+---------------------------+--------------------+
 |         OPENALEA          |        VPLANTS            |      CARIBU        |
-| |openalea|                | |vplants|                 |    |caribu|        |
-|.. toctree::               |             |vplants_toc| | |caribu_toc|       |
-|    :maxdepth: 1           |                           |                    |
-|                           |                           |                    |
-|    rst_tutorial           |                           |                    |
-|                           |                           |                    |
 +---------------------------+---------------------------+--------------------+
 
 
+.. | |openalea|                | |vplants|                 |    |caribu|        |
 
 .. |vplants| image:: images/vplants.png
     :target: http://www-sop.inria.fr/virtualplants/wiki/doku.php
@@ -57,10 +51,19 @@ OpenAlea_ documentation
 
 
 
-:mod:`actor`
+:class:`openalea.core.actor.IActor`
+
+:mod:`deploy`
+:mod:`deploygui`
+:mod:`sconsx`
+:mod:`stdlib`
+:mod:`visualea`
+:mod:`misc`
+:mod:`core`
 
 .. toctree::
     :maxdepth: 1
+
 
 ..    core/reference_index
     stdlib/reference_index
@@ -83,7 +86,7 @@ About this documentation
     tutorial/sphinx_tutorial
     Example, how to fill your docstrings<tutorial/template>
     How to create template to your package documenation<tutorial/create_template>
-
+    developer.rst
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
