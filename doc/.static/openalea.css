@@ -51,6 +51,13 @@ div.highlight-python{
 table-layout:auto;
 overflow-x:hidden;
 width:100%;
+border: 2px solid #888;
+background-color: #AFC1C4
+}
+
+div.highlight-python pre{
+background-color: #AFC1C4;
+border: 0px;
 }
 
 table.highlighttable {

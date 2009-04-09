@@ -79,13 +79,16 @@ for section in config.sections():
 
 # create all the API documentation automatically (ref+src)
 # TODO: clean up this piece of code
-if 'api' in locals():
-    if api=='automated':
+if 'sphinx_api' in locals():
+    if sphinx_api=='automated':
         cmd = 'python ' + os.path.join(openalea, 'misc/src/openalea/misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
-        print cmd
-        if 'inheritance' in locals():
+        if 'sphinx_index' in locals():
+            cmd += ' --index '
+        if 'sphinx_contents' in locals():
+            cmd += ' --contents '
+        if 'sphinx_inheritance' in locals():
             cmd += ' --inheritance '
-        if 'verbose' in locals():
+        if 'sphinx_verbose' in locals():
             cmd += ' --verbose '
 
         warnings.warn('API automatically generated. To avoid it, change the api option in common.ini')
