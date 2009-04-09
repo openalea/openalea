@@ -797,6 +797,105 @@ from %s.__init__ import *
         # For develop, the libraries stay in place.
         set_env()
 
+class sphinx_upload(Command):
+    """
+    Upload sphinx documentation to the GForge repository (wiki)
+
+    .. todo:: need to be clean and make it robust (using gforge.py 
+        instead of scp for instance)
+    """
+    description = "Upload the documentation on the OpenAlea GForge repository"
+
+    GFORGE_REPOSITORY = "http://gforge.inria.fr"
+
+    user_options = [
+        ('repository=', 'r',
+         "url of repository [default: %s]" % GFORGE_REPOSITORY),
+        ('username=', 'u', "user id"),
+        ('password=', 'p', "user password"),
+        ('project=', None, ""),
+        ('package=', None, ""),
+        ('release=', None, ""),
+
+        ]
+
+    def initialize_options(self):
+        self.username = None
+        self.password = None
+        self.repository = self.GFORGE_REPOSITORY
+        self.project = 'openalea'
+        self.package = ''
+        self.release = ''
+   
+
+    def finalize_options(self):
+        if (not self.package):
+            self.package = self.distribution.metadata.get_name()
+
+        if (not self.release):
+            version = self.distribution.metadata.version
+            try:
+                versiontab = version.split(".")[:2]
+                self.release = ".".join(versiontab)
+            except IndexError:
+                self.release = version
+
+        if 'HOME' in os.environ:
+            rc = os.path.join(os.environ['HOME'], '.pypirc')
+            if os.path.exists(rc):
+                self.announce('Using PyPI login from %s' % rc)
+                config = ConfigParser.ConfigParser({
+                        'username': '',
+                        'password': '',
+                        'repository': ''})
+                config.read(rc)
+                if not self.repository:
+                    self.repository = config.get('server-login', 'repository')
+                if not self.username:
+                    self.username = config.get('server-login', 'username')
+                if not self.password:
+                    self.password = config.get('server-login', 'password')
+ 
+    def run(self):
+        print """
+                Warning: this option (sphinx_upload) will use the scp command to copy
+                the documentation on the gforge. Be sure to have the right to do so. 
+                Requires to copy your ssh key on the server !"""
+
+        import gforge
+
+        print "Login...."
+        server = gforge.GForgeProxy()
+
+        server.login(self.username, self. password)
+
+        #todo: check that the version that will be uploaded it newer than that on the server
+        directory = self.package
+        try:
+            directory = self.package.split('.')[1]
+            directory = directory.lower()
+        except:
+            directory = self.package
+         
+        cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
+            % (os.path.join('doc','html'), directory)
+        os.system(cmd1)
+        cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
+            % (os.path.join('doc','latex'), directory)
+        os.system(cmd1)
+
+        print "Logout..."
+        server.logout()
+
+    def upload_file(self, server, command, pyversion, filename):
+
+        print "Project: ", self.project
+        print "Project: ", self.project
+        print "Package: ", self.package
+        print "Release: ", self.release
+        print "Filename: ", filename
+        #server.add_file(self.project, self.package, self.release, filename)
+    
 
 class alea_upload(Command):
     """
