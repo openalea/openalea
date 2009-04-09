@@ -66,6 +66,27 @@ Auto documented class (method 3)
 
 
 
+.. module:: template_final
+
+.. autoclass:: MainClass1
+   :members: 
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: MainClass2
+   :members: 
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: MainClass3
+   :members: 
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+
 
 
 

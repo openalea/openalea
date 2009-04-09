@@ -98,15 +98,14 @@ Python documentation, this convention is used which you may follow:
 * `^`, for subsubsections
 * `"`, for paragraphs
 
-Links
-=====
+External Links
+==============
 There are two ways to define a link. First, by defining an alias at the end of 
 your reST document::
 
     .. _Python: http://www.python.org/
 
-Then, write your text inserting the keywrod ``Python_`` . The final
- result will be as follows:: Python_ .
+Then, write your text inserting the keywrod ``Python_`` . The final result will be as follows:: Python_ .
  
 .. note::
     Note that when you define the reference or alias, the underscore is before
@@ -121,6 +120,13 @@ A second solution is to write the link inline `` using the following syntax::
 
 .. _Python: http://www.python.org/
 
+If you have an underscore within the label/name, you got to escape it with a '\\' character.
+
+If you don't provide a name after the label, like in the following example::
+
+    .. _label:
+
+then, this is an internal link, and correspond to the paragraph that follows. See `Internal hyperlink`_ section.
 
 Some reST markups
 =================
@@ -227,7 +233,11 @@ Citation references, like [CIT2002]_ may be defined at the bottom of the page::
     .. [CIT2002] A citation
        (as often used in journals).
 
-aliases and substitutions
+and called as follows::
+
+    [CIT2002]_
+
+Aliases and substitutions
 =========================
 
 If you have long text to include several times, you can create aliases::
@@ -260,7 +270,7 @@ Field list
     :Whatever: this is handy to create new field
         
 
-internal hyperlink
+Internal hyperlink
 ==================
 
 Creating hyperlink is easy and is done by creating a hyperlink as follows::
@@ -273,7 +283,7 @@ rst_tutorial_
 Titles are targets, too and implict references, like `Field list`_. are possible
  
  
-python doctest
+Python doctest
 ==============
 
 you may want to include test directly within your docstring adding::

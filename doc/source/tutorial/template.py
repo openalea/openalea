@@ -1,28 +1,26 @@
 """This module illustrates how to write your docstring in OpenAlea
-and other projects related to OpenAlea.
-
-
-
-"""
+and other projects related to OpenAlea."""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: actor.py 1586 2009-01-30 15:56:25Z cokelaer $ "
-__docformat__ = 'reStructuredText'
+#__docformat__ = 'reStructuredText'
 
 
 class MainClass1(object):
     """Demonstrates how to fill the docstrings with Method1  
 
     The :func:`function1`'s docstring is composed as follows:
-   
+
     - sections such as **parameters**, **types**, **return** and **return types**
-      use the following sphinx syntax (*Info field lists*) ::
+      use the following sphinx syntax (*Info field lists*)::
+      
           :param arg1: description
           :param arg2: description
           :type arg1: type description
           :type arg1: type description
           :return: return description
           :rtype: the return type description
+          
     - Other sections such as **Example**, or non-standard section's name are 
       written using the double commas syntax::
       
@@ -37,6 +35,7 @@ class MainClass1(object):
        
     - Finally special sections such as **See Also**, **Warnings**, **Notes** 
       use the sphinx syntax (*paragraph directives*)::
+      
           .. seealso:: blabla 
           .. warnings also:: blabla
           .. note:: blabla
@@ -60,9 +59,6 @@ class MainClass1(object):
     Here below is the results of the :func:`function1` docstring.
     
     Then, you can compare with the second method in :class:`MainClass2`
-    
-    
-    
     """
 
     def function1(self, arg1, arg2, arg3):
@@ -72,7 +68,6 @@ class MainClass1(object):
         Then, you need to provide optional subsection in this order (just to be
         consistent and have a uniform documentation Nothing prevent you to
         switch the order):
-        
           - parameters using ``:param <name>: <description>``
           - type of the parameters ``:type <name>: <description>``
           - returns using ``:returns: <description>``
@@ -104,7 +99,7 @@ class MainClass1(object):
         :Example:        
 
         >>> import template
-        >>> a = MainClass1()
+        >>> a = template.MainClass1()
         >>> a.function1(1,1,1)
         2
 
@@ -124,8 +119,10 @@ class MainClass2(object):
 
     - All sections such as **parameters** are written using the double commas 
       syntax::
+      
          :Example:
          :Your preferred section title:
+         
       which appears as follow:
 
       :Example:
@@ -181,7 +178,7 @@ class MainClass2(object):
         :Examples:        
 
         >>> import template
-        >>> a = MainClass2()
+        >>> a = template.MainClass2()
         >>> a.function1(1,1,1)
         2
 
@@ -232,7 +229,7 @@ class MainClass3(object):
     Here below is the results of the :func:`function1` docstring.
     
     Then, you can compare with the second method in :class:`MainClass1` and 
-    `MainClass2`
+    :class:`MainClass2`
      
     """
  
@@ -244,16 +241,16 @@ class MainClass3(object):
         consistent and have a uniform documentation Nothing prevent you to
         switch the order):
         
-          - The syntax describe in :class:`MainClass2` but the section's title
-            becomes::
-             
+        - The syntax describe in :class:`MainClass2` but the section's title
+          becomes:
+         
                 
           
         **Advantages**:
           - The parameter, type, and return section appear nicely in the docstring
           - interactive python will have the same next nice docstring
           - Some of the section are recognized and interpreted as sphinx syntax
-          (such as warning which becomes .. warning::)
+            (such as warning which becomes .. warning::)
               
         **Drawbacks**:
          - standard markups are not used, which is pity: you miss the nice 
@@ -274,24 +271,23 @@ class MainClass3(object):
         Parameters
         ----------
         
-        arg1 (int,float,...) : the first value
-        arg2 (int,float,...) : the first value
-        arg3 (int,float,...) : the first value
+        arg1 : (int,float,...)
+            the first value
+        arg2 : (int,float,...)
+            the first value
+        arg3 : (int,float,...)
+            the first value
          
         Returns
         -------
         
         arg1/arg2 +arg3 : the output
         
-        Warnings
-        --------
-        arg2 must be non-zero.      
-        
         Examples
         --------
 
         >>> import template
-        >>> a = MainClass3()
+        >>> a = template.MainClass3()
         >>> a.function1(1,1,1)
         2
 
@@ -301,13 +297,18 @@ class MainClass3(object):
         Can be useful to emphasize 
         important feature
 
-
         See Also
         --------
             
-            `MainClass1`
+            :class:`MainClass1`
+            
+        Warnings
+        --------
+        arg2 must be non-zero.      
+        
   
-        Todo:
+        Todo
+        ----
                         
             check that arg2 is non zero.
         """
