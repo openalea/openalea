@@ -42,6 +42,7 @@ try:
     Package = package.capitalize()
     version = version # just to check it exsits
     release = release # just to check it exists
+   
 except NameError:
     """
 Please, provide the \'version\', \'release\', \'project\', 
@@ -79,26 +80,37 @@ for section in config.sections():
 
 # create all the API documentation automatically (ref+src)
 # TODO: clean up this piece of code
-if 'sphinx_api' in locals():
-    if sphinx_api=='automated':
-        cmd = 'python ' + os.path.join(openalea, 'misc/src/openalea/misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
-        if 'sphinx_index' in locals():
-            cmd += ' --index '
-        if 'sphinx_contents' in locals():
-            cmd += ' --contents '
-        if 'sphinx_inheritance' in locals():
-            cmd += ' --inheritance '
-        if 'sphinx_verbose' in locals():
-            cmd += ' --verbose '
 
-        warnings.warn('API automatically generated. To avoid it, change the api option in common.ini')
-        try:
-            status = os.system(cmd)
-        except:
+if 'api' in locals():
+    if api.lower()=='false':
+        print '...Skipping reference re-generation '
+        api = False
+    else:
+        print '... !! The options api in sphinx.ini file must be set to false otherwise it is ignored'
+        api=True
+else:
+    api = True
+
+if api:
+    cmd = 'python ' + os.path.join(openalea, 'misc/src/openalea/misc/sphinx_tools.py --project %s --package %s ' %(project_ini, package))
+    if 'sphinx_index' in locals():
+        cmd += ' --index '
+    if 'sphinx_contents' in locals():
+        cmd += ' --contents '
+    if 'sphinx_inheritance' in locals():
+        cmd += ' --inheritance '
+    if 'sphinx_verbose' in locals():
+        cmd += ' --verbose '
+
+    warnings.warn('API automatically generated. To avoid it, add api=false in the sphinx.ini file')
+    try:
+        status = os.system(cmd)
+    except:
         
-            print 'sphinx_tools call failed'
-            print cmd
-            sys.exit()
+        print 'sphinx_tools call failed'
+        print cmd
+        sys.exit()
+
 
 
 # Set the extensions --------------------------------------------------------- 
@@ -113,6 +125,7 @@ import ipython_console_highlighting
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.graphviz',
     'sphinx.ext.doctest', 
     'sphinx.ext.intersphinx',
     'inheritance_diagram', 
