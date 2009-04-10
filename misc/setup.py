@@ -36,7 +36,14 @@ setup(
     namespace_packages = ['openalea'],
     packages = find_packages('src'),
 
-    package_dir = { '' : 'src'}
+    package_dir = { '' : 'src'},
+
+
+    entry_points = {
+        "console_scripts": [
+                 "alea_init_sphinx = openalea.misc.sphinx_tools:init",
+                 ],
+    }
     )
 
 
