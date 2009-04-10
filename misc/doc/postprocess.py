@@ -26,19 +26,19 @@ from openalea.misc import sphinx_tools
 print 'Fixing the module and automodule conflict.'
 
 files = [
-    './misc/path_ref.rst',
-    './misc/download_ref.rst',
-    './misc/sphinx_tools_ref.rst',
-    './misc/gendoc_ref.rst',
-    './misc/upload_dist_ref.rst',
-    './misc/make_develop_ref.rst',
-    './misc/openalea_distrib_ref.rst',]
+    './misc/openalea_misc_path_ref.rst',
+    './misc/openalea_misc_download_ref.rst',
+    './misc/openalea_misc_sphinx_tools_ref.rst',
+    './misc/openalea_misc_gendoc_ref.rst',
+    './misc/openalea_misc_upload_dist_ref.rst',
+    './misc/openalea_misc_make_develop_ref.rst',
+    './misc/openalea_misc_openalea_distrib_ref.rst',]
  
 
 for file in files: 
     process = sphinx_tools.PostProcess(file)
-    process.no_namespace_in_automodule()
-    process.remove_header(nline=2, start=4)
+#    process.no_namespace_in_automodule()
+#    process.remove_header(nline=2, start=4)
     
 print 'Try python setup.py build_sphinx now.'
 
