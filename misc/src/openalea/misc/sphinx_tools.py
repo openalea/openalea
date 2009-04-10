@@ -538,12 +538,7 @@ class reST():
             _module = _module.replace('..', '.')
         
         if self.project == 'OpenAlea':
-            if self.package == 'misc':
-                # misc is not in openalea namespace yet
-                # do not include openalea and replace first '.' character
-                self.import_name = _module[1:]
-            else:     
-                self.import_name = 'openalea' + _module
+            self.import_name = 'openalea' + _module
         elif self.project == 'VPlants':
             if self.package in ['PlantGL', 'stat_tool', 
                                 'fractalysis', 'sequence_analysis']:
@@ -976,3 +971,9 @@ if __name__ == '__main__':
         
     # otherwise, go to the main function
     main(_opts)
+
+def init():
+    
+    (_opts, _) = ParseParameters()
+    main(_opts)
+
