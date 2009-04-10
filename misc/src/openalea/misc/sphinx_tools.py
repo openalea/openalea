@@ -58,17 +58,20 @@ template_source = \
 """
 %(underline)s
 
-.. note:: This source code is not included in the LaTeX output file.
-
-
 .. htmlonly::
-    
-    :Revision: %(revision)s
-    :License: %(license)s
 
-    .. literalinclude:: %(source)s
-        :linenos:
-        :language: python
+        :Revision: %(revision)s
+        :License: %(license)s
+
+        .. literalinclude:: %(source)s
+            :linenos:
+            :language: python
+    
+.. latexonly::
+
+    .. note:: The source code is available from the SVN archive or the HTML version only.
+
+
 """
 
 template_reference = \
@@ -159,6 +162,53 @@ License
 
 .. |%(package)s| replace:: %(Project)s.%(Package)s
 """                                                         
+
+
+
+
+configuration_templates = \
+"""
+# This import will 
+#   - import sphinx ini in this directory
+#   - import the common.ini in openalea/doc
+#   - execute the statements in openalea/doc/common_conf.py
+# you may overwrite some paramters found in common.ini here below
+
+import sys
+import os
+
+sys.path.append(os.path.join(os.getcwd(), '../../../openalea/doc'))
+
+from common_conf import *
+
+# Overwrite extension if required
+#extensions = [
+#    'sphinx.ext.autodoc',
+#    'sphinx.ext.doctest', 
+#    'sphinx.ext.intersphinx',
+#    'inheritance_diagram', 
+#    'sphinx.ext.pngmath',
+#    'sphinx.ext.todo', 
+#    'numpydoc',
+#    'phantom_import', 
+#    'autosummary',
+#    'sphinx.ext.coverage',
+#    'only_directives'
+#    ]
+
+
+# to speed up compilation in development mode, uncomment this line
+#intersphinx_mapping = {}
+"""                                    
+
+
+
+
+
+
+
+
+
 
 class SphinxToolsError(Exception):
     def __init__(self, msg):
@@ -262,7 +312,8 @@ class PostProcess():
             print '...remove namespace in automodule' + self.source
         try:
             if text.find('.. automodule::')==-1:
-                print '...skip %s which do not contains any automodule directive' % self.source                
+                if self.verbose:
+                    print '...skip %s which do not contains any automodule directive' % self.source                
             else:
                 lines = text.split('\n')
                 foutput = open(self.source, 'w')
@@ -360,6 +411,11 @@ switch_automodule_to_aufunction""")
             self.update()
         except:            
             self.backup()
+            
+    def remove_file(self):
+        if self.verbose:
+            print '...remove file ' +self.source
+        os.remove(self.source)
             
     def backup(self):
         """if a problem occured, save the backup text in the original file"""
@@ -501,8 +557,6 @@ class reST():
     
     def get_source(self):
         """.. todo:: make it robust"""
-        print 'DEBUG get_source ::::::::::::::::'
-
         
         try:            
             _name = self.fullname.split(os.path.join(self.package , 'src'))[1]
@@ -524,18 +578,23 @@ class reST():
                              'fractalysis','stat_tool', 'newmtg',
                             'sequence_analysis','adel', 'caribu']
         
-        print 'PACKAGE ::::::::::: ', self.package, self.fullname
+        if self.opts.debug:
+            print 'PACKAGE ::::::::::: ', self.package, self.fullname
         if self.package in openalea_packages:
             try:
                 _module = self.fullname.split(self.package + os.sep+'src')[1]
             except:
+                if self.opts.debug:
+                    print 'WARNING: exception caught. '
+                    print 'WARNING: full name is %s and package is %s' % (self.fullname, self.package)
                 _module = self.fullname.split(self.package)[1]
-                    
+        else:
+            _module = self.fullname.split(self.package + os.sep + 'src')[1]    
                 
-            _module = _module.replace('.py','') # has to be at the beginning
-            _module = _module.replace('openalea'+os.sep, '.')
-            _module = _module.replace(os.sep, '.')
-            _module = _module.replace('..', '.')
+        _module = _module.replace('.py','') # has to be at the beginning
+        _module = _module.replace('openalea'+os.sep, '.')
+        _module = _module.replace(os.sep, '.')
+        _module = _module.replace('..', '.')
         
         if self.project == 'OpenAlea':
             self.import_name = 'openalea' + _module
@@ -545,8 +604,9 @@ class reST():
                 self.import_name = 'openalea' + _module
             elif self.package == 'newmtg':
                 self.import_name = 'openalea'+_module
-                print '_module', _module
-                print self.import_name
+                if self.opts.debug:
+                    print '_module', _module
+                    print self.import_name
             else:
                 self.import_name = 'openalea.vplants' + _module
         elif self.project=='Alinea':
@@ -600,14 +660,16 @@ class reST():
                 # only a limited numbers of characters () are shown in the 
                 # synopsis, so we select only characters
                 
-                _doc = scope['_module'].__doc__[0:63]
-                print _doc
+                _doc = scope['_module'].__doc__[0:63]   
+                if self.opts.debug:
+                    print _doc
                 # keep only the first line
                 _doc = _doc.split('\n')[0]
                 #if too long, add dots                
                 if len(_doc)==63:
                     _doc = _doc[0:61] + '...'
-                print '###----', _doc
+                if self.opts.debug:
+                    print '###----', _doc
                 
         else:
             _doc = "Import of this module failed."
@@ -728,8 +790,26 @@ def upload_sphinx(package, force=False):
     # check that we are in ./opt.pacakge/doc and that there exists a latex and 
     # html directory.
     
-
-def ParseParameters():
+def check_project_name(project):
+    """Check that the project name is correct and returns the appropriate 
+    capitalisation. Correct names are openalea, vplants, alinea
+    
+    :param project: the name of a project to be checked
+    :returns : None if the project name is wrong or the capitalised project name
+    """
+    if project.lower() == 'openalea':
+        project = 'OpenAlea'
+    elif project.lower() == 'vplants':
+         project = 'VPlants'
+    elif project.lower() == 'alinea':
+        project = 'Alinea'
+    else:
+        project = None
+        
+    return (project)
+            
+            
+def ParseParameters(check=True):
     """This is the main parsing function to get user arguments
 
     Example:
@@ -761,7 +841,12 @@ def ParseParameters():
     parser.add_option("-v", "--verbose", 
         action="store_true", 
         default=False, 
-        help="verbose option")
+        help="verbose option on")
+    
+    parser.add_option("-d", "--debug", 
+        action="store_true", 
+        default=False, 
+        help="debug option on")
     
     parser.add_option("-i", "--inheritance", 
         action="store_true", 
@@ -786,6 +871,11 @@ def ParseParameters():
         action="store_true",
         default=False,
         help="generate the content file")
+      
+    parser.add_option("-c", "--configuration",  metavar='CONFIGURATION',
+        action="store_true",
+        default=False,
+        help="generate the configuration file conf.py for sphinx")
     
     parser.add_option("-f", "--force-upload",  metavar='CONTENT',
         action="store_true",
@@ -798,22 +888,21 @@ def ParseParameters():
         parser.print_usage()
         print "Error while parsing args:", e
         return
-         
-    if not _opts.package:
-        parser.error("--package must be provided! type --help to get help")
+    
+    if check:  
+        if not _opts.package:
+            parser.error("--package must be provided! type --help to get help")
         
-    if not _opts.project:
-        parser.error("--project must be provided! type --help to get help")
+        if not _opts.project:
+            parser.error("--project must be provided! type --help to get help")
     
-    
-    if _opts.project.lower() == 'openalea':
-        _opts.project = 'OpenAlea'
-    elif _opts.project.lower() == 'vplants':
-        _opts.project = 'VPlants'
-    elif _opts.project.lower() == 'alinea':
-        _opts.project = 'Alinea'
-    else:
-        parser.error("--project must be in ['openalea', 'vplants', 'alinea']")
+        _opts.project = check_project_name(_opts.project)
+        
+        project = check_project_name(_opts.project)
+        if project:
+            pass
+        else:
+            parser.error("--project must be in ['openalea', 'vplants', 'alinea']")
         
         
     if _opts.upload:
@@ -833,6 +922,32 @@ def main(opts):
         
     """
 
+    print """OpnAlea.Sphinx_Tools starting .................................."""
+    print """...Starting initialisation of the files required by Sphinx"""
+    if opts.index:
+        print '...Will override user/index.rst and %s/index.rst' % opts.package
+    else:
+        print '...Will not override user/index.rst and %s/index.rst' % opts.package
+        
+    if opts.contents:
+        print '...Will override contents.rst'
+    else:
+        print '...Will not override contents.rst'
+    
+    if opts.configuration:
+        print '...Will override conf.py'
+    else:
+        print '...Will not override conf.py'
+    text = None
+    while text!='y' and text!='n':
+        text = raw_input('carry on ? (y/n)')
+        if text=='n':
+            print 'stopped'
+            sys.exit()
+        elif text=='y':
+            print 'Continue'
+        
+    
     # set some metadata and check arguments
     output_dir = '../doc/' + opts.package
     path = os.path.abspath('../')
@@ -865,11 +980,19 @@ def main(opts):
     
 
     # create the reST outputs
-    try:        
-        os.mkdir(output_dir)
-    except:
+    
+    for directory in ['user', output_dir, '.static']:
+        try:        
+            os.mkdir(directory)
+        except:
+            warnings.warn('Directory %s/ already exists. ' % directory)
+    if os.path.isfile('user/overview.txt'):
         pass
-        #warnings.warn('Directory %s already exists. ' % output_dir)
+    else:
+        output = open('user/overview.txt', 'w')
+        output.write('to be done')
+        output.close()
+        
     
     if opts.verbose:
         print 'Creating reST files and copying them into %s.' % output_dir
@@ -920,7 +1043,7 @@ def main(opts):
         for item in globber.files:   
             data = reST(item,
                         opts.package, 
-                        opts.project)
+                        opts.project,opts=opts)
             foutput_ref.write('    ' + data.import_name.replace('.', '_') 
                               +  '_ref.rst\n')
         foutput_ref.close()
@@ -935,7 +1058,11 @@ def main(opts):
         foutput.write(template_contents % params)
         foutput.close()
         
-        
+    if opts.configuration:
+        foutput = open(output_dir + '/../conf.py','w')
+        foutput.write(configuration_templates)
+        foutput.close()
+
     # finalise
     if opts.verbose:
         print """ 
@@ -952,9 +1079,8 @@ def main(opts):
             print 'No postprocess.py file found. continue'
         
         
-    if opts.verbose:
-        print 'Done'
-        print 'Normal Termination'
+    print 'Done'
+    print 'Normal Termination (use --verbose or --debug to get more info in case of trouble)'
 
 
 
@@ -973,7 +1099,57 @@ if __name__ == '__main__':
     main(_opts)
 
 def init():
+    """
     
-    (_opts, _) = ParseParameters()
-    main(_opts)
+    function linked to the script alea_init_sphinx. 
+    
+    Works like sphinx_tools.py module but it is possible to use it without 
+    the --package and --project arguments, which will be read from the sphinx.ini
+    file if present in the directory
+    
+    :Usage:
+        From the ./doc directory type:
+        
+        alea_init_script --package core --project openalea --verbose
+        alea_init_script --package core --project openalea 
+        alea_init_script --verbose
+        alea_init_script --index --contents
+    
+    """
+    if os.path.basename(os.getcwd())=='doc':
+        pass
+    else:
+        raise SphinxToolsError("must be in the doc directory of a package to use this program")
+            
+    (optss, _args) = ParseParameters(check=False)
+    
+    # providing the package name and project are optional. 
+    if optss.project is None and optss.package is None:
+        import ConfigParser
+        config = ConfigParser.RawConfigParser()
+        config.read('sphinx.ini')       # same dir as the conf.py's location
+        try:
+            section = 'metadata'
+            config.options(section)
+        except:
+            raise SphinxToolsError('sphinx.ini file needs to be present in the doc directory')
+            
+        if 'project' in config.options(section):
+            project = config.get(section, 'project')
+        if 'package' in config.options(section):
+            package = config.get(section, 'package')
+    
+        optss.project = project
+        optss.package = package
+        
+        
+    optss.project = check_project_name(optss.project)
+    if optss.project is None: 
+        raise SphinxToolsError("sphinx.ini does not contain a valid project option")
+
+    if optss.project:
+        main(optss)
+    else:
+        raise SphinxToolsError("--project must be in ['openalea', 'vplants', 'alinea']")
+   
 
