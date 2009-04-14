@@ -78,6 +78,12 @@ for section in config.sections():
         exec( ' '.join([option, "=", config.get(section, option)]) )
     print 'done'
 
+if package=='doc':
+    html_additional_pages = {'index': 'index.html', 'openalea': 'openalea.html', 'vplants': 'vplants.html', 'alinea': 'alinea.html'}
+else:
+    html_additional_pages = {'index': 'index.html'}
+
+
 # create all the API documentation automatically (ref+src)
 # TODO: clean up this piece of code
 
