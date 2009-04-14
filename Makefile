@@ -35,4 +35,9 @@ latex:
 
 upload_sphinx: 
 	$(Executable) upload_sphinx -p $(Project) -d . 
-	
+
+test:
+	$(Executable) test -p $(Project) -d .
+
+doctest:	
+	$(Executable) doctest -p $(Project) -d .
