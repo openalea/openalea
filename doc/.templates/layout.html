@@ -2,22 +2,21 @@
 
 {% block rootrellink %}
 
-
-
 {# Switch to the main page #}
-{%- if project=="openalea.Projects" -%}
+{%- if project=="openalea.doc" -%}
+<li><a href="{{ pathto('index') }}"> Home </a> |&nbsp;</li>
+<li><a href="{{ pathto('contents') }}">{{project|title}} Documentation </a> &raquo;</li>
 
-<li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
-<li><a href="{{ pathto('openalea') }}">openalea Home </a> |&nbsp;</li>
-<li><a href="{{ pathto('contents') }}">Documentation </a> &raquo;</li>
 
-{# Switch to the subpages (for each package) #}
 {%- else -%}
-<li><a href="{{ pathto('index') }}">{{project|title}} Home </a> |&nbsp;</li>
-<li><a href="{{ pathto('contents') }}">Documentation</a> &raquo;</li>
+<li><a href="{{pathto("../../../../openalea/doc/build/html/index")}}"> Main Home</a> |&nbsp;</li>
+<li><a href="index.html"> {{ project.split('.')[0] }} Home </a> |&nbsp;</li>
+<li><a href="{{ pathto('contents') }}">{{project|title}} Documentation </a> &raquo;</li>
 {%- endif -%}
 
 {% endblock %}
+
+
 
 {% block relbar1 %}
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">

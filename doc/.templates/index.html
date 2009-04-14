@@ -1,19 +1,50 @@
 {% extends "layout.html" %}
 {% set title = 'Overview' %}
-{% set thisproject = 'OpenAlea' %}
+{% set thisproject = project.split('.')[0] %}
+{% set thispackage = project.split('.')[1] %}
 {% set wikiurl = 'http://openalea.gforge.inria.fr' %}
 {% set openalea = 'http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=openalea' %}
 {% block body %}
-<h1>Welcome</h1>
 
 
-<p>  This is the portal of <b>{{project|title}}</b>, a python package of <b>{{thisproject}}</b>. Here below, you can find a detailled description of the project for users and developpers. </p>
 
-<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
+{%- if thisproject=="openalea" and thispackage=='doc' -%}
+<h1>Welcome to Openalea, Vplants and Alinea documentation</h1>
+<p>  This is the portal of <b>OpenAlea documentation</b>, which is currently in progress. Here below, 
+you can find links to OpenAlea Projects, for users and developpers, as well as help on how to complete this documentation. </p>
+<p>More documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a></p>
+{%- endif -%}
+
+
+{%- if thisproject=="openalea" and thispackage!='doc' -%}
+<h1>Welcome to Openalea documentation</h1>
+
+<p>  This is the portal of <b>OpenAlea documentation</b>, which is currently in progress. Here below, 
+you can find links to OpenAlea Projects, for users and developpers, as well as help on how to complete this documentation. </p>
+<p>More documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a></p>
+{%- endif -%}
+
+{%- if thisproject=="vplants" -%}
+<h1>Welcome to Vplants documentation</h1>
+
+<p>  This is the portal of <b>{{thisproject|title}}</b>. Here below, 
+you can find a detailled description of the project for users and developpers. </p>
+<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More 
+documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
 </p>
+{%- endif -%}
+
+{%- if thisproject=="alinea" -%}
+<h1>Welcome to Alinea documentation</h1>
+
+<p>  This is the portal of <b>{{thisproject|title}}</b>. Here below, 
+you can find a detailled description of the project for users and developpers. </p>
+<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More 
+documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
+{%- endif -%}
 
 
-  <h2>Documentation {{project}}</h2>
+ <h2>Documentation {{project}}</h2>
 <table class="contentstable" align="center" style="margin-left: 30px"><tr>
 <td width="50%">
   <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Contents</a><br/>
@@ -28,45 +59,22 @@
 </td></tr>
   </table>
 
-<h2>Other packages in {{thisproject}}</h2>
-<table class="contentstable" align="center" style="margin-left: 30px"><tr>
-<td width="30%">
-  <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/core/html/contents.html">Core</a><br/>
-   <span class="linkdescr">documentation, api, tutorial</span></p>
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/deploy/html/contents.html">Deploy</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/deploygui/html/contents.html">DeployGui</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
-  </td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/misc/html/contents.html">Misc</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/stdlib/html/contents.html">Stdlib</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/sconsx/html/contents.html">Sconsx</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
-  </td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/visualea/html/contents.html">Visualea</a><br/>
-  <span class="linkdescr">documentation, api, tutorial</span></p>
-</td></tr>
-  </table>
+{%- if thisproject=="openalea" and thispackage!="doc" -%}
+{% include "openalea_packages.html" %}
+{%- endif -%}
 
-<h2>Other projects</h2>
-<table class="contentstable" align="center" style="margin-left: 30px"><tr>
-<td width="30%">
-  <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/general">OpenAlea</a><br/>
-   <span class="linkdescr">VPlants sphinx documentaiton main page</span></p>
-</td><td width="30%">
-  <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/vplants">VPlants</a><br/>
-   <span class="linkdescr">VPlants sphinx documentaiton main page</span></p>
-</td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{wikiurl}}/doc/sphinx/alinea">Alinea</a><br/>
-  <span class="linkdescr">Alinea sphinx documentation main page</span></p>
-</td></tr>
-  </table>
+{%- if thisproject=="vplants" -%}
+{% include "vplants_packages.html" %}
+{%- endif -%}
+
+<pre> {{ thisproject }} </pre>
+
+{%- if thisproject=="alinea" -%}
+{% include "alinea_packages.html" %}
+{%- endif -%}
 
 
-
-
+{% include "common_footer.html" %}
   
 {% endblock %}
 
