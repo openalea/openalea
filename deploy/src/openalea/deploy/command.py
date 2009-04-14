@@ -877,11 +877,11 @@ class sphinx_upload(Command):
         except:
             directory = self.package
          
-        cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
-            % (os.path.join('doc','html'), directory)
+        cmd1 = 'scp -r %s %s@scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
+            % (os.path.join('doc','html'), self.username, directory)
         os.system(cmd1)
-        cmd1 = 'scp -r %s scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
-            % (os.path.join('doc','latex'), directory)
+        cmd1 = 'scp -r %s %s@scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/sphinx/%s' \
+            % (os.path.join('doc','latex'), self.username, directory)
         os.system(cmd1)
 
         print "Logout..."
