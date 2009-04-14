@@ -41,6 +41,7 @@ class Commands():
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
             'html': "--builder html",
             'latex': "--builder latex",
+            'sphinx_upload': "",
             }
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
@@ -65,50 +66,6 @@ class Commands():
             
         return  _dirs.split()
 
-    def upload_sphinx(self):
-        """Upload sphinx documentation and PDF file into the wiki
-        
-        """
-        
-        answer = raw_input(
-            """All packages documentation will be uploaded to the wiki. 
-Is this what you want ? (y/n)""")
-        if answer != 'y':
-            return
-        dirs = self._setdirs(self.project)
-        if self.project == 'openalea':
-            dirs.remove('openalea_meta')
-            
-        print dirs
-        for dir in dirs:
-            cwd = path(os.getcwd())
-            cmd = 'python ../../misc/src/openalea/misc/sphinx_tools.py --upload --package %s --project %s --force' % (dir, self.project)
-            print cmd
-        
-            print "--------------"
-            print "cd %s" % dir
-            os.chdir(dir)
-            print "cd doc"
-            os.chdir('doc')
-            print "cd latex"
-            os.chdir('latex')
-            print "make"
-            os.system('make')
-            print 'cd ..'
-            os.chdir('..')
-            
-            print "Executing %s" % cmd
-            print '\n'
-            
-            status = os.system(cmd)
-            
-            if status != 0:
-                print "Error during the execution of %s" % cmd
-                print "---- EXIT ----"
-                return
-    
-            os.chdir(cwd)
-        
 
     def run(self):
         """run the setup.py command
@@ -161,7 +118,14 @@ Is this what you want ? (y/n)""")
                     dist.removedirs()
             except:
                 pass
-    
+   
+        # 
+        if self.command == 'sphinx_upload':
+            if self.options.username:
+                cmd += ' -u %s' % self.options.username
+            if self.options.password:
+                cmd += ' -p %s' % self.options.password
+
         # setup for the undevelop command
         if self.command == 'undevelop':
             # if undevelop, we uninstall in the reversed order
@@ -210,6 +174,7 @@ def main():
     or %prog [options] html
     or %prog [options] latex
     or %prog [options] clean
+    or %prog [options] sphinx_upload
 """
 
     parser = OptionParser(usage=usage)
@@ -223,10 +188,15 @@ def main():
     parser.add_option( "-i", "--install-dir", dest="install_dir",
                        help="Directory where to install librairies",
                        default=None)
+    parser.add_option( "-u", "--username", help="gforge username",
+                       default=None)
+    parser.add_option( "-w", "--password", help="gforge password",
+                       default=None)
+
 
     
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'upload_sphinx']
+    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload']
     available_project = ['openalea', 'vplants', 'alinea']
 
     try:
@@ -237,22 +207,17 @@ def main():
         return
 
     if (len(args) < 1 or args[0] not in available_mode):
-        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html or latex")
+        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload")
     if (options.project not in available_project):
         parser.error("Incomplete command : project must be either alinea, openalea or vplants")
 
     mode = args[0]
 
     commands = Commands(options.project, mode, options.directory, options)
-    
-    if mode == 'upload_sphinx':
-        commands.upload_sphinx()
-    else:
-        commands.run()
-    
 
-
-
+    print options.username
+ 
+    commands.run() 
 
 if(__name__ == "__main__"):
     main()

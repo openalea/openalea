@@ -1136,11 +1136,19 @@ def init():
             
         if 'project' in config.options(section):
             project = config.get(section, 'project')
+        else:
+            print 'Consider adding project option in the sphinx.ini file'
+            sys.exit()
         if 'package' in config.options(section):
             package = config.get(section, 'package')
+        else:
+            print 'Consider adding package option in the sphinx.ini file'
+            sys.exit()
     
         optss.project = project
         optss.package = package
+        
+        
         
         
     optss.project = check_project_name(optss.project)
