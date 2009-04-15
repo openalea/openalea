@@ -2,50 +2,44 @@ Developer Guidelines
 ####################
 
 
-bookeeping for the releases
-===========================
-
-* When committing significant changes or fix bug, please update the Changelog.txt of the package(s) concerned.
-
+.. note:: When committing significant changes or fix bug, please update the Changelog.txt of the package(s) concerned.
 
 Use spaces instead of tabs
 ==========================
 
 tabs drawbacks
 --------------
-  * people mix tabs and spacse
+  * people mix tabs and spaces without knowing it or taking care of it.
   * people may use tabs for spaces (e.g., in strings)
 
 tabs advantages
 ---------------
-  * avoid to type a lot of spaces BUT most of the editors have options to replaces the effect of pressing the tab key by the relevant number of spaces
-  * people can dynamically change the indentation
+  * avoid to type a lot of spaces BUT most of the editors have options to replace the effect of pressing the tab key by the relevant number of spaces.
+  * people can dynamically change the indentation.
 
 Sphinx documentation
 ====================
 
-html
-----
-Generally speaking, go to the package directory and type::
+If you read the previous page, you probably know by now that how to generate the HTML documentation::
 
-    python setup.py build_sphinx #doctest: +SKIP
+    python setup.py build_sphinx 
 
-latex
------
-
-Add an option::
+In fact you could have typed::
     
-    python setup.py build_sphinx --builders latex  #doctest: +SKIP
+    python setup.py build_sphinx -b html 
 
+Similarly, you can replace the builder (here, html) by *latex*::
 
-test
-----
+    python setup.py build_sphinx --builder latex  
 
-You can include small test in your docstring must they should be validated using::
-    
-    python setup.py build_sphinx --builders doctest  #doctest: +SKIP
+or *doctest* ::
 
-To be able to parse the examples/test in your docstrings use the following syntax::
+    python setup.py build_sphinx --builders doctest  
+
+doctest
+=======
+
+To be able to parse the examples/test in your docstrings use the following syntax:
 
 .. doctest::
 
@@ -60,6 +54,6 @@ To be able to parse the examples/test in your docstrings use the following synta
 Follow those rules:
 
   * If you have normal text, use '>>>' and a space.
-  * If ithere is an indentation, you should use the '...'  and a space
+  * If there is an indentation, you should use the '...'  and a space
   * If a statement returns text on the standard output, it should be there as well and should be exactly what is expected. 
   * You cannot always foreseen the expected output (for instance id of a function), then add the ``#doctest: +SKIP`` string after the statement you do not want to test.

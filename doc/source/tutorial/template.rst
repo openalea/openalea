@@ -10,8 +10,7 @@ template
 The :mod:`template` module is aimed at illustrating the usage of 
 docstring to create nice and useful documentation of your code.
 
-.. seealso:: `rst_tutorial` and `sphinx_tutorial` 
-
+.. warning :: make sure your modules are inside your PYTHONPATH otherwise Sphinx is not able to parse them.
 
 .. note:: All reST files that are contained within those pages can be 
    visualized by clicking the link1_ link in the sidebar.

@@ -1,46 +1,6 @@
-Material to generate the sphinx documentation
-=============================================
 
-Building the documentation
-==========================
 
-You need to make sure that the directories containing te python files are
-included within your PYTHONPATH. Concerning the OpenAlea packages, if you did
 
->>> python setup.py install 
-
-or used the **ez_alea_setup**, you should not do anything more. However, to
-include the examples in ./doc/source/tutorial/, you'll need to do
-
->>> export PYTHONPATH=$PYTHONPATH:$OPENALEA/doc/source/tutorial
-
-Then, start the compilation of the HTML documentation:
-
->>> make html
-
-This command will search for a Makefile, and build the HTML directory in ./build/html.
-
-It will look inside the 'source' directory for any configuration file.
-
-.. note:: if you wnat to compile a package on its own, go to irs directory and
-type 'python setup.py build_sphinx' instead of 'make install'
- 
-
-.static directory
-=================
-
-the sphinx extension inheritance-diagram search for a .static directory either
-in the current directory (where the Makefile is run) or the doc/ directory, which does not exists. This is why the .static exists. We put the CSS and common images inside this directory. 
-
-source directory 
-----------------
-
-Contains:
- - the configuraton file 'conf.py'
- - the modules sources (1 directory for 1 modules)
- - static files (css and images)
- - ini file (metadata information such as the version)
- - a rst file that will be the main page
 
 sphinxext directory
 -------------------

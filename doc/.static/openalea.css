@@ -95,8 +95,26 @@ width:90%;
 }
 
 h2 {
-background-color: #FFDEAD;
+background-color:#FFDEAD;
+border:2px solid #FFCC00;
+margin-bottom:0;
+margin-left:20%;
+margin-right:20%;
+padding:4px;
+text-align:center;
 }
+
+h3 {
+background-color: #FFDEAD;
+border:1px solid black;
+margin-right:20%;
+padding:2px;
+}
+
+h4 {
+background-color: #FFDEAD;
+margin-right:20%;
+padding:2px;
 
 /* to wrap the python code*/
 

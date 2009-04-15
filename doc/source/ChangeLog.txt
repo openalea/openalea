@@ -1,0 +1,8 @@
+
+Add sphinx documentation:
+	+ common_conf.py
+	+ common.ini to be used by all packages (similar to the original conf.py file used by Sphinx
+	+ add the .templates directory that contains all the HTML templates (original from Sphinx, refactored in addition to a set of own templates)
+
+0.6.2 release
+-------------

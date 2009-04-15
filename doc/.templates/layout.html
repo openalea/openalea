@@ -5,7 +5,7 @@
 {# Switch to the main page #}
 {%- if project=="openalea.doc" -%}
 <li><a href="{{ pathto('index') }}"> Home </a> |&nbsp;</li>
-<li><a href="{{ pathto('contents') }}">{{project|title}} Documentation </a> &raquo;</li>
+<li><a href="{{ pathto('contents') }}">{{project.split('.')[0]|title}} Documentation </a> &raquo;</li>
 
 
 {%- else -%}
@@ -23,6 +23,8 @@
 </div>
 {{ super() }}
 {% endblock %}
+
+
 
 <img src="{{ pathto("_static/wiki_logo_openalea.png", 1) }}" alt="Openalea logo" />_
 {# put the sidebar before the body #}

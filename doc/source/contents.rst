@@ -1,118 +1,115 @@
-.. openalea documentation master file, created by sphinx-quickstart on Tue Dec  2 10:18:07 2008.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 #################################
 Welcome to OpenAlea documentation
 #################################
 
 .. module:: main
+    :synopsis: how to manage the sphinx documentation in OpenAlea and related projects
 
-:Version: |version| 
-:Date: |today|
+.. sidebar:: Summary
 
-.. include:: ../README.txt
+    :Version: |version|
+    :Release: |release|
+    :Date: |today|
+    :Author: See `Authors`_ section
+    :ChangeLog: See `ChangeLog`_ section
 
-|text1|  
+.. topic:: Overview
 
+    * Commands to create sphinx documentation `Compiling the documentation`_
+    * How to put a new package under Sphinx `How to initialise a new package`_
+    * Explains how the sphinx documentation works `Sphinx and reST syntax`_
+    * how to `Upload the documentation`_ of a package on thr gforge
 
-|text2|
+Introduction
+============
 
+We have decided to use Sphinx to document the entire OpenAlea project. The proposal that justifies this choice is available on our WIKI `Sphinx proposal <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=documentation:doctests:sphinx_proposal>`_.
 
-OpenAlea_ documentation
-======================= 
-
-
-
-+---------------------------+---------------------------+--------------------+
-|         OPENALEA          |        VPLANTS            |      CARIBU        |
-+---------------------------+---------------------------+--------------------+
-
-
-.. | |openalea|                | |vplants|                 |    |caribu|        |
-
-.. |vplants| image:: images/vplants.png
-    :target: http://www-sop.inria.fr/virtualplants/wiki/doku.php
-    :width: 100%
-    :height: 200px
-    :alt: project vplants
+Using Sphinx is not as straightforward as using a tool such as Epydoc but brings a much more flexible and powerful tool that allows us to combine Reference guide, user guide and tutorials all together. 
+ 
+Here below we hope that you will find some helps to start with Sphinx. 
 
 
-.. |caribu| image:: images/caribu.jpeg
-    :target: http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:ecophysio:caribu:caribu
-    :width: 100%
-    :height: 200px
+Compiling the documentation
+===========================
 
+If you are working on a package that has already been setup and if you want to compile the documentation yourself (e.g., you want to update it), then simply go the root directory of the package and type::
+    
+    python setup.py build_sphinx
 
-.. |openalea| image:: images/openalea.png
-    :target: http://openalea.gforge.inria.fr/dokuwiki/doku.php
-    :width: 100%
-    :height: 200px
+The HTML outputs should be ready in **./doc/html**.
 
+.. note:: Exception: if you are in **openalea/doc**, which is not a package, just type **make html**.
 
+How to initialise a new package
+===============================
 
-:class:`openalea.core.actor.IActor`
+In principle the administrator should initialise the sphinx documentation once for all when the developers decide to release their package.
 
-:mod:`deploy`
-:mod:`deploygui`
-:mod:`sconsx`
-:mod:`stdlib`
-:mod:`visualea`
-:mod:`misc`
-:mod:`core`
+Therefore, the following link is intended at administrators. However, it could be interesting for developers who are willing to help.
+
 
 .. toctree::
     :maxdepth: 1
 
-
-..    core/reference_index
-    stdlib/reference_index
-    sconsx/reference_index
-    deploy/reference_index
-    deploygui/reference_index
-    misc/reference_index
-    visualea/reference_index
-
-..    stdlib/reference_index
-    sconsx/reference_index
+    howto_init_package.rst
 
 
-About this documentation
-========================    
+Upload the documentation
+========================
+
+If the build is successful and if you have an SSH key on the GForge, you may even upload the documentation to the wiki::
+
+    python setup.py sphinx_upload   
+
+
+Sphinx and reST syntax
+======================
+
+It's time to start writting documentation. Well, with Sphinx you will need to learn a new language, that is called **reST** for **restructuredText**. No worries, it is quite simple and you will get plenty of examples. Indeed, all those pages contains a link to the source code (see in the right sidebar), so it will be a good starting point. 
+
+If you want to know more, we wrote a couple of tutorial to help you with **rest** syntax and Sphinx, which improves it and add new syntax on top of the original **reST** language.
+
 .. toctree::
-    :maxdepth: 1    
-        
+    :maxdepth: 1
+
     tutorial/rst_tutorial
     tutorial/sphinx_tutorial
+
+Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
+
+Concerning the docstring, here below you can find links showing how to fill them. 
+
+.. toctree::
+    :maxdepth: 1
+
     Example, how to fill your docstrings<tutorial/template>
-    How to create template to your package documenation<tutorial/create_template>
+
+Extra information
+=================
+
+Here below, you will find some extra information related to Sphinx (e.g., all the possible commands) and more generally, information related to docstrings and code conventions.
+
+.. toctree::
+    :maxdepth: 2
+
     developer.rst
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
 .. _visualea: ../visualea.html
 
-.. |longtext| replace:: this is a longish text to include within a table and 
-    which is longer than the width of the column.
-    
-.. |image1| image:: images/openalea_general.png
-   :height: 250pt
-   :width: 100%
-   :scale: 100
-   :alt: alternate text
 
-.. Screenshot of :ref:`visualea<visualea>`, the GUI interface of Openalea_
-    
-    
-.. |text1| replace:: OpenAlea_ is an open source project primarily aimed at
-    the plant research community, with a particular focus on Plant 
-    Architecture Modeling at different scales. It is a distributed 
-    collaborative effort to develop Python libraries and tools which
-    address the needs of current and future work in Plant Architecture
-    modeling. OpenAlea includes modules to represent, analyse, and
-    model the functioning and growth of plant architecture.
-    
-.. |text2| replace:: OpenAlea_ is developed concurrently on both 
-   Windows and Linux. The source code is available under a free and libre 
-   license. If you are interested in OpenAlea and would like to help it 
-   grow, please join in the process. 
+
+Authors
+=======
+
+This documentation was written by 
+
+.. include:: AUTHORS.txt
+
+ChangeLog
+=========
+
+.. include:: ChangeLog.txt
+
