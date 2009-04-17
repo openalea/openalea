@@ -52,3 +52,34 @@ how to use OpenAlea.Visualea see :ref:`visualea_user`.
     openalea_visualea_visualea_script_ref.rst
     openalea_visualea_visualeagui_ref.rst
     openalea_visualea_postinstall_ref.rst
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+            
+    openalea_visualea_annotation_src.rst
+    openalea_visualea_code_editor_src.rst
+    openalea_visualea_compositenode_widget_src.rst
+    openalea_visualea_dialogs_src.rst
+    openalea_visualea_gui_catalog_src.rst
+    openalea_visualea_images_rc_src.rst
+    openalea_visualea_mainwindow_src.rst
+    openalea_visualea_metainfo_src.rst
+    openalea_visualea_node_treeview_src.rst
+    openalea_visualea_node_widget_src.rst
+    openalea_visualea_scishell_src.rst
+    openalea_visualea_shell_src.rst
+    openalea_visualea_ui_ioconfig_src.rst
+    openalea_visualea_ui_listedit_src.rst
+    openalea_visualea_ui_mainwindow_src.rst
+    openalea_visualea_ui_newdata_src.rst
+    openalea_visualea_ui_newgraph_src.rst
+    openalea_visualea_ui_newpackage_src.rst
+    openalea_visualea_ui_nodechooser_src.rst
+    openalea_visualea_ui_preferences_src.rst
+    openalea_visualea_ui_tableedit_src.rst
+    openalea_visualea_ui_tofactory_src.rst
+    openalea_visualea_util_src.rst
+    openalea_visualea_visualea_script_src.rst
+    openalea_visualea_visualeagui_src.rst
+    openalea_visualea_postinstall_src.rst
