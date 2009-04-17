@@ -56,3 +56,47 @@ OpenAlea.Core. See also the OpenAlea.Core User Guide :ref:`core_user`.
     openalea_core_threadmanager_ref.rst
     openalea_core_traitsui_ref.rst
     openalea_core_vlab_ref.rst
+
+
+.. to prevent warnings
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+            
+    openalea_core_actor_src.rst
+    openalea_core_alea_src.rst
+    openalea_core_algo_dataflow_copy_src.rst
+    openalea_core_algo_dataflow_evaluation_src.rst
+    openalea_core_category_src.rst
+    openalea_core_cli_src.rst
+    openalea_core_compositenode_src.rst
+    openalea_core_data_src.rst
+    openalea_core_dataflow_src.rst
+    openalea_core_datapool_src.rst
+    openalea_core_export_app_src.rst
+    openalea_core_graph_graph_src.rst
+    openalea_core_graph_id_generator_src.rst
+    openalea_core_graph_interface_graph_src.rst
+    openalea_core_graph_interface_graphconcept_src.rst
+    openalea_core_graph_interface_latticeconcept_src.rst
+    openalea_core_graph_interface_port_graph_src.rst
+    openalea_core_graph_interface_property_graph_src.rst
+    openalea_core_graph_interface_treeconcept_src.rst
+    openalea_core_graph_property_graph_src.rst
+    openalea_core_interface_src.rst
+    openalea_core_metaclass_src.rst
+    openalea_core_node_src.rst
+    openalea_core_observer_src.rst
+    openalea_core_package_src.rst
+    openalea_core_path_src.rst
+    openalea_core_pkgdict_src.rst
+    openalea_core_pkgmanager_src.rst
+    openalea_core_session_src.rst
+    openalea_core_settings_src.rst
+    openalea_core_signature_src.rst
+    openalea_core_singleton_src.rst
+    openalea_core_system_systemnodes_src.rst
+    openalea_core_threadmanager_src.rst
+    openalea_core_traitsui_src.rst
+    openalea_core_vlab_src.rst
