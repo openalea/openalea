@@ -32,3 +32,15 @@ how to use OpenAlea.Deploygui see :ref:`deploygui_user`.
     openalea_deploygui_fake_pkg_generation_ref.rst
     openalea_deploygui_images_rc_ref.rst
     openalea_deploygui_ui_mainwindow_ref.rst
+
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+            
+    openalea_deploygui_postinstall_src.rst
+    openalea_deploygui_alea_install_gui_src.rst
+    openalea_deploygui_auth_src.rst
+    openalea_deploygui_fake_pkg_generation_src.rst
+    openalea_deploygui_images_rc_src.rst
+    openalea_deploygui_ui_mainwindow_src.rst
