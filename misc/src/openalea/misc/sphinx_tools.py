@@ -105,7 +105,7 @@ Reference
 Source
 ******
 
-Go to the source file :ref:`source_%(module)s`
+Show :ref:`source_%(module)s`
 
 """
 
