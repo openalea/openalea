@@ -56,6 +56,8 @@ how to use %(Project)s.%(Package)s see :ref:`%(package)s_%(link)s`.
 
 template_source = \
 """
+.. _source_%(module)s:
+
 %(underline)s
 
 .. htmlonly::
@@ -83,12 +85,10 @@ template_reference = \
 :Revision: %(revision)s
 :License: %(license)s
 
-.. note:: The source file is available here below
-    
-.. toctree::
-    :maxdepth: 0
+.. .. toctree::
+..    :maxdepth: 0
        
-    %(import_name_underscored)s_src.rst
+..    %(import_name_underscored)s_src.rst
 
 
 Reference
@@ -101,6 +101,12 @@ Reference
     :undoc-members:%(inheritance)s
     :show-inheritance:
     :synopsis: %(synopsis)s     
+
+Source
+******
+
+Go to the source file :ref:`source_%(module)s`
+
 """
 
 template_contents = \
@@ -711,6 +717,7 @@ class reST():
     def _create_text_source(self):
         """todo"""       
         _params = {
+              "module": self.module, 
               "title": self.title, 
               "underline": Tools.underline("Source file", '#'),                  
               "fullpathname": self.fullname,
@@ -791,11 +798,13 @@ def upload_sphinx(package, force=False):
     # html directory.
     
 def check_project_name(project):
-    """Check that the project name is correct and returns the appropriate 
-    capitalisation. Correct names are openalea, vplants, alinea
+    """Check that the project name is correct.
+
+    This function also  returns the project name with the correct
+    capitalisation. Input names are openalea, vplants or alinea
     
     :param project: the name of a project to be checked
-    :returns : None if the project name is wrong or the capitalised project name
+    :returns: None if the project name is wrong or the capitalised project name
     """
     if project.lower() == 'openalea':
         project = 'OpenAlea'
