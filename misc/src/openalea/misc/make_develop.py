@@ -39,9 +39,10 @@ class Commands():
             'develop':  '',
             'install':  '',
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
-            'html': "--builder html",
-            'latex': "--builder latex",
+            'html': "--builder html -E",
+            'latex': "--builder latex -E",
             'sphinx_upload': "",
+            'pdf': ""
             }
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
@@ -49,23 +50,64 @@ class Commands():
         self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc"""
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
-                        
+        
+        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc"""                
+        self.vplants_sphinx_dirs="""PlantGL stat_tool"""                
+        self.alinea_sphinx_dirs="""PlantGL stat_tool"""                
+
         self.project = project 
         self.command = command
         self.directory = directory
         self.options = options
 
     def _setdirs(self, project): 
-        """ returns a list of directories"""
-        if project == 'openalea':
-            _dirs = self.oa_dirs
-        elif project == 'vplants':
-            _dirs = self.vp_dirs
-        elif project == 'alinea':
-            _dirs = self.alinea_dirs        
+        """ returns a list of directories
+
+        if the command is pdf, or latex or html or sphinx_upload, then the request
+        is about Sphinx documentaion. since the directories that can be processed are
+        different from those related to compilation and release, we have a switch to different
+        list of packages.
+        """
+        if self.command in ['latex', 'html', 'pdf', 'sphinx_upload']:
+            if project == 'openalea':
+                _dirs = self.openalea_sphinx_dirs
+            elif project == 'vplants':
+                _dirs = self.vplants_sphinx_dirs
+            elif project == 'alinea':
+                _dirs = self.alinea_sphinx_dirs        
+        else:
+            if project == 'openalea':
+                _dirs = self.oa_dirs
+            elif project == 'vplants':
+                _dirs = self.vp_dirs
+            elif project == 'alinea':
+                _dirs = self.alinea_dirs        
             
         return  _dirs.split()
 
+    def recursive_call(self, cmd, dirs, root_dir, cwd,doc=False ):
+        """run a command though the different directories """
+
+        print dirs
+        for dir in dirs:
+            if doc:
+                dir = os.path.join(dir, 'doc')
+                dir = os.path.join(dir, 'latex')
+            print "--------------"
+            print "cd %s" % dir
+            print "Executing %s" % cmd
+            print '\n'
+
+            dir = root_dir/dir
+            os.chdir(dir)
+    
+            status = os.system(cmd)
+            if status != 0:
+                print "Error during the execution of %s" % cmd
+                print "---- EXIT ----"
+                return
+    
+            os.chdir(cwd)
 
     def run(self):
         """run the setup.py command
@@ -83,6 +125,7 @@ class Commands():
         """
 
         command = self.command
+
         if command=='undevelop':
             command = 'develop'
         directory = self.directory
@@ -93,16 +136,8 @@ class Commands():
 
         # for the documentation, we skip some directories
         if self.command == 'html':
-            if self.project == 'openalea' : 
-                dirs.remove('openalea_meta')
-            if self.project == 'vplants' : 
-                dirs.remove('vplants_meta')
             cmd = cmd.replace('html', 'build_sphinx', 1)
         elif self.command == 'latex':
-            if self.project == 'openalea' : 
-                dirs.remove('openalea_meta')
-            if self.project == 'vplants': 
-                dirs.remove('vplants_meta')
             cmd = cmd.replace('latex', 'build_sphinx' ,1)
 
         # if the options exists, we complete the command
@@ -124,7 +159,7 @@ class Commands():
             if self.options.username:
                 cmd += ' -u %s' % self.options.username
             if self.options.password:
-                cmd += ' -p %s' % self.options.password
+                cmd += ' -p %s' % 'XXX'
 
         # setup for the undevelop command
         if self.command == 'undevelop':
@@ -137,6 +172,11 @@ class Commands():
     
         root_dir = path(directory)
         dirs_under_root = root_dir.dirs()
+        
+        if self.command == 'pdf':
+            cmd = 'make'
+            self.recursive_call(cmd, dirs, root_dir, cwd,doc=True)
+            return
 
         # check if the dirs are under the given directory.
         for dir in dirs:
@@ -146,22 +186,8 @@ class Commands():
                 print "---- EXIT ----"
                 return
 
-        for dir in dirs:
-            print "--------------"
-            print "cd %s" % dir
-            print "Executing %s" % cmd
-            print '\n'
-
-            dir = root_dir/dir
-            os.chdir(dir)
-    
-            status = os.system(cmd)
-            if status != 0:
-                print "Error during the execution of %s" % cmd
-                print "---- EXIT ----"
-                return
-    
-            os.chdir(cwd)
+        # finally, call the command in each directory
+        self.recursive_call(cmd, dirs, root_dir,cwd)
 
 def main():
     """ Define command line and parse options. """
@@ -175,6 +201,7 @@ def main():
     or %prog [options] latex
     or %prog [options] clean
     or %prog [options] sphinx_upload
+    or %prog [options] pdf
 """
 
     parser = OptionParser(usage=usage)
@@ -196,9 +223,10 @@ def main():
 
     
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload']
+    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload', 'pdf']
     available_project = ['openalea', 'vplants', 'alinea']
 
+    
     try:
         (options, args)= parser.parse_args()
     except Exception,e:
@@ -207,16 +235,22 @@ def main():
         return
 
     if (len(args) < 1 or args[0] not in available_mode):
-        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload")
+        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload", "pdf")
     if (options.project not in available_project):
         parser.error("Incomplete command : project must be either alinea, openalea or vplants")
 
     mode = args[0]
 
+    if mode=='sphinx_upload':
+        print 'Uploading sphinx documentation on the gforge'
+        print 'Requires username and password'
+        if not options.username:
+            options.username = raw_input('login:')
+        if not options.password:
+            options.password = raw_input('password:')
+    
+    
     commands = Commands(options.project, mode, options.directory, options)
-
-    print options.username
- 
     commands.run() 
 
 if(__name__ == "__main__"):

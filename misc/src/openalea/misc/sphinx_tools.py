@@ -871,6 +871,11 @@ def ParseParameters(check=True):
         action="store_true",
         default=False,
         help="generate the content file")
+    
+    parser.add_option("-N", "--no-interaction",  metavar='NOINTERACTION',
+        action="store_true",
+        default=False,
+        help="no interaction. assuming that reference guide was not generated.")  
       
     parser.add_option("-c", "--configuration",  metavar='CONFIGURATION',
         action="store_true",
@@ -939,13 +944,17 @@ def main(opts):
     else:
         print '...Will not override conf.py'
     text = None
-    while text!='y' and text!='n':
-        text = raw_input('carry on ? (y/n)')
-        if text=='n':
-            print 'stopped'
-            sys.exit()
-        elif text=='y':
-            print 'Continue'
+
+    if opts.no_interaction:
+        pass
+    else:
+        while text!='y' and text!='n':
+            text = raw_input('carry on ? (y/n)')
+            if text=='n':
+                print 'stopped'
+                sys.exit()
+            elif text=='y':
+                print 'Continue'
         
     
     # set some metadata and check arguments
