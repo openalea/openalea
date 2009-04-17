@@ -67,3 +67,50 @@ how to use OpenAlea.Stdlib see :ref:`stdlib_user`.
     openalea_system_systemnodes_ref.rst
     openalea_system_ui_vprint_ref.rst
     openalea_system_vprint_ref.rst
+
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+            
+    openalea_color_colormap_src.rst
+    openalea_color_py_color_src.rst
+    openalea_csv_csv_src.rst
+    openalea_data_array_arrays_src.rst
+    openalea_data_data_src.rst
+    openalea_data_dict_dicts_src.rst
+    openalea_data_list_lists_src.rst
+    openalea_data_set_sets_src.rst
+    openalea_data_tuple_tuples_src.rst
+    openalea_file_files_src.rst
+    openalea_functional_functional_src.rst
+    openalea_image_basics_basics_src.rst
+    openalea_image_basics_view_src.rst
+    openalea_image_basics_widgets_src.rst
+    openalea_image_data_algo_src.rst
+    openalea_image_data_image_src.rst
+    openalea_image_geometry_geom_transfo_src.rst
+    openalea_image_image_morpho_src.rst
+    openalea_image_images_src.rst
+    openalea_image_infos_data_access_src.rst
+    openalea_image_interface_src.rst
+    openalea_image_lookup_table_src.rst
+    openalea_image_raster_src.rst
+    openalea_image_svg_svg_inout_src.rst
+    openalea_image_transformations_image_transfo_src.rst
+    openalea_math_maths_src.rst
+    openalea_model_models_src.rst
+    openalea_pickling_pickling_src.rst
+    openalea_plotools_plotable_src.rst
+    openalea_python_python_src.rst
+    openalea_spatial_distribGen_src.rst
+    openalea_stand_stand_modelling_src.rst
+    openalea_stat_descriptive_descriptive_src.rst
+    openalea_stat_distribution_distribution_src.rst
+    openalea_stat_file_file_src.rst
+    openalea_stat_graphics_graphics_src.rst
+    openalea_stat_regression_regression_src.rst
+    openalea_string_strings_src.rst
+    openalea_system_systemnodes_src.rst
+    openalea_system_ui_vprint_src.rst
+    openalea_system_vprint_src.rst

@@ -2,8 +2,9 @@
 
 Update all the shared libraries in the openalea global share lib directory.
 Try to update environment variable by:
- - changing PATH value from the registry in Windows
- - Create a new file in /etc/profile.d or .bashrc.
+
+    - changing PATH value from the registry in Windows
+    - Create a new file in /etc/profile.d or .bashrc.
 
 The global shared dir can be set by this command.
 """
@@ -20,7 +21,7 @@ from optparse import OptionParser
 
 
 def main():
-    """ todo """
+    """todo"""
 
     # options
     parser = OptionParser()

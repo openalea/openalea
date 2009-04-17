@@ -36,3 +36,19 @@ how to use OpenAlea.Deploy see :ref:`deploy_user`.
     openalea_deploy_install_lib_ref.rst
     openalea_deploy_shortcut_ref.rst
     openalea_deploy_util_ref.rst
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+        
+    openalea_deploy_alea_config_src.rst
+    openalea_deploy_alea_install_src.rst
+    openalea_deploy_alea_update_src.rst
+    openalea_deploy_binary_deps_src.rst
+    openalea_deploy_command_src.rst
+    openalea_deploy_environ_var_src.rst
+    openalea_deploy_gforge_src.rst
+    openalea_deploy_gforge_util_src.rst
+    openalea_deploy_install_lib_src.rst
+    openalea_deploy_shortcut_src.rst
+    openalea_deploy_util_src.rst

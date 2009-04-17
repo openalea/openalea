@@ -24,8 +24,8 @@ from openalea.core import *
 def str_split(string_, char):
     """ Split a string
 
-    :param string_ : a string
-    :param char : a split character
+    :param string_: a string
+    :param char: a split character
     
     :returns: a split string
     """

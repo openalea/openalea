@@ -296,7 +296,7 @@ class Tools(object):
 
 
 class PostProcess():
-    """Provides functionalities to postprocess reST files generated with 
+    """Provides functionalities to post-process reST files generated with 
     sphinx_tools
         
     :param source: the filename of the source file
@@ -419,6 +419,7 @@ switch_automodule_to_aufunction""")
             self.backup()
             
     def remove_file(self):
+        """remove the file"""
         if self.verbose:
             print '...remove file ' +self.source
         os.remove(self.source)
@@ -431,6 +432,28 @@ switch_automodule_to_aufunction""")
 
     def update(self):
         self.text = open(self.source).read()
+        
+    def remove_options(self, option_name=None):
+        text2find = ':'+option_name+':'
+        try:
+            if self.verbose:
+                print '...remove option %s from ' % option_name + self.source
+            # open it to write the new file
+            output = open(self.source,'w')
+            # write the first part of the text before 'inheritance' bullet
+            text = self.text.split(inheritance_string)
+            output.write(text[0])
+            # then, skip the inheritance-diagram directive
+            for line in text[1].split('\n'):
+                if text2find in line:
+                    continue
+                else:
+                    output.write(line +'\n')
+            output.close()
+            self.update()
+        except:            
+            self.backup()
+
         
     def check_files(self):
         """check that a file exist

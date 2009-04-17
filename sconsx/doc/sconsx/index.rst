@@ -54,3 +54,37 @@ how to use OpenAlea.Sconsx see :ref:`sconsx_user`.
     openalea_sconsx_tools_readline_ref.rst
     openalea_sconsx_tools_termcap_ref.rst
     openalea_sconsx_yacc_ref.rst
+
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+            
+    openalea_sconsx_config_src.rst
+    openalea_sconsx_environ_src.rst
+    openalea_sconsx_lex_src.rst
+    openalea_sconsx_qt4_src.rst
+    openalea_sconsx_tools_alea_src.rst
+    openalea_sconsx_tools_bison_src.rst
+    openalea_sconsx_tools_boost_python_src.rst
+    openalea_sconsx_tools_builddir_src.rst
+    openalea_sconsx_tools_cgal_src.rst
+    openalea_sconsx_tools_compiler_src.rst
+    openalea_sconsx_tools_egglib_src.rst
+    openalea_sconsx_tools_flex_src.rst
+    openalea_sconsx_tools_gcc_src.rst
+    openalea_sconsx_tools_gmp_src.rst
+    openalea_sconsx_tools_gnuplot_src.rst
+    openalea_sconsx_tools_install_src.rst
+    openalea_sconsx_tools_mingw_src.rst
+    openalea_sconsx_tools_msvc_src.rst
+    openalea_sconsx_tools_multicpu_src.rst
+    openalea_sconsx_tools_opengl_src.rst
+    openalea_sconsx_tools_pthread_src.rst
+    openalea_sconsx_tools_python_src.rst
+    openalea_sconsx_tools_qhull_src.rst
+    openalea_sconsx_tools_qt_src.rst
+    openalea_sconsx_tools_qt4_src.rst
+    openalea_sconsx_tools_readline_src.rst
+    openalea_sconsx_tools_termcap_src.rst
+    openalea_sconsx_yacc_src.rst

@@ -528,6 +528,7 @@ class install(old_install):
 class alea_install(old_easy_install):
     """
     Overload old_easy_install to add
+    
     - Environment variable
     - Postinstall Scripts
     """
@@ -869,7 +870,7 @@ class sphinx_upload(Command):
         
         """
     def run(self):
-        """..todo:: fix this code so that gforge proxy and scp are not both used."""
+        """.. todo:: fix this code so that gforge proxy and scp are not both used."""
         print """
                 Warning: this option (sphinx_upload) will use the scp command to copy
                 the documentation on the gforge. Be sure to have the right to do so. 

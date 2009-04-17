@@ -17,21 +17,16 @@ switch the automodule to autofunction and remove all the fields below
 """
 import os
 import sys
-sys.path.append(os.path.abspath('../../misc'))
+#sys.path.append(os.path.abspath('../../misc'))
 from openalea.misc import sphinx_tools
 
 
 
-filenames = ['deploy/openalea_deploy_binary_deps_ref.rst']
-for file in filenames:
-    process = sphinx_tools.PostProcess(file)
-    process.switch_automodule_to_autofunction('binary_deps')
+filenames = ['stdlib/openalea_stat_regression_regression_ref.rst']
 
-filenames = ['deploy/openalea_deploy_command_ref.rst']
 for file in filenames:
     process = sphinx_tools.PostProcess(file)
-    process.remove_options('inherited-members')
-    process.remove_options('show-inheritance')
+    process.remove_inheritance()
 
 
 print 'Try python setup.py build_sphinx now.'
