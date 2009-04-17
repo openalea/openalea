@@ -51,9 +51,9 @@ class Commands():
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
-        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc"""                
-        self.vplants_sphinx_dirs="""PlantGL stat_tool"""                
-        self.alinea_sphinx_dirs="""PlantGL stat_tool"""                
+        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc openalea_meta""" 
+        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta sequence_analysis"""
+        self.alinea_sphinx_dirs="""caribu"""
 
         self.project = project 
         self.command = command

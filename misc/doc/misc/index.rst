@@ -32,3 +32,18 @@ how to use OpenAlea.Misc see :ref:`misc_user`.
     openalea_misc_path_ref.rst
     openalea_misc_sphinx_tools_ref.rst
     openalea_misc_upload_dist_ref.rst
+
+
+
+.. to prevent warnings
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+        
+    openalea_misc_download_src.rst
+    openalea_misc_gendoc_src.rst
+    openalea_misc_make_develop_src.rst
+    openalea_misc_openalea_distrib_src.rst
+    openalea_misc_path_src.rst
+    openalea_misc_sphinx_tools_src.rst
+    openalea_misc_upload_dist_src.rst
