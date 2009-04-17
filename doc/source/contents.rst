@@ -93,6 +93,7 @@ Here below, you will find some extra information related to Sphinx (e.g., all th
 .. toctree::
     :maxdepth: 2
 
+    administrator.rst
     developer.rst
   
 

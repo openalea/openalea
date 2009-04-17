@@ -9,6 +9,8 @@ import time
 import ConfigParser
 import warnings
 
+# to be cleaned. This prevents user interaction.
+no_interaction = True
 
 print "Reading configuration file conf.py"
 # Check that sphinx version is correct
@@ -78,12 +80,6 @@ for section in config.sections():
         exec( ' '.join([option, "=", config.get(section, option)]) )
     print 'done'
 
-if package=='doc':
-    html_additional_pages = {'index': 'index.html', 'openalea': 'openalea.html', 'vplants': 'vplants.html', 'alinea': 'alinea.html'}
-else:
-    html_additional_pages = {'index': 'index.html'}
-
-
 # create all the API documentation automatically (ref+src)
 # TODO: clean up this piece of code
 
@@ -105,8 +101,12 @@ if api:
         cmd += ' --contents '
     if 'sphinx_inheritance' in locals():
         cmd += ' --inheritance '
-    if 'sphinx_verbose' in locals():
-        cmd += ' --verbose '
+
+    if no_interaction:
+        cmd += ' --no-interaction '
+    else:
+        if 'sphinx_verbose' in locals():
+            cmd += ' --verbose '
 
     warnings.warn('API automatically generated. To avoid it, add api=false in the sphinx.ini file')
     try:

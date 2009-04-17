@@ -1,4 +1,8 @@
+To create the documentation, type:
 
+    make html
+    make latex
+    cd build
 
 
 
