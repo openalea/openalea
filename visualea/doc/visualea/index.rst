@@ -51,7 +51,6 @@ how to use OpenAlea.Visualea see :ref:`visualea_user`.
     openalea_visualea_util_ref.rst
     openalea_visualea_visualea_script_ref.rst
     openalea_visualea_visualeagui_ref.rst
-    openalea_visualea_postinstall_ref.rst
 
 .. toctree::
     :maxdepth: 1
@@ -82,4 +81,3 @@ how to use OpenAlea.Visualea see :ref:`visualea_user`.
     openalea_visualea_util_src.rst
     openalea_visualea_visualea_script_src.rst
     openalea_visualea_visualeagui_src.rst
-    openalea_visualea_postinstall_src.rst

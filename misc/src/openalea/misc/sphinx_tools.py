@@ -56,7 +56,7 @@ how to use %(Project)s.%(Package)s see :ref:`%(package)s_%(link)s`.
 
 template_source = \
 """
-.. _source_%(module)s:
+.. _source_%(import_name)s:
 
 %(underline)s
 
@@ -105,7 +105,7 @@ Reference
 Source
 ******
 
-Show :ref:`source_%(module)s`
+Show :ref:`source_%(import_name)s`
 
 """
 
@@ -740,7 +740,8 @@ class reST():
     def _create_text_source(self):
         """todo"""       
         _params = {
-              "module": self.module, 
+              "module": self.module,    
+              "import_name": self.import_name,
               "title": self.title, 
               "underline": Tools.underline("Source file", '#'),                  
               "fullpathname": self.fullname,
