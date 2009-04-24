@@ -604,8 +604,8 @@ class reST():
         
         openalea_packages = ['core', 'stdlib', 'deploy', 'deploygui', 
                              'misc', 'visualea', 'sconsx', 'PlantGL',
-                             'fractalysis','stat_tool', 'newmtg',
-                            'sequence_analysis','adel', 'caribu']
+                             'fractalysis','stat_tool', 'newmtg', 'tree_reduction',
+                            'sequence_analysis','adel', 'caribu', 'container']
         
         if self.opts.debug:
             print 'PACKAGE ::::::::::: ', self.package, self.fullname
@@ -631,7 +631,7 @@ class reST():
             if self.package in ['PlantGL', 'stat_tool', 
                                 'fractalysis', 'sequence_analysis']:
                 self.import_name = 'openalea' + _module
-            elif self.package == 'newmtg':
+            elif self.package in ['newmtg','tree_reduction','container'] :
                 self.import_name = 'openalea'+_module
                 if self.opts.debug:
                     print '_module', _module
