@@ -622,6 +622,7 @@ class reST():
                 
         _module = _module.replace('.py','') # has to be at the beginning
         _module = _module.replace('openalea'+os.sep, '.')
+        _module = _module.replace('vplants'+os.sep, '.')
         _module = _module.replace(os.sep, '.')
         _module = _module.replace('..', '.')
         
@@ -629,9 +630,9 @@ class reST():
             self.import_name = 'openalea' + _module
         elif self.project == 'VPlants':
             if self.package in ['PlantGL', 'stat_tool', 
-                                'fractalysis', 'sequence_analysis']:
-                self.import_name = 'openalea' + _module
-            elif self.package in ['newmtg','tree_reduction','container'] :
+                                'fractalysis', 'sequence_analysis','tree_reduction']:
+                self.import_name = 'vplants' + _module
+            elif self.package in ['newmtg','container'] :
                 self.import_name = 'openalea'+_module
                 if self.opts.debug:
                     print '_module', _module
@@ -640,7 +641,7 @@ class reST():
                 self.import_name = 'openalea.vplants' + _module
         elif self.project=='Alinea':
             if self.package in ['adel', 'caribu']:
-                self.import_name = 'openalea' + _module
+                self.import_name = 'alinea' + _module
                 
         else:
             raise SphinxToolsError(
