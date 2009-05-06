@@ -85,12 +85,6 @@ template_reference = \
 :Revision: %(revision)s
 :License: %(license)s
 
-.. .. toctree::
-..    :maxdepth: 0
-       
-..    %(import_name_underscored)s_src.rst
-
-
 Reference
 ********* 
 
@@ -106,6 +100,11 @@ Source
 ******
 
 Show :ref:`source_%(import_name)s`
+
+.. toctree::
+    :hidden:
+
+    
 
 """
 
@@ -604,22 +603,32 @@ class reST():
         
         openalea_packages = ['core', 'stdlib', 'deploy', 'deploygui', 
                              'misc', 'visualea', 'sconsx', 'PlantGL',
-                             'fractalysis','stat_tool', 'newmtg', 'tree_reduction',
+                             'fractalysis','stat_tool', 'newmtg', 'tree_reduction','tree_statistic'
                             'sequence_analysis','adel', 'caribu', 'container']
         
         if self.opts.debug:
             print 'PACKAGE ::::::::::: ', self.package, self.fullname
         if self.package in openalea_packages:
             try:
-                _module = self.fullname.split(self.package + os.sep+'src')[1]
+                _module = self.fullname.split(self.package + os.sep + 'src')[1]
             except:
                 if self.opts.debug:
                     print 'WARNING: exception caught. '
                     print 'WARNING: full name is %s and package is %s' % (self.fullname, self.package)
                 _module = self.fullname.split(self.package)[1]
         else:
-            _module = self.fullname.split(self.package + os.sep + 'src')[1]    
-                
+            try:
+                _module = self.fullname.split(self.package + os.sep + 'src')[1]    
+            except:
+                print self.fullname
+                print self.package
+                print self.package + os.sep + 'src'
+                try:
+                    _module = self.fullname.split('src')[1]
+                except:
+                    print 'Could not parse module name'
+    
+        print _module 
         _module = _module.replace('.py','') # has to be at the beginning
         _module = _module.replace('openalea'+os.sep, '.')
         _module = _module.replace('vplants'+os.sep, '.')
@@ -632,7 +641,7 @@ class reST():
             if self.package in ['PlantGL', 'stat_tool', 
                                 'fractalysis', 'sequence_analysis','tree_reduction']:
                 self.import_name = 'vplants' + _module
-            elif self.package in ['newmtg','container'] :
+            elif self.package in ['newmtg','container', 'tree_statistic'] :
                 self.import_name = 'openalea'+_module
                 if self.opts.debug:
                     print '_module', _module
@@ -762,7 +771,6 @@ class reST():
         # save the resulting string in a text
         _stem = self.import_name.replace('.', '_')                
         
-        #_output = open(self.path + os.sep + _stem + '_ref.rst' , "w")
         p = path(self.path) / _stem+'_ref.rst'
         _output = p.open(mode='w')
         
@@ -770,6 +778,14 @@ class reST():
             print  '...'+_stem + '_ref.rst'
         Tools.add_time(_output)
         _output.write(self.text_reference)
+        _output.write('.. toctree::\n')
+        _output.write('    :hidden:\n')
+        _output.write('\n')
+
+        _stem = self.import_name.replace('.', '_')
+        print _stem
+        _output.write('    ' +  _stem + '_src.rst' )
+
         _output.close()
         
     def write_source(self):
