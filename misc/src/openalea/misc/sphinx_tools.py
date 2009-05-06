@@ -1159,12 +1159,14 @@ def init():
         alea_init_script --index --contents
     
     """
-    if os.path.basename(os.getcwd())=='doc':
-        pass
-    else:
-        raise SphinxToolsError("must be in the doc directory of a package to use this program")
             
     (optss, _args) = ParseParameters(check=False)
+
+    if not os.path.basename(os.getcwd())=='doc':
+        if 'doc' in os.listdir('.'):
+            os.chdir('doc')
+        else:
+            raise SphinxToolsError("must be in the doc directory of a package to use this program")
     
     # providing the package name and project are optional. 
     if optss.project is None and optss.package is None:

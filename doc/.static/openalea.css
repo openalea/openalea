@@ -52,11 +52,11 @@ table-layout:auto;
 overflow-x:hidden;
 width:100%;
 border: 2px solid #888;
-background-color: #AFC1C4
+background-color: white;
 }
 
 div.highlight-python pre{
-background-color: #AFC1C4;
+background-color: white;
 border: 0px;
 }
 
