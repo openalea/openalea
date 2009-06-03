@@ -48,8 +48,9 @@ def main(args):
     app = QtGui.QApplication(args)
 
     # Check Version
-    version = int(QtCore.QT_VERSION_STR.replace('.', ''))
-    if(version < 420):
+    version = QtCore.QT_VERSION_STR
+    # QT_VERSION_STR implement __le__ operator
+    if(version < '4.2.0'):
 
         mess = QtGui.QMessageBox.warning(None, "Error",
                                          "Visualea need QT library >=4.2")
