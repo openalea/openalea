@@ -115,6 +115,10 @@ class PackageManager(object):
         self.user_category = PackageManagerCategory()
         
         # list of path to search wralea file related to the system
+        self.user_wralea_path = set()
+        self.sys_wralea_path = set()
+
+
         self.set_user_wralea_path()
         self.set_sys_wralea_path()
 
@@ -142,10 +146,13 @@ class PackageManager(object):
         """ return the list of wralea path (union of user and system)"""
 
         return list(self.sys_wralea_path.union(self.user_wralea_path))
-  
- 
+
+
     def set_user_wralea_path(self):
         """ Read user config """
+
+        if self.user_wralea_path:
+            return
 
         self.user_wralea_path = set()
         config = Settings()
@@ -180,6 +187,10 @@ class PackageManager(object):
         the module is not load
         """
         
+
+        if self.sys_wralea_path:
+            return 
+
         self.sys_wralea_path = set()
         self.deprecated_pkg = set()
 
@@ -264,6 +275,9 @@ class PackageManager(object):
         
     def clear(self):
         """ Remove all packages """
+
+        self.user_wralea_path = set()
+        self.sys_wralea_path = set()
 
         self.pkgs = PackageDict()
         self.recover_syspath()
