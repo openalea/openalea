@@ -235,7 +235,7 @@ def main():
         return
 
     if (len(args) < 1 or args[0] not in available_mode):
-        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload", "pdf")
+        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload pdf")
     if (options.project not in available_project):
         parser.error("Incomplete command : project must be either alinea, openalea or vplants")
 
