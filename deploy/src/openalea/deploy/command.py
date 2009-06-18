@@ -673,13 +673,15 @@ def set_env(dyn_lib=None):
     all_dirs = set(lib_dirs + bin_dirs)
     set_win_env(['OPENALEA_LIB=%s'%(';'.join(all_dirs)),
                  'PATH=%OPENALEA_LIB%', ])
-
+                 
     try:
-        set_lsb_env('openalea',
-                    ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
-                     'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
-                     'LD_LIBRARY_PATH=$OPENALEA_LIB',
-                     'PATH=$OPENALEA_BIN'])
+        vars = ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
+                'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
+                'LD_LIBRARY_PATH=$OPENALEA_LIB',
+                'PATH=$OPENALEA_BIN']
+        if 'darwin' in sys.platform :
+            vars.append('DYLD_LIBRARY_PATH=$OPENALEA_LIB')
+        set_lsb_env('openalea',vars)
     except:
         return
 

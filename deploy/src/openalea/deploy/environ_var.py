@@ -49,7 +49,7 @@ def set_lsb_env(name, vars):
            (value == "/usr/lib")):
             continue
 
-        if(((vname == "LD_LIBRARY_PATH") or (vname== "PATH")) and value):
+        if((("LD_LIBRARY_PATH" in vname) or (vname== "PATH")) and value):
             exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
             exportstr += '  export %s=%s\n'%(vname, value, )
             exportstr += 'else\n'
