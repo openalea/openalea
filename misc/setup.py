@@ -13,7 +13,7 @@ pj = os.path.join
 
 name = 'OpenAlea.Misc'
 namespace = 'misc'
-version='0.7.0'
+version='0.7.1'
 description = 'OpenAlea documentation.' 
 long_description = ''
 author = 'OpenAlea consortium'
@@ -42,6 +42,7 @@ setup(
     entry_points = {
         "console_scripts": [
                  "alea_init_sphinx = openalea.misc.sphinx_tools:init",
+                 "make_develop = openalea.misc.make_develop:main",
                  ],
     }
     )
