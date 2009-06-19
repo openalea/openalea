@@ -817,9 +817,9 @@ class sphinx_upload(Command):
          "url of repository [default: %s]" % GFORGE_REPOSITORY),
         ('username=', 'u', "user id"),
         ('password=', 'p', "user password"),
-        ('project=', None, ""),
-        ('package=', None, ""),
-        ('release=', None, ""),
+        ('project=', None, None),
+        ('package=', None, None),
+        ('release=', None,None),
 
         ]
 
@@ -827,16 +827,22 @@ class sphinx_upload(Command):
         self.username = None
         self.password = None
         self.repository = self.GFORGE_REPOSITORY
-        self.project = 'openalea'
-        self.package = ''
-        self.release = ''
+        self.project = None
+        self.package = None
+        self.release = None
         
    
 
     def finalize_options(self):
         if (not self.package):
             self.package = self.distribution.metadata.get_name()
-            self.project = self.package.split('.')[0].lower()
+            # if the project is not specified, we try to extract it from setup.py
+            # !! in some packages, the namespace is different from the prokect.
+            # For instance container is in vplants but has the openalea namespace
+            if (not self.project):
+                self.project = self.package.split('.')[0].lower()
+            if not self.project:
+                raise ValueError('project could not be determied. Try to provide it manually (openalea, vplants, alinea)')
 
         if (not self.release):
             version = self.distribution.metadata.version
@@ -848,8 +854,9 @@ class sphinx_upload(Command):
 
         if not self.username:
             self.username = raw_input('login:')
-        if not self.password:
-            self.password = raw_input('password:')
+        # to be used with gforge tools only. not with scp tht is currently used.
+        #if not self.password:
+        #    self.password = raw_input('password:')
 
 
 
@@ -896,15 +903,16 @@ class sphinx_upload(Command):
             except:
                 directory = self.package
 
-            cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/%s' \
+            cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/' \
                 % ( os.path.join('doc',output), 
                     self.username, 
                     self.DOMAIN, 
                     '/home/groups/openalea/htdocs/doc', 
                     self.project, 
-                    directory, output
+                    directory 
                     )
             try:
+                print cmd1
                 status = subprocess.call(cmd1 ,stdout=open('/tmp/test','w'),stderr=None, shell=True)
                 if status!=0:
                     print 'This command failed'
