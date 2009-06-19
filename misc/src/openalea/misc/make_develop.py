@@ -51,8 +51,8 @@ class Commands():
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
-        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc openalea_meta""" 
-        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta sequence_analysis"""
+        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc """ 
+        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg"""
         self.alinea_sphinx_dirs="""caribu"""
 
         self.project = project 
@@ -160,6 +160,8 @@ class Commands():
                 cmd += ' -u %s' % self.options.username
             if self.options.password:
                 cmd += ' -p %s' % 'XXX'
+            if self.options.project:
+                cmd += ' --project %s' % self.project
 
         # setup for the undevelop command
         if self.command == 'undevelop':
@@ -243,11 +245,11 @@ def main():
 
     if mode=='sphinx_upload':
         print 'Uploading sphinx documentation on the gforge'
-        print 'Requires username and password'
+        print 'Requires username and ssh key on the gforge'
         if not options.username:
             options.username = raw_input('login:')
-        if not options.password:
-            options.password = raw_input('password:')
+        #if not options.password:
+        #    options.password = raw_input('password:')
     
     
     commands = Commands(options.project, mode, options.directory, options)
