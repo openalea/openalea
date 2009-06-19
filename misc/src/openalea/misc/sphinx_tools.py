@@ -562,7 +562,7 @@ class reST():
     """
     
     def __init__(self, 
-                 fullname, package=None, project=None,
+                 fullname, package=None, project=None, namespace=None,
                  inheritance=None, opts=None):
         """
         .. todo:: to clean
@@ -570,6 +570,7 @@ class reST():
         self.fullname = fullname
         self.package = package
         self.project = project
+        self.namespace = namespace
         self.inheritance = inheritance
         self.opts = opts
         
@@ -604,7 +605,7 @@ class reST():
         openalea_packages = ['core', 'stdlib', 'deploy', 'deploygui', 
                              'misc', 'visualea', 'sconsx', 'PlantGL',
                              'fractalysis','stat_tool', 'newmtg', 'tree_reduction','tree_statistic'
-                            'sequence_analysis','adel', 'caribu', 'container']
+                            'sequence_analysis','adel', 'caribu', 'container', 'WeberPenn']
         
         if self.opts.debug:
             print 'PACKAGE ::::::::::: ', self.package, self.fullname
@@ -615,7 +616,10 @@ class reST():
                 if self.opts.debug:
                     print 'WARNING: exception caught. '
                     print 'WARNING: full name is %s and package is %s' % (self.fullname, self.package)
-                _module = self.fullname.split(self.package)[1]
+                try:
+                    _module = self.fullname.split(self.package)[1]
+                except:
+                    raise ValueError('module name not found. fullname is %s and package is %s' % (self.fullname, self.package))
         else:
             try:
                 _module = self.fullname.split(self.package + os.sep + 'src')[1]    
@@ -634,14 +638,20 @@ class reST():
         _module = _module.replace('vplants'+os.sep, '.')
         _module = _module.replace(os.sep, '.')
         _module = _module.replace('..', '.')
-        
-        if self.project == 'OpenAlea':
+       
+        print 'module',_module
+        print 'namespace',self.namespace
+
+        if self.namespace:
+            print 'inside namespace switch..........'
+            self.import_name = self.namespace + _module 
+        elif self.project == 'OpenAlea':
             self.import_name = 'openalea' + _module
         elif self.project == 'VPlants':
             if self.package in ['PlantGL', 'stat_tool', 
-                                'fractalysis', 'sequence_analysis','tree_reduction']:
+                                'tree_reduction']:
                 self.import_name = 'vplants' + _module
-            elif self.package in ['newmtg','container', 'tree_statistic'] :
+            elif self.package in ['fractalysis', 'lpy', 'newmtg','container', 'tree_statistic','sequence_analysis'] :
                 self.import_name = 'openalea'+_module
                 if self.opts.debug:
                     print '_module', _module
@@ -801,7 +811,7 @@ class reST():
         _output.close()
         
 
-def upload_sphinx(package, force=False):
+def _upload_sphinx(package, force=False):
     """
     Upload the relevant html documentation to the wiki. 
     should be replace by an option in the setuptools.
@@ -907,6 +917,10 @@ def ParseParameters(check=True):
         default=None,
         help="the project in which is contained the package <openalea, vplants, alinea>")
     
+    parser.add_option("-z", "--namespace",  metavar='NAMESPACE',
+        default=None,
+        help="the package namespace, which may be different from the project name but in the list of package name>")
+    
     parser.add_option("-u", "--upload",  metavar='UPLOAD',
         action="store_true",
         default=False,
@@ -960,8 +974,8 @@ def ParseParameters(check=True):
             parser.error("--project must be in ['openalea', 'vplants', 'alinea']")
         
         
-    if _opts.upload:
-        return _opts, _args
+#    if _opts.upload:
+#        return _opts, _args
 
     return _opts, _args
 
@@ -977,7 +991,7 @@ def main(opts):
         
     """
 
-    print """OpnAlea.Sphinx_Tools starting .................................."""
+    print """OpenAlea.Sphinx_Tools starting .................................."""
     print """...Starting initialisation of the files required by Sphinx"""
     if opts.index:
         print '...Will override user/index.rst and %s/index.rst' % opts.package
@@ -1061,6 +1075,7 @@ def main(opts):
         output = reST(module, 
                       package=opts.package, 
                       project=opts.project, 
+                      namespace=opts.namespace,
                       inheritance=opts.inheritance,
                       opts=opts)
         output.write_reference()
@@ -1101,8 +1116,9 @@ def main(opts):
         foutput_ref.write(template_index % params)
         for item in globber.files:   
             data = reST(item,
-                        opts.package, 
-                        opts.project,opts=opts)
+                        package=opts.package, 
+                        project=opts.project,
+                        namespace=opts.namespace, opts=opts)
             foutput_ref.write('    ' + data.import_name.replace('.', '_') 
                               +  '_ref.rst\n')
         foutput_ref.close()
@@ -1150,9 +1166,9 @@ if __name__ == '__main__':
     if not _opts.verbose:
         warnings.simplefilter("ignore")
     # if upload is requested, nothing else to do
-    if _opts.upload:
-        upload_sphinx(package=_opts.package, force=_opts.force_upload)
-        sys.exit()
+    #\if _opts.upload:
+    #    upload_sphinx(package=_opts.package, force=_opts.force_upload)
+    #    sys.exit()
         
     # otherwise, go to the main function
     main(_opts)
@@ -1185,29 +1201,34 @@ def init():
             raise SphinxToolsError("must be in the doc directory of a package to use this program")
     
     # providing the package name and project are optional. 
-    if optss.project is None and optss.package is None:
-        import ConfigParser
-        config = ConfigParser.RawConfigParser()
-        config.read('sphinx.ini')       # same dir as the conf.py's location
-        try:
-            section = 'metadata'
-            config.options(section)
-        except:
-            raise SphinxToolsError('sphinx.ini file needs to be present in the doc directory')
+    import ConfigParser
+    config = ConfigParser.RawConfigParser()
+    config.read('sphinx.ini')       # same dir as the conf.py's location
+    try:
+        section = 'metadata'
+        config.options(section)
+    except:
+        raise SphinxToolsError('sphinx.ini file needs to be present in the doc directory')
             
-        if 'project' in config.options(section):
-            project = config.get(section, 'project')
-        else:
-            print 'Consider adding project option in the sphinx.ini file'
-            sys.exit()
-        if 'package' in config.options(section):
-            package = config.get(section, 'package')
-        else:
-            print 'Consider adding package option in the sphinx.ini file'
-            sys.exit()
-    
+    if 'project' in config.options(section) and optss.project is None:
+        project = config.get(section, 'project')
         optss.project = project
+    else:
+        print 'Consider adding project option in the sphinx.ini file'
+        sys.exit()
+    
+    if 'package' in config.options(section) and optss.package is None:
+        package = config.get(section, 'package')
         optss.package = package
+    else:
+        print 'Consider adding package option in the sphinx.ini file'
+        sys.exit()
+    if 'namespace' in config.options(section):
+        namespace = config.get(section, 'namespace')
+        optss.namespace = namespace
+    else:
+        namespace = None
+    
         
         
         
