@@ -58,7 +58,7 @@ pdf:
 
 sphinx_upload: 
 	$(Executable) sphinx_upload -p $(Project) 
-	python ./doc/sphinx_upload.py -u cokelaer
+	#python ./doc/sphinx_upload.py -u cokelaer
 
 doc: html latex pdf	
 

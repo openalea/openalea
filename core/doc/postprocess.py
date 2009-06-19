@@ -18,8 +18,10 @@ filenames = [   'core/openalea_clonepkg_TestFact_src.rst',
                 'core/openalea_clonepkg_TestFact_ref.rst']
 
 for file in filenames:
-    process = sphinx_tools.PostProcess(file)
-    process.remove_file()
+    try:
+        process = sphinx_tools.PostProcess(file)
+        process.remove_file()
+    except:pass
 
 
 print 'Try python setup.py build_sphinx now.'
