@@ -44,7 +44,7 @@ try:
     Package = package.capitalize()
     version = version # just to check it exsits
     release = release # just to check it exists
-   
+       
 except NameError:
     """
 Please, provide the \'version\', \'release\', \'project\', 
@@ -101,7 +101,8 @@ if api:
         cmd += ' --contents '
     if 'sphinx_inheritance' in locals():
         cmd += ' --inheritance '
-
+    if 'namespace' in locals():
+        cmd+= ' --namespace %s' % namespace 
     if no_interaction:
         cmd += ' --no-interaction '
     else:
@@ -116,7 +117,6 @@ if api:
         print 'sphinx_tools call failed'
         print cmd
         sys.exit()
-
 
 
 # Set the extensions --------------------------------------------------------- 
