@@ -1,0 +1,4 @@
+This file must contain the list of the package authors
+
+Jerome Chopard
+Christophe Pradal
