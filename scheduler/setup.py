@@ -40,7 +40,7 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 # List of top level wralea packages (directories with __wralea__.py) 
 # (to be kept only if you have visual components)
-#wralea_entry_points = ['%s = %s'%(pkg,namespace + '.' + pkg) for pkg in top_pkgs]
+wralea_entry_points = ['scheduler = openalea.scheduler_wralea',]
 
 # Meta information
 # (used to construct egg infos)
@@ -121,11 +121,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-		    #'console_scripts': [
-                     #       'fake_script = openalea.fakepackage.amodule:console_script', ],
-                     # 'gui_scripts': [
-                      #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-		#	'wralea': wralea_entry_points
+		    'wralea': wralea_entry_points
 		},
     )
 
