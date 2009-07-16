@@ -75,7 +75,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
             #print "FLOAT SPIN : cannot set value : ", \
             #    self.node.get_input(self.param_str)
             
-        self.spin.setValue(vv)
+        self.spin.setValue(v)
         
 
 
