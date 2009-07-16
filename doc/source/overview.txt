@@ -1,0 +1,6 @@
+* Explains how the sphinx documentation works
+* How to put a new package under Sphinx
+* Choice made on the architecture
+* how to upload the sphinx documentation of a package, of all the packages
+
+
