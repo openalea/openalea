@@ -354,8 +354,10 @@ class UserPackage(Package):
 
         # build function parameters
         ins = []
+        in_names = []
         for input in inputs:
             in_name = input['name'].replace(' ', '_').lower()
+            in_names.append(in_name)
             in_value = input['value']
             if in_value is not None:
                 arg = '%s=%s'%(in_name, repr(in_value))
@@ -369,10 +371,14 @@ class UserPackage(Package):
         return_values = []
         for output in outputs:
             arg = output['name'].replace(' ', '_').lower()
+            # if an input arg is equal to an output one,
+            # change its name.
+            while arg in in_names:
+                arg = 'out_'+arg
             out_values += '%s = None; '%(arg, )
             return_values.append('%s'%(arg, ))
 
-        return_values = ', '.join(return_values)
+        return_values = ', '.join(return_values)+','
         # Create the module file
         my_template = \
 """\
@@ -384,7 +390,7 @@ def %s(%s):
     # write the node code here.
 
     # return outputs
-    return [%s]
+    return %s
 """ % (classname, in_args, description, out_values, return_values)
 
         module_path = os.path.join(localdir, "%s.py" % (classname))
@@ -679,7 +685,7 @@ class PyPackageReaderVlab(AbstractPackageReader):
         pkg_path = fn.dirname()
 
         spec_file = fn.basename()
-        assert spec_file == 'specifications'
+        assert 'specification' in spec_file
 
         vlab_package = vlab_object(pkg_path, pkgmanager)
         pkg = vlab_package.get_package()
@@ -788,3 +794,4 @@ $FACTORY_DECLARATION
         # Recompile
         import py_compile
         py_compile.compile(full_filename)
+
