@@ -29,6 +29,7 @@ import sys
 import os
 import tempfile
 import glob
+from path import path
 
 from pkg_resources import iter_entry_points
 
@@ -40,6 +41,9 @@ from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
 
 # Exceptions 
+import time
+DEBUG = True
+DEBUG = False 
 
 class UnknowFileType(Exception):
     pass
@@ -465,7 +469,8 @@ class PackageManager(object):
         :return : a list of pkgreader instances
         """
 
-        from path import path
+        if DEBUG:
+            t0 = time.clock()
 
         wralea_files = set()
         if(not os.path.isdir(directory)):
@@ -481,11 +486,23 @@ class PackageManager(object):
                 wralea_files.add(str(f))
         else:
             wralea_files.update( p.glob("*wralea*.py") )
-        
+
         for f in wralea_files:
             self.log.add("Package Manager : found %s" % f)
-            
-        return map(self.get_pkgreader, wralea_files)
+
+        if DEBUG:
+            t1 = time.clock()
+            dt = t1 - t0
+            print 'search wralea files takes %f sec'%dt
+
+        readers = map(self.get_pkgreader, wralea_files)
+
+        if DEBUG:
+            t2 = time.clock()
+            dt1 = t2 - t1
+            print 'readers takes %f sec: %f'% (dt1, (dt1/(dt+dt1))*100)
+
+        return readers
 
 
     
@@ -507,14 +524,32 @@ class PackageManager(object):
 #        except Exception, e:
             # No cache : search recursively on the disk
 
+        if DEBUG:
+            t1 = time.clock()
 
         directories = self.get_wralea_path()
+        if DEBUG:
+            #print '      ~~~~~~~~~~'
+            t2 = time.clock()
+            #print '      get_wralea_path %f sec'%(t2-t1)
+            #print '\n'.join(directories)
+
         recursive = True
 
         for wp in directories:
+            if DEBUG: t0 = time.clock()
             ret = self.find_wralea_dir(wp, recursive)
             if(ret):
                 readers += ret 
+            if DEBUG:
+                #print '      ~~~~~~~~~~'
+                t1 = time.clock()
+                #print '      find_wralea %s %f sec'%(wp, t1-t0)
+
+        if DEBUG:
+            #print '      ~~~~~~~~~~'
+            t3 = time.clock()
+            #print '      find_wralea_dir %f sec'%(t3-t2)
             
         return readers
 
@@ -547,10 +582,23 @@ class PackageManager(object):
 #            self.delete_cache()
         self.set_sys_wralea_path()
         self.set_user_wralea_path()
+        if DEBUG:
+            t1 = time.clock()
         readerlist = self.find_wralea_files()
+
+        if DEBUG:
+            t2 = time.clock()
+            print '-------------------'
+            print 'find_wralea_files takes %f seconds'%(t2-t1)
+
         for x in readerlist:
             x.register_packages(self)
+        if DEBUG:
+            t3 = time.clock()
+            print '-------------------'
+            print 'register_packages takes %f seconds'%(t3-t2)
 #        self.save_cache()
+
         self.rebuild_category()
 
 

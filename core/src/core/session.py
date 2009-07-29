@@ -31,6 +31,7 @@ from openalea.core.datapool import DataPool
 
 import shelve
 
+import time
 
 class Session(Observed):
     """
@@ -42,7 +43,7 @@ class Session(Observed):
     USR_PKG_NAME = "__my package__"
 
     def __init__(self):
-
+        
         Observed.__init__(self)
 
         self.workspaces = []
@@ -59,7 +60,8 @@ class Session(Observed):
         self.empty_cnode_factory = CompositeNodeFactory("Workspace")
         self.clipboard = CompositeNodeFactory("Clipboard")
 
-        self.clear()
+        self.init()
+
 
     def get_current_workspace(self, ):
         """ Return the current workspace object """
@@ -93,16 +95,15 @@ class Session(Observed):
         if(notify):
             self.notify_listeners()
 
-    def clear(self, create_workspace = True):
-        """ Reinit Session """
+    def init(self, create_workspace = True):
+        """ Init the Session """
 
         self.session_filename = None
-        self.workspaces = []
-        self.datapool.clear()
+        #self.workspaces = []
 
         # init pkgmanager
-        self.pkgmanager.clear()
         self.pkgmanager.find_and_register_packages()
+
 
         # Create user package if needed
         if (not self.pkgmanager.has_key(self.USR_PKG_NAME)):
@@ -113,6 +114,15 @@ class Session(Observed):
             self.cworkspace = 0
 
         self.notify_listeners()
+
+
+    def clear(self, create_workspace = True):
+        """ Reinit Session """
+
+        self.datapool.clear()
+        self.pkgmanager.clear()
+        self.init(create_workspace)
+
 
     def save(self, filename = None):
         """
