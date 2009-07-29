@@ -9,7 +9,7 @@ name = 'OpenAlea.Core'
 namespace = 'openalea'
 # to get the version
 execfile("src/core/version.py")
-version="0.6.2"
+version="0.7.0"
 description = 'OpenAlea Component platform core.' 
 long_description = """OpenAlea.Core is able to discover and manage packages and logical components, build and evaluate dataflows and Generate final applications"""
 

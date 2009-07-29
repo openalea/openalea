@@ -29,6 +29,8 @@ from PyQt4 import QtCore
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
 
+import time
+
 # Restore default signal handler for CTRL+C
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -72,7 +74,13 @@ def main(args):
 
     QtGui.QApplication.processEvents()
     
+    time.clock()
+
     session = Session()
+
+    t1 = time.clock()
+
+    print 'session build in %f seconds'%t1
 
     win = MainWindow(session)
 

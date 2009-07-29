@@ -21,7 +21,11 @@ __revision__ = " $Id$"
 from openalea.core import *
 from openalea.plotools import plotable
 
-import rpy
+try:
+    import rpy2 as rpy
+except:
+    import rpy
+
 from scipy import stats
 import scipy
 import pylab

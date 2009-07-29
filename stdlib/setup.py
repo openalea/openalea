@@ -8,7 +8,7 @@ __revision__ = "$Id$"
 pj = os.path.join
 
 name = 'OpenAlea.StdLib'
-version = '0.6.2'
+version = '0.7.0'
 description = 'OpenAlea standard logical component library.' 
 long_description = ''
 author = 'OpenAlea consortium'
