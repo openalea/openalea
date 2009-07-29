@@ -103,6 +103,8 @@ class VlabObject(object):
                 return
         d = self.dir
         search_name(d)
+        _pkgname = 'vlab.'+'.'.join(names)
+        print _pkgname
         return 'vlab.'+'.'.join(names)
 
     def get_package(self):

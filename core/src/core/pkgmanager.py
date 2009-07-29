@@ -448,12 +448,12 @@ class PackageManager(object):
             return []
             
         p = path(directory).abspath()
-
+        spec_name = '*specifications'
         # search for wralea.py
         if(recursive):
-            spec_files.update( p.walkfiles("specifications") )
+            spec_files.update( p.walkfiles(spec_name) )
         else:
-            spec_files.update( p.glob("specifications") )
+            spec_files.update( p.glob(spec_name) )
 
         for f in spec_files:
             self.log.add("Package Manager : found  VLAB %s" % p)
