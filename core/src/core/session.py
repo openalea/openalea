@@ -107,7 +107,10 @@ class Session(Observed):
 
         # Create user package if needed
         if (not self.pkgmanager.has_key(self.USR_PKG_NAME)):
-            self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
+            try:
+                self.pkgmanager.create_user_package(self.USR_PKG_NAME, {})
+            except:
+                pass
 
         if (create_workspace):
             self.add_workspace()

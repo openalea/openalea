@@ -668,7 +668,7 @@ class PackageManager(object):
         self.load_directory(path)
         self.write_config()
 
-        p = self.pkgs[name]
+        p = self.pkgs.get(name)
         return p
 
 
