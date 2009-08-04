@@ -884,7 +884,15 @@ class NodeFactory(AbstractFactory):
         if(edit):
             from openalea.visualea.code_editor import get_editor
             w = get_editor()(parent)
-            w.edit_module(self.get_node_module(), self.nodeclass_name)
+            try:
+                w.edit_module(self.get_node_module(), self.nodeclass_name)
+            except Exception, e:
+                # Unable to load the module
+                # Try to retrieve the file and open the file in an editor
+                src_path = self.get_node_file()
+                print e
+                if src_path:
+                    w.edit_file(src_path)
             return w
 
         # Node Widget
@@ -956,6 +964,29 @@ class NodeFactory(AbstractFactory):
             # By default use __builtin__ module
             import __builtin__
             return __builtin__
+
+    def get_node_file(self):
+        """
+        Return the path of the python module.
+         
+        """
+
+        if(self.nodemodule_path):
+            return self.nodemodule_path
+        elif(self.nodemodule_name):
+            # load module
+            sav_path = sys.path
+            sys.path = self.search_path + sav_path
+            (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+
+            self.nodemodule_path = pathname
+
+            sys.path = sav_path
+
+            if(file):
+                file.close()
+            return self.nodemodule_path
+
 
     def get_node_src(self, cache=True):
         """
