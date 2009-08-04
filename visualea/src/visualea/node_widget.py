@@ -200,7 +200,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         ## Hidden state
         ## TODO
-        if(port.is_hidden() or not port.get('showwidget', True)) :
+        if not port.get('showwidget',  not port.is_hidden()):
             self.widgets.append(None)
             return
         
