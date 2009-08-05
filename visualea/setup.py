@@ -10,7 +10,7 @@ from os.path import join as pj
 name = 'OpenAlea.Visualea'
 namespace = 'openalea'
 pkg_name = 'openalea.visualea'
-version = '0.6.2'
+version = '0.7.0'
 
 description = 'OpenAlea visual programming environment.' 
 long_description = ''
