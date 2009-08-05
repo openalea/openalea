@@ -11,7 +11,7 @@ from os.path import join as pj
 
 
 name = "OpenAlea.Deploy"
-version = "0.6.2"
+version = "0.7.0"
 author = "Samuel Dufour-Kowalski, Christophe Pradal"
 author_email = "christophe.pradal@cirad.fr"
 description = "Setuptools extension for OpenAlea"
