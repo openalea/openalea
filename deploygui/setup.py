@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path import join as pj
     
 
-version = "0.6.2"
+version = "0.7.0"
 name = "OpenAlea.DeployGui"
 author = "Samuel Dufour-Kowalski"
 author_email = "samuel.dufour@sophia.inria.fr"
