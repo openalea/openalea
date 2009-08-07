@@ -38,6 +38,11 @@ class Commands():
             'undevelop': '',
             'develop':  '',
             'install':  '',
+            'nosetests': '',
+            'distribution': '' ,
+            'sdist':'',
+            'bdist':'',
+            'bdist_egg':'',
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
             'html': "--builder html -E",
             'latex': "--builder latex -E",
@@ -171,6 +176,9 @@ class Commands():
             # prevents warnings and potential errors due to original 
             # distutils being used.
             dirs.reverse() 
+
+        if self.command == 'nosetests':
+            cmd += ''
     
         root_dir = path(directory)
         dirs_under_root = root_dir.dirs()
@@ -225,7 +233,7 @@ def main():
 
     
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload', 'pdf']
+    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 'nosetests', 'distribution', 'sdist', "bdist", "bdist_egg"]
     available_project = ['openalea', 'vplants', 'alinea']
 
     
