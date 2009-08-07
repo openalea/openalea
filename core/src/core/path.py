@@ -36,7 +36,10 @@ import fnmatch
 import glob
 import shutil
 import codecs
-import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 
 __version__ = '2.2'
 __all__ = ['path']
@@ -791,9 +794,10 @@ class path(_base):
 
         This reads through the entire file.
         """
+        from md5 import md5
         f = self.open('rb')
         try:
-            m = md5.new()
+            m = md5()
             while True:
                 d = f.read(8192)
                 if not d:
