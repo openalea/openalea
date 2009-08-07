@@ -66,8 +66,8 @@ def test_compositenodewriter():
                'description': 'Base library.',
                'url': 'http://openalea.gforge.inria.fr'}
 
-    package1 = pm.create_user_package("MyTestPackage", \
-        metainfo, os.path.curdir)
+    package1 = pm.create_user_package("MyTestPackage", 
+                                      metainfo, os.path.curdir)
     package1.add_factory(sgfactory)
     print package1.keys()
     assert 'addition' in package1
@@ -122,3 +122,4 @@ def test_nodewriter():
     pm.init()
     newsg = pm.get_node('MyTestPackage', 'mynode')
     package1.remove_files()
+
