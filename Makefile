@@ -32,6 +32,21 @@ main:
 develop:
 	$(Executable) develop -p $(Project) -d .
 
+nosetests:
+	$(Executable) nosetests -p $(Project) -d .
+
+bdist:
+	$(Executable) bdist -p $(Project) -d .
+
+bdist_egg:
+	$(Executable) bdist_egg -p $(Project) -d .
+
+sdist:
+	$(Executable) sdist -p $(Project) -d .
+
+release:
+	$(Executable) release -p $(Project) -d .
+ 
 undevelop:
 	$(Executable) undevelop -p $(Project) -d .
 
@@ -40,9 +55,6 @@ install:
 
 clean:
 	$(Executable) clean -p $(Project) -d .
-
-dist:
-	$(Executable) release -p $(Project) -d .
 
 html:
 	$(Executable) html -p $(Project) -d . 
