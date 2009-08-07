@@ -1,5 +1,5 @@
 
-
+- Fix the creation of a node factory without inputs and outputs (bug #8369)
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
 22/01/09 release 0.6.2

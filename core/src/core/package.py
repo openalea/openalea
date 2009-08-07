@@ -378,7 +378,8 @@ class UserPackage(Package):
             out_values += '%s = None; '%(arg, )
             return_values.append('%s'%(arg, ))
 
-        return_values = ', '.join(return_values)+','
+        if return_values:
+            return_values = ', '.join(return_values)+','
         # Create the module file
         my_template = \
 """\
