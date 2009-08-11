@@ -55,19 +55,19 @@ class Compiler:
 
       self.default()
 
-      opts.Add(BoolOption('debug', 
+      opts.Add(BoolVariable('debug', 
                           'compilation in a debug mode',
                           self._default['debug']))
-      opts.Add(BoolOption('warnings',
+      opts.Add(BoolVariable('warnings',
                           'compilation with -Wall and similar',
                           self._default['warnings']))
-      opts.Add(BoolOption('static',
+      opts.Add(BoolVariable('static',
                           '',
                           self._default['static']))
 
       compilers = self._default['compilers']
       default_compiler = compilers[0]
-      opts.Add(EnumOption('compiler',
+      opts.Add(EnumVariable('compiler',
                           'compiler tool used for the build',
                           default_compiler,
                           compilers))

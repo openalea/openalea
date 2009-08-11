@@ -38,7 +38,7 @@ class BuildDir:
     def option( self, opts):
 
         self.default()
-        opts.Add( BoolOption('with_build_dir', 'build files in a separate directory?', True))
+        opts.Add( BoolVariable('with_build_dir', 'build files in a separate directory?', True))
         opts.Add('build_prefix',
                   'local preinstall directory',
                   self._default['build_prefix'])

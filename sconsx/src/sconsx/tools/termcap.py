@@ -41,10 +41,10 @@ class Termcap:
       if isinstance(platform, Posix):
          self.default()
          
-         opts.AddOptions(
-            PathOption('termcap_includes', 'termcap include files', 
+         opts.AddVariables(
+            PathVariable('termcap_includes', 'termcap include files', 
                         self._default['include']),
-            PathOption('termcap_lib', 'termcap libraries path', 
+            PathVariable('termcap_lib', 'termcap libraries path', 
                         self._default['lib']) 
            )
 

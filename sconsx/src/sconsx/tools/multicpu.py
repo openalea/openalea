@@ -34,7 +34,7 @@ class MultiCPU:
    def option( self, opts):
       """ Add Options to opts """
 
-      opts.AddOptions(('num_jobs', 'Number of jobs', 1),)
+      opts.AddVariables(('num_jobs', 'Number of jobs', 1),)
 
 
    def update(self, env):

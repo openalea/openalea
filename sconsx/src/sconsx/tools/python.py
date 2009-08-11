@@ -50,11 +50,11 @@ class Python:
 
       self.default()
 
-      opts.AddOptions(
-         PathOption('python_includes', 'Python include files', 
+      opts.AddVariables(
+         PathVariable('python_includes', 'Python include files', 
           self._default['include']),
 
-         PathOption('python_lib', 'Python library path', 
+         PathVariable('python_lib', 'Python library path', 
          self._default['lib'])
         )
 

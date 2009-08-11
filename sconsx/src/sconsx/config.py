@@ -31,6 +31,11 @@ pj = os.path.join
 
 from SCons.Script import *
 from SCons.Options import PathOption, BoolOption, EnumOption, Options
+from SCons.Variables import PathVariable 
+from SCons.Variables import BoolVariable 
+from SCons.Variables import EnumVariable 
+from SCons.Options import Options
+from SCons.Variables import Variables
 from SCons.Util import Split, WhereIs
 from SCons.Tool import Tool
 from SCons.SConf import SConf

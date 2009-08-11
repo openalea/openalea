@@ -47,12 +47,12 @@ class Readline:
       self.default()
 
       if isinstance(platform, Posix):
-         opts.AddOptions(
-            PathOption('readline_includes', 
+         opts.AddVariables(
+            PathVariable('readline_includes', 
                         'readline include files', 
                         self._default['include']),
 
-            PathOption('readline_lib', 
+            PathVariable('readline_lib', 
                         'readline libraries path', 
                         self._default['lib']) 
            )

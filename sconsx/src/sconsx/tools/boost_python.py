@@ -76,12 +76,12 @@ class Boost_Python:
 
       self.default()
 
-      opts.AddOptions(
-         PathOption('boost_includes', 
+      opts.AddVariables(
+         PathVariable('boost_includes', 
                      'Boost_python include files', 
                      self._default['include']),
 
-         PathOption('boost_lib', 
+         PathVariable('boost_lib', 
                      'Boost_python libraries path', 
                      self._default['lib']),
 

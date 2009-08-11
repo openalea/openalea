@@ -43,10 +43,10 @@ class Pthread:
 
       self.default()
 
-      opts.AddOptions(
-         PathOption('pthread_includes', 'pthread include files', 
+      opts.AddVariables(
+         PathVariable('pthread_includes', 'pthread include files', 
                      self._default['include']),
-         PathOption('pthread_lib', 'pthread libraries path', 
+         PathVariable('pthread_lib', 'pthread libraries path', 
                      self._default['lib']) 
      )
 

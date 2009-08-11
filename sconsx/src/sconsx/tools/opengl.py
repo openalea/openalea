@@ -60,7 +60,7 @@ class OpenGL:
        self.default()
 
        if isinstance(platform, Darwin):
-           opts.AddOptions(
+           opts.AddVariables(
                            ('gl_includes', 'GL include files', 
                             self._default['include']),
                            ('gl_framework_path', 'GL framework path',
@@ -69,7 +69,7 @@ class OpenGL:
                             ['AGL', 'OpenGL', 'GLUT'])
                            )
        else:
-           opts.AddOptions(
+           opts.AddVariables(
                            ('gl_includes', 'GL include files', 
                             self._default['include']),
 
