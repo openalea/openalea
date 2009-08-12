@@ -38,7 +38,7 @@ class Commands():
             'undevelop': '',
             'develop':  '',
             'install':  '',
-            'nosetests': '',
+            'nosetests': '-w test',
             'distribution': '' ,
             'sdist':'',
             'bdist':'',
@@ -52,7 +52,7 @@ class Commands():
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
-        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc"""
+        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc scheduler"""
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
