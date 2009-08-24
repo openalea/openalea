@@ -12,6 +12,7 @@ type --help to get more help and usage
 
 """
 
+
 __license__ = "Cecill-C"
 __revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 
@@ -52,12 +53,16 @@ class Commands():
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
-        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc scheduler"""
-        self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
+        self.oa_dirs = """deploy deploygui core visualea sconsx
+             stdlib openalea_meta misc scheduler"""
+        self.vp_dirs = """ tool stat_tool sequence_analysis container
+            amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta lpy"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
-        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc """ 
-        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg"""
+        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
+         stdlib misc openale_meta""" 
+        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta 
+        sequence_analysis lpy container newmtg"""
         self.alinea_sphinx_dirs="""caribu"""
 
         self.project = project 
@@ -233,7 +238,10 @@ def main():
 
     
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 'nosetests', 'distribution', 'sdist', "bdist", "bdist_egg"]
+    available_mode = ['develop', 'undevelop', 'install', 'release', 
+                      'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 
+                      'nosetests', 'distribution', 'sdist', "bdist",
+                       "bdist_egg"]
     available_project = ['openalea', 'vplants', 'alinea']
 
     
