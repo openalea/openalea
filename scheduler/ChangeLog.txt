@@ -1,1 +1,4 @@
-2009.06.25 : creation of the package
+Release 0.7.0
+-------------
+
+2009.06.25 : creation of the package 

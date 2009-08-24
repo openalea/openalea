@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 # (This name is also the one to use in setup script of other packages to declare a dependency to this package)
 # (The version number is used by deploy to detect UPDATES)
 
-name = 'scheduler'
+name = 'OpenAlea.cheduler'
 version= '1.0.0' 
 
 # Packages list, namespace and root directory of packages
