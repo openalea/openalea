@@ -1,4 +1,8 @@
+Sconsx 0.7.0
+------------
+** revision 1762 **
 
+- Update to scons 1.2 
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
 
