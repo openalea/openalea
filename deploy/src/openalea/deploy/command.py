@@ -236,6 +236,23 @@ def validate_scons_scripts(dist, attr, value):
         setuptools.command.install_lib.install_lib = cmd_install_lib
         set_has_ext_modules(dist)
 
+def validate_pylint_options(dist, attr, value):
+    
+    try:
+        assert type(value[0]) == str
+    except ValueError:
+        raise ValuError("""options %s in the setup.py must be a  such as 
+            --disable-msg=C0103 that can be used as pylint options""" % attr)
+
+
+def validate_pylint_packages(dist, attr, value):
+    if isinstance(value, list):
+        pass
+    else:
+        raise ValuError("""options %s in the setup.py must be a list of path
+             where to find the python source files """ % attr)
+
+
 
 def validate_bin_dirs(dist, attr, value):
     """ Validation for shared directories keywords"""
@@ -800,6 +817,74 @@ from %s.__init__ import *
         # Set environment (i.e. copy libraries and env vars).
         # For develop, the libraries stay in place.
         set_env()
+
+
+class pylint(Command):
+    """ pylint extensions to setuptools
+
+    There are two optional arguments, --pylint-packages and --pylint-options
+    that can be provided in the setup.cfg file, or in the setup.py file, or as
+    user arguments (see examples). 
+
+    The results (pylint's output) will be saved in the file .pylint.output
+
+    :Examples:
+    
+        >>> python setup.py pylint
+        >>> python setup.py pylint --pylint-packages
+        >>> python setup.py pylint --pylint-options --disable-msg=C0103
+
+    You can add the options in the setup.cfg::
+    
+        >>> [pylint]
+        >>> pylint-packages = src/openalea/stat_tool,src/openalea/stat_tool
+        >>> pylint-options = --disable-msg=C0103
+
+    or the setup.py
+
+        >>>  pylint_packages = ['src/openalea/stat_tool'],
+        >>>  pylint_options = ['--disable-msg=C0103']
+
+
+    """
+    user_options = [('pylint-packages=', None, 'list of pathnames to parse with pylint'),
+                    ('pylint-options=', None, 'optional arguments to pylint such as --disable-msg=C0103')]
+
+    def initialize_options(self):
+        self.pylint_packages = None
+        self.pylint_options = None
+
+    def finalize_options(self):
+        # get the packages to give to pylint
+
+        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        if (not self.pylint_packages):    
+            self.pylint_packages = self.distribution.pylint_packages
+            print self.pylint_packages
+        
+        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        if (not self.pylint_options):
+            self.pylint_options = self.distribution.pylint_options 
+
+        # in the setup.cfg case or in the user arguments case, we have a string (that we convert into a list)
+        if isinstance(self.pylint_packages, str):
+            self.pylint_packages = self.pylint_packages.split(',')
+        # otherwise, we already have a list
+
+    def run(self):
+        
+        for package in self.pylint_packages:
+            print 'Processing ' + package + ' through pylint'
+            cmd = 'pylint ' + package.replace('/', os.sep) + os.sep + '*.py' + ' ' + self.pylint_options
+                
+            print cmd
+            status = subprocess.call(cmd ,stdout=open('.pylint.output','w'),stderr=None, shell=True)
+            if status!=0:
+                print 'This command returns status (%s) different from 0.' % str(status)
+
+        
+
+
 
 class sphinx_upload(Command):
     """
