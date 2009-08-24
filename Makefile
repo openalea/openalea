@@ -46,6 +46,20 @@ sdist:
 
 release:
 	$(Executable) release -p $(Project) -d .
+
+release2:
+	echo 'CLEANING======================================'
+	make clean   1>log.txt 2> logerror.txt
+	echo 'INSTALLING======================================'
+	make install 1>>log.txt 2>> logerror.txt
+	echo 'TESTING========================================'
+	make nosetests 1>>log.txt 2>> logerror.txt
+	echo 'DISTRIBUTING========================================'
+	make sdist 1>>log.txt 2>> logerror.txt
+	make bdist 1>>log.txt 2>> logerror.txt
+	make bdist_egg 1>>log.txt 2>> logerror.txt
+	echo 'Documentation======================================'
+	make html 1>>log.txt 2>>logerror.txt
  
 undevelop:
 	$(Executable) undevelop -p $(Project) -d .
