@@ -841,8 +841,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
                               
         # Font and box size
-        self.sizex = 20
-        self.sizey = 35
+        self.sizex = 60
+        self.sizey = 40
 
         self.font = self.graphview.font()
         self.font.setBold(True)
@@ -902,9 +902,14 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         # here, we could process the doc so that the output is nicer 
         # e.g., doc.replace(":params","Parameters ") and so on
 
-        self.setToolTip( "Name : %s\n"%(node_name) +
-                         "Package : %s\n"%(pkg_name) +
-                         "Documentation : \n%s"%(doc,))
+        mydoc = doc
+
+        for name in [':Parameters:', ':Returns:', ':Keywords:']:
+            mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
+
+        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
+                         "<b>Package</b> : %s<br/>\n" % (pkg_name) +
+                         "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
 
 
     def set_connectors(self):
