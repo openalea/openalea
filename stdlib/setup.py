@@ -12,7 +12,7 @@ version = '0.7.0'
 description = 'OpenAlea standard logical component library.' 
 long_description = ''
 author = 'OpenAlea consortium'
-author_email = ''
+author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url = 'http://openalea.gforge.inria.fr'
 
 
@@ -22,7 +22,7 @@ setup(
     description=description, 
     long_description = '',
     author = author,
-    author_email = '',
+    author_email = author_email,
     url = url,
     license = license,
 
