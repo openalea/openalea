@@ -22,7 +22,7 @@ __revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import *
-
+import Scons.Script
 
 class MultiCPU:
    def __init__(self, config):

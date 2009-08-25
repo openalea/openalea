@@ -239,11 +239,11 @@ class Config(object):
 
         # Try to import SConsX tool
         try:
-            mod = import_tool(tool, self.dir)
+            mod = import_tool(tool, self.udir)
             t = mod.create(self)
         except:
             # Try to import EGG LIB
-            mod = import_tool("egglib", self.dir)
+            mod = import_tool("egglib", self.udir)
             t = mod.create(tool, self)
             
             

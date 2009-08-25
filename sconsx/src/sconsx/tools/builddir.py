@@ -33,7 +33,7 @@ class BuildDir:
 
     def default(self):
         #self._default['build_prefix']= pj(self.config.dir[0], "build-" + platform.name) 
-        self._default['build_prefix'] = pj(self.config.dir[0], "build-scons") 
+        self._default['build_prefix'] = pj(self.config.udir[0], "build-scons") 
 
     def option( self, opts):
 
@@ -50,7 +50,7 @@ class BuildDir:
         if env['with_build_dir']:
             prefix = env['build_prefix']
         else:
-            prefix = self.config.dir[0]
+            prefix = self.config.udir[0]
         
         build = { 
         'build_prefix': prefix,
@@ -62,9 +62,9 @@ class BuildDir:
             build['build_dir'] = pj(prefix, 'src')
 
         # Creation of missing directories
-        for dir in build:
-            path = build[dir]
-            env[dir] = os.path.abspath(path)
+        for udir in build:
+            path = build[udir]
+            env[udir] = os.path.abspath(path)
             if not os.path.exists(path):
                 os.makedirs(path)
 
