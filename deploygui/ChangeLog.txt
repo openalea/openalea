@@ -1,5 +1,7 @@
-
-- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+OpenAlea.DeployGui 0.7.0
+------------------------
+** revision xxxx**
+- Add Sphinx documentation to the web site
 
 release 0.6.2
 -------------
@@ -41,3 +43,5 @@ release 0.2
 release 0.1
 -----------
 **First implementation**
+
+
