@@ -52,9 +52,9 @@ class PixView (QLabel) :
             self.setText("No Image to display")
         else :
             #pix=QPixmap.fromImage(image)
-            w,h = image.width(), image.height()
+            w ,h = image.width(), image.height()
             self.setPixmap(image)
-            self.resize(w,h)
+            self.resize(w, h)
     
 #    def setMinimumSize (self, width, height) :
 #        width=min(width,self.maximumWidth())

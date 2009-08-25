@@ -14,7 +14,7 @@ long_description = ''
 author = 'OpenAlea consortium'
 author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
 url = 'http://openalea.gforge.inria.fr'
-
+pylint_dir = os.path.join('src', 'openalea')
 
 setup(
     name=name,
@@ -75,6 +75,8 @@ setup(
                    'catalog.string = deprecated',
               ],
         },
+
+    pylint_packages = [pylint_dir + os.sep + x.replace('.', os.sep) for x in find_packages(pylint_dir)]
     )
 
 

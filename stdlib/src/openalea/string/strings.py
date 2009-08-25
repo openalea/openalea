@@ -13,10 +13,10 @@
 #############################################################################
 """String manipulation"""
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
-from openalea.core import *
+from openalea.core import Node
 
 # File name manipulation
 

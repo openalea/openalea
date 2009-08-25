@@ -24,7 +24,6 @@ __docformat__ =  "restructuredtext en"
 __revision__ = "$Id$"
 
 
-
 from openalea.core import *
 #from openalea.catalog.plotable import *
 
@@ -32,7 +31,8 @@ from openalea.core import *
 #    """Generate a plot from 2D plotable object
 #    Input 0 : 2D plotable object list"""
 #    def __call__( self, plotObjList, title, xlabel, ylabel, **keys ):
-#        plot_plotable(  plotable_list=plotObjList, title=title, xlabel=xlabel, ylabel=ylabel, **keys )        
+#        plot_plotable(  plotable_list=plotObjList, title=title,
+#           xlabel=xlabel, ylabel=ylabel, **keys )        
 #
 #
 #
@@ -44,7 +44,8 @@ from openalea.core import *
 #    """
 #
 #    def __call__( self, inputs ):
-#        """Returns plotable object with changed the values which were changed from default.
+#        """Returns plotable object with changed the values which were
+#           changed from default.
 #        
 #        <Long description of the function functionality.>
 #        

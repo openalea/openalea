@@ -16,9 +16,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from os.path import join
-from openalea.core import *
-
 
 def py_set(list_elt):
     '''

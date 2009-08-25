@@ -19,16 +19,16 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
 from openalea.core import *
-from openalea.plotools import plotable
+#from openalea.plotools import plotable
 
 import rpy
-from scipy import stats
-import scipy
-import pylab
+#from scipy import stats
+#import scipy
+#import pylab
 
 __docformat__ = "restructuredtext en"
 
-def Plot(x,y, xlab, ylab, main):
+def Plot(x, y, xlab, ylab, main):
     """
     Plot y according to x
 
@@ -52,7 +52,7 @@ def Plot(x,y, xlab, ylab, main):
     :attention: x and y must have the same length
     """
 
-    rpy.r.plot(x,y,xlab=xlab, ylab=ylab, main=main)
+    rpy.r.plot(x, y, xlab=xlab, ylab=ylab, main=main)
     
     return (x,)
 
@@ -83,13 +83,13 @@ def Hist(x, k, xlab, main, freq):
 
     if k != 0:
         step = (max(x)-min(x))/k
-        rpy.r.hist(x,xlab=xlab, main=main, br=rpy.r.seq(min(x),max(x),step), freq=freq)
-        
+        rpy.r.hist(x, xlab=xlab, main=main, 
+                   br=rpy.r.seq(min(x), max(x), step), freq=freq)
     else:
-        rpy.r.hist(x,xlab=xlab, main=main, freq=freq)
+        rpy.r.hist(x, xlab=xlab, main=main, freq=freq)
             
         
-    return (x,)
+    return (x, )
 
 
 def PlotDens(x):
@@ -108,7 +108,7 @@ def PlotDens(x):
     :attention: x and y must have the same length
     """
 
-    rpy.r.lines(rpy.r.density(x),col=2)
+    rpy.r.lines(rpy.r.density(x), col=2)
     
     return (x,)
 

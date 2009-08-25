@@ -28,7 +28,7 @@ class Raster (object) :
     a list of 2D points
     """
     def __init__ (self, nb_points) :
-        self._coords=zeros( (nb_points,2),"int" )
+        self._coords=zeros( (nb_points, 2),"int" )
 
     def nb_points (self)  :
         """
@@ -53,41 +53,42 @@ class Raster (object) :
         """
         return list of x coordinates
         """
-        return self._coords.transpose()[0,]
+        return self._coords.transpose()[0, ]
 
     def ylist (self) :
         """
         return list of y coordinates
         """
-        return self._coords.transpose()[1,]
+        return self._coords.transpose()[1, ]
 
     def bounding_box (self) :
-        coords=self._coords.transpose()
-        return numpy.min(coords[0,]),numpy.max(coords[0,]),numpy.min(coords[1,]),numpy.max(coords[1,])
+        coords = self._coords.transpose()
+        return numpy.min(coords[0, ]), numpy.max(coords[0, ]), \
+            numpy.min(coords[1, ]), numpy.max(coords[1, ])
     
     def set_point (self, pt_ind, x, y) :
-        self._coords[pt_ind,]=[x,y]
+        self._coords[pt_ind, ] = [x, y]
     
     def mask (self, mask=None) :
         if mask is None :
-            xmin,xmax,ymin,ymax=self.bounding_box()
-            mask=Image.new("L",(xmax-xmin+1,ymax-ymin+1),0)
+            xmin, xmax, ymin, ymax = self.bounding_box()
+            mask = Image.new("L", (xmax-xmin+1, ymax-ymin+1), 0)
         else :
-            xmin,ymin=0,0
-        pix=mask.load()
-        for x,y in self.points() :
-            pix[x-xmin,y-ymin]=1
-        return (xmin,ymin),mask
+            xmin, ymin = 0, 0
+        pix = mask.load()
+        for x, y in self.points() :
+            pix[x-xmin, y-ymin] = 1
+        return (xmin, ymin), mask
 
 def create_raster (points) :
-    r=Raster(len(points))
-    for ind,(x,y) in enumerate(points) :
-        r.set_point(ind,x,y)
+    r = Raster(len(points))
+    for ind, (x, y) in enumerate(points) :
+        r.set_point(ind, x, y)
     return r
 
 if __name__=="__main__" :
     from random import randint
-    pts=[ (randint(0,100),randint(50,100)) for i in xrange(1000)]
-    r=create_raster(pts)
-    (xmin,ymin),m=r.mask()
+    pts = [ (randint(0, 100), randint(50, 100)) for i in xrange(1000)]
+    r = create_raster(pts)
+    (xmin,ymin), m = r.mask()
     m.save("mask.png")

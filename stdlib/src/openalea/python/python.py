@@ -20,7 +20,8 @@ from openalea.core import *
 import os
 import operator
 
-def py_ifelse(c=True,a=None,b=None):
+
+def py_ifelse(c=True, a=None, b=None):
     """ Return a if c is true else b """
     return bool(c) and a or b
 
@@ -74,12 +75,12 @@ def pylen(obj):
 def py_setitem(obj, index, value):
     """ obj.__setitem__ """
     
-    operator.setitem(obj, index,value)
-    return (obj,)
+    operator.setitem(obj, index, value)
+    return (obj, )
 
 def py_delitem(obj, key):
     """ call __delitem__ on obj"""
-    operator.delitem(obj,key)
+    operator.delitem(obj, key)
     return (obj,)
 
 def py_print(x):
@@ -112,10 +113,10 @@ def py_exec(str):
 
 def py_zip(s1=(), s2=()):
     __doc__ = zip.__doc__
-    return (zip(s1,s2),)
+    return (zip(s1, s2),)
 
 
-def py_flatten( obj = []):
+def py_flatten(obj=[]):
     """ Flatten nested list """
     tobeflatten = False
     for v in iter(obj):
@@ -211,7 +212,8 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         
         QtGui.QListWidget.__init__(self, parent)
         NodeWidget.__init__(self, node)
-        self.connect(self, QtCore.SIGNAL("currentRowChanged(int)"), self.changed)
+        self.connect(self, QtCore.SIGNAL("currentRowChanged(int)"),
+                     self.changed)
 
         self.mode = None
         self.notify(node, ("input_modified", 0))
@@ -256,9 +258,11 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         """ Rebuild the list """
         
         self.clear()
-        if(not seq) : return
+        if(not seq):
+            return
 
-        if(self.mode == "DICT") : seq = seq.keys()
+        if(self.mode == "DICT"):
+            seq = seq.keys()
 
         for elt in seq :
 
@@ -276,8 +280,10 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         item = self.currentItem()
 
         key = None
-        if(item and self.mode == "DICT") : key = str(item.text())
-        elif(row>=0) : key = row
+        if (item and self.mode == "DICT"):
+            key = str(item.text())
+        elif row >= 0:
+            key = row
 
         if(key):
             self.node.set_input(1, key)

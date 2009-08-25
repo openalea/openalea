@@ -19,6 +19,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+
 import numpy
 from numpy import zeros
 import Image
@@ -30,7 +31,7 @@ class DataImage (object) :
     """
     def __init__ (self, width, height) :
         """todo"""
-        self._data = zeros( (width,height),"int" )
+        self._data = zeros( (width, height), "int" )
 
     def data(self):
         """
@@ -94,7 +95,7 @@ def from_image (im, color_map) :
 
 
 if __name__ == "__main__" :
-    from random import randint
+    #from random import randint
     
     data = DataImage(100, 100)
     width, height = data.size()

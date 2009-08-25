@@ -17,19 +17,18 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-
 from openalea.core import *
 
 
 
-def py_cmp(a=0.,b=0.):
+def py_cmp(a=0., b=0.):
     """ cmp(a,b) """
-    return cmp(a,b)
+    return cmp(a, b)
 
 
-def py_round(x=0.,n=1):
+def py_round(x=0., n=1):
     """ round(x,n) """
-    return round(x,n)
+    return round(x, n)
 
 
 def py_min(l=[]):
@@ -47,4 +46,4 @@ def py_randlist(a=0, b=100, size=10):
     import random
     a = int(a)
     b = int(b)
-    return ([random.randrange(a, b) for i in xrange(size)],)
+    return ([random.randrange(a, b) for _i in xrange(size)], )

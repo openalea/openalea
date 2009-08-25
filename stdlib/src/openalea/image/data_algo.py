@@ -16,17 +16,17 @@
 #
 """This module provide basics function to handle 2D images"""
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 from data_image import DataImage
 
 def operation_not (data_im) :
-    w,h=data_im.size()
-    not_im=DataImage(w,h)
+    w, h = data_im.size()
+    not_im = DataImage(w, h)
     for i in xrange(w) :
         for j in xrange(h) :
-            not_im[i,j]=1-data_im[i,j]
+            not_im[i, j] = 1 - data_im[i, j]
     return not_im
 
-__all__=["operation_not"]
+__all__ = ["operation_not"]

@@ -17,7 +17,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from array import array
-from openalea.core import *
+from openalea.core import Node, ISequence, IEnumStr
 
 
 class PyArray(Node):
@@ -41,7 +41,8 @@ class PyArray(Node):
         Node.__init__(self)
 
         self.typedict = dict(zip(self.codename, self.typecodes))
-        self.add_input(name='typecode', interface=IEnumStr(self.codename), value='signed integer (4)')
+        self.add_input(name='typecode', interface=IEnumStr(self.codename), 
+                       value='signed integer (4)')
         self.add_input(name='values', interface=ISequence)
         self.add_output(name='array', interface=ISequence)
 

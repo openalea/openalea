@@ -76,7 +76,8 @@ def StatSummary( x ):
     mean = result['Mean']
     sd = rpy.r.sd(x)
 
-    data = {'minimum':minimum, 'maximum':maximum, 'median':median, 'mean':mean, 'standard deviation':sd}
+    data = {'minimum':minimum, 'maximum':maximum, 'median':median, 
+            'mean':mean, 'standard deviation':sd}
     return data
 
 
@@ -98,7 +99,7 @@ def Corr( x , y ):#= []):
     :attention:  x cannot be empty, x and y must have the same size
     """
 
-    res = rpy.r.cor(x,y)
+    res = rpy.r.cor(x, y)
         
     data = {'Cor': res, 'x':x, 'y':y}
 
@@ -230,7 +231,7 @@ def Freq(x):
     co = list(count)
 
     freq = [float(co[0])/len(x)]
-    for i in range(1,len(co)):
+    for i in range(1, len(co)):
         freq.append(float(co[i])/len(x))
         
     
@@ -238,8 +239,8 @@ def Freq(x):
     val = [x[0]]
     j = 0
 
-    for i in range(1,len(x)):
-        if x[i]!=val[j]:
+    for i in range(1, len(x)):
+        if x[i] != val[j]:
             j = j+1
             val.append(x[i])
 

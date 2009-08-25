@@ -16,8 +16,8 @@
 #
 """This module provide basics function to handle 2D images"""
 
-__license__= "Cecill-C"
-__revision__=" $Id$ "
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 import Image
 from Image import Image as Im
@@ -45,12 +45,12 @@ def load2l (filename) :
 def save_image (image, filename) :
     image.save(filename)
 
-save_image.__doc__=Im.save.__doc__
+save_image.__doc__ = Im.save.__doc__
 
 def convert (image, mode) :
     return image.convert(mode)
 
-convert.__doc__=Im.convert.__doc__
+convert.__doc__ = Im.convert.__doc__
 
 def pix_visu(image) : 
     return image,

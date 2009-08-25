@@ -23,7 +23,7 @@ __revision__ = " $Id$ "
 import Image
 from Image import Image as Im
 from openalea.image.interface import IPix
-from openalea.core import *
+from openalea.core import Node, IInt, IEnumStr, IFloat, IBool
 
 def crop (image, xmin, xmax, ymin, ymax) :
     im=image.crop( (xmin,ymin,xmax,ymax) )
@@ -45,7 +45,7 @@ crop.__doc__=Im.crop.__doc__
 def transform (image, args) :
     raise NotImplementedError
 
-transform.__doc__=Im.transform.__doc__
+transform.__doc__ = Im.transform.__doc__
 
 def mirror (image, horizontal=True) :
     """
@@ -56,8 +56,8 @@ def mirror (image, horizontal=True) :
     else :
         return image.transpose(Image.FLIP_TOP_BOTTOM)
 
-class resize( Node ): 
-    mode_func= { "Nearest" : Image.NEAREST,
+class resize(Node): 
+    mode_func = { "Nearest" : Image.NEAREST,
                   "Bilinear" : Image.BILINEAR,
                   "Bicubic" : Image.BICUBIC,
                   "Antialias" : Image.ANTIALIAS,
@@ -67,42 +67,45 @@ class resize( Node ):
     
         Node.__init__(self)
 
-        funs= self.mode_func.keys()
+        funs = self.mode_func.keys()
         funs.sort()
         self.add_input( name = "Image", interface = IPix,) 
-        self.add_input( name = "Width", label='totot',interface = IInt(min=0), value=314) 
+        self.add_input( name = "Width", label='totot',
+                        interface = IInt(min=0), value=314) 
         self.add_input( name = "Height", interface = IInt(min=0), value=159) 
-        self.add_input( name = "Mode", interface = IEnumStr(funs), value = funs[-1]) 
+        self.add_input( name = "Mode", interface = IEnumStr(funs), 
+                        value = funs[-1]) 
         self.add_output( name = "Image", interface = IPix)
-        self.__doc__=Im.resize.__doc__
+        self.__doc__ = Im.resize.__doc__
 
     def __call__(self, inputs):
         im = self.get_input("Image")
         w = self.get_input("Width")
         h = self.get_input("Height")
         fm = self.mode_func[self.get_input("Mode")]
-        return im.resize( (w,h), fm )
+        return im.resize( (w, h), fm )
 
-class rotate( Node ): 
-    mode_func= { "Nearest" : Image.NEAREST,
-                  "Bilinear" : Image.BILINEAR,
-                  "Bicubic" : Image.BICUBIC,
-                  "Antialias" : Image.ANTIALIAS,
+class rotate(Node): 
+    mode_func = { "Nearest": Image.NEAREST,
+                  "Bilinear": Image.BILINEAR,
+                  "Bicubic": Image.BICUBIC,
+                  "Antialias": Image.ANTIALIAS,
               } 
     
     def __init__(self):
     
         Node.__init__(self)
 
-        funs= self.mode_func.keys()
+        funs = self.mode_func.keys()
         funs.sort()
         self.add_input( name = "Image", interface = IPix,) 
         self.add_input( name = "Angle", interface = IFloat(min=0., max=359.),) 
-        self.add_input( name = "Mode", interface = IEnumStr(funs), value = funs[-1]) 
+        self.add_input( name = "Mode", interface = IEnumStr(funs), 
+                        value = funs[-1]) 
         self.add_input( name = "Expand", interface = IBool, value=True) 
 
         self.add_output( name = "Image", interface = IPix)
-        self.__doc__=Im.rotate.__doc__
+        self.__doc__ = Im.rotate.__doc__
 
     def __call__(self, inputs):
         im = self.get_input("Image")

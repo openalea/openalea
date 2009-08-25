@@ -21,13 +21,13 @@ from openalea.core import *
 from openalea.plotools import plotable
 
 import rpy
-from scipy import stats
-import scipy
-import pylab
+#from scipy import stats
+#import scipy
+#import pylab
 
 __docformat__ = "restructuredtext en"
 
-def random_continuous_law(law ,n , args):
+def random_continuous_law(law, n, args):
     """
     Generate random values from continuous distribution
 
@@ -53,8 +53,8 @@ def random_continuous_law(law ,n , args):
         if law == 'unif':
             res = rpy.r.runif(n, args[0], args[1])
         else:
-           if law == 'exp':
-               res = rpy.r.rexp(n, rate = args[0])
+            if law == 'exp':
+                res = rpy.r.rexp(n, rate = args[0])
 
     return (res,)
 
@@ -108,7 +108,7 @@ def pnorm(x , mean, sd):
 
     return (res,)
 
-def rnorm(n ,mean , sd):
+def rnorm(n, mean, sd):
     """
     Generate random values from normal distribution
 
@@ -207,7 +207,7 @@ def rpois(n , lambd):
 
 
 
-def random_discrete_law(law ,n , args):
+def random_discrete_law(law, n, args):
     """
     Generate random values from discrete distribution
 
@@ -233,8 +233,8 @@ def random_discrete_law(law ,n , args):
         if law == 'pois':
             res = rpy.r.rpois(n, args[0])
         else:
-           if law == 'geom':
-               res = rpy.r.rgeom(n, prob = args[0])
+            if law == 'geom':
+                res = rpy.r.rgeom(n, prob = args[0])
 
     return (res,)
 

@@ -17,12 +17,10 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-from openalea.core import global_module
+#from openalea.core import global_module
 
 
 def linearmodel(x=0., a=0., b=0.):
     """ return a*x + b  """
     
     return a*x + b
-
-
