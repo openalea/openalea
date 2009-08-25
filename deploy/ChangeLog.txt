@@ -1,6 +1,22 @@
 
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
+OpenAlea.Deploy 0.7.0
+---------------------
+
+**Revision xxxx**
+
+- add pylint option in setuptools
+- add sphinx_upload option in setuptools
+- add DYLD_LIBRARY_PATH to deploy config file
+- update documentation
+	- Fixes docstrings to make them compatible with sphinx, or have a nicer output
+	- fixes indentation issues in binary_deps and gforge_utils
+	- fixes coding conventions
+	- a few typos
+	- remove some warnings
+	- Fixed bad indentation
+
 OpenAlea.Deploy 0.6.2
 ---------------------
 
@@ -9,7 +25,7 @@ OpenAlea.Deploy 0.6.2
 - add clean command to incorporate scons into setup.py
 - Port to Mac
 - Fix documentation (docstrings) to remove warnings in epydoc:
-  http://openalea.gforge.inria.fr/doc/deploy-0.6.0/
+	http://openalea.gforge.inria.fr/doc/deploy-0.6.0/
 - Fix tests
 - Upgrade setuptools to 0.6c9
 - Fix PATH problem on Windows to take into account OpenAlea libraries.
