@@ -9,7 +9,7 @@ selection method.
 """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 #
 # Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
 #
@@ -37,22 +37,22 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
-ll_suffix=['.l','.ll']
+ll_suffix = ['.l', '.ll']
 
 LexAction = SCons.Action.Action("$LEXCOM") # , "$LEXCOMSTR")
 
 def generate(env):
-  """Add Builders and construction variables for lex to an Environment."""
-  c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
+    """Add Builders and construction variables for lex to an Environment."""
+    c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
 
-  c_file.add_action( '.l', LexAction)
-  for ll in ll_suffix:
-    cxx_file.add_action( ll, LexAction)
+    c_file.add_action( '.l', LexAction)
+    for ll in ll_suffix:
+        cxx_file.add_action( ll, LexAction)
 
-  env['LEX']      = env.Detect('flex') or 'lex'
-  env['LEXFLAGS'] = SCons.Util.CLVar('')
-  env['LEXCOM']   = '$LEX $LEXFLAGS -t $SOURCES > $TARGET'
+    env['LEX']      = env.Detect('flex') or 'lex'
+    env['LEXFLAGS'] = SCons.Util.CLVar('')
+    env['LEXCOM']   = '$LEX $LEXFLAGS -t $SOURCES > $TARGET'
 
 def exists(env):
-  return env.Detect(['flex', 'lex'])
+    return env.Detect(['flex', 'lex'])
 
