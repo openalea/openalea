@@ -154,18 +154,18 @@ def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
 ##   Alias("install", fi)
 ##   return fi
 
-def ALEAGlob(env, pattern, udir = '.'):
+def ALEAGlob(env, pattern, dir = '.'):
     import os, fnmatch, glob
     files = []
     dirs = []
     is_multidirs = False
-    if '*' in udir:
+    if '*' in dir:
         here = env.Dir('.').srcnode().abspath
-        d = os.path.join(here, udir)
+        d = os.path.join(here, dir)
         dirs = filter(os.path.isdir, glob.glob(d))
         is_multidirs = True
     else: 
-        here = env.Dir(udir).srcnode().abspath
+        here = env.Dir(dir).srcnode().abspath
         dirs = [here]
 
     for d in dirs: 
@@ -174,16 +174,16 @@ def ALEAGlob(env, pattern, udir = '.'):
                 if is_multidirs:
                     files.append(os.path.join(os.path.basename(d), ufile))
                 else:
-                    files.append(os.path.join(udir, ufile))
+                    files.append(os.path.join(dir, ufile))
     return files
 
-def ALEAGlobDir(env, pattern, udir='.'):
+def ALEAGlobDir(env, pattern, dir='.'):
     import os, glob
 
-    here = env.Dir(udir).srcnode().abspath
+    here = env.Dir(dir).srcnode().abspath
     d = os.path.join(here, pattern)
     dirs = filter(os.path.isdir, glob.glob(d))
-    dirs = map(lambda d: d.replace(here, udir), dirs)
+    dirs = map(lambda d: d.replace(here, dir), dirs)
 
     return dirs
 

@@ -16,7 +16,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 """ See OpenAlea WebSite / Packages / SConsX """
 
 __license__ = "Cecill-C"
@@ -26,8 +26,8 @@ import os, sys
 #import string
 pj = os.path.join
 
-#from SCons.Script
-from SCons.Options import EnumOption, Options
+from SCons.Script import SConsignFile, Help, BuildDir
+from SCons.Options import  Options
 from SCons.Variables import PathVariable 
 from SCons.Variables import BoolVariable 
 from SCons.Variables import EnumVariable 
@@ -210,13 +210,13 @@ default_tools = ['compiler', 'builddir', 'multicpu']
 
 class Config(object):
 
-    def __init__(self, tools=[], udir=[]):
+    def __init__(self, tools=[], dir=[]):
 
         self.init_tools = default_tools + tools
         self.tools = []
         self.tools_dict = {}
         self._walk = []
-        self.udir = [os.getcwd()] + udir
+        self.dir = [os.getcwd()] + dir
         self.custom_tests = { }
 
         for t in self.init_tools:
@@ -239,11 +239,11 @@ class Config(object):
 
         # Try to import SConsX tool
         try:
-            mod = import_tool(tool, self.udir)
+            mod = import_tool(tool, self.dir)
             t = mod.create(self)
         except:
             # Try to import EGG LIB
-            mod = import_tool("egglib", self.udir)
+            mod = import_tool("egglib", self.dir)
             t = mod.create(tool, self)
             
             
@@ -329,9 +329,9 @@ def ALEAEnvironment(conf, *args, **kwds):
     env.Prepend(LIBPATH='$build_libdir')
     return env
 
-def ALEASolution(options, tools=[], udir=[]):
+def ALEASolution(options, tools=[], dir=[]):
     SConsignFile()
-    conf = Config(tools, udir)
+    conf = Config(tools, dir)
     conf.UpdateOptions(options)
 
     env = Environment(options=options)
