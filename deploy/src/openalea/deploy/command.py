@@ -851,8 +851,14 @@ class pylint(Command):
                     ('pylint-options=', None, 'optional arguments to pylint such as --disable-msg=C0103')]
 
     def initialize_options(self):
+        self.output_filename = '.pylint.output'
         self.pylint_packages = None
         self.pylint_options = None
+        self.pylint_base_options = ' --ignore=__wralea__.py '
+        try:
+            os.remove(self.output_filename)
+        except:
+            pass
 
     def finalize_options(self):
         # get the packages to give to pylint
@@ -860,7 +866,7 @@ class pylint(Command):
         # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
         if (not self.pylint_packages):    
             self.pylint_packages = self.distribution.pylint_packages
-            print self.pylint_packages
+            #print self.pylint_packages
         
         # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
         if (not self.pylint_options):
@@ -870,20 +876,26 @@ class pylint(Command):
         if isinstance(self.pylint_packages, str):
             self.pylint_packages = self.pylint_packages.split(',')
         # otherwise, we already have a list
+        if self.pylint_options is None:
+            self.pylint_options = ''
+        
 
     def run(self):
-        
-        for package in self.pylint_packages:
-            print 'Processing ' + package + ' through pylint'
-            cmd = 'pylint ' + package.replace('/', os.sep) + os.sep + '*.py' + ' ' + self.pylint_options
-                
-            print cmd
-            status = subprocess.call(cmd ,stdout=open('.pylint.output','w'),stderr=None, shell=True)
-            if status!=0:
-                print 'This command returns status (%s) different from 0.' % str(status)
+        print '    PYLINT processing' 
+        if self.pylint_packages:
+            for package in self.pylint_packages:
+                print '    Processing ' + package + ' through pylint'
+                cmd = 'pylint ' + package.replace('/', os.sep) + os.sep + '*.py' + ' ' + self.pylint_options
+                cmd += self.pylint_base_options
+                print cmd
+                status = subprocess.call(cmd ,stdout=open(self.output_filename,'w+'),stderr=None, shell=True)
+                #if status!=0:
+                #    print 'This command returns status (%s) different from 0.' % str(status)
+                cmd = 'tail -n 1 %s ; grep \"Your code\"  %s ' % (self.output_filename, self.output_filename)
 
-        
-
+                subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+        else:
+            print 'No pylint options provided. Use --pylint-packages to give a pathname'
 
 
 class sphinx_upload(Command):
