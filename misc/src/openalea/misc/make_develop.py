@@ -55,7 +55,7 @@ class Commands():
     
         self.oa_dirs = """deploy deploygui core visualea sconsx
              stdlib openalea_meta misc scheduler"""
-        self.vp_dirs = """ tool stat_tool sequence_analysis container
+        self.vp_dirs = """PlantGL tool stat_tool sequence_analysis container
             amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta lpy"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
