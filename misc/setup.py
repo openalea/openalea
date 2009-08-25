@@ -44,7 +44,9 @@ setup(
                  "alea_init_sphinx = openalea.misc.sphinx_tools:init",
                  "make_develop = openalea.misc.make_develop:main",
                  ],
-    }
+    },
+    
+    pylint_packages = ['src/openalea/misc/'],
     )
 
 

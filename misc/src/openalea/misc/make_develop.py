@@ -42,6 +42,7 @@ class Commands():
             'nosetests': '-w test',
             'distribution': '' ,
             'sdist':'',
+            'pylint':'',
             'bdist':'',
             'bdist_egg':'',
             'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
@@ -241,7 +242,7 @@ def main():
     available_mode = ['develop', 'undevelop', 'install', 'release', 
                       'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 
                       'nosetests', 'distribution', 'sdist', "bdist",
-                       "bdist_egg"]
+                       "bdist_egg", "pylint"]
     available_project = ['openalea', 'vplants', 'alinea']
 
     

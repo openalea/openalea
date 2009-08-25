@@ -55,7 +55,8 @@ setup(
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
     install_requires = ['openalea.core'],
- 
+
+    pylint_packages = ['src/visualea'] 
     )
 
 

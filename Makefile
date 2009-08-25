@@ -69,6 +69,13 @@ install:
 
 clean:
 	$(Executable) clean -p $(Project) -d .
+	rm -rf ./*/dist
+	rm -rf ./*/build
+	rm -rf ./*/build-scons
+
+pylint:
+	$(Executable) pylint $(Project) -d .
+
 
 html:
 	$(Executable) html -p $(Project) -d . 
