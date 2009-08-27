@@ -91,7 +91,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
         
         return request
 
-    def multipart_encode(vars, files, boundary = None, buf = None):
+    def multipart_encode(self, vars, files, boundary = None, buf = None):
         if boundary is None:
             boundary = mimetools.choose_boundary()
         if buf is None:
@@ -131,7 +131,7 @@ def cookie_login(loginurl, values):
     """ Open a session
 
     login_url : the login url
-    values : dictionnary containing login form field
+    values : dictionary containing login form field
     """
     global urlOpener
     # Enable cookie support for urllib2
@@ -151,7 +151,8 @@ def cookie_login(loginurl, values):
         print "Login failed !"
     else:
         print "We are logged in !"
-
+    
+    
 ########################################
 # To add a new function:
 #  + go to the web page and display the source.
@@ -198,6 +199,15 @@ def delete_release(group_id, pkg_id, release_id):
     fp = urlOpener.open(url, values)
 
 
+def delete_file(group_id, pkg_id, release_id, file_id):
+    """ Delete a file """
+    url = "https://gforge.inria.fr/frs/admin/" +\
+        "editrelease.php?group_id=%i&package_id=%i&release_id=%i&step3=Delete%%20File&file_id=%i&im_sure=1" \
+        % (group_id, pkg_id, release_id, file_id)
+            
+    fp = urlOpener.open(url, {})
+   
+    
 def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
 
     url = "https://gforge.inria.fr/frs/admin/editrelease.php?" \
@@ -209,3 +219,4 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
                'userfile' : open(filename, "rb"),
                }
     fp = urlOpener.open(url, values)
+

@@ -241,7 +241,7 @@ def validate_pylint_options(dist, attr, value):
     try:
         assert type(value[0]) == str
     except ValueError:
-        raise ValuError("""options %s in the setup.py must be a  such as 
+        raise ValueError("""options %s in the setup.py must be a  such as 
             --disable-msg=C0103 that can be used as pylint options""" % attr)
 
 
@@ -249,7 +249,7 @@ def validate_pylint_packages(dist, attr, value):
     if isinstance(value, list):
         pass
     else:
-        raise ValuError("""options %s in the setup.py must be a list of path
+        raise ValueError("""options %s in the setup.py must be a list of path
              where to find the python source files """ % attr)
 
 
@@ -818,6 +818,92 @@ from %s.__init__ import *
         # For develop, the libraries stay in place.
         set_env()
 
+
+class upload_dist(Command):
+    """ extension to setuptools to upload a distribution on the gforge
+    
+    :param release:  compulsory argument to specify the release name, as 
+        it appears on the gforge web site of Openalea, that is at
+        https://gforge.inria.fr/frs/?group_id=79
+    :param filename: a distribution filename or a regular expression such as 
+        ./dist/*egg
+    :param login: your login name. will be asked later if not provided.
+    :param password: your password. will be asked later if not provided.
+   
+    :Examples:
+    
+        >>> python setup.py upload_dist --filename dist/*egg --login name 
+        ... --release 0.7
+        
+    You can add the options in the setup.cfg::
+    
+        >>> [upload_dist]
+        >>> filename = ./dist/*egg
+        >>> login = yourname
+    """
+    user_options = [('login=', 'l', 'login name to the gforge'),
+                    ('password=', 'p', 'your password to the gforge account'),
+                    ('verbose=', None, 'verbose option on'),
+                    ('release=', 'r', 'release name, e.g., 0.7'),
+                    ('filename=', 'f', 'a filename or regular expression default is dist/* ')]
+
+    def initialize_options(self):
+        self.login = None
+        self.password = None
+        self.verbose = False
+        self.filename = None
+        self.release = None
+        
+    def finalize_options(self): 
+    
+        if self.release is None:
+            import warnings
+            warnings.warn("""
+    the --release argument is neither a user argument nor in .pydistutils.
+    Searching for a valid version in setup.py 
+    """)
+            try:
+                version = self.distribution.metadata.version
+                # a version should be like x.y.z so, we split string and keep 
+                # the two first part x and y. We join them back with dots to get
+                # the release string
+                self.release = '.'.join(version.split('.')[0:2])
+                warnings.warn('Found release %s.' % self.release)
+            except Exception, e:
+                print e , 'release could not be found.'
+             
+
+    def run(self):
+        
+        #todo: by default verbose equals 1 . why ?
+        # if provided as user aguments --verbose is set to '' why ?  
+        if self.verbose == '':
+            self.verbose = True
+            
+        cmd = 'upload_dist '
+        
+        if self.login:
+            cmd += ' --login %s' % self.login            
+        if self.password:
+            cmd += ' --password %s' % self.password
+        if self.verbose is True:
+            cmd += ' --verbose '
+        if self.filename:
+            cmd += ' --filename %s' % self.filename
+        else:
+            cmd += './dist/*'
+        if self.release:
+            cmd += ' --release %s' % self.release
+            
+        if self.verbose is True:
+            print cmd
+        
+        status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+        if status != 0:
+            print 'This command failed'
+            print cmd
+            return 1                
+        
 
 class pylint(Command):
     """ pylint extensions to setuptools

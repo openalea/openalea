@@ -64,10 +64,10 @@ class GForgeProxy(object):
         """  Open a session """
 
         if(userid is None):
-            userid = raw_input("login:")
+            userid = raw_input("Enter your GForge login:")
 
         if(passwd is None):
-            passwd = getpass.getpass("password:")
+            passwd = getpass.getpass("Enter you GForge password:")
 
         try:
             self.session = self.server.login(userid, passwd)
@@ -191,7 +191,8 @@ class GForgeProxy(object):
             self.convert_to_id(project_id, package_id, release_id)
 
         try:
-            releases = server.getReleases(session, project_id, package_id)
+            releases = self.server.getReleases(self.session, 
+                                               project_id, package_id)
 
             for rel in releases:
                 id = rel['release_id']
@@ -417,13 +418,14 @@ class GForgeProxy(object):
         print "Uploading %s..."%(name,)
 
         try:
+            
             ret = self.server.addFile(self.session, project_id, package_id, release_id,
                                  name, filestr, type, processor, release_time)
             print "Done."
             return ret
         
         except Exception, e:
-            print e
+            print e, "Failed to upload file."
 
 
     def remove_package(self, project_id, package_id):
@@ -453,6 +455,16 @@ class GForgeProxy(object):
         gforge_util.delete_release(project_id, package_id, release_id)
 
 
+    def remove_file(self, project_id, package_id, release_id, file_id):
+        """remove a file"""
+        project_id, package_id, release_id, file_id = \
+            self.convert_to_id(project_id, package_id, release_id, file_id)
+        
+        import gforge_util
+        gforge_util.gforge_login(self.userid, self.passwd)
+        print 'trying to delete file'
+        gforge_util.delete_file(project_id, package_id, release_id, file_id)
+        print 'done'
 
 
 
@@ -499,7 +511,7 @@ if __name__ == "__main__" or "nose" in sys.argv[0]:
         server = GForgeProxy()
 
         server.login()
-        assert session
+        assert server.session
         server.logout()
 
 
