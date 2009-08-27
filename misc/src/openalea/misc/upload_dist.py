@@ -9,17 +9,11 @@ __revision__ = " $Id: upload_dist.py 1662 2009-03-09 12:25:57Z cokelaer $"
 
 import os
 from optparse import OptionParser
-import getpass
 import glob
 import warnings
 
 from openalea.deploy.gforge import GForgeProxy
-
-
-# if extension == "srcgz" --> type_id = "5020"
-# else: type_id = "9999"
-#  if(proc == "i386"):   proc = "1000"
-# elif(proc == "any"):  proc = "8000"
+from openalea.deploy.gforge import type_id
 
 class UploadDistributionToGForge(object):
     """
@@ -38,7 +32,7 @@ class UploadDistributionToGForge(object):
     todo: if release is not present on the gforge, create it.
     """
     def __init__(self, project='openalea', login=None, password=None, 
-                 release=None, verbose=False):
+                 release=None, verbose=False, replace_files=False):
         
         # initialisation weith user arguments
         self.gforge = GForgeProxy()
@@ -47,7 +41,7 @@ class UploadDistributionToGForge(object):
         self.password = password
         self.release = release
         self.verbose = verbose
-        
+        self.replace_files =replace_files
         # post processing to be done only once since project is unique
         self.group_id = self.gforge.get_project_id(self.project)
         self.packages = self.gforge.get_packages(self.project)
@@ -79,13 +73,13 @@ class UploadDistributionToGForge(object):
     def __str__(self):
         """ General information to be used by print function"""
         ustr = '>>>>>>>>>>>>>> Project information <<<<<<<<<<<<<\n'
-        ustr += 'Project: %s with id %d\n' \
+        ustr += 'Project:         %s with id %d\n' \
                     % (self.project, self.group_id)
         ustr += 'Current package: %s with id %s \n'\
             % (self.package, self.package_id)
-        ustr += 'Release: %s with id %s \n'\
+        ustr += 'Release:         %s with id %s \n'\
             % (self.release, self.release_id)
-        ustr += 'current distribution to upload: %s with id %s \n\n'\
+        ustr += 'Filename:        %s with id %s \n\n'\
             % (self.filename, self.file_id)
         return ustr
             
@@ -142,24 +136,38 @@ class UploadDistributionToGForge(object):
         else:
             self.release = release
         self._check()
-        self.get_package_id()
+        self.get_package_id(package)
         return self.release_id
     
     def get_file_id(self, filename=None, package=None, release=None):
         """returns package id given project and package names"""
-        """ check pacakge release"""
         if not filename:
             filename = self.filename
         else:
             self.filename = filename
         self._check()
         
-        self.get_release_id()
+        self.get_release_id(package, release)
         self.file_id = self.gforge.get_file_id(self.project, 
                                                self.package, 
                                                self.release, self.filename)
         return self.file_id
     
+    def get_file_type(self, filename=None):
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+            
+        extension = os.path.splitext(filename)[1]
+        if filename.endswith('tar.gz'):
+            extension = 'tar.gz'
+        if extension in type_id.keys():
+            self.file_type = type_id[extension]
+        else:
+            self.file_type = 9999  
+        return self.file_type
+        
     def get_releases(self, package):
         """returns list of release given project and package names"""
         return self.gforge(self.project, package)
@@ -198,22 +206,27 @@ class UploadDistributionToGForge(object):
         
         print 'Removing the following file from the gforge:',
         print self.filename
-        ret = raw_input('Do you want to delete and replace it  (yes/no)? ')
+        
+        ret = 'no'
+        if self.replace_files == True:
+            ret = 'yes'
+        else:
+            ret = raw_input('Do you want to delete and replace it  (yes/no)? ')
+        
         if ret != 'yes':
-            print 'File not uploaded. Logging out'
-            self.logout()
-            return
+            print 'File not deleted.'            
         else:
             self.gforge.remove_file(self.group_id, self.package_id, 
                                 self.release_id, self.file_id)
-        #update the file_id !!!!
-        self.get_file_id()
+            self.get_file_id()
+        return
     
     def upload_file(self, filename=None, package=None, 
                     user_release=None, verbose=False):
         """package must be in get_packages
         gforge.upload_file("filename.egg", "VPlants", "0.7")
         """
+        print '============================================= Uploading new file' 
         # overwrite release if required
         if user_release:
             self.get_release_id(package, user_release)
@@ -226,28 +239,23 @@ class UploadDistributionToGForge(object):
         else:
             pass
         
-        # we just want the base name to get the id 
+        # we just want the base name to get the id and update 
+        # the file and type id's.
         self.filename = os.path.basename(filename)
         self.get_file_id()
+        self.get_file_type()
         
         if verbose:
-            print 'Uploading %s' % filename
             print self
             
         # file already present 
         if self.file_id != -1:
-           warnings.warn("""
-                File %s already present on the gforge
-                """ % filename)
-           self.delete_file(self.filename, self.package, self.release)
+            warnings.warn("""File %s already present on the gforge """ % filename)
+            self.delete_file(self.filename, self.package, self.release)
  
         # if deleted, the fild_id has been updated in delete_file and therefore
         # it is == to -1
         if self.file_id == -1:
-        
-            if self.verbose:
-                print self.proc_type
-                print self.file_type
             #here we use filename because we need the whole pathname
             self.gforge.add_file(self.project, self.package,
                                      self.release,
@@ -260,7 +268,7 @@ class UploadDistributionToGForge(object):
 
 
 def ParseParameters():
-    """
+    """Simple Parsing function
     
     """
 
@@ -283,8 +291,8 @@ def ParseParameters():
         action="store_true",  default=False, help="verbose option")
     
     parser.add_option("-f", "--filename", 
-        default=None, help="name of the file to upload, provided that it matches\
-         one of the URLmap that is hardcoded")
+        default=None, help="name of the file to upload, provided that it \
+         matches one of the URLmap that is hard-coded")
 
     parser.add_option("-d", "--directory", 
         default='dist', help="directory with files to upload.")
@@ -294,6 +302,11 @@ def ParseParameters():
   
     parser.add_option("-P", "--project", 
         default='openalea', help="project name. should be openalea.")
+    
+    parser.add_option("-R", "--replace-files", 
+        action='store_true', default=False, help="replace file if found on the GForge.")
+    
+    
  
     (_opts, _args) = parser.parse_args()     
     return _opts, _args
@@ -308,7 +321,8 @@ def main():
     # initialisation
     gforge = UploadDistributionToGForge(opts.project,  login=opts.login, 
                              password=opts.password, release=opts.release,
-                             verbose=opts.verbose)
+                             verbose=opts.verbose, 
+                             replace_files=opts.replace_files)
     gforge.func_login()
         
     if not opts.filename:

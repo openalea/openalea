@@ -415,7 +415,7 @@ class GForgeProxy(object):
 
         release_time = int(time.mktime(time.localtime()))
 
-        print "Uploading %s..."%(name,)
+        print "Uploading %s..."%(name,),
 
         try:
             
@@ -462,9 +462,9 @@ class GForgeProxy(object):
         
         import gforge_util
         gforge_util.gforge_login(self.userid, self.passwd)
-        print 'trying to delete file'
+        print 'Trying to delete file %s',
         gforge_util.delete_file(project_id, package_id, release_id, file_id)
-        print 'done'
+        print 'Done.'
 
 
 
@@ -481,6 +481,10 @@ proc_id = { "i386" : 1000,
             "other" : 9999,
             }
 
+               
+
+              
+
 type_id = { ".deb" : 1000,
             ".rpm": 2000,
             ".zip" : 3000,
@@ -489,6 +493,7 @@ type_id = { ".deb" : 1000,
             "src .zip" : 5000,
             "src .bz2" : 5010,
             "src .gz" : 5020,
+            "tar.gz" : 5020,
             "src .rpm" : 5100,
             "src other" : 5900,	
             ".jpg" : 8000,
@@ -498,6 +503,8 @@ type_id = { ".deb" : 1000,
             ".dmg" : 4000,
             ".pkg" : 4010,
             "other" : 9999,
+            "Other" : 9999,
+
             }
             
             

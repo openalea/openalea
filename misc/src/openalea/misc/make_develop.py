@@ -97,25 +97,29 @@ class Commands():
             
         return  _dirs.split()
 
-    def recursive_call(self, cmd, dirs, root_dir, cwd,doc=False ):
+    def recursive_call(self, cmd, dirs, root_dir, cwd, doc=False):
         """run a command though the different directories """
 
         print dirs
-        for dir in dirs:
+        for udir in dirs:
             if doc:
-                dir = os.path.join(dir, 'doc')
-                dir = os.path.join(dir, 'latex')
-            print "--------------"
-            print "cd %s" % dir
-            print "Executing %s" % cmd
-            print '\n'
+                udir = os.path.join(udir, 'doc')
+                udir = os.path.join(udir, 'latex')
+            print '\n\n'
+            print "########## Make develop switches to %s directory ##########"\
+                % udir.upper()
+            print "= Executing %s =" % cmd
 
-            dir = root_dir/dir
-            os.chdir(dir)
+            udir = root_dir/udir
+            os.chdir(udir)
     
-            status = os.system(cmd)
+            import subprocess
+            status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+            
+            
             if status != 0:
                 print "Error during the execution of %s" % cmd
+                print 'Look in out.log and err.log'
                 print "---- EXIT ----"
                 return
     
@@ -196,10 +200,10 @@ class Commands():
             return
 
         # check if the dirs are under the given directory.
-        for dir in dirs:
-            if root_dir/dir not in dirs_under_root:
+        for udir in dirs:
+            if root_dir/udir not in dirs_under_root:
                 print "%s is not a directory of %s" % \
-                    (dir, str(root_dir.realpath()))
+                    (udir, str(root_dir.realpath()))
                 print "---- EXIT ----"
                 return
 

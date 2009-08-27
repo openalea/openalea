@@ -840,12 +840,17 @@ class upload_dist(Command):
         >>> [upload_dist]
         >>> filename = ./dist/*egg
         >>> login = yourname
-    """
+    """  
+    
+    description = "Upload the package on the OpenAlea GForge repository"
+
     user_options = [('login=', 'l', 'login name to the gforge'),
                     ('password=', 'p', 'your password to the gforge account'),
                     ('verbose=', None, 'verbose option on'),
                     ('release=', 'r', 'release name, e.g., 0.7'),
-                    ('filename=', 'f', 'a filename or regular expression default is dist/* ')]
+                    ('filename=', 'f', 'a filename or regular expression default is dist/* '),
+                    ('replace-files=', None, 'replace file if alrady present on the GForge')]
+
 
     def initialize_options(self):
         self.login = None
@@ -853,6 +858,7 @@ class upload_dist(Command):
         self.verbose = False
         self.filename = None
         self.release = None
+        self.replace_files = False
         
     def finalize_options(self): 
     
@@ -879,6 +885,8 @@ class upload_dist(Command):
         # if provided as user aguments --verbose is set to '' why ?  
         if self.verbose == '':
             self.verbose = True
+        if self.replace_files == '':
+            self.replace_files = True
             
         cmd = 'upload_dist '
         
@@ -888,6 +896,8 @@ class upload_dist(Command):
             cmd += ' --password %s' % self.password
         if self.verbose is True:
             cmd += ' --verbose '
+        if self.replace_files is True:
+            cmd += ' --replace-files '
         if self.filename:
             cmd += ' --filename %s' % self.filename
         if self.release:
