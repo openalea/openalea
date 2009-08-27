@@ -5,7 +5,7 @@ from setuptools import setup
 pj= os.path.join
 
 
-name = 'OpenAlea.SConsx'
+name = 'OpenAlea.SConsX'
 namespace = 'openalea'
 pkg_name = 'openalea.sconsx'
 
