@@ -49,7 +49,8 @@ class Commands():
             'html': "--builder html -E",
             'latex': "--builder latex -E",
             'sphinx_upload': "",
-            'pdf': ""
+            'pdf': "",
+            'upload_dist':'--verbose',
             }
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
@@ -137,7 +138,7 @@ class Commands():
 
         command = self.command
 
-        if command=='undevelop':
+        if command == 'undevelop':
             command = 'develop'
         directory = self.directory
         options = self.options
@@ -149,7 +150,7 @@ class Commands():
         if self.command == 'html':
             cmd = cmd.replace('html', 'build_sphinx', 1)
         elif self.command == 'latex':
-            cmd = cmd.replace('latex', 'build_sphinx' ,1)
+            cmd = cmd.replace('latex', 'build_sphinx', 1)
 
         # if the options exists, we complete the command
         if options and options.install_dir: 
@@ -242,7 +243,7 @@ def main():
     available_mode = ['develop', 'undevelop', 'install', 'release', 
                       'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 
                       'nosetests', 'distribution', 'sdist', "bdist",
-                       "bdist_egg", "pylint"]
+                       "bdist_egg", "pylint", "upload_dist"]
     available_project = ['openalea', 'vplants', 'alinea']
 
     

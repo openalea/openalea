@@ -43,6 +43,7 @@ setup(
         "console_scripts": [
                  "alea_init_sphinx = openalea.misc.sphinx_tools:init",
                  "make_develop = openalea.misc.make_develop:main",
+                 "upload_dist = openalea.misc.upload_dist:main",
                  ],
     },
     
