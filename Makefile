@@ -99,3 +99,13 @@ cleandoc:
 	rm -r ./*/doc/html
 	rm -r ./*/doc/latex
 	rm -r ./doc/build/
+
+source:
+	#svn up
+	#svn info | grep Revision| awk '{print $$2}'
+	rm -rf openalea_source;
+	svn export ../openalea openalea_source
+	tar cvfz OpenAlea.Source-0.7.0.r1793.tar.gz ./openalea_source
+
+upload_dist:
+	$(Executable) upload_dist -p $(Project) -d .
