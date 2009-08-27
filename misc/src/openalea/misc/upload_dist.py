@@ -165,15 +165,30 @@ class UploadDistributionToGForge(object):
         return self.gforge(self.project, package)
     
     def guess_package(self, filename):
-        _package_map = {'':''}
+        _package_map = {
+                        'OpenAlea.SConsx':'OpenAlea.SConsX',
+                        'OpenAlea.scheduler':'OpenAlea.scheduler',
+                        }
         guess = os.path.basename(filename).split('-')[0]
         
-        if guess in _package_map.keys():
+        if guess in self.packages:
+            if self.verbose:
+                print 'Found %s in the list of official packages.continue...' \
+                    % guess
+        elif guess in _package_map.keys():
+            if self.verbose:
+                print 'Found % in the list package_map. Need to be fixed !!' \
+                    % guess
             guess = _package_map[guess]
         elif guess.startswith('VPlants'):
+            if self.verbose:
+                print 'Found % in the list package_map. Need to be fixed !!' \
+                    % guess
             guess = 'VPlants'
         else:
-            pass
+            self.error('Could not guess the package name (%) on the gforge' 
+                       % guess)
+            
         self.get_package_id(guess)
         return guess
     

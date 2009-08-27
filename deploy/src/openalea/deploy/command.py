@@ -890,8 +890,6 @@ class upload_dist(Command):
             cmd += ' --verbose '
         if self.filename:
             cmd += ' --filename %s' % self.filename
-        else:
-            cmd += './dist/*'
         if self.release:
             cmd += ' --release %s' % self.release
             
