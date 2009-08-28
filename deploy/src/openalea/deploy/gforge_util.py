@@ -80,7 +80,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
                 data = urllib.urlencode(v_vars, doseq)
             else:
                 boundary, data = self.multipart_encode(v_vars, v_files)
-
+    
                 contenttype = 'multipart/form-data; boundary=%s' % boundary
                 if(request.has_header('Content-Type')
                    and request.get_header('Content-Type').find('multipart/form-data') != 0):
@@ -92,6 +92,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
         return request
 
     def multipart_encode(self, vars, files, boundary = None, buf = None):
+        
         if boundary is None:
             boundary = mimetools.choose_boundary()
         if buf is None:
@@ -114,8 +115,11 @@ class MultipartPostHandler(urllib2.BaseHandler):
             buf.write('\r\n' + fd.read() + '\r\n')
         buf.write('--' + boundary + '--\r\n\r\n')
         buf = buf.getvalue()
+     
         return boundary, buf
-    multipart_encode = Callable(multipart_encode)
+    
+    #with this line, the upload with add_big_file does not work...
+    #multipart_encode = Callable(multipart_encode)
 
     https_request = http_request
 
