@@ -42,6 +42,7 @@ class UploadDistributionToGForge(object):
         self.release = release
         self.verbose = verbose
         self.replace_files =replace_files
+        
         # post processing to be done only once since project is unique
         self.group_id = self.gforge.get_project_id(self.project)
         self.packages = self.gforge.get_packages(self.project)
@@ -67,7 +68,7 @@ class UploadDistributionToGForge(object):
     def _check(self):
         """Sanity check"""
         assert type(self.release) == str
-        assert type(self.login) == str
+        assert type(self.login) == str or self.login==None
         assert type(self.project) == str
         
     def __str__(self):
@@ -79,8 +80,12 @@ class UploadDistributionToGForge(object):
             % (self.package, self.package_id)
         ustr += 'Release:         %s with id %s \n'\
             % (self.release, self.release_id)
-        ustr += 'Filename:        %s with id %s \n\n'\
-            % (self.filename, self.file_id)
+        if self.file_id == -1:
+            ustr += 'Filename:        %s with id %s \n'\
+                % (self.filename, 'not present')
+        else:
+            ustr += 'Filename:        %s with id %s \n'\
+                % (self.filename, self.file_id)
         return ustr
             
     def func_login(self, login=None, password=None):
@@ -126,7 +131,15 @@ class UploadDistributionToGForge(object):
         # now that the package is none, we can also check the release id
         self.release_id = \
             self.gforge.get_release_id(self.project, self.package, self.release)
-    
+        #
+        if self.release_id == -1:
+             
+            _releases = self.gforge.get_releases(self.project, self.package)
+            self.release_id = self.gforge.get_release_id(self.project, 
+                                                         self.package_id,
+                                                         max(_releases))
+            self.release = max(_releases)
+            
         return self.package_id
     
     def get_release_id(self, package=None, release=None):
@@ -161,40 +174,40 @@ class UploadDistributionToGForge(object):
             
         extension = os.path.splitext(filename)[1]
         if filename.endswith('tar.gz'):
-            extension = 'tar.gz'
-        if extension in type_id.keys():
-            self.file_type = type_id[extension]
+            self.file_type = 'tar.gz'            
+        elif extension in type_id.keys():
+            self.file_type = extension
         else:
-            self.file_type = 9999  
+            self.file_type = 'other'
         return self.file_type
         
     def get_releases(self, package):
         """returns list of release given project and package names"""
-        return self.gforge(self.project, package)
+        return self.gforge.get_releases(self.project, package)
     
     def guess_package(self, filename):
         _package_map = {
-                        'OpenAlea.SConsx':'OpenAlea.SConsX',
-                        'OpenAlea.scheduler':'OpenAlea.scheduler',
+                        'OpenAlea.SConsx':'VPlants',
+                        'OpenAlea.Mtg':'VPlants',
                         }
         guess = os.path.basename(filename).split('-')[0]
-        
+        print guess
         if guess in self.packages:
             if self.verbose:
                 print 'Found %s in the list of official packages.continue...' \
                     % guess
         elif guess in _package_map.keys():
             if self.verbose:
-                print 'Found % in the list package_map. Need to be fixed !!' \
+                print 'Found %s in the list package_map. Need to be fixed !!' \
                     % guess
             guess = _package_map[guess]
         elif guess.startswith('VPlants'):
             if self.verbose:
-                print 'Found % in the list package_map. Need to be fixed !!' \
+                print 'Found %s as a VPlants package. Need to be fixed !!' \
                     % guess
             guess = 'VPlants'
         else:
-            self.error('Could not guess the package name (%) on the gforge' 
+            self.error('Could not guess the package name (%s) on the gforge' 
                        % guess)
             
         self.get_package_id(guess)
@@ -207,18 +220,15 @@ class UploadDistributionToGForge(object):
         print 'Removing the following file from the gforge:',
         print self.filename
         
-        ret = 'no'
-        if self.replace_files == True:
-            ret = 'yes'
-        else:
-            ret = raw_input('Do you want to delete and replace it  (yes/no)? ')
         
-        if ret != 'yes':
-            print 'File not deleted.'            
-        else:
+        if self.replace_files == True:
             self.gforge.remove_file(self.group_id, self.package_id, 
-                                self.release_id, self.file_id)
+                                    self.release_id, self.file_id)
             self.get_file_id()
+        else:
+            
+            print """WARNINGS:: File found on the GForge. Not replaced. 
+If you want to replace it, use the --replace-files option"""
         return
     
     def upload_file(self, filename=None, package=None, 
@@ -247,6 +257,7 @@ class UploadDistributionToGForge(object):
         
         if verbose:
             print self
+            print 'File type is %s' % self.file_type
             
         # file already present 
         if self.file_id != -1:
@@ -257,7 +268,15 @@ class UploadDistributionToGForge(object):
         # it is == to -1
         if self.file_id == -1:
             #here we use filename because we need the whole pathname
-            self.gforge.add_file(self.project, self.package,
+            if os.path.getsize(filename)> 2000000L:
+               self.gforge.add_big_file(self.project, self.package,
+                                     self.release,
+                                     filename,
+                                     proc_type=self.proc_type,
+                                     file_type=self.file_type)
+
+            else:
+                self.gforge.add_file(self.project, self.package,
                                      self.release,
                                      filename,
                                      proc_type=self.proc_type,
@@ -306,6 +325,9 @@ def ParseParameters():
     parser.add_option("-R", "--replace-files", 
         action='store_true', default=False, help="replace file if found on the GForge.")
     
+    parser.add_option("-D", "--do-not-replace-files", 
+        action='store_true', default=False, help="do not replace files.")
+    
     
  
     (_opts, _args) = parser.parse_args()     
@@ -321,7 +343,7 @@ def main():
     # initialisation
     gforge = UploadDistributionToGForge(opts.project,  login=opts.login, 
                              password=opts.password, release=opts.release,
-                             verbose=opts.verbose, 
+                             verbose=opts.verbose,  
                              replace_files=opts.replace_files)
     gforge.func_login()
         

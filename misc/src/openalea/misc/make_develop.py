@@ -143,7 +143,7 @@ class Commands():
         command = self.command
 
         if command == 'undevelop':
-            command = 'develop'
+            command = 'develop -u'
         directory = self.directory
         options = self.options
         # create the actual command to run
