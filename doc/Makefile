@@ -81,3 +81,8 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) build/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in build/doctest/output.txt."
+
+
+upload_sphinx:
+	scp -r ./build/html/ scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/openalea/doc/build/
+	scp -r ./build/latex/ scm.gforge.inria.fr:/home/groups/openalea/htdocs/doc/openalea/doc/build/

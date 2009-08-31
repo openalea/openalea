@@ -62,7 +62,7 @@ class Commands():
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
         self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
-         stdlib misc openale_meta scheduler""" 
+         stdlib misc openalea_meta scheduler""" 
         self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta 
         sequence_analysis lpy container newmtg"""
         self.alinea_sphinx_dirs="""caribu"""

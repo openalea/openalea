@@ -57,7 +57,7 @@ release2:
 	echo 'DISTRIBUTING========================================'
 	make sdist 1>>log.txt 2>> logerror.txt
 	make bdist 1>>log.txt 2>> logerror.txt
-	make bdist_egg 1>>log.txt 2>> logerror.txt
+	#make bdist_egg 1>>log.txt 2>> logerror.txt
 	echo 'Documentation======================================'
 	make html 1>>log.txt 2>>logerror.txt
  
