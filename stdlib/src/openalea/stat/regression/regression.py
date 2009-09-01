@@ -13,7 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-""" todo """
+""" .. todo:: fix rpy calls """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
@@ -23,18 +23,17 @@ from openalea.core.node import Node
 from openalea.plotools import plotable
 
 try:
-    import rpy
+    import rpy2.rpy_classic as rpy
+    rpy.set_default_mode(rpy.BASIC_CONVERSION)
+
 except:
-    try:
-        import rpy2.rpy_classic as rpy
+    import rpy
         
-    except:
-        raise ImportError('could not import rpy or rpy2')
     
     
     
 from scipy import stats
-#import scipy
+import numpy
 
 __docformat__ = "restructuredtext en"
 
@@ -114,11 +113,7 @@ class LR2Plot(Node):
     def __call__( self, inputs ):
 
         reg = self.get_input( 'reg' )
-        try: #rpy
-            reg_x = rpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
-        except: #rpy2
-            reg_x = rpy.array.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
-            
+        reg_x = numpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
         reg_y = reg_x*reg[ 'slope' ]+reg[ 'intercept' ]
         if reg.has_key('ic'):
             reg_legend = "y = " + str( round(reg['slope'], 3 ) ) + \
