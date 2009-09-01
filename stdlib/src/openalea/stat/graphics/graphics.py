@@ -21,7 +21,12 @@ __revision__ = " $Id$"
 from openalea.core import *
 #from openalea.plotools import plotable
 
-import rpy
+try:
+    import rpy2.rpy_classic as rpy
+    rpy.set_default_mode(rpy.BASIC_CONVERSION)
+
+except:
+    import rpy
 #from scipy import stats
 #import scipy
 #import pylab

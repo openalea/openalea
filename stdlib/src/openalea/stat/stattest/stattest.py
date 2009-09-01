@@ -20,7 +20,14 @@ __revision__ = " $Id$"
 from openalea.core import Node
 #from openalea.plotools import plotable
 
-import rpy
+try:
+    import rpy2.rpy_classic as rpy
+    rpy.set_default_mode(rpy.BASIC_CONVERSION)
+
+except:
+    import rpy
+
+#import numpy
 from scipy import stats
 #import scipy
 #import pylab

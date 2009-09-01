@@ -22,13 +22,14 @@ from openalea.core import *
 from openalea.plotools import plotable
 
 try:
-    import rpy2 as rpy
+    import rpy2.rpy_classic as rpy
+    rpy.set_default_mode(rpy.BASIC_CONVERSION)
+
 except:
     import rpy
 
-from scipy import stats
 import scipy
-import pylab
+import numpy
 
 __docformat__ = "restructuredtext en"
 
@@ -70,10 +71,10 @@ def StatSummary( x ):
     """
 
     result = rpy.r.summary(x)
-    minimum = result['Min.']
-    maximum = result['Max.']
-    median = result['Median']
-    mean = result['Mean']
+    minimum = numpy.min(x)
+    maximum = numpy.max(x)
+    median = numpy.median(x)
+    mean = numpy.mean(x)
     sd = rpy.r.sd(x)
 
     data = {'minimum':minimum, 'maximum':maximum, 'median':median, 
@@ -122,7 +123,7 @@ def Mean( x ):
     :attention:  x cannot be empty
     """
 
-    result = stats.stats.mean(x)
+    result = numpy.mean(x)
 
     return result
 
@@ -143,7 +144,7 @@ def Median( x ):
     :attention:  x cannot be empty
     """
 
-    result = stats.stats.median(x)
+    result = numpy.median(x)
 
     return result
 
@@ -163,7 +164,7 @@ def Mode( x ):
     :attention:  x cannot be empty
     """
 
-    res = stats.stats.mode(x)
+    res = numpy.mode(x)
     mode = list(res[0])
     count = list(res[1])
 
@@ -186,7 +187,7 @@ def Var( x ):
     :attention:  x cannot be empty
      """
 
-    result = stats.stats.var(x)
+    result = numpy.var(x)
 
     return result
 
@@ -206,7 +207,7 @@ def Std( x ):
     :attention:  x cannot be empty
     """
 
-    result = stats.stats.std(x)
+    result = numpy.std(x)
 
     return result
 
