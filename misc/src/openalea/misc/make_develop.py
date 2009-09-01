@@ -119,7 +119,6 @@ class Commands():
             
             if status != 0:
                 print "Error during the execution of %s" % cmd
-                print 'Look in out.log and err.log'
                 print "---- EXIT ----"
                 return
     
