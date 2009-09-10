@@ -198,6 +198,22 @@ def delete_release(group_id, pkg_id, release_id):
     fp = urlOpener.open(url, values)
 
 
+def delete_file(group_id, pkg_id, release_id, filename_id):
+    """ Delete a file """
+    url = "https://gforge.inria.fr/frs/admin/editrelease.php" 
+    
+    values = { 'group_id' : group_id,
+               'release_id' : release_id,
+               'package_id' : pkg_id,
+               'file_id' : filename_id,
+               'step3' : 'Delete File',
+               'submit' : 'Effacer le fichier ',
+               'im_sure' : 1,
+               }
+     
+    fp = urlOpener.open(url, values)
+
+
 def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
 
     url = "https://gforge.inria.fr/frs/admin/editrelease.php?" \
@@ -209,3 +225,5 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
                'userfile' : open(filename, "rb"),
                }
     fp = urlOpener.open(url, values)
+
+

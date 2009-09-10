@@ -453,6 +453,18 @@ class GForgeProxy(object):
         gforge_util.delete_release(project_id, package_id, release_id)
 
 
+    def remove_file(self, project_id, package_id, release_id, file_id):
+        """
+        Remove a file
+        """
+
+        file_id = os.path.basename(file_id)
+        project_id, package_id, release_id, file_id = \
+            self.convert_to_id(project_id, package_id, release_id, file_id)
+
+        import gforge_util
+        gforge_util.gforge_login(self.userid, self.passwd)
+        gforge_util.delete_file(project_id, package_id, release_id, file_id)
 
 
 
