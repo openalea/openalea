@@ -1,17 +1,15 @@
-"""
+"""A script to Query package informations, Create new packages/releases, and Upload all files within the OpenAlea WebSite : http://openalea.gforge.inria.fr
 
-OB
-to do:
-    argument should be 
-        * filename (or directory)
-        * package (string; id)
-        * release
-        * project
-    if release or package is wrong, return list of valid package.
+:Example:
+
+>>> python gforge_upload query openalea:aml2py
+>>> python gforge_upload -d /home/user add openalea:VPlants:0.8:*.egg
+
+type --help to get more help and usage
 
 """
-# A script to upload all files within the OpenAlea WebSite : http://openalea.gforge.inria.fr
 
+__revision__ = " $Id: gforge_upload.py 1812 2009-09-10 moscardi $"
 
 from optparse import OptionParser
 from fnmatch import fnmatch
@@ -30,9 +28,7 @@ class UploadError(Exception):
         self.msg = msg
 
 class Uploader(object):
-    """TODO: Documentation
 
-    """
 
     def __init__(self, project=None, package=None, release=None, filename=None, directory='.', simulate=True):
         
@@ -55,7 +51,7 @@ class Uploader(object):
 
         """
         elt.sort()
-        msg = 'Packages in the '+elements+' :'
+        msg = 'Elements in the '+elements+' :'
         underscore = '-'*len(msg)
         tab = '  '
         print msg
@@ -160,11 +156,11 @@ class Uploader(object):
             if not self.simulate:
                 print 'Do you really add %s package'%self.package, 'in %s project'%self.project
                 response = 'N'                
-                response = raw_input("Y or N ? ")
+                response = raw_input("[y|n]? ")
                 if response.lower() == 'y':
                     self.server.login() 
                     self.server.add_package(self.project, self.package)
-                    print '%s package had been created on the server'%self.package
+                    print '%s package has been created on the server'%self.package
                 else:
                     pass
 
@@ -174,11 +170,11 @@ class Uploader(object):
             if not self.simulate:
                 print 'Do you really add %s release'%self.release, 'in %s package'%self.package
                 response = 'N'                
-                response = raw_input("Y or N ? ")
+                response = raw_input("[y|n]? ")
                 if response.lower() == 'y':
                     self.server.login() 
                     self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
-                    print '%s release had been created on the server'%self.release
+                    print '%s release has been created on the server'%self.release
                 else:
                     pass 
 
@@ -186,32 +182,46 @@ class Uploader(object):
         if self.filename:
             # 1. get the files
             d = path(self.directory)
-            print 'd', d
             files = d.files(self.filename)
-            print 'files', files
+            
                 
             # 2. check if the files are not on the server
-            server_files = server.get_files(self.project, self.package, self.release)
-            files = [f for f in files if f.basename() not in server_files]
-
+            server_files = server.get_files(self.project, self.package, self.release)            
+            files = [f for f in files if f not in server_files]
             outfiles = '\n'.join( [f for f in files if f.basename() in server_files])
             if outfiles:
                 print 'Some files are on the server: %s'%outfiles
 
             # 3. add the files not in the server
             for f in files:
-                print 'Upload file %s'%f.basename()
                 if not self.simulate:
-                    print 'Do you really upload %s file'%f.basename(), 'in %s release'%self.release
-                    response = 'N'                
-                    response = raw_input("[y|n]? ")
-                    if response.lower() == 'y':
-                        self.server.login() 
-                        self.server.add_file(self.project, self.package, self.release, f)
-                        print '%s file had been upload on the server'%f.basename()
-                    else:
-                        pass 
- 
+                    if outfiles:
+                        print 'Do you really update %s?'%f.basename()
+                        response = 'N'                
+                        response = raw_input("[y|n]? ")
+                        if response.lower() == 'y':                
+                            print 'Upload file %s'%f.basename()
+                            self.server.login() 
+                            self.server.remove_file(self.project, self.package, self.release, f.basename())
+                            print 'the old %s file has been removed from the server'%f.basename()
+                            self.server.add_file(self.project, self.package, self.release, f)
+                            print 'the new %s file has been uploaded on the server'%f.basename()                       
+                        else:
+                            pass 
+                
+                    else:             
+                        print 'Do you really upload %s file'%f.basename(), 'in %s release'%self.release
+                        response = 'N'                
+                        response = raw_input("[y|n]? ")
+                        if response.lower() == 'y':
+                            self.server.login() 
+                            self.server.add_file(self.project, self.package, self.release, f)
+                            print '%s file has been uploaded on the server'%f.basename()
+                        else:
+                            pass 
+        
+        else:
+            print 'This element already exists'
         return True
 
 
@@ -223,11 +233,11 @@ def main():
     usage = """
     %prog query package information, create new package/release/project, and add files to the gforge.
   
-    %prog [options] query|add project:package:release:file
-    or %prog [options] query|add project:package:release:pattern
+    %prog [options] query|add project:package:release:file or 
+    %prog [options] query|add project:package:release:pattern
 
     exemple: %prog --dry-run query openalea:aml2py
-    %prog add openalea:VPlants:0.8:*.egg
+    %prog -d /home/user add openalea:VPlants:0.8:*.egg
 """
  
     parser = OptionParser(usage=usage)
@@ -238,7 +248,7 @@ def main():
                       dest='dry_run', help="don't actually do anything")
 
     parser.add_option("-d", "--dir", dest='directory', default= '.', 
-        help="directory which contains the various files [default: %default]")
+    help="directory which contains the various files [default: %default]")
 
     
     try:
