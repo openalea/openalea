@@ -56,9 +56,9 @@ class Commands():
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
         self.oa_dirs = """deploy deploygui core visualea sconsx
-             stdlib openalea_meta misc scheduler"""
+             stdlib misc scheduler openalea_meta"""
         self.vp_dirs = """PlantGL tool stat_tool sequence_analysis container
-            amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta lpy"""
+            amlobj mtg tree_matching aml fractalysis newmtg WeberPenn lpy vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
         self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
