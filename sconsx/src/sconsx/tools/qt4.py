@@ -51,9 +51,13 @@ class QT:
                 # Try to use openalea egg
                 try:
                     from openalea.deploy import get_base_dir
-                    qt_dir = get_base_dir("qt4")
+                    qt_dir = get_base_dir("qt4-dev")
                 except:
-                    qt_dir = pj('C:','QT')
+                    try:
+                        from openalea.deploy import get_base_dir
+                        qt_dir = get_base_dir("qt4")
+                    except:
+                        qt_dir = pj('C:','Qt','4.5.2')
                 
             elif isinstance(platform, Posix):
                 qt_dir = pj('/usr', 'lib', 'qt4')
