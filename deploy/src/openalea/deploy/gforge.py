@@ -455,7 +455,7 @@ class GForgeProxy(object):
 
     def remove_file(self, project_id, package_id, release_id, file_id):
         """
-        Remove a file
+        Remove a file 
         """
 
         file_id = os.path.basename(file_id)
