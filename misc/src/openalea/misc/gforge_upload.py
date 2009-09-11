@@ -157,9 +157,9 @@ class Uploader(object):
         # Add package and release on the server
         if n == 1 and self.package:
             if self.simulate:
-                print 'Add %s package'%self.package, 'in %s project'%self.project
+                print 'Add %s package in %s project'%(self.package, self.project)
             else:
-                msg = 'Do you really want to add %s package'%self.package, 'in %s project'%self.project
+                msg = 'Do you really want to add %s package in %s project'%(self.package, self.project)
               
                 if self.ask(msg):
                     self.server.add_package(self.project, self.package)
@@ -169,9 +169,9 @@ class Uploader(object):
     
         if self.release and (1 <= n <= 2):                    
             if self.simulate:
-                print 'Add release %s'%self.release, 'in %s package'%self.package
+                print 'Add release %s in %s package'%(self.release, self.package)
             else:
-                msg = 'Do you really want to add release %s'%self.release, 'in %s package'%self.package
+                msg = 'Do you really want to add release %s in %s package'%(self.release, self.package)
                
                 if self.ask(msg):
                     self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
@@ -213,7 +213,7 @@ class Uploader(object):
                         print 'the new %s file has been uploaded on the server'%f.basename()                       
                 
                 else:             
-                    msg = 'Do you really upload %s file'%f.basename(), 'in %s release'%self.release
+                    msg = 'Do you really want to upload %s file in %s release'%(f.basename(), self.release)
                     
                     if self.ask(msg):
                         if not self.simulate:
@@ -233,9 +233,9 @@ class Uploader(object):
  
         if self.package and not self.release:       
             if self.simulate:
-                print 'Remove %s package'%self.package, 'from %s project'%self.project
+                print 'Remove %s package from %s project'%(self.package, self.project)
             else:
-                msg = 'Do you really want to remove %s package'%self.package, 'from %s project?'%self.project
+                msg = 'Do you really want to remove %s package from %s project?'%(self.package, self.project)
                 
                 if self.ask(msg):
                     self.server.remove_package(self.project, self.package)
@@ -246,9 +246,9 @@ class Uploader(object):
 
         if self.release and not self.filename:                    
             if self.simulate:
-                print 'Remove release %s'%self.release, 'from %s package'%self.package
+                print 'Remove release %s from %s package'%(self.release, self.package)
             else:
-                msg = 'Do you really want to remove %s release'%self.release, 'from %s package'%self.package
+                msg = 'Do you really want to remove %s release from %s package'%(self.release, self.package)
               
                 if self.ask(msg):
                     self.server.remove_release(self.project, self.package, self.release)
@@ -261,9 +261,9 @@ class Uploader(object):
             files = [f for f in files if path(f).fnmatch(self.filename)]
             for f in files:            
                 if self.simulate:
-                    print 'Remove %s file'%f, 'from %s release'%self.release
+                    print 'Remove %s file from %s release'%(f, self.release)
                 else:
-                    msg = 'Do you really want to remove %s file'%f, 'from %s release?'%self.release 
+                    msg = 'Do you really want to remove %s file from %s release?'%(f, self.release) 
      
                     if self.ask(msg):
                         self.server.remove_file(self.project, self.package, self.release, f)
