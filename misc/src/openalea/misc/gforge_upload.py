@@ -18,7 +18,7 @@ from openalea.core.path import path
 from openalea.deploy.gforge import *
 
 
-available_mode = ['query', 'add']
+available_mode = ['query', 'add', 'remove']
 available_project = ['openalea', 'vplants', 'alinea']
 
 server = GForgeProxy()
@@ -57,7 +57,13 @@ class Uploader(object):
         print msg
         print underscore
         print tab+('\n'+tab).join(elt)
-    
+ 
+
+    def ask(self, question):
+        print question
+        ok = raw_input("([y]/n)? ")
+        return ok.lower() == 'y'
+   
 
     def check(self):
         """ Return the element (e.g. project, package) which exist on the server.
@@ -73,7 +79,7 @@ class Uploader(object):
             return elts
         else:
             elts.append(self.project)
-
+        
         # User do not give any package.
         if not self.package:
             return elts
@@ -82,7 +88,7 @@ class Uploader(object):
             pkgs = server.get_packages(self.project)
         except:
             pkgs = []
-
+    
         if self.package in pkgs:
             elts.append(self.package)
         else: 
@@ -112,7 +118,6 @@ class Uploader(object):
         Query the project, package, release.
         
         """
-
         elements = self.check()
         n = len(elements)
         if n == 0:
@@ -140,7 +145,7 @@ class Uploader(object):
         """Create the missing elements and upload the files to the server.
 
         """
-        
+        self.server.login()
         elements = self.check()
         n = len(elements)
         
@@ -148,82 +153,122 @@ class Uploader(object):
             raise UploaderError('Please give an existing project.')
 
         assert n < 4
-    
+
         # Add package and release on the server
         if n == 1 and self.package:
-            print 'Add package %s'%self.package
-            
-            if not self.simulate:
-                print 'Do you really add %s package'%self.package, 'in %s project'%self.project
-                response = 'N'                
-                response = raw_input("[y|n]? ")
-                if response.lower() == 'y':
-                    self.server.login() 
+            if self.simulate:
+                print 'Add %s package'%self.package, 'in %s project'%self.project
+            else:
+                msg = 'Do you really want to add %s package'%self.package, 'in %s project'%self.project
+              
+                if self.ask(msg):
                     self.server.add_package(self.project, self.package)
                     print '%s package has been created on the server'%self.package
                 else:
-                    pass
-
+                    return False
+    
         if self.release and (1 <= n <= 2):                    
-            print 'Add release %s'%self.release
-            
-            if not self.simulate:
-                print 'Do you really add %s release'%self.release, 'in %s package'%self.package
-                response = 'N'                
-                response = raw_input("[y|n]? ")
-                if response.lower() == 'y':
-                    self.server.login() 
+            if self.simulate:
+                print 'Add release %s'%self.release, 'in %s package'%self.package
+            else:
+                msg = 'Do you really want to add release %s'%self.release, 'in %s package'%self.package
+               
+                if self.ask(msg):
                     self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
-                    print '%s release has been created on the server'%self.release
+                    print 'release %s has been created on the server'%self.release
                 else:
-                    pass 
-
+                    return False
+ 
+        
         # Add files if any on the server
         if self.filename:
             # 1. get the files
             d = path(self.directory)
             files = d.files(self.filename)
-            
+            if not files:
+                print 'No file named %s exists in %s'%(self.filename, d)  
                 
             # 2. check if the files are not on the server
-            server_files = server.get_files(self.project, self.package, self.release)            
-            files = [f for f in files if f not in server_files]
-            outfiles = '\n'.join( [f for f in files if f.basename() in server_files])
-            if outfiles:
-                print 'Some files are on the server: %s'%outfiles
+            # There are files only if project, package, and release already existed.
+            outfiles = []
+            if n == 3:
+                server_files = server.get_files(self.project, self.package, self.release)            
+                files = [f for f in files if f not in server_files]
+                outfiles = '\n'.join( [f for f in files if f.basename() in server_files])
+                if outfiles:
+                    print 'Some files are on the server: %s'%outfiles
 
-            # 3. add the files not in the server
+            # 3. add the files not in the server 
             for f in files:
-                if not self.simulate:
-                    if outfiles:
-                        print 'Do you really update %s?'%f.basename()
-                        response = 'N'                
-                        response = raw_input("[y|n]? ")
-                        if response.lower() == 'y':                
-                            print 'Upload file %s'%f.basename()
-                            self.server.login() 
+                if f in outfiles:
+                    msg = 'Do you really want to update %s?'%f.basename()
+
+                    if self.ask(msg):                
+                        print 'Upload file %s'%f.basename()
+                        if not self.simulate:
                             self.server.remove_file(self.project, self.package, self.release, f.basename())
-                            print 'the old %s file has been removed from the server'%f.basename()
+                        print 'the old %s file has been removed from the server'%f.basename()
+                        if not self.simulate:                        
                             self.server.add_file(self.project, self.package, self.release, f)
-                            print 'the new %s file has been uploaded on the server'%f.basename()                       
-                        else:
-                            pass 
+                        print 'the new %s file has been uploaded on the server'%f.basename()                       
                 
-                    else:             
-                        print 'Do you really upload %s file'%f.basename(), 'in %s release'%self.release
-                        response = 'N'                
-                        response = raw_input("[y|n]? ")
-                        if response.lower() == 'y':
-                            self.server.login() 
+                else:             
+                    msg = 'Do you really upload %s file'%f.basename(), 'in %s release'%self.release
+                    
+                    if self.ask(msg):
+                        if not self.simulate:
                             self.server.add_file(self.project, self.package, self.release, f)
-                            print '%s file has been uploaded on the server'%f.basename()
-                        else:
-                            pass 
-        
-        else:
-            print 'This element already exists'
+                        print '%s file has been uploaded on the server'%f.basename()
+
         return True
 
+
+    def remove(self):
+        """Remove the elements (package/release/and files) from the server.
+
+        """
+
+        # Remove package and release on the server
+        self.server.login()
+ 
+        if self.package and not self.release:       
+            if self.simulate:
+                print 'Remove %s package'%self.package, 'from %s project'%self.project
+            else:
+                msg = 'Do you really want to remove %s package'%self.package, 'from %s project?'%self.project
+                
+                if self.ask(msg):
+                    self.server.remove_package(self.project, self.package)
+                    print '%s package has been removed from the server'%self.package
+                else:
+                    return False
+
+
+        if self.release and not self.filename:                    
+            if self.simulate:
+                print 'Remove release %s'%self.release, 'from %s package'%self.package
+            else:
+                msg = 'Do you really want to remove %s release'%self.release, 'from %s package'%self.package
+              
+                if self.ask(msg):
+                    self.server.remove_release(self.project, self.package, self.release)
+                    print '%s release has been removed from the server'%self.release
+                else:
+                    return False
+
+        if self.filename:
+            files = server.get_files(self.project, self.package, self.release)
+            files = [f for f in files if path(f).fnmatch(self.filename)]
+            for f in files:            
+                if self.simulate:
+                    print 'Remove %s file'%f, 'from %s release'%self.release
+                else:
+                    msg = 'Do you really want to remove %s file'%f, 'from %s release?'%self.release 
+     
+                    if self.ask(msg):
+                        self.server.remove_file(self.project, self.package, self.release, f)
+                        print '%s file has been removed from the server'%f
+            
 
 def main():
     """This is the main parsing function to get user arguments
@@ -231,10 +276,10 @@ def main():
     """
 
     usage = """
-    %prog query package information, create new package/release/project, and add files to the gforge.
+    %prog query package information, create or remove package/release/project, and add or remove files to the gforge.
   
-    %prog [options] query|add project:package:release:file or 
-    %prog [options] query|add project:package:release:pattern
+    %prog [options] query|add|remove project:package:release:file or 
+    %prog [options] query|add|remove project:package:release:pattern
 
     exemple: %prog --dry-run query openalea:aml2py
     %prog -d /home/user add openalea:VPlants:0.8:*.egg
@@ -308,6 +353,15 @@ def main():
     elif mode == 'add':
         try:
             uploader.add()
+        except UploadError, e:
+            print e
+            return opts
+
+    # Remove package/release/files from the server
+         
+    elif mode == 'remove':
+        try:
+            uploader.remove()
         except UploadError, e:
             print e
             return opts
