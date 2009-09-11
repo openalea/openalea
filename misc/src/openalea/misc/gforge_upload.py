@@ -171,7 +171,7 @@ class Uploader(object):
             if self.simulate:
                 print 'Add release %s'%self.release, 'in %s package'%self.package
             else:
-                msg = 'Do you really want to add release %s'%self.release 'in %s package'%self.package
+                msg = 'Do you really want to add release %s'%self.release, 'in %s package'%self.package
                
                 if self.ask(msg):
                     self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
