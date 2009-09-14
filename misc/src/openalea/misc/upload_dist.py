@@ -135,6 +135,9 @@ class UploadDistributionToGForge(object):
         if self.release_id == -1:
              
             _releases = self.gforge.get_releases(self.project, self.package)
+            print self.project
+            print self.package
+            print _releases
             self.release_id = self.gforge.get_release_id(self.project, 
                                                          self.package_id,
                                                          max(_releases))
@@ -165,7 +168,22 @@ class UploadDistributionToGForge(object):
                                                self.package, 
                                                self.release, self.filename)
         return self.file_id
-    
+   
+    def get_proc_type(self, filename=None):
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+
+        if 'linux' or 'win32' in filename:
+            self.proc_type = 'i386'
+        elif 'mac' in filename:
+            self.proc_type = 'i386'
+        else:
+            self.proc_type = 'any'
+
+        return self.proc_type
+
     def get_file_type(self, filename=None):
         if not filename:
             filename = self.filename
@@ -189,23 +207,32 @@ class UploadDistributionToGForge(object):
         _package_map = {
                         'OpenAlea.SConsx':'VPlants',
                         'OpenAlea.Mtg':'VPlants',
+                        'VPlants.PlantGL':'VPlants'
                         }
         guess = os.path.basename(filename).split('-')[0]
         print guess
-        if guess in self.packages:
-            if self.verbose:
-                print 'Found %s in the list of official packages.continue...' \
-                    % guess
-        elif guess in _package_map.keys():
+        
+        if guess in _package_map.keys():
             if self.verbose:
                 print 'Found %s in the list package_map. Need to be fixed !!' \
                     % guess
             guess = _package_map[guess]
+        
+        elif guess in self.packages:
+            if self.verbose:
+                print 'Found %s in the list of official packages.continue...' \
+                    % guess
         elif guess.startswith('VPlants'):
             if self.verbose:
                 print 'Found %s as a VPlants package. Need to be fixed !!' \
                     % guess
             guess = 'VPlants'
+        elif guess.startswith('Alinea'):
+            if self.verbose:
+                print 'Found %s as an Alinea package. Need to be fixed !!' \
+                    % guess
+            guess = 'Alinea'
+        
         else:
             self.error('Could not guess the package name (%s) on the gforge' 
                        % guess)
@@ -254,10 +281,13 @@ If you want to replace it, use the --replace-files option"""
         self.filename = os.path.basename(filename)
         self.get_file_id()
         self.get_file_type()
+        self.get_proc_type()
+
         
         if verbose:
             print self
             print 'File type is %s' % self.file_type
+            print 'Processor type is %s' % self.proc_type
             
         # file already present 
         if self.file_id != -1:
