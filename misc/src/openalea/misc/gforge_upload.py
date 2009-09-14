@@ -1,11 +1,22 @@
-"""A script to Query package informations, Create new packages/releases, and Upload all files within the OpenAlea WebSite : http://openalea.gforge.inria.fr
+"""A script to Query package information, create new packages/releases, and 
+upload all files within the OpenAlea website: http://openalea.gforge.inria.fr
 
 :Example:
 
->>> python gforge_upload query openalea:aml2py
->>> python gforge_upload -d /home/user add openalea:VPlants:0.8:*.egg
+    >>> python gforge_upload query openalea:aml2py
+    >>> python gforge_upload -d /home/user add openalea:VPlants:0.8:*.egg
 
 type --help to get more help and usage
+
+.. todo:: 
+    * add_big_file
+    * what's happen if the file already exists ?
+    * login required when project is reset
+    * improve output of message function
+    
+    * add proc and file type ? 
+    * if package is not provided, guess it from the name ? 
+     
 
 """
 
@@ -15,7 +26,7 @@ from optparse import OptionParser
 from fnmatch import fnmatch
 
 from openalea.core.path import path
-from openalea.deploy.gforge import *
+from openalea.deploy.gforge import GForgeProxy
 
 
 available_mode = ['query', 'add', 'remove']
@@ -23,14 +34,16 @@ available_project = ['openalea', 'vplants', 'alinea']
 
 server = GForgeProxy()
 
-class UploadError(Exception):
+
+class UploaderError(Exception):
     def __init__(self, msg):
         self.msg = msg
 
+
 class Uploader(object):
 
-
-    def __init__(self, project=None, package=None, release=None, filename=None, directory='.', simulate=True):
+    def __init__(self, project=None, package=None, release=None, filename=None,
+                 directory='.', simulate=True):
         
         self.project = project
         self.package = package
@@ -41,32 +54,30 @@ class Uploader(object):
         self.simulate = simulate
 
     def __del__(self):
-        """ Logout the session when this instance is deleted.
-        """
+        """ Logout the session when this instance is deleted."""
         self.server.logout()
 
-    
     def messages(self, elt, elements):
-        """ Display the list of elements (e.g. package, release) which on the server.
+        """ Display the list of elements (e.g. package, release) which 
+        on the server.
 
         """
         elt.sort()
-        msg = 'Elements in the '+elements+' :'
-        underscore = '-'*len(msg)
+        msg = 'Elements in the ' + elements + ' :'
+        underscore = '-' * len(msg)
         tab = '  '
         print msg
         print underscore
-        print tab+('\n'+tab).join(elt)
+        print tab + ('\n' + tab).join(elt)
  
-
     def ask(self, question):
         print question
         ok = raw_input("([y]/n)? ")
         return ok.lower() == 'y'
    
-
     def check(self):
-        """ Return the element (e.g. project, package) which exist on the server.
+        """ Return the element (e.g. project, package) which exists on the
+        server.
         
         Check if the different elements exist on the server. 
         Return a list of the element name which exists .
@@ -75,7 +86,7 @@ class Uploader(object):
         elts = []
 
         if self.project not in available_project: 
-            print 'Error command : project must be either alinea, openalea or vplants'        
+            print 'Error command : project must be either %s' % available_project        
             return elts
         else:
             elts.append(self.project)
@@ -111,7 +122,6 @@ class Uploader(object):
 
         return elts
 
-
     def query(self):
         """ 
 
@@ -122,15 +132,15 @@ class Uploader(object):
         n = len(elements)
         if n == 0:
             pass
-        elif n==1:
+        elif n==1: # project only
             pkgs = self.server.get_packages(*elements)
             if pkgs:                
                 self.messages(pkgs, elements[0])                    
-        elif n==2:
+        elif n==2: # project, package only
             rels = self.server.get_releases(*elements)
             if rels:                
                 self.messages(rels, elements[1])  
-        elif n==3:
+        elif n==3: # project, package and release known
             fls = self.server.get_files(*elements)
             if fls:                
                 self.messages(fls, elements[2])  
@@ -157,29 +167,29 @@ class Uploader(object):
         # Add package and release on the server
         if n == 1 and self.package:
             if self.simulate:
-                print 'Add %s package in %s project'%(self.package, self.project)
+                print 'Add %s package in %s project' % (self.package, self.project)
             else:
-                msg = 'Do you really want to add %s package in %s project'%(self.package, self.project)
+                msg = 'Do you really want to add %s package in %s project' % (self.package, self.project)
               
                 if self.ask(msg):
                     self.server.add_package(self.project, self.package)
-                    print '%s package has been created on the server'%self.package
+                    print '%s package has been created on the server' % self.package
                 else:
                     return False
     
         if self.release and (1 <= n <= 2):                    
             if self.simulate:
-                print 'Add release %s in %s package'%(self.release, self.package)
+                print 'Add release %s in %s package' % (self.release, self.package)
             else:
-                msg = 'Do you really want to add release %s in %s package'%(self.release, self.package)
+                msg = 'Do you really want to add release %s in %s package' % (self.release, self.package)
                
                 if self.ask(msg):
-                    self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
-                    print 'release %s has been created on the server'%self.release
+                    self.server.add_release(self.project, self.package,
+                                            self.release, 'notes', 'changes')
+                    print 'release %s has been created on the server' % self.release
                 else:
                     return False
- 
-        
+         
         # Add files if any on the server
         if self.filename:
             # 1. get the files
@@ -196,7 +206,7 @@ class Uploader(object):
                 files = [f for f in files if f not in server_files]
                 outfiles = '\n'.join( [f for f in files if f.basename() in server_files])
                 if outfiles:
-                    print 'Some files are on the server: %s'%outfiles
+                    print 'Same files are already on the server: %s' % outfiles
 
             # 3. add the files not in the server 
             for f in files:
@@ -221,7 +231,6 @@ class Uploader(object):
                         print '%s file has been uploaded on the server'%f.basename()
 
         return True
-
 
     def remove(self):
         """Remove the elements (package/release/and files) from the server.
@@ -344,25 +353,23 @@ def main():
     if mode == 'query':    
         try:
             uploader.query()
-        except UploadError, e:
+        except UploaderError, e:
             print e
             return opts
 
     # Add package and release on the server and upload files if any on the server
-         
     elif mode == 'add':
         try:
             uploader.add()
-        except UploadError, e:
+        except UploaderError, e:
             print e
             return opts
 
     # Remove package/release/files from the server
-         
     elif mode == 'remove':
         try:
             uploader.remove()
-        except UploadError, e:
+        except UploaderError, e:
             print e
             return opts
 
