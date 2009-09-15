@@ -45,7 +45,7 @@ class Commands():
             'pylint':'',
             'bdist':'',
             'bdist_egg':'',
-            'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
+            'release':  'install bdist_egg -d ../../dist ',
             'html': "--builder html -E",
             'latex': "--builder latex -E",
             'sphinx_upload': "",
@@ -55,10 +55,34 @@ class Commands():
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
-        self.oa_dirs = """deploy deploygui core visualea sconsx
-             stdlib misc scheduler openalea_meta"""
-        self.vp_dirs = """PlantGL tool stat_tool sequence_analysis container
-            amlobj mtg tree_matching aml fractalysis newmtg WeberPenn lpy vplants_meta"""
+        self.oa_dirs = """
+        deploy 
+        deploygui 
+        core 
+        visualea 
+        sconsx
+        stdlib 
+        scheduler 
+        openalea_meta 
+        misc"""
+        
+        self.vp_dirs = """
+        PlantGL 
+        tool 
+        stat_tool 
+        sequence_analysis 
+        amlobj 
+        mtg 
+        tree_matching 
+        aml 
+        fractalysis
+        tree
+        tree_statistic
+        container
+        newmtg 
+        WeberPenn 
+        lpy"""
+        #""" vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
         self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
@@ -162,6 +186,7 @@ class Commands():
         # setup for the release command
         cwd = path(os.getcwd())
         if self.command == 'release':
+            cmd = cmd.replace('release ', '', 1)
             dist = cwd/'..'/'dist'
             try:
                 if dist.exists():

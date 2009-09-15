@@ -4,20 +4,20 @@ pj = os.path.join
 from setuptools import setup, find_packages
 
 external_dependencies = [
-'numpy>=1.0.4-1',
-'scipy == 0.6',
+'numpy>=1.3.0',
+'scipy >= 0.7',
 'matplotlib==0.98.5',
 'PIL<=1.1.6',
-'qt4>=4.4.3'
+'qt4>=4.5.2'
 ]
 
 alea_dependencies = [
-'openalea.deploy >= 0.6',
-'openalea.deploygui >= 0.6',
-'openalea.core >= 0.6',
-'openalea.visualea >= 0.6',
-'openalea.stdlib >= 0.6',
-'openalea.sconsx >= 0.6',
+'openalea.deploy >= 0.7',
+'openalea.deploygui >= 0.7',
+'openalea.core >= 0.7',
+'openalea.visualea >= 0.7',
+'openalea.stdlib >= 0.7',
+'openalea.sconsx >= 0.7',
 ]
 
 install_requires = alea_dependencies
