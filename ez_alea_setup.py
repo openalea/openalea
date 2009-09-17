@@ -327,7 +327,7 @@ def install_openalea():
     install_deploy()
     pkgs = ["openalea.deploygui", ]
 
-    if("win32" in sys.platform or "win64" in sys.platform):
+    if("win32" in sys.platform or "win64" in sys.platform or "darwin" in sys.platform):
         pkgs = ["qt4", ] + pkgs
 
     for pkg in pkgs:
