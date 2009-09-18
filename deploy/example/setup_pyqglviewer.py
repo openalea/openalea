@@ -8,7 +8,7 @@ from setuptools import setup
 
 # Package name
 name= 'PyQGLViewer'
-version= '0.7'
+version= '2.3.4'
 
 
 # Description of the package
