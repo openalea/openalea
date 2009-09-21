@@ -12,12 +12,14 @@ external_dependencies = [
 ]
 
 alea_dependencies = [
-'openalea.deploy >= 0.7',
-'openalea.deploygui >= 0.7',
-'openalea.core >= 0.7',
-'openalea.visualea >= 0.7',
-'openalea.stdlib >= 0.7',
-'openalea.sconsx >= 0.7',
+'openalea.deploy >= 0.7.dev',
+'openalea.deploygui >= 0.7.dev',
+'openalea.core >= 0.7.dev',
+'openalea.visualea >= 0.7.dev',
+'openalea.stdlib >= 0.7.dev',
+'openalea.sconsx >=0.7.0.dev',
+'openalea.misc >=0.7.0.dev',
+'openalea.scheduler >=0.7.0.dev',
 ]
 
 install_requires = alea_dependencies
