@@ -44,6 +44,7 @@ import SCons.Tool
 import SCons.Util
 from SCons.Script.SConscript import SConsEnvironment
 
+NO_FRAMEWORK = True
 class ToolQtWarning(SCons.Warnings.Warning):
     pass
 
@@ -235,7 +236,7 @@ def generate(env):
         fullpath = env.Detect([command+'-qt4', command+'4', command])
         if not (fullpath is None):
             return fullpath
-        raise "Qt4 command '" + command + "' not found. Tried: " + fullpath1 + " and "+ fullpath2
+        raise Exception("Qt4 command '" + command + "' not found. Tried: " + fullpath1 + " and "+ fullpath2)
         
 
     CLVar = SCons.Util.CLVar
@@ -373,7 +374,7 @@ def generate(env):
     SConsEnvironment.EnableQt4Modules = enable_modules
 
 
-def enable_modules(self, modules, debug=False) :
+def enable_modules(self, modules, debug=False, suffix = '') :
     import sys
 
     validModules = [
@@ -447,19 +448,27 @@ def enable_modules(self, modules, debug=False) :
         self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
         return
     if sys.platform=="darwin" :
+	if not suffix: 
+            suffix = '.4'
         # TODO: Test debug version on Mac
         self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
-        self.AppendUnique(LINKFLAGS="-F$QTDIR/lib")
+        #self.AppendUnique(LINKFLAGS="-F$QTDIR/lib")
         self.AppendUnique(LINKFLAGS="-L$QTDIR/lib") #TODO clean!
         if debug : debugSuffix = 'd'
+	if suffix : debugSuffix = '.4'
         for module in modules :
             self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
             self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include",module)])
-            if module in pclessModules :
+            
+            if NO_FRAMEWORK:
                 self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
                 self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
-            else :
-                self.Append(LINKFLAGS=['-framework', module])
+            else:
+             if module in pclessModules :
+                 self.AppendUnique(LIBS=[module+debugSuffix]) # TODO: Add the debug suffix
+                 self.AppendUnique(LIBPATH=[os.path.join("$QTDIR","lib")])
+             else :
+                 self.Append(LINKFLAGS=['-framework', module])
         if 'QtOpenGL' in modules:
             self.AppendUnique(LINKFLAGS="-F/System/Library/Frameworks")
             self.Append(LINKFLAGS=['-framework', 'AGL']) #TODO ughly kludge to avoid quotes

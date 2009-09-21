@@ -42,6 +42,9 @@ class Python:
               # case with virtual env...
               lib_dir = pj(os.path.dirname(get_config_var('LIBDEST')),'libs')
           self._default['lib'] = lib_dir
+      elif isinstance(platform, Darwin):
+         lib_dir = get_config_var('LIBPL')
+         self._default['lib'] = lib_dir
       else:
          self._default['lib'] = '/usr/lib'
 

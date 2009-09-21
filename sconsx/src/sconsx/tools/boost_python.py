@@ -44,7 +44,7 @@ class Boost_Python:
 
       self._default['libs_suffix'] = '$compiler_libs_suffix'
 
-      if isinstance(platform, Win32):
+      if isinstance(platform, Win32) or isinstance(platform, Darwin):
          self._default['flags'] = ''
          self._default['defines'] = ''
 
@@ -70,7 +70,8 @@ class Boost_Python:
          self._default['lib'] = '/usr/lib'
          self._default['flags'] = '-ftemplate-depth-100'
          self._default['defines'] = 'BOOST_PYTHON_DYNAMIC_LIB'
-
+       
+      
 
    def option( self, opts):
 
