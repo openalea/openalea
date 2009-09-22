@@ -214,7 +214,7 @@ def check_system():
 
             out_env['PATH'] = ';'.join(libs)
         # Linux
-        elif "darwin" in sys.platform.lower()):
+        elif "darwin" in sys.platform.lower():
 
             paths = list(get_all_bin_dirs())
             paths = merge_uniq(paths, in_env['PATH'].split(':'))
