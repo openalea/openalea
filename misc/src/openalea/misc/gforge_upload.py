@@ -245,20 +245,17 @@ class Uploader(object):
                 else:
                     return False
     
-        if self.release and (1 <= n <= 2):
-            packages = server.get_packages(self.project)
-            packages = [p for p in packages if path(p).fnmatch(self.package)]
-            for p in packages:            
-                if self.simulate:
-                    print 'Add release %s in %s package' % (self.release, p)
-                else:
-                    msg = 'Do you really want to add release %s in %s package' % (self.release, p)
+        if self.release and (1 <= n <= 2):            
+            if self.simulate:
+                print 'Add release %s in %s package' % (self.release, p)
+            else:
+                msg = 'Do you really want to add release %s in %s package' % (self.release, self.package)
                
-                    if self.ask(msg):
-                        self.server.add_release(self.project, p, self.release, 'notes', 'changes')
-                        print 'release %s has been created on the server' % self.release
-                    else:
-                        return False
+                if self.ask(msg):
+                    self.server.add_release(self.project, self.package, self.release, 'notes', 'changes')
+                    print 'release %s has been created on the server' % self.release
+                else:
+                    return False
          
         # Add files if any on the server
         if self.filename:
@@ -330,17 +327,18 @@ class Uploader(object):
 
         """
 
-        # Remove package and release on the server
+        
         
         elements = self.check()
         n = len(elements)
-        
+	print n
         if n == 1:
             raise UploaderError('Impossible to remove a project.')
 
         assert n < 4
 
-        # Add package and release on the server
+        # Remove package on the server
+
         if n == 2 and self.package and not self.release:       
             if self.simulate:
                 print 'Remove %s package from %s project'%(self.package, self.project)
@@ -353,6 +351,7 @@ class Uploader(object):
                 else:
                     return False
 
+	# Remove package and release on the server
 
         if n == 3 and self.release and not self.filename:                    
             if self.simulate:
