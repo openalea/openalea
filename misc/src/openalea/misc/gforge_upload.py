@@ -218,7 +218,7 @@ class Uploader(object):
 
                 
         >>> python gforge_upload -d /home/user add openalea:VPlants:0.8:*.egg
-            Upload the files which exists in /home/user directory to /VPlants package
+              Upload the files which exists in /home/user directory to /VPlants package
                                                                      /release 0.8
                                                                      /openalea project 
                                                                      /on the gforge server
@@ -331,7 +331,7 @@ class Uploader(object):
         
         elements = self.check()
         n = len(elements)
-	print n
+	
         if n == 1:
             raise UploaderError('Impossible to remove a project.')
 
