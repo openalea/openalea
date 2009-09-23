@@ -63,8 +63,9 @@ class Commands():
         sconsx
         stdlib 
         scheduler 
-        openalea_meta 
-        misc"""
+        misc
+	openalea_meta 
+        """
         
         self.vp_dirs = """
         PlantGL 
