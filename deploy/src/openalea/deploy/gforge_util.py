@@ -180,6 +180,7 @@ def delete_package(group_id, pkg_id):
                'package_id' : pkg_id,
                'sure' : 1,
                'really_sure' : 1,
+  	       'submit' : 'Supprimer',
                }
      
     fp = urlOpener.open(url, values)
