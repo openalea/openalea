@@ -333,27 +333,36 @@ class Uploader(object):
         n = len(elements)
 	
         if n == 1:
-            raise UploaderError('Impossible to remove a project.')
+            if self.package:
+                print 'Error Command : Check the Package'
+                return False
+            else:
+                raise UploaderError('Impossible to remove a project.')
 
         assert n < 4
 
         # Remove package on the server
 
-        if n == 2 and self.package and not self.release:       
-            if self.simulate:
-                print 'Remove %s package from %s project'%(self.package, self.project)
-            else:
-                msg = 'Do you really want to remove %s package from %s project?'%(self.package, self.project)
-                
-                if self.ask(msg):
-                    self.server.remove_package(self.project, self.package)
-                    print '%s package has been removed from the server'%self.package
+        if n == 2 and self.package:
+            if self.release:
+                print 'Error Command : Check the Release'
+                return False
+            else:           
+                if self.simulate:
+                    print 'Remove %s package from %s project'%(self.package, self.project)
                 else:
-                    return False
+                    msg = 'Do you really want to remove %s package from %s project?'%(self.package, self.project)
+                
+                    if self.ask(msg):
+                        self.server.remove_package(self.project, self.package)
+                        print '%s package has been removed from the server'%self.package
+                    else:
+                        return False
+        
 
 	# Remove package and release on the server
-
-        if n == 3 and self.release and not self.filename:                    
+        
+        if n == 3 and self.release and not self.filename:   
             if self.simulate:
                 print 'Remove release %s from %s package'%(self.release, self.package)
             else:
