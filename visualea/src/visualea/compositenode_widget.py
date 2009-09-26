@@ -377,7 +377,11 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         Create the graphical Edge between two connectorse 
         Do not create the REAL dataflow connection
         """
-        
+        # Do not add multiple edges between the same connectors.
+        for e in connector_src.edge_list:
+            if e.dest.parentItem().get_id() == connector_dst.parentItem().get_id() and \
+              e.dest.index() == connector_dst.index():
+                  return None
         edge = Edge(self, connector_src.parentItem(), connector_src.index(),
                     connector_dst.parentItem(), connector_dst.index(),
                     None, self.scene())
@@ -988,7 +992,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.more_port = None
 
             if(phiden):
-                self.more_port = QtGui.QGraphicsTextItem(">>", self)
+                self.more_port = QtGui.QGraphicsTextItem(">> ", self)
                 self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
                 #self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
                 self.more_port.setPos(self.sizex - 20, -4)
@@ -1391,6 +1395,11 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
 
     def add_edge(self, edge):
+        source = edge.source
+        dest = edge.dest
+        for e in self.edge_list:
+            if e.source == source and e.dest == dest:
+                return
         self.edge_list.append(edge)
         
 
@@ -1741,6 +1750,8 @@ class Edge(AbstractEdge):
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
+
+        self.source, self.dest = None, None
 
         src = sourceNode.get_output_connector(out_index)
         if(src) : src.add_edge(self)
