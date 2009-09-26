@@ -816,7 +816,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         @param graphview : EditGraphWidget container
         @param elt_id : id in the graph
         """
-
         scene = graphview.scene()
         QtGui.QGraphicsItem.__init__(self)
         SignalSlotListener.__init__(self)
@@ -853,7 +852,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.font.setPointSize(10)
         self.fm = QtGui.QFontMetrics(self.font)
 
-
         # Add to scene
         scene.addItem(self)
 
@@ -866,9 +864,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         except:
             (x,y) = (10,10)
         self.setPos(QtCore.QPointF(x,y))
-        
         self.more_port = None
-        self.adjust_size()
+        # Be carefull: force to compute the size the first time
+        self.adjust_size(force=True)
 
         # color
         if(hasattr(self.subnode, "__color__")):
@@ -925,7 +923,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         for i,desc in enumerate(self.subnode.input_desc):
 
             hide = self.subnode.is_port_hidden(i)
-
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
                 c = self.connector_in[i]
@@ -967,7 +964,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             i = 0
             # i index can differ from real index since port can hidden
             for c in self.connector_in:
-                if(not c) : continue
+                if not c :
+                    continue
                 c.adjust_position(self, i, self.nb_cin)
                 c.adjust()
                 i += 1
