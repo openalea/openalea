@@ -516,10 +516,22 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         position = self.mapToScene(
             self.mapFromGlobal(self.cursor().pos()))
 
+
         # Translate new node
         #l = lambda x :  x + 30
         #modifiers = [('posx', l), ('posy', l)]
-        modifiers = [('posx', position.x()), ('posy', position.y())]
+        # Compute the min x, y value of the nodes
+        # 
+        cnode = session.clipboard.instantiate()
+        
+        min_x = min([cnode.node(vid).internal_data['posx'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+        min_y = min([cnode.node(vid).internal_data['posy'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+
+        lx = lambda x : x - min_x + position.x()
+        ly = lambda y : y - min_y + position.y()
+        modifiers = [('posx', lx), ('posy', ly)]
+
+        #modifiers = [('posx', position.x()), ('posy', position.y())]
         new_ids = session.clipboard.paste(self.node, modifiers)
 
         self.rebuild_scene()
