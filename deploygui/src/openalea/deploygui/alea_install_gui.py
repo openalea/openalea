@@ -24,6 +24,7 @@ url =  "http://openalea.gforge.inria.fr"
 import sys, os
 import shutil
 import signal
+from platform import platform as get_platform
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -191,18 +192,19 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         # Parse each distribution
         for project_name in self.pi:
-            
             # Sort list by version
             # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
+            
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
+            if 'fedora' in get_platform():
+                dist_list.sort(cmp = (lambda x,y : cmp(parse_linux_version(y.version), parse_linux_version(x.version))))
             
             for dist in dist_list :
-                
                 version = dist._version or ""
                 platform = dist.platform or ""
-            
+
                 txt = "%s %s %s" % (project_name, version, platform, )
 
                 ignore = False
@@ -217,13 +219,31 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 # compare with already installed egg
                 if(mode != "INSTALLED"):
                     installed_version = [d.version for d in env[project_name]]
+                   
+                         
                     if installed_version:
-                        if parse_version(max(installed_version, key=parse_version)) < parse_version(version):
+                        max_version = max(installed_version, key=parse_version)
+                        new_version = version
+
+
+                        if 'fedora' in get_platform():
+                            if 'fedora-10' in get_platform():
+                                max_version.replace('.fc10', '',1)
+                                new_version.replace('.fc10', '', 1)
+                            elif 'fedora-11' in get_platform():
+                                max_version.replace('.fc11', '',1)
+                                new_version.replace('.fc11', '', 1)
+                            else:
+                                from platform import dist as get_dist
+                                print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
+                            
+                        if parse_version(max_version) < parse_version(new_version):
                             update = True
+                            
                         else:
                             ignore = True
                             continue
-                
+
                 if(ignore):
                     continue
                 if(update): 
@@ -234,7 +254,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     ok = True
                     
                 elif(mode == "RECOMMENDED"):
-
                     # Keep only most recent package
                     if(project_name in in_list): 
                         ok = False
@@ -265,6 +284,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
                     listitem.setCheckState(QtCore.Qt.Unchecked)
                     pname = "%s==%s"%(project_name, version)
+#                    print project_name, dist, pname, txt
                     self.pnamemap[txt] = (pname, dist)
                             
             
@@ -665,6 +685,22 @@ def main_app(args=None):
     win = MainWindow()
     win.show()
     return app.exec_()
+
+def parse_linux_version(version):
+    """return 1 in linux version"""
+    if 'fedora-10' in get_platform():
+        if 'fc10' in version:
+            return 1
+    elif 'fedora-11' in get_platform():
+        if 'fc11' in version:
+            return 1
+    elif 'Ubuntu' in get_platform():
+        return 1 
+    else:
+        from platform import dist as get_dist
+        print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
+        return 0
+
 
 def main(args=None):
     """
