@@ -28,10 +28,10 @@ pj = os.path.join
 
 from SCons.Script import SConsignFile, Help, BuildDir
 from SCons.Options import  Options
+from SCons.Options import  PathOption, BoolOption, EnumOption
 from SCons.Variables import PathVariable 
 from SCons.Variables import BoolVariable 
 from SCons.Variables import EnumVariable 
-from SCons.Options import Options
 from SCons.Variables import Variables
 from SCons.Util import Split, WhereIs
 from SCons.Tool import Tool
