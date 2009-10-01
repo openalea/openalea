@@ -3,12 +3,15 @@ pj = os.path.join
 
 from setuptools import setup, find_packages
 
+platform = sys.platform
 external_dependencies = [
 'numpy',
 'scipy',
 'matplotlib>=0.99',
-'PIL<=1.1.6',
 ]
+
+if platform != 'darwin':
+    external_dependencies.append('PIL<=1.1.6')
 
 alea_dependencies = [
 'openalea.deploy >= 0.7.0.dev',
@@ -24,7 +27,9 @@ alea_dependencies = [
 ]
 
 install_requires = alea_dependencies
-if sys.platform.startswith('win'):
+
+# Add dependencies on Windows and Mac OS X platforms
+if 'win' in platform:
     install_requires += external_dependencies 
 
 setup(
