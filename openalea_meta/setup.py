@@ -4,23 +4,22 @@ pj = os.path.join
 from setuptools import setup, find_packages
 
 external_dependencies = [
-'numpy>=1.3.0',
-'scipy >= 0.7',
+'numpy',
+'scipy',
 'matplotlib>=0.99',
 'PIL<=1.1.6',
-'qt4>=4.3'
 ]
 
 alea_dependencies = [
 'openalea.deploy >= 0.7.0.dev',
 'openalea.deploygui >= 0.7.0.dev',
-'openalea.core >= 0.7.0dev',
-'openalea.visualea >= 0.7.0dev',
-'openalea.stdlib >= 0.7.0dev',
+'openalea.core >= 0.7.0.dev',
+'openalea.visualea >= 0.7.0.dev',
+'openalea.stdlib >= 0.7.0.dev',
 'openalea.sconsx >=0.7.0.dev',
 'openalea.misc >=0.7.0.dev',
 'openalea.scheduler >=0.7.0.dev',
-'openalea.container >=0.7.0.dev',
+'openalea.container >=2.0.1.dev',
 'openalea.mtg >=0.7.0.dev',
 ]
 
