@@ -26,7 +26,11 @@ try:
     rpy.set_default_mode(rpy.BASIC_CONVERSION)
 
 except:
-    import rpy
+    try:
+        import rpy
+    except ImportError:
+        raise ImportError("Install rpy2 to use this module")
+
 
 import scipy
 import numpy
