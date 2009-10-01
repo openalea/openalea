@@ -196,10 +196,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
-            
+
+            #cleanup
+            dist_list = clean_list_for_fedora(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
-            if 'fedora' in get_platform():
-                dist_list.sort(cmp = (lambda x,y : cmp(parse_linux_version(y.version), parse_linux_version(x.version))))
             
             for dist in dist_list :
                 version = dist._version or ""
@@ -225,7 +225,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                         max_version = max(installed_version, key=parse_version)
                         new_version = version
 
-
+                        """
                         if 'fedora' in get_platform():
                             if 'fedora-10' in get_platform():
                                 max_version.replace('.fc10', '',1)
@@ -236,8 +236,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             else:
                                 from platform import dist as get_dist
                                 print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
-                            
+                        """              
                         if parse_version(max_version) < parse_version(new_version):
+                            print max_version, new_version, installed_version
                             update = True
                             
                         else:
@@ -284,7 +285,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
                     listitem.setCheckState(QtCore.Qt.Unchecked)
                     pname = "%s==%s"%(project_name, version)
-#                    print project_name, dist, pname, txt
                     self.pnamemap[txt] = (pname, dist)
                             
             
@@ -296,6 +296,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ Return the list of the repository """
 
         ret = set()
+        
         for i in xrange(self.locationList.count()):
             item = self.locationList.item(i)
             ret.add(str(item.text()))
@@ -700,6 +701,30 @@ def parse_linux_version(version):
         from platform import dist as get_dist
         print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
         return 0
+            
+def clean_list_for_fedora(dist_list):
+    """
+    Keep only linux-i686 that have the fedora tag, e.g. fc10 or fc11
+    Remove also the vplants and alinea meta files, otherwise new dev files 
+    will be downloaded
+    """
+    new_list = [] 
+    local_platform = get_platform()
+    for dist in dist_list:
+        if dist.platform: # if pre-compiled files, we only want those with fedora tag
+            if 'linux-i686' in dist.egg_name():
+                if 'fedora-10' in local_platform: #fedora 10 case
+                    if 'fc10' in dist.version:
+                        new_list.append(dist)
+            if 'linux-i686' in dist.egg_name():
+                if 'fedora-11' in local_platform: #fedora 11 case
+                    if 'fc11' in dist.version:
+                        new_list.append(dist)
+        if dist.platform is None: # if non pre-compiled files, we keep them 
+            if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
+                new_list.append(dist)
+    return new_list                
+                
 
 
 def main(args=None):
