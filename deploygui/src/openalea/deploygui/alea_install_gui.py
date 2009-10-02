@@ -690,12 +690,12 @@ def clean_list_for_fedora(dist_list):
                 if 'fedora-10' in local_platform: #fedora 10 case
                     if 'fc10' in dist.version:
                         if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
-                        new_list.append(dist)
+                            new_list.append(dist)
             if 'linux-i686' in dist.egg_name():
                 if 'fedora-11' in local_platform: #fedora 11 case
                     if 'fc11' in dist.version:
                         if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
-                        new_list.append(dist)
+                            new_list.append(dist)
         if dist.platform is None: # if non pre-compiled files, we keep them 
             if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
                 new_list.append(dist)
