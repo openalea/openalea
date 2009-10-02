@@ -198,7 +198,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             dist_list = dist_list[:]
 
             #cleanup
-            dist_list = clean_list_for_fedora(dist_list)
+            if 'fedora' in get_platform():
+                dist_list = clean_list_for_fedora(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
             
             for dist in dist_list :
@@ -225,18 +226,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                         max_version = max(installed_version, key=parse_version)
                         new_version = version
 
-                        """
-                        if 'fedora' in get_platform():
-                            if 'fedora-10' in get_platform():
-                                max_version.replace('.fc10', '',1)
-                                new_version.replace('.fc10', '', 1)
-                            elif 'fedora-11' in get_platform():
-                                max_version.replace('.fc11', '',1)
-                                new_version.replace('.fc11', '', 1)
-                            else:
-                                from platform import dist as get_dist
-                                print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
-                        """              
                         if parse_version(max_version) < parse_version(new_version):
                             print max_version, new_version, installed_version
                             update = True
@@ -687,21 +676,6 @@ def main_app(args=None):
     win.show()
     return app.exec_()
 
-def parse_linux_version(version):
-    """return 1 in linux version"""
-    if 'fedora-10' in get_platform():
-        if 'fc10' in version:
-            return 1
-    elif 'fedora-11' in get_platform():
-        if 'fc11' in version:
-            return 1
-    elif 'Ubuntu' in get_platform():
-        return 1 
-    else:
-        from platform import dist as get_dist
-        print 'unknown linux platform. Fix alea_install_gui parse_linux_version to add %' % get_dist()
-        return 0
-            
 def clean_list_for_fedora(dist_list):
     """
     Keep only linux-i686 that have the fedora tag, e.g. fc10 or fc11
