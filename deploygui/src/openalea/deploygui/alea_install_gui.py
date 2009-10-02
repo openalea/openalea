@@ -696,6 +696,8 @@ def clean_list_for_fedora(dist_list):
                     if 'fc11' in dist.version:
                         if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
                             new_list.append(dist)
+        if 'openalea'==dist.project_name.lower(): # openalea_meta have linux tag now.
+            new_list.append(dist)
         if dist.platform is None: # if non pre-compiled files, we keep them 
             if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
                 new_list.append(dist)
