@@ -40,5 +40,6 @@ setup(
     # Dependencies
     install_requires = ['OpenAlea.Deploy>=0.4.13'],
     dependency_links = ['http://gforge.inria.fr/frs/...?id=79'],
-    
+
+    pylint_packages = ['src/openalea/deploygui'], 
 )

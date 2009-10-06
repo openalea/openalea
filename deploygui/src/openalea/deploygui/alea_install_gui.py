@@ -24,6 +24,7 @@ url =  "http://openalea.gforge.inria.fr"
 import sys, os
 import shutil
 import signal
+from platform import platform as get_platform
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -119,8 +120,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
          """ Display About Dialog """
         
          mess = QtGui.QMessageBox.about(self, 
-                    "About OpenAlea Installer",
-                    u"Copyright \xa9  2006-2008 INRIA - CIRAD - INRA\n" +
+                    "About OpenAlea Installer,r%s" % (__revision__.split(' ')[3]),
+                    u"Copyright \xa9  2006-2009 INRIA - CIRAD - INRA\n" +
                     "This Software is distributed under the Cecill-V2 License.\n\n" +
                     "Visit %s\n\n" % (url, )  )
 
@@ -191,18 +192,20 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         # Parse each distribution
         for project_name in self.pi:
-            
             # Sort list by version
             # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
+
+            #cleanup
+            if 'fedora' in get_platform():
+                dist_list = clean_list_for_fedora(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
             
             for dist in dist_list :
-                
                 version = dist._version or ""
                 platform = dist.platform or ""
-            
+
                 txt = "%s %s %s" % (project_name, version, platform, )
 
                 ignore = False
@@ -217,13 +220,20 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 # compare with already installed egg
                 if(mode != "INSTALLED"):
                     installed_version = [d.version for d in env[project_name]]
+                   
+                         
                     if installed_version:
-                        if parse_version(max(installed_version, key=parse_version)) < parse_version(version):
+                        max_version = max(installed_version, key=parse_version)
+                        new_version = version
+
+                        if parse_version(max_version) < parse_version(new_version):
+                            print max_version, new_version, installed_version
                             update = True
+                            
                         else:
                             ignore = True
                             continue
-                
+
                 if(ignore):
                     continue
                 if(update): 
@@ -234,7 +244,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     ok = True
                     
                 elif(mode == "RECOMMENDED"):
-
                     # Keep only most recent package
                     if(project_name in in_list): 
                         ok = False
@@ -276,6 +285,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ Return the list of the repository """
 
         ret = set()
+        
         for i in xrange(self.locationList.count()):
             item = self.locationList.item(i)
             ret.add(str(item.text()))
@@ -665,6 +675,35 @@ def main_app(args=None):
     win = MainWindow()
     win.show()
     return app.exec_()
+
+def clean_list_for_fedora(dist_list):
+    """
+    Keep only linux-i686 that have the fedora tag, e.g. fc10 or fc11
+    Remove also the vplants and alinea meta files, otherwise new dev files 
+    will be downloaded
+    """
+    new_list = [] 
+    local_platform = get_platform()
+    for dist in dist_list:
+        if dist.platform: # if pre-compiled files, we only want those with fedora tag
+            if 'linux-i686' in dist.egg_name():
+                if 'fedora-10' in local_platform: #fedora 10 case
+                    if 'fc10' in dist.version:
+                        if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
+                            new_list.append(dist)
+            if 'linux-i686' in dist.egg_name():
+                if 'fedora-11' in local_platform: #fedora 11 case
+                    if 'fc11' in dist.version:
+                        if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
+                            new_list.append(dist)
+        if 'openalea'==dist.project_name.lower(): # openalea_meta have linux tag now.
+            new_list.append(dist)
+        if dist.platform is None: # if non pre-compiled files, we keep them 
+            if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
+                new_list.append(dist)
+    return new_list                
+                
+
 
 def main(args=None):
     """
