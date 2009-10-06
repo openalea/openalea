@@ -1,6 +1,14 @@
+OpenAlea.Core 0.7.0
+-------------------
 
 - Fix the creation of a node factory without inputs and outputs (bug #8369)
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+- fix task 3607
+- Fix bug #8356. If the user package creation abort, Visualea do not crash.
+- Fix bug #5974: When you create a new node, you can now edit it even if the code is not valid
+- Improve the startup time for visualea
+- Enhance the Package Manager to not traverse again the list of packages several times.
+- Upload sphinx documentation on the web
 
 22/01/09 release 0.6.2
 ----------------------
@@ -114,3 +122,4 @@ Others
 - Package manager (Discovering wralea.py)
 - Graph construction and evaluation
 - Session management and persistence in XML
+
