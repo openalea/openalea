@@ -62,7 +62,7 @@ class Qhull:
 
       self.default()
 
-      opts.AddOptions(
+      opts.AddVariables(
          ('qhull_includes', 
            'Qhull include files', 
            self._default['include']),

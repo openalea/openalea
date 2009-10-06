@@ -22,33 +22,34 @@ __revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import *
+import SCons.Script
 
 
 class MultiCPU:
-   def __init__(self, config):
-      self.name = 'multicpu'
-      self.config = config
-      self.num_cpu = 1
+    def __init__(self, config):
+        self.name = 'multicpu'
+        self.config = config
+        self.num_cpu = 1
 
 
-   def option( self, opts):
-      """ Add Options to opts """
+    def option( self, opts):
+        """ Add Options to opts """
 
-      opts.AddOptions(('num_jobs', 'Number of jobs', 1),)
-
-
-   def update(self, env):
-      """ Update the environment with specific flags """
-      self.num_cpu = env['num_jobs']
-      SCons.Script.SetOption( 'num_jobs', self.num_cpu )
+        opts.AddVariables(('num_jobs', 'Number of jobs', 1),)
 
 
-   def configure(self, config):
-      pass
+    def update(self, env):
+        """ Update the environment with specific flags """
+        self.num_cpu = env['num_jobs']
+        SCons.Script.SetOption( 'num_jobs', self.num_cpu )
+
+ 
+    def configure(self, config):
+        pass
 
 
 def create(config):
-   mcpu = MultiCPU(config)
+     mcpu = MultiCPU(config)
 
-   return mcpu
+     return mcpu
 

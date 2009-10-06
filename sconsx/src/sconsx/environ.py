@@ -40,38 +40,38 @@ Alias = DefaultEnvironmentCall("Alias")
 
 
 def ALEALibrary(env, target, source, *args, **kwds):
-  """
-  Build static or dynamic library depending on user flags.
-  Install the build library and associated files in specific directories.
-  Define 'build' and 'install' target.
-  """
-  _target = env.subst("$build_libdir/%s"%target)
-  if env.get("static"):
-    lib = env.StaticLibrary(_target, source, *args, **kwds)
-  else:
-    if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
-      kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
-        'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
-    lib = env.SharedLibrary(_target, source, *args, **kwds)
-  # Bug on mingw with .exp
-  #if env["compiler"] == "mingw":
-  #  lib = [l for l in lib if not str(l).endswith('.exp')]
-  Alias("build", lib)
+    """
+    Build static or dynamic library depending on user flags.
+    Install the build library and associated files in specific directories.
+    Define 'build' and 'install' target.
+    """
+    _target = env.subst("$build_libdir/%s"%target)
+    if env.get("static"):
+        lib = env.StaticLibrary(_target, source, *args, **kwds)
+    else:
+        if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
+            kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
+            'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
+        lib = env.SharedLibrary(_target, source, *args, **kwds)
+    # Bug on mingw with .exp
+    #if env["compiler"] == "mingw":
+    #  lib = [l for l in lib if not str(l).endswith('.exp')]
+    Alias("build", lib)
     
-  inst_lib = env.Install("$libdir", lib)
-  Alias("install", inst_lib)
-  return (lib, inst_lib)
+    inst_lib = env.Install("$libdir", lib)
+    Alias("install", inst_lib)
+    return (lib, inst_lib)
 
 def ALEAIncludes(env, target, includes, *args, **kwds):
-  """
-  Install the headers in the directory .../include/mypackage
-  Define 'build' and 'install' target.
-  """
-  inc = env.Install("$build_includedir/%s" % (target,), includes, *args, **kwds)
-  env.Alias("build", inc)
-  inst_inc = env.Install("$includedir/%s" % (target,), includes, *args, **kwds)
-  Alias("install", inst_inc)
-  return (inc, inst_inc)
+    """
+    Install the headers in the directory .../include/mypackage
+    Define 'build' and 'install' target.
+    """
+    inc = env.Install("$build_includedir/%s" % (target,), includes, *args, **kwds)
+    env.Alias("build", inc)
+    inst_inc = env.Install("$includedir/%s" % (target,), includes, *args, **kwds)
+    Alias("install", inst_inc)
+    return (inc, inst_inc)
 
 # def ALEAIncludes(env, target, includes, *args, **kwds):
 #   """
@@ -94,48 +94,49 @@ def ALEAIncludes(env, target, includes, *args, **kwds):
 #   return (inc, inst_inc)
 
 def ALEAProgram(env, target, source, *args, **kwds):
-  """
-  Build a program and install it in local and system directories.
-  """
-  bin = env.Program("$build_bindir/%s" % (target,), source, *args, **kwds)
-  Alias("build", bin)
-  inst_bin = env.Install("$bindir", bin)
-  Alias("install", inst_bin)
-  return (bin, inst_bin)
+    """
+    Build a program and install it in local and system directories.
+    """
+    bin = env.Program("$build_bindir/%s" % (target,), source, *args, **kwds)
+    Alias("build", bin)
+    inst_bin = env.Install("$bindir", bin)
+    Alias("install", inst_bin)
+    return (bin, inst_bin)
 
 def ALEAWrapper(env, python_dir, target, source, *args, **kwds):
-  """
-  Build a python wrapper and install it in a python package.
-  """
-  real_target = "%s/%s" % (str(env.Dir(python_dir).srcnode()), target)
+    """
+   Build a python wrapper and install it in a python package.
+    """
+    real_target = "%s/%s" % (str(env.Dir(python_dir).srcnode()), target)
 
-  if os.name == 'nt':
-    kwds['SHLIBSUFFIX']='.pyd'
-  else: 
-    kwds['SHLIBSUFFIX']='.so'
+    if os.name == 'nt':
+        kwds['SHLIBSUFFIX'] = '.pyd'
+    else: 
+        kwds['SHLIBSUFFIX'] = '.so'
 
-  if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
-    kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
-      'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
+    if (env['compiler'] == 'msvc') and ('8.0' in env['MSVS_VERSION']):
+        kwds['SHLINKCOM'] = [env['SHLINKCOM'], 
+        'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
 
-  if os.name == 'nt':
+    if os.name == 'nt':
     # Fix bug with Scons 0.97, Solved in newer versions.
-    wrap = env.SharedLibrary(real_target, source, 
+        wrap = env.SharedLibrary(real_target, source, 
                            SHLIBPREFIX='',
                            *args, **kwds)
-  elif sys.platform == 'darwin':
-    wrap = env.LoadableModule(real_target, source, 
+    elif sys.platform == 'darwin':
+        wrap = env.LoadableModule(real_target, source, 
                            SHLIBPREFIX='', 
                            LDMODULESUFFIX='.so',
-                           FRAMEWORKSFLAGS = '-flat_namespace -undefined suppress',
+                           FRAMEWORKSFLAGS = \
+                            '-flat_namespace -undefined suppress',
                            *args, **kwds)
-  else:
-    wrap = env.LoadableModule(real_target, source, 
+    else:
+        wrap = env.LoadableModule(real_target, source, 
                            SHLIBPREFIX='',
                            *args, **kwds)
 
-  Alias("build", wrap)
-  return wrap
+    Alias("build", wrap)
+    return wrap
 
 ## def ALEAPython(env, python_dir, depends = [], *args, **kwds):
 ##   """
@@ -160,29 +161,29 @@ def ALEAGlob(env, pattern, dir = '.'):
     is_multidirs = False
     if '*' in dir:
         here = env.Dir('.').srcnode().abspath
-        d = os.path.join(here,dir)
-        dirs = filter(os.path.isdir,glob.glob(d))
+        d = os.path.join(here, dir)
+        dirs = filter(os.path.isdir, glob.glob(d))
         is_multidirs = True
     else: 
         here = env.Dir(dir).srcnode().abspath
         dirs = [here]
 
     for d in dirs: 
-        for file in os.listdir(d):
-            if fnmatch.fnmatch(file, pattern) :
+        for ufile in os.listdir(d):
+            if fnmatch.fnmatch(ufile, pattern) :
                 if is_multidirs:
-                    files.append(os.path.join(os.path.basename(d), file))
+                    files.append(os.path.join(os.path.basename(d), ufile))
                 else:
-                    files.append(os.path.join(dir, file))
+                    files.append(os.path.join(dir, ufile))
     return files
 
 def ALEAGlobDir(env, pattern, dir='.'):
-    import os, fnmatch, glob
+    import os, glob
 
     here = env.Dir(dir).srcnode().abspath
-    d = os.path.join(here,pattern)
-    dirs = filter(os.path.isdir,glob.glob(d))
-    dirs = map(lambda d: d.replace(here,dir), dirs)
+    d = os.path.join(here, pattern)
+    dirs = filter(os.path.isdir, glob.glob(d))
+    dirs = map(lambda d: d.replace(here, dir), dirs)
 
     return dirs
 

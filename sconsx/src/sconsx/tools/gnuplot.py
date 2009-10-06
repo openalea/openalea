@@ -44,7 +44,7 @@ class Gnuplot:
 
       self.default()
 
-      opts.Add(PathOption('gnuplot_bin', 
+      opts.Add(PathVariable('gnuplot_bin', 
                             'Gnuplot binary path', 
                             self._default['bin']))
 

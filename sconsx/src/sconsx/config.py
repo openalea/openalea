@@ -16,21 +16,23 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 """ See OpenAlea WebSite / Packages / SConsX """
 
-__license__= "Cecill-C"
-__revision__="$Id$"
-
-
-
+__license__ = "Cecill-C"
+__revision__ = "$Id$"
 
 import os, sys
-import string
+#import string
 pj = os.path.join
 
-from SCons.Script import *
-from SCons.Options import PathOption, BoolOption, EnumOption, Options
+from SCons.Script import SConsignFile, Help, BuildDir
+from SCons.Options import  Options
+from SCons.Options import  PathOption, BoolOption, EnumOption
+from SCons.Variables import PathVariable 
+from SCons.Variables import BoolVariable 
+from SCons.Variables import EnumVariable 
+from SCons.Variables import Variables
 from SCons.Util import Split, WhereIs
 from SCons.Tool import Tool
 from SCons.SConf import SConf
@@ -38,7 +40,7 @@ from SCons.Environment import Environment
 from SCons.Builder import Builder
 from SCons.Node.FS import Dir, File
 
-#--------------------------------------------------------------------------------
+
 # Errors
 
 class ToolNotFound(UserWarning): 
@@ -49,7 +51,6 @@ class CircularDependency(Exception):
 
 
 
-#--------------------------------------------------------------------------------
 # Utilitaries
 
 def import_tool(name, import_dir):
@@ -83,61 +84,61 @@ def import_tool(name, import_dir):
    
     
 
-def exist(s,path):
-   """ Test if the file s exist in the path """
+def exist(s, path):
+    """ Test if the file s exist in the path """
 
-   files= os.listdir(path)
-   for f in files:
-      if string.find(f,s) != -1:
-         return True
-   return False
+    files = os.listdir(path)
+    for f in files:
+        if f.find(s) != -1:
+            return True
+    return False
 
 
 def getLocalPath():
-   """ Return the absolute path of this package """
-   return os.path.dirname(__file__)
+    """ Return the absolute path of this package """
+    return os.path.dirname(__file__)
 
 
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Global Path settings
 
 #tool_path = os.path.join(getLocalPath() , 'tools')
 #sys.path = [tool_path] + sys.path
 
 
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Method to build bison and flex files for AMAPmod software
 
 def BisonFlex(env, bison, flex, prefix):
-  """ Smart autoscan function. """
+    """ Smart autoscan function. """
 
-  LEXFLAGS = env.get("LEXFLAGS")[:]
-  YACCFLAGS = env.get("YACCFLAGS")[:]
+    LEXFLAGS = env.get("LEXFLAGS")[:]
+    YACCFLAGS = env.get("YACCFLAGS")[:]
 
-  if prefix :
-     LEXFLAGS += ["-P"+prefix]
-     YACCFLAGS +=  ["-p "+prefix]
+    if prefix :
+        LEXFLAGS += ["-P" + prefix]
+        YACCFLAGS +=  ["-p " + prefix]
 
-  targets=[]
-  bison_ext= ".hpp"
-  if not env.get("BISON_HPP"):
-    bison_ext = ".cpp.h"
+    targets = []
+    bison_ext = ".hpp"
+    if not env.get("BISON_HPP"):
+        bison_ext = ".cpp.h"
 
-  (bison_name, ext)= os.path.splitext(bison)
-  h= env.CXXFile(source= bison,
+    (bison_name, _ext) = os.path.splitext(bison)
+    h = env.CXXFile(source=bison,
                  target= [bison_name+".cpp", bison_name + bison_ext],
                  LEXFLAGS=LEXFLAGS,
                  YACCFLAGS=YACCFLAGS)
-  targets.append(h[0])
+    targets.append(h[0])
 
-  (flex_name, ext) = os.path.splitext(flex)
-  cpp = env.CXXFile(source=flex,
+    (flex_name, _ext) = os.path.splitext(flex)
+    cpp = env.CXXFile(source=flex,
                     LEXFLAGS=LEXFLAGS,
                     YACCFLAGS=YACCFLAGS)
 
-  targets.append(cpp)
+    targets.append(cpp)
 
-  return targets
+    return targets
 
 
 
@@ -145,32 +146,32 @@ def BisonFlex(env, bison, flex, prefix):
 # Platform class
 
 class Platform(object):
-   def __init__(self):
-      self.name= ""
+    def __init__(self):
+        self.name = ""
 
 class Posix(Platform):
-   def __init__(self):
-      self.name= "posix"
+    def __init__(self):
+        self.name = "posix"
 
 class Linux(Posix):
-   def __init__(self):
-      self.name= "linux"
+    def __init__(self):
+        self.name = "linux"
 
 class Irix(Posix):
-   def __init__(self):
-      self.name= "irix"
+    def __init__(self):
+        self.name = "irix"
 
 class Cygwin(Posix):
-   def __init__(self):
-      self.name= "cygwin"
+    def __init__(self):
+        self.name = "cygwin"
 
 class Darwin(Posix):
-   def __init__(self):
-      self.name= "darwin"
+    def __init__(self):
+        self.name = "darwin"
 
 class Win32(Platform):
-   def __init__(self):
-      self.name= "win32"
+    def __init__(self):
+        self.name = "win32"
 
 
 def GetPlatform():
@@ -194,18 +195,18 @@ def GetPlatform():
     elif osname == "nt" and pfname.startswith("win"):
         return Win32()
     else:
-        raise "Unknown Platform (%s,%s)" % (osname,pfname)
+        raise ValueError("Unknown Platform (%s,%s)" % (osname, pfname))
 
 # Create a static instance ... 
 # (very pythonic way, isn't it?)
 
-platform= GetPlatform()
+platform = GetPlatform()
 
 
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # User Configuration class
 
-default_tools= ['compiler', 'builddir', 'multicpu']
+default_tools = ['compiler', 'builddir', 'multicpu']
 
 class Config(object):
 
@@ -215,7 +216,7 @@ class Config(object):
         self.tools = []
         self.tools_dict = {}
         self._walk = []
-        self.dir = [os.getcwd()]+dir
+        self.dir = [os.getcwd()] + dir
         self.custom_tests = { }
 
         for t in self.init_tools:
@@ -284,10 +285,10 @@ class Config(object):
         self.conf = SConf(env, self.custom_tests)
 
         for tool in self.tools:
-          try:
-             tool.configure(self,env)
-          except:
-             tool.configure(self)
+            try:
+                tool.configure(self,env)
+            except:
+                tool.configure(self)
 
         env = self.conf.Finish()
         return env
@@ -303,7 +304,7 @@ class Config(object):
             tool.update(env)
 
 
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Specific OpenAlea facilities.
 
 class ALEAConfig(Config):
@@ -318,11 +319,11 @@ class ALEAConfig(Config):
 
 def ALEAEnvironment(conf, *args, **kwds):
     if 'options' in kwds:
-        opts= kwds['options']
+        opts = kwds['options']
         conf.UpdateOptions(opts)
     else:
-        opts= conf.Options(*args, **kwds)
-    env= Environment(options=opts)
+        opts = conf.Options(*args, **kwds)
+    env = Environment(options=opts)
     conf.Update(env)
     env.Prepend(CPPPATH='$build_includedir')
     env.Prepend(LIBPATH='$build_libdir')

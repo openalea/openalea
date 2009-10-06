@@ -9,7 +9,7 @@ selection method.
 """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ = " $Id$"
 
 #
 # Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
@@ -43,11 +43,11 @@ import SCons.Tool
 import SCons.Util
 
 try:
-    YaccAction= SCons.Defaults.YaccAction
+    YaccAction = SCons.Defaults.YaccAction
 except:
     YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
     
-yy_suffix=['.y','.yy']
+yy_suffix = ['.y', '.yy']
 
 def _yaccEmitter(target, source, env, ysuf, hsuf):
     # If -d is specified on the command line, yacc will emit a .h
@@ -65,9 +65,9 @@ def yEmitter(target, source, env):
 
 def yyEmitter(target, source, env):
     if env.subst( "BISON_HPP" ):
-      return _yaccEmitter(target, source, env, yy_suffix, '.hpp')
+        return _yaccEmitter(target, source, env, yy_suffix, '.hpp')
     else: 
-      return _yaccEmitter(target, source, env, yy_suffix, '.cpp.h')
+        return _yaccEmitter(target, source, env, yy_suffix, '.cpp.h')
 
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
@@ -75,10 +75,10 @@ def generate(env):
 
     c_file.add_action('.y', YaccAction)
     for yy in yy_suffix:
-      cxx_file.add_action(yy, YaccAction)
+        cxx_file.add_action(yy, YaccAction)
     c_file.add_emitter('.y', yEmitter)
     for yy in yy_suffix:
-      cxx_file.add_emitter(yy, yyEmitter)
+        cxx_file.add_emitter(yy, yyEmitter)
 
     env['YACC']      = env.Detect('bison') or 'yacc'
     env['YACCFLAGS'] = SCons.Util.CLVar('')

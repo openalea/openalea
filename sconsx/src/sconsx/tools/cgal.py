@@ -74,11 +74,11 @@ class CGAL:
 
       self.default()
 
-      opts.AddOptions(('cgal_includes', 
+      opts.AddVariables(('cgal_includes', 
                      'CGAL include files', 
                      self._default['include']),
 
-         PathOption('cgal_libpath', 
+         PathVariable('cgal_libpath', 
                      'CGAL libraries path', 
                      self._default['libpath']),
 
@@ -94,7 +94,7 @@ class CGAL:
            'CGAL defines', 
            self._default['defines']),
 
-         BoolOption('WITH_CGAL', 
+         BoolVariable('WITH_CGAL', 
            'Specify whether you want to compile your project with CGAL', True)
      )
 

@@ -5,7 +5,7 @@ from setuptools import setup
 pj= os.path.join
 
 
-name = 'OpenAlea.SConsx'
+name = 'OpenAlea.SConsX'
 namespace = 'openalea'
 pkg_name = 'openalea.sconsx'
 
@@ -55,4 +55,6 @@ setup(name = name,
       setup_requires = ['openalea.deploy'],
       install_requires = [],
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+
+      pylint_packages = ['src/sconsx']
       )

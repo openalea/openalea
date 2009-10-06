@@ -1,4 +1,9 @@
+Sconsx 0.7.0
+------------
+** revision 1762 **
 
+- Update to scons 1.2 
+- Switch BoolOption, EnumOption to BoolVariable, EnumVariable, ... to use scons 1.2)
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
 
@@ -56,3 +61,5 @@ SConsX 0.2.0
   - ALEALibrary
   - ALEAProgram and ALEAIncludes that build and install stuff independently of the platform.
 - Add support for MinGW and Visual on Windows.
+
+

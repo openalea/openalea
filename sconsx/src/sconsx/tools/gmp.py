@@ -70,11 +70,11 @@ class GMP:
 
       self.default()
 
-      opts.AddOptions(PathOption('gmp_includes', 
+      opts.AddVariables(PathVariable('gmp_includes', 
                      'GMP include files', 
                      self._default['include']),
 
-         PathOption('gmp_libpath', 
+         PathVariable('gmp_libpath', 
                      'GMP libraries path', 
                      self._default['libpath']),
 
@@ -90,7 +90,7 @@ class GMP:
            'GMP defines', 
            self._default['defines']),
 
-         BoolOption('WITH_GMP', 
+         BoolVariable('WITH_GMP', 
            'Specify whether you want to compile your project with GMP', True)
      )
 

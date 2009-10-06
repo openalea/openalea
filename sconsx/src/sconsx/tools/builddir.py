@@ -38,7 +38,7 @@ class BuildDir:
     def option( self, opts):
 
         self.default()
-        opts.Add( BoolOption('with_build_dir', 'build files in a separate directory?', True))
+        opts.Add( BoolVariable('with_build_dir', 'build files in a separate directory?', True))
         opts.Add('build_prefix',
                   'local preinstall directory',
                   self._default['build_prefix'])
@@ -62,9 +62,9 @@ class BuildDir:
             build['build_dir'] = pj(prefix, 'src')
 
         # Creation of missing directories
-        for dir in build:
-            path = build[dir]
-            env[dir] = os.path.abspath(path)
+        for udir in build:
+            path = build[udir]
+            env[udir] = os.path.abspath(path)
             if not os.path.exists(path):
                 os.makedirs(path)
 

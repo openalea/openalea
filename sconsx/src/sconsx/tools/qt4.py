@@ -46,16 +46,20 @@ class QT:
             qt_inc = '/usr/include/qt4'
             qt_lib = '/usr/lib'
         elif not qt_dir:
-            if isinstance(platform, Win32):
-
-                # Try to use openalea egg
-                try:
-                    from openalea.deploy import get_base_dir
-                    qt_dir = get_base_dir("qt4")
-                except:
-                    qt_dir = pj('C:','QT')
+	    try: 
+              if isinstance(platform, Win32) or isinstance(platform, Darwin):
+                  # Try to use openalea egg
+                  from openalea.deploy import get_base_dir
+                  qt_dir = get_base_dir("qt4-dev")
+            except:
+              if isinstance(platform, Win32):
+                    try:
+                        from openalea.deploy import get_base_dir
+                        qt_dir = get_base_dir("qt4")
+                    except:
+                        qt_dir = pj('C:','Qt','4.5.2')
                 
-            elif isinstance(platform, Posix):
+              elif isinstance(platform, Posix):
                 qt_dir = pj('/usr', 'lib', 'qt4')
                 if not exists(pj(qt_dir, 'bin')):
                     # Use LSB spec
