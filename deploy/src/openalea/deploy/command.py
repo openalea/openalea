@@ -236,6 +236,23 @@ def validate_scons_scripts(dist, attr, value):
         setuptools.command.install_lib.install_lib = cmd_install_lib
         set_has_ext_modules(dist)
 
+def validate_pylint_options(dist, attr, value):
+    
+    try:
+        assert type(value[0]) == str
+    except ValueError:
+        raise ValueError("""options %s in the setup.py must be a  such as 
+            --disable-msg=C0103 that can be used as pylint options""" % attr)
+
+
+def validate_pylint_packages(dist, attr, value):
+    if isinstance(value, list):
+        pass
+    else:
+        raise ValueError("""options %s in the setup.py must be a list of path
+             where to find the python source files """ % attr)
+
+
 
 def validate_bin_dirs(dist, attr, value):
     """ Validation for shared directories keywords"""
@@ -800,6 +817,180 @@ from %s.__init__ import *
         # Set environment (i.e. copy libraries and env vars).
         # For develop, the libraries stay in place.
         set_env()
+
+
+class upload_dist(Command):
+    """ extension to setuptools to upload a distribution on the gforge
+    
+    :param release:  compulsory argument to specify the release name, as 
+        it appears on the gforge web site of Openalea, that is at
+        https://gforge.inria.fr/frs/?group_id=79
+    :param filename: a distribution filename or a regular expression such as 
+        ./dist/*egg
+    :param login: your login name. will be asked later if not provided.
+    :param password: your password. will be asked later if not provided.
+   
+    :Examples:
+    
+        >>> python setup.py upload_dist --filename dist/*egg --login name 
+        ... --release 0.7
+        
+    You can add the options in the setup.cfg::
+    
+        >>> [upload_dist]
+        >>> filename = ./dist/*egg
+        >>> login = yourname
+    """  
+    
+    description = "Upload the package on the OpenAlea GForge repository"
+
+    user_options = [('login=', 'l', 'login name to the gforge'),
+                    ('password=', 'p', 'your password to the gforge account'),
+                    ('verbose=', None, 'verbose option on'),
+                    ('release=', 'r', 'release name, e.g., 0.7'),
+                    ('filename=', 'f', 'a filename or regular expression default is dist/* '),
+                    ('replace-files=', None, 'replace file if alrady present on the GForge')]
+
+
+    def initialize_options(self):
+        self.login = None
+        self.password = None
+        self.verbose = False
+        self.filename = None
+        self.release = None
+        self.replace_files = False
+        
+    def finalize_options(self): 
+    
+        if self.release is None:
+            import warnings
+            warnings.warn("""
+    the --release argument is neither a user argument nor in .pydistutils.
+    Searching for a valid version in setup.py 
+    """)
+            try:
+                version = self.distribution.metadata.version
+                # a version should be like x.y.z so, we split string and keep 
+                # the two first part x and y. We join them back with dots to get
+                # the release string
+                self.release = '.'.join(version.split('.')[0:2])
+                warnings.warn('Found release %s.' % self.release)
+            except Exception, e:
+                print e , 'release could not be found.'
+             
+
+    def run(self):
+        
+        #todo: by default verbose equals 1 . why ?
+        # if provided as user aguments --verbose is set to '' why ?  
+        if self.verbose == '':
+            self.verbose = True
+        if self.replace_files == '':
+            self.replace_files = True
+            
+        cmd = 'upload_dist '
+        
+        if self.login:
+            cmd += ' --login %s' % self.login            
+        if self.password:
+            cmd += ' --password %s' % self.password
+        if self.verbose is True:
+            cmd += ' --verbose '
+        if self.replace_files is True:
+            cmd += ' --replace-files '
+        if self.filename:
+            cmd += ' --filename %s' % self.filename
+        if self.release:
+            cmd += ' --release %s' % self.release
+            
+        if self.verbose is True:
+            print cmd
+        
+        status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+        if status != 0:
+            print 'This command failed'
+            print cmd
+            return 1                
+        
+
+class pylint(Command):
+    """ pylint extensions to setuptools
+
+    There are two optional arguments, --pylint-packages and --pylint-options
+    that can be provided in the setup.cfg file, or in the setup.py file, or as
+    user arguments (see examples). 
+
+    The results (pylint's output) will be saved in the file .pylint.output
+
+    :Examples:
+    
+        >>> python setup.py pylint
+        >>> python setup.py pylint --pylint-packages
+        >>> python setup.py pylint --pylint-options --disable-msg=C0103
+
+    You can add the options in the setup.cfg::
+    
+        >>> [pylint]
+        >>> pylint-packages = src/openalea/stat_tool,src/openalea/stat_tool
+        >>> pylint-options = --disable-msg=C0103
+
+    or the setup.py
+
+        >>>  pylint_packages = ['src/openalea/stat_tool'],
+        >>>  pylint_options = ['--disable-msg=C0103']
+
+
+    """
+    user_options = [('pylint-packages=', None, 'list of pathnames to parse with pylint'),
+                    ('pylint-options=', None, 'optional arguments to pylint such as --disable-msg=C0103')]
+
+    def initialize_options(self):
+        self.output_filename = '.pylint.output'
+        self.pylint_packages = None
+        self.pylint_options = None
+        self.pylint_base_options = ' --ignore=__wralea__.py '
+        try:
+            os.remove(self.output_filename)
+        except:
+            pass
+
+    def finalize_options(self):
+        # get the packages to give to pylint
+
+        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        if (not self.pylint_packages):    
+            self.pylint_packages = self.distribution.pylint_packages
+            #print self.pylint_packages
+        
+        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        if (not self.pylint_options):
+            self.pylint_options = self.distribution.pylint_options 
+
+        # in the setup.cfg case or in the user arguments case, we have a string (that we convert into a list)
+        if isinstance(self.pylint_packages, str):
+            self.pylint_packages = self.pylint_packages.split(',')
+        # otherwise, we already have a list
+        if self.pylint_options is None:
+            self.pylint_options = ''
+        
+
+    def run(self):
+        print '    PYLINT processing' 
+        if self.pylint_packages:
+            for package in self.pylint_packages:
+                print '    Processing ' + package + ' through pylint'
+                cmd = 'pylint ' + package.replace('/', os.sep) + os.sep + '*.py' + ' ' + self.pylint_options
+                cmd += self.pylint_base_options
+                print cmd
+                status = subprocess.call(cmd ,stdout=open(self.output_filename,'w+'),stderr=None, shell=True)
+                #if status!=0:
+                #    print 'This command returns status (%s) different from 0.' % str(status)
+                cmd = 'tail -n 1 %s ; grep \"Your code\"  %s ' % (self.output_filename, self.output_filename)
+
+                subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+        else:
+            print 'No pylint options provided. Use --pylint-packages to give a pathname'
+
 
 class sphinx_upload(Command):
     """

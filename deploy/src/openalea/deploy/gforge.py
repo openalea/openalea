@@ -64,10 +64,10 @@ class GForgeProxy(object):
         """  Open a session """
 
         if(userid is None):
-            userid = raw_input("login:")
+            userid = raw_input("Enter your GForge login:")
 
         if(passwd is None):
-            passwd = getpass.getpass("password:")
+            passwd = getpass.getpass("Enter you GForge password:")
 
         try:
             self.session = self.server.login(userid, passwd)
@@ -191,7 +191,8 @@ class GForgeProxy(object):
             self.convert_to_id(project_id, package_id, release_id)
 
         try:
-            releases = server.getReleases(session, project_id, package_id)
+            releases = self.server.getReleases(self.session, 
+                                               project_id, package_id)
 
             for rel in releases:
                 id = rel['release_id']
@@ -414,16 +415,17 @@ class GForgeProxy(object):
 
         release_time = int(time.mktime(time.localtime()))
 
-        print "Uploading %s..."%(name,)
+        print "Uploading %s..."%(name,),
 
         try:
+            
             ret = self.server.addFile(self.session, project_id, package_id, release_id,
                                  name, filestr, type, processor, release_time)
             print "Done."
             return ret
         
         except Exception, e:
-            print e
+            print e, "Failed to upload file."
 
 
     def remove_package(self, project_id, package_id):
@@ -454,17 +456,15 @@ class GForgeProxy(object):
 
 
     def remove_file(self, project_id, package_id, release_id, file_id):
-        """
-        Remove a file 
-        """
-
-        file_id = os.path.basename(file_id)
+        """remove a file"""
         project_id, package_id, release_id, file_id = \
             self.convert_to_id(project_id, package_id, release_id, file_id)
-
+        
         import gforge_util
         gforge_util.gforge_login(self.userid, self.passwd)
+        print 'Trying to delete file %s',
         gforge_util.delete_file(project_id, package_id, release_id, file_id)
+        print 'Done.'
 
 
 
@@ -481,6 +481,10 @@ proc_id = { "i386" : 1000,
             "other" : 9999,
             }
 
+               
+
+              
+
 type_id = { ".deb" : 1000,
             ".rpm": 2000,
             ".zip" : 3000,
@@ -489,6 +493,7 @@ type_id = { ".deb" : 1000,
             "src .zip" : 5000,
             "src .bz2" : 5010,
             "src .gz" : 5020,
+            "tar.gz" : 5020,
             "src .rpm" : 5100,
             "src other" : 5900,	
             ".jpg" : 8000,
@@ -498,6 +503,8 @@ type_id = { ".deb" : 1000,
             ".dmg" : 4000,
             ".pkg" : 4010,
             "other" : 9999,
+            "Other" : 9999,
+
             }
             
             
@@ -511,7 +518,7 @@ if __name__ == "__main__" or "nose" in sys.argv[0]:
         server = GForgeProxy()
 
         server.login()
-        assert session
+        assert server.session
         server.logout()
 
 

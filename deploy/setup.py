@@ -44,6 +44,8 @@ setup(
                  "bin_dirs = openalea.deploy.command:validate_bin_dirs",
                  "share_dirs = openalea.deploy.command:validate_share_dirs",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
+                 "pylint_packages = openalea.deploy.command:validate_pylint_packages",
+                 "pylint_options = openalea.deploy.command:validate_pylint_options",
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
                  "postinstall_scripts = openalea.deploy.command:validate_postinstall_scripts",
@@ -62,7 +64,9 @@ setup(
                  "alea_install = openalea.deploy.command:alea_install",
                  "alea_upload = openalea.deploy.command:alea_upload",
                  "sphinx_upload = openalea.deploy.command:sphinx_upload",
+                 "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
+                 "upload_dist = openalea.deploy.command:upload_dist",
                  
                  ],
               
@@ -75,6 +79,7 @@ setup(
                  ],
               
               },
+    pylint_packages = ['src/openalea/deploy'],
 
     #install_requires = plat_requires,
 )

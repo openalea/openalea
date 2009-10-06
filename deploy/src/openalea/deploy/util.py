@@ -213,7 +213,20 @@ def check_system():
             libs = merge_uniq(bin, paths) 
 
             out_env['PATH'] = ';'.join(libs)
-                  
+        # Linux
+        elif "darwin" in sys.platform.lower():
+
+            paths = list(get_all_bin_dirs())
+            paths = merge_uniq(paths, in_env['PATH'].split(':'))
+            
+            libs = [get_dyn_lib_dir()]
+            libs = merge_uniq(libs, in_env['DYLD_LIBRARY_PATH'].split(':'))
+
+            # update the environment
+            out_env['DYLD_LIBRARY_PATH'] = ':'.join(libs)
+            out_env['PATH'] = ':'.join(paths)
+
+
     except Exception, e:
         print e
 

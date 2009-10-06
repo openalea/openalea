@@ -80,7 +80,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
                 data = urllib.urlencode(v_vars, doseq)
             else:
                 boundary, data = self.multipart_encode(v_vars, v_files)
-
+    
                 contenttype = 'multipart/form-data; boundary=%s' % boundary
                 if(request.has_header('Content-Type')
                    and request.get_header('Content-Type').find('multipart/form-data') != 0):
@@ -91,7 +91,8 @@ class MultipartPostHandler(urllib2.BaseHandler):
         
         return request
 
-    def multipart_encode(vars, files, boundary = None, buf = None):
+    def multipart_encode(self, vars, files, boundary = None, buf = None):
+        
         if boundary is None:
             boundary = mimetools.choose_boundary()
         if buf is None:
@@ -114,8 +115,11 @@ class MultipartPostHandler(urllib2.BaseHandler):
             buf.write('\r\n' + fd.read() + '\r\n')
         buf.write('--' + boundary + '--\r\n\r\n')
         buf = buf.getvalue()
+     
         return boundary, buf
-    multipart_encode = Callable(multipart_encode)
+    
+    #with this line, the upload with add_big_file does not work...
+    #multipart_encode = Callable(multipart_encode)
 
     https_request = http_request
 
@@ -131,7 +135,7 @@ def cookie_login(loginurl, values):
     """ Open a session
 
     login_url : the login url
-    values : dictionnary containing login form field
+    values : dictionary containing login form field
     """
     global urlOpener
     # Enable cookie support for urllib2
@@ -151,7 +155,8 @@ def cookie_login(loginurl, values):
         print "Login failed !"
     else:
         print "We are logged in !"
-
+    
+    
 ########################################
 # To add a new function:
 #  + go to the web page and display the source.
@@ -180,7 +185,7 @@ def delete_package(group_id, pkg_id):
                'package_id' : pkg_id,
                'sure' : 1,
                'really_sure' : 1,
-  	       'submit' : 'Supprimer',
+               'submit' : 'Submit',
                }
      
     fp = urlOpener.open(url, values)
@@ -208,13 +213,14 @@ def delete_file(group_id, pkg_id, release_id, filename_id):
                'package_id' : pkg_id,
                'file_id' : filename_id,
                'step3' : 'Delete File',
-               'submit' : 'Effacer le fichier ',
+               'submit' : 'submit',
                'im_sure' : 1,
                }
      
     fp = urlOpener.open(url, values)
 
 
+    
 def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
 
     url = "https://gforge.inria.fr/frs/admin/editrelease.php?" \
@@ -226,5 +232,3 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
                'userfile' : open(filename, "rb"),
                }
     fp = urlOpener.open(url, values)
-
-
