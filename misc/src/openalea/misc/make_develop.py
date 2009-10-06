@@ -38,7 +38,7 @@ class Commands():
             'undevelop': '',
             'develop':  '',
             'install':  '',
-            'nosetests': '',
+            'nosetests': '-w test',
             'distribution': '' ,
             'sdist':'',
             'bdist':'',
