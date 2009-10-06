@@ -624,8 +624,8 @@ class reST():
             try:
                 _module = self.fullname.split(self.package + os.sep + 'src')[1]    
             except:
-                print self.fullname
-                print self.package
+                print 'fullname = ' , self.fullname
+                print 'package = ',self.package
                 print self.package + os.sep + 'src'
                 try:
                     _module = self.fullname.split('src')[1]
@@ -1044,6 +1044,7 @@ def main(opts):
     globber.exclude_files('/doc/')
     globber.exclude_files('/build/')
     globber.exclude_files('setup.py')
+    globber.exclude_files('example')
 
     # those files that do contains nor class neither functions
     globber.exclude_non_code()
