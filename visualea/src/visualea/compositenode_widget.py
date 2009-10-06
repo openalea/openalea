@@ -377,7 +377,11 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         Create the graphical Edge between two connectorse 
         Do not create the REAL dataflow connection
         """
-        
+        # Do not add multiple edges between the same connectors.
+        for e in connector_src.edge_list:
+            if e.dest.parentItem().get_id() == connector_dst.parentItem().get_id() and \
+              e.dest.index() == connector_dst.index():
+                  return None
         edge = Edge(self, connector_src.parentItem(), connector_src.index(),
                     connector_dst.parentItem(), connector_dst.index(),
                     None, self.scene())
@@ -512,10 +516,22 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         position = self.mapToScene(
             self.mapFromGlobal(self.cursor().pos()))
 
+
         # Translate new node
         #l = lambda x :  x + 30
         #modifiers = [('posx', l), ('posy', l)]
-        modifiers = [('posx', position.x()), ('posy', position.y())]
+        # Compute the min x, y value of the nodes
+        # 
+        cnode = session.clipboard.instantiate()
+        
+        min_x = min([cnode.node(vid).internal_data['posx'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+        min_y = min([cnode.node(vid).internal_data['posy'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+
+        lx = lambda x : x - min_x + position.x()
+        ly = lambda y : y - min_y + position.y()
+        modifiers = [('posx', lx), ('posy', ly)]
+
+        #modifiers = [('posx', position.x()), ('posy', position.y())]
         new_ids = session.clipboard.paste(self.node, modifiers)
 
         self.rebuild_scene()
@@ -812,7 +828,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         @param graphview : EditGraphWidget container
         @param elt_id : id in the graph
         """
-
         scene = graphview.scene()
         QtGui.QGraphicsItem.__init__(self)
         SignalSlotListener.__init__(self)
@@ -841,14 +856,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
                               
         # Font and box size
-        self.sizex = 20
-        self.sizey = 35
+        self.sizex = 60
+        self.sizey = 40
 
         self.font = self.graphview.font()
         self.font.setBold(True)
         self.font.setPointSize(10)
         self.fm = QtGui.QFontMetrics(self.font)
-
 
         # Add to scene
         scene.addItem(self)
@@ -862,9 +876,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         except:
             (x,y) = (10,10)
         self.setPos(QtCore.QPointF(x,y))
-        
         self.more_port = None
-        self.adjust_size()
+        # Be carefull: force to compute the size the first time
+        self.adjust_size(force=True)
 
         # color
         if(hasattr(self.subnode, "__color__")):
@@ -902,9 +916,14 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         # here, we could process the doc so that the output is nicer 
         # e.g., doc.replace(":params","Parameters ") and so on
 
-        self.setToolTip( "Name : %s\n"%(node_name) +
-                         "Package : %s\n"%(pkg_name) +
-                         "Documentation : \n%s"%(doc,))
+        mydoc = doc
+
+        for name in [':Parameters:', ':Returns:', ':Keywords:']:
+            mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
+
+        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
+                         "<b>Package</b> : %s<br/>\n" % (pkg_name) +
+                         "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
 
 
     def set_connectors(self):
@@ -916,7 +935,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         for i,desc in enumerate(self.subnode.input_desc):
 
             hide = self.subnode.is_port_hidden(i)
-
             # hidden connector
             if(hide and self.subnode.input_states[i] is not "connected"):
                 c = self.connector_in[i]
@@ -958,7 +976,8 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             i = 0
             # i index can differ from real index since port can hidden
             for c in self.connector_in:
-                if(not c) : continue
+                if not c :
+                    continue
                 c.adjust_position(self, i, self.nb_cin)
                 c.adjust()
                 i += 1
@@ -983,7 +1002,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.more_port = None
 
             if(phiden):
-                self.more_port = QtGui.QGraphicsTextItem(">>", self)
+                self.more_port = QtGui.QGraphicsTextItem(">> ", self)
                 self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
                 #self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
                 self.more_port.setPos(self.sizex - 20, -4)
@@ -1386,6 +1405,11 @@ class Connector(QtGui.QGraphicsEllipseItem):
 
 
     def add_edge(self, edge):
+        source = edge.source
+        dest = edge.dest
+        for e in self.edge_list:
+            if e.source == source and e.dest == dest:
+                return
         self.edge_list.append(edge)
         
 
@@ -1736,6 +1760,8 @@ class Edge(AbstractEdge):
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
+
+        self.source, self.dest = None, None
 
         src = sourceNode.get_output_connector(out_index)
         if(src) : src.add_edge(self)

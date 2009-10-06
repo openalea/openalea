@@ -1,4 +1,12 @@
-- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+OpenAlea.Visualea 0.7.0
+-----------------------
+**revision xxxx**
+
+- Fix bug #5551. A port can be hidden and the associated widget will be shown if specified with showwidget.
+- improve the startup time for visualea
+- Fix bug #7933: Do not try to convert QT_VERSION into int.
+- Use the operator implemented on QT_VERSION_STR
+- upload sphinx to the web
 
 02/09 release 0.6.2
 -------------------
@@ -98,3 +106,5 @@ Others
 - Build/Edit graph
 - Simple python interpreter
 - Dataflow view
+
+
