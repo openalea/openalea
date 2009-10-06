@@ -17,8 +17,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from os.path import join
-from openalea.core import *
-
+from openalea.core import Node
 
 class Variable(Node):
     """ Transmit obj to output and display str as caption
@@ -50,7 +49,7 @@ class Bool(Node):
 
         :returns: the value
         """
-        res= bool(inputs[0])
+        res = bool(inputs[0])
         self.set_caption(str(res))
         return (res, )
 
@@ -228,10 +227,11 @@ class FileName(Node):
         :returns:  the file path string
         """
 
-        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.FileName")
+        print "This node is DEPRECATED. Use %s instead" % \
+            "Catalog.File.FileName"
         fname, cwd = inputs
         if len(cwd)>0 :
-            return (join(str(cwd),str(fname)),)
+            return (join(str(cwd), str(fname)), )
         else :
             return (str(fname),)
 
@@ -248,9 +248,9 @@ class DirName(Node):
         :returns:  the path string
         """
 
-        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.DirName")
+        print "This node is DEPRECATED. Use %s instead" % "Catalog.File.DirName"
         rep, cwd = inputs
-        if len(cwd)>0 :
+        if len(cwd) > 0 :
             return ( join(str(cwd),str(rep)), )
         else :
             return ( str(rep), )
@@ -268,7 +268,8 @@ class PackageDir(Node):
         :returns: The Path of the package wralea
         """
 
-        print "This node is DEPRECATED. Use %s instead"%("Catalog.File.PackageDir")
+        print "This node is DEPRECATED. Use %s instead" % \
+            "Catalog.File.PackageDir"
         pname = str(inputs[0])
 
         from openalea.core.pkgmanager import PackageManager

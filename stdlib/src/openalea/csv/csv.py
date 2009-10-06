@@ -20,12 +20,12 @@ __revision__ = " $Id$ "
 class Obj(object):
 
     def __init__(self, pid, propnames, values):
-        """ """
+        """ todo"""
         self.pid = pid
         self.read(propnames, values)
 
     def read(self, propnames, values):
-        """ """
+        """todo"""
         for i, prop in enumerate(propnames):
             try:
                 val = values[i]

@@ -25,27 +25,27 @@ from Image import Image as Im
 def bands (image) :
     return image.getbands(),
 
-bands.__doc__=Im.getbands.__doc__
+bands.__doc__ = Im.getbands.__doc__
 
 def colors (image) :
     return image.getcolors(),
 
-colors.__doc__=Im.getcolors.__doc__
+colors.__doc__ = Im.getcolors.__doc__
 
 def data (image) :
     return list(image.getdata()),
 
-data.__doc__=Im.getdata.__doc__
+data.__doc__ = Im.getdata.__doc__
 
 def extrema (image) :
     return image.getextrema(),
 
-extrema.__doc__=Im.getextrema.__doc__
+extrema.__doc__ = Im.getextrema.__doc__
 
 def get_pixel (image, x, y) :
-    return image.getpixel( (x,y) ),
+    return image.getpixel( (x, y) ),
 
-get_pixel.__doc__=Im.getpixel.__doc__
+get_pixel.__doc__ = Im.getpixel.__doc__
 
 def histogram (image, mask=None) :
     if mask is None :
@@ -53,7 +53,7 @@ def histogram (image, mask=None) :
     else :
         return image.histogram(mask)
 
-histogram.__doc__=Im.histogram.__doc__
+histogram.__doc__ = Im.histogram.__doc__
 
 def format (image) :
     """

@@ -88,7 +88,7 @@ def ExtractCol(data, c, val):
     :attention: c must be greater or equal than 0 
     """
 
-    res = filter(lambda x: x!=val, data[:,c])
+    res = filter(lambda x: x!=val, data[: ,c])
 
     return (res, )
 

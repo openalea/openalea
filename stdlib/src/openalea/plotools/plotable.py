@@ -29,11 +29,13 @@ __revision__ = "$Id$"
 import copy
 import sys
 from matplotlib import rc, rcParams, use
+"""
 if sys.platform.startswith('win'):
-  print "LateX writing is not available under Windows, try real OS"
+  #print 'LateX writing is not available under Windows, try real OS'
   rc('text', usetex=False )
 else:
   rc('text', usetex=True )
+"""
 use('Qt4Agg')
 #rcParams.update( {
 #        'font.family'  : 'serif',

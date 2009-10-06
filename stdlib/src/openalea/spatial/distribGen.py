@@ -18,7 +18,8 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-from openalea.core import *
+
+from openalea.core import Node, IEnumStr, IInt, IFloat
 #from scipy import stats
 import random
 from math import sqrt
@@ -217,13 +218,13 @@ def gibbs_distrib(n=10, xr=(0, 1), yr=(0, 1)):
 
 def spatial_distrib(n=100, xrange=(0, 1), yrange=(0, 1), type='Random',
         params=None):
-    if type=='Random':
+    if type == 'Random':
         return random_distrib(n, xrange, yrange)
-    elif type=='Regular':
+    elif type == 'Regular':
         return regular_distrib(n, xrange, yrange)
-    elif type=='Neman Scott':
+    elif type == 'Neman Scott':
         return neman_scott__distrib(n, xrange, yrange, **params)
-    elif type=='Gibbs':
+    elif type == 'Gibbs':
         pass
 
 
@@ -275,13 +276,13 @@ class basic_distrib(Node):
 
         Node.__init__(self)
 
-        funs= self.distr_func.keys()
+        funs = self.distr_func.keys()
         funs.sort()
         self.add_input(name="Type", interface=IEnumStr(funs), value=funs[0])
         self.add_output(name="Distribution", interface=None)
 
     def __call__(self, inputs):
-        func_name= self.get_input("Type")
+        func_name = self.get_input("Type")
         f = self.distr_func[func_name]
         self.set_caption(func_name)
 
@@ -296,7 +297,7 @@ def neman_scott__distribution(n=10, cl_nbr=2, cl_radius=0.2):
 
     x_cl, y_cl = random_distrib(cl_nbr)
     ptX = []
-    ptY =[]
+    ptY = []
 
     while(len(ptX) < n):
         xtmp = random.random()
@@ -324,7 +325,7 @@ class aggregative_distrib(Node):
 
         Node.__init__(self)
 
-        funs= self.distr_func.keys()
+        funs = self.distr_func.keys()
         funs.sort()
         self.add_input(name="Type", interface=IEnumStr(funs), value=funs[0])
         self.add_input(name="Cluster number", interface=IInt(min=1), value=2)
@@ -333,9 +334,9 @@ class aggregative_distrib(Node):
         self.add_output(name="Distribution", interface=None)
 
     def __call__(self, inputs):
-        func_name= self.get_input("Type")
+        func_name = self.get_input("Type")
         cluster_nb = self.get_input("Cluster number")
-        cluster_rd= self.get_input("Cluster radius")
+        cluster_rd = self.get_input("Cluster radius")
         f = self.distr_func[func_name]
         self.set_caption(func_name)
 

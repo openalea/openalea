@@ -16,13 +16,12 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from os.path import join
-from openalea.core import *
+from openalea.core import Node
 
 
 class Dict(Node):
     """
-Python Dictionary
+    Python Dictionary
     """
 
     def __call__(self, inputs):

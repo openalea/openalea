@@ -82,11 +82,11 @@ class IPixWidget(IInterfaceWidget, PixView):
                 img = ImageQt(img_pil)
             else :
                 img = ImageQt(img.convert("RGBA"))
-            pix=QPixmap.fromImage(img)
+            pix = QPixmap.fromImage(img)
             self.set_image(pix)
             self.set_scalable(False)
         else :
-            pix=QPixmap()
+            pix = QPixmap()
             self.set_image(pix)
 
 

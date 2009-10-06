@@ -13,18 +13,27 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-""" todo """
+""" .. todo:: fix rpy calls """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-#from openalea.core import *
+
 from openalea.core.node import Node
 from openalea.plotools import plotable
 
-import rpy
+try:
+    import rpy2.rpy_classic as rpy
+    rpy.set_default_mode(rpy.BASIC_CONVERSION)
+
+except:
+    import rpy
+        
+    
+    
+    
 from scipy import stats
-import scipy
+import numpy
 
 __docformat__ = "restructuredtext en"
 
@@ -60,7 +69,7 @@ def Glm(x, y, famil = 'gaussian'):
     family = reg['family']['family']
     #link = reg['link']
 
-    data = {'Intercept':intercept, 'Slope':slope, 'Family': famil}#, 'Link':lin}
+    data = {'Intercept':intercept, 'Slope':slope, 'Family': family}#, 'Link':lin}
     return data
     
 class LinearRegression(Node):
@@ -80,9 +89,11 @@ class LinearRegression(Node):
         """ inputs is the list of input values """
         if self.get_input( "origin" ):
             print "Origin will not work if x values are < 0"
-            reg = regLinOri(self.get_input( "X" ),self.get_input( "Y" ),self.get_input( "alpha" ) )
+            reg = regLinOri(self.get_input( "X" ), self.get_input( "Y" ),
+                            self.get_input( "alpha" ) )
         else:
-            reg = regLin(self.get_input( "X" ),self.get_input( "Y" ),self.get_input( "alpha" ) )
+            reg = regLin(self.get_input( "X" ), self.get_input( "Y" ),
+                         self.get_input( "alpha" ) )
         return ( reg, )
 
 
@@ -101,21 +112,25 @@ class LR2Plot(Node):
 
     def __call__( self, inputs ):
 
-        reg=self.get_input( 'reg' )
-        reg_x=rpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
-        reg_y = reg_x*reg[ 'pente' ]+reg[ 'intercept' ]
+        reg = self.get_input( 'reg' )
+        reg_x = numpy.array( [ min(reg[ 'x' ]), max(reg[ 'x' ]) ] )
+        reg_y = reg_x*reg[ 'slope' ]+reg[ 'intercept' ]
         if reg.has_key('ic'):
-          reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
-                       "x + "+str( round(reg[ 'intercept' ],3 ))+ \
-                       " $\pm$ "+str( round( reg[ 'ic' ],3 ) )+ \
-                       r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
+            reg_legend = "y = " + str( round(reg['slope'], 3 ) ) + \
+                       "x + " + str( round(reg['intercept'], 3 )) + \
+                       " $\pm$ "+str( round(reg['ic'], 3 ) ) + \
+                       r"    $r^2$ = " + str(round(reg['r2'], 3 ) )
         else :
-          reg_legend = "y = "+str( round( reg[ 'pente' ],3 ) )+ \
-                       "x + "+str( round(reg[ 'intercept' ],3 ))+ \
-                       r"    $r^2$ = "+str( round( reg[ 'r2' ],3 ) )
-        reg_color='red'
-        points = plotable.VisualSequence( x=reg[ 'x' ], y=reg[ 'y' ], legend= 'Data', linestyle='None', marker = '^', color='dodgerblue' )
-        line = plotable.VisualSequence( x=reg_x, y=reg_y, legend=reg_legend, linestyle='-', marker='None', color=reg_color )
+            reg_legend = "y = "+str( round( reg[ 'slope' ], 3 ) )+ \
+                       "x + "+str( round(reg[ 'intercept' ], 3 ))+ \
+                       r"    $r^2$ = "+str( round( reg[ 'r2' ], 3 ) )
+        reg_color = 'red'
+        points = plotable.VisualSequence(x=reg[ 'x' ], y=reg[ 'y' ],
+                                          legend= 'Data', linestyle='None',
+                                          marker = '^', color='dodgerblue' )
+        line = plotable.VisualSequence(x=reg_x, y=reg_y, legend=reg_legend,
+                                       linestyle='-', marker='None',
+                                       color=reg_color )
         return ( points, line )
 
 
@@ -123,33 +138,34 @@ def regression(x, y, regmodel, alpha ):
     d = rpy.r.data_frame(X=x, Y=y)
     model = regmodel
     #reg = rpy.r.lm(model, data = d)
-    n=rpy.sqrt( len( x ) )
-    norm=rpy.r.qt( 1. - ( alpha/200. ), len(x) )
+    n = rpy.sqrt( len( x ) )
+    norm = rpy.r.qt( 1. - ( alpha/200. ), len(x) )
     Rlm = rpy.with_mode(rpy.NO_CONVERSION, rpy.r.lm)
     reg2 = Rlm(model, data = d)
     result = rpy.r.summary(reg2)
-    coef=result['coefficients']
+    coef = result['coefficients']
     r2 = result['r.squared']
     r2adj = result['adj.r.squared']
     ic = result[ 'sigma' ]*norm/n
     try:
-      pente = coef[1][0]
+      slope = coef[1][0]
       intercept = coef[0][0]
     except IndexError :
-      pente = coef[0][0]
+      slope = coef[0][0]
       intercept = 0
 
-    data = {'pente':pente, 'intercept':intercept, 'r2':r2, 'adj_r2':r2adj, 'ic':ic, 'x':x, 'y':y}
+    data = {'slope':slope, 'intercept':intercept, 'r2':r2,
+            'adj_r2':r2adj, 'ic':ic, 'x':x, 'y':y}
     return data
 
 def multiReg(x, y, colList, alpha):
     #d = rpy.r.data_frame(y)
-    newX=[]
+    newX = []
     d = {'Y':y}
     model_string = "Y~"
     #names = ["Y"]
     for i in colList:
-      name = "X"+str(i) 
+      name = "X" + str(i) 
       #names.append( name )
       d[name] = x[i]
       newX.append(x[i])
@@ -159,8 +175,8 @@ def multiReg(x, y, colList, alpha):
     model_string = model_string + "1"
     model = rpy.r(model_string)
 
-    n=rpy.sqrt( len( y ) )
-    norm=rpy.r.qnorm( 1. - ( alpha/200. ) )
+    n = rpy.sqrt( len( y ) )
+    norm = rpy.r.qnorm( 1. - ( alpha/200. ) )
     Rlm = rpy.with_mode(rpy.NO_CONVERSION, rpy.r.lm)
     reg = Rlm(model, data = d)
     result = rpy.r.summary(reg)
@@ -168,8 +184,8 @@ def multiReg(x, y, colList, alpha):
     coef =result['coefficients']
     r2 = result['r.squared']
     r2adj = result['adj.r.squared']
-    ic = result[ 'sigma' ]*norm/n
-    regressor = coef[:,0]
+    ic = result['sigma']*norm/n
+    regressor = coef[:, 0]
 
     data = {'regressor':regressor[1:], 'intercept':regressor[0], 'r2':r2, 'adj_r2':r2adj, 'ic':ic, 'x':newX, 'y':y}
     return data
@@ -240,9 +256,9 @@ def linearregress(x, y):
 
     result = stats.stats.linregress(x,y)
     intercept = result[1]
-    pente = result[0]
+    slope = result[0]
     r2 = result[2] * result[2]
     pvalue = result[3]
 
-    data = {'pente':pente, 'intercept':intercept, 'r2':r2, 'two-tailed prob, pvalue':pvalue, 'x':x, 'y':y}
+    data = {'slope':slope, 'intercept':intercept, 'r2':r2, 'two-tailed prob, pvalue':pvalue, 'x':x, 'y':y}
     return data
