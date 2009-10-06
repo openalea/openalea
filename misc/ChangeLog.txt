@@ -1,9 +1,14 @@
-- change this directory into a packages
-- make_develop: add html, latex, upload_sphinx options
-- upload_dist.py: add possiblity to upload a single file and fix missin import
-- Add sphinx_tools.py module to help managing the sphinx documentation
+OpenAlea.Misc 0.7.1
+-------------------
+
+- misc directory is now a valid python package
+- fix task 3607
+- upload sphinx documentation on the website
+- make_develop: add html, latex, upload_sphinx, pylint options
+- upload_dist.py: add possiblity to upload a single file and fix missing import
+- Fix bug report 7324
+- Complete Task 3135
 
 Release 0.6
 -----------
-
 

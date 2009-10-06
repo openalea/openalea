@@ -12,6 +12,7 @@ type --help to get more help and usage
 
 """
 
+
 __license__ = "Cecill-C"
 __revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 
@@ -41,23 +42,55 @@ class Commands():
             'nosetests': '-w test',
             'distribution': '' ,
             'sdist':'',
+            'pylint':'',
             'bdist':'',
             'bdist_egg':'',
-            'release':  'bdist_egg -d ../../dist sdist -d ../../dist',
+            'release':  'install bdist_egg -d ../../dist ',
             'html': "--builder html -E",
             'latex': "--builder latex -E",
             'sphinx_upload': "",
-            'pdf': ""
+            'pdf': "",
+            'upload_dist':'--verbose',
             }
         
         #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
     
-        self.oa_dirs = """deploy deploygui core visualea sconsx stdlib openalea_meta misc"""
-        self.vp_dirs = """PlantGL tool stat_tool sequence_analysis amlobj mtg tree_matching aml fractalysis newmtg WeberPenn vplants_meta"""
+        self.oa_dirs = """
+        deploy 
+        deploygui 
+        core 
+        visualea 
+        sconsx
+        stdlib 
+        scheduler 
+        misc
+	openalea_meta 
+        """
+        
+        self.vp_dirs = """
+        PlantGL 
+        tool 
+        stat_tool 
+        sequence_analysis 
+        amlobj 
+        mtg 
+        tree_matching 
+        aml 
+        fractalysis
+        tree
+        tree_statistic
+        container
+        newmtg 
+        WeberPenn 
+        lpy
+        """
+        #""" vplants_meta"""
         self.alinea_dirs = """caribu graphtal adel topvine"""
         
-        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx stdlib misc """ 
-        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg"""
+        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
+         stdlib misc openalea_meta scheduler""" 
+        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta 
+        sequence_analysis lpy container newmtg"""
         self.alinea_sphinx_dirs="""caribu"""
 
         self.project = project 
@@ -90,23 +123,26 @@ class Commands():
             
         return  _dirs.split()
 
-    def recursive_call(self, cmd, dirs, root_dir, cwd,doc=False ):
+    def recursive_call(self, cmd, dirs, root_dir, cwd, doc=False):
         """run a command though the different directories """
 
         print dirs
-        for dir in dirs:
+        for udir in dirs:
             if doc:
-                dir = os.path.join(dir, 'doc')
-                dir = os.path.join(dir, 'latex')
-            print "--------------"
-            print "cd %s" % dir
-            print "Executing %s" % cmd
-            print '\n'
+                udir = os.path.join(udir, 'doc')
+                udir = os.path.join(udir, 'latex')
+            print '\n\n'
+            print "########## Make develop switches to %s directory ##########"\
+                % udir.upper()
+            print "= Executing %s =" % cmd
 
-            dir = root_dir/dir
-            os.chdir(dir)
+            udir = root_dir/udir
+            os.chdir(udir)
     
-            status = os.system(cmd)
+            import subprocess
+            status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+            
+            
             if status != 0:
                 print "Error during the execution of %s" % cmd
                 print "---- EXIT ----"
@@ -131,8 +167,8 @@ class Commands():
 
         command = self.command
 
-        if command=='undevelop':
-            command = 'develop'
+        if command == 'undevelop':
+            command = 'develop -u'
         directory = self.directory
         options = self.options
         # create the actual command to run
@@ -143,7 +179,7 @@ class Commands():
         if self.command == 'html':
             cmd = cmd.replace('html', 'build_sphinx', 1)
         elif self.command == 'latex':
-            cmd = cmd.replace('latex', 'build_sphinx' ,1)
+            cmd = cmd.replace('latex', 'build_sphinx', 1)
 
         # if the options exists, we complete the command
         if options and options.install_dir: 
@@ -152,6 +188,7 @@ class Commands():
         # setup for the release command
         cwd = path(os.getcwd())
         if self.command == 'release':
+            cmd = cmd.replace('release ', '', 1)
             dist = cwd/'..'/'dist'
             try:
                 if dist.exists():
@@ -189,10 +226,10 @@ class Commands():
             return
 
         # check if the dirs are under the given directory.
-        for dir in dirs:
-            if root_dir/dir not in dirs_under_root:
+        for udir in dirs:
+            if root_dir/udir not in dirs_under_root:
                 print "%s is not a directory of %s" % \
-                    (dir, str(root_dir.realpath()))
+                    (udir, str(root_dir.realpath()))
                 print "---- EXIT ----"
                 return
 
@@ -233,7 +270,10 @@ def main():
 
     
 
-    available_mode = ['develop', 'undevelop', 'install', 'release', 'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 'nosetests', 'distribution', 'sdist', "bdist", "bdist_egg"]
+    available_mode = ['develop', 'undevelop', 'install', 'release', 
+                      'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 
+                      'nosetests', 'distribution', 'sdist', "bdist",
+                       "bdist_egg", "pylint", "upload_dist"]
     available_project = ['openalea', 'vplants', 'alinea']
 
     

@@ -603,7 +603,7 @@ class reST():
         """Create the import name """
         
         openalea_packages = ['core', 'stdlib', 'deploy', 'deploygui', 
-                             'misc', 'visualea', 'sconsx', 'PlantGL',
+                             'misc', 'visualea', 'scheduler', 'sconsx', 'PlantGL',
                              'fractalysis','stat_tool', 'newmtg', 'tree_reduction','tree_statistic'
                             'sequence_analysis','adel', 'caribu', 'container', 'WeberPenn']
         
