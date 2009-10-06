@@ -5,7 +5,7 @@ __revision__ = " $Id$ "
 from openalea.core.pkgmanager import PackageManager
 
 
-def test_lambda():
+def _test_lambda():
     """ Test for lambda functions"""
     pm = PackageManager()
     pm.init()

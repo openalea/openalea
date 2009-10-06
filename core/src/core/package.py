@@ -189,18 +189,18 @@ class Package(PackageDict):
     def get_tip(self):
         """ Return the package description """
 
-        str= "Package : %s\n"%(self.name, )
+        str= "<b>Package : </b>%s<br/>\n"%(self.name, )
         try:
-            str += "Description : %s\n"%(self.metainfo['description'], )
+            str += "<b>Description : </b>%s<br/>\n"%(self.metainfo['description'], )
         except:
             pass
         try:
-            str += "Institutes : %s\n"%(self.metainfo['institutes'], )
+            str += "<b>Institutes :</b> %s<br/>\n"%(self.metainfo['institutes'], )
         except:
             pass
 
         try:
-            str += "URL : %s\n"%(self.metainfo['url'], )
+            str += "<b>URL : </b>%s<br/>\n"%(self.metainfo['url'], )
         except:
             pass
 
