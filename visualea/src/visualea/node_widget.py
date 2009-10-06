@@ -151,8 +151,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             #    self.place( self,  i, layout )
             self.place_group( self, node.factory.view, self.vboxlayout)
 
-
-        if(autonomous): self.set_autonomous()
+        if autonomous: 
+            self.set_autonomous()
 
 
     def set_autonomous(self):
@@ -200,7 +200,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
         ## Hidden state
         ## TODO
-        if not port.get('showwidget',  not port.is_hidden()):
+        if not port.get('showwidget', not port.is_hidden()):
             self.widgets.append(None)
             return
         

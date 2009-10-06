@@ -322,7 +322,7 @@ class DataPoolModel (QAbstractListModel) :
     
 
 
-class SearchModel (QAbstractItemModel) :
+class SearchModel (QAbstractListModel) :
     """ QT4 data model (model/view pattern) to support Search result"""
 
     def __init__(self, parent=None):
