@@ -3,25 +3,33 @@ pj = os.path.join
 
 from setuptools import setup, find_packages
 
+platform = sys.platform
 external_dependencies = [
-'numpy>=1.0.4-1',
-'scipy == 0.6',
-'matplotlib==0.98.5',
-'PIL<=1.1.6',
-'qt4>=4.4.3'
+'numpy',
+'scipy',
+'matplotlib>=0.99',
 ]
 
+if platform != 'darwin':
+    external_dependencies.append('PIL<=1.1.6')
+
 alea_dependencies = [
-'openalea.deploy > 0.5',
-'openalea.deploygui > 0.5',
-'openalea.core > 0.5',
-'openalea.visualea > 0.5',
-'openalea.stdlib > 0.5',
-'openalea.sconsx > 0.5',
+'openalea.deploy >= 0.7.0.dev',
+'openalea.deploygui >= 0.7.0.dev',
+'openalea.core >= 0.7.0.dev',
+'openalea.visualea >= 0.7.0.dev',
+'openalea.stdlib >= 0.7.0.dev',
+'openalea.sconsx >=0.7.0.dev',
+'openalea.misc >=0.7.0.dev',
+'openalea.scheduler >=0.7.0.dev',
+'openalea.container >=2.0.1.dev',
+'openalea.mtg >=0.7.0.dev',
 ]
 
 install_requires = alea_dependencies
-if sys.platform.startswith('win'):
+
+# Add dependencies on Windows and Mac OS X platforms
+if 'win' in platform:
     install_requires += external_dependencies 
 
 setup(
