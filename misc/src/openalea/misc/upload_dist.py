@@ -1,262 +1,323 @@
-#!/usr/python
-"""Utility script to upload package on the Gforge
+"""
 
-Example:
-  >>> cd vplants/PlantGL; python upload.py
+Authors: Thomas Cokelaer, Thomas.Cokelaer@sophia.inria.fr 
 
-This script requires to enable the use of multipart/form-data 
-for posting forms, which was inspired by 
-
-Python cookbook:  
-  Upload files in python:
-    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306
-  urllib2_file:
-    Fabien Seisen: <fabien@seisen.org>
-
-Example:
-  >>> import MultipartPostHandler, urllib2, cookielib
-  cookies = cookielib.CookieJar()
-  opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookies),
-    MultipartPostHandler.MultipartPostHandler)
-  params = { "username" : "bob", "password" : "riviera",
-    "file" : open("filename", "rb") }
-  opener.open("http://wwww.bobsite.com/upload/", params)
-
-Further Example:
-  The main function of this file is a sample which downloads a page and
-  then uploads it to the W3C validator.
 """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: upload_dist.py 1662 2009-03-09 12:25:57Z cokelaer $"
 
-####
-# 02/2006 Will Holcomb <wholcomb@gmail.com>
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-import urllib2
-import mimetypes
-import mimetools
 import os
-import stat
-import sys
-from cStringIO import StringIO
 from optparse import OptionParser
-import getpass
-import cookielib
-import urllib
 import glob
+import warnings
 
-class Callable:
+from openalea.deploy.gforge import GForgeProxy
+from openalea.deploy.gforge import type_id
 
-    def __init__(self, anycallable):
-        self.__call__ = anycallable
-
-# Controls how sequences are uncoded. If true, elements may be given multiple
-# values by assigning a sequence.
-doseq = 1
-
-
-class MultipartPostHandler(urllib2.BaseHandler):
-    handler_order = urllib2.HTTPHandler.handler_order - 10 # needs to run first
-
-    def http_request(self, request):
-        data = request.get_data()
-        if data is not None and type(data) != str:
-            v_files = []
-            v_vars = []
-            try:
-                for (key, value) in data.items():
-                    if key=="userfile":
-                        v_files.append((key, value))
-                    else:
-                        v_vars.append((key, value))
-            except TypeError:
-                systype, value, traceback = sys.exc_info()
-                raise TypeError, "not a valid non-string sequence or mapping object", traceback
-
-            if len(v_files) == 0:
-                data = urllib.urlencode(v_vars, doseq)
-            else:
-                boundary, data = self.multipart_encode(v_vars, v_files)
-
-                contenttype = 'multipart/form-data; boundary=%s' % boundary
-                if(request.has_header('Content-Type')
-                   and request.get_header('Content-Type').find('multipart/form-data') != 0):
-                    print "Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data')
-                request.add_unredirected_header('Content-Type', contenttype)
-
-            request.add_data(data)
-        return request
-
-    def multipart_encode(vars, files, boundary = None, buf = None):
-        if boundary is None:
-            boundary = mimetools.choose_boundary()
-        if buf is None:
-            buf = StringIO()
-        for(key, value) in vars:
-            buf.write('--%s\r\n' % boundary)
-            buf.write('Content-Disposition: form-data; name="%s"' % key)
-            buf.write('\r\n\r\n' + value + '\r\n')
-        for(key, fd) in files:
-            file_size = os.fstat(fd.fileno())[stat.ST_SIZE]
-            filename = fd.name.split('/')[-1]
-            contenttype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-            buf.write('--%s\r\n' % boundary)
-            buf.write('Content-Disposition: form-data; name="%s"; filename="%s"\r\n' % (key, filename))
-            buf.write('Content-Type: %s\r\n' % contenttype)
-            # buffer += 'Content-Length: %s\r\n' % file_size
-            fd.seek(0)
-            buf.write('\r\n' + fd.read() + '\r\n')
-        buf.write('--' + boundary + '--\r\n\r\n')
-        buf = buf.getvalue()
-        return boundary, buf
-    multipart_encode = Callable(multipart_encode)
-
-    https_request = http_request
-
-
-##########################################################"
-
-urlOpener = None
-
-
-def cookie_login(loginurl, values):
-    """ Open a session
-
-    :param loginurl: a valid URL
-    :param values: dictionnary containing login form field
+class UploadDistributionToGForge(object):
     """
-    global urlOpener
-    # Enable cookie support for urllib2
-    cookiejar = cookielib.CookieJar()
-    urlOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar),
-                                     MultipartPostHandler)
-
-    data = urllib.urlencode(values)
-    request = urllib2.Request(loginurl, data)
-    url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
-    urllib2.install_opener(urlOpener)
-    urllib2.install_opener(urlOpener)
-            
-    # Make sure we are logged in by checking the presence of the cookie 
-    # "session_ser". (which is the cookie containing the session identifier.)
-    if not 'session_ser' in [cookie.name for cookie in cookiejar]:
-        print "Login failed !"
-    else:
-        print "We are logged in !"
-
-########################################
-
-
-def upload(filename, url, extension, proc):
-
-    if (extension == "srcgz"):
-        type_id = "5020"
-    else:
-        type_id = "9999"
-
-    if(proc == "i386"):
-        proc = "1000"
-    elif(proc == "any"):
-        proc = "8000"
-
-    _values = {'step2': "1",
-              'type_id': type_id,
-              'processor_id': proc,
-              'userfile': open(filename, "rb"),
-              }
-  
-    try:
-        fp = urlOpener.open(url, _values)
-    except Exception, e:
+    
+    >>> gforge = UploadDistributionToGForge(login='yourname', release='0.7')
+    >>> gforge.upload_file('dist/file.egg')
+    
+    The name of the distribution file must be available in the list of packages
+    that are posted on the gforge, which can be known using 
+    
+    >>> print gforge.packages
+    
+    
+    
+    
+    todo: if release is not present on the gforge, create it.
+    """
+    def __init__(self, project='openalea', login=None, password=None, 
+                 release=None, verbose=False, replace_files=False):
         
-        print 'urlOpener.open failed'
-        print e
+        # initialisation weith user arguments
+        self.gforge = GForgeProxy()
+        self.login = login
+        self.project = project
+        self.password = password
+        self.release = release
+        self.verbose = verbose
+        self.replace_files =replace_files
+        
+        # post processing to be done only once since project is unique
+        self.group_id = self.gforge.get_project_id(self.project)
+        self.packages = self.gforge.get_packages(self.project)
 
-    #print fp.read()
+        
+        #others
+        self.proc_type = 'any' 
+        self.file_type = 'other'
+        
+        # initialised with get_package_id
+        self.package = None        
+        self.package_id = None
+        
+        # initialised once package is known
+        self.release_id = None
+        
+        self.filename = None
+        self.file_id = None
 
-
-def glob_upload(pattern, verbose=True):
-    """ Upload files with a given pattern
-    """
-
-    # loop over the files
-    print pattern
-    for file in glob.glob(pattern):
-        filename = os.path.abspath(file)
-        print filename
-
-        url = None
-        for k, v in urlmap.iteritems():
-            if (k in filename.lower()):
-                url = v
-
-        # check existence of an URL matching the pattern
-        if (url):
-            if (filename.endswith("egg")):
-                ext = "egg"
-            else:
-                ext = "srcgz"
-            
-            try:
-                if verbose:
-                    print "upload", filename, url
-                upload(filename, url, ext, "any")
-                print 'File copied'
-            except Exception, e:
-                print 'Failed to upload the file !'
-                print e
-                sys.exit(0)            
-            #break
+        # finally, some asserts
+        self._check()
+        
+    def _check(self):
+        """Sanity check"""
+        assert type(self.release) == str
+        assert type(self.login) == str or self.login==None
+        assert type(self.project) == str
+        
+    def __str__(self):
+        """ General information to be used by print function"""
+        ustr = '>>>>>>>>>>>>>> Project information <<<<<<<<<<<<<\n'
+        ustr += 'Project:         %s with id %d\n' \
+                    % (self.project, self.group_id)
+        ustr += 'Current package: %s with id %s \n'\
+            % (self.package, self.package_id)
+        ustr += 'Release:         %s with id %s \n'\
+            % (self.release, self.release_id)
+        if self.file_id == -1:
+            ustr += 'Filename:        %s with id %s \n'\
+                % (self.filename, 'not present')
         else:
-            print file
-            s = """!!! Could not find file(%s) in any URLs provided""" % file
-            s += """Check the group, release and package Ids on the
-gforge.inria.fr webpage"""
-            print s
-            print '\nCurrent hardcoded values are : '
-            for k, v in urlmap.iteritems():
-                print k, v
-            sys.exit()
+            ustr += 'Filename:        %s with id %s \n'\
+                % (self.filename, self.file_id)
+        return ustr
+            
+    def func_login(self, login=None, password=None):
+        """login into gforge"""
+       
+        if self.verbose:
+            print 'Trying to log in...',
+        if login and password:
+            self.gforge.login(login, password)
+        else:
+            self.gforge.login(self.login, self.password)
+        self.login = self.gforge.userid
+        self.password = self.gforge.passwd
+        if not self.gforge.session:
+            self.error('Could not connect to the gforge. Check login and passwd')
+        else:
+            if self.verbose:
+                print 'connection succeeded.' 
+        
+    def logout(self):
+        self.gforge.logout()
 
-#-----------------------------------------------------------------------------
-urlmap = {
-    'deploygui-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3184&package_id=2144',
-    'deploy-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3178&package_id=1176',
-    'core-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3180&package_id=840',
-    'openalea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3199&package_id=2147',
-    'visualea-0.6': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3181&package_id=841',
-    'stdlib-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3183&package_id=1913',
-    'vplants.plantgl-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.amlobj-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.tool-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.mtg-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.stat_tool-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.sequence_analysis-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.tree_matching-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.aml-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants-': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'vplants.fractalysis': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3197&package_id=1308',
-    'alinea.': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3201&package_id=2154',
-    '.source': 'http://gforge.inria.fr/frs/admin/editrelease.php?group_id=79&release_id=3542&package_id=2295',
-    }
+    def error(self, msg):
+        """Simple error message that also logout"""
+        print "Logging out."
+        self.logout()
+        ValueError(msg)
+        
+    def get_package_id(self, package=None):
+        """returns package id given project and package names"""
+        if not package:
+            package = self.package
+        else:
+            self.package = package
+        self._check()
+        if self.package in self.packages:
+            self.package_id = self.gforge.get_package_id(self.project, package)
+            if self.package_id == -1:
+                self.error("Could not find id of packages %s. check name" 
+                           % package)
+        else:
+            self.error("Package %s not in list of available package" % package)
+        # now that the package is none, we can also check the release id
+        self.release_id = \
+            self.gforge.get_release_id(self.project, self.package, self.release)
+        #
+        if self.release_id == -1:
+             
+            _releases = self.gforge.get_releases(self.project, self.package)
+            print self.project
+            print self.package
+            print _releases
+            self.release_id = self.gforge.get_release_id(self.project, 
+                                                         self.package_id,
+                                                         max(_releases))
+            self.release = max(_releases)
+            
+        return self.package_id
+    
+    def get_release_id(self, package=None, release=None):
+        """returns package id given project and package names"""
+        if not release:
+            release = self.release
+        else:
+            self.release = release
+        self._check()
+        self.get_package_id(package)
+        return self.release_id
+    
+    def get_file_id(self, filename=None, package=None, release=None):
+        """returns package id given project and package names"""
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+        self._check()
+        
+        self.get_release_id(package, release)
+        self.file_id = self.gforge.get_file_id(self.project, 
+                                               self.package, 
+                                               self.release, self.filename)
+        return self.file_id
+   
+    def get_proc_type(self, filename=None):
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+
+        if 'linux' or 'win32' in filename:
+            self.proc_type = 'i386'
+        elif 'mac' in filename:
+            self.proc_type = 'i386'
+        else:
+            self.proc_type = 'any'
+
+        return self.proc_type
+
+    def get_file_type(self, filename=None):
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+            
+        extension = os.path.splitext(filename)[1]
+        if filename.endswith('tar.gz'):
+            self.file_type = 'tar.gz'            
+        elif extension in type_id.keys():
+            self.file_type = extension
+        else:
+            self.file_type = 'other'
+        return self.file_type
+        
+    def get_releases(self, package):
+        """returns list of release given project and package names"""
+        return self.gforge.get_releases(self.project, package)
+    
+    def guess_package(self, filename):
+        _package_map = {
+                        'OpenAlea.SConsx':'VPlants',
+                        'OpenAlea.Mtg':'VPlants',
+                        'VPlants.PlantGL':'VPlants'
+                        }
+        guess = os.path.basename(filename).split('-')[0]
+        print guess
+        
+        if guess in _package_map.keys():
+            if self.verbose:
+                print 'Found %s in the list package_map. Need to be fixed !!' \
+                    % guess
+            guess = _package_map[guess]
+        
+        elif guess in self.packages:
+            if self.verbose:
+                print 'Found %s in the list of official packages.continue...' \
+                    % guess
+        elif guess.startswith('VPlants'):
+            if self.verbose:
+                print 'Found %s as a VPlants package. Need to be fixed !!' \
+                    % guess
+            guess = 'VPlants'
+        elif guess.startswith('Alinea'):
+            if self.verbose:
+                print 'Found %s as an Alinea package. Need to be fixed !!' \
+                    % guess
+            guess = 'Alinea'
+        
+        else:
+            self.error('Could not guess the package name (%s) on the gforge' 
+                       % guess)
+            
+        self.get_package_id(guess)
+        return guess
+    
+    
+    def delete_file(self, filename=None, package=None, release=None):
+        """todo:check pacakge release"""
+        
+        print 'Removing the following file from the gforge:',
+        print self.filename
+        
+        
+        if self.replace_files == True:
+            self.gforge.remove_file(self.group_id, self.package_id, 
+                                    self.release_id, self.file_id)
+            self.get_file_id()
+        else:
+            
+            print """WARNINGS:: File found on the GForge. Not replaced. 
+If you want to replace it, use the --replace-files option"""
+        return
+    
+    def upload_file(self, filename=None, package=None, 
+                    user_release=None, verbose=False):
+        """package must be in get_packages
+        gforge.upload_file("filename.egg", "VPlants", "0.7")
+        """
+        print '============================================= Uploading new file' 
+        # overwrite release if required
+        if user_release:
+            self.get_release_id(package, user_release)
+            self.release = user_release # not great to overwrite the init...
+        
+        self._check()
+            
+        if package is None:
+            self.guess_package(filename)
+        else:
+            pass
+        
+        # we just want the base name to get the id and update 
+        # the file and type id's.
+        self.filename = os.path.basename(filename)
+        self.get_file_id()
+        self.get_file_type()
+        self.get_proc_type()
+
+        
+        if verbose:
+            print self
+            print 'File type is %s' % self.file_type
+            print 'Processor type is %s' % self.proc_type
+            
+        # file already present 
+        if self.file_id != -1:
+            warnings.warn("""File %s already present on the gforge """ % filename)
+            self.delete_file(self.filename, self.package, self.release)
+ 
+        # if deleted, the fild_id has been updated in delete_file and therefore
+        # it is == to -1
+        if self.file_id == -1:
+            #here we use filename because we need the whole pathname
+            if os.path.getsize(filename)> 2000000L:
+               self.gforge.add_big_file(self.project, self.package,
+                                     self.release,
+                                     filename,
+                                     proc_type=self.proc_type,
+                                     file_type=self.file_type)
+
+            else:
+                self.gforge.add_file(self.project, self.package,
+                                     self.release,
+                                     filename,
+                                     proc_type=self.proc_type,
+                                     file_type=self.file_type)
 
 
 
 
 
 def ParseParameters():
-    """
+    """Simple Parsing function
     
     """
 
@@ -271,56 +332,60 @@ def ParseParameters():
 
     parser.add_option("-l", "--login", metavar='LOGIN',
         default=None, type='string', help="login name")
+    
+    parser.add_option("-p", "--password", metavar='PASSWORD',
+        default=None, type='string', help="non encrypted password")
 
     parser.add_option("-v", "--verbose", 
         action="store_true",  default=False, help="verbose option")
     
     parser.add_option("-f", "--filename", 
-        default=None, help="name of the file to upload, provided that it matches\
-         one of the URLmap that is hardcoded") 
-    (_opts, _args) = parser.parse_args()
-     
+        default=None, help="name of the file to upload, provided that it \
+         matches one of the URLmap that is hard-coded")
+
+    parser.add_option("-d", "--directory", 
+        default='dist', help="directory with files to upload.")
+ 
+    parser.add_option("-r", "--release", 
+        default=None, help="release version")
+  
+    parser.add_option("-P", "--project", 
+        default='openalea', help="project name. should be openalea.")
+    
+    parser.add_option("-R", "--replace-files", 
+        action='store_true', default=False, help="replace file if found on the GForge.")
+    
+    parser.add_option("-D", "--do-not-replace-files", 
+        action='store_true', default=False, help="do not replace files.")
+    
+    
+ 
+    (_opts, _args) = parser.parse_args()     
     return _opts, _args
 
 
-if (__name__=="__main__"):
+def main():
 
-    global password, login
+    (opts, _args) = ParseParameters()
+    if not opts.release:
+        raise ValueError('--release is compulsory')
     
-    (opts, args) = ParseParameters()
-
-    if opts.verbose:
-        print 'This script will copy the EGG,zip and tar.gz files in ./dist.'
-        print "Enter your gforge login:"
+    # initialisation
+    gforge = UploadDistributionToGForge(opts.project,  login=opts.login, 
+                             password=opts.password, release=opts.release,
+                             verbose=opts.verbose,  
+                             replace_files=opts.replace_files)
+    gforge.func_login()
         
-    if not opts.login:
-        login = raw_input()
-    else:
-        login = opts.login
-        
-    password = getpass.getpass()
-
-    # Create login/password values
-    values = {'form_loginname': login,
-              'form_pw': password,
-              'return_to': '',
-              'login': "Connexion avec SSL"}
-
-    url = "https://gforge.inria.fr/account/login.php"
-
-    cookie_login(url, values)
-
     if not opts.filename:
-        if "linux" in os.sys.platform:
-            print '------------------------------------------------------------'
-            print 'glob upload of dist/*egg'
-            glob_upload("dist/*.egg")
-            print '------------------------------------------------------------'
-            print 'glob upload of dist/*tar.gz'
-            glob_upload("dist/*.tar.gz")
-        else:
-            glob_upload('dist/*egg')
-            glob_upload('dist/*zip')
+        pattern = opts.directory + os.sep + '*'
+        for ufile in glob.glob(pattern):
+            gforge.upload_file(ufile, verbose=opts.verbose)
+        
     else:
-        print 'Uploading %s ' % opts.filename
-        glob_upload(opts.filename)
+        gforge.upload_file(opts.filename, verbose=opts.verbose)
+        
+    gforge.logout()
+        
+if (__name__=="__main__"):
+    main()        
