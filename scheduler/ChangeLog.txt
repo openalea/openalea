@@ -1,19 +1,6 @@
-OpenAlea.0.7.0
---------------
+penAlea.Scheduler 0.7.0
+-------------------------
+**release xxxx**
 
-- update dependencies (openlea package >=0.6
-
-release 0.6.3
--------------
-- Fixed wrong vresion of numpy introduced in version 0.6.2
-
-release 0.6.0
-=============
-- 28/11/08 Creation of this meta package
-
-
-
-
-
-
-
+- 2009.06.25 : creation of the package 
+- sphinx doc uploaded on the web

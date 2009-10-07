@@ -1,65 +1,130 @@
-import os, sys
-pj = os.path.join
+s Setup script has been commented to ease the writing of your own file. 
+
+# A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
+# In the context of OpenAlea, this function has been extended by the openalea.deploy module to ease the simultaneaous distribution of binaries and libraries.
+
+
+
+# (To adapt this script for your package, you mainly have to change the content of the variable defined before the call to setup function, and comment out unused options in the call of the function)
+
+import sys
+import os
 
 from setuptools import setup, find_packages
 
-platform = sys.platform
-external_dependencies = [
-'numpy',
-'scipy',
-'matplotlib>=0.99',
-]
 
-if platform != 'darwin':
-    external_dependencies.append('PIL<=1.1.6')
+# Name and version of for your 'distribution archive'
 
-alea_dependencies = [
-'openalea.deploy >= 0.7.0.dev',
-'openalea.deploygui >= 0.7.0.dev',
-'openalea.core >= 0.7.0.dev',
-'openalea.visualea >= 0.7.0.dev',
-'openalea.stdlib >= 0.7.0.dev',
-'openalea.sconsx >=0.7.0.dev',
-'openalea.misc >=0.7.0.dev',
-'openalea.scheduler >=0.7.0.dev',
-'openalea.container >=2.0.1.dev',
-'openalea.mtg >=0.7.0.dev',
-]
+# (This will determine the name of the egg, as well as the name of the pakage directory under Python/lib/site-packages)
+# (This name is also the one to use in setup script of other packages to declare a dependency to this package)
+# (The version number is used by deploy to detect UPDATES)
 
-install_requires = alea_dependencies
+name = 'OpenAlea.Scheduler'
+version= '0.7.0'
 
-# Add dependencies on Windows and Mac OS X platforms
-if 'win' in platform:
-    install_requires += external_dependencies 
+# Packages list, namespace and root directory of packages
 
+# (this will determine the archive content and the names of your modules)
+# (with the loop used bellow,all packages,ie all directories with a __init__.py, under pkg_root_dir will be recursively detected and named according to the directory hirearchy)
+# (namespace allows you to choose a prefix for package names (eg alinea, openalea,...). 
+# (This functionality needs deploy to be installed)
+# (if you want more control on what to put in your distribution, you can manually edit the' packages' list 
+# (the 'package_dir' dictionary must content the pkg_rootdir and all top-level pakages under it)
+
+
+namespace = 'openalea'
+pkg_root_dir = 'src'
+pkgs = [ pkg for pkg in find_packages(pkg_root_dir) if namespace not in pkg]
+top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
+packages = [ namespace + "." + pkg for pkg in pkgs]
+package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs] )
+
+# List of top level wralea packages (directories with __wralea__.py) 
+# (to be kept only if you have visual components)
+wralea_entry_points = ['scheduler = openalea.scheduler_wralea',]
+
+# Meta information
+# (used to construct egg infos)
+description= 'scheduler package for OpenAlea.'
+long_description= '''
+The scheduler package implement the management of tasks.
+Used for simulations purposes
+'''
+author= 'Jerome Chopard, Christophe Pradal'
+author_email= 'jerome.chopard@sophia.inria.fr, christophe.pradal@cirad.fr'
+url= 'http://openalea.gforge.inria.fr'
+license= 'Cecill-C'
+
+# dependencies to other eggs
+# (This is used by deploy to automatically downloads eggs during the installation of your package)
+# (allows 'one click' installation for windows user)
+# (linux users generally want to void this behaviour and will use the dependance list of your documentation)
+# (dependance to deploy is mandatory for runing this script)
+setup_requires = ['openalea.deploy']
+if("win32" in sys.platform):
+    install_requires = []
+else:
+    install_requires = []
+# web sites where to find eggs
+dependency_links = ['http://openalea.gforge.inria.fr/pi']
+
+
+# scons build-prefix 
+#(to be kept only if you contruct C/C++ binaries)
+
+build_prefix = "build-scons"
+
+
+
+# setup function call
+#
 setup(
-    name = 'OpenAlea',
-    version = '0.7.0' ,
-    description = 'OpenAlea packages and all its dependencies.', 
-    long_description = '',
-    author = 'OpenAlea consortium',
-    author_email = 'christophe dot pradal at cirad dot fr',
-    url = 'http://openalea.gforge.inria.fr',
-    license = 'Cecill-C',
-
-
-    create_namespaces=False,
-    zip_safe=False,
-
-    packages=find_packages('src'),
-
-    package_dir={"":"src" },
-
-    # Add package platform libraries if any
-    include_package_data=True,
-
+    # Meta data (no edition needed if you correctly defined the variables above)
+    name=name,
+    version=version,
+    description=description,
+    long_description=long_description,
+    author=author,
+    author_email=author_email,
+    url=url,
+    license=license,
+    keywords = '',
+    # package installation
+    packages= packages,
+    package_dir= package_dir,
+    # Namespace packages creation by deploy
+    namespace_packages = [namespace],
+    create_namespaces = True,
+    # tell setup not  tocreate a zip file but install the egg as a directory (recomended to be set to False)
+    zip_safe= False,
     # Dependencies
-    setup_requires = ['openalea.deploy'],
+    setup_requires = setup_requires,
     install_requires = install_requires,
-    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+    dependency_links = dependency_links,
 
-    # entry_points
-    entry_points = {"wralea": ['openalea = openalea']},
+
+    # Binary installation (if necessary)
+    # Define what to execute with scons 
+    #scons_scripts=['SConstruct'],
+    # Tell deploy where to find libs, includes and bins generated by scons.
+    #lib_dirs = {'lib' : build_prefix+'/lib' },
+    #inc_dirs = { 'include' : build_prefix+'/include' },
+    #bin_dirs = { 'bin' : build_prefix+'/bin' },
+
+    # Eventually include data in your package
+    # (flowing is to include all versioned files other than .py)
+    include_package_data = True,
+    # (you can provide an exclusion dictionary named exclude_package_data to remove parasites).
+    # alternatively to global inclusion, list the file to include   
+    #package_data = {'' : ['*.pyd', '*.so'],},
+
+    # postinstall_scripts = ['',],
+
+    # Declare scripts and wralea as entry_points (extensions) of your package 
+    entry_points = {
+            'wralea': wralea_entry_points
+        },
+
+    pylint_packages = ['src/scheduler']
     )
-
 
