@@ -22,8 +22,8 @@ alea_dependencies = [
 'openalea.sconsx >=0.7.0.dev',
 'openalea.misc >=0.7.0.dev',
 'openalea.scheduler >=0.7.0.dev',
-'openalea.container >=2.0.1.dev',
-'openalea.mtg >=0.7.0.dev',
+#'openalea.container >=2.0.1.dev',
+#'openalea.mtg >=0.7.0.dev',
 ]
 
 install_requires = alea_dependencies
