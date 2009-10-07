@@ -1,4 +1,4 @@
-s Setup script has been commented to ease the writing of your own file. 
+# Setup script has been commented to ease the writing of your own file. 
 
 # A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
 # In the context of OpenAlea, this function has been extended by the openalea.deploy module to ease the simultaneaous distribution of binaries and libraries.
