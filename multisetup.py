@@ -12,11 +12,11 @@ dirs = ['core',
         'deploy', 
         'deploygui', 
         'misc', 
-        'openalea_meta', 
         'scheduler', 
         'sconsx', 
         'stdlib', 
-        'visualea']
+        'visualea',
+        'openalea_meta']
 
 
 def main():
