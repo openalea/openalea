@@ -373,9 +373,9 @@ class Multisetup(object):
 
                 #Run setup.py with user commands
                 if self.verbose:
-                    retcode = call('sudo python setup.py %s ' %cmd, shell=True)
+                    retcode = call('python setup.py %s ' %cmd, shell=True)
                 else:
-                    retcode = call('sudo python setup.py %s ' %cmd, stdout=open('../stdout', 'a+'), 
+                    retcode = call('python setup.py %s ' %cmd, stdout=open('../stdout', 'a+'), 
                                     stderr=open('../stderr','a+'), shell=True)
                 if retcode == 0:
                     print ' done'
