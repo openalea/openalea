@@ -19,6 +19,10 @@ __revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 import sys, os
 from optparse import OptionParser
 
+from subprocess import call
+from openalea.core.path import path
+
+
 try:
     from path import path
 except:
@@ -30,13 +34,22 @@ except:
         from openalea.core.path import path
 
 
+#Internal commands for Multisetup object 
+commands_keys = {'html': 'build_sphinx --builder html -E',
+                 'latex': 'build_sphinx --builder latex -E',
+                 'release' : 'bdist_egg -d ../../dist sdist -d ../../dist'
+                 #'pdf': 'build_sphinx --builder pdf -E',  #command pdf ???
+                 }
+
+
+
 class Commands():
 
 
     def __init__(self, project, command, directory, options=None):
         self.extra_options = {
             'clean': '-a',
-            'undevelop': '',
+            'undevelop': -u'',
             'develop':  '',
             'install':  '',
             'nosetests': '-w test',
@@ -236,6 +249,143 @@ class Commands():
         # finally, call the command in each directory
         self.recursive_call(cmd, dirs, root_dir,cwd)
 
+
+
+class Multisetup(object):
+    """    
+    A script to install all modules (listed in this script) within a package.
+
+    Should work like setup.py script
+
+    :Example:
+
+    >>> python multisetup.py install --package core  
+    >>> python mulisetup.py sdist -d ./dist
+
+    type --help to get more help and usage
+  
+    """    
+    def __init__(self, curdir=None, commands=None, packages=None, verbose=False, force=False):
+        """Initialization of current directory, user commands, running packages, verbose and no-run-errors  
+        """ 
+        #default
+        self.curdir = curdir
+        self.commands = commands
+        self.packages = packages
+        self.verbose = verbose
+        self.force = force   
+
+        #parsing user arguments
+        self.parse_packages()
+        self.parse_intern_commands()
+        self.parse_commands()
+
+
+    def Help(self):
+        print "Common commands:\n"
+        print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
+        print "  multisetup.py install          will install the package\n"
+        print "Global options:"
+        print "  --verbose                      run verbosely (default=False)"
+        print "  --no-run-errors                force the commands running"
+        print "  --help                         show detailed help message"
+        print "  --package                      list of packages to run\n"
+        print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
+
+
+    def parse_packages(self):
+        if '--package' in self.commands:
+            self.packages = []
+            while '--package' in self.commands:
+                p = self.commands.index('--package')
+                self.commands.remove('--package')
+                # check that commands[p] is in dirs
+                self.packages.append(self.commands[p])                
+                self.commands.pop(p)
+
+    def parse_intern_commands(self):
+        for cmd in self.commands:
+            if cmd in commands_keys:
+                r = self.commands.index(cmd)
+                self.commands.remove(cmd)       
+                self.commands.insert(r, commands_keys[cmd] )
+                
+        
+    def parse_commands(self):
+
+        # parse remaining options that will be use by setup.py
+        if '--help' in self.commands or len(self.commands)==0:
+            self.Help()
+            sys.exit()
+    
+        # search and remove multisetup command (e.g., --package)
+        if ('--verbose') in self.commands:
+            self.verbose = True
+            self.commands.remove('--verbose')
+
+        if ('--stop-on-errors') in self.commands:
+            self.force = True
+            self.commands.remove('--stop-on-errors')
+    
+        L = len(self.commands)
+        i = 0
+        while (i < L):
+            if self.commands[i].startswith('-'):
+                try:
+                    self.commands[i-1] = self.commands[i-1] + ' ' + self.commands[i] + ' ' + self.commands[i+1]
+                    self.commands.pop(i)
+                    self.commands.pop(i)
+                except:
+                    self.commands[i-1] = self.commands[i-1] + ' ' + self.commands[i]
+                    self.commands.pop(i) 
+            else:
+                i+=1
+            L =len(self.commands)
+
+
+    def run(self):
+        project_dir = self.curdir.basename()
+        directories = [self.curdir.joinpath(package) for package in self.packages]
+        stdout = open('stdout', 'w')
+        stderr = open('stderr', 'w')
+        stdout.close()
+        stderr.close()
+        print 'Will process the following directories'
+        for directory in directories:
+            print project_dir + '/' +directory.basename()
+            os.chdir(directory)
+            
+            stdout = open('../stdout', 'a+')
+            stdout.write('#####################################\n')
+            stdout.write('*** running setup.py in : ' + directory + '\n')
+            stdout.close()
+
+            stderr = open('../stderr', 'a+')
+            stderr.write('#####################################\n')
+            stderr.write('*** running setup.py in : ' + directory + '\n')
+            stderr.close()
+        
+            print 'Entering %s package' % directory
+            for cmd in self.commands:
+                print "    Executing  'python setup.py %s'  " % cmd ,
+                sys.stdout.flush()
+
+
+                #Run setup.py with user commands
+                if self.verbose:
+                    retcode = call('sudo python setup.py %s ' %cmd, shell=True)
+                else:
+                    retcode = call('sudo python setup.py %s ' %cmd, stdout=open('../stdout', 'a+'), 
+                                    stderr=open('../stderr','a+'), shell=True)
+                if retcode == 0:
+                    print ' done'
+                else:
+                    print ' !!!!!!!! failed !!!!!!! (see stderr file)'
+                    if not self.force:
+                        sys.exit()
+
+
+
 def main():
     """ Define command line and parse options. """
 
@@ -302,6 +452,7 @@ def main():
     
     commands = Commands(options.project, mode, options.directory, options)
     commands.run() 
+
 
 if(__name__ == "__main__"):
     main()
