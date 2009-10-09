@@ -40,6 +40,7 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.node_widget import DefaultNodeWidget
 
+import traceback
 
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
@@ -418,7 +419,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         node = self.node.node(elt_id)
 
         # Click on IO node
-        # TO refactore 
+        # TO refactor
         from openalea.core.compositenode import CompositeNodeInput, CompositeNodeOutput
         from dialogs import IOConfigDialog
         if(isinstance(node, CompositeNodeInput) or
@@ -450,11 +451,24 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         self.node_dialog[elt_id] = (container, widget)
 
 
-    def get_selected_item(self):
+    def get_selected_item(self, returnItems=False):
         """ Return the list id of the selected item """
 
         # get the selected id
+        if(returnItems):
+            return [ item for id, item in self.graph_item.items() if item.isSelected()]
         return [ id for id, item in self.graph_item.items() if item.isSelected()]
+
+
+    def set_selection_color(self, color):
+        """ Remove selected nodes """
+        items = self.scene().selectedItems() #get_selected_item(True)
+        for i in items : 
+            try :
+                i.set_user_color(color)
+            except:
+                pass
+
 
 
     def remove_selection(self):
@@ -881,10 +895,18 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.adjust_size(force=True)
 
         # color
-        if(hasattr(self.subnode, "__color__")):
-            r,g,b = self.subnode.__color__
-            self.not_modified_color = QtGui.QColor(r, g, b, 200)
-            self.modified_color = self.not_modified_color
+        if("user_color" in self.subnode.internal_data.keys()):
+            color = self.subnode.internal_data["user_color"]
+            self.user_color = QtGui.QColor(color[0], color[1], color[2], 200)
+            self.use_user_color = True
+        else:
+            self.user_color = QtGui.QColor(100, 100, 100, 200)
+            self.use_user_color = False
+
+            if(hasattr(self.subnode, "__color__")):
+                r,g,b = self.subnode.__color__
+                self.not_modified_color = QtGui.QColor(r, g, b, 200)
+                self.modified_color = self.not_modified_color
 
         # modified
         self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
@@ -1015,7 +1037,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
 
     def notify(self, sender, event):
-        """ Notification sended by the node associated to the item """
+        """ Notification sent by the node associated to the item """
 
         if(event and event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
@@ -1075,7 +1097,20 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             for e in list(cout.edge_list):
                 e.remove()
             #cout.edge_list = []
+        return
                 
+            
+    def set_user_color(self, color):
+        """let the user specify a color for this 
+        graphical node"""
+
+        assert type(color) == QtGui.QColor
+        self.user_color = color
+        self.use_user_color = True
+        self.subnode.internal_data["user_color"] = color.red(), color.green(), color.blue()
+        self.update()
+        return
+        
 
     def boundingRect(self):
         adjust = 4.0
@@ -1096,24 +1131,28 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         painter.setBrush(QtGui.QColor(100, 100, 100, 50))
         painter.drawRoundRect(3, 3, self.sizex, self.sizey)
 
-        # Select color
+
         if hasattr(self.subnode, 'raise_exception'):
             color = self.error_color
             if(self.isSelected()):
                 secondcolor = self.selected_error_color
             else:
                 secondcolor = self.not_selected_error_color
-
+                
         else:
-            if(self.isSelected()):
+            if(self.use_user_color):
+                color=self.user_color
+            elif(self.isSelected()):
                 color = self.selected_color
             else:
                 color = self.not_selected_color
-
-            if(self.subnode.user_application):
-                secondcolor = QtGui.QColor(255, 144, 0, 200)
-            else:
-                secondcolor = self.not_modified_color
+                
+        if(self.use_user_color):
+            secondcolor=self.user_color
+        elif(self.subnode.user_application):
+            secondcolor = QtGui.QColor(255, 144, 0, 200)
+        else:
+            secondcolor = self.not_modified_color
 
         # Draw Box
         gradient = QtGui.QLinearGradient(0, 0, 0, 100)
@@ -1228,7 +1267,6 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         action = menu.addAction("Reload")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.reload)
-
         
         menu.addSeparator()
 

@@ -159,6 +159,11 @@ class MainWindow(QtGui.QMainWindow,
                      self.clear_python_console)
 
         # WorkspaceMenu
+
+        # daniel was here:
+        action = self.menu_Workspace.addAction("Change Color")
+        self.connect(action, QtCore.SIGNAL("triggered()"), self.color_selection)
+
         self.connect(self.action_Run, SIGNAL("triggered()"), self.run)
         self.connect(self.actionReset, SIGNAL("triggered()"), self.reset)
         self.connect(self.actionInvalidate, SIGNAL("triggered()"), self.invalidate)
@@ -665,6 +670,20 @@ class MainWindow(QtGui.QMainWindow,
         i = self.tabPackager.indexOf(self.searchview)
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
+
+    def color_selection(self):
+        """Changes the color of a selection of nodes"""
+
+        index = self.tabWorkspace.currentIndex()
+        widget = self.index_nodewidget[index]
+
+        if(not widget or not widget.get_selected_item()) : return
+
+        color = QtGui.QColorDialog.getColor( QtGui.QColor(100,100,100,255), self)
+#                                     "Choose custom color...")
+
+        widget.set_selection_color(color)
+        return
 
     def delete_selection(self):
         """ Delete selection in current workspace """
