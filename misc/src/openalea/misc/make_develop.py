@@ -48,7 +48,7 @@ class Commands():
     def __init__(self, project, command, directory, options=None):
         self.extra_options = {
             'clean': '-a',
-            'undevelop': -u'',
+            'undevelop': '-u',
             'develop':  '',
             'install':  '',
             'nosetests': '-w test',
