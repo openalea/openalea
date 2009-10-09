@@ -12,7 +12,6 @@ type --help to get more help and usage
 
 """
 
-
 __license__ = "Cecill-C"
 __revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 
@@ -254,8 +253,8 @@ class Commands():
 class Multisetup(object):
 
     def __init__(self, curdir=None, commands=None, packages=None, verbose=False, force=False):
-    """Initialization of current directory, user commands, running packages, verbose and no-run-errors options
-    """ 
+        """Initialization of current directory, user commands, running packages, verbose and no-run-errors options
+        """
         #default
         self.curdir = curdir
         self.commands = commands
@@ -270,22 +269,22 @@ class Multisetup(object):
 
 
     def Help(self):
-    """Help: to get more help and usage  
-    """    
+        """Help: to get more help and usage  
+        """    
         print "Common commands:\n"
         print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
         print "  multisetup.py install          will install the package\n"
         print "Global options:"
         print "  --verbose                      run verbosely (default=False)"
-        print "  --no-run-errors                force the commands running"
+        print "  --stop-on-errors               force the commands running"
         print "  --help                         show detailed help message"
         print "  --package                      list of packages to run\n"
         print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
 
 
     def parse_packages(self):
-    """Search and remove package from multisetup command(e.g., --package)
-    """
+        """Search and remove package from multisetup command(e.g., --package)
+        """
         if '--package' in self.commands:
             self.packages = []
             while '--package' in self.commands:
@@ -296,8 +295,8 @@ class Multisetup(object):
                 self.commands.pop(p)
 
     def parse_intern_commands(self):
-    """Search and replace user command from multisetup command (e.g., release, html...)
-    """
+        """Search and replace user command from multisetup command (e.g., release, html...)
+        """
         for cmd in self.commands:
             if cmd in commands_keys:
                 r = self.commands.index(cmd)
@@ -306,9 +305,9 @@ class Multisetup(object):
                 
         
     def parse_commands(self):
-    """Parse remaining options that will be use by setup.py
-       Search and remove multisetup options (e.g., --help, --verbose, --stop-on-errors)
-    """
+        """Parse remaining options that will be use by setup.py
+           Search and remove multisetup options (e.g., --help, --verbose, --stop-on-errors)
+        """
         if '--help' in self.commands or len(self.commands)==0:
             self.Help()
             sys.exit()
@@ -338,9 +337,9 @@ class Multisetup(object):
 
 
     def run(self):
-    """Enter in all package defined and Executing 'python setup.py' with user command
-       Create stdout and stderr files (default)
-    """
+        """Enter in all package defined and Executing 'python setup.py' with user command
+           Create stdout and stderr files (default)
+        """
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
         stdout = open('stdout', 'w')
