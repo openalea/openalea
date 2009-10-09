@@ -1,5 +1,4 @@
-"""
-
+"""Using of make_develop script
 """
 import os, sys
 from openalea.core.path import path
