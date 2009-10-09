@@ -252,22 +252,10 @@ class Commands():
 
 
 class Multisetup(object):
-    """    
-    A script to install all modules (listed in this script) within a package.
 
-    Should work like setup.py script
-
-    :Example:
-
-    >>> python multisetup.py install --package core  
-    >>> python mulisetup.py sdist -d ./dist
-
-    type --help to get more help and usage
-  
-    """    
     def __init__(self, curdir=None, commands=None, packages=None, verbose=False, force=False):
-        """Initialization of current directory, user commands, running packages, verbose and no-run-errors  
-        """ 
+    """Initialization of current directory, user commands, running packages, verbose and no-run-errors options
+    """ 
         #default
         self.curdir = curdir
         self.commands = commands
@@ -282,6 +270,8 @@ class Multisetup(object):
 
 
     def Help(self):
+    """Help: to get more help and usage  
+    """    
         print "Common commands:\n"
         print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
         print "  multisetup.py install          will install the package\n"
@@ -294,6 +284,8 @@ class Multisetup(object):
 
 
     def parse_packages(self):
+    """Search and remove package from multisetup command(e.g., --package)
+    """
         if '--package' in self.commands:
             self.packages = []
             while '--package' in self.commands:
@@ -304,6 +296,8 @@ class Multisetup(object):
                 self.commands.pop(p)
 
     def parse_intern_commands(self):
+    """Search and replace user command from multisetup command (e.g., release, html...)
+    """
         for cmd in self.commands:
             if cmd in commands_keys:
                 r = self.commands.index(cmd)
@@ -312,13 +306,13 @@ class Multisetup(object):
                 
         
     def parse_commands(self):
-
-        # parse remaining options that will be use by setup.py
+    """Parse remaining options that will be use by setup.py
+       Search and remove multisetup options (e.g., --help, --verbose, --stop-on-errors)
+    """
         if '--help' in self.commands or len(self.commands)==0:
             self.Help()
             sys.exit()
-    
-        # search and remove multisetup command (e.g., --package)
+
         if ('--verbose') in self.commands:
             self.verbose = True
             self.commands.remove('--verbose')
@@ -344,6 +338,9 @@ class Multisetup(object):
 
 
     def run(self):
+    """Enter in all package defined and Executing 'python setup.py' with user command
+       Create stdout and stderr files (default)
+    """
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
         stdout = open('stdout', 'w')
