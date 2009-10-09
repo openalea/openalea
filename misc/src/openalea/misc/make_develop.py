@@ -252,11 +252,11 @@ class Commands():
 
 class Multisetup(object):
 
-    def __init__(self, curdir=None, commands=None, packages=None, verbose=False, force=False):
+    def __init__(self, commands, packages=None,curdir='.', verbose=False, force=False):
         """Initialization of current directory, user commands, running packages, verbose and no-run-errors options
         """
         #default
-        self.curdir = curdir
+        self.curdir = path(curdir).abspath()
         self.commands = commands
         self.packages = packages
         self.verbose = verbose
@@ -268,7 +268,8 @@ class Multisetup(object):
         self.parse_commands()
 
 
-    def Help(self):
+    @classmethod
+    def help(cls):
         """Help: to get more help and usage  
         """    
         print "Common commands:\n"
