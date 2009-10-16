@@ -16,12 +16,12 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-__doc__="""
+__doc__ = """
 Authentification functions
 """
 
-__license__= "CeCILL v2"
-__revision__=" $Id$"
+__license__ = "CeCILL v2"
+__revision__ =" $Id$"
 
 
 import cookielib, urllib, urllib2, urlparse
@@ -40,12 +40,12 @@ def cookie_login(login_url, values):
     data = urllib.urlencode(values)
     request = urllib2.Request(login_url, data)
     url = urlOpener.open(request)  # Our cookiejar automatically receives the cookies
-    page = url.read()
+    _page = url.read()
     urllib2.install_opener(urlOpener)
 
 
-    # Make sure we are logged in by checking the presence of the cookie "session_ser".
-    # (which is the cookie containing the session identifier.)
+    # Make sure we are logged in by checking the presence of the cookie
+    # "session_ser". (which is the cookie containing the session identifier.)
     if not 'session_ser' in [cookie.name for cookie in cookiejar]:
         print "Login failed !"
     else:
@@ -53,7 +53,7 @@ def cookie_login(login_url, values):
 
         # Replace open_with_auth function
         import setuptools.package_index
-        from setuptools.package_index import user_agent
+        #from setuptools.package_index import user_agent
         setuptools.package_index.open_with_auth = open_with_auth2
 
 
@@ -74,7 +74,7 @@ def open_with_auth2(url):
 
     if auth:
         auth = "Basic " + urllib2.unquote(auth).encode('base64').strip()
-        new_url = urlparse.urlunparse((scheme,host,path,params,query,frag))
+        new_url = urlparse.urlunparse((scheme, host, path, params, query, frag))
         request = urllib2.Request(new_url)
         request.add_header("Authorization", auth)
     else:
@@ -87,7 +87,7 @@ def open_with_auth2(url):
         # Put authentication info back into request URL if same host,
         # so that links found on the page will work
         s2, h2, path2, param2, query2, frag2 = urlparse.urlparse(fp.url)
-        if s2==scheme and h2==host:
-            fp.url = urlparse.urlunparse((s2,netloc,path2,param2,query2,frag2))
+        if s2 == scheme and h2 == host:
+            fp.url = urlparse.urlunparse((s2, netloc, path2, param2, query2, frag2))
 
     return fp
