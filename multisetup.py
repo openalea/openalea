@@ -11,15 +11,14 @@
 #
 
 """
-Multi Setup allows to build and install all the packages of OpenAlea
+Multisetup allows to build and install all the packages of OpenAlea
 found in this directory.
 
-It is a shortcut to the script make_develop.
+:Examples: 
 
-Examples: 
-
-    # Developer mode : Installation of the pks from svn
+    # Developer mode : Installation of the packages
     python multisetup.py develop
+    python multisetup.py nosetests -w test
 
     # User mode: Installation of the packages on the system as root
     python multisetup.py install
@@ -27,7 +26,7 @@ Examples:
     # Administrator mode: Create distribution of the packages
     python multisetup.py nosetests -w test install bdist_egg -d ../dist sdist -d ../dist
 
-TODO:
+.. todo::
     - multisetup -h 
         * list of the options
 """
@@ -42,7 +41,6 @@ except ImportError:
     from path import path
     from make_develop import MultiSetup
 
-#curdir = path(os.curdir).abspath()
 
 dirs = """
 deploy 
