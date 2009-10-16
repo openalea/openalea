@@ -117,9 +117,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
 
     def about(self):
-         """ Display About Dialog """
+        """ Display About Dialog """
         
-         mess = QtGui.QMessageBox.about(self, 
+        _mess = QtGui.QMessageBox.about(self, 
                     "About OpenAlea Installer,r%s" % (__revision__.split(' ')[3]),
                     u"Copyright \xa9  2006-2009 INRIA - CIRAD - INRA\n" +
                     "This Software is distributed under the Cecill-V2 License.\n\n" +
@@ -255,19 +255,19 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     for pref in self.recommended_prefix:
                         if(n.startswith(pref.lower())):
                             ok = True
-                            break;
+                            break
 
-                    if(not ok): continue
+                    if(not ok): 
+                        continue
                     
                 elif(mode == "UPDATE" and update
                      and project_name not in in_list):
                     # Keep only most recent package
                     ok = True
-
                 else:
                     ok = False
-                    
-                
+
+
                 if (ok):
                     in_list.add(project_name)
                     listitem = QtGui.QListWidgetItem(txt, self.packageList)
@@ -520,17 +520,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ update cpp information frame of custom package """
         
         if enabled:
-          if not self.customPackageDirEdit.text().isEmpty():
-            self.customPackageIncludeEdit.setText(
-                os.path.join(str(self.customPackageDirEdit.text()),'include'))
-            self.customPackageLibEdit.setText(
-                os.path.join(str(self.customPackageDirEdit.text()),'lib'))
-            self.customPackageBinEdit.setText(
-                os.path.join(str(self.customPackageDirEdit.text()),'bin'))
-        else:
-            self.customPackageIncludeEdit.clear()
-            self.customPackageLibEdit.clear()
-            self.customPackageBinEdit.clear()
+            if not self.customPackageDirEdit.text().isEmpty():
+                self.customPackageIncludeEdit.setText(
+                    os.path.join(str(self.customPackageDirEdit.text()),'include'))
+                self.customPackageLibEdit.setText(
+                    os.path.join(str(self.customPackageDirEdit.text()),'lib'))
+                self.customPackageBinEdit.setText(
+                    os.path.join(str(self.customPackageDirEdit.text()),'bin'))
+            else:
+                self.customPackageIncludeEdit.clear()
+                self.customPackageLibEdit.clear()
+                self.customPackageBinEdit.clear()
         
 
     def updatePythonFrame(self, enabled):
@@ -558,8 +558,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return
 
         if not os.path.exists(pkg_dir):
-                QtGui.QMessageBox.warning(self,'Invalid package path', 'Invalid path : '+pkg_dir)
-                return
+            QtGui.QMessageBox.warning(self, 'Invalid package path', 'Invalid path : '+pkg_dir)
+            return
 
         os.chdir(pkg_dir)
         args = { 'name' : pkg_name, 'version':pkg_version,  
@@ -605,11 +605,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # module base name and path
             py_base_path = os.path.normpath(str(self.customPythonPackageEdit.text()))
             if not os.path.exists(py_base_path):
-                    QtGui.QMessageBox.warning(self,'Invalid package path', 
-                                              'Invalid path : '+py_base_path)
-                    return
+                QtGui.QMessageBox.warning(self, 'Invalid package path', 
+                                              'Invalid path : ' + py_base_path)
+                return
 
-            py_base_relative_path = os.path.normpath(relative_path(pkg_dir,py_base_path))
+            py_base_relative_path = os.path.normpath(relative_path(pkg_dir, py_base_path))
             py_base_module      = os.path.basename(py_base_path)
             py_base_module_path = os.path.dirname(py_base_relative_path)
             
@@ -632,14 +632,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             py_module_map = { py_base_module : py_base_relative_path }
 
             for submodule in submodules:
-                    m = submodule.split('.')
-                    py_module_map[ py_base_module+'.'+submodule ] = \
-                        os.path.join(py_base_relative_path,*m)
+                m = submodule.split('.')
+                py_module_map[ py_base_module+'.'+submodule ] = \
+                    os.path.join(py_base_relative_path,*m)
 
             args['packages'] = py_module_map.keys()
 
             if len(py_base_module_path) > 0:
-                    py_module_map[''] = py_base_module_path
+                py_module_map[''] = py_base_module_path
             args['package_dir'] = py_module_map
 
         os.chdir(pkg_dir)
@@ -696,7 +696,7 @@ def clean_list_for_fedora(dist_list):
                     if 'fc11' in dist.version:
                         if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
                             new_list.append(dist)
-        if 'openalea'==dist.project_name.lower(): # openalea_meta have linux tag now.
+        if 'openalea' == dist.project_name.lower(): # openalea_meta have linux tag now.
             new_list.append(dist)
         if dist.platform is None: # if non pre-compiled files, we keep them 
             if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
