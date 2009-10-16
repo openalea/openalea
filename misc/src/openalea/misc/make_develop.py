@@ -32,14 +32,6 @@ except:
     except:
         from openalea.core.path import path
 
-"""
-#Internal commands for Multisetup object 
-commands_keys = {'html': 'build_sphinx --builder html -E',
-                 'latex': 'build_sphinx --builder latex -E',
-                 'release' : 'bdist_egg -d ../../dist sdist -d ../../dist'
-                 #'pdf': 'build_sphinx --builder pdf -E',  #command pdf ???
-                 }
-"""
 
 
 class Commands():
@@ -252,15 +244,29 @@ class Commands():
 
 class Multisetup(object):
 
-    def __init__(self, commands, packages=None,curdir='.', verbose=False, force=False):
-        """Initialization of current directory, user commands, running packages, verbose and no-run-errors options
+    def __init__(self, commands, packages=None, curdir='.', verbose=False):
+        """
+        
+        :param commands: Python list of user commands  
+        :param packages: list of packages to process
+        :param curdir: current directory default is .
+        :param verbose: verbose option
+        :param force:  no-run-errors carry on if errors are encountered
+        
+        The argument `commands` must be a list of strings combining arguments
+        from multisetup and setup.
+        
+        **Examples** are ['install'], ['--keep-going','install', 'sdist', '-d',
+         '../dist'] or ['install','',''] 
+        
+        >>> Multisetup("install --keep-going", ['deploy', 'visualea'], '.', verbose=True)
         """
         #default
         self.curdir = path(curdir).abspath()
         self.commands = commands
         self.packages = packages
         self.verbose = verbose
-        self.force = force   
+        self.force = False   
 
         #parsing user arguments
         self.parse_packages()
@@ -268,7 +274,6 @@ class Multisetup(object):
         self.parse_commands()
 
         
-
     @classmethod
     def help(cls):
         """help: to get more help and usage
@@ -286,11 +291,11 @@ class Multisetup(object):
         print "  multisetup.py install          will install the package\n"
         print "Global options:"
         print "  --verbose                      run verbosely [default=False]"
-        print "  --stop-on-errors               force the commands running[default=False]"
+        print "  --keep-going                   force the commands running[default=False]"
         print "  --help                         show detailed help message"
         print "  --package                      list of packages to run"
         print "                                 [default: deploy / deploygui / core / scheduler / visualea / stdlib / sconsx / misc]"
-        print "  --no-package                   list of packages to not run" 
+        print "  --exclude-package              list of packages to not run" 
         print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
 
 
@@ -306,10 +311,10 @@ class Multisetup(object):
                 self.packages.append(self.commands[p])                
                 self.commands.pop(p)
 
-        if '--no-package' in self.commands:
-            while '--no-package' in self.commands:
-                p = self.commands.index('--no-package')
-                self.commands.remove('--no-package')
+        if '--exclude-package' in self.commands:
+            while '--exclude-package' in self.commands:
+                p = self.commands.index('--exclude-package')
+                self.commands.remove('--exclude-package')
                 # check that commands[p] is in dirs
                 self.packages.remove(self.commands[p])
                 self.commands.pop(p)
@@ -325,17 +330,20 @@ class Multisetup(object):
     """            
         
     def parse_commands(self):
-        """Parse remaining options that will be use by setup.py
-           Search and remove multisetup options (e.g., --help, --verbose, --stop-on-errors)
+        """Search and remove multisetup options 
+        
+        Get the user command line arguments (self.commands) that are dedicated
+        to multisetup such as --help, --verbose, --keep-going so that the 
+        remaining commands are fully comptatible with setuptools.
         """
 
         if ('--verbose') in self.commands:
             self.verbose = True
             self.commands.remove('--verbose')
 
-        if ('--stop-on-errors') in self.commands:
+        if ('--keep-going') in self.commands:
             self.force = True
-            self.commands.remove('--stop-on-errors')
+            self.commands.remove('--keep-going')
     
         L = len(self.commands)
         i = 0
@@ -349,37 +357,70 @@ class Multisetup(object):
                     self.commands[i-1] = self.commands[i-1] + ' ' + self.commands[i]
                     self.commands.pop(i) 
             else:
-                i+=1
-            L =len(self.commands)
+                i += 1
+            L = len(self.commands)
 
 
     def run(self):
-        """Enter in all package defined and Executing 'python setup.py' with user command
+        """Enter in all package defined and Executing 'python setup.py' with 
+           user command.
+           
            Create stdout and stderr files (default)
         """
+        try:
+            from sphinx.util.console import bold, red, green, color_terminal, \
+                    nocolor, underline
+            
+            if not color_terminal():
+                # Windows' poor cmd box doesn't understand ANSI sequences
+                nocolor()
+        except:
+            bold = str
+            red = str
+            green = str
+
+        print bold("Running multisetup version %s" % __revision__.split()[2])
+        
+
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
-        stdout = open('stdout', 'w')
-        stderr = open('stderr', 'w')
-        stdout.close()
-        stderr.close()
-        print 'Will process the following directories'
+        if not self.verbose:
+            stdout = open('stdout', 'w')
+            stderr = open('stderr', 'w')
+            stdout.close()
+            stderr.close()
+
+
+        print 'Will process the following directories: ', 
+        for directory in directories:
+            print bold(directory.basename()),
+        print '' 
+        
+        
         try:
             for directory in directories:
-                print project_dir + '/' +directory.basename()
-                os.chdir(directory)
-            
-                stdout = open('../stdout', 'a+')
-                stdout.write('#####################################\n')
-                stdout.write('*** running setup.py in : ' + directory + '\n')
-                stdout.close()
+                #print project_dir + '/' +directory.basename()
+                try:
+                    os.chdir(directory)
+                    print underline('Entering %s package' % directory.basename())
 
-                stderr = open('../stderr', 'a+')
-                stderr.write('#####################################\n')
-                stderr.write('*** running setup.py in : ' + directory + '\n')
-                stderr.close()
+                except OSError, e:
+                    print underline('Entering %s package' % directory.basename()), 
+                    print red("cannot find this directory (%s)" % directory.basename())
+                    print e
+                    
+                if not self.verbose:
+                    stdout = open('../stdout', 'a+')
+                    stdout.write('#####################################\n')
+                    stdout.write('*** running setup.py in : ' + directory + '\n')
+                    stdout.close()
+
+                    stderr = open('../stderr', 'a+')
+                    stderr.write('#####################################\n')
+                    stderr.write('*** running setup.py in : ' + directory + '\n')
+                    stderr.close()
             
-                print 'Entering %s package' % directory
+                #print underline('Entering %s package' % directory.basename())
                 for cmd in self.commands:
                     print "    Executing  'python setup.py %s'  " % cmd ,
                     sys.stdout.flush()
@@ -392,9 +433,9 @@ class Multisetup(object):
                         retcode = call('python setup.py %s ' %cmd, stdout=open('../stdout', 'a+'), 
                                         stderr=open('../stderr','a+'), shell=True)
                     if retcode == 0:
-                        print ' done'
+                        print green(' done')
                     else:
-                        print ' !!!!!!!! failed !!!!!!! (see stderr file)'
+                        print red(' !!!!!!!! failed !!!!!!! (see stderr file)')
                         if not self.force:
                             raise RuntimeError()
         except RuntimeError:
@@ -446,7 +487,7 @@ def main():
     
     try:
         (options, args)= parser.parse_args()
-    except Exception,e:
+    except Exception, e:
         parser.print_usage()
         print "Error while parsing args:", e
         return
@@ -458,7 +499,7 @@ def main():
 
     mode = args[0]
 
-    if mode=='sphinx_upload':
+    if mode == 'sphinx_upload':
         print 'Uploading sphinx documentation on the gforge'
         print 'Requires username and ssh key on the gforge'
         if not options.username:
