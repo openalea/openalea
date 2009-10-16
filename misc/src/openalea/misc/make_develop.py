@@ -17,7 +17,7 @@ __revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
 import sys, os
 from optparse import OptionParser
 
-from subprocess import call
+from subprocess import call, PIPE, Popen
 from openalea.core.path import path
 
 
@@ -33,11 +33,7 @@ except:
 
 
 
-class Commands():
-
-
-    def __init__(self, project, command, directory, options=None):
-        self.extra_options = {
+"""
             'clean': '-a',
             'undevelop': '-u',
             'develop':  '',
@@ -54,11 +50,9 @@ class Commands():
             'sphinx_upload': "",
             'pdf': "",
             'upload_dist':'--verbose',
-            }
-        
-        #install_cmd = "python setup.py install bdist_egg -d ../../dist sdist -d ../../dist --format=gztar"
-    
-        self.oa_dirs = """
+"""
+
+oa_dirs = """
         deploy 
         deploygui 
         core 
@@ -67,10 +61,10 @@ class Commands():
         stdlib 
         scheduler 
         misc
-	openalea_meta 
+	    openalea_meta 
         """
         
-        self.vp_dirs = """
+vp_dirs = """
         PlantGL 
         tool 
         stat_tool 
@@ -87,118 +81,17 @@ class Commands():
         WeberPenn 
         lpy
         """
-        #""" vplants_meta"""
-        self.alinea_dirs = """caribu graphtal adel topvine"""
+
+alinea_dirs = """caribu graphtal adel topvine"""
         
-        self.openalea_sphinx_dirs="""deploy deploygui core visualea sconsx
-         stdlib misc openalea_meta scheduler""" 
-        self.vplants_sphinx_dirs="""PlantGL stat_tool tool vplants_meta 
-        sequence_analysis lpy container newmtg"""
-        self.alinea_sphinx_dirs="""caribu"""
+"""
+        self.openalea_sphinx_dirs=deploy deploygui core visualea sconsx
+         stdlib misc openalea_meta scheduler 
+        self.vplants_sphinx_dirs=PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg
+        self.alinea_sphinx_dirs=caribu
+"""
 
-        self.project = project 
-        self.command = command
-        self.directory = directory
-        self.options = options
-
-    def _setdirs(self, project): 
-        """ returns a list of directories
-
-        if the command is pdf, or latex or html or sphinx_upload, then the request
-        is about Sphinx documentaion. since the directories that can be processed are
-        different from those related to compilation and release, we have a switch to different
-        list of packages.
-        """
-        if self.command in ['latex', 'html', 'pdf', 'sphinx_upload']:
-            if project == 'openalea':
-                _dirs = self.openalea_sphinx_dirs
-            elif project == 'vplants':
-                _dirs = self.vplants_sphinx_dirs
-            elif project == 'alinea':
-                _dirs = self.alinea_sphinx_dirs        
-        else:
-            if project == 'openalea':
-                _dirs = self.oa_dirs
-            elif project == 'vplants':
-                _dirs = self.vp_dirs
-            elif project == 'alinea':
-                _dirs = self.alinea_dirs        
-            
-        return  _dirs.split()
-
-    def recursive_call(self, cmd, dirs, root_dir, cwd, doc=False):
-        """run a command though the different directories """
-
-        print dirs
-        for udir in dirs:
-            if doc:
-                udir = os.path.join(udir, 'doc')
-                udir = os.path.join(udir, 'latex')
-            print '\n\n'
-            print "########## Make develop switches to %s directory ##########"\
-                % udir.upper()
-            print "= Executing %s =" % cmd
-
-            udir = root_dir/udir
-            os.chdir(udir)
-    
-            import subprocess
-            status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
-            
-            
-            if status != 0:
-                print "Error during the execution of %s" % cmd
-                print "---- EXIT ----"
-                return
-    
-            os.chdir(cwd)
-
-    def run(self):
-        """run the setup.py command
-        
-        TODO: clean part related to html/latex
-        """
-
-        dirs = self._setdirs(self.project)
-
-        """
-        if project == 'vplants':
-            release_cmd += '--package=VPlants'
-        elif project == 'alinea':
-            release_cmd += '--package=Alinea'
-        """
-
-        command = self.command
-
-        if command == 'undevelop':
-            command = 'develop -u'
-        directory = self.directory
-        options = self.options
-        # create the actual command to run
-        _prefix =  "python setup.py"
-        cmd = ' '.join([_prefix, command, self.extra_options[self.command]])
-
-        # for the documentation, we skip some directories
-        if self.command == 'html':
-            cmd = cmd.replace('html', 'build_sphinx', 1)
-        elif self.command == 'latex':
-            cmd = cmd.replace('latex', 'build_sphinx', 1)
-
-        # if the options exists, we complete the command
-        if options and options.install_dir: 
-            cmd += ' --install-dir ' + options.install_dir
-
-        # setup for the release command
-        cwd = path(os.getcwd())
-        if self.command == 'release':
-            cmd = cmd.replace('release ', '', 1)
-            dist = cwd/'..'/'dist'
-            try:
-                if dist.exists():
-                    dist.removedirs()
-            except:
-                pass
-   
+"""   
         # 
         if self.command == 'sphinx_upload':
             if self.options.username:
@@ -207,8 +100,10 @@ class Commands():
                 cmd += ' -p %s' % 'XXX'
             if self.options.project:
                 cmd += ' --project %s' % self.project
+"""
 
-        # setup for the undevelop command
+
+"""        # setup for the undevelop command
         if self.command == 'undevelop':
             # if undevelop, we uninstall in the reversed order
             # of the installation. For instance, in OpenAlea case, we want
@@ -216,28 +111,7 @@ class Commands():
             # prevents warnings and potential errors due to original 
             # distutils being used.
             dirs.reverse() 
-
-        if self.command == 'nosetests':
-            cmd += ''
-    
-        root_dir = path(directory)
-        dirs_under_root = root_dir.dirs()
-        
-        if self.command == 'pdf':
-            cmd = 'make'
-            self.recursive_call(cmd, dirs, root_dir, cwd,doc=True)
-            return
-
-        # check if the dirs are under the given directory.
-        for udir in dirs:
-            if root_dir/udir not in dirs_under_root:
-                print "%s is not a directory of %s" % \
-                    (udir, str(root_dir.realpath()))
-                print "---- EXIT ----"
-                return
-
-        # finally, call the command in each directory
-        self.recursive_call(cmd, dirs, root_dir,cwd)
+"""
 
 
 
@@ -367,7 +241,7 @@ class Multisetup(object):
            Create stdout and stderr files (default)
         """
         try:
-            from sphinx.util.console import bold, red, green, color_terminald, \
+            from sphinx.util.console import purple, bold, red, green, color_terminal, \
                     nocolor, underline
             
             if not color_terminal():
@@ -399,120 +273,69 @@ class Multisetup(object):
         
         try:
             for directory in directories:
-                #print project_dir + '/' +directory.basename()
                 try:
                     os.chdir(directory)
-                    print underline('Entering %s package' % directory.basename())
-
+                    print underline('Entering %s package' 
+                                    % directory.basename())
                 except OSError, e:
-                    print underline('Entering %s package' % directory.basename()), 
-                    print red("cannot find this directory (%s)" % directory.basename())
+                    print underline('Entering %s package' 
+                                    % directory.basename()), 
+                    print red("cannot find this directory (%s)" 
+                              % directory.basename())
                     print e
+                    
                     
                 if not self.verbose:
                     stdout = open('../stdout', 'a+')
                     stdout.write('#####################################\n')
-                    stdout.write('*** running setup.py in : ' + directory + '\n')
-                    stdout.close()
+                    stdout.write('*** running setup.py in: ' + directory + '\n')
+                    #stdout.close()
 
                     stderr = open('../stderr', 'a+')
                     stderr.write('#####################################\n')
-                    stderr.write('*** running setup.py in : ' + directory + '\n')
-                    stderr.close()
+                    stderr.write('*** running setup.py in: ' + directory + '\n')
+                    
             
                 #print underline('Entering %s package' % directory.basename())
                 for cmd in self.commands:
-                    print "    Executing  'python setup.py %s'  " % cmd ,
+                    setup_command = 'python setup.py %s ' % cmd
+                    print "\tExecuting " + setup_command + '...processing',
                     sys.stdout.flush()
     
     
                     #Run setup.py with user commands
+                    output = None
                     if self.verbose:
-                        retcode = call('python setup.py %s ' %cmd, shell=True)
+                        retcode = Popen(setup_command,
+                                        shell=True)
                     else:
-                        retcode = call('python setup.py %s ' %cmd, stdout=open('../stdout', 'a+'), 
-                                        stderr=open('../stderr','a+'), shell=True)
-                    if retcode == 0:
-                        print green(' done')
+                        retcode = Popen(setup_command, stdout=PIPE, stderr=PIPE,
+                                        shell=True)
+                        outputs, errors = retcode.communicate() 
+                        stdout.write(outputs)
+                        stderr.write(errors)
+                        
+                    if retcode.returncode == 0:
+                        print green('done')
                     else:
-                        print red(' !!!!!!!! failed !!!!!!! (see stderr file)')
+                        print red('\tError found (see stderr file in ./%s with error code %s) ' %
+                                  (directory.basename(), retcode.returncode))
                         if not self.force:
                             raise RuntimeError()
+                        
+                    if 'pylint' in cmd:
+                        if outputs is not None:
+                            print purple('\t%s' % outputs.split('\n')[2])
+                        
         except RuntimeError:
             sys.exit()
         
         os.chdir(self.curdir)
 
 
-def main():
-    """ Define command line and parse options. """
-
-    usage = """
-    %prog [options] develop
-    or %prog [options] install
-    or %prog [options] release
-    or %prog [options] undevelop
-    or %prog [options] html
-    or %prog [options] latex
-    or %prog [options] clean
-    or %prog [options] sphinx_upload
-    or %prog [options] pdf
-"""
-
-    parser = OptionParser(usage=usage)
-
-    parser.add_option( "-p", "--project", dest="project",
-                       help="project: openalea, vplants or alinea [default: %default]",
-                       default='openalea')
-    parser.add_option( "-d", "--dir", dest="directory",
-                       help="Directory which contains the various modules [default: %default]",
-                       default='.')
-    parser.add_option( "-i", "--install-dir", dest="install_dir",
-                       help="Directory where to install librairies",
-                       default=None)
-    parser.add_option( "-u", "--username", help="gforge username",
-                       default=None)
-    parser.add_option( "-w", "--password", help="gforge password",
-                       default=None)
-
 
     
-
-    available_mode = ['develop', 'undevelop', 'install', 'release', 
-                      'clean', 'html', 'latex', 'sphinx_upload', 'pdf', 
-                      'nosetests', 'distribution', 'sdist', "bdist",
-                       "bdist_egg", "pylint", "upload_dist"]
-    available_project = ['openalea', 'vplants', 'alinea']
-
-    
-    try:
-        (options, args)= parser.parse_args()
-    except Exception, e:
-        parser.print_usage()
-        print "Error while parsing args:", e
-        return
-
-    if (len(args) < 1 or args[0] not in available_mode):
-        parser.error("Incomplete command : specify develop, undevelop, install release, clean, html, latex or sphinx_upload pdf")
-    if (options.project not in available_project):
-        parser.error("Incomplete command : project must be either alinea, openalea or vplants")
-
-    mode = args[0]
-
-    if mode == 'sphinx_upload':
-        print 'Uploading sphinx documentation on the gforge'
-        print 'Requires username and ssh key on the gforge'
-        if not options.username:
-            options.username = raw_input('login:')
-        #if not options.password:
-        #    options.password = raw_input('password:')
-    
-    
-    commands = Commands(options.project, mode, options.directory, options)
-    commands.run() 
-
-
-if(__name__ == "__main__"):
-    main()
+#if __name__ == "__main__":
+#    mysetup = Multisetup()
 
 
