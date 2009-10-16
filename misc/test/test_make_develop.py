@@ -1,6 +1,9 @@
 """Test make_develop for Multisetup object"""
-
+import os
 from openalea.misc.make_develop import Multisetup
+
+"""!!For the following test, don't use intrusive commands such as install 
+together with run method. !!!!"""
 
 dirs = """
 deploy 
@@ -15,38 +18,42 @@ misc
 
 
 args = ['install']
+curdir = '..' + os.sep + '..'
+mysetup = Multisetup(curdir=curdir, commands=args, packages=dirs)
 
- 
-
-mysetup = Multisetup(curdir='../..', commands=args, packages=dirs)
 
 def test_init():
-    """ Test of initialization of Multisetup object """
-    assert mysetup.commands == ['install']
-    assert mysetup.packages == """
-                      deploy 
-                      deploygui 
-                      core 
-                      scheduler 
-                      visualea 
-                      stdlib 
-                      sconsx
-                      misc
-                      """.split()
+    """ Test initialization of Multisetup object """
+    mysetup = Multisetup(curdir=curdir, commands=args, packages=dirs)
+    assert mysetup.commands == args
+    assert mysetup.packages == dirs
+    
 
-
+def test_wrong_package():
+    mysetup = Multisetup(curdir=curdir, 
+                         commands=['install', '--package','corezzz'],
+                         packages=dirs) # !! overwritten by --package
+    assert mysetup.packages == ['corezzz']
+    
+    try:
+        mysetup.run()
+        assert False
+    except:
+        assert True
+    
 def test_parse_packages():
     """ Test of parse_packages() method with option --package"""
+    mysetup = Multisetup(curdir=curdir, commands=args, packages=dirs)
     mysetup.commands = ['install', '--package', 'core']
     mysetup.parse_packages()
-
     assert mysetup.packages == ['core']
 
 
 def test_parse_no_packages():
     """ Test of parse_packages() method with option --no-package"""
-    mysetup.packages = dirs
-    mysetup.commands = ['install', '--no-package', 'core', '--no-package', 'misc']
+    mysetup = Multisetup(curdir=curdir, commands=args, packages=dirs)
+    mysetup.commands = ['install', '--exclude-package', 'core', 
+                        '--exclude-package', 'misc']
     mysetup.parse_packages()
  
     assert mysetup.packages == """
@@ -61,7 +68,10 @@ def test_parse_no_packages():
 
 def test_parse_commands():
     """ Test of parse_commands() method"""
-    mysetup.commands = ['install', 'sdist', '-d', './dist', 'bdist_egg', '--dist-dir', './dist', '--stop-on-errors', '--verbose']
+    mysetup.commands = ['install', 
+                        'sdist', '-d', './dist', 
+                        'bdist_egg', '--dist-dir', './dist',  
+                        '--verbose', '--keep-going']
     mysetup.parse_commands()
     
     assert len(mysetup.commands) == 3
@@ -72,15 +82,26 @@ def test_parse_commands():
     assert mysetup.force == True 
 
 
-def test_run():
-    """ Test of parse_commands() method"""
-    mysetup.commands = ['--package', 'core', 'sdist', '-h' ]
+def test_run_verbose():
+    """ Test of run() method with verbose option on"""
+    mysetup.commands = ['--package', 'core', 'sdist' , '--verbose']
+    mysetup.parse_packages()
+    mysetup.parse_commands()
+    mysetup.run()
+    
+def test_run_no_verbose():
+    """ Test of run() method with verbose option on"""
+    mysetup.commands = ['--package', 'core', 'sdist']
     mysetup.parse_packages()
     mysetup.parse_commands()
     mysetup.run()
 
-    
-
+def test_setup_failure():
+    """ Test of run() method with verbose option on"""
+    mysetup.commands = ['--package', 'core', 'sdist', '--bad-option']
+    mysetup.parse_packages()
+    mysetup.parse_commands()
+    mysetup.run()
 
 
 
