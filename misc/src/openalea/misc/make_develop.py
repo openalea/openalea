@@ -1,15 +1,14 @@
 #!/usr/python
-"""A script to install all modules (listed in this script) within a package.
+"""A script to call setup.py recursively in a set of packages. 
 
-Should work like setup.py script
+The commands are similar to those expected by setup.py. In addition, 
+there are a few commands dedicated to multisetup (see --help). 
 
 :Example:
 
->>> python make_develop install -p vplants -d ./vplants/trunk  
->>> python make_develop install -p alinea -d ./openaleapkg
-
-type --help to get more help and usage  
-
+>>> python multisetup install   
+>>> python multisetup install sdist --dist-dir ../dist
+>>> python multisetup --verbose --keep-going install sdist --dist-dir ../dist
 """
 
 __license__ = "Cecill-C"
@@ -368,7 +367,7 @@ class Multisetup(object):
            Create stdout and stderr files (default)
         """
         try:
-            from sphinx.util.console import bold, red, green, color_terminal, \
+            from sphinx.util.console import bold, red, green, color_terminald, \
                     nocolor, underline
             
             if not color_terminal():
@@ -378,6 +377,7 @@ class Multisetup(object):
             bold = str
             red = str
             green = str
+            underline= str
 
         print bold("Running multisetup version %s" % __revision__.split()[2])
         
