@@ -29,13 +29,7 @@ Examples:
 
 TODO:
     - multisetup -h 
-        * return the help
-        * list of all packages
         * list of the options
-        * --help-commands
-    - install misc if import failed
-    - exclude some packages
-    - include some packages
 """
 import os, sys
 
@@ -43,13 +37,10 @@ try:
     from openalea.misc.path import path
     from openalea.misc.make_develop import Multisetup
 except ImportError:
-    # Install misc
-    # cd misc; python setup.py develop
-
-    # Alternative: download misc from the web
-
-    # from openalea.misc ...
-    pass
+    # Load misc from its source directory
+    sys.path.append(os.path.join('misc', 'src', 'openalea', 'misc'))
+    from path import path
+    from make_develop import MultiSetup
 
 #curdir = path(os.curdir).abspath()
 
@@ -61,6 +52,7 @@ scheduler
 visualea 
 stdlib 
 sconsx
+misc
 """.split()
 
 
