@@ -80,34 +80,5 @@ func = Factory( name="function",
                 category="Functional",
                 nodemodule="functional",
                 nodeclass="pyfunction",
-                inputs = (dict(name="func_str",interface=ITextStr),),
                 )
-
-
-#     nf = Factory( name="ax+b", 
-#                   description="Linear function", 
-#                   category="Functional", 
-#                   nodemodule="functional",
-#                   nodeclass="Linear",
-#                   )
-
-
-#     package.add_factory( nf )
-    
-
-#     nf = Factory( name="f op g",
-#                   description="Create a function h: x-> f(x) op g(x)",
-#                   category="Functional",
-#                   nodemodule="functional",
-#                   nodeclass="Generator",
-#                   )
-    
-#     package.add_factory(nf)
-
-
-
-
-
-
-
 
