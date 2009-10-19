@@ -240,14 +240,21 @@ class Multisetup(object):
            
            Create stdout and stderr files (default)
         """
-        try:
-            from sphinx.util.console import purple, bold, red, green, color_terminal, \
-                    nocolor, underline
+        if color:
+            try:
+                from sphinx.util.console import bold, red, green, color_terminal, \
+                        nocolor, underline
             
-            if not color_terminal():
-                # Windows' poor cmd box doesn't understand ANSI sequences
-                nocolor()
-        except:
+                if not color_terminal():
+                    # Windows' poor cmd box doesn't understand ANSI sequences
+                    nocolor()
+            except:
+                bold = str
+                red = str
+                green = str
+                underline= str
+        
+        else:
             bold = str
             red = str
             green = str
@@ -255,7 +262,6 @@ class Multisetup(object):
 
         print bold("Running multisetup version %s" % __revision__.split()[2])
         
-
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
         if not self.verbose:
