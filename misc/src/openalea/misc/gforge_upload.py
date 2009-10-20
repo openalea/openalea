@@ -361,7 +361,7 @@ class Uploader(object):
             else:
                 raise UploaderError('Impossible to remove a project.')
 
-        assert n < 4
+        #assert n < 4
 
         # Remove package on the server
 
