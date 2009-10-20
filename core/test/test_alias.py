@@ -11,7 +11,7 @@ def test_load():
     pkgman = PackageManager()
     pkgman.load_directory("pkg")
     assert pkgman["pkg_test"]
-    assert pkgman["pkg_alias"] is pkgman["pkg_test"]
+    assert pkgman["pkg_alias"]==pkgman["pkg_test"]
 
 
 def test_alias():
@@ -32,3 +32,5 @@ def test_catalog():
     pkgman.init(verbose=False)
     assert pkgman["catalog.data"]["int"] is \
         pkgman["openalea.data structure"]["int"]
+
+
