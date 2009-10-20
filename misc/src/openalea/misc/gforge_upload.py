@@ -169,11 +169,29 @@ class Uploader(object):
 
         if self.release in releases:
             elts.append(self.release)
+
         else:
             return elts
 
+        ###
+        
+        if not self.filename:
+            return elts
 
+        try:
+            files = server.get_files(self.project, self.package, self.release)
+            fl = [f for f in files if path(f).fnmatch(self.filename)]
+        except:
+            files = []
+
+        if len(fl) > 0 :
+                elts.append(fl)
+
+        else:
+            return elts
+        
         return elts
+
 
     def query(self):
         """ Query the project, package, release.
@@ -189,6 +207,7 @@ class Uploader(object):
         """
         elements = self.check()
         n = len(elements)
+
         if n == 0:
             pass
         elif n==1: # project only
@@ -203,6 +222,11 @@ class Uploader(object):
             fls = self.server.get_files(*elements)
             if fls:
                 self.messages(fls, 'release %s' % elements[2], 'Files')
+        elif n>=4:
+            fls = elements[3:]
+            if fls:
+                for f in fls:
+                    self.messages(f,'release %s' % elements[2], 'Files with pattern "%s"' % self.filename)
         '''
         else:
             files = server.get_files(self.project, self.package, self.release)
