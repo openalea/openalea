@@ -125,6 +125,5 @@ setup(
             'wralea': wralea_entry_points
         },
 
-    pylint_packages = ['src/scheduler']
     )
 

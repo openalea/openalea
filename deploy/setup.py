@@ -79,7 +79,6 @@ setup(
                  ],
               
               },
-    pylint_packages = ['src/openalea/deploy'],
 
     #install_requires = plat_requires,
 )

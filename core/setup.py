@@ -58,7 +58,6 @@ setup(
               },
 
 
-    pylint_packages = ['src/core']
     )
 
 

@@ -34,12 +34,12 @@ import os, sys
 
 try:
     from openalea.misc.path import path
-    from openalea.misc.make_develop import Multisetup
+    from openalea.misc.multisetup import Multisetup
 except ImportError:
     # Load misc from its source directory
     sys.path.append(os.path.join('misc', 'src', 'openalea', 'misc'))
     from path import path
-    from make_develop import MultiSetup
+    from multisetup import MultiSetup
 
 
 dirs = """

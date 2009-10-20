@@ -46,9 +46,8 @@ setup(
                  "upload_dist = openalea.misc.upload_dist:main",
                  "gforge_upload = openalea.misc.gforge_upload:main",
                  ],
-    },
+    }
     
-    pylint_packages = ['src/openalea/misc/'],
     )
 
 

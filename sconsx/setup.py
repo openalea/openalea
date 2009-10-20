@@ -56,5 +56,4 @@ setup(name = name,
       install_requires = [],
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],
 
-      pylint_packages = ['src/sconsx']
       )
