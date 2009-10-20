@@ -33,13 +33,14 @@ found in this directory.
 import os, sys
 
 try:
-    from openalea.misc.path import path
     from openalea.misc.multisetup import Multisetup
 except ImportError:
-    # Load misc from its source directory
-    sys.path.append(os.path.join('misc', 'src', 'openalea', 'misc'))
-    from path import path
-    from multisetup import MultiSetup
+    print 'Install OpenAlea.Misc first'
+    try:
+        sys.path.append(os.path.join('..','openalea','misc', 'src', 'openalea', 'misc'))
+        from multisetup import MultiSetup
+    except ImportError,e:
+        print e
 
 
 dirs = """
