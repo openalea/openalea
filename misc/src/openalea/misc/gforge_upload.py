@@ -255,7 +255,7 @@ class Uploader(object):
         if n == 0:
             raise UploaderError('Please give an existing project.')
 
-        assert n < 4
+        #assert n < 4
 
         # Add package and release on the server
         if n == 1 and self.package and not self.release:
