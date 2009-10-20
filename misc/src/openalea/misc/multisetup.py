@@ -33,17 +33,10 @@ except:
 
 
 
-"""
+""" some remaining examples of setuptools commands:
             'clean': '-a',
             'undevelop': '-u',
-            'develop':  '',
-            'install':  '',
-            'nosetests': '-w test',
             'distribution': '' ,
-            'sdist':'',
-            'pylint':'',
-            'bdist':'',
-            'bdist_egg':'',
             'release':  'install bdist_egg -d ../../dist ',
             'html': "--builder html -E",
             'latex': "--builder latex -E",
@@ -52,8 +45,8 @@ except:
             'upload_dist':'--verbose',
 """
 
-oa_dirs = """
-        deploy 
+
+oa_dirs = """deploy 
         deploygui 
         core 
         visualea 
@@ -120,12 +113,14 @@ class Multisetup(object):
     def __init__(self, commands, packages=None, curdir='.', verbose=False):
         """
         
-        :param commands: Python list of user commands  
+        :param commands: list of user commands or command  
         :param packages: list of packages to process
         :param curdir: current directory default is .
         :param verbose: verbose option
         :param force:  no-run-errors carry on if errors are encountered
         
+        :type commands: a string or list of strings
+         
         The argument `commands` must be a list of strings combining arguments
         from multisetup and setup.
         
@@ -133,11 +128,17 @@ class Multisetup(object):
          '../dist'] or ['install','',''] 
         
         >>> Multisetup("install --keep-going", ['deploy', 'visualea'], '.', verbose=True)
+        >>> Multisetup(["install","--keep-going"], ['deploy', 'visualea'], '.', verbose=True)
         """
         #default
         self.curdir = path(curdir).abspath()
-        self.commands = commands
-        self.packages = packages
+        if isinstance(commands, list):
+            self.commands = list(commands)
+        elif isinstance(commands, str):
+            self.commands = list(commands.split(" "))
+        else:
+            raise TypeError("commands argument must be a list of arguments or a string") 
+        self.packages = list(packages)
         self.verbose = verbose
         self.force = False   
 
@@ -176,21 +177,25 @@ class Multisetup(object):
         """Search and remove package from multisetup command(e.g., --package)
         """
         if '--package' in self.commands:
-            self.packages = []
+            self.packages = set()
             while '--package' in self.commands:
-                p = self.commands.index('--package')
+                index = self.commands.index('--package')
                 self.commands.remove('--package')
                 # check that commands[p] is in dirs
-                self.packages.append(self.commands[p])                
-                self.commands.pop(p)
+                self.packages.add(self.commands[index])                
+                self.commands.pop(index)
 
         if '--exclude-package' in self.commands:
             while '--exclude-package' in self.commands:
-                p = self.commands.index('--exclude-package')
+                index = self.commands.index('--exclude-package')
                 self.commands.remove('--exclude-package')
-                # check that commands[p] is in dirs
-                self.packages.remove(self.commands[p])
-                self.commands.pop(p)
+                # check that commands[index] is in dirs
+                if self.commands[index] in self.packages:
+                    self.packages.remove(self.commands[index])
+                else:
+                    print 'Warnings %s not found in package list' \
+                        % self.commands[index]
+                self.commands.pop(index)
 
     """def parse_intern_commands(self):
         ""Search and replace user command from multisetup command (e.g., release, html...)
@@ -232,9 +237,9 @@ class Multisetup(object):
             else:
                 i += 1
             L = len(self.commands)
-
-
-    def run(self):
+            
+        
+    def run(self, color=True):
         """Enter in all package defined and Executing 'python setup.py' with 
            user command.
            
@@ -242,19 +247,21 @@ class Multisetup(object):
         """
         if color:
             try:
-                from sphinx.util.console import bold, red, green, color_terminal, \
-                        nocolor, underline
+                from sphinx.util.console import bold, red, green, \
+                    color_terminal, nocolor, underline, purple
             
                 if not color_terminal():
                     # Windows' poor cmd box doesn't understand ANSI sequences
                     nocolor()
             except:
                 bold = str
+                purple = str
                 red = str
                 green = str
                 underline= str
         
         else:
+            purple = str
             bold = str
             red = str
             green = str
@@ -310,28 +317,47 @@ class Multisetup(object):
     
     
                     #Run setup.py with user commands
-                    output = None
+                    outputs = None
+                    errors = None
                     if self.verbose:
-                        retcode = Popen(setup_command,
+                        process = Popen(setup_command,
                                         shell=True)
+                        status = process.wait()
                     else:
-                        retcode = Popen(setup_command, stdout=PIPE, stderr=PIPE,
+                        process = Popen(setup_command, stdout=PIPE, stderr=PIPE,
                                         shell=True)
-                        outputs, errors = retcode.communicate() 
+                        #status = process.wait()
+                        outputs, errors = process.communicate() 
                         stdout.write(outputs)
                         stderr.write(errors)
                         
-                    if retcode.returncode == 0:
+                    if process.returncode == 0:
                         print green('done')
                     else:
-                        print red('\tError found (see stderr file in ./%s with error code %s) ' %
-                                  (directory.basename(), retcode.returncode))
+                        print red('\tfailed. (see stderr file in ./%s with error code %s) ' %
+                                  (directory.basename(), process.returncode))
                         if not self.force:
                             raise RuntimeError()
                         
                     if 'pylint' in cmd:
                         if outputs is not None:
-                            print purple('\t%s' % outputs.split('\n')[2])
+                            for x in outputs.split('\n'):
+                                if x.startswith('Your code has been'):
+                                    print purple('\t%s' % x)
+                    if 'nosetests' in cmd:
+                        if errors is not None:
+                            for x in errors.split('\n'):
+                                if x.startswith('TOTAL'):
+                                    res = x.replace('TOTAL', 'Total coverage')
+                                    res = " ".join (res.split())
+                                    print purple('\t%s' % res)
+                                if x.startswith('Ran'):
+                                    print purple('\t%s' % x)
+                                if x.startswith('FAILED'):
+                                    print purple('\t%s' % x)
+                 
+                        
+                            
                         
         except RuntimeError:
             sys.exit()
