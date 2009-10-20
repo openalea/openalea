@@ -18,7 +18,6 @@ import sys, os
 from optparse import OptionParser
 
 from subprocess import call, PIPE, Popen
-from openalea.core.path import path
 
 
 try:
