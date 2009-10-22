@@ -23,9 +23,9 @@ __revision__=" $Id: $ "
 from openalea.core import Factory
 from openalea.core.interface import *
 
-__name__ = "scheduler"
-__alias__ = []
-__version__ = '1.0.0'
+__name__ = "openalea.scheduler"
+__alias__ = ['scheduler']
+__version__ = '0.8.0'
 __license__ = "Cecill-C"
 __authors__ = 'Jerome Chopard'
 __institutes__ = 'INRIA/CIRAD'
