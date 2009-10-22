@@ -14,16 +14,16 @@ if platform != 'darwin':
     external_dependencies.append('PIL<=1.1.6')
 
 alea_dependencies = [
-'openalea.deploy >= 0.7.0.dev',
-'openalea.deploygui >= 0.7.0.dev',
-'openalea.core >= 0.7.0.dev',
-'openalea.visualea >= 0.7.0.dev',
-'openalea.stdlib >= 0.7.0.dev',
-'openalea.sconsx >=0.7.0.dev',
-'openalea.misc >=0.7.0.dev',
-'openalea.scheduler >=0.7.0.dev',
-'openalea.container >=2.0.1.dev',
-'openalea.mtg >=0.7.0.dev',
+'openalea.deploy >= 0.7.0',
+'openalea.deploygui >= 0.7.0',
+'openalea.core >= 0.7.0',
+'openalea.visualea >= 0.7.0',
+'openalea.stdlib >= 0.7.0',
+'openalea.sconsx >=0.7.0',
+'openalea.misc >=0.7.0',
+'openalea.scheduler >=0.7.0',
+'openalea.container >=2.0.1',
+'openalea.mtg >=0.7.4',
 ]
 
 install_requires = alea_dependencies
