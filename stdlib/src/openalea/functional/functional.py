@@ -105,13 +105,22 @@ class pyfunction(Node):
         if func_str:
             # Extract the function name
             l = func_str.split('\n')
+            line = ''
             for line in l:
                 if 'def ' in line:
                     break
+                if 'lambda ' in line:
+                    break
 
-            name = line.split('def ')[1]
-            name = name.split('(')[0]
-            
+            name = ''
+            if 'def' in line:
+                name = line.split('def ')[1]
+                name = name.split('(')[0].strip()
+            elif 'lambda' in line:
+                name = line.split('=')[0].strip()
+            else:
+                return None
+
             self.set_caption(name)
 
             # local dictionary
