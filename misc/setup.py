@@ -20,7 +20,7 @@ author = 'OpenAlea consortium'
 author_email = 'Thomas.Cokelaer@inria.fr, Christophe.Pradal@cirar.fr'
 url = 'http://openalea.gforge.inria.fr'
 license= 'Cecill-C' 
-keywords = ['sphinx', 'make_develop']
+keywords = ['sphinx', 'multisetup']
 
 setup(
     name=name,
@@ -42,12 +42,12 @@ setup(
     entry_points = {
         "console_scripts": [
                  "alea_init_sphinx = openalea.misc.sphinx_tools:init",
-                 "make_develop = openalea.misc.make_develop:main",
                  "upload_dist = openalea.misc.upload_dist:main",
                  "gforge_upload = openalea.misc.gforge_upload:main",
                  ],
     },
     
+    install_requires = ['soappy'],
     pylint_packages = ['src/openalea/misc/'],
     )
 
