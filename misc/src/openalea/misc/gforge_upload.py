@@ -127,11 +127,11 @@ class Uploader(object):
         return pt
 
 
-    def check(self):
+    def check(self, get_files=True):
         """ Return the element (e.g. project, package) which exists on the
         server.
 
-        Check if the different elements exist on the server.
+        Check if the different elements exist on the server if get_files is True.
         Return a list of the element name which exists.
 
         """
@@ -175,7 +175,7 @@ class Uploader(object):
 
         ###
         
-        if not self.filename:
+        if not self.filename or not get_files:
             return elts
 
         try:
@@ -248,14 +248,14 @@ class Uploader(object):
                                                                      /openalea project
                                                                      /on the gforge server
         """
-
-        elements = self.check()
+        
+        elements = self.check(get_files=False)
         n = len(elements)
 
         if n == 0:
             raise UploaderError('Please give an existing project.')
 
-        #assert n < 4
+        assert n < 4
 
         # Add package and release on the server
         if n == 1 and self.package and not self.release:
@@ -487,6 +487,8 @@ def main():
                 release = l[2]
             if len(l) >= 4:
                 filename = l[3]
+
+    print filename
 
     kwds = {}
     kwds['project'] = project
