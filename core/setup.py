@@ -35,7 +35,7 @@ setup(
     zip_safe = False,
     include_package_data = True,
 
-    packages = [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo',
+    packages = [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo', 'openalea.core.system',
                 'openalea.core.graph.interface' ],
     
     package_dir = { 'openalea.core' : pj('src','core'),
