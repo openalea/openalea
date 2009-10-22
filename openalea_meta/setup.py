@@ -52,7 +52,7 @@ setup(
 
     # Add package platform libraries if any
     include_package_data=True,
-
+    package_data = {'' : ['*.png']}
     # Dependencies
     setup_requires = ['openalea.deploy'],
     install_requires = install_requires,
