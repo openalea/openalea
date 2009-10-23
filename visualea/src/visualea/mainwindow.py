@@ -40,6 +40,8 @@ from openalea.visualea.dialogs import NewGraph, NewPackage, FactorySelector
 from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 from openalea.visualea.util import exception_display, busy_cursor
 
+from openalea.visualea import gengraph
+from gengraph import qtgraphview
 
 
 class MainWindow(QtGui.QMainWindow,
@@ -346,7 +348,7 @@ class MainWindow(QtGui.QMainWindow,
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        widget = factory.instantiate_widget(node, parent=container, edit=True)
+        widget = factory.instantiate_widget(node, parent=None, edit=True)
         widget.wcaption = caption
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -354,7 +356,19 @@ class MainWindow(QtGui.QMainWindow,
         vboxlayout.setSpacing(6)
         vboxlayout.setMargin(6)
 
-        vboxlayout.addWidget(widget)
+#         vboxlayout.addWidget(widget)
+
+        #gengraph
+        gwidget = None
+        try:
+            gwidget = qtgraphview.QtGraphView(self, node)
+            gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            vboxlayout.setSpacing(0)
+            vboxlayout.addWidget(gwidget)
+        except Exception, e:
+            print e
+            pass
+        #/gengraph
 
         if(not caption) :
             i = self.session.workspaces.index(node)
