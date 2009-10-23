@@ -38,6 +38,7 @@ import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
 
+import metadatadict
 
 # Exceptions
 
@@ -63,7 +64,7 @@ def gen_port_list(size):
     return mylist
 
 
-class AbstractNode(Observed):
+class AbstractNode(Observed, AbstractListener):
     """
     An AbstractNode is the atomic entity in a dataflow.
 
@@ -76,6 +77,15 @@ class AbstractNode(Observed):
         - rename internal_data into attributes.
     """
 
+    #describes which data and what type
+    #are expected to be found in the ad_hoc
+    #dictionnary. Used by views and by the
+    __ad_hoc_slots__ = {}
+
+    @classmethod
+    def extend_ad_hoc_slots(cls, d):
+        cls.__ad_hoc_slots__.update(d)
+
     def __init__(self):
         """
         Default Constructor
@@ -83,6 +93,16 @@ class AbstractNode(Observed):
         """
 
         Observed.__init__(self)
+        AbstractListener.__init__(self)
+
+        #gengraph
+        self.__id = None
+        self.__ad_hoc_dict = metadatadict.MetaDataDict()
+        self.initialise(self.__ad_hoc_dict)
+        for k, t in self.__ad_hoc_slots__.iteritems():
+            self.__ad_hoc_dict.add_metadata(k, t, False)
+        #/gengraph
+
         # Internal Data (caption...)
         self.internal_data = {}
         self.factory = None
@@ -90,12 +110,30 @@ class AbstractNode(Observed):
         # The default layout
         self.view = None
         self.user_application = None
+    #gengraph
+    def notify(self, sender, event):
+        if(sender == self.__ad_hoc_dict):
+            self.notify_listeners(event)
+    #/gengraph
+
+    #gengraph
+    def get_ad_hoc_dict(self):
+        return self.__ad_hoc_dict
+    #/gengraph
+
+    #gengraph
+    def get_id(self):
+        return self.__id
+
+    def set_id(self, id):
+        self.__id = id
+    #/gengraph
 
     def set_data(self, key, value, notify=True):
         """ Set internal node data """
         self.internal_data[key] = value
         if(notify):
-            self.notify_listeners(("data_modified", ))
+            self.notify_listeners(("data_modified", key, value))
 
     def reset(self):
         """ Reset Node """
@@ -114,11 +152,60 @@ class AbstractNode(Observed):
         return self.factory
 
 
-class AbstractPort(dict):
+#gengraph
+#AbstractPort cannot be a dict, because
+#it then becomes unhashable and cannot
+#be an observer.
+#/gengraph
+class AbstractPort(Observed, AbstractListener):
     """
     The class describing the ports.
     AbstractPort is a dict for historical reason.
     """
+    def __init__(self, node):
+        Observed.__init__(self)
+        AbstractListener.__init__(self)
+        self._innerDict = {}
+
+        #gengraph
+        self.node = ref(node)
+        self._id = None
+        self.__ad_hoc_dict = metadatadict.MetaDataDict()
+        self.initialise(self.__ad_hoc_dict)
+        #/gengraph
+
+    #gengraph
+    def __getitem__(self, key):
+        return self._innerDict[key]
+
+    def __setitem__(self, key, value):
+        self._innerDict[key] = value
+
+    def update(self, arg):
+        self._innerDict.update(arg)
+
+    def get(self, key, default):
+        return self._innerDict.get(key, default)
+    #/gengraph
+
+    #gengraph
+    def notify(self, sender, event):
+        if(sender == self.__ad_hoc_dict):
+            self.notify_listeners(event)
+    #/gengraph
+
+    #gengraph
+    def get_ad_hoc_dict(self):
+        return self.__ad_hoc_dict
+    #/gengraph
+
+    #gengraph
+    def get_id(self):
+        return self.__id
+
+    def set_id(self, id):
+        self.__id = id
+    #/gengraph
 
     def get_desc(self):
         """ Gets default description """
@@ -160,6 +247,9 @@ class AbstractPort(dict):
 class InputPort(AbstractPort):
     """ The class describing the input ports """
 
+    def __init__(self, node):
+        AbstractPort.__init__(self, node)
+
     def get_label(self):
         """Gets default label"""
         return self.get("label", self["name"])
@@ -171,7 +261,9 @@ class InputPort(AbstractPort):
 
 class OutputPort(AbstractPort):
     """The class describing the output ports """
-    pass
+    def __init__(self, node):
+        AbstractPort.__init__(self, node)
+
 
 
 class Node(AbstractNode):
@@ -179,6 +271,17 @@ class Node(AbstractNode):
     It is a callable object with typed inputs and outputs.
     Inputs and Outpus are indexed by their position or by a name (str)
     """
+
+    __functionnal_slots__ = {"caption"             : str, 
+                             "lazy"                : bool, 
+                             "block"               : bool, 
+                             "priority"            : int, 
+                             "hide"                : bool,
+                             "port_hide_changed"   : set, 
+                             "is_in_error_state"   : bool,
+                             "is_user_application" : bool}
+
+
 
     def __init__(self, inputs=(), outputs=()):
         """
@@ -196,13 +299,22 @@ class Node(AbstractNode):
         # Node State
         self.modified = True
 
+        #gengraph
+        self.__internal_dict = metadatadict.MetaDataDict()
+        self.initialise(self.__internal_dict)
+        #/gengraph
+
         # Internal Data
-        self.internal_data['caption'] = '' #str(self.__class__.__name__)
-        self.internal_data['lazy'] = True
-        self.internal_data['block'] = False # Do not evaluate the node
-        self.internal_data['priority'] = 0
-        self.internal_data['hide'] = True # hide in composite node widget
-        self.internal_data['port_hide_changed'] = set()
+        self.internal_data["caption"] = '' #str(self.__class__.__name__)
+        self.internal_data["lazy"] = True
+        self.internal_data["block"] = False # Do not evaluate the node
+        self.internal_data["priority"] = 0
+        self.internal_data["hide"] = True # hide in composite node widget
+        self.internal_data["port_hide_changed"] = set()
+        #gengraph
+        self.internal_data["is_in_error_state"] = False
+        self.internal_data["is_user_application"] = False
+        #/gengraph
 
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
@@ -210,6 +322,17 @@ class Node(AbstractNode):
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
+    #gengraph
+    def get_internal_dict(self):
+        return self.__internal_dict
+
+
+    def notify(self, sender, event):
+        if(sender == self.__internal_dict):
+            self.notify_listeners(event)
+        AbstractNode.notify(self, sender, event)
+    #/gengraph
+
 
     def get_process_obj(self):
         """ Return the process obj """
@@ -379,7 +502,7 @@ class Node(AbstractNode):
         name = str(name) #force to have a string
         self.inputs.append(None)
 
-        port = InputPort()
+        port = InputPort(self)
         port.update(kargs)
         self.input_desc.append(port)
 
@@ -397,7 +520,7 @@ class Node(AbstractNode):
         name = str(kargs['name'])
         self.outputs.append(None)
 
-        port = OutputPort()
+        port = OutputPort(self)
         port.update(kargs)
 
         self.output_desc.append(port)

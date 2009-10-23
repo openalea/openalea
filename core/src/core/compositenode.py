@@ -273,6 +273,41 @@ class CompositeNodeFactory(AbstractFactory):
 
         return idmap.values()
 
+    def load_ad_hoc_data(self, node, elt_data):                              
+        for key, dtype in Node.__ad_hoc_slots__.iteritems():                 
+            try:                                                             
+                node.get_ad_hoc_dict().add_metadata(key, dtype)              
+            except Exception, e:                                             
+                print e                                                      
+                continue                                                     
+                                                                             
+        toDelete = []
+        position = [0.0,0.0]
+        for key, val in elt_data.iteritems():  
+            if(key == "user_color") :                                        
+                node.get_ad_hoc_dict().set_metadata("user_color", list(val))       
+                node.get_ad_hoc_dict().set_metadata("use_user_color", True)  
+                toDelete.append(key)                                         
+                continue                                                     
+            elif(key == "posx"):
+                position[0] = val
+                toDelete.append(key)                                         
+                continue                                                     
+            elif( key == "posy"):
+                position[1] = val                                            
+                toDelete.append(key)                                         
+                continue
+            elif( key == "txt"):                                            
+                node.get_ad_hoc_dict().set_metadata("text", val)
+                toDelete.append(key)                                         
+                continue                                                     
+
+        node.get_ad_hoc_dict().set_metadata("position", position)
+
+        for key in toDelete:                                             
+            del elt_data[key]                                            
+
+
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
         
@@ -286,7 +321,11 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
-        node.internal_data.update(self.elt_data[vid])
+        #gengraph                     
+        attributes = self.elt_data[vid].copy()
+        self.load_ad_hoc_data(node, attributes)                      
+        node.internal_data.update(attributes)
+        #/gengraph                                                           
 
         # copy node input data if any
         values = self.elt_value.get(vid, ())
@@ -298,6 +337,12 @@ class CompositeNodeFactory(AbstractFactory):
 
         return node
 
+    #########################################################
+    # ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT #
+    #########################################################
+    #########################################################
+    # This shouldn't be here, it is related to visual stuff #
+    #########################################################
     def instantiate_widget(self, node=None, parent=None, \
             edit=False, autonomous=False):
         """
@@ -752,6 +797,15 @@ class CompositeNode(Node, DataFlow):
             self.add_out_port(vid, local_pid)
 
         self.set_actor(vid, node)
+        #gengraph
+        node.set_id(vid)
+        if(node.__class__.__dict__.has_key("__graphitem__")):
+            self.notify_listeners(("annotationAdded", node))
+        elif (not isinstance(node, CompositeNodeOutput) and 
+              not isinstance(node, CompositeNodeInput)):
+            self.notify_listeners(("nodeAdded", node))
+        #/gengraph
+
         #self.id_cpt += 1
         if(modify):
             self.notify_listeners(("graph_modified", ))
@@ -772,6 +826,36 @@ class CompositeNode(Node, DataFlow):
 
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
+    #gengraph
+    def simulate_construction_notifications(self):
+        """emits messages as if we were adding elements to
+        the composite node"""
+
+        ids = self.vertices()
+        for eltid in ids:
+            node = self.node(eltid)
+            if(node.__class__.__dict__.has_key("__graphitem__")):
+                self.notify_listeners(("annotationAdded", node))
+            elif (not isinstance(node, CompositeNodeOutput) and 
+                  not isinstance(node, CompositeNodeInput)):
+                self.notify_listeners(("nodeAdded", node))
+            
+
+        for eid in self.edges():
+            (src_id, dst_id) = self.source(eid), self.target(eid)
+            
+            src_port_id = self.local_id(self.source_port(eid))
+            dst_port_id = self.local_id(self.target_port(eid))
+
+            nodeSrc = self.node(src_id)
+            nodeDst = self.node(dst_id)
+            src_port = nodeSrc.output_desc[src_port_id]
+            dst_port = nodeDst.input_desc[dst_port_id]
+
+            edgedata = eid, src_port, dst_port
+            self.notify_listeners(("edgeAdded", edgedata))
+            
+    #/gengraph
 
     def connect(self, src_id, port_src, dst_id, port_dst):
         """ Connect 2 elements 
@@ -784,13 +868,21 @@ class CompositeNode(Node, DataFlow):
 
         source_pid = self.out_port(src_id, port_src)
         target_pid = self.in_port(dst_id, port_dst)
-        DataFlow.connect(self, source_pid, target_pid)
+        eid = DataFlow.connect(self, source_pid, target_pid)
 
         self.actor(dst_id).set_input_state(port_dst, "connected")
         self.notify_listeners(("connection_modified", ))
         self.graph_modified = True
 
         self.update_eval_listeners(src_id)
+        #gengraph
+        nodeSrc = self.node(src_id)
+        nodeDst = self.node(dst_id)
+        src_port = nodeSrc.output_desc[port_src]
+        dst_port = nodeDst.input_desc[port_dst]
+        edgedata = eid, src_port, dst_port
+        self.notify_listeners(("edgeAdded", edgedata))
+        #/gengraph
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements
@@ -807,6 +899,9 @@ class CompositeNode(Node, DataFlow):
         for eid in self.connected_edges(source_pid):
 
             if self.target_port(eid) == target_pid:
+                #gengraph
+                self.notify_listeners(("edgeRemoved", eid))
+                #/gengraph
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
                 self.notify_listeners(("connection_modified", ))
