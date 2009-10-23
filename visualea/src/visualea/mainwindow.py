@@ -40,8 +40,7 @@ from openalea.visualea.dialogs import NewGraph, NewPackage, FactorySelector
 from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 from openalea.visualea.util import exception_display, busy_cursor
 
-from openalea.visualea import gengraph
-from gengraph import qtgraphview
+from openalea.grapheditor import qtgraphview
 
 
 class MainWindow(QtGui.QMainWindow,
