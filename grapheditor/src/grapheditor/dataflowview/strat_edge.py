@@ -82,44 +82,34 @@ class AleaQtFloatingEdge(AbstractEdge):
             srcNode, idSrc, dstNode, idDst = self.get_connections()
             model.connect(srcNode.get_id(), idSrc, dstNode.get_id(), idDst)
         except Exception, e:
-            print e
+            print "consolidation failed :", e
         return
         
     def get_connections(self):
-        srcItem = self.scene().itemAt( self.sourcePoint )
-        dstItem = self.scene().itemAt( self.destPoint   )
+        #find the port items that were activated
+        srcPortItem = self.scene().itemAt( self.sourcePoint )
+        dstPortItem = self.scene().itemAt( self.destPoint   )
 
-        if(not srcItem or not dstItem):
-            return
-
-#         if(not isinstance(srcItem, QtGui.QGraphicsProxyWidget) or 
-#             not isinstance(dstItem, QtGui.QGraphicsProxyWidget)):
-#             return
-
-        #transform the points to item coordinate
-        srcItemCoordPoint = srcItem.mapFromScene(self.sourcePoint)
-        dstItemCoordPoint = dstItem.mapFromScene(self.destPoint)
-
-        #find the widgets that were activated
-        srcPortWidget=srcItem.widget().childAt(srcItemCoordPoint.toPoint())
-        dstPortWidget=dstItem.widget().childAt(dstItemCoordPoint.toPoint())
+        #find the node items that were activated
+        srcNodeItem = srcPortItem.parentItem()
+        dstNodeItem = dstPortItem.parentItem()
 
         #if the input and the output are on the same node...
-        if(srcPortWidget.observed().node() == dstPortWidget.observed().node()):
+        if(srcPortItem.observed().node() == dstPortItem.observed().node()):
             raise Exception("Nonsense connection : plugging self to self.")            
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
-        if( isinstance(srcPortWidget.observed(), openalea.core.node.OutputPort) and
-            isinstance(dstPortWidget.observed(), openalea.core.node.InputPort)):
+        if( isinstance(srcPortItem.observed(), openalea.core.node.OutputPort) and
+            isinstance(dstPortItem.observed(), openalea.core.node.InputPort)):
             print "right side"
-            return srcItem.observed(), srcPortWidget.get_index(), \
-                dstItem.observed(), dstPortWidget.get_index()
-        elif( isinstance(srcPortWidget.observed(), openalea.core.node.InputPort) and
-              isinstance(dstPortWidget.observed(), openalea.core.node.OutputPort)):
+            return srcNodeItem.observed(), srcPortItem.get_index(), \
+                dstNodeItem.observed(), dstPortItem.get_index()
+        elif( isinstance(srcPortItem.observed(), openalea.core.node.InputPort) and
+              isinstance(dstPortItem.observed(), openalea.core.node.OutputPort)):
             print "opposite side"
-            return dstItem.observed(), dstPortWidget.get_index(), \
-                srcItem.observed(), srcPortWidget.get_index()
+            return dstNodeItem.observed(), dstPortItem.get_index(), \
+                srcNodeItem.observed(), srcPortItem.get_index()
         else:
             raise Exception("Nonsense connection : " + \
                                 "plugging input to input or output to output")
