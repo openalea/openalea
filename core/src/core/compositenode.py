@@ -788,7 +788,7 @@ class CompositeNode(Node, DataFlow):
 
         :return: the id
         """
-        vid = self.add_vertex(vid)
+        vid = DataFlow.add_vertex(self, vid)
 
         for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
@@ -798,12 +798,7 @@ class CompositeNode(Node, DataFlow):
 
         self.set_actor(vid, node)
         #gengraph
-        node.set_id(vid)
-        if(node.__class__.__dict__.has_key("__graphitem__")):
-            self.notify_listeners(("annotationAdded", node))
-        elif (not isinstance(node, CompositeNodeOutput) and 
-              not isinstance(node, CompositeNodeInput)):
-            self.notify_listeners(("nodeAdded", node))
+        self.notify_vertex_addition(node, vid)
         #/gengraph
 
         #self.id_cpt += 1
@@ -812,6 +807,35 @@ class CompositeNode(Node, DataFlow):
             self.graph_modified = True
 
         return vid
+
+    #gengraph
+    def add_vertex(self, *args):
+        #this is a big ugly hack to have the correct API
+        #for the GraphEditor module but keep internal
+        #behaviour as before. Not-fool-proof, even barely
+        #working. Should be fixed by the adapter classes
+        #that will come soon.
+        vid = None
+        argnum = len(args)
+        if argnum>1:
+            args = args[0:argnum-1]
+            vid = self.add_node(*args)
+        elif argnum==1:
+            vtx_id=args[0]
+            vid = DataFlow.add_vertex(self, vtx_id)
+        return vid
+    #/gengraph
+
+    #gengraph
+    def notify_vertex_addition(self, vertex, vid=None):
+        if(vid):  vertex.set_id(vid)
+        if(vertex.__class__.__dict__.has_key("__graphitem__")):
+            self.notify_listeners(("annotationAdded", vertex))
+        elif (not isinstance(vertex, CompositeNodeOutput) and 
+              not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexAdded", vertex))
+    #/gengraph
+
 
     def remove_node(self, vtx_id):
         """
@@ -826,6 +850,13 @@ class CompositeNode(Node, DataFlow):
 
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
+
+    #gengraph
+    def remove_vertex(self, vtx_id):
+        DataFlow.remove_vertex(self, vtk_id)
+        self.notify_listeners(("vertexRemoved", self.node(vtx_id)))
+    #/gengraph
+
     #gengraph
     def simulate_construction_notifications(self):
         """emits messages as if we were adding elements to
@@ -834,11 +865,7 @@ class CompositeNode(Node, DataFlow):
         ids = self.vertices()
         for eltid in ids:
             node = self.node(eltid)
-            if(node.__class__.__dict__.has_key("__graphitem__")):
-                self.notify_listeners(("annotationAdded", node))
-            elif (not isinstance(node, CompositeNodeOutput) and 
-                  not isinstance(node, CompositeNodeInput)):
-                self.notify_listeners(("nodeAdded", node))
+            self.notify_vertex_addition(node)
             
 
         for eid in self.edges():

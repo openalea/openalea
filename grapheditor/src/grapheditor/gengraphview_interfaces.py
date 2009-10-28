@@ -42,9 +42,9 @@ class IGraphViewStrategies(object):
         raise NotImplementedError
 
     @classmethod
-    def get_node_widget_type(cls):
+    def get_vertex_widget_type(cls):
         """Return a classobj defining the type of widget 
-        that represents a node"""
+        that represents a vertex"""
         raise NotImplementedError
 
     @classmethod
@@ -91,7 +91,7 @@ class IGraphViewElement(object):
 
 
 #yep, it is the same right now, but it might change in the futur
-IGraphViewNode = IGraphViewElement 
+IGraphViewVertex = IGraphViewElement 
 
 class IGraphViewAnnotation(IGraphViewElement):
     """Interface for Annotations"""
@@ -110,7 +110,7 @@ class IGraphViewAnnotation(IGraphViewElement):
 
 
 class IGraphViewEdge(IGraphViewElement):
-    """Interface for edges between two nodes."""
+    """Interface for edges between two vertexs."""
 
     def __init__(self, edge, src, dest):
         raise NotImplementedError

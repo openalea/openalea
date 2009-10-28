@@ -16,7 +16,7 @@
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.pkgmanager import PackageManager
-
+from openalea.core.node import RecursionError
 
 #Drag and drop handlers
 def OpenAleaNodeFactoryHandler(view, event):
@@ -38,7 +38,7 @@ def OpenAleaNodeFactoryHandler(view, event):
         position = view.mapToScene(event.pos())
         try:
             node = factory.instantiate([view.observed().factory.get_id()])
-            view.add_node(node, [position.x(), position.y()])
+            view.add_vertex(node, position=[position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -69,7 +69,7 @@ def OpenAleaNodeDataPoolHandler(view, event):
         # Set key val
         try:
             node = factory.instantiate([view.observed().factory.get_id()])
-            view.add_node(node, [position.x(), position.y()])
+            view.add_vertex(node, [position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")

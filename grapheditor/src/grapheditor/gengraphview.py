@@ -91,7 +91,7 @@ class GraphView(node_widget.SignalSlotListener):
     def register_strategy(cls, stratCls):
         assert isinstance(stratCls, types.TypeType)
         assert gengraphview_interfaces.IGraphViewStrategies.check(stratCls)
-        assert gengraphview_interfaces.IGraphViewNode.check(stratCls.get_node_widget_type())
+        assert gengraphview_interfaces.IGraphViewVertex.check(stratCls.get_vertex_widget_type())
         assert gengraphview_interfaces.IGraphViewEdge.check(stratCls.get_edge_widget_type())
         assert gengraphview_interfaces.IGraphFloatingViewEdge.check(stratCls.get_floating_edge_widget_type())
         assert gengraphview_interfaces.IGraphViewAnnotation.check(stratCls.get_annotation_widget_type())
@@ -111,7 +111,7 @@ class GraphView(node_widget.SignalSlotListener):
         self.observed = weakref.ref(graph)
 
         #mappings from models to widgets
-        self.nodemap = {}
+        self.vertexmap = {}
         self.edgemap = {}
         self.annomap = {}
 
@@ -121,7 +121,7 @@ class GraphView(node_widget.SignalSlotListener):
         stratCls = GraphView.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
 
-        self.set_node_widget_type(stratCls.get_node_widget_type())
+        self.set_vertex_widget_type(stratCls.get_vertex_widget_type())
         self.set_edge_widget_type(stratCls.get_edge_widget_type())
         self.set_floating_edge_widget_type(stratCls.get_floating_edge_widget_type())
         self.set_annotation_widget_type(stratCls.get_annotation_widget_type())
@@ -139,17 +139,17 @@ class GraphView(node_widget.SignalSlotListener):
     #############################################################
     
     def notify(self, sender, data):
-        if(data[0]=="nodeAdded") : self.node_added(data[1])
+        if(data[0]=="vertexAdded") : self.vertex_added(data[1])
         elif(data[0]=="edgeAdded") : self.edge_added(*data[1]) 
         elif(data[0]=="annotationAdded") : self.annotation_added(data[1])
-        elif(data[0]=="nodeRemoved") : self.node_removed(data[1])
+        elif(data[0]=="vertexRemoved") : self.vertex_removed(data[1])
         elif(data[0]=="edgeRemoved") : self.edge_removed(data[1]) 
         elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
 
-    def node_added(self, nodeModel):
-        nodeWidget = self._nodeWidgetType(nodeModel)
-        nodeWidget.add_to_view(self.get_scene())
-        self.nodemap[nodeModel] = weakref.ref(nodeWidget)
+    def vertex_added(self, vertexModel):
+        vertexWidget = self._vertexWidgetType(vertexModel)
+        vertexWidget.add_to_view(self.get_scene())
+        self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return
 
     def edge_added(self, edgeModel, srcPort, dstPort):
@@ -164,10 +164,10 @@ class GraphView(node_widget.SignalSlotListener):
         self.annomap[annotation] = weakref.ref(annoWidget)
         return
 
-    def node_removed(self, nodeModel):
-        nodeWidget = self.nodemap[nodeModel]
-        nodeWidget().remove_from_view(self.get_scene())
-        del self.nodemap[nodeModel]
+    def vertex_removed(self, vertexModel):
+        vertexWidget = self.vertexmap[vertexModel]
+        vertexWidget().remove_from_view(self.get_scene())
+        del self.vertexmap[vertexModel]
         return
 
     def edge_removed(self, edgeModel):
@@ -185,14 +185,17 @@ class GraphView(node_widget.SignalSlotListener):
     ###############################################################
     # Controller methods come next. They DO NOT modify the model. #
     ###############################################################
-    def add_node(self, node, position=None):
-        self.observed().add_node(node)
+    def add_vertex(self, vertex, *args, **kwargs):
+        args = list(args)
+        args.append(None)
+        self.observed().add_vertex(vertex, *args)
+        position = kwargs.get("position")
         if(position):
-            node.get_ad_hoc_dict().set_metadata("position", position)
+            vertex.get_ad_hoc_dict().set_metadata("position", position)
 
-    def remove_nodes(self, nodes):
-        for node in nodes:
-            self.observed().remove_node(node)
+    def remove_vertices(self, verticess):
+        for vertex in vertices:
+            self.observed().remove_vertex(vertex)
 
     #---Low-Level Edge Interaction---
     def is_creating_edge(self):
@@ -227,8 +230,8 @@ class GraphView(node_widget.SignalSlotListener):
     # Other utility methods #
     #########################
 
-    def set_node_widget_type(self, _type):
-        self._nodeWidgetType = _type
+    def set_vertex_widget_type(self, _type):
+        self._vertexWidgetType = _type
 
     def set_edge_widget_type(self, _type):
         self._edgeWidgetType = _type
@@ -242,5 +245,5 @@ class GraphView(node_widget.SignalSlotListener):
     def set_direction_vector(self, vector):
         """precompute the cosines matrix from
         a vector giving the Y direction. The matrix 
-        will be used to place graph nodes on the screen."""
+        will be used to place graph verticess on the screen."""
         assert type(vector) == types.TupleType

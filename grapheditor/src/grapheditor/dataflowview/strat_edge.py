@@ -38,8 +38,8 @@ class AleaQFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloating
 
     def consolidate(self, model):
         try:
-            srcNode, idSrc, dstNode, idDst = self.get_connections()
-            model.connect(srcNode.get_id(), idSrc, dstNode.get_id(), idDst)
+            srcVertex, idSrc, dstVertex, idDst = self.get_connections()
+            model.connect(srcVertex.get_id(), idSrc, dstVertex.get_id(), idDst)
         except Exception, e:
             print "consolidation failed :", e
         return
@@ -49,33 +49,31 @@ class AleaQFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloating
         srcPortItem = self.scene().itemAt( self.sourcePoint )
         dstPortItem = self.scene().itemAt( self.destPoint   )
 
-        #find the node items that were activated
-        srcNodeItem = srcPortItem.parentItem()
-        dstNodeItem = dstPortItem.parentItem()
+        #find the vertex items that were activated
+        srcVertexItem = srcPortItem.parentItem()
+        dstVertexItem = dstPortItem.parentItem()
 
-        #if the input and the output are on the same node...
-        if(srcPortItem.observed().node() == dstPortItem.observed().node()):
+        #if the input and the output are on the same vertex...
+        if(srcPortItem.observed().vertex() == dstPortItem.observed().vertex()):
             raise Exception("Nonsense connection : plugging self to self.")            
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
         if( isinstance(srcPortItem.observed(), openalea.core.node.OutputPort) and
             isinstance(dstPortItem.observed(), openalea.core.node.InputPort)):
-            print "right side"
-            return srcNodeItem.observed(), srcPortItem.get_index(), \
-                dstNodeItem.observed(), dstPortItem.get_index()
+            return srcVertexItem.observed(), srcPortItem.get_index(), \
+                dstVertexItem.observed(), dstPortItem.get_index()
         elif( isinstance(srcPortItem.observed(), openalea.core.node.InputPort) and
               isinstance(dstPortItem.observed(), openalea.core.node.OutputPort)):
-            print "opposite side"
-            return dstNodeItem.observed(), dstPortItem.get_index(), \
-                srcNodeItem.observed(), srcPortItem.get_index()
+            return dstVertexItem.observed(), dstPortItem.get_index(), \
+                srcVertexItem.observed(), srcPortItem.get_index()
         else:
             raise Exception("Nonsense connection : " + \
                                 "plugging input to input or output to output")
 
 
 class AleaQGraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
-    """ An edge between two graphical nodes """
+    """ An edge between two graphical vertices """
         
     def __init__(self, edgeModel, port1, port2, parent=None):
         """ """
@@ -97,3 +95,7 @@ class AleaQGraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
 
         event.accept()
         
+    def remove(self):
+        view = self.scene().views()[0]
+        view.observed().disconnect(self.src().vertex().get_id(), self.src().get_id(),
+                                   self.dst().vertex().get_id(), self.dst().get_id())

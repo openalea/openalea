@@ -162,13 +162,13 @@ class AbstractPort(Observed, AbstractListener):
     The class describing the ports.
     AbstractPort is a dict for historical reason.
     """
-    def __init__(self, node):
+    def __init__(self, vertex):
         Observed.__init__(self)
         AbstractListener.__init__(self)
         self._innerDict = {}
 
         #gengraph
-        self.node = ref(node)
+        self.vertex = ref(vertex)
         self._id = None
         self.__ad_hoc_dict = metadatadict.MetaDataDict()
         self.initialise(self.__ad_hoc_dict)

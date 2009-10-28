@@ -62,8 +62,8 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
 
 
 #------*************************************************------#
-class QtGraphViewNode(QtGraphViewElement):
-    """A Node widget should implement this interface"""
+class QtGraphViewVertex(QtGraphViewElement):
+    """A Vertex widget should implement this interface"""
     ####################################
     # ----Class members come first---- #
     ####################################
@@ -180,7 +180,7 @@ class QtGraphViewNode(QtGraphViewElement):
 
 #------*************************************************------#
 class QtGraphViewAnnotation(QtGraphViewElement):
-    """A Node widget should implement this interface"""
+    """A Vertex widget should implement this interface"""
 
     def __init__(self, annotation):
         QtGraphViewElement.__init__(self, annotation)
@@ -292,8 +292,7 @@ class QtGraphViewEdge(QtGraphViewElement):
 
     def remove(self):
         view = self.scene().views()[0]
-        view.observed().disconnect(self.src().node().get_id(), self.src().get_id(),
-                                   self.dst().node().get_id(), self.dst().get_id())
+        view.observed().disconnect(self.src(), self.dst())
         
 
     ############
@@ -327,22 +326,22 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
 
     def consolidate(self, model):
         try:
-            srcNode, dstNode = self.get_connections()
-            model.connect(srcNode, dstNode)
+            srcVertex, dstVertex = self.get_connections()
+            model.connect(srcVertex, dstVertex)
         except Exception, e:
             print "consolidation failed :", e
         return
         
     def get_connections(self):
-        #find the node items that were activated
-        srcNodeItem = self.scene().itemAt( self.sourcePoint )
-        dstNodeItem = self.scene().itemAt( self.destPoint   )
+        #find the vertex items that were activated
+        srcVertexItem = self.scene().itemAt( self.sourcePoint )
+        dstVertexItem = self.scene().itemAt( self.destPoint   )
 
-        #if the input and the output are on the same node...
-        if(srcNodeItem == dstNodeItem):
+        #if the input and the output are on the same vertex...
+        if(srcVertexItem == dstVertexItem):
             raise Exception("Nonsense connection : plugging self to self.")            
 
-        return srcNodeItem.observed(), dstNodeItem.observed()
+        return srcVertexItem.observed(), dstVertexItem.observed()
 
 
 
@@ -466,7 +465,7 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
         self.scale(factor, factor)
 
     def rebuild_scene(self):
-        """ Build the scene with graphic node and edge"""
+        """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
         self.observed().simulate_construction_notifications()
 

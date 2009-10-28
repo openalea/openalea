@@ -19,7 +19,7 @@ from PyQt4 import QtCore, QtGui
 from openalea.core import interface
 from openalea.core import compositenode
 from openalea.core import node
-import strat_node
+import strat_vertex
 import strat_edge
 import strat_anno
 from .. import gengraphview
@@ -40,10 +40,10 @@ class GraphViewStrategy(object):
         return (0,1)
 
     @classmethod
-    def get_node_widget_type(cls):
+    def get_vertex_widget_type(cls):
         """Return a classobj defining the type of widget 
-        that represents a node"""
-        return strat_node.AleaQGraphicalNode
+        that represents a vertex"""
+        return strat_vertex.AleaQGraphicalVertex
 
     @classmethod
     def get_edge_widget_type(cls):
@@ -67,7 +67,7 @@ class GraphViewStrategy(object):
 
 
 #################################
-# node state drawing strategies #
+# vertex state drawing strategies #
 #################################
 
 class DataflowPaintStrategyCommon:
@@ -87,7 +87,7 @@ class DataflowPaintStrategyCommon:
     __v_margin__        = 15.0
 
 
-class PaintNormalNode(object):
+class PaintNormalVertex(object):
     @classmethod
     def get_path(cls, widget):
         rect = QtCore.QRectF( widget.rect() )
@@ -129,10 +129,10 @@ class PaintNormalNode(object):
         return
 
 
-PaintLazyNode=PaintNormalNode
+PaintLazyVertex=PaintNormalVertex
 
 
-class PaintUserColorNode(PaintNormalNode):
+class PaintUserColorVertex(PaintNormalVertex):
     @classmethod
     def get_first_color(cls, widget):
         return QtGui.QColor(*widget.observed().get_ad_hoc_dict().get_metadata("user_color"))
@@ -142,7 +142,7 @@ class PaintUserColorNode(PaintNormalNode):
         return get_first_color(widget)
 
 
-class PaintErrorNode(PaintNormalNode):
+class PaintErrorVertex(PaintNormalVertex):
     @classmethod
     def get_first_color(cls, widget):
         return DataflowPaintStrategyCommon.error_color
@@ -152,7 +152,7 @@ class PaintErrorNode(PaintNormalNode):
         return QtGui.QColor(255, 144, 0, 200)
 
 
-class PaintErrorNode(PaintNormalNode):
+class PaintErrorVertex(PaintNormalVertex):
     @classmethod
     def get_first_color(cls, widget):
         return DataflowPaintStrategyCommon.error_color
@@ -162,38 +162,38 @@ class PaintErrorNode(PaintNormalNode):
         return DataflowPaintStrategyCommon.not_selected_error_color
 
 
-class PaintUserAppNode(PaintNormalNode):
+class PaintUserAppVertex(PaintNormalVertex):
     @classmethod
     def get_second_color(cls, widget):
         return QtGui.QColor(255, 144, 0, 200)
 
 
-class PaintBlockedNode(PaintNormalNode):
+class PaintBlockedVertex(PaintNormalVertex):
     @classmethod
     def postpaint(cls, widget, paintEvent, painter, state):
         painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
         painter.drawPath(cls.get_path(widget))
         return
     
-node_drawing_strategies={ "node_normal": PaintNormalNode,
-                          "node_lazy": PaintLazyNode, 
-                          "use_user_color": PaintUserColorNode, 
-                          "node_error": PaintErrorNode, 
-                          "node_is_user_app": PaintUserAppNode,
-                          "node_blocked": PaintBlockedNode}
+vertex_drawing_strategies={ "node_normal": PaintNormalVertex,
+                            "node_lazy": PaintLazyVertex, 
+                            "use_user_color": PaintUserColorVertex, 
+                            "node_error": PaintErrorVertex, 
+                            "node_is_user_app": PaintUserAppVertex,
+                            "node_blocked": PaintBlockedVertex}
 
 
 
 if(__name__ != "__main__"):
     #we declare what are the model ad hoc data we require:
-    nodeModelAdHocExtension = {"user_color":list, 
-                               "use_user_color":bool, 
-                               "position":list,
-                               "text": str}
-    node.Node.extend_ad_hoc_slots(nodeModelAdHocExtension)
-
+    vertexModelAdHocExtension = {"user_color":list, 
+                                 "use_user_color":bool, 
+                                 "position":list,
+                                 "text": str}
+    node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
+    
     #we register this strategy
     gengraphview.GraphView.register_strategy(GraphViewStrategy)
-
+    
     #we register the dataflow state drawing strategies
-    qtgraphview.QtGraphViewNode.add_drawing_strategies(node_drawing_strategies)
+    qtgraphview.QtGraphViewVertex.add_drawing_strategies(vertex_drawing_strategies)

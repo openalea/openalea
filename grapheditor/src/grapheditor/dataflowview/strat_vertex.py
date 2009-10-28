@@ -28,20 +28,20 @@ from openalea.core.observer import lock_notify, AbstractListener
 
 """
 
-class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
+class AleaQGraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
 
-    def __init__(self, node, parent=None):
+    def __init__(self, vertex, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
-        qtgraphview.QtGraphViewNode.__init__(self, node)
+        qtgraphview.QtGraphViewVertex.__init__(self, vertex)
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setZValue(1)
 
-        # ---Small box when the node is being evaluated---
+        # ---Small box when the vertex is being evaluated---
         self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
         self.modified_item.setBrush(self.eval_color)
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
@@ -54,7 +54,7 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
 
         self._inConnectorLayout  = QtGui.QGraphicsLinearLayout()
         self._outConnectorLayout = QtGui.QGraphicsLinearLayout()
-        self._caption            = QtGui.QLabel(node.internal_data["caption"])
+        self._caption            = QtGui.QLabel(vertex.internal_data["caption"])
         captionProxy             = qtutils.AleaQGraphicsProxyWidget(self._caption)
 
         layout.addItem(self._inConnectorLayout)
@@ -75,9 +75,13 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
         #do the port layout
         self.__layout_ports()
         #tooltip
-        self.set_tooltip(node.__doc__)
+        self.set_tooltip(vertex.__doc__)
         self.initialise_from_model()
 
+
+    #################
+    # private stuff #
+    #################
     def __layout_ports(self):
         """ Add connectors """
         self.nb_cin = 0
@@ -111,7 +115,7 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
     # Observer methods #
     ####################
     def notify(self, sender, event): 
-        """ Notification sent by the node associated to the item """
+        """ Notification sent by the vertex associated to the item """
         if(event and event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
             self.modified_item.update()
@@ -124,15 +128,15 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
             self.update()
             QtGui.QApplication.processEvents()
 
-        qtgraphview.QtGraphViewNode.notify(self, sender, event)
+        qtgraphview.QtGraphViewVertex.notify(self, sender, event)
 
     def set_tooltip(self, doc=None):
-        """ Sets the tooltip displayed by the node item. Doesn't change
+        """ Sets the tooltip displayed by the vertex item. Doesn't change
         the data."""
         try:
-            node_name = self.observed().factory.name
+            vertex_name = self.observed().factory.name
         except:
-            node_name = self.observed().__class__.__name__
+            vertex_name = self.observed().__class__.__name__
 
         try:
             pkg_name = self.observed().factory.package.get_id()
@@ -155,13 +159,13 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
         for name in [':Parameters:', ':Returns:', ':Keywords:']:
             mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
 
-        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
+        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (vertex_name) +
                          "<b>Package</b> : %s<br/>\n" % (pkg_name) +
                          "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
 
     def set_caption(self, caption):
-        """Sets the name displayed in the node widget, doesn't change
-        the node data"""
+        """Sets the name displayed in the vertex widget, doesn't change
+        the vertex data"""
         self._caption.setText(caption)
 
     ###############################
@@ -169,22 +173,22 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
     ###############################
     def select_drawing_strategy(self, state):
         if self.observed().get_ad_hoc_dict().get_metadata("use_user_color"):
-            return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, "use_user_color")
+            return qtgraphview.QtGraphViewVertex.select_drawing_strategy(self, "use_user_color")
         else:
-            return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, state)
+            return qtgraphview.QtGraphViewVertex.select_drawing_strategy(self, state)
 
     def polishEvent(self):
         self.__update_ports_ad_hoc_position()
-        qtgraphview.QtGraphViewNode.polishEvent(self)
+        qtgraphview.QtGraphViewVertex.polishEvent(self)
         QtGui.QGraphicsWidget.polishEvent(self)
 
     def moveEvent(self, event):
         self.__update_ports_ad_hoc_position()
-        qtgraphview.QtGraphViewNode.moveEvent(self, event)
+        qtgraphview.QtGraphViewVertex.moveEvent(self, event)
         QtGui.QGraphicsWidget.moveEvent(self, event)
 
     def mousePressEvent(self, event):
-        """Overloaded or else edges are created from the node
+        """Overloaded or else edges are created from the vertex
         not from the ports"""
         QtGui.QGraphicsWidget.mousePressEvent(self, event)
 
@@ -192,7 +196,7 @@ class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
 
 
 class AleaQGraphicalConnector(QtGui.QGraphicsWidget):
-    """ A node connector """
+    """ A vertex connector """
     WIDTH =  10
     HEIGHT = 10
 
