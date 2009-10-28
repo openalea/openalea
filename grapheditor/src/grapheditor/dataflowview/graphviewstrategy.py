@@ -43,26 +43,26 @@ class GraphViewStrategy(object):
     def get_vertex_widget_type(cls):
         """Return a classobj defining the type of widget 
         that represents a vertex"""
-        return strat_vertex.AleaQGraphicalVertex
+        return strat_vertex.GraphicalVertex
 
     @classmethod
     def get_edge_widget_type(cls):
         """Return a classobj defining the type of widget 
         that represents an edge"""
-        return strat_edge.AleaQGraphicalEdge
+        return strat_edge.GraphicalEdge
 
     @classmethod
     def get_floating_edge_widget_type(cls):
         """Return a classobj defining the type of widget 
         that represents an edge"""
-        return strat_edge.AleaQFloatingEdge
+        return strat_edge.FloatingEdge
 
 
     @classmethod
     def get_annotation_widget_type(cls):
         """Return a classobj defining the type of widget
         that represents an annotation"""
-        return strat_anno.AleaQGraphicalAnnotation
+        return strat_anno.GraphicalAnnotation
 
 
 

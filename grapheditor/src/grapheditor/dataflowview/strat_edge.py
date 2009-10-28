@@ -24,7 +24,7 @@ from .. import edgefactory
 import openalea.core.node
 
 
-class AleaQFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
+class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -72,7 +72,7 @@ class AleaQFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloating
                                 "plugging input to input or output to output")
 
 
-class AleaQGraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
+class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
     """ An edge between two graphical vertices """
         
     def __init__(self, edgeModel, port1, port2, parent=None):

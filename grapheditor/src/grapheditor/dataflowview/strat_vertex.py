@@ -21,14 +21,13 @@ from .. import gengraphview
 from .. import qtgraphview 
 from .. import qtutils
 
-from openalea.core.observer import lock_notify, AbstractListener
 
 
 """
 
 """
 
-class AleaQGraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
+class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
@@ -97,7 +96,7 @@ class AleaQGraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex)
         [port().update_canvas_position() for port in self.__inPorts+self.__outPorts]        
 
     def __add_connection(self, index, connector, layout):
-        graphicalConn = AleaQGraphicalConnector(self, index, connector)
+        graphicalConn = GraphicalConnector(self, index, connector)
         layout.addItem(graphicalConn)
         layout.setAlignment(graphicalConn, QtCore.Qt.AlignHCenter)
         return graphicalConn
@@ -195,7 +194,7 @@ class AleaQGraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex)
 
 
 
-class AleaQGraphicalConnector(QtGui.QGraphicsWidget):
+class GraphicalConnector(QtGui.QGraphicsWidget):
     """ A vertex connector """
     WIDTH =  10
     HEIGHT = 10

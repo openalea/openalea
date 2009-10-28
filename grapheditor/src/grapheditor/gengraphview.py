@@ -22,7 +22,6 @@ import types
 import weakref
 
 from openalea.core import observer
-from openalea.visualea import node_widget
 
 import gengraphview_interfaces
 
@@ -76,7 +75,7 @@ class GraphViewElement(observer.AbstractListener):
 
 
 
-class GraphView(node_widget.SignalSlotListener):
+class GraphView(observer.AbstractListener):
     """This widget strictly watches the given graph.
     It deduces the correct representation out
     of a known list of representations.
@@ -104,7 +103,7 @@ class GraphView(node_widget.SignalSlotListener):
 
 
     def __init__(self, graph):
-        node_widget.SignalSlotListener.__init__(self)
+        observer.AbstractListener.__init__(self)
 
         self.initialise(graph) #start listening. Todo: rename this method in
         #the abstract listener class. and make it hold a reference to the observed
@@ -193,7 +192,7 @@ class GraphView(node_widget.SignalSlotListener):
         if(position):
             vertex.get_ad_hoc_dict().set_metadata("position", position)
 
-    def remove_vertices(self, verticess):
+    def remove_vertices(self, vertices):
         for vertex in vertices:
             self.observed().remove_vertex(vertex)
 

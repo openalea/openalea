@@ -22,7 +22,7 @@ from .. import qtgraphview
 from openalea.core.observer import lock_notify
 
 
-class AleaQGraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnotation):
+class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnotation):
     """ Text annotation on the data flow """
 
     def __init__(self, annotation, parent=None):
