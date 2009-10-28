@@ -79,6 +79,10 @@ class IGraphViewElement(object):
         """add this element to the graphical view"""
         raise NotImplementedError
 
+    def remove_from_view(self, view):
+        """remove this element from the graphical view"""
+        raise NotImplementedError        
+
     def notify(self, sender, event):
         """called by the observed objects
         Expected event = ("MetaDataChanged", "position", [x,x], list)
@@ -131,15 +135,6 @@ class IGraphFloatingViewEdge(IGraphViewElement):
     creation time, ie while the user drags."""
 
     def __init__(self, src):
-        raise NotImplementedError
-
-    def update_line(self):
-        """refreshed the drawing of the line"""
-        raise NotImplementedError
-
-    def set_destination_point(self, *pos):
-        """updates this edge's ending point. Called when
-        dest point is moved"""
         raise NotImplementedError
 
     def consolidate(self, model):

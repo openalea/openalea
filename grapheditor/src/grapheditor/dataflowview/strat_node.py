@@ -28,7 +28,7 @@ from openalea.core.observer import lock_notify, AbstractListener
 
 """
 
-class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
+class AleaQGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
@@ -78,6 +78,35 @@ class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
         self.set_tooltip(node.__doc__)
         self.initialise_from_model()
 
+    def __layout_ports(self):
+        """ Add connectors """
+        self.nb_cin = 0
+        for i,desc in enumerate(self.observed().input_desc):
+            self.__add_in_connection(i, desc)
+                
+        for i,desc in enumerate(self.observed().output_desc):
+            self.__add_out_connection(i, desc)
+
+    def __update_ports_ad_hoc_position(self):
+        """the canvas position held in the adhoc dict of the ports has to be changed
+        from here since the port items, being childs, don't receive moveEvents..."""
+        [port().update_canvas_position() for port in self.__inPorts+self.__outPorts]        
+
+    def __add_connection(self, index, connector, layout):
+        graphicalConn = AleaQGraphicalConnector(self, index, connector)
+        layout.addItem(graphicalConn)
+        layout.setAlignment(graphicalConn, QtCore.Qt.AlignHCenter)
+        return graphicalConn
+        
+    def __add_in_connection(self, index, connector):
+        port = weakref.ref(self.__add_connection(index, connector, self._inConnectorLayout))
+        self.__inPorts.append(port)
+
+    def __add_out_connection(self, index, connector):
+        port = weakref.ref(self.__add_connection(index, connector, self._outConnectorLayout))
+        self.__outPorts.append(port)
+
+
     ####################
     # Observer methods #
     ####################
@@ -97,15 +126,9 @@ class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
 
         qtgraphview.QtGraphViewNode.notify(self, sender, event)
 
-    ###############
-    # Controllers #
-    ###############
-
-    #########
-    # OTHER #
-    #########
     def set_tooltip(self, doc=None):
-        """ Set tooltip """
+        """ Sets the tooltip displayed by the node item. Doesn't change
+        the data."""
         try:
             node_name = self.observed().factory.name
         except:
@@ -136,35 +159,14 @@ class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
                          "<b>Package</b> : %s<br/>\n" % (pkg_name) +
                          "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
 
-    def __layout_ports(self):
-        """ Add connectors """
-        self.nb_cin = 0
-        for i,desc in enumerate(self.observed().input_desc):
-            self.add_in_connection(i, desc)
-                
-        for i,desc in enumerate(self.observed().output_desc):
-            self.add_out_connection(i, desc)
-
-    def update_ports_layout(self):
-        [port().update_canvas_position() for port in self.__inPorts+self.__outPorts]        
-
     def set_caption(self, caption):
+        """Sets the name displayed in the node widget, doesn't change
+        the node data"""
         self._caption.setText(caption)
 
-    def __add_connection(self, index, connector, layout):
-        graphicalConn = AleaQtGraphicalConnector(self, index, connector)
-        layout.addItem(graphicalConn)
-        layout.setAlignment(graphicalConn, QtCore.Qt.AlignHCenter)
-        return graphicalConn
-        
-    def add_in_connection(self, index, connector):
-        port = weakref.ref(self.__add_connection(index, connector, self._inConnectorLayout))
-        self.__inPorts.append(port)
-
-    def add_out_connection(self, index, connector):
-        port = weakref.ref(self.__add_connection(index, connector, self._outConnectorLayout))
-        self.__outPorts.append(port)
-
+    ###############################
+    # ----Qt World overloads----  #
+    ###############################
     def select_drawing_strategy(self, state):
         if self.observed().get_ad_hoc_dict().get_metadata("use_user_color"):
             return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, "use_user_color")
@@ -172,23 +174,24 @@ class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
             return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, state)
 
     def polishEvent(self):
-        point = self.scenePos()
-        self.observed().get_ad_hoc_dict().set_metadata('position', 
-                                                        [point.x(), point.y()], False)
-        self.update_ports_layout()
+        self.__update_ports_ad_hoc_position()
+        qtgraphview.QtGraphViewNode.polishEvent(self)
         QtGui.QGraphicsWidget.polishEvent(self)
 
     def moveEvent(self, event):
-        point = event.newPos()
-        self.observed().get_ad_hoc_dict().set_metadata('position', 
-                                                        [point.x(), point.y()], False)
-        self.update_ports_layout()
+        self.__update_ports_ad_hoc_position()
+        qtgraphview.QtGraphViewNode.moveEvent(self, event)
         QtGui.QGraphicsWidget.moveEvent(self, event)
 
+    def mousePressEvent(self, event):
+        """Overloaded or else edges are created from the node
+        not from the ports"""
+        QtGui.QGraphicsWidget.mousePressEvent(self, event)
 
 
 
-class AleaQtGraphicalConnector(QtGui.QGraphicsWidget):
+
+class AleaQGraphicalConnector(QtGui.QGraphicsWidget):
     """ A node connector """
     WIDTH =  10
     HEIGHT = 10
@@ -220,7 +223,6 @@ class AleaQtGraphicalConnector(QtGui.QGraphicsWidget):
     ##################
     # QtWorld-Layout #
     ##################
-
     def size(self):
         return self.__size
 
@@ -237,7 +239,7 @@ class AleaQtGraphicalConnector(QtGui.QGraphicsWidget):
     # QtWorld-Events #
     ##################
     def mousePressEvent(self, event):
-        graphview = self.parentItem().scene().views()[0]
+        graphview = self.scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):
             graphview.new_edge_start(self.canvas_position())
             return

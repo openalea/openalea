@@ -22,30 +22,23 @@ from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
 import gengraphview
+import edgefactory
 
+
+#------*************************************************------#
 class QtGraphViewElement(gengraphview.GraphViewElement):
     """Base class for elements in a GraphView"""
 
-    ############################
-    # Class members come first #
-    ############################
-    __state_drawing_strategies__={}
-
-    @classmethod
-    def add_drawing_strategies(cls, d):
-        cls.__state_drawing_strategies__.update(d)
-
-    @classmethod
-    def get_drawing_strategy(cls, state):
-        return cls.__state_drawing_strategies__.get(state)
-
-    ############################
-    # Instance members follow  #
-    ############################    
+    ####################################
+    # ----Instance members follow----  #
+    ####################################    
     def __init__(self, observed=None):
         """Ctor"""
         gengraphview.GraphViewElement.__init__(self, observed)
 
+    #################################
+    # IGraphViewElement realisation #
+    #################################       
     def add_to_view(self, view):
         view.addItem(self)
 
@@ -65,9 +58,37 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
         point = QtCore.QPointF(args[0], args[1])
         self.setPos(point)
 
-    def initialise_from_model(self):
-        self.observed().get_ad_hoc_dict().simulate_full_data_change()
 
+
+
+#------*************************************************------#
+class QtGraphViewNode(QtGraphViewElement):
+    """A Node widget should implement this interface"""
+    ####################################
+    # ----Class members come first---- #
+    ####################################
+    __state_drawing_strategies__={}
+
+    @classmethod
+    def add_drawing_strategies(cls, d):
+        cls.__state_drawing_strategies__.update(d)
+
+    @classmethod
+    def get_drawing_strategy(cls, state):
+        return cls.__state_drawing_strategies__.get(state)
+
+
+    ####################################
+    # ----Instance members follow----  #
+    ####################################    
+    def __init__(self, vertex):
+        QtGraphViewElement.__init__(self, vertex)
+        return
+
+    #####################
+    # ----Qt World----  #
+    #####################
+    # ---> state-based painting
     def select_drawing_strategy(self, state):
         return self.get_drawing_strategy(state)
 
@@ -133,19 +154,31 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
         if(self.isSelected()):
             painter.setPen(QtCore.Qt.DashLine)
             painter.setBrush(QtGui.QBrush())
-            painter.drawRect(self.rect())        
+            painter.drawRect(self.rect())
+
+    # ---> other events
+    def polishEvent(self):
+        point = self.scenePos()
+        self.observed().get_ad_hoc_dict().set_metadata('position', 
+                                                        [point.x(), point.y()], False)
+        QtGui.QGraphicsWidget.polishEvent(self)
+
+    def moveEvent(self, event):
+        point = event.newPos()
+        self.observed().get_ad_hoc_dict().set_metadata('position', 
+                                                        [point.x(), point.y()], False)
+        QtGui.QGraphicsWidget.moveEvent(self, event)    
+
+    def mousePressEvent(self, event):
+        graphview = self.scene().views()[0]
+        if (graphview and event.buttons() & QtCore.Qt.LeftButton):
+            pos = event.posF().x(), event.posF.y()
+            graphview.new_edge_start(pos)
+            return
 
 
 
-class QtGraphViewNode(QtGraphViewElement):
-    """A Node widget should implement this interface"""
-
-    def __init__(self, vertex):
-        QtGraphViewElement.__init__(self, vertex)
-        return
-
-
-
+#------*************************************************------#
 class QtGraphViewAnnotation(QtGraphViewElement):
     """A Node widget should implement this interface"""
 
@@ -154,7 +187,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
         return
 
     def set_text(self, text):
-        """to change the visible text"""
+        """to change the visible text, not the model text"""
         raise NotImplementedError
 
     def notify(self, sender, event):
@@ -164,6 +197,10 @@ class QtGraphViewAnnotation(QtGraphViewElement):
 
         QtGraphViewElement.notify(self, sender, event)
 
+    ############
+    # Qt World #
+    ############
+    # ---->controllers
     def mouseDoubleClickEvent(self, event):
         """ todo """
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
@@ -188,7 +225,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
 
-
+#------*************************************************------#
 class QtGraphViewEdge(QtGraphViewElement):
     """Base class for Qt based edges."""
 
@@ -208,17 +245,36 @@ class QtGraphViewEdge(QtGraphViewElement):
             self.initialise(dest)
             self.dst = weakref.ref(dest)
 
-        return
+        self.sourcePoint = QtCore.QPointF()
+        self.destPoint = QtCore.QPointF()
+
+        self.edge_path = edgefactory.EdgeFactory()
+        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
+        self.setPath(path)
+
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
+                               QtCore.Qt.SolidLine,
+                               QtCore.Qt.RoundCap,
+                               QtCore.Qt.RoundJoin))
+
+    def shape(self):
+        path = self.edge_path.shape()
+        if not path:
+            return QtGui.QGraphicsPathItem.shape(self)
+        else:
+            return path
+        
+    def __update_line(self):
+        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
+        self.setPath(path)
 
     def update_line_source(self, *pos):
-        """updates this edge's starting point. Called when
-        source point is moved"""
-        raise NotImplementedError
+        self.sourcePoint = QtCore.QPointF(*pos)
+        self.__update_line()
 
     def update_line_destination(self, *pos):
-        """updates this edge's ending point. Called when
-        dest point is moved"""
-        raise NotImplementedError
+        self.destPoint = QtCore.QPointF(*pos)
+        self.__update_line()
 
     def notify(self, sender, event):
         if(event[0] == "MetaDataChanged"):
@@ -233,6 +289,12 @@ class QtGraphViewEdge(QtGraphViewElement):
         self.src().get_ad_hoc_dict().simulate_full_data_change()
         self.dst().get_ad_hoc_dict().simulate_full_data_change()
 
+
+    def remove(self):
+        view = self.scene().views()[0]
+        view.observed().disconnect(self.src().node().get_id(), self.src().get_id(),
+                                   self.dst().node().get_id(), self.dst().get_id())
+        
 
     ############
     # Qt World #
@@ -255,8 +317,37 @@ class QtGraphViewEdge(QtGraphViewElement):
 
 
 
+class QtGraphViewFloatingEdge( QtGraphViewEdge ):
+    def __init__(self, srcPoint):
+        QtGraphViewEdge.__init__(self, None, None, None)
+        self.sourcePoint = QtCore.QPointF(*srcPoint)
+
+    def notify(self, sender, event):
+        return
+
+    def consolidate(self, model):
+        try:
+            srcNode, dstNode = self.get_connections()
+            model.connect(srcNode, dstNode)
+        except Exception, e:
+            print "consolidation failed :", e
+        return
+        
+    def get_connections(self):
+        #find the node items that were activated
+        srcNodeItem = self.scene().itemAt( self.sourcePoint )
+        dstNodeItem = self.scene().itemAt( self.destPoint   )
+
+        #if the input and the output are on the same node...
+        if(srcNodeItem == dstNodeItem):
+            raise Exception("Nonsense connection : plugging self to self.")            
+
+        return srcNodeItem.observed(), dstNodeItem.observed()
 
 
+
+
+#------*************************************************------#
 class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
     """A Qt implementation of GraphView    """
 
@@ -378,7 +469,6 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
         """ Build the scene with graphic node and edge"""
         self.clear_scene()
         self.observed().simulate_construction_notifications()
-        #self.setViewportUpdateMode(QtGui.QGraphicsView.SmartViewportUpdate)
 
     def clear_scene(self):
         """ Remove all items from the scene """
@@ -391,126 +481,3 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
 
     def new_edge_scene_init(self, graphicalEdge):
         self.scene().addItem(graphicalEdge)
-
-        
-
-
-
-
-
-#################
-# MOVE THIS OUT #
-#################
-def edge_factory():
-    try:
-        settings = Settings()
-        style = settings.get('UI', 'EdgeStyle')
-    except:
-        style = 'Spline'
-
-    if style == 'Line':
-        return LinearEdgePath()
-    elif style == 'Polyline':
-        return PolylineEdgePath()
-    else:
-        return SplineEdgePath()
-
-
-class LinearEdgePath(object):
-    """ Draw edges as line. """
-    def __init__(self): 
-        self.p1 = QtCore.QPointF()
-        self.p2 = QtCore.QPointF()
-
-    def shape(self):
-        path = QtGui.QPainterPath()
-
-        # Enlarge selection zone
-        diff = self.p2 - self.p1
-
-        if( abs(diff.x()) > abs(diff.y())):
-            dp = QtCore.QPointF(0, 10)
-        else:
-            dp = QtCore.QPointF(10, 0)
-        
-        p1 = self.p1 - dp
-        p2 = self.p1 + dp
-        p3 = self.p2 + dp
-        p4 = self.p2 - dp
-        poly = QtGui.QPolygonF([p1, p2, p3, p4])
-        path.addPolygon(poly)
-        
-        return path
-
-    def get_path( self, p1, p2):
-        self.p1 = p1
-        self.p2 = p2
-        path = QtGui.QPainterPath(self.p1)
-        path.lineTo(self.p2)
-        return path
-
-        
-class PolylineEdgePath(LinearEdgePath):
-    """ Edge as Polyline """
-    WIDTH = 30
-    def __init__(self): 
-        LinearEdgePath.__init__(self)
-
-    def shape(self):
-        return None
-
-    def get_path( self, p1, p2 ):
-        self.p1 = p1
-        self.p2 = p2
-        path = QtGui.QPainterPath(self.p1)
-
-        points = []
-
-        sd= self.p2 - self.p1
-        if abs(sd.x()) <= self.WIDTH: # draw a line
-            pass
-        elif sd.y() < 2 * self.WIDTH:
-            s1 = self.p1 + QtCore.QPointF(0,self.WIDTH)
-            d1 = self.p2 - QtCore.QPointF(0,self.WIDTH)
-
-            s1d1= d1 -s1
-            s2 = s1 + QtCore.QPointF(s1d1.x() / 2., 0)
-            d2 = s2 + QtCore.QPointF(0, s1d1.y())
-            points.extend([s1, s2, d2, d1])
-        else:
-            s1 = self.p1 + QtCore.QPointF(0, sd.y() / 2.)
-            d1= self.p2 - QtCore.QPointF(0, sd.y() / 2.)
-            points.extend([s1, d1])
-        
-        points.append(self.p2)
-        for pt in points:
-            path.lineTo(pt)
-
-        return path
-
-
-class SplineEdgePath(PolylineEdgePath):
-    """ Edge as Spline """
-    
-    def __init__(self): 
-        PolylineEdgePath.__init__(self)
-
-    def get_path( self, p1, p2):
-        self.p1 = p1
-        self.p2 = p2
-        path = QtGui.QPainterPath(self.p1)
-
-        sd= self.p2- self.p1
-        if abs(sd.x()) <= self.WIDTH: # draw a line
-            path.lineTo(self.p2)
-        elif sd.y() < self.WIDTH: 
-            py = QtCore.QPointF(0, max(self.WIDTH, - sd.y()))
-            path.cubicTo(self.p1 + py, self.p2 - py, self.p2)
-
-        else:
-            py = QtCore.QPointF(0, sd.y() / 2.)
-            pm = (self.p1 + self.p2) / 2.
-            path.quadTo(self.p1 + py, pm)
-            path.quadTo(self.p2 - py, self.p2)
-
-        return path

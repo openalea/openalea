@@ -43,8 +43,6 @@ from openalea.visualea.util import exception_display, busy_cursor
 from openalea.grapheditor import qtgraphview
 from openalea.grapheditor import visualea_integration
 
-qtgraphview.QtGraphViewElement.add_drawing_strategies(
-    visualea_integration.node_drawing_strategies)
 
 
 class MainWindow(QtGui.QMainWindow,

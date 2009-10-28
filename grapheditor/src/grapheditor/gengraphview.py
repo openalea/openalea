@@ -69,6 +69,10 @@ class GraphViewElement(observer.AbstractListener):
         in the model"""
         raise NotImplementedError
 
+    def initialise_from_model(self):
+        self.observed().get_ad_hoc_dict().simulate_full_data_change()
+
+
 
 
 
@@ -203,8 +207,7 @@ class GraphView(node_widget.SignalSlotListener):
 
     def new_edge_set_destination(self, *dest):
         if(self.__newEdge):
-            self.__newEdge.set_destination_point(*dest)
-            self.__newEdge.update_line()
+            self.__newEdge.update_line_destination(*dest)
 
     def new_edge_end(self):
         if(self.__newEdge):

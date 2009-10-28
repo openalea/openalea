@@ -19,47 +19,12 @@ from PyQt4 import QtCore, QtGui
 
 from .. import gengraphview
 from .. import qtgraphview
+from .. import edgefactory
 
 import openalea.core.node
 
 
-class AbstractEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
-    """
-    Base class for edges 
-    """
-
-    def __init__(self, edge, src=None, dst=None, parent=None):
-        QtGui.QGraphicsPathItem.__init__(self, parent)
-        qtgraphview.QtGraphViewEdge.__init__(self, edge, src, dst)
-
-        self.sourcePoint = QtCore.QPointF()
-        self.destPoint = QtCore.QPointF()
-
-        self.edge_path = qtgraphview.edge_factory()
-        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
-        self.setPath(path)
-
-        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
-                               QtCore.Qt.SolidLine,
-                               QtCore.Qt.RoundCap,
-                               QtCore.Qt.RoundJoin))
-
-    def shape(self):
-        path = self.edge_path.shape()
-        if not path:
-            return QtGui.QGraphicsPathItem.shape(self)
-        else:
-            return path
-        
-    def update_line(self):
-        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
-        self.setPath(path)
-
-    def paint(self, painter, options, widget):
-        QtGui.QGraphicsPathItem.paint(self, painter, options, widget)
-
-
-class AleaQtFloatingEdge(AbstractEdge):
+class AleaQFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -68,14 +33,8 @@ class AleaQtFloatingEdge(AbstractEdge):
     """
 
     def __init__(self, srcPoint):
-        AbstractEdge.__init__(self, None)
-        self.sourcePoint = QtCore.QPointF(*srcPoint)
-
-    def set_destination_point(self, *args):
-        self.destPoint = QtCore.QPointF(*args)
-
-    def notify(self, sender, event):
-        return 
+        QtGui.QGraphicsPathItem.__init__(self, None)
+        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint)
 
     def consolidate(self, model):
         try:
@@ -115,21 +74,15 @@ class AleaQtFloatingEdge(AbstractEdge):
                                 "plugging input to input or output to output")
 
 
-class AleaQtGraphicalEdge(AbstractEdge):
+class AleaQGraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
     """ An edge between two graphical nodes """
         
     def __init__(self, edgeModel, port1, port2, parent=None):
         """ """
-        AbstractEdge.__init__(self, edgeModel, port1, port2, parent)
+        QtGui.QGraphicsPathItem.__init__(self, parent)
+        qtgraphview.QtGraphViewEdge.__init__(self, edgeModel, port1, port2)
         self.initialise_from_model()
 
-    def update_line_source(self, *pos):
-        self.sourcePoint = QtCore.QPointF(*pos)
-        self.update_line()
-
-    def update_line_destination(self, *pos):
-        self.destPoint = QtCore.QPointF(*pos)
-        self.update_line()
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -143,9 +96,4 @@ class AleaQtGraphicalEdge(AbstractEdge):
         menu.show()
 
         event.accept()
-
-    def remove(self):
-        view = self.scene().views()[0]
-        view.observed().disconnect(self.src().node().get_id(), self.src().get_id(),
-                                   self.dst().node().get_id(), self.dst().get_id())
         
