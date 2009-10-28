@@ -25,8 +25,25 @@ import gengraphview
 
 class QtGraphViewElement(gengraphview.GraphViewElement):
     """Base class for elements in a GraphView"""
-    
+
+    ############################
+    # Class members come first #
+    ############################
+    __state_drawing_strategies__={}
+
+    @classmethod
+    def add_drawing_strategies(cls, d):
+        cls.__state_drawing_strategies__.update(d)
+
+    @classmethod
+    def get_drawing_strategy(cls, state):
+        return cls.__state_drawing_strategies__.get(state)
+
+    ############################
+    # Instance members follow  #
+    ############################    
     def __init__(self, observed=None):
+        """Ctor"""
         gengraphview.GraphViewElement.__init__(self, observed)
 
     def add_to_view(self, view):
@@ -51,6 +68,72 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
     def initialise_from_model(self):
         self.observed().get_ad_hoc_dict().simulate_full_data_change()
 
+    def select_drawing_strategy(self, state):
+        return self.get_drawing_strategy(state)
+
+    def paint(self, painter, option, widget):
+        paintEvent=None #remove this
+        path=None
+        firstColor=None
+        secondColor=None
+        gradient=None
+
+        state = self.observed().get_state()
+
+        #try to get a strategy for this state ...
+        strategy = self.select_drawing_strategy(state)
+        if(strategy):
+            path = strategy.get_path(self)
+            gradient=strategy.get_gradient(self)
+            #the gradient is already defined, no need for colors
+            if(not gradient):
+                firstColor=strategy.get_first_color(self)
+                secondColor=strategy.get_second_color(self)
+        else: #...or fall back on defaults
+            rect = QtCore.QRectF( self.rect() )
+
+            #the drawn rectangle is smaller than
+            #the actual widget size
+            rect.setX( rect.x()+self.__margin__ )
+            rect.setY( rect.y()+self.__v_margin__ )
+            rect.setWidth( rect.width()-self.__margin__ )
+            rect.setHeight( rect.height()-self.__v_margin__ )
+
+            path = QtGui.QPainterPath()
+            path.addRoundedRect(rect,
+                                self.__corner_radius__,
+                                self.__corner_radius__)
+            firstColor = self.not_selected_color
+            secondColor = self.not_modified_color
+
+        if(not gradient):
+            gradient = QtGui.QLinearGradient(0, 0, 0, 100)
+            gradient.setColorAt(0.0, firstColor)
+            gradient.setColorAt(0.8, secondColor)
+
+
+        #PAINTING
+        #painter = QtGui.QPainter(self)
+        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
+        if(strategy):
+            strategy.prepaint(self, paintEvent, painter, state)
+        #shadow drawing:
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
+        painter.drawPath(path)
+        #item drawing
+        painter.setBrush(QtGui.QBrush(gradient))        
+        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
+        painter.drawPath(path)
+
+        if(strategy):
+            strategy.postpaint(self, paintEvent, painter, state)
+
+        #selection marker is drawn at the end
+        if(self.isSelected()):
+            painter.setPen(QtCore.Qt.DashLine)
+            painter.setBrush(QtGui.QBrush())
+            painter.drawRect(self.rect())        
 
 
 
@@ -81,6 +164,29 @@ class QtGraphViewAnnotation(QtGraphViewElement):
 
         QtGraphViewElement.notify(self, sender, event)
 
+    def mouseDoubleClickEvent(self, event):
+        """ todo """
+        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
+        self.setSelected(True)
+        self.setFocus()
+        cursor = self.textCursor()
+        cursor.select(QtGui.QTextCursor.Document)
+        self.setTextCursor(cursor)
+
+    def focusOutEvent(self, event):
+        """ todo """
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
+
+        # unselect text
+        cursor = self.textCursor ()
+        if(cursor.hasSelection()):
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
+            
+        self.observed().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
+
+        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+
 
 
 class QtGraphViewEdge(QtGraphViewElement):
@@ -103,7 +209,6 @@ class QtGraphViewEdge(QtGraphViewElement):
             self.dst = weakref.ref(dest)
 
         return
-
 
     def update_line_source(self, *pos):
         """updates this edge's starting point. Called when
@@ -160,7 +265,7 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
         gengraphview.GraphView.__init__(self, graph)
 
         scene = QtGui.QGraphicsScene(self)
-        scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
+        #scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
 
         # ---Qt Stuff---
@@ -174,7 +279,9 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
         self.rebuild_scene()
 
         # ---Other stuff used for the user experience---
-
+        self.__mimeHandlers={}
+        self.__pressHotkeyMap={}
+        self.__releaseHotkeyMap={}
 
     def get_scene(self):
         return self.scene()
@@ -183,26 +290,90 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
     # QtWorld-Events #
     ##################
     def wheelEvent(self, event):
-        self.centerOn(self.mapToScene(event.globalPos()))
-        delta = -event.delta() / 1200.0 + 1.0
-        self.scale(delta, delta)
-        QtGui.QGraphicsView.wheelEvent(self, event)
+        self.centerOn(QtCore.QPointF(event.pos()))
+        delta = -event.delta() / 2400.0 + 1.0
+        self.scale_view(delta)
 
     def mouseMoveEvent(self, event):
-        QtGui.QGraphicsView.mouseMoveEvent(self, event)
         if(self.is_creating_edge()):
             pos = self.mapToScene(event.pos())
             self.new_edge_set_destination(pos.x(), pos.y())
             return
+        QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         if(self.is_creating_edge()):
             self.new_edge_end()
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
+    def acceptEvent(self, event):
+        """ Return True if event is accepted """
+        for format in self.__mimeHandlers.keys():
+            if event.mimeData().hasFormat(format): return True
+        return False
+
+    def dragEnterEvent(self, event):
+        event.setAccepted(self.acceptEvent(event))
+            
+    def dragMoveEvent(self, event):
+        if (self.acceptEvent(event)):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        for format in event.mimeData().formats():
+            format = format.toUtf8().data()
+            handler = self.__mimeHandlers.get(format)
+            if(handler):
+                handler(self, event)
+                return
+            else:
+                continue
+        QtGui.QGraphicsView.dropEvent(self, event)
+
+    def keyPressEvent(self, e):
+        combo = e.modifiers().__int__(), e.key()
+        action = self.__pressHotkeyMap.get(combo)
+        if(action):
+            action.press(self, event)
+        else:
+            QtGui.QGraphicsView.keyPressEvent(self, e)
+
+    def keyReleaseEvent(self, e):
+        combo = e.modifiers().__int__(), e.key()
+        action = self.__releaseHotkeyMap.get(combo)
+        if(action):
+            action.release(self, event)
+        else:
+            QtGui.QGraphicsView.keyReleaseEvent(self, e)
+
+
     #########################
     # Other utility methods #
     #########################
+    def set_mime_handler_map(self, mapping):
+        self.__mimeHandlers = mapping
+
+    def get_mime_handler_map(self):
+        return self.__mimeHandlers
+
+    def set_keypress_handler_map(self, mapping):
+        self.__pressHotkeyMap = mapping
+
+    def get_keypress_handler_map(self):
+        return self.__pressHotkeyMap
+
+    def set_keyrelease_handler_map(self, mapping):
+        self.__releaseHotkeyMap = mapping
+
+    def get_keyrelease_handler_map(self):
+        return self.__releaseHotkeyMap
+
+    def scale_view(self, factor):
+        self.scale(factor, factor)
+
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
         self.clear_scene()
@@ -215,11 +386,11 @@ class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
 
-    def new_edge_scene_cleanup(self, edge):
-        self.scene().removeItem(edge)
+    def new_edge_scene_cleanup(self, graphicalEdge):
+        self.scene().removeItem(graphicalEdge)
 
-    def new_edge_scene_init(self, edge):
-        self.scene().addItem(edge)
+    def new_edge_scene_init(self, graphicalEdge):
+        self.scene().addItem(graphicalEdge)
 
         
 

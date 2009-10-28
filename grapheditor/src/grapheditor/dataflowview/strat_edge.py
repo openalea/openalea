@@ -1,3 +1,19 @@
+# -*- python -*-
+#
+#       OpenAlea.Visualea: OpenAlea graphical user interface
+#
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
 import sys, numpy, weakref
 from PyQt4 import QtCore, QtGui
 
@@ -39,6 +55,9 @@ class AbstractEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
         path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
         self.setPath(path)
 
+    def paint(self, painter, options, widget):
+        QtGui.QGraphicsPathItem.paint(self, painter, options, widget)
+
 
 class AleaQtFloatingEdge(AbstractEdge):
     """
@@ -73,9 +92,9 @@ class AleaQtFloatingEdge(AbstractEdge):
         if(not srcItem or not dstItem):
             return
 
-        if(not isinstance(srcItem, QtGui.QGraphicsProxyWidget) or 
-            not isinstance(dstItem, QtGui.QGraphicsProxyWidget)):
-            return
+#         if(not isinstance(srcItem, QtGui.QGraphicsProxyWidget) or 
+#             not isinstance(dstItem, QtGui.QGraphicsProxyWidget)):
+#             return
 
         #transform the points to item coordinate
         srcItemCoordPoint = srcItem.mapFromScene(self.sourcePoint)
@@ -84,6 +103,10 @@ class AleaQtFloatingEdge(AbstractEdge):
         #find the widgets that were activated
         srcPortWidget=srcItem.widget().childAt(srcItemCoordPoint.toPoint())
         dstPortWidget=dstItem.widget().childAt(dstItemCoordPoint.toPoint())
+
+        #if the input and the output are on the same node...
+        if(srcPortWidget.observed().node() == dstPortWidget.observed().node()):
+            raise Exception("Nonsense connection : plugging self to self.")            
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
@@ -98,7 +121,8 @@ class AleaQtFloatingEdge(AbstractEdge):
             return dstItem.observed(), dstPortWidget.get_index(), \
                 srcItem.observed(), srcPortWidget.get_index()
         else:
-            raise Exception("Nonsense connection")
+            raise Exception("Nonsense connection : " + \
+                                "plugging input to input or output to output")
 
 
 class AleaQtGraphicalEdge(AbstractEdge):

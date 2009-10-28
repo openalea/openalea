@@ -1,34 +1,45 @@
+# -*- python -*-
+#
+#       OpenAlea.Visualea: OpenAlea graphical user interface
+#
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 import sys, numpy, weakref
 from PyQt4 import QtCore, QtGui
 
 from .. import gengraphview 
 from .. import qtgraphview 
+from .. import qtutils
 
-from openalea.core.observer import lock_notify
+from openalea.core.observer import lock_notify, AbstractListener
 
 
 """
-This module implements a graphical node in several layers.
-It was meant to try to use Qt at most and not to layout everything
-by hand. It became a bit more complicated than expected.
+
 """
 
-
-class AleaQtGraphicalNode(QtGui.QGraphicsItem, qtgraphview.QtGraphViewNode):
+class AleaQtGraphicalNode(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewNode):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
 
     def __init__(self, node, parent=None):
-        QtGui.QGraphicsItem.__init__(self, parent)
+        QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.QtGraphViewNode.__init__(self, node)
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setZValue(1)
-
-        self.__child=AleaQtGraphicalNodeProxy(node, self)
 
         # ---Small box when the node is being evaluated---
         self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
@@ -36,23 +47,42 @@ class AleaQtGraphicalNode(QtGui.QGraphicsItem, qtgraphview.QtGraphViewNode):
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.modified_item.setVisible(False)
 
-        # ---read existing data---
+        # ---Sub items layout---
+        layout = QtGui.QGraphicsLinearLayout()
+        layout.setOrientation(QtCore.Qt.Vertical)
+        layout.setSpacing(2)
+
+        self._inConnectorLayout  = QtGui.QGraphicsLinearLayout()
+        self._outConnectorLayout = QtGui.QGraphicsLinearLayout()
+        self._caption            = QtGui.QLabel(node.internal_data["caption"])
+        captionProxy             = qtutils.AleaQGraphicsProxyWidget(self._caption)
+
+        layout.addItem(self._inConnectorLayout)
+        layout.addItem(captionProxy)
+        layout.addItem(self._outConnectorLayout)
+
+        layout.setAlignment(self._inConnectorLayout, QtCore.Qt.AlignHCenter)
+        layout.setAlignment(self._outConnectorLayout, QtCore.Qt.AlignHCenter)
+        layout.setAlignment(captionProxy, QtCore.Qt.AlignHCenter)
+        self._inConnectorLayout.setSpacing(8)
+        self._outConnectorLayout.setSpacing(8)
+
+        self.setLayout(layout)
+
+        #hack around a Qt4.4 limitation
+        self.__inPorts=[]
+        self.__outPorts=[]
+        #do the port layout
+        self.__layout_ports()
+        #tooltip
+        self.set_tooltip(node.__doc__)
         self.initialise_from_model()
-
-
-    def boundingRect(self):
-        return self.__child.boundingRect()
-
-    def paint(self, painter, paintOptions, widget):
-        return self.__child.paint(painter, paintOptions, widget)
-
 
     ####################
     # Observer methods #
     ####################
     def notify(self, sender, event): 
         """ Notification sent by the node associated to the item """
-
         if(event and event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
             self.modified_item.update()
@@ -70,107 +100,41 @@ class AleaQtGraphicalNode(QtGui.QGraphicsItem, qtgraphview.QtGraphViewNode):
     ###############
     # Controllers #
     ###############
-    def itemChange(self, change, value):
-        """ Callback when item has been modified (move...) """
 
-        ret = QtGui.QGraphicsItem.itemChange(self, change, value)
-        
-        if (change == QtGui.QGraphicsItem.ItemPositionChange):                    
-            point = value.toPointF()
-            self.observed().get_ad_hoc_dict().set_metadata('position', 
-                                                        [point.x(), point.y()],
-                                                        False)
+    #########
+    # OTHER #
+    #########
+    def set_tooltip(self, doc=None):
+        """ Set tooltip """
         try:
-             #make the ports update their positions and
-             #so make the edges update their drawing
-            self.__child.widget().update_layout() 
+            node_name = self.observed().factory.name
         except:
-            pass
+            node_name = self.observed().__class__.__name__
 
-        return ret
+        try:
+            pkg_name = self.observed().factory.package.get_id()
+        except:
+            pkg_name = ''
 
+        if doc:
+            doc = doc.split('\n')
+            doc = [x.strip() for x in doc] 
+            doc = '\n'.join(doc)
+        else:
+            if(self.observed().factory):
+                doc = self.observed().factory.description
+        
+        # here, we could process the doc so that the output is nicer 
+        # e.g., doc.replace(":params","Parameters ") and so on
 
-class AleaQtGraphicalNodeProxy(QtGui.QGraphicsProxyWidget):
-    """ A proxy QGraphicsItem holding a QWidget. The actual widget is coded
-    in AleaQtGraphicalNoderaphicalNodeWidget. """
+        mydoc = doc
 
-    def __init__(self, node, parent=None):
-        QtGui.QGraphicsProxyWidget.__init__(self, parent)
-        self.observed = weakref.ref(node)
-        widget = AleaQtGraphicalNodeWidget(node, None, self)
-        widget.set_caption( node.internal_data["caption"] )
-        self.setWidget(widget)
+        for name in [':Parameters:', ':Returns:', ':Keywords:']:
+            mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
 
-    ############
-    # QT WORLD #
-    ############
-    def paint(self, painter, paintOptions, widget):
-        #NEEDED TO OVERLOAD THIS TO GET RID OF THE UGLY BACKGROUND
-        #AROUND THE WIDGET.
-        self.widget().render(painter, QtCore.QPoint(), QtGui.QRegion(), 
-                             QtGui.QWidget.RenderFlags()|QtGui.QWidget.DrawChildren)
-
-    def polishEvent(self):
-        self.widget().update_layout()
-
-
-
-class AleaQtGraphicalNodeWidget(QtGui.QWidget):
-    """ Represents a node in the graph widget. """
-    
-    # Color Definition
-    not_modified_color = QtGui.QColor(0, 0, 255, 200)
-    modified_color = QtGui.QColor(255, 0, 0, 200)        
-
-    selected_color = QtGui.QColor(180, 180, 180, 180)
-    not_selected_color = QtGui.QColor(255, 255, 255, 100)
-
-    error_color = QtGui.QColor(255, 0, 0, 255)    
-    selected_error_color = QtGui.QColor(0, 0, 0, 255)
-    not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
-
-
-    __corner_radius__ = 5.0
-    __margin__        = 5.0
-    __v_margin__        = 15.0
-
-    def __init__(self, vertex, parent=None, container=None):
-        QtGui.QWidget.__init__(self, parent)
-
-        #pointer to the QGraphicsItem needed for absolute position computation.
-        self._container = weakref.ref(container) 
-        self.observed = weakref.ref(vertex)
-
-        # ---Qt stuff---        
-        self.setLayout(QtGui.QVBoxLayout())
-        self.layout().setSpacing(2)
-
-        self._inConnectorLayout = QtGui.QHBoxLayout()
-        self._outConnectorLayout = QtGui.QHBoxLayout()
-        self._caption = QtGui.QLabel()
-        self._caption.setSizePolicy(QtGui.QSizePolicy.Fixed, 
-                                    QtGui.QSizePolicy.Fixed)
-
-        self.layout().addLayout(self._inConnectorLayout)
-        self.layout().addWidget(self._caption)
-        self.layout().addLayout(self._outConnectorLayout)
-
-        self._inConnectorLayout.setAlignment(QtCore.Qt.AlignHCenter)
-        self._outConnectorLayout.setAlignment(QtCore.Qt.AlignHCenter)
-        self._inConnectorLayout.setSpacing(8)
-        self._outConnectorLayout.setSpacing(8)
-
-        self.layout().setAlignment(self._caption, QtCore.Qt.AlignHCenter)
-
-        #do the port layout
-        self.__layout_ports()
-
-
-    def update_layout(self):
-        for cId in range(self._inConnectorLayout.count()):
-            self._inConnectorLayout.itemAt(cId).widget().update_meta_canvas_position()
-        for cId in range(self._outConnectorLayout.count()):
-            self._outConnectorLayout.itemAt(cId).widget().update_meta_canvas_position()
+        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
+                         "<b>Package</b> : %s<br/>\n" % (pkg_name) +
+                         "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
 
     def __layout_ports(self):
         """ Add connectors """
@@ -181,146 +145,90 @@ class AleaQtGraphicalNodeWidget(QtGui.QWidget):
         for i,desc in enumerate(self.observed().output_desc):
             self.add_out_connection(i, desc)
 
-    def get_container(self):
-        return self._container()
+    def update_ports_layout(self):
+        [port().update_canvas_position() for port in self.__inPorts+self.__outPorts]        
 
     def set_caption(self, caption):
         self._caption.setText(caption)
 
+    def __add_connection(self, index, connector, layout):
+        graphicalConn = AleaQtGraphicalConnector(self, index, connector)
+        layout.addItem(graphicalConn)
+        layout.setAlignment(graphicalConn, QtCore.Qt.AlignHCenter)
+        return graphicalConn
+        
     def add_in_connection(self, index, connector):
-        self._inConnectorLayout.addWidget(AleaQtGraphicalConnector(self, index, connector))
+        port = weakref.ref(self.__add_connection(index, connector, self._inConnectorLayout))
+        self.__inPorts.append(port)
 
     def add_out_connection(self, index, connector):
-        self._outConnectorLayout.addWidget(AleaQtGraphicalConnector(self, index, connector))
+        port = weakref.ref(self.__add_connection(index, connector, self._outConnectorLayout))
+        self.__outPorts.append(port)
 
-    def remove_in_connection(self, index):
-        pass
-
-    def remove_out_connection(self, index):
-        pass
-
-    def paintEvent(self, paintEvent):
-        size = self.size()
-        painter = QtGui.QPainter(self)
-        
-        rect = QtCore.QRectF( self.rect() )
-
-        #the drawn rectangle is smaller than
-        #the actual widget size
-        rect.setX( rect.x()+self.__margin__ )
-        rect.setY( rect.y()+self.__v_margin__ )
-        rect.setWidth( rect.width()-self.__margin__ )
-        rect.setHeight( rect.height()-self.__v_margin__ )
-
-        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
-
-        #let's figure out how to paint our box:
-        color = self.not_selected_color
-        secondColor = self.not_modified_color
-
-        #user defined colors
+    def select_drawing_strategy(self, state):
         if self.observed().get_ad_hoc_dict().get_metadata("use_user_color"):
-            color = QtGui.QColor(*self.observed().get_ad_hoc_dict().get_metadata("user_color"))
-            secondColor = color
+            return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, "use_user_color")
+        else:
+            return qtgraphview.QtGraphViewNode.select_drawing_strategy(self, state)
 
-        #error state colors
-        elif self.observed().internal_data.get("is_in_error_state", False):
-            color = self.error_color
-            if(self._container().isSelected()):
-                secondColor = self.selected_error_color
-            else:
-                secondColor = self.not_selected_error_color
+    def polishEvent(self):
+        point = self.scenePos()
+        self.observed().get_ad_hoc_dict().set_metadata('position', 
+                                                        [point.x(), point.y()], False)
+        self.update_ports_layout()
+        QtGui.QGraphicsWidget.polishEvent(self)
 
-        #non error state colors
-        elif self._container().isSelected():
-            color = self.selected_color
-        elif self.observed().internal_data.get("is_user_application", False):
-            secondColor = QtGui.QColor(255, 144, 0, 200)
-            
-
-        # Shadow
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
-        painter.drawRoundedRect(rect,
-                                self.__corner_radius__,
-                                self.__corner_radius__)
-
-        # Draw Box
-        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, color)
-        gradient.setColorAt(0.8, secondColor)
-        painter.setBrush(QtGui.QBrush(gradient))
-        
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
-        painter.drawRoundedRect(rect,
-                                self.__corner_radius__,
-                                self.__corner_radius__)
-
-
-        if self.observed().internal_data.get("block", False):
-            painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
-            painter.drawRoundedRect(rect,
-                                    self.__corner_radius__,
-                                    self.__corner_radius__)
-
-        QtGui.QWidget.paintEvent(self, paintEvent)
+    def moveEvent(self, event):
+        point = event.newPos()
+        self.observed().get_ad_hoc_dict().set_metadata('position', 
+                                                        [point.x(), point.y()], False)
+        self.update_ports_layout()
+        QtGui.QGraphicsWidget.moveEvent(self, event)
 
 
 
 
-    
-
-
-
-
-
-
-
-
-
-
-
-class AleaQtGraphicalConnector(QtGui.QWidget):
+class AleaQtGraphicalConnector(QtGui.QGraphicsWidget):
     """ A node connector """
     WIDTH =  10
     HEIGHT = 10
 
+    __size = QtCore.QSizeF(WIDTH, 
+                           HEIGHT)
+
     def __init__(self, parent, index, connector):
         """
         """
-        
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QGraphicsWidget.__init__(self, parent)
         self.__index = index
-
         self.observed = weakref.ref(connector)
-        self.edge_list = [] #used to refresh edges when connector moves.
         connector.get_ad_hoc_dict().add_metadata("canvasPosition", list)
         connector.set_id(index)
 
     def canvas_position(self):
-        pos = QtCore.QPointF(self.rect().center()) + QtCore.QPointF(self.pos()) + \
-            QtCore.QPointF(self.parent().get_container().scenePos())
+        pos = self.rect().center() + self.scenePos()
         return[pos.x(), pos.y()]
         
-    def update_meta_canvas_position(self):
+    def update_canvas_position(self):
         self.observed().get_ad_hoc_dict().set_metadata("canvasPosition", 
-                                                    self.canvas_position())
+                                                       self.canvas_position())
         
     def get_index(self):
         return self.__index
+
 
     ##################
     # QtWorld-Layout #
     ##################
 
     def size(self):
-        return QtCore.QSize(self.WIDTH, self.HEIGHT)
+        return self.__size
 
-    def sizeHint(self):
-        return QtCore.QSize(self.WIDTH, self.HEIGHT)
+    def sizeHint(self, blop, blip):
+        return self.__size
 
     def minimumSizeHint(self):
-        return QtCore.QSize(self.WIDTH, self.HEIGHT)
+        return self.__size
 
     def sizePolicy(self):
         return QtGui.QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -328,22 +236,14 @@ class AleaQtGraphicalConnector(QtGui.QWidget):
     ##################
     # QtWorld-Events #
     ##################
-
     def mousePressEvent(self, event):
-        graphview = self.parent().get_container().scene().views()[0]
+        graphview = self.parentItem().scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):
             graphview.new_edge_start(self.canvas_position())
             return
-        #QtGui.QWidget.mousePressEvent(self, event)
-        #event.setAccepted(False)
 
-    def mouseMoveEvent(self, event):
-        "connector mouseMoveEvent"
-
-
-    def paintEvent(self, paintEvent):
+    def paint(self, painter, option, widget):
         size = self.size()
-        painter = QtGui.QPainter(self)
         
         painter.setBackgroundMode(QtCore.Qt.TransparentMode)
         gradient = QtGui.QLinearGradient(0, 0, 10, 0)
@@ -353,3 +253,4 @@ class AleaQtGraphicalConnector(QtGui.QWidget):
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
         painter.drawEllipse(1,1,size.width()-2,size.height()-2)
+

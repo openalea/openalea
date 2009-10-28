@@ -326,6 +326,13 @@ class Node(AbstractNode):
     def get_internal_dict(self):
         return self.__internal_dict
 
+    def get_state(self):
+        state="node_normal"
+        if self.internal_data["lazy"]: state = "node_lazy"
+        if self.internal_data["block"]: state = "node_blocked"
+        if self.internal_data["is_in_error_state"]: state = "node_error"
+        if self.internal_data["is_user_application"]: state = "node_is_user_app"
+        return state
 
     def notify(self, sender, event):
         if(sender == self.__internal_dict):

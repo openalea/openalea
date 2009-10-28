@@ -123,7 +123,9 @@ class GraphView(node_widget.SignalSlotListener):
         self.set_annotation_widget_type(stratCls.get_annotation_widget_type())
         self.set_direction_vector(stratCls.get_direction_vector())
 
+        #an edge currently being drawn, low-level detail.
         self.__newEdge = None
+
 
     def get_scene(self):
         raise NotImplementedError
@@ -178,7 +180,17 @@ class GraphView(node_widget.SignalSlotListener):
 
     ###############################################################
     # Controller methods come next. They DO NOT modify the model. #
-    ###############################################################        
+    ###############################################################
+    def add_node(self, node, position=None):
+        self.observed().add_node(node)
+        if(position):
+            node.get_ad_hoc_dict().set_metadata("position", position)
+
+    def remove_nodes(self, nodes):
+        for node in nodes:
+            self.observed().remove_node(node)
+
+    #---Low-Level Edge Interaction---
     def is_creating_edge(self):
         return True if self.__newEdge else False
     

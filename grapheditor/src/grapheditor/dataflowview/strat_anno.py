@@ -48,31 +48,6 @@ class AleaQtGraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphView
     ############
     # QT WORLD #
     ############
-    def mouseDoubleClickEvent(self, event):
-        """ todo """
-        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
-        self.setSelected(True)
-        self.setFocus()
-        cursor = self.textCursor()
-        cursor.select(QtGui.QTextCursor.Document)
-        self.setTextCursor(cursor)
-
-    def focusOutEvent(self, event):
-        """ todo """
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
-
-        # unselect text
-        cursor = self.textCursor ()
-        if(cursor.hasSelection()):
-            cursor.clearSelection()
-            self.setTextCursor(cursor)
-            
-        self.observed().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
-
-        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        return QtGui.QGraphicsTextItem.focusOutEvent(self, event)
-
-    @lock_notify
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
@@ -82,4 +57,8 @@ class AleaQtGraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphView
                                                         False)
 
         return QtGui.QGraphicsItem.itemChange(self, change, value)
+
+    def paint(self, painter, options, widget):
+        QtGui.QGraphicsTextItem.paint(self, painter, options, widget)
+
 
