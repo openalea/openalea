@@ -15,5 +15,5 @@
 ###############################################################################
 
 
-import gengraphview
+import grapheditor_baselisteners
 import dataflowview

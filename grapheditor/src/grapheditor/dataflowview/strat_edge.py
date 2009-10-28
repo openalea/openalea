@@ -14,10 +14,9 @@
 #
 ###############################################################################
 
-import sys, numpy, weakref
+import weakref
 from PyQt4 import QtCore, QtGui
 
-from .. import gengraphview
 from .. import qtgraphview
 from .. import edgefactory
 

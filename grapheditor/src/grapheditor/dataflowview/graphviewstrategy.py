@@ -22,7 +22,7 @@ from openalea.core import node
 import strat_vertex
 import strat_edge
 import strat_anno
-from .. import gengraphview
+from .. import grapheditor_baselisteners
 from .. import qtgraphview
 
 
@@ -193,7 +193,7 @@ if(__name__ != "__main__"):
     node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
     
     #we register this strategy
-    gengraphview.GraphView.register_strategy(GraphViewStrategy)
+    grapheditor_baselisteners.GraphListenerBase.register_strategy(GraphViewStrategy)
     
     #we register the dataflow state drawing strategies
     qtgraphview.QtGraphViewVertex.add_drawing_strategies(vertex_drawing_strategies)

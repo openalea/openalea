@@ -93,6 +93,7 @@ class IGraphViewElement(object):
 #yep, it is the same right now, but it might change in the futur
 IGraphViewVertex = IGraphViewElement 
 
+
 class IGraphViewAnnotation(IGraphViewElement):
     """Interface for Annotations"""
 
@@ -104,8 +105,7 @@ class IGraphViewAnnotation(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        __doc__=IGraphViewElement.notify.__doc__ + \
-            """("MetaDataChanged", "text", "a string", str)"""
+        """("MetaDataChanged", "text", "a string", str)"""
         raise NotImplementedError
 
 
@@ -126,11 +126,10 @@ class IGraphViewEdge(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        __doc__=IGraphViewElement.notify.__doc__ + \
-            """("MetaDataChanged", "canvasPosition", [x,x], list)"""
+        """("MetaDataChanged", "canvasPosition", [x,x], list)"""
         raise NotImplementedError
 
-class IGraphFloatingViewEdge(IGraphViewElement):
+class IGraphViewFloatingEdge(IGraphViewElement):
     """Interface for edges to be drawn during
     creation time, ie while the user drags."""
 
@@ -141,3 +140,4 @@ class IGraphFloatingViewEdge(IGraphViewElement):
         """returns whatever object is under the mouse
         pointer at the time the button was releases"""
         raise NotImplementedError
+

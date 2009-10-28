@@ -21,12 +21,12 @@ import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
-import gengraphview
+import grapheditor_baselisteners
 import edgefactory
 
 
 #------*************************************************------#
-class QtGraphViewElement(gengraphview.GraphViewElement):
+class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     """Base class for elements in a GraphView"""
 
     ####################################
@@ -34,7 +34,7 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
     ####################################    
     def __init__(self, observed=None):
         """Ctor"""
-        gengraphview.GraphViewElement.__init__(self, observed)
+        grapheditor_baselisteners.GraphElementObserverBase.__init__(self, observed)
 
     #################################
     # IGraphViewElement realisation #
@@ -44,14 +44,6 @@ class QtGraphViewElement(gengraphview.GraphViewElement):
 
     def remove_from_view(self, view):
         view.removeItem(self)
-
-    def notify(self, sender, event):
-        """called by the observed when something happens
-        to it."""
-        if(event[0] == "MetaDataChanged"):
-            if(event[1]=="position"):
-                if(event[2]): 
-                    self.position_changed(event[2][0], event[2][1])
 
     def position_changed(self, *args):
         """called when the position of the widget changes"""
@@ -347,12 +339,12 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
 
 
 #------*************************************************------#
-class QtGraphView(QtGui.QGraphicsView, gengraphview.GraphView):
-    """A Qt implementation of GraphView    """
+class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBase):
+    """A Qt implementation of GraphListenerBase    """
 
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
-        gengraphview.GraphView.__init__(self, graph)
+        grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)
 
         scene = QtGui.QGraphicsScene(self)
         #scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)

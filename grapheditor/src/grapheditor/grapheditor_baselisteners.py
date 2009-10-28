@@ -23,7 +23,7 @@ import weakref
 
 from openalea.core import observer
 
-import gengraphview_interfaces
+import grapheditor_interfaces
 
 
 
@@ -38,7 +38,7 @@ class StrategyError( Exception ):
 
 
 
-class GraphViewElement(observer.AbstractListener):
+class GraphElementObserverBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
     
     def __init__(self, observed=None):
@@ -49,6 +49,14 @@ class GraphViewElement(observer.AbstractListener):
         else:
             self.observed = None
         return
+
+    def notify(self, sender, event):
+        """called by the observed when something happens
+        to it."""
+        if(event[0] == "MetaDataChanged"):
+            if(event[1]=="position"):
+                if(event[2]): 
+                    self.position_changed(*event[2])
 
     def clear_observed(self, observed):
         """called when the observed dies."""
@@ -75,7 +83,7 @@ class GraphViewElement(observer.AbstractListener):
 
 
 
-class GraphView(observer.AbstractListener):
+class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.
     It deduces the correct representation out
     of a known list of representations.
@@ -89,16 +97,16 @@ class GraphView(observer.AbstractListener):
     @classmethod
     def register_strategy(cls, stratCls):
         assert isinstance(stratCls, types.TypeType)
-        assert gengraphview_interfaces.IGraphViewStrategies.check(stratCls)
-        assert gengraphview_interfaces.IGraphViewVertex.check(stratCls.get_vertex_widget_type())
-        assert gengraphview_interfaces.IGraphViewEdge.check(stratCls.get_edge_widget_type())
-        assert gengraphview_interfaces.IGraphFloatingViewEdge.check(stratCls.get_floating_edge_widget_type())
-        assert gengraphview_interfaces.IGraphViewAnnotation.check(stratCls.get_annotation_widget_type())
+        assert grapheditor_interfaces.IGraphViewStrategies.check(stratCls)
+        assert grapheditor_interfaces.IGraphViewVertex.check(stratCls.get_vertex_widget_type())
+        assert grapheditor_interfaces.IGraphViewEdge.check(stratCls.get_edge_widget_type())
+        assert grapheditor_interfaces.IGraphViewFloatingEdge.check(stratCls.get_floating_edge_widget_type())
+        assert grapheditor_interfaces.IGraphViewAnnotation.check(stratCls.get_annotation_widget_type())
 
         graphCls = stratCls.get_graph_model_type()
         assert type(graphCls) == types.TypeType
         
-        GraphView.__available_strategies__[graphCls]=stratCls
+        cls.__available_strategies__[graphCls]=stratCls
         return        
 
 
@@ -117,7 +125,7 @@ class GraphView(observer.AbstractListener):
         self._type = None
         self._cosineMatrix = None
 
-        stratCls = GraphView.__available_strategies__.get(graph.__class__,None)
+        stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
 
         self.set_vertex_widget_type(stratCls.get_vertex_widget_type())

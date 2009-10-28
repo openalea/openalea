@@ -16,10 +16,7 @@
 
 from PyQt4 import QtGui, QtCore
 
-import sys
-from .. import gengraphview
 from .. import qtgraphview
-from openalea.core.observer import lock_notify
 
 
 class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnotation):
