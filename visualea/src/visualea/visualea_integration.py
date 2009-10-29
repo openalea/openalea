@@ -17,6 +17,10 @@
 from PyQt4 import QtCore, QtGui
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
+from openalea.grapheditor import qtgraphview
+import weakref,sys
+
+from openalea.visualea.util import open_dialog
 
 #Drag and drop handlers
 def OpenAleaNodeFactoryHandler(view, event):
@@ -87,7 +91,47 @@ mimeDropHandlers = [OpenAleaNodeFactoryHandler, OpenAleaNodeDataPoolHandler]
 def get_drop_mime_handlers():
     return dict(zip(mimeFormats, mimeDropHandlers))
 
+qtgraphview.QtGraphView.set_mime_handler_map(get_drop_mime_handlers())
 
 
+#configuring event handlers
 
-    
+def vertexMouseDoubleClickEvent(widget, event):
+    # Read settings
+    try:
+        localsettings = Settings()
+        str = localsettings.get("UI", "DoubleClick")
+    except:
+        str = "['open']"
+
+    if('open' in str):
+        if(widget._vertexWidget):
+            if(widget.isVisible()):
+                widget.raise_ ()
+                widget.activateWindow ()
+            else:
+                widget.show()
+            return
+            
+        factory = widget.vertex().get_factory()
+        if(not factory) : return
+        # Create the dialog. 
+        # NOTE: WE REQUEST THE MODEL TO CREATE THE DIALOG
+        # THIS IS NOT DESIRED BECAUSE IT COUPLES THE MODEL
+        # TO THE UI.
+        innerWidget = factory.instantiate_widget(widget.vertex(), None)
+
+        if(not innerWidget) : return 
+        if (innerWidget.is_empty()):
+            innerWidget.close()
+            del innerWidget
+            return
+
+        widget._vertexWidget = open_dialog(None, innerWidget, factory.get_id(), False)
+
+
+    if('run' in str):
+        widget.graph.graph().eval_as_expression(widget.vertex().get_id())
+
+qtgraphview.QtGraphViewVertex.set_event_handler("mouseDoubleClickEvent", 
+                                                vertexMouseDoubleClickEvent)

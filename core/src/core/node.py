@@ -1013,7 +1013,6 @@ class NodeFactory(AbstractFactory):
     def instantiate_widget(self, node=None, parent=None,
                             edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node """
-
         # Code Editor
         if(edit):
             from openalea.visualea.code_editor import get_editor

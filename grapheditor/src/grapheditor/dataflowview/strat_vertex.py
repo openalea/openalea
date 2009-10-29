@@ -14,12 +14,11 @@
 #
 ###############################################################################
 
-import weakref
+import weakref,sys
 from PyQt4 import QtCore, QtGui
-
-from .. import qtgraphview 
-from .. import qtutils
-
+from openalea.core.settings import Settings
+from openalea.grapheditor import qtutils
+from openalea.grapheditor import qtgraphview
 
 
 """
@@ -67,6 +66,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
         self.setLayout(layout)
 
+        # ---reference to the widget of this vertex---
+        self._vertexWidget = None
+
         #hack around a Qt4.4 limitation
         self.__inPorts=[]
         self.__outPorts=[]
@@ -83,10 +85,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def __layout_ports(self):
         """ Add connectors """
         self.nb_cin = 0
-        for i,desc in enumerate(self.vertex().input_desc):
+        for desc in self.graph.get_vertex_inputs(self.vertex().get_id()):
             self.__add_in_connection(desc)
-                
-        for i,desc in enumerate(self.vertex().output_desc):
+
+        for desc in self.graph.get_vertex_outputs(self.vertex().get_id()):
             self.__add_out_connection(desc)
 
     def __update_ports_ad_hoc_position(self):
@@ -185,6 +187,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         """Overloaded or else edges are created from the vertex
         not from the ports"""
         QtGui.QGraphicsWidget.mousePressEvent(self, event)
+
 
 
 

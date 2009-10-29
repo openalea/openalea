@@ -25,9 +25,33 @@ import grapheditor_baselisteners
 import edgefactory
 
 
+#__Application_Integration_Keys__
+__AIK__ = [
+    "mouseMoveEvent",
+    "mouseReleaseEvent",
+    "mousePressEvent",
+    "mouseDoubleClickEvent",
+    "keyReleaseEvent",
+    "keyPressEvent",
+    ]
+
+
+
+    
 #------*************************************************------#
 class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     """Base class for elements in a GraphView"""
+
+    ####################################
+    # ----Class members come first---- #
+    ####################################
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+
+    @classmethod
+    def set_event_handler(cls, key, handler):
+        if key in cls.__application_integration__:
+            cls.__application_integration__[key]=handler
+
 
     ####################################
     # ----Instance members follow----  #
@@ -52,6 +76,29 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
         point = QtCore.QPointF(args[0], args[1])
         self.setPos(point)
 
+    def mouseMoveEvent(self, event):
+        handler = self.__application_integration__["mouseMoveEvent"]
+	if handler: handler(self, event)
+
+    def mouseReleaseEvent(self, event):
+        handler = self.__application_integration__["mouseReleaseEvent"]
+	if handler: handler(self, event)
+
+    def mousePressEvent(self, event):
+        handler = self.__application_integration__["mousePressEvent"]
+	if handler: handler(self, event)
+
+    def mouseDoubleClickEvent(self, event):
+        handler = self.__application_integration__["mouseDoubleClickEvent"]
+	if handler: handler(self, event)
+
+    def keyReleaseEvent(self, event):
+        handler = self.__application_integration__["keyReleaseEvent"]
+	if handler: handler(self, event)
+
+    def keyPressEvent(self, event):
+        handler = self.__application_integration__["keyPressEvent"]
+	if handler: handler(self, event)
 
 
 
@@ -70,6 +117,8 @@ class QtGraphViewVertex(QtGraphViewElement):
     @classmethod
     def get_drawing_strategy(cls, state):
         return cls.__state_drawing_strategies__.get(state)
+    
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
 
     ####################################
@@ -177,6 +226,8 @@ class QtGraphViewVertex(QtGraphViewElement):
 class QtGraphViewAnnotation(QtGraphViewElement):
     """A Vertex widget should implement this interface"""
 
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+
     def __init__(self, annotation, graphadapter):
         QtGraphViewElement.__init__(self, annotation, graphadapter)
         return
@@ -227,6 +278,8 @@ class QtGraphViewAnnotation(QtGraphViewElement):
 class QtGraphViewEdge(QtGraphViewElement):
     """Base class for Qt based edges."""
 
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+
     def __init__(self, edge=None, graphadapter=None, src=None, dest=None):
         QtGraphViewElement.__init__(self, edge, graphadapter)
 
@@ -260,18 +313,7 @@ class QtGraphViewEdge(QtGraphViewElement):
             return self.observed()
         else:
             return self.observed
-
-    def shape(self):
-        path = self.edge_path.shape()
-        if not path:
-            return QtGui.QGraphicsPathItem.shape(self)
-        else:
-            return path
         
-    def __update_line(self):
-        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
-        self.setPath(path)
-
     def update_line_source(self, *pos):
         self.sourcePoint = QtCore.QPointF(*pos)
         self.__update_line()
@@ -279,6 +321,10 @@ class QtGraphViewEdge(QtGraphViewElement):
     def update_line_destination(self, *pos):
         self.destPoint = QtCore.QPointF(*pos)
         self.__update_line()
+
+    def __update_line(self):
+        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
+        self.setPath(path)
 
     def notify(self, sender, event):
         if(event[0] == "MetaDataChanged"):
@@ -302,6 +348,13 @@ class QtGraphViewEdge(QtGraphViewElement):
     ############
     # Qt World #
     ############
+    def shape(self):
+        path = self.edge_path.shape()
+        if not path:
+            return QtGui.QGraphicsPathItem.shape(self)
+        else:
+            return path
+
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
 
@@ -321,6 +374,9 @@ class QtGraphViewEdge(QtGraphViewElement):
 
 
 class QtGraphViewFloatingEdge( QtGraphViewEdge ):
+
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+
     def __init__(self, srcPoint, graphadapter):
         QtGraphViewEdge.__init__(self, None, graphadapter, None, None)
         self.sourcePoint = QtCore.QPointF(*srcPoint)
@@ -353,6 +409,30 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
 class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase    """
 
+    ####################################
+    # ----Class members come first---- #
+    ####################################
+    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+    __application_integration__["mimeHandlers"]={}
+    __application_integration__["pressHotkeyMap"]={}
+    __application_integration__["releaseHotkeyMap"]={}
+
+    @classmethod
+    def set_mime_handler_map(cls, mapping):
+        cls.__application_integration__["mimeHandlers"].update(mapping)
+
+    @classmethod
+    def set_keypress_handler_map(cls, mapping):
+        cls.__application_integration__["pressHotkeyMap"] = mapping
+
+    @classmethod
+    def set_keyrelease_handler_map(cls, mapping):
+        cls.__application_integration__["releaseHotkeyMap"] = mapping
+
+    ####################################
+    # ----Instance members follow----  #
+    ####################################   
+
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
         grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)
@@ -370,11 +450,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
-
-        # ---Other stuff used for the user experience---
-        self.__mimeHandlers={}
-        self.__pressHotkeyMap={}
-        self.__releaseHotkeyMap={}
 
     def get_scene(self):
         return self.scene()
@@ -399,36 +474,35 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
             self.new_edge_end()
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
-    def acceptEvent(self, event):
+    def accept_event(self, event):
         """ Return True if event is accepted """
-        for format in self.__mimeHandlers.keys():
-            if event.mimeData().hasFormat(format): return True
-        return False
+        for format in self.__application_integration__["mimeHandlers"].keys():
+            if event.mimeData().hasFormat(format): return format
+        return None
 
     def dragEnterEvent(self, event):
-        event.setAccepted(self.acceptEvent(event))
+        event.setAccepted(True if self.accept_event(event) else False)
             
     def dragMoveEvent(self, event):
-        if (self.acceptEvent(event)):
+        format = self.accept_event(event)
+        if (format):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event):
-        for format in event.mimeData().formats():
-            format = format.toUtf8().data()
-            handler = self.__mimeHandlers.get(format)
-            if(handler):
-                handler(self, event)
-                return
-            else:
-                continue
+        format = self.accept_event(event)
+        handler = self.__application_integration__["mimeHandlers"].get(format)
+        if(handler):
+            handler(self, event)
+            return
+
         QtGui.QGraphicsView.dropEvent(self, event)
 
     def keyPressEvent(self, e):
         combo = e.modifiers().__int__(), e.key()
-        action = self.__pressHotkeyMap.get(combo)
+        action = self.__application_integration__["pressHotkeyMap"].get(combo)
         if(action):
             action.press(self, event)
         else:
@@ -436,7 +510,7 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
 
     def keyReleaseEvent(self, e):
         combo = e.modifiers().__int__(), e.key()
-        action = self.__releaseHotkeyMap.get(combo)
+        action = self.__application_integration__["releaseHotkeyMap"].get(combo)
         if(action):
             action.release(self, event)
         else:
@@ -446,24 +520,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     #########################
     # Other utility methods #
     #########################
-    def set_mime_handler_map(self, mapping):
-        self.__mimeHandlers = mapping
-
-    def get_mime_handler_map(self):
-        return self.__mimeHandlers
-
-    def set_keypress_handler_map(self, mapping):
-        self.__pressHotkeyMap = mapping
-
-    def get_keypress_handler_map(self):
-        return self.__pressHotkeyMap
-
-    def set_keyrelease_handler_map(self, mapping):
-        self.__releaseHotkeyMap = mapping
-
-    def get_keyrelease_handler_map(self):
-        return self.__releaseHotkeyMap
-
     def scale_view(self, factor):
         self.scale(factor, factor)
 

@@ -41,7 +41,7 @@ from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 from openalea.visualea.util import exception_display, busy_cursor
 
 from openalea.grapheditor import qtgraphview
-from openalea.grapheditor import visualea_integration
+import visualea_integration
 
 
 
@@ -364,7 +364,6 @@ class MainWindow(QtGui.QMainWindow,
         try:
             gwidget = qtgraphview.QtGraphView(self, node)
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            gwidget.set_mime_handler_map(visualea_integration.get_drop_mime_handlers())
             vboxlayout.setSpacing(0)
             vboxlayout.addWidget(gwidget)
         except Exception, e:
