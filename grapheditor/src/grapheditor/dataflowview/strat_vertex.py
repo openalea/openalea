@@ -31,9 +31,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
 
-    def __init__(self, vertex, parent=None):
+    def __init__(self, vertex, graphadapter, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
-        qtgraphview.QtGraphViewVertex.__init__(self, vertex)
+        qtgraphview.QtGraphViewVertex.__init__(self, vertex, graphadapter)
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
@@ -83,30 +83,26 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def __layout_ports(self):
         """ Add connectors """
         self.nb_cin = 0
-        for i,desc in enumerate(self.observed().input_desc):
-            self.__add_in_connection(i, desc)
+        for i,desc in enumerate(self.vertex().input_desc):
+            self.__add_in_connection(desc)
                 
-        for i,desc in enumerate(self.observed().output_desc):
-            self.__add_out_connection(i, desc)
+        for i,desc in enumerate(self.vertex().output_desc):
+            self.__add_out_connection(desc)
 
     def __update_ports_ad_hoc_position(self):
         """the canvas position held in the adhoc dict of the ports has to be changed
         from here since the port items, being childs, don't receive moveEvents..."""
-        [port().update_canvas_position() for port in self.__inPorts+self.__outPorts]        
-
-    def __add_connection(self, index, connector, layout):
-        graphicalConn = GraphicalConnector(self, index, connector)
-        layout.addItem(graphicalConn)
-        layout.setAlignment(graphicalConn, QtCore.Qt.AlignHCenter)
-        return graphicalConn
+        [port.update_canvas_position() for port in self.__inPorts+self.__outPorts]        
         
-    def __add_in_connection(self, index, connector):
-        port = weakref.ref(self.__add_connection(index, connector, self._inConnectorLayout))
-        self.__inPorts.append(port)
+    def __add_in_connection(self, connector):
+        graphicalConn = GraphicalConnector(self, connector)
+        self._inConnectorLayout.addItem(graphicalConn)
+        self.__inPorts.append(graphicalConn)
 
-    def __add_out_connection(self, index, connector):
-        port = weakref.ref(self.__add_connection(index, connector, self._outConnectorLayout))
-        self.__outPorts.append(port)
+    def __add_out_connection(self, connector):
+        graphicalConn = GraphicalConnector(self, connector)
+        self._outConnectorLayout.addItem(graphicalConn)
+        self.__outPorts.append(graphicalConn)
 
 
     ####################
@@ -132,12 +128,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         """ Sets the tooltip displayed by the vertex item. Doesn't change
         the data."""
         try:
-            vertex_name = self.observed().factory.name
+            vertex_name = self.vertex().factory.name
         except:
-            vertex_name = self.observed().__class__.__name__
+            vertex_name = self.vertex().__class__.__name__
 
         try:
-            pkg_name = self.observed().factory.package.get_id()
+            pkg_name = self.vertex().factory.package.get_id()
         except:
             pkg_name = ''
 
@@ -146,8 +142,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
             doc = [x.strip() for x in doc] 
             doc = '\n'.join(doc)
         else:
-            if(self.observed().factory):
-                doc = self.observed().factory.description
+            if(self.vertex().factory):
+                doc = self.vertex().factory.description
         
         # here, we could process the doc so that the output is nicer 
         # e.g., doc.replace(":params","Parameters ") and so on
@@ -170,7 +166,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     # ----Qt World overloads----  #
     ###############################
     def select_drawing_strategy(self, state):
-        if self.observed().get_ad_hoc_dict().get_metadata("use_user_color"):
+        if self.vertex().get_ad_hoc_dict().get_metadata("use_user_color"):
             return qtgraphview.QtGraphViewVertex.select_drawing_strategy(self, "use_user_color")
         else:
             return qtgraphview.QtGraphViewVertex.select_drawing_strategy(self, state)
@@ -201,26 +197,25 @@ class GraphicalConnector(QtGui.QGraphicsWidget):
     __size = QtCore.QSizeF(WIDTH, 
                            HEIGHT)
 
-    def __init__(self, parent, index, connector):
+    def __init__(self, parent, connector):
         """
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
-        self.__index = index
         self.observed = weakref.ref(connector)
         connector.get_ad_hoc_dict().add_metadata("canvasPosition", list)
-        connector.set_id(index)
+        connector.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
+
+    def port(self):
+            return self.observed()
 
     def canvas_position(self):
         pos = self.rect().center() + self.scenePos()
         return[pos.x(), pos.y()]
         
     def update_canvas_position(self):
-        self.observed().get_ad_hoc_dict().set_metadata("canvasPosition", 
-                                                       self.canvas_position())
+        self.port().get_ad_hoc_dict().set_metadata("canvasPosition", 
+                                                   self.canvas_position())
         
-    def get_index(self):
-        return self.__index
-
 
     ##################
     # QtWorld-Layout #

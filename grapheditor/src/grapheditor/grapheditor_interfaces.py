@@ -65,7 +65,76 @@ class IGraphViewStrategies(object):
         that represents an annotation"""
         raise NotImplementedError
 
+    @classmethod
+    def get_graph_adapter_type(cls):
+        """Return a classobj defining the type of widget
+        that represents an annotation"""
+        raise NotImplementedError
 
+#------*************************************************------#
+class IGraphListener(object):
+    __metaclass__ = interface.IInterfaceMetaClass
+
+    def vertex_added(self, vertexModel):
+        raise NotImplementedError
+
+    def edge_added(self, edgeModel, srcPort, dstPort):
+        raise NotImplementedError
+
+    def annotation_added(self, annotation):
+        raise NotImplementedError
+
+    def vertex_removed(self, vertexModel):
+        raise NotImplementedError
+
+    def edge_removed(self, edgeModel):
+        raise NotImplementedError
+
+    def annotation_removed(self, annotation):
+        raise NotImplementedError
+
+#------*************************************************------#
+class IGraphAdapter(object):
+    __metaclass__ = interface.IInterfaceMetaClass
+
+    def add_vertex(self, *args, **kargs):
+        NotImplementedError
+
+    def get_vertex(self, *args, **kargs):
+        raise NotImplementedError
+
+    def remove_vertex(self, *args, **kargs):
+        raise NotImplementedError
+
+    def remove_vertices(self, *args, **kargs):
+        raise NotImplementedError
+
+    def get_vertex_inputs(self, *args, **kargs):
+        raise NotImplementedError
+
+    def get_vertex_outputs(self, *args, **kargs):
+        raise NotImplementedError
+
+    def get_vertex_input(self, *args, **kargs):
+        raise NotImplementedError
+
+    def get_vertex_output(self, *args, **kargs):
+        raise NotImplementedError
+
+    def add_edge(self, *args, **kargs):
+        raise NotImplementedError
+
+    def remove_edge(self, *args, **kargs):
+        raise NotImplementedError
+
+    def is_input(self, *args, **kargs):
+        raise NotImplementedError
+
+    def is_output(self, *args, **kargs):
+        raise NotImplementedError
+
+
+#------*************************************************------#
 class IGraphViewElement(object):
     """Base class for elements in a GraphView"""
     __metaclass__ = interface.IInterfaceMetaClass
@@ -89,17 +158,14 @@ class IGraphViewElement(object):
         """
         raise NotImplementedError
 
-
+#------*************************************************------#
 #yep, it is the same right now, but it might change in the futur
 IGraphViewVertex = IGraphViewElement 
 
 
+#------*************************************************------#
 class IGraphViewAnnotation(IGraphViewElement):
     """Interface for Annotations"""
-
-    def __init__(self, annotation):
-        raise NotImplementedError
-
     def set_text(self, text):
         """to change the visible text"""
         raise NotImplementedError
@@ -108,13 +174,9 @@ class IGraphViewAnnotation(IGraphViewElement):
         """("MetaDataChanged", "text", "a string", str)"""
         raise NotImplementedError
 
-
+#------*************************************************------#
 class IGraphViewEdge(IGraphViewElement):
     """Interface for edges between two vertexs."""
-
-    def __init__(self, edge, src, dest):
-        raise NotImplementedError
-
     def update_line_source(self, *pos):
         """updates this edge's starting point. Called when
         source point is moved"""
@@ -129,6 +191,7 @@ class IGraphViewEdge(IGraphViewElement):
         """("MetaDataChanged", "canvasPosition", [x,x], list)"""
         raise NotImplementedError
 
+#------*************************************************------#
 class IGraphViewFloatingEdge(IGraphViewElement):
     """Interface for edges to be drawn during
     creation time, ie while the user drags."""

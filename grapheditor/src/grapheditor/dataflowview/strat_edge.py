@@ -20,8 +20,6 @@ from PyQt4 import QtCore, QtGui
 from .. import qtgraphview
 from .. import edgefactory
 
-import openalea.core.node
-
 
 class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
     """
@@ -31,17 +29,9 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
     interaction
     """
 
-    def __init__(self, srcPoint):
+    def __init__(self, srcPoint, graphadapter):
         QtGui.QGraphicsPathItem.__init__(self, None)
-        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint)
-
-    def consolidate(self, model):
-        try:
-            srcVertex, idSrc, dstVertex, idDst = self.get_connections()
-            model.connect(srcVertex.get_id(), idSrc, dstVertex.get_id(), idDst)
-        except Exception, e:
-            print "consolidation failed :", e
-        return
+        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint, graphadapter)
         
     def get_connections(self):
         #find the port items that were activated
@@ -53,19 +43,19 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
         dstVertexItem = dstPortItem.parentItem()
 
         #if the input and the output are on the same vertex...
-        if(srcPortItem.observed().vertex() == dstPortItem.observed().vertex()):
+        if(srcPortItem.port().vertex() == dstPortItem.port().vertex()):
             raise Exception("Nonsense connection : plugging self to self.")            
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
-        if( isinstance(srcPortItem.observed(), openalea.core.node.OutputPort) and
-            isinstance(dstPortItem.observed(), openalea.core.node.InputPort)):
-            return srcVertexItem.observed(), srcPortItem.get_index(), \
-                dstVertexItem.observed(), dstPortItem.get_index()
-        elif( isinstance(srcPortItem.observed(), openalea.core.node.InputPort) and
-              isinstance(dstPortItem.observed(), openalea.core.node.OutputPort)):
-            return dstVertexItem.observed(), dstPortItem.get_index(), \
-                srcVertexItem.observed(), srcPortItem.get_index()
+        if( self.graph.is_output(srcPortItem.port()) and 
+            self.graph.is_input(dstPortItem.port())):
+            return (srcVertexItem.vertex(), srcPortItem.port()), \
+                (dstVertexItem.vertex(), dstPortItem.port())
+        elif( self.graph.is_input(srcPortItem.port()) and 
+              self.graph.is_output(dstPortItem.port())):
+            return (dstVertexItem.vertex(), dstPortItem.port()), \
+                (srcVertexItem.vertex(), srcPortItem.port())
         else:
             raise Exception("Nonsense connection : " + \
                                 "plugging input to input or output to output")
@@ -74,27 +64,22 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
 class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
     """ An edge between two graphical vertices """
         
-    def __init__(self, edgeModel, port1, port2, parent=None):
+    def __init__(self, edgeModel, graphadapter, port1, port2, parent=None):
         """ """
         QtGui.QGraphicsPathItem.__init__(self, parent)
-        qtgraphview.QtGraphViewEdge.__init__(self, edgeModel, port1, port2)
+        qtgraphview.QtGraphViewEdge.__init__(self, edgeModel, graphadapter, port1, port2)
         self.initialise_from_model()
 
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
-
         menu = QtGui.QMenu(self.scene().views()[0])
-
         action = menu.addAction("Delete connection")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
-        
         menu.move(event.screenPos())
         menu.show()
-
         event.accept()
         
     def remove(self):
-        view = self.scene().views()[0]
-        view.observed().disconnect(self.src().vertex().get_id(), self.src().get_id(),
-                                   self.dst().vertex().get_id(), self.dst().get_id())
+        self.graph.remove_edge( (self.src().vertex(), self.src()),
+                                (self.dst().vertex(), self.dst()) )

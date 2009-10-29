@@ -41,14 +41,24 @@ class StrategyError( Exception ):
 class GraphElementObserverBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
     
-    def __init__(self, observed=None):
+    def __init__(self, observed=None, graphadapter=None):
         observer.AbstractListener.__init__(self)
         if(observed and isinstance(observed, observer.Observed)):
             self.initialise(observed)
             self.observed = weakref.ref(observed, self.clear_observed)
         else:
-            self.observed = None
+            self.observed = observed
+
+        self.set_graph_adapter(graphadapter)
         return
+
+    def set_graph_adapter(self, adapter):
+        self.__adapter = weakref.ref(adapter)
+
+    def get_graph_adapter(self):
+        return self.__adapter()
+
+    graph = property(get_graph_adapter)
 
     def notify(self, sender, event):
         """called by the observed when something happens
@@ -102,6 +112,7 @@ class GraphListenerBase(observer.AbstractListener):
         assert grapheditor_interfaces.IGraphViewEdge.check(stratCls.get_edge_widget_type())
         assert grapheditor_interfaces.IGraphViewFloatingEdge.check(stratCls.get_floating_edge_widget_type())
         assert grapheditor_interfaces.IGraphViewAnnotation.check(stratCls.get_annotation_widget_type())
+        assert grapheditor_interfaces.IGraphAdapter.check(stratCls.get_graph_adapter_type())
 
         graphCls = stratCls.get_graph_model_type()
         assert type(graphCls) == types.TypeType
@@ -132,6 +143,7 @@ class GraphListenerBase(observer.AbstractListener):
         self.set_edge_widget_type(stratCls.get_edge_widget_type())
         self.set_floating_edge_widget_type(stratCls.get_floating_edge_widget_type())
         self.set_annotation_widget_type(stratCls.get_annotation_widget_type())
+        self.set_graph_adapter(stratCls.get_graph_adapter_type()(graph))
         self.set_direction_vector(stratCls.get_direction_vector())
 
         #an edge currently being drawn, low-level detail.
@@ -154,19 +166,19 @@ class GraphListenerBase(observer.AbstractListener):
         elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
 
     def vertex_added(self, vertexModel):
-        vertexWidget = self._vertexWidgetType(vertexModel)
+        vertexWidget = self._vertexWidgetType(vertexModel, self.__adapter)
         vertexWidget.add_to_view(self.get_scene())
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return
 
     def edge_added(self, edgeModel, srcPort, dstPort):
-        edgeWidget = self._edgeWidgetType(edgeModel, srcPort, dstPort)
+        edgeWidget = self._edgeWidgetType(edgeModel, self.__adapter, srcPort, dstPort)
         edgeWidget.add_to_view(self.get_scene())
         self.edgemap[edgeModel] = weakref.ref(edgeWidget)
         return
 
     def annotation_added(self, annotation):
-        annoWidget = self._annoWidgetType(annotation)
+        annoWidget = self._annoWidgetType(annotation, self.__adapter)
         annoWidget.add_to_view(self.get_scene())
         self.annomap[annotation] = weakref.ref(annoWidget)
         return
@@ -189,27 +201,15 @@ class GraphListenerBase(observer.AbstractListener):
         del self.annomap[annotation]
         return
 
-    ###############################################################
-    # Controller methods come next. They DO NOT modify the model. #
-    ###############################################################
-    def add_vertex(self, vertex, *args, **kwargs):
-        args = list(args)
-        args.append(None)
-        self.observed().add_vertex(vertex, *args)
-        position = kwargs.get("position")
-        if(position):
-            vertex.get_ad_hoc_dict().set_metadata("position", position)
-
-    def remove_vertices(self, vertices):
-        for vertex in vertices:
-            self.observed().remove_vertex(vertex)
-
+    ###########################################################
+    # Controller methods come next. They DO MODIFY the model. #
+    ###########################################################
     #---Low-Level Edge Interaction---
     def is_creating_edge(self):
         return True if self.__newEdge else False
     
     def new_edge_start(self, srcPt):
-        self.__newEdge = self._floatingEdgeWidgetType(srcPt)
+        self.__newEdge = self._floatingEdgeWidgetType(srcPt, self.__adapter)
         self.new_edge_scene_init(self.__newEdge)
     
     def new_edge_scene_init(self, edge):
@@ -222,7 +222,7 @@ class GraphListenerBase(observer.AbstractListener):
     def new_edge_end(self):
         if(self.__newEdge):
             try:
-                self.__newEdge.consolidate(self.observed())
+                self.__newEdge.consolidate(self.__adapter)
             except Exception, e :
                 pass
             finally:
@@ -254,3 +254,13 @@ class GraphListenerBase(observer.AbstractListener):
         a vector giving the Y direction. The matrix 
         will be used to place graph verticess on the screen."""
         assert type(vector) == types.TupleType
+
+    def set_graph_adapter(self, adapter):
+        assert grapheditor_interfaces.IGraphAdapter.check(adapter)
+        self.__adapter = adapter
+
+    def get_graph_adapter(self):
+        return self.__adapter
+
+    graph = property(get_graph_adapter)
+    

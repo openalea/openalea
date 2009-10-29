@@ -67,13 +67,7 @@ else:
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
 
-
-# scons build-prefix 
-#(to be kept only if you contruct C/C++ binaries)
-
 build_prefix = "build-scons"
-
-
 
 # setup function call
 #

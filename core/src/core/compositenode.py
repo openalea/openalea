@@ -187,7 +187,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Set continuous evaluation
         for vid in cont_eval:
-            new_df.set_continuous_eval(vid, True)
+             new_df.set_continuous_eval(vid, True)
 
 
         # Set call stack to its original state
@@ -217,12 +217,15 @@ class CompositeNodeFactory(AbstractFactory):
 
         n = Node()
         n.__color__ = (250, 100, 100)
+        #gengraph
         for p in range(ins+1):
-            n.add_input(name="In"+str(p))
+            port = n.add_input(name="In"+str(p))
+            port.set_id(p)
 
         for p in range(outs+1):
-            n.add_output(name="Out"+str(p))
-
+            port = n.add_output(name="Out"+str(p))
+            port.set_id(p)
+        #/gengraph
         n.internal_data.update(self.elt_data[vid])
 
         return n
@@ -788,7 +791,7 @@ class CompositeNode(Node, DataFlow):
 
         :return: the id
         """
-        vid = DataFlow.add_vertex(self, vid)
+        vid = self.add_vertex(vid)
 
         for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
@@ -808,23 +811,23 @@ class CompositeNode(Node, DataFlow):
 
         return vid
 
-    #gengraph
-    def add_vertex(self, *args):
-        #this is a big ugly hack to have the correct API
-        #for the GraphEditor module but keep internal
-        #behaviour as before. Not-fool-proof, even barely
-        #working. Should be fixed by the adapter classes
-        #that will come soon.
-        vid = None
-        argnum = len(args)
-        if argnum>1:
-            args = args[0:argnum-1]
-            vid = self.add_node(*args)
-        elif argnum==1:
-            vtx_id=args[0]
-            vid = DataFlow.add_vertex(self, vtx_id)
-        return vid
-    #/gengraph
+#    #gengraph
+#     def add_vertex(self, *args):
+#         #this is a big ugly hack to have the correct API
+#         #for the GraphEditor module but keep internal
+#         #behaviour as before. Not-fool-proof, even barely
+#         #working. Should be fixed by the adapter classes
+#         #that will come soon.
+#         vid = None
+#         argnum = len(args)
+#         if argnum>1:
+#             args = args[0:argnum-1]
+#             vid = self.add_node(*args)
+#         elif argnum==1:
+#             vtx_id=args[0]
+#             vid = DataFlow.add_vertex(self, vtx_id)
+#         return vid
+#     #/gengraph
 
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
@@ -848,14 +851,11 @@ class CompositeNode(Node, DataFlow):
             return
         self.remove_vertex(vtx_id)
 
-        self.notify_listeners(("graph_modified", ))
-        self.graph_modified = True
-
     #gengraph
-    def remove_vertex(self, vtx_id):
-        DataFlow.remove_vertex(self, vtk_id)
         self.notify_listeners(("vertexRemoved", self.node(vtx_id)))
     #/gengraph
+        self.notify_listeners(("graph_modified", ))
+        self.graph_modified = True
 
     #gengraph
     def simulate_construction_notifications(self):
@@ -1023,9 +1023,12 @@ class CompositeNodeInput(Node):
         """
 
         Node.__init__(self)
-
-        for d in inputs:
-            self.add_output(**d)
+        
+        #gengraph
+        for i, d in enumerate(inputs):
+            port = self.add_output(**d)
+            port.set_id(i)
+        #/gengraph
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 5
@@ -1054,8 +1057,11 @@ class CompositeNodeOutput(Node):
         """
         Node.__init__(self)
 
-        for d in outputs:
-            self.add_input(**d)
+        #gengraph
+        for i, d in enumerate(outputs):
+            port = self.add_input(**d)
+            port.set_id(i)
+        #/gengraph
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 250

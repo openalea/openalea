@@ -32,9 +32,11 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     ####################################
     # ----Instance members follow----  #
     ####################################    
-    def __init__(self, observed=None):
+    def __init__(self, observed=None, graphadapter=None):
         """Ctor"""
-        grapheditor_baselisteners.GraphElementObserverBase.__init__(self, observed)
+        grapheditor_baselisteners.GraphElementObserverBase.__init__(self, 
+                                                                    observed, 
+                                                                    graphadapter)
 
     #################################
     # IGraphViewElement realisation #
@@ -73,9 +75,12 @@ class QtGraphViewVertex(QtGraphViewElement):
     ####################################
     # ----Instance members follow----  #
     ####################################    
-    def __init__(self, vertex):
-        QtGraphViewElement.__init__(self, vertex)
+    def __init__(self, vertex, graphadapter):
+        QtGraphViewElement.__init__(self, vertex, graphadapter)
         return
+
+    def vertex(self):
+        return self.observed()
 
     #####################
     # ----Qt World----  #
@@ -153,13 +158,11 @@ class QtGraphViewVertex(QtGraphViewElement):
         point = self.scenePos()
         self.observed().get_ad_hoc_dict().set_metadata('position', 
                                                         [point.x(), point.y()], False)
-        QtGui.QGraphicsWidget.polishEvent(self)
 
     def moveEvent(self, event):
         point = event.newPos()
         self.observed().get_ad_hoc_dict().set_metadata('position', 
                                                         [point.x(), point.y()], False)
-        QtGui.QGraphicsWidget.moveEvent(self, event)    
 
     def mousePressEvent(self, event):
         graphview = self.scene().views()[0]
@@ -174,9 +177,12 @@ class QtGraphViewVertex(QtGraphViewElement):
 class QtGraphViewAnnotation(QtGraphViewElement):
     """A Vertex widget should implement this interface"""
 
-    def __init__(self, annotation):
-        QtGraphViewElement.__init__(self, annotation)
+    def __init__(self, annotation, graphadapter):
+        QtGraphViewElement.__init__(self, annotation, graphadapter)
         return
+
+    def annotation(self):
+        return self.observed()
 
     def set_text(self, text):
         """to change the visible text, not the model text"""
@@ -189,9 +195,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
 
         QtGraphViewElement.notify(self, sender, event)
 
-    ############
-    # Qt World #
-    ############
+
     # ---->controllers
     def mouseDoubleClickEvent(self, event):
         """ todo """
@@ -217,12 +221,14 @@ class QtGraphViewAnnotation(QtGraphViewElement):
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
 
+
+
 #------*************************************************------#
 class QtGraphViewEdge(QtGraphViewElement):
     """Base class for Qt based edges."""
 
-    def __init__(self, edge=None, src=None, dest=None):
-        QtGraphViewElement.__init__(self, edge)
+    def __init__(self, edge=None, graphadapter=None, src=None, dest=None):
+        QtGraphViewElement.__init__(self, edge, graphadapter)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
@@ -248,6 +254,12 @@ class QtGraphViewEdge(QtGraphViewElement):
                                QtCore.Qt.SolidLine,
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
+
+    def edge(self):
+        if isinstance(self.observed, weakref):
+            return self.observed()
+        else:
+            return self.observed
 
     def shape(self):
         path = self.edge_path.shape()
@@ -309,17 +321,17 @@ class QtGraphViewEdge(QtGraphViewElement):
 
 
 class QtGraphViewFloatingEdge( QtGraphViewEdge ):
-    def __init__(self, srcPoint):
-        QtGraphViewEdge.__init__(self, None, None, None)
+    def __init__(self, srcPoint, graphadapter):
+        QtGraphViewEdge.__init__(self, None, graphadapter, None, None)
         self.sourcePoint = QtCore.QPointF(*srcPoint)
 
     def notify(self, sender, event):
         return
 
-    def consolidate(self, model):
+    def consolidate(self, graph):
         try:
             srcVertex, dstVertex = self.get_connections()
-            model.connect(srcVertex, dstVertex)
+            graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
             print "consolidation failed :", e
         return
@@ -334,7 +346,6 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
             raise Exception("Nonsense connection : plugging self to self.")            
 
         return srcVertexItem.observed(), dstVertexItem.observed()
-
 
 
 

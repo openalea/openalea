@@ -19,7 +19,14 @@ from PyQt4 import QtCore, QtGui
 class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
     def __init__(self, widget, parent=None):
         QtGui.QGraphicsProxyWidget.__init__(self, parent)
-        self.setWidget(widget)
+        dummy=QtGui.QWidget()
+        dummy.setContentsMargins(0,0,0,0)
+        layout=QtGui.QGridLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(widget,0,0,
+                         QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        dummy.setLayout(layout)
+        self.setWidget(dummy)
 
     ############
     # QT WORLD #

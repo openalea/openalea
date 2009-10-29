@@ -155,7 +155,7 @@ class AbstractNode(Observed, AbstractListener):
 #gengraph
 #AbstractPort cannot be a dict, because
 #it then becomes unhashable and cannot
-#be an observer.
+#be an observer (needs to be weakrefed)
 #/gengraph
 class AbstractPort(Observed, AbstractListener):
     """
@@ -169,7 +169,7 @@ class AbstractPort(Observed, AbstractListener):
 
         #gengraph
         self.vertex = ref(vertex)
-        self._id = None
+        self.__id = None
         self.__ad_hoc_dict = metadatadict.MetaDataDict()
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
@@ -484,12 +484,14 @@ class Node(AbstractNode):
 
         # Process in and out
         if(inputs):
-            for d in inputs:
-                self.add_input(**d)
+            for i, d in enumerate(inputs):
+                port = self.add_input(**d)
+                port.set_id(i)
 
         if(outputs):
-            for d in outputs:
-                self.add_output(**d)
+            for i, d in enumerate(outputs):
+                port = self.add_output(**d)
+                port.set_id(i)
 
     def add_input(self, **kargs):
         """ Create an input port """
@@ -519,6 +521,7 @@ class Node(AbstractNode):
         self.map_index_in[index] = index
 
         self.set_input(name, value, False)
+        return port
 
     def add_output(self, **kargs):
         """ Create an output port """
@@ -534,6 +537,7 @@ class Node(AbstractNode):
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index
+        return port
 
     # I/O Functions
 

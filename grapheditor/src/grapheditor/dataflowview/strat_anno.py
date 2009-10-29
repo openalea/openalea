@@ -22,10 +22,10 @@ from .. import qtgraphview
 class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnotation):
     """ Text annotation on the data flow """
 
-    def __init__(self, annotation, parent=None):
+    def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
         QtGui.QGraphicsTextItem.__init__(self, parent)
-        qtgraphview.QtGraphViewAnnotation.__init__(self, annotation)
+        qtgraphview.QtGraphViewAnnotation.__init__(self, annotation, graphadapter)
 
         # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
@@ -41,21 +41,5 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnota
 
     def set_text(self, text):
         self.setPlainText(text)
-            
-    ############
-    # QT WORLD #
-    ############
-    def itemChange(self, change, value):
-        """ Callback when item has been modified (move...) """
-        if (change == QtGui.QGraphicsItem.ItemPositionChange):
-            point = value.toPointF()
-            self.observed().get_ad_hoc_dict().set_metadata("position" ,
-                                                        [point.x(), point.y(), 1], 
-                                                        False)
-
-        return QtGui.QGraphicsItem.itemChange(self, change, value)
-
-    def paint(self, painter, options, widget):
-        QtGui.QGraphicsTextItem.paint(self, painter, options, widget)
 
 

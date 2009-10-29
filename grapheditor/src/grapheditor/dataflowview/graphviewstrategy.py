@@ -16,12 +16,12 @@
 """Trait to create a DataFlow, similar to what currently exists in OpenAlea"""
 
 from PyQt4 import QtCore, QtGui
-from openalea.core import interface
 from openalea.core import compositenode
 from openalea.core import node
 import strat_vertex
 import strat_edge
 import strat_anno
+import graph_adapter
 from .. import grapheditor_baselisteners
 from .. import qtgraphview
 
@@ -57,12 +57,17 @@ class GraphViewStrategy(object):
         that represents an edge"""
         return strat_edge.FloatingEdge
 
-
     @classmethod
     def get_annotation_widget_type(cls):
         """Return a classobj defining the type of widget
         that represents an annotation"""
         return strat_anno.GraphicalAnnotation
+
+    @classmethod
+    def get_graph_adapter_type(cls):
+        """Return a classobj defining the type of widget
+        that represents an annotation"""
+        return graph_adapter.GraphAdapter
 
 
 
