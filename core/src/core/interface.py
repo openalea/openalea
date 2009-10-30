@@ -62,7 +62,7 @@ class IInterfaceMetaClass(type):
 
     all = [] # all interfaces
     def __new__(cls, name, bases, dict):
-        dict["check"] = IInterfaceMetaClass.check
+        dict["check"] = classmethod(IInterfaceMetaClass.check)
         newCls = type.__new__(cls, name, bases, dict)
 
         ###--CONTRACT CHECKING INFRASTRUCTURE---
@@ -86,7 +86,9 @@ class IInterfaceMetaClass(type):
 
     def __init__(cls, name, bases, dic):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
-        cls.check = classmethod(cls.check)
+        #print cls.check.func_code.co_argcount
+        #cls.check = classmethod(cls.check)
+        #print cls.check.func_code.co_argcount
 
         if( hasattr(cls, "__pytype__") ):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
@@ -363,3 +365,4 @@ class IInterfaceWidget(AbstractListener):
     def notify(self, sender, event):
         """ Notification sent by node """
         pass
+
