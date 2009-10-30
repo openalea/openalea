@@ -16,7 +16,6 @@
 
 import weakref,sys
 from PyQt4 import QtCore, QtGui
-from openalea.core.settings import Settings
 from openalea.grapheditor import qtutils
 from openalea.grapheditor import qtgraphview
 
@@ -124,6 +123,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
             self.update()
             QtGui.QApplication.processEvents()
 
+        elif(event and event[0] == "caption_modified"):
+            self.set_caption(event[1])
+
         qtgraphview.QtGraphViewVertex.notify(self, sender, event)
 
     def set_tooltip(self, doc=None):
@@ -163,6 +165,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         """Sets the name displayed in the vertex widget, doesn't change
         the vertex data"""
         self._caption.setText(caption)
+        self.layout().updateGeometry()
 
     ###############################
     # ----Qt World overloads----  #
@@ -187,7 +190,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         """Overloaded or else edges are created from the vertex
         not from the ports"""
         QtGui.QGraphicsWidget.mousePressEvent(self, event)
-
 
 
 
@@ -238,6 +240,10 @@ class GraphicalConnector(QtGui.QGraphicsWidget):
     ##################
     # QtWorld-Events #
     ##################
+    def moveEvent(self, event):
+        self.update_canvas_position()
+        QtGui.QGraphicsWidget.moveEvent(self, event)
+
     def mousePressEvent(self, event):
         graphview = self.scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):

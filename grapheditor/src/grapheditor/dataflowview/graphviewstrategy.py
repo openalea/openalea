@@ -95,7 +95,7 @@ class DataflowPaintStrategyCommon:
 class PaintNormalVertex(object):
     @classmethod
     def get_path(cls, widget):
-        rect = QtCore.QRectF( widget.rect() )
+        rect = widget.rect()
             
         #the drawn rectangle is smaller than
         #the actual widget size

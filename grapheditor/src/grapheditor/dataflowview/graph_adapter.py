@@ -37,6 +37,9 @@ class GraphAdapter(object):
         for vert in vertexList:
             self.remove_vertex(vert)
 
+    def replace_vertex(self, oldVertex, newVertex):
+        self.graph().replace_node(oldVertex.get_id(), newVertex)
+
     def get_vertex_inputs(self, vid):
         return self.graph().node(vid).input_desc
 

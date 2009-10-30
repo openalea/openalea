@@ -846,16 +846,23 @@ class CompositeNode(Node, DataFlow):
         
         :param vtx_id: element id
         """
-
+        node = self.node(vtx_id)
         if(vtx_id == self.id_in or vtx_id == self.id_out):
             return
         self.remove_vertex(vtx_id)
 
     #gengraph
-        self.notify_listeners(("vertexRemoved", self.node(vtx_id)))
+        self.notify_listeners(("vertexRemoved", node ))
     #/gengraph
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
+
+
+    #gengraph
+    def remove_edge(self, eid):
+        DataFlow.remove_edge(self, eid)
+        self.notify_listeners(("edgeRemoved", eid ))
+    #/gengraph
 
     #gengraph
     def simulate_construction_notifications(self):
@@ -950,6 +957,7 @@ class CompositeNode(Node, DataFlow):
             raise IncompatibleNodeError()
 
         self.set_actor(vid, newnode)
+        #gengraph should notify something here.
 
     # Continuous eval functions
 

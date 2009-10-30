@@ -13,16 +13,19 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""This file customizes the grapheditor to work well with visualea"""
+
 
 from PyQt4 import QtCore, QtGui
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
 from openalea.grapheditor import qtgraphview
-import weakref,sys
 
-from openalea.visualea.util import open_dialog
+import visualea_integration_vertex
 
-#Drag and drop handlers
+####################################################
+# Handling the drag and drop events over the graph #
+####################################################
 def OpenAleaNodeFactoryHandler(view, event):
     """ Drag and Drop from the PackageManager """
     if (event.mimeData().hasFormat("openalea/nodefactory")):
@@ -94,44 +97,22 @@ def get_drop_mime_handlers():
 qtgraphview.QtGraphView.set_mime_handler_map(get_drop_mime_handlers())
 
 
-#configuring event handlers
-
-def vertexMouseDoubleClickEvent(widget, event):
-    # Read settings
-    try:
-        localsettings = Settings()
-        str = localsettings.get("UI", "DoubleClick")
-    except:
-        str = "['open']"
-
-    if('open' in str):
-        if(widget._vertexWidget):
-            if(widget.isVisible()):
-                widget.raise_ ()
-                widget.activateWindow ()
-            else:
-                widget.show()
-            return
-            
-        factory = widget.vertex().get_factory()
-        if(not factory) : return
-        # Create the dialog. 
-        # NOTE: WE REQUEST THE MODEL TO CREATE THE DIALOG
-        # THIS IS NOT DESIRED BECAUSE IT COUPLES THE MODEL
-        # TO THE UI.
-        innerWidget = factory.instantiate_widget(widget.vertex(), None)
-
-        if(not innerWidget) : return 
-        if (innerWidget.is_empty()):
-            innerWidget.close()
-            del innerWidget
-            return
-
-        widget._vertexWidget = open_dialog(None, innerWidget, factory.get_id(), False)
 
 
-    if('run' in str):
-        widget.graph.graph().eval_as_expression(widget.vertex().get_id())
 
-qtgraphview.QtGraphViewVertex.set_event_handler("mouseDoubleClickEvent", 
-                                                vertexMouseDoubleClickEvent)
+##############################
+# QtEvent handlers for edges #
+##############################
+
+#nothing special here the default 
+#actions of the dataflow strategy
+#are fine
+
+
+####################################
+# QtEvent handlers for annotations #
+####################################
+
+#nothing special here the default 
+#actions of the dataflow strategy
+#are fine

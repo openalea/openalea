@@ -17,7 +17,7 @@
 
 
 
-import weakref
+import weakref, types
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
@@ -33,6 +33,7 @@ __AIK__ = [
     "mouseDoubleClickEvent",
     "keyReleaseEvent",
     "keyPressEvent",
+    "contextMenuEvent"
     ]
 
 
@@ -62,6 +63,15 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
                                                                     observed, 
                                                                     graphadapter)
 
+        #we bind application overloads if they exist
+        #once and for all. As this happens after the
+        #class is constructed, it overrides any method
+        #called "name" with an application-specific method
+        #to handle events.
+        for name, hand in self.__application_integration__.iteritems():
+            if "Event" in name and hand:
+                setattr(self, name, types.MethodType(hand,self,self.__class__))
+
     #################################
     # IGraphViewElement realisation #
     #################################       
@@ -76,29 +86,6 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
         point = QtCore.QPointF(args[0], args[1])
         self.setPos(point)
 
-    def mouseMoveEvent(self, event):
-        handler = self.__application_integration__["mouseMoveEvent"]
-	if handler: handler(self, event)
-
-    def mouseReleaseEvent(self, event):
-        handler = self.__application_integration__["mouseReleaseEvent"]
-	if handler: handler(self, event)
-
-    def mousePressEvent(self, event):
-        handler = self.__application_integration__["mousePressEvent"]
-	if handler: handler(self, event)
-
-    def mouseDoubleClickEvent(self, event):
-        handler = self.__application_integration__["mouseDoubleClickEvent"]
-	if handler: handler(self, event)
-
-    def keyReleaseEvent(self, event):
-        handler = self.__application_integration__["keyReleaseEvent"]
-	if handler: handler(self, event)
-
-    def keyPressEvent(self, event):
-        handler = self.__application_integration__["keyPressEvent"]
-	if handler: handler(self, event)
 
 
 
@@ -157,7 +144,7 @@ class QtGraphViewVertex(QtGraphViewElement):
                 firstColor=strategy.get_first_color(self)
                 secondColor=strategy.get_second_color(self)
         else: #...or fall back on defaults
-            rect = QtCore.QRectF( self.rect() )
+            rect = self.rect()
 
             #the drawn rectangle is smaller than
             #the actual widget size
@@ -206,12 +193,12 @@ class QtGraphViewVertex(QtGraphViewElement):
     def polishEvent(self):
         point = self.scenePos()
         self.observed().get_ad_hoc_dict().set_metadata('position', 
-                                                        [point.x(), point.y()], False)
+                                                       [point.x(), point.y()], False)
 
     def moveEvent(self, event):
         point = event.newPos()
         self.observed().get_ad_hoc_dict().set_metadata('position', 
-                                                        [point.x(), point.y()], False)
+                                                       [point.x(), point.y()], False)
 
     def mousePressEvent(self, event):
         graphview = self.scene().views()[0]
@@ -432,7 +419,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     ####################################
     # ----Instance members follow----  #
     ####################################   
-
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
         grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)

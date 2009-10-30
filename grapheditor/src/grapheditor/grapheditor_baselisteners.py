@@ -43,14 +43,16 @@ class GraphElementObserverBase(observer.AbstractListener):
     
     def __init__(self, observed=None, graphadapter=None):
         observer.AbstractListener.__init__(self)
+        self.set_observed(observed)
+        self.set_graph_adapter(graphadapter)
+        return
+
+    def set_observed(self, observed):
         if(observed and isinstance(observed, observer.Observed)):
             self.initialise(observed)
             self.observed = weakref.ref(observed, self.clear_observed)
         else:
             self.observed = observed
-
-        self.set_graph_adapter(graphadapter)
-        return
 
     def set_graph_adapter(self, adapter):
         self.__adapter = weakref.ref(adapter)
@@ -134,7 +136,6 @@ class GraphListenerBase(observer.AbstractListener):
         self.annomap = {}
 
         self._type = None
-        self._cosineMatrix = None
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
@@ -184,6 +185,7 @@ class GraphListenerBase(observer.AbstractListener):
         return
 
     def vertex_removed(self, vertexModel):
+        print "vertexModel : ", vertexModel
         vertexWidget = self.vertexmap[vertexModel]
         vertexWidget().remove_from_view(self.get_scene())
         del self.vertexmap[vertexModel]

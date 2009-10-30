@@ -407,7 +407,7 @@ class Node(AbstractNode):
     def set_caption(self, newcaption):
         """ Define the node caption """
         self.internal_data['caption'] = newcaption
-        self.notify_listeners(("caption_modified", ))
+        self.notify_listeners(("caption_modified", newcaption))
 
     def get_caption(self):
         """ Return the node caption """
