@@ -268,8 +268,9 @@ def Density(x):
     :returntype: float list
 
     :attention:  x cannot be empty
-     """
-
-    res = rpy.r.density(x)
-
+    """
+    import rpy2.robjects as robjects
+    r = robjects.r
+    v = robjects.FloatVector([1,2,3,4,1,2,3,4])
+    res = r.density(v)
     return res
