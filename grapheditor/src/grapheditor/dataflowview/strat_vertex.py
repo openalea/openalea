@@ -16,6 +16,7 @@
 
 import weakref,sys
 from PyQt4 import QtCore, QtGui
+from openalea.core import observer
 from openalea.grapheditor import qtutils
 from openalea.grapheditor import qtgraphview
 
@@ -48,20 +49,20 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         layout.setOrientation(QtCore.Qt.Vertical)
         layout.setSpacing(2)
 
-        self._inConnectorLayout  = QtGui.QGraphicsLinearLayout()
-        self._outConnectorLayout = QtGui.QGraphicsLinearLayout()
+        self._inPortLayout  = QtGui.QGraphicsLinearLayout()
+        self._outPortLayout = QtGui.QGraphicsLinearLayout()
         self._caption            = QtGui.QLabel(vertex.internal_data["caption"])
         captionProxy             = qtutils.AleaQGraphicsProxyWidget(self._caption)
 
-        layout.addItem(self._inConnectorLayout)
+        layout.addItem(self._inPortLayout)
         layout.addItem(captionProxy)
-        layout.addItem(self._outConnectorLayout)
+        layout.addItem(self._outPortLayout)
 
-        layout.setAlignment(self._inConnectorLayout, QtCore.Qt.AlignHCenter)
-        layout.setAlignment(self._outConnectorLayout, QtCore.Qt.AlignHCenter)
+        layout.setAlignment(self._inPortLayout, QtCore.Qt.AlignHCenter)
+        layout.setAlignment(self._outPortLayout, QtCore.Qt.AlignHCenter)
         layout.setAlignment(captionProxy, QtCore.Qt.AlignHCenter)
-        self._inConnectorLayout.setSpacing(8)
-        self._outConnectorLayout.setSpacing(8)
+        self._inPortLayout.setSpacing(8)
+        self._outPortLayout.setSpacing(8)
 
         self.setLayout(layout)
 
@@ -82,7 +83,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     # private stuff #
     #################
     def __layout_ports(self):
-        """ Add connectors """
+        """ Add ports """
         self.nb_cin = 0
         for desc in self.graph.get_vertex_inputs(self.vertex().get_id()):
             self.__add_in_connection(desc)
@@ -95,14 +96,14 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         from here since the port items, being childs, don't receive moveEvents..."""
         [port.update_canvas_position() for port in self.__inPorts+self.__outPorts]        
         
-    def __add_in_connection(self, connector):
-        graphicalConn = GraphicalConnector(self, connector)
-        self._inConnectorLayout.addItem(graphicalConn)
+    def __add_in_connection(self, port):
+        graphicalConn = GraphicalPort(self, port)
+        self._inPortLayout.addItem(graphicalConn)
         self.__inPorts.append(graphicalConn)
 
-    def __add_out_connection(self, connector):
-        graphicalConn = GraphicalConnector(self, connector)
-        self._outConnectorLayout.addItem(graphicalConn)
+    def __add_out_connection(self, port):
+        graphicalConn = GraphicalPort(self, port)
+        self._outPortLayout.addItem(graphicalConn)
         self.__outPorts.append(graphicalConn)
 
 
@@ -125,6 +126,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
         elif(event and event[0] == "caption_modified"):
             self.set_caption(event[1])
+
+        elif(event and event[0] == "MetaDataChanged" and event[1]=="user_color"):
+            self.update()
 
         qtgraphview.QtGraphViewVertex.notify(self, sender, event)
 
@@ -194,24 +198,34 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
 
 
-class GraphicalConnector(QtGui.QGraphicsWidget):
-    """ A vertex connector """
+class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
+    """ A vertex port """
     WIDTH =  10
     HEIGHT = 10
 
     __size = QtCore.QSizeF(WIDTH, 
                            HEIGHT)
 
-    def __init__(self, parent, connector):
+    def __init__(self, parent, port):
         """
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
-        self.observed = weakref.ref(connector)
-        connector.get_ad_hoc_dict().add_metadata("canvasPosition", list)
-        connector.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
+        self.initialise(port)
+        self.observed = weakref.ref(port)
+        port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
+        port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
+        port.get_ad_hoc_dict().simulate_full_data_change()
 
     def port(self):
             return self.observed()
+
+    def notify(self, sender, event):
+        if(event[0]=="MetaDataChanged"):
+            if(event[1]=="hide"):
+                if event[2]:
+                    self.setVisible(False)
+                else:
+                    self.setVisible(True)
 
     def canvas_position(self):
         pos = self.rect().center() + self.scenePos()
@@ -229,10 +243,10 @@ class GraphicalConnector(QtGui.QGraphicsWidget):
         return self.__size
 
     def sizeHint(self, blop, blip):
-        return self.__size
+        return self.size()
 
     def minimumSizeHint(self):
-        return self.__size
+        return self.size()
 
     def sizePolicy(self):
         return QtGui.QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

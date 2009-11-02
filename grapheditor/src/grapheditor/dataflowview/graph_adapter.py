@@ -15,7 +15,8 @@
 ###############################################################################
 
 import weakref
-import openalea.core.node
+from openalea.core import node
+from openalea.core import compositenode
 
 class GraphAdapter(object):
     """An adapter to openalea.core.compositenode"""
@@ -23,9 +24,13 @@ class GraphAdapter(object):
         self.graph = weakref.ref(graph)
 
     def add_vertex(self, vertex, position=None):
-        self.graph().add_node(vertex)
-        if(position):
-            vertex.get_ad_hoc_dict().set_metadata("position", position)
+        try:
+            self.graph().add_node(vertex)
+            if(position):
+                vertex.get_ad_hoc_dict().set_metadata("position", position)
+        except node.RecursionError:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "A graph cannot be contained in itself.")
 
     def get_vertex(self, vid):
         return self.graph().node(vid)
@@ -53,8 +58,12 @@ class GraphAdapter(object):
         return self.graph().node(vid).output_desc[pid]
 
     def add_edge(self, src, dst):
-        vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
-        vtkIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
+        if(type(src[0])==int):
+            vtxIdSrc, portIdSrc = src[0], src[1]
+            vtkIdDst, portIdDst = dst[0], dst[1]
+        else:
+            vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
+            vtkIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
         self.graph().connect(vtxIdSrc, portIdSrc, vtkIdDst, portIdDst)
 
     def remove_edge(self, src, dst):
@@ -64,8 +73,19 @@ class GraphAdapter(object):
 
     #type checking
     def is_input(self, input):
-        return isinstance(input, openalea.core.node.InputPort)
+        return isinstance(input, node.InputPort)
 
     def is_output(self, output):
         return isinstance(output, openalea.core.node.OutputPort)
+
+    #other checks
+    def is_vertex_protected(self, node):
+        if (isintance(node, compositenode.CompositeNodeInput) or \
+                isinstance(node, compositenode.CompositeNodeOutput)):
+            return True
+        return False
+
+    def is_legal_connection(self, src, dst):
+        pass
+        
 

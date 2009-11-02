@@ -27,12 +27,11 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 
 
 class GraphOperator(QtCore.QObject):
-    def __init__(self, parent, vertexItem, graph=None, vertex=None):
+    def __init__(self, graphView, graphAdapter):
         QtCore.QObject.__init__(self)
-        self.parent = weakref.ref(parent)
-        self.vertexItem = weakref.ref(vertexItem)
-        if(graph): self.graph=weakref.ref(graph)
-        if(vertex): self.vertex=weakref.ref(vertex)
+        self.graphView = weakref.ref(graphView)
+        self.vertexItem = None
+        self.graphAdapter=weakref.ref(graphAdapter)
         #used when a vertex has been opened
         self._vertexWidget=None
 
@@ -41,27 +40,143 @@ class GraphOperator(QtCore.QObject):
     ###METHODS TO A QT SIGNAL....
     ###WHY???????????????????????????
     def __get_wrapped(self, funcname):
+        func = getattr(self,funcname,None)
         def wrapper(*args):
-            getattr(self,funcname,None)(*args)
-        return wrapper
+            func(*args)
+        return wrapper, func.func_code.co_argcount 
 
     def get_action(self, actionName, parent, functionName):
         action = QtGui.QAction(actionName, parent)
-        QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"),
-                               self.__get_wrapped(functionName))
+        func, argcount = self.__get_wrapped(functionName)
+        if (argcount) < 2 :
+            QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
+        else:
+            QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), func )
         return action
 
     def __call__(self, actionName, parent, functionName):
         return self.get_action(actionName, parent, functionName)
 
-    ######################
-    # The actual methods #
-    ######################
 
-    def run_vertex(self):
-        self.graph().graph().eval_as_expression(self.vertex().get_id())        
+    ####################################
+    # The actual methods -- For graphs #
+    ####################################
+    def set_session(self, session):
+        self.__session = session
 
-    def open_vertex(self):
+    def set_interpreter(self, interp):
+        self.__interpreter = interp
+    
+    def graph_set_selection_colour(self):
+        items = self.graphView().get_selected_items()
+        if(not items): return
+
+        color = QtGui.QColorDialog.getColor( QtGui.QColor(100,100,100,255), self)
+        if not color.isValid():
+            return
+
+        color = [color.red(), color.green(), color.blue()]
+        for i in items:
+            if not isinstance(i, qtgraphview.QtGraphViewVertex): continue
+            try:
+                i.get_ad_hoc_dict().set_metadata("user_color", col)
+                i.get_ad_hoc_dict().set_metadata("use_user_color", True)
+            except Exception, e:
+                print e
+                pass   
+
+    def graph_remove_selection(self):
+        items = self.graphView().get_selected_items()
+        if(not items): return
+        for i in items:
+            if isinstance(i, qtgraphview.QtGraphViewVertex):
+                if self.graphAdapter().is_vertex_protected(i.vertex()): continue
+                self.graphAdapter().remove_vertex(i.vertex())
+            elif isinstance(i, qtgraphview.QtGraphViewEdge):
+                self.graphAdapter().remove_edge( (i.src().vertex(), i.src()),
+                                                 (i.dst().vertex(), i.dst()) )
+            else:
+                print "mysterious deletion of:", i
+                self.graphView().removeItem(i)
+                
+    def graph_group_selection(self, factory):
+        """
+        Export selected node in a new factory
+        """
+        def cmp_x(i1, i2):
+            return cmp(i1.pos().x(), i2.pos().x())
+
+        items = self.get_selected_item()
+        if(not items): return None
+        items.sort(cmp=cmp_x)
+
+        self.graphAdapter().graph().to_factory(factory, items, auto_io=True)
+        pos = self.graphView().get_selection_center(items)
+
+        # Instantiate the new node
+        newVert = factory.instantiate([self.graphAdapter().graph().factory.get_id()])
+        if newVert is not False:
+            self.graphAdapter().add_vertex(newVert, pos)
+            new_edges = self.graphAdapter().graph().compute_external_io(s, new_id)
+            self.graphAdapter.add_edge((newEdges[0],newEdges[1]), (newEdges[2], newEdges[3]))
+            self.graph_remove_selection()
+        
+    def copy(self):
+        """ Copy Selection """
+        if(self.__interpreter.hasFocus()):
+            try:
+                self.__interpreter.copy()
+            except:
+                pass
+        else:
+            s = self.get_selected_item()
+            if(not s): return 
+            self.__session.clipboard.clear()
+            self.graphAdapter().graph().to_factory(session.clipboard, s, auto_io=False)
+
+    def paste(self):
+        """ Paste from clipboard """
+
+        if(self.__interpreter.hasFocus()):
+            try:
+                self.__interpreter.paste()
+            except:
+                pass
+        else:
+            # Get Position from cursor
+            position = self.graphView().mapToScene(
+                self.mapFromGlobal(self.cursor().pos()))
+            self.graphView().select_added_elements(True)
+
+            # Translate new node
+            #l = lambda x :  x + 30
+            #modifiers = [('posx', l), ('posy', l)]
+            # Compute the min x, y value of the nodes
+            # 
+            cnode = self.__session.clipboard.instantiate()
+
+            min_x = min([cnode.node(vid).internal_data['posx'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+            min_y = min([cnode.node(vid).internal_data['posy'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+
+            lx = lambda x : x - min_x + position.x()
+            ly = lambda y : y - min_y + position.y()
+            modifiers = [('posx', lx), ('posy', ly)]
+
+            #modifiers = [('posx', position.x()), ('posy', position.y())]
+            new_ids = self.__session.clipboard.paste(self.graphAdapter().graph(), modifiers)
+
+        
+
+    ######################################
+    # The actual methods -- For vertices #
+    ######################################
+    def set_vertex_item(self, vertexItem):
+        self.vertexItem = weakref.ref(vertexItem)        
+
+    def vertex_run(self):
+        self.graphAdapter().graph().eval_as_expression(self.vertexItem().vertex().get_id())        
+
+    def vertex_open(self):
         if(self._vertexWidget):
             if(self._vertexWidget.isVisible()):
                 self._vertexWidget.raise_ ()
@@ -70,67 +185,90 @@ class GraphOperator(QtCore.QObject):
                 self._vertexWidget.show()
             return
 
-        factory = self.vertex().get_factory()
+        factory = self.vertexItem().vertex().get_factory()
         if(not factory) : return
         # Create the dialog. 
         # NOTE: WE REQUEST THE MODEL TO CREATE THE DIALOG
         # THIS IS NOT DESIRED BECAUSE IT COUPLES THE MODEL
         # TO THE UI.
-        innerWidget = factory.instantiate_widget(self.vertex(), None)
+        innerWidget = factory.instantiate_widget(self.vertexItem().vertex(), None)
         if(not innerWidget) : return 
         if (innerWidget.is_empty()):
             innerWidget.close()
             del innerWidget
             return
 
-        self._vertexWidget = open_dialog(self.parent(), innerWidget, factory.get_id(), False)
+        self._vertexWidget = open_dialog(self.graphView(), innerWidget, factory.get_id(), False)
 
-    def remove_vertex(self):
-        self.graph().remove_vertex(self.vertex().get_id())
+    def vertex_remove(self):
+        self.graphAdapter().remove_vertex(self.vertexItem().vertex().get_id())
 
-    def reset_vertex(self):
-        self.vertex().reset()
+    def vertex_reset(self):
+        self.vertexItem().vertex().reset()
 
-
-    def replace_vertex_by(self):
+    def vertex_replace(self):
         """ Replace a node by an other """
         
-        self.dialog = NodeChooser(self.parent())
-        self.dialog.search('', self.vertex().get_nb_input(), self.vertex().get_nb_output())
+        self.dialog = NodeChooser(self.graphView())
+        self.dialog.search('', self.vertexItem().vertex().get_nb_input(), 
+                           self.vertexItem().vertex().get_nb_output())
         ret = self.dialog.exec_()
 
         if(not ret): return
         
         factory = self.dialog.get_selection()
         newnode = factory.instantiate()
-        self.graph().replace_vertex(self.vertex(), newnode)
+        self.graphAdapter().replace_vertex(self.vertexItem().vertex(), newnode)
 
-
-    def reload_vertex(self):
+    def vertex_reload(self):
         """ Reload the vertex """
 
         # Reload package
-        factory = self.vertex().factory
+        factory = self.vertexItem().vertex().factory
         package = factory.package
         if(package):
             package.reload()
 
         # Reinstantiate the vertex
         newvertex = factory.instantiate()
-        self.graph().graph().set_actor(self.vertex().get_id(), newvertex)
-        newvertex.internal_data.update(self.vertex().internal_data)
+        self.graphAdapter().graph().set_actor(self.vertexItem().vertex().get_id(), newvertex)
+        newvertex.internal_data.update(self.vertexItem().vertex().internal_data)
         self.vertexItem().set_observed(newvertex)
         self.vertexItem().initialise_from_model()
 
-
-    def set_vertex_caption(self):
+    def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
 
-        n = self.vertex()
+        n = self.vertexItem().vertex()
         (result, ok) = QtGui.QInputDialog.getText(None, "Node caption", "",
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):
-            n.caption = str(result) #I HATE PROPERTIES ACTUALLY!
+            n.caption = str(result) #I HATE PROPERTIES, REALLY!
+
+    def vertex_show_hide_ports(self):
+        """ Open port show/hide dialog """
+        editor = ShowPortDialog(self.vertexItem().vertex(), self.graphView())
+        editor.exec_()
+
+    def vertex_mark_user_app(self, val):
+        self.graphAdapter().graph().set_continuous_eval(self.vertexItem().vertex().get_id(), bool(val))
+
+    def vertex_set_lazy(self, val):
+        self.vertexItem().vertex().lazy = val #I HATE PROPERTIES, REALLY!
+
+    def vertex_block(self, val):
+        self.vertexItem().vertex().block = val #I HATE PROPERTIES, REALLY!
+
+    def vertex_edit_internals(self):
+        """ Edit node internal data """
+        editor = DictEditor(self.vertexItem().vertex().internal_data, self.graphView())
+        ret = editor.exec_()
+
+        if(ret):
+            for k in editor.modified_key:
+                self.vertexItem().vertex().set_data(k, editor.pdict[k])
+
+
 
 
 
@@ -144,58 +282,55 @@ def vertexMouseDoubleClickEvent(self, event):
             str = "['open']"
 
         view = self.scene().views()[0]
-        operator=GraphOperator(view, self, graph=self.graph, vertex=self.vertex())
+        operator=GraphOperator(view, self.graph)
+        operator.set_vertex_item(self)
 
         if('open' in str):
-            operator.open_vertex()
+            operator.vertex_open()
         elif('run' in str):
-            operator.run_vertex()
+            operator.vertex_run()
+
 
 
 def vertexContextMenuEvent(self, event):
     """ Context menu event : Display the menu"""
     view = self.scene().views()[0]
-    operator=GraphOperator(view, self, graph=self.graph, vertex=self.vertex())
+    operator=GraphOperator(view, self.graph)
+    operator.set_vertex_item(self)
     menu = QtGui.QMenu(view)
 
-    menu.addAction(operator("Run",             menu, "run_vertex"))
-    menu.addAction(operator("Open Widget",     menu, "open_vertex"))
+    menu.addAction(operator("Run",             menu, "vertex_run"))
+    menu.addAction(operator("Open Widget",     menu, "vertex_open"))
     menu.addSeparator()
-    menu.addAction(operator("Delete",          menu, "remove_vertex"))
-    menu.addAction(operator("Reset",           menu, "reset_vertex"))
-    menu.addAction(operator("Replace By",      menu, "replace_vertex_by"))
-    menu.addAction(operator("Reload",          menu, "reload_vertex"))
+    menu.addAction(operator("Delete",          menu, "vertex_remove"))
+    menu.addAction(operator("Reset",           menu, "vertex_reset"))
+    menu.addAction(operator("Replace By",      menu, "vertex_replace"))
+    menu.addAction(operator("Reload",          menu, "vertex_reload"))
     menu.addSeparator()
-    menu.addAction(operator("Caption",         menu, "set_vertex_caption"))
-#     menu.addAction(operator("Show/Hide ports", menu, "show_hide_vertex_port"))
-# #     self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.show_ports)
-#     menu.addSeparator()
+    menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
+    menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
+    menu.addSeparator()
 
-#     action = operator("Mark as User Application", menu, "mark_user_app_vertex")
-#     action.setCheckable(True)
-#     action.setChecked( bool(self.vertex().user_application))
-#     menu.addAction(action)
-# #     self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_application)
+    action = operator("Mark as User Application", menu, "vertex_mark_user_app")
+    action.setCheckable(True)
+    action.setChecked( bool(self.vertex().user_application))
+    menu.addAction(action)
 
+    action = operator("Lazy", menu, "vertex_set_lazy")
+    action.setCheckable(True)
+    action.setChecked(self.vertex().lazy)
+    menu.addAction(action)
 
-#     actionoperator("Lazy", menu, "set_lazy_vertex")
-#     action.setCheckable(True)
-#     action.setChecked(self.vertex().lazy)
-# #     self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_lazy)
-#     menu.addAction(action)
+    action = operator("Block", menu, "vertex_block")
+    action.setCheckable(True)
+    action.setChecked(self.vertex().block)
+    menu.addAction(action)
 
-#     actionoperator("Block", menu, "block_vertex")
-#     action.setCheckable(True)
-#     action.setChecked(self.subnode.block)
-# #     self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_block)
-#     menu.addAction(action)
-
-#     menu.addAction(operator("Internals", menu, "set_vertex_internals")
-# #     self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
+    menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
 
     menu.move(event.screenPos())
     menu.show()
-#     del menu
+    del menu
     event.accept()
 
 

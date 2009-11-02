@@ -332,16 +332,65 @@ class MainWindow(QtGui.QMainWindow,
             self.close_tab_workspace(i)
 
 
+#     def open_widget_tab(self, node, factory, caption=None, pos = -1):
+#         """
+#         Open a widget in a tab giving an instance and its widget
+#         caption is append to the tab title
+#         """
+
+#                 # Test if the node is already opened
+#         for i in range(len(self.index_nodewidget)):
+#             widget = self.index_nodewidget[i]
+#             n = widget.node
+#             if(node is n):
+#                 self.tabWorkspace.setCurrentIndex(i)
+#                 return
+
+#         container = QtGui.QWidget(self)
+#         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+#         widget = factory.instantiate_widget(node, parent=None, edit=True)
+#         widget.wcaption = caption
+#         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+#         vboxlayout = QtGui.QVBoxLayout(container)
+#         vboxlayout.setSpacing(6)
+#         vboxlayout.setMargin(6)
+
+#         #vboxlayout.addWidget(widget)
+
+#         #gengraph
+#         gwidget = None
+#         try:
+#             gwidget = qtgraphview.QtGraphView(self, node)
+#             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+#             vboxlayout.setSpacing(0)
+#             vboxlayout.addWidget(gwidget)
+#         except Exception, e:
+#             print e
+#             pass
+#         #/gengraph
+
+#         if(not caption) :
+#             i = self.session.workspaces.index(node)
+#             caption = "Workspace %i - %s"%(i, node.get_caption())
+        
+#         index = self.tabWorkspace.insertTab(pos, container, caption)
+#         self.tabWorkspace.setCurrentIndex(index)
+#         self.index_nodewidget.append(widget)
+
+#         return index
+
     def open_widget_tab(self, node, factory, caption=None, pos = -1):
         """
         Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
         """
 
-                # Test if the node is already opened
+        # Test if the node is already opened
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
-            n = widget.node
+            n = widget.graph.graph()
             if(node is n):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
@@ -357,7 +406,7 @@ class MainWindow(QtGui.QMainWindow,
         vboxlayout.setSpacing(6)
         vboxlayout.setMargin(6)
 
-#         vboxlayout.addWidget(widget)
+        #vboxlayout.addWidget(widget)
 
         #gengraph
         gwidget = None
@@ -377,7 +426,7 @@ class MainWindow(QtGui.QMainWindow,
         
         index = self.tabWorkspace.insertTab(pos, container, caption)
         self.tabWorkspace.setCurrentIndex(index)
-        self.index_nodewidget.append(widget)
+        self.index_nodewidget.append(gwidget)
 
         return index
         

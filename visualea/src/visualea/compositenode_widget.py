@@ -466,7 +466,8 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         for i in items : 
             try :
                 i.set_user_color(color)
-            except:
+            except Exception, e:
+                print e
                 pass
 
 
@@ -1107,7 +1108,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         assert type(color) == QtGui.QColor
         self.user_color = color
         self.use_user_color = True
-        self.subnode.internal_data["user_color"] = color.red(), color.green(), color.blue()
+        col = [color.red(), color.green(), color.blue()]
+        self.subnode.internal_data["user_color"] = col
+        #gengraph
+        self.subnode.get_ad_hoc_dict().set_metadata("user_color", col)
+        self.subnode.get_ad_hoc_dict().set_metadata("use_user_color", True)
+        #/gengraph
+
         self.update()
         return
         

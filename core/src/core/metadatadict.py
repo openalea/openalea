@@ -67,3 +67,7 @@ class MetaDataDict(observer.Observed):
             value = self._metas[k][1]
             valType = self._metas[k][0]
             self.notify_listeners(("MetaDataChanged", k, value, valType))
+
+    def __str__(self):
+        return self._metas.__str__()
+        

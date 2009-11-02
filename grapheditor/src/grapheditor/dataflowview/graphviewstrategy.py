@@ -119,11 +119,11 @@ class PaintNormalVertex(object):
 
     @classmethod
     def get_first_color(cls, widget):
-        return DataflowPaintStrategyCommon.not_modified_color
+        return DataflowPaintStrategyCommon.not_selected_color
 
     @classmethod
     def get_second_color(cls, widget):
-        return DataflowPaintStrategyCommon.not_selected_color
+        return DataflowPaintStrategyCommon.not_modified_color
 
     @classmethod
     def prepaint(self, widget, paintEvent, painter, state):
@@ -144,7 +144,7 @@ class PaintUserColorVertex(PaintNormalVertex):
 
     @classmethod
     def get_second_color(cls, widget):
-        return get_first_color(widget)
+        return cls.get_first_color(widget)
 
 
 class PaintErrorVertex(PaintNormalVertex):
@@ -190,12 +190,17 @@ vertex_drawing_strategies={ "node_normal": PaintNormalVertex,
 
 
 if(__name__ != "__main__"):
-    #we declare what are the model ad hoc data we require:
+    #we declare what are the node model ad hoc data we require:
     vertexModelAdHocExtension = {"user_color":list, 
                                  "use_user_color":bool, 
                                  "position":list,
                                  "text": str}
     node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
+
+    #we declare what are the node model ad hoc data we require:
+    portModelAdHocExtension = {"hide":bool }
+    node.AbstractPort.extend_ad_hoc_slots(portModelAdHocExtension)
+
     
     #we register this strategy
     grapheditor_baselisteners.GraphListenerBase.register_strategy(GraphViewStrategy)

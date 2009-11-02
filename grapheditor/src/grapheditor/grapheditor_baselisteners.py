@@ -166,23 +166,34 @@ class GraphListenerBase(observer.AbstractListener):
         elif(data[0]=="edgeRemoved") : self.edge_removed(data[1]) 
         elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
 
+    def post_addition(self, element):
+        """defining virtual bases makes the program start
+        but crash during execution if the method is not implemented, where
+        the interface checking system could prevent the application from
+        starting, with a die-early behaviour."""
+        raise NotImplementedError
+
+    def element_added(self, element):
+        self.post_addition(element)
+        return element
+
     def vertex_added(self, vertexModel):
         vertexWidget = self._vertexWidgetType(vertexModel, self.__adapter)
         vertexWidget.add_to_view(self.get_scene())
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
-        return
+        return self.element_added(vertexWidget)
 
     def edge_added(self, edgeModel, srcPort, dstPort):
         edgeWidget = self._edgeWidgetType(edgeModel, self.__adapter, srcPort, dstPort)
         edgeWidget.add_to_view(self.get_scene())
         self.edgemap[edgeModel] = weakref.ref(edgeWidget)
-        return
+        return self.element_added(edgeWidget)
 
     def annotation_added(self, annotation):
         annoWidget = self._annoWidgetType(annotation, self.__adapter)
         annoWidget.add_to_view(self.get_scene())
         self.annomap[annotation] = weakref.ref(annoWidget)
-        return
+        return self.element_added(annoWidget)
 
     def vertex_removed(self, vertexModel):
         print "vertexModel : ", vertexModel

@@ -79,7 +79,7 @@ class AbstractNode(Observed, AbstractListener):
 
     #describes which data and what type
     #are expected to be found in the ad_hoc
-    #dictionnary. Used by views and by the
+    #dictionnary. Used by views.
     __ad_hoc_slots__ = {}
 
     @classmethod
@@ -162,9 +162,20 @@ class AbstractPort(Observed, AbstractListener):
     The class describing the ports.
     AbstractPort is a dict for historical reason.
     """
+
+    #describes which data and what type
+    #are expected to be found in the ad_hoc
+    #dictionnary. Used by views
+    __ad_hoc_slots__ = {}
+
+    @classmethod
+    def extend_ad_hoc_slots(cls, d):
+        cls.__ad_hoc_slots__.update(d)
+
     def __init__(self, vertex):
         Observed.__init__(self)
         AbstractListener.__init__(self)
+
         self._innerDict = {}
 
         #gengraph
@@ -172,6 +183,8 @@ class AbstractPort(Observed, AbstractListener):
         self.__id = None
         self.__ad_hoc_dict = metadatadict.MetaDataDict()
         self.initialise(self.__ad_hoc_dict)
+        for k, t in self.__ad_hoc_slots__.iteritems():
+            self.__ad_hoc_dict.add_metadata(k, t, False)
         #/gengraph
 
     #gengraph
@@ -329,9 +342,11 @@ class Node(AbstractNode):
     def get_state(self):
         state="node_normal"
         if self.internal_data["lazy"]: state = "node_lazy"
-        if self.internal_data["block"]: state = "node_blocked"
         if self.internal_data["is_in_error_state"]: state = "node_error"
+        if hasattr(self, "raise_exception"): state = "node_error"
         if self.internal_data["is_user_application"]: state = "node_is_user_app"
+        if self.internal_data["user_application"]: state = "node_is_user_app"
+        if self.internal_data["block"]: state = "node_blocked"
         return state
 
     def notify(self, sender, event):
@@ -440,8 +455,10 @@ class Node(AbstractNode):
         changed = self.internal_data['port_hide_changed']
 
         if (s != state):
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",True)
             changed.add(index)
         elif(index in changed):
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",False)
             changed.remove(index)
 
     # Status
@@ -515,6 +532,11 @@ class Node(AbstractNode):
         port.update(kargs)
         self.input_desc.append(port)
 
+        #gengraph
+        port.get_ad_hoc_dict().add_metadata(name, type(value))
+        port.get_ad_hoc_dict().set_metadata(name, value)
+        #/gengraph
+
         self.input_states.append(None)
         index = len(self.inputs) - 1
         self.map_index_in[name] = index
@@ -532,6 +554,12 @@ class Node(AbstractNode):
 
         port = OutputPort(self)
         port.update(kargs)
+#        print kargs
+
+        #gengraph
+#         port.get_ad_hoc_dict().add_metadata(name, type(value))
+#         port.get_ad_hoc_dict().set_metadata(name, value)
+        #/gengraph
 
         self.output_desc.append(port)
         index = len(self.outputs) - 1

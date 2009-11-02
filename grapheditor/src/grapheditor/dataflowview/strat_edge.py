@@ -42,6 +42,8 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
         srcVertexItem = srcPortItem.parentItem()
         dstVertexItem = dstPortItem.parentItem()
 
+        if(not hasattr(dstPortItem, "port")): return None, None
+
         #if the input and the output are on the same vertex...
         if(srcPortItem.port().vertex() == dstPortItem.port().vertex()):
             raise Exception("Nonsense connection : plugging self to self.")            

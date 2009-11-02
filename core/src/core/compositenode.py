@@ -28,7 +28,7 @@ import copy
 import pprint
 
 
-from openalea.core.node import AbstractFactory, Node
+from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
 #from openalea.core.node import InstantiationError
 from openalea.core.pkgmanager import PackageManager, UnknownPackageError
@@ -276,14 +276,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         return idmap.values()
 
-    def load_ad_hoc_data(self, node, elt_data):                              
-        for key, dtype in Node.__ad_hoc_slots__.iteritems():                 
-            try:                                                             
-                node.get_ad_hoc_dict().add_metadata(key, dtype)              
-            except Exception, e:                                             
-                print e                                                      
-                continue                                                     
-                                                                             
+    def load_ad_hoc_data(self, node, elt_data):
         toDelete = []
         position = [0.0,0.0]
         for key, val in elt_data.iteritems():  
@@ -303,7 +296,12 @@ class CompositeNodeFactory(AbstractFactory):
             elif( key == "txt"):                                            
                 node.get_ad_hoc_dict().set_metadata("text", val)
                 toDelete.append(key)                                         
-                continue                                                     
+                continue
+            elif( key == "port_hide_changed"):
+                for i in val:
+                    print node.input_desc[i].get_ad_hoc_dict()
+                toDelete.append(key)                                         
+                continue
 
         node.get_ad_hoc_dict().set_metadata("position", position)
 

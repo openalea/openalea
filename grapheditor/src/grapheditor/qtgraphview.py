@@ -132,9 +132,8 @@ class QtGraphViewVertex(QtGraphViewElement):
         secondColor=None
         gradient=None
 
-        state = self.observed().get_state()
-
         #try to get a strategy for this state ...
+        state = self.observed().get_state()
         strategy = self.select_drawing_strategy(state)
         if(strategy):
             path = strategy.get_path(self)
@@ -145,18 +144,8 @@ class QtGraphViewVertex(QtGraphViewElement):
                 secondColor=strategy.get_second_color(self)
         else: #...or fall back on defaults
             rect = self.rect()
-
-            #the drawn rectangle is smaller than
-            #the actual widget size
-            rect.setX( rect.x()+self.__margin__ )
-            rect.setY( rect.y()+self.__v_margin__ )
-            rect.setWidth( rect.width()-self.__margin__ )
-            rect.setHeight( rect.height()-self.__v_margin__ )
-
             path = QtGui.QPainterPath()
-            path.addRoundedRect(rect,
-                                self.__corner_radius__,
-                                self.__corner_radius__)
+            path.addRoundedRect(rect, 5, 5)
             firstColor = self.not_selected_color
             secondColor = self.not_modified_color
 
@@ -164,7 +153,6 @@ class QtGraphViewVertex(QtGraphViewElement):
             gradient = QtGui.QLinearGradient(0, 0, 0, 100)
             gradient.setColorAt(0.0, firstColor)
             gradient.setColorAt(0.8, secondColor)
-
 
         #PAINTING
         #painter = QtGui.QPainter(self)
@@ -321,6 +309,11 @@ class QtGraphViewEdge(QtGraphViewElement):
                         self.update_line_source(*pos)
                     elif(sender==self.dst()):
                         self.update_line_destination(*pos)
+            elif(event[1]=="hide" and sender==self.dst()):
+                if event[2]:
+                    self.setVisible(False)
+                else:
+                    self.setVisible(True)
 
     def initialise_from_model(self):
         self.src().get_ad_hoc_dict().simulate_full_data_change()
@@ -374,6 +367,8 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
     def consolidate(self, graph):
         try:
             srcVertex, dstVertex = self.get_connections()
+            if(srcVertex == None or dstVertex == None):
+                return
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
             print "consolidation failed :", e
@@ -422,6 +417,8 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
         grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)
+
+        self.__selectAdditions=False
 
         scene = QtGui.QGraphicsScene(self)
         #scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
@@ -525,3 +522,32 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
 
     def new_edge_scene_init(self, graphicalEdge):
         self.scene().addItem(graphicalEdge)
+
+    def get_selected_item(self):
+        """ """
+        return [ item for id, item in self.graph_item.items() if item.isSelected()]
+
+    def get_selection_center(self, selection=None):
+        items = None
+        if selection:
+            items = selection
+        else:
+            items = self.get_selected_item()
+
+        l = len(items)
+        if(l == 0) : return QtCore.QPointF(30,30)
+        
+        sx = sum((self.graph_item[i].pos().x() for i in items))
+        sy = sum((self.graph_item[i].pos().y() for i in items))
+        return QtCore.QPointF( float(sx)/l, float(sy)/l )
+
+    def select_added_elements(self, val):
+        self.__selectAdditions=val
+
+    def post_addition(self, element):
+        """defining virtual bases makes the program start
+        but crash during execution if the method is not implemented, where
+        the interface checking system could prevent the application from
+        starting, with a die-early behaviour."""
+        if(self.__selectAdditions):
+            element.setSelected(True)
