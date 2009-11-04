@@ -467,7 +467,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             try :
                 i.set_user_color(color)
             except Exception, e:
-                print e
+                print "set selection color exception:", e
                 pass
 
 

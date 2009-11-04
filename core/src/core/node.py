@@ -151,7 +151,6 @@ class AbstractNode(Observed, AbstractListener):
         """ Return the factory of the node (if any) """
         return self.factory
 
-import traceback
 
 #gengraph
 #AbstractPort cannot be a dict, because

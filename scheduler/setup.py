@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 # (The version number is used by deploy to detect UPDATES)
 
 name = 'OpenAlea.Scheduler'
-version= '0.7.0'
+version= '0.7.1'
 
 # Packages list, namespace and root directory of packages
 

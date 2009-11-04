@@ -22,21 +22,31 @@ __revision__=" $Id: $ "
 
 from openalea import scheduler as sch
 
+from openalea.core.node import AbstractNode, Node
+from openalea.core.dataflow import SubDataflow
+
+
 def create_task (function, delay, priority, name, start) :
-	task = sch.Task(function,delay,priority,name)
-	if start < 0 :
-		start = None
-	return (task,start),
+    task = sch.Task(function,delay,priority,name)
+    if start < 0 :
+        start = None
+    return (task,start),
 
 def create_scheduler (tasks) :
-	scheduler = sch.Scheduler()
-	try :
-		iter(tasks[1])
-		for task,start_time in tasks :
-			scheduler.register(task,start_time)
-	except TypeError,IndexError :
-		task,start_time = tasks
-		scheduler.register(task,start_time)
-	
-	return scheduler,
+    scheduler = sch.Scheduler()
+    try :
+        iter(tasks[1])
+        for task,start_time in tasks :
+            scheduler.register(task,start_time)
+    except TypeError,IndexError :
+        task,start_time = tasks
+        scheduler.register(task,start_time)
+    
+    return scheduler,
+
+def run (scheduler, nb_step) :
+    g = scheduler.run()
+    for i in range(nb_step):
+        next_cycle = g.next()
+    return scheduler,
 
