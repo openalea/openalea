@@ -41,7 +41,9 @@ from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 from openalea.visualea.util import exception_display, busy_cursor
 
 from openalea.grapheditor import qtgraphview
+from graph_operator import GraphOperator
 import visualea_integration
+
 
 
 
@@ -161,33 +163,15 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionClea_r_Console, SIGNAL("triggered()"),
                      self.clear_python_console)
 
-        # WorkspaceMenu
-
-        # daniel was here:
-        action = self.menu_Workspace.addAction("Change Color")
-        self.connect(action, QtCore.SIGNAL("triggered()"), self.color_selection)
-
-        self.connect(self.action_Run, SIGNAL("triggered()"), self.run)
-        self.connect(self.actionReset, SIGNAL("triggered()"), self.reset)
-        self.connect(self.actionInvalidate, SIGNAL("triggered()"), self.invalidate)
         
-        self.connect(self.action_Copy, SIGNAL("triggered()"), self.copy)
-        self.connect(self.action_Paste, SIGNAL("triggered()"), self.paste)
-        self.connect(self.action_Cut, SIGNAL("triggered()"), self.cut)
-        
-        self.connect(self.action_Delete_2, SIGNAL("triggered()"), self.delete_selection)
-        self.connect(self.actionGroup_Selection, SIGNAL("triggered()"), self.group_selection)
-        self.connect(self.action_New_Empty_Workspace, SIGNAL("triggered()"), self.new_workspace)
-        self.connect(self.action_Close_current_workspace, SIGNAL("triggered()"),
-                     self.close_workspace)
-        self.connect(self.actionConfigure_I_O, SIGNAL("triggered()"),
-                     self.configure_io)
-        self.connect(self.actionReload_from_Model, SIGNAL("triggered()"), self.reload_from_factory)
-        self.connect(self.action_Export_to_Factory, SIGNAL("triggered()"), self.export_to_factory)
-        self.connect(self.actionExport_to_Application, SIGNAL("triggered()"),
-                     self.export_to_application)
-        self.connect(self.actionPreview_Application, SIGNAL("triggered()"),
-                     self.preview_application)
+        # WorkspaceMenu 
+        # daniel was here: now the menu is built using the graph operator.
+        QtCore.QObject.connect(self.menu_Workspace, 
+                               QtCore.SIGNAL("aboutToShow()"), 
+                               self.__wsMenuShow)
+        QtCore.QObject.connect(self.menu_Workspace, 
+                               QtCore.SIGNAL("aboutToHide()"), 
+                               self.__wsMenuHide)
 
 
         # Window Mneu
@@ -202,6 +186,46 @@ class MainWindow(QtGui.QMainWindow,
         self.session = session
         session.notify_listeners()
         
+
+    def __wsMenuShow(self):
+        widget = self.tabWorkspace.currentWidget()
+
+        operator = GraphOperator(widget, widget.graph)
+        operator.set_session(self.session)
+        operator.set_interpreter(self.interpreterWidget)
+        operator.set_package_manager(self.pkgmanager)
+        operator.register_listener(self)
+
+        menu = self.menu_Workspace
+        menu.clear() #until i modify the ui files.
+
+        menu.addAction(operator("Run", menu, "graph_run"))
+        menu.addAction(operator("Reset", menu, "graph_reset"))
+        menu.addAction(operator("Invalidate", menu, "graph_invalidate"))
+        menu.addSeparator()
+        menu.addAction(operator("Copy", menu, "graph_copy"))
+        menu.addAction(operator("Cut", menu, "graph_cut"))
+        menu.addAction(operator("Paste", menu, "graph_paste"))
+        menu.addSeparator()
+        menu.addAction(operator("Remove selected vertices", menu, "graph_remove_selection"))
+        menu.addAction(operator("Group selected vertices", menu, "graph_group_selection"))
+        menu.addAction(operator("Change selection color", menu, "graph_set_selection_color"))
+        menu.addSeparator()
+        menu.connect(self.action_New_Empty_Workspace, QtCore.SIGNAL("triggered()"), 
+                     self.new_workspace)
+        menu.addAction(self.action_New_Empty_Workspace)
+        menu.addAction(operator("Close current workspace", menu, "graph_close"))
+        menu.addAction(operator("Configure IO", menu, "graph_configure_io"))
+        menu.addAction(operator("Reload workspace", menu, "graph_reload_from_factory"))
+        menu.addAction(operator("Export to factory", menu, "graph_export_to_factory"))
+        menu.addSeparator()
+        menu.addAction(operator("Preview application", menu, "graph_preview_application"))
+        menu.addAction(operator("Export to application", menu, "graph_export_application"))
+        self.operator=operator #don't look! 
+        
+    def __wsMenuHide(self):
+        self.operator.unregister_listener(self)
+        self.operator=None
 
     def open_compositenode(self, factory):
         """ open a  composite node editor """
@@ -241,8 +265,15 @@ class MainWindow(QtGui.QMainWindow,
         """ Notification from observed """
 
         if(type(sender) == type(self.session)):
-            self.update_tabwidget()
-            self.reinit_treeview()
+            
+            if(event and event[0]=="workspace_added"):
+                graph=event[1]
+                self.open_widget_tab(graph, graph.factory)
+            elif(event and event[0] == "graphoperator_newfactory"):
+                self.reinit_treeview()
+            else:
+                self.update_tabwidget()
+                self.reinit_treeview()
 
     
     def closeEvent(self, event):
@@ -262,37 +293,7 @@ class MainWindow(QtGui.QMainWindow,
         self.pkg_model.reset()
         self.datapool_model.reset()
         self.search_model.reset()
-        
-
-    def close_workspace(self):
-        """ Close current workspace """
-
-        cindex = self.tabWorkspace.currentIndex()
-
-        # Try to save factory if widget is a graph
-        try:
-            w = self.index_nodewidget[cindex]
-            modified = w.node.graph_modified
-            if(modified):
-                # Generate factory if user want
-                ret = QtGui.QMessageBox.question(self, "Close Workspace",
-                                                 "Graph has been modified.\n"+
-                                                 "Do you want to report modification "+
-                                                 "in the model ?\n",
-                                                 QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
-                if(ret == QtGui.QMessageBox.Yes):
-                    self.export_to_factory(cindex)
-
-        except Exception, e:
-            print e
-            pass
-
-        # Update session
-        node = self.index_nodewidget[cindex].node
-        self.session.close_workspace(cindex, False)
-        self.close_tab_workspace(cindex)
-            
+                   
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
@@ -313,7 +314,6 @@ class MainWindow(QtGui.QMainWindow,
     
     def update_tabwidget(self):
         """ open tab widget """
-
         # open tab widgets
         for (i, node) in enumerate(self.session.workspaces):
 
@@ -322,7 +322,6 @@ class MainWindow(QtGui.QMainWindow,
                 if(node != widget.node):
                     self.close_tab_workspace(i)
             self.open_widget_tab(node, factory=node.factory, pos = i)
-
             
         # close last tabs
         removelist = range( len(self.session.workspaces),
@@ -332,56 +331,7 @@ class MainWindow(QtGui.QMainWindow,
             self.close_tab_workspace(i)
 
 
-#     def open_widget_tab(self, node, factory, caption=None, pos = -1):
-#         """
-#         Open a widget in a tab giving an instance and its widget
-#         caption is append to the tab title
-#         """
-
-#                 # Test if the node is already opened
-#         for i in range(len(self.index_nodewidget)):
-#             widget = self.index_nodewidget[i]
-#             n = widget.node
-#             if(node is n):
-#                 self.tabWorkspace.setCurrentIndex(i)
-#                 return
-
-#         container = QtGui.QWidget(self)
-#         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-#         widget = factory.instantiate_widget(node, parent=None, edit=True)
-#         widget.wcaption = caption
-#         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-#         vboxlayout = QtGui.QVBoxLayout(container)
-#         vboxlayout.setSpacing(6)
-#         vboxlayout.setMargin(6)
-
-#         #vboxlayout.addWidget(widget)
-
-#         #gengraph
-#         gwidget = None
-#         try:
-#             gwidget = qtgraphview.QtGraphView(self, node)
-#             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-#             vboxlayout.setSpacing(0)
-#             vboxlayout.addWidget(gwidget)
-#         except Exception, e:
-#             print e
-#             pass
-#         #/gengraph
-
-#         if(not caption) :
-#             i = self.session.workspaces.index(node)
-#             caption = "Workspace %i - %s"%(i, node.get_caption())
-        
-#         index = self.tabWorkspace.insertTab(pos, container, caption)
-#         self.tabWorkspace.setCurrentIndex(index)
-#         self.index_nodewidget.append(widget)
-
-#         return index
-
-    def open_widget_tab(self, node, factory, caption=None, pos = -1):
+    def open_widget_tab(self, graph, factory, caption=None, pos = -1):
         """
         Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
@@ -391,42 +341,29 @@ class MainWindow(QtGui.QMainWindow,
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
             n = widget.graph.graph()
-            if(node is n):
+            if(graph is n):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
 
         container = QtGui.QWidget(self)
         container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        widget = factory.instantiate_widget(node, parent=None, edit=True)
-        widget.wcaption = caption
-        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-        vboxlayout = QtGui.QVBoxLayout(container)
-        vboxlayout.setSpacing(6)
-        vboxlayout.setMargin(6)
-
-        #vboxlayout.addWidget(widget)
-
         #gengraph
         gwidget = None
         try:
-            gwidget = qtgraphview.QtGraphView(self, node)
+            gwidget = qtgraphview.QtGraphView(self, graph)
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            vboxlayout.setSpacing(0)
-            vboxlayout.addWidget(gwidget)
         except Exception, e:
             print e
             pass
         #/gengraph
 
         if(not caption) :
-            i = self.session.workspaces.index(node)
-            caption = "Workspace %i - %s"%(i, node.get_caption())
+            i = self.session.workspaces.index(graph)
+            caption = "Workspace %i - %s"%(i, graph.get_caption())
         
-        index = self.tabWorkspace.insertTab(pos, container, caption)
+        index = self.tabWorkspace.insertTab(pos, gwidget, caption)
         self.tabWorkspace.setCurrentIndex(index)
-        self.index_nodewidget.append(gwidget)
 
         return index
         
@@ -448,124 +385,7 @@ class MainWindow(QtGui.QMainWindow,
         # Reload workspace
         for index in range(len(self.index_nodewidget)):
             self.reload_from_factory(index)
-
-  
-
-    @exception_display
-    @busy_cursor
-    def run(self):
-        """ Run the active workspace """
-
-        cindex = self.tabWorkspace.currentIndex()
-        self.index_nodewidget[cindex].node.eval_as_expression()
-
-
-    def reload_from_factory(self, index=-1):
-        """ Reload a tab node givin its index"""
-
-        if(index<0): index = self.tabWorkspace.currentIndex()
-
-        widget = self.index_nodewidget[index]
-        name = widget.node.factory.name
-
-        if(widget.node.graph_modified):
-            # Show message
-            ret = QtGui.QMessageBox.question(self, "Reload workspace '%s'"%(name),
-                                             "Reload will discard recent changes on "\
-                                                 + "workspace '%s'.\n"%(name)+
-                                             "Continue ?\n",
-                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
-            if(ret == QtGui.QMessageBox.No):
-                return
-
-
-        newnode = widget.node.factory.instantiate()
-        widget.node = newnode
-        self.session.workspaces[index] = newnode
-
-
-    def group_selection(self):
-        """ Replace selected nodes with a composite node """
-
-        index = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[index]
-
-        if(not widget.get_selected_item()) : return
-
-        # Get default package id
-        default_factory = widget.node.factory
-        if(default_factory and default_factory.package):
-            pkg_id = default_factory.package.name
-            name = default_factory.name + "_grp_" + str(len(default_factory.package))
-        else:
-            pkg_id = None
-            name = ""
-
-        dialog = NewGraph("Group Selection", self.pkgmanager, self, 
-            io=False, pkg_id=pkg_id, name=name)
-        ret = dialog.exec_()
-
-        if(not ret): return
-        
-        factory = dialog.create_cnfactory(self.pkgmanager)
-        f = widget.group_selection(factory)
-
-        try:
-            factory.package.write()
-        except AttributeError, e:
-            mess = QtGui.QMessageBox.warning(self, "Error",
-                                             "Cannot write Graph model on disk. :\n"+
-                                             "You try to write in a System Package:\n")
-        self.reinit_treeview()
-
-
-    def export_to_factory(self, index=-1):
-        """
-        Export workspace index to its factory
-        """
-
-        if(index < 0): index = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[index]
-
-        # Get a composite node factory
-        dialog = FactorySelector(widget.node.factory, self)
-            
-        # Display Dialog
-        ret = dialog.exec_()
-        if(ret == 0): return None
-        factory = dialog.get_factory()
-
-        widget.node.to_factory(factory, None)
-        widget.node.factory = factory
-        caption = "Workspace %i - %s"%(index, factory.name)
-        self.tabWorkspace.setTabText(index, caption)
-
-        try:
-            factory.package.write()
-
-        except AttributeError, e:
-            mess = QtGui.QMessageBox.warning(self, "Error",
-                                             "Cannot write Graph model on disk. :\n"+
-                                             "You try to write in a System Package:\n")
-        self.reinit_treeview()
-        
-
-    def configure_io(self, index=-1):
-        """ Configure workspace IO """
-
-        if(index < 0): index = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[index]
-
-        dialog = IOConfigDialog(widget.node.input_desc,
-                                widget.node.output_desc,
-                                parent=self)
-        ret = dialog.exec_()
-
-        if(ret):
-            widget.node.set_io(dialog.inputs, dialog.outputs)
-            widget.rebuild_scene()
-        
+         
     
     def ws_changed(self, index):
         """ Current workspace has changed """
@@ -590,7 +410,7 @@ class MainWindow(QtGui.QMainWindow,
         if (index<0):
             return 
 
-        # set hitted bar to front
+        # set hit bar to front
         self.tabWorkspace.setCurrentIndex(index)
         
         menu = QtGui.QMenu(self)
@@ -735,86 +555,6 @@ class MainWindow(QtGui.QMainWindow,
         self.tabPackager.setCurrentIndex(i)
         self.search_lineEdit.setFocus()
 
-    def color_selection(self):
-        """Changes the color of a selection of nodes"""
-
-        index = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[index]
-
-        if(not widget or not widget.get_selected_item()) : return
-
-        color = QtGui.QColorDialog.getColor( QtGui.QColor(100,100,100,255), self)
-#                                     "Choose custom color...")
-
-        widget.set_selection_color(color)
-        return
-
-    def delete_selection(self):
-        """ Delete selection in current workspace """
-        cindex = self.tabWorkspace.currentIndex()
-        widget = self.index_nodewidget[cindex]
-
-        try:
-            widget.remove_selection()
-        except AttributeError:
-            pass
-
-
-    def copy(self):
-        """ Copy """
-
-        if(self.interpreterWidget.hasFocus()):
-            try:
-                self.interpreterWidget.copy()
-            except:
-                pass
-        else:
-            cindex = self.tabWorkspace.currentIndex()
-            widget = self.index_nodewidget[cindex]
-
-            try:
-                widget.copy(self.session)
-            except AttributeError:
-                pass
-
-
-    def paste(self):
-        """ Paste """
-
-        if(self.interpreterWidget.hasFocus()):
-            try:
-                self.interpreterWidget.paste()
-            except:
-                raise
-
-        else:
-            cindex = self.tabWorkspace.currentIndex()
-            widget = self.index_nodewidget[cindex]
-            
-            try:
-                widget.paste(self.session)
-            except AttributeError:
-                pass
-
-
-    def cut(self):
-        """ Cut """
-        if(self.interpreterWidget.hasFocus()):
-            try:
-                self.interpreterWidget.cut()
-            except:
-                pass
-        else:
-            cindex = self.tabWorkspace.currentIndex()
-            widget = self.index_nodewidget[cindex]
-            
-            try:
-                widget.copy(self.session)
-                widget.remove_selection()
-            except AttributeError:
-                pass
-
-
     def open_preferences(self):
         """ Open Preference dialog """
 
@@ -822,82 +562,6 @@ class MainWindow(QtGui.QMainWindow,
         ret = dialog.exec_()
         # ! does not return anythin and do not use ret ? 
 
-
-    def reset(self):
-        """ Reset current workspace """
-
-        ret = QtGui.QMessageBox.question(self, 
-            "Reset Workspace",
-            "Reset will delete all input values.\n" + "Continue ?\n",
-            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
-        if(ret == QtGui.QMessageBox.No):
-            return
-                    
-
-        cindex = self.tabWorkspace.currentIndex()
-        self.index_nodewidget[cindex].node.reset()
-
-    
-    def invalidate(self):
-        """ Invalidate current workspace """
-
-        cindex = self.tabWorkspace.currentIndex()
-        self.index_nodewidget[cindex].node.invalidate()
-
-
-    def get_current_factory(self, name):
-        """ Build a temporary factory for current workspace
-        Return (node, factory)
-        """
-
-        cindex = self.tabWorkspace.currentIndex()
-        node = self.index_nodewidget[cindex].node
-
-        # Export as temporary factory
-        from openalea.core.compositenode import CompositeNodeFactory
-        tempfactory = CompositeNodeFactory(name = name)
-        node.to_factory(tempfactory)
-
-        return (node, tempfactory)
-    
-        
-    def preview_application(self):
-        """ Open Application widget """
-
-        (node, tempfactory) = self.get_current_factory("Preview")
-        w = tempfactory.instantiate_widget(node, self, autonomous=True)
-
-        from util import open_dialog
-        open_dialog(self, w, 'Preview Application')
-
-
-    def export_to_application(self):
-        """ Export current workspace composite node to an Application """
-
-        # Get Filename
-        filename = QtGui.QFileDialog.getSaveFileName(
-            self, "Python Application", QtCore.QDir.homePath(),\
-            "Python file (*.py)")
-        
-        filename = str(filename)
-        if(not filename):
-            return
-
-        # Get Application Name
-        (result, ok) = QtGui.QInputDialog.getText(self, "Application Name", "",
-                                   QtGui.QLineEdit.Normal, "")
-        if(not ok):
-            return
-
-        name = str(result)
-        if(not name) : name = "OpenAlea Application"
-        
-        (node, tempfactory) = self.get_current_factory(name)
-        w = tempfactory.instantiate_widget(node, self)
-
-        from openalea.core import export_app
-        export_app.export_app(name, filename, tempfactory)
         
     # Drag and drop support 
     def dragEnterEvent(self, event):

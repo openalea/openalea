@@ -17,11 +17,12 @@
 
 
 from PyQt4 import QtCore, QtGui
+from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
 from openalea.grapheditor import qtgraphview
 
-import visualea_integration_vertex
+#import visualea_integration_vertex
 
 ####################################################
 # Handling the drag and drop events over the graph #
@@ -96,6 +97,78 @@ def get_drop_mime_handlers():
 
 qtgraphview.QtGraphView.set_mime_handler_map(get_drop_mime_handlers())
 
+
+#################################
+# QtEvent handlers for vertices #
+#################################
+
+def vertexMouseDoubleClickEvent(graphItem, event):
+    if event.button()==QtCore.Qt.LeftButton:
+        # Read settings
+        try:
+            localsettings = Settings()
+            str = localsettings.get("UI", "DoubleClick")
+        except:
+            str = "['open']"
+
+        view = graphItem.scene().views()[0]
+        operator=GraphOperator(view, graphItem.graph)
+        operator.set_vertex_item(graphItem)
+
+        if('open' in str):
+            operator.vertex_open()
+        elif('run' in str):
+            operator.vertex_run()
+
+
+
+def vertexContextMenuEvent(graphItem, event):
+    """ Context menu event : Display the menu"""
+    view = graphItem.scene().views()[0]
+    operator=GraphOperator(view, graphItem.graph)
+    operator.set_vertex_item(graphItem)
+    menu = QtGui.QMenu(view)
+
+    menu.addAction(operator("Run",             menu, "vertex_run"))
+    menu.addAction(operator("Open Widget",     menu, "vertex_open"))
+    menu.addSeparator()
+    menu.addAction(operator("Delete",          menu, "vertex_remove"))
+    menu.addAction(operator("Reset",           menu, "vertex_reset"))
+    menu.addAction(operator("Replace By",      menu, "vertex_replace"))
+    menu.addAction(operator("Reload",          menu, "vertex_reload"))
+    menu.addSeparator()
+    menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
+    menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
+    menu.addSeparator()
+
+    action = operator("Mark as User Application", menu, "vertex_mark_user_app")
+    action.setCheckable(True)
+    action.setChecked( bool(graphItem.vertex().user_application))
+    menu.addAction(action)
+
+    action = operator("Lazy", menu, "vertex_set_lazy")
+    action.setCheckable(True)
+    action.setChecked(graphItem.vertex().lazy)
+    menu.addAction(action)
+
+    action = operator("Block", menu, "vertex_block")
+    action.setCheckable(True)
+    action.setChecked(graphItem.vertex().block)
+    menu.addAction(action)
+
+    menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
+
+    menu.move(event.screenPos())
+    menu.show()
+    del menu
+    event.accept()
+
+
+
+qtgraphview.QtGraphViewVertex.set_event_handler("mouseDoubleClickEvent", 
+                                                vertexMouseDoubleClickEvent)
+qtgraphview.QtGraphViewVertex.set_event_handler("contextMenuEvent", 
+                                                vertexContextMenuEvent)
 
 
 

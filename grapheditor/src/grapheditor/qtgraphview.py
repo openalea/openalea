@@ -523,16 +523,21 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def new_edge_scene_init(self, graphicalEdge):
         self.scene().addItem(graphicalEdge)
 
-    def get_selected_item(self):
+    def get_selected_items(self, subcall=None):
         """ """
-        return [ item for id, item in self.graph_item.items() if item.isSelected()]
+        if(subcall):
+            return [ eval("item."+subcall) for item in self.items() if item.isSelected() and
+                     isinstance(item, QtGraphViewVertex)]
+        else:
+            return [ item for item in self.items() if item.isSelected() and 
+                     isinstance(item, QtGraphViewVertex)]
 
     def get_selection_center(self, selection=None):
         items = None
         if selection:
             items = selection
         else:
-            items = self.get_selected_item()
+            items = self.get_selected_items()
 
         l = len(items)
         if(l == 0) : return QtCore.QPointF(30,30)

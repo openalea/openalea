@@ -230,7 +230,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         return n
 
-    def paste(self, cnode, data_modifiers=[], call_stack=None):
+    def paste(self, cnode, data_modifiers=[], call_stack=None, meta=False):
         """ Paste to an existing CompositeNode instance
 
         :param cnode: composite node instance
@@ -255,7 +255,12 @@ class CompositeNodeFactory(AbstractFactory):
 
                 try:
                     if(callable(func)):
-                        n.internal_data[key] = func(n.internal_data[key])
+                        #gengraph
+                        if(meta):
+                            func(n)
+                        #/gengraph
+                        else:
+                            n.internal_data[key] = func(n.internal_data[key])
                     else:
                         n.internal_data[key] = func
                 except:
@@ -277,6 +282,15 @@ class CompositeNodeFactory(AbstractFactory):
         return idmap.values()
 
     def load_ad_hoc_data(self, node, elt_data):
+        try:
+            node.get_ad_hoc_dict().add_metadata("text", str)
+            node.get_ad_hoc_dict().add_metadata("position", list)
+            node.get_ad_hoc_dict().add_metadata("user_color", list)
+            node.get_ad_hoc_dict().add_metadata("use_user_color", bool)
+        except:
+            pass
+
+
         toDelete = []
         position = [0.0,0.0]
         for key, val in elt_data.iteritems():  
@@ -293,7 +307,7 @@ class CompositeNodeFactory(AbstractFactory):
                 position[1] = val                                            
                 toDelete.append(key)                                         
                 continue
-            elif( key == "txt"):                                            
+            elif( key == "txt"):
                 node.get_ad_hoc_dict().set_metadata("text", val)
                 toDelete.append(key)                                         
                 continue
@@ -305,8 +319,10 @@ class CompositeNodeFactory(AbstractFactory):
 
         node.get_ad_hoc_dict().set_metadata("position", position)
 
-        for key in toDelete:                                             
-            del elt_data[key]                                            
+
+        #the following will break test_compositenode.py
+#         for key in toDelete:                                             
+#             del elt_data[key]                                            
 
 
     def instantiate_node(self, vid, call_stack=None):

@@ -21,6 +21,9 @@ from openalea.core import compositenode
 class GraphAdapter(object):
     """An adapter to openalea.core.compositenode"""
     def __init__(self, graph):
+        self.set_graph(graph)
+
+    def set_graph(self, graph):
         self.graph = weakref.ref(graph)
 
     def add_vertex(self, vertex, position=None):
@@ -36,7 +39,7 @@ class GraphAdapter(object):
         return self.graph().node(vid)
 
     def remove_vertex(self, vertex):
-        self.graph().remove_node(vertex)
+        self.graph().remove_node(vertex.get_id())
 
     def remove_vertices(self, vertexList):
         for vert in vertexList:
@@ -76,11 +79,11 @@ class GraphAdapter(object):
         return isinstance(input, node.InputPort)
 
     def is_output(self, output):
-        return isinstance(output, openalea.core.node.OutputPort)
+        return isinstance(output, node.OutputPort)
 
     #other checks
     def is_vertex_protected(self, node):
-        if (isintance(node, compositenode.CompositeNodeInput) or \
+        if (isinstance(node, compositenode.CompositeNodeInput) or \
                 isinstance(node, compositenode.CompositeNodeOutput)):
             return True
         return False

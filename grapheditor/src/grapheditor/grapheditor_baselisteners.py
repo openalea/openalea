@@ -128,7 +128,7 @@ class GraphListenerBase(observer.AbstractListener):
 
         self.initialise(graph) #start listening. Todo: rename this method in
         #the abstract listener class. and make it hold a reference to the observed
-        self.observed = weakref.ref(graph)
+        self.set_graph(graph)
 
         #mappings from models to widgets
         self.vertexmap = {}
@@ -150,6 +150,8 @@ class GraphListenerBase(observer.AbstractListener):
         #an edge currently being drawn, low-level detail.
         self.__newEdge = None
 
+    def set_graph(self, graph):
+        self.observed = weakref.ref(graph)
 
     def get_scene(self):
         raise NotImplementedError

@@ -212,7 +212,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         QtGui.QGraphicsWidget.__init__(self, parent)
         self.initialise(port)
         self.observed = weakref.ref(port)
-        port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
+        try:
+            port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
+        except:
+            pass
         port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
 

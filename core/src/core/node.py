@@ -151,6 +151,7 @@ class AbstractNode(Observed, AbstractListener):
         """ Return the factory of the node (if any) """
         return self.factory
 
+import traceback
 
 #gengraph
 #AbstractPort cannot be a dict, because
@@ -189,10 +190,13 @@ class AbstractPort(Observed, AbstractListener):
 
     #gengraph
     def __getitem__(self, key):
-        return self._innerDict[key]
+        return self._innerDict.__getitem__(key)
 
     def __setitem__(self, key, value):
-        self._innerDict[key] = value
+        self._innerDict.__setitem__(key,value)
+
+    def __delitem__(self, key):
+        self._innerDict.__delitem__(key)
 
     def update(self, arg):
         self._innerDict.update(arg)

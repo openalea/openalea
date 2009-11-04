@@ -84,7 +84,7 @@ class Session(Observed):
             self.workspaces.append(compositenode)
 
         if(notify):
-            self.notify_listeners()
+            self.notify_listeners(("workspace_added", compositenode))
 
         return compositenode
 
