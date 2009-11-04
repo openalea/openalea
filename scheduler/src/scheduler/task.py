@@ -72,6 +72,11 @@ class Task (object) :
     #    evaluation of the function
     #
     ###############################################
+    def evaluation_enabled (self) :
+        """Tell wether the task evaluation is allowed.
+        """
+        return self._evaluate
+    
     def enable_evaluation (self, enable) :
         """Set the evaluation of the associated function.
         
