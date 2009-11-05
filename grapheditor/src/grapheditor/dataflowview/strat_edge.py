@@ -19,7 +19,9 @@ from PyQt4 import QtCore, QtGui
 
 from .. import qtgraphview
 from .. import edgefactory
+from . import strat_vertex
 
+from math import sqrt
 
 class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
     """
@@ -34,9 +36,27 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
         qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint, graphadapter)
         
     def get_connections(self):
+        boxsize = 10.0
         #find the port items that were activated
         srcPortItem = self.scene().itemAt( self.sourcePoint )
-        dstPortItem = self.scene().itemAt( self.destPoint   )
+        #dstPortItem = self.scene().itemAt( self.destPoint  )
+
+        #creation of a square which is a selected zone for while ports 
+        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2), (self.destPoint.y() - boxsize/2), boxsize, boxsize);
+        dstPortItems = self.scene().items(rect)        
+        dstPortItems = [item for item in dstPortItems if isinstance(item, strat_vertex.GraphicalPort)]
+
+        distance = float('inf')
+        dstPortItem = None
+                 
+        for item in dstPortItems:
+            d = sqrt((item.boundingRect().center().x() - self.destPoint.x())**2 + 
+                        (item.boundingRect().center().y() - self.destPoint.y())**2)
+            if d < distance:
+                distance = d
+                dstPortItem = item
+                
+        if not dstPortItem: return None, None 
 
         #find the vertex items that were activated
         srcVertexItem = srcPortItem.parentItem()
