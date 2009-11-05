@@ -16,7 +16,6 @@
 
 from openalea.core import observer
 import types
-import traceback
 
 class MetaDataDict(observer.Observed):
     """Attach meta data to a graphical representation
@@ -29,13 +28,9 @@ class MetaDataDict(observer.Observed):
         if(slots):
             if( isinstance(slots, self.__class__) ):
                 self._metas = slots._metas.copy()
-                print "a MetaDataDict", slots
             else:
-                print "something else"
                 for k, t in slots.iteritems():
-                    print k, t
                     if isinstance(t, list):
-                        print "hahaaaaaaaa"
                         self.add_metadata(k, t[0])
                         self.set_metadata(k, t[1])
                     else:
@@ -68,11 +63,11 @@ class MetaDataDict(observer.Observed):
 
     def set_metadata(self, key, value, notify=True):
         """Sets the value of a meta data."""
+        if( value == None ): return 
         if key not in self._metas :
             raise Exception("This key does not exist : " + key)
 
         if( type(value) != self._metas[key][0] ) :
-#            traceback.print_stack()
             print(self.__class__, "set_metadata : Unexpected value type", key, 
                   " : ", type(value),
                   " assuming duck-typing")

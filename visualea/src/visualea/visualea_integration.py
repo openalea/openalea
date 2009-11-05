@@ -45,7 +45,7 @@ def OpenAleaNodeFactoryHandler(view, event):
         
         position = view.mapToScene(event.pos())
         try:
-            node = factory.instantiate([view.observed().factory.get_id()])
+            node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, position=[position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
@@ -76,7 +76,7 @@ def OpenAleaNodeDataPoolHandler(view, event):
 
         # Set key val
         try:
-            node = factory.instantiate([view.observed().factory.get_id()])
+            node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, [position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
