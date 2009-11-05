@@ -16,15 +16,42 @@
 
 from openalea.core import observer
 import types
+import traceback
 
 class MetaDataDict(observer.Observed):
     """Attach meta data to a graphical representation
     of a GraphView component. This metadata can be 
     used to customize the appearance of the node."""
-    def __init__(self):
+    def __init__(self, slots=None):
         observer.Observed.__init__(self)
         self._metas = {}
-        return
+
+        if(slots):
+            if( isinstance(slots, self.__class__) ):
+                self._metas = slots._metas.copy()
+                print "a MetaDataDict", slots
+            else:
+                print "something else"
+                for k, t in slots.iteritems():
+                    print k, t
+                    if isinstance(t, list):
+                        print "hahaaaaaaaa"
+                        self.add_metadata(k, t[0])
+                        self.set_metadata(k, t[1])
+                    else:
+                        self.add_metadata(k, t, False)        
+
+
+
+    def __repr__(self):
+        stri = "{"
+        for key, val in self._metas.iteritems():
+            stri = stri+ "\"" + key + "\" : [" + val[0].__name__ + ", " + repr(val[1]) + "],"
+        stri = stri[:-1] + "}"
+        return stri
+
+    def __len__(self):
+        return len(self._metas)
 
     def add_metadata(self, key, valType, notify=True):
         """Creates a new entry in the meta data registry.
@@ -45,6 +72,7 @@ class MetaDataDict(observer.Observed):
             raise Exception("This key does not exist : " + key)
 
         if( type(value) != self._metas[key][0] ) :
+#            traceback.print_stack()
             print(self.__class__, "set_metadata : Unexpected value type", key, 
                   " : ", type(value),
                   " assuming duck-typing")

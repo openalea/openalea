@@ -33,10 +33,12 @@ from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 class GraphOperator(Observed):
     __slots__=[]
 
-    def __init__(self, graphView, graphAdapter):
+    def __init__(self, graphView, graph):
         Observed.__init__(self)
         self.graphView = weakref.ref(graphView)
-        self.graphAdapter=weakref.ref(graphAdapter)
+        self.graph     = weakref.ref(graph)
+
+        self._vertexWidget = None
 
 
     ######################################
@@ -86,7 +88,7 @@ class GraphOperator(Observed):
     @exception_display
     @busy_cursor
     def graph_run(self):
-        self.graphAdapter().graph().eval_as_expression()
+        self.graph().eval_as_expression()
 
     def graph_reset(self):
         ret = QtGui.QMessageBox.question(self, 
@@ -99,10 +101,10 @@ class GraphOperator(Observed):
         if(ret == QtGui.QMessageBox.No):
             return
 
-        self.graphAdapter().graph().reset() #check what this does signal-wise
+        self.graph().reset() #check what this does signal-wise
 
     def graph_invalidate(self):
-        self.graphAdapter().graph().invalidate() #check what this does signal-wise
+        self.graph().invalidate() #check what this does signal-wise
         
     
     def graph_set_selection_color(self):
@@ -121,15 +123,15 @@ class GraphOperator(Observed):
                 i.vertex().get_ad_hoc_dict().set_metadata("user_color", color)
                 i.vertex().get_ad_hoc_dict().set_metadata("use_user_color", True)
             except Exception, e:
-                print e
+                print "graph_set_selection_color exception", e
                 pass   
 
     def graph_remove_selection(self):
         items = self.graphView().get_selected_items()
         if(not items): return
         for i in items:
-            if self.graphAdapter().is_vertex_protected(i.vertex()): continue
-            self.graphAdapter().remove_vertex(i.vertex())
+            if self.graph().is_vertex_protected(i.vertex()): continue
+            self.graph().remove_vertex(i.vertex())
                 
     def graph_group_selection(self):
         """
@@ -137,11 +139,9 @@ class GraphOperator(Observed):
         """
         widget = self.graphView()
         index  = widget.parent().indexOf(widget)
-        adapter  = self.graphAdapter()
-        graph  = adapter.graph()
 
         # Get default package id
-        default_factory = graph.factory
+        default_factory = self.graph().factory
         if(default_factory and default_factory.package):
             pkg_id = default_factory.package.name
             name = default_factory.name + "_grp_" + str(len(default_factory.package))
@@ -160,15 +160,15 @@ class GraphOperator(Observed):
         items = widget.get_selected_items("vertex().get_id()")
         if(not items): return None
 
-        graph.to_factory(factory, items, auto_io=True)
+        self.graph().to_factory(factory, items, auto_io=True)
         pos = widget.get_selection_center(items)
 
         # Instantiate the new node
-        newVert = factory.instantiate([graph.factory.get_id()])
+        newVert = factory.instantiate([self.graph().factory.get_id()])
         if newVert:
-            adapter.add_vertex(newVert, pos)
-            new_edges = graph.compute_external_io(s, new_id)
-            adapter.add_edge((newEdges[0],newEdges[1]), 
+            self.graph().add_vertex(newVert, pos)
+            new_edges = self.graph().compute_external_io(s, new_id)
+            self.graph().add_edge((newEdges[0],newEdges[1]), 
                              (newEdges[2], newEdges[3]))
             self.graph_remove_selection()
 
@@ -193,7 +193,7 @@ class GraphOperator(Observed):
             s = [i.vertex().get_id() for i in s]
             if(not s): return 
             self.__session.clipboard.clear()
-            self.graphAdapter().graph().to_factory(self.__session.clipboard, s, auto_io=False)
+            self.graph().to_factory(self.__session.clipboard, s, auto_io=False)
 
     def graph_cut(self):
         if(self.__interpreter.hasFocus()):
@@ -215,7 +215,6 @@ class GraphOperator(Observed):
         else:
             widget = self.graphView()
             index  = widget.parent().indexOf(widget)
-            graph  = self.graphAdapter().graph()
 
             # Get Position from cursor
             position = widget.mapToScene(
@@ -229,8 +228,9 @@ class GraphOperator(Observed):
             # 
             cnode = self.__session.clipboard.instantiate()
 
-            min_x = min([cnode.node(vid).internal_data['posx'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
-            min_y = min([cnode.node(vid).internal_data['posy'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+            min_x = min([cnode.node(vid).get_ad_hoc_dict().get_metadata("position")[0] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+            min_y = min([cnode.node(vid).get_ad_hoc_dict().get_metadata("position")[1] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
+            print min_x, min_y
 
             def lam(n):
                 x = n.get_ad_hoc_dict().get_metadata("position")
@@ -238,19 +238,17 @@ class GraphOperator(Observed):
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
-            new_ids = self.__session.clipboard.paste(graph, 
+            new_ids = self.__session.clipboard.paste(self.graph(), 
                                                      modifiers, 
                                                      meta=True)
 
     def graph_close(self):
        # Try to save factory if widget is a graph
         widget = self.graphView()
-        print widget.parent()
         index  = widget.parent().indexOf(widget)
-        graph  = self.graphAdapter().graph()
 
         try:
-            modified = graph.graph_modified
+            modified = self.graph().graph_modified
             if(modified):
                 # Generate factory if user want
                 ret = QtGui.QMessageBox.question(widget, "Close Workspace",
@@ -264,7 +262,7 @@ class GraphOperator(Observed):
                     self.graph_export_to_factory()
 
         except Exception, e:
-            print e
+            print "graph_close exception", e
             pass
 
         # Update session
@@ -278,20 +276,20 @@ class GraphOperator(Observed):
         """
         widget = self.graphView()
         index  = widget.parent().indexOf(widget)
-        graph  = self.graphAdapter().graph()
 
         # Get a composite node factory
-        dialog = FactorySelector(graph.factory, widget)
+        dialog = FactorySelector(self.graph().factory, widget)
             
         # Display Dialog
         ret = dialog.exec_()
         if(ret == 0): return None
         factory = dialog.get_factory()
 
-        graph.to_factory(factory, None)
-        graph.factory = factory
+        self.graph().to_factory(factory, None)
+        self.graph().factory = factory
         caption = "Workspace %i - %s"%(index, factory.name)
-        widget.parent().setTabText(index, caption)
+        
+        widget.parent().parent().setTabText(index, caption)
 
         try:
             factory.package.write()
@@ -305,26 +303,25 @@ class GraphOperator(Observed):
     def graph_configure_io(self):
         """ Configure workspace IO """
         widget = self.graphView()
-        graph  = self.graphAdapter().graph()
 
-        dialog = IOConfigDialog(graph.input_desc,
-                                graph.output_desc,
+        dialog = IOConfigDialog(self.graph().input_desc,
+                                self.graph().output_desc,
                                 parent=widget)
         ret = dialog.exec_()
 
         if(ret):
-            graph.set_io(dialog.inputs, dialog.outputs)
+            self.graph().set_io(dialog.inputs, dialog.outputs)
             widget.rebuild_scene()
 
 
     def graph_reload_from_factory(self):
         """ Reload a tab node givin its index"""
         widget = self.graphView()
-        graph  = self.graphAdapter().graph()
+        index  = widget.parent().indexOf(widget)
 
-        name = graph.factory.name
+        name = self.graph().factory.name
 
-        if(graph.graph_modified):
+        if(self.graph().graph_modified):
             # Show message
             ret = QtGui.QMessageBox.question(wigdet, "Reload workspace '%s'"%(name),
                                              "Reload will discard recent changes on "\
@@ -336,9 +333,8 @@ class GraphOperator(Observed):
                 return
 
 
-        newGraph = graph.factory.instantiate()
+        newGraph = self.graph().factory.instantiate()
         widget.set_graph(newGraph)
-        widget.graph.set_graph(newGraph) #widget.graph is actually an adapter
         widget.rebuild_scene()
         self.__session.workspaces[index] = newGraph
 
@@ -346,19 +342,20 @@ class GraphOperator(Observed):
         """ Build a temporary factory for current workspace
         Return (node, factory)
         """
-        graph  = self.graphAdapter().graph()
         
         tempfactory = CompositeNodeFactory(name = name)
-        graph.to_factory(tempfactory)
+        self.graph().to_factory(tempfactory)
         
-        return (graph, tempfactory)
+        return (self.graph().graph(), tempfactory)
     
     def graph_preview_application(self):
         """ Open Application widget """
         widget = self.graphView()
         
         graph, tempfactory = self.__get_current_factory("Preview")
+        widget.deaf()
         w = qtgraphview.QtGraphView(widget.parent(), graph)
+        widget.deaf(False)
         #w = tempfactory.instantiate_widget(node, widget, autonomous=True)
 
         open_dialog(widget, w, 'Preview Application')
@@ -387,8 +384,9 @@ class GraphOperator(Observed):
         if(not name) : name = "OpenAlea Application"
         
         graph, tempfactory = self.__get_current_factory(name)
-#        w = tempfactory.instantiate_widget(graph, self)
+        widget.deaf()
         w = qtgraphview.QtGraphView(widget.parent(), graph)
+        widget.deaf(False)
         
         #export_app comes from openalea.core
         export_app.export_app(name, filename, tempfactory) 
@@ -401,7 +399,7 @@ class GraphOperator(Observed):
         self.vertexItem = weakref.ref(vertexItem)        
 
     def vertex_run(self):
-        self.graphAdapter().graph().eval_as_expression(self.vertexItem().vertex().get_id())        
+        self.graph().eval_as_expression(self.vertexItem().vertex().get_id())        
 
     def vertex_open(self):
         if(self._vertexWidget):
@@ -428,7 +426,7 @@ class GraphOperator(Observed):
         self._vertexWidget = open_dialog(self.graphView(), innerWidget, factory.get_id(), False)
 
     def vertex_remove(self):
-        self.graphAdapter().remove_vertex(self.vertexItem().vertex())
+        self.graph().remove_vertex(self.vertexItem().vertex())
 
     def vertex_reset(self):
         self.vertexItem().vertex().reset()
@@ -445,7 +443,7 @@ class GraphOperator(Observed):
         
         factory = self.dialog.get_selection()
         newnode = factory.instantiate()
-        self.graphAdapter().replace_vertex(self.vertexItem().vertex(), newnode)
+        self.graph().replace_vertex(self.vertexItem().vertex(), newnode)
 
     def vertex_reload(self):
         """ Reload the vertex """
@@ -458,7 +456,7 @@ class GraphOperator(Observed):
 
         # Reinstantiate the vertex
         newvertex = factory.instantiate()
-        self.graphAdapter().graph().set_actor(self.vertexItem().vertex().get_id(), newvertex)
+        self.graph().set_actor(self.vertexItem().vertex().get_id(), newvertex)
         newvertex.internal_data.update(self.vertexItem().vertex().internal_data)
         self.vertexItem().set_observed(newvertex)
         self.vertexItem().initialise_from_model()
@@ -478,7 +476,7 @@ class GraphOperator(Observed):
         editor.exec_()
 
     def vertex_mark_user_app(self, val):
-        self.graphAdapter().graph().set_continuous_eval(self.vertexItem().vertex().get_id(), bool(val))
+        self.graph().set_continuous_eval(self.vertexItem().vertex().get_id(), bool(val))
 
     def vertex_set_lazy(self, val):
         self.vertexItem().vertex().lazy = val #I HATE PROPERTIES, REALLY!

@@ -46,7 +46,7 @@ def OpenAleaNodeFactoryHandler(view, event):
         position = view.mapToScene(event.pos())
         try:
             node = factory.instantiate([view.observed().factory.get_id()])
-            view.graph.add_vertex(node, position=[position.x(), position.y()])
+            view.graph().add_vertex(node, position=[position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -77,7 +77,7 @@ def OpenAleaNodeDataPoolHandler(view, event):
         # Set key val
         try:
             node = factory.instantiate([view.observed().factory.get_id()])
-            view.graph.add_vertex(node, [position.x(), position.y()])
+            view.graph().add_vertex(node, [position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -112,7 +112,7 @@ def vertexMouseDoubleClickEvent(graphItem, event):
             str = "['open']"
 
         view = graphItem.scene().views()[0]
-        operator=GraphOperator(view, graphItem.graph)
+        operator=GraphOperator(view, graphItem.graph())
         operator.set_vertex_item(graphItem)
 
         if('open' in str):
@@ -125,7 +125,7 @@ def vertexMouseDoubleClickEvent(graphItem, event):
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     view = graphItem.scene().views()[0]
-    operator=GraphOperator(view, graphItem.graph)
+    operator=GraphOperator(view, graphItem.graph())
     operator.set_vertex_item(graphItem)
     menu = QtGui.QMenu(view)
 

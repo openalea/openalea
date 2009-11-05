@@ -71,9 +71,9 @@ class GraphViewStrategy(object):
 
 
 
-#################################
+###################################
 # vertex state drawing strategies #
-#################################
+###################################
 
 class DataflowPaintStrategyCommon:
     # Color Definition
@@ -89,10 +89,14 @@ class DataflowPaintStrategyCommon:
     
     __corner_radius__ = 5.0
     __margin__        = 5.0
-    __v_margin__        = 15.0
+    __v_margin__      = 15.0
 
 
 class PaintNormalVertex(object):
+    @classmethod
+    def paint(cls, item, painter, option, widget):
+        return False
+
     @classmethod
     def get_path(cls, widget):
         rect = widget.rect()
@@ -112,7 +116,11 @@ class PaintNormalVertex(object):
 
     @classmethod
     def get_gradient(cls, widget):
-        gradient = QtGui.QLinearGradient(0,0,0,100)
+        rect = widget.rect()
+        margin = DataflowPaintStrategyCommon.__v_margin__
+        gradient = QtGui.QLinearGradient(0,margin,
+                                         0,rect.height()-margin )
+
         gradient.setColorAt(0.0, cls.get_first_color(widget))
         gradient.setColorAt(0.8, cls.get_second_color(widget))
         return gradient
@@ -198,7 +206,8 @@ if(__name__ != "__main__"):
     node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
 
     #we declare what are the node model ad hoc data we require:
-    portModelAdHocExtension = {"hide":bool }
+    portModelAdHocExtension = {"hide":bool,
+                               "canvasPosition": list}
     node.AbstractPort.extend_ad_hoc_slots(portModelAdHocExtension)
 
     

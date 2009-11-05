@@ -41,10 +41,10 @@ class StrategyError( Exception ):
 class GraphElementObserverBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
     
-    def __init__(self, observed=None, graphadapter=None):
+    def __init__(self, observed=None, graph=None):
         observer.AbstractListener.__init__(self)
         self.set_observed(observed)
-        self.set_graph_adapter(graphadapter)
+        self.set_graph(graph)
         return
 
     def set_observed(self, observed):
@@ -54,13 +54,11 @@ class GraphElementObserverBase(observer.AbstractListener):
         else:
             self.observed = observed
 
-    def set_graph_adapter(self, adapter):
-        self.__adapter = weakref.ref(adapter)
+    def set_graph(self, graph):
+        self.__graph = weakref.ref(graph)
 
-    def get_graph_adapter(self):
-        return self.__adapter()
-
-    graph = property(get_graph_adapter)
+    def graph(self):
+        return self.__graph()
 
     def notify(self, sender, event):
         """called by the observed when something happens
@@ -71,29 +69,28 @@ class GraphElementObserverBase(observer.AbstractListener):
                     self.position_changed(*event[2])
 
     def clear_observed(self, observed):
-        """called when the observed dies."""
         if observed == self.observed() : self.observed = None
         return
 
-    def add_to_view(self, view):
-        """insert the graphical element into a scene"""
-        raise NotImplementedError
+#     def add_to_view(self, view):
+#         """insert the graphical element into a scene"""
+#         raise NotImplementedError
 
-    def remove_from_view(self, view):
-        """remove the graphical element from a scene"""
-        raise NotImplementedError
+#     def remove_from_view(self, view):
+#         """remove the graphical element from a scene"""
+#         raise NotImplementedError
 
-    def position_changed(self):
-        """called when the position of an item changes
-        in the model"""
-        raise NotImplementedError
+#     def position_changed(self):
+#         """called when the position of an item changes
+#         in the model"""
+#         raise NotImplementedError
 
     def initialise_from_model(self):
         self.observed().get_ad_hoc_dict().simulate_full_data_change()
 
 
 
-
+import traceback
 
 class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.
@@ -128,14 +125,23 @@ class GraphListenerBase(observer.AbstractListener):
 
         self.initialise(graph) #start listening. Todo: rename this method in
         #the abstract listener class. and make it hold a reference to the observed
-        self.set_graph(graph)
 
         #mappings from models to widgets
         self.vertexmap = {}
         self.edgemap = {}
         self.annomap = {}
 
-        self._type = None
+        #types
+        self._vertexWidgetType = None
+        self._edgeWidgetType = None
+        self._floatingEdgeWidgetType = None
+        self._annoWidgetType = None
+        self._adapterType = None
+
+        #an edge currently being drawn, low-level detail.
+        self.__newEdge = None
+
+#        self._type = None
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
@@ -144,14 +150,23 @@ class GraphListenerBase(observer.AbstractListener):
         self.set_edge_widget_type(stratCls.get_edge_widget_type())
         self.set_floating_edge_widget_type(stratCls.get_floating_edge_widget_type())
         self.set_annotation_widget_type(stratCls.get_annotation_widget_type())
-        self.set_graph_adapter(stratCls.get_graph_adapter_type()(graph))
+        self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
         self.set_direction_vector(stratCls.get_direction_vector())
+        self.set_graph(graph)
 
-        #an edge currently being drawn, low-level detail.
-        self.__newEdge = None
+    def graph(self):
+        if(isinstance(self.observed, weakref.ref)):
+            return self.observed()
+        else:
+            return self.observed
 
     def set_graph(self, graph):
-        self.observed = weakref.ref(graph)
+        self.clear_scene()
+        if(self._adapterType):
+            ga = self._adapterType(graph)
+            self.observed = ga
+        else:
+            self.observed = weakref.ref(graph) #might not need to be weak.
 
     def get_scene(self):
         raise NotImplementedError
@@ -168,37 +183,36 @@ class GraphListenerBase(observer.AbstractListener):
         elif(data[0]=="edgeRemoved") : self.edge_removed(data[1]) 
         elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
 
-    def post_addition(self, element):
-        """defining virtual bases makes the program start
-        but crash during execution if the method is not implemented, where
-        the interface checking system could prevent the application from
-        starting, with a die-early behaviour."""
-        raise NotImplementedError
+#     def post_addition(self, element):
+#         """defining virtual bases makes the program start
+#         but crash during execution if the method is not implemented, where
+#         the interface checking system could prevent the application from
+#         starting, with a die-early behaviour."""
+#         raise NotImplementedError
 
     def element_added(self, element):
         self.post_addition(element)
         return element
 
     def vertex_added(self, vertexModel):
-        vertexWidget = self._vertexWidgetType(vertexModel, self.__adapter)
+        vertexWidget = self._vertexWidgetType(vertexModel, self.graph())
         vertexWidget.add_to_view(self.get_scene())
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return self.element_added(vertexWidget)
 
     def edge_added(self, edgeModel, srcPort, dstPort):
-        edgeWidget = self._edgeWidgetType(edgeModel, self.__adapter, srcPort, dstPort)
+        edgeWidget = self._edgeWidgetType(edgeModel, self.graph(), srcPort, dstPort)
         edgeWidget.add_to_view(self.get_scene())
         self.edgemap[edgeModel] = weakref.ref(edgeWidget)
         return self.element_added(edgeWidget)
 
     def annotation_added(self, annotation):
-        annoWidget = self._annoWidgetType(annotation, self.__adapter)
+        annoWidget = self._annoWidgetType(annotation, self.graph())
         annoWidget.add_to_view(self.get_scene())
         self.annomap[annotation] = weakref.ref(annoWidget)
         return self.element_added(annoWidget)
 
     def vertex_removed(self, vertexModel):
-        print "vertexModel : ", vertexModel
         vertexWidget = self.vertexmap[vertexModel]
         vertexWidget().remove_from_view(self.get_scene())
         del self.vertexmap[vertexModel]
@@ -224,11 +238,11 @@ class GraphListenerBase(observer.AbstractListener):
         return True if self.__newEdge else False
     
     def new_edge_start(self, srcPt):
-        self.__newEdge = self._floatingEdgeWidgetType(srcPt, self.__adapter)
+        self.__newEdge = self._floatingEdgeWidgetType(srcPt, self.graph())
         self.new_edge_scene_init(self.__newEdge)
     
-    def new_edge_scene_init(self, edge):
-        raise NotImplementedError
+#     def new_edge_scene_init(self, edge):
+#         raise NotImplementedError
 
     def new_edge_set_destination(self, *dest):
         if(self.__newEdge):
@@ -237,15 +251,15 @@ class GraphListenerBase(observer.AbstractListener):
     def new_edge_end(self):
         if(self.__newEdge):
             try:
-                self.__newEdge.consolidate(self.__adapter)
+                self.__newEdge.consolidate(self.graph())
             except Exception, e :
                 pass
             finally:
                 self.new_edge_scene_cleanup(self.__newEdge)
         self.__newEdge = None
 
-    def new_edge_scene_cleanup(self, edge):
-        raise NotImplementedError
+#     def new_edge_scene_cleanup(self, edge):
+#         raise NotImplementedError
             
 
     #########################
@@ -264,18 +278,12 @@ class GraphListenerBase(observer.AbstractListener):
     def set_annotation_widget_type(self, _type):
         self._annoWidgetType = _type
 
+    def set_graph_adapter_type(self, _type):
+        self._adapterType = _type
+
     def set_direction_vector(self, vector):
         """precompute the cosines matrix from
         a vector giving the Y direction. The matrix 
         will be used to place graph verticess on the screen."""
         assert type(vector) == types.TupleType
-
-    def set_graph_adapter(self, adapter):
-        assert grapheditor_interfaces.IGraphAdapter.check(adapter)
-        self.__adapter = adapter
-
-    def get_graph_adapter(self):
-        return self.__adapter
-
-    graph = property(get_graph_adapter)
     

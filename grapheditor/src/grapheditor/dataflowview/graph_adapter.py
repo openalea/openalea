@@ -23,6 +23,12 @@ class GraphAdapter(object):
     def __init__(self, graph):
         self.set_graph(graph)
 
+    def __getattr__(self, name):
+        return getattr( self.graph(), name )
+
+    def simulate_construction_notifications(self):
+        self.graph().simulate_construction_notifications()
+
     def set_graph(self, graph):
         self.graph = weakref.ref(graph)
 

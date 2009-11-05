@@ -37,6 +37,7 @@ from openalea.core.dataflow import DataFlow, InvalidEdge
 #from openalea.core.dataflow import PortError
 #from openalea.core.algo.dataflow_copy import structural_copy
 from openalea.core.settings import Settings
+import metadatadict
 
 
 class IncompatibleNodeError(Exception):
@@ -79,6 +80,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         self.elt_data = kargs.get("elt_data", {})
         self.elt_value = kargs.get("elt_value", {})
+        self.elt_ad_hoc = kargs.get("elt_ad_hoc", {})
 
 
         # Documentation
@@ -281,7 +283,13 @@ class CompositeNodeFactory(AbstractFactory):
 
         return idmap.values()
 
-    def load_ad_hoc_data(self, node, elt_data):
+    def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
+        #reading new files
+        if elt_ad_hoc and len(elt_ad_hoc):
+            node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
+            return
+        
+        #extracting ad hoc data from old files.
         try:
             node.get_ad_hoc_dict().add_metadata("text", str)
             node.get_ad_hoc_dict().add_metadata("position", list)
@@ -313,7 +321,7 @@ class CompositeNodeFactory(AbstractFactory):
                 continue
             elif( key == "port_hide_changed"):
                 for i in val:
-                    print node.input_desc[i].get_ad_hoc_dict()
+                    pass #print node.input_desc[i].get_ad_hoc_dict()
                 toDelete.append(key)                                         
                 continue
 
@@ -321,8 +329,8 @@ class CompositeNodeFactory(AbstractFactory):
 
 
         #the following will break test_compositenode.py
-#         for key in toDelete:                                             
-#             del elt_data[key]                                            
+        for key in toDelete:                                             
+            del elt_data[key]                                            
 
 
     def instantiate_node(self, vid, call_stack=None):
@@ -340,7 +348,8 @@ class CompositeNodeFactory(AbstractFactory):
         node = factory.instantiate(call_stack)
         #gengraph                     
         attributes = self.elt_data[vid].copy()
-        self.load_ad_hoc_data(node, attributes)                      
+        ad_hoc     = self.elt_ad_hoc.get(vid, None)
+        self.load_ad_hoc_data(node, attributes, ad_hoc)                      
         node.internal_data.update(attributes)
         #/gengraph                                                           
 
@@ -760,7 +769,6 @@ class CompositeNode(Node, DataFlow):
         for e in sup_connect:
             sgfactory.connections[id(e)] = e
 
-
         # Copy node
         for vid in listid:
 
@@ -779,6 +787,9 @@ class CompositeNode(Node, DataFlow):
 
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
+
+            # Copy ad_hoc data
+            sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
 
             # Copy value
             if(not node.get_nb_input()):
@@ -1120,6 +1131,7 @@ $NAME = CompositeNodeFactory(name=$PNAME,
                              elt_connections=$ELT_CONNECTIONS,
                              elt_data=$ELT_DATA,
                              elt_value=$ELT_VALUE,
+                             elt_ad_hoc=$ELT_AD_HOC,
                              lazy=$LAZY,
                              )
 
@@ -1139,15 +1151,16 @@ $NAME = CompositeNodeFactory(name=$PNAME,
         fstr = string.Template(self.sgfactory_template)
 
         result = fstr.safe_substitute(NAME=f.get_python_name(),
-            PNAME=self.pprint_repr(f.name),
-            DESCRIPTION=self.pprint_repr(f.description),
-            CATEGORY=self.pprint_repr(f.category),
-            DOC=self.pprint_repr(f.doc),
-            INPUTS=self.pprint_repr(f.inputs),
-            OUTPUTS=self.pprint_repr(f.outputs),
-            ELT_FACTORY=self.pprint_repr(f.elt_factory),
-            ELT_CONNECTIONS=self.pprint_repr(f.connections),
-            ELT_DATA=self.pprint_repr(f.elt_data),
-            ELT_VALUE=self.pprint_repr(f.elt_value),
-            LAZY=self.pprint_repr(f.lazy), )
+                                      PNAME=self.pprint_repr(f.name),
+                                      DESCRIPTION=self.pprint_repr(f.description),
+                                      CATEGORY=self.pprint_repr(f.category),
+                                      DOC=self.pprint_repr(f.doc),
+                                      INPUTS=self.pprint_repr(f.inputs),
+                                      OUTPUTS=self.pprint_repr(f.outputs),
+                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
+                                      ELT_DATA=self.pprint_repr(f.elt_data),
+                                      ELT_VALUE=self.pprint_repr(f.elt_value),
+                                      ELT_AD_HOC=self.pprint_repr(f.elt_ad_hoc),
+                                      LAZY=self.pprint_repr(f.lazy), )
         return result

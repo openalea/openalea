@@ -85,12 +85,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def __layout_ports(self):
         """ Add ports """
         self.nb_cin = 0
-        for desc in self.graph.get_vertex_inputs(self.vertex().get_id()):
+        for desc in self.graph().get_vertex_inputs(self.vertex().get_id()):
             self.__add_in_connection(desc)
-
-        for desc in self.graph.get_vertex_outputs(self.vertex().get_id()):
+            
+        for desc in self.graph().get_vertex_outputs(self.vertex().get_id()):
             self.__add_out_connection(desc)
-
+            
     def __update_ports_ad_hoc_position(self):
         """the canvas position held in the adhoc dict of the ports has to be changed
         from here since the port items, being childs, don't receive moveEvents..."""
@@ -212,10 +212,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         QtGui.QGraphicsWidget.__init__(self, parent)
         self.initialise(port)
         self.observed = weakref.ref(port)
-        try:
-            port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
-        except:
-            pass
+#         try:
+#             port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
+#         except:
+#             pass
         port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
 

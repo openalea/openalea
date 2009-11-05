@@ -97,10 +97,8 @@ class AbstractNode(Observed, AbstractListener):
 
         #gengraph
         self.__id = None
-        self.__ad_hoc_dict = metadatadict.MetaDataDict()
-        self.initialise(self.__ad_hoc_dict)
-        for k, t in self.__ad_hoc_slots__.iteritems():
-            self.__ad_hoc_dict.add_metadata(k, t, False)
+        self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        
         #/gengraph
 
         # Internal Data (caption...)
@@ -117,6 +115,10 @@ class AbstractNode(Observed, AbstractListener):
     #/gengraph
 
     #gengraph
+    def set_ad_hoc_dict(self, d):
+        self.__ad_hoc_dict = d
+        self.initialise(d)
+
     def get_ad_hoc_dict(self):
         return self.__ad_hoc_dict
     #/gengraph
@@ -181,10 +183,8 @@ class AbstractPort(Observed, AbstractListener):
         #gengraph
         self.vertex = ref(vertex)
         self.__id = None
-        self.__ad_hoc_dict = metadatadict.MetaDataDict()
+        self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
         self.initialise(self.__ad_hoc_dict)
-        for k, t in self.__ad_hoc_slots__.iteritems():
-            self.__ad_hoc_dict.add_metadata(k, t, False)
         #/gengraph
 
     #gengraph
@@ -198,6 +198,10 @@ class AbstractPort(Observed, AbstractListener):
         self._innerDict.__delitem__(key)
 
     def update(self, arg):
+        self.__ad_hoc_dict = arg.pop("ad_hoc_dict",metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        self.initialise(self.__ad_hoc_dict)
+        
+
         self._innerDict.update(arg)
 
     def get(self, key, default):
@@ -533,12 +537,11 @@ class Node(AbstractNode):
 
         port = InputPort(self)
         port.update(kargs)
-        self.input_desc.append(port)
-
         #gengraph
         port.get_ad_hoc_dict().add_metadata(name, type(value))
         port.get_ad_hoc_dict().set_metadata(name, value)
         #/gengraph
+        self.input_desc.append(port)
 
         self.input_states.append(None)
         index = len(self.inputs) - 1
@@ -900,7 +903,7 @@ def Alias(factory, name):
     else:
         factory.alias.append(name)
 
-
+import traceback
 class NodeFactory(AbstractFactory):
     """
     A Node factory is able to create nodes on demand,
@@ -940,6 +943,9 @@ class NodeFactory(AbstractFactory):
         """
         AbstractFactory.__init__(self, name, description, category,
                                  inputs, outputs, **kargs)
+
+       #  traceback.print_stack()
+#         print inputs, outputs
 
         # Factory info
         self.nodemodule_name = nodemodule
@@ -1054,7 +1060,7 @@ class NodeFactory(AbstractFactory):
                 # Unable to load the module
                 # Try to retrieve the file and open the file in an editor
                 src_path = self.get_node_file()
-                print e
+                print "instantiate widget exception:", e
                 if src_path:
                     w.edit_file(src_path)
             return w

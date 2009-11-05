@@ -36,9 +36,8 @@ from openalea.visualea.node_widget import SignalSlotListener
 import metainfo
 
 
-from openalea.visualea.dialogs import NewGraph, NewPackage, FactorySelector
-from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
-from openalea.visualea.util import exception_display, busy_cursor
+from openalea.visualea.dialogs import NewGraph, NewPackage
+from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.grapheditor import qtgraphview
 from graph_operator import GraphOperator
@@ -190,7 +189,7 @@ class MainWindow(QtGui.QMainWindow,
     def __wsMenuShow(self):
         widget = self.tabWorkspace.currentWidget()
 
-        operator = GraphOperator(widget, widget.graph)
+        operator = GraphOperator(widget, widget.graph())
         operator.set_session(self.session)
         operator.set_interpreter(self.interpreterWidget)
         operator.set_package_manager(self.pkgmanager)
@@ -340,13 +339,10 @@ class MainWindow(QtGui.QMainWindow,
         # Test if the node is already opened
         for i in range(len(self.index_nodewidget)):
             widget = self.index_nodewidget[i]
-            n = widget.graph.graph()
+            n = widget.graph().graph()
             if(graph is n):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
-
-        container = QtGui.QWidget(self)
-        container.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         #gengraph
         gwidget = None
@@ -354,7 +350,7 @@ class MainWindow(QtGui.QMainWindow,
             gwidget = qtgraphview.QtGraphView(self, graph)
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         except Exception, e:
-            print e
+            print "open_widget_tab", e
             pass
         #/gengraph
 

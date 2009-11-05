@@ -86,10 +86,6 @@ class IInterfaceMetaClass(type):
 
     def __init__(cls, name, bases, dic):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
-        #print cls.check.func_code.co_argcount
-        #cls.check = classmethod(cls.check)
-        #print cls.check.func_code.co_argcount
-
         if( hasattr(cls, "__pytype__") ):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
         IInterfaceMetaClass.all.append(cls)

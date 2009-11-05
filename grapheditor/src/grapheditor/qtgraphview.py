@@ -132,10 +132,12 @@ class QtGraphViewVertex(QtGraphViewElement):
         secondColor=None
         gradient=None
 
-        #try to get a strategy for this state ...
-        state = self.observed().get_state()
+        #FINDING THE STRATEGY
+        state = self.vertex().get_state()
         strategy = self.select_drawing_strategy(state)
         if(strategy):
+            fullCustom = strategy.paint(self, painter, option, widget)
+            if(fullCustom): return
             path = strategy.get_path(self)
             gradient=strategy.get_gradient(self)
             #the gradient is already defined, no need for colors
@@ -180,12 +182,12 @@ class QtGraphViewVertex(QtGraphViewElement):
     # ---> other events
     def polishEvent(self):
         point = self.scenePos()
-        self.observed().get_ad_hoc_dict().set_metadata('position', 
+        self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        [point.x(), point.y()], False)
 
     def moveEvent(self, event):
         point = event.newPos()
-        self.observed().get_ad_hoc_dict().set_metadata('position', 
+        self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        [point.x(), point.y()], False)
 
     def mousePressEvent(self, event):
@@ -242,7 +244,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
             cursor.clearSelection()
             self.setTextCursor(cursor)
             
-        self.observed().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
+        self.annotation().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
 
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
@@ -322,7 +324,8 @@ class QtGraphViewEdge(QtGraphViewElement):
 
     def remove(self):
         view = self.scene().views()[0]
-        view.observed().disconnect(self.src(), self.dst())
+        print "generic edge removal", self.src(), self.dst()
+        view.graph().remove_edge(self.src(), self.dst())
         
 
     ############
@@ -383,7 +386,7 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
         if(srcVertexItem == dstVertexItem):
             raise Exception("Nonsense connection : plugging self to self.")            
 
-        return srcVertexItem.observed(), dstVertexItem.observed()
+        return srcVertexItem.vertex(), dstVertexItem.vertex()
 
 
 
@@ -421,7 +424,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         self.__selectAdditions=False
 
         scene = QtGui.QGraphicsScene(self)
-        #scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
 
         # ---Qt Stuff---
@@ -509,7 +511,7 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def rebuild_scene(self):
         """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
-        self.observed().simulate_construction_notifications()
+        self.graph().simulate_construction_notifications()
 
     def clear_scene(self):
         """ Remove all items from the scene """
@@ -542,8 +544,8 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         l = len(items)
         if(l == 0) : return QtCore.QPointF(30,30)
         
-        sx = sum((self.graph_item[i].pos().x() for i in items))
-        sy = sum((self.graph_item[i].pos().y() for i in items))
+        sx = sum((i.pos().x() for i in items))
+        sy = sum((i.pos().y() for i in items))
         return QtCore.QPointF( float(sx)/l, float(sy)/l )
 
     def select_added_elements(self, val):
