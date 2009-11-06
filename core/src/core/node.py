@@ -153,13 +153,7 @@ class AbstractNode(Observed, AbstractListener):
         """ Return the factory of the node (if any) """
         return self.factory
 
-
-#gengraph
-#AbstractPort cannot be a dict, because
-#it then becomes unhashable and cannot
-#be an observer (needs to be weakrefed)
-#/gengraph
-class AbstractPort(Observed, AbstractListener):
+class AbstractPort(dict, Observed, AbstractListener):
     """
     The class describing the ports.
     AbstractPort is a dict for historical reason.
@@ -175,10 +169,9 @@ class AbstractPort(Observed, AbstractListener):
         cls.__ad_hoc_slots__.update(d)
 
     def __init__(self, vertex):
+        dict.__init__(self)
         Observed.__init__(self)
         AbstractListener.__init__(self)
-
-        self._innerDict = {}
 
         #gengraph
         self.vertex = ref(vertex)
@@ -187,26 +180,8 @@ class AbstractPort(Observed, AbstractListener):
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
 
-    #gengraph
-    def __getitem__(self, key):
-        return self._innerDict.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self._innerDict.__setitem__(key,value)
-
-    def __delitem__(self, key):
-        self._innerDict.__delitem__(key)
-
-    def update(self, arg):
-        self.__ad_hoc_dict = arg.pop("ad_hoc_dict",metadatadict.MetaDataDict(self.__ad_hoc_slots__))
-        self.initialise(self.__ad_hoc_dict)
-        
-
-        self._innerDict.update(arg)
-
-    def get(self, key, default):
-        return self._innerDict.get(key, default)
-    #/gengraph
+    def __hash__(self):
+        return id(self)
 
     #gengraph
     def notify(self, sender, event):

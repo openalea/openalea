@@ -39,9 +39,11 @@ class MetaDataDict(observer.Observed):
 
 
     def __repr__(self):
+        if(not len(self._metas)): return "{}"
         stri = "{"
         for key, val in self._metas.iteritems():
             stri = stri+ "\"" + key + "\" : [" + val[0].__name__ + ", " + repr(val[1]) + "],"
+
         stri = stri[:-1] + "}"
         return stri
 
