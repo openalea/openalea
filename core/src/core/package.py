@@ -189,9 +189,9 @@ class Package(PackageDict):
     def get_tip(self):
         """ Return the package description """
 
-        str= "<b>Package : </b>%s<br/>\n"%(self.name, )
+        str= "<b>Package:</b>%s<br/>\n"%(self.name, )
         try:
-            str += "<b>Description : </b>%s<br/>\n"%(self.metainfo['description'], )
+            str += "<b>Description : </b>%s<br/>\n"%(self.metainfo['description'].replace('\n','<br/>'), )
         except:
             pass
         try:

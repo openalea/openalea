@@ -686,14 +686,14 @@ class AbstractFactory(Observed):
     def get_tip(self):
         """ Return the node description """
 
-        return "Name : %s\n" % (self.name, ) + \
-               "Category  : %s\n" % (self.category, ) + \
-               "Description : %s\n" % (self.description, ) + \
-               "Package : %s\n" % (self.package.name, )
+        return "<b>Name:</b> %s<br/>" % (self.name, ) + \
+               "<b>Category:</b> %s<br/>" % (self.category, ) + \
+               "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
+               "<b>Description:</b> %s<br/>" % (self.description, )
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
-        
+
         :param call_stack: the list of NodeFactory id already in call stack
             (in order to avoir infinite recursion)
         """
