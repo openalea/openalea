@@ -355,12 +355,16 @@ class CompositeNodeFactory(AbstractFactory):
 
         # copy node input data if any
         values = self.elt_value.get(vid, ())
-        for (port, v) in values:
+        #gengraph
+        for vs in values:
             try:
+                port, v = vs[:-1]
                 node.set_input(port, eval(v))
+                if(len(vs)>2):
+                    node.input_desc[port].set_ad_hoc_dict(vs[2])
             except:
                 continue
-
+        #/gengraph
         return node
 
     #########################################################
@@ -788,17 +792,20 @@ class CompositeNode(Node, DataFlow):
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
 
+            #gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
+
 
             # Copy value
             if(not node.get_nb_input()):
                 sgfactory.elt_value[vid] = []
             else:
                 sgfactory.elt_value[vid] = \
-                    [(port, repr(node.get_input(port))) for port
+                    [(port, repr(node.get_input(port)), repr(node.input_desc[port].get_ad_hoc_dict())) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
+            #/gengraph
 
         self.graph_modified = False
 
