@@ -42,6 +42,29 @@ from openalea.visualea.node_widget import DefaultNodeWidget
 
 import traceback
 
+def rst2alea(text):
+    """Convert docstring into HTML (assuming docstring is in reST format)
+
+    This function uses docutils. Ideally it should use Sphinx
+
+    :param text: the docstring
+
+    :returns: text in HTML format
+
+    .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
+    """
+    from docutils import core
+    from docutils.writers.html4css1 import Writer
+    newdoc = text
+    w = Writer()
+    res = core.publish_parts(text, writer=w)['html_body']
+    return res
+
+#    for name in [':Parameters:', ':Returns:', ':Keywords:']:
+#        res = res.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
+#    res.replace('\n','<br/>')
+#    return res
+
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
     
@@ -931,28 +954,21 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             doc = doc.split('\n')
             doc = [x.strip() for x in doc] 
             doc = '\n'.join(doc)
+            doc = rst2alea(doc)
         else:
             if(self.subnode.factory):
                 doc = self.subnode.factory.description
-        
-        # here, we could process the doc so that the output is nicer 
-        # e.g., doc.replace(":params","Parameters ") and so on
-
-        mydoc = doc
-
-        for name in [':Parameters:', ':Returns:', ':Keywords:']:
-            mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
 
         self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
                          "<b>Package</b> : %s<br/>\n" % (pkg_name) +
-                         "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
+                         "<b>Documentation :</b> <br/>\n%s" % (doc,))
 
 
     def set_connectors(self):
         """ Add connectors """
 
         scene = self.graphview.scene()
-        
+
         self.nb_cin = 0
         for i,desc in enumerate(self.subnode.input_desc):
 
@@ -973,8 +989,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                                                    scene, i, tip)
             # nb connector
             self.nb_cin += 1 
-                
-            
+
         for i,desc in enumerate(self.subnode.output_desc):
             if(not self.connector_out[i]): # update if necessary
                 tip = desc.get_tip()
@@ -986,12 +1001,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         """ Compute the box size """
 
         newsizex = self.fm.width(self.get_caption()) + 30
-        
+
         # when the text is small but there are lots of ports, 
         # add more space.
         nb_ports = max(self.nb_cin, len(self.connector_out))
         newsizex = max(nb_ports * Connector.WIDTH * 2, newsizex)
-        
+
         if(newsizex != self.sizex or force):
             self.sizex = newsizex
 
@@ -1016,9 +1031,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         """ Set symbols around the box """
 
         phiden = bool( self.nb_cin != self.subnode.get_nb_input())
-        
+
         if(phiden != self.more_port):
-           
+
             if(self.more_port):
                 self.scene().removeItem(self.more_port)
                 self.more_port = None
@@ -1028,11 +1043,11 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
                 #self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
                 self.more_port.setPos(self.sizex - 20, -4)
-           
+
 
     def get_caption(self):
         """ Return the node caption (convenience)"""
-        
+
         return self.subnode.caption
 
 
@@ -1051,7 +1066,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             self.update()
             QtGui.QApplication.processEvents()
 
-        
+
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
@@ -1067,7 +1082,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
             # del widget
             self.graphview.close_node_dialog(self.elt_id)
-                        
+
 
     def get_id(self):
         return self.elt_id
@@ -1192,7 +1207,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         
             self.subnode.set_data('posx', point.x(), False)
             self.subnode.set_data('posy', point.y(), False)
-         
+
         return ret
 
 
@@ -1209,7 +1224,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def mouseDoubleClickEvent(self, event):
 
         QtGui.QGraphicsItem.mouseDoubleClickEvent(self, event)
-  
+
         # Read settings
         try:
             localsettings = Settings()
@@ -1219,21 +1234,21 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         if('open' in str):
             self.graphview.open_item(self.elt_id)
-            
+
         if('run' in str):
             self.run_node()
-            
+
 
     @lock_notify
     def mouseMoveEvent(self, event):
         QtGui.QGraphicsItem.mouseMoveEvent(self, event)
-        
+
         if (event.buttons() & QtCore.Qt.MidButton):
             drag = QtGui.QDrag(self.graphview)
 
             pixmap = QtGui.QPixmap(":/icons/ccmime.png")
             linecode = cli.get_node_code(self.elt_id)
-            
+
             mimeData = QtCore.QMimeData()
             mimeData.setText(linecode)
             drag.setMimeData(mimeData)
@@ -1250,7 +1265,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         action = menu.addAction("Run")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.run_node)
-        
+
         action = menu.addAction("Open Widget")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.open_widget)
 
@@ -1261,13 +1276,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         action = menu.addAction("Reset")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.subnode.reset)
-        
+
         action = menu.addAction("Replace By")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.replace_by)
 
         action = menu.addAction("Reload")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.reload)
-        
+
         menu.addSeparator()
 
         action = menu.addAction("Caption")
@@ -1277,13 +1292,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.show_ports)
 
         menu.addSeparator()
-        
+
         action = menu.addAction("Mark as User Application")
         action.setCheckable(True)
         action.setChecked(bool(self.subnode.user_application))
         self.scene().connect(action, QtCore.SIGNAL("triggered(bool)"), self.set_user_application)
 
-        
+
         action = menu.addAction("Lazy")
         action.setCheckable(True)
         action.setChecked(self.subnode.lazy)
@@ -1297,7 +1312,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         action = menu.addAction("Internals")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.set_internals)
-        
+
         menu.move(event.screenPos())
         menu.show()
 
@@ -1645,7 +1660,7 @@ class LinearEdgePath(object):
         p4 = self.p2 - dp
         poly = QtGui.QPolygonF([p1, p2, p3, p4])
         path.addPolygon(poly)
-        
+
         return path
 
     def getPath( self, p1, p2 ):
@@ -1655,12 +1670,12 @@ class LinearEdgePath(object):
         path.lineTo(self.p2)
         return path
 
-        
+
 class PolylineEdgePath(LinearEdgePath):
     """ Edge as Polyline """
-    
+
     WIDTH = 30
-    def __init__(self): 
+    def __init__(self):
         LinearEdgePath.__init__(self)
 
     def shape(self):
@@ -1699,7 +1714,7 @@ class PolylineEdgePath(LinearEdgePath):
 class SplineEdgePath(PolylineEdgePath):
     """ Edge as Spline """
     
-    def __init__(self): 
+    def __init__(self):
         PolylineEdgePath.__init__(self)
 
     def getPath( self, p1, p2 ):
@@ -1710,7 +1725,7 @@ class SplineEdgePath(PolylineEdgePath):
         sd= self.p2- self.p1
         if abs(sd.x()) <= self.WIDTH: # draw a line
             path.lineTo(self.p2)
-        elif sd.y() < self.WIDTH: 
+        elif sd.y() < self.WIDTH:
             py = QtCore.QPointF(0, max(self.WIDTH, - sd.y()))
             path.cubicTo(self.p1 + py, self.p2 - py, self.p2)
 
@@ -1725,7 +1740,7 @@ class SplineEdgePath(PolylineEdgePath):
 
 class AbstractEdge(QtGui.QGraphicsPathItem):
     """
-    Base classe for edges 
+    Base classe for edges
     """
 
     def __init__(self, graphview, parent=None, scene=None):
@@ -1843,8 +1858,8 @@ class Edge(AbstractEdge):
                                    QtCore.Qt.SolidLine,
                                    QtCore.Qt.RoundCap,
                                    QtCore.Qt.RoundJoin))
-        
-                
+
+
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
 
@@ -1855,7 +1870,7 @@ class Edge(AbstractEdge):
 
         action = menu.addAction("Delete connection")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
-        
+
         menu.move(event.screenPos())
         menu.show()
 
@@ -1867,4 +1882,4 @@ class Edge(AbstractEdge):
         self.graph.remove_connection(self)
 
 
-    
+
