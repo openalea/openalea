@@ -76,6 +76,87 @@ class Obj(object):
         return res
 
 
+def read_csv_from_file(filename=None, delimiter=' ', header=False):
+    """Read CSV file
+
+    This function reads a CSV file (see format information below).
+    A delimiter can be provided (default is a space). If there is
+    a header in the CSV file, it can be used if hedaer is set to True (default is False)
+
+    The function uses the **csv** python module. Therefore, it returns
+    a *csv_header* object. If the header is set to False, a list is returned.
+    This list contains each row that has been read in the file. If the header is True
+    then a dictionary is returned, each key correspond to a column/field.
+
+    :Parameters:
+
+    `filename` - input filename of a valid CSV file
+    `delimiter` delimiter such as ',', ' ', ';'
+    `header` - boolean to skip the first line (header)
+
+
+    :Returns:
+
+        `csv_header` object (see csv python module)
+
+        `list` is header=False, `dict` is header=True
+
+    :Format Information:
+
+    While there are various specifications and implementations for the
+    CSV format, there is no formal specification, which allows for a
+    wide variety of interpretations of CSV files.
+
+    We follow these rules:
+
+     * Each record is located on a separate line, delimited by a line break::
+       
+           aaa,bbb,ccc
+           zzz,yyy,xxx
+
+     * There maybe an optional header line appearing as the first line
+       of the file with the same format as normal record lines.
+       The presence or absence of the header line should be indicated via
+       the optional "header" parameter::
+
+           field_name,field_name,field_name CRLF
+           aaa,bbb,ccc CRLF
+           zzz,yyy,xxx CRLF
+
+
+    :Example:
+
+        >>> csv_reader, csv_dict  = read_csv_from_file('test.csv', delimiter=' ', header=True)
+        >>> csv_reader, csv_list  = read_csv_from_file('test.csv', delimiter=',', header=False)
+
+    :Author:
+
+        T. Cokelaer
+
+    """
+    import csv
+    from os import path
+    if path.exists(filename):
+        csv_data = csv.reader(open(filename), delimiter=delimiter)
+    else:
+        IOError('%s filename does not exist' % filename)
+        return (None, None)
+    if header == False:
+        res = []
+        for r in csv_data:
+            res.append(r)
+    elif header == True:
+        res = {}
+        header = csv_data.next()
+        for x in header:
+            res[x] = []
+        for row in csv_data:
+            for h,x in zip(header, row):
+                res[h].append(x)
+
+    return (csv_data, res)
+
+
 def parseText(text = '', separator=',', lineseparator='\n'):
     lines = text.split(lineseparator)
     propname = lines.pop(0).split(separator)
