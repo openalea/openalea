@@ -1,5 +1,4 @@
-
-# This file has been generated at Mon Nov  9 10:46:05 2009
+# This file has been generated at Fri Aug  1 14:49:09 2008
 
 from openalea.core import *
 
@@ -15,21 +14,14 @@ __version__ = '0.1'
 __authors__ = 'VPlants'
 __institutes__ = 'INRIA - CIRAD'
 __icon__ = 'icon.png'
+ 
 
-
-__all__ = ['_161279212', '_162604076']
-
-
-_161279212 = DataFactory(name='stand_data.csv',
-                    description='',
-                    editors=None,
-                    includes=None,
-                    )
+__all__ = ['_149001708', '_149000780']
 
 
 
-_162604076 = CompositeNodeFactory(name='Stand_Reconstruction',
-                             description='',
+_149001708 = CompositeNodeFactory(name='Stand_Reconstruction', 
+                             description='', 
                              category='Demo',
                              doc='',
                              inputs=[],
@@ -355,10 +347,16 @@ _162604076 = CompositeNodeFactory(name='Stand_Reconstruction',
           (2, 'None')],
    '__in__': [],
    '__out__': []},
-                             elt_ad_hoc={},
                              lazy=True,
                              )
 
+
+
+_149000780 = DataFactory(name='stand_data.csv', 
+                    description='', 
+                    editors=None,
+                    includes=None,
+                    )
 
 
 
