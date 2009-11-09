@@ -262,14 +262,15 @@ class MainWindow(QtGui.QMainWindow,
 
     def notify(self, sender, event):
         """ Notification from observed """
+        if(event and event[0] == "graphoperator_newfactory"):
+            self.reinit_treeview()
+            return
 
         if(type(sender) == type(self.session)):
             
             if(event and event[0]=="workspace_added"):
                 graph=event[1]
                 self.open_widget_tab(graph, graph.factory)
-            elif(event and event[0] == "graphoperator_newfactory"):
-                self.reinit_treeview()
             else:
                 self.update_tabwidget()
                 self.reinit_treeview()

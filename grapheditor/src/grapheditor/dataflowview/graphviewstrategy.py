@@ -15,6 +15,10 @@
 ###############################################################################
 """Trait to create a DataFlow, similar to what currently exists in OpenAlea"""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 from PyQt4 import QtCore, QtGui
 from openalea.core import compositenode
 from openalea.core import node

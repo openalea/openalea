@@ -14,6 +14,10 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 from PyQt4 import QtCore, QtGui
 
 class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):

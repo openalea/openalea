@@ -16,6 +16,10 @@
 """This file customizes the grapheditor to work well with visualea"""
 
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 from PyQt4 import QtCore, QtGui
 from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager

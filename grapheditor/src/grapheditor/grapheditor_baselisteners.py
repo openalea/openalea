@@ -15,6 +15,9 @@
 ###############################################################################
 """Generic Graph Widget"""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 
 __all__=["GraphView", "GraphViewMetaData"]
 

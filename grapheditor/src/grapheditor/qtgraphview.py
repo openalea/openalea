@@ -15,6 +15,8 @@
 ###############################################################################
 """Generic Graph Widget"""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
 
 
 import weakref, types

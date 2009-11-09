@@ -14,6 +14,9 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 import weakref
 from PyQt4 import QtCore, QtGui
 

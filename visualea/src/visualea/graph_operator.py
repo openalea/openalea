@@ -14,6 +14,9 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
@@ -297,7 +300,7 @@ class GraphOperator(Observed):
         except AttributeError, e:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
-                                             "You try to write in a System Package:\n")
+                                             "Trying to write in a System Package!\n")
         self.notify_listeners(("graphoperator_newfactory", factory))
 
     def graph_configure_io(self):

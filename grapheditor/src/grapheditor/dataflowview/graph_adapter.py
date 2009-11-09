@@ -14,6 +14,9 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 import weakref
 from openalea.core import node
 from openalea.core import compositenode

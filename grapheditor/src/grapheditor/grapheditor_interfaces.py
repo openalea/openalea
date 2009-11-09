@@ -17,6 +17,9 @@
 won't check for inheritance of the object's it is passed. Instead, it
 will check the interfaces match more or less."""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
 
 from openalea.core import interface
 

@@ -14,6 +14,10 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 import edgefactory
 import grapheditor_interfaces
 import grapheditor_baselisteners
