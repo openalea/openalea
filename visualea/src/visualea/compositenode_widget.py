@@ -53,21 +53,25 @@ def rst2alea(text):
 
     .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
     """
-    from docutils import core
-    from docutils.writers.html4css1 import Writer
-    newdoc = text
-    w = Writer()
-    res = core.publish_parts(text, writer=w)['html_body']
-    return res
+    try:
+        from docutils import core
+        from docutils.writers.html4css1 import Writer
+        newdoc = text
+        w = Writer()
+        res = core.publish_parts(text, writer=w)['html_body']
+        return res
+    except:
+        res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
+        res  += text
+        for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
+            res = res.replace(name, '<b>'+name.replace(':','') + '</b>')
+        res = res.replace('\n','<br />')
 
-#    for name in [':Parameters:', ':Returns:', ':Keywords:']:
-#        res = res.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
-#    res.replace('\n','<br/>')
-#    return res
+        return res
 
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
-    
+
     def __init__(self, node, parent=None, autonomous=False):
 
         QtGui.QWidget.__init__(self, parent)
@@ -75,7 +79,7 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
-        
+
         self.node = node
 
         # Container
@@ -950,9 +954,10 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         except:
             pkg_name = ''
 
+
         if doc:
             doc = doc.split('\n')
-            doc = [x.strip() for x in doc] 
+            doc = [x.strip() for x in doc]
             doc = '\n'.join(doc)
             doc = rst2alea(doc)
         else:
