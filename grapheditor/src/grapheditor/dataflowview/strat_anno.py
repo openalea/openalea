@@ -30,6 +30,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnota
         # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setZValue(2.0)
 
         font = self.font()
         font.setBold(True)

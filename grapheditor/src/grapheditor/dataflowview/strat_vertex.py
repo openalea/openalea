@@ -218,6 +218,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
 #             pass
         port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
+        self.setZValue(1.5)
 
     def port(self):
             return self.observed()

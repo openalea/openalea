@@ -37,7 +37,8 @@ __AIK__ = [
     ]
 
 
-
+def myShowToolTip(*args):
+    print args
     
 #------*************************************************------#
 class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
@@ -500,6 +501,14 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
             action.release(self, event)
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, e)
+        
+#     def viewportEvent(self, event):
+#         etype = event.type()
+#         if(etype==QtCore.QEvent.ToolTip):
+#             myShowToolTip(self.scene(), event.globalPos(), event.pos())
+#             return True
+#         else:
+#             return QtGui.QGraphicsView.viewportEvent(self, event)
 
 
     #########################
@@ -516,7 +525,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def clear_scene(self):
         """ Remove all items from the scene """
         scene = QtGui.QGraphicsScene(self)
-        scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
 
     def new_edge_scene_cleanup(self, graphicalEdge):

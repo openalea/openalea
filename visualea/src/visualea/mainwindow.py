@@ -67,10 +67,8 @@ class MainWindow(QtGui.QMainWindow,
         # Set observer
         self.initialise(session)
 
-        # Array to map tab index with node widget
-        self.index_nodewidget = []
-
         self.tabWorkspace.removeTab(0)
+        #self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
 
         # python interpreter
@@ -120,6 +118,8 @@ class MainWindow(QtGui.QMainWindow,
                      self.contextMenuEvent)
         self.connect(self.tabWorkspace, SIGNAL("currentChanged(int)"), self.ws_changed)
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
+        self.connect(self.tabWorkspace, SIGNAL("tabCloseRequested(int)"),
+                     self.close_tab_workspace)
 
 
         # Help Menu
@@ -300,31 +300,25 @@ class MainWindow(QtGui.QMainWindow,
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
         w.close()
-        w.emit(QtCore.SIGNAL("close()"))
-        
-        del(self.index_nodewidget[cindex])
 
       
     def current_view (self) :
         """ Return the active widget """
-        cindex = self.tabWorkspace.currentIndex()
-        return self.index_nodewidget[cindex]
-
+        return self.tabWorkspace.currentWidget()
     
     def update_tabwidget(self):
         """ open tab widget """
         # open tab widgets
         for (i, node) in enumerate(self.session.workspaces):
 
-            if(i<len(self.index_nodewidget)):
-                widget = self.index_nodewidget[i]
-                if(node != widget.node):
+            if(i< self.tabWorkspace.count()):
+                widget = self.tabWorkspace.widget(i)
+                if(node != widget.graph().graph()):
                     self.close_tab_workspace(i)
-            self.open_widget_tab(node, factory=node.factory, pos = i)
+                self.open_widget_tab(node, factory=node.factory, pos = i)
             
         # close last tabs
-        removelist = range( len(self.session.workspaces),
-                        len(self.index_nodewidget))
+        removelist = range( len(self.session.workspaces), self.tabWorkspace.count())
         removelist.reverse()
         for i in removelist:
             self.close_tab_workspace(i)
@@ -337,8 +331,8 @@ class MainWindow(QtGui.QMainWindow,
         """
 
         # Test if the node is already opened
-        for i in range(len(self.index_nodewidget)):
-            widget = self.index_nodewidget[i]
+        for i in range(self.tabWorkspace.count()):
+            widget = self.tabWorkspace.widget(i)
             n = widget.graph().graph()
             if(graph is n):
                 self.tabWorkspace.setCurrentIndex(i)
@@ -379,7 +373,7 @@ class MainWindow(QtGui.QMainWindow,
         self.reinit_treeview()
 
         # Reload workspace
-        for index in range(len(self.index_nodewidget)):
+        for index in range(self.tabWorkspace.count()):
             self.reload_from_factory(index)
          
     
@@ -409,10 +403,13 @@ class MainWindow(QtGui.QMainWindow,
         # set hit bar to front
         self.tabWorkspace.setCurrentIndex(index)
         
+        def close_current_ws():
+            self.close_tab_workspace(index)
+        
         menu = QtGui.QMenu(self)
 
         action = menu.addAction("Close")
-        self.connect(action, SIGNAL("triggered()"), self.close_workspace)
+        self.connect(action, SIGNAL("triggered()"), close_current_ws)
 
 #         action = menu.addAction("Run")
 #         self.connect(action, SIGNAL("triggered()"), self.run)
@@ -600,16 +597,15 @@ class MainWindow(QtGui.QMainWindow,
         if(not filename) : return
         
         # Get current workspace
-        cindex = self.tabWorkspace.currentIndex()
-        view = self.index_nodewidget[cindex]
-        rect = view.viewport().rect()
+        view = self.tabWorkspace.currentWidget()
+        rect = view.scene().sceneRect()
 
         pixmap = QtGui.QPixmap(rect.width(), rect.height())
         pixmap.fill()
         painter = QtGui.QPainter(pixmap)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        #painter.setBackground(QtGui.QBrush(QtGui.QColor(255,255,255)))
-        view.scene().render(painter, )
+        view.update()
+        view.scene().render(painter)
         painter.end()
         pixmap.save(filename)
 
@@ -623,17 +619,17 @@ class MainWindow(QtGui.QMainWindow,
         if(not filename) : return
         
         # Get current workspace
-        cindex = self.tabWorkspace.currentIndex()
-        view = self.index_nodewidget[cindex]
-        rect = view.viewport().rect()
+        view = self.tabWorkspace.currentWidget()
+        rect = view.scene().sceneRect()
 
         svg_gen = QtSvg.QSvgGenerator()
         svg_gen.setFileName(filename)
-        svg_gen.setSize(rect.size())
+        svg_gen.setSize(rect.toRect().size())
 
         painter = QtGui.QPainter(svg_gen)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         view.scene().render(painter, )
         painter.end()
+
         #pixmap.save(filename)
 
