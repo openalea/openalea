@@ -42,9 +42,36 @@ from openalea.visualea.node_widget import DefaultNodeWidget
 
 import traceback
 
+def rst2alea(text):
+    """Convert docstring into HTML (assuming docstring is in reST format)
+
+    This function uses docutils. Ideally it should use Sphinx
+
+    :param text: the docstring
+
+    :returns: text in HTML format
+
+    .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
+    """
+    try:
+        from docutils import core
+        from docutils.writers.html4css1 import Writer
+        newdoc = text
+        w = Writer()
+        res = core.publish_parts(text, writer=w)['html_body']
+        return res
+    except:
+        res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
+        res  += text
+        for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
+            res = res.replace(name, '<b>'+name.replace(':','') + '</b>')
+        res = res.replace('\n','<br />')
+
+        return res
+
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """
-    
+
     def __init__(self, node, parent=None, autonomous=False):
 
         QtGui.QWidget.__init__(self, parent)
@@ -52,7 +79,7 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
         vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout = vboxlayout
-        
+
         self.node = node
 
         # Container
@@ -928,32 +955,26 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         except:
             pkg_name = ''
 
+
         if doc:
             doc = doc.split('\n')
             doc = [x.strip() for x in doc] 
             doc = '\n'.join(doc)
+            doc = rst2alea(doc)
         else:
             if(self.subnode.factory):
                 doc = self.subnode.factory.description
-        
-        # here, we could process the doc so that the output is nicer 
-        # e.g., doc.replace(":params","Parameters ") and so on
-
-        mydoc = doc
-
-        for name in [':Parameters:', ':Returns:', ':Keywords:']:
-            mydoc = mydoc.replace(name, '<b>'+name.replace(':','') + '</b><br/>\n')
 
         self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
                          "<b>Package</b> : %s<br/>\n" % (pkg_name) +
-                         "<b>Documentation :</b> <br/>\n%s" % (mydoc,))
+                         "<b>Documentation :</b> <br/>\n%s" % (doc,))
 
 
     def set_connectors(self):
         """ Add connectors """
 
         scene = self.graphview.scene()
-        
+
         self.nb_cin = 0
         for i,desc in enumerate(self.subnode.input_desc):
 
@@ -974,8 +995,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                                                    scene, i, tip)
             # nb connector
             self.nb_cin += 1 
-                
-            
+
         for i,desc in enumerate(self.subnode.output_desc):
             if(not self.connector_out[i]): # update if necessary
                 tip = desc.get_tip()
@@ -987,12 +1007,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         """ Compute the box size """
 
         newsizex = self.fm.width(self.get_caption()) + 30
-        
+
         # when the text is small but there are lots of ports, 
         # add more space.
         nb_ports = max(self.nb_cin, len(self.connector_out))
         newsizex = max(nb_ports * Connector.WIDTH * 2, newsizex)
-        
+
         if(newsizex != self.sizex or force):
             self.sizex = newsizex
 
@@ -1017,9 +1037,9 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         """ Set symbols around the box """
 
         phiden = bool( self.nb_cin != self.subnode.get_nb_input())
-        
+
         if(phiden != self.more_port):
-           
+
             if(self.more_port):
                 self.scene().removeItem(self.more_port)
                 self.more_port = None
@@ -1029,11 +1049,11 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.more_port.setDefaultTextColor(QtGui.QColor(0, 100, 0))
                 #self.more_port.mouseDoubleClickEvent = ConnectorIn.mouseDoubleClickEvent
                 self.more_port.setPos(self.sizex - 20, -4)
-           
+
 
     def get_caption(self):
         """ Return the node caption (convenience)"""
-        
+
         return self.subnode.caption
 
 
@@ -1052,7 +1072,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             self.update()
             QtGui.QApplication.processEvents()
 
-        
+
         if(event and
            event[0] == "caption_modified" or
            event[0] == "data_modified"):
@@ -1068,7 +1088,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
             # del widget
             self.graphview.close_node_dialog(self.elt_id)
-                        
+
 
     def get_id(self):
         return self.elt_id

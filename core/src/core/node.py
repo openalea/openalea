@@ -535,12 +535,6 @@ class Node(AbstractNode):
 
         port = OutputPort(self)
         port.update(kargs)
-#        print kargs
-
-        #gengraph
-#         port.get_ad_hoc_dict().add_metadata(name, type(value))
-#         port.get_ad_hoc_dict().set_metadata(name, value)
-        #/gengraph
 
         self.output_desc.append(port)
         index = len(self.outputs) - 1
@@ -829,14 +823,14 @@ class AbstractFactory(Observed):
     def get_tip(self):
         """ Return the node description """
 
-        return "Name : %s\n" % (self.name, ) + \
-               "Category  : %s\n" % (self.category, ) + \
-               "Description : %s\n" % (self.description, ) + \
-               "Package : %s\n" % (self.package.name, )
+        return "<b>Name:</b> %s<br/>" % (self.name, ) + \
+               "<b>Category:</b> %s<br/>" % (self.category, ) + \
+               "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
+               "<b>Description:</b> %s<br/>" % (self.description, )
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
-        
+
         :param call_stack: the list of NodeFactory id already in call stack
             (in order to avoir infinite recursion)
         """
@@ -878,7 +872,7 @@ def Alias(factory, name):
     else:
         factory.alias.append(name)
 
-import traceback
+
 class NodeFactory(AbstractFactory):
     """
     A Node factory is able to create nodes on demand,
@@ -918,9 +912,6 @@ class NodeFactory(AbstractFactory):
         """
         AbstractFactory.__init__(self, name, description, category,
                                  inputs, outputs, **kargs)
-
-       #  traceback.print_stack()
-#         print inputs, outputs
 
         # Factory info
         self.nodemodule_name = nodemodule
@@ -1025,6 +1016,7 @@ class NodeFactory(AbstractFactory):
     def instantiate_widget(self, node=None, parent=None,
                             edit=False, autonomous=False):
         """ Return the corresponding widget initialised with node """
+
         # Code Editor
         if(edit):
             from openalea.visualea.code_editor import get_editor
