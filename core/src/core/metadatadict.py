@@ -14,12 +14,16 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
 from openalea.core import observer
 import types
 
 class MetaDataDict(observer.Observed):
-    """Attach meta data to a graphical representation
-    of a GraphView component. This metadata can be 
+    """Attach meta data of a graphical representation
+    of a graph component. This metadata can be 
     used to customize the appearance of the node."""
     def __init__(self, slots=None):
         observer.Observed.__init__(self)
@@ -94,5 +98,5 @@ class MetaDataDict(observer.Observed):
             self.notify_listeners(("MetaDataChanged", k, value, valType))
 
     def __str__(self):
-        return self._metas.__str__()
+        return self.__repr__()
         

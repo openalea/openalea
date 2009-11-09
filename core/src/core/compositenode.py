@@ -358,7 +358,11 @@ class CompositeNodeFactory(AbstractFactory):
         #gengraph
         for vs in values:
             try:
-                port, v = vs[:-1]
+                #the two first elements are the historical
+                #values : port Id and port value
+                #beyond that are extensions added by gengraph:
+                #the ad_hoc_dict representation is third.
+                port, v = vs[:2] 
                 node.set_input(port, eval(v))
                 if(len(vs)>2):
                     node.input_desc[port].set_ad_hoc_dict(vs[2])
