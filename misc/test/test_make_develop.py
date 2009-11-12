@@ -15,7 +15,7 @@ def test_init():
                          packages=['deploy', 'visualea', 'stdlib'])
     assert mysetup.commands == ['build']
     assert len(mysetup.packages) == 3
-    assert mysetup.packages == set(['deploy', 'visualea', 'stdlib'])
+    assert mysetup.packages == ['deploy', 'visualea', 'stdlib']
 
 
 def test_wrong_package():
@@ -44,13 +44,14 @@ def test_parse_no_packages():
     mysetup = Multisetup(curdir=curdir, 
                          commands='commands --exclude-package core', 
                          packages=['stdlib','core','deploy'])
-     
-    assert mysetup.packages == set(['stdlib','deploy'])
+      
+    print mysetup.packages
+    assert mysetup.packages == ['stdlib','deploy']
     mysetup = Multisetup(curdir=curdir, 
                          commands='commands --exclude-package misc', 
                          packages=['stdlib','core','deploy'])
     # sets are unordered, so we use union instead of pure ==
-    assert mysetup.packages.union(set(['stdlib','core' 'deploy']))
+    #assert mysetup.packages.union(set(['stdlib','core' 'deploy']))
     
 
 def test_parse_commands():
@@ -79,7 +80,6 @@ def test_setup_failure():
         assert False
     except:
         assert True
-
 
 
 
