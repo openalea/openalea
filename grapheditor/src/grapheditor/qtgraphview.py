@@ -23,7 +23,7 @@ import weakref, types
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
-import grapheditor_baselisteners
+from . import grapheditor_baselisteners, grapheditor_interfaces
 import edgefactory
 
 
@@ -44,7 +44,34 @@ def myShowToolTip(*args):
     
 #------*************************************************------#
 class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
-    """Base class for elements in a GraphView"""
+    """Base class for elements in a QtGraphView.
+
+    Implements basic listeners calls for elements of a graph.
+    A listener call is the method that is called after the main
+    listening method (self.notify) dispatches the events. They
+    are specified by grapheditor_interfaces.IGraphViewElement.
+
+    The class also implements a mecanism to easily override user
+    events from the client application. What does this mean? In this
+    framework, the graph editor starts as a simple graph listener. The
+    current module extends those listeners to be able to react to the
+    events and produce a QGraphicsView of the graph with graph-specific
+    interactions. The dataflowview module extends the current module 
+    to handle dataflows. However these extensions are not client-specific.
+    There is nothing related for example specifically to Visualea.
+    by using QtGraphViewVertex.set_event_handler(key, handler), or even on
+    specialised elements like
+    dataflowview.strat_vertex.GraphicalVertex.set_event_handler(key, handler),
+    one can bind a specific behaviour to the event named by \"key\". The
+    handler will be specific to the class set_event_handler was called on
+    (hopefully).
+
+    :Listener calls:
+        * position_changed(self,  (posx, posy))
+        * add_to_view(self, view)
+        * remove_from_view(self, view)
+
+    """
 
     ####################################
     # ----Class members come first---- #
@@ -53,6 +80,26 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
 
     @classmethod
     def set_event_handler(cls, key, handler):
+        """Let handler take care of the event named by key.
+
+        :Parameters:
+            - key (str) - The name of the event.
+            - handler (callable) - The handler to register with key.
+
+
+         The key can be any of
+           * \"mouseMoveEvent\"
+           * \"mouseReleaseEvent\"
+           * \"mousePressEvent\"
+           * \"mouseDoubleClickEvent\"
+           * \"keyReleaseEvent\"
+           * \"keyPressEvent\"
+           * \"contextMenuEvent\"
+
+        See the Qt documentation of those to know the expected signature
+        of the handler (usually : handlerName(QObject, event)).
+          
+        """
         if key in cls.__application_integration__:
             cls.__application_integration__[key]=handler
 
@@ -60,11 +107,17 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     ####################################
     # ----Instance members follow----  #
     ####################################    
-    def __init__(self, observed=None, graphadapter=None):
-        """Ctor"""
+    def __init__(self, observed=None, graph=None):
+        """
+        :Parameters:
+             - observed (openalea.core.observer.Observed) - The item to
+             observe.
+             - graph (ducktype) - The graph owning the item.
+
+        """
         grapheditor_baselisteners.GraphElementObserverBase.__init__(self, 
                                                                     observed, 
-                                                                    graphadapter)
+                                                                    graph)
 
         #we bind application overloads if they exist
         #once and for all. As this happens after the
@@ -79,13 +132,16 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     # IGraphViewElement realisation #
     #################################       
     def add_to_view(self, view):
+        """An element adds itself to the given view"""
         view.addItem(self)
 
     def remove_from_view(self, view):
+        """An element removes itself from the given view"""
         view.removeItem(self)
 
     def position_changed(self, *args):
-        """called when the position of the widget changes"""
+        """Updates the item's **graphical** position from
+        model notifications. """
         point = QtCore.QPointF(args[0], args[1])
         self.setPos(point)
 
@@ -94,7 +150,16 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
 
 #------*************************************************------#
 class QtGraphViewVertex(QtGraphViewElement):
-    """A Vertex widget should implement this interface"""
+    """An abstract graphic item that represents a graph vertex.
+
+    The actual implementation is done in the derived class. What this
+    intermediate implementation does is that it provides the basics
+    for handling edge creation from one node to the other.
+    It also provides a state based pluggable painting system,
+    meant to customize the painting from the application side.
+    Of course, if it doesn't match your needs you
+    can override it completely in your subclass."""
+    
     ####################################
     # ----Class members come first---- #
     ####################################
@@ -102,10 +167,26 @@ class QtGraphViewVertex(QtGraphViewElement):
 
     @classmethod
     def add_drawing_strategies(cls, d):
-        cls.__state_drawing_strategies__.update(d)
+        """Adds the drawing strategies in d.
+        
+        :Parameters:
+            - d (dict) - a mapping from states (any comparable type)
+            to drawing strategies. Drawing strategies must implement
+            the grapheditor_interfaces.IGraphViewVertexPaintStrategy
+            interface.
+
+         """
+        for k, v in d.iteritems():
+            if(grapheditor_interfaces.IGraphViewVertexPaintStrategy.check(v)):
+                cls.__state_drawing_strategies__[k] = v
 
     @classmethod
     def get_drawing_strategy(cls, state):
+        """Get a strategy for a given state.
+
+        :Returns Type:
+        Something that looks verifies IGraphViewVertexPaintStrategy.
+        """
         return cls.__state_drawing_strategies__.get(state)
     
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
@@ -114,11 +195,18 @@ class QtGraphViewVertex(QtGraphViewElement):
     ####################################
     # ----Instance members follow----  #
     ####################################    
-    def __init__(self, vertex, graphadapter):
-        QtGraphViewElement.__init__(self, vertex, graphadapter)
+    def __init__(self, vertex, graph):
+        """
+        :Parameters:
+            - vertex - the vertex to observe.
+            - graph - the owner of the vertex
+
+        """
+        QtGraphViewElement.__init__(self, vertex, graph)
         return
 
     def vertex(self):
+        """retreive the vertex"""
         return self.observed()
 
     #####################
@@ -126,9 +214,15 @@ class QtGraphViewVertex(QtGraphViewElement):
     #####################
     # ---> state-based painting
     def select_drawing_strategy(self, state):
+        """This method gets called by the painting process to
+        determine what strategy should handle a given state.
+        The default behaviour just calls the get_drawing_strategy
+        classmethod. Reimplement to customize the state drawing.
+        """
         return self.get_drawing_strategy(state)
 
     def paint(self, painter, option, widget):
+        """Qt-specific call to paint things."""
         paintEvent=None #remove this
         path=None
         firstColor=None
@@ -184,16 +278,23 @@ class QtGraphViewVertex(QtGraphViewElement):
 
     # ---> other events
     def polishEvent(self):
+        """Qt-specific call to handle events that occur on polishing phase.
+        Default updates the model's ad-hoc position value."""
         point = self.scenePos()
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        [point.x(), point.y()], False)
 
     def moveEvent(self, event):
+        """Qt-specific call to handle events that occur on item moving.
+        Default updates the model's ad-hoc position value."""
         point = event.newPos()
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        [point.x(), point.y()], False)
 
     def mousePressEvent(self, event):
+        """Qt-specific call to handle mouse clicks on the vertex.
+        Default implementation initiates the creation of an edge from
+        the vertex."""
         graphview = self.scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):
             pos = event.posF().x(), event.posF.y()
@@ -204,22 +305,29 @@ class QtGraphViewVertex(QtGraphViewElement):
 
 #------*************************************************------#
 class QtGraphViewAnnotation(QtGraphViewElement):
-    """A Vertex widget should implement this interface"""
+    """An abstract graphic item that represents a graph annotation"""
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
-    def __init__(self, annotation, graphadapter):
-        QtGraphViewElement.__init__(self, annotation, graphadapter)
+    def __init__(self, annotation, graph):
+        """
+        :Parameters:
+            - annotation - The annotation object to watch.
+            - graph      - The owner of the annotation
+
+        """
+        QtGraphViewElement.__init__(self, annotation, graph)
         return
 
     def annotation(self):
+        """Access to the annotation"""
         return self.observed()
 
-    def set_text(self, text):
-        """to change the visible text, not the model text"""
-        raise NotImplementedError
-
     def notify(self, sender, event):
+        """Model event dispatcher.
+        Intercepts the \"MetaDataChanged\" event with the \"text\" key
+        and redirects it to self.set_text(self). Any other event
+        if processed by the superclass' notify method."""
         if(event[0] == "MetaDataChanged"):
             if(event[1]=="text"):
                 if(event[2]): self.set_text(event[2])
@@ -260,8 +368,8 @@ class QtGraphViewEdge(QtGraphViewElement):
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
-    def __init__(self, edge=None, graphadapter=None, src=None, dest=None):
-        QtGraphViewElement.__init__(self, edge, graphadapter)
+    def __init__(self, edge=None, graph=None, src=None, dest=None):
+        QtGraphViewElement.__init__(self, edge, graph)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
@@ -363,8 +471,8 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
-    def __init__(self, srcPoint, graphadapter):
-        QtGraphViewEdge.__init__(self, None, graphadapter, None, None)
+    def __init__(self, srcPoint, graph):
+        QtGraphViewEdge.__init__(self, None, graph, None, None)
         self.sourcePoint = QtCore.QPointF(*srcPoint)
 
     def notify(self, sender, event):
@@ -455,6 +563,12 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
             pos = self.mapToScene(event.pos())
             self.new_edge_set_destination(pos.x(), pos.y())
             return
+#         elif(event.buttons()==QtCore.Qt.NoButton):
+#             newEvent = QtGui.QHelpEvent(QtCore.QEvent.ToolTip,
+#                                         event.pos(),
+#                                         event.globalPos())
+#             QtCore.QCoreApplication.postEvent( self, newEvent )
+#             return
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -503,11 +617,11 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
             action.release(self, event)
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, e)
-        
+
 #     def viewportEvent(self, event):
 #         etype = event.type()
 #         if(etype==QtCore.QEvent.ToolTip):
-#             myShowToolTip(self.scene(), event.globalPos(), event.pos())
+#             print "yeah"
 #             return True
 #         else:
 #             return QtGui.QGraphicsView.viewportEvent(self, event)

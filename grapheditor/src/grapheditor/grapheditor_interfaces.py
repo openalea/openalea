@@ -23,8 +23,6 @@ __revision__ = " $Id$ "
 
 from openalea.core import interface
 
-__all__=["IGraphViewStrategies", "IGraphViewElement", "IGraphViewNode"]
-
 
 class IGraphViewStrategies(object):
     """Define implementations of this trait 
@@ -157,7 +155,7 @@ class IGraphViewElement(object):
 
     def notify(self, sender, event):
         """called by the observed objects
-        Expected event = ("MetaDataChanged", "position", [x,x], list)
+        Expected event = (\"MetaDataChanged\", "position", [x,x], list)
         """
         raise NotImplementedError
 
@@ -174,7 +172,7 @@ class IGraphViewAnnotation(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        """("MetaDataChanged", "text", "a string", str)"""
+        """(\"MetaDataChanged\", \"text\", \"a string\", str)"""
         raise NotImplementedError
 
 #------*************************************************------#
@@ -191,7 +189,7 @@ class IGraphViewEdge(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        """("MetaDataChanged", "canvasPosition", [x,x], list)"""
+        """(\"MetaDataChanged\", \"canvasPosition\", [x,x], list)"""
         raise NotImplementedError
 
 #------*************************************************------#
@@ -204,6 +202,92 @@ class IGraphViewFloatingEdge(IGraphViewElement):
 
     def consolidate(self, model):
         """returns whatever object is under the mouse
-        pointer at the time the button was releases"""
+        pointer at the time the button was released"""
         raise NotImplementedError
 
+#------*************************************************------#
+class IGraphViewVertexPaintStrategy(object):
+    __metaclass__ = interface.IInterfaceMetaClass
+
+    @classmethod
+    def paint(cls, item, painter, option, widget):
+        """
+        Implement this to completely override the drawing
+        process.
+
+        :Returns:
+        True if the method did the complete painting
+        or False if it doesn't want to override the
+        caller's painting routine.
+
+        :Parameters:
+            - item - the graphical item calling this function.
+            - painter - the painter object used to draw the view.
+            - option - options to tweak the drawing of the item.
+            - widget - the widget being painted on.
+         
+        """
+        raise NotImplementedError
+    
+    @classmethod
+    def get_path(cls, widget):
+        """ 
+	Path representing the object.
+        
+	:Returns: The path that will draw the
+        boundary of the item.
+        """
+        raise NotImplementedError
+    
+    @classmethod
+    def get_gradient(cls, widget):
+        """ 
+	Gradient to fill the object with.
+        
+        :Returns: The gradient to brush the item
+        with. It can return None and let the gradient
+        be defined by the first and second color. The
+        direction of the gradient will be determined
+        by the caller.
+        """
+        raise NotImplementedError
+    
+    @classmethod
+    def get_first_color(cls, widget):
+        """
+	Returns the first color of the gradient.
+	"""
+        raise NotImplementedError
+    
+    @classmethod
+    def get_second_color(cls, widget):
+        """
+	Returns the second color of the gradient.
+	"""
+        raise NotImplementedError
+    
+    @classmethod
+    def prepaint(self, widget, paintEvent, painter, state):
+        """A routine to do things before the actual painting happens.
+
+        :Parameters:
+            - item - the graphical item calling this function.
+            - painter - the painter object used to draw the view.
+            - option - options to tweak the drawing of the item.
+            - widget - the widget being painted on.
+
+         """
+        raise NotImplementedError
+
+    @classmethod
+    def postpaint(self, widget, paintEvent, painter, state):
+        """A routine to do things after the actual painting occured.
+
+        :Parameters:
+            - item - the graphical item calling this function.
+            - painter - the painter object used to draw the view.
+            - option - options to tweak the drawing of the item.
+            - widget - the widget being painted on.
+
+         """
+        raise NotImplementedError

@@ -21,7 +21,23 @@ __revision__ = " $Id$ "
 from PyQt4 import QtCore, QtGui
 
 class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
+    """Embed a QWidget in a QGraphicsItem without the ugly background.
+
+    When embedding for ex. a QLabel in a QGraphicsLayout using the normal
+    QGraphicsProxyWidget, the QLabel is rendered with its ugly background
+    and the custom drawing of the QGraphicsItem is hidden.
+    This class overrides the painting routine or the QGraphicsProxyWidget
+    to paint the child widget without the background.
+    """
     def __init__(self, widget, parent=None):
+        """
+        Ctor.
+
+        :Parameters:
+	 - widget (QtGui.QWidget) - The QWidget to embed
+	 - parent (QtGui.QGraphicsItem) - Reference to the parent.
+
+        """
         QtGui.QGraphicsProxyWidget.__init__(self, parent)
         dummy=QtGui.QWidget()
         dummy.setContentsMargins(0,0,0,0)
@@ -36,6 +52,15 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
     # QT WORLD #
     ############
     def paint(self, painter, paintOptions, widget):
+    	"""Overrides the painting of a QGraphicsProxyWidget.
+	
+	:Parameters:
+	 - painter (QtGui.QPainter) - The painter to paint with
+	 - paintOptions (QtGui.QStyleOptionsGraphicsItem) - Info one can use
+	   to do the painting
+	 - widget (QtGui.QWidget) - The widget being painted on.
+
+        """
         #NEEDED TO OVERLOAD THIS TO GET RID OF THE UGLY BACKGROUND
         #AROUND THE WIDGET.
         self.widget().render(painter, QtCore.QPoint(), QtGui.QRegion(), 

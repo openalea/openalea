@@ -19,8 +19,6 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-__all__=["GraphView", "GraphViewMetaData"]
-
 import types
 import weakref
 
@@ -74,19 +72,6 @@ class GraphElementObserverBase(observer.AbstractListener):
     def clear_observed(self, observed):
         if observed == self.observed() : self.observed = None
         return
-
-#     def add_to_view(self, view):
-#         """insert the graphical element into a scene"""
-#         raise NotImplementedError
-
-#     def remove_from_view(self, view):
-#         """remove the graphical element from a scene"""
-#         raise NotImplementedError
-
-#     def position_changed(self):
-#         """called when the position of an item changes
-#         in the model"""
-#         raise NotImplementedError
 
     def initialise_from_model(self):
         self.observed().get_ad_hoc_dict().simulate_full_data_change()
@@ -144,8 +129,6 @@ class GraphListenerBase(observer.AbstractListener):
         #an edge currently being drawn, low-level detail.
         self.__newEdge = None
 
-#        self._type = None
-
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
 
@@ -185,13 +168,6 @@ class GraphListenerBase(observer.AbstractListener):
         elif(data[0]=="vertexRemoved") : self.vertex_removed(data[1])
         elif(data[0]=="edgeRemoved") : self.edge_removed(data[1]) 
         elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
-
-#     def post_addition(self, element):
-#         """defining virtual bases makes the program start
-#         but crash during execution if the method is not implemented, where
-#         the interface checking system could prevent the application from
-#         starting, with a die-early behaviour."""
-#         raise NotImplementedError
 
     def element_added(self, element):
         self.post_addition(element)
@@ -243,9 +219,6 @@ class GraphListenerBase(observer.AbstractListener):
     def new_edge_start(self, srcPt):
         self.__newEdge = self._floatingEdgeWidgetType(srcPt, self.graph())
         self.new_edge_scene_init(self.__newEdge)
-    
-#     def new_edge_scene_init(self, edge):
-#         raise NotImplementedError
 
     def new_edge_set_destination(self, *dest):
         if(self.__newEdge):
@@ -260,9 +233,6 @@ class GraphListenerBase(observer.AbstractListener):
             finally:
                 self.new_edge_scene_cleanup(self.__newEdge)
         self.__newEdge = None
-
-#     def new_edge_scene_cleanup(self, edge):
-#         raise NotImplementedError
             
 
     #########################
