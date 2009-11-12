@@ -94,7 +94,7 @@ class IInterfaceMetaClass(type):
         return cls.__name__
 
     def check(cls, obj):
-        """Check if obj matches our interface"""
+        """Check if obj matches this interface."""
         objMem = dir(obj)
 
         stop = False

@@ -847,24 +847,6 @@ class CompositeNode(Node, DataFlow):
 
         return vid
 
-#    #gengraph
-#     def add_vertex(self, *args):
-#         #this is a big ugly hack to have the correct API
-#         #for the GraphEditor module but keep internal
-#         #behaviour as before. Not-fool-proof, even barely
-#         #working. Should be fixed by the adapter classes
-#         #that will come soon.
-#         vid = None
-#         argnum = len(args)
-#         if argnum>1:
-#             args = args[0:argnum-1]
-#             vid = self.add_node(*args)
-#         elif argnum==1:
-#             vtx_id=args[0]
-#             vid = DataFlow.add_vertex(self, vtx_id)
-#         return vid
-#     #/gengraph
-
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
         if(vid):  vertex.set_id(vid)
