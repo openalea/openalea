@@ -72,8 +72,10 @@ class GraphViewStrategy(object):
         """Return a classobj defining the type of widget
         that represents an annotation"""
         return graph_adapter.GraphAdapter
-
-
+    
+    @classmethod
+    def get_connector_types(cls):
+        return [strat_vertex.GraphicalPort]
 
 ###################################
 # vertex state drawing strategies #

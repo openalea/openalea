@@ -26,6 +26,8 @@ from openalea.core.settings import Settings
 from . import grapheditor_baselisteners, grapheditor_interfaces
 import edgefactory
 
+from math import sqrt
+
 
 #__Application_Integration_Keys__
 __AIK__ = [
@@ -682,3 +684,24 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         starting, with a die-early behaviour."""
         if(self.__selectAdditions):
             element.setSelected(True)
+
+    def find_closest_connectable(self, pos):
+        boxsize = 10.0
+        #creation of a square which is a selected zone for while ports 
+        rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
+        dstPortItems = self.scene().items(rect)      
+        dstPortItems = [item for item in dstPortItems if item.__class__ in self.connector_types]
+
+        distance = float('inf')
+        dstPortItem = None
+        for item in dstPortItems:
+            d = sqrt((item.boundingRect().center().x() - pos[0])**2 + 
+                        (item.boundingRect().center().y() - pos[1])**2)
+            if d < distance:
+                distance = d
+                dstPortItem = item            
+
+        return dstPortItem
+
+        
+

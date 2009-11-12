@@ -70,7 +70,7 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
 
         #if the input and the output are on the same vertex...
         if(srcPortItem.port().vertex() == dstPortItem.port().vertex()):
-            raise Exception("Nonsense connection : plugging self to self.")            
+            raise Exception("Nonsense connection : plugging self to self.")         
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:

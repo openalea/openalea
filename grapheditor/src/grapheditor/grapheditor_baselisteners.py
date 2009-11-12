@@ -139,6 +139,8 @@ class GraphListenerBase(observer.AbstractListener):
         self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
         self.set_direction_vector(stratCls.get_direction_vector())
         self.set_graph(graph)
+        self.connector_types=stratCls.get_connector_types()
+        self.currentItem = None
 
     def graph(self):
         if(isinstance(self.observed, weakref.ref)):
@@ -221,7 +223,13 @@ class GraphListenerBase(observer.AbstractListener):
         self.new_edge_scene_init(self.__newEdge)
 
     def new_edge_set_destination(self, *dest):
+        if self.currentItem:
+            self.currentItem.set_highlighted(False)
         if(self.__newEdge):
+            self.currentItem = self.find_closest_connectable(dest)
+            if self.currentItem:
+                self.currentItem.set_highlighted(True)
+                dest = self.currentItem.get_center()
             self.__newEdge.update_line_destination(*dest)
 
     def new_edge_end(self):

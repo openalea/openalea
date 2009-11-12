@@ -222,6 +222,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
         self.setZValue(1.5)
+        self.highlighted = False
 
     def port(self):
             return self.observed()
@@ -241,8 +242,15 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     def update_canvas_position(self):
         self.port().get_ad_hoc_dict().set_metadata("canvasPosition", 
                                                    self.canvas_position())
-        
-
+    def set_highlighted(self, val):
+        self.highlighted = val
+        self.update()
+    
+#    def get_center(self):
+#        center = self.rect().center()
+#        return center.x(), center.y()
+    #en fait on l'a deja, c'est canvas_position, on en fait un alias
+    get_center = canvas_position
     ##################
     # QtWorld-Layout #
     ##################
@@ -276,8 +284,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         
         painter.setBackgroundMode(QtCore.Qt.TransparentMode)
         gradient = QtGui.QLinearGradient(0, 0, 10, 0)
-        gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
-        gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+        if self.highlighted:
+            gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.red).light(120))
+            gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkRed).light(120))
+        else:         
+            gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
+            gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
