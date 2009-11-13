@@ -417,7 +417,7 @@ class Node(AbstractNode):
         """ Return the hidden state of a port """
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
-        changed = self.internal_data['port_hide_changed']
+        changed = self.internal_data["port_hide_changed"]
 
         if(index in changed):
             return not s
@@ -434,7 +434,7 @@ class Node(AbstractNode):
         index = self.map_index_in[index_key]
         s = self.input_desc[index].get('hide', False)
 
-        changed = self.internal_data['port_hide_changed']
+        changed = self.internal_data["port_hide_changed"]
 
         if (s != state):
             self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",True)
@@ -513,8 +513,13 @@ class Node(AbstractNode):
         port = InputPort(self)
         port.update(kargs)
         #gengraph
-        port.get_ad_hoc_dict().add_metadata(name, type(value))
-        port.get_ad_hoc_dict().set_metadata(name, value)
+        # TODO Change type by its interface
+        hideState = kargs.get("hide", False)
+        try:
+            port.get_ad_hoc_dict().add_metadata("hide", bool)
+        except:
+            pass
+        port.get_ad_hoc_dict().set_metadata("hide", hideState)
         #/gengraph
         self.input_desc.append(port)
 
@@ -535,7 +540,6 @@ class Node(AbstractNode):
 
         port = OutputPort(self)
         port.update(kargs)
-
         self.output_desc.append(port)
         index = len(self.outputs) - 1
         self.map_index_out[name] = index

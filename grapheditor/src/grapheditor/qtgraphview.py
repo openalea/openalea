@@ -534,6 +534,16 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         QtGui.QGraphicsView.__init__(self, parent)
         grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)
 
+
+        #we bind application overloads if they exist
+        #once and for all. As this happens after the
+        #class is constructed, it overrides any method
+        #called "name" with an application-specific method
+        #to handle events.
+        for name, hand in self.__application_integration__.iteritems():
+            if "Event" in name and hand:
+                setattr(self, name, types.MethodType(hand,self,self.__class__))
+
         self.__selectAdditions=False
 
         scene = QtGui.QGraphicsScene(self)
@@ -549,28 +559,42 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
 
+        # ---Custom tooltip system---
+        self.__tooltipTimer = QtCore.QTimer()
+        self.__tooltipTimer.setInterval(800)
+        self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
+                     self.tooltipTrigger)
+        self.__tooltipPos = None
+        
+
+
+
     def get_scene(self):
         return self.scene()
 
     ##################
     # QtWorld-Events #
     ##################
+    def tooltipTrigger(self):
+#         print self.itemAt(self.__tooltipPos)
+#         print "tooltip now!"
+        self.__tooltipTimer.stop()
+    
     def wheelEvent(self, event):
-        self.centerOn(QtCore.QPointF(event.pos()))
+        #self.centerOn(QtCore.QPointF(event.pos()))
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
 
     def mouseMoveEvent(self, event):
+        self.__tooltipTimer.stop()
         if(self.is_creating_edge()):
             pos = self.mapToScene(event.pos())
             self.new_edge_set_destination(pos.x(), pos.y())
             return
-#         elif(event.buttons()==QtCore.Qt.NoButton):
-#             newEvent = QtGui.QHelpEvent(QtCore.QEvent.ToolTip,
-#                                         event.pos(),
-#                                         event.globalPos())
-#             QtCore.QCoreApplication.postEvent( self, newEvent )
-#             return
+        elif(event.buttons()==QtCore.Qt.NoButton):
+            self.__tooltipTimer.start()
+            self.__tooltipPos = event.pos()
+            return
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -604,29 +628,28 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
 
         QtGui.QGraphicsView.dropEvent(self, event)
 
-    def keyPressEvent(self, e):
-        combo = e.modifiers().__int__(), e.key()
+    def keyPressEvent(self, event):
+        combo = event.modifiers().__int__(), event.key()
         action = self.__application_integration__["pressHotkeyMap"].get(combo)
         if(action):
-            action.press(self, event)
+            action(self, event)
         else:
-            QtGui.QGraphicsView.keyPressEvent(self, e)
+            QtGui.QGraphicsView.keyPressEvent(self, event)
 
-    def keyReleaseEvent(self, e):
-        combo = e.modifiers().__int__(), e.key()
+    def keyReleaseEvent(self, event):
+        combo = event.modifiers().__int__(), event.key()
         action = self.__application_integration__["releaseHotkeyMap"].get(combo)
         if(action):
-            action.release(self, event)
+            action(self, event)
         else:
-            QtGui.QGraphicsView.keyReleaseEvent(self, e)
+            QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
-#     def viewportEvent(self, event):
-#         etype = event.type()
-#         if(etype==QtCore.QEvent.ToolTip):
-#             print "yeah"
-#             return True
-#         else:
-#             return QtGui.QGraphicsView.viewportEvent(self, event)
+    def viewportEvent(self, event):
+        etype = event.type()
+        if(etype==QtCore.QEvent.ToolTip): #we handle tooltips our own way
+            return True
+        else:
+            return QtGui.QGraphicsView.viewportEvent(self, event)
 
 
     #########################
@@ -651,15 +674,18 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def new_edge_scene_init(self, graphicalEdge):
         self.scene().addItem(graphicalEdge)
 
-    def get_selected_items(self, subcall=None):
+    def get_selected_items(self, subcall=None, vertices=True):
         """ """
         if(subcall):
             return [ eval("item."+subcall) for item in self.items() if item.isSelected() and
                      isinstance(item, QtGraphViewVertex)]
-        else:
+        elif(vertices):
             return [ item for item in self.items() if item.isSelected() and 
                      isinstance(item, QtGraphViewVertex)]
+        else:
+            return [ item for item in self.items() if item.isSelected()]
 
+                     
     def get_selection_center(self, selection=None):
         items = None
         if selection:

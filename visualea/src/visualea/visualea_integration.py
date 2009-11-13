@@ -94,12 +94,37 @@ def OpenAleaNodeDataPoolHandler(view, event):
         event.accept()
 
 
-mimeFormats = ["openalea/nodefactory", "openalea/data_instance"]
-mimeDropHandlers = [OpenAleaNodeFactoryHandler, OpenAleaNodeDataPoolHandler]
-def get_drop_mime_handlers():
-    return dict(zip(mimeFormats, mimeDropHandlers))
+mimeFormatsMap = {"openalea/nodefactory":OpenAleaNodeFactoryHandler,
+                  "openalea/data_instance":OpenAleaNodeDataPoolHandler}
+qtgraphview.QtGraphView.set_mime_handler_map(mimeFormatsMap)
 
-qtgraphview.QtGraphView.set_mime_handler_map(get_drop_mime_handlers())
+
+##############################################
+# Handling keyboard events on the graph view #
+##############################################
+def keyPressDelete(view, e):
+    operator=GraphOperator(view, view.graph())
+    operator.graph_remove_selection()
+    e.setAccepted(True)
+    
+def keyPressSpace(view, e):
+    view.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+    e.setAccepted(True)
+
+def keyReleaseSpace(view, e):
+    view.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+    e.setAccepted(True)
+
+keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):keyPressDelete,
+                  (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):keyPressSpace
+                  }
+
+keyReleaseMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):keyReleaseSpace
+                    }
+
+qtgraphview.QtGraphView.set_keypress_handler_map(keyPressMapping)
+qtgraphview.QtGraphView.set_keyrelease_handler_map(keyReleaseMapping)
+
 
 
 #################################

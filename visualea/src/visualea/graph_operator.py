@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import dataflowview
 from openalea.core.observer import Observed
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core import export_app
@@ -130,12 +131,18 @@ class GraphOperator(Observed):
                 pass   
 
     def graph_remove_selection(self):
-        items = self.graphView().get_selected_items()
+        items = self.graphView().get_selected_items(vertices=False)
         if(not items): return
         for i in items:
-            if self.graph().is_vertex_protected(i.vertex()): continue
-            self.graph().remove_vertex(i.vertex())
-                
+            if isinstance(i, dataflowview.strat_vertex.GraphicalVertex):
+                if self.graph().is_vertex_protected(i.vertex()): continue
+                self.graph().remove_vertex(i.vertex())
+            elif isinstance(i, dataflowview.strat_edge.GraphicalEdge):
+                self.graph().remove_edge((i.src().vertex(), i.src()),
+                                         (i.dst().vertex(), i.dst()) )
+            elif isinstance(i, dataflowview.strat_anno.GraphicalAnnotation):
+                self.graph().remove_vertex(i.annotation())
+
     def graph_group_selection(self):
         """
         Export selected node in a new factory
@@ -160,19 +167,19 @@ class GraphOperator(Observed):
         
         factory = dialog.create_cnfactory(self.__pkgmanager)
 
-        items = widget.get_selected_items("vertex().get_id()")
-        if(not items): return None
-
-        self.graph().to_factory(factory, items, auto_io=True)
-        pos = widget.get_selection_center(items)
+        itemsid = widget.get_selected_items("vertex().get_id()") # this is ugly.
+        if(not itemsid): return None
+        pos = widget.get_selection_center()
 
         # Instantiate the new node
+        self.graph().to_factory(factory, itemsid, auto_io=True)
         newVert = factory.instantiate([self.graph().factory.get_id()])
         if newVert:
-            self.graph().add_vertex(newVert, pos)
-            new_edges = self.graph().compute_external_io(s, new_id)
-            self.graph().add_edge((newEdges[0],newEdges[1]), 
-                             (newEdges[2], newEdges[3]))
+            newId = self.graph().add_vertex(newVert, (pos.x(), pos.y()))
+            newEdges = self.graph().compute_external_io(newVert, newId)
+            for edges in newEdges:
+                self.graph().add_edge((edges[0], edges[1]), 
+                                      (edges[2], edges[3]))
             self.graph_remove_selection()
 
         try:

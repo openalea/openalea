@@ -37,9 +37,10 @@ class GraphAdapter(object):
 
     def add_vertex(self, vertex, position=None):
         try:
-            self.graph().add_node(vertex)
+            vid = self.graph().add_node(vertex)
             if(position):
                 vertex.get_ad_hoc_dict().set_metadata("position", position)
+            return vid
         except node.RecursionError:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "A graph cannot be contained in itself.")

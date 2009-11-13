@@ -43,9 +43,6 @@ from openalea.grapheditor import qtgraphview
 from graph_operator import GraphOperator
 import visualea_integration
 
-
-
-
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  SignalSlotListener) :
@@ -165,12 +162,17 @@ class MainWindow(QtGui.QMainWindow,
         
         # WorkspaceMenu 
         # daniel was here: now the menu is built using the graph operator.
+        self.operator = None
         QtCore.QObject.connect(self.menu_Workspace, 
                                QtCore.SIGNAL("aboutToShow()"), 
                                self.__wsMenuShow)
         QtCore.QObject.connect(self.menu_Workspace, 
                                QtCore.SIGNAL("aboutToHide()"), 
                                self.__wsMenuHide)
+        QtCore.QObject.connect(self.action_New_Empty_Workspace,
+                               QtCore.SIGNAL("triggered()"), 
+                               self.new_workspace)
+                
 
 
         # Window Mneu
@@ -183,11 +185,14 @@ class MainWindow(QtGui.QMainWindow,
         self.setAcceptDrops(True)
         # final init
         self.session = session
-        session.notify_listeners()
-        
 
+        self.session.simulate_workspace_addition()
+
+    
     def __wsMenuShow(self):
         widget = self.tabWorkspace.currentWidget()
+        if widget is None:
+            return
 
         operator = GraphOperator(widget, widget.graph())
         operator.set_session(self.session)
@@ -210,8 +215,6 @@ class MainWindow(QtGui.QMainWindow,
         menu.addAction(operator("Group selected vertices", menu, "graph_group_selection"))
         menu.addAction(operator("Change selection color", menu, "graph_set_selection_color"))
         menu.addSeparator()
-        menu.connect(self.action_New_Empty_Workspace, QtCore.SIGNAL("triggered()"), 
-                     self.new_workspace)
         menu.addAction(self.action_New_Empty_Workspace)
         menu.addAction(operator("Close current workspace", menu, "graph_close"))
         menu.addAction(operator("Configure IO", menu, "graph_configure_io"))
@@ -223,8 +226,9 @@ class MainWindow(QtGui.QMainWindow,
         self.operator=operator #don't look! 
         
     def __wsMenuHide(self):
-        self.operator.unregister_listener(self)
-        self.operator=None
+        if(self.operator):
+            self.operator.unregister_listener(self)
+            self.operator=None
 
     def open_compositenode(self, factory):
         """ open a  composite node editor """
@@ -273,8 +277,7 @@ class MainWindow(QtGui.QMainWindow,
                 self.open_widget_tab(graph, graph.factory)
             else:
                 self.update_tabwidget()
-                self.reinit_treeview()
-
+                self.reinit_treev
     
     def closeEvent(self, event):
         """ Close All subwindows """

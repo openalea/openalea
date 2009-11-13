@@ -205,6 +205,9 @@ class IGraphViewFloatingEdge(IGraphViewElement):
         pointer at the time the button was released"""
         raise NotImplementedError
 
+    def get_connections(self, *args):
+        raise NotImplementedError
+
 #------*************************************************------#
 class IGraphViewVertexPaintStrategy(object):
     __metaclass__ = interface.IInterfaceMetaClass

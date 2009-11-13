@@ -319,16 +319,9 @@ class CompositeNodeFactory(AbstractFactory):
                 node.get_ad_hoc_dict().set_metadata("text", val)
                 toDelete.append(key)                                         
                 continue
-            elif( key == "port_hide_changed"):
-                for i in val:
-                    pass #print node.input_desc[i].get_ad_hoc_dict()
-                toDelete.append(key)                                         
-                continue
 
         node.get_ad_hoc_dict().set_metadata("position", position)
 
-
-        #the following will break test_compositenode.py
         for key in toDelete:                                             
             del elt_data[key]                                            
 
@@ -368,7 +361,7 @@ class CompositeNodeFactory(AbstractFactory):
                     node.input_desc[port].set_ad_hoc_dict(vs[2])
             except:
                 continue
-        #/gengraph
+        
         return node
 
     #########################################################
@@ -855,6 +848,13 @@ class CompositeNode(Node, DataFlow):
         elif (not isinstance(vertex, CompositeNodeOutput) and 
               not isinstance(vertex, CompositeNodeInput)):
             self.notify_listeners(("vertexAdded", vertex))
+
+    def notify_vertex_removal(self, vertex):
+        if(vertex.__class__.__dict__.has_key("__graphitem__")):
+            self.notify_listeners(("annotationRemoved", vertex))
+        elif (not isinstance(vertex, CompositeNodeOutput) and 
+              not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexRemoved", vertex))
     #/gengraph
 
 
@@ -870,7 +870,7 @@ class CompositeNode(Node, DataFlow):
         self.remove_vertex(vtx_id)
 
     #gengraph
-        self.notify_listeners(("vertexRemoved", node ))
+        self.notify_vertex_removal(node)
     #/gengraph
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True

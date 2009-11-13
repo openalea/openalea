@@ -54,8 +54,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
         self._inPortLayout  = QtGui.QGraphicsLinearLayout()
         self._outPortLayout = QtGui.QGraphicsLinearLayout()
-        self._caption            = QtGui.QLabel(vertex.internal_data["caption"])
-        captionProxy             = qtutils.AleaQGraphicsProxyWidget(self._caption)
+        self._caption       = QtGui.QLabel(vertex.internal_data["caption"])
+        captionProxy        = qtutils.AleaQGraphicsProxyWidget(self._caption)
 
         layout.addItem(self._inPortLayout)
         layout.addItem(captionProxy)
@@ -100,12 +100,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         [port.update_canvas_position() for port in self.__inPorts+self.__outPorts]        
         
     def __add_in_connection(self, port):
-        graphicalConn = GraphicalPort(self, port)
+        graphicalConn = GraphicalPort(self, port, self._inPortLayout)
         self._inPortLayout.addItem(graphicalConn)
         self.__inPorts.append(graphicalConn)
 
     def __add_out_connection(self, port):
-        graphicalConn = GraphicalPort(self, port)
+        graphicalConn = GraphicalPort(self, port, self._outPortLayout)
         self._outPortLayout.addItem(graphicalConn)
         self.__outPorts.append(graphicalConn)
 
@@ -209,16 +209,17 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     __size = QtCore.QSizeF(WIDTH, 
                            HEIGHT)
 
-    def __init__(self, parent, port):
+    __nosize = QtCore.QSizeF(0.0, 0.0)
+
+
+    def __init__(self, parent, port, layout=None):
         """
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
+        if(layout):
+            self.setParentLayoutItem(layout)
         self.initialise(port)
         self.observed = weakref.ref(port)
-#         try:
-#             port.get_ad_hoc_dict().add_metadata("canvasPosition", list)
-#         except:
-#             pass
         port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
         self.setZValue(1.5)
@@ -231,9 +232,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         if(event[0]=="MetaDataChanged"):
             if(event[1]=="hide"):
                 if event[2]:
-                    self.setVisible(False)
+                    self.hide()
                 else:
-                    self.setVisible(True)
+                    self.show()
+                self.parentLayoutItem().updateGeometry()
 
     def canvas_position(self):
         pos = self.rect().center() + self.scenePos()
@@ -255,16 +257,22 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     # QtWorld-Layout #
     ##################
     def size(self):
-        return self.__size
+        size = self.__size
+        if( self.port().get_ad_hoc_dict().get_metadata("hide") == True ):
+            size = self.__nosize
+        return size
 
     def sizeHint(self, blop, blip):
         return self.size()
 
     def minimumSizeHint(self):
+        return self.__nosize
+
+    def maximumSizeHint(self):
         return self.size()
 
     def sizePolicy(self):
-        return QtGui.QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        return QtGui.QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
     ##################
     # QtWorld-Events #

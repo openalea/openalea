@@ -845,8 +845,6 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         event.accept()
 
 
-
-
       
     
 
