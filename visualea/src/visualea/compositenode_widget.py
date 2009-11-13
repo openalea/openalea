@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -41,6 +41,8 @@ from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.node_widget import DefaultNodeWidget
 
 import traceback
+from tooltip import VertexTooltip
+import weakref
 
 def rst2alea(text):
     """Convert docstring into HTML (assuming docstring is in reST format)
@@ -90,9 +92,9 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
         if(autonomous):
             self.set_autonomous()
             return
-        
-        # empty_io is a flag to define if the composite widget add only io widgets 
-        
+
+        # empty_io is a flag to define if the composite widget add only io widgets
+
         # Trey to create a standard node widget for inputs
         default_widget = DefaultNodeWidget(node, parent)
 
@@ -103,7 +105,7 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
             empty_io = True
 
         else:
-            empty_io = False 
+            empty_io = False
             self.container.addTab(default_widget, "Inputs")
 
 
@@ -113,15 +115,15 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
             subnode = node.node(id)
 
             # Do not display widget if hidden
-            hide = subnode.internal_data.get('hide', False) 
-            user_app = subnode.internal_data.get('user_application', False) 
+            hide = subnode.internal_data.get('hide', False)
+            user_app = subnode.internal_data.get('user_application', False)
             if(hide and not empty_io): continue
 
             if(not user_app):
                 # ignore node with all input connected
                 states = [ bool(subnode.get_input_state(p)=="connected")
                            for p in xrange(subnode.get_nb_input())]
-                
+
                 if(all(states)): continue
 
             # Add tab
@@ -131,18 +133,18 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 assert widget
             except:
                 continue
-            
+
             if(widget.is_empty()) :
                 widget.close()
                 del widget
-            else : 
+            else :
                 # Add as tab
                 caption = "%s"%(subnode.caption)
                 self.container.addTab(widget, caption)
 
-        
-                
-           
+
+
+
     def set_autonomous(self):
         """ Create autonomous widget with user applications buttons and dataflow """
 
@@ -154,15 +156,15 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
         for id in self.node.vertices():
 
             subnode = self.node.node(id)
-            user_app = subnode.internal_data.get('user_application', False) 
+            user_app = subnode.internal_data.get('user_application', False)
 
             # add to user app panel
             if(user_app):
-                
+
                 label = QtGui.QLabel(subnode.caption, userapp_widget)
                 runbutton = QtGui.QPushButton("Run", userapp_widget)
                 runbutton.id = id
-                
+
                 widgetbutton = QtGui.QPushButton("Widget", userapp_widget)
                 widgetbutton.id = id
 
@@ -175,8 +177,8 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 buttons.addWidget(widgetbutton)
                 userapp_layout.addLayout(buttons)
 
-        
-        
+
+
         dataflow_widget = EditGraphWidget(self.node, self.container)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget
@@ -185,30 +187,30 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
         exitbutton = QtGui.QPushButton("Exit", self)
         self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
-           
+
         buttons = QtGui.QHBoxLayout()
         buttons.addWidget(exitbutton)
         self.vboxlayout.addLayout(buttons)
 
 
     @exception_display
-    @busy_cursor    
+    @busy_cursor
     def run_node(self):
         self.node.eval_as_expression(self.sender().id)
 
     def open_widget(self):
         self.dataflow_widget.open_item(self.sender().id)
-        
+
 
     def exit(self):
         self.parent().close()
-        
 
-        
+
+
 
 class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     """ Graph widget allowing to edit the network """
-    
+
     def __init__(self, node, parent=None):
         """ Constructor """
 
@@ -221,21 +223,27 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-            
+
         self.scale(0.8, 0.8)
 
         self.newedge = None
-
+        # tooltip
+        self.__tooltipTimer = QtCore.QTimer()
+        self.__tooltipTimer.pos = None
+        self.__tooltipTimer.globalPos = None
+        self.__tooltipTimer.setInterval(1000)
+        self.__tooltip = None
+        self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"), self.showToolTip)
         # dictionnary mapping elt_id and graphical items
         self.graph_item = {}
-        
+
         # dictionnary mapping elt_id with tupel (dialog, widget)
         self.node_dialog = {}
 
         self.rebuild_scene()
 
-        
-    # Node property 
+
+    # Node property
     def set_node(self, node):
         """ Define the associated node (overloaded) """
         NodeWidget.set_node(self, node)
@@ -251,7 +259,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         #for (dialog, widget) in self.node_dialog.items():
             #dialog.close()
             #dialog.destroy()
-            
+
         self.node_dialog = {}
 
         # Close items
@@ -260,9 +268,9 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         scene = QtGui.QGraphicsScene(self)
         scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.setScene(scene)
-        
 
-    @lock_notify      
+
+    @lock_notify
     def rebuild_scene(self):
         """ Build the scene with graphic node and edge"""
 
@@ -276,13 +284,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         dataflow = self.node
         for eid in dataflow.edges():
             (src_id, dst_id) = dataflow.source(eid), dataflow.target(eid)
-            
+
             src_item = self.graph_item[src_id]
             dst_item = self.graph_item[dst_id]
 
             src_port = dataflow.local_id(dataflow.source_port(eid))
             tgt_port = dataflow.local_id(dataflow.target_port(eid))
-            
+
             src_connector = src_item.get_output_connector(src_port)
             dst_connector = dst_item.get_input_connector(tgt_port)
 
@@ -292,7 +300,15 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     # Mouse events
 
     def mouseMoveEvent(self, event):
-        
+        self.__tooltipTimer.stop()
+        self.__tooltipTimer.globalPos = event.globalPos()
+        self.__tooltipTimer.pos = event.pos()
+
+        if self.__tooltip :
+            #and self.__tooltip():
+            #self.__tooltip.close()
+            self.__tooltip = None
+        self.__tooltipTimer.start()
         # update new edge position
         if(self.newedge) :
             self.newedge.setMousePoint(self.mapToScene(event.pos()))
@@ -300,11 +316,28 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         else:
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
+    def showToolTip(self):
+        self.__tooltipTimer.stop()
+        graph_item = self.itemAt(self.__tooltipTimer.pos)
+        if isinstance(graph_item, GraphicalNode):
+            #self.__tooltip = weakref.ref(VertexTooltip(self))
+            if not self.__tooltip:
+                self.__tooltip = VertexTooltip()
+                self.__tooltip.set_vertex_name( graph_item.get_name())
+                self.__tooltip.set_package_name( graph_item.get_pkg_name())
+                #vt.set_vertex_author()
+                self.__tooltip.set_long_description(graph_item.get_doc())
+                self.__tooltip.move(self.__tooltipTimer.globalPos)
+                self.__tooltip.show()
+                self.__tooltip.raise_()
+                return True
+        else:
+            pass
 
 
     @lock_notify
     def mouseReleaseEvent(self, event):
-        
+
         if(self.newedge):
             try:
                 item = self.itemAt(event.pos())
@@ -320,7 +353,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
                     self.connect_node(item, self.newedge.connector())
                     self.add_graphical_connection( item, self.newedge.connector())
-                    
+
             finally:
                 self.scene().removeItem(self.newedge)
                 self.newedge = None
@@ -336,13 +369,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         #self.centerOn(self.mapToScene(event.globalPos()))
         self.scaleView(-event.delta() / 1200.0)
         QtGui.QGraphicsView.wheelEvent(self, event)
-        
+
     def scaleView(self, scaleFactor):
 
         scaleFactor += 1
         self.scale(scaleFactor, scaleFactor)
 
-    
+
     def notify(self, sender, event):
         """ Function called by observed objects """
 
@@ -350,7 +383,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         if(event[0] == "connection_modified"):
             self.rebuild_scene()
-            
+
         elif(event[0] == "graph_modified"):
             self.rebuild_scene()
 
@@ -360,13 +393,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         self.newedge= SemiEdge(self, connector, None, self.scene())
 
-  
+
     # graph edition
 
     def add_graphical_node(self, eltid):
         """
         Add the node graphical representation in the widget
-        @param eltid : element id 
+        @param eltid : element id
         """
 
         subnode = self.node.node(eltid)
@@ -380,7 +413,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
                 mess = QtGui.QMessageBox.warning(None, "Error",
                                                  "This function need PyQT >= 4.2")
                 return None
-            else:                
+            else:
                 classobj = eval(subnode.__graphitem__)
                 gnode = classobj(self, eltid)
 
@@ -394,15 +427,15 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             if(nin == 0 and nout == 0 and
                (eltid == self.node.id_in or eltid == self.node.id_out)):
                 gnode.setVisible(False)
- 
+
         self.graph_item[eltid] = gnode
-        
+
         return gnode
 
 
     def add_graphical_connection(self, connector_src, connector_dst):
-        """ 
-        Create the graphical Edge between two connectorse 
+        """
+        Create the graphical Edge between two connectorse
         Do not create the REAL dataflow connection
         """
         # Do not add multiple edges between the same connectors.
@@ -415,16 +448,16 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
                     None, self.scene())
 
         return edge
-        
-    
+
+
     def connect_node(self, connector_src, connector_dst):
         """
         Connect the 2 nodes given its connectors (convenience function)
         """
-        
-        self.node.connect(connector_src.parentItem().get_id(), 
+
+        self.node.connect(connector_src.parentItem().get_id(),
                           connector_src.index(),
-                          connector_dst.parentItem().get_id(), 
+                          connector_dst.parentItem().get_id(),
                           connector_dst.index())
 
 
@@ -451,7 +484,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         from dialogs import IOConfigDialog
         if(isinstance(node, CompositeNodeInput) or
            isinstance(node, CompositeNodeOutput)):
-            
+
             dialog = IOConfigDialog(self.node.input_desc,
                                     self.node.output_desc,
                                     parent=self)
@@ -462,13 +495,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
                 self.rebuild_scene()
             return
         ########### End refactor
-            
+
         factory = node.get_factory()
         if(not factory) : return
         # We Create a new Dialog
         widget = factory.instantiate_widget(node, self)
-        
-        if(not widget) : return 
+
+        if(not widget) : return
         if (widget.is_empty()):
             widget.close()
             del widget
@@ -490,7 +523,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     def set_selection_color(self, color):
         """ Remove selected nodes """
         items = self.scene().selectedItems() #get_selected_item(True)
-        for i in items : 
+        for i in items :
             try :
                 i.set_user_color(color)
             except:
@@ -541,9 +574,9 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     def copy(self, session):
         """ Copy Selection """
-        
+
         s = self.get_selected_item()
-        if(not s): return 
+        if(not s): return
 
         session.clipboard.clear()
         self.node.to_factory(session.clipboard, s, auto_io=False)
@@ -562,9 +595,9 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         #l = lambda x :  x + 30
         #modifiers = [('posx', l), ('posy', l)]
         # Compute the min x, y value of the nodes
-        # 
+        #
         cnode = session.clipboard.instantiate()
-        
+
         min_x = min([cnode.node(vid).internal_data['posx'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
         min_y = min([cnode.node(vid).internal_data['posy'] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
 
@@ -589,11 +622,11 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         l = len(items)
         if(l == 0) : return QtCore.QPointF(30,30)
-        
+
         sx = sum((self.graph_item[i].pos().x() for i in items))
         sy = sum((self.graph_item[i].pos().y() for i in items))
         return QtCore.QPointF( float(sx)/l, float(sy)/l )
-    
+
 
     def close_node_dialog(self, elt_id):
         """ Close a node dialog """
@@ -603,13 +636,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             (dialog, widget) = self.node_dialog[elt_id]
             dialog.close()
             dialog.destroy()
-            
+
             del(self.node_dialog[elt_id])
         except KeyError:
             pass
 
 
-    @lock_notify      
+    @lock_notify
     def remove_node(self, elt_id):
         """ Remove node identified by elt_id """
 
@@ -617,13 +650,13 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         if(elt_id == self.node.id_out) : return
 
         self.close_node_dialog(elt_id)
-        
+
         item = self.graph_item[elt_id]
         try:
             item.remove_connections()
         except:
             pass
-        
+
         self.scene().removeItem(item)
         del(self.graph_item[elt_id])
 
@@ -637,21 +670,21 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         connector_src = edge_item.source
         connector_dst = edge_item.dest
-        
+
         connector_src.edge_list.remove(edge_item)
         connector_dst.edge_list.remove(edge_item)
 
         edge_item.dest = None
         edge_item.source= None
-        
+
         self.scene().removeItem(edge_item)
 
         self.node.disconnect(connector_src.parentItem().get_id(), connector_src.index(),
-                               connector_dst.parentItem().get_id(), connector_dst.index()) 
-    
+                               connector_dst.parentItem().get_id(), connector_dst.index())
+
 
     # Drag and Drop from TreeView support
-    
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("openalea/nodefactory"):
             event.accept()
@@ -670,12 +703,12 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     @lock_notify
     def add_new_node(self, factory, position):
         """ Convenience function : Return new id if success"""
-        
+
         try:
             newnode = factory.instantiate([self.node.factory.get_id()])
             newnode.set_data('posx', position.x(), False)
             newnode.set_data('posy', position.y(), False)
-        
+
             newid = self.node.add_node(newnode)
             self.add_graphical_node(newid)
             return newid
@@ -688,18 +721,18 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     @lock_notify
     def add_new_connections(self, edges):
-        """ Convenience function : 
+        """ Convenience function :
             Add new edges in the current dataflow.
             Create graphical connections. """
-        
+
         dataflow = self.node
         for src_vid, src_pid, tgt_vid, tgt_pid in edges:
-            eid = dataflow.connect(src_vid, src_pid, tgt_vid, tgt_pid) 
+            eid = dataflow.connect(src_vid, src_pid, tgt_vid, tgt_pid)
 
             src_item = self.graph_item[src_vid]
             tgt_item = self.graph_item[tgt_vid]
 
-            src_connector = src_item.get_output_connector(src_pid) 
+            src_connector = src_item.get_output_connector(src_pid)
             tgt_connector = tgt_item.get_input_connector(tgt_pid)
             self.add_graphical_connection(src_connector, tgt_connector)
 
@@ -725,7 +758,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
         self.add_new_node(factory, position)
 
-    
+
     def acceptEvent(self, event):
         """ Return True if event is accepted """
         return bool(
@@ -737,7 +770,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     def dragEnterEvent(self, event):
         event.setAccepted(self.acceptEvent(event))
-            
+
 
     def dragMoveEvent(self, event):
         if (self.acceptEvent(event)):
@@ -746,17 +779,17 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         else:
             event.ignore()
 
-        
+
     def dropEvent(self, event):
 
-        # Drag and Drop from the PackageManager 
+        # Drag and Drop from the PackageManager
         if (event.mimeData().hasFormat("openalea/nodefactory")):
             pieceData = event.mimeData().data("openalea/nodefactory")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            
+
             package_id = QtCore.QString()
             factory_id = QtCore.QString()
-            
+
             dataStream >> package_id >> factory_id
 
             # Add new node
@@ -765,7 +798,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             factory = pkg.get_factory(str(factory_id))
 
             position = self.mapToScene(event.pos())
-                    
+
             self.add_new_node(factory, position)
 
             event.setDropAction(QtCore.Qt.MoveAction)
@@ -776,9 +809,9 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
             pieceData = event.mimeData().data("openalea/data_instance")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            
+
             data_key = QtCore.QString()
-            
+
             dataStream >> data_key
             data_key = str(data_key)
 
@@ -788,7 +821,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             factory = pkg.get_factory("pool reader")
 
             position = self.mapToScene(event.pos())
-                    
+
             # Set key val
             eltid = self.add_new_node(factory, position)
             subnode = self.node.node(eltid)
@@ -807,7 +840,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
     def keyPressEvent(self, e):
         QtGui.QGraphicsView.keyPressEvent(self, e)
         if(e.isAccepted ()): return
-        
+
         key = e.key()
         if( key == QtCore.Qt.Key_Delete):
             self.remove_selection()
@@ -826,7 +859,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         if(key == QtCore.Qt.Key_Space):
             self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
             e.setAccepted(True)
-        
+
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -838,28 +871,37 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         menu = QtGui.QMenu(self)
         action = menu.addAction("Add Annotation")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.add_graphical_annotation)
-        
+
         menu.move(event.globalPos())
         menu.show()
         event.accept()
 
+    def viewportEvent(self, event):
+        if(event.type()==QtCore.QEvent.ToolTip):
+
+            graph_item = self.itemAt(event.pos())
+            if isinstance(graph_item, GraphicalNode):
+                return True
+            else:
+                return QtGui.QGraphicsView.viewportEvent(self, event)
+        else:
+            return QtGui.QGraphicsView.viewportEvent(self, event)
 
 
 
-      
-    
+
 
 class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     """ Represents a node in the graphwidget """
 
     # Color Definition
     not_modified_color = QtGui.QColor(0, 0, 255, 200)
-    modified_color = QtGui.QColor(255, 0, 0, 200)        
+    modified_color = QtGui.QColor(255, 0, 0, 200)
 
     selected_color = QtGui.QColor(180, 180, 180, 180)
     not_selected_color = QtGui.QColor(255, 255, 255, 100)
 
-    error_color = QtGui.QColor(255, 0, 0, 255)    
+    error_color = QtGui.QColor(255, 0, 0, 255)
     selected_error_color = QtGui.QColor(0, 0, 0, 255)
     not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
 
@@ -877,12 +919,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.elt_id = elt_id
         self.graphview = graphview
         self.subnode = self.graphview.node.node(elt_id)
-        
+
         self.nb_cin = 0
         self.connector_in = [None] * self.subnode.get_nb_input()
         self.connector_out = [None] * self.subnode.get_nb_output()
 
-        
+
         # Record item as a listener for the subnode
         self.initialise(self.subnode)
 
@@ -891,11 +933,11 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             QtGui.QGraphicsItem.ItemIsSelectable))
         self.setZValue(1)
 
-        
+
         # Set ToolTip
         self.set_tooltip(self.subnode.__doc__)
 
-                              
+
         # Font and box size
         self.sizex = 60
         self.sizey = 40
@@ -941,20 +983,22 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.modified_item.setVisible(False)
 
-
-    def set_tooltip(self, doc):
-        """ Set tooltip """
+    def get_name(self):
         try:
             node_name = self.subnode.factory.name
         except:
             node_name = self.subnode.__class__.__name__
+        return node_name
 
+    def get_pkg_name(self):
         try:
             pkg_name = self.subnode.factory.package.get_id()
         except:
             pkg_name = ''
+        return pkg_name
 
-
+    def get_doc(self):
+        doc = self.subnode.__doc__
         if doc:
             doc = doc.split('\n')
             doc = [x.strip() for x in doc]
@@ -963,10 +1007,31 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         else:
             if(self.subnode.factory):
                 doc = self.subnode.factory.description
+        return doc
 
-        self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
-                         "<b>Package</b> : %s<br/>\n" % (pkg_name) +
-                         "<b>Documentation :</b> <br/>\n%s" % (doc,))
+
+    def set_tooltip(self, doc):
+        """ Set tooltip """
+        node_name = self.get_name()
+        pkg_name = self.get_pkg_name()
+
+
+        """if doc:
+            doc = doc.split('\n')
+            doc = [x.strip() for x in doc]
+            doc = '\n'.join(doc)
+            #doc = rst2alea(doc)
+        else:
+            if(self.subnode.factory):
+                doc = self.subnode.factory.description
+        self.doc = doc"""
+        #self.setToolTip( "<b>Name</b> : %s <br/>\n" % (node_name) +
+        #                 "<b>Package</b> : %s<br/>\n" % (pkg_name) +
+        #                 "<b>Documentation :</b> <br/>\n%s" % (doc,))
+        #self.setToolTip( "Name : %s \n" % (node_name) +
+        #                 "Package : %s\n" % (pkg_name) +
+        #                 "Documentation :\n%s" % (doc,))
+
 
 
     def set_connectors(self):
@@ -993,7 +1058,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 self.connector_in[i] = ConnectorIn(self.graphview, self,
                                                    scene, i, tip)
             # nb connector
-            self.nb_cin += 1 
+            self.nb_cin += 1
 
         for i,desc in enumerate(self.subnode.output_desc):
             if(not self.connector_out[i]): # update if necessary
@@ -1007,7 +1072,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
         newsizex = self.fm.width(self.get_caption()) + 30
 
-        # when the text is small but there are lots of ports, 
+        # when the text is small but there are lots of ports,
         # add more space.
         nb_ports = max(self.nb_cin, len(self.connector_out))
         newsizex = max(nb_ports * Connector.WIDTH * 2, newsizex)
@@ -1091,18 +1156,18 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
     def get_id(self):
         return self.elt_id
-    
+
 
     def get_input_connector(self, index):
         return self.connector_in[index]
-        
+
 
     def get_output_connector(self, index):
         return self.connector_out[index]
 
 
     def remove_connections(self):
-        """ Remove edge connected to this item """ 
+        """ Remove edge connected to this item """
 
         for cin in self.connector_in:
             if(not cin) : continue # cin is none if hidden
@@ -1110,7 +1175,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             for e in list(cin.edge_list):
                 e.remove()
             #cout.edge_list = []
-                
+
         for cout in self.connector_out:
             if(not cout) : continue # cout is none if hidden
 
@@ -1118,10 +1183,10 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 e.remove()
             #cout.edge_list = []
         return
-                
-            
+
+
     def set_user_color(self, color):
-        """let the user specify a color for this 
+        """let the user specify a color for this
         graphical node"""
 
         assert type(color) == QtGui.QColor
@@ -1130,7 +1195,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.subnode.internal_data["user_color"] = color.red(), color.green(), color.blue()
         self.update()
         return
-        
+
 
     def boundingRect(self):
         adjust = 4.0
@@ -1145,7 +1210,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
 
     def paint(self, painter, option, widget):
-        
+
         # Shadow
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(QtGui.QColor(100, 100, 100, 50))
@@ -1158,7 +1223,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 secondcolor = self.selected_error_color
             else:
                 secondcolor = self.not_selected_error_color
-                
+
         else:
             if(self.use_user_color):
                 color=self.user_color
@@ -1166,7 +1231,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 color = self.selected_color
             else:
                 color = self.not_selected_color
-                
+
         if(self.use_user_color):
             secondcolor=self.user_color
         elif(self.subnode.user_application):
@@ -1179,37 +1244,37 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         gradient.setColorAt(0.0, color)
         gradient.setColorAt(0.8, secondcolor)
         painter.setBrush(QtGui.QBrush(gradient))
-        
+
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
         painter.drawRoundRect(0, 0, self.sizex, self.sizey)
-        
+
         # Draw Text
         textRect = QtCore.QRectF(0, 0, self.sizex, self.sizey)
         painter.setFont(self.font)
         painter.drawText(textRect, QtCore.Qt.AlignCenter,
                          self.get_caption())
-        
+
         if(self.subnode.block):
             painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
             painter.drawRoundRect(0, 0, self.sizex, self.sizey)
 
-        
+
 
 
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
 
         ret = QtGui.QGraphicsItem.itemChange(self, change, value)
-        
+
         if (change == QtGui.QGraphicsItem.ItemPositionChange):
-            
+
             for c in self.connector_in :
                 if(c): c.adjust()
             for c in self.connector_out :
                 if(c): c.adjust()
 
             point = value.toPointF()
-        
+
             self.subnode.set_data('posx', point.x(), False)
             self.subnode.set_data('posy', point.y(), False)
 
@@ -1333,7 +1398,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.subnode.block = val
         self.update()
 
-    
+
     def set_user_application(self, val):
         self.graphview.node.set_continuous_eval(self.elt_id, bool(val))
         self.update()
@@ -1355,7 +1420,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
             for k in editor.modified_key:
                 self.subnode.set_data(k, editor.pdict[k])
 
-            
+
     @exception_display
     @busy_cursor
     def run_node(self):
@@ -1371,12 +1436,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
     def remove(self):
         """ Remove current node """
         self.graphview.remove_node(self.elt_id)
-        
+
 
     def set_caption(self):
         """ Open a input dialog to set node caption """
 
-        n = self.subnode 
+        n = self.subnode
         (result, ok) = QtGui.QInputDialog.getText(self.graphview, "Node caption", "",
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):
@@ -1385,17 +1450,17 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
 
     def replace_by(self):
         """ Replace a node by an other """
-        
+
         self.dialog = NodeChooser(self.graphview)
         self.dialog.search('', self.subnode.get_nb_input(), self.subnode.get_nb_output())
         ret = self.dialog.exec_()
 
         if(not ret): return
-        
+
         factory = self.dialog.get_selection()
         newnode = factory.instantiate()
         self.graphview.node.replace_node(self.elt_id, newnode)
-        
+
         self.graphview.rebuild_scene()
 
 
@@ -1414,7 +1479,7 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         newnode.internal_data.update(self.subnode.internal_data)
         self.subnode = newnode
 
-        
+
 
 ################################################################################
 
@@ -1432,7 +1497,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
         @param scene : QGraphicsScene container
         @param index : connector index
         """
-        
+
         QtGui.QGraphicsItem.__init__(self, parent, scene)
 
         self.mindex = index
@@ -1450,13 +1515,13 @@ class Connector(QtGui.QGraphicsEllipseItem):
         #gradient.setFocalPoint(3, 3)
         #gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.yellow).light(120))
         #gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
-        
+
         self.setBrush(QtGui.QBrush(gradient))
         self.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
         self.edge_list = []
         self.setAcceptsHoverEvents(True)
-        
+
 
     def index(self):
         return self.mindex
@@ -1469,7 +1534,7 @@ class Connector(QtGui.QGraphicsEllipseItem):
             if e.source == source and e.dest == dest:
                 return
         self.edge_list.append(edge)
-        
+
 
     def adjust(self):
         for e in self.edge_list:
@@ -1482,10 +1547,10 @@ class Connector(QtGui.QGraphicsEllipseItem):
     def mousePressEvent(self, event):
         if (event.buttons() & QtCore.Qt.LeftButton):
             self.graphview().start_edge(self)
-        
+
         QtGui.QGraphicsItem.mousePressEvent(self, event)
 
-    
+
     def hoverEnterEvent(self, event):
         self.update_tooltip()
         self.setPen(QtGui.QPen(QtCore.Qt.darkYellow, 0))
@@ -1513,7 +1578,7 @@ class ConnectorIn(Connector):
 
         self.setToolTip("%s \nValue: %s"%(self.base_tooltip, s))
 
-    
+
     def adjust_position(self, parentitem, index, ntotal):
         width = parentitem.sizex / float(ntotal+1)
         self.setPos((index+1) * width - self.WIDTH/2., - self.HEIGHT/2)
@@ -1531,14 +1596,14 @@ class ConnectorIn(Connector):
         else:
             event.ignore()
 
-            
+
     def dropEvent(self, event):
         if (event.mimeData().hasFormat("openalea/data_instance")):
             pieceData = event.mimeData().data("openalea/data_instance")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            
+
             data_key = QtCore.QString()
-            
+
             dataStream >> data_key
             data_key = str(data_key)
 
@@ -1554,7 +1619,7 @@ class ConnectorIn(Connector):
         else:
             event.ignore()
 
-            
+
     def mouseDoubleClickEvent(self, event):
         self.parentItem().show_ports()
 
@@ -1564,14 +1629,14 @@ class ConnectorOut(Connector):
 
     def __init__(self, graphview, parent, scene, index, tooltip):
         Connector.__init__(self, graphview, parent, scene, index, tooltip)
-        
+
         #self.adjust_position(parent, index, ntotal)
 
-        
+
     def update_tooltip(self):
         node = self.parentItem().subnode
         data = node.get_output(self.mindex)
-        
+
         s = str(data)
         if(len(s) > Connector.MAX_TIPLEN): s = "String too long..."
 
@@ -1579,7 +1644,7 @@ class ConnectorOut(Connector):
 
 
     def adjust_position(self, parentitem, index, ntotal):
-            
+
         width= parentitem.sizex / float(ntotal+1)
         self.setPos((index+1) * width - self.WIDTH/2., parentitem.sizey - self.HEIGHT/2)
 
@@ -1607,7 +1672,7 @@ class ConnectorOut(Connector):
         node = self.parentItem().subnode
         data = node.get_output(self.mindex)
         print data
-        
+
 
     def send_to_pool(self):
 
@@ -1644,7 +1709,7 @@ def edge_factory():
 
 class LinearEdgePath(object):
     """ Draw edges as line. """
-    def __init__(self): 
+    def __init__(self):
         self.p1 = QtCore.QPointF()
         self.p2 = QtCore.QPointF()
 
@@ -1658,7 +1723,7 @@ class LinearEdgePath(object):
             dp = QtCore.QPointF(0, 10)
         else:
             dp = QtCore.QPointF(10, 0)
-        
+
         p1 = self.p1 - dp
         p2 = self.p1 + dp
         p3 = self.p2 + dp
@@ -1708,7 +1773,7 @@ class PolylineEdgePath(LinearEdgePath):
             s1 = self.p1 + QtCore.QPointF(0, sd.y() / 2.)
             d1= self.p2 - QtCore.QPointF(0, sd.y() / 2.)
             points.extend([s1, d1])
-        
+
         points.append(self.p2)
         for pt in points:
             path.lineTo(pt)
@@ -1718,7 +1783,7 @@ class PolylineEdgePath(LinearEdgePath):
 
 class SplineEdgePath(PolylineEdgePath):
     """ Edge as Spline """
-    
+
     def __init__(self):
         PolylineEdgePath.__init__(self)
 
@@ -1741,7 +1806,7 @@ class SplineEdgePath(PolylineEdgePath):
             path.quadTo(self.p2 - py, self.p2)
 
         return path
-    
+
 
 class AbstractEdge(QtGui.QGraphicsPathItem):
     """
@@ -1764,14 +1829,14 @@ class AbstractEdge(QtGui.QGraphicsPathItem):
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
 
-        
+
     def shape(self):
         path = self.edge_path.shape()
         if not path:
             return QtGui.QGraphicsPathItem.shape(self)
         else:
             return path
-        
+
     def update_line(self):
         path = self.edge_path.getPath(self.sourcePoint, self.destPoint)
         self.setPath(path)
@@ -1798,12 +1863,12 @@ class SemiEdge(AbstractEdge):
         self.destPoint = scene_point
         self.update_line()
         self.update()
-    
+
 
 
 class Edge(AbstractEdge):
     """ An edge between two graphical nodes """
-        
+
     def __init__(self, graphview, sourceNode, out_index, destNode, in_index,
                  parent=None, scene=None):
         """
@@ -1840,12 +1905,12 @@ class Edge(AbstractEdge):
         dest = self.dest
         line = QtCore.QLineF(self.mapFromItem(source, source.rect().center() ),
                               self.mapFromItem(dest, dest.rect().center() ))
-       
+
         length = line.length()
         if length == 0.0:
             return
         self.prepareGeometryChange()
-        self.sourcePoint = line.p1() 
+        self.sourcePoint = line.p1()
         self.destPoint = line.p2()
         self.update_line()
 
