@@ -482,15 +482,11 @@ class Node(AbstractNode):
         self.input_states = []
 
         # Process in and out
-        if(inputs):
-            for i, d in enumerate(inputs):
-                port = self.add_input(**d)
-                port.set_id(i)
+	for i, d in enumerate(inputs):
+	    port = self.add_input(**d)
 
-        if(outputs):
-            for i, d in enumerate(outputs):
-                port = self.add_output(**d)
-                port.set_id(i)
+	for i, d in enumerate(outputs):
+	    port = self.add_output(**d)
 
     def add_input(self, **kargs):
         """ Create an input port """
@@ -527,6 +523,7 @@ class Node(AbstractNode):
         index = len(self.inputs) - 1
         self.map_index_in[name] = index
         self.map_index_in[index] = index
+	port.set_id(index)
 
         self.set_input(name, value, False)
         return port
@@ -544,6 +541,7 @@ class Node(AbstractNode):
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index
+	port.set_id(index)
         return port
 
     # I/O Functions

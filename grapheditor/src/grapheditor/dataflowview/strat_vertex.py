@@ -67,6 +67,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         self._inPortLayout.setSpacing(8)
         self._outPortLayout.setSpacing(8)
 
+	self._inPortLayout.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Fixed)
+	self._outPortLayout.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+
         self.setLayout(layout)
 
         # ---reference to the widget of this vertex---
@@ -88,8 +91,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def __layout_ports(self):
         """ Add ports """
         self.nb_cin = 0
-        for desc in self.graph().get_vertex_inputs(self.vertex().get_id()):
+        self._inPortLayout.addStretch()
+	for desc in self.graph().get_vertex_inputs(self.vertex().get_id()):
             self.__add_in_connection(desc)
+        self._inPortLayout.insertStretch(self._inPortLayout.count())
+
+	
             
         for desc in self.graph().get_vertex_outputs(self.vertex().get_id()):
             self.__add_out_connection(desc)
@@ -231,11 +238,14 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     def notify(self, sender, event):
         if(event[0]=="MetaDataChanged"):
             if(event[1]=="hide"):
+                #print ' hide port'
                 if event[2]:
                     self.hide()
                 else:
                     self.show()
-                self.parentLayoutItem().updateGeometry()
+                #self.parentItem().updateGeometry()
+                self.parentItem().update()
+                #print ' hide port'
 
     def canvas_position(self):
         pos = self.rect().center() + self.scenePos()
@@ -257,9 +267,11 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     # QtWorld-Layout #
     ##################
     def size(self):
+        #print '   -> hide port %d: SIZE'%self.port().get_id()
         size = self.__size
         if( self.port().get_ad_hoc_dict().get_metadata("hide") == True ):
             size = self.__nosize
+	#print '         size == ', size
         return size
 
     def sizeHint(self, blop, blip):
@@ -272,7 +284,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         return self.size()
 
     def sizePolicy(self):
-        return QtGui.QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return QtGui.QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
 
     ##################
     # QtWorld-Events #
