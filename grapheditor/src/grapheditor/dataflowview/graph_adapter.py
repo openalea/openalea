@@ -101,4 +101,10 @@ class GraphAdapter(object):
     def is_legal_connection(self, src, dst):
         pass
         
+    @classmethod
+    def get_vertex_types(cls):
+        return ["annotation", "vertex"]
 
+    @classmethod
+    def get_edge_types(cls):
+        return ["default"]

@@ -42,28 +42,29 @@ class IGraphViewStrategies(object):
         (0,-1) is upward, (0,1) is downward."""
         raise NotImplementedError
 
+
     @classmethod
-    def get_vertex_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents a vertex"""
+    def get_vertex_widget_factory(cls):
+        """Returns a factory that creates vertices
+        according to a type argument"""
         raise NotImplementedError
 
     @classmethod
-    def get_edge_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents an edge"""
+    def get_vertex_widget_types(cls):
+        """Return a dict mapping vertex type names (a str) to the
+        graphical representation of it (a class)"""
         raise NotImplementedError
 
     @classmethod
-    def get_floating_edge_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents an edge"""
+    def get_edge_widget_factory(cls):
+        """Returns a factory that creates edges
+        according to a type argument"""
         raise NotImplementedError
 
     @classmethod
-    def get_annotation_widget_type(cls):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
+    def get_edge_widget_types(cls):
+        """Return a dict mapping edge type names (a str) to the
+        graphical representation of it (a class)"""
         raise NotImplementedError
 
     @classmethod
@@ -76,23 +77,18 @@ class IGraphViewStrategies(object):
 class IGraphListener(object):
     __metaclass__ = interface.IInterfaceMetaClass
 
-    def vertex_added(self, vertexModel):
+    def vertex_added(self, vtype, vertexModel):
         raise NotImplementedError
 
     def edge_added(self, edgeModel, srcPort, dstPort):
         raise NotImplementedError
 
-    def annotation_added(self, annotation):
-        raise NotImplementedError
-
-    def vertex_removed(self, vertexModel):
+    def vertex_removed(self, vtype,  vertexModel):
         raise NotImplementedError
 
     def edge_removed(self, edgeModel):
         raise NotImplementedError
 
-    def annotation_removed(self, annotation):
-        raise NotImplementedError
 
 #------*************************************************------#
 class IGraphAdapter(object):
@@ -134,6 +130,13 @@ class IGraphAdapter(object):
     def is_output(self, *args, **kargs):
         raise NotImplementedError
 
+    @classmethod
+    def get_vertex_types(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def get_edge_types(cls):
+        raise NotImplementedError
 
 #------*************************************************------#
 class IGraphViewElement(object):

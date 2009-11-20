@@ -30,6 +30,22 @@ from .. import grapheditor_baselisteners
 from .. import qtgraphview
 
 
+def GraphicalVertexFactory(vtype, *args, **kwargs):
+    VT = GraphViewStrategy.get_vertex_widget_types().get(vtype)
+    if(VT):
+        return VT(*args, **kwargs)
+    else:
+        raise Exception("vtype not found")
+
+
+def GraphicalEdgeFactory(etype, *args, **kwargs):
+    ET = GraphViewStrategy.get_edge_widget_types().get(etype)
+    if(ET):
+        return ET(*args, **kwargs)
+    else:
+        raise Exception("vtype not found")
+
+
 class GraphViewStrategy(object):
 
     @classmethod
@@ -44,28 +60,26 @@ class GraphViewStrategy(object):
         return (0,1)
 
     @classmethod
-    def get_vertex_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents a vertex"""
-        return strat_vertex.GraphicalVertex
+    def get_vertex_widget_factory(cls):
+        """Returns a factory that instantiates vertices according
+        to their types."""
+        return GraphicalVertexFactory
 
     @classmethod
-    def get_edge_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents an edge"""
-        return strat_edge.GraphicalEdge
+    def get_vertex_widget_types(cls):
+        return {"vertex":strat_vertex.GraphicalVertex,
+                "annotation":strat_anno.GraphicalAnnotation}
 
     @classmethod
-    def get_floating_edge_widget_type(cls):
-        """Return a classobj defining the type of widget 
-        that represents an edge"""
-        return strat_edge.FloatingEdge
+    def get_edge_widget_factory(cls):
+        """Returns a factory that instantiates edges according
+        to their types."""
+        return GraphicalEdgeFactory
 
     @classmethod
-    def get_annotation_widget_type(cls):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
-        return strat_anno.GraphicalAnnotation
+    def get_edge_widget_types(cls):
+        return {"default":strat_edge.GraphicalEdge,
+                "floating-default":strat_edge.FloatingEdge}
 
     @classmethod
     def get_graph_adapter_type(cls):

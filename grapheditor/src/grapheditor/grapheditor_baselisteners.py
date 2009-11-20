@@ -95,14 +95,35 @@ class GraphListenerBase(observer.AbstractListener):
     def register_strategy(cls, stratCls):
         assert isinstance(stratCls, types.TypeType)
         assert grapheditor_interfaces.IGraphViewStrategies.check(stratCls)
-        assert grapheditor_interfaces.IGraphViewVertex.check(stratCls.get_vertex_widget_type())
-        assert grapheditor_interfaces.IGraphViewEdge.check(stratCls.get_edge_widget_type())
-        assert grapheditor_interfaces.IGraphViewFloatingEdge.check(stratCls.get_floating_edge_widget_type())
-        assert grapheditor_interfaces.IGraphViewAnnotation.check(stratCls.get_annotation_widget_type())
-        assert grapheditor_interfaces.IGraphAdapter.check(stratCls.get_graph_adapter_type())
 
+        graphadapter = stratCls.get_graph_adapter_type()
+        vertexWidgetTypes  = stratCls.get_vertex_widget_types()
+        edgeWidgetTypes  = stratCls.get_edge_widget_types()
         graphCls = stratCls.get_graph_model_type()
         assert type(graphCls) == types.TypeType
+
+        if(graphadapter):
+            assert grapheditor_interfaces.IGraphAdapter.check(graphadapter)
+        else:
+            graphadapter = graphCls
+            
+        #checking vertex types
+        elTypes = graphadapter.get_vertex_types()
+        for vt in elTypes:
+            vtype = vertexWidgetTypes.get(vt, None)
+            assert grapheditor_interfaces.IGraphViewElement.check(vtype)
+
+        #checking edge types
+        elTypes = graphadapter.get_edge_types()
+        for et in elTypes:
+            etype = edgeWidgetTypes.get(et, None)
+            assert grapheditor_interfaces.IGraphViewEdge.check(etype)
+
+        #checking floating edge types
+        elTypes = edgeWidgetTypes.keys()
+        elTypes = [i for i in elTypes if i.startswith("floating")]
+        for et in elTypes:
+            assert grapheditor_interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
         
         cls.__available_strategies__[graphCls]=stratCls
         return        
@@ -117,30 +138,26 @@ class GraphListenerBase(observer.AbstractListener):
         #mappings from models to widgets
         self.vertexmap = {}
         self.edgemap = {}
-        self.annomap = {}
 
         #types
-        self._vertexWidgetType = None
-        self._edgeWidgetType = None
-        self._floatingEdgeWidgetType = None
-        self._annoWidgetType = None
+        self._vertexWidgetFactory = None
+        self._edgeWidgetFactory = None
         self._adapterType = None
-
-        #an edge currently being drawn, low-level detail.
-        self.__newEdge = None
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls): raise StrategyError("Could not find matching strategy")
 
-        self.set_vertex_widget_type(stratCls.get_vertex_widget_type())
-        self.set_edge_widget_type(stratCls.get_edge_widget_type())
-        self.set_floating_edge_widget_type(stratCls.get_floating_edge_widget_type())
-        self.set_annotation_widget_type(stratCls.get_annotation_widget_type())
+        self.set_vertex_widget_factory(stratCls.get_vertex_widget_factory())
+        self.set_edge_widget_factory(stratCls.get_edge_widget_factory())
         self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
         self.set_direction_vector(stratCls.get_direction_vector())
         self.set_graph(graph)
         self.connector_types=stratCls.get_connector_types()
+
+        #low-level detail.
         self.currentItem = None
+        #an edge currently being drawn,
+        self.__newEdge = None
 
     def graph(self):
         if(isinstance(self.observed, weakref.ref)):
@@ -164,51 +181,38 @@ class GraphListenerBase(observer.AbstractListener):
     #############################################################
     
     def notify(self, sender, data):
-        if(data[0]=="vertexAdded") : self.vertex_added(data[1])
-        elif(data[0]=="edgeAdded") : self.edge_added(*data[1]) 
-        elif(data[0]=="annotationAdded") : self.annotation_added(data[1])
-        elif(data[0]=="vertexRemoved") : self.vertex_removed(data[1])
-        elif(data[0]=="edgeRemoved") : self.edge_removed(data[1]) 
-        elif(data[0]=="annotationRemoved") : self.annotation_removed(data[1])
+        if(data[0]=="vertexAdded") : self.vertex_added(*data[1])
+        elif(data[0]=="edgeAdded") : self.edge_added(*data[1])
+        elif(data[0]=="vertexRemoved") : self.vertex_removed(*data[1])
+        elif(data[0]=="edgeRemoved") : self.edge_removed(*data[1])
 
-    def element_added(self, element):
+    def __element_added(self, element):
         self.post_addition(element)
         return element
 
-    def vertex_added(self, vertexModel):
-        vertexWidget = self._vertexWidgetType(vertexModel, self.graph())
+    def vertex_added(self, vtype, vertexModel):
+        vertexWidget = self._vertexWidgetFactory(vtype, vertexModel, self.graph())
         vertexWidget.add_to_view(self.get_scene())
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
-        return self.element_added(vertexWidget)
+        return self.__element_added(vertexWidget)
 
-    def edge_added(self, edgeModel, srcPort, dstPort):
-        edgeWidget = self._edgeWidgetType(edgeModel, self.graph(), srcPort, dstPort)
+    def edge_added(self, etype, edgeModel, srcPort, dstPort):
+        edgeWidget = self._edgeWidgetFactory(etype, edgeModel, self.graph(),
+                                             srcPort, dstPort)
         edgeWidget.add_to_view(self.get_scene())
         self.edgemap[edgeModel] = weakref.ref(edgeWidget)
-        return self.element_added(edgeWidget)
+        return self.__element_added(edgeWidget)
 
-    def annotation_added(self, annotation):
-        annoWidget = self._annoWidgetType(annotation, self.graph())
-        annoWidget.add_to_view(self.get_scene())
-        self.annomap[annotation] = weakref.ref(annoWidget)
-        return self.element_added(annoWidget)
-
-    def vertex_removed(self, vertexModel):
+    def vertex_removed(self, vtype, vertexModel):
         vertexWidget = self.vertexmap[vertexModel]
         vertexWidget().remove_from_view(self.get_scene())
         del self.vertexmap[vertexModel]
         return
 
-    def edge_removed(self, edgeModel):
+    def edge_removed(self, vtype, edgeModel):
         edgeWidget = self.edgemap[edgeModel]
         edgeWidget().remove_from_view(self.get_scene())
         del self.edgemap[edgeModel]
-        return
-
-    def annotation_removed(self, annotation):
-        annoWidget = self.annomap[annotation]
-        annoWidget().remove_from_view(self.get_scene())
-        del self.annomap[annotation]
         return
 
     ###########################################################
@@ -218,8 +222,8 @@ class GraphListenerBase(observer.AbstractListener):
     def is_creating_edge(self):
         return True if self.__newEdge else False
     
-    def new_edge_start(self, srcPt):
-        self.__newEdge = self._floatingEdgeWidgetType(srcPt, self.graph())
+    def new_edge_start(self, srcPt, etype="default"):
+        self.__newEdge = self._edgeWidgetFactory("floating-"+etype, srcPt, self.graph())
         self.new_edge_scene_init(self.__newEdge)
 
     def new_edge_set_destination(self, *dest):
@@ -247,17 +251,14 @@ class GraphListenerBase(observer.AbstractListener):
     # Other utility methods #
     #########################
 
-    def set_vertex_widget_type(self, _type):
-        self._vertexWidgetType = _type
+    def set_vertex_widget_factory(self, _fac):
+        self._vertexWidgetFactory = _fac
 
-    def set_edge_widget_type(self, _type):
-        self._edgeWidgetType = _type
+    def set_edge_widget_factory(self, _fac):
+        self._edgeWidgetFactory = _fac
 
     def set_floating_edge_widget_type(self, _type):
         self._floatingEdgeWidgetType = _type
-
-    def set_annotation_widget_type(self, _type):
-        self._annoWidgetType = _type
 
     def set_graph_adapter_type(self, _type):
         self._adapterType = _type

@@ -843,18 +843,19 @@ class CompositeNode(Node, DataFlow):
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
         if(vid):  vertex.set_id(vid)
-        if(vertex.__class__.__dict__.has_key("__graphitem__")):
-            self.notify_listeners(("annotationAdded", vertex))
-        elif (not isinstance(vertex, CompositeNodeOutput) and 
-              not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertexAdded", vertex))
+        
+        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
+                else "vertex"
+        if (not isinstance(vertex, CompositeNodeOutput) and 
+            not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexAdded", (vtype, vertex)))
 
     def notify_vertex_removal(self, vertex):
-        if(vertex.__class__.__dict__.has_key("__graphitem__")):
-            self.notify_listeners(("annotationRemoved", vertex))
-        elif (not isinstance(vertex, CompositeNodeOutput) and 
-              not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertexRemoved", vertex))
+        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
+                else "vertex"
+        if (not isinstance(vertex, CompositeNodeOutput) and 
+            not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexRemoved", (vtype, vertex)))
     #/gengraph
 
 
@@ -879,7 +880,7 @@ class CompositeNode(Node, DataFlow):
     #gengraph
     def remove_edge(self, eid):
         DataFlow.remove_edge(self, eid)
-        self.notify_listeners(("edgeRemoved", eid ))
+        self.notify_listeners(("edgeRemoved", ("default",eid) ))
     #/gengraph
 
     #gengraph
@@ -899,7 +900,7 @@ class CompositeNode(Node, DataFlow):
 
         for eid in self.edges():
             (src_id, dst_id) = self.source(eid), self.target(eid)
-            
+            etype=None
             src_port_id = self.local_id(self.source_port(eid))
             dst_port_id = self.local_id(self.target_port(eid))
 
@@ -908,7 +909,7 @@ class CompositeNode(Node, DataFlow):
             src_port = nodeSrc.output_desc[src_port_id]
             dst_port = nodeDst.input_desc[dst_port_id]
 
-            edgedata = eid, src_port, dst_port
+            edgedata = "default", eid, src_port, dst_port
             self.notify_listeners(("edgeAdded", edgedata))
             
     #/gengraph
@@ -936,7 +937,7 @@ class CompositeNode(Node, DataFlow):
         nodeDst = self.node(dst_id)
         src_port = nodeSrc.output_desc[port_src]
         dst_port = nodeDst.input_desc[port_dst]
-        edgedata = eid, src_port, dst_port
+        edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edgeAdded", edgedata))
         #/gengraph
 
@@ -956,7 +957,7 @@ class CompositeNode(Node, DataFlow):
 
             if self.target_port(eid) == target_pid:
                 #gengraph
-                self.notify_listeners(("edgeRemoved", eid))
+                self.notify_listeners(("edgeRemoved", ("default",eid)))
                 #/gengraph
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
