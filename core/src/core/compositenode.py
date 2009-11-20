@@ -891,6 +891,10 @@ class CompositeNode(Node, DataFlow):
         for eltid in ids:
             node = self.node(eltid)
             self.notify_vertex_addition(node)
+            try: #some nodes are annotations and don't have this method.
+                node.simulate_construction_notifications()
+            except:
+                pass
             
 
         for eid in self.edges():

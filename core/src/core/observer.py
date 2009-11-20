@@ -54,7 +54,7 @@ class Observed(object):
                 try:
                     ref().call_notify(self, event)
                 except Exception, e:
-                    print "Warning : notification of %s failed"%(str(ref()), )
+                    print "Warning : notification of %s failed"%(str(ref()),)
                     print e
 
     def __getstate__(self):

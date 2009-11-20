@@ -314,6 +314,12 @@ class Node(AbstractNode):
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
 
+    def simulate_construction_notifications(self):
+        for i in self.input_desc:
+            self.notify_listeners(("inputPortAdded", i))
+        for i in self.output_desc:
+            self.notify_listeners(("outputPortAdded", i))
+
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
@@ -526,6 +532,7 @@ class Node(AbstractNode):
 	port.set_id(index)
 
         self.set_input(name, value, False)
+        self.notify_listeners(("inputPortAdded", port))
         return port
 
     def add_output(self, **kargs):
@@ -542,6 +549,7 @@ class Node(AbstractNode):
         self.map_index_out[name] = index
         self.map_index_out[index] = index
 	port.set_id(index)
+        self.notify_listeners(("outputPortAdded", port))
         return port
 
     # I/O Functions
