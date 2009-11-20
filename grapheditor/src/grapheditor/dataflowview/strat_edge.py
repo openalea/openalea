@@ -100,7 +100,7 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
-        menu = QtGui.QMenu(self.scene().views()[0])
+        menu = QtGui.QMenu(event.widget())
         action = menu.addAction("Delete connection")
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
         menu.move(event.screenPos())

@@ -256,7 +256,6 @@ class QtGraphViewVertex(QtGraphViewElement):
             gradient.setColorAt(0.8, secondColor)
 
         #PAINTING
-        #painter = QtGui.QPainter(self)
         painter.setBackgroundMode(QtCore.Qt.TransparentMode)
         if(strategy):
             strategy.prepaint(self, paintEvent, painter, state)
@@ -389,10 +388,8 @@ class QtGraphViewEdge(QtGraphViewElement):
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
 
-        self.edge_path = edgefactory.EdgeFactory()
-        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
-        self.setPath(path)
-
+        self.__edge_path = None
+        self.set_edge_path(edgefactory.EdgeFactory())
         self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
                                QtCore.Qt.SolidLine,
                                QtCore.Qt.RoundCap,
@@ -403,6 +400,11 @@ class QtGraphViewEdge(QtGraphViewElement):
             return self.observed()
         else:
             return self.observed
+
+    def set_edge_path(self, path):
+	self.__edge_path = path
+        path = self.__edge_path.get_path(self.sourcePoint, self.destPoint)
+        self.setPath(path)
         
     def update_line_source(self, *pos):
         self.sourcePoint = QtCore.QPointF(*pos)
@@ -413,7 +415,7 @@ class QtGraphViewEdge(QtGraphViewElement):
         self.__update_line()
 
     def __update_line(self):
-        path = self.edge_path.get_path(self.sourcePoint, self.destPoint)
+        path = self.__edge_path.get_path(self.sourcePoint, self.destPoint)
         self.setPath(path)
 
     def notify(self, sender, event):
@@ -445,7 +447,7 @@ class QtGraphViewEdge(QtGraphViewElement):
     # Qt World #
     ############
     def shape(self):
-        path = self.edge_path.shape()
+        path = self.__edge_path.shape()
         if not path:
             return QtGui.QGraphicsPathItem.shape(self)
         else:

@@ -53,8 +53,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         layout.setSpacing(2)
 
         self._inPortLayout  = QtGui.QGraphicsLinearLayout()
-        self._outPortLayout = QtGui.QGraphicsLinearLayout()
         self._caption       = QtGui.QLabel(vertex.internal_data["caption"])
+        self._outPortLayout = QtGui.QGraphicsLinearLayout()
         captionProxy        = qtutils.AleaQGraphicsProxyWidget(self._caption)
 
         layout.addItem(self._inPortLayout)
@@ -67,19 +67,11 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         self._inPortLayout.setSpacing(8)
         self._outPortLayout.setSpacing(8)
 
-	self._inPortLayout.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Fixed)
-	self._outPortLayout.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
-
         self.setLayout(layout)
 
         # ---reference to the widget of this vertex---
         self._vertexWidget = None
 
-        #hack around a Qt4.4 limitation
-        self.__inPorts=[]
-        self.__outPorts=[]
-        #do the port layout
-        self.__layout_ports()
         #tooltip
         self.set_tooltip(vertex.__doc__)
         self.initialise_from_model()
@@ -87,34 +79,26 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
 
     #################
     # private stuff #
-    #################
-    def __layout_ports(self):
-        """ Add ports """
-        self.nb_cin = 0
-        self._inPortLayout.addStretch()
-	for desc in self.graph().get_vertex_inputs(self.vertex().get_id()):
-            self.__add_in_connection(desc)
-        self._inPortLayout.insertStretch(self._inPortLayout.count())
-
-	
-            
-        for desc in self.graph().get_vertex_outputs(self.vertex().get_id()):
-            self.__add_out_connection(desc)
-            
+    #################            
     def __update_ports_ad_hoc_position(self):
         """the canvas position held in the adhoc dict of the ports has to be changed
         from here since the port items, being childs, don't receive moveEvents..."""
-        [port.update_canvas_position() for port in self.__inPorts+self.__outPorts]        
+        for portId in range(self._inPortLayout.count()):
+            self._inPortLayout.itemAt(portId).graphicsItem().update_canvas_position()
+
+        for portId in range(self._outPortLayout.count()):
+            self._outPortLayout.itemAt(portId).graphicsItem().update_canvas_position()
         
     def __add_in_connection(self, port):
         graphicalConn = GraphicalPort(self, port, self._inPortLayout)
-        self._inPortLayout.addItem(graphicalConn)
-        self.__inPorts.append(graphicalConn)
+        if graphicalConn.isVisible():
+            self._inPortLayout.addItem(graphicalConn)
+        
 
     def __add_out_connection(self, port):
         graphicalConn = GraphicalPort(self, port, self._outPortLayout)
-        self._outPortLayout.addItem(graphicalConn)
-        self.__outPorts.append(graphicalConn)
+        if graphicalConn.isVisible():
+            self._outPortLayout.addItem(graphicalConn)
 
 
     ####################
@@ -122,25 +106,34 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     ####################
     def notify(self, sender, event): 
         """ Notification sent by the vertex associated to the item """
-        if(event and event[0] == "start_eval"):
+        if event is None : return
+        
+        if(event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
             self.modified_item.update()
             self.update()
             QtGui.QApplication.processEvents()
 
-        elif(event and event[0] == "stop_eval"):
+        elif(event[0] == "stop_eval"):
             self.modified_item.setVisible(False)
             self.modified_item.update()
             self.update()
             QtGui.QApplication.processEvents()
 
-        elif(event and event[0] == "caption_modified"):
+        elif(event[0] == "caption_modified"):
             self.set_caption(event[1])
 
-        elif(event and event[0] == "MetaDataChanged" and event[1]=="user_color"):
+        elif(event[0] == "MetaDataChanged" and event[1]=="user_color"):
             self.update()
 
+        elif(event[0] == "inputPortAdded"):
+            self.__add_in_connection(event[1])
+
+        elif(event[0] == "outputPortAdded"):
+            self.__add_out_connection(event[1])
+            
         qtgraphview.QtGraphViewVertex.notify(self, sender, event)
+        
 
     def set_tooltip(self, doc=None):
         """ Sets the tooltip displayed by the vertex item. Doesn't change
@@ -219,18 +212,22 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     __nosize = QtCore.QSizeF(0.0, 0.0)
 
 
-    def __init__(self, parent, port, layout=None):
+    __port_list_hack = [] #hack to avoid deletion of GraphicalPorts when they
+    #get hidden (actually, they get removed from the layout and die.
+
+
+    def __init__(self, parent, port, layout):
         """
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
-        if(layout):
-            self.setParentLayoutItem(layout)
+        self.__layout = layout
         self.initialise(port)
         self.observed = weakref.ref(port)
-        port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
-        port.get_ad_hoc_dict().simulate_full_data_change()
         self.setZValue(1.5)
         self.highlighted = False
+        
+        port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
+        port.get_ad_hoc_dict().simulate_full_data_change()
 
     def port(self):
             return self.observed()
@@ -238,14 +235,19 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     def notify(self, sender, event):
         if(event[0]=="MetaDataChanged"):
             if(event[1]=="hide"):
-                #print ' hide port'
-                if event[2]:
+                if event[2]: #if hide
+                    GraphicalPort.__port_list_hack.append(self)
+                    self.__layout.removeItem(self)
                     self.hide()
                 else:
+                    try:
+                        ind = GraphicalPort.__port_list_hack.index(self)
+                        del GraphicalPort.__port_list_hack[ind]
+                    except:
+                        pass
+                    self.__layout.insertItem(self.port().get_id(), self)
                     self.show()
-                #self.parentItem().updateGeometry()
-                self.parentItem().update()
-                #print ' hide port'
+
 
     def canvas_position(self):
         pos = self.rect().center() + self.scenePos()
@@ -258,33 +260,18 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         self.highlighted = val
         self.update()
     
-#    def get_center(self):
-#        center = self.rect().center()
-#        return center.x(), center.y()
-    #en fait on l'a deja, c'est canvas_position, on en fait un alias
     get_center = canvas_position
+
     ##################
     # QtWorld-Layout #
     ##################
     def size(self):
-        #print '   -> hide port %d: SIZE'%self.port().get_id()
         size = self.__size
-        if( self.port().get_ad_hoc_dict().get_metadata("hide") == True ):
-            size = self.__nosize
-	#print '         size == ', size
         return size
 
     def sizeHint(self, blop, blip):
         return self.size()
 
-    def minimumSizeHint(self):
-        return self.__nosize
-
-    def maximumSizeHint(self):
-        return self.size()
-
-    def sizePolicy(self):
-        return QtGui.QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
 
     ##################
     # QtWorld-Events #
@@ -294,6 +281,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         QtGui.QGraphicsWidget.moveEvent(self, event)
 
     def mousePressEvent(self, event):
+        print self.port().get_id()
         graphview = self.scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):
             graphview.new_edge_start(self.canvas_position())
