@@ -23,5 +23,3 @@ import grapheditor_interfaces
 import grapheditor_baselisteners
 import qtgraphview
 import qtutils
-
-import dataflowview

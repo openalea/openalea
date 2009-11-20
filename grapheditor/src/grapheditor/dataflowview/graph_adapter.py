@@ -92,9 +92,9 @@ class GraphAdapter(object):
         return isinstance(output, node.OutputPort)
 
     #other checks
-    def is_vertex_protected(self, node):
-        if (isinstance(node, compositenode.CompositeNodeInput) or \
-                isinstance(node, compositenode.CompositeNodeOutput)):
+    def is_vertex_protected(self, vertex):
+        if (isinstance(vertex, compositenode.CompositeNodeInput) or \
+                isinstance(vertex, compositenode.CompositeNodeOutput)):
             return True
         return False
 

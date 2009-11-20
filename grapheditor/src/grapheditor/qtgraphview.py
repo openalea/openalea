@@ -205,11 +205,22 @@ class QtGraphViewVertex(QtGraphViewElement):
 
         """
         QtGraphViewElement.__init__(self, vertex, graph)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
         return
 
     def vertex(self):
         """retreive the vertex"""
         return self.observed()
+
+    def get_center(self):
+        center = self.rect().center()
+        center = self.mapToScene(center)
+        return [center.x(), center.y()]
+
+    def set_highlighted(self, value):
+        pass
+
 
     #####################
     # ----Qt World----  #
@@ -282,6 +293,9 @@ class QtGraphViewVertex(QtGraphViewElement):
         """Qt-specific call to handle events that occur on polishing phase.
         Default updates the model's ad-hoc position value."""
         point = self.scenePos()
+        cPos = point + self.rect().center()
+        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                     [cPos.x(), cPos.y()])
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        [point.x(), point.y()], False)
 
@@ -289,16 +303,20 @@ class QtGraphViewVertex(QtGraphViewElement):
         """Qt-specific call to handle events that occur on item moving.
         Default updates the model's ad-hoc position value."""
         point = event.newPos()
+        cPos = point + self.rect().center()
+        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                     [cPos.x(), cPos.y()])
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                       [point.x(), point.y()], False)
+                                                     [point.x(), point.y()])
 
     def mousePressEvent(self, event):
         """Qt-specific call to handle mouse clicks on the vertex.
         Default implementation initiates the creation of an edge from
         the vertex."""
         graphview = self.scene().views()[0]
-        if (graphview and event.buttons() & QtCore.Qt.LeftButton):
-            pos = event.posF().x(), event.posF.y()
+        if (graphview and event.buttons() & QtCore.Qt.LeftButton and
+            event.modifiers() & QtCore.Qt.ControlModifier):
+            pos = [event.scenePos().x(), event.scenePos().y()]
             graphview.new_edge_start(pos)
             return
 
@@ -420,7 +438,7 @@ class QtGraphViewEdge(QtGraphViewElement):
 
     def notify(self, sender, event):
         if(event[0] == "MetaDataChanged"):
-            if(event[1]=="canvasPosition" or event[1]=="position"):
+            if(event[1]=="connectorPosition"):
                     pos = event[2]
                     if(sender==self.src()): 
                         self.update_line_source(*pos)
@@ -497,6 +515,12 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
         srcVertexItem = self.scene().itemAt( self.sourcePoint )
         dstVertexItem = self.scene().itemAt( self.destPoint   )
 
+        view = self.scene().views()[0]
+
+        if( type(dstVertexItem) not in view.connector_types or
+            type(dstVertexItem) not in view.connector_types):
+            return None, None
+
         #if the input and the output are on the same vertex...
         if(srcVertexItem == dstVertexItem):
             raise Exception("Nonsense connection : plugging self to self.")            
@@ -517,6 +541,8 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     __application_integration__["pressHotkeyMap"]={}
     __application_integration__["releaseHotkeyMap"]={}
 
+    __defaultDropHandler = None
+    
     @classmethod
     def set_mime_handler_map(cls, mapping):
         cls.__application_integration__["mimeHandlers"].update(mapping)
@@ -528,6 +554,11 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     @classmethod
     def set_keyrelease_handler_map(cls, mapping):
         cls.__application_integration__["releaseHotkeyMap"] = mapping
+
+    @classmethod
+    def set_default_drop_handler(cls, handler):
+        cls.__defaultDropHandler = handler
+
 
     ####################################
     # ----Instance members follow----  #
@@ -547,9 +578,17 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
 
         self.__selectAdditions=False
-
+        
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
+
+        # ---Custom tooltip system---
+        self.__tooltipTimer = QtCore.QTimer()
+        self.__tooltipTimer.setInterval(800)
+        self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
+                     self.tooltipTrigger)
+        self.__tooltipPos = None
+
 
         # ---Qt Stuff---
         #self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
@@ -561,12 +600,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
 
-        # ---Custom tooltip system---
-        self.__tooltipTimer = QtCore.QTimer()
-        self.__tooltipTimer.setInterval(800)
-        self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
-                     self.tooltipTrigger)
-        self.__tooltipPos = None
         
 
 
@@ -588,15 +621,16 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         self.scale_view(delta)
 
     def mouseMoveEvent(self, event):
-        self.__tooltipTimer.stop()
+#        self.__tooltipTimer.stop()
         if(self.is_creating_edge()):
             pos = self.mapToScene(event.pos())
-            self.new_edge_set_destination(pos.x(), pos.y())
+            pos = [pos.x(), pos.y()]
+            self.new_edge_set_destination(*pos)
             return
-        elif(event.buttons()==QtCore.Qt.NoButton):
-            self.__tooltipTimer.start()
-            self.__tooltipPos = event.pos()
-            return
+#         elif(event.buttons()==QtCore.Qt.NoButton):
+#             self.__tooltipTimer.start()
+#             self.__tooltipPos = event.pos()
+#             return
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -608,7 +642,7 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         """ Return True if event is accepted """
         for format in self.__application_integration__["mimeHandlers"].keys():
             if event.mimeData().hasFormat(format): return format
-        return None
+        return True if self.__defaultDropHandler else False
 
     def dragEnterEvent(self, event):
         event.setAccepted(True if self.accept_event(event) else False)
@@ -626,7 +660,9 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         handler = self.__application_integration__["mimeHandlers"].get(format)
         if(handler):
             handler(self, event)
-            return
+        else:
+            self.__defaultDropHandler(event)
+        
 
         QtGui.QGraphicsView.dropEvent(self, event)
 
@@ -646,12 +682,12 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
-    def viewportEvent(self, event):
-        etype = event.type()
-        if(etype==QtCore.QEvent.ToolTip): #we handle tooltips our own way
-            return True
-        else:
-            return QtGui.QGraphicsView.viewportEvent(self, event)
+#     def viewportEvent(self, event):
+#         etype = event.type()
+#         if(etype==QtCore.QEvent.ToolTip): #we handle tooltips our own way
+#             return True
+#         else:
+#             return QtGui.QGraphicsView.viewportEvent(self, event)
 
 
     #########################

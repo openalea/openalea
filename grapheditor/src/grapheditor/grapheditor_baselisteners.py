@@ -77,9 +77,6 @@ class GraphElementObserverBase(observer.AbstractListener):
         self.observed().get_ad_hoc_dict().simulate_full_data_change()
 
 
-
-import traceback
-
 class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.
     It deduces the correct representation out
@@ -102,16 +99,21 @@ class GraphListenerBase(observer.AbstractListener):
         graphCls = stratCls.get_graph_model_type()
         assert type(graphCls) == types.TypeType
 
-        if(graphadapter):
-            assert grapheditor_interfaces.IGraphAdapter.check(graphadapter)
-        else:
+        if graphadapter is None:
             graphadapter = graphCls
-            
+
+        assert grapheditor_interfaces.IGraphAdapter.check(graphadapter)
+        
         #checking vertex types
         elTypes = graphadapter.get_vertex_types()
         for vt in elTypes:
             vtype = vertexWidgetTypes.get(vt, None)
             assert grapheditor_interfaces.IGraphViewElement.check(vtype)
+
+        #checking connectable types
+        elTypes = stratCls.get_connector_types()
+        for ct in elTypes:
+            assert grapheditor_interfaces.IGraphViewConnectable.check(ct)
 
         #checking edge types
         elTypes = graphadapter.get_edge_types()
@@ -139,18 +141,20 @@ class GraphListenerBase(observer.AbstractListener):
         self.vertexmap = {}
         self.edgemap = {}
 
-        #types
+        #obtaining types from the strategy.
         self._vertexWidgetFactory = None
         self._edgeWidgetFactory = None
         self._adapterType = None
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
-        if(not stratCls): raise StrategyError("Could not find matching strategy")
+        if(not stratCls):
+            raise StrategyError("Could not find matching strategy :" +
+                                str(stratCls) +
+                                " : " + str(type(graph)))
 
         self.set_vertex_widget_factory(stratCls.get_vertex_widget_factory())
         self.set_edge_widget_factory(stratCls.get_edge_widget_factory())
         self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
-        self.set_direction_vector(stratCls.get_direction_vector())
         self.set_graph(graph)
         self.connector_types=stratCls.get_connector_types()
 
@@ -224,7 +228,7 @@ class GraphListenerBase(observer.AbstractListener):
     
     def new_edge_start(self, srcPt, etype="default"):
         self.__newEdge = self._edgeWidgetFactory("floating-"+etype, srcPt, self.graph())
-        self.new_edge_scene_init(self.__newEdge)
+        self.__newEdge.add_to_view(self.get_scene())
 
     def new_edge_set_destination(self, *dest):
         if self.currentItem:
@@ -234,7 +238,8 @@ class GraphListenerBase(observer.AbstractListener):
             if self.currentItem:
                 self.currentItem.set_highlighted(True)
                 dest = self.currentItem.get_center()
-            self.__newEdge.update_line_destination(*dest)
+        self.__newEdge.update_line_destination(*dest)
+
 
     def new_edge_end(self):
         if(self.__newEdge):
@@ -243,7 +248,7 @@ class GraphListenerBase(observer.AbstractListener):
             except Exception, e :
                 pass
             finally:
-                self.new_edge_scene_cleanup(self.__newEdge)
+                self.__newEdge.remove_from_view(self.scene())
         self.__newEdge = None
             
 
@@ -263,9 +268,4 @@ class GraphListenerBase(observer.AbstractListener):
     def set_graph_adapter_type(self, _type):
         self._adapterType = _type
 
-    def set_direction_vector(self, vector):
-        """precompute the cosines matrix from
-        a vector giving the Y direction. The matrix 
-        will be used to place graph verticess on the screen."""
-        assert type(vector) == types.TupleType
     

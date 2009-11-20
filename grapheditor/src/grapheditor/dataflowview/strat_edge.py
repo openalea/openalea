@@ -34,9 +34,9 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
     interaction
     """
 
-    def __init__(self, srcPoint, graphadapter):
+    def __init__(self, srcPoint, graph):
         QtGui.QGraphicsPathItem.__init__(self, None)
-        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint, graphadapter)
+        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint, graph)
         self.setZValue(0.0)
         
     def get_connections(self):

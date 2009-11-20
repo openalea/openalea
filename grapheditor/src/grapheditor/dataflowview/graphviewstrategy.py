@@ -30,34 +30,12 @@ from .. import grapheditor_baselisteners
 from .. import qtgraphview
 
 
-def GraphicalVertexFactory(vtype, *args, **kwargs):
-    VT = GraphViewStrategy.get_vertex_widget_types().get(vtype)
-    if(VT):
-        return VT(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
-
-
-def GraphicalEdgeFactory(etype, *args, **kwargs):
-    ET = GraphViewStrategy.get_edge_widget_types().get(etype)
-    if(ET):
-        return ET(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
-
-
 class GraphViewStrategy(object):
 
     @classmethod
     def get_graph_model_type(cls):
         """Returns the classobj defining the graph type"""
         return compositenode.CompositeNode
-
-    @classmethod
-    def get_direction_vector(cls):
-        """Returns an (x,y) vector defining the Y direction of the tree.
-        (0,-1) is upward, (0,1) is downward."""
-        return (0,1)
 
     @classmethod
     def get_vertex_widget_factory(cls):
@@ -90,6 +68,24 @@ class GraphViewStrategy(object):
     @classmethod
     def get_connector_types(cls):
         return [strat_vertex.GraphicalPort]
+
+
+
+def GraphicalVertexFactory(vtype, *args, **kwargs):
+    VT = GraphViewStrategy.get_vertex_widget_types().get(vtype)
+    if(VT):
+        return VT(*args, **kwargs)
+    else:
+        raise Exception("vtype not found")
+
+
+def GraphicalEdgeFactory(etype, *args, **kwargs):
+    ET = GraphViewStrategy.get_edge_widget_types().get(etype)
+    if(ET):
+        return ET(*args, **kwargs)
+    else:
+        raise Exception("vtype not found")
+
 
 ###################################
 # vertex state drawing strategies #
@@ -222,12 +218,13 @@ if(__name__ != "__main__"):
     vertexModelAdHocExtension = {"user_color":list, 
                                  "use_user_color":bool, 
                                  "position":list,
-                                 "text": str}
+                                 "text": str,
+                                 "connectorPosition":list}
     node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
 
     #we declare what are the node model ad hoc data we require:
     portModelAdHocExtension = {"hide":bool,
-                               "canvasPosition": list}
+                               "connectorPosition": list}
     node.AbstractPort.extend_ad_hoc_slots(portModelAdHocExtension)
 
     

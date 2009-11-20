@@ -37,13 +37,6 @@ class IGraphViewStrategies(object):
         raise NotImplementedError
 
     @classmethod
-    def get_direction_vector(cls):
-        """Returns an (x,y) vector defining the Y direction of the tree.
-        (0,-1) is upward, (0,1) is downward."""
-        raise NotImplementedError
-
-
-    @classmethod
     def get_vertex_widget_factory(cls):
         """Returns a factory that creates vertices
         according to a type argument"""
@@ -73,6 +66,11 @@ class IGraphViewStrategies(object):
         that represents an annotation"""
         raise NotImplementedError
 
+    @classmethod
+    def get_connector_types(cls):
+        raise NotImplementedError
+    
+
 #------*************************************************------#
 class IGraphListener(object):
     __metaclass__ = interface.IInterfaceMetaClass
@@ -89,6 +87,17 @@ class IGraphListener(object):
     def edge_removed(self, edgeModel):
         raise NotImplementedError
 
+    def new_edge_scene_init(self, *args, **kwargs):
+        raise NotImplementedError
+    
+    def new_edge_scene_cleanup(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def find_closest_connectable(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def post_addition(self, *args, **kwargs):
+        raise NotImplementedError
 
 #------*************************************************------#
 class IGraphAdapter(object):
@@ -136,6 +145,17 @@ class IGraphAdapter(object):
 
     @classmethod
     def get_edge_types(cls):
+        raise NotImplementedError
+
+#------*************************************************------#
+class IGraphViewConnectable(object):
+    """Interface for connectable objects"""
+    __metaclass__ = interface.IInterfaceMetaClass
+
+    def set_highlighted(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def get_center(self):
         raise NotImplementedError
 
 #------*************************************************------#

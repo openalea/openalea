@@ -36,9 +36,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def __init__(self, vertex, graphadapter, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.QtGraphViewVertex.__init__(self, vertex, graphadapter)
-
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setZValue(1)
 
         # ---Small box when the vertex is being evaluated---
@@ -226,7 +223,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         self.setZValue(1.5)
         self.highlighted = False
         
-        port.get_ad_hoc_dict().set_metadata("canvasPosition", [0,0])
+        port.get_ad_hoc_dict().set_metadata("connectorPosition", [0,0])
         port.get_ad_hoc_dict().simulate_full_data_change()
 
     def port(self):
@@ -254,7 +251,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         return[pos.x(), pos.y()]
         
     def update_canvas_position(self):
-        self.port().get_ad_hoc_dict().set_metadata("canvasPosition", 
+        self.port().get_ad_hoc_dict().set_metadata("connectorPosition", 
                                                    self.canvas_position())
     def set_highlighted(self, val):
         self.highlighted = val
@@ -281,7 +278,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         QtGui.QGraphicsWidget.moveEvent(self, event)
 
     def mousePressEvent(self, event):
-        print self.port().get_id()
         graphview = self.scene().views()[0]
         if (graphview and event.buttons() & QtCore.Qt.LeftButton):
             graphview.new_edge_start(self.canvas_position())
