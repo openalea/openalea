@@ -65,7 +65,7 @@ class MainWindow(QtGui.QMainWindow,
         self.initialise(session)
 
         self.tabWorkspace.removeTab(0)
-        #self.tabWorkspace.setTabsClosable(True)
+        self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
 
         # python interpreter
@@ -333,7 +333,6 @@ class MainWindow(QtGui.QMainWindow,
         Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
         """
-
         # Test if the node is already opened
         for i in range(self.tabWorkspace.count()):
             widget = self.tabWorkspace.widget(i)
