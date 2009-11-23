@@ -14,18 +14,16 @@ def dropHandler(widget, event):
     position = [position.x(), position.y()]
     widget.graph().new_vertex(position)
 
-
 QtGraphView.set_default_drop_handler(dropHandler)
+QtGraphView.set_event_handler("mouseDoubleClickEvent", dropHandler)
 
 
 
 #THE APPLICATION'S MAIN WINDOW
 class MainWindow(QtGui.QMainWindow):
-
     def __init__(self, parent=None):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
-
         self.__graph = Graph()
         self.__graphView = QtGraphView(self, self.__graph)
         self.__graphView.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -38,10 +36,9 @@ def main(args):
 
     # Check Version
     version = QtCore.QT_VERSION_STR
-    # QT_VERSION_STR implement __le__ operator
     if(version < '4.5.1'):
-
-        mess = QtGui.QMessageBox.error(None, "Error",
+        mess = QtGui.QMessageBox.error(None,
+                                       "Error",
                                        "Visualea need QT library >=4.5.1")
         return
 

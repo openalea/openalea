@@ -21,6 +21,7 @@ import weakref,sys
 from PyQt4 import QtCore, QtGui
 from openalea.core import observer
 from openalea.grapheditor import qtutils
+from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview
 
 
@@ -190,10 +191,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         qtgraphview.QtGraphViewVertex.moveEvent(self, event)
         QtGui.QGraphicsWidget.moveEvent(self, event)
 
-    def mousePressEvent(self, event):
-        """Overloaded or else edges are created from the vertex
-        not from the ports"""
-        QtGui.QGraphicsWidget.mousePressEvent(self, event)
+    mousePressEvent = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
+                                   "mousePressEvent")
+    itemChange = mixin_method(None, QtGui.QGraphicsWidget,
+                              "itemChange")
 
 
 
@@ -217,7 +218,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         """
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
-        self.__layout = layout
+        self.__parent = weakref.ref(parent)
+        self.__layout = weakref.ref(layout)
         self.initialise(port)
         self.observed = weakref.ref(port)
         self.setZValue(1.5)
@@ -234,7 +236,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
             if(event[1]=="hide"):
                 if event[2]: #if hide
                     GraphicalPort.__port_list_hack.append(self)
-                    self.__layout.removeItem(self)
+                    self.__layout().removeItem(self)
                     self.hide()
                 else:
                     try:
@@ -242,8 +244,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
                         del GraphicalPort.__port_list_hack[ind]
                     except:
                         pass
-                    self.__layout.insertItem(self.port().get_id(), self)
+                    self.__layout().insertItem(self.port().get_id(), self)
                     self.show()
+                self.__parent().layout().updateGeometry()
 
 
     def canvas_position(self):

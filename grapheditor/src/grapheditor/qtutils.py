@@ -65,3 +65,55 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
         #AROUND THE WIDGET.
         self.widget().render(painter, QtCore.QPoint(), QtGui.QRegion(), 
                              QtGui.QWidget.RenderFlags()|QtGui.QWidget.DrawChildren)
+
+
+
+def mixin_method(mixinOne, mixinTwo, methodname, firstWins = False, invert=False):
+    """A function that returns a method calling method \"methodname\"
+    from mixinOne and then from mixinTwo, or the reverse order
+    if invert is True.
+    Can be used to quickly reimplement simple overloads.
+    """
+
+    first =  None
+    second = None
+
+    if(not invert):
+        first = None if (mixinOne is None) else getattr(mixinOne, methodname, None)
+        second = None if (mixinTwo is None) else getattr(mixinTwo, methodname, None)
+    else:
+        second = None if (mixinOne is None) else getattr(mixinOne, methodname, None)
+        first = None if (mixinTwo is None) else getattr(mixinTwo, methodname, None)
+
+    def simple_call(self, *args, **kwargs):
+        return first(self, *args, **kwargs)
+
+    def mixin_call(self, *args, **kwargs):
+        v1 = first(self, *args, **kwargs)
+        v2 = second(self, *args, **kwargs)
+        if(firstWins): return v1
+        else: return v2
+
+    if(second and first is None):
+        first = second
+        second = None
+
+    if(first and second is None):
+        return simple_call
+    else:
+        return mixin_call
+
+
+def extend_qt_scene_event(qtcls):
+    def event_handler(self, event):
+        t = event.type()
+        if t == QtCore.QEvent.GraphicsSceneMouseMove:
+            print "MOVE"
+            self.moveEvent(event)
+        elif t == QtCore.QEvent.Show:
+            print "POLISH"
+            self.polishEvent()
+
+        return qtcls.sceneEvent(self, event)
+
+    return event_handler

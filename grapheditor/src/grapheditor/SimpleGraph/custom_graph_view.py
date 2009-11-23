@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 
 """In this file we implement the basic graph views"""
 from openalea.grapheditor.grapheditor_baselisteners import GraphListenerBase
+from openalea.grapheditor.qtutils  import mixin_method, extend_qt_scene_event
 from openalea.grapheditor.qtgraphview import QtGraphViewVertex, QtGraphViewEdge, QtGraphViewFloatingEdge
 from openalea.grapheditor.edgefactory import LinearEdgePath
 from PyQt4 import QtGui, QtCore
@@ -27,41 +28,49 @@ from custom_graph_model import Graph as GraphType
 from custom_graph_model import Vertex as VertexModel
 
 
-class SimpleVertex(QtGui.QGraphicsWidget, QtGraphViewVertex):
+
+##############################################################
+# Designing the widgets that will represent our vertices and #
+# edges                                                      #
+##############################################################
+
+class SimpleVertex(QtGui.QGraphicsEllipseItem, QtGraphViewVertex):
     __vertex_size__= QtCore.QSizeF(30.0, 30.0)
     __border_size__=2
 
     def __init__(self, vertex, graph, parent=None):
-        QtGui.QGraphicsWidget.__init__(self, parent)
+        QtGui.QGraphicsEllipseItem.__init__(self, 0.0, 0.0,
+                                            self.__vertex_size__.width(),
+                                            self.__vertex_size__.height(),
+                                            parent)
         QtGraphViewVertex.__init__(self, vertex, graph)
+        self.paint = QtGui.QGraphicsEllipseItem.paint
+
         self.setZValue(1.0)
+
+        #we choose the avocado colors
+        self.setBrush( QtGui.QBrush(QtCore.Qt.yellow) )
+        pen=QtGui.QPen(QtCore.Qt.darkGreen)
+        pen.setWidth(self.__border_size__-2)
+        self.setPen(pen)
+        
         self.initialise_from_model()
 
     ##################
     # QtWorld-Layout #
     ##################
     def size(self):
-        size = self.__vertex_size__
-        return size
+        return self.__vertex_size__
 
     def sizeHint(self, blop, blip):
-        return self.size()
+        return self.__vertex_size__
 
     ##################
     # QtWorld-Events #
-    ##################
-    def mousePressEvent(self, event):
-        QtGraphViewVertex.mousePressEvent(self, event)        
-        QtGui.QGraphicsWidget.mousePressEvent(self, event)
-
-    def polishEvent(self):
-        QtGraphViewVertex.polishEvent(self)
-        QtGui.QGraphicsWidget.polishEvent(self)
-
-    def moveEvent(self, event):
-        QtGraphViewVertex.moveEvent(self, event)
-        QtGui.QGraphicsWidget.moveEvent(self, event)
-    
+    ##################        
+    mousePressEvent = mixin_method(QtGraphViewVertex, QtGui.QGraphicsEllipseItem, "mousePressEvent")
+    itemChange = mixin_method(QtGraphViewVertex, QtGui.QGraphicsEllipseItem, "itemChange")
+        
     def contextMenuEvent(self, event): #called on right click on the vertex.
         menu = QtGui.QMenu(event.widget())
         action= menu.addAction("Delete vertex")
@@ -71,19 +80,8 @@ class SimpleVertex(QtGui.QGraphicsWidget, QtGraphViewVertex):
 
     def remove(self):
         self.graph().remove_vertex(self.vertex())
+        
 
-    def paint(self, painter, option, widget):
-        rect = self.rect()
-        rect.adjust(self.__border_size__, self.__border_size__,
-                    self.__border_size__, self.__border_size__)
-        
-        #we choose the avocado colors
-        painter.setBrush( QtGui.QBrush(QtCore.Qt.yellow) )
-        pen=QtGui.QPen(QtCore.Qt.darkGreen)
-        pen.setWidth(self.__border_size__-1)
-        painter.setPen(pen)
-        painter.drawEllipse(rect)
-        
 
 
 class SimpleEdge(QtGui.QGraphicsPathItem, QtGraphViewEdge):
@@ -97,12 +95,13 @@ class SimpleEdge(QtGui.QGraphicsPathItem, QtGraphViewEdge):
     def contextMenuEvent(self, event):
         menu = QtGui.QMenu(self.scene().views()[0])
         action = menu.addAction("Delete edge")
-        self.scene().connect(action, QtCore.SIGNAL("triggered()"), remove)
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
         menu.popup(event.screenPos())
         event.accept()
         
     def remove(self):
         self.graph().remove_edge( self.src(), self.dst() )
+
 
 
 
@@ -117,21 +116,10 @@ class SimpleFloatingEdge(QtGui.QGraphicsPathItem, QtGraphViewFloatingEdge):
 
 
 
-
-
-
-def GraphicalVertexFactory(vtype, *args, **kwargs):
-    VT = SimpleStrategy.get_vertex_widget_types().get(vtype)
-    if VT: return VT(*args, **kwargs)
-
-def GraphicalEdgeFactory(etype, *args, **kwargs):
-    ET = SimpleStrategy.get_edge_widget_types().get(etype)
-    if ET: return ET(*args, **kwargs)
-
-
-
-
-
+#########################################################
+# Creating the strategy class that the view will use to #
+# create the right widget at the right time.            #
+#########################################################
 
 class SimpleStrategy(object):
     @classmethod
@@ -169,6 +157,15 @@ class SimpleStrategy(object):
     @classmethod
     def get_connector_types(cls):
         return [SimpleVertex]
+
+
+def GraphicalVertexFactory(vtype, *args, **kwargs):
+    VT = SimpleStrategy.get_vertex_widget_types().get(vtype)
+    if VT: return VT(*args, **kwargs)
+
+def GraphicalEdgeFactory(etype, *args, **kwargs):
+    ET = SimpleStrategy.get_edge_widget_types().get(etype)
+    if ET: return ET(*args, **kwargs)
 
 
 GraphListenerBase.register_strategy(SimpleStrategy)

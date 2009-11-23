@@ -234,6 +234,17 @@ class QtGraphViewVertex(QtGraphViewElement):
         """
         return self.get_drawing_strategy(state)
 
+    def itemChange(self, change, value):
+        if change == QtGui.QGraphicsItem.ItemPositionChange:
+            point = value.toPointF()
+            cPos = point + self.rect().center()
+            self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                         [cPos.x(), cPos.y()])
+            self.vertex().get_ad_hoc_dict().set_metadata('position', 
+                                                         [point.x(), point.y()], False)
+            return value
+            
+
     def paint(self, painter, option, widget):
         """Qt-specific call to paint things."""
         paintEvent=None #remove this
@@ -496,6 +507,7 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
     def __init__(self, srcPoint, graph):
         QtGraphViewEdge.__init__(self, None, graph, None, None)
         self.sourcePoint = QtCore.QPointF(*srcPoint)
+        self.destPoint = QtCore.QPointF(self.sourcePoint)
 
     def notify(self, sender, event):
         return
@@ -542,6 +554,31 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     __application_integration__["releaseHotkeyMap"]={}
 
     __defaultDropHandler = None
+
+    @classmethod
+    def set_event_handler(cls, key, handler):
+        """Let handler take care of the event named by key.
+        
+        :Parameters:
+            - key (str) - The name of the event.
+            - handler (callable) - The handler to register with key.
+
+
+         The key can be any of
+           * \"mouseMoveEvent\"
+           * \"mouseReleaseEvent\"
+           * \"mousePressEvent\"
+           * \"mouseDoubleClickEvent\"
+           * \"keyReleaseEvent\"
+           * \"keyPressEvent\"
+           * \"contextMenuEvent\"
+
+        See the Qt documentation of those to know the expected signature
+        of the handler (usually : handlerName(QObject, event)).
+          
+        """
+        if key in cls.__application_integration__:
+            cls.__application_integration__[key]=handler
     
     @classmethod
     def set_mime_handler_map(cls, mapping):
@@ -558,6 +595,8 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     @classmethod
     def set_default_drop_handler(cls, handler):
         cls.__defaultDropHandler = handler
+
+
 
 
     ####################################
@@ -611,26 +650,18 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     # QtWorld-Events #
     ##################
     def tooltipTrigger(self):
-#         print self.itemAt(self.__tooltipPos)
-#         print "tooltip now!"
         self.__tooltipTimer.stop()
     
     def wheelEvent(self, event):
-        #self.centerOn(QtCore.QPointF(event.pos()))
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
 
     def mouseMoveEvent(self, event):
-#        self.__tooltipTimer.stop()
         if(self.is_creating_edge()):
             pos = self.mapToScene(event.pos())
             pos = [pos.x(), pos.y()]
             self.new_edge_set_destination(*pos)
             return
-#         elif(event.buttons()==QtCore.Qt.NoButton):
-#             self.__tooltipTimer.start()
-#             self.__tooltipPos = event.pos()
-#             return
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -682,13 +713,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
-#     def viewportEvent(self, event):
-#         etype = event.type()
-#         if(etype==QtCore.QEvent.ToolTip): #we handle tooltips our own way
-#             return True
-#         else:
-#             return QtGui.QGraphicsView.viewportEvent(self, event)
-
 
     #########################
     # Other utility methods #
@@ -705,12 +729,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         """ Remove all items from the scene """
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
-
-    def new_edge_scene_cleanup(self, graphicalEdge):
-        self.scene().removeItem(graphicalEdge)
-
-    def new_edge_scene_init(self, graphicalEdge):
-        self.scene().addItem(graphicalEdge)
 
     def get_selected_items(self, subcall=None, vertices=True):
         """ """
