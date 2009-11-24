@@ -361,7 +361,10 @@ class Command(object):
 
     def __del__(self):
         if self.p and (self.p.poll() is None):
-            os.kill(self.p.pid,1)
+            try:
+                os.kill(self.p.pid,1)
+            except:
+                pass
         self.p = None
 
     def __call__(self, filename):
@@ -370,8 +373,18 @@ class Command(object):
         name = str(fn.basename())
         if self.p and (self.p.poll() is None):
             os.kill(self.p.pid, 1)
-        self.p = Popen(self.command%name, shell = True, cwd = cwd)
 
+        cmd = self.command.split('%')[0]
+        cmd = cmd.split('-')[0]
+
+        try:
+            import win32api
+            cmd1 = win32api.GetShortPathName(cmd)
+            command  = self.command.replace(cmd, cmd1)
+        except ImportError:
+            command = self.command
+
+        self.p = Popen(command%name, shell = True, cwd = cwd)
 
 
 class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
