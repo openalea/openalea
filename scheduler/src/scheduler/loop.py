@@ -47,6 +47,11 @@ class Loop (object) :
 	#    accessors
 	#
 	###############################################
+	def running (self) :
+		"""Tell wether the loop is currently running.
+		"""
+		return self._running
+	
 	def current_step (self) :
 		"""Current step reached by the scheduler.
 		"""
