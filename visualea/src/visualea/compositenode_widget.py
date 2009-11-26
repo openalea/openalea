@@ -522,7 +522,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
 
     def set_selection_color(self, color):
         """ Remove selected nodes """
-        items = self.scene().selectedItems() #get_selected_item(True)
+        items = self.get_selected_item(True)
         for i in items :
             try :
                 i.set_user_color(color)
@@ -1196,6 +1196,12 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.update()
         return
 
+    def color(self):
+        if self.use_user_color:
+            return self.user_color
+        else:
+            return self.not_selected_color
+
 
     def boundingRect(self):
         adjust = 4.0
@@ -1225,10 +1231,10 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
                 secondcolor = self.not_selected_error_color
 
         else:
-            if(self.use_user_color):
-                color=self.user_color
-            elif(self.isSelected()):
+            if(self.isSelected()):
                 color = self.selected_color
+            elif(self.use_user_color):
+                color=self.user_color
             else:
                 color = self.not_selected_color
 

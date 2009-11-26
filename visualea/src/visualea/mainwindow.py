@@ -677,10 +677,23 @@ class MainWindow(QtGui.QMainWindow,
         index = self.tabWorkspace.currentIndex()
         widget = self.index_nodewidget[index]
 
-        if(not widget or not widget.get_selected_item()) : return
+        if(not widget):
+            return
 
-        color = QtGui.QColorDialog.getColor( QtGui.QColor(100,100,100,255), self)
-#                                     "Choose custom color...")
+        items = widget.get_selected_item(True)
+        length = len(items)
+        if(length==0):
+            return
+
+        if(length==1):
+            basecolor = items[0].color()
+        else:
+            basecolor = QtGui.QColor(100,100,100,255)
+        
+        color = QtGui.QColorDialog.getColor( basecolor, self,
+                                             "Choose custom color...")
+        if(not color.isValid()):
+            return
 
         widget.set_selection_color(color)
         return
