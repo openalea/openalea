@@ -31,12 +31,21 @@ class Observed(object):
     def __init__(self):
 
         self.listeners = set()
+        self.__isNotifying = False
+        self.__postNotifs = []
 
     def register_listener(self, listener):
         """ Add listener to list of listeners """
 
-        wr = weakref.ref(listener, self.unregister_listener)
-        self.listeners.add(wr)
+        if(not self.__isNotifying):
+            wr = weakref.ref(listener, self.unregister_listener)
+            self.listeners.add(wr)
+        else:
+            def push_listener_after():
+                self.register_listener(listener)
+            self.__postNotifs.append(push_listener_after)
+            
+        
 
     def unregister_listener(self, listener):
         """ Remove listener from the list of listeners """
@@ -49,6 +58,7 @@ class Observed(object):
         :param event: an object to pass to the notify function
         """
 
+        self.__isNotifying = True
         for ref in self.listeners:
             if(not ref().is_notification_locked()):
                 try:
@@ -56,6 +66,13 @@ class Observed(object):
                 except Exception, e:
                     print "Warning : notification of %s failed"%(str(ref()),)
                     print e
+        self.__isNotifying = False
+        self.post_notification()
+
+    def post_notification(self):
+        for action in self.__postNotifs:
+            action()
+        self.__postNotifs = []
 
     def __getstate__(self):
         """ Pickle function """

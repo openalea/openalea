@@ -251,7 +251,8 @@ class InputPort(AbstractPort):
 
     def is_hidden(self):
         """True if the port should not be displayed."""
-        return self.get("hide", None)
+        return self.get("hide", False)
+        #return self.get_ad_hoc_dict().get_metadata("hide")
 
 
 class OutputPort(AbstractPort):
@@ -315,11 +316,17 @@ class Node(AbstractNode):
         self.continuous_eval = Observed()
 
     def simulate_construction_notifications(self):
-        for i in self.input_desc:
-            self.notify_listeners(("inputPortAdded", i))
-        for i in self.output_desc:
-            self.notify_listeners(("outputPortAdded", i))
-
+        try:
+            for i in self.input_desc:
+                self.notify_listeners(("inputPortAdded", i))
+            for i in self.output_desc:
+                self.notify_listeners(("outputPortAdded", i))
+            for i in self.map_index_in:
+                self.notify_listeners(("input_modified", i))
+            self.notify_listeners(("caption_modified", self.internal_data["caption"]))
+        except Exception, e:
+            print e
+            
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
@@ -422,8 +429,10 @@ class Node(AbstractNode):
     def is_port_hidden(self, index_key):
         """ Return the hidden state of a port """
         index = self.map_index_in[index_key]
-        s = self.input_desc[index].get('hide', False)
+        s = self.input_desc[index].is_hidden() #get('hide', False)
         changed = self.internal_data["port_hide_changed"]
+
+        c = index in changed
 
         if(index in changed):
             return not s
@@ -438,16 +447,17 @@ class Node(AbstractNode):
         :param state: a boolean value.
         """
         index = self.map_index_in[index_key]
-        s = self.input_desc[index].get('hide', False)
+        s = self.input_desc[index].is_hidden() #get('hide', False)
 
         changed = self.internal_data["port_hide_changed"]
 
         if (s != state):
-            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",True)
             changed.add(index)
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
         elif(index in changed):
-            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",False)
             changed.remove(index)
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
+            
 
     # Status
 
@@ -488,11 +498,11 @@ class Node(AbstractNode):
         self.input_states = []
 
         # Process in and out
-	for i, d in enumerate(inputs):
-	    port = self.add_input(**d)
+	for d in inputs:
+	    self.add_input(**d)
 
-	for i, d in enumerate(outputs):
-	    port = self.add_output(**d)
+	for d in outputs:
+	    self.add_output(**d)
 
     def add_input(self, **kargs):
         """ Create an input port """

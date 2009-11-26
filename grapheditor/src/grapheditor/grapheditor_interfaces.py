@@ -155,7 +155,7 @@ class IGraphViewConnectable(object):
     def set_highlighted(self, *args, **kwargs):
         raise NotImplementedError
 
-    def get_center(self):
+    def get_scene_center(self):
         raise NotImplementedError
 
 #------*************************************************------#

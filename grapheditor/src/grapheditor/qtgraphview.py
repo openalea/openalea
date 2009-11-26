@@ -40,9 +40,6 @@ __AIK__ = [
     "contextMenuEvent"
     ]
 
-
-def myShowToolTip(*args):
-    print args
     
 #------*************************************************------#
 class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
@@ -213,7 +210,8 @@ class QtGraphViewVertex(QtGraphViewElement):
         """retreive the vertex"""
         return self.observed()
 
-    def get_center(self):
+    def get_scene_center(self):
+        """retrieve the center of the widget on the scene"""
         center = self.rect().center()
         center = self.mapToScene(center)
         return [center.x(), center.y()]
@@ -236,12 +234,14 @@ class QtGraphViewVertex(QtGraphViewElement):
 
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemPositionChange:
+            self.deaf(True)
             point = value.toPointF()
             cPos = point + self.rect().center()
             self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
                                                          [cPos.x(), cPos.y()])
             self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                         [point.x(), point.y()], False)
+                                                         [point.x(), point.y()])
+            self.deaf(False)
             return value
             
 
@@ -303,22 +303,26 @@ class QtGraphViewVertex(QtGraphViewElement):
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
         Default updates the model's ad-hoc position value."""
+        self.deaf()
         point = self.scenePos()
         cPos = point + self.rect().center()
         self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
                                                      [cPos.x(), cPos.y()])
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                       [point.x(), point.y()], False)
+                                                       [point.x(), point.y()])
+        self.deaf(False)
 
     def moveEvent(self, event):
         """Qt-specific call to handle events that occur on item moving.
         Default updates the model's ad-hoc position value."""
+        self.deaf()
         point = event.newPos()
         cPos = point + self.rect().center()
         self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
                                                      [cPos.x(), cPos.y()])
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      [point.x(), point.y()])
+        self.deaf(False)
 
     def mousePressEvent(self, event):
         """Qt-specific call to handle mouse clicks on the vertex.
@@ -468,7 +472,6 @@ class QtGraphViewEdge(QtGraphViewElement):
 
     def remove(self):
         view = self.scene().views()[0]
-        print "generic edge removal", self.src(), self.dst()
         view.graph().remove_edge(self.src(), self.dst())
         
 

@@ -219,6 +219,8 @@ class CompositeNodeFactory(AbstractFactory):
 
         n = Node()
         n.__color__ = (250, 100, 100)
+
+        n.internal_data.update(self.elt_data[vid])
         #gengraph
         for p in range(ins+1):
             port = n.add_input(name="In"+str(p))
@@ -228,7 +230,6 @@ class CompositeNodeFactory(AbstractFactory):
             port = n.add_output(name="Out"+str(p))
             port.set_id(p)
         #/gengraph
-        n.internal_data.update(self.elt_data[vid])
 
         return n
 
@@ -342,7 +343,7 @@ class CompositeNodeFactory(AbstractFactory):
         #gengraph                     
         attributes = self.elt_data[vid].copy()
         ad_hoc     = self.elt_ad_hoc.get(vid, None)
-        self.load_ad_hoc_data(node, attributes, ad_hoc)                      
+        self.load_ad_hoc_data(node, attributes, ad_hoc)
         node.internal_data.update(attributes)
         #/gengraph                                                           
 
@@ -359,6 +360,10 @@ class CompositeNodeFactory(AbstractFactory):
                 node.set_input(port, eval(v))
                 if(len(vs)>2):
                     node.input_desc[port].set_ad_hoc_dict(vs[2])
+                else:
+                    node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",
+                                                                     node.is_port_hidden(port))
+                    
             except:
                 continue
         
@@ -896,8 +901,7 @@ class CompositeNode(Node, DataFlow):
                 node.simulate_construction_notifications()
             except:
                 pass
-            
-
+       
         for eid in self.edges():
             (src_id, dst_id) = self.source(eid), self.target(eid)
             etype=None

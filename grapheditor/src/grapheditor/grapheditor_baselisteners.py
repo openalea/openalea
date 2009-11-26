@@ -237,7 +237,7 @@ class GraphListenerBase(observer.AbstractListener):
             self.currentItem = self.find_closest_connectable(dest)
             if self.currentItem:
                 self.currentItem.set_highlighted(True)
-                dest = self.currentItem.get_center()
+                dest = self.currentItem.get_scene_center()
         self.__newEdge.update_line_destination(*dest)
 
 
