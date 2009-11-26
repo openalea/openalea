@@ -690,8 +690,8 @@ class MainWindow(QtGui.QMainWindow,
         else:
             basecolor = QtGui.QColor(100,100,100,255)
         
-        color = QtGui.QColorDialog.getColor( basecolor, self,
-                                             "Choose custom color...")
+        color = QtGui.QColorDialog.getColor( basecolor, self,)
+                                             #"Choose custom color...")
         if(not color.isValid()):
             return
 
