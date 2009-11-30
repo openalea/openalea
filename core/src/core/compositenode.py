@@ -270,6 +270,7 @@ class CompositeNodeFactory(AbstractFactory):
                     pass
 
             newid = cnode.add_node(n, None)
+            n.simulate_construction_notifications()
             idmap[vid] = newid
 
         # Create the connections

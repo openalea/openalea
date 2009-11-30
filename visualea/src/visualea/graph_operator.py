@@ -236,12 +236,7 @@ class GraphOperator(Observed):
             position = widget.mapToScene(
                 widget.mapFromGlobal(widget.cursor().pos()))
             widget.select_added_elements(True)
-
-            # Translate new node
-            #l = lambda x :  x + 30
-            #modifiers = [('posx', l), ('posy', l)]
-            # Compute the min x, y value of the nodes
-            # 
+            
             cnode = self.__session.clipboard.instantiate()
 
             min_x = min([cnode.node(vid).get_ad_hoc_dict().get_metadata("position")[0] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
@@ -250,7 +245,7 @@ class GraphOperator(Observed):
 
             def lam(n):
                 x = n.get_ad_hoc_dict().get_metadata("position")
-                x = [x[0]-min_x + position.x(), x[1]-min_y + position.y()]
+                x = [x[0]-min_x + position.x()+30, x[1]-min_y + position.y()+30]
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
