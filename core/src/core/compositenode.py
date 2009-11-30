@@ -892,6 +892,7 @@ class CompositeNode(Node, DataFlow):
     def simulate_construction_notifications(self):
         """emits messages as if we were adding elements to
         the composite node"""
+        Node.simulate_construction_notifications(self)
 
         ids = self.vertices()
         for eltid in ids:
