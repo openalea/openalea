@@ -130,8 +130,9 @@ class GraphOperator(Observed):
                 print "graph_set_selection_color exception", e
                 pass   
 
-    def graph_remove_selection(self):
-        items = self.graphView().get_selected_items(vertices=False)
+    def graph_remove_selection(self, items=None):
+        if(not items):
+            items = self.graphView().get_selected_items(vertices=False)
         if(not items): return
         for i in items:
             if isinstance(i, dataflowview.strat_vertex.GraphicalVertex):
@@ -167,21 +168,26 @@ class GraphOperator(Observed):
         
         factory = dialog.create_cnfactory(self.__pkgmanager)
 
-        itemsid = widget.get_selected_items("vertex().get_id()") # this is ugly.
-        if(not itemsid): return None
-        pos = widget.get_selection_center()
+        items = widget.get_selected_items()
+        if(not items): return None
+        
+        pos = widget.get_selection_center(items)
 
         # Instantiate the new node
-        self.graph().to_factory(factory, itemsid, auto_io=True)
+        itemids = [i.vertex().get_id() for i in items]
+        self.graph().to_factory(factory, itemids, auto_io=True)
         newVert = factory.instantiate([self.graph().factory.get_id()])
         if newVert:
-            newId = self.graph().add_vertex(newVert, (pos.x(), pos.y()))
+            widget.setEnabled(False)
+            newId = self.graph().add_vertex(newVert, [pos.x(), pos.y()])
+            newVert.simulate_construction_notifications()
             newEdges = self.graph().compute_external_io(newVert, newId)
             for edges in newEdges:
                 self.graph().add_edge((edges[0], edges[1]), 
                                       (edges[2], edges[3]))
-            self.graph_remove_selection()
-
+            self.graph_remove_selection(items)
+            widget.setEnabled(True)
+        
         try:
             factory.package.write()
         except AttributeError, e:
@@ -386,7 +392,7 @@ class GraphOperator(Observed):
 
         # Get Application Name
         result, ok = QtGui.QInputDialog.getText(widget, "Application Name", "",
-                                   QtGui.QLineEdit.Normal, "")
+                                                QtGui.QLineEdit.Normal, "")
         if(not ok):
             return
 
