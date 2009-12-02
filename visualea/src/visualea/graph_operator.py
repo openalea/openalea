@@ -42,8 +42,11 @@ class GraphOperator(Observed):
         self.graphView = weakref.ref(graphView)
         self.graph     = weakref.ref(graph)
 
-        self._vertexWidget = None
-
+        self.__vertexWidget = None
+        self.__wrappers={}
+        methods = [i for i in dir(self) if i.startswith("graph_") or i.startswith("vertex_")]
+        for m in methods:
+            self.__wrappers[m] = self.__get_wrapped(m)
 
     ######################################
     # Get Qt Actions for methods in here #
@@ -54,7 +57,7 @@ class GraphOperator(Observed):
     ###WHY???????????????????????????
     def get_action(self, actionName, parent, functionName, *otherSlots):
         action = QtGui.QAction(actionName, parent)
-        func, argcount = self.__get_wrapped(functionName)
+        func, argcount = self.__wrappers[functionName]
         if (argcount) < 2 :
             QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
             for f in otherSlots:
