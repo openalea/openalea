@@ -41,7 +41,6 @@ class GraphOperator(Observed):
         Observed.__init__(self)
         self.graphView = weakref.ref(graphView)
         self.graph     = weakref.ref(graph)
-
         self.__vertexWidget = None
         self.__wrappers={}
         methods = [i for i in dir(self) if i.startswith("graph_") or i.startswith("vertex_")]
@@ -57,6 +56,9 @@ class GraphOperator(Observed):
     ###WHY???????????????????????????
     def get_action(self, actionName, parent, functionName, *otherSlots):
         action = QtGui.QAction(actionName, parent)
+        return self.bind_action(action, functionName, *otherSlots)
+
+    def bind_action(self, action, functionName, *otherSlots):
         func, argcount = self.__wrappers[functionName]
         if (argcount) < 2 :
             QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
@@ -66,10 +68,25 @@ class GraphOperator(Observed):
             QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), func )
             for f in otherSlots:
                 QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), f )
-
         return action
+
+    def unbind_action(self, action, functionName=None):
+        func, argcount = self.__wrappers[functionName]
+        if(argcount < 2):
+            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), self, 0 )
+        else:
+            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered(bool)"), self, 0 )
+        return action    
+
+    def __add__(self, other):
+        self.bind_action(*other)
+
+    def __sub__(self, other):
+        self.unbind_action(*other)
+
+    __call__ = get_action    
     
-    __call__ = get_action
+
 
     def __get_wrapped(self, funcname):
         func = getattr(self,funcname,None)

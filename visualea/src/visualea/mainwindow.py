@@ -201,34 +201,42 @@ class MainWindow(QtGui.QMainWindow,
         operator.set_package_manager(self.pkgmanager)
         operator.register_listener(self)
 
-        menu = self.menu_Workspace
-        menu.clear() #until i modify the ui files.
+        operator + (self.action_Run, "graph_run")
+        operator + (self.actionInvalidate, "graph_invalidate")
+        operator + (self.actionReset, "graph_reset")
+        operator + (self.actionConfigure_I_O, "graph_configure_io")
+        operator + (self.actionColorSelection, "graph_set_selection_color")
+        operator + (self.actionGroup_Selection, "graph_group_selection")
+        operator + (self.action_Copy, "graph_copy")
+        operator + (self.action_Paste, "graph_paste")
+        operator + (self.action_Cut, "graph_cut")
+        operator + (self.action_Delete_2, "graph_remove_selection")
+        operator + (self.action_Close_current_workspace, "graph_close")
+        operator + (self.action_Export_to_Factory, "graph_export_to_factory")
+        operator + (self.actionReload_from_Model, "graph_reload_from_factory")
+        operator + (self.actionExport_to_Application, "graph_export_application")
+        operator + (self.actionPreview_Application, "graph_preview_application")
 
-        menu.addAction(operator("Run", menu, "graph_run"))
-        menu.addAction(operator("Reset", menu, "graph_reset"))
-        menu.addAction(operator("Invalidate", menu, "graph_invalidate"))
-        menu.addSeparator()
-        menu.addAction(operator("Copy", menu, "graph_copy"))
-        menu.addAction(operator("Cut", menu, "graph_cut"))
-        menu.addAction(operator("Paste", menu, "graph_paste"))
-        menu.addSeparator()
-        menu.addAction(operator("Remove selected vertices", menu, "graph_remove_selection"))
-        menu.addAction(operator("Group selected vertices", menu, "graph_group_selection"))
-        menu.addAction(operator("Change selection color", menu, "graph_set_selection_color"))
-        menu.addSeparator()
-        menu.addAction(self.action_New_Empty_Workspace)
-        menu.addAction(operator("Close current workspace", menu, "graph_close"))
-        menu.addAction(operator("Configure IO", menu, "graph_configure_io"))
-        menu.addAction(operator("Reload workspace", menu, "graph_reload_from_factory"))
-        menu.addAction(operator("Export to factory", menu, "graph_export_to_factory"))
-        menu.addSeparator()
-        menu.addAction(operator("Preview application", menu, "graph_preview_application"))
-        menu.addAction(operator("Export to application", menu, "graph_export_application"))
-        self.operator=operator #don't look! 
+        self.operator=operator #don't look, it is ugly
         
     def __wsMenuHide(self):
         if(self.operator):
             self.operator.unregister_listener(self)
+            self.operator - (self.action_Run, "graph_run")
+            self.operator - (self.actionInvalidate, "graph_invalidate")
+            self.operator - (self.actionReset, "graph_reset")
+            self.operator - (self.actionConfigure_I_O, "graph_configure_io")
+            self.operator - (self.actionColorSelection, "graph_set_selection_color")
+            self.operator - (self.actionGroup_Selection, "graph_group_selection")
+            self.operator - (self.action_Copy, "graph_copy")
+            self.operator - (self.action_Paste, "graph_paste")
+            self.operator - (self.action_Cut, "graph_cut")
+            self.operator - (self.action_Delete_2, "graph_remove_selection")
+            self.operator - (self.action_Close_current_workspace, "graph_close")
+            self.operator - (self.action_Export_to_Factory, "graph_export_to_factory")
+            self.operator - (self.actionReload_from_Model, "graph_reload_from_factory")
+            self.operator - (self.actionExport_to_Application, "graph_export_application")
+            self.operator - (self.actionPreview_Application, "graph_preview_application")            
             self.operator=None
 
     def open_compositenode(self, factory):
