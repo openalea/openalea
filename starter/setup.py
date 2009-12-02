@@ -65,7 +65,7 @@ license= 'Cecill-C'
 # (dependance to deploy is mandatory for runing this script)
 setup_requires = ['openalea.deploy']
 if("win32" in sys.platform):
-    install_requires = ['PlantGL']
+    install_requires = ['VPlants.PlantGL']
 else:
     install_requires = []
 # web sites where to find eggs
