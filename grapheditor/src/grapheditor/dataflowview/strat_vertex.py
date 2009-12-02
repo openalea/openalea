@@ -74,6 +74,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         
         self.initialise_from_model()
 
+    def initialise_from_model(self):
+        qtgraphview.QtGraphViewVertex.initialise_from_model(self)
+        self.vertex().simulate_construction_notifications()
+
 
     #################
     # private stuff #
