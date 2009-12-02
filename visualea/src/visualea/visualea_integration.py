@@ -51,6 +51,7 @@ def OpenAleaNodeFactoryHandler(view, event):
         try:
             node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, position=[position.x(), position.y()])
+            node.simulate_construction_notifications()
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -82,6 +83,7 @@ def OpenAleaNodeDataPoolHandler(view, event):
         try:
             node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, [position.x(), position.y()])
+            node.simulate_construction_notifications()
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
