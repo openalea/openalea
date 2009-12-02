@@ -180,7 +180,6 @@ class GraphOperator(Observed):
         if newVert:
             widget.setEnabled(False)
             newId = self.graph().add_vertex(newVert, [pos.x(), pos.y()])
-#            newVert.simulate_construction_notifications()
             newEdges = self.graph().compute_external_io(newVert, newId)
             for edges in newEdges:
                 self.graph().add_edge((edges[0], edges[1]), 
