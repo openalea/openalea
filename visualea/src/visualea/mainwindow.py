@@ -163,7 +163,7 @@ class MainWindow(QtGui.QMainWindow,
         
         # WorkspaceMenu 
         # daniel was here: now the menu is built using the graph operator.
-        self.operator = None
+        self.operator = GraphOperator()
         QtCore.QObject.connect(self.menu_Workspace, 
                                QtCore.SIGNAL("aboutToShow()"), 
                                self.__wsMenuShow)
@@ -173,8 +173,22 @@ class MainWindow(QtGui.QMainWindow,
         QtCore.QObject.connect(self.action_New_Empty_Workspace,
                                QtCore.SIGNAL("triggered()"), 
                                self.new_workspace)
+        self.operator + (self.action_Run, "graph_run")
+        self.operator + (self.actionInvalidate, "graph_invalidate")
+        self.operator + (self.actionReset, "graph_reset")
+        self.operator + (self.actionConfigure_I_O, "graph_configure_io")
+        self.operator + (self.actionColorSelection, "graph_set_selection_color")
+        self.operator + (self.actionGroup_Selection, "graph_group_selection")
+        self.operator + (self.action_Copy, "graph_copy")
+        self.operator + (self.action_Paste, "graph_paste")
+        self.operator + (self.action_Cut, "graph_cut")
+        self.operator + (self.action_Delete_2, "graph_remove_selection")
+        self.operator + (self.action_Close_current_workspace, "graph_close")
+        self.operator + (self.action_Export_to_Factory, "graph_export_to_factory")
+        self.operator + (self.actionReload_from_Model, "graph_reload_from_factory")
+        self.operator + (self.actionExport_to_Application, "graph_export_application")
+        self.operator + (self.actionPreview_Application, "graph_preview_application")
                 
-
 
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
@@ -195,49 +209,15 @@ class MainWindow(QtGui.QMainWindow,
         if widget is None:
             return
 
-        operator = GraphOperator(widget, widget.graph())
-        operator.set_session(self.session)
-        operator.set_interpreter(self.interpreterWidget)
-        operator.set_package_manager(self.pkgmanager)
-        operator.register_listener(self)
-
-        operator + (self.action_Run, "graph_run")
-        operator + (self.actionInvalidate, "graph_invalidate")
-        operator + (self.actionReset, "graph_reset")
-        operator + (self.actionConfigure_I_O, "graph_configure_io")
-        operator + (self.actionColorSelection, "graph_set_selection_color")
-        operator + (self.actionGroup_Selection, "graph_group_selection")
-        operator + (self.action_Copy, "graph_copy")
-        operator + (self.action_Paste, "graph_paste")
-        operator + (self.action_Cut, "graph_cut")
-        operator + (self.action_Delete_2, "graph_remove_selection")
-        operator + (self.action_Close_current_workspace, "graph_close")
-        operator + (self.action_Export_to_Factory, "graph_export_to_factory")
-        operator + (self.actionReload_from_Model, "graph_reload_from_factory")
-        operator + (self.actionExport_to_Application, "graph_export_application")
-        operator + (self.actionPreview_Application, "graph_preview_application")
-
-        self.operator=operator #don't look, it is ugly
+        self.operator.set_graph_view(widget)
+        self.operator.set_graph(widget.graph())
+        self.operator.set_session(self.session)
+        self.operator.set_interpreter(self.interpreterWidget)
+        self.operator.set_package_manager(self.pkgmanager)
+        self.operator.register_listener(self)
         
     def __wsMenuHide(self):
-        if(self.operator):
-            self.operator.unregister_listener(self)
-            self.operator - (self.action_Run, "graph_run")
-            self.operator - (self.actionInvalidate, "graph_invalidate")
-            self.operator - (self.actionReset, "graph_reset")
-            self.operator - (self.actionConfigure_I_O, "graph_configure_io")
-            self.operator - (self.actionColorSelection, "graph_set_selection_color")
-            self.operator - (self.actionGroup_Selection, "graph_group_selection")
-            self.operator - (self.action_Copy, "graph_copy")
-            self.operator - (self.action_Paste, "graph_paste")
-            self.operator - (self.action_Cut, "graph_cut")
-            self.operator - (self.action_Delete_2, "graph_remove_selection")
-            self.operator - (self.action_Close_current_workspace, "graph_close")
-            self.operator - (self.action_Export_to_Factory, "graph_export_to_factory")
-            self.operator - (self.actionReload_from_Model, "graph_reload_from_factory")
-            self.operator - (self.actionExport_to_Application, "graph_export_application")
-            self.operator - (self.actionPreview_Application, "graph_preview_application")            
-            self.operator=None
+        self.operator.unregister_listener(self)
 
     def open_compositenode(self, factory):
         """ open a  composite node editor """

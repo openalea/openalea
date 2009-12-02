@@ -37,29 +37,27 @@ from openalea.visualea.dialogs import IOConfigDialog, PreferencesDialog, NewData
 class GraphOperator(Observed):
     __slots__=[]
 
-    def __init__(self, graphView, graph):
+    def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
-        self.graphView = weakref.ref(graphView)
-        self.graph     = weakref.ref(graph)
+        self.graphView = None
+        self.graph     = None
+
+        if(graphView):
+            self.graphView = weakref.ref(graphView)
+        if(graph):
+            self.graph     = weakref.ref(graph)
+
         self.__vertexWidget = None
-        self.__wrappers={}
-        methods = [i for i in dir(self) if i.startswith("graph_") or i.startswith("vertex_")]
-        for m in methods:
-            self.__wrappers[m] = self.__get_wrapped(m)
 
     ######################################
     # Get Qt Actions for methods in here #
     ######################################
-    ###WHAT ???? I HAVE TO DO THIS TO
-    ###CORRECTLY BIND AN OPERATOR'S
-    ###METHODS TO A QT SIGNAL....
-    ###WHY???????????????????????????
     def get_action(self, actionName, parent, functionName, *otherSlots):
         action = QtGui.QAction(actionName, parent)
         return self.bind_action(action, functionName, *otherSlots)
 
     def bind_action(self, action, functionName, *otherSlots):
-        func, argcount = self.__wrappers[functionName]
+        func, argcount = self.__get_wrapped(functionName)
         if (argcount) < 2 :
             QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
             for f in otherSlots:
@@ -70,12 +68,16 @@ class GraphOperator(Observed):
                 QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), f )
         return action
 
-    def unbind_action(self, action, functionName=None):
-        func, argcount = self.__wrappers[functionName]
+    def unbind_action(self, action, functionName=None, *otherSlots):
+        func, argcount = self.__get_wrapped(functionName)
         if(argcount < 2):
-            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), self, 0 )
+            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), func )
+            for f in otherSlots:
+                QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), f )
         else:
-            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered(bool)"), self, 0 )
+            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered(bool)"), func )
+            for f in otherSlots:
+                QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), f )
         return action    
 
     def __add__(self, other):
@@ -86,20 +88,22 @@ class GraphOperator(Observed):
 
     __call__ = get_action    
     
-
-
     def __get_wrapped(self, funcname):
         func = getattr(self,funcname,None)
-        def wrapper(*args):
-            func(*args)
-        return wrapper, func.func_code.co_argcount 
+        def wrapped(*args, **kwargs):
+            func(*args, **kwargs)
+        return wrapped, func.func_code.co_argcount 
 
 
+    ###########
+    # setters #
+    ###########
+    def set_graph_view(self, graphView):
+        self.graphView = weakref.ref(graphView)
 
+    def set_graph(self, graph):
+        self.graph     = weakref.ref(graph)
 
-    ####################################
-    # The actual methods -- For graphs #
-    ####################################
     def set_session(self, session):
         self.__session = session
 
@@ -109,6 +113,9 @@ class GraphOperator(Observed):
     def set_package_manager(self, pkgmanager):
         self.__pkgmanager = pkgmanager
 
+    ####################################
+    # The actual methods -- For graphs #
+    ####################################
     @exception_display
     @busy_cursor
     def graph_run(self):
