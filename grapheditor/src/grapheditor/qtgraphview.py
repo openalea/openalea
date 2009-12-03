@@ -726,6 +726,7 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def rebuild_scene(self):
         """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
+        print "here"
         self.graph().simulate_construction_notifications()
 
     def clear_scene(self):

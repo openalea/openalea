@@ -134,9 +134,6 @@ class GraphListenerBase(observer.AbstractListener):
     def __init__(self, graph):
         observer.AbstractListener.__init__(self)
 
-        self.initialise(graph) #start listening. Todo: rename this method in
-        #the abstract listener class. and make it hold a reference to the observed
-
         #mappings from models to widgets
         self.vertexmap = {}
         self.edgemap = {}
@@ -155,8 +152,8 @@ class GraphListenerBase(observer.AbstractListener):
         self.set_vertex_widget_factory(stratCls.get_vertex_widget_factory())
         self.set_edge_widget_factory(stratCls.get_edge_widget_factory())
         self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
-        self.set_graph(graph)
         self.connector_types=stratCls.get_connector_types()
+        self.set_graph(graph)
 
         #low-level detail.
         self.currentItem = None
@@ -170,15 +167,16 @@ class GraphListenerBase(observer.AbstractListener):
             return self.observed
 
     def set_graph(self, graph):
-        self.clear_scene()
+        self.initialise(graph) #start listening. Todo: rename this method in
+        #the abstract listener class. and make it hold a reference to the observed
         if(self._adapterType):
             ga = self._adapterType(graph)
             self.observed = ga
         else:
             self.observed = weakref.ref(graph) #might not need to be weak.
 
-    def get_scene(self):
-        raise NotImplementedError
+    # def get_scene(self):
+    #     raise NotImplementedError
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
