@@ -177,7 +177,6 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionInvalidate, "graph_invalidate")
         self.operator + (self.actionReset, "graph_reset")
         self.operator + (self.actionConfigure_I_O, "graph_configure_io")
-        self.operator + (self.actionColorSelection, "graph_set_selection_color")
         self.operator + (self.actionGroup_Selection, "graph_group_selection")
         self.operator + (self.action_Copy, "graph_copy")
         self.operator + (self.action_Paste, "graph_paste")
@@ -188,7 +187,14 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionReload_from_Model, "graph_reload_from_factory")
         self.operator + (self.actionExport_to_Application, "graph_export_application")
         self.operator + (self.actionPreview_Application, "graph_preview_application")
-                
+        self.operator + (self.actionAlignHorizontally, "graph_align_selection_horizontal")
+        self.operator + (self.actionAlignLeft, "graph_align_selection_left")
+        self.operator + (self.actionAlignRight, "graph_align_selection_right")
+        self.operator + (self.actionAlignMean, "graph_align_selection_mean")
+        self.operator + (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally")
+        self.operator + (self.actionDistributeVertically, "graph_distribute_selection_vertically")
+        self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
+        self.operator + (self.actionUseCustomColor, "graph_use_user_color")                
 
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
@@ -215,6 +221,15 @@ class MainWindow(QtGui.QMainWindow,
         self.operator.set_interpreter(self.interpreterWidget)
         self.operator.set_package_manager(self.pkgmanager)
         self.operator.register_listener(self)
+
+        #check if the current selection is coloured and tick the 
+        #menu item if an item of the selection uses the user color.
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        self.actionUseCustomColor.setChecked(False)
+        for i in items:
+            if i.vertex().get_ad_hoc_dict().get_metadata("use_user_color"):
+                self.actionUseCustomColor.setChecked(True)
+                break
         
     def __wsMenuHide(self):
         self.operator.unregister_listener(self)

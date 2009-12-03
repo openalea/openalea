@@ -733,17 +733,11 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
-    def get_selected_items(self, subcall=None, vertices=True):
+    def get_selected_items(self, filterType=None, subcall=None):
         """ """
-        if(subcall):
-            return [ eval("item."+subcall) for item in self.items() if item.isSelected() and
-                     isinstance(item, QtGraphViewVertex)]
-        elif(vertices):
-            return [ item for item in self.items() if item.isSelected() and 
-                     isinstance(item, QtGraphViewVertex)]
-        else:
-            return [ item for item in self.items() if item.isSelected()]
-
+        return [ (item if subcall is None else eval("item."+subcall))
+                 for item in self.items() if item.isSelected() and
+                 (True if filterType is None else isinstance(item, filterType))]
                      
     def get_selection_center(self, selection=None):
         items = None

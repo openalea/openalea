@@ -139,27 +139,211 @@ class GraphOperator(Observed):
         
     
     def graph_set_selection_color(self):
-        items = self.graphView().get_selected_items()
-        if(not items): return
+        items = self.graphView().get_selected_items(qtgraphview.QtGraphViewVertex)
+        length = len(items)
+        if(length==0): return
+        if(length==1):
+            color = items[0].vertex().get_ad_hoc_dict().get_metadata("user_color")
+            if(color):
+                color = QtGui.QColor(*color)
+            else: color = QtGui.QColor(100,100,100,255)
+        else:
+            color = QtGui.QColor(100,100,100,255)
 
-        color = QtGui.QColorDialog.getColor( QtGui.QColor(100,100,100,255), 
-                                             self.graphView())
+        color = QtGui.QColorDialog.getColor(color, self.graphView())
+
         if not color.isValid():
             return
 
         color = [color.red(), color.green(), color.blue()]
         for i in items:
-            if not isinstance(i, qtgraphview.QtGraphViewVertex): continue
             try:
                 i.vertex().get_ad_hoc_dict().set_metadata("user_color", color)
                 i.vertex().get_ad_hoc_dict().set_metadata("use_user_color", True)
             except Exception, e:
                 print "graph_set_selection_color exception", e
-                pass   
+                pass
+
+    def graph_use_user_color(self, useit):
+        items = self.graphView().get_selected_items(qtgraphview.QtGraphViewVertex)
+        if(not items): return
+        scheduleASetColor = False
+        for i in items:
+            if(i.vertex().get_ad_hoc_dict().get_metadata("user_color") is None
+               and useit):
+                scheduleASetColor = True
+                continue
+            else:
+                i.vertex().get_ad_hoc_dict().set_metadata("use_user_color", useit)
+                i.setSelected(False)
+        if(scheduleASetColor):
+            self.graph_set_selection_color()
+    
+    def graph_align_selection_horizontal(self):
+        """Align all items on a median ligne.
+        """
+        widget = self.graphView()
+        
+        if widget is None :
+            return
+        
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        if len(items) > 1 :
+            #find median base #TODO beware of relative to parent coordinates
+            ymean = sum(item.pos().y() for item in items) / len(items)
+            
+            #move all items
+            for item in items :
+                item.setPos(item.pos().x(),ymean)
+        
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+
+    def graph_align_selection_left (self):
+        """Align all items on their left side.
+        """
+        widget = self.graphView()        
+        if widget is None :
+            return
+        
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        if len(items) > 1 :
+            #find left ligne #TODO beware of relative to parent coordinates
+            xmean = sum(item.pos().x() for item in items) / len(items)
+            
+            #move all items
+            for item in items :
+                item.setPos(xmean,item.pos().y() )
+        
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+
+    def graph_align_selection_right (self):
+        """Align all items on their right side.
+        """
+        widget = self.graphView()
+        if widget is None :
+            return
+        
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        if len(items) > 1 :
+            #find left ligne #TODO beware of relative to parent coordinates
+            xmean = sum(item.pos().x() + \
+                        item.boundingRect().width() \
+                        for item in items) / len(items)
+            
+            #move all items
+            for item in items :
+                item.setPos(xmean - item.boundingRect().width(),item.pos().y() )
+        
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+
+    def graph_align_selection_mean (self):
+        """Align all items vertically around a mean ligne.
+        """
+        widget = self.graphView()        
+        if widget is None :
+            return
+
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        if len(items) > 1 :
+            #find left ligne #TODO beware of relative to parent coordinates
+            xmean = sum(item.pos().x() + \
+                        item.boundingRect().width() / 2. \
+                        for item in items) / len(items)
+            
+            #move all items
+            for item in items :
+                item.setPos(xmean - item.boundingRect().width() / 2.,item.pos().y() )
+        
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+
+    def graph_distribute_selection_horizontally (self):
+        """distribute the horizontal distances between items.
+        """
+        widget = self.graphView()        
+        if widget is None :
+            return
+        
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        if len(items) > 2 :
+            #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
+            xmin = min(item.pos().x() for item in items)
+            xmax = max(item.pos().x() + item.boundingRect().width() \
+                       for item in items)
+            
+            #find mean distance between items
+            dist = ( (xmax - xmin) - \
+                   sum(item.boundingRect().width() for item in items) )\
+                   / (len(items) - 1)
+            
+            #sort all items by their mean position
+            item_centers = [(item.pos().x() + item.boundingRect().width() / 2.,item) for item in items]
+            item_centers.sort()
+            
+            #move all items
+            first_item = item_centers[0][1]
+            current_x = first_item.pos().x() + first_item.boundingRect().width()
+            
+            for x,item in item_centers[1:-1] :
+                item.setPos(current_x + dist,item.pos().y() )
+                current_x += dist + item.boundingRect().width()
+        
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+
+    def graph_distribute_selection_vertically (self):
+        """distribute the vertical distances between items.
+        """
+        widget = self.graphView()
+        if widget is None :
+            return
+        
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        if len(items) > 1 :
+            #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
+            ymin = min(item.pos().y() for item in items)
+            ymax = max(item.pos().y() + item.boundingRect().height() \
+                       for item in items)
+            
+            #find mean distance between items
+            dist = ( (ymax - ymin) - \
+                   sum(item.boundingRect().height() for item in items) )\
+                   / (len(items) - 1)
+            
+            #sort all items by their mean position
+            item_centers = [(item.pos().y() + item.boundingRect().height() / 2.,item) for item in items]
+            item_centers.sort()
+            
+            #move all items
+            first_item = item_centers[0][1]
+            current_y = first_item.pos().y() + first_item.boundingRect().height()
+            
+            for y,item in item_centers[1:-1] :
+                item.setPos(item.pos().x(),current_y + dist)
+                current_y += dist + item.boundingRect().height()
+            
+            #notify
+            widget.notify(None,("graph_modified",) )
+        
+        return
+        
 
     def graph_remove_selection(self, items=None):
         if(not items):
-            items = self.graphView().get_selected_items(vertices=False)
+            items = self.graphView().get_selected_items()
         if(not items): return
         for i in items:
             if isinstance(i, dataflowview.strat_vertex.GraphicalVertex):
@@ -195,7 +379,7 @@ class GraphOperator(Observed):
         
         factory = dialog.create_cnfactory(self.__pkgmanager)
 
-        items = widget.get_selected_items()
+        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
         if(not items): return None
         
         pos = widget.get_selection_center(items)
@@ -231,7 +415,7 @@ class GraphOperator(Observed):
             except:
                 pass
         else:
-            s = self.graphView().get_selected_items()
+            s = self.graphView().get_selected_items(qtgraphview.QtGraphViewVertex)
             s = [i.vertex().get_id() for i in s]
             if(not s): return 
             self.__session.clipboard.clear()
