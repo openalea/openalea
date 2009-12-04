@@ -19,9 +19,14 @@ __revision__ = " $Id$ "
 
 import weakref
 from PyQt4 import QtGui, QtCore
+from openalea.visualea.util import open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 
 class VertexOperators(object):
+    def __init__(self):
+        # ---reference to the widget of this vertex---
+        self._vertexWidget = None
+
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)        
 

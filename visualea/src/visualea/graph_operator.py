@@ -51,8 +51,6 @@ class GraphOperator(Observed,
         if(graph):
             self.graph     = weakref.ref(graph)
 
-        self.__vertexWidget = None
-
     ######################################
     # Get Qt Actions for methods in here #
     ######################################

@@ -59,6 +59,11 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         self._inPortLayout.setSpacing(0.0)
         self._outPortLayout.setSpacing(0.0)
 
+        #minimum heights
+        self._inPortLayout.setMinimumHeight(GraphicalPort.HEIGHT)
+        self.set_caption("")
+        self._outPortLayout.setMinimumHeight(GraphicalPort.HEIGHT)
+
         layout.addItem(self._inPortLayout)
         layout.addItem(self._captionProxy)
         layout.addItem(self._outPortLayout)
@@ -68,10 +73,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         layout.setAlignment(self._captionProxy, QtCore.Qt.AlignHCenter)
 
         self.setLayout(layout)
-        
-        # ---reference to the widget of this vertex---
-        self._vertexWidget = None
-        
+                
         self.initialise_from_model()
 
     def initialise_from_model(self):
@@ -138,8 +140,11 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     def set_caption(self, caption):
         """Sets the name displayed in the vertex widget, doesn't change
         the vertex data"""
+        if caption == "":
+            caption = " "
         self._caption.setText(caption)
-        self.layout().updateGeometry()
+        layout = self.layout()
+        if(layout): layout.updateGeometry()
 
     ###############################
     # ----Qt World overloads----  #
@@ -154,13 +159,17 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
     not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
     
     __corner_radius__ = 5.0
-    __margin__        = 5.0
-    __v_margin__      = 15.0
+    __margin__        = 3.0
+    __v_margin__      = 10.0
     
     def paint(self, painter, option, widget):
         path = QtGui.QPainterPath()
+        top = self._inPortLayout.geometry().center().y()
+        bottom = self._outPortLayout.geometry().center().y()
         rect = self.rect()
-        rect.adjust(self.__margin__, self.__v_margin__, -self.__margin__, -self.__v_margin__)
+        rect.setTop(top)
+        rect.setBottom(bottom)
+        rect.adjust(self.__margin__, 0.0, -self.__margin__, 0.0)
         path.addRoundedRect(rect, self.__corner_radius__, self.__corner_radius__)
         
         painter.setPen(QtCore.Qt.NoPen)
@@ -204,10 +213,17 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
             painter.drawPath(path)
 
         if(not self.__all_inputs_visible()):
-            pos = rect.width()-6, rect.height()-5
             painter.font().setBold(True)
+            pos = rect.width() - 2*self.__margin__ -2 , self._inPortLayout.geometry().bottom()+4
             painter.drawText(QtCore.QPointF(*pos), "+")
             
+    def setGeometry(self, geom):
+        #forcing a full recomputation of the geometry so that shrinking works
+        pos = self.pos()
+        QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(), pos.y(),-1.0,-1.0))
+        pos = self.pos()
+        self.vertex().get_ad_hoc_dict().set_metadata('position', 
+                                                     [pos.x(), pos.y()])
 
     polishEvent = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
                                "polishEvent")
