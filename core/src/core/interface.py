@@ -55,17 +55,60 @@ class IInterfaceMetaClass(type):
     """
     IInterface Metaclass
     Allow to register corresponding python type
-    """
+    Also adds a method to the interface class that checks 
+    that the given object implements the class' interface.
+    Allows some sort of safe-ducktyping"""
+
 
     all = [] # all interfaces
+    def __new__(cls, name, bases, dict):
+        dict["check"] = classmethod(IInterfaceMetaClass.check)
+        newCls = type.__new__(cls, name, bases, dict)
+
+        ###--CONTRACT CHECKING INFRASTRUCTURE---
+        newCls.__interface_decl__ = [i for i in dict.keys()]
+        for base in bases:
+            if(hasattr(base, "__interface_decl__")):
+                   newCls.__interface_decl__ += base.__interface_decl__
+
+        #removing some objects that aren't part of the interface
+        if("__metaclass__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__metaclass__")
+        if("__module__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__module__")
+        if("__doc__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__doc__")
+        if("check" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("check")
+        ###--!!CONTRACT CHECKING INFRASTRUCTURE---
+
+        return newCls
 
     def __init__(cls, name, bases, dic):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
-        TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
+        if( hasattr(cls, "__pytype__") ):
+            TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
         IInterfaceMetaClass.all.append(cls)
 
     def __repr__(cls):
         return cls.__name__
+
+    def check(cls, obj):
+        """Check if obj matches this interface."""
+        objMem = dir(obj)
+
+        stop = False
+        print "====> Interface testing " + cls.__name__ + " : " + str(obj)
+        for i in cls.__interface_decl__:
+            print "\t=> Testing for " + str(i) + "... ",
+            if i not in objMem: 
+                print "false"
+                stop = True
+            else : 
+                print "true"
+                continue
+
+        return not stop
 
 # Defaults interfaces
 
@@ -318,3 +361,4 @@ class IInterfaceWidget(AbstractListener):
     def notify(self, sender, event):
         """ Notification sent by node """
         pass
+

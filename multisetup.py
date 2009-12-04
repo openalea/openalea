@@ -52,6 +52,7 @@ visualea
 stdlib 
 sconsx
 misc
+grapheditor
 """.split()
 
 

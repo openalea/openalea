@@ -31,12 +31,21 @@ class Observed(object):
     def __init__(self):
 
         self.listeners = set()
+        self.__isNotifying = False
+        self.__postNotifs = []
 
     def register_listener(self, listener):
         """ Add listener to list of listeners """
 
-        wr = weakref.ref(listener, self.unregister_listener)
-        self.listeners.add(wr)
+        if(not self.__isNotifying):
+            wr = weakref.ref(listener, self.unregister_listener)
+            self.listeners.add(wr)
+        else:
+            def push_listener_after():
+                self.register_listener(listener)
+            self.__postNotifs.append(push_listener_after)
+            
+        
 
     def unregister_listener(self, listener):
         """ Remove listener from the list of listeners """
@@ -49,13 +58,21 @@ class Observed(object):
         :param event: an object to pass to the notify function
         """
 
+        self.__isNotifying = True
         for ref in self.listeners:
             if(not ref().is_notification_locked()):
                 try:
                     ref().call_notify(self, event)
                 except Exception, e:
-                    print "Warning : notification of %s failed"%(str(ref()), )
+                    print "Warning : notification of %s failed"%(str(ref()),)
                     print e
+        self.__isNotifying = False
+        self.post_notification()
+
+    def post_notification(self):
+        for action in self.__postNotifs:
+            action()
+        self.__postNotifs = []
 
     def __getstate__(self):
         """ Pickle function """
@@ -69,6 +86,9 @@ class AbstractListener(object):
 
     notify_lock = None
 
+    def __init__(self):
+        self.__deaf = False
+
     def initialise(self, observed):
         """ Register self as a listener to observed """
 
@@ -80,13 +100,17 @@ class AbstractListener(object):
     def is_notification_locked(self):
         return self.notify_lock != None and len(self.notify_lock)>0
 
+    def deaf(self, setDeaf=True):
+        self.__deaf=setDeaf
+
     def call_notify(self, sender, event=None):
         """
         Basic implementation call directly notify function
         Sub class can override this method to implement different call strategy
         (like signal slot)
         """
-        self.notify(sender, event)
+        if( not hasattr(self, "_AbstractListener__deaf") or not self.__deaf):
+            self.notify(sender, event)
 
     def notify(self, sender, event=None):
         """
