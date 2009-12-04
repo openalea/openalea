@@ -17,10 +17,9 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
-from graph_operators import dataflow_operators, layout_operators, color_operators, vertex_operators
+import dataflow, layout, color, vertex
 
 #################################
 # QtEvent handlers for vertices #
@@ -28,17 +27,17 @@ from graph_operators import dataflow_operators, layout_operators, color_operator
 
 
 class GraphOperator(Observed, 
-                    dataflow_operators.DataflowOperators,
-                    layout_operators.LayoutOperators,
-                    color_operators.ColorOperators,
-                    vertex_operators.VertexOperators):
+                    dataflow.DataflowOperators,
+                    layout.LayoutOperators,
+                    color.ColorOperators,
+                    vertex.VertexOperators):
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
-        dataflow_operators.DataflowOperators.__init__(self)
-        layout_operators.LayoutOperators.__init__(self)
-        color_operators.ColorOperators.__init__(self)
-        vertex_operators.VertexOperators.__init__(self)
+        dataflow.DataflowOperators.__init__(self)
+        layout.LayoutOperators.__init__(self)
+        color.ColorOperators.__init__(self)
+        vertex.VertexOperators.__init__(self)
 
         self.graphView = None
         self.graph     = None
@@ -47,9 +46,9 @@ class GraphOperator(Observed,
         self.__pkgmanager = None
 
         if(graphView):
-            self.graphView = weakref.ref(graphView)
+            self.graphView = graphView
         if(graph):
-            self.graph     = weakref.ref(graph)
+            self.graph     = graph
 
     ######################################
     # Get Qt Actions for methods in here #
@@ -101,10 +100,10 @@ class GraphOperator(Observed,
     # setters #
     ###########
     def set_graph_view(self, graphView):
-        self.graphView = weakref.ref(graphView)
+        self.graphView = graphView
 
     def set_graph(self, graph):
-        self.graph     = weakref.ref(graph)
+        self.graph     = graph
 
     def set_session(self, session):
         self.__session = session

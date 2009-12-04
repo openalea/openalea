@@ -115,12 +115,9 @@ def extend_qt_scene_event(qtcls):
     def event_handler(self, event):
         t = event.type()
         if t == QtCore.QEvent.GraphicsSceneMouseMove:
-            print "MOVE"
             self.moveEvent(event)
         elif t == QtCore.QEvent.Show:
-            print "POLISH"
             self.polishEvent()
-
         return qtcls.sceneEvent(self, event)
 
     return event_handler

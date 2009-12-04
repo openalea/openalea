@@ -224,7 +224,7 @@ class MainWindow(QtGui.QMainWindow,
 
         #check if the current selection is coloured and tick the 
         #menu item if an item of the selection uses the user color.
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        items = widget.get_selected_items(qtgraphview.Vertex)
         self.actionUseCustomColor.setChecked(False)
         for i in items:
             if i.vertex().get_ad_hoc_dict().get_metadata("use_user_color"):
@@ -348,7 +348,7 @@ class MainWindow(QtGui.QMainWindow,
         #gengraph
         gwidget = None
         try:
-            gwidget = qtgraphview.QtGraphView(self, graph)
+            gwidget = qtgraphview.View(self, graph)
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         except Exception, e:
             print "open_widget_tab", e

@@ -23,7 +23,7 @@ import weakref, types
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
-from . import grapheditor_baselisteners, grapheditor_interfaces
+from . import baselisteners, interfaces
 import edgefactory
 
 from math import sqrt
@@ -42,13 +42,13 @@ __AIK__ = [
 
     
 #------*************************************************------#
-class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
-    """Base class for elements in a QtGraphView.
+class Element(baselisteners.GraphElementObserverBase):
+    """Base class for elements in a qtgraphview.View.
 
     Implements basic listeners calls for elements of a graph.
     A listener call is the method that is called after the main
     listening method (self.notify) dispatches the events. They
-    are specified by grapheditor_interfaces.IGraphViewElement.
+    are specified by interfaces.IGraphViewElement.
 
     The class also implements a mecanism to easily override user
     events from the client application. What does this mean? In this
@@ -58,7 +58,7 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
     interactions. The dataflowview module extends the current module 
     to handle dataflows. However these extensions are not client-specific.
     There is nothing related for example specifically to Visualea.
-    by using QtGraphViewVertex.set_event_handler(key, handler), or even on
+    by using Vertex.set_event_handler(key, handler), or even on
     specialised elements like
     dataflowview.strat_vertex.GraphicalVertex.set_event_handler(key, handler),
     one can bind a specific behaviour to the event named by \"key\". The
@@ -114,7 +114,7 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
              - graph (ducktype) - The graph owning the item.
 
         """
-        grapheditor_baselisteners.GraphElementObserverBase.__init__(self, 
+        baselisteners.GraphElementObserverBase.__init__(self, 
                                                                     observed, 
                                                                     graph)
 
@@ -148,7 +148,7 @@ class QtGraphViewElement(grapheditor_baselisteners.GraphElementObserverBase):
 
 
 #------*************************************************------#
-class QtGraphViewVertex(QtGraphViewElement):
+class Vertex(Element):
     """An abstract graphic item that represents a graph vertex.
 
     The actual implementation is done in the derived class. What this
@@ -171,12 +171,12 @@ class QtGraphViewVertex(QtGraphViewElement):
         :Parameters:
             - d (dict) - a mapping from states (any comparable type)
             to drawing strategies. Drawing strategies must implement
-            the grapheditor_interfaces.IGraphViewVertexPaintStrategy
+            the interfaces.IGraphViewVertexPaintStrategy
             interface.
 
          """
         for k, v in d.iteritems():
-            if(grapheditor_interfaces.IGraphViewVertexPaintStrategy.check(v)):
+            if(interfaces.IGraphViewVertexPaintStrategy.check(v)):
                 cls.__state_drawing_strategies__[k] = v
 
     @classmethod
@@ -201,7 +201,7 @@ class QtGraphViewVertex(QtGraphViewElement):
             - graph - the owner of the vertex
 
         """
-        QtGraphViewElement.__init__(self, vertex, graph)
+        Element.__init__(self, vertex, graph)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
         return
@@ -338,7 +338,7 @@ class QtGraphViewVertex(QtGraphViewElement):
 
 
 #------*************************************************------#
-class QtGraphViewAnnotation(QtGraphViewElement):
+class Annotation(Element):
     """An abstract graphic item that represents a graph annotation"""
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
@@ -350,7 +350,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
             - graph      - The owner of the annotation
 
         """
-        QtGraphViewElement.__init__(self, annotation, graph)
+        Element.__init__(self, annotation, graph)
         return
 
     def annotation(self):
@@ -366,7 +366,7 @@ class QtGraphViewAnnotation(QtGraphViewElement):
             if(event[1]=="text"):
                 if(event[2]): self.set_text(event[2])
 
-        QtGraphViewElement.notify(self, sender, event)
+        Element.notify(self, sender, event)
 
 
     # ---->controllers
@@ -397,13 +397,13 @@ class QtGraphViewAnnotation(QtGraphViewElement):
 
 
 #------*************************************************------#
-class QtGraphViewEdge(QtGraphViewElement):
+class Edge(Element):
     """Base class for Qt based edges."""
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
     def __init__(self, edge=None, graph=None, src=None, dest=None):
-        QtGraphViewElement.__init__(self, edge, graph)
+        Element.__init__(self, edge, graph)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
@@ -503,12 +503,12 @@ class QtGraphViewEdge(QtGraphViewElement):
 
 
 
-class QtGraphViewFloatingEdge( QtGraphViewEdge ):
+class FloatingEdge( Edge ):
 
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
     def __init__(self, srcPoint, graph):
-        QtGraphViewEdge.__init__(self, None, graph, None, None)
+        Edge.__init__(self, None, graph, None, None)
         self.sourcePoint = QtCore.QPointF(*srcPoint)
         self.destPoint = QtCore.QPointF(self.sourcePoint)
 
@@ -545,7 +545,7 @@ class QtGraphViewFloatingEdge( QtGraphViewEdge ):
 
 
 #------*************************************************------#
-class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBase):
+class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase    """
 
     ####################################
@@ -607,7 +607,7 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     ####################################   
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
-        grapheditor_baselisteners.GraphListenerBase.__init__(self, graph)
+        baselisteners.GraphListenerBase.__init__(self, graph)
 
 
         #we bind application overloads if they exist
@@ -726,7 +726,6 @@ class QtGraphView(QtGui.QGraphicsView, grapheditor_baselisteners.GraphListenerBa
     def rebuild_scene(self):
         """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
-        print "here"
         self.graph().simulate_construction_notifications()
 
     def clear_scene(self):

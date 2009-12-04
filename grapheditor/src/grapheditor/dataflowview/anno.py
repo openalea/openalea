@@ -22,13 +22,13 @@ from PyQt4 import QtGui, QtCore
 from .. import qtgraphview
 
 
-class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.QtGraphViewAnnotation):
+class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
     """ Text annotation on the data flow """
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
         QtGui.QGraphicsTextItem.__init__(self, parent)
-        qtgraphview.QtGraphViewAnnotation.__init__(self, annotation, graphadapter)
+        qtgraphview.Annotation.__init__(self, annotation, graphadapter)
 
         # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)

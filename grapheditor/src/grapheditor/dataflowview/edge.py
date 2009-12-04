@@ -26,7 +26,7 @@ from . import strat_vertex
 
 from math import sqrt
 
-class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge):
+class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -36,7 +36,7 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
 
     def __init__(self, srcPoint, graph):
         QtGui.QGraphicsPathItem.__init__(self, None)
-        qtgraphview.QtGraphViewFloatingEdge.__init__(self, srcPoint, graph)
+        qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
         self.setZValue(0.0)
         
     def get_connections(self):
@@ -87,13 +87,13 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewFloatingEdge)
                                 "plugging input to input or output to output")
 
 
-class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.QtGraphViewEdge):
+class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
     """ An edge between two graphical vertices """
         
     def __init__(self, edgeModel, graphadapter, port1, port2, parent=None):
         """ """
         QtGui.QGraphicsPathItem.__init__(self, parent)
-        qtgraphview.QtGraphViewEdge.__init__(self, edgeModel, graphadapter, port1, port2)
+        qtgraphview.Edge.__init__(self, edgeModel, graphadapter, port1, port2)
         self.setZValue(0.5)
         self.initialise_from_model()
 

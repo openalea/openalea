@@ -96,7 +96,7 @@ def OpenAleaNodeDataPoolHandler(view, event):
 
 mimeFormatsMap = {"openalea/nodefactory":OpenAleaNodeFactoryHandler,
                   "openalea/data_instance":OpenAleaNodeDataPoolHandler}
-qtgraphview.QtGraphView.set_mime_handler_map(mimeFormatsMap)
+qtgraphview.View.set_mime_handler_map(mimeFormatsMap)
 
 
 ##############################################
@@ -122,8 +122,8 @@ keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):keyPressDelete,
 keyReleaseMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):keyReleaseSpace
                     }
 
-qtgraphview.QtGraphView.set_keypress_handler_map(keyPressMapping)
-qtgraphview.QtGraphView.set_keyrelease_handler_map(keyReleaseMapping)
+qtgraphview.View.set_keypress_handler_map(keyPressMapping)
+qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
 
 
 
@@ -194,9 +194,9 @@ def vertexContextMenuEvent(graphItem, event):
 
 
 
-qtgraphview.QtGraphViewVertex.set_event_handler("mouseDoubleClickEvent", 
+qtgraphview.Vertex.set_event_handler("mouseDoubleClickEvent", 
                                                 vertexMouseDoubleClickEvent)
-qtgraphview.QtGraphViewVertex.set_event_handler("contextMenuEvent", 
+qtgraphview.Vertex.set_event_handler("contextMenuEvent", 
                                                 vertexContextMenuEvent)
 
 

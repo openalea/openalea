@@ -31,14 +31,14 @@ from openalea.grapheditor import qtgraphview
 
  
 
-class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
+class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
 
     def __init__(self, vertex, graph, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
-        qtgraphview.QtGraphViewVertex.__init__(self, vertex, graph)
+        qtgraphview.Vertex.__init__(self, vertex, graph)
         self.setZValue(1)
 
         # ---Small box when the vertex is being evaluated---
@@ -77,7 +77,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         self.initialise_from_model()
 
     def initialise_from_model(self):
-        qtgraphview.QtGraphViewVertex.initialise_from_model(self)
+        qtgraphview.Vertex.initialise_from_model(self)
         self.vertex().simulate_construction_notifications()
 
 
@@ -134,7 +134,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
             self.__add_out_connection(event[1])
             
             
-        qtgraphview.QtGraphViewVertex.notify(self, sender, event)
+        qtgraphview.Vertex.notify(self, sender, event)
         
 
     def set_caption(self, caption):
@@ -225,13 +225,13 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.QtGraphViewVertex):
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      [pos.x(), pos.y()])
 
-    polishEvent = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
+    polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                                "polishEvent")
-    moveEvent = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
+    moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                              "moveEvent")
-    mousePressEvent = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
+    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                                    "mousePressEvent")
-    itemChange = mixin_method(qtgraphview.QtGraphViewVertex, QtGui.QGraphicsWidget,
+    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                               "itemChange")
 
 

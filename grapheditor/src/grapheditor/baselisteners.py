@@ -24,7 +24,7 @@ import weakref
 
 from openalea.core import observer
 
-import grapheditor_interfaces
+import interfaces
 
 
 
@@ -91,7 +91,7 @@ class GraphListenerBase(observer.AbstractListener):
     @classmethod
     def register_strategy(cls, stratCls):
         assert isinstance(stratCls, types.TypeType)
-        assert grapheditor_interfaces.IGraphViewStrategies.check(stratCls)
+        assert interfaces.IGraphViewStrategies.check(stratCls)
 
         graphadapter = stratCls.get_graph_adapter_type()
         vertexWidgetTypes  = stratCls.get_vertex_widget_types()
@@ -102,30 +102,30 @@ class GraphListenerBase(observer.AbstractListener):
         if graphadapter is None:
             graphadapter = graphCls
 
-        assert grapheditor_interfaces.IGraphAdapter.check(graphadapter)
+        assert interfaces.IGraphAdapter.check(graphadapter)
         
         #checking vertex types
         elTypes = graphadapter.get_vertex_types()
         for vt in elTypes:
             vtype = vertexWidgetTypes.get(vt, None)
-            assert grapheditor_interfaces.IGraphViewElement.check(vtype)
+            assert interfaces.IGraphViewElement.check(vtype)
 
         #checking connectable types
         elTypes = stratCls.get_connector_types()
         for ct in elTypes:
-            assert grapheditor_interfaces.IGraphViewConnectable.check(ct)
+            assert interfaces.IGraphViewConnectable.check(ct)
 
         #checking edge types
         elTypes = graphadapter.get_edge_types()
         for et in elTypes:
             etype = edgeWidgetTypes.get(et, None)
-            assert grapheditor_interfaces.IGraphViewEdge.check(etype)
+            assert interfaces.IGraphViewEdge.check(etype)
 
         #checking floating edge types
         elTypes = edgeWidgetTypes.keys()
         elTypes = [i for i in elTypes if i.startswith("floating")]
         for et in elTypes:
-            assert grapheditor_interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
+            assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
         
         cls.__available_strategies__[graphCls]=stratCls
         return        

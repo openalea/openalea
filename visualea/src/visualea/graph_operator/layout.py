@@ -24,19 +24,20 @@ class LayoutOperators(object):
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne.
         """
-        widget = self.graphView()
+        widget = self.graphView
         
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        items = widget.get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find median base #TODO beware of relative to parent coordinates
-            ymean = sum(item.pos().y() for item in items) / len(items)
+            ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
             
             #move all items
             for item in items :
-                item.setPos(item.pos().x(),ymean)
+                item.vertex().get_ad_hoc_dict().set_metadata("position",
+                                                             [item.vertex().get_ad_hoc_dict().get_metadata("position")[0],ymean])
         
             #notify
             widget.notify(None,("graph_modified",) )
@@ -46,19 +47,20 @@ class LayoutOperators(object):
     def graph_align_selection_left (self):
         """Align all items on their left side.
         """
-        widget = self.graphView()        
+        widget = self.graphView        
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        items = widget.get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.pos().x() for item in items) / len(items)
+            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
             
             #move all items
             for item in items :
-                item.setPos(xmean,item.pos().y() )
-        
+                item.vertex().get_ad_hoc_dict().set_metadata("position", 
+                                                             [xmean,
+                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
             #notify
             widget.notify(None,("graph_modified",) )
         
@@ -67,20 +69,22 @@ class LayoutOperators(object):
     def graph_align_selection_right (self):
         """Align all items on their right side.
         """
-        widget = self.graphView()
+        widget = self.graphView
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)
+        items = widget.get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.pos().x() + \
+            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
                         item.boundingRect().width() \
                         for item in items) / len(items)
             
             #move all items
             for item in items :
-                item.setPos(xmean - item.boundingRect().width(),item.pos().y() )
+                item.vertex().get_ad_hoc_dict().set_metadata("position", 
+                                                             [xmean - item.boundingRect().width(),
+                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
         
             #notify
             widget.notify(None,("graph_modified",) )
@@ -90,20 +94,22 @@ class LayoutOperators(object):
     def graph_align_selection_mean (self):
         """Align all items vertically around a mean ligne.
         """
-        widget = self.graphView()        
+        widget = self.graphView        
         if widget is None :
             return
 
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        items = widget.get_selected_items(qtgraphview.Vertex)        
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.pos().x() + \
+            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
                         item.boundingRect().width() / 2. \
                         for item in items) / len(items)
             
             #move all items
             for item in items :
-                item.setPos(xmean - item.boundingRect().width() / 2.,item.pos().y() )
+                item.vertex().get_ad_hoc_dict().set_metadata("position", 
+                                                             [xmean - item.boundingRect().width() / 2.,
+                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
         
             #notify
             widget.notify(None,("graph_modified",) )
@@ -113,15 +119,15 @@ class LayoutOperators(object):
     def graph_distribute_selection_horizontally (self):
         """distribute the horizontal distances between items.
         """
-        widget = self.graphView()        
+        widget = self.graphView        
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        items = widget.get_selected_items(qtgraphview.Vertex)        
         if len(items) > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
-            xmin = min(item.pos().x() for item in items)
-            xmax = max(item.pos().x() + item.boundingRect().width() \
+            xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
+            xmax = max(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + item.boundingRect().width() \
                        for item in items)
             
             #find mean distance between items
@@ -130,15 +136,17 @@ class LayoutOperators(object):
                    / (len(items) - 1)
             
             #sort all items by their mean position
-            item_centers = [(item.pos().x() + item.boundingRect().width() / 2.,item) for item in items]
+            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + item.boundingRect().width() / 2.,item) for item in items]
             item_centers.sort()
             
             #move all items
             first_item = item_centers[0][1]
-            current_x = first_item.pos().x() + first_item.boundingRect().width()
+            current_x = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + first_item.boundingRect().width()
             
             for x,item in item_centers[1:-1] :
-                item.setPos(current_x + dist,item.pos().y() )
+                item.vertex().get_ad_hoc_dict().set_metadata("position", 
+                                                             [current_x + dist,
+                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
                 current_x += dist + item.boundingRect().width()
         
             #notify
@@ -149,15 +157,15 @@ class LayoutOperators(object):
     def graph_distribute_selection_vertically (self):
         """distribute the vertical distances between items.
         """
-        widget = self.graphView()
+        widget = self.graphView
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.QtGraphViewVertex)        
+        items = widget.get_selected_items(qtgraphview.Vertex)        
         if len(items) > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
-            ymin = min(item.pos().y() for item in items)
-            ymax = max(item.pos().y() + item.boundingRect().height() \
+            ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)
+            ymax = max(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + item.boundingRect().height() \
                        for item in items)
             
             #find mean distance between items
@@ -166,15 +174,17 @@ class LayoutOperators(object):
                    / (len(items) - 1)
             
             #sort all items by their mean position
-            item_centers = [(item.pos().y() + item.boundingRect().height() / 2.,item) for item in items]
+            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + item.boundingRect().height() / 2.,item) for item in items]
             item_centers.sort()
             
             #move all items
             first_item = item_centers[0][1]
-            current_y = first_item.pos().y() + first_item.boundingRect().height()
+            current_y = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + first_item.boundingRect().height()
             
             for y,item in item_centers[1:-1] :
-                item.setPos(item.pos().x(),current_y + dist)
+                item.vertex().get_ad_hoc_dict().set_metadata("position", 
+                                                             [item.vertex().get_ad_hoc_dict().get_metadata("position")[0],
+                                                              current_y + dist])
                 current_y += dist + item.boundingRect().height()
             
             #notify

@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 
 import edgefactory
-import grapheditor_interfaces
-import grapheditor_baselisteners
+import interfaces
+import baselisteners
 import qtgraphview
 import qtutils

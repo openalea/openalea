@@ -2,8 +2,8 @@ import sys
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
-from openalea.grapheditor.qtgraphview import QtGraphView
-from openalea.grapheditor.grapheditor_baselisteners import StrategyError
+from openalea.grapheditor.qtgraphview import View
+from openalea.grapheditor.baselisteners import StrategyError
 from custom_graph_model import Graph
 import custom_graph_view
 
@@ -14,8 +14,8 @@ def dropHandler(widget, event):
     position = [position.x(), position.y()]
     widget.graph().new_vertex(position)
 
-QtGraphView.set_default_drop_handler(dropHandler)
-QtGraphView.set_event_handler("mouseDoubleClickEvent", dropHandler)
+View.set_default_drop_handler(dropHandler)
+View.set_event_handler("mouseDoubleClickEvent", dropHandler)
 
 
 
@@ -25,7 +25,7 @@ class MainWindow(QtGui.QMainWindow):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
         self.__graph = Graph()
-        self.__graphView = QtGraphView(self, self.__graph)
+        self.__graphView = View(self, self.__graph)
         self.__graphView.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setCentralWidget(self.__graphView)
 
