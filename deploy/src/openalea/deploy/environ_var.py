@@ -90,7 +90,7 @@ def set_lsb_env(name, vars):
             # search for the "source ~/.openalea.sh" string
             if not bashrc_cmd in bashrc:
                 filehandle = open(filename, 'a+')
-                filehandle.write(bashrc_cmd)
+                filehandle.write('\n'+bashrc_cmd)
                 filehandle.close()
 
             # create the openalea shell script

@@ -28,7 +28,7 @@ import copy
 import pprint
 
 
-from openalea.core.node import AbstractFactory, Node
+from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
 #from openalea.core.node import InstantiationError
 from openalea.core.pkgmanager import PackageManager, UnknownPackageError
@@ -37,6 +37,7 @@ from openalea.core.dataflow import DataFlow, InvalidEdge
 #from openalea.core.dataflow import PortError
 #from openalea.core.algo.dataflow_copy import structural_copy
 from openalea.core.settings import Settings
+import metadatadict
 
 
 class IncompatibleNodeError(Exception):
@@ -79,6 +80,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         self.elt_data = kargs.get("elt_data", {})
         self.elt_value = kargs.get("elt_value", {})
+        self.elt_ad_hoc = kargs.get("elt_ad_hoc", {})
 
 
         # Documentation
@@ -187,7 +189,7 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Set continuous evaluation
         for vid in cont_eval:
-            new_df.set_continuous_eval(vid, True)
+             new_df.set_continuous_eval(vid, True)
 
 
         # Set call stack to its original state
@@ -217,17 +219,21 @@ class CompositeNodeFactory(AbstractFactory):
 
         n = Node()
         n.__color__ = (250, 100, 100)
-        for p in range(ins+1):
-            n.add_input(name="In"+str(p))
-
-        for p in range(outs+1):
-            n.add_output(name="Out"+str(p))
 
         n.internal_data.update(self.elt_data[vid])
+        #gengraph
+        for p in range(ins+1):
+            port = n.add_input(name="In"+str(p))
+            port.set_id(p)
+
+        for p in range(outs+1):
+            port = n.add_output(name="Out"+str(p))
+            port.set_id(p)
+        #/gengraph
 
         return n
 
-    def paste(self, cnode, data_modifiers=[], call_stack=None):
+    def paste(self, cnode, data_modifiers=[], call_stack=None, meta=False):
         """ Paste to an existing CompositeNode instance
 
         :param cnode: composite node instance
@@ -252,7 +258,12 @@ class CompositeNodeFactory(AbstractFactory):
 
                 try:
                     if(callable(func)):
-                        n.internal_data[key] = func(n.internal_data[key])
+                        #gengraph
+                        if(meta):
+                            func(n)
+                        #/gengraph
+                        else:
+                            n.internal_data[key] = func(n.internal_data[key])
                     else:
                         n.internal_data[key] = func
                 except:
@@ -273,6 +284,49 @@ class CompositeNodeFactory(AbstractFactory):
 
         return idmap.values()
 
+    def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
+        #reading new files
+        if elt_ad_hoc and len(elt_ad_hoc):
+            node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
+            return
+        
+        #extracting ad hoc data from old files.
+        try:
+            node.get_ad_hoc_dict().add_metadata("text", str)
+            node.get_ad_hoc_dict().add_metadata("position", list)
+            node.get_ad_hoc_dict().add_metadata("user_color", list)
+            node.get_ad_hoc_dict().add_metadata("use_user_color", bool)
+        except:
+            pass
+
+
+        toDelete = []
+        position = [0.0,0.0]
+        for key, val in elt_data.iteritems():  
+            if(key == "user_color") :                                        
+                node.get_ad_hoc_dict().set_metadata("user_color", list(val))       
+                node.get_ad_hoc_dict().set_metadata("use_user_color", True)  
+                toDelete.append(key)                                         
+                continue                                                     
+            elif(key == "posx"):
+                position[0] = val
+                toDelete.append(key)                                         
+                continue                                                     
+            elif( key == "posy"):
+                position[1] = val                                            
+                toDelete.append(key)                                         
+                continue
+            elif( key == "txt"):
+                node.get_ad_hoc_dict().set_metadata("text", val)
+                toDelete.append(key)                                         
+                continue
+
+        node.get_ad_hoc_dict().set_metadata("position", position)
+
+        for key in toDelete:                                             
+            del elt_data[key]                                            
+
+
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
         
@@ -286,18 +340,41 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
-        node.internal_data.update(self.elt_data[vid])
+        #gengraph                     
+        attributes = self.elt_data[vid].copy()
+        ad_hoc     = self.elt_ad_hoc.get(vid, None)
+        self.load_ad_hoc_data(node, attributes, ad_hoc)
+        node.internal_data.update(attributes)
+        #/gengraph                                                           
 
         # copy node input data if any
         values = self.elt_value.get(vid, ())
-        for (port, v) in values:
+        #gengraph
+        for vs in values:
             try:
+                #the two first elements are the historical
+                #values : port Id and port value
+                #beyond that are extensions added by gengraph:
+                #the ad_hoc_dict representation is third.
+                port, v = vs[:2] 
                 node.set_input(port, eval(v))
+                if(len(vs)>2):
+                    node.input_desc[port].set_ad_hoc_dict(vs[2])
+                else:
+                    node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",
+                                                                     node.is_port_hidden(port))
+                    
             except:
                 continue
-
+        
         return node
 
+    #########################################################
+    # ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT #
+    #########################################################
+    #########################################################
+    # This shouldn't be here, it is related to visual stuff #
+    #########################################################
     def instantiate_widget(self, node=None, parent=None, \
             edit=False, autonomous=False):
         """
@@ -698,7 +775,6 @@ class CompositeNode(Node, DataFlow):
         for e in sup_connect:
             sgfactory.connections[id(e)] = e
 
-
         # Copy node
         for vid in listid:
 
@@ -718,14 +794,20 @@ class CompositeNode(Node, DataFlow):
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
 
+            #gengraph
+            # Copy ad_hoc data
+            sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
+
+
             # Copy value
             if(not node.get_nb_input()):
                 sgfactory.elt_value[vid] = []
             else:
                 sgfactory.elt_value[vid] = \
-                    [(port, repr(node.get_input(port))) for port
+                    [(port, repr(node.get_input(port)), repr(node.input_desc[port].get_ad_hoc_dict())) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
+            #/gengraph
 
         self.graph_modified = False
 
@@ -752,6 +834,10 @@ class CompositeNode(Node, DataFlow):
             self.add_out_port(vid, local_pid)
 
         self.set_actor(vid, node)
+        #gengraph
+        self.notify_vertex_addition(node, vid)
+        #/gengraph
+
         #self.id_cpt += 1
         if(modify):
             self.notify_listeners(("graph_modified", ))
@@ -759,19 +845,75 @@ class CompositeNode(Node, DataFlow):
 
         return vid
 
+    #gengraph
+    def notify_vertex_addition(self, vertex, vid=None):
+        if(vid):  vertex.set_id(vid)
+        
+        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
+                else "vertex"
+        if (not isinstance(vertex, CompositeNodeOutput) and 
+            not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexAdded", (vtype, vertex)))
+
+    def notify_vertex_removal(self, vertex):
+        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
+                else "vertex"
+        if (not isinstance(vertex, CompositeNodeOutput) and 
+            not isinstance(vertex, CompositeNodeInput)):
+            self.notify_listeners(("vertexRemoved", (vtype, vertex)))
+    #/gengraph
+
+
     def remove_node(self, vtx_id):
         """
         remove a node from the graph
         
         :param vtx_id: element id
         """
-
+        node = self.node(vtx_id)
         if(vtx_id == self.id_in or vtx_id == self.id_out):
             return
         self.remove_vertex(vtx_id)
 
+    #gengraph
+        self.notify_vertex_removal(node)
+    #/gengraph
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
+
+
+    #gengraph
+    def remove_edge(self, eid):
+        DataFlow.remove_edge(self, eid)
+        self.notify_listeners(("edgeRemoved", ("default",eid) ))
+    #/gengraph
+
+    #gengraph
+    def simulate_construction_notifications(self):
+        """emits messages as if we were adding elements to
+        the composite node"""
+        Node.simulate_construction_notifications(self)
+
+        ids = self.vertices()
+        for eltid in ids:
+            node = self.node(eltid)
+            self.notify_vertex_addition(node)
+       
+        for eid in self.edges():
+            (src_id, dst_id) = self.source(eid), self.target(eid)
+            etype=None
+            src_port_id = self.local_id(self.source_port(eid))
+            dst_port_id = self.local_id(self.target_port(eid))
+
+            nodeSrc = self.node(src_id)
+            nodeDst = self.node(dst_id)
+            src_port = nodeSrc.output_desc[src_port_id]
+            dst_port = nodeDst.input_desc[dst_port_id]
+
+            edgedata = "default", eid, src_port, dst_port
+            self.notify_listeners(("edgeAdded", edgedata))
+            
+    #/gengraph
 
     def connect(self, src_id, port_src, dst_id, port_dst):
         """ Connect 2 elements 
@@ -784,13 +926,21 @@ class CompositeNode(Node, DataFlow):
 
         source_pid = self.out_port(src_id, port_src)
         target_pid = self.in_port(dst_id, port_dst)
-        DataFlow.connect(self, source_pid, target_pid)
+        eid = DataFlow.connect(self, source_pid, target_pid)
 
         self.actor(dst_id).set_input_state(port_dst, "connected")
         self.notify_listeners(("connection_modified", ))
         self.graph_modified = True
 
         self.update_eval_listeners(src_id)
+        #gengraph
+        nodeSrc = self.node(src_id)
+        nodeDst = self.node(dst_id)
+        src_port = nodeSrc.output_desc[port_src]
+        dst_port = nodeDst.input_desc[port_dst]
+        edgedata = "default", eid, src_port, dst_port
+        self.notify_listeners(("edgeAdded", edgedata))
+        #/gengraph
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements
@@ -807,6 +957,9 @@ class CompositeNode(Node, DataFlow):
         for eid in self.connected_edges(source_pid):
 
             if self.target_port(eid) == target_pid:
+                #gengraph
+                self.notify_listeners(("edgeRemoved", ("default",eid)))
+                #/gengraph
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
                 self.notify_listeners(("connection_modified", ))
@@ -828,6 +981,7 @@ class CompositeNode(Node, DataFlow):
             raise IncompatibleNodeError()
 
         self.set_actor(vid, newnode)
+        #gengraph should notify something here.
 
     # Continuous eval functions
 
@@ -901,9 +1055,12 @@ class CompositeNodeInput(Node):
         """
 
         Node.__init__(self)
-
-        for d in inputs:
-            self.add_output(**d)
+        
+        #gengraph
+        for i, d in enumerate(inputs):
+            port = self.add_output(**d)
+            port.set_id(i)
+        #/gengraph
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 5
@@ -932,8 +1089,11 @@ class CompositeNodeOutput(Node):
         """
         Node.__init__(self)
 
-        for d in outputs:
-            self.add_input(**d)
+        #gengraph
+        for i, d in enumerate(outputs):
+            port = self.add_input(**d)
+            port.set_id(i)
+        #/gengraph
 
         self.internal_data['posx'] = 20
         self.internal_data['posy'] = 250
@@ -970,6 +1130,7 @@ $NAME = CompositeNodeFactory(name=$PNAME,
                              elt_connections=$ELT_CONNECTIONS,
                              elt_data=$ELT_DATA,
                              elt_value=$ELT_VALUE,
+                             elt_ad_hoc=$ELT_AD_HOC,
                              lazy=$LAZY,
                              )
 
@@ -989,15 +1150,16 @@ $NAME = CompositeNodeFactory(name=$PNAME,
         fstr = string.Template(self.sgfactory_template)
 
         result = fstr.safe_substitute(NAME=f.get_python_name(),
-            PNAME=self.pprint_repr(f.name),
-            DESCRIPTION=self.pprint_repr(f.description),
-            CATEGORY=self.pprint_repr(f.category),
-            DOC=self.pprint_repr(f.doc),
-            INPUTS=self.pprint_repr(f.inputs),
-            OUTPUTS=self.pprint_repr(f.outputs),
-            ELT_FACTORY=self.pprint_repr(f.elt_factory),
-            ELT_CONNECTIONS=self.pprint_repr(f.connections),
-            ELT_DATA=self.pprint_repr(f.elt_data),
-            ELT_VALUE=self.pprint_repr(f.elt_value),
-            LAZY=self.pprint_repr(f.lazy), )
+                                      PNAME=self.pprint_repr(f.name),
+                                      DESCRIPTION=self.pprint_repr(f.description),
+                                      CATEGORY=self.pprint_repr(f.category),
+                                      DOC=self.pprint_repr(f.doc),
+                                      INPUTS=self.pprint_repr(f.inputs),
+                                      OUTPUTS=self.pprint_repr(f.outputs),
+                                      ELT_FACTORY=self.pprint_repr(f.elt_factory),
+                                      ELT_CONNECTIONS=self.pprint_repr(f.connections),
+                                      ELT_DATA=self.pprint_repr(f.elt_data),
+                                      ELT_VALUE=self.pprint_repr(f.elt_value),
+                                      ELT_AD_HOC=self.pprint_repr(f.elt_ad_hoc),
+                                      LAZY=self.pprint_repr(f.lazy), )
         return result

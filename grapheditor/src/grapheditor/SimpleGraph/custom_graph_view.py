@@ -1,0 +1,172 @@
+# -*- python -*-
+#
+#       OpenAlea.Visualea: OpenAlea graphical user interface
+#
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$ "
+
+
+"""In this file we implement the basic graph views"""
+from openalea.grapheditor.grapheditor_baselisteners import GraphListenerBase
+from openalea.grapheditor.qtutils  import mixin_method, extend_qt_scene_event
+from openalea.grapheditor.qtgraphview import Vertex, Edge, FloatingEdge
+from openalea.grapheditor.edgefactory import LinearEdgePath
+from PyQt4 import QtGui, QtCore
+from custom_graph_model import Graph as GraphType
+from custom_graph_model import Vertex as VertexModel
+
+
+
+##############################################################
+# Designing the widgets that will represent our vertices and #
+# edges                                                      #
+##############################################################
+
+class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
+    __vertex_size__= QtCore.QSizeF(30.0, 30.0)
+    __border_size__=2
+
+    def __init__(self, vertex, graph, parent=None):
+        QtGui.QGraphicsEllipseItem.__init__(self, 0.0, 0.0,
+                                            self.__vertex_size__.width(),
+                                            self.__vertex_size__.height(),
+                                            parent)
+        Vertex.__init__(self, vertex, graph)
+        self.paint = QtGui.QGraphicsEllipseItem.paint
+
+        self.setZValue(1.0)
+
+        #we choose the avocado colors
+        self.setBrush( QtGui.QBrush(QtCore.Qt.yellow) )
+        pen=QtGui.QPen(QtCore.Qt.darkGreen)
+        pen.setWidth(self.__border_size__-2)
+        self.setPen(pen)
+        
+        self.initialise_from_model()
+
+    ##################
+    # QtWorld-Layout #
+    ##################
+    def size(self):
+        return self.__vertex_size__
+
+    def sizeHint(self, blop, blip):
+        return self.__vertex_size__
+
+    ##################
+    # QtWorld-Events #
+    ##################        
+    mousePressEvent = mixin_method(Vertex, QtGui.QGraphicsEllipseItem, "mousePressEvent")
+    itemChange = mixin_method(Vertex, QtGui.QGraphicsEllipseItem, "itemChange")
+        
+    def contextMenuEvent(self, event): #called on right click on the vertex.
+        menu = QtGui.QMenu(event.widget())
+        action= menu.addAction("Delete vertex")
+        action.connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        menu.popup(event.screenPos())
+        event.accept()
+
+    def remove(self):
+        self.graph().remove_vertex(self.vertex())
+        
+
+
+
+class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
+    def __init__(self, edgeModel, graphadapter, vert1, vert2, parent=None):
+        """ """
+        QtGui.QGraphicsPathItem.__init__(self, parent)
+        Edge.__init__(self, edgeModel, graphadapter, vert1, vert2)
+        self.set_edge_path(LinearEdgePath())
+        self.initialise_from_model()
+
+    def contextMenuEvent(self, event):
+        menu = QtGui.QMenu(self.scene().views()[0])
+        action = menu.addAction("Delete edge")
+        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        menu.popup(event.screenPos())
+        event.accept()
+        
+    def remove(self):
+        self.graph().remove_edge( self.src(), self.dst() )
+
+
+
+
+class SimpleFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
+    def __init__(self, srcPoint, graph):
+        """ """
+        QtGui.QGraphicsPathItem.__init__(self, None)
+        FloatingEdge.__init__(self, srcPoint, graph)
+        self.set_edge_path(LinearEdgePath())
+        self.setZValue(0.0)
+
+
+
+
+#########################################################
+# Creating the strategy class that the view will use to #
+# create the right widget at the right time.            #
+#########################################################
+
+class SimpleStrategy(object):
+    @classmethod
+    def get_graph_model_type(cls):
+        """Returns the classobj defining the graph type"""
+        return GraphType
+
+    @classmethod
+    def get_vertex_widget_factory(cls):
+        """Returns a factory that instantiates vertices according
+        to their types."""
+        return GraphicalVertexFactory
+
+    @classmethod
+    def get_vertex_widget_types(cls):
+        return {"vertex":SimpleVertex}
+
+    @classmethod
+    def get_edge_widget_factory(cls):
+        """Returns a factory that instantiates edges according
+        to their types."""
+        return GraphicalEdgeFactory
+
+    @classmethod
+    def get_edge_widget_types(cls):
+        return {"default":SimpleEdge,
+                "floating-default":SimpleFloatingEdge}
+
+    @classmethod
+    def get_graph_adapter_type(cls):
+        """Return a classobj defining the type of widget
+        that represents an annotation"""
+        return None
+
+    @classmethod
+    def get_connector_types(cls):
+        return [SimpleVertex]
+
+
+def GraphicalVertexFactory(vtype, *args, **kwargs):
+    VT = SimpleStrategy.get_vertex_widget_types().get(vtype)
+    if VT: return VT(*args, **kwargs)
+
+def GraphicalEdgeFactory(etype, *args, **kwargs):
+    ET = SimpleStrategy.get_edge_widget_types().get(etype)
+    if ET: return ET(*args, **kwargs)
+
+
+GraphListenerBase.register_strategy(SimpleStrategy)
+VertexModel.extend_ad_hoc_slots({"position":list, "connectorPosition":list})

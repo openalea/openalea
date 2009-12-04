@@ -1,4 +1,3 @@
-
 # This file has been generated at Fri Aug  1 14:49:09 2008
 
 from openalea.core import *

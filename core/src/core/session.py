@@ -62,6 +62,10 @@ class Session(Observed):
 
         self.init()
 
+        #gengraph
+    def simulate_workspace_addition(self):
+        for ws in self.workspaces:
+            self.notify_listeners(("workspace_added", ws))
 
     def get_current_workspace(self, ):
         """ Return the current workspace object """
@@ -74,17 +78,18 @@ class Session(Observed):
         Open a new workspace in the session
         if compositenode = None, create a new empty compositenode
         """
-
-        if(not compositenode):
+        if compositenode is None:
             compositenode = self.empty_cnode_factory.instantiate()
             compositenode.set_caption("")
             self.workspaces.append(compositenode)
 
         elif(compositenode not in self.workspaces):
             self.workspaces.append(compositenode)
-
+        else:
+            return compositenode
+        
         if(notify):
-            self.notify_listeners()
+            self.notify_listeners(("workspace_added", compositenode))
 
         return compositenode
 
