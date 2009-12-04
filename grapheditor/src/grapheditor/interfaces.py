@@ -99,6 +99,9 @@ class IGraphListener(object):
     def post_addition(self, *args, **kwargs):
         raise NotImplementedError
 
+    def is_connectable(self, *args, **kwargs):
+        raise NotImplementedError
+
 #------*************************************************------#
 class IGraphAdapter(object):
     __metaclass__ = interface.IInterfaceMetaClass

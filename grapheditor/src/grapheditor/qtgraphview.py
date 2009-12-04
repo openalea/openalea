@@ -60,7 +60,7 @@ class Element(baselisteners.GraphElementObserverBase):
     There is nothing related for example specifically to Visualea.
     by using Vertex.set_event_handler(key, handler), or even on
     specialised elements like
-    dataflowview.strat_vertex.GraphicalVertex.set_event_handler(key, handler),
+    dataflowview.vertex.GraphicalVertex.set_event_handler(key, handler),
     one can bind a specific behaviour to the event named by \"key\". The
     handler will be specific to the class set_event_handler was called on
     (hopefully).

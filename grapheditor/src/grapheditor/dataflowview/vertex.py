@@ -108,8 +108,11 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def notify(self, sender, event): 
         """ Notification sent by the vertex associated to the item """
         if event is None : return
-        
-        if(event[0] == "start_eval"):
+
+        if(event[0] == "internal_data_changed"):
+            self.update()
+
+        elif(event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
             self.modified_item.update()
             self.update()
@@ -160,7 +163,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     
     __corner_radius__ = 5.0
     __margin__        = 3.0
-    __v_margin__      = 10.0
     
     def paint(self, painter, option, widget):
         path = QtGui.QPainterPath()
@@ -169,7 +171,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         rect = self.rect()
         rect.setTop(top)
         rect.setBottom(bottom)
-        rect.adjust(self.__margin__, 0.0, -self.__margin__, 0.0)
         path.addRoundedRect(rect, self.__corner_radius__, self.__corner_radius__)
         
         painter.setPen(QtCore.Qt.NoPen)
@@ -214,7 +215,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
         if(not self.__all_inputs_visible()):
             painter.font().setBold(True)
-            pos = rect.width() - 2*self.__margin__ -2 , self._inPortLayout.geometry().bottom()+4
+            pos = rect.width() - 4*self.__margin__ , self._inPortLayout.geometry().bottom()+4
             painter.drawText(QtCore.QPointF(*pos), "+")
             
     def setGeometry(self, geom):

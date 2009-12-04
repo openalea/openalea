@@ -388,6 +388,7 @@ class Node(AbstractNode):
     def set_lazy(self, data):
         """todo"""
         self.internal_data["lazy"] = data
+        self.notify_listeners(("internal_data_changed", "lazy", data))
 
     # if this is a class attributes, it should be moved to the top
     lazy = property(get_lazy, set_lazy)
@@ -399,6 +400,7 @@ class Node(AbstractNode):
     def set_block(self, data):
         """todo"""
         self.internal_data["block"] = data
+        self.notify_listeners(("internal_data_changed", "blocked", data))
 
     # if this is a class attributes, it should be moved to the top
     block = property(get_block, set_block)
@@ -410,6 +412,7 @@ class Node(AbstractNode):
     def set_user_application(self, data):
         """todo"""
         self.internal_data["user_application"] = data
+        self.notify_listeners(("internal_data_changed", "user_application", data))
 
     # if this is a class attributes, it should be moved to the top
     user_application = property(get_user_application, set_user_application)

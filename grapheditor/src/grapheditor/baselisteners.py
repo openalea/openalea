@@ -155,7 +155,8 @@ class GraphListenerBase(observer.AbstractListener):
         self.connector_types=stratCls.get_connector_types()
         self.set_graph(graph)
 
-        #low-level detail.
+        #low-level detail, during the edge creation we store
+        #the connectable graphical item closest to the mice.
         self.currentItem = None
         #an edge currently being drawn,
         self.__newEdge = None
@@ -247,6 +248,9 @@ class GraphListenerBase(observer.AbstractListener):
                 pass
             finally:
                 self.__newEdge.remove_from_view(self.scene())
+        if self.currentItem:
+            self.currentItem.set_highlighted(False)
+            self.currentItem = None
         self.__newEdge = None
             
 
@@ -266,4 +270,5 @@ class GraphListenerBase(observer.AbstractListener):
     def set_graph_adapter_type(self, _type):
         self._adapterType = _type
 
-    
+    def is_connectable(self, obj):
+        return type(obj) in self.connector_types
