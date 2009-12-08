@@ -39,6 +39,8 @@ class GraphOperator(Observed,
         color.ColorOperators.__init__(self)
         vertex.VertexOperators.__init__(self)
 
+        self.__main = None
+
         self.graphView = None
         self.graph     = None
         self.__session = None
@@ -99,6 +101,9 @@ class GraphOperator(Observed,
     ###########
     # setters #
     ###########
+    def set_main(self, main):
+        self.__main = main
+
     def set_graph_view(self, graphView):
         self.graphView = graphView
 
@@ -114,12 +119,40 @@ class GraphOperator(Observed,
     def set_package_manager(self, pkgmanager):
         self.__pkgmanager = pkgmanager
 
+    # def get_session(self):
+    #     return self.__session
+
+    # def get_interpreter(self):
+    #     return self.__interpreter
+
+    # def get_package_manager(self):
+    #     return self.__pkgmanager
     def get_session(self):
-        return self.__session
+        try:
+            return self.__main.session
+        except:
+            return self.__session
 
     def get_interpreter(self):
-        return self.__interpreter
+        try:
+            return self.__main.interpreterWidget
+        except:
+            return self.__interpreter
 
     def get_package_manager(self):
-        return self.__pkgmanager
+        try:
+            return self.__main.pkgmanager
+        except:
+            return self.__pkgmanager
 
+    def get_graph_view(self):
+        try:
+            return self.__main.tabWorkspace.currentWidget()
+        except:
+            return self.graphView
+
+    def get_graph(self):
+        try:
+            return self.__main.tabWorkspace.currentWidget().graph()
+        except:
+            return self.graph
