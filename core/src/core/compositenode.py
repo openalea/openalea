@@ -910,6 +910,11 @@ class CompositeNode(Node, DataFlow):
             src_port = nodeSrc.output_desc[src_port_id]
             dst_port = nodeDst.input_desc[dst_port_id]
 
+            #don't notify if the edge is connected to the input or
+            #output nodes.
+            if(src_id == self.id_in or dst_id == self.id_out):
+                continue
+
             edgedata = "default", eid, src_port, dst_port
             self.notify_listeners(("edgeAdded", edgedata))
             
@@ -938,6 +943,13 @@ class CompositeNode(Node, DataFlow):
         nodeDst = self.node(dst_id)
         src_port = nodeSrc.output_desc[port_src]
         dst_port = nodeDst.input_desc[port_dst]
+
+        #don't notify if the edge is connected to the input or
+        #output nodes.
+        print self.id_in, self.id_out
+        if(src_id == self.id_in or dst_id == self.id_out):
+            return 
+
         edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edgeAdded", edgedata))
         #/gengraph
