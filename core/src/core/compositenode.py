@@ -946,7 +946,6 @@ class CompositeNode(Node, DataFlow):
 
         #don't notify if the edge is connected to the input or
         #output nodes.
-        print self.id_in, self.id_out
         if(src_id == self.id_in or dst_id == self.id_out):
             return 
 

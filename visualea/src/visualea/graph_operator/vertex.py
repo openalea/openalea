@@ -30,7 +30,7 @@ class VertexOperators(object):
         self.vertexItem = vertexItem
 
     def vertex_run(self):
-        self.graph.eval_as_expression(self.vertexItem.vertex().get_id())        
+        self.get_graph().eval_as_expression(self.vertexItem.vertex().get_id())        
 
     def vertex_open(self):
         if(self._vertexWidget):
@@ -54,10 +54,10 @@ class VertexOperators(object):
             del innerWidget
             return
 
-        self._vertexWidget = open_dialog(self.graphView, innerWidget, factory.get_id(), False)
+        self._vertexWidget = open_dialog(self.get_graph_view(), innerWidget, factory.get_id(), False)
 
     def vertex_remove(self):
-        self.graph.remove_vertex(self.vertexItem.vertex())
+        self.get_graph().remove_vertex(self.vertexItem.vertex())
 
     def vertex_reset(self):
         self.vertexItem.vertex().reset()
@@ -65,7 +65,7 @@ class VertexOperators(object):
     def vertex_replace(self):
         """ Replace a node by an other """
         
-        self.dialog = NodeChooser(self.graphView)
+        self.dialog = NodeChooser(self.get_graph_view())
         self.dialog.search('', self.vertexItem.vertex().get_nb_input(), 
                            self.vertexItem.vertex().get_nb_output())
         ret = self.dialog.exec_()
@@ -74,7 +74,7 @@ class VertexOperators(object):
         
         factory = self.dialog.get_selection()
         newnode = factory.instantiate()
-        self.graph.replace_vertex(self.vertexItem.vertex(), newnode)
+        self.get_graph().replace_vertex(self.vertexItem.vertex(), newnode)
 
     def vertex_reload(self):
         """ Reload the vertex """
@@ -87,7 +87,7 @@ class VertexOperators(object):
 
         # Reinstantiate the vertex
         newvertex = factory.instantiate()
-        self.graph.set_actor(self.vertexItem.vertex().get_id(), newvertex)
+        self.get_graph().set_actor(self.vertexItem.vertex().get_id(), newvertex)
         newvertex.internal_data.update(self.vertexItem.vertex().internal_data)
         self.vertexItem.set_observed(newvertex)
         self.vertexItem.initialise_from_model()
@@ -103,11 +103,11 @@ class VertexOperators(object):
 
     def vertex_show_hide_ports(self):
         """ Open port show/hide dialog """
-        editor = ShowPortDialog(self.vertexItem.vertex(), self.graphView)
+        editor = ShowPortDialog(self.vertexItem.vertex(), self.get_graph_view())
         editor.exec_()
 
     def vertex_mark_user_app(self, val):
-        self.graph.set_continuous_eval(self.vertexItem.vertex().get_id(), bool(val))
+        self.get_graph().set_continuous_eval(self.vertexItem.vertex().get_id(), bool(val))
 
     def vertex_set_lazy(self, val):
         self.vertexItem.vertex().lazy = val #I DO HATE PROPERTIES, REALLY!
@@ -117,7 +117,7 @@ class VertexOperators(object):
 
     def vertex_edit_internals(self):
         """ Edit node internal data """
-        editor = DictEditor(self.vertexItem.vertex().internal_data, self.graphView)
+        editor = DictEditor(self.vertexItem.vertex().internal_data, self.get_graph_view())
         ret = editor.exec_()
 
         if(ret):

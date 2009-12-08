@@ -24,7 +24,7 @@ class LayoutOperators(object):
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne.
         """
-        widget = self.graphView
+        widget = self.get_graph_view()
         
         if widget is None :
             return
@@ -47,7 +47,7 @@ class LayoutOperators(object):
     def graph_align_selection_left (self):
         """Align all items on their left side.
         """
-        widget = self.graphView        
+        widget = self.get_graph_view()        
         if widget is None :
             return
         
@@ -69,7 +69,7 @@ class LayoutOperators(object):
     def graph_align_selection_right (self):
         """Align all items on their right side.
         """
-        widget = self.graphView
+        widget = self.get_graph_view()
         if widget is None :
             return
         
@@ -94,7 +94,7 @@ class LayoutOperators(object):
     def graph_align_selection_mean (self):
         """Align all items vertically around a mean ligne.
         """
-        widget = self.graphView        
+        widget = self.get_graph_view()        
         if widget is None :
             return
 
@@ -119,7 +119,7 @@ class LayoutOperators(object):
     def graph_distribute_selection_horizontally (self):
         """distribute the horizontal distances between items.
         """
-        widget = self.graphView        
+        widget = self.get_graph_view()        
         if widget is None :
             return
         
@@ -157,7 +157,7 @@ class LayoutOperators(object):
     def graph_distribute_selection_vertically (self):
         """distribute the vertical distances between items.
         """
-        widget = self.graphView
+        widget = self.get_graph_view()
         if widget is None :
             return
         

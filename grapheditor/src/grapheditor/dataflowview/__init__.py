@@ -83,7 +83,6 @@ def GraphicalEdgeFactory(etype, *args, **kwargs):
     else:
         raise Exception("vtype not found")
 
-print "ha"
 
 if(__name__ != "__main__"):
     #we declare what are the node model ad hoc data we require:

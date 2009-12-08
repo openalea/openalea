@@ -30,7 +30,7 @@ class DataflowOperators(object):
     @exception_display
     @busy_cursor
     def graph_run(self):
-        self.graph.eval_as_expression()
+        self.get_graph().eval_as_expression()
 
     def graph_reset(self):
         ret = QtGui.QMessageBox.question(self, 
@@ -41,34 +41,34 @@ class DataflowOperators(object):
                                          QtGui.QMessageBox.No,)
         if(ret == QtGui.QMessageBox.No):
             return
-        self.graph.reset() #check what this does signal-wise
+        self.get_graph().reset() #check what this does signal-wise
 
     def graph_invalidate(self):
-        self.graph.invalidate() #TODO : check what this does signal-wise
+        self.get_graph().invalidate() #TODO : check what this does signal-wise
         
     def graph_remove_selection(self, items=None):
         if(not items):
-            items = self.graphView.get_selected_items()
+            items = self.get_graph_view().get_selected_items()
         if(not items): return
         for i in items:
             if isinstance(i, qtgraphview.Vertex):
-                if self.graph.is_vertex_protected(i.vertex()): continue
-                self.graph.remove_vertex(i.vertex())
+                if self.get_graph().is_vertex_protected(i.vertex()): continue
+                self.get_graph().remove_vertex(i.vertex())
             elif isinstance(i, qtgraphview.Edge):
-                self.graph.remove_edge((i.src().vertex(), i.src()),
+                self.get_graph().remove_edge((i.src().vertex(), i.src()),
                                          (i.dst().vertex(), i.dst()) )
             elif isinstance(i, qtgraphview.Annotation):
-                self.graph.remove_vertex(i.annotation())
+                self.get_graph().remove_vertex(i.annotation())
 
     def graph_group_selection(self):
         """
         Export selected node in a new factory
         """
-        widget = self.graphView
+        widget = self.get_graph_view()
         index  = widget.parent().indexOf(widget)
 
         # Get default package id
-        default_factory = self.graph.factory
+        default_factory = self.get_graph().factory
         if(default_factory and default_factory.package):
             pkg_id = default_factory.package.name
             name = default_factory.name + "_grp_" + str(len(default_factory.package))
@@ -91,14 +91,14 @@ class DataflowOperators(object):
 
         # Instantiate the new node
         itemids = [i.vertex().get_id() for i in items]
-        self.graph.to_factory(factory, itemids, auto_io=True)
-        newVert = factory.instantiate([self.graph.factory.get_id()])
+        self.get_graph().to_factory(factory, itemids, auto_io=True)
+        newVert = factory.instantiate([self.get_graph().factory.get_id()])
         if newVert:
             widget.setEnabled(False)
-            newId = self.graph.add_vertex(newVert, [pos.x(), pos.y()])
-            newEdges = self.graph.compute_external_io(newVert, newId)
+            newId = self.get_graph().add_vertex(newVert, [pos.x(), pos.y()])
+            newEdges = self.get_graph().compute_external_io(newVert, newId)
             for edges in newEdges:
-                self.graph.add_edge((edges[0], edges[1]), 
+                self.get_graph().add_edge((edges[0], edges[1]), 
                                       (edges[2], edges[3]))
             self.graph_remove_selection(items)
             widget.setEnabled(True)
@@ -120,11 +120,11 @@ class DataflowOperators(object):
             except:
                 pass
         else:
-            s = self.graphView.get_selected_items(qtgraphview.Vertex)
+            s = self.get_graph_view().get_selected_items(qtgraphview.Vertex)
             s = [i.vertex().get_id() for i in s]
             if(not s): return 
             self.get_session().clipboard.clear()
-            self.graph.to_factory(self.get_session().clipboard, s, auto_io=False)
+            self.get_graph().to_factory(self.get_session().clipboard, s, auto_io=False)
 
     def graph_cut(self):
         if(self.get_interpreter().hasFocus()):
@@ -144,7 +144,7 @@ class DataflowOperators(object):
             except:
                 pass
         else:
-            widget = self.graphView
+            widget = self.get_graph_view()
             index  = widget.parent().indexOf(widget)
 
             # Get Position from cursor
@@ -163,17 +163,17 @@ class DataflowOperators(object):
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
-            new_ids = self.get_session().clipboard.paste(self.graph, 
+            new_ids = self.get_session().clipboard.paste(self.get_graph(), 
                                                      modifiers, 
                                                      meta=True)
 
     def graph_close(self):
        # Try to save factory if widget is a graph
-        widget = self.graphView
+        widget = self.get_graph_view()
         index  = widget.parent().indexOf(widget)
 
         try:
-            modified = self.graph.graph_modified
+            modified = self.get_graph().graph_modified
             if(modified):
                 # Generate factory if user want
                 ret = QtGui.QMessageBox.question(widget, "Close Workspace",
@@ -199,19 +199,19 @@ class DataflowOperators(object):
         """
         Export workspace index to its factory
         """
-        widget = self.graphView
+        widget = self.get_graph_view()
         index  = widget.parent().indexOf(widget)
 
         # Get a composite node factory
-        dialog = FactorySelector(self.graph.factory, widget)
+        dialog = FactorySelector(self.get_graph().factory, widget)
             
         # Display Dialog
         ret = dialog.exec_()
         if(ret == 0): return None
         factory = dialog.get_factory()
 
-        self.graph.to_factory(factory, None)
-        self.graph.factory = factory
+        self.get_graph().to_factory(factory, None)
+        self.get_graph().factory = factory
         caption = "Workspace %i - %s"%(index, factory.name)
         
         widget.parent().parent().setTabText(index, caption)
@@ -227,26 +227,26 @@ class DataflowOperators(object):
 
     def graph_configure_io(self):
         """ Configure workspace IO """
-        widget = self.graphView
+        widget = self.get_graph_view()
 
-        dialog = IOConfigDialog(self.graph.input_desc,
-                                self.graph.output_desc,
+        dialog = IOConfigDialog(self.get_graph().input_desc,
+                                self.get_graph().output_desc,
                                 parent=widget)
         ret = dialog.exec_()
 
         if(ret):
-            self.graph.set_io(dialog.inputs, dialog.outputs)
+            self.get_graph().set_io(dialog.inputs, dialog.outputs)
             widget.rebuild_scene()
 
 
     def graph_reload_from_factory(self):
         """ Reload a tab node givin its index"""
-        widget = self.graphView
+        widget = self.get_graph_view()
         index  = widget.parent().indexOf(widget)
 
-        name = self.graph.factory.name
+        name = self.get_graph().factory.name
 
-        if(self.graph.graph_modified):
+        if(self.get_graph().graph_modified):
             # Show message
             ret = QtGui.QMessageBox.question(widget, "Reload workspace '%s'"%(name),
                                              "Reload will discard recent changes on "\
@@ -258,7 +258,7 @@ class DataflowOperators(object):
                 return
 
 
-        newGraph = self.graph.factory.instantiate()
+        newGraph = self.get_graph().factory.instantiate()
         widget.set_graph(newGraph)
         widget.rebuild_scene()
         self.get_session().workspaces[index] = newGraph
@@ -269,13 +269,15 @@ class DataflowOperators(object):
         """
         
         tempfactory = CompositeNodeFactory(name = name)
-        self.graph.to_factory(tempfactory)
+        self.get_graph().to_factory(tempfactory)
         
-        return (self.graph.graph(), tempfactory)
+        #self.get_graph() in this case returns an adapter.
+        #adapter.graph() returns the real graph.
+        return (self.get_graph().graph(), tempfactory)
     
     def graph_preview_application(self):
         """ Open Application widget """
-        widget = self.graphView
+        widget = self.get_graph_view()
         
         graph, tempfactory = self.__get_current_factory("Preview")
         widget.deaf()
@@ -288,7 +290,7 @@ class DataflowOperators(object):
 
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
-        widget = self.graphView
+        widget = self.get_graph_view()
 
         # Get Filename
         filename = QtGui.QFileDialog.getSaveFileName(

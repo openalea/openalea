@@ -58,6 +58,7 @@ class MainWindow(QtGui.QMainWindow,
         SignalSlotListener.__init__(self)
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.setAcceptDrops(True)
 
         self.setAttribute(QtCore.Qt.WA_QuitOnClose)
         self.pkgmanager = session.pkgmanager
@@ -163,12 +164,14 @@ class MainWindow(QtGui.QMainWindow,
         # WorkspaceMenu 
         # daniel was here: now the menu is built using the graph operator.
         self.operator = GraphOperator()
+        self.operator.set_main(self)
+        self.operator.register_listener(self)
         QtCore.QObject.connect(self.menu_Workspace, 
                                QtCore.SIGNAL("aboutToShow()"), 
                                self.__wsMenuShow)
-        QtCore.QObject.connect(self.menu_Workspace, 
-                               QtCore.SIGNAL("aboutToHide()"), 
-                               self.__wsMenuHide)
+        # QtCore.QObject.connect(self.menu_Workspace, 
+        #                        QtCore.SIGNAL("aboutToHide()"), 
+        #                        self.__wsMenuHide)
         QtCore.QObject.connect(self.action_New_Empty_Workspace,
                                QtCore.SIGNAL("triggered()"), 
                                self.new_workspace)
@@ -202,24 +205,17 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
                      self.display_rightpanel)
                 
-        self.setAcceptDrops(True)
+
         # final init
         self.session = session
-
         self.session.simulate_workspace_addition()
+        self.operator.set_session(self.session)
 
     
     def __wsMenuShow(self):
         widget = self.tabWorkspace.currentWidget()
         if widget is None:
             return
-
-        self.operator.set_graph_view(widget)
-        self.operator.set_graph(widget.graph())
-        self.operator.set_session(self.session)
-        self.operator.set_interpreter(self.interpreterWidget)
-        self.operator.set_package_manager(self.pkgmanager)
-        self.operator.register_listener(self)
 
         #check if the current selection is coloured and tick the 
         #menu item if an item of the selection uses the user color.
@@ -229,9 +225,6 @@ class MainWindow(QtGui.QMainWindow,
             if i.vertex().get_ad_hoc_dict().get_metadata("use_user_color"):
                 self.actionUseCustomColor.setChecked(True)
                 break
-        
-    def __wsMenuHide(self):
-        self.operator.unregister_listener(self)
 
     def open_compositenode(self, factory):
         """ open a  composite node editor """
