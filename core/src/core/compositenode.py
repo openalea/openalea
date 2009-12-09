@@ -26,7 +26,8 @@ __revision__ = " $Id$ "
 import string
 import copy
 import pprint
-
+import __builtin__
+import copy
 
 from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
@@ -323,8 +324,14 @@ class CompositeNodeFactory(AbstractFactory):
 
         node.get_ad_hoc_dict().set_metadata("position", position)
 
-        for key in toDelete:                                             
-            del elt_data[key]                                            
+        #if we're in debug mode and want to have the old behaviour too
+        #we don't remove the internal data.
+        if(__debug__):
+            if(__builtin__.__debug_with_old__):
+                pass
+        else:
+            for key in toDelete:                                             
+                del elt_data[key]                                            
 
 
     def instantiate_node(self, vid, call_stack=None):
@@ -341,14 +348,14 @@ class CompositeNodeFactory(AbstractFactory):
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
         #gengraph                     
-        attributes = self.elt_data[vid].copy()
-        ad_hoc     = self.elt_ad_hoc.get(vid, None)
+        attributes = copy.deepcopy(self.elt_data[vid])
+        ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
         node.internal_data.update(attributes)
         #/gengraph                                                           
 
         # copy node input data if any
-        values = self.elt_value.get(vid, ())
+        values = copy.deepcopy(self.elt_value.get(vid, ()))
         #gengraph
         for vs in values:
             try:
