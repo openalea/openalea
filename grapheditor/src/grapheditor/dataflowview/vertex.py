@@ -78,7 +78,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
     def initialise_from_model(self):
         qtgraphview.Vertex.initialise_from_model(self)
-        self.vertex().simulate_construction_notifications()
+        self.vertex().exclusive_command(self, self.vertex().simulate_construction_notifications)
 
 
     #################
@@ -93,12 +93,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             
     
     def __add_in_connection(self, port):
-        graphicalConn = GraphicalPort(self, port, self._inPortLayout)
+        graphicalConn = GraphicalPort(port)
         self._inPortLayout.addItem(graphicalConn)
         
 
     def __add_out_connection(self, port):
-        graphicalConn = GraphicalPort(self, port, self._outPortLayout)
+        graphicalConn = GraphicalPort(port)
         self._outPortLayout.addItem(graphicalConn)
 
 
@@ -227,13 +227,13 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
                                                      [pos.x(), pos.y()])
 
     polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                               "polishEvent")
+                                    "polishEvent")
     moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                             "moveEvent")
+                                  "moveEvent")
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                   "mousePressEvent")
+                                        "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                              "itemChange")
+                                   "itemChange")
 
 
 
@@ -249,12 +249,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
 
     __nosize = QtCore.QSizeF(0.0, 0.0)
 
-    def __init__(self, parent, port, layout):
+    def __init__(self, port):
         """
         """
-        QtGui.QGraphicsWidget.__init__(self, parent)
-        self.__layout = weakref.ref(layout)
-        self.__parent = weakref.ref(parent)
+        QtGui.QGraphicsWidget.__init__(self)
         port.vertex().register_listener(self)
         self.initialise(port)
         self.observed = weakref.ref(port)
@@ -267,14 +265,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     def port(self):
             return self.observed()
 
-    def __fil(self): #Find In Layout
-        count = self.__layout().count()
-        for i in range(count):
-            item = self.__layout().itemAt(i)
-            if self==item:
-                return i
-        return -1
-
     def notify(self, sender, event):
         if(event[0]=="MetaDataChanged"):
             if(sender == self.port()):
@@ -284,7 +274,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
                     else:
                         self.show()
                     self.updateGeometry()
-                    self.__parent().update()
             elif(sender == self.port().vertex() and event[1]=="position"):
                 self.__update_scene_center()
 

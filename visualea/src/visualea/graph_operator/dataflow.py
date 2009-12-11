@@ -239,10 +239,11 @@ class DataflowOperators(object):
             widget.rebuild_scene()
 
 
-    def graph_reload_from_factory(self):
+    def graph_reload_from_factory(self, index=None):
         """ Reload a tab node givin its index"""
         widget = self.get_graph_view()
-        index  = widget.parent().indexOf(widget)
+        if(index is None):
+            index  = widget.parent().indexOf(widget)
 
         name = self.get_graph().factory.name
 

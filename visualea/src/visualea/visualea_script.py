@@ -47,14 +47,18 @@ def start_gui():
     except Exception, e:
         envdict = os.environ
         print e
-    
+
+    args = ""
+    for i in sys.argv:
+        args += " "+i
+
     if sys.platform.lower().startswith('win'):
-        os.execle(sys.executable, sys.executable, '-c',
-                  '"import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)"',
+        os.execle(sys.executable, sys.executable, "-c", 
+                  '"import sys; from openalea.visualea import visualeagui;sys.argv+="'+str(sys.argv)+'";visualeagui.main(sys.argv)"',
                   envdict)
     else:
-        os.execle(sys.executable, sys.executable, '-c',
-                  'import sys; from openalea.visualea import visualeagui; visualeagui.main(sys.argv)',
+        os.execle(sys.executable, sys.executable, "-c",
+                  'import sys; from openalea.visualea import visualeagui;sys.argv+='+str(sys.argv)+';visualeagui.main(sys.argv)',
                   envdict)
         
         

@@ -20,10 +20,12 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
+import weakref
 from PyQt4 import QtCore, QtGui
 from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
+from openalea.core.compositenode import CompositeNode
 from openalea.grapheditor import qtgraphview
 
 #import visualea_integration_vertex
@@ -132,6 +134,7 @@ qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
 #################################
 
 def vertexMouseDoubleClickEvent(graphItem, event):
+    graphItem = weakref.ref(graphItem)
     if event.button()==QtCore.Qt.LeftButton:
         # Read settings
         try:
@@ -140,9 +143,9 @@ def vertexMouseDoubleClickEvent(graphItem, event):
         except:
             str = "['open']"
 
-        view = graphItem.scene().views()[0]
-        operator=GraphOperator(view, graphItem.graph())
-        operator.set_vertex_item(graphItem)
+        view = graphItem().scene().views()[0]
+        operator=GraphOperator(view, graphItem().graph())
+        operator.set_vertex_item(graphItem())
 
         if('open' in str):
             operator.vertex_open()
@@ -153,10 +156,14 @@ def vertexMouseDoubleClickEvent(graphItem, event):
 
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
-    view = graphItem.scene().views()[0]
-    operator=GraphOperator(view, graphItem.graph())
-    operator.set_vertex_item(graphItem)
+    graphItem = weakref.ref(graphItem)
+    view = graphItem().scene().views()[0]
+    operator=GraphOperator(view, graphItem().graph())
+    operator.set_vertex_item(graphItem())
     menu = QtGui.QMenu(view)
+    
+    if isinstance(graphItem().vertex(), CompositeNode):
+        menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
 
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
@@ -172,24 +179,23 @@ def vertexContextMenuEvent(graphItem, event):
 
     action = operator("Mark as User Application", menu, "vertex_mark_user_app")
     action.setCheckable(True)
-    action.setChecked( bool(graphItem.vertex().user_application))
+    action.setChecked( bool(graphItem().vertex().user_application))
     menu.addAction(action)
 
     action = operator("Lazy", menu, "vertex_set_lazy")
     action.setCheckable(True)
-    action.setChecked(graphItem.vertex().lazy)
+    action.setChecked(graphItem().vertex().lazy)
     menu.addAction(action)
 
     action = operator("Block", menu, "vertex_block")
     action.setCheckable(True)
-    action.setChecked(graphItem.vertex().block)
+    action.setChecked(graphItem().vertex().block)
     menu.addAction(action)
 
     menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
 
     menu.move(event.screenPos())
     menu.show()
-    del menu
     event.accept()
 
 

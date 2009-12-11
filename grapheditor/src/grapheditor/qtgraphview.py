@@ -115,8 +115,8 @@ class Element(baselisteners.GraphElementObserverBase):
 
         """
         baselisteners.GraphElementObserverBase.__init__(self, 
-                                                                    observed, 
-                                                                    graph)
+                                                        observed, 
+                                                        graph)
 
         #we bind application overloads if they exist
         #once and for all. As this happens after the
@@ -126,6 +126,7 @@ class Element(baselisteners.GraphElementObserverBase):
         for name, hand in self.__application_integration__.iteritems():
             if "Event" in name and hand:
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
+
 
     #################################
     # IGraphViewElement realisation #
@@ -466,8 +467,10 @@ class Edge(Element):
                     self.setVisible(True)
 
     def initialise_from_model(self):
-        self.src().get_ad_hoc_dict().simulate_full_data_change()
-        self.dst().get_ad_hoc_dict().simulate_full_data_change()
+        srcadhoc = self.src().get_ad_hoc_dict()
+        dstadhoc = self.dst().get_ad_hoc_dict()
+        self.src().exclusive_command(self, srcadhoc.simulate_full_data_change)
+        self.dst().exclusive_command(self, dstadhoc.simulate_full_data_change)
 
 
     def remove(self):
@@ -726,7 +729,9 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def rebuild_scene(self):
         """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
-        self.graph().simulate_construction_notifications()
+        gph = self.graph()
+        gph.exclusive_command( self,
+                               gph.simulate_construction_notifications )
 
     def clear_scene(self):
         """ Remove all items from the scene """
