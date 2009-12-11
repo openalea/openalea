@@ -70,11 +70,12 @@ class GraphElementObserverBase(observer.AbstractListener):
                     self.position_changed(*event[2])
 
     def clear_observed(self, observed):
-        if observed == self.observed() : self.observed = None
+        self.set_observed(None)
         return
 
     def initialise_from_model(self):
-        self.observed().get_ad_hoc_dict().simulate_full_data_change()
+        adhoc = self.observed().get_ad_hoc_dict()
+        self.observed().exclusive_command(self, adhoc.simulate_full_data_change)
 
 
 class GraphListenerBase(observer.AbstractListener):

@@ -43,6 +43,8 @@ from openalea.grapheditor import qtgraphview
 from openalea.grapheditor import dataflowview
 from graph_operator import GraphOperator
 import visualea_integration
+import compositenode_widget
+import __builtin__
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
@@ -59,8 +61,8 @@ class MainWindow(QtGui.QMainWindow,
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setAcceptDrops(True)
-
         self.setAttribute(QtCore.Qt.WA_QuitOnClose)
+
         self.pkgmanager = session.pkgmanager
 
         # Set observer
@@ -169,9 +171,6 @@ class MainWindow(QtGui.QMainWindow,
         QtCore.QObject.connect(self.menu_Workspace, 
                                QtCore.SIGNAL("aboutToShow()"), 
                                self.__wsMenuShow)
-        # QtCore.QObject.connect(self.menu_Workspace, 
-        #                        QtCore.SIGNAL("aboutToHide()"), 
-        #                        self.__wsMenuHide)
         QtCore.QObject.connect(self.action_New_Empty_Workspace,
                                QtCore.SIGNAL("triggered()"), 
                                self.new_workspace)
@@ -205,7 +204,6 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
                      self.display_rightpanel)
                 
-
         # final init
         self.session = session
         self.session.simulate_workspace_addition()
@@ -273,7 +271,7 @@ class MainWindow(QtGui.QMainWindow,
                 self.open_widget_tab(graph, graph.factory)
             else:
                 self.update_tabwidget()
-                self.reinit_treev
+                self.reinit_treeview()
     
     def closeEvent(self, event):
         """ Close All subwindows """
@@ -323,7 +321,6 @@ class MainWindow(QtGui.QMainWindow,
         for i in removelist:
             self.close_tab_workspace(i)
 
-
     def open_widget_tab(self, graph, factory, caption=None, pos = -1):
         """
         Open a widget in a tab giving an instance and its widget
@@ -344,13 +341,22 @@ class MainWindow(QtGui.QMainWindow,
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         except Exception, e:
             print "open_widget_tab", e
-            pass
+            return
         #/gengraph
 
         if(not caption) :
             i = self.session.workspaces.index(graph)
             caption = "Workspace %i - %s"%(i, graph.get_caption())
-        
+
+        #if we're in debug mode and want to have the old behaviour too
+        #we create floating EditGraphWidgets
+        if(__debug__):
+            if(__builtin__.__debug_with_old__):
+                old = compositenode_widget.EditGraphWidget(graph, self)
+                old.setWindowFlags(QtCore.Qt.Window)
+                old.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+                old.show()
+
         index = self.tabWorkspace.insertTab(pos, gwidget, caption)
         self.tabWorkspace.setCurrentIndex(index)
 
@@ -373,7 +379,7 @@ class MainWindow(QtGui.QMainWindow,
 
         # Reload workspace
         for index in range(self.tabWorkspace.count()):
-            self.reload_from_factory(index)
+            self.operator.graph_reload_from_factory(index)
          
     
     def ws_changed(self, index):

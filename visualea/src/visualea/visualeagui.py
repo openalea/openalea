@@ -35,6 +35,8 @@ import time
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+import __builtin__
+__builtin__.__debug_with_old__ = False
 
 def set_stdout():
     """Disable stdout if using pythonw"""
@@ -45,6 +47,7 @@ def set_stdout():
 
 
 def main(args):
+    global __builtin__
 
     set_stdout()
     app = QtGui.QApplication(args)
@@ -52,10 +55,10 @@ def main(args):
     # Check Version
     version = QtCore.QT_VERSION_STR
     # QT_VERSION_STR implement __le__ operator
-    if(version < '4.2.0'):
+    if(version < '4.5.2'):
 
         mess = QtGui.QMessageBox.warning(None, "Error",
-                                         "Visualea need QT library >=4.2")
+                                         "Visualea need QT library >=4.5.2")
 
         return 
 
@@ -72,7 +75,6 @@ def main(args):
         "Loading modules...",
         QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
 
-    QtGui.QApplication.processEvents()
     
     time.clock()
 
@@ -82,21 +84,22 @@ def main(args):
 
     print 'session build in %f seconds'%t1
 
-    win = MainWindow(session)
 
     #parse command line
-    if(len(args)>1):
+    if(len(args)==2):
         filename = args[1]
         try:
             session.load(filename)
         except Exception, e:
             print e
+    
+    if('--debug-with-old' in args):
+        __builtin__.__debug_with_old__=True
 
-    
-    win.show()
-    
+    QtGui.QApplication.processEvents()    
+    win = MainWindow(session)
+    win.show()    
     splash.finish(win);
-
     return app.exec_()
 
 

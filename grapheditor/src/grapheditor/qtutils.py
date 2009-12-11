@@ -75,7 +75,7 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
 
 
 
-def mixin_method(mixinOne, mixinTwo, methodname, firstWins = False, invert=False):
+def mixin_method(mixinOne, mixinTwo, methodname, firstWins = False, invert=False, caller=None):
     """A function that returns a method calling method \"methodname\"
     from mixinOne and then from mixinTwo, or the reverse order
     if invert is True.
