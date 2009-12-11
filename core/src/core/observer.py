@@ -21,8 +21,7 @@ __revision__ = " $Id$ "
 
 ###############################################################################
 
-
-import weakref
+import weakref, gc
 
 
 class Observed(object):
@@ -33,10 +32,10 @@ class Observed(object):
         self.listeners = set()
         self.__isNotifying = False
         self.__postNotifs = []
+        self.__exclusive = None
 
     def register_listener(self, listener):
         """ Add listener to list of listeners """
-
         if(not self.__isNotifying):
             wr = weakref.ref(listener, self.unregister_listener)
             self.listeners.add(wr)
@@ -45,7 +44,14 @@ class Observed(object):
                 self.register_listener(listener)
             self.__postNotifs.append(push_listener_after)
             
-        
+    def exclusive_command(self, who, command, *args, **kargs):
+        ln = [i() for i in self.listeners]
+        if who not in ln:
+            raise Exception("Observed.exclusive : " + str(who) + " is not registered")
+
+        self.__exclusive = who
+        command(*args, **kargs)
+        self.__exclusive = None
 
     def unregister_listener(self, listener):
         """ Remove listener from the list of listeners """
@@ -59,13 +65,27 @@ class Observed(object):
         """
 
         self.__isNotifying = True
-        for ref in self.listeners:
-            if(not ref().is_notification_locked()):
-                try:
-                    ref().call_notify(self, event)
-                except Exception, e:
-                    print "Warning : notification of %s failed"%(str(ref()),)
-                    print e
+
+        #If an exclusive handler is set let's only
+        #notify that one.
+        if(self.__exclusive):
+            self.__exclusive.call_notify(self, event)
+        else:
+            toDelete = []
+            for ref in self.listeners:
+                obs = ref()
+                if(obs is None):
+                    toDelete.append(ref)
+                    continue
+                if(not obs.is_notification_locked()):
+                    try:
+                        obs.call_notify(self, event)
+                    except Exception, e:
+                        print "Warning : notification of", str(obs), "failed", e, self.get_id()
+
+            for dead in toDelete:
+                self.listeners.discard(dead)
+
         self.__isNotifying = False
         self.post_notification()
 
