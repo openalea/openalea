@@ -51,9 +51,16 @@ class GraphElementObserverBase(observer.AbstractListener):
     def set_observed(self, observed):
         if(observed and isinstance(observed, observer.Observed)):
             self.initialise(observed)
-            self.observed = weakref.ref(observed, self.clear_observed)
+            self.__observed = weakref.ref(observed, self.clear_observed)
         else:
-            self.observed = observed
+            self.__observed = observed
+
+    def get_observed(self):
+        if(isinstance(self.__observed, weakref.ref)):
+            return self.__observed()
+        else:
+            return self.__observed
+
 
     def set_graph(self, graph):
         self.__graph = weakref.ref(graph)
@@ -74,8 +81,8 @@ class GraphElementObserverBase(observer.AbstractListener):
         return
 
     def initialise_from_model(self):
-        adhoc = self.observed().get_ad_hoc_dict()
-        self.observed().exclusive_command(self, adhoc.simulate_full_data_change)
+        adhoc = self.get_observed().get_ad_hoc_dict()
+        self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
 
 
 class GraphListenerBase(observer.AbstractListener):
@@ -163,19 +170,19 @@ class GraphListenerBase(observer.AbstractListener):
         self.__newEdge = None
 
     def graph(self):
-        if(isinstance(self.observed, weakref.ref)):
-            return self.observed()
+        if(isinstance(self.__observed, weakref.ref)):
+            return self.__observed()
         else:
-            return self.observed
+            return self.__observed
 
     def set_graph(self, graph):
         self.initialise(graph) #start listening. Todo: rename this method in
         #the abstract listener class. and make it hold a reference to the observed
         if(self._adapterType):
             ga = self._adapterType(graph)
-            self.observed = ga
+            self.__observed = ga
         else:
-            self.observed = weakref.ref(graph) #might not need to be weak.
+            self.__observed = weakref.ref(graph) #might not need to be weak.
 
     # def get_scene(self):
     #     raise NotImplementedError
@@ -200,9 +207,9 @@ class GraphListenerBase(observer.AbstractListener):
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return self.__element_added(vertexWidget)
 
-    def edge_added(self, etype, edgeModel, srcPort, dstPort):
+    def edge_added(self, etype, edgeModel, src, dst):
         edgeWidget = self._edgeWidgetFactory(etype, edgeModel, self.graph(),
-                                             srcPort, dstPort)
+                                             src, dst)
         edgeWidget.add_to_view(self.get_scene())
         self.edgemap[edgeModel] = weakref.ref(edgeWidget)
         return self.__element_added(edgeWidget)

@@ -183,6 +183,9 @@ class AbstractPort(dict, Observed, AbstractListener):
     def __hash__(self):
         return id(self)
 
+    def __eq__(self, other):
+        return id(self)==id(other)
+
     #gengraph
     def notify(self, sender, event):
         if(sender == self.__ad_hoc_dict):

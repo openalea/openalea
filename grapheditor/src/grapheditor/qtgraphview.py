@@ -207,10 +207,11 @@ class Vertex(Element):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
         return
 
+
     def vertex(self):
         """retreive the vertex"""
-        return self.observed()
-
+        return self.get_observed()
+	 	
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
         center = self.rect().center()
@@ -356,7 +357,7 @@ class Annotation(Element):
 
     def annotation(self):
         """Access to the annotation"""
-        return self.observed()
+        return self.get_observed()
 
     def notify(self, sender, event):
         """Model event dispatcher.
@@ -430,10 +431,7 @@ class Edge(Element):
                                QtCore.Qt.RoundJoin))
 
     def edge(self):
-        if isinstance(self.observed, weakref):
-            return self.observed()
-        else:
-            return self.observed
+        return self.get_observed()
 
     def set_edge_path(self, path):
 	self.__edge_path = path
@@ -460,7 +458,7 @@ class Edge(Element):
                         self.update_line_source(*pos)
                     elif(sender==self.dst()):
                         self.update_line_destination(*pos)
-            elif(event[1]=="hide" and sender==self.dst()):
+            elif(event[1]=="hide" and (sender==self.dst() or sender==self.src())):
                 if event[2]:
                     self.setVisible(False)
                 else:
@@ -612,7 +610,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         QtGui.QGraphicsView.__init__(self, parent)
         baselisteners.GraphListenerBase.__init__(self, graph)
 
-
         #we bind application overloads if they exist
         #once and for all. As this happens after the
         #class is constructed, it overrides any method
@@ -634,7 +631,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
                      self.tooltipTrigger)
         self.__tooltipPos = None
 
-
         # ---Qt Stuff---
         #self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
@@ -644,11 +640,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
-
         
-
-
-
     def get_scene(self):
         return self.scene()
 
