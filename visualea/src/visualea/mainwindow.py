@@ -74,7 +74,7 @@ class MainWindow(QtGui.QMainWindow,
 
         # python interpreter
         interpreter = Interpreter()
-        cli.init_interpreter(interpreter, session)
+        cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg(),
@@ -120,7 +120,7 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.tabWorkspace, SIGNAL("currentChanged(int)"), self.ws_changed)
         self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
         self.connect(self.tabWorkspace, SIGNAL("tabCloseRequested(int)"),
-                     self.close_tab_workspace)
+                      self.close_tab_workspace)
 
 
         # Help Menu
@@ -285,7 +285,6 @@ class MainWindow(QtGui.QMainWindow,
     
     def reinit_treeview(self):
         """ Reinitialise package and category views """
-
         self.cat_model.reset()
         self.pkg_model.reset()
         self.datapool_model.reset()
@@ -294,9 +293,9 @@ class MainWindow(QtGui.QMainWindow,
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
-        
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
+        self.session.close_workspace(cindex, False)
         w.close()
 
       

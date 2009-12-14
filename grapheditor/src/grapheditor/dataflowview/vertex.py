@@ -263,7 +263,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         port.get_ad_hoc_dict().simulate_full_data_change()
 
     def port(self):
-            return self.observed()
+        return self.observed()
 
     def notify(self, sender, event):
         if(event[0]=="MetaDataChanged"):

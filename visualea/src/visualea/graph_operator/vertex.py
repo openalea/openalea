@@ -35,7 +35,9 @@ class VertexOperators(object):
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
-        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        #TODO: this should be uncommented but there's a gc problem
+        #where GraphicalVertex aren't collected.
+        #self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.show()
         
     def vertex_run(self):

@@ -97,7 +97,6 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         self.setZValue(0.5)
         self.initialise_from_model()
 
-
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
         menu = QtGui.QMenu(event.widget())
