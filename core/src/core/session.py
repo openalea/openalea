@@ -96,7 +96,7 @@ class Session(Observed):
     def close_workspace(self, index, notify=True):
         """ Close workspace at index """
 
-        del(self.workspaces[index])
+        del self.workspaces[index]
         if(notify):
             self.notify_listeners()
 

@@ -22,7 +22,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-def init_interpreter(interpreter, session):
+def init_interpreter(interpreter, session, _locals):
     """
     Initialise the interpreter to interact with the openalea system
     (import, variables...)
@@ -31,6 +31,8 @@ def init_interpreter(interpreter, session):
     interpreter.locals['session'] = session
     interpreter.locals['pmanager'] = session.pkgmanager
     interpreter.locals['datapool'] = session.datapool
+    if(_locals):
+        interpreter.locals.update(_locals)
 
 
 def get_welcome_msg():
