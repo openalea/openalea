@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
-import dataflow, layout, color, vertex
+import dataflow, layout, color, vertex, port
 
 #################################
 # QtEvent handlers for vertices #
@@ -30,7 +30,8 @@ class GraphOperator(Observed,
                     dataflow.DataflowOperators,
                     layout.LayoutOperators,
                     color.ColorOperators,
-                    vertex.VertexOperators):
+                    vertex.VertexOperators,
+                    port.PortOperators):
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)

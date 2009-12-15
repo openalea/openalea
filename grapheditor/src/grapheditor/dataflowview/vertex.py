@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 import weakref,sys
 from PyQt4 import QtCore, QtGui
 from openalea.core import observer
+from openalea.core.node import InputPort, OutputPort
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview
@@ -90,12 +91,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             if not self._inPortLayout.itemAt(i).graphicsItem().isVisible():
                 return False
         return True
-            
     
     def __add_in_connection(self, port):
         graphicalConn = GraphicalPort(port)
         self._inPortLayout.addItem(graphicalConn)
-        
 
     def __add_out_connection(self, port):
         graphicalConn = GraphicalPort(port)
@@ -109,8 +108,17 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         """ Notification sent by the vertex associated to the item """
         if event is None : return
 
+        #this one simply catches events like becoming lazy
+        #or blocked of user app...
         if(event[0] == "internal_data_changed"):
             self.update()
+
+        elif(event[0]=="tooltip_modified"):
+            tt = event[1]
+            if tt is None:
+                tt=""
+            self._captionProxy.setToolTip(tt)
+            self.setToolTip(tt)
 
         elif(event[0] == "start_eval"):
             self.modified_item.setVisible(self.isVisible())
@@ -238,11 +246,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
 
 
-class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
+class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     """ A vertex port """
-    __spacing = 5.0
-    WIDTH =  10.0
-    HEIGHT = 10.0
+    MAX_TIPLEN = 2000
+    __spacing  = 5.0
+    WIDTH      = 10.0
+    HEIGHT     = 10.0
 
     __size = QtCore.QSizeF(WIDTH+__spacing, 
                            HEIGHT)
@@ -253,20 +262,25 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
         """
         """
         QtGui.QGraphicsWidget.__init__(self)
+        qtgraphview.Element.__init__(self, port)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
+
         port.vertex().register_listener(self)
-        self.initialise(port)
-        self.observed = weakref.ref(port)
         self.setZValue(1.5)
         self.highlighted = False
         
         port.get_ad_hoc_dict().set_metadata("connectorPosition", [0,0])
-        port.get_ad_hoc_dict().simulate_full_data_change()
+        port.simulate_construction_notifications()
 
     def port(self):
-        return self.observed()
+        return self.get_observed()
 
     def notify(self, sender, event):
-        if(event[0]=="MetaDataChanged"):
+        if(event[0] in ["tooltip_modified", "stop_eval"]):
+            self.__update_tooltip()
+
+        elif(event[0]=="MetaDataChanged"):
             if(sender == self.port()):
                 if(event[1]=="hide"):
                     if event[2]: #if hide
@@ -284,7 +298,16 @@ class GraphicalPort(QtGui.QGraphicsWidget, observer.AbstractListener):
     def __update_scene_center(self):
         self.port().get_ad_hoc_dict().set_metadata("connectorPosition", 
                                                    self.get_scene_center())
-        
+    def __update_tooltip(self):
+        node = self.port().vertex()
+        if isinstance(self.port(), OutputPort):
+            data = node.get_output(self.port().get_id())
+        elif isinstance(self.port(), InputPort):
+            data = node.get_input(self.port().get_id())
+        s = str(data)
+        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
+        self.setToolTip("Value: " + s)
+            
     def set_highlighted(self, val):
         self.highlighted = val
         self.update()

@@ -63,7 +63,8 @@ class GraphElementObserverBase(observer.AbstractListener):
 
 
     def set_graph(self, graph):
-        self.__graph = weakref.ref(graph)
+        if(graph is not None):
+            self.__graph = weakref.ref(graph)
 
     def graph(self):
         return self.__graph()
