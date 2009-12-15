@@ -22,7 +22,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-def init_interpreter(interpreter, session, _locals):
+def init_interpreter(interpreter, session, _locals=None):
     """
     Initialise the interpreter to interact with the openalea system
     (import, variables...)

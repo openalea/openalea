@@ -108,11 +108,13 @@ class AbstractEvaluation(object):
             e.node = node
             # When an exception is raised, a flag is set.
             node.raise_exception = True
+            node.notify_listeners(('data_modified', ))
             raise e
 
         except Exception, e:
             # When an exception is raised, a flag is set.
             node.raise_exception = True
+            node.notify_listeners(('data_modified', ))
             raise EvaluationException(vid, node, e, \
                 tb.format_tb(sys.exc_info()[2]))
 

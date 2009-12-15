@@ -81,10 +81,13 @@ class AbstractNode(Observed, AbstractListener):
     #are expected to be found in the ad_hoc
     #dictionnary. Used by views.
     __ad_hoc_slots__ = {}
+    __ad_hoc_from_old_map__ = {}
 
     @classmethod
-    def extend_ad_hoc_slots(cls, d):
-        cls.__ad_hoc_slots__.update(d)
+    def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        cls.__ad_hoc_slots__[name] = (_type, default)
+        if len(args)>0:
+            cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self):
         """
@@ -98,7 +101,6 @@ class AbstractNode(Observed, AbstractListener):
         #gengraph
         self.__id = None
         self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
-        
         #/gengraph
 
         # Internal Data (caption...)
@@ -163,10 +165,13 @@ class AbstractPort(dict, Observed, AbstractListener):
     #are expected to be found in the ad_hoc
     #dictionnary. Used by views
     __ad_hoc_slots__ = {}
+    __ad_hoc_from_old_map__ = {}
 
     @classmethod
-    def extend_ad_hoc_slots(cls, d):
-        cls.__ad_hoc_slots__.update(d)
+    def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        cls.__ad_hoc_slots__[name] = (_type, default)
+        if len(args)>0:
+            cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self, vertex):
         dict.__init__(self)
@@ -325,13 +330,14 @@ class Node(AbstractNode):
     def simulate_construction_notifications(self):
         try:
             for i in self.input_desc:
-                self.notify_listeners(("inputPortAdded", i))
+                self.notify_listeners(("input_port_added", i))
             for i in self.output_desc:
-                self.notify_listeners(("outputPortAdded", i))
+                self.notify_listeners(("output_port_added", i))
             for i in self.map_index_in:
                 self.notify_listeners(("input_modified", i))
             self.notify_listeners(("caption_modified", self.internal_data["caption"]))
             self.notify_listeners(("tooltip_modified", self.get_tip()))
+            self.notify_listeners(("internal_data_changed",))
         except Exception, e:
             print e
             
@@ -345,16 +351,6 @@ class Node(AbstractNode):
 
     def get_internal_dict(self):
         return self.__internal_dict
-
-    def get_state(self):
-        state="node_normal"
-        if self.internal_data["lazy"]: state = "node_lazy"
-        if self.internal_data["is_in_error_state"]: state = "node_error"
-        if hasattr(self, "raise_exception"): state = "node_error"
-        if self.internal_data["is_user_application"]: state = "node_is_user_app"
-        if self.internal_data["user_application"]: state = "node_is_user_app"
-        if self.internal_data["block"]: state = "node_blocked"
-        return state
 
     def notify(self, sender, event):
         if(sender == self.__internal_dict):
@@ -539,15 +535,6 @@ class Node(AbstractNode):
 
         port = InputPort(self)
         port.update(kargs)
-        #gengraph
-        # TODO Change type by its interface
-        hideState = kargs.get("hide", False)
-        try:
-            port.get_ad_hoc_dict().add_metadata("hide", bool)
-        except:
-            pass
-        port.get_ad_hoc_dict().set_metadata("hide", hideState)
-        #/gengraph
         self.input_desc.append(port)
 
         self.input_states.append(None)
@@ -557,7 +544,7 @@ class Node(AbstractNode):
 	port.set_id(index)
 
         self.set_input(name, value, False)
-        self.notify_listeners(("inputPortAdded", port))
+        self.notify_listeners(("input_port_added", port))
         return port
 
     def add_output(self, **kargs):
@@ -574,7 +561,7 @@ class Node(AbstractNode):
         self.map_index_out[name] = index
         self.map_index_out[index] = index
 	port.set_id(index)
-        self.notify_listeners(("outputPortAdded", port))
+        self.notify_listeners(("output_port_added", port))
         return port
 
     # I/O Functions
