@@ -161,8 +161,9 @@ class CompositeNodeFactory(AbstractFactory):
                 print "WARNING : The graph is not fully operational "
                 (pkg, fact) = self.elt_factory[vid]
                 print "-> Cannot find '%s:%s'" % (pkg, fact)
-
                 node = self.create_fake_node(vid)
+                node.raise_exception = True
+                node.notify_listeners(('data_modified', ))
 
             new_df.add_node(node, vid, False)
 
@@ -218,21 +219,44 @@ class CompositeNodeFactory(AbstractFactory):
             elif(target_vid == vid):
                 ins = max(ins, target_port)
 
-        n = Node()
-        n.__color__ = (250, 100, 100)
+        node = Node()
 
-        n.internal_data.update(self.elt_data[vid])
+        #gengraph                     
+        attributes = copy.deepcopy(self.elt_data[vid])
+        ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
+        self.load_ad_hoc_data(node, attributes, ad_hoc)
+        node.internal_data.update(attributes)
+        #/gengraph                                                           
+
+        # copy node input data if any
+        values = copy.deepcopy(self.elt_value.get(vid, ()))
+
         #gengraph
         for p in range(ins+1):
-            port = n.add_input(name="In"+str(p))
+            port = node.add_input(name="In"+str(p))
             port.set_id(p)
 
         for p in range(outs+1):
-            port = n.add_output(name="Out"+str(p))
+            port = node.add_output(name="Out"+str(p))
             port.set_id(p)
         #/gengraph
 
-        return n
+        #gengraph
+        for vs in values:
+            try:
+                #the two first elements are the historical
+                #values : port Id and port value
+                #beyond that are extensions added by gengraph:
+                #the ad_hoc_dict representation is third.
+                port, v = vs[:2] 
+                node.set_input(port, eval(v))
+                if(len(vs)>2):
+                    node.input_desc[port].set_ad_hoc_dict(vs[2])
+            except:
+                continue
+
+
+        return node
 
     def paste(self, cnode, data_modifiers=[], call_stack=None, meta=False):
         """ Paste to an existing CompositeNode instance
@@ -292,37 +316,41 @@ class CompositeNodeFactory(AbstractFactory):
             return
         
         #extracting ad hoc data from old files.
-        try:
-            node.get_ad_hoc_dict().add_metadata("text", str)
-            node.get_ad_hoc_dict().add_metadata("position", list)
-            node.get_ad_hoc_dict().add_metadata("user_color", list)
-            node.get_ad_hoc_dict().add_metadata("use_user_color", bool)
-        except:
-            pass
-
-
-        toDelete = []
+        #we parse the Node class' __ad_hoc_from_old_map__
+        #which defines conversions between new ad_hoc_dict keywords
+        #and old internal_data keywords.
+        #These dictionnaries are used to extend ad_hoc_dict of a node with the
+        #data that views expect. See dataflowview.__init__ for an example.
+        #roughly:
+        #for each new keyword fetch the data from old keywords in internal data.
+        #    if there is only one old keyword, cast the data to the desired type
+        #        using __ad_hoc_slots__ and set the metadata.
+        #    if there are more than just one keyword, extract the data into 
+        #        a list. Then convert the list to the desired type and set the
+        #        metadata.
+        toDelete = [] #used to store the keys that will be removed from the internal_data
+                      #todo before 0.8 remove this and simply pop the values 
         position = [0.0,0.0]
-        for key, val in elt_data.iteritems():  
-            if(key == "user_color") :                                        
-                node.get_ad_hoc_dict().set_metadata("user_color", list(val))       
-                node.get_ad_hoc_dict().set_metadata("use_user_color", True)  
-                toDelete.append(key)                                         
-                continue                                                     
-            elif(key == "posx"):
-                position[0] = val
-                toDelete.append(key)                                         
-                continue                                                     
-            elif( key == "posy"):
-                position[1] = val                                            
-                toDelete.append(key)                                         
-                continue
-            elif( key == "txt"):
-                node.get_ad_hoc_dict().set_metadata("text", val)
-                toDelete.append(key)                                         
-                continue
+        for key, val in Node.__ad_hoc_from_old_map__.iteritems():
+            conversion = val
+            if len(conversion)==1:
+                _type, default = Node.__ad_hoc_slots__.get(key)
+                data = elt_data.get(conversion[0])
+                if(data is None):
+                    data = default
+                if data is None :
+                    continue
+                node.get_ad_hoc_dict().set_metadata(key, _type(data))
+            else:
+                components = []
+                _type, default = Node.__ad_hoc_slots__.get(key)
+                for i in conversion:
+                    components.append(elt_data.get(i))
+                if None in components:
+                    components = default
+                node.get_ad_hoc_dict().set_metadata(key, _type(components))
+            toDelete.append(key)
 
-        node.get_ad_hoc_dict().set_metadata("position", position)
 
         #if we're in debug mode and want to have the old behaviour too
         #we don't remove the internal data.
@@ -860,14 +888,14 @@ class CompositeNode(Node, DataFlow):
                 else "vertex"
         if (not isinstance(vertex, CompositeNodeOutput) and 
             not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertexAdded", (vtype, vertex)))
+            self.notify_listeners(("vertex_added", (vtype, vertex)))
 
     def notify_vertex_removal(self, vertex):
         vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
                 else "vertex"
         if (not isinstance(vertex, CompositeNodeOutput) and 
             not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertexRemoved", (vtype, vertex)))
+            self.notify_listeners(("vertex_removed", (vtype, vertex)))
     #/gengraph
 
 
@@ -892,7 +920,7 @@ class CompositeNode(Node, DataFlow):
     #gengraph
     def remove_edge(self, eid):
         DataFlow.remove_edge(self, eid)
-        self.notify_listeners(("edgeRemoved", ("default",eid) ))
+        self.notify_listeners(("edge_removed", ("default",eid) ))
     #/gengraph
 
     #gengraph
@@ -923,7 +951,7 @@ class CompositeNode(Node, DataFlow):
                 continue
 
             edgedata = "default", eid, src_port, dst_port
-            self.notify_listeners(("edgeAdded", edgedata))
+            self.notify_listeners(("edge_added", edgedata))
             
     #/gengraph
 
@@ -957,7 +985,7 @@ class CompositeNode(Node, DataFlow):
             return 
 
         edgedata = "default", eid, src_port, dst_port
-        self.notify_listeners(("edgeAdded", edgedata))
+        self.notify_listeners(("edge_added", edgedata))
         #/gengraph
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
@@ -976,7 +1004,7 @@ class CompositeNode(Node, DataFlow):
 
             if self.target_port(eid) == target_pid:
                 #gengraph
-                self.notify_listeners(("edgeRemoved", ("default",eid)))
+                self.notify_listeners(("edge_removed", ("default",eid)))
                 #/gengraph
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")

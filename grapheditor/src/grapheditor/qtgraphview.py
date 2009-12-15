@@ -149,6 +149,10 @@ class Element(baselisteners.GraphElementObserverBase):
 
 
 #------*************************************************------#
+def defaultPaint(owner, painter, paintOptions, widget):
+    rect = owner.rect()
+    painter.drawEllipse(rect)
+
 class Vertex(Element):
     """An abstract graphic item that represents a graph vertex.
 
@@ -162,33 +166,7 @@ class Vertex(Element):
     
     ####################################
     # ----Class members come first---- #
-    ####################################
-    __state_drawing_strategies__={}
-
-    @classmethod
-    def add_drawing_strategies(cls, d):
-        """Adds the drawing strategies in d.
-        
-        :Parameters:
-            - d (dict) - a mapping from states (any comparable type)
-            to drawing strategies. Drawing strategies must implement
-            the interfaces.IGraphViewVertexPaintStrategy
-            interface.
-
-         """
-        for k, v in d.iteritems():
-            if(interfaces.IGraphViewVertexPaintStrategy.check(v)):
-                cls.__state_drawing_strategies__[k] = v
-
-    @classmethod
-    def get_drawing_strategy(cls, state):
-        """Get a strategy for a given state.
-
-        :Returns Type:
-        Something that looks verifies IGraphViewVertexPaintStrategy.
-        """
-        return cls.__state_drawing_strategies__.get(state)
-    
+    ####################################    
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
 
@@ -205,8 +183,7 @@ class Vertex(Element):
         Element.__init__(self, vertex, graph)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
-        return
-
+        self.__paintStrategy = defaultPaint
 
     def vertex(self):
         """retreive the vertex"""
@@ -221,19 +198,12 @@ class Vertex(Element):
     def set_highlighted(self, value):
         pass
 
+    def set_painting_strategy(self, strat):
+        self.__paintStrategy = strat
 
     #####################
     # ----Qt World----  #
     #####################
-    # ---> state-based painting
-    def select_drawing_strategy(self, state):
-        """This method gets called by the painting process to
-        determine what strategy should handle a given state.
-        The default behaviour just calls the get_drawing_strategy
-        classmethod. Reimplement to customize the state drawing.
-        """
-        return self.get_drawing_strategy(state)
-
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemPositionChange:
             self.deaf(True)
@@ -249,57 +219,9 @@ class Vertex(Element):
 
     def paint(self, painter, option, widget):
         """Qt-specific call to paint things."""
-        paintEvent=None #remove this
-        path=None
-        firstColor=None
-        secondColor=None
-        gradient=None
-
-        #FINDING THE STRATEGY
-        state = self.vertex().get_state()
-        strategy = self.select_drawing_strategy(state)
-        if(strategy):
-            fullCustom = strategy.paint(self, painter, option, widget)
-            if(fullCustom): return
-            path = strategy.get_path(self)
-            gradient=strategy.get_gradient(self)
-            #the gradient is already defined, no need for colors
-            if(not gradient):
-                firstColor=strategy.get_first_color(self)
-                secondColor=strategy.get_second_color(self)
-        else: #...or fall back on defaults
-            rect = self.rect()
-            path = QtGui.QPainterPath()
-            path.addRoundedRect(rect, 5, 5)
-            firstColor = self.not_selected_color
-            secondColor = self.not_modified_color
-
-        if(not gradient):
-            gradient = QtGui.QLinearGradient(0, 0, 0, 100)
-            gradient.setColorAt(0.0, firstColor)
-            gradient.setColorAt(0.8, secondColor)
-
-        #PAINTING
-        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
-        if(strategy):
-            strategy.prepaint(self, paintEvent, painter, state)
-        #shadow drawing:
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
-        painter.drawPath(path)
-        #item drawing
-        painter.setBrush(QtGui.QBrush(gradient))        
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
-        painter.drawPath(path)
-
-        if(strategy):
-            strategy.postpaint(self, paintEvent, painter, state)
-
-        #selection marker is drawn at the end
-        if(self.isSelected()):
-            painter.setPen(QtCore.Qt.DashLine)
-            painter.setBrush(QtGui.QBrush())
-            painter.drawRect(self.rect())
+        if self.__paintStrategy is None:
+            self.__paintStrategy = defaultPaint
+        self.__paintStrategy(self, painter, option, widget)
 
     # ---> other events
     def polishEvent(self):
@@ -364,7 +286,7 @@ class Annotation(Element):
         Intercepts the \"MetaDataChanged\" event with the \"text\" key
         and redirects it to self.set_text(self). Any other event
         if processed by the superclass' notify method."""
-        if(event[0] == "MetaDataChanged"):
+        if(event[0] == "metadata_changed"):
             if(event[1]=="text"):
                 if(event[2]): self.set_text(event[2])
 
@@ -451,10 +373,10 @@ class Edge(Element):
         self.setPath(path)
 
     def notify(self, sender, event):
-        if(event[0] == "MetaDataChanged"):
+        if(event[0] == "metadata_changed"):
             if(event[1]=="connectorPosition"):
                     pos = event[2]
-                    if(sender==self.src()): 
+                    if(sender==self.src()):
                         self.update_line_source(*pos)
                     elif(sender==self.dst()):
                         self.update_line_destination(*pos)

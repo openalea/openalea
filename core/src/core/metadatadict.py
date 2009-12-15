@@ -33,21 +33,16 @@ class MetaDataDict(observer.Observed):
             if( isinstance(slots, self.__class__) ):
                 self._metas = slots._metas.copy()
             else:
-                for k, t in slots.iteritems():
-                    if isinstance(t, list):
-                        self.add_metadata(k, t[0])
-                        self.set_metadata(k, t[1])
-                    else:
-                        self.add_metadata(k, t, False)        
-
-
+                for name, v in slots.iteritems():
+                    _type, _value = v
+                    self.add_metadata(name, _type )
+                    self.set_metadata(name, _value)
 
     def __repr__(self):
         if(not len(self._metas)): return "{}"
         stri = "{"
         for key, val in self._metas.iteritems():
             stri = stri+ "\"" + key + "\" : [" + val[0].__name__ + ", " + repr(val[1]) + "],"
-
         stri = stri[:-1] + "}"
         return stri
 
@@ -64,7 +59,7 @@ class MetaDataDict(observer.Observed):
 
         self._metas[key] = [valType, None]
         if(notify):
-            self.notify_listeners(("MetaDataAdded", key, valType))
+            self.notify_listeners(("metadata_added", key, valType))
         return
 
     def set_metadata(self, key, value, notify=True):
@@ -81,7 +76,7 @@ class MetaDataDict(observer.Observed):
         self._metas[key][1] = value
         valType = self._metas[key][0]
         if(notify): 
-            self.notify_listeners(("MetaDataChanged", key, value, valType))
+            self.notify_listeners(("metadata_changed", key, value, valType))
         return
     
     def get_metadata(self, key):
@@ -93,9 +88,9 @@ class MetaDataDict(observer.Observed):
 
     def simulate_full_data_change(self):
         for k in self._metas.keys():
-            value = self._metas[k][1]
             valType = self._metas[k][0]
-            self.notify_listeners(("MetaDataChanged", k, value, valType))
+            value = self._metas[k][1]
+            self.notify_listeners(("metadata_changed", k, value, valType))
 
     def __str__(self):
         return self.__repr__()

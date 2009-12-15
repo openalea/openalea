@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 
 """In this file we implement the basic graph views"""
-from openalea.grapheditor.grapheditor_baselisteners import GraphListenerBase
+from openalea.grapheditor.baselisteners import GraphListenerBase
 from openalea.grapheditor.qtutils  import mixin_method, extend_qt_scene_event
 from openalea.grapheditor.qtgraphview import Vertex, Edge, FloatingEdge
 from openalea.grapheditor.edgefactory import LinearEdgePath
@@ -36,7 +36,7 @@ from custom_graph_model import Vertex as VertexModel
 
 class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
     __vertex_size__= QtCore.QSizeF(30.0, 30.0)
-    __border_size__=2
+    __border_size__=5
 
     def __init__(self, vertex, graph, parent=None):
         QtGui.QGraphicsEllipseItem.__init__(self, 0.0, 0.0,
@@ -44,8 +44,6 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
                                             self.__vertex_size__.height(),
                                             parent)
         Vertex.__init__(self, vertex, graph)
-        self.paint = QtGui.QGraphicsEllipseItem.paint
-
         self.setZValue(1.0)
 
         #we choose the avocado colors
@@ -80,8 +78,9 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
 
     def remove(self):
         self.graph().remove_vertex(self.vertex())
-        
 
+    def paint(self, painter, painterOptions, widget):
+        QtGui.QGraphicsEllipseItem.paint(self, painter, painterOptions, widget)
 
 
 class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
@@ -169,4 +168,5 @@ def GraphicalEdgeFactory(etype, *args, **kwargs):
 
 
 GraphListenerBase.register_strategy(SimpleStrategy)
-VertexModel.extend_ad_hoc_slots({"position":list, "connectorPosition":list})
+VertexModel.extend_ad_hoc_slots({"position"         :(list,[0,0]), 
+                                 "connectorPosition":(list,[0,0])})

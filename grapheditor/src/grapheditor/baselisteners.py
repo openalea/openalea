@@ -72,7 +72,7 @@ class GraphElementObserverBase(observer.AbstractListener):
     def notify(self, sender, event):
         """called by the observed when something happens
         to it."""
-        if(event[0] == "MetaDataChanged"):
+        if(event[0] == "metadata_changed"):
             if(event[1]=="position"):
                 if(event[2]): 
                     self.position_changed(*event[2])
@@ -192,11 +192,11 @@ class GraphListenerBase(observer.AbstractListener):
     # Observer methods come next. They DO NOT modify the model. #
     #############################################################
     
-    def notify(self, sender, data):
-        if(data[0]=="vertexAdded") : self.vertex_added(*data[1])
-        elif(data[0]=="edgeAdded") : self.edge_added(*data[1])
-        elif(data[0]=="vertexRemoved") : self.vertex_removed(*data[1])
-        elif(data[0]=="edgeRemoved") : self.edge_removed(*data[1])
+    def notify(self, sender, event):
+        if(event[0]=="vertex_added") : self.vertex_added(*event[1])
+        elif(event[0]=="edge_added") : self.edge_added(*event[1])
+        elif(event[0]=="vertex_removed") : self.vertex_removed(*event[1])
+        elif(event[0]=="edge_removed") : self.edge_removed(*event[1])
 
     def __element_added(self, element):
         self.post_addition(element)

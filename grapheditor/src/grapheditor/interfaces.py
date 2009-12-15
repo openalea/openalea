@@ -181,7 +181,7 @@ class IGraphViewElement(object):
 
     def notify(self, sender, event):
         """called by the observed objects
-        Expected event = (\"MetaDataChanged\", "position", [x,x], list)
+        Expected event = (\"metadata_changed\", "position", [x,x], list)
         """
         raise NotImplementedError
 
@@ -198,7 +198,7 @@ class IGraphViewAnnotation(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        """(\"MetaDataChanged\", \"text\", \"a string\", str)"""
+        """(\"metadata_changed\", \"text\", \"a string\", str)"""
         raise NotImplementedError
 
 #------*************************************************------#
@@ -215,7 +215,7 @@ class IGraphViewEdge(IGraphViewElement):
         raise NotImplementedError
 
     def notify(self, sender, event):
-        """(\"MetaDataChanged\", \"canvasPosition\", [x,x], list)"""
+        """(\"metadata_changed\", \"canvasPosition\", [x,x], list)"""
         raise NotImplementedError
 
 #------*************************************************------#
