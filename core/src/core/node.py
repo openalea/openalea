@@ -180,6 +180,10 @@ class AbstractPort(dict, Observed, AbstractListener):
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
 
+    def simulate_construction_notifications(self):
+        self.get_ad_hoc_dict().simulate_full_data_change()
+        self.notify_listeners(("tooltip_modified", self.get_tip()))
+
     def __hash__(self):
         return id(self)
 
@@ -327,6 +331,7 @@ class Node(AbstractNode):
             for i in self.map_index_in:
                 self.notify_listeners(("input_modified", i))
             self.notify_listeners(("caption_modified", self.internal_data["caption"]))
+            self.notify_listeners(("tooltip_modified", self.get_tip()))
         except Exception, e:
             print e
             
@@ -334,6 +339,10 @@ class Node(AbstractNode):
         """ Call function. Must be overriden """
         raise NotImplementedError()
     #gengraph
+                                  
+    def get_tip(self):
+        return self.__doc__
+
     def get_internal_dict(self):
         return self.__internal_dict
 
@@ -596,6 +605,7 @@ class Node(AbstractNode):
 
         index = self.map_index_out[key]
         self.outputs[index] = val
+        self.notify_listeners(("output_modified", key, val))
 
     def output(self, key):
         return self.get_output(key)
