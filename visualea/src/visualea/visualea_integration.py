@@ -24,9 +24,10 @@ import weakref
 from PyQt4 import QtCore, QtGui
 from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.node import RecursionError
+from openalea.core.node import RecursionError, InputPort, OutputPort
 from openalea.core.compositenode import CompositeNode
-from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import qtgraphview, dataflowview
+
 
 #import visualea_integration_vertex
 
@@ -205,6 +206,29 @@ qtgraphview.Vertex.set_event_handler("mouseDoubleClickEvent",
 qtgraphview.Vertex.set_event_handler("contextMenuEvent", 
                                                 vertexContextMenuEvent)
 
+
+
+##############################
+# QtEvent handlers for ports #
+##############################
+def portContextMenuEvent(graphItem, event):
+    if isinstance(graphItem.port(), OutputPort):
+        graphItem = weakref.ref(graphItem)
+        view = graphItem().scene().views()[0]
+        operator=GraphOperator(view, view.graph())
+        operator.set_port_item(graphItem())
+        menu = QtGui.QMenu(view)
+
+        menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
+        menu.addAction(operator("Print",        menu, "port_print_value"))
+
+        menu.move(event.screenPos())
+        menu.show()
+
+        event.accept()
+
+dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent", 
+                                                    portContextMenuEvent)
 
 
 

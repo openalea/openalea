@@ -47,13 +47,23 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
                          QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
         dummy.setLayout(layout)
         self.setWidget(dummy)
+        self.__noMouseEventForward = True
 
+    def event(self, event):
+        if(event.type()==QtCore.QEvent.GraphicsSceneHoverMove and self.__noMouseEventForward):
+            event.ignore()
+            return True
+        return QtGui.QGraphicsProxyWidget.event(self, event)
+
+    def setMouseEventForward(self, val):
+        self.__noMouseEventForward = val
         
     def setWidget(self, widget):
         widget.setBackgroundRole(QtGui.QPalette.Background)
         widget.setAutoFillBackground(True)
         widget.setStyleSheet("background-color: transparent")
         QtGui.QGraphicsProxyWidget.setWidget(self, widget)
+
 
     ############
     # QT WORLD #

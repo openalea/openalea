@@ -625,14 +625,13 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         self.setScene(scene)
 
         # ---Custom tooltip system---
-        self.__tooltipTimer = QtCore.QTimer()
-        self.__tooltipTimer.setInterval(800)
-        self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
-                     self.tooltipTrigger)
-        self.__tooltipPos = None
+        # self.__tooltipTimer = QtCore.QTimer()
+        # self.__tooltipTimer.setInterval(800)
+        # self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
+        #              self.tooltipTrigger)
+        # self.__tooltipPos = None
 
         # ---Qt Stuff---
-        #self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
@@ -647,8 +646,8 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     ##################
     # QtWorld-Events #
     ##################
-    def tooltipTrigger(self):
-        self.__tooltipTimer.stop()
+    # def tooltipTrigger(self):
+    #     self.__tooltipTimer.stop()
     
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
