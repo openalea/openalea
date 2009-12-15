@@ -195,7 +195,7 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally")
         self.operator + (self.actionDistributeVertically, "graph_distribute_selection_vertically")
         self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
-        self.operator + (self.actionUseCustomColor, "graph_use_user_color")                
+        self.operator + (self.actionUseCustomColor, "graph_useUserColor")                
 
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
@@ -220,7 +220,7 @@ class MainWindow(QtGui.QMainWindow,
         items = widget.get_selected_items(qtgraphview.Vertex)
         self.actionUseCustomColor.setChecked(False)
         for i in items:
-            if i.vertex().get_ad_hoc_dict().get_metadata("use_user_color"):
+            if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
                 self.actionUseCustomColor.setChecked(True)
                 break
 

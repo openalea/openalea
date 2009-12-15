@@ -24,6 +24,7 @@ from openalea.core.node import InputPort, OutputPort
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview
+from . import painting
 
 
 """
@@ -40,6 +41,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def __init__(self, vertex, graph, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
+        self.set_painting_strategy(painting.default_dataflow_paint)
         self.setZValue(1)
 
         # ---Small box when the vertex is being evaluated---
@@ -82,10 +84,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         self.vertex().exclusive_command(self, self.vertex().simulate_construction_notifications)
 
 
-    #################
-    # private stuff #
-    #################
-    def __all_inputs_visible(self):
+    #####################################
+    # pseudo-protected or private stuff #
+    #####################################
+    def _all_inputs_visible(self):
         count = self._inPortLayout.count()
         for i in range(count):
             if not self._inPortLayout.itemAt(i).graphicsItem().isVisible():
@@ -110,7 +112,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
         #this one simply catches events like becoming lazy
         #or blocked of user app...
-        if(event[0] == "internal_data_changed"):
+        if(event[0] in ["internal_data_changed", "data_modified"]):
             self.update()
 
         elif(event[0]=="tooltip_modified"):
@@ -135,13 +137,15 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         elif(event[0] == "caption_modified"):
             self.set_caption(event[1])
 
-        elif(event[0] == "MetaDataChanged" and event[1]=="user_color"):
+        elif(event[0] == "metadata_changed" and event[1]=="userColor"):
+            if event[2] is None:
+                self.vertex().get_ad_hoc_dict().set_metadata("useUserColor", False, False)
             self.update()
 
-        elif(event[0] == "inputPortAdded"):
+        elif(event[0] == "input_port_added"):
             self.__add_in_connection(event[1])
 
-        elif(event[0] == "outputPortAdded"):
+        elif(event[0] == "output_port_added"):
             self.__add_out_connection(event[1])
             
             
@@ -160,72 +164,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     ###############################
     # ----Qt World overloads----  #
     ###############################
-    # Color Definition
-    not_modified_color       = QtGui.QColor(0, 0, 255, 200)
-    selected_color           = QtGui.QColor(180, 180, 180, 180)
-    not_selected_color       = QtGui.QColor(255, 255, 255, 100)
-
-    error_color              = QtGui.QColor(255, 0, 0, 255)    
-    selected_error_color     = QtGui.QColor(0, 0, 0, 255)
-    not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
-    
-    __corner_radius__ = 5.0
-    __margin__        = 3.0
-    
-    def paint(self, painter, option, widget):
-        path = QtGui.QPainterPath()
-        top = self._inPortLayout.geometry().center().y()
-        bottom = self._outPortLayout.geometry().center().y()
-        rect = self.rect()
-        rect.setTop(top)
-        rect.setBottom(bottom)
-        path.addRoundedRect(rect, self.__corner_radius__, self.__corner_radius__)
-        
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
-        path.moveTo(3.0,3.0)
-        painter.drawPath(path)
-        path.moveTo(0.0,0.0)
-
-        if hasattr(self.vertex(), 'raise_exception'):
-            color = self.error_color
-            if(self.isSelected()):
-                secondcolor = self.selected_error_color
-            else:
-                secondcolor = self.not_selected_error_color                
-        else:
-            if(self.isSelected()):
-                color = self.selected_color
-            elif(self.vertex().get_ad_hoc_dict().get_metadata("use_user_color")):
-                color=QtGui.QColor(*self.vertex().get_ad_hoc_dict().get_metadata("user_color"))
-            else:
-                color = self.not_selected_color
-                
-        if(self.vertex().get_ad_hoc_dict().get_metadata("use_user_color")):
-            secondcolor=QtGui.QColor(*self.vertex().get_ad_hoc_dict().get_metadata("user_color"))
-        elif(self.vertex().user_application):
-            secondcolor = QtGui.QColor(255, 144, 0, 200)
-        else:
-            secondcolor = self.not_modified_color
-
-        # Draw Box
-        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, color)
-        gradient.setColorAt(0.8, secondcolor)
-        painter.setBrush(QtGui.QBrush(gradient))
-        
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
-        painter.drawPath(path)
-                
-        if(self.vertex().block):
-            painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
-            painter.drawPath(path)
-
-        if(not self.__all_inputs_visible()):
-            painter.font().setBold(True)
-            pos = rect.width() - 4*self.__margin__ , self._inPortLayout.geometry().bottom()+4
-            painter.drawText(QtCore.QPointF(*pos), "+")
-            
     def setGeometry(self, geom):
         #forcing a full recomputation of the geometry so that shrinking works
         pos = self.pos()
@@ -233,15 +171,16 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         pos = self.pos()
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      [pos.x(), pos.y()])
+        self.shapeChanged=True
 
     polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                    "polishEvent")
+                               "polishEvent")
     moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                  "moveEvent")
+                             "moveEvent")
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                        "mousePressEvent")
+                                   "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                   "itemChange")
+                              "itemChange")
 
 
 
@@ -270,7 +209,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         self.setZValue(1.5)
         self.highlighted = False
         
-        port.get_ad_hoc_dict().set_metadata("connectorPosition", [0,0])
         port.simulate_construction_notifications()
 
     def port(self):
@@ -280,7 +218,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         if(event[0] in ["tooltip_modified", "stop_eval"]):
             self.__update_tooltip()
 
-        elif(event[0]=="MetaDataChanged"):
+        elif(event[0]=="metadata_changed"):
             if(sender == self.port()):
                 if(event[1]=="hide"):
                     if event[2]: #if hide

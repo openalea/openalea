@@ -26,7 +26,7 @@ class ColorOperators(object):
         length = len(items)
         if(length==0): return
         if(length==1):
-            color = items[0].vertex().get_ad_hoc_dict().get_metadata("user_color")
+            color = items[0].vertex().get_ad_hoc_dict().get_metadata("userColor")
             if(color):
                 color = QtGui.QColor(*color)
             else: color = QtGui.QColor(100,100,100,255)
@@ -41,26 +41,26 @@ class ColorOperators(object):
         color = [color.red(), color.green(), color.blue()]
         for i in items:
             try:
-                i.vertex().get_ad_hoc_dict().set_metadata("user_color", color)
-                i.vertex().get_ad_hoc_dict().set_metadata("use_user_color", True)
+                i.vertex().get_ad_hoc_dict().set_metadata("userColor", color)
+                i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", True)
             except Exception, e:
                 print "graph_set_selection_color exception", e
                 pass
 
-    def graph_use_user_color(self, useit):
+    def graph_useUserColor(self, useit):
         items = self.get_graph_view().get_selected_items(qtgraphview.Vertex)
         if(not items): return
         scheduleASetColor = False
         for i in items:
-            if(i.vertex().get_ad_hoc_dict().get_metadata("user_color") is None
+            if(i.vertex().get_ad_hoc_dict().get_metadata("userColor") is None
                and useit):
                 scheduleASetColor = True
                 continue
             else:
-                i.vertex().get_ad_hoc_dict().set_metadata("use_user_color", useit)
+                i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", useit)
                 i.setSelected(False)
         if(scheduleASetColor):
             self.graph_set_selection_color()
 
     vertex_set_color      = graph_set_selection_color
-    vertex_use_user_color = graph_use_user_color
+    vertex_useUserColor = graph_useUserColor

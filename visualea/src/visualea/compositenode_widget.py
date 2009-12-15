@@ -525,7 +525,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
         items = self.get_selected_item(True)
         for i in items :
             try :
-                i.set_user_color(color)
+                i.set_userColor(color)
             except:
                 pass
 
@@ -964,13 +964,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         self.adjust_size(force=True)
 
         # color
-        if("user_color" in self.subnode.internal_data.keys()):
-            color = self.subnode.internal_data["user_color"]
-            self.user_color = QtGui.QColor(color[0], color[1], color[2], 200)
-            self.use_user_color = True
+        if("userColor" in self.subnode.internal_data.keys()):
+            color = self.subnode.internal_data["userColor"]
+            self.userColor = QtGui.QColor(color[0], color[1], color[2], 200)
+            self.useUserColor = True
         else:
-            self.user_color = QtGui.QColor(100, 100, 100, 200)
-            self.use_user_color = False
+            self.userColor = QtGui.QColor(100, 100, 100, 200)
+            self.useUserColor = False
 
             if(hasattr(self.subnode, "__color__")):
                 r,g,b = self.subnode.__color__
@@ -1185,20 +1185,20 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         return
 
 
-    def set_user_color(self, color):
+    def set_userColor(self, color):
         """let the user specify a color for this
         graphical node"""
 
         assert type(color) == QtGui.QColor
-        self.user_color = color
-        self.use_user_color = True
-        self.subnode.internal_data["user_color"] = color.red(), color.green(), color.blue()
+        self.userColor = color
+        self.useUserColor = True
+        self.subnode.internal_data["userColor"] = color.red(), color.green(), color.blue()
         self.update()
         return
 
     def color(self):
-        if self.use_user_color:
-            return self.user_color
+        if self.useUserColor:
+            return self.userColor
         else:
             return self.not_selected_color
 
@@ -1233,13 +1233,13 @@ class GraphicalNode(QtGui.QGraphicsItem, SignalSlotListener):
         else:
             if(self.isSelected()):
                 color = self.selected_color
-            elif(self.use_user_color):
-                color=self.user_color
+            elif(self.useUserColor):
+                color=self.userColor
             else:
                 color = self.not_selected_color
 
-        if(self.use_user_color):
-            secondcolor=self.user_color
+        if(self.useUserColor):
+            secondcolor=self.userColor
         elif(self.subnode.user_application):
             secondcolor = QtGui.QColor(255, 144, 0, 200)
         else:

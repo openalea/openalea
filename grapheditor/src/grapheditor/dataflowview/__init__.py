@@ -86,18 +86,15 @@ def GraphicalEdgeFactory(etype, *args, **kwargs):
 
 if(__name__ != "__main__"):
     #we declare what are the node model ad hoc data we require:
-    vertexModelAdHocExtension = {"user_color":list, 
-                                 "use_user_color":bool, 
-                                 "position":list,
-                                 "text": str,
-                                 "connectorPosition":list}
-    node.Node.extend_ad_hoc_slots(vertexModelAdHocExtension)
+    node.Node.extend_ad_hoc_slots("userColor"        ,list, None,  "user_color")
+    node.Node.extend_ad_hoc_slots("useUserColor"     ,bool, True,  "use_user_color", )
+    node.Node.extend_ad_hoc_slots("position"         ,list, [0,0], "posx", "posy")
+    node.Node.extend_ad_hoc_slots("text"             ,str,  "",    "txt")
+    node.Node.extend_ad_hoc_slots("connectorPosition",list, [0,0], "posx", "posy")
 
     #we declare what are the node model ad hoc data we require:
-    portModelAdHocExtension = {"hide":bool,
-                               "connectorPosition": list}
-    node.AbstractPort.extend_ad_hoc_slots(portModelAdHocExtension)
-
+    node.AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
+    node.AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
     
     #we register this strategy
     baselisteners.GraphListenerBase.register_strategy(Strategy)

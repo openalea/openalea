@@ -32,9 +32,9 @@ class Graph(Observed):
 
     def simulate_construction_notifications(self):
         for v in self.__vertices.values():
-            self.notify_listeners( ("vertexAdded", ("vertex", v)) )
+            self.notify_listeners( ("vertex_added", ("vertex", v)) )
         for e in self.__edges.values():
-            self.notify_listeners( ("edgeAdded", ("default", v)) )
+            self.notify_listeners( ("edge_added", ("default", v)) )
 
     #todo : add this to the graph_adapter interface?
     def new_vertex(self, position=None):
@@ -48,7 +48,7 @@ class Graph(Observed):
         self.__vertices[self.__vidCounter] = vertex
         vertex.set_id(self.__vidCounter)
         self.__vidCounter += 1
-        self.notify_listeners( ("vertexAdded", ("vertex", vertex)) )
+        self.notify_listeners( ("vertex_added", ("vertex", vertex)) )
         if(position is None):
             position = [0.0,0.0]
         vertex.get_ad_hoc_dict().set_metadata("position", position)
@@ -60,7 +60,7 @@ class Graph(Observed):
         del self.__vertices[vertex.get_id()]
         for con in vertex.get_connections():
             self.remove_edge(con().src(), con().dst())
-        self.notify_listeners( ("vertexRemoved", ("vertex", vertex)) )
+        self.notify_listeners( ("vertex_removed", ("vertex", vertex)) )
 
     def remove_vertices(self, vertexList):
         for vert in vertexList:
@@ -98,7 +98,7 @@ class Graph(Observed):
         dst.add_connection(edge)
         edge.set_id(self.__eidCounter)
         self.__eidCounter += 1
-        self.notify_listeners( ("edgeAdded", ("default", edge, src, dst)) )
+        self.notify_listeners( ("edge_added", ("default", edge, src, dst)) )
 
     def remove_edge(self, src, dst):
         edge = self.__edges.get((src, dst))
@@ -106,7 +106,7 @@ class Graph(Observed):
             return
 
         del self.__edges[(src,dst)]
-        self.notify_listeners( ("edgeRemoved", ("default", edge)) )
+        self.notify_listeners( ("edge_removed", ("default", edge)) )
 
     #type checking
     def is_input(self, input):
