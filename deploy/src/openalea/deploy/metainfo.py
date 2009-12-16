@@ -26,9 +26,12 @@ def read_metainfo(filename, section='metainfo', verbose=False):
 
     :author: Thomas Cokelaer <Thomas Cokelaer __at__ sophis inria fr>
     """
-    from openalea.misc.console import nocolor, red, color_terminal, blue, green, purple
-    if not color_terminal():
-        nocolor()
+    try:
+        from openalea.misc.console import nocolor, color_terminal, green
+        if not color_terminal():
+            nocolor()
+    except:
+        green =  lambda x: x
 
     if verbose:
         print green('Reading metainfo ')
