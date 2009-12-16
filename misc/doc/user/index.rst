@@ -22,7 +22,7 @@ how to use OpenAlea.Misc see :ref:`misc_reference`.
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.
 
-.. .. toctree::
+.. toctree::
     :maxdepth: 1
-            
-    *rst
+
+    autosum.rst

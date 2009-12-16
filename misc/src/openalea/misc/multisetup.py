@@ -74,7 +74,11 @@ vp_dirs = """
         lpy
         """
 
-alinea_dirs = """caribu graphtal adel topvine"""
+alinea_dirs = """
+    caribu
+    graphtal
+    adel
+    topvine"""
 
 """
         self.openalea_sphinx_dirs=deploy deploygui core visualea sconsx
