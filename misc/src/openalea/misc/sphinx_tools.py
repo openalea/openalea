@@ -1229,11 +1229,11 @@ def init():
         optss.namespace = namespace
     else:
         namespace = None
-    
-        
-        
-        
-        
+
+
+
+
+
     optss.project = check_project_name(optss.project)
     if optss.project is None: 
         raise SphinxToolsError("sphinx.ini does not contain a valid project option")
@@ -1242,5 +1242,15 @@ def init():
         main(optss)
     else:
         raise SphinxToolsError("--project must be in ['openalea', 'vplants', 'alinea']")
-   
+
+
+
+
+def sphinx_check_version():
+    """ check sphinx version"""
+    import sphinx
+    if float(sphinx.__version__[0:3]) < 0.6:
+        print red('Sphinx 0.6 or higher required. found %s' % sphinx.__version__[0:3])
+
+        sys.exit(0)
 
