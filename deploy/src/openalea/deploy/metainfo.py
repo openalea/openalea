@@ -2,7 +2,7 @@
 
 
 
-def read_metainfo(filename, section='metainfo'):
+def read_metainfo(filename, section='metainfo', verbose=False):
     """Parse a section in a given file using ConfigParser module
 
     This function read a file (called `filename`), which must have a format 
@@ -30,7 +30,8 @@ def read_metainfo(filename, section='metainfo'):
     if not color_terminal():
         nocolor()
 
-    print green('Reading metainfo ')
+    if verbose:
+        print green('Reading metainfo ')
     import ConfigParser 
     config = ConfigParser.RawConfigParser()
     res = config.read(filename)
@@ -40,7 +41,8 @@ def read_metainfo(filename, section='metainfo'):
     metadata = {}
 
     for option in config.options(section):
-        print green('...%s: %s' % (option, config.get(section, option)))
+        if verbose:
+            print green('...%s: %s' % (option, config.get(section, option)))
         metadata[option] = config.get(section, option)
 
     return metadata
