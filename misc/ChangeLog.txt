@@ -1,3 +1,10 @@
+OpenAlea.Misc 0.8.0
+--------------------
+
+- make_develop has been renamed into multisetup that is now used by all projects (OpenAlea, VPlants, Alinea)
+- sphinx_tools has been simplified
+- sphinx_configuration is the common sphinx conf.py file to all packages
+
 OpenAlea.Misc 0.7.1
 -------------------
 

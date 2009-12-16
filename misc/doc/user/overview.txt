@@ -2,5 +2,5 @@
 
 - generate documentation :mod:`sphinx_tools`, :mod:`gendoc` 
 - create eggs and upload them to the gforge :mod:`openalea_distrib`, :mod:`upload_dist`
-- install all packages from a project :mod:`make_develop`
+- install all packages from a project :mod:`multisetup`
     

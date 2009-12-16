@@ -11,22 +11,19 @@ __revision__ = "$Id$"
 # just an alias
 pj = os.path.join
 
-name = 'OpenAlea.Misc'
-namespace = 'misc'
-version = '0.7.1'
-description = 'OpenAlea documentation.' 
-long_description = ''
-author = 'OpenAlea consortium'
-author_email = 'Thomas.Cokelaer@inria.fr, Christophe.Pradal@cirar.fr'
-url = 'http://openalea.gforge.inria.fr'
-license= 'Cecill-C' 
-keywords = ['sphinx', 'make_develop']
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
+
+keywords = ['sphinx', 'multisetup']
+
 
 setup(
     name=name,
     version=version,
-    author=author,
-    author_email=author_email,
+    author=authors,
+    author_email=authors_email,
     description=description,
     long_description=long_description,
     url=url,
@@ -47,7 +44,7 @@ setup(
                  "gforge_upload = openalea.misc.gforge_upload:main",
                  ],
     }
-    
+
     )
 
 
