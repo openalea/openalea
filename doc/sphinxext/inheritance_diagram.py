@@ -336,8 +336,14 @@ def html_output_graph(self, node):
     elif os.path.exists('./doc/.static'):
         png_path = os.path.join('./doc/.static', name + ".png")
         path = './doc/.static'
+    elif os.path.exists('_static'):
+        png_path = os.path.join('_static', name + ".png")
+        path = '_static'
+    elif os.path.exists('./doc/_static'):
+        png_path = os.path.join('./doc/_static', name + ".png")
+        path = './doc/_static'
     else:
-        raise DirectoryException(".static directory not found. Neither in current or ./doc directory ")
+        raise DirectoryException(".static or _static directory not found. Neither in current or ./doc directory ")
    
     source = self.document.attributes['source']
     
