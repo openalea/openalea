@@ -957,18 +957,22 @@ class pylint(Command):
     def finalize_options(self):
         # get the packages to give to pylint
 
-        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        # if not defined in the setup.py or not provided as user arguments,
+        # look into the setup.cfg 
         if (not self.pylint_packages):    
             self.pylint_packages = self.distribution.pylint_packages
             #print self.pylint_packages
         
-        # if not defined in the setup.py or not provided as user arguments, look into the setup.cfg 
+        # if not defined in the setup.py or not provided as user arguments,
+        # look into the setup.cfg 
         if (not self.pylint_options):
             self.pylint_options = self.distribution.pylint_options 
 
-        # in the setup.cfg case or in the user arguments case, we have a string (that we convert into a list)
+        # in the setup.cfg case or in the user arguments case, we have a 
+        # string (that we convert into a list)
         if isinstance(self.pylint_packages, str):
             self.pylint_packages = self.pylint_packages.split(',')
+        
         # otherwise, we already have a list
         if self.pylint_options is None:
             self.pylint_options = ''
@@ -977,19 +981,23 @@ class pylint(Command):
     def run(self):
         print '    PYLINT processing' 
         if self.pylint_packages:
+            #print '    Processing ' + self.pylint_packages + ' through pylint'
+            cmd = 'pylint '
             for package in self.pylint_packages:
-                print '    Processing ' + package + ' through pylint'
-                cmd = 'pylint ' + package.replace('/', os.sep) + os.sep + '*.py' + ' ' + self.pylint_options
-                cmd += self.pylint_base_options
-                print cmd
-                status = subprocess.call(cmd ,stdout=open(self.output_filename,'w+'),stderr=None, shell=True)
-                #if status!=0:
-                #    print 'This command returns status (%s) different from 0.' % str(status)
-                cmd = 'tail -n 1 %s ; grep \"Your code\"  %s ' % (self.output_filename, self.output_filename)
-
-                subprocess.call(cmd, stdout=None, stderr=None, shell=True)
+                cmd +=  package.replace('/', os.sep) + os.sep + '*.py ' 
+            cmd += ' ' + self.pylint_options
+            cmd += self.pylint_base_options
+            print cmd
+            status = subprocess.call(cmd, 
+                                     stdout=open(self.output_filename,'w+'),
+                                     stderr=None, shell=True)
+            if status!=0:
+                print 'This command returns status (%s) different from 0.' % \
+                    str(status)
+            cmd = 'tail -n 1 %s ; grep \"Your code\"  %s ' % (self.output_filename, self.output_filename)
+            subprocess.call(cmd, stdout=None, stderr=None, shell=True)
         else:
-            print 'No pylint options provided. Use --pylint-packages to give a pathname'
+            raise('missing --pylint-packages in setup.py. skipped pylint processing')
 
 
 class sphinx_upload(Command):
