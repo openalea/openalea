@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
-import weakref
+import weakref, gc #gc is needed because there is a collection problem with the node inspector
 from openalea.visualea.util import open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
@@ -33,11 +33,15 @@ class VertexOperators(object):
         self.vertexItem = weakref.ref(vertexItem)
 
     def vertex_composite_inspect(self):
+        #collect dangling PyQt objects which have lost their C++ side.
+        #There is probably a circular reference somewhere in the dataflowview code
+        #that prevents dead GraphicalVertex instances to be collected by simple
+        #reference counting. I haven't found it so for the moment, we use this
+        #workaround:
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
-        #TODO: this should be uncommented but there's a gc problem
-        #where GraphicalVertex aren't collected.
-        #self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
         widget.show()
         
     def vertex_run(self):
