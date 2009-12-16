@@ -138,7 +138,13 @@ def set_win_env(vars):
 
         regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-        key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+        try:
+            key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+        except:
+            regpath = r'Environment'
+            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
+            key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
+            
 
         name, value = newvar.split('=')
 
