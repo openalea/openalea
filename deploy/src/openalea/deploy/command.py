@@ -1007,7 +1007,6 @@ class sphinx_upload(Command):
     .. todo:: use gforge tools instead of scp ?
     """
     description = "Upload the documentation on the OpenAlea GForge repository"
-
     GFORGE_REPOSITORY = "http://gforge.inria.fr"
     DOMAIN = "scm.gforge.inria.fr"
 
@@ -1029,8 +1028,6 @@ class sphinx_upload(Command):
         self.project = None
         self.package = None
         self.release = None
-        
-   
 
     def finalize_options(self):
         if (not self.package):
@@ -1038,7 +1035,7 @@ class sphinx_upload(Command):
             # if the project is not specified, we try to extract it from setup.py
             # !! in some packages, the namespace is different from the prokect.
             # For instance container is in vplants but has the openalea namespace
-            if (not self.project):
+            if not self.project:
                 self.project = self.package.split('.')[0].lower()
             if not self.project:
                 raise ValueError('project could not be determied. Try to provide it manually (openalea, vplants, alinea)')
@@ -1074,9 +1071,8 @@ class sphinx_upload(Command):
                     self.username = config.get('server-login', 'username')
                 if not self.password:
                     self.password = config.get('server-login', 'password')
-
-        
         """
+
     def run(self):
         """.. todo:: fix this code so that gforge proxy and scp are not both used."""
         print """
@@ -1084,12 +1080,9 @@ class sphinx_upload(Command):
                 the documentation on the gforge. Be sure to have the right to do so. 
                 Requires to copy your ssh key on the server !
                """
-
-#        import gforge
-
-
         print "Copying files on the GForge. Be patient ..."
 
+        print self.project
         for output in  ['html' , 'latex']:
             #todo: check that the version that will be uploaded it newer than that on the server
             directory = self.package
@@ -1103,33 +1096,27 @@ class sphinx_upload(Command):
                 directory = self.package
 
             cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/' \
-                % ( os.path.join('doc',output), 
-                    self.username, 
-                    self.DOMAIN, 
-                    '/home/groups/openalea/htdocs/doc', 
-                    self.project, 
-                    directory 
+                % ( os.path.join('doc', '_build', output), 
+                    self.username,
+                    self.DOMAIN,
+                    '/home/groups/openalea/htdocs/doc',
+                    self.project,
+                    directory
                     )
-            try:
-                print cmd1
-                status = subprocess.call(cmd1 ,stdout=open('/tmp/test','w'),stderr=None, shell=True)
-                if status!=0:
-                    print 'This command failed'
-                    print cmd1
-                    return 1
-            except:
-                print 'This command failed'
-                print cmd1
-                
-            print "   %s done" % output
+            self.upload_file(cmd1)
 
-    def upload_file(self, server, command, pyversion, filename):
-
+    def upload_file(self, command):
         print "Project: ", self.project
         print "Package: ", self.package
         print "Release: ", self.release
-        print "Filename: ", filename
-    
+        print command
+        status = subprocess.call(command ,stdout=open('/tmp/test','w'),stderr=None, shell=True)
+        if status!=0:
+            print 'This command failed'
+            print command
+            return 1
+        print "Files uploaded."
+
 
 class alea_upload(Command):
     """
