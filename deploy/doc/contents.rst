@@ -30,7 +30,7 @@ Documentation
     :maxdepth: 1
 
     User Guide<user/index.rst>   
-    Reference Guide<deploy/index.rst>
+    Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/deploy.pdf>`_ version of |deploy| documentation is 
   available.

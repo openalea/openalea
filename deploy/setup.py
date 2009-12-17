@@ -9,29 +9,26 @@ except:
 from setuptools import setup, find_packages
 from os.path import join as pj
 
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
 
-name = "OpenAlea.Deploy"
-version = "0.7.0"
-author = "Samuel Dufour-Kowalski, Christophe Pradal"
-author_email = "christophe.pradal@cirad.fr"
-description = "Setuptools extension for OpenAlea"
-license = 'Cecill-C'
-url = 'openalea.gforge.inria.fr'
+
 keywords = ['setuptools', 'shared lib']
 
 setup(
     # Metadata for PyPi
     name = name,
     version = version, 
-    author = author,
-    author_email = author_email,
+    author = authors,
+    author_email = authors_email,
     description = description,
     license = license,
     keywords = keywords,
     url = url,
 
     namespace_packages = ["openalea"],
-    
     packages = find_packages('src'),
     package_dir = { '' : 'src', }, 
     include_package_data = True,
@@ -50,7 +47,7 @@ setup(
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
                  "postinstall_scripts = openalea.deploy.command:validate_postinstall_scripts",
                  ],
-              
+
               "egg_info.writers": [
                  "lib_dirs.txt = openalea.deploy.command:write_keys_arg",
                  "inc_dirs.txt = openalea.deploy.command:write_keys_arg",
@@ -67,9 +64,9 @@ setup(
                  "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
                  "upload_dist = openalea.deploy.command:upload_dist",
-                 
+
                  ],
-              
+
               "console_scripts": [
                  "alea_install = openalea.deploy.alea_install:main",
                 # "alea_uninstall = openalea.deploy.alea_update:uninstall_egg",
@@ -77,7 +74,7 @@ setup(
                  "alea_clean = openalea.deploy.alea_update:clean_version",
                  "alea_update_all = openalea.deploy.alea_update:update_all",
                  ],
-              
+
               },
 
     #install_requires = plat_requires,
