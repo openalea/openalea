@@ -44,7 +44,7 @@ import SCons.Tool
 import SCons.Util
 from SCons.Script.SConscript import SConsEnvironment
 
-NO_FRAMEWORK = True
+NO_FRAMEWORK = False 
 class ToolQtWarning(SCons.Warnings.Warning):
     pass
 
@@ -452,7 +452,8 @@ def enable_modules(self, modules, debug=False, suffix = '') :
             suffix = '.4'
         # TODO: Test debug version on Mac
         self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
-        #self.AppendUnique(LINKFLAGS="-F$QTDIR/lib")
+        self.AppendUnique(CXXFLAGS="-F$QTDIR/lib")
+        self.AppendUnique(LINKFLAGS="-F$QTDIR/lib")
         self.AppendUnique(LINKFLAGS="-L$QTDIR/lib") #TODO clean!
         if debug : debugSuffix = 'd'
 	if suffix : debugSuffix = '.4'
