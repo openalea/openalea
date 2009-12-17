@@ -332,8 +332,8 @@ class CompositeNodeFactory(AbstractFactory):
                       #todo before 0.8 remove this and simply pop the values 
         position = [0.0,0.0]
         for key, val in Node.__ad_hoc_from_old_map__.iteritems():
-            conversion = val
-            if len(conversion)==1:
+            conversion = val #list of old keys to convert
+            if len(conversion)==1: #if we want to convert one old value to one new value (ex: color)
                 _type, default = Node.__ad_hoc_slots__.get(key)
                 data = elt_data.get(conversion[0])
                 if(data is None):
@@ -341,25 +341,22 @@ class CompositeNodeFactory(AbstractFactory):
                 if data is None :
                     continue
                 node.get_ad_hoc_dict().set_metadata(key, _type(data))
-            else:
-                components = []
+            else: #is we want to convert to old values to one single new value (ex: posx, posy => position)
+                components = [] #list that stores the new values
                 _type, default = Node.__ad_hoc_slots__.get(key)
                 for i in conversion:
                     components.append(elt_data.get(i))
                 if None in components:
                     components = default
                 node.get_ad_hoc_dict().set_metadata(key, _type(components))
-            toDelete.append(key)
+            toDelete += conversion
 
-
-        #if we're in debug mode and want to have the old behaviour too
-        #we don't remove the internal data.
         if(__debug__):
             if(__builtin__.__debug_with_old__):
                 pass
         else:
-            for key in toDelete:                                             
-                del elt_data[key]                                            
+            for key in toDelete:
+                del elt_data[key]
 
 
     def instantiate_node(self, vid, call_stack=None):
