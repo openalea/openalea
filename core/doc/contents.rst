@@ -30,7 +30,7 @@ Documentation
     :maxdepth: 1
 
     User Guide<user/index.rst>   
-    Reference Guide<core/index.rst>
+    Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/core.pdf>`_ version of |core| documentation is 
   available.
