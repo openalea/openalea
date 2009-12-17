@@ -5,6 +5,7 @@
     import openalea.math    
 
 
+
 Manual
 ######
 
@@ -80,3 +81,8 @@ that returns a list of nodes. To access to a particular node, use:
 
 The `floor` node exists in the `openalea.math` package. The node `floor` is managed through a :class:`NodeFactory<openalea.core.node.NodeFactory>`.
 
+
+
+.. topic:: Documentation status
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas Cokelaer __at__ sophia inria fr>
