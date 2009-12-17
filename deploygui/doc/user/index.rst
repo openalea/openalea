@@ -25,4 +25,4 @@ how to use OpenAlea.Deploygui see :ref:`deploygui_reference`.
 
 .. toctree::
     :maxdepth: 1
-            
+

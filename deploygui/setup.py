@@ -2,21 +2,22 @@ from setuptools import setup, find_packages
 from os.path import join as pj
     
 
-version = "0.7.0"
-name = "OpenAlea.DeployGui"
-author = "Samuel Dufour-Kowalski"
-author_email = "samuel.dufour@sophia.inria.fr"
-description = "OpenAlea graphical installer"
-license = 'Cecill-V2'
 keywords = ['Graphical installer']
-url = 'openalea.gforge.inria.fr'
+
+
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
+
+
 
 setup(
     # Metadata for PyPi
     name = name,
     version = version,
-    author = author,
-    author_email = author_email,
+    author = authors,
+    author_email = authors_email,
     description = description,
     license = license,
     keywords = keywords,

@@ -29,8 +29,8 @@ Documentation
 .. toctree::
     :maxdepth: 1
 
-    user/index.rst   
-    deploygui/index.rst
+    User Guide <user/index.rst>
+    Reference Guide <user/autosum.rst>
 
 - A `PDF <../latex/deploygui.pdf>`_ version of |deploygui| documentation is 
   available.
