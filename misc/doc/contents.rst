@@ -30,6 +30,7 @@ Documentation
     :maxdepth: 1
 
     User Guide<user/index.rst>   
+    Reference Guide<user/autosum.rst>   
 
 - A `PDF <../latex/misc.pdf>`_ version of |misc| documentation is 
   available.

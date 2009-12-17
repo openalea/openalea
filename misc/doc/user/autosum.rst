@@ -1,4 +1,4 @@
-.. _newmtg_reference:
+.. _misc_reference:
 
 Reference guide
 ################
@@ -54,4 +54,20 @@ Download the source file :download:`../../src/openalea/misc/sphinx_tools.py`.
     :inherited-members:
     :show-inheritance:
     :synopsis: script to download projects from the SVN and compile them
+
+
+.. currentmodule:: openalea.misc.path
+
+:mod:`openalea.misc.path` module
+==========================================
+
+Download the source file :download:`../../src/openalea/misc/path.py`.
+
+
+.. automodule:: openalea.misc.path
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: An object representing a path to a file or directory
 

@@ -24,6 +24,11 @@ Under Linux and Mac, type export OPENALEA=/home/user/openalea
 
 """)
 
+openalea = os.path.join(os.environ['OPENALEA'], 'doc')
+
+
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -58,7 +63,7 @@ autoclass_content = 'both'
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = [ os.path.join(openalea ,'_templates')]
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -144,17 +149,18 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = 'stocatree_sept_1996.jpg'
+html_logo = os.path.join(openalea, 'source','images', 'wiki_logo_openalea.png')
+
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = os.path.join(openalea, 'source', 'images', 'oaicon.ico')
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static', os.path.join(os.environ['OPENALEA'], 'doc', '_static')]
+html_static_path = ['_static', os.path.join(openalea, '_static')]
 html_style = 'openalea.css'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
@@ -166,6 +172,15 @@ html_style = 'openalea.css'
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
+html_index = 'index.html'
+
+#Custom sidebar templates, maps page names to templates.
+html_sidebars = {'index': 'indexsidebar.html'}
+html_additional_pages = {   'index': 'index.html',
+                            'openalea': 'openalea.html', 
+                            'vplants': 'vplants.html',
+                            'alinea': 'alinea.html'}
+
 #html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to

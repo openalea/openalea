@@ -1,6 +1,6 @@
 |misc| contains a set of tools to help developpers to 
 
-- generate documentation :mod:`sphinx_tools`, :mod:`gendoc` 
-- create eggs and upload them to the gforge :mod:`openalea_distrib`, :mod:`upload_dist`
-- install all packages from a project :mod:`multisetup`
-    
+- generate documentation :mod:`~openalea.misc.sphinx_tools`,  :mod:`~openalea.misc.gendoc` 
+- create eggs and upload them to the gforge :mod:`~openalea.misc.openalea_distrib`, :mod:`~openalea.misc.upload_dist`
+- install all packages from a project :mod:`~openalea.misc.multisetup`
+
