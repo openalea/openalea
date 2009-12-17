@@ -1,23 +1,17 @@
 """setup file for core package"""
+__revision__ = "$Id$"
 import os
 from setuptools import setup
-
 pj = os.path.join
 
 
-name = 'OpenAlea.Core'
-namespace = 'openalea'
 # to get the version
-execfile("src/core/version.py")
-version="0.7.0"
-description = 'OpenAlea Component platform core.' 
-long_description = """OpenAlea.Core is able to discover and manage packages and logical components, build and evaluate dataflows and Generate final applications"""
+# execfile("src/core/version.py")
 
-author = 'OpenAlea consortium'
-author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-url = 'http://openalea.gforge.inria.fr'
-license = 'Cecill-C' 
-__revision__ = "$Id$"
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
 
 
 setup(
@@ -25,8 +19,8 @@ setup(
     version=version,
     description=description,
     long_description=long_description,
-    author=author,
-    author_email=author_email,
+    author=authors,
+    author_email=authors_email,
     url=url,
     license=license,
 
