@@ -213,17 +213,25 @@ def check_system():
             libs = merge_uniq(bin, paths) 
 
             out_env['PATH'] = ';'.join(libs)
-        # Linux
+        # Mac 
         elif "darwin" in sys.platform.lower():
 
             paths = list(get_all_bin_dirs())
             paths = merge_uniq(paths, in_env['PATH'].split(':'))
             
             libs = [get_dyn_lib_dir()]
-            libs = merge_uniq(libs, in_env['DYLD_LIBRARY_PATH'].split(':'))
-
+	    
+	    #The environment variable ("DYLD_FRAMEWORK_PATH") is not set with the sudo commands.
+	    #If "DYLD_LIBRARY_PATH" is in os.environ, we try to run the merge 
+	    try:
+	        libs = merge_uniq(libs, in_env['DYLD_FRAMEWORK_PATH'].split(':'))
+                libs = merge_uniq(libs, in_env['DYLD_LIBRARY_PATH'].split(':'))
+	    
+	    except:
+                pass 
             # update the environment
             out_env['DYLD_LIBRARY_PATH'] = ':'.join(libs)
+	    out_env['DYLD_FRAMEWORK_PATH'] = ':'.join(libs)
             out_env['PATH'] = ':'.join(paths)
 
 

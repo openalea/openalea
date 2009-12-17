@@ -26,6 +26,7 @@ import subprocess
 import sys
 import shutil
 from distutils.errors import *
+import stat
 
 from os.path import join as pj
 from setuptools import Command
@@ -527,6 +528,7 @@ class install(old_install):
         cmd = alea_install(
             self.distribution, args="x", root=self.root, record=self.record,
         )
+        
         cmd.install_dyn_lib = self.install_dyn_lib
         cmd.ensure_finalized()  # finalize before bdist_egg munges install cmd
 
@@ -587,13 +589,14 @@ class alea_install(old_easy_install):
         if (self.dist.key in pkg_resources.working_set.by_key):
             del pkg_resources.working_set.by_key[self.dist.key]
         pkg_resources.working_set.add(self.dist)
-
-        # Call postinstall
+        
+	# Call postinstall
         self.postinstall(self.dist)
-
-        # Set environment
+        
+	# Set environment
         set_env(self.install_dyn_lib)
-
+       
+	
     def set_system(self):
         """ Set environment """
         if ("win32" in sys.platform):
@@ -619,11 +622,11 @@ class alea_install(old_easy_install):
         ret = old_easy_install.process_distribution(self, requirement, dist, deps, *info)
         # save distribution
         self.dist = dist
-
+       
         return ret
 
     def postinstall(self, dist):
-        """ Call postinstall scripts """
+        """ call postinstall scripts """
         print "Post installation"
 
         if (dist):
@@ -682,6 +685,16 @@ def set_env(dyn_lib=None):
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
     print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
+    # To fix the lost of access rights during the step of extract and instal .egg on Linux and MacOsX   
+    for d in bin_dirs:
+        try:
+            for f in os.listdir(d):
+	        filepath = os.path.join(d, f)
+                if os.path.isfile(filepath):
+                    if not os.access(filepath, os.X_OK):
+            	        os.chmod(filepath, stat.S_IRWXU | stat.S_IXGRP +  stat.S_IRGRP | stat.S_IXOTH + stat.S_IROTH)
+	except:
+	    pass
 
     if (is_virtual_env()):
         print "EDIT the activate script to setup PATH and/or LD_LIBRARY_PATH"
@@ -698,6 +711,7 @@ def set_env(dyn_lib=None):
                 'PATH=$OPENALEA_BIN']
         if 'darwin' in sys.platform :
             vars.append('DYLD_LIBRARY_PATH=$OPENALEA_LIB')
+            vars.append('DYLD_FRAMEWORK_PATH=$OPENALEA_LIB')
         set_lsb_env('openalea',vars)
     except:
         return
