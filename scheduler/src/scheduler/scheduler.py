@@ -13,11 +13,7 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-"""
-This module defines the base class Scheduler to
-list and evaluate tasks.
-"""
+"""This module defines the base class Scheduler to list and evaluate tasks."""
 
 __license__= "Cecill-C"
 __revision__=" $Id: $ "

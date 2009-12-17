@@ -30,7 +30,7 @@ Documentation
     :maxdepth: 1
 
     User Guide<user/index.rst>   
-    Reference Guide<scheduler/index.rst>
+    Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/scheduler.pdf>`_ version of |scheduler| documentation is 
   available.
