@@ -1108,11 +1108,11 @@ class sphinx_upload(Command):
             except:
                 directory = self.package
 
-            cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/' \
+            cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/_build/' \
                 % ( os.path.join('doc', '_build', output), 
                     self.username,
                     self.DOMAIN,
-                    '/home/groups/openalea/htdocs/doc',
+                    '/home/groups/openalea/htdocs/doc/',
                     self.project,
                     directory
                     )
