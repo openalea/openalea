@@ -3,8 +3,8 @@
 REM Command file for Sphinx documentation
 
 set SPHINXBUILD=sphinx-build
-set BUILDDIR=build
-set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% source
+set BUILDDIR=_build
+set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% .
 if NOT "%PAPER%" == "" (
 	set ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%
 )
@@ -74,9 +74,9 @@ if "%1" == "qthelp" (
 	echo.
 	echo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %BUILDDIR%/qthelp, like this:
-	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\aa.qhcp
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\MAppleT.qhcp
 	echo.To view the help file:
-	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\aa.ghc
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\MAppleT.ghc
 	goto end
 )
 

@@ -22,25 +22,7 @@
 {% include "common_header.html" %}
 {%- endif -%}
 
-<!-- add contents, search, mod, index if not on the main page  -->
-{%- if thispackage!='doc' -%}
- <h2>Documentation {{project}}</h2>
-<table class="contentstable" align="center" style="margin-left: 30px"><tr>
-<td width="50%">
-  <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Contents</a><br/>
-   <span class="linkdescr">for a complete overview</span></p>
- <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">Search page</a><br/>
-  <span class="linkdescr">search the documentation</span></p>
-  </td><td width="50%">
-<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">General Index</a><br/>
- <span class="linkdescr">all functions, classes, terms</span></p>
-   <p class="biglink"><a class="biglink" href="{{ pathto("modindex") }}">Module Index</a><br/>
-<span class="linkdescr">quick access to all documented modules</span></p>
-</td></tr>
-  </table>
-{%- endif -%}
-
-<!-- add the list of package if not on the main page-->
+<!-- the list of package if not on the main page-->
 
 {%- if thisproject=="openalea" and thispackage!="doc" -%}
 {% include "openalea_packages.html" %}

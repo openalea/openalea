@@ -51,16 +51,15 @@ if __name__=="__main__":
         # adapt the input argument to scp depending whether we are in  ./doc 
         # or in the main openalea directory
         if cwd.endswith('doc'):
-            prefix = 'build'
+            prefix = '_build'
         else:
-            prefix = os.path.join('doc', 'build')
+            prefix = os.path.join('doc', '_build')
     
-        cmd1 = 'scp -r %s %s@%s:%s/%s/' \
+        cmd1 = 'scp -r %s %s@%s:%s/' \
                 % ( os.path.join(prefix, output),
                     options.username,
                     'scm.gforge.inria.fr',
-                    '/home/groups/openalea/htdocs/doc/openalea/doc/build',
-                    output
+                    '/home/groups/openalea/htdocs/doc/openalea/doc/_build'
                     )
         print cmd1
         try:
