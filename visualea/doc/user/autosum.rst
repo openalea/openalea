@@ -1,4 +1,4 @@
-.. _deploy_reference:
+.. _visualea_reference:
 
 Reference guide
 ###############

@@ -29,8 +29,8 @@ Documentation
 .. toctree::
     :maxdepth: 1
 
-    USER Guide<user/index.rst>   
-    REFERENCE Guide<visualea/index.rst>
+    User Guide<user/index.rst>   
+    Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/visualea.pdf>`_ version of |visualea| documentation is 
   available.
