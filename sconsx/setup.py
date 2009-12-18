@@ -5,13 +5,11 @@ from setuptools import setup
 pj= os.path.join
 
 
-name = 'OpenAlea.SConsX'
-namespace = 'openalea'
-pkg_name = 'openalea.sconsx'
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
 
-version = '0.7.0'
-
-description = 'Scons Extension to build multi-platform packages for OpenAlea and others.' 
 long_description = \
 """
 Scons Configuration Utilities for OpenAlea.
@@ -25,22 +23,12 @@ This package extends scons with:
     * Support for different compilers on Linux and Windows (e.g. gcc, msvc, mingw)
 """
 
-# Author
-author = 'Christophe Pradal'
-author_email = 'christophe.pradal@cirad.fr'
-
-# URL
-url = 'http://openalea.gforge.inria.fr'
-
-# LGPL compatible INRIA license
-license = 'Cecill-C' 
-
 setup(name = name,
       version = version,
       description = description,
       long_description = long_description,
-      author = author,
-      author_email = author_email,
+      author = authors,
+      author_email = authors_email,
       license = license,
 
       namespace_packages = ['openalea'],
