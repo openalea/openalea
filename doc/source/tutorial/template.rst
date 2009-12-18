@@ -20,15 +20,7 @@ the descriptions that follows. These classes also contain two functions: :func:`
 
 The goal of these examples is to show that the HTML output may be equivalent even though the docstrings are different. However, there are small differences abd subtilities that we emphasize here below.
 
-Note also, that you can easily add mathematical expressions and images outside of your python module so that the code remains small and readable.
 
-.. math:: n_{\mathrm{offset}} = \sum_{k=0}^{N-1} s_k n_k
-
-.. math:: 
-
-   s_k^{\mathrm{column}} = \prod_{j=0}^{k-1} d_j , \quad  s_k^{\mathrm{row}} = \prod_{j=k+1}^{N-1} d_j .
-
-.. image:: ../images/wiki_logo_openalea.png
 
 -----
 

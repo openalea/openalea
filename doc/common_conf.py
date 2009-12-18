@@ -8,6 +8,10 @@ import sys, os
 import time
 import ConfigParser
 import warnings
+from sphinx.util.console import nocolor, red, color_terminal, blue, green, purple
+
+if not color_terminal():
+    nocolor()
 
 # to be cleaned. This prevents user interaction.
 no_interaction = True
@@ -31,7 +35,7 @@ else:
 year = time.ctime().split()[4]
 
 # Get the metadata from sphinx.ini -------------------------------------------
-print "...Reading sphinx.ini file"
+print purple("...Reading sphinx.ini file")
 config = ConfigParser.RawConfigParser()
 config.read('sphinx.ini')       # same dir as the conf.py's location
 section = 'metadata'
@@ -70,7 +74,7 @@ project_ini = project
 
 # read common parameters -----------------------------------------------------
 # must be after setting the variable openalea
-print "...Reading common.ini file"
+print purple("...Reading common.ini file")
 config = ConfigParser.RawConfigParser()
 config.read(os.path.join(openalea, 'doc/common.ini'))
 # Read sections: general, HTML, Latex

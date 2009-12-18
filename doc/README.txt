@@ -2,8 +2,8 @@ To create the documentation, type:
 
     make html
     make latex
-    cd build
-
+    cd build/latex
+    make all-pdf
 
 
 sphinxext directory

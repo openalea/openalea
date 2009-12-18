@@ -25,7 +25,7 @@ Introduction
 
 We have decided to use Sphinx to document the entire OpenAlea project. The proposal that justifies this choice is available on our WIKI `Sphinx proposal <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=documentation:doctests:sphinx_proposal>`_.
 
-Using Sphinx is not as straightforward as using a tool such as Epydoc but brings a much more flexible and powerful tool that allows us to combine Reference guide, user guide and tutorials all together. 
+Using Sphinx is not as straightforward as using a tool such as Epydoc but brings a much more flexible and powerful tool:  we can combine Reference guide, user guide and tutorials all together, we can use LaTeX for equations, and structure a document exactly as we want.
  
 Here below we hope that you will find some helps to start with Sphinx. 
 
@@ -33,7 +33,7 @@ Here below we hope that you will find some helps to start with Sphinx.
 Compiling the documentation
 ===========================
 
-If you are working on a package that has already been setup and if you want to compile the documentation yourself (e.g., you want to update it), then simply go the root directory of the package and type::
+Witin OpenAlea/VPlants/Alinea, if you are working on a package that has already been setup for you and if you want to compile the documentation yourself (e.g., you want to update it), then simply go the root directory of the package and type::
     
     python setup.py build_sphinx
 
@@ -68,13 +68,18 @@ Sphinx and reST syntax
 
 It's time to start writting documentation. Well, with Sphinx you will need to learn a new language, that is called **reST** for **restructuredText**. No worries, it is quite simple and you will get plenty of examples. Indeed, all those pages contains a link to the source code (see in the right sidebar), so it will be a good starting point. 
 
-If you want to know more, we wrote a couple of tutorial to help you with **rest** syntax and Sphinx, which improves it and add new syntax on top of the original **reST** language.
+If you want to know more, here are two links. The quickstart allows you to start a sphinx project from scrach outisde OpenAlea so that you can test yourself reST. The second link is a summary of useful syntax used in reST and/or Sphinx.
 
 .. toctree::
     :maxdepth: 1
+    
+    tutorial/quickstart
+    tutorial/rest_syntax
+    tutorial/sphinx_python_docstring
 
-    tutorial/rst_tutorial
-    tutorial/sphinx_tutorial
+..    tutorial/rst_tutorial
+..    tutorial/sphinx_tutorial
+
 
 Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
 
