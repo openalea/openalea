@@ -50,3 +50,7 @@ def run (scheduler, nb_step) :
         next_cycle = g.next()
     return scheduler,
 
+def call (function) :
+	return function(),
+
+

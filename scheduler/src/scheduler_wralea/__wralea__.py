@@ -72,3 +72,14 @@ run = Factory( name= "run",
 
 __all__.append('run')
 
+call = Factory( name= "call", 
+                description= "",
+                category = "",
+                nodemodule = "scheduler",
+                nodeclass = "call",
+                inputs=(dict(name="func", interface=IFunction),),
+                outputs=(dict(name="val", interface=None,),),
+            )
+
+__all__.append('call')
+
