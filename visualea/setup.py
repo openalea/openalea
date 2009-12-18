@@ -6,27 +6,18 @@ from os.path import join as pj
 
 
 
-# Meta Informations
-name = 'OpenAlea.Visualea'
-namespace = 'openalea'
-pkg_name = 'openalea.visualea'
-version = '0.7.0'
-
-description = 'OpenAlea visual programming environment.' 
-long_description = ''
-author = 'OpenAlea consortium'
-author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-url = metainfo.url
-license = 'Cecill v2' 
-
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
 
 setup(
     name=name,
     version=version,
     description=description,
     long_description=long_description,
-    author=author,
-    author_email=author_email,
+    author=authors,
+    author_email=authors_email,
     url=url,
     license=license,
     keywords='visual programming',
