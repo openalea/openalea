@@ -1,4 +1,4 @@
-.. _deploy_reference:
+.. _deploygui_reference:
 
 Reference guide
 ###############
