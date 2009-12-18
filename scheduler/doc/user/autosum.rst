@@ -1,4 +1,4 @@
-.. _deploy_reference:
+.. _schedule_reference:
 
 Reference guide
 ###############

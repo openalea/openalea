@@ -1,4 +1,4 @@
-.. _deploy_reference:
+.. _stdlib_reference:
 
 Reference guide
 ###############

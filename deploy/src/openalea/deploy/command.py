@@ -835,22 +835,21 @@ from %s.__init__ import *
 
 class upload_dist(Command):
     """ extension to setuptools to upload a distribution on the gforge
-    
+
     :param release:  compulsory argument to specify the release name, as 
         it appears on the gforge web site of Openalea, that is at
         https://gforge.inria.fr/frs/?group_id=79
-    :param filename: a distribution filename or a regular expression such as 
-        ./dist/*egg
+    :param filename: a distribution filename or a regular expression such as ./dist/*egg
     :param login: your login name. will be asked later if not provided.
     :param password: your password. will be asked later if not provided.
-   
+
     :Examples:
-    
+
         >>> python setup.py upload_dist --filename dist/*egg --login name 
         ... --release 0.7
-        
+
     You can add the options in the setup.cfg::
-    
+
         >>> [upload_dist]
         >>> filename = ./dist/*egg
         >>> login = yourname

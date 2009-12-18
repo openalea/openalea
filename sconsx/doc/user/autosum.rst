@@ -1,4 +1,4 @@
-.. _deploy_reference:
+.. _sconsx_reference:
 
 Reference guide
 ###############
