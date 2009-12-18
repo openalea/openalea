@@ -29,8 +29,8 @@ Documentation
 .. toctree::
     :maxdepth: 1
 
-    user/index.rst   
-    stdlib/index.rst
+    User guide<user/index.rst>
+    Reference guide<user/autosum.rst>
 
 - A `PDF <../latex/stdlib.pdf>`_ version of |stdlib| documentation is 
   available.

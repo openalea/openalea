@@ -7,21 +7,19 @@ __revision__ = "$Id$"
 
 pj = os.path.join
 
-name = 'OpenAlea.StdLib'
-version = '0.7.0'
-description = 'OpenAlea standard logical component library.' 
-long_description = ''
-author = 'OpenAlea consortium'
-author_email = 'samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr'
-url = 'http://openalea.gforge.inria.fr'
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
+
 
 setup(
     name=name,
     version=version,
     description=description, 
     long_description = '',
-    author = author,
-    author_email = author_email,
+    author = authors,
+    author_email = authors_email,
     url = url,
     license = license,
 
@@ -75,8 +73,8 @@ setup(
                    'catalog.string = deprecated',
               ],
         },
-    
-    pylint_packages = [ 'src' + os.sep + x.replace('.',os.sep) for x in find_packages('src')],
+
+#    pylint_packages = [ 'src' + os.sep + x.replace('.',os.sep) for x in find_packages('src')],
 
     )
 

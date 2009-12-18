@@ -7,7 +7,7 @@
 * :mod:`strings` : string manipulation nodes ( join, split, strip, …)
 * :mod:`functional` : python functional node (function, map, reduce, filter, apply, …)
 * :mod:`models` : simple models (linear…)
-* :mod:`csv` : csv manipulation structure
+* :mod:`pycsv` : csv manipulation structure
 * :mod:`colormap` : colormap nodes
 
 It doesn't include any GUI interface (See OpenAlea.Visualea for that).
