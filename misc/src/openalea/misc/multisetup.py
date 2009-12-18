@@ -335,10 +335,16 @@ class Multisetup(object):
                                         shell=True)
                         #status = process.wait()
                         outputs, errors = process.communicate()
-                        stdout.write(outputs)
-                        stdout.close()
-                        stderr.write(errors)
-                        stderr.close()
+                        try:
+                            stdout.write(outputs)
+                            stdout.close()
+                        except:
+                            pass
+                        try:
+                            stderr.write(errors)
+                            stderr.close()
+                        except:
+                            pass
                     if process.returncode == 0:
                         print green('done')
                     else:
