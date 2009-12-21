@@ -27,6 +27,8 @@ import ui_mainwindow
 from openalea.visualea.shell import get_shell_class
 
 from openalea.core import cli
+from openalea.core.pkgmanager import PackageManager
+from openalea.core.settings import Settings,NoSectionError,NoOptionError
 from code import InteractiveInterpreter as Interpreter
 
 from openalea.visualea.node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
@@ -72,6 +74,9 @@ class MainWindow(QtGui.QMainWindow,
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
 
+        #last opened nodes
+        self._last_opened = []
+        
         # python interpreter
         interpreter = Interpreter()
         cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
@@ -164,6 +169,10 @@ class MainWindow(QtGui.QMainWindow,
                      self.clear_python_console)
         
         # WorkspaceMenu 
+        self._last_open_action_group = QtGui.QActionGroup(self)
+        self.connect(self._last_open_action_group,
+                     SIGNAL("triggered(QAction*)"),
+                     self.reopen_last)
         # daniel was here: now the menu is built using the graph operator.
         self.operator = GraphOperator()
         self.operator.set_main(self)
@@ -197,18 +206,135 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
         self.operator + (self.actionUseCustomColor, "graph_useUserColor")                
 
+        self.connect(self.actionTo_script, SIGNAL("triggered()"), self.to_python_script)
+        
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
         self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), 
                      self.display_leftpanel)
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
                      self.display_rightpanel)
-                
+        
+        action = self.menu_Workspace.addAction("DEBUG")
+        self.connect(action, SIGNAL("triggered()"), self.debug)
+        
         # final init
         self.session = session
         self.session.simulate_workspace_addition()
         self.operator.set_session(self.session)
+        #load personnal GUI settings
+        self.read_settings()
 
+    def debug (self) :
+        print "items",self.packageTreeView.expanded_items
+    
+    def write_settings (self) :
+        """Save application settings.
+        """
+        settings = Settings()
+        
+        #main window
+        settings.set("MainWindow","size","(%d,%d)" % (self.width(),self.height() ) )
+        settings.set("MainWindow","pos","(%d,%d)" % (self.x(),self.y() ) )
+        
+        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_2.sizes() )
+        settings.set("MainWindow","splitter_2",sizes)
+        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_3.sizes() )
+        settings.set("MainWindow","splitter_3",sizes)
+        
+        #tree view
+        settings.set("TreeView","open","[]")
+        
+        #workspace
+        last_open = "[%s]" % ",".join("'%s'" % item for item in self._last_opened)
+        settings.set("WorkSpace","last",last_open)
+        
+        settings.write_to_disk()
+    
+    def read_settings (self) :
+        """Read application settings.
+        """
+        settings = Settings()
+        
+        #main window
+        try :
+            size = eval(settings.get("MainWindow","size") )
+            self.resize(QtCore.QSize(*size) )
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+        try :
+            pos = eval(settings.get("MainWindow","pos") )
+            self.move(QtCore.QPoint(*pos) )
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+        try :
+            sizes = eval(settings.get("MainWindow","splitter_2") )
+            self.splitter_2.setSizes(sizes)
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+        try :
+            sizes = eval(settings.get("MainWindow","splitter_3") )
+            self.splitter_3.setSizes(sizes)
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+        #workspace
+        try :
+            last_open = eval(settings.get("WorkSpace","last") )
+            for item in last_open :
+                gr = item.split(".")
+                pkgid = ".".join(gr[:-1])
+                name = gr[-1]
+                self.add_last_open(pkgid,name)
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+    
+    def redo_last_open_menu (self) :
+        """Create entries for last opened nodes.
+        """
+        self.menuLast_open.clear()
+        for action in self._last_open_action_group.actions() :
+            self._last_open_action_group.removeAction(action)
+        
+        for node_descr in self._last_opened :
+            action = self.menuLast_open.addAction(node_descr)
+            self._last_open_action_group.addAction(action)
+        
+        self.menuLast_open.setEnabled(len(self._last_opened) > 0)
+    
+    def reopen_last (self, action) :
+        """Reopen a last open node.
+        """
+        gr = str(action.text() ).split(".")
+        pkgid = ".".join(gr[:-1])
+        name = gr[-1]
+        manager = PackageManager()
+        factory = manager[pkgid][name]
+        self.open_compositenode(factory)
+    
+    def add_last_open (self, pkgid, factory_name) :
+        """Register a new lest opened node.
+        """
+        key = ".".join([pkgid,factory_name])
+        try :
+            self._last_opened.remove(key)
+        except ValueError :
+            pass
+        
+        self._last_opened.insert(0,key)
+        if len(self._last_opened) > 4 :
+            del self._last_opened[-1]
+        
+        self.redo_last_open_menu()
     
     def __wsMenuShow(self):
         widget = self.tabWorkspace.currentWidget()
@@ -223,13 +349,15 @@ class MainWindow(QtGui.QMainWindow,
             if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
                 self.actionUseCustomColor.setChecked(True)
                 break
-
+    
     def open_compositenode(self, factory):
         """ open a  composite node editor """
         node = factory.instantiate()
 
         self.session.add_workspace(node, notify=False)
         self.open_widget_tab(node, factory=factory)
+        
+        self.add_last_open(factory.__pkg_id__,factory.name)
 
 
     def about(self):
@@ -255,7 +383,7 @@ class MainWindow(QtGui.QMainWindow,
     def quit(self):
         """ Quit Application """
 
-        QtGui.QApplication.closeAllWindows()
+        #QtGui.QApplication.closeAllWindows()
 
 
     def notify(self, sender, event):
@@ -276,6 +404,10 @@ class MainWindow(QtGui.QMainWindow,
     def closeEvent(self, event):
         """ Close All subwindows """
         
+        #Save personnal settings
+        self.write_settings()
+        
+        #close windows
         for i in range(self.tabWorkspace.count()):
             w = self.tabWorkspace.widget(i)
             w.close()
@@ -377,10 +509,9 @@ class MainWindow(QtGui.QMainWindow,
         self.reinit_treeview()
 
         # Reload workspace
-        for index in range(self.tabWorkspace.count()):
-            self.operator.graph_reload_from_factory(index)
-         
-    
+        for index in range(len(self.index_nodewidget)):
+            self.reload_from_factory(index)
+
     def ws_changed(self, index):
         """ Current workspace has changed """
         self.session.cworkspace = index
