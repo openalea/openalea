@@ -288,6 +288,7 @@ class MainWindow(QtGui.QMainWindow,
         #workspace
         try :
             last_open = eval(settings.get("WorkSpace","last") )
+            last_open.reverse()
             for item in last_open :
                 gr = item.split(".")
                 pkgid = ".".join(gr[:-1])
@@ -305,8 +306,9 @@ class MainWindow(QtGui.QMainWindow,
         for action in self._last_open_action_group.actions() :
             self._last_open_action_group.removeAction(action)
         
-        for node_descr in self._last_opened :
+        for i,node_descr in enumerate(self._last_opened) :
             action = self.menuLast_open.addAction(node_descr)
+            action.setShortcut("Ctrl+%d" % (i + 1) )
             self._last_open_action_group.addAction(action)
         
         self.menuLast_open.setEnabled(len(self._last_opened) > 0)
@@ -490,6 +492,8 @@ class MainWindow(QtGui.QMainWindow,
 
         index = self.tabWorkspace.insertTab(pos, gwidget, caption)
         self.tabWorkspace.setCurrentIndex(index)
+        if gwidget is not None :
+            gwidget.show_entire_scene()
 
         return index
         
