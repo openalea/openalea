@@ -646,7 +646,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         in order to display the entire content
         without scrolling.
         """
-        print "scale to show"
         sc_rect = self.scene().itemsBoundingRect()
         
         sc_center = sc_rect.center()
