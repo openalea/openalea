@@ -21,7 +21,7 @@ __revision__ = " $Id$ "
 
 import sys
 import traceback as tb
-
+from openalea.core import ScriptLibrary
 
 class EvaluationException(Exception):
 
@@ -654,3 +654,52 @@ DefaultEvaluation = LambdaEvaluation
 
 # DefaultEvaluation = ParallelEvaluation
 # #DefaultEvaluation = LambdaEvaluation
+class ToScriptEvaluation(AbstractEvaluation):
+    """ Basic transformation into script algorithm """
+
+    def __init__(self, dataflow):
+
+        AbstractEvaluation.__init__(self, dataflow)
+        # a property to specify if the node has already been evaluated
+        self._evaluated = set()
+
+    def is_stopped(self, vid, actor):
+        """ Return True if evaluation must be stop at this vertex """
+        return actor.block or vid in self._evaluated
+
+    def eval_vertex(self, vid, *args):
+        """ Evaluate the vertex vid """
+
+        df = self._dataflow
+        actor = df.actor(vid)
+
+        self._evaluated.add(vid)
+
+        script = ""
+        # For each inputs
+        for pid in df.in_ports(vid):
+            # For each connected node
+            for npid, nvid, nactor in self.get_parent_nodes(pid):
+                if not self.is_stopped(nvid, nactor):
+                    script += self.eval_vertex(nvid)
+
+        # Eval the node
+        script += actor.to_script()
+        
+        return script
+
+    def eval(self, *args):
+        """ Evaluate the whole dataflow starting from leaves"""
+        df = self._dataflow
+
+        # Unvalidate all the nodes
+        self._evaluated.clear()
+        ScriptLibrary().clear()
+
+        # Eval from the leaf
+        script = ""
+        for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0):
+            script += self.eval_vertex(vid)
+        
+        return script
+

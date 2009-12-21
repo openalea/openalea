@@ -514,6 +514,9 @@ class Node(AbstractNode):
 
 	for d in outputs:
 	    self.add_output(**d)
+        
+        #to_script
+        self._to_script_func = None
 
     def add_input(self, **kargs):
         """ Create an input port """
@@ -706,6 +709,14 @@ class Node(AbstractNode):
         self.notify_listeners(("input_modified", -1))
 
         self.continuous_eval.notify_listeners(("node_modified", self))
+    
+    def to_script (self):
+        """Script translation of this node.
+        """
+        if self._to_script_func is None :
+            return "#node %s do not define any scripting\n" % self.factory.name
+        else :
+            return self._to_script_func(self.inputs,self.outputs)
 
 
 class FuncNode(Node):
@@ -941,6 +952,8 @@ class NodeFactory(AbstractFactory):
         self.nodeclass_name = nodeclass
         self.widgetmodule_name = widgetmodule
         self.widgetclass_name = widgetclass
+        
+        self.toscriptclass_name = kargs.get("toscriptclass_name",None)
 
         # Cache
         self.nodeclass = None
@@ -1033,6 +1046,10 @@ class NodeFactory(AbstractFactory):
                 node.set_caption(self.name)
         except:
             pass
+        
+        # to script
+        if self.toscriptclass_name is not None :
+            node._to_script_func = module.__dict__.get(self.toscriptclass_name, None)
 
         return node
 

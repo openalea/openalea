@@ -196,6 +196,9 @@ class DataNode(Node):
     def changed(self, path):
         """ Call listeners """
         self.continuous_eval.notify_listeners(("node_modified", ))
+    
+    def to_script (self):
+        return "\n"
 
 
 class PyDataFactoryWriter(object):

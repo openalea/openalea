@@ -584,6 +584,13 @@ class CompositeNode(Node, DataFlow):
 
         return ()
 
+    def to_script (self) :
+        """Translate the dataflow into a python script.
+        """
+        from algo.dataflow_evaluation import ToScriptEvaluation
+        algo = ToScriptEvaluation(self)
+        return algo.eval()
+    
     def node(self, vid):
         """ Convenience function """
         return self.actor(vid)
@@ -1121,6 +1128,9 @@ class CompositeNodeInput(Node):
 
     def eval(self):
         return False
+    
+    def to_script (self):
+        return ""
 
 
 class CompositeNodeOutput(Node):
@@ -1156,6 +1166,9 @@ class CompositeNodeOutput(Node):
 
     def eval(self):
         return False
+    
+    def to_script (self):
+        return ""
 
 
 class PyCNFactoryWriter(object):
