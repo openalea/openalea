@@ -21,6 +21,7 @@ __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
 import os, sys
+from os.path import exists
 from openalea.sconsx.config import *
 
 
@@ -63,8 +64,12 @@ class CGAL:
             self._default['libs'] = 'CGAL'
 
       elif isinstance(platform, Posix):
-         self._default['include'] = '/usr/include'
-         self._default['libpath'] = '/usr/lib'
+         if exists('/usr/lib/libCGAL.so') :
+             self._default['include'] = '/usr/include'
+             self._default['libpath'] = '/usr/lib'
+         else :
+             self._default['include'] = '/usr/local/include'
+             self._default['libpath'] = '/usr/local/lib'
          self._default['libs'] = 'CGAL'
          self._default['flags'] = ''
          self._default['defines'] = ''
