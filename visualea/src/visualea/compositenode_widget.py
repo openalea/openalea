@@ -317,6 +317,7 @@ class EditGraphWidget(QtGui.QGraphicsView, NodeWidget):
             QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def showToolTip(self):
+        return
         self.__tooltipTimer.stop()
         graph_item = self.itemAt(self.__tooltipTimer.pos)
         if isinstance(graph_item, GraphicalNode):
