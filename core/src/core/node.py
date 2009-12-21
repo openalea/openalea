@@ -226,7 +226,7 @@ class AbstractPort(dict, Observed, AbstractListener):
         """Gets the interface  """
         return self.get("interface", None)
 
-    def get_tip(self):
+    def get_tip(self, current_value = None):
         """ Return the tool tip """
 
         name = self['name']
@@ -248,7 +248,10 @@ class AbstractPort(dict, Observed, AbstractListener):
         if len(comment) > 100:
             comment = comment[:100] + ' ...'
 
-        return '%s(%s): %s [default=%s] ' % (name, iname, desc, comment)
+        if current_value is None :
+            return '%s(%s): %s [default=%s] ' % (name, iname, desc, comment)
+        else :
+            return '%s(%s): %s' % (name,iname,str(current_value) )
 
 
 class InputPort(AbstractPort):
