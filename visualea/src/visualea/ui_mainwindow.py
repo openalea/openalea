@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Dec  3 12:16:30 2009
-#      by: PyQt4 UI code generator 4.6.2
+# Created: Mon Dec 21 10:26:48 2009
+#      by: PyQt4 UI code generator 4.3.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,234 +12,316 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(852, 593)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/openalea_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        MainWindow.setWindowIcon(icon)
+        MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,852,593).size()).expandedTo(MainWindow.minimumSizeHint()))
+        MainWindow.setWindowIcon(QtGui.QIcon(":/icons/openalea_icon.png"))
+
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.vboxlayout = QtGui.QVBoxLayout(self.centralwidget)
         self.vboxlayout.setObjectName("vboxlayout")
+
         self.splitter_3 = QtGui.QSplitter(self.centralwidget)
         self.splitter_3.setOrientation(QtCore.Qt.Horizontal)
         self.splitter_3.setObjectName("splitter_3")
+
         self.splitter_2 = QtGui.QSplitter(self.splitter_3)
         self.splitter_2.setOrientation(QtCore.Qt.Vertical)
         self.splitter_2.setObjectName("splitter_2")
+
         self.tabPackager = QtGui.QTabWidget(self.splitter_2)
         self.tabPackager.setObjectName("tabPackager")
+
         self.packageview = QtGui.QWidget()
         self.packageview.setObjectName("packageview")
+
         self.vboxlayout1 = QtGui.QVBoxLayout(self.packageview)
         self.vboxlayout1.setSpacing(6)
         self.vboxlayout1.setMargin(6)
         self.vboxlayout1.setObjectName("vboxlayout1")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icons/package.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.tabPackager.addTab(self.packageview, icon1, "")
+        self.tabPackager.addTab(self.packageview,QtGui.QIcon(":/icons/package.png"),"")
+
         self.categoryview = QtGui.QWidget()
         self.categoryview.setObjectName("categoryview")
+
         self.vboxlayout2 = QtGui.QVBoxLayout(self.categoryview)
         self.vboxlayout2.setSpacing(6)
         self.vboxlayout2.setMargin(6)
         self.vboxlayout2.setObjectName("vboxlayout2")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icons/category.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.tabPackager.addTab(self.categoryview, icon2, "")
+        self.tabPackager.addTab(self.categoryview,QtGui.QIcon(":/icons/category.png"),"")
+
         self.searchview = QtGui.QWidget()
         self.searchview.setObjectName("searchview")
+
         self.vboxlayout3 = QtGui.QVBoxLayout(self.searchview)
         self.vboxlayout3.setSpacing(6)
         self.vboxlayout3.setMargin(6)
         self.vboxlayout3.setObjectName("vboxlayout3")
+
         self.search_lineEdit = QtGui.QLineEdit(self.searchview)
         self.search_lineEdit.setObjectName("search_lineEdit")
         self.vboxlayout3.addWidget(self.search_lineEdit)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/icons/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.tabPackager.addTab(self.searchview, icon3, "")
+        self.tabPackager.addTab(self.searchview,QtGui.QIcon(":/icons/search.png"),"")
+
         self.poolTabWidget = QtGui.QTabWidget(self.splitter_2)
         self.poolTabWidget.setObjectName("poolTabWidget")
+
         self.pooltab = QtGui.QWidget()
         self.pooltab.setObjectName("pooltab")
+
         self.vboxlayout4 = QtGui.QVBoxLayout(self.pooltab)
         self.vboxlayout4.setSpacing(6)
         self.vboxlayout4.setMargin(6)
         self.vboxlayout4.setObjectName("vboxlayout4")
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(":/icons/datapool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.poolTabWidget.addTab(self.pooltab, icon4, "")
+        self.poolTabWidget.addTab(self.pooltab,QtGui.QIcon(":/icons/datapool.png"),"")
+
         self.splitter = QtGui.QSplitter(self.splitter_3)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
         self.splitter.setSizePolicy(sizePolicy)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
+
         self.tabWorkspace = QtGui.QTabWidget(self.splitter)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(3)
         sizePolicy.setHeightForWidth(self.tabWorkspace.sizePolicy().hasHeightForWidth())
         self.tabWorkspace.setSizePolicy(sizePolicy)
         self.tabWorkspace.setObjectName("tabWorkspace")
+
         self.usetab = QtGui.QWidget()
         self.usetab.setObjectName("usetab")
+
         self.vboxlayout5 = QtGui.QVBoxLayout(self.usetab)
         self.vboxlayout5.setSpacing(6)
         self.vboxlayout5.setMargin(6)
         self.vboxlayout5.setObjectName("vboxlayout5")
-        self.tabWorkspace.addTab(self.usetab, "")
+        self.tabWorkspace.addTab(self.usetab,"")
         self.vboxlayout.addWidget(self.splitter_3)
         MainWindow.setCentralWidget(self.centralwidget)
+
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 852, 21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,852,26))
         self.menubar.setObjectName("menubar")
+
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
+
         self.menu_Export = QtGui.QMenu(self.menu_File)
         self.menu_Export.setObjectName("menu_Export")
+
         self.menuDataPool = QtGui.QMenu(self.menubar)
         self.menuDataPool.setObjectName("menuDataPool")
+
         self.menu_Help = QtGui.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
+
         self.menu_Python = QtGui.QMenu(self.menubar)
         self.menu_Python.setObjectName("menu_Python")
+
         self.menu_Workspace = QtGui.QMenu(self.menubar)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.menu_Workspace.setWindowIcon(icon5)
         self.menu_Workspace.setObjectName("menu_Workspace")
+
         self.menuAlign = QtGui.QMenu(self.menu_Workspace)
         self.menuAlign.setObjectName("menuAlign")
+
         self.menuColour = QtGui.QMenu(self.menu_Workspace)
         self.menuColour.setObjectName("menuColour")
+
+        self.menuLast_open = QtGui.QMenu(self.menu_Workspace)
+        self.menuLast_open.setObjectName("menuLast_open")
+
         self.menu_Package = QtGui.QMenu(self.menubar)
         self.menu_Package.setObjectName("menu_Package")
+
         self.menuCreate = QtGui.QMenu(self.menu_Package)
         self.menuCreate.setObjectName("menuCreate")
+
         self.menu_Window = QtGui.QMenu(self.menubar)
         self.menu_Window.setObjectName("menu_Window")
         MainWindow.setMenuBar(self.menubar)
+
         self.action_About = QtGui.QAction(MainWindow)
         self.action_About.setObjectName("action_About")
+
         self.action_Help = QtGui.QAction(MainWindow)
         self.action_Help.setObjectName("action_Help")
+
         self.action_Quit = QtGui.QAction(MainWindow)
         self.action_Quit.setObjectName("action_Quit")
+
         self.action_New_Package = QtGui.QAction(MainWindow)
         self.action_New_Package.setObjectName("action_New_Package")
+
         self.actionSystem_Search = QtGui.QAction(MainWindow)
         self.actionSystem_Search.setObjectName("actionSystem_Search")
+
         self.action_Add_File = QtGui.QAction(MainWindow)
         self.action_Add_File.setObjectName("action_Add_File")
+
         self.action_Auto_Search = QtGui.QAction(MainWindow)
         self.action_Auto_Search.setObjectName("action_Auto_Search")
+
         self.action_Close_current_workspace = QtGui.QAction(MainWindow)
         self.action_Close_current_workspace.setObjectName("action_Close_current_workspace")
+
         self.action_Run = QtGui.QAction(MainWindow)
         self.action_Run.setObjectName("action_Run")
+
         self.action_New_Network = QtGui.QAction(MainWindow)
         self.action_New_Network.setObjectName("action_New_Network")
+
         self.actionOpenAlea_Web = QtGui.QAction(MainWindow)
         self.actionOpenAlea_Web.setObjectName("actionOpenAlea_Web")
+
         self.action_Execute_script = QtGui.QAction(MainWindow)
         self.action_Execute_script.setObjectName("action_Execute_script")
+
         self.action_New_Session = QtGui.QAction(MainWindow)
         self.action_New_Session.setObjectName("action_New_Session")
+
         self.action_Open_Session = QtGui.QAction(MainWindow)
         self.action_Open_Session.setObjectName("action_Open_Session")
+
         self.action_Save_Session = QtGui.QAction(MainWindow)
         self.action_Save_Session.setObjectName("action_Save_Session")
+
         self.actionSave_as = QtGui.QAction(MainWindow)
         self.actionSave_as.setObjectName("actionSave_as")
+
         self.action_Export_to_Factory = QtGui.QAction(MainWindow)
         self.action_Export_to_Factory.setObjectName("action_Export_to_Factory")
+
         self.actionExport_to_Application = QtGui.QAction(MainWindow)
         self.actionExport_to_Application.setObjectName("actionExport_to_Application")
+
         self.actionClear_Data_Pool = QtGui.QAction(MainWindow)
         self.actionClear_Data_Pool.setObjectName("actionClear_Data_Pool")
+
         self.actionFind_Node = QtGui.QAction(MainWindow)
         self.actionFind_Node.setObjectName("actionFind_Node")
+
         self.actionNew_Python_Node = QtGui.QAction(MainWindow)
         self.actionNew_Python_Node.setObjectName("actionNew_Python_Node")
+
         self.actionNew_Package = QtGui.QAction(MainWindow)
         self.actionNew_Package.setObjectName("actionNew_Package")
+
         self.action_EditNode = QtGui.QAction(MainWindow)
         self.action_EditNode.setObjectName("action_EditNode")
+
         self.actionShow_Pool = QtGui.QAction(MainWindow)
         self.actionShow_Pool.setObjectName("actionShow_Pool")
+
         self.action_OpenNode = QtGui.QAction(MainWindow)
         self.action_OpenNode.setObjectName("action_OpenNode")
+
         self.action_Delete_2 = QtGui.QAction(MainWindow)
         self.action_Delete_2.setObjectName("action_Delete_2")
+
         self.action_New_Empty_Workspace = QtGui.QAction(MainWindow)
         self.action_New_Empty_Workspace.setObjectName("action_New_Empty_Workspace")
+
         self.actionReload_from_Model = QtGui.QAction(MainWindow)
         self.actionReload_from_Model.setObjectName("actionReload_from_Model")
+
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName("actionPreferences")
+
         self.actionConfigure_I_O = QtGui.QAction(MainWindow)
         self.actionConfigure_I_O.setObjectName("actionConfigure_I_O")
+
         self.actionGroup_Selection = QtGui.QAction(MainWindow)
         self.actionGroup_Selection.setObjectName("actionGroup_Selection")
+
         self.actionOpen_Console = QtGui.QAction(MainWindow)
         self.actionOpen_Console.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionOpen_Console.setObjectName("actionOpen_Console")
+
         self.action_Copy = QtGui.QAction(MainWindow)
         self.action_Copy.setObjectName("action_Copy")
+
         self.action_Paste = QtGui.QAction(MainWindow)
         self.action_Paste.setObjectName("action_Paste")
+
         self.action_Cut = QtGui.QAction(MainWindow)
         self.action_Cut.setObjectName("action_Cut")
+
         self.actionReset = QtGui.QAction(MainWindow)
         self.actionReset.setObjectName("actionReset")
+
         self.actionPreview_Application = QtGui.QAction(MainWindow)
         self.actionPreview_Application.setObjectName("actionPreview_Application")
+
         self.actionLeft_Panel = QtGui.QAction(MainWindow)
         self.actionLeft_Panel.setObjectName("actionLeft_Panel")
+
         self.actionWorkspaces = QtGui.QAction(MainWindow)
         self.actionWorkspaces.setObjectName("actionWorkspaces")
+
         self.actionDisplay_Package_Manager = QtGui.QAction(MainWindow)
         self.actionDisplay_Package_Manager.setCheckable(True)
         self.actionDisplay_Package_Manager.setChecked(True)
         self.actionDisplay_Package_Manager.setObjectName("actionDisplay_Package_Manager")
+
         self.actionDisplay_Workspaces = QtGui.QAction(MainWindow)
         self.actionDisplay_Workspaces.setCheckable(True)
         self.actionDisplay_Workspaces.setChecked(True)
         self.actionDisplay_Workspaces.setObjectName("actionDisplay_Workspaces")
+
         self.actionInvalidate = QtGui.QAction(MainWindow)
         self.actionInvalidate.setObjectName("actionInvalidate")
+
         self.actionClea_r_Console = QtGui.QAction(MainWindow)
         self.actionClea_r_Console.setObjectName("actionClea_r_Console")
+
         self.action_Image = QtGui.QAction(MainWindow)
         self.action_Image.setObjectName("action_Image")
+
         self.action_Svg = QtGui.QAction(MainWindow)
         self.action_Svg.setObjectName("action_Svg")
+
         self.action_Application = QtGui.QAction(MainWindow)
         self.action_Application.setObjectName("action_Application")
+
         self.action_Data_File = QtGui.QAction(MainWindow)
         self.action_Data_File.setObjectName("action_Data_File")
+
         self.actionShow_log = QtGui.QAction(MainWindow)
         self.actionShow_log.setObjectName("actionShow_log")
+
         self.actionAlignHorizontally = QtGui.QAction(MainWindow)
         self.actionAlignHorizontally.setObjectName("actionAlignHorizontally")
+
         self.actionAlignLeft = QtGui.QAction(MainWindow)
         self.actionAlignLeft.setObjectName("actionAlignLeft")
+
         self.actionAlignRight = QtGui.QAction(MainWindow)
         self.actionAlignRight.setObjectName("actionAlignRight")
+
         self.actionAlignMean = QtGui.QAction(MainWindow)
         self.actionAlignMean.setObjectName("actionAlignMean")
+
         self.actionSetCustomColor = QtGui.QAction(MainWindow)
         self.actionSetCustomColor.setObjectName("actionSetCustomColor")
+
         self.actionUseCustomColor = QtGui.QAction(MainWindow)
         self.actionUseCustomColor.setCheckable(True)
         self.actionUseCustomColor.setObjectName("actionUseCustomColor")
+
         self.actionDistributeHorizontally = QtGui.QAction(MainWindow)
         self.actionDistributeHorizontally.setObjectName("actionDistributeHorizontally")
+
         self.actionDistributeVertically = QtGui.QAction(MainWindow)
         self.actionDistributeVertically.setObjectName("actionDistributeVertically")
+
+        self.actionTo_script = QtGui.QAction(MainWindow)
+        self.actionTo_script.setObjectName("actionTo_script")
         self.menu_Export.addAction(self.action_Image)
         self.menu_Export.addAction(self.action_Svg)
         self.menu_Export.addAction(self.action_Application)
@@ -271,6 +353,7 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addAction(self.actionInvalidate)
         self.menu_Workspace.addAction(self.actionReset)
         self.menu_Workspace.addAction(self.actionConfigure_I_O)
+        self.menu_Workspace.addAction(self.menuLast_open.menuAction())
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
         self.menu_Workspace.addAction(self.action_Copy)
@@ -286,6 +369,7 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionExport_to_Application)
         self.menu_Workspace.addAction(self.actionPreview_Application)
+        self.menu_Workspace.addAction(self.actionTo_script)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.menuAlign.menuAction())
         self.menu_Workspace.addAction(self.menuColour.menuAction())
@@ -333,6 +417,7 @@ class Ui_MainWindow(object):
         self.menu_Workspace.setTitle(QtGui.QApplication.translate("MainWindow", "&Workspace", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAlign.setTitle(QtGui.QApplication.translate("MainWindow", "Align", None, QtGui.QApplication.UnicodeUTF8))
         self.menuColour.setTitle(QtGui.QApplication.translate("MainWindow", "Color", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuLast_open.setTitle(QtGui.QApplication.translate("MainWindow", "last open", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Package.setTitle(QtGui.QApplication.translate("MainWindow", "&Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCreate.setTitle(QtGui.QApplication.translate("MainWindow", "&Add", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Window.setTitle(QtGui.QApplication.translate("MainWindow", "&Window", None, QtGui.QApplication.UnicodeUTF8))
@@ -414,5 +499,6 @@ class Ui_MainWindow(object):
         self.actionDistributeHorizontally.setText(QtGui.QApplication.translate("MainWindow", "Distribute Horizontally", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDistributeVertically.setText(QtGui.QApplication.translate("MainWindow", "Distribute Vertically", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDistributeVertically.setToolTip(QtGui.QApplication.translate("MainWindow", "DistributeVertically", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionTo_script.setText(QtGui.QApplication.translate("MainWindow", "to script", None, QtGui.QApplication.UnicodeUTF8))
 
 import images_rc
