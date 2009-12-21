@@ -226,7 +226,10 @@ class MainWindow(QtGui.QMainWindow,
         self.read_settings()
 
     def debug (self) :
-        print "items",self.packageTreeView.expanded_items
+        v = self.packageTreeView
+        print "items",v.expanded_items
+        print "model",v.model()
+        print "map",v.model().index_map
     
     def write_settings (self) :
         """Save application settings.
@@ -513,8 +516,9 @@ class MainWindow(QtGui.QMainWindow,
         self.reinit_treeview()
 
         # Reload workspace
-        for index in range(len(self.index_nodewidget)):
-            self.reload_from_factory(index)
+        print "WARNING TODO RELOAD EACH TAB"
+        #for index in range(len(self.index_nodewidget)):
+        #    self.reload_from_factory(index)
 
     def ws_changed(self, index):
         """ Current workspace has changed """
