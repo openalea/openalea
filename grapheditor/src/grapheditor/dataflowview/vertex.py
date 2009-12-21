@@ -244,8 +244,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
             data = node.get_input(self.port().get_id())
         s = str(data)
         if(len(s) > self.MAX_TIPLEN): s = "String too long..."
-        self.setToolTip("Value: " + s)
-            
+        #self.setToolTip("Value: " + s)
+        self.setToolTip(self.port().get_tip(data) )
+    
     def set_highlighted(self, val):
         self.highlighted = val
         self.update()
