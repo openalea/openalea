@@ -206,7 +206,7 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
         self.operator + (self.actionUseCustomColor, "graph_useUserColor")                
 
-        self.connect(self.actionTo_script, SIGNAL("triggered()"), self.to_python_script)
+        self.connect(self.actionTo_script, SIGNAL("triggered()"), self._script)
         
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
@@ -720,6 +720,14 @@ class MainWindow(QtGui.QMainWindow,
     def display_rightpanel(self, toggled):
         self.splitter.setVisible(toggled)
 
+    @exception_display
+    @busy_cursor
+    def to_python_script(self):
+        """Translate the active workspace into a python script"""
+
+        cindex = self.tabWorkspace.currentIndex()
+        print "BEGIN script"
+        print self.index_nodewidget[cindex].node.to_script(),"END script"
 
     def export_image(self):
         """ Export current workspace to an image """
