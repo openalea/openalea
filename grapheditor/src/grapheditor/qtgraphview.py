@@ -531,6 +531,8 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
         baselisteners.GraphListenerBase.__init__(self, graph)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
         #we bind application overloads if they exist
         #once and for all. As this happens after the
@@ -558,7 +560,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-        self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        #self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
         
@@ -639,6 +641,30 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def scale_view(self, factor):
         self.scale(factor, factor)
 
+    def show_entire_scene (self) :
+        """Scale the scene and center it
+        in order to display the entire content
+        without scrolling.
+        """
+        print "scale to show"
+        sc_rect = self.scene().itemsBoundingRect()
+        
+        sc_center = sc_rect.center()
+        if sc_rect.width() > 0. :
+            w_ratio = self.width() / sc_rect.width() * 0.9
+        else :
+            w_ratio = 1.
+        if sc_rect.height() > 0. :
+            h_ratio = self.height() / sc_rect.height() * 0.9
+        else :
+            h_ratio = 1.
+        sc_scale = min(w_ratio,h_ratio)
+        
+        mat = QtGui.QMatrix()
+        mat.scale(sc_scale,sc_scale)
+        self.setMatrix(mat)
+        self.centerOn(sc_center)
+    
     def rebuild_scene(self):
         """ Build the scene with graphic vertex and edge"""
         self.clear_scene()
