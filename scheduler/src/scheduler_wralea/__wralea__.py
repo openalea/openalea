@@ -45,6 +45,7 @@ task = Factory( name= "task",
                         dict(name="name", interface=IStr, value=""),
                         dict(name="start", interface=IInt, value=0),),
                 outputs=(dict(name="(task,start)", interface=ISequence,),),
+                toscriptclass_name = "create_task_script",
             )
 
 __all__.append('task')
@@ -56,6 +57,7 @@ scheduler = Factory( name= "scheduler",
                 nodeclass = "create_scheduler",
                 inputs=(dict(name="tasks", interface=ISequence,),),
                 outputs=(dict(name="scheduler", interface=None,),),
+                toscriptclass_name = "create_scheduler_script",
             )
 
 __all__.append('scheduler')
@@ -68,9 +70,22 @@ run = Factory( name= "run",
                 inputs=(dict(name="scheduler",),
                 dict(name="nb_step", interface=IInt,),),
                 outputs=(dict(name="scheduler", interface=None,),),
+                toscriptclass_name = "run_script",
             )
 
 __all__.append('run')
+
+loop = Factory( name= "loop", 
+                description= "",
+                category = "",
+                nodemodule = "scheduler",
+                nodeclass = "create_loop",
+                inputs=(dict(name="scheduler", interface=None),),
+                outputs=(dict(name="scheduler", interface=None,),),
+                toscriptclass_name = "create_loop_script",
+            )
+
+__all__.append('loop')
 
 call = Factory( name= "call", 
                 description= "",
@@ -79,6 +94,7 @@ call = Factory( name= "call",
                 nodeclass = "call",
                 inputs=(dict(name="func", interface=IFunction),),
                 outputs=(dict(name="val", interface=None,),),
+                toscriptclass_name = "call_script",
             )
 
 __all__.append('call')
