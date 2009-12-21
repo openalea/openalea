@@ -25,28 +25,13 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 
 from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
+from streamredirection import *
 
 
-class MultipleRedirection:
-    """ Dummy file which redirects stream to multiple file """
-
-    def __init__(self, files):
-        """ The stream is redirect to the file list 'files' """
-
-        self.files = files
-
-    def write(self, str):
-        """ Emulate write function """
-
-        for f in self.files:
-            f.write(str)
-
-
-
-class SciShell(QsciScintilla):
+class SciShell(QsciScintilla,GraphicalStreamRedirection):
     """
     SciShell is a Python shell based in QScintilla.
-    It is inspired bu PyCute (pycute.py) : http://gerard.vermeulen.free.fr (GPL)
+    It is inspired by PyCute (pycute.py) : http://gerard.vermeulen.free.fr (GPL)
     and Eric4 shell (shell.py) : http://www.die-offenbachs.de/eric/index.html (GPL)
     """
     
@@ -63,8 +48,10 @@ class SciShell(QsciScintilla):
         """
 
         QsciScintilla.__init__(self, parent)
+        GraphicalStreamRedirection.__init__(self)
+        
         self.interpreter = interpreter
-
+        
         # user interface setup
         self.setAutoIndent(True)
         self.setAutoCompletionThreshold(4)
@@ -84,11 +71,6 @@ class SciShell(QsciScintilla):
         self.history = []
         self.histidx = -1
         
-        # # capture all interactive input/output 
-        sys.stdout   = self
-        sys.stderr   = MultipleRedirection((sys.stderr, self))
-        sys.stdin    = self
-
         self.reading = 0
         # interpreter prompt.
         try:
@@ -138,10 +120,13 @@ class SciShell(QsciScintilla):
 
         self.setFocus()
 
+    def customEvent(self,event):
+        GraphicalStreamRedirection.customEvent(self,event)
+        QsciScintilla.customEvent(self,event)
 
     def clear(self):
         """ Clear shell """
-
+        QsciScintilla.clear(self)
 
     def get_interpreter(self):
         """ Return the interpreter object """

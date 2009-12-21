@@ -24,7 +24,7 @@ import os, sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QTextEdit, QTextCursor
 from PyQt4.QtCore import Qt
-
+from streamredirection import *
 
 def get_shell_class():
     """ Return the shell class to instantiate """
@@ -38,23 +38,9 @@ def get_shell_class():
         return PyCutExt
     
 
-
-class MultipleRedirection:
-    """ Dummy file which redirects stream to multiple file """
-
-    def __init__(self, files):
-        """ The stream is redirect to the file list 'files' """
-
-        self.files = files
-
-    def write(self, str):
-        """ Emulate write function """
-
-        for f in self.files:
-            f.write(str)
             
 
-class PyCutExt(QTextEdit):
+class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
     """
     PyCute is a Python shell for PyQt.
@@ -82,6 +68,8 @@ class PyCutExt(QTextEdit):
         """
 
         QTextEdit.__init__(self, parent)
+        GraphicalStreamRedirection.__init__(self)
+        
         self.interpreter = interpreter
         self.colorizer = SyntaxColor()
 
@@ -93,11 +81,6 @@ class PyCutExt(QTextEdit):
             self.eofKey = Qt.Key_D
         else:
             self.eofKey = None
-
-        # capture all interactive input/output 
-        sys.stdout   = self
-        sys.stderr   = MultipleRedirection((sys.stderr, self))
-        sys.stdin    = self
 
         
         # last line + last incomplete lines
@@ -469,6 +452,9 @@ class PyCutExt(QTextEdit):
         else:
             event.ignore()
 
+    def customEvent(self,event):
+        GraphicalStreamRedirection.customEvent(self,event)
+        QTextEdit.customEvent(self,event)
             
 
 
