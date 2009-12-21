@@ -232,7 +232,7 @@ class DataFlow(PropertyGraph):
         for pid in self.in_ports(vid):
             if self._ports[pid]._local_pid == local_pid:
                 return pid
-        raise PortError("local pid '%s' does not exist" % str(local_pid))
+        raise PortError("local pid '%s' does not exist for vertex %d" % (str(local_pid),vid) )
 
     #####################################################
     #
