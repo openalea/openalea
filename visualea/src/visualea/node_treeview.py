@@ -161,6 +161,19 @@ class PkgModel (QAbstractItemModel) :
         return QtCore.QVariant()
 
 
+    def get_full_name (self, item) :
+        """construct a full unique name from item
+        using parent.parent.item syntax
+        """
+        if item is None :
+            return None
+        try :
+            if item.item is not None :
+                return item.item.name
+        except AttributeError :
+            pass
+        return item.name
+    
     def index(self, row, column, parent):
 
         if (not parent.isValid()):
@@ -178,7 +191,9 @@ class PkgModel (QAbstractItemModel) :
         
         i = self.createIndex(row, column, childItem)
 
-        self.index_map[childItem.name] = i
+        name = self.get_full_name(childItem)
+        #self.index_map[childItem.name] = i
+        self.index_map[name] = i
  
         return i
         
@@ -871,11 +886,15 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
 
 
     def collapsed(self, index):
-        self.expanded_items.remove(index.internalPointer().name)
+        name = self.model().get_full_name(index.internalPointer() )
+        #self.expanded_items.remove(index.internalPointer().name)
+        self.expanded_items.remove(name)
 
 
     def expanded(self, index):
-        self.expanded_items.add(index.internalPointer().name)
+        name = self.model().get_full_name(index.internalPointer() )
+        #self.expanded_items.add(index.internalPointer().name)
+        self.expanded_items.add(name)
 
 
     def reset(self):
