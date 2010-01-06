@@ -10,6 +10,16 @@ border-right: 2px solid red;
 background-color: #ff6347
 }
 
+p.admonition-title {
+    display: offline;
+}
+
+/*p.first.admonition-title {
+background-color: #aa6347;
+width: 100%;
+}
+*/
+
 p.rubric {
 color:blue;
 }
@@ -178,6 +188,18 @@ text-align:justify;
 }
 
 
+div.align-center.figure{
+float: center;
+width:45%;
+border:2px solid #888;
+padding:2px;
+margin-left:30%;
+margin-right:2%;
+margin-top:2%;
+margin-bottom:2%;
+clear:right;
+text-align: justify;
+}
 
 div.align-right.figure{
 float: right;
