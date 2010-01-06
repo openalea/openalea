@@ -37,7 +37,9 @@ Use the *literalinclude* directive:
     .. literalinclude:: filename
         :linenos:
         :language: python
-
+        :lines: 1, 3-5
+        :start-after: 3
+        :end-before: 5
 
 How to include reST file using a TOC tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

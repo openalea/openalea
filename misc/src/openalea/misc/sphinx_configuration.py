@@ -256,10 +256,11 @@ latex_preamble = """
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None, 
-                       'http://openalea.gforge.inria.fr/doc/openalea/core/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/deploygui/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/misc/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/sconsx/doc/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/stdlib/doc/html': None}
+                       'http://openalea.gforge.inria.fr/doc/openalea/core/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/deploygui/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/misc/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/scheduler/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/sconsx/doc/_build/html': None,
+                       'http://openalea.gforge.inria.fr/doc/openalea/stdlib/doc/_build/html': None}
