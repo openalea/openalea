@@ -47,5 +47,10 @@ def read_metainfo(filename, section='metainfo', verbose=False):
         if verbose:
             print green('...%s: %s' % (option, config.get(section, option)))
         metadata[option] = config.get(section, option)
+    if 'project' in metadata.keys():
+        if metadata['project'] not in ['vplants','openalea','alinea']:
+            raise ValueError('option project (openalea/vplants/alinea) not found in metainfo.ini file')
+    else:
+        raise ValueError('option project (openalea/vplants/alinea) not found in metainfo.ini file')
 
     return metadata
