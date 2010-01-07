@@ -352,7 +352,7 @@ class CompositeNodeFactory(AbstractFactory):
             toDelete += conversion
 
         if(__debug__):
-            if(__builtin__.__debug_with_old__):
+            if( hasattr(__builtin__,"__debug_with_old__") and __builtin__.__debug_with_old__):
                 pass
         else:
             for key in toDelete:
