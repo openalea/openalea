@@ -57,6 +57,10 @@ def default_dataflow_paint(owner, painter, option, widget):
     painter.drawPath(path)
     path.moveTo(0.0,0.0)
 
+    userColor = owner.vertex().get_ad_hoc_dict().get_metadata("userColor")
+    if( userColor is None ):
+        owner.vertex().get_ad_hoc_dict().set_metadata("useUserColor", False)
+
     if hasattr(owner.vertex(), 'raise_exception'):
         color = default_error_color
         if(owner.isSelected()):
@@ -67,12 +71,12 @@ def default_dataflow_paint(owner, painter, option, widget):
         if(owner.isSelected()):
             color = default_selected_color
         elif(owner.vertex().get_ad_hoc_dict().get_metadata("useUserColor")):
-            color=QtGui.QColor(*owner.vertex().get_ad_hoc_dict().get_metadata("userColor"))
+            color=QtGui.QColor(*userColor)
         else:
             color = default_not_selected_color
 
     if(owner.vertex().get_ad_hoc_dict().get_metadata("useUserColor")):
-        secondcolor=QtGui.QColor(*owner.vertex().get_ad_hoc_dict().get_metadata("userColor"))
+        secondcolor=QtGui.QColor(*userColor)
     elif(owner.vertex().user_application):
         secondcolor = QtGui.QColor(255, 144, 0, 200)
     else:
