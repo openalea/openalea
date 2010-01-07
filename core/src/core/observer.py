@@ -81,7 +81,7 @@ class Observed(object):
                     try:
                         obs.call_notify(self, event)
                     except Exception, e:
-                        print "Warning : notification of", str(obs), "failed", e, self.get_id()
+                        print "Warning : notification of", str(obs), "failed", e
 
             for dead in toDelete:
                 self.listeners.discard(dead)
