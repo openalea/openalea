@@ -110,6 +110,7 @@ class AbstractNode(Observed, AbstractListener):
         # The default layout
         self.view = None
         self.user_application = None
+
     #gengraph
     def notify(self, sender, event):
         if(sender == self.__ad_hoc_dict):
