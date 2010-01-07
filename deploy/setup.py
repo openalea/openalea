@@ -9,7 +9,14 @@ except:
 from setuptools import setup, find_packages
 from os.path import join as pj
 
-from openalea.deploy.metainfo import read_metainfo
+try:
+    from openalea.deploy.metainfo import read_metainfo
+except:
+    import sys
+    sys.path.append('src/openalea/deploy')
+    from openalea.deploy.metainfo import read_metainfo
+
+
 metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in zip(metadata.keys(), metadata.values()):
     exec("%s = '%s'" % (key, value))
@@ -79,3 +86,4 @@ setup(
 
     #install_requires = plat_requires,
 )
+
