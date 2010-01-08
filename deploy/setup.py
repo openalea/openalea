@@ -13,8 +13,8 @@ try:
     from openalea.deploy.metainfo import read_metainfo
 except:
     import sys
-    sys.path.append('src')
-    from openalea.deploy.metainfo import read_metainfo
+    sys.path.append('src/openalea/deploy')
+    from metainfo import read_metainfo
 
 
 metadata = read_metainfo('metainfo.ini', verbose=True)
