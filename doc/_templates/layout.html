@@ -2,17 +2,31 @@
 
 {% block rootrellink %}
 
+
 {# Switch to the main page #}
-{%- if project=="openalea.doc" -%}
+{%- if project=='openalea' and package=='doc' or 'doc' in package or 'doc' in project -%}
 <li><a href="{{ pathto('index') }}"> Home </a> |&nbsp;</li>
 <li><a href="{{ pathto('contents') }}">{{project.split('.')[0]|title}} Documentation </a> &raquo;</li>
 
 
-{%- else -%}
-<li><a href="{{pathto("../../../../doc/_build/html/index")}}"> Main Home</a> |&nbsp;</li>
-<li><a href="{{ pathto('index') }}"> {{ project.split('.')[0] }} packages </a> |&nbsp;</li>
-<li><a href="{{ pathto('contents') }}">{{project|title}} Documentation </a> &raquo;</li>
+{# switch to individual project main page#}
+{%- else -%} 
+{% set p=project.split('.')[0].lower() %}
+{%- if p=='openalea' -%}
+<li><a href="{{ pathto("../../../../doc/_build/html/index") }}"> Main home </a>  |&nbsp;</li>
+<li><a href="{{ pathto("../../../../doc/_build/html/openalea") }}"> openalea packages </a> |&nbsp;</li>
 {%- endif -%}
+{%- if p=='vplants' -%}
+<li><a href="{{ pathto("../../../../../openalea/doc/_build/html/index") }}"> Main home </a>  |&nbsp;</li>
+<li><a href="{{ pathto("../../../../../openalea/doc/_build/html/vplants") }}"> vplants packages </a> |&nbsp;</li>
+{%- endif -%}
+{%- if p=='alinea' -%}
+<li><a href="{{ pathto("../../../../../openalea/doc/_build/html/index") }}"> Main home </a>  |&nbsp;</li>
+<li><a href="{{ pathto("../../../../../openalea/doc/_build/html/alinea") }}"> alinea packages </a> |&nbsp;</li>
+{%- endif -%}
+
+<li><a href="{{ pathto('contents') }}">{{ project.split('.')[1] }} Documentation </a> &raquo;</li>
+{%- endif -%} 
 
 {% endblock %}
 

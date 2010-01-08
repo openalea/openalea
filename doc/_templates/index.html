@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% set title = 'Overview' %}
-{% set thisproject = project.split('.')[0] %}
-{% set thispackage = project.split('.')[1] %} 
-
+{% set package = project.split('.')[1] %}
+{% set project = project.split('.')[0] %}
 
 {% set wikiurl = 'http://openalea.gforge.inria.fr' %}
 {% set openalea = 'http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=openalea' %}
@@ -12,37 +11,37 @@
 
 
 <!-- this will appear on the main page of the sphinx documentation-->
-{%- if thisproject=="openalea" and thispackage=='doc' -%}
+{%- if project=="openalea" and package=='doc' -%}
 <h1>Welcome to Openalea, Vplants and Alinea documentation</h1>
 {% include "introduction.html" %}
 {%- endif -%}
 
 <!-- this will appear on the main page of the project (vplants or alinea or openalea)-->
-{%- if thispackage!='doc' -%}
+{%- if package!='doc' -%}
 {% include "common_header.html" %}
 {%- endif -%}
 
 <!-- the list of package if not on the main page-->
 
-{%- if thisproject=="openalea" and thispackage!="doc" -%}
+{%- if project=="openalea" and package!="doc" -%}
 {% include "openalea_packages.html" %}
 {%- endif -%}
 
-{%- if thisproject=="vplants" -%}
+{%- if project=="vplants" and package!="doc" -%}
 {% include "vplants_packages.html" %}
 {%- endif -%}
 
-{%- if thisproject=="alinea" -%}
+{%- if project=="alinea" and package !="doc"-%}
 {% include "alinea_packages.html" %}
 {%- endif -%}
 
 <!-- otherwise directly jump to the footer -->
-{%- if thispackage!='doc'-%}
+{%- if package!='doc'-%}
 {% include "common_footer.html" %}
 {%- endif -%}
 
 <!-- finally, if this is the main page, we add extra information about the documentation and sphinx-->
-{%- if thispackage=='doc'-%}
+{%- if package=='doc'-%}
 {% include "projects.html" %}
  <h2>About this documentation </h2>
 <table class="contentstable" align="center" style="margin-left: 30px"><tr>
