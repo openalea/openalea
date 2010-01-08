@@ -43,10 +43,10 @@ class Boost_Python:
    def default(self):
 
       self._default['libs_suffix'] = '$compiler_libs_suffix'
+      self._default['flags'] = ''
+      self._default['defines'] = ''
 
       if isinstance(platform, Win32) or isinstance(platform, Darwin):
-         self._default['flags'] = ''
-         self._default['defines'] = ''
 
          try:
             # Try to use openalea egg
@@ -66,10 +66,18 @@ class Boost_Python:
                self._default['lib'] = 'C:' + os.sep
 
       elif isinstance(platform, Posix):
-         self._default['include'] = '/usr/include'
-         self._default['lib'] = '/usr/lib'
          self._default['flags'] = '-ftemplate-depth-100'
          self._default['defines'] = 'BOOST_PYTHON_DYNAMIC_LIB'
+         try:
+            # Try to use openalea egg
+            from openalea.deploy import get_base_dir
+            base_dir = get_base_dir("boostpython")
+            self._default['include'] = os.path.join(base_dir, 'include')
+            self._default['lib'] = os.path.join(base_dir, 'lib')
+            
+         except:
+            self._default['include'] = '/usr/include'
+            self._default['lib'] = '/usr/lib'
        
       
 
