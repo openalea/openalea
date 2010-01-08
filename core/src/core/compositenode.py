@@ -366,7 +366,6 @@ class CompositeNodeFactory(AbstractFactory):
         
         :param call_stack: a list of parent id (to avoid infinite recursion)
         """
-
         (package_id, factory_id) = self.elt_factory[vid]
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
@@ -386,16 +385,11 @@ class CompositeNodeFactory(AbstractFactory):
             try:
                 #the two first elements are the historical
                 #values : port Id and port value
-                #beyond that are extensions added by gengraph:
-                #the ad_hoc_dict representation is third.
-                port, v = vs[:2] 
+                #the values beyond are not used.
+                port, v = vs[:2]
                 node.set_input(port, eval(v))
-                if(len(vs)>2):
-                    node.input_desc[port].set_ad_hoc_dict(vs[2])
-                else:
-                    node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",
+                node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",
                                                                      node.is_port_hidden(port))
-                    
             except:
                 continue
         
@@ -843,7 +837,7 @@ class CompositeNode(Node, DataFlow):
                 sgfactory.elt_value[vid] = []
             else:
                 sgfactory.elt_value[vid] = \
-                    [(port, repr(node.get_input(port)), repr(node.input_desc[port].get_ad_hoc_dict())) for port
+                    [(port, repr(node.get_input(port))) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
             #/gengraph
