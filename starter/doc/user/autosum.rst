@@ -16,21 +16,6 @@ Reference guide
 
 
 
-.. currentmodule:: openalea.starter.scenecontainer
-
-:mod:`openalea.starter.scenecontainer` module
-===============================================
-
-Download the source file :download:`../../src/starter/scenecontainer.py`.
-
-
-.. automodule:: openalea.starter.scenecontainer
-    :members:
-    :undoc-members:
-    :inherited-members:
-    :show-inheritance:
-    :synopsis: doc todo
-
 .. currentmodule:: openalea.starter.tree
 
 :mod:`openalea.starter.tree` module
