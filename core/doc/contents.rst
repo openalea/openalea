@@ -32,7 +32,7 @@ Documentation
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>
 
-- A `PDF <../latex/core.pdf>`_ version of |core| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |core| documentation is 
   available.
 
 .. seealso::
