@@ -1,5 +1,27 @@
 @import "default.css";
 
+
+/* put sphix side bar on the left and fix bug in default.css */
+div.documentwrapper {
+    float: right;
+    width: 80%;
+
+}
+
+div.bodywrapper {
+    margin: 0px 0 0 0px;
+}
+
+
+div.sphinxsidebar {
+    margin: 0 0 0 0;
+/*    padding: 0.5em 15px 15px 0;*/
+    width: 18%;
+    float: left;
+    text-align: left;
+
+}
+
 /* see field names in blue */
 
 div.admonition-todo {
