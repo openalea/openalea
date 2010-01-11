@@ -3,6 +3,12 @@ pj = os.path.join
 
 from setuptools import setup, find_packages
 
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
+
+
 platform = sys.platform
 external_dependencies = [
 'numpy',
@@ -33,14 +39,14 @@ if 'win' in platform:
     install_requires += external_dependencies 
 
 setup(
-    name = 'OpenAlea',
-    version = '0.7.0' ,
-    description = 'OpenAlea packages and all its dependencies.', 
-    long_description = '',
-    author = 'OpenAlea consortium',
-    author_email = 'christophe dot pradal at cirad dot fr',
-    url = 'http://openalea.gforge.inria.fr',
-    license = 'Cecill-C',
+    name = name,
+    version = version,
+    description = description,
+    long_description = long_description,
+    author = authors,
+    author_email = authors_email,
+    url = url,
+    license = license,
 
 
     create_namespaces=False,

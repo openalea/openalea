@@ -1,6 +1,16 @@
-import sys
-import os
+import os,sys
 
-sys.path.append(os.path.join(os.getcwd(), '../../../openalea/doc'))
+# read sphinx conf.py file
+from openalea.misc.sphinx_configuration import *
+from openalea.misc.sphinx_tools import sphinx_check_version
+from openalea.deploy.metainfo import read_metainfo
 
-from common_conf import *
+sphinx_check_version()                      # check that sphinx version is recent
+metadata = read_metainfo('../metainfo.ini') # read metainfo from common file with setup.py
+for key in ['version','project','release', 'authors', 'package']:
+    exec("%s = '%s'" % (key, metadata[key]))
+
+# by product that need to be updated:
+latex_documents = [('contents', 'main.tex', project + ' documentation', authors, 'manual')]
+
+project = project + '.' + package
