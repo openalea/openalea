@@ -32,7 +32,7 @@ Documentation
     User Guide <user/index.rst>
     Reference Guide <user/autosum.rst>
 
-- A `PDF <../latex/deploygui.pdf>`_ version of |deploygui| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |deploygui| documentation is 
   available.
 
 .. seealso::

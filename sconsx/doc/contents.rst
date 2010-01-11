@@ -34,7 +34,7 @@ Documentation
     User Guide <user/index.rst>
     Reference Guide <user/autosum.rst>
 
-- A `PDF <../latex/sconsx.pdf>`_ version of |sconsx| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |sconsx| documentation is 
   available.
 
 .. seealso::

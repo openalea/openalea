@@ -32,7 +32,7 @@ Documentation
     User guide<user/index.rst>
     Reference guide<user/autosum.rst>
 
-- A `PDF <../latex/stdlib.pdf>`_ version of |stdlib| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |stdlib| documentation is 
   available.
 
 .. seealso::

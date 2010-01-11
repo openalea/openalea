@@ -32,7 +32,7 @@ Documentation
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>   
 
-- A `PDF <../latex/misc.pdf>`_ version of |misc| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |misc| documentation is 
   available.
 
 .. seealso::

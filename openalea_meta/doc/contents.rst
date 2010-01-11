@@ -31,6 +31,10 @@ Documentation
 
     Road Map<user/index.rst>   
 
+- A `PDF <../latex/main.pdf>`_ version of |openalea_meta| documentation is 
+  available.
+
+
 
 Authors
 =======
