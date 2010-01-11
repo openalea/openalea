@@ -106,7 +106,18 @@ def is_lib(filename):
     for pat in (".dll", ".so", ".a", ".lib", ".dylib", ".la", ".framework"):
         if filename.endswith(pat):
             return True
-
+    # Add linux libraries lib.so.1.3.4
+    if '.so.' in filename:
+        try:
+            ext = filename.split('.so.')
+            numbers = ext[1].split('.')
+            for n in numbers:
+                if not n.isdigit():
+                    return False
+            return True
+        except:
+            return False
+            
     return False
 
 
