@@ -1,5 +1,4 @@
 #!python
-
 """Bootstrap setuptools installation
 
 If you want to use setuptools in your package's setup.py, just include this
@@ -18,9 +17,8 @@ import sys
 import os
 from optparse import *
 
-DEFAULT_VERSION = "0.6c9"
-DEFAULT_URL = "http://pypi.python.org/packages/%s/s/setuptools/" \
-    % sys.version[:3]
+DEFAULT_VERSION = "0.6c11"
+DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
 
 md5_data = {
@@ -34,6 +32,14 @@ md5_data = {
     'setuptools-0.6b4-py2.4.egg': '4cb2a185d228dacffb2d17f103b3b1c4',
     'setuptools-0.6c1-py2.3.egg': 'b3f2b5539d65cb7f74ad79127f1a908c',
     'setuptools-0.6c1-py2.4.egg': 'b45adeda0667d2d2ffe14009364f2a4b',
+    'setuptools-0.6c10-py2.3.egg': 'ce1e2ab5d3a0256456d9fc13800a7090',
+    'setuptools-0.6c10-py2.4.egg': '57d6d9d6e9b80772c59a53a8433a5dd4',
+    'setuptools-0.6c10-py2.5.egg': 'de46ac8b1c97c895572e5e8596aeb8c7',
+    'setuptools-0.6c10-py2.6.egg': '58ea40aef06da02ce641495523a0b7f5',
+    'setuptools-0.6c11-py2.3.egg': '2baeac6e13d414a9d28e7ba5b5a596de',
+    'setuptools-0.6c11-py2.4.egg': 'bd639f9b0eac4c42497034dec2ec0c2b',
+    'setuptools-0.6c11-py2.5.egg': '64c94f3bf7a72a13ec83e0b24f2749b2',
+    'setuptools-0.6c11-py2.6.egg': 'bfa92100bd772d5a213eedd356d64086',
     'setuptools-0.6c2-py2.3.egg': 'f0064bf6aa2b7d0f3ba0b43f20817c27',
     'setuptools-0.6c2-py2.4.egg': '616192eec35f47e8ea16cd6a122b7277',
     'setuptools-0.6c3-py2.3.egg': 'f181fa125dfe85a259c9cd6f1d7b78fa',
@@ -60,6 +66,8 @@ md5_data = {
     'setuptools-0.6c9-py2.6.egg': 'ca37b1ff16fa2ede6e19383e7b59245a',
 }
 
+
+
 PYDISTUTILS_NOTE = """
 Note that the file ~/.pydistutils will be used for any future use of
 distutils (setup.py). You can delete this file to get back to normal
@@ -67,27 +75,25 @@ usage. However, this file will be automatically created again if you
 use ez_alea_setup with --install-dir argument.
 """
 
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
-
+import sys, os
+try: from hashlib import md5
+except ImportError: from md5 import md5
 
 def _validate_md5(egg_name, data):
     if egg_name in md5_data:
-        from md5 import md5
         digest = md5(data).hexdigest()
         if digest != md5_data[egg_name]:
             print >>sys.stderr, (
                 "md5 validation of %s failed!  (Possible download problem?)"
-                % egg_name)
+                % egg_name
+            )
             sys.exit(2)
     return data
 
-
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
-    download_delay=15):
+    download_delay=15
+):
     """Automatically find/download setuptools and make it available on sys.path
 
     `version` should be a valid setuptools version number that is available
@@ -99,31 +105,25 @@ def use_setuptools(
     this routine will print a message to ``sys.stderr`` and raise SystemExit in
     an attempt to abort the calling script.
     """
-    was_imported = \
-        'pkg_resources' in sys.modules or 'setuptools' in sys.modules
-    
+    was_imported = 'pkg_resources' in sys.modules or 'setuptools' in sys.modules
     def do_download():
-        """todo"""
-        egg = \
-            download_setuptools(version, download_base, to_dir, download_delay)
+        egg = download_setuptools(version, download_base, to_dir, download_delay)
         sys.path.insert(0, egg)
-        import setuptools
-        setuptools.bootstrap_install_from = egg
+        import setuptools; setuptools.bootstrap_install_from = egg
     try:
         import pkg_resources
     except ImportError:
-        return do_download()
-
+        return do_download()       
     try:
-        pkg_resources.require("setuptools>="+version)
-        return
+        pkg_resources.require("setuptools>="+version); return
     except pkg_resources.VersionConflict, e:
         if was_imported:
             print >>sys.stderr, (
             "The required version of setuptools (>=%s) is not available, and\n"
             "can't be installed while this script is running. Please install\n"
             " a more recent version first, using 'easy_install -U setuptools'."
-            "\n\n(Currently using %r)") % (version, e.args[0])
+            "\n\n(Currently using %r)"
+            ) % (version, e.args[0])
             sys.exit(2)
         else:
             del pkg_resources, sys.modules['pkg_resources']    # reload ok
@@ -131,21 +131,19 @@ def use_setuptools(
     except pkg_resources.DistributionNotFound:
         return do_download()
 
-
 def download_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
-    delay = 15):
+    delay = 15
+):
     """Download setuptools from a specified location and return its filename
 
     `version` should be a valid setuptools version number that is available
     as an egg for download under the `download_base` URL (which should end
     with a '/'). `to_dir` is the directory where the egg will be downloaded.
-    `delay` is the number of seconds to pause before an actual download
-    attempt.
+    `delay` is the number of seconds to pause before an actual download attempt.
     """
-    import urllib2
-    #import shutil
-    egg_name = "setuptools-%s-py%s.egg" % (version, sys.version[:3])
+    import urllib2, shutil
+    egg_name = "setuptools-%s-py%s.egg" % (version,sys.version[:3])
     url = download_base + egg_name
     saveto = os.path.join(to_dir, egg_name)
     src = dst = None
@@ -154,34 +152,32 @@ def download_setuptools(
             from distutils import log
             if delay:
                 log.warn("""
--------------------------------------------------------------------------------
-This script requires setuptools version %s to run (even to display help). I
-will attempt to download it for you (from %s), but you may need to enable
-firewall access for this script first. I will start the download in %d seconds.
+---------------------------------------------------------------------------
+This script requires setuptools version %s to run (even to display
+help).  I will attempt to download it for you (from
+%s), but
+you may need to enable firewall access for this script first.
+I will start the download in %d seconds.
 
 (Note: if this machine does not have network access, please obtain the file
 
    %s
 
 and place it in this directory before rerunning this script.)
-------------------------------------------------------------------------------
-""", version, download_base, delay, url)
-                from time import sleep
-                sleep(delay)
-
+---------------------------------------------------------------------------""",
+                    version, download_base, delay, url
+                ); from time import sleep; sleep(delay)
             log.warn("Downloading %s", url)
             src = urllib2.urlopen(url)
             # Read/write all in one block, so we don't create a corrupt file
             # if the download is interrupted.
             data = _validate_md5(egg_name, src.read())
-            dst = open(saveto, "wb")
-            dst.write(data)
+            dst = open(saveto,"wb"); dst.write(data)
         finally:
-            if src:
-                src.close()
-            if dst:
-                dst.close()
+            if src: src.close()
+            if dst: dst.close()
     return os.path.realpath(saveto)
+
 
 
 def main(argv, version=DEFAULT_VERSION):
