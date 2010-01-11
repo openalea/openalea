@@ -1067,25 +1067,6 @@ class sphinx_upload(Command):
         #if not self.password:
         #    self.password = raw_input('password:')
 
-
-
-        """        if 'HOME' in os.environ:
-            rc = os.path.join(os.environ['HOME'], '.pypirc')
-            if os.path.exists(rc):
-                self.announce('Using PyPI login from %s' % rc)
-                config = ConfigParser.ConfigParser({
-                        'username': '',
-                        'password': '',
-                        'repository': ''})
-                config.read(rc)
-                if not self.repository:
-                    self.repository = config.get('server-login', 'repository')
-                if not self.username:
-                    self.username = config.get('server-login', 'username')
-                if not self.password:
-                    self.password = config.get('server-login', 'password')
-        """
-
     def run(self):
         """.. todo:: fix this code so that gforge proxy and scp are not both used."""
         print """

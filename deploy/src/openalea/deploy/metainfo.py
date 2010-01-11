@@ -2,6 +2,7 @@
 
 
 
+compulsary_words = ['project','version','authors','package','release']
 def read_metainfo(filename, section='metainfo', verbose=False):
     """Parse a section in a given file using ConfigParser module
 
@@ -26,6 +27,7 @@ def read_metainfo(filename, section='metainfo', verbose=False):
 
     :author: Thomas Cokelaer <Thomas Cokelaer __at__ sophis inria fr>
     """
+    global compulsary_words
     try:
         from openalea.misc.console import nocolor, color_terminal, green
         if not color_terminal():
@@ -47,10 +49,15 @@ def read_metainfo(filename, section='metainfo', verbose=False):
         if verbose:
             print green('...%s: %s' % (option, config.get(section, option)))
         metadata[option] = config.get(section, option)
+
     if 'project' in metadata.keys():
         if metadata['project'] not in ['vplants','openalea','alinea']:
             raise ValueError('option project (openalea/vplants/alinea) not found in metainfo.ini file')
     else:
         raise ValueError('option project (openalea/vplants/alinea) not found in metainfo.ini file')
+
+    for word in compulsary_words:
+        if word not in metadata.keys():
+            raise ValueError('%s field not found in metainfo.ini' % word)
 
     return metadata
