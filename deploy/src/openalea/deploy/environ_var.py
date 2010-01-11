@@ -44,12 +44,13 @@ def set_lsb_env(name, vars):
         vname, value = newvar.split('=')
 
         # Exception
-        if (vname == "LD_LIBRARY_PATH" and
+        lib_names = ['LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH', 'LD_FRAMEWORK_PATH']
+        if (vname in lib_names and
            (value == "/usr/local/lib") or
            (value == "/usr/lib")):
             continue
 
-        if((("LD_LIBRARY_PATH" in vname) or (vname== "PATH")) and value):
+        if(((vname in lib_names) or (vname== "PATH")) and value):
             exportstr += 'if [ -z "$%s" ]; then\n'%(vname)
             exportstr += '  export %s=%s\n'%(vname, value, )
             exportstr += 'else\n'
@@ -199,3 +200,4 @@ def set_win_env(vars):
 
     except Exception, e:
         print e
+

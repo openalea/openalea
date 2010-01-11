@@ -704,14 +704,44 @@ def clean_list_for_fedora(dist_list):
     return new_list                
                 
 
+def check_system_setuptools():
+    """
+    Check system configuration and return environment variables dictionary
+    This function need OpenAlea.Deploy
+    """
+
+    from openalea.deploy import check_system
+    envv = dict(os.environ)
+    res = check_system()
+    envv.update(res)
+
+    return envv
+
 
 def main(args=None):
     """
     Start the GUI to install packages.
     If the GUI use QT and a new version of QT has been installed, we need to start a new process
     which setup the environment (shared libs and so on).
+
+    On darwin, for instance, the sudo command do not propagate the environment variables.
+    So to update the env variables dynamically, we restart a new python process with the OpenAlea environment.
     """
-    status = main_app(args)
+    if args is None:
+        args = []
+    #status = main_app(args)
+
+    envdict = check_system_setuptools()
+
+    if sys.platform.lower().startswith('win'):
+        status = os.execle(sys.executable, sys.executable, "-c", 
+                  '"import sys; from openalea.deploygui import alea_install_gui;sys.argv="'+str(args)+'";alea_install_gui.main_app(sys.argv)"',
+                  envdict)
+    else:
+        status = os.execle(sys.executable, sys.executable, "-c",
+                  'import sys; from openalea.deploygui import alea_install_gui;sys.argv='+str(args)+';alea_install_gui.main_app(sys.argv)',
+                  envdict)
+
 
     print "Update environment"
 
