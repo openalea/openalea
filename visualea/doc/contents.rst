@@ -32,7 +32,7 @@ Documentation
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>
 
-- A `PDF <../latex/visualea.pdf>`_ version of |visualea| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |visualea| documentation is 
   available.
 
 .. seealso::
