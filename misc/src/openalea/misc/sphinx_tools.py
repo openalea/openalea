@@ -1049,13 +1049,15 @@ def autosum(opts):
         print '.. .. inheritance-diagram:: %s' % file.replace('\n','')
 
 
-    for module in files:
+    for mod in files:
+        module = mod.replace('\n','')
+        #module = module[0:-1]
         if module.startswith('#'):
             continue
         _scope = {}
 
-        module = module.replace('\n','')
-        cmd = "import " + module + " as _module"
+        #cmd = "import"
+        cmd = "import %s %s" % (module, "as _module" )
         exec(cmd) in _scope
         try:
             _doc = _scope['_module'].__doc__[0:63]
