@@ -1,6 +1,9 @@
 #################################
-Welcome to OpenAlea documentation
+About the sphinx documentation
 #################################
+.. topic:: Target
+
+    Developers and Adminsitrators
 
 .. module:: main
     :synopsis: how to manage the sphinx documentation in OpenAlea and related projects
@@ -15,10 +18,12 @@ Welcome to OpenAlea documentation
 
 .. topic:: Overview
 
-    * Commands to create sphinx documentation `Compiling the documentation`_
-    * How to put a new package under Sphinx `How to initialise a new package`_
-    * Explains how the sphinx documentation works `Sphinx and reST syntax`_
-    * how to `Upload the documentation`_ of a package on thr gforge
+    * `Compiling the documentation`_ with Sphinx
+    * `How to initialise a new package`_
+    * `ReSt and Sphinx syntax <tutorial/rest_syntax.html>`_
+    * `How to document your docstrings <tutorial/sphinx_python_docstring.html>`_
+    * How to `Upload the documentation`_ of a package on the web
+
 
 Introduction
 ============
@@ -29,24 +34,55 @@ Using Sphinx is not as straightforward as using a tool such as Epydoc but brings
  
 Here below we hope that you will find some helps to start with Sphinx. 
 
+First, you will need to install Sphinx, which is done very easily using easy_install::
+
+    easy_install -U sphinx
+
 
 Compiling the documentation
 ===========================
 
-Witin OpenAlea/VPlants/Alinea, if you are working on a package that has already been setup for you and if you want to compile the documentation yourself (e.g., you want to update it), then simply go the root directory of the package and type::
-    
+Within OpenAlea/VPlants/Alinea, **if you are working on a package that has already been setup for you** and if you want to compile the documentation yourself (e.g., you want to update it), you have two methods:
+
+From the package directory using setuptools
+-------------------------------------------
+
+Go the root directory of the package and type::
+
     python setup.py build_sphinx
 
-The HTML outputs should be ready in **./doc/html**.
+The HTML outputs should be ready in **./doc/html**. Similarly, you can have a LaTeX output as follows::
 
-.. note:: Exception: if you are in **openalea/doc**, which is not a package, just type **make html**.
+    python setup.py build_sphinx -b latex
+
+.. note:: Sphinx takes care to parse only the files that have changed. You may want to force the building using the -E option: python setup.py build_sphinx -E
+
+From the ./doc directory using Makefile
+-----------------------------------------
+
+Alternately, go in the ./doc/ directory and just type::
+
+    make html
+
+or::
+
+    make latex
+
+.. warning:: Exception, the openalea/doc directory is not yet a package, so only **make html** will work
+
+Upload the documentation
+========================
+
+If the build is successful and if you have an SSH key on the GForge, you may even upload the documentation to the wiki::
+    
+    python setup.py sphinx_upload --username <your gforge username> 
+
+.. warning:: Exception, the openalea/doc directory is not yet a package; In order to upload the documentation, use the script sphinx_upload.py that is present in ./openalea/doc.
 
 How to initialise a new package
 ===============================
 
-In principle the administrator should initialise the sphinx documentation once for all when the developers decide to release their package.
-
-Therefore, the following link is intended at administrators. However, it could be interesting for developers who are willing to help.
+In principle the administrator should initialise the sphinx documentation once for all when the developers decide to release their package. If you still want to do it yourself, check this link:
 
 
 .. toctree::
@@ -54,13 +90,6 @@ Therefore, the following link is intended at administrators. However, it could b
 
     howto_init_package.rst
 
-
-Upload the documentation
-========================
-
-If the build is successful and if you have an SSH key on the GForge, you may even upload the documentation to the wiki::
-
-    python setup.py sphinx_upload   
 
 
 Sphinx and reST syntax
@@ -76,9 +105,8 @@ If you want to know more, here are two links. The quickstart allows you to start
     tutorial/quickstart
     tutorial/rest_syntax
     tutorial/sphinx_python_docstring
-
-..    tutorial/rst_tutorial
-..    tutorial/sphinx_tutorial
+    tutorial/rst_tutorial
+    tutorial/sphinx_tutorial
 
 
 Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
@@ -103,9 +131,15 @@ Here below, you will find some extra information related to Sphinx (e.g., all th
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
-.. _visualea: ../visualea.html
+   .. _visualea: ../visualea.html
 
+FAQS
+====
 
+.. toctree::
+    :maxdepth: 1
+
+    rest_faqs.rst
 
 Authors
 =======
@@ -118,4 +152,6 @@ ChangeLog
 =========
 
 .. include:: ChangeLog.txt
+
+
 

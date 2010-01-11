@@ -1,148 +1,134 @@
 .. _howto_init_package:
 
+
 How to initialise a package to generate Sphinx documentation
 ############################################################
 
+.. contents::
 
-.. sidebar:: Target
 
-    This document is intended to be a resource for developers, especially those who wish to
-    generate the sphinx documentation from sratch; e.g., when a package is not yet under Sphinx.
-    
+.. warning::
 
-This Howto is mainly for Administrators and possibly for developpers. It explained how to set up the sphinx documentation in a package, if not already done , and how to generate the sphinx output.
-
-Before starting, you will need to install Sphinx (see below), OpenAlea main packages such as deploy and misc. And you will need to have your package accessible in your Python environment.
-
+    Remember that you must have your package accessible in your Python environment to generate the sphinx documentation.
 
 Sphinx configuration
 ====================
-
 Sphinx installation
 -------------------
 
-First of all you need sphinx (latest version or at least 0.6.1). If not installed, use easy_install as follows in your environment::
+First of all you need sphinx (latest version or at least 0.6.3). If not installed, use easy_install as follows in your environment::
 
-    easy_install sphinx
+    easy_install -U sphinx
 
-Package setup
--------------
+sphinx and setuptools
+---------------------
 
-Then, go into your package directory (e.g, PlantGL in the vplants project). Look if a file called **setup.cfg** exists. If not create it. In any case, add those lines if they are not present::
+sphinx is include within setuptools, therefore you can use the following command to build the HTML documentation::
+
+    python setup.py build_sphinx
+
+However, you **must** tell where is the documentation, in particular the configuration file. This is done within the file **setup.cfg** where you will add those lines, if they are not present::
 
     [build_sphinx]
     source-dir = doc/
-    build-dir = doc/
+    build-dir = doc/_build
     all_files = 1
 
-These options will tell Sphinx to look into the doc directory to search for a file called **conf.py** and to build the HTML outputs into the **./doc/build** directory.
+These options will tell Sphinx to look into the doc directory to search for a file called **conf.py** and to build the HTML outputs into the **./doc/_build/html** directory.
 
+Sphinx configuration file
+-------------------------
 
-Then, go to the ./doc directory::
+Go into the ./doc directory::
 
     cd doc
 
-Here, you will need some configuration file. For now, the way the documentation is managed is not yet completely stabilised or frozen. For instance, we need to meta information such as the project name and package name. To be sure that those information are correct, we've decided to use an ini file called sphinx.ini to store some meta information. This fille looks like::
+Here, you will need a configuration file **conf.py**::
 
-    [metadata]
-    package=stat_tool
-    project=vplants
-    release=0.6.2
-    version=0.6
+    import os,sys
+    from openalea.misc.sphinx_configuration import *
+    from openalea.misc.sphinx_tools import sphinx_check_version
+    from openalea.deploy.metainfo import read_metainfo
 
-.. note:: You can also add an extra line (**api=false**), to prevent the reference guide to be rebuilt each time you compile Sphinx documentation.
+    sphinx_check_version()                      # check that sphinx version is recent
+    metadata = read_metainfo('../metainfo.ini') # read metainfo from common file with setup.py
+    for key in ['version','project','release','authors', 'name', 'package']:
+        exec("%s = '%s'" % (key, metadata[key]))
 
-automatically create the reference guide and index file
--------------------------------------------------------
+    latex_documents = [('contents', 'main.tex', project + ' documentation', authors, 'manual')]
 
-We suppose that you have installed OpenAlea and that the script **alea_init_sphinx** is installed. If not, look into the **misc** directory for **sphinx_tools.py**. If this is a brand new installation (no user directory, no rst files), type::
+    project = project + '.' + package
 
-    alea_init_sphinx --configuration --contents --index --verbose
+This file looks for a common conf.py file to all OpenAlea package that can be found  in **./misc/src/openalea/misc/sphinx_configuration.py**
 
-This command should create for you the reference guide files (in <package_name>, a contents.rst file and two index.rst files, one in the user directory and one in the reference directory. Finally, a conf.py file required by Sphinx is also created. You can now change those files and put them in the archive. Next time you use alea_init_sphinx, for instance to generate the reference guide only, do not use the options above, simply type::
+metainfo file
+--------------
 
-    alea_init_sphinx --verbose
+The file conf.py search for a metainfo file called metainfo.ini that should be at the same level as **`setup.py** and **setup.cfg** files. The metainfo must contains version, project, name, package and authors tags but may contain other metainfo to be used by the **setup.py** file ::
 
-Your configuration file (conf.py) should be similar to::
+    [metainfo]
+    version = 0.8.0
+    release = 0.8
+    project = openalea        ; must be in [openalea, vplants, alinea]; used to scp files and titles
+    name = OpenAlea.Starter
+    namespace = openalea
+    package = starter         ; package is going to be used by Sphinx to create the title and scp the files
+    description= whatever description you want
+    long_description= whatever desription you want
+    authors= your name
+    authors_email = your emai
+    url = http://openalea.gforge.inria.fr
+    license = Cecill-C
 
-    import sys
-    import os
-    sys.path.append(os.path.join(os.getcwd(), '../../../openalea/doc'))
-    from common_conf import *
-    # add whatever you want to override already defined parameters (none in principle)
 
-Check you have everything ready
+Setup the source (ReST) files
 -------------------------------
 
-Note that the third line assume that you have installed OpenAlea in a specific directory. Therefore, your architecture should look like::
+
+To finalise you sphinx setup, you should look into an already setup package and from the **doc** directory, copy the Makefile, make.bat, contents.rst, user/index.rst, user/overview.txt and user/autosum.rst to get an architecture as follows::
+
 
     |-- openalea
-    |   |-- core
-    |   |   |-- AUTHORS.txt
-    |   |   |-- ChangeLog.txt
-    |   |   |-- LICENSE.txt
-    |   |-- deploy
+    |   |-- yourpackage
     |   |   |-- AUTHORS.txt
     |   |   |-- ChangeLog.txt
     |   |   |-- LICENSE.txt
     |   |   |-- doc
-    `-- vplants
-        |-- PlantGL
-        |   |-- AUTHORS.txt
-        |   |-- ChangeLog.txt
+    |   |   |   |-- Makefile
+    |   |   |   |-- _static
+    |   |   |   |-- _build
+    |   |   |   |-- conf.py
+    |   |   |   |-- contents.rst
+    |   |   |   |-- make.bat
+    |   |   |   `-- user
+    |   |   |       |-- autosum.rst
+    |   |   |       |-- index.rst
+    |   |   |       `-- overview.txt
 
-.. note:: in the future, we will get rid of this line. At the moment, the misc package is not yet released, so we need this statement. 
 
-Building the documentation
+Checking the configuration
 ==========================
 
-Once done, go back to your package directory, in principle simply type::
+the command should work without errors::
 
-    cd ..
+    make html
 
-and test the command to build the documentation::
+and your HTML files should be available in::
 
-    python setup.py build_sphinx -b html
-
-Even though you have not yet written a single line of code, you should already have a few HTML pages generated for you. Check that you can access to them. 
-
-By default, each time you launch the python setup.py build_sphinx, sphinx will regenerate the Reference guide input files. To prevent this option, edit the **sphinx_ini** file and add an option called 'api' and set it to the string 'false'
+    ./doc/_build/html/contents.html
 
 
+What are _static and _build directories
+========================================
 
+The **_static** directory is used by sphinx to store documents, images. 
+The **_build** directory is used by sphinx to store html and other built documents.
 
-Architecture of the source file and how to add documentation
-============================================================
+They must be present bu can be empty. 
 
-
-Let us suppose that you work with the package **PlantGL**.
-
-
-Then next step is to write/create some rest files. The architecture in the **doc** directory should be as follows::
-
-    .
-    |-- conf.py
-    |-- contents.rst
-    |-- sphinx.ini
-    |-- .static
-    |-- stat_tool
-    |   |-- openalea_stat_tool_vectors_ref.rst
-    |   |-- openalea_stat_tool_vectors_src.rst
-        |-- index.rst
-        |-- ....
-    `-- user
-        |-- index.rst
-        |-- overview.txt
-        |-- ...
-
-The files **conf.py** and **sphinx.ini** have already been explained. 
-
-The **.static** directory may be used to store documents, images. The sphinx extension inheritance-diagram search for a .static directory either in the current directory (where the Makefile is run) or the doc/ directory, which does not exists. This is why the .static exists. We put the CSS and common images inside this directory.
-
-
+Where to start ?
+================
 **contents.rst** is the main entry point. You should not change it too much so, so as to keep a page very similar to the other packages. 
 
-
-Note that inside this rst files, two other reST files are included: **./user/index.rst** and **./stat_tool/index.rst**. The latter should not be touched, but the formet is you entry point, where you can edit and add whatever you want. 
 
 

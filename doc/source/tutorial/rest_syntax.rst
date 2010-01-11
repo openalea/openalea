@@ -223,17 +223,19 @@ A more complex example::
 
 gives:
 
-+------------+------------+-----------+
-| Header 1   | Header 2   | Header 3  |
-+============+============+===========+
-| body row 1 | column 2   | column 3  |
-+------------+------------+-----------+
-| body row 2 | Cells may span columns.|
-+------------+------------+-----------+
-| body row 3 | Cells may  | - Cells   |
-+------------+ span rows. | - contain |
-| body row 4 |            | - blocks. |
-+------------+------------+-----------+
+.. htmlonly::
+
+    +------------+------------+-----------+
+    | Header 1   | Header 2   | Header 3  |
+    +============+============+===========+
+    | body row 1 | column 2   | column 3  |
+    +------------+------------+-----------+
+    | body row 2 | Cells may span columns.|
+    +------------+------------+-----------+
+    | body row 3 | Cells may  | - Cells   |
+    +------------+ span rows. | - contain |
+    | body row 4 |            | - blocks. |
+    +------------+------------+-----------+
 
 Simple table
 -------------
@@ -251,14 +253,16 @@ Simple table
 
 gives:
 
-=====  =====  ======
-   Inputs     Output
-------------  ------
-  A      B    A or B
-=====  =====  ======
-False  False  False
-True   False  True
-=====  =====  ======
+.. htmlonly::
+
+    =====  =====  ======
+       Inputs     Output
+    ------------  ------
+      A      B    A or B
+    =====  =====  ======
+    False  False  False
+    True   False  True
+    =====  =====  ======
 
 
 Latex and special directives
@@ -301,14 +305,16 @@ This directive gives a “column spec” for the next table occurring in the sou
 
 which means three left-adjusted (LaTeX syntax). By default, Sphinx uses a table layout with L for every column.
 
-.. tabularcolumns:: |l|c|p{5cm}|
+
+.. htmlonly::
+
+    .. tabularcolumns:: |l|c|p{5cm}|
+
+    +--------------+---+-----------+
+    |  simple text | 2 | 3         |
+    +--------------+---+-----------+
 
 
-+--------------+---+-----------+
-|  simple text | 2 | 3         |
-+--------------+---+-----------+
-
-    
 
 colored boxes
 =============

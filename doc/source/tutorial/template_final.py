@@ -127,6 +127,42 @@ class MainClass3(object):
         """
         return arg1/arg2 + arg3
 
+
+class MainClass4(object):
+    """Demonstrates how to fill the docstrings with Method3"""
+ 
+    def function1(self, arg1, arg2, arg3):
+        """returns (arg1 / arg2) + arg3
+        
+        This is a longer explanation, which may include math :math:`\\alpha`.
+        
+	:Parameters:
+         - `arg1` (int,float,...) - the first value
+         - `arg2` (int,float,...) - the first value
+         - `arg3` (int,float,...) - the first value
+
+        :Returns:
+            arg1/arg2 +arg3
+
+        :Returns Type:
+            int,float
+
+        :Examples:
+
+            >>> import template
+            >>> a = template.MainClass2()
+            >>> a.function1(1,1,1)
+            2
+
+        .. note:: can be useful to emphasize
+            important feature
+        .. seealso:: :class:`MainClass2`
+        .. warning:: arg2 must be non-zero.
+        .. todo:: check that arg2 is non zero.
+	
+        """
+        return arg1/arg2 + arg3
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

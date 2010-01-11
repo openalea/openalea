@@ -1,5 +1,5 @@
 import os,sys
-
+sys.path.append('./source/tutorial/')
 # read sphinx conf.py file
 from openalea.misc.sphinx_configuration import *
 from openalea.misc.sphinx_tools import sphinx_check_version

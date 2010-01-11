@@ -1,6 +1,9 @@
 Quick Start
 ###########
 
+
+If you want to start your own documentation, the simplistic way is as follows.
+
 First,you need to install **Sphinx**. This can be simply done using easy_install as follows::
 
     easy_install -U sphinx          # use sudo under Linux systems
@@ -9,9 +12,12 @@ Then, you need to initiate a new project. Type::
 
     sphinx-quickstart
 
-and follow the instructions. Most of the time you simply need to press enter. You will have to enter the project name. Once done, the information provided have been put inside the file **conf.py** that you can edit at any time. 
+and follow the instructions. Most of the time you simply need to press enter. You will have to enter the project name. Once done, the information provided have been put inside the file **
 
-In principle you should now have a file called **con.py**, a file called **index.rst** and some directories. 
+If you want to start your own documentation, the simplistic way is as follows.
+conf.py** that you can edit at any time. 
+
+In principle you should now have a file called **conf.py**, a file called **index.rst** and some directories. 
 
 Edit **index.rst** and change it to your need. 
 
