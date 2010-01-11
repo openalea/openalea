@@ -32,7 +32,7 @@ Documentation
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>
 
-- A `PDF <../latex/scheduler.pdf>`_ version of |scheduler| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |scheduler| documentation is 
   available.
 
 .. seealso::
