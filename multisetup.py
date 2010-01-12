@@ -63,6 +63,8 @@ def main():
     if  len(args) == 1 and args[0] in ['-h', '--help']:
         Multisetup.help()
     else:
+        if 'develop' in args and '-u' in args:
+            dirs.reverse()
         mysetup = Multisetup(curdir='.', commands=args, packages=dirs)
         mysetup.run()
 
