@@ -34,7 +34,7 @@ setup(
     share_dirs = { 'share' : 'share'},
     entry_points = {
               "gui_scripts": [
-                 "alea_install_gui = openalea.deploygui.alea_install_gui:main", ],
+                 "alea_install_gui = openalea.deploygui.alea_install_script:main", ],
               },
     
     postinstall_scripts = ['deploygui_postinstall'],
