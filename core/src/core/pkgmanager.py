@@ -840,18 +840,19 @@ class PseudoGroup(PackageDict):
         splitted = name.split(self.sep, 1)
         key = splitted[0]
 
-        # Create sub dict if necessary
-        if not dict.has_key(self, key.lower()):
-            self[key] = self.new(key)
-
         if(len(splitted)>1):
             remain = splitted[1]
         else:
             remain = None
 
+        # Create sub dict if necessary
+        if not dict.has_key(self, key.lower()):
+            self[key] = self.new(key)
+
         try:
             self[key].add_name(remain, value)
         except Exception, e:
+            print 'Package %s[%s]'%(self.name, name)
             print e
             try:
                 self[str(id(key))].add_name(remain, value)
