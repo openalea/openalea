@@ -86,13 +86,14 @@ def main(args):
 
 
     #parse command line
+    """
     if(len(args)==2):
         filename = args[1]
         try:
             session.load(filename)
         except Exception, e:
             print e
-    
+    """
     if('--debug-with-old' in args):
         __builtin__.__debug_with_old__=True
 
