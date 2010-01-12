@@ -98,15 +98,15 @@ class IInterfaceMetaClass(type):
         objMem = dir(obj)
 
         stop = False
-        print "====> Interface testing " + cls.__name__ + " : " + str(obj)
         for i in cls.__interface_decl__:
-            print "\t=> Testing for " + str(i) + "... ",
             if i not in objMem: 
-                print "false"
                 stop = True
             else : 
-                print "true"
                 continue
+
+        if stop:
+            # The check failed.
+            raise UserWarning('Object %s does not belong to the Interface %s '%(str(obj),cls.__name__))
 
         return not stop
 

@@ -66,8 +66,6 @@ class MetaDataDict(observer.Observed):
         """Creates a new entry in the meta data registry.
         The data to set will be of the given 'type' type."""
 
-        if key == 'userColor':
-            print key, valType
         if key in self._metaTypes :
             raise Exception("This key already exists : " + key)
 
