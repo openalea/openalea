@@ -513,12 +513,14 @@ class Node(AbstractNode):
         self.input_states = []
 
         # Process in and out
-	for d in inputs:
-	    self.add_input(**d)
+        if inputs:
+            for d in inputs:
+                self.add_input(**d)
 
-	for d in outputs:
-	    self.add_output(**d)
-        
+        if outputs:
+            for d in outputs:
+                self.add_output(**d)
+
         #to_script
         self._to_script_func = None
 
@@ -1039,7 +1041,12 @@ class NodeFactory(AbstractFactory):
         else:
             try:
                 node = classobj(self.inputs, self.outputs)
-            except TypeError:
+            except TypeError, e:
+                print self.inputs
+                print self.outputs
+                print e
+                print self.nodeclass_name
+                print module
                 node = classobj()
 
         # Properties
