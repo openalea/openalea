@@ -17,7 +17,7 @@
 """This module implements a QT4 python interpreter widget."""
 
 __license__ = "CeCILL V2"
-__revision__ = " $Id$"
+__revision__ = " $Id: shell.py 2057 2009-12-21 15:33:05Z boudon $"
 
 
 import os, sys

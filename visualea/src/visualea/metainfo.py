@@ -1,7 +1,7 @@
 """Configuration file""" 
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: metainfo.py 2000 2009-12-04 18:28:18Z dbarbeau $"
 
 
 def get_version():

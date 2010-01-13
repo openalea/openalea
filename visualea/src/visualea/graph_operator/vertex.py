@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: vertex.py 2016 2009-12-16 12:55:01Z dbarbeau $ "
 
 from PyQt4 import QtGui, QtCore
 import weakref, gc #gc is needed because there is a collection problem with the node inspector

@@ -17,7 +17,7 @@
 """DataPool is a global dictionnary to share data between node instance"""
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: datapool.py 1586 2009-01-30 15:56:25Z cokelaer $"
 
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed

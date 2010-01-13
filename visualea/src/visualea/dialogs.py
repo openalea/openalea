@@ -17,7 +17,7 @@
 """QT4 Main window"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id$ "
+__revision__ = " $Id: dialogs.py 2000 2009-12-04 18:28:18Z dbarbeau $ "
 
 import os
 from subprocess import Popen

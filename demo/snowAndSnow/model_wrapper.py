@@ -1,5 +1,5 @@
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: model_wrapper.py 1594 2009-02-05 16:34:20Z pradal $ "
 
 
 	

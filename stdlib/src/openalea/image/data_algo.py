@@ -17,7 +17,7 @@
 """This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: data_algo.py 1861 2009-10-06 15:20:14Z cokelaer $ "
 
 from data_image import DataImage
 

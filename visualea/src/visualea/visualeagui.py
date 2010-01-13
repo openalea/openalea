@@ -19,7 +19,7 @@
 """Main Module for graphical interface"""
 
 __license__ = "CeCILL v2"
-__revision__ = "$Id$"
+__revision__ = "$Id: visualeagui.py 2106 2010-01-12 14:39:06Z pradal $"
 
 
 import sys, os

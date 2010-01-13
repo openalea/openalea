@@ -16,7 +16,7 @@
 """View for organizing the component lookout."""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: traitsui.py 1661 2009-03-09 11:07:41Z cokelaer $ "
 
 
 class View(object):

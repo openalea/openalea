@@ -14,7 +14,7 @@
 """Colormap class"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: colormap.py 1634 2009-02-17 10:51:54Z cokelaer $ "
 
 
 class ColorMap(object):

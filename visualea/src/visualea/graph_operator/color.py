@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: color.py 2007 2009-12-15 17:30:47Z dbarbeau $ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview

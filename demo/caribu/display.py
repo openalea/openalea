@@ -1,5 +1,5 @@
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: display.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 from openalea.plantgl.all import *
 import random

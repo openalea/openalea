@@ -7,7 +7,7 @@ Snow&Snow phyllotaxis model.
 :author:  szymon stoma
 """
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: model.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 #from visual import *

@@ -17,7 +17,7 @@
 """This module defines the singleton metaclass"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: singleton.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 class Singleton(type):

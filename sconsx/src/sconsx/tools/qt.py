@@ -18,7 +18,7 @@
 """ QT configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: qt.py 1693 2009-03-11 16:26:26Z cokelaer $"
 
 import os, sys
 from openalea.sconsx.config import platform, Win32, Posix

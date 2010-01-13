@@ -18,7 +18,7 @@
 """ Build directory configure environment. """
  
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: builddir.py 1869 2009-10-06 15:33:06Z cokelaer $"
 
 import os, sys
 from openalea.sconsx.config import *

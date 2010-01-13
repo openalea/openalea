@@ -14,7 +14,7 @@
 """Colormap Nodes"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: py_color.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 from openalea.core import *

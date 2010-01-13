@@ -21,7 +21,7 @@ and meta informations (authors, license, doc...)
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: package.py 2108 2010-01-12 17:48:53Z pradal $ "
 
 
 import inspect

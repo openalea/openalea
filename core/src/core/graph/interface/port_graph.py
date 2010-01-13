@@ -17,7 +17,7 @@
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: port_graph.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 class IPortGraph(object):
     """

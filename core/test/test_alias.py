@@ -1,7 +1,7 @@
 """Alias tests"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: test_alias.py 1898 2009-10-20 08:41:55Z cokelaer $ "
 
 from openalea.core.pkgmanager import PackageManager
 

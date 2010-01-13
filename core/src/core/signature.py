@@ -17,7 +17,7 @@
 """Signature class that instropect python functor based on the code"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: signature.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 import inspect

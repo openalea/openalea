@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: layout.py 2002 2009-12-08 14:02:46Z dbarbeau $ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview

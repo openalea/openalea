@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: edge.py 2005 2009-12-14 08:51:05Z dbarbeau $ "
 
 import weakref
 from PyQt4 import QtCore, QtGui

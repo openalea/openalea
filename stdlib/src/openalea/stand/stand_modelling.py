@@ -16,7 +16,7 @@
 """Set of spatial distribution for stands"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: stand_modelling.py 1861 2009-10-06 15:20:14Z cokelaer $"
 
 from openalea.core import *
 #from scipy import stats

@@ -16,7 +16,7 @@
 """Test the composite node module"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: test_compositenode.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode

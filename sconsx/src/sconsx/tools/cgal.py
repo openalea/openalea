@@ -18,7 +18,7 @@
 """ CGAL configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: cgal.py 2049 2009-12-21 10:28:07Z chopard $"
 
 import os, sys
 from os.path import exists

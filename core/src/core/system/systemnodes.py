@@ -17,7 +17,7 @@
 """System Nodes"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: systemnodes.py 1593 2009-02-04 12:42:33Z pradal $ "
 
 from openalea.core.node import AbstractNode, Node
 from openalea.core.dataflow import SubDataflow

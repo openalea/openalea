@@ -13,7 +13,7 @@
 ################################################################################
 
 __doc__ = """ catalog.string """
-__revision__ = " $Id$ "
+__revision__ = " $Id: __wralea__.py 2108 2010-01-12 17:48:53Z pradal $ "
 
 
 from openalea.core import *

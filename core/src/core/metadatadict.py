@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: metadatadict.py 2105 2010-01-12 14:19:48Z pradal $ "
 
 
 from openalea.core import observer

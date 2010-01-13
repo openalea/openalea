@@ -72,7 +72,7 @@
 """ todo """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: metaclass.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 import inspect
 import types

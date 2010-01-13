@@ -20,7 +20,7 @@
 """ See OpenAlea WebSite / Packages / SConsX """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: config.py 1869 2009-10-06 15:33:06Z cokelaer $"
 
 import os, sys
 #import string

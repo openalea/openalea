@@ -18,7 +18,7 @@
 """ Boost.Python configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: boost_python.py 2075 2010-01-08 16:02:37Z pradal $"
 
 import os, sys
 from openalea.sconsx.config import *

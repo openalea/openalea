@@ -15,7 +15,7 @@
 
 __doc__ = """ OpenAlea.Data Structure."""
 __license__ = "Cecill-C"
-__revision__ =" $Id$ "
+__revision__ =" $Id: __wralea__.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 from openalea.core import *

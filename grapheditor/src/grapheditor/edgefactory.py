@@ -17,7 +17,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: edgefactory.py 2000 2009-12-04 18:28:18Z dbarbeau $ "
 
 from PyQt4 import QtCore, QtGui
 

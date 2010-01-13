@@ -1,7 +1,7 @@
 """math node test"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: test_math_nodes.py 1586 2009-01-30 15:56:25Z cokelaer $"
 
 from openalea.core.alea import run
 from openalea.core.pkgmanager import PackageManager

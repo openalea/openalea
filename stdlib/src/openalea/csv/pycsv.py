@@ -14,7 +14,7 @@
 """CSV Nodes"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: pycsv.py 1949 2009-11-06 16:45:46Z cokelaer $ "
 
 
 class Obj(object):

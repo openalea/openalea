@@ -17,7 +17,7 @@ STDLIB image tools
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: images.py 1687 2009-03-11 10:30:12Z cokelaer $"
 
 from openalea.core import *
 import Image

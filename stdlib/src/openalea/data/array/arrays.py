@@ -14,7 +14,7 @@
 """ Data Nodes """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: arrays.py 1861 2009-10-06 15:20:14Z cokelaer $ "
 
 from array import array
 from openalea.core import Node, ISequence, IEnumStr

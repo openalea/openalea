@@ -17,7 +17,7 @@
 """This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: raster.py 1861 2009-10-06 15:20:14Z cokelaer $ "
 
 import numpy
 from numpy import zeros

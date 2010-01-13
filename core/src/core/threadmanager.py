@@ -19,7 +19,7 @@ The Thread manager provides thread on demand
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: threadmanager.py 1623 2009-02-13 15:02:22Z cokelaer $ "
 
 
 from threading import Thread

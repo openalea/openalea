@@ -16,7 +16,7 @@
 """Set of statistical functions"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: descriptive.py 1933 2009-11-02 14:46:49Z cokelaer $"
 
 from openalea.core import *
 from openalea.plotools import plotable

@@ -16,7 +16,7 @@
 """Special Dict with case insensitive key and protected field"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: pkgdict.py 1586 2009-01-30 15:56:25Z cokelaer $ "
 
 
 def lower(item):

@@ -21,7 +21,7 @@ Others are view as leaves.
 """
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id$ "
+__revision__ = " $Id: node_treeview.py 2058 2009-12-21 15:33:15Z chopard $ "
 
 import os
 from weakref import ref

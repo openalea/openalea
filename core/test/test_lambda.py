@@ -1,6 +1,6 @@
 """lambda tests"""
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: test_lambda.py 1862 2009-10-06 15:22:06Z cokelaer $ "
 
 from openalea.core.pkgmanager import PackageManager
 

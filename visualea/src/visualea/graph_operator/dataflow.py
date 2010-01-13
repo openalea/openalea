@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: dataflow.py 2004 2009-12-11 13:46:13Z dbarbeau $ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview

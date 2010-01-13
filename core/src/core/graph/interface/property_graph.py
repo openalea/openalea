@@ -18,7 +18,7 @@
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: property_graph.py 1623 2009-02-13 15:02:22Z cokelaer $ "
 
 class PropertyError (Exception) :
     """todo"""

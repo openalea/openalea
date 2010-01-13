@@ -16,7 +16,7 @@
 """declaration of pix interface and its widget"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: widgets.py 1861 2009-10-06 15:20:14Z cokelaer $"
 
 from openalea.image.interface import IPix, IImageMode
 from openalea.visualea.gui_catalog import IEnumStrWidget
