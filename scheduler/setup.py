@@ -1,11 +1,5 @@
-# Setup script has been commented to ease the writing of your own file. 
-
-# A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
-# In the context of OpenAlea, this function has been extended by the openalea.deploy module to ease the simultaneaous distribution of binaries and libraries.
-
-
-
-# (To adapt this script for your package, you mainly have to change the content of the variable defined before the call to setup function, and comment out unused options in the call of the function)
+# -*- coding: utf-8 -*-
+__revision__ = "$Id: setup.py 6086 2009-03-13 16:24:30Z cokelaer $"
 
 import sys
 import os
