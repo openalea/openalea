@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: __init__.py 2007 2009-12-15 17:30:47Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 from openalea.core import compositenode
 from openalea.core import node

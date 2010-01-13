@@ -21,7 +21,7 @@ modified in a dataflow.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: compositenode.py 2069 2010-01-08 09:16:04Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 import string
 import copy

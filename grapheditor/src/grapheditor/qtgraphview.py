@@ -16,7 +16,7 @@
 """Generic Graph Widget"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: qtgraphview.py 2056 2009-12-21 15:32:52Z chopard $ "
+__revision__ = " $Id$ "
 
 
 import weakref, types

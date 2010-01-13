@@ -9,7 +9,7 @@ selection method.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: lex.py 1869 2009-10-06 15:33:06Z cokelaer $"
+__revision__ = " $Id$"
 #
 # Copyright (c) 2001, 2002, 2003, 2004 The SCons Foundation
 #

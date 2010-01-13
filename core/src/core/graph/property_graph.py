@@ -17,7 +17,7 @@
 """This module provide a set of concepts to add properties to graph elements"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: property_graph.py 1591 2009-02-03 12:21:06Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from interface.property_graph import IPropertyGraph, PropertyError
 from graph import Graph, InvalidVertex, InvalidEdge

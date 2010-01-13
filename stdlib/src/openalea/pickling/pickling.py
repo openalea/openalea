@@ -15,7 +15,7 @@
 
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: pickling.py 1586 2009-01-30 15:56:25Z cokelaer $"
+__revision__ = " $Id$"
 
 from openalea.core import *
 import cPickle

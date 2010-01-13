@@ -17,7 +17,7 @@
 """This module provide an implementation of a dataflow"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: dataflow.py 2044 2009-12-21 08:59:16Z chopard $ "
+__revision__ = " $Id$ "
 
 from openalea.core.graph.property_graph import PropertyGraph, InvalidVertex
 from openalea.core.graph.property_graph import InvalidEdge

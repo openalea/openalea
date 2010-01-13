@@ -17,7 +17,7 @@
 """This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: svg_inout.py 1861 2009-10-06 15:20:14Z cokelaer $ "
+__revision__ = " $Id$ "
 
 # TODO: functionalities depends on vplants
 

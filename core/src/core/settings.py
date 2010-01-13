@@ -17,7 +17,7 @@
 """Setting class retrieve and set user configuration"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: settings.py 2044 2009-12-21 08:59:16Z chopard $ "
+__revision__ = " $Id$ "
 
 
 import os

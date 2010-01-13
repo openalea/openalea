@@ -17,7 +17,7 @@
 """Export application functions"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: export_app.py 1623 2009-02-13 15:02:22Z cokelaer $ "
+__revision__ = " $Id$ "
 
 
 import os

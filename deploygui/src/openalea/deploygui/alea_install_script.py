@@ -18,7 +18,7 @@
 """Main Module for installation graphical frontend"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id:  $"
+__revision__ = " $Id$"
 url =  "http://openalea.gforge.inria.fr"
 
 import sys, os

@@ -19,7 +19,7 @@ graph interface do not implement copy concept.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: graph.py 1623 2009-02-13 15:02:22Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from interface.graph import InvalidEdge, InvalidVertex, IGraph, \
                     IVertexListGraph, IEdgeListGraph, \

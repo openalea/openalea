@@ -13,7 +13,7 @@
 ################################################################################
 
 """ openalea.multiprocessing operator """
-__revision__=" $Id: __wralea__.py 1894 2009-10-19 15:04:08Z pradal $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *

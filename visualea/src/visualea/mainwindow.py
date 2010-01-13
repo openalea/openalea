@@ -17,7 +17,7 @@
 """QT4 Main window"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id: mainwindow.py 2058 2009-12-21 15:33:15Z chopard $ "
+__revision__ = " $Id$ "
 
 
 from PyQt4 import QtCore, QtGui, QtSvg

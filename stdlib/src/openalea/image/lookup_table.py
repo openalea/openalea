@@ -17,7 +17,7 @@
 """This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: lookup_table.py 1861 2009-10-06 15:20:14Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from numpy import zeros,ones, array
 from openalea.image.transformations.image_transfo import hsl2rgb,merge_rgbData

@@ -21,7 +21,7 @@ Authentification functions
 """
 
 __license__ = "CeCILL v2"
-__revision__ =" $Id: auth.py 1891 2009-10-16 16:08:37Z cokelaer $"
+__revision__ =" $Id$"
 
 
 import cookielib, urllib, urllib2, urlparse

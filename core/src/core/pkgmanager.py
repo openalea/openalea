@@ -21,7 +21,7 @@ It stores the packages and nodes informations
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: pkgmanager.py 2108 2010-01-12 17:48:53Z pradal $ "
+__revision__ = " $Id$ "
 
 import openalea
 

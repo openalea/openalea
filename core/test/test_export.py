@@ -1,7 +1,7 @@
 """Export Tests"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: test_export.py 1705 2009-03-31 11:58:31Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from openalea.core import export_app
 from openalea.core.pkgmanager import PackageManager

@@ -1,5 +1,5 @@
 __license__ = "Cecill-C"
-__revision__ = " $Id: test_package.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from openalea.core.package import *
 from openalea.core.node import gen_port_list

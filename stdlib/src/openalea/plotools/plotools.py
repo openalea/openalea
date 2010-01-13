@@ -21,7 +21,7 @@ __license__ = "Cecill-C"
 __date__ = "<Timestamp>"
 __version__ = "0.1"
 __docformat__ =  "restructuredtext en"
-__revision__ = "$Id: plotools.py 1861 2009-10-06 15:20:14Z cokelaer $"
+__revision__ = "$Id$"
 
 
 from openalea.core import *

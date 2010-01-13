@@ -26,7 +26,7 @@ Each function defines or populate global aliases like build or install.
 """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id: environ.py 1869 2009-10-06 15:33:06Z cokelaer $"
+__revision__ = "$Id$"
 
 import os, sys
 

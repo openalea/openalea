@@ -19,7 +19,7 @@ own function.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: command.py 2099 2010-01-11 19:19:41Z cokelaer $ "
+__revision__ = " $Id$ "
 
 import os
 import subprocess

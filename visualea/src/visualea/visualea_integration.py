@@ -17,7 +17,7 @@
 
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: visualea_integration.py 2006 2009-12-15 10:14:12Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 import weakref

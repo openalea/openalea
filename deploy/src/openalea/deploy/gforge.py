@@ -23,7 +23,7 @@ and args into valid soap request and return results into Python.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: gforge.py 1863 2009-10-06 15:27:18Z cokelaer $ "
+__revision__ = " $Id$ "
 
 #import pkg_resources
 #pkg_resources.require('soappy')

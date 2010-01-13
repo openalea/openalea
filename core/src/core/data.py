@@ -16,7 +16,7 @@
 """Data management classes"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: data.py 2044 2009-12-21 08:59:16Z chopard $ "
+__revision__ = " $Id$ "
 
 from openalea.core.node import AbstractFactory, Node, NodeFactory
 from openalea.core.interface import IData

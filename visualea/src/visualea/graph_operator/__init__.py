@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: __init__.py 2006 2009-12-15 10:14:12Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed

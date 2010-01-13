@@ -16,7 +16,7 @@
 """This module provides an actor interface"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: actor.py 1661 2009-03-09 11:07:41Z cokelaer $ "
+__revision__ = " $Id$ "
 
 
 class IActor(object):

@@ -22,7 +22,7 @@ Nodes on demand for the dataflow.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: node.py 2068 2010-01-07 17:47:27Z pradal $ "
+__revision__ = " $Id$ "
 
 import imp
 import inspect

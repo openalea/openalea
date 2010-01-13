@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: qtutils.py 2006 2009-12-15 10:14:12Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 from PyQt4 import QtCore, QtGui

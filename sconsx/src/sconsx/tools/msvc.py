@@ -18,7 +18,7 @@
 """ Visual Studio C++ configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id: msvc.py 1586 2009-01-30 15:56:25Z cokelaer $"
+__revision__ = "$Id$"
 
 
 import os, sys

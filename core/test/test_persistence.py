@@ -16,7 +16,7 @@
 """Test the subgraph module"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: test_persistence.py 1758 2009-08-07 11:27:55Z pradal $ "
+__revision__ = " $Id$ "
 
 
 from openalea.core.pkgmanager import PackageManager

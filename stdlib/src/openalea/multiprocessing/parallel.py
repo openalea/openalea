@@ -14,7 +14,7 @@
 """ Standard python functions for functional programming. """
 
 __license__ =  "Cecill-C"
-__revision__ = " $Id: functional.py 1915 2009-10-22 13:28:54Z pradal $ "
+__revision__ = " $Id$ "
 
 from openalea.core import Node, ITextStr
 

@@ -16,7 +16,7 @@
 """This module defines the base class Scheduler to list and evaluate tasks."""
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 from heapq import heappush,heappop
 

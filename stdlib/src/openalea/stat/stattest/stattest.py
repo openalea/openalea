@@ -15,7 +15,7 @@
 #
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: stattest.py 1861 2009-10-06 15:20:14Z cokelaer $"
+__revision__ = " $Id$"
 
 from openalea.core import Node
 #from openalea.plotools import plotable

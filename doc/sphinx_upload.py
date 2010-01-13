@@ -25,7 +25,7 @@ def ParseParameters(check=True):
         python sphinx_upload --username your_username
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog SVN $Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $ \n" \
+        version = "%prog SVN $Id$ \n" \
       + "$Name:  $\n"  + __author__)
 
     parser.add_option("-u", "--username", metavar='USERNAME',

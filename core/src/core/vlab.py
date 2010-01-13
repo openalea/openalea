@@ -16,7 +16,7 @@
 """doc todo"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: vlab.py 1751 2009-07-29 17:17:10Z pradal $ "
+__revision__ = " $Id$ "
 
 
 import os

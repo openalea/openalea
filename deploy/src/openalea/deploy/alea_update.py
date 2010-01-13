@@ -15,7 +15,7 @@
 """todo"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: alea_update.py 1601 2009-02-11 18:54:34Z cokelaer $"
+__revision__ = " $Id$"
 
 import os, sys
 import shutil

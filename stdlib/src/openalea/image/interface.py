@@ -15,7 +15,7 @@
 """declaration of pix interface and its widget """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: interface.py 1688 2009-03-11 10:34:08Z cokelaer $"
+__revision__ = " $Id$"
 
 from openalea.core.interface import IEnumStr, IInterface, IInterfaceMetaClass
 

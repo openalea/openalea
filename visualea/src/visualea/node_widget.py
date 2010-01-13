@@ -17,7 +17,7 @@
 """Default Node Widget"""
 
 __license__ = "CeCILL V2"
-__revision__ = " $Id: node_widget.py 2000 2009-12-04 18:28:18Z dbarbeau $"
+__revision__ = " $Id$"
 
 
 

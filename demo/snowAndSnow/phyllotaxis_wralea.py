@@ -1,5 +1,5 @@
 __license__ = "Cecill-C"
-__revision__ = " $Id: phyllotaxis_wralea.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from openalea.core.external import Package, Factory
 from openalea.core.traitsui import View, Item, Group

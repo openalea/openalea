@@ -17,7 +17,7 @@
 """This module provide an algorithm to evaluate a dataflow"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: dataflow_evaluation.py 2044 2009-12-21 08:59:16Z chopard $ "
+__revision__ = " $Id$ "
 
 import sys
 import traceback as tb

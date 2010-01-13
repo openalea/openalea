@@ -16,7 +16,7 @@
 """Plotting routines"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: graphics.py 1861 2009-10-06 15:20:14Z cokelaer $"
+__revision__ = " $Id$"
 
 from openalea.core import *
 #from openalea.plotools import plotable

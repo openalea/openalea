@@ -18,7 +18,7 @@
 """This module provide basics function to handle 2D images"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: view.py 1861 2009-10-06 15:20:14Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QLabel, QPixmap, QImage

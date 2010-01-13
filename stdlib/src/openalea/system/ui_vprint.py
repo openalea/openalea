@@ -8,7 +8,7 @@
 # WARNING! All changes made in this file will be lost!
 """tobe done"""
 
-__revision__ = "$Id: ui_vprint.py 1692 2009-03-11 12:49:16Z cokelaer $"
+__revision__ = "$Id$"
 __license__ = "Cecill-C"
 
 from PyQt4 import QtCore, QtGui

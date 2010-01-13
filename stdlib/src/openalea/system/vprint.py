@@ -1,6 +1,6 @@
 """to be done"""
 
-__revision__ = "$Id: vprint.py 1692 2009-03-11 12:49:16Z cokelaer $"
+__revision__ = "$Id$"
 __license__ = "Cecill-C"
 
 from openalea.core.node import AbstractNode, Node

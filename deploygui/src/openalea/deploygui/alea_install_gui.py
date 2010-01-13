@@ -18,7 +18,7 @@
 """Main Module for installation graphical frontend"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id: alea_install_gui.py 2091 2010-01-11 17:22:53Z pradal $"
+__revision__ = " $Id$"
 url =  "http://openalea.gforge.inria.fr"
 
 import sys, os

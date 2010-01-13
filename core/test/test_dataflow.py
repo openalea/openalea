@@ -1,7 +1,7 @@
 """Dataflow Tests"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: test_dataflow.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from openalea.core.dataflow import DataFlow, PortError
 

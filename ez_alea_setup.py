@@ -529,7 +529,7 @@ def ParseParameters():
       >>> python ez_alea_setup.py
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id: ez_alea_setup.py 2080 2010-01-11 16:11:35Z pradal $ \n" \
+        version="%prog CVS $Id$ \n" \
       + "$Name:  $\n")
     parser.add_option("-i", "--install-dir", action="store", \
         help="the path where to install openalea (non-root installation)")

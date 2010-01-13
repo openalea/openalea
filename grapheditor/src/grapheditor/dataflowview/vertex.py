@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: vertex.py 2051 2009-12-21 11:07:28Z chopard $ "
+__revision__ = " $Id$ "
 
 import weakref,sys
 from PyQt4 import QtCore, QtGui

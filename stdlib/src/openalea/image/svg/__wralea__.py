@@ -12,7 +12,7 @@
 #
 ################################################################################
 __doc__ = """ openalea.image """
-__revision__ = " $Id: __wralea__.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 
 from openalea.core import *

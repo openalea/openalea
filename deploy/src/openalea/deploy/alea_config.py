@@ -10,7 +10,7 @@ The global shared dir can be set by this command.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: alea_config.py 1727 2009-04-17 15:06:45Z cokelaer $"
+__revision__ = " $Id$"
 
 #from install_lib import get_default_dyn_lib
 from install_lib import get_dyn_lib_dir

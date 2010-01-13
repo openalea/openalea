@@ -1,7 +1,7 @@
 """ Core interface test"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: test_interface.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from openalea.core.interface import *
 from types import *

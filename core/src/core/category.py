@@ -17,7 +17,7 @@
 """This module defines category keywords to be used within wralea files"""
 
 __license__ = "Cecill-C"
-__revision__ = "$Id: category.py 1661 2009-03-09 11:07:41Z cokelaer $"
+__revision__ = "$Id$"
 
 
 class PackageManagerCategory():

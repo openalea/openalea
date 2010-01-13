@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: __init__.py 2000 2009-12-04 18:28:18Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 import edgefactory

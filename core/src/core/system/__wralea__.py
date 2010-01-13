@@ -15,7 +15,7 @@
 #
 ###############################################################################
 """Wralea for System nodes"""
-__revision__ = " $Id: __wralea__.py 1593 2009-02-04 12:42:33Z pradal $ "
+__revision__ = " $Id$ "
 
 
 from openalea.core.external import * #IGNORE:W0614

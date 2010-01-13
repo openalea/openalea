@@ -21,7 +21,7 @@ __license__="Cecill-C"
 __date__="<Timestamp>"
 __version__="0.1"
 __docformat__= "restructuredtext en"
-__revision__="$Id: phyllotaxis.py 1586 2009-01-30 15:56:25Z cokelaer $"
+__revision__="$Id$"
 
 import openalea.plotools.plotable as ptb
 #import visual

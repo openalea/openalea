@@ -16,7 +16,7 @@
 """Generic Graph Widget"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: baselisteners.py 2007 2009-12-15 17:30:47Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 import types

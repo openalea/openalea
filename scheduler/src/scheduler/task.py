@@ -20,7 +20,7 @@ to be evaluated by a scheduler
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 class Task (object) :
     """Handle a function that will be called regularly.

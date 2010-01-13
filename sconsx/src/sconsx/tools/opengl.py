@@ -18,7 +18,7 @@
 """ OpenGL configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id: opengl.py 1869 2009-10-06 15:33:06Z cokelaer $"
+__revision__ = "$Id$"
 
 
 import os, sys

@@ -15,7 +15,7 @@
 """Deployment utilities"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: util.py 2025 2009-12-17 15:14:05Z moscardi $ "
+__revision__ = " $Id$ "
 
 import pkg_resources
 import os, sys

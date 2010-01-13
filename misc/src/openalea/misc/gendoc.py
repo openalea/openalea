@@ -7,7 +7,7 @@ vplants modules.
 """
 
 __author__ = "Thomas.Cokelaer@sophia.inria.fr"
-__revision__ = "$Id: gendoc.py 1605 2009-02-12 12:50:15Z cokelaer $"
+__revision__ = "$Id$"
 
 import os
 import sys
@@ -158,7 +158,7 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version="%prog CVS $Id: gendoc.py 1605 2009-02-12 12:50:15Z cokelaer $ \n" \
+        version="%prog CVS $Id$ \n" \
       + "$Name:  $\n")
     parser.add_option("-m", "--module", \
         default=None, help="name of the module. E.g., core, visualea, stdlib")

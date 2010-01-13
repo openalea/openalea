@@ -18,7 +18,7 @@
 to register objects with their names"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: singleton.py 1586 2009-01-30 15:56:25Z cokelaer $ "
+__revision__ = " $Id$ "
 
 from singleton import Singleton
 

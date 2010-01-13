@@ -13,7 +13,7 @@
 ################################################################################
 """ catalog.model """
 
-__revision__=" $Id: __wralea__.py 1634 2009-02-17 10:51:54Z cokelaer $ "
+__revision__=" $Id$ "
 
 
 from openalea.core import *

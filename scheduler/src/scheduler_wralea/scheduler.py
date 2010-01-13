@@ -18,7 +18,7 @@ node definition for scheduler package
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 from openalea.scheduler import Scheduler,Task,Loop
 

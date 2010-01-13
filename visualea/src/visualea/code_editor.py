@@ -17,7 +17,7 @@
 """Python code editor"""
 
 __license__ = "CeCILL V2"
-__revision__ = " $Id: code_editor.py 2000 2009-12-04 18:28:18Z dbarbeau $"
+__revision__ = " $Id$"
 
 
 from PyQt4 import QtCore, QtGui

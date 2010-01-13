@@ -17,7 +17,7 @@
 """This module defines Interface classes (I/O types)"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: interface.py 2105 2010-01-12 14:19:48Z pradal $ "
+__revision__ = " $Id$ "
 
 from openalea.core.metaclass import make_metaclass
 from openalea.core.singleton import Singleton

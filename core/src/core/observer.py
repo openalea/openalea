@@ -17,7 +17,7 @@
 """This module defines all the classes for the Observer design Pattern"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: observer.py 2067 2010-01-07 17:46:43Z pradal $ "
+__revision__ = " $Id$ "
 
 ###############################################################################
 

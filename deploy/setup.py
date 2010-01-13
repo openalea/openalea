@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__revision__ = "$Id: setup.py 2110 2010-01-13 11:41:18Z pradal $"
+__revision__ = "$Id$"
 
 # Install setuptools if necessary
 try:

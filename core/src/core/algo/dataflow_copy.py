@@ -17,7 +17,7 @@
 dataflow"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: dataflow_copy.py 1624 2009-02-16 16:27:20Z cokelaer $ "
+__revision__ = " $Id$ "
 
 
 def structural_copy(dataflow_pattern, dataflow_copy):

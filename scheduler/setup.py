@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__revision__ = "$Id: setup.py 6086 2009-03-13 16:24:30Z cokelaer $"
+__revision__ = "$Id$"
 
 import sys
 import os

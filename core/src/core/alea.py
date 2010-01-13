@@ -16,7 +16,7 @@
 """ a script to run alea dataflow and scripts"""
 
 __license__ = "Cecill-C"
-__revision__ = "$Id: alea.py 1661 2009-03-09 11:07:41Z cokelaer $"
+__revision__ = "$Id$"
 
 import sys
 from optparse import OptionParser

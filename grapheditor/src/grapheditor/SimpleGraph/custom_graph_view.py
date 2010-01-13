@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: custom_graph_view.py 2007 2009-12-15 17:30:47Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 """In this file we implement the basic graph views"""

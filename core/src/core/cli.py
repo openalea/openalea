@@ -19,7 +19,7 @@ It is composed by a set of functions useable directly in the interpreter
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: cli.py 2007 2009-12-15 17:30:47Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 
 def init_interpreter(interpreter, session, _locals=None):

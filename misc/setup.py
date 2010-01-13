@@ -3,12 +3,12 @@
 >>> python setup.py sphinx_build
 
 """
-__revision__ = "$Id: setup.py 2110 2010-01-13 11:41:18Z pradal $"
+__revision__ = "$Id$"
 
 import os, sys
 from setuptools import setup, find_packages
 
-__revision__ = "$Id: setup.py 2110 2010-01-13 11:41:18Z pradal $"
+__revision__ = "$Id$"
 
 # just an alias
 pj = os.path.join

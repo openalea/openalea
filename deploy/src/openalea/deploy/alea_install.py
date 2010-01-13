@@ -1,7 +1,7 @@
 """Script to wrap easy install with some post-processing"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: alea_install.py 1601 2009-02-11 18:54:34Z cokelaer $"
+__revision__ = " $Id$"
 
 __requires__ = 'setuptools'
 import sys, os

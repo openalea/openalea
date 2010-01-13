@@ -19,7 +19,7 @@
 """Wrapper to start Visualea with correct environment variables"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id: visualea_script.py 2004 2009-12-11 13:46:13Z dbarbeau $"
+__revision__ = " $Id$"
 
 import os, sys
 

@@ -11,7 +11,7 @@ upload all files within the OpenAlea website: http://openalea.gforge.inria.fr
 
 """
 
-__revision__ = " $Id: gforge_upload.py 1812 2009-09-10 moscardi $"
+__revision__ = " $Id$"
 
 from optparse import OptionParser
 from fnmatch import fnmatch
