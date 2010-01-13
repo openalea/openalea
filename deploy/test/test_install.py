@@ -1,7 +1,7 @@
 """Test installation of fake package"""
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ =" $Id: test_install.py 1863 2009-10-06 15:27:18Z cokelaer $"
 
 import os, sys
 

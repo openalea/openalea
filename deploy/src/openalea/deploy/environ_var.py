@@ -18,7 +18,7 @@
 """ Environment variable manipulation functions """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: environ_var.py 2091 2010-01-11 17:22:53Z pradal $"
 
 import os
 import sys

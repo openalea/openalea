@@ -40,7 +40,7 @@ then uploads it to the W3C validator.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: gforge_util.py 1863 2009-10-06 15:27:18Z cokelaer $ "
 
 import urllib
 import urllib2

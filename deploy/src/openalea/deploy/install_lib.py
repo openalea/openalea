@@ -21,7 +21,7 @@ The egm file describes the directory the dynamic library is originated from.
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: install_lib.py 2078 2010-01-11 06:29:13Z pradal $"
 
 import os
 import shutil

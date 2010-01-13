@@ -18,7 +18,7 @@
 """OS Functions to add shortcut and Mime type association """
  
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
+__revision__ = " $Id: shortcut.py 1601 2009-02-11 18:54:34Z cokelaer $ "
 
 import os
 import sys

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """setup file for stdlib package"""
-__revision__ = "$Id$"
+__revision__ = "$Id: setup.py 2110 2010-01-13 11:41:18Z pradal $"
 
 import os
 from setuptools import setup, find_packages
 
 __license__ = 'Cecill-C' 
-__revision__ = "$Id$"
+__revision__ = "$Id: setup.py 2110 2010-01-13 11:41:18Z pradal $"
 
 pj = os.path.join
 

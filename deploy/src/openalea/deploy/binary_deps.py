@@ -1,7 +1,7 @@
 """binary dependencies"""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: binary_deps.py 1627 2009-02-17 09:19:43Z cokelaer $"
 
 import pkg_resources
 import warnings
