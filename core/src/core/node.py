@@ -1042,11 +1042,6 @@ class NodeFactory(AbstractFactory):
             try:
                 node = classobj(self.inputs, self.outputs)
             except TypeError, e:
-                print self.inputs
-                print self.outputs
-                print e
-                print self.nodeclass_name
-                print module
                 node = classobj()
 
         # Properties
