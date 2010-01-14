@@ -28,7 +28,7 @@ def test_wrong_package():
     except:
         assert True
 
-    
+
 def test_parse_packages():
     """ Test of parse_packages() method with option --package"""
     mysetup = Multisetup(curdir=curdir, commands='dummy', 
@@ -40,29 +40,30 @@ def test_parse_packages():
 
 def test_parse_no_packages():
     """ Test of parse_packages() method with option --exclude-package"""
-    
+
     mysetup = Multisetup(curdir=curdir, 
                          commands='commands --exclude-package core', 
                          packages=['stdlib','core','deploy'])
-      
+
     print mysetup.packages
     assert mysetup.packages == ['stdlib','deploy']
     mysetup = Multisetup(curdir=curdir, 
-                         commands='commands --exclude-package misc', 
+                         commands='commands --exclude-package stdlib core', 
                          packages=['stdlib','core','deploy'])
     # sets are unordered, so we use union instead of pure ==
-    #assert mysetup.packages.union(set(['stdlib','core' 'deploy']))
-    
+    print 'oooooo', mysetup.packages
+    assert mysetup.packages == ['deploy']
+
 
 def test_parse_commands():
     """ Test of parse_commands() method"""
     commands =['install', 'sdist', '-d', './dist', '--verbose', '--keep-going']
     mysetup = Multisetup(curdir=curdir, commands=commands, packages=[])
-    
-    
+
+
     mysetup.parse_commands()
     mysetup.parse_packages()
-    
+
     assert len(mysetup.commands) == 2
     assert mysetup.commands[0] == 'install'
     assert mysetup.commands[1] == 'sdist -d ./dist'

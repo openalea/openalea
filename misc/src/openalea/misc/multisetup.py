@@ -34,7 +34,6 @@ except:
 
 """ some remaining examples of setuptools commands:
             'clean': '-a',
-            'undevelop': '-u',
             'distribution': '' ,
             'release':  'install bdist_egg -d ../../dist ',
             'html': "--builder html -E",
@@ -98,16 +97,6 @@ alinea_dirs = """
                 cmd += ' --project %s' % self.project
 """
 
-
-"""        # setup for the undevelop command
-        if self.command == 'undevelop':
-            # if undevelop, we uninstall in the reversed order
-            # of the installation. For instance, in OpenAlea case, we want
-            # deploy package to be installed first be removed last. This
-            # prevents warnings and potential errors due to original
-            # distutils being used.
-            dirs.reverse()
-"""
 
 
 
@@ -175,40 +164,61 @@ class Multisetup(object):
         print "  --exclude-package              list of packages to not run"
         print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
 
-
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
         """
         if '--package' in self.commands:
+            index = self.commands.index('--package')
+            self.commands.remove('--package')
             self.packages = set()
-            while '--package' in self.commands:
-                index = self.commands.index('--package')
-                self.commands.remove('--package')
-                # check that commands[p] is in dirs
-                self.packages.add(self.commands[index])
-                self.commands.pop(index)
+            found = True
+            while found is True:
+                try: #test is no more argument
+                    self.commands[index]
+                except: # then breaks
+                    break
+                # otherwise if next argument starts with -, break
+                if self.commands[index].startswith('-'):
+                    break
+                # or carry on to gather package names
+                else:
+                    self.packages.add(self.commands[index])
+                    self.commands.remove(self.commands[index])
+                    continue
+            #self.commands.pop(index)
 
         if '--exclude-package' in self.commands:
-            while '--exclude-package' in self.commands:
-                index = self.commands.index('--exclude-package')
-                self.commands.remove('--exclude-package')
-                # check that commands[index] is in dirs
-                if self.commands[index] in self.packages:
-                    self.packages.remove(self.commands[index])
+            # keep track of --exclude-package index
+            index = self.commands.index('--exclude-package')
+            # remove it from the commands
+            self.commands.remove('--exclude-package')
+            # remove all packages provided afterwards until next arguments is found
+            found = True
+            while found is True:
+                # look for next argument/package that may be the end of the command
+                try:
+                    package_to_remove = self.commands[index]
+                except:
+                    break
+                # if this is a valid package name
+                if package_to_remove in self.packages:
+                    # remove it from the package list
+                    self.packages.remove(package_to_remove)
+                    # and from the command line
+                    self.commands.remove(package_to_remove)
+                    # until we found another package
+                    continue
+                # otherwise, it is an argument that 
                 else:
-                    print 'Warnings %s not found in package list' \
-                        % self.commands[index]
-                self.commands.pop(index)
+                    #starts with a - sign
+                    if package_to_remove.startswith('-'):
+                        break
+                    # or is invalid
+                    raise ValueError('--exclude-package error: package %s not found in package list' \
+                        % self.commands[index])
 
-    """def parse_intern_commands(self):
-        ""Search and replace user command from multisetup command (e.g., release, html...)
-        ""
-        for cmd in self.commands:
-            if cmd in commands_keys:
-                r = self.commands.index(cmd)
-                self.commands.remove(cmd)
-                self.commands.insert(r, commands_keys[cmd] )
-    """
+            #self.commands.pop(index)
+
 
     def parse_commands(self):
         """Search and remove multisetup options
