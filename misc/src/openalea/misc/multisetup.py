@@ -156,9 +156,9 @@ class Multisetup(object):
         print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
         print "  multisetup.py install          will install the package\n"
         print "Global options:"
-        print "  --verbose                      run verbosely [default=False]"
-        print "  --keep-going                   force the commands running[default=False]"
-        print "  --help                         show detailed help message"
+        print "  -v, --verbose                  run verbosely [default=False]"
+        print "  -k, --keep-going               force the commands running[default=False]"
+        print "  -h, --help                     show detailed help message"
         print "  --package                      list of packages to run"
         print "                                 [default: deploy / deploygui / core / scheduler / visualea / stdlib / sconsx / misc]"
         print "  --exclude-package              list of packages to not run"
@@ -228,11 +228,17 @@ class Multisetup(object):
         remaining commands are fully comptatible with setuptools.
         """
 
-        if ('--verbose') in self.commands:
+        if '--verbose' in self.commands:
             self.verbose = True
             self.commands.remove('--verbose')
+        if '-v' in self.commands:
+            self.verbose = True
+            self.commands.remove('-v')
 
-        if ('--keep-going') in self.commands:
+        if '-k' in self.commands:
+            self.force = True
+            self.commands.remove('-k')
+        if '--keep-going' in self.commands:
             self.force = True
             self.commands.remove('--keep-going')
 
