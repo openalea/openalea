@@ -54,29 +54,27 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         layout = QtGui.QGraphicsLinearLayout()
         layout.setOrientation(QtCore.Qt.Vertical)
         layout.setSpacing(2)
+        self.setLayout(layout)
 
-        self._inPortLayout  = QtGui.QGraphicsLinearLayout()
-        self._caption       = QtGui.QLabel()
-        self._outPortLayout = QtGui.QGraphicsLinearLayout()
-        self._captionProxy  = qtutils.AleaQGraphicsProxyWidget(self._caption)
+        self._inPortLayout  = QtGui.QGraphicsLinearLayout(layout)
+        self._caption = qtutils.AleaQGraphicsLabelWidget("")
+        self._outPortLayout = QtGui.QGraphicsLinearLayout(layout)
+        layout.addItem(self._inPortLayout)
+        layout.addItem(self._caption)
+        layout.addItem(self._outPortLayout)
+
         self._inPortLayout.setSpacing(0.0)
         self._outPortLayout.setSpacing(0.0)
 
         #minimum heights
         self._inPortLayout.setMinimumHeight(GraphicalPort.HEIGHT)
-        self.set_caption("")
         self._outPortLayout.setMinimumHeight(GraphicalPort.HEIGHT)
 
-        layout.addItem(self._inPortLayout)
-        layout.addItem(self._captionProxy)
-        layout.addItem(self._outPortLayout)
-
         layout.setAlignment(self._inPortLayout, QtCore.Qt.AlignHCenter)
+        layout.setAlignment(self._caption, QtCore.Qt.AlignHCenter)
         layout.setAlignment(self._outPortLayout, QtCore.Qt.AlignHCenter)
-        layout.setAlignment(self._captionProxy, QtCore.Qt.AlignHCenter)
 
-        self.setLayout(layout)
-                
+        
         self.initialise_from_model()
 
     def initialise_from_model(self):
@@ -119,7 +117,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             tt = event[1]
             if tt is None:
                 tt=""
-            self._captionProxy.setToolTip(tt)
+            #self._captionProxy.setToolTip(tt)
             self.setToolTip(tt)
 
         elif(event[0] == "start_eval"):
@@ -158,8 +156,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         if caption == "":
             caption = " "
         self._caption.setText(caption)
-        layout = self.layout()
-        if(layout): layout.updateGeometry()
+        if(self.layout()): self.layout().updateGeometry()
 
     ###############################
     # ----Qt World overloads----  #
