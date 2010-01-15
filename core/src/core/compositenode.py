@@ -889,19 +889,27 @@ class CompositeNode(Node, DataFlow):
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
         if(vid):  vertex.set_id(vid)
-        
-        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
-                else "vertex"
-        if (not isinstance(vertex, CompositeNodeOutput) and 
-            not isinstance(vertex, CompositeNodeInput)):
+        vtype = "vertex"
+        doNotify = True
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
+        elif isinstance(vertex, CompositeNodeOutput): 
+            vtype = "vertex"
+            doNotify = True if len(vertex.input_desc) else False
+        elif isinstance(vertex, CompositeNodeInput) : 
+            vtype = "vertex"
+            doNotify = True if len(vertex.input_desc) else False
+        else: pass
+        if doNotify:
             self.notify_listeners(("vertex_added", (vtype, vertex)))
 
     def notify_vertex_removal(self, vertex):
-        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
-                else "vertex"
-        if (not isinstance(vertex, CompositeNodeOutput) and 
-            not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertex_removed", (vtype, vertex)))
+        vtype = "vertex"
+        doNotify = True
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
+        elif isinstance(vertex, CompositeNodeOutput): vtype = "vertex"
+        elif isinstance(vertex, CompositeNodeInput) : vtype = "vertex"
+        else: pass
+        self.notify_listeners(("vertex_removed", (vtype, vertex)))
     #/gengraph
 
 
