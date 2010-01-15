@@ -226,7 +226,7 @@ class Vertex(Element):
     # ---> other events
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
-        Default updates the model's ad-hoc position value."""
+        Default implementation updates the model's ad-hoc position value."""
         self.deaf()
         point = self.scenePos()
         cPos = point + self.rect().center()

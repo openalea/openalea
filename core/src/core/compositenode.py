@@ -314,7 +314,7 @@ class CompositeNodeFactory(AbstractFactory):
         if elt_ad_hoc and len(elt_ad_hoc):
             node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
             return
-        
+        print 'not ad_hoc'
         #extracting ad hoc data from old files.
         #we parse the Node class' __ad_hoc_from_old_map__
         #which defines conversions between new ad_hoc_dict keywords
@@ -328,35 +328,30 @@ class CompositeNodeFactory(AbstractFactory):
         #    if there are more than just one keyword, extract the data into 
         #        a list. Then convert the list to the desired type and set the
         #        metadata.
-        toDelete = [] #used to store the keys that will be removed from the internal_data
-                      #todo before 0.8 remove this and simply pop the values 
-        position = [0.0,0.0]
-        for key, val in Node.__ad_hoc_from_old_map__.iteritems():
-            conversion = val #list of old keys to convert
-            if len(conversion)==1: #if we want to convert one old value to one new value (ex: color)
-                _type, default = Node.__ad_hoc_slots__.get(key)
-                data = elt_data.get(conversion[0])
-                if(data is None):
-                    data = default
-                if data is None :
-                    continue
-                node.get_ad_hoc_dict().set_metadata(key, _type(data))
-            else: #is we want to convert to old values to one single new value (ex: posx, posy => position)
-                components = [] #list that stores the new values
-                _type, default = Node.__ad_hoc_slots__.get(key)
-                for i in conversion:
-                    components.append(elt_data.get(i))
-                if None in components:
-                    components = default
-                node.get_ad_hoc_dict().set_metadata(key, _type(components))
-            toDelete += conversion
+        if hasattr(node, "__ad_hoc_from_old_map__"):
+            toDelete = [] #used to store the keys that will be removed from the internal_data
+                          #todo before 0.8 remove this and simply pop the values
+            for key, conversion in node.__ad_hoc_from_old_map__.iteritems():
+                #conversion == list of old keys to convert
+                if len(conversion)==1: #if we want to convert one old value to one new value (ex: color)
+                    _type, default = node.__ad_hoc_slots__.get(key)
+                    data = elt_data.get(conversion[0], default)
+                    if data is None :
+                        continue
+                    node.get_ad_hoc_dict().set_metadata(key, _type(data))
+                else: #if we want to convert serveral old values to one single new value (ex: posx, posy => position)
+                    components = [] #list that stores the new values
+                    _type, default = node.__ad_hoc_slots__.get(key)
+                    for i in conversion:
+                        components.append(elt_data.get(i))
+                    if None in components:
+                        components = default
+                    node.get_ad_hoc_dict().set_metadata(key, _type(components))
+                toDelete += conversion
 
-        if(__debug__):
-            if( hasattr(__builtin__,"__debug_with_old__") and __builtin__.__debug_with_old__):
-                pass
-        else:
-            for key in toDelete:
-                del elt_data[key]
+            if(not __debug__):
+                if( not hasattr(__builtin__,"__debug_with_old__") and not __builtin__.__debug_with_old__):
+                    for key in toDelete: del elt_data[key]            
 
 
     def instantiate_node(self, vid, call_stack=None):
@@ -371,6 +366,7 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
+        
         #gengraph                     
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
@@ -381,6 +377,7 @@ class CompositeNodeFactory(AbstractFactory):
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
         #gengraph
+        
         for vs in values:
             try:
                 #the two first elements are the historical
@@ -766,7 +763,7 @@ class CompositeNode(Node, DataFlow):
         if auto_io is true :  inputs and outputs are connected to the free
         ports
         """
-
+    
         # Clear the factory
         sgfactory.clear()
 
@@ -826,11 +823,24 @@ class CompositeNode(Node, DataFlow):
 
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
-
+            #Forward compatibility for versions earlier than 0.8.0
+            #We do the exact opposite than in load_ad_hoc_data, have a look there.
+            if hasattr(node, "__ad_hoc_from_old_map__"):                
+                for key, val in node.__ad_hoc_from_old_map__.iteritems():
+                    conversion = val #list of old keys to convert
+                    if len(conversion)==0: continue
+                    elif len(conversion)==1: #if we want to convert one new value to one old value (ex: color=>color)
+                        data = node.get_ad_hoc_dict().get_metadata(key)
+                        sgfactory.elt_data[vid][conversion[0]] = data
+                    else: #if we want to convert one new value to several old values (ex: position => posx, posy )
+                        data = node.get_ad_hoc_dict().get_metadata(key)
+                        for pos, key in enumerate(conversion):
+                            sgfactory.elt_data[vid][key] = data[pos]
+                
             #gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
-
+            #/gengraph
 
             # Copy value
             if(not node.get_nb_input()):
@@ -840,8 +850,7 @@ class CompositeNode(Node, DataFlow):
                     [(port, repr(node.get_input(port))) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
-            #/gengraph
-
+                        
         self.graph_modified = False
 
         # Set node factory if all node have been exported

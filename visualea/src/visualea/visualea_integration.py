@@ -39,17 +39,17 @@ def OpenAleaNodeFactoryHandler(view, event):
     if (event.mimeData().hasFormat("openalea/nodefactory")):
         pieceData = event.mimeData().data("openalea/nodefactory")
         dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-        
+
         package_id = QtCore.QString()
         factory_id = QtCore.QString()
-        
+
         dataStream >> package_id >> factory_id
-        
+
         # Add new node
         pkgmanager = PackageManager()
         pkg = pkgmanager[str(package_id)]
         factory = pkg.get_factory(str(factory_id))
-        
+
         position = view.mapToScene(event.pos())
         try:
             node = factory.instantiate([view.graph().factory.get_id()])
@@ -58,7 +58,7 @@ def OpenAleaNodeFactoryHandler(view, event):
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
             return
-        
+
         event.setDropAction(QtCore.Qt.MoveAction)
         event.accept()
 
@@ -109,7 +109,7 @@ def keyPressDelete(view, e):
     operator=GraphOperator(view, view.graph())
     operator.graph_remove_selection()
     e.setAccepted(True)
-    
+
 def keyPressSpace(view, e):
     view.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
     e.setAccepted(True)
@@ -162,7 +162,7 @@ def vertexContextMenuEvent(graphItem, event):
     operator=GraphOperator(view, graphItem().graph())
     operator.set_vertex_item(graphItem())
     menu = QtGui.QMenu(view)
-    
+
     if isinstance(graphItem().vertex(), CompositeNode):
         menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
 
@@ -201,9 +201,9 @@ def vertexContextMenuEvent(graphItem, event):
 
 
 
-qtgraphview.Vertex.set_event_handler("mouseDoubleClickEvent", 
+qtgraphview.Vertex.set_event_handler("mouseDoubleClickEvent",
                                                 vertexMouseDoubleClickEvent)
-qtgraphview.Vertex.set_event_handler("contextMenuEvent", 
+qtgraphview.Vertex.set_event_handler("contextMenuEvent",
                                                 vertexContextMenuEvent)
 
 
@@ -227,7 +227,7 @@ def portContextMenuEvent(graphItem, event):
 
         event.accept()
 
-dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent", 
+dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent",
                                                     portContextMenuEvent)
 
 
@@ -236,7 +236,7 @@ dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent",
 # QtEvent handlers for edges #
 ##############################
 
-#nothing special here the default 
+#nothing special here the default
 #actions of the dataflow strategy
 #are fine
 
@@ -245,6 +245,6 @@ dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent",
 # QtEvent handlers for annotations #
 ####################################
 
-#nothing special here the default 
+#nothing special here the default
 #actions of the dataflow strategy
 #are fine

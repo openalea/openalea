@@ -63,7 +63,6 @@ def gen_port_list(size):
         mylist.append(dict(name='t'+str(i), interface=None, value=i))
     return mylist
 
-
 class AbstractNode(Observed, AbstractListener):
     """
     An AbstractNode is the atomic entity in a dataflow.
@@ -79,14 +78,22 @@ class AbstractNode(Observed, AbstractListener):
 
     #describes which data and what type
     #are expected to be found in the ad_hoc
-    #dictionnary. Used by views.
-    __ad_hoc_slots__ = {}
-    __ad_hoc_from_old_map__ = {}
-
+    #dictionnary. Used by views. 
+    #__ad_hoc_slots__ = {} Created at runtime
+    #__ad_hoc_from_old_map__ = {} Created at runtime
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__={}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
+            
         cls.__ad_hoc_slots__[name] = (_type, default)
         if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
             cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self):
@@ -94,13 +101,15 @@ class AbstractNode(Observed, AbstractListener):
         Default Constructor
         Create Internal Data dictionnary
         """
-
         Observed.__init__(self)
         AbstractListener.__init__(self)
 
         #gengraph
         self.__id = None
-        self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        if hasattr(self, "__ad_hoc_slots__"):
+            self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        else:
+            self.set_ad_hoc_dict(metadatadict.MetaDataDict())
         #/gengraph
 
         # Internal Data (caption...)
@@ -131,6 +140,8 @@ class AbstractNode(Observed, AbstractListener):
         return self.__id
 
     def set_id(self, id):
+        if id==30:
+            print self.__ad_hoc_dict
         self.__id = id
     #/gengraph
 
@@ -155,7 +166,11 @@ class AbstractNode(Observed, AbstractListener):
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
-
+        
+class Annotation(AbstractNode):
+    def __init__(self):
+        AbstractNode.__init__(self)
+        
 class AbstractPort(dict, Observed, AbstractListener):
     """
     The class describing the ports.
@@ -164,14 +179,22 @@ class AbstractPort(dict, Observed, AbstractListener):
 
     #describes which data and what type
     #are expected to be found in the ad_hoc
-    #dictionnary. Used by views
-    __ad_hoc_slots__ = {}
-    __ad_hoc_from_old_map__ = {}
-
+    #dictionnary. Used by views. 
+    #__ad_hoc_slots__ = {} Created at runtime
+    #__ad_hoc_from_old_map__ = {} Created at runtime
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__={}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
+            
         cls.__ad_hoc_slots__[name] = (_type, default)
         if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
             cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self, vertex):
@@ -182,7 +205,10 @@ class AbstractPort(dict, Observed, AbstractListener):
         #gengraph
         self.vertex = ref(vertex)
         self.__id = None
-        self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
+        if hasattr(self, "__ad_hoc_slots__"):
+            self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
+        else:
+            self.__ad_hoc_dict = metadatadict.MetaDataDict()
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
 

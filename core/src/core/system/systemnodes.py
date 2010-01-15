@@ -19,11 +19,11 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.core.node import AbstractNode, Node
+from openalea.core.node import AbstractNode, Node, Annotation
 from openalea.core.dataflow import SubDataflow
 
 
-class AnnotationNode(AbstractNode):
+class AnnotationNode(Annotation):
     """ A DummyNode is a fake node."""
 
     __graphitem__ = "annotation.Annotation"
