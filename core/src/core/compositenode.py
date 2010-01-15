@@ -314,7 +314,6 @@ class CompositeNodeFactory(AbstractFactory):
         if elt_ad_hoc and len(elt_ad_hoc):
             node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
             return
-        print 'not ad_hoc'
         #extracting ad hoc data from old files.
         #we parse the Node class' __ad_hoc_from_old_map__
         #which defines conversions between new ad_hoc_dict keywords

@@ -140,8 +140,6 @@ class AbstractNode(Observed, AbstractListener):
         return self.__id
 
     def set_id(self, id):
-        if id==30:
-            print self.__ad_hoc_dict
         self.__id = id
     #/gengraph
 
