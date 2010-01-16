@@ -463,31 +463,33 @@ class CompositeNode(Node, DataFlow):
         Inputs and outputs are list of dict(name='', interface='', value='')
         """
 
-        #I/O ports
+        # I/O ports
         # Remove node if nb of input has changed
         if(self.id_in is not None
            and len(inputs) != self.node(self.id_in).get_nb_output()):
-            self.remove_vertex(self.id_in)
+            self.remove_node(self.id_in)
             self.id_in = None
 
 
         if(self.id_out is not None
            and len(outputs) != self.node(self.id_out).get_nb_input()):
-            self.remove_vertex(self.id_out)
+            self.remove_node(self.id_out)
             self.id_out = None
 
         # Create new io node if necessary
         if(self.id_in is None):
+            print "creating new in"
             self.id_in = self.add_node(CompositeNodeInput(inputs))
         else:
             self.node(self.id_in).set_io((), inputs)
 
         if(self.id_out is None):
+            print "creating new out"        
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
             self.node(self.id_out).set_io(outputs, ())
 
-
+        print self.id_in, self.id_out
         Node.set_io(self, inputs, outputs)
 
     def set_input(self, index_key, val=None, *args):
@@ -868,6 +870,7 @@ class CompositeNode(Node, DataFlow):
         """
         vid = self.add_vertex(vid)
 
+        node.set_id(vid)
         for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
 
@@ -888,16 +891,15 @@ class CompositeNode(Node, DataFlow):
 
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
-        if(vid):  vertex.set_id(vid)
         vtype = "vertex"
         doNotify = True
         if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
         elif isinstance(vertex, CompositeNodeOutput): 
-            vtype = "vertex"
+            vtype = "outNode"
             doNotify = True if len(vertex.input_desc) else False
         elif isinstance(vertex, CompositeNodeInput) : 
-            vtype = "vertex"
-            doNotify = True if len(vertex.input_desc) else False
+            vtype = "inNode"
+            doNotify = True if len(vertex.output_desc) else False
         else: pass
         if doNotify:
             self.notify_listeners(("vertex_added", (vtype, vertex)))
@@ -906,8 +908,8 @@ class CompositeNode(Node, DataFlow):
         vtype = "vertex"
         doNotify = True
         if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
-        elif isinstance(vertex, CompositeNodeOutput): vtype = "vertex"
-        elif isinstance(vertex, CompositeNodeInput) : vtype = "vertex"
+        elif isinstance(vertex, CompositeNodeOutput): vtype = "outNode"
+        elif isinstance(vertex, CompositeNodeInput) : vtype = "inNode"
         else: pass
         self.notify_listeners(("vertex_removed", (vtype, vertex)))
     #/gengraph
@@ -920,8 +922,8 @@ class CompositeNode(Node, DataFlow):
         :param vtx_id: element id
         """
         node = self.node(vtx_id)
-        if(vtx_id == self.id_in or vtx_id == self.id_out):
-            return
+        # if(vtx_id == self.id_in or vtx_id == self.id_out):
+            # return
         self.remove_vertex(vtx_id)
 
     #gengraph
@@ -961,8 +963,8 @@ class CompositeNode(Node, DataFlow):
 
             #don't notify if the edge is connected to the input or
             #output nodes.
-            if(src_id == self.id_in or dst_id == self.id_out):
-                continue
+            # if(src_id == self.id_in or dst_id == self.id_out):
+                # continue
 
             edgedata = "default", eid, src_port, dst_port
             self.notify_listeners(("edge_added", edgedata))
@@ -995,8 +997,8 @@ class CompositeNode(Node, DataFlow):
 
         #don't notify if the edge is connected to the input or
         #output nodes.
-        if(src_id == self.id_in or dst_id == self.id_out):
-            return 
+        # if(src_id == self.id_in or dst_id == self.id_out):
+            # return 
 
         edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edge_added", edgedata))
@@ -1114,16 +1116,15 @@ class CompositeNodeInput(Node):
         inputs : list of dict(name='', interface='', value'',...)
         """
 
-        Node.__init__(self)
+        Node.__init__(self, outputs=inputs)
         
         #gengraph
-        for i, d in enumerate(inputs):
-            port = self.add_output(**d)
-            port.set_id(i)
+        #for d in inputs:
+            #port = self.add_output(**d)
         #/gengraph
 
-        self.internal_data['posx'] = 20
-        self.internal_data['posy'] = 5
+        # self.internal_data['posx'] = 20
+        # self.internal_data['posy'] = 5
         self.internal_data['caption'] = "In"
 
     def set_input(self, input_pid, val=None, *args):
@@ -1150,16 +1151,15 @@ class CompositeNodeOutput(Node):
         """
         outputs : list of dict(name='', interface='', value'',...)
         """
-        Node.__init__(self)
+        Node.__init__(self, inputs=outputs)
 
         #gengraph
-        for i, d in enumerate(outputs):
-            port = self.add_input(**d)
-            port.set_id(i)
+        #for d in outputs:
+            #port = self.add_input(**d)
         #/gengraph
 
-        self.internal_data['posx'] = 20
-        self.internal_data['posy'] = 250
+        # self.internal_data['posx'] = 20
+        # self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
     def get_output(self, output_pid):

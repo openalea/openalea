@@ -574,7 +574,7 @@ class Node(AbstractNode):
         index = len(self.inputs) - 1
         self.map_index_in[name] = index
         self.map_index_in[index] = index
-	port.set_id(index)
+        port.set_id(index)
 
         self.set_input(name, value, False)
         self.notify_listeners(("input_port_added", port))
@@ -593,7 +593,7 @@ class Node(AbstractNode):
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index
-	port.set_id(index)
+        port.set_id(index)
         self.notify_listeners(("output_port_added", port))
         return port
 

@@ -86,6 +86,8 @@ class GraphElementObserverBase(observer.AbstractListener):
         self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
 
 
+        
+import traceback
 class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.
     It deduces the correct representation out
@@ -204,7 +206,7 @@ class GraphListenerBase(observer.AbstractListener):
 
     def vertex_added(self, vtype, vertexModel):
         vertexWidget = self._vertexWidgetFactory(vtype, vertexModel, self.graph())
-        vertexWidget.add_to_view(self.get_scene())
+        vertexWidget.add_to_view(self.get_scene())        
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return self.__element_added(vertexWidget)
 
@@ -216,13 +218,15 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__element_added(edgeWidget)
 
     def vertex_removed(self, vtype, vertexModel):
-        vertexWidget = self.vertexmap[vertexModel]
+        vertexWidget = self.vertexmap.get(vertexModel)
+        if(vertexWidget is None): return
         vertexWidget().remove_from_view(self.get_scene())
         del self.vertexmap[vertexModel]
         return
 
     def edge_removed(self, vtype, edgeModel):
-        edgeWidget = self.edgemap[edgeModel]
+        edgeWidget = self.edgemap.get(edgeModel)
+        if(edgeWidget is None): return
         edgeWidget().remove_from_view(self.get_scene())
         del self.edgemap[edgeModel]
         return

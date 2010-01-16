@@ -235,8 +235,8 @@ class DataflowOperators(object):
         ret = dialog.exec_()
 
         if(ret):
+            print dialog.inputs, dialog.outputs
             self.get_graph().set_io(dialog.inputs, dialog.outputs)
-            widget.rebuild_scene()
 
 
     def graph_reload_from_factory(self, index=None):

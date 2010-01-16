@@ -45,7 +45,9 @@ class Strategy(object):
     @classmethod
     def get_vertex_widget_types(cls):
         return {"vertex":vertex.GraphicalVertex,
-                "annotation":anno.GraphicalAnnotation}
+                "annotation":anno.GraphicalAnnotation,
+                "inNode":vertex.GraphicalInVertex,
+                "outNode":vertex.GraphicalOutVertex}
 
     @classmethod
     def get_edge_widget_factory(cls):

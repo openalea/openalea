@@ -163,11 +163,10 @@ def vertexContextMenuEvent(graphItem, event):
     operator.set_vertex_item(graphItem())
     menu = QtGui.QMenu(view)
 
-    if isinstance(graphItem().vertex(), CompositeNode):
-        menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
-
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
+    if isinstance(graphItem().vertex(), CompositeNode):
+        menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))    
     menu.addSeparator()
     menu.addAction(operator("Delete",          menu, "vertex_remove"))
     menu.addAction(operator("Reset",           menu, "vertex_reset"))

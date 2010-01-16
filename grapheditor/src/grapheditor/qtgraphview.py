@@ -216,7 +216,6 @@ class Vertex(Element):
             self.deaf(False)
             return value
             
-
     def paint(self, painter, option, widget):
         """Qt-specific call to paint things."""
         if self.__paintStrategy is None:
@@ -445,7 +444,7 @@ class FloatingEdge( Edge ):
                 return
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
-            print "consolidation failed :", e
+            print "consolidation failed :", type(e), e
         return
         
     def get_connections(self):

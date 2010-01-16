@@ -180,6 +180,40 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
                               "itemChange")
 
 
+                              
+class GraphicalInVertex(GraphicalVertex):
+    def __init__(self, vertex, graph, parent=None):
+        GraphicalVertex.__init__(self, vertex, graph, parent=None)
+
+    # ---> other events
+    def polishEvent(self):
+        """Qt-specific call to handle events that occur on polishing phase.
+        Default implementation updates the model's ad-hoc position value."""
+        self.deaf()
+        rect = self.scene().itemsBoundingRect()
+        point = QtCore.QPointF( rect.center().x(), rect.top() - self.rect().height() )
+        self.setPos(point)
+        self.deaf(False)
+        QtGui.QGraphicsWidget.polishEvent(self)
+  
+        
+        
+class GraphicalOutVertex(GraphicalVertex):
+    def __init__(self, vertex, graph, parent=None):
+        GraphicalVertex.__init__(self, vertex, graph, parent=None)
+        
+    # ---> other events
+    def polishEvent(self):
+        """Qt-specific call to handle events that occur on polishing phase.
+        Default implementation updates the model's ad-hoc position value."""
+        self.deaf()
+        rect = self.scene().itemsBoundingRect()
+        point = QtCore.QPointF( rect.center().x(), rect.bottom() + self.rect().height() )
+        self.setPos(point)
+        self.deaf(False)
+        QtGui.QGraphicsWidget.polishEvent(self)
+     
+                
 
 
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
