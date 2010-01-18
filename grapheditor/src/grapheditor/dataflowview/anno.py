@@ -19,7 +19,8 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 
-from .. import qtgraphview
+from openalea.grapheditor import qtgraphview
+from openalea.grapheditor.qtutils import mixin_method
 
 
 class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
@@ -46,4 +47,12 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
     def set_text(self, text):
         self.setPlainText(text)
 
-
+    def sceneEvent(self, event):
+        if( event.type() == QtCore.QEvent.GraphicsSceneMouseMove ):
+            self.deaf()
+            point = event.scenePos() - event.pos()
+            print point
+            self.annotation().get_ad_hoc_dict().set_metadata('position', 
+                                                         [point.x(), point.y()])
+            self.deaf(False)
+        return QtGui.QGraphicsTextItem.sceneEvent(self, event)

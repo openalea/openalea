@@ -209,8 +209,8 @@ class Vertex(Element):
             self.deaf(True)
             point = value.toPointF()
             cPos = point + self.rect().center()
-            self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                         [cPos.x(), cPos.y()])
+            # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                         # [cPos.x(), cPos.y()])
             self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                          [point.x(), point.y()])
             self.deaf(False)
@@ -222,30 +222,30 @@ class Vertex(Element):
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-    # ---> other events
-    def polishEvent(self):
-        """Qt-specific call to handle events that occur on polishing phase.
-        Default implementation updates the model's ad-hoc position value."""
-        self.deaf()
-        point = self.scenePos()
-        cPos = point + self.rect().center()
-        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     [cPos.x(), cPos.y()])
-        self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                       [point.x(), point.y()])
-        self.deaf(False)
+    #---> other events
+    # def polishEvent(self):
+        # """Qt-specific call to handle events that occur on polishing phase.
+        # Default implementation updates the model's ad-hoc position value."""
+        # self.deaf()
+        # point = self.scenePos()
+        # cPos = point + self.rect().center()
+        # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                     # [cPos.x(), cPos.y()])
+        # self.vertex().get_ad_hoc_dict().set_metadata('position', 
+                                                       # [point.x(), point.y()])
+        # self.deaf(False)
 
-    def moveEvent(self, event):
-        """Qt-specific call to handle events that occur on item moving.
-        Default updates the model's ad-hoc position value."""
-        self.deaf()
-        point = event.newPos()
-        cPos = point + self.rect().center()
-        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     [cPos.x(), cPos.y()])
-        self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                     [point.x(), point.y()])
-        self.deaf(False)
+    # def moveEvent(self, event):
+        # """Qt-specific call to handle events that occur on item moving.
+        # Default updates the model's ad-hoc position value."""
+        # self.deaf()
+        # point = event.newPos()
+        # cPos = point + self.rect().center()
+        # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
+                                                     # [cPos.x(), cPos.y()])
+        # self.vertex().get_ad_hoc_dict().set_metadata('position', 
+                                                     # [point.x(), point.y()])
+        # self.deaf(False)
 
     def mousePressEvent(self, event):
         """Qt-specific call to handle mouse clicks on the vertex.
@@ -292,7 +292,9 @@ class Annotation(Element):
         Element.notify(self, sender, event)
 
 
-    # ---->controllers
+    #####################
+    # ----Qt World----  #
+    #####################            
     def mouseDoubleClickEvent(self, event):
         """ todo """
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
@@ -547,13 +549,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
-        # ---Custom tooltip system---
-        # self.__tooltipTimer = QtCore.QTimer()
-        # self.__tooltipTimer.setInterval(800)
-        # self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
-        #              self.tooltipTrigger)
-        # self.__tooltipPos = None
-
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -569,9 +564,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     ##################
     # QtWorld-Events #
     ##################
-    # def tooltipTrigger(self):
-    #     self.__tooltipTimer.stop()
-    
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)

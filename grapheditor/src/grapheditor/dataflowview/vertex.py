@@ -117,7 +117,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             tt = event[1]
             if tt is None:
                 tt=""
-            #self._captionProxy.setToolTip(tt)
             self.setToolTip(tt)
 
         elif(event[0] == "start_eval"):
@@ -170,10 +169,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
                                                      [pos.x(), pos.y()])
         self.shapeChanged=True
 
-    polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                               "polishEvent")
-    moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                             "moveEvent")
+    # polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
+                               # "polishEvent")
+    # moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
+                             # "moveEvent")
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                                    "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
@@ -189,12 +188,14 @@ class GraphicalInVertex(GraphicalVertex):
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
         Default implementation updates the model's ad-hoc position value."""
+        if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
         self.deaf()
         rect = self.scene().itemsBoundingRect()
         point = QtCore.QPointF( rect.center().x(), rect.top() - self.rect().height() )
         self.setPos(point)
         self.deaf(False)
         QtGui.QGraphicsWidget.polishEvent(self)
+        for view in self.scene().views() : view.show_entire_scene()
   
         
         
@@ -206,12 +207,14 @@ class GraphicalOutVertex(GraphicalVertex):
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
         Default implementation updates the model's ad-hoc position value."""
+        if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
         self.deaf()
         rect = self.scene().itemsBoundingRect()
         point = QtCore.QPointF( rect.center().x(), rect.bottom() + self.rect().height() )
         self.setPos(point)
         self.deaf(False)
         QtGui.QGraphicsWidget.polishEvent(self)
+        for view in self.scene().views() : view.show_entire_scene()
      
                 
 

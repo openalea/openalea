@@ -169,10 +169,12 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Set IO internal data
         try:
-            new_df.node(new_df.id_in).internal_data = \
-                self.elt_data['__in__'].copy()
-            new_df.node(new_df.id_out).internal_data = \
-                self.elt_data['__out__'].copy()
+            self.load_ad_hoc_data(new_df.node(new_df.id_in), 
+                                  copy.deepcopy(self.elt_data["__in__"]), 
+                                  copy.deepcopy(self.elt_ad_hoc.get("__in__", None)))
+            self.load_ad_hoc_data(new_df.node(new_df.id_out),
+                                  copy.deepcopy(self.elt_data["__out__"]), 
+                                  copy.deepcopy(self.elt_ad_hoc.get("__out__", None)))
         except:
             pass
 
@@ -188,11 +190,9 @@ class CompositeNodeFactory(AbstractFactory):
 
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
-
         # Set continuous evaluation
         for vid in cont_eval:
              new_df.set_continuous_eval(vid, True)
-
 
         # Set call stack to its original state
         call_stack.pop()
@@ -225,7 +225,6 @@ class CompositeNodeFactory(AbstractFactory):
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        node.internal_data.update(attributes)
         #/gengraph                                                           
 
         # copy node input data if any
@@ -234,11 +233,9 @@ class CompositeNodeFactory(AbstractFactory):
         #gengraph
         for p in range(ins+1):
             port = node.add_input(name="In"+str(p))
-            port.set_id(p)
 
         for p in range(outs+1):
             port = node.add_output(name="Out"+str(p))
-            port.set_id(p)
         #/gengraph
 
         #gengraph
@@ -310,48 +307,30 @@ class CompositeNodeFactory(AbstractFactory):
         return idmap.values()
 
     def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
-        #reading new files
         if elt_ad_hoc and len(elt_ad_hoc):
+            #reading new files
             node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
-            return
-        #extracting ad hoc data from old files.
-        #we parse the Node class' __ad_hoc_from_old_map__
-        #which defines conversions between new ad_hoc_dict keywords
-        #and old internal_data keywords.
-        #These dictionnaries are used to extend ad_hoc_dict of a node with the
-        #data that views expect. See dataflowview.__init__ for an example.
-        #roughly:
-        #for each new keyword fetch the data from old keywords in internal data.
-        #    if there is only one old keyword, cast the data to the desired type
-        #        using __ad_hoc_slots__ and set the metadata.
-        #    if there are more than just one keyword, extract the data into 
-        #        a list. Then convert the list to the desired type and set the
-        #        metadata.
-        if hasattr(node, "__ad_hoc_from_old_map__"):
-            toDelete = [] #used to store the keys that will be removed from the internal_data
-                          #todo before 0.8 remove this and simply pop the values
-            for key, conversion in node.__ad_hoc_from_old_map__.iteritems():
-                #conversion == list of old keys to convert
-                if len(conversion)==1: #if we want to convert one old value to one new value (ex: color)
-                    _type, default = node.__ad_hoc_slots__.get(key)
-                    data = elt_data.get(conversion[0], default)
-                    if data is None :
-                        continue
-                    node.get_ad_hoc_dict().set_metadata(key, _type(data))
-                else: #if we want to convert serveral old values to one single new value (ex: posx, posy => position)
-                    components = [] #list that stores the new values
-                    _type, default = node.__ad_hoc_slots__.get(key)
-                    for i in conversion:
-                        components.append(elt_data.get(i))
-                    if None in components:
-                        components = default
-                    node.get_ad_hoc_dict().set_metadata(key, _type(components))
-                toDelete += conversion
+        else:
+            #extracting ad hoc data from old files.
+            #we parse the Node class' __ad_hoc_from_old_map__
+            #which defines conversions between new ad_hoc_dict keywords
+            #and old internal_data keywords.
+            #These dictionnaries are used to extend ad_hoc_dict of a node with the
+            #data that views expect. See dataflowview.__init__ for an example.
+            if hasattr(node, "__ad_hoc_from_old_map__"):
+                for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
+                    data = [] #list that stores the new values
+                    _type, default = node.__ad_hoc_slots__.get(newKey)
+                    for key in oldKeys:
+                        data.append(elt_data.pop(key, None))
+                    if len(data) == 1 : data = data[0]
+                    if data is None or (isinstance(data, list) and None in data):
+                        data = default
+                    if data is None : continue
+                    node.get_ad_hoc_dict().set_metadata(newKey, _type(data))
 
-            if(not __debug__):
-                if( not hasattr(__builtin__,"__debug_with_old__") and not __builtin__.__debug_with_old__):
-                    for key in toDelete: del elt_data[key]            
-
+        #finally put the internal data (elt_data) where it has always been expected.
+        node.internal_data.update(elt_data)
 
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
@@ -370,7 +349,6 @@ class CompositeNodeFactory(AbstractFactory):
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        node.internal_data.update(attributes)
         #/gengraph                                                           
 
         # copy node input data if any
@@ -391,9 +369,6 @@ class CompositeNodeFactory(AbstractFactory):
         
         return node
 
-    #########################################################
-    # ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT #
-    #########################################################
     #########################################################
     # This shouldn't be here, it is related to visual stuff #
     #########################################################
@@ -478,13 +453,11 @@ class CompositeNode(Node, DataFlow):
 
         # Create new io node if necessary
         if(self.id_in is None):
-            print "creating new in"
             self.id_in = self.add_node(CompositeNodeInput(inputs))
         else:
             self.node(self.id_in).set_io((), inputs)
 
-        if(self.id_out is None):
-            print "creating new out"        
+        if(self.id_out is None):      
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
             self.node(self.id_out).set_io(outputs, ())
@@ -825,18 +798,17 @@ class CompositeNode(Node, DataFlow):
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
             #Forward compatibility for versions earlier than 0.8.0
-            #We do the exact opposite than in load_ad_hoc_data, have a look there.
+            #We do the exact opposite than in load_ad_hoc_data, have a look there.                    
             if hasattr(node, "__ad_hoc_from_old_map__"):                
-                for key, val in node.__ad_hoc_from_old_map__.iteritems():
-                    conversion = val #list of old keys to convert
-                    if len(conversion)==0: continue
-                    elif len(conversion)==1: #if we want to convert one new value to one old value (ex: color=>color)
-                        data = node.get_ad_hoc_dict().get_metadata(key)
-                        sgfactory.elt_data[vid][conversion[0]] = data
-                    else: #if we want to convert one new value to several old values (ex: position => posx, posy )
-                        data = node.get_ad_hoc_dict().get_metadata(key)
-                        for pos, key in enumerate(conversion):
-                            sgfactory.elt_data[vid][key] = data[pos]
+                for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
+                    if len(oldKeys)==0: continue
+                    # elif len(oldKeys)==1: #if we want to convert one new value to one old value (ex: color=>color)
+                        # data = node.get_ad_hoc_dict().get_metadata(newKey)
+                        # sgfactory.elt_data[vid][oldKeys[0]] = data
+                    # else: #if we want to convert one new value to several old values (ex: position => posx, posy )
+                    data = node.get_ad_hoc_dict().get_metadata(newKey)
+                    for pos, newKey in enumerate(oldKeys):
+                        sgfactory.elt_data[vid][newKey] = data[pos] if isinstance(data, list) else data
                 
             #gengraph
             # Copy ad_hoc data
@@ -922,8 +894,8 @@ class CompositeNode(Node, DataFlow):
         :param vtx_id: element id
         """
         node = self.node(vtx_id)
-        # if(vtx_id == self.id_in or vtx_id == self.id_out):
-            # return
+        if vtx_id == self.id_in : self.id_in = None 
+        elif vtx_id == self.id_out : self.id_out = None
         self.remove_vertex(vtx_id)
 
     #gengraph
