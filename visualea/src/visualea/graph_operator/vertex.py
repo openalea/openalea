@@ -40,6 +40,7 @@ class VertexOperators(object):
         #workaround:
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
+        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
         widget.show()
