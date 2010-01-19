@@ -67,7 +67,7 @@ class Uploader(object):
 
     def messages(self, elt, elements, element_name):
         """ Display the list of elements (e.g. package, release) which
-        on the server.
+        are on the server.
 
         :param elt: list of packages/releases or files on the server
         :param elements: packages/release or files
@@ -174,7 +174,7 @@ class Uploader(object):
             return elts
 
         ###
-        
+
         if not self.filename or not get_files:
             return elts
 
@@ -189,7 +189,7 @@ class Uploader(object):
 
         else:
             return elts
-        
+
         return elts
 
 
@@ -285,10 +285,20 @@ class Uploader(object):
         # Add files if any on the server
         if self.filename:
             # 1. get the files
+            # first assume that the files are local
             d = path(self.directory)
             files = d.files(self.filename)
+            print files
             if not files:
                 print 'No file named %s exists in %s'%(self.filename, d)
+                # trying with a glob
+                import glob
+                files = glob.glob(self.filename)
+                files = [path(f) for f in files]
+                print files
+                if not files:
+                    print files
+                    print 'No file named %s found with a glob' % (self.filename, d)
 
             # 2. check if the files are not on the server
             # There are files only if project, package, and release already existed.
@@ -433,14 +443,30 @@ def main():
     """
 
     usage = """
-    %prog query package information, create or remove package/release/project, and add or remove files to the gforge.
+    %prog query package information, create or remove package/release/project, 
+    and add or remove files to the gforge.
 
     %prog [options] query|add|remove project:package:release:file or
     %prog [options] query|add|remove project:package:release:pattern
 
-    exemple: %prog --dry-run query openalea:aml2py
-    %prog -d /home/user add openalea:VPlants:0.8:*.egg
-    %prog remove openalea:VPlants:0.8:*.egg
+    :Examples: 
+
+    In order to test your command, use ther --dry-run option::
+
+        %prog --dry-run query openalea:aml2py
+
+    To add an egg file into the openalea web page into the VPlants section, 
+    0.8 package type::
+
+        %prog -d /home/user add openalea:VPlants:0.8:*.egg
+
+    Similarly to remove a package::
+
+        %prog remove openalea:VPlants:0.8:*.egg
+
+    If a space is included within a name, use the \ to escape the space as follows::
+
+        %prog add vplants:release\ 0.8:openalea:'./*/dist/*egg'
 """
 
     parser = OptionParser(usage=usage)
