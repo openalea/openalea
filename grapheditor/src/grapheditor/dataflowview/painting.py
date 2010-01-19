@@ -94,8 +94,3 @@ def default_dataflow_paint(owner, painter, option, widget):
     if(owner.vertex().block):
         painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
         painter.drawPath(path)
-
-    if(not owner._all_inputs_visible()):
-        painter.font().setBold(True)
-        pos = rect.width() - 4*default_margin , owner._inPortLayout.geometry().bottom()+4
-        painter.drawText(QtCore.QPointF(*pos), "+")

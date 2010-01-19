@@ -48,10 +48,7 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 # (linux users generally want to void this behaviour and will use the dependance list of your documentation)
 # (dependance to deploy is mandatory for runing this script)
 setup_requires = ['openalea.deploy']
-if("win32" in sys.platform):
-    install_requires = ['openalea.core']
-else:
-    install_requires = ['openalea.core']
+install_requires = ['openalea.core']
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
 

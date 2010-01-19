@@ -51,7 +51,6 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
         if( event.type() == QtCore.QEvent.GraphicsSceneMouseMove ):
             self.deaf()
             point = event.scenePos() - event.pos()
-            print point
             self.annotation().get_ad_hoc_dict().set_metadata('position', 
                                                          [point.x(), point.y()])
             self.deaf(False)

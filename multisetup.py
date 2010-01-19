@@ -48,11 +48,11 @@ deploy
 deploygui 
 core 
 scheduler 
+grapheditor
 visualea 
 stdlib 
 sconsx
 misc
-grapheditor
 openalea_meta
 """.split()
 

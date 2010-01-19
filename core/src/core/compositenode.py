@@ -462,7 +462,7 @@ class CompositeNode(Node, DataFlow):
         else:
             self.node(self.id_out).set_io(outputs, ())
 
-        print self.id_in, self.id_out
+
         Node.set_io(self, inputs, outputs)
 
     def set_input(self, index_key, val=None, *args):

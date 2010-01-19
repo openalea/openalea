@@ -44,7 +44,15 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         self.set_painting_strategy(painting.default_dataflow_paint)
         self.setZValue(1)
 
+        # used by the node shape cache in painting.py
+        # to speed up rendering.
+        self.shapeChanged=True
+        
         # ---Small box when the vertex is being evaluated---
+        self.hiddenPorts_item = QtGui.QGraphicsSimpleTextItem("+", self)
+        self.hiddenPorts_item.setVisible(False)
+        
+        # ---Small cross when the vertex has hidden ports---
         self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
         self.modified_item.setBrush(self.eval_color)
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
@@ -74,7 +82,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         layout.setAlignment(self._caption, QtCore.Qt.AlignHCenter)
         layout.setAlignment(self._outPortLayout, QtCore.Qt.AlignHCenter)
 
-        
         self.initialise_from_model()
 
     def initialise_from_model(self):
@@ -167,6 +174,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         pos = self.pos()
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      [pos.x(), pos.y()])
+                                                       
+        #this is a not so bad place to check for port visibility
+        #because it gets called when ports are hidden.
+        self.hiddenPorts_item.setVisible(not self._all_inputs_visible())
+        self.hiddenPorts_item.setPos(self.rect().width() - self.hiddenPorts_item.boundingRect().width() - 2, 
+                                     self._inPortLayout.geometry().top()+4 )                                     
         self.shapeChanged=True
 
     # polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
