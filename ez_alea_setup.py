@@ -75,7 +75,7 @@ usage. However, this file will be automatically created again if you
 use ez_alea_setup with --install-dir argument.
 """
 
-import sys, os
+
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -90,6 +90,35 @@ def _validate_md5(egg_name, data):
             sys.exit(2)
     return data
 
+    
+#Allow us to log in from deploy. 
+#This is an ugly copy/paste from alea_install package.
+#get the auth file that we need:
+import os.path
+import urllib, getpass
+filename = os.path.join(os.getcwd(), "auth.py")
+urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
+                    filename )
+                    
+import auth
+os.remove(filename)
+os.remove(filename+"c")
+
+def cli_login():
+    print "gforge username: ",
+    login = raw_input()
+    password = getpass.getpass("gforge password: ")
+
+    values = {'form_loginname':login,
+              'form_pw':password,
+              'return_to' : '',
+              'login' : "Connexion avec SSL" }
+
+    login_url = "https://gforge.inria.fr/account/login.php"
+    
+    auth.cookie_login(login_url, values)
+
+    
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
     download_delay=15
@@ -324,7 +353,7 @@ def install_openalea():
     pkgs = ["openalea.deploygui", ]
 
     if("win32" in sys.platform or "win64" in sys.platform or "darwin" in sys.platform):
-        pkgs = ["qt4", ] + pkgs
+        pkgs = ["qt4 >= 4.5.3", ] + pkgs
 
     for pkg in pkgs:
         install_pkg(pkg)
@@ -535,6 +564,8 @@ def ParseParameters():
         help="the path where to install openalea (non-root installation)")
     parser.add_option("-s", "--install-setuptools", action="store_true", default=False, \
         help="install setuptools (root installation)")
+    parser.add_option("-g", "--gforge", action="store_true",default=False,
+                      help="Authenticate into the gforge server")
 
     (opts, args) = parser.parse_args()
     return opts, args
@@ -542,23 +573,45 @@ def ParseParameters():
 
 # main part
 
-
 if (__name__ == "__main__"):
 
     # parse user's parameters
     command_line = sys.argv[1:]
     (opts, args) = ParseParameters()
 
+    #create a new string to pass on to the new instances of
+    #this process.
+    original_args_string = ""
+    for arg in sys.argv: original_args_string += " " + arg 
+    
     # to install setuptools only
+    #somewhere down the road a new process is spawned with argv.
+    #however, it does not appreciate --gforge and -g so we must delete
+    #them.
+    if opts.gforge :
+        try:    sys.argv.remove('--gforge')
+        except: pass
+        try:    sys.argv.remove('-g')
+        except: pass
+                
     if opts.install_setuptools:
         sys.argv.remove('--install-setuptools')
         install_setuptools()
         sys.exit(0)
+
         
     # Execute the script in 2 process
     # This part is called the second time.
     if("openalea" in sys.argv):
-        # Second call: install openalea.
+        # Second call: install openalea.     
+        if opts.gforge :
+            # try:
+                # sys.argv.remove('--gforge')
+                # sys.argv.remove('-g')
+            # except:
+                # pass
+            cli_login()    
+            
         install_openalea()
 
         finalize_installation()
@@ -573,18 +626,20 @@ if (__name__ == "__main__"):
                 print """root installation (sudo) and non-root installation (--install-dir) forbidden."""
                 sys.exit(0)
 
+
+            
         # create the directories if needed (non-root installation).
         non_root_initialisation()
-
+        
         # Install setup tools
         install_setuptools()
-
+        
         # Start again in an other process with openalea option
         # to take into account modifications
         if opts.install_dir:
-            os.system('%s "%s" openalea --install-dir %s ' % \
-                (sys.executable, __file__, opts.install_dir))
+            os.system('%s "%s" openalea %s ' % \
+                (sys.executable, __file__, original_args_string))
         else:
-            os.system('%s "%s" openalea'%(sys.executable, __file__))
+            os.system('%s "%s" openalea %s'%(sys.executable, __file__, original_args_string))
 
         raw_input("\n== Press Enter to finish. ==")
