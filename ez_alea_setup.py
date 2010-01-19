@@ -293,7 +293,7 @@ def update_md5(filenames):
 ########################## OpenAlea Installation #############################
 
 
-def install_deploy():
+def install_deploy(opts=None):
     """ Install OpenAlea.Deploy with setuptools
 
     :param opts: contain a field install_dir to indicate the
@@ -305,6 +305,9 @@ def install_deploy():
     require('setuptools')
     from setuptools.command.easy_install import main
 
+    
+    if not opts is None and opts.gforge :
+        ALEA_PI_URL = "http://gforge.inria.fr/frs/?group_id=43"
     try:
         print 'Installing openalea.Deploy'
         main(['-f', ALEA_PI_URL, "openalea.deploy"])
@@ -345,11 +348,11 @@ Please, be patient !"""
     print "\n"
 
 
-def install_openalea():
+def install_openalea(opts=None):
     """ Install the base packages """
 
     welcome()
-    install_deploy()
+    install_deploy(opts)
     pkgs = ["openalea.deploygui", ]
 
     if("win32" in sys.platform or "win64" in sys.platform or "darwin" in sys.platform):
@@ -605,14 +608,9 @@ if (__name__ == "__main__"):
     if("openalea" in sys.argv):
         # Second call: install openalea.     
         if opts.gforge :
-            # try:
-                # sys.argv.remove('--gforge')
-                # sys.argv.remove('-g')
-            # except:
-                # pass
             cli_login()    
             
-        install_openalea()
+        install_openalea(opts)
 
         finalize_installation()
         if opts.install_dir:
