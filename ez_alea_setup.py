@@ -305,12 +305,12 @@ def install_deploy(opts=None):
     require('setuptools')
     from setuptools.command.easy_install import main
 
-    
+    dependency_links = [ALEA_PI_URL]
     if not opts is None and opts.gforge :
-        ALEA_PI_URL = "http://gforge.inria.fr/frs/?group_id=43"
+        dependency_links.append("http://gforge.inria.fr/frs/?group_id=43")
     try:
         print 'Installing openalea.Deploy'
-        main(['-f', ALEA_PI_URL, "openalea.deploy"])
+        main(['-f', dependency_links, "openalea.deploy"])
         print 'OpenAlea.Deploy installed'
     except:
         print "Cannot install openalea.deploy. Do you have root permission ?"
