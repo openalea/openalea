@@ -13,11 +13,14 @@ for key,value in metadata.iteritems():
 
 
 platform = sys.platform
-external_dependencies = [
-'numpy',
-'scipy',
-'matplotlib>=0.99',
-]
+if 'win' in platform:
+    external_dependencies = ['matplotlib==0.99.1',
+                             'scipy==0.7.1',
+                             'numpy==1.4.0']
+else:
+    external_dependencies = ['matplotlib',
+                             'scipy',
+                             'numpy']
 
 if platform != 'darwin':
     external_dependencies.append('PIL<=1.1.6')
