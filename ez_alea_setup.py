@@ -92,9 +92,7 @@ def _validate_md5(egg_name, data):
             sys.exit(2)
     return data
 
-
 #Allow us to log in from deploy.
-#This is an ugly copy/paste from alea_install package.
 #get the auth file that we need:
 import os.path
 import urllib, getpass
@@ -103,6 +101,7 @@ urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout
                     filename )
 
 import auth
+#now that it is imported (in memory), we don't need it anymore:
 os.remove(filename)
 os.remove(filename+"c")
 
