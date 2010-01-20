@@ -13,6 +13,8 @@ the appropriate options to ``use_setuptools()``.
 
 This file can also be run as a script to install or upgrade setuptools.
 """
+__revision__ = " $Id$ "
+
 import sys
 import os
 from optparse import *
@@ -90,8 +92,8 @@ def _validate_md5(egg_name, data):
             sys.exit(2)
     return data
 
-    
-#Allow us to log in from deploy. 
+
+#Allow us to log in from deploy.
 #This is an ugly copy/paste from alea_install package.
 #get the auth file that we need:
 import os.path
@@ -99,12 +101,13 @@ import urllib, getpass
 filename = os.path.join(os.getcwd(), "auth.py")
 urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
                     filename )
-                    
+
 import auth
 os.remove(filename)
 os.remove(filename+"c")
 
 def cli_login():
+    print 'GFORGE login\n'
     print "gforge username: ",
     login = raw_input()
     password = getpass.getpass("gforge password: ")
@@ -115,10 +118,10 @@ def cli_login():
               'login' : "Connexion avec SSL" }
 
     login_url = "https://gforge.inria.fr/account/login.php"
-    
+
     auth.cookie_login(login_url, values)
 
-    
+
 def use_setuptools(
     version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_dir=os.curdir,
     download_delay=15
@@ -142,7 +145,7 @@ def use_setuptools(
     try:
         import pkg_resources
     except ImportError:
-        return do_download()       
+        return do_download()
     try:
         pkg_resources.require("setuptools>="+version); return
     except pkg_resources.VersionConflict, e:
@@ -333,6 +336,17 @@ def install_pkg(name):
         print "Cannot install %s. Do you have root permission ?" % name
         print "Add sudo before your python command, or use --install-dir."
 
+def welcome_setup():
+    print "Running ez_alea_setup version %s" % __revision__.split()[2]
+
+    print  """
+    
+-----------------------------------------------------------------------------
+-                       OPENALEA Installation Initialisation                -
+-----------------------------------------------------------------------------
+"""
+
+
 
 def welcome():
     """ Print welcome message """
@@ -364,7 +378,6 @@ def install_openalea(opts=None):
 
 def install_setuptools():
     """INSTALL Setup tools"""
-
     if len(sys.argv)>2 and '--md5update' in sys.argv:
         update_md5(sys.argv[2:])
     else:
@@ -428,7 +441,7 @@ def non_root_initialisation():
         - create and/or check the .pydistutils content
         - update the PYTHONPATH for this session
     """
-
+    print 'non_root_initialisation'
     # check existence of ./lib and ./bin if non-root
     if opts.install_dir:
         print """
@@ -535,9 +548,9 @@ def non_root_initialisation():
                 os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) +'/lib'
         else:
             os.environ['PYTHONPATH'] =  os.path.abspath(opts.install_dir) +'/lib'
-        
+
         os.environ['PYTHONPATH'] = \
-                os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir) 
+                os.environ['PYTHONPATH'] + ':' + os.path.abspath(opts.install_dir)
 
 
     # check that ~/.pydistutils is not present
@@ -585,8 +598,8 @@ if (__name__ == "__main__"):
     #create a new string to pass on to the new instances of
     #this process.
     original_args_string = ""
-    for arg in sys.argv: original_args_string += " " + arg 
-    
+    for arg in sys.argv: original_args_string += " " + arg
+
     # to install setuptools only
     #somewhere down the road a new process is spawned with argv.
     #however, it does not appreciate --gforge and -g so we must delete
@@ -596,20 +609,20 @@ if (__name__ == "__main__"):
         except: pass
         try:    sys.argv.remove('-g')
         except: pass
-                
+
     if opts.install_setuptools:
         sys.argv.remove('--install-setuptools')
         install_setuptools()
         sys.exit(0)
 
-        
+
     # Execute the script in 2 process
     # This part is called the second time.
     if("openalea" in sys.argv):
-        # Second call: install openalea.     
+        # Second call: install openalea.
         if opts.gforge :
-            cli_login()    
-            
+            cli_login()
+
         install_openalea(opts)
 
         finalize_installation()
@@ -617,6 +630,7 @@ if (__name__ == "__main__"):
             finalize_non_root_installation(opts)
 
     else:
+        welcome_setup()
         # First call
         # on linux, check that sudo and -non-root option (--install-dir) are not called together
         if(not 'win32' in sys.platform):
@@ -625,13 +639,15 @@ if (__name__ == "__main__"):
                 sys.exit(0)
 
 
-            
+
         # create the directories if needed (non-root installation).
+        print 'Checking your configuration'.upper()
         non_root_initialisation()
-        
+
         # Install setup tools
+        print '\nInstalling setuptools if needed\n'.upper()
         install_setuptools()
-        
+
         # Start again in an other process with openalea option
         # to take into account modifications
         if opts.install_dir:
