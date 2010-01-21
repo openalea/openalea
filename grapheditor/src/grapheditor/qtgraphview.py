@@ -676,6 +676,12 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
+    def get_items(self, filterType=None, subcall=None):
+        """ """
+        return [ (item if subcall is None else eval("item."+subcall))
+                 for item in self.items() if 
+                 (True if filterType is None else isinstance(item, filterType))]        
+        
     def get_selected_items(self, filterType=None, subcall=None):
         """ """
         return [ (item if subcall is None else eval("item."+subcall))

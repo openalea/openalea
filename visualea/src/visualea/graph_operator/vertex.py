@@ -41,8 +41,6 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
         del it
     gc.collect()
 
-
-
 class VertexOperators(object):
     def __init__(self):
         # ---reference to the widget of this vertex---
@@ -66,7 +64,7 @@ class VertexOperators(object):
             widget.setWindowFlags(QtCore.Qt.Window)
             widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
             widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            widget.closeRequested.connect(gc.collect)
+            widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
             widget.show()
         
     def vertex_run(self):
