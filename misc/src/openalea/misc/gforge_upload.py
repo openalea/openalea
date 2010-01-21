@@ -288,8 +288,7 @@ class Uploader(object):
             # first assume that the files are local
             d = path(self.directory)
             files = d.files(self.filename)
-            print files
-            if not files:
+	    if not files:
                 print 'No file named %s exists in %s'%(self.filename, d)
                 # trying with a glob
                 import glob
@@ -299,6 +298,11 @@ class Uploader(object):
                 if not files:
                     print files
                     print 'No file named %s found with a glob' % (self.filename, d)
+	    else:
+		tab = '  '
+                print 'Are you about to add on the gforge : '
+	        for f in files:	
+	            print tab + '%s' %f  
 
             # 2. check if the files are not on the server
             # There are files only if project, package, and release already existed.
@@ -514,7 +518,7 @@ def main():
             if len(l) >= 4:
                 filename = l[3]
 
-    print filename
+    #print filename
 
     kwds = {}
     kwds['project'] = project
@@ -555,7 +559,7 @@ def main():
             print e
             return opts
 
-    return opts
+    #return opts
 
 
 if __name__=='__main__' :
