@@ -523,6 +523,8 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def set_default_drop_handler(cls, handler):
         cls.__defaultDropHandler = handler
 
+    #A few signals that strangely enough don't exist in QWidget
+    closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
 
 
@@ -625,6 +627,13 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
+    def closeEvent(self, evt):
+        """a big hack to cleanly remove items from the view
+        and delete the python objects so that they stop leaking
+        on some operating systems"""
+        self.closeRequested.emit(self, self.scene())
+        self.clear_scene()
+        return QtGui.QGraphicsView.closeEvent(self, evt)
 
     #########################
     # Other utility methods #
@@ -716,5 +725,5 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
 
         return dstPortItem
 
-        
+     
 

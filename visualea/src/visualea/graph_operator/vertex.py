@@ -22,6 +22,26 @@ import weakref, gc #gc is needed because there is a collection problem with the 
 from openalea.visualea.util import open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
+from openalea.core import observer
+
+
+
+def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
+    #there is a reference count problem in dataflowview that
+    #makes the items remain in memory. We get them, unregister
+    #them from their observed objects and remove them from the
+    #scene.
+    items = scene.items()
+    items = [(i,(i.clear_observed())) for i in items if isinstance(i, qtgraphview.Element)]
+    for it in items:
+        try:
+            it[0].scene().removeItem(it[0])
+        except:
+            pass
+        del it
+    gc.collect()
+
+
 
 class VertexOperators(object):
     def __init__(self):
@@ -33,16 +53,11 @@ class VertexOperators(object):
         self.vertexItem = weakref.ref(vertexItem)
 
     def vertex_composite_inspect(self):
-        #collect dangling PyQt objects which have lost their C++ side.
-        #There is probably a circular reference somewhere in the dataflowview code
-        #that prevents dead GraphicalVertex instances to be collected by simple
-        #reference counting. I haven't found it so for the moment, we use this
-        #workaround:
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
+        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.show()
         
     def vertex_run(self):
@@ -139,3 +154,4 @@ class VertexOperators(object):
         if(ret):
             for k in editor.modified_key:
                 self.vertexItem().vertex().set_data(k, editor.pdict[k])
+

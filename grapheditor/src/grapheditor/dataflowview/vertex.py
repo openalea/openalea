@@ -107,7 +107,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         graphicalConn = GraphicalPort(port)
         self._outPortLayout.addItem(graphicalConn)
 
-
     ####################
     # Observer methods #
     ####################
@@ -275,6 +274,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
                     self.updateGeometry()
             elif(sender == self.port().vertex() and event[1]=="position"):
                 self.__update_scene_center()
+
+    def clear_observed(self):
+        self.port().vertex().unregister_listener(self)
+        qtgraphview.Element.clear_observed(self)
+        return
+
 
     def get_scene_center(self):
         pos = self.rect().center() + self.scenePos()

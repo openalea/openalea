@@ -45,6 +45,9 @@ class Observed(object):
             self.__postNotifs.append(push_listener_after)
             
     def exclusive_command(self, who, command, *args, **kargs):
+        """Executes a call "command" and if it triggers any
+        signal from this observed object along the way, "who" will
+        be the only one to be notified"""
         ln = [i() for i in self.listeners]
         if who not in ln:
             raise Exception("Observed.exclusive : " + str(who) + " is not registered")
@@ -81,7 +84,7 @@ class Observed(object):
                     try:
                         obs.call_notify(self, event)
                     except Exception, e:
-                        print "Warning : notification of", str(obs), "failed", e
+                        print "Warning :", str(self), "notification of", str(obs), "failed", e
 
             for dead in toDelete:
                 self.listeners.discard(dead)

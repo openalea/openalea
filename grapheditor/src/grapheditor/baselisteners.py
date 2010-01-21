@@ -44,12 +44,13 @@ class GraphElementObserverBase(observer.AbstractListener):
     
     def __init__(self, observed=None, graph=None):
         observer.AbstractListener.__init__(self)
+        self.__observed = None
         self.set_observed(observed)
         self.set_graph(graph)
         return
 
     def set_observed(self, observed):
-        if(observed and isinstance(observed, observer.Observed)):
+        if(isinstance(observed, observer.Observed)):
             self.initialise(observed)
             self.__observed = weakref.ref(observed, self.clear_observed)
         else:
@@ -61,6 +62,12 @@ class GraphElementObserverBase(observer.AbstractListener):
         else:
             return self.__observed
 
+    def clear_observed(self):
+        try:
+            self.__observed().unregister_listener(self)
+        except:
+            self.__observed = None
+        return
 
     def set_graph(self, graph):
         if(graph is not None):
@@ -77,17 +84,11 @@ class GraphElementObserverBase(observer.AbstractListener):
                 if(event[2]): 
                     self.position_changed(*event[2])
 
-    def clear_observed(self, observed):
-        self.set_observed(None)
-        return
-
     def initialise_from_model(self):
         adhoc = self.get_observed().get_ad_hoc_dict()
         self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
 
 
-        
-import traceback
 class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.
     It deduces the correct representation out
