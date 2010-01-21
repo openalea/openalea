@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
-import weakref, gc #gc is needed because there is a collection problem with the node inspector
+import os, weakref, gc #gc is needed because there is a collection problem with the node inspector
 from openalea.visualea.util import open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
@@ -52,13 +52,22 @@ class VertexOperators(object):
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
 
-    def vertex_composite_inspect(self):
-        widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
-        widget.setWindowFlags(QtCore.Qt.Window)
-        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
-        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
-        widget.show()
+    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
+        def vertex_composite_inspect(self):
+            widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
+            widget.setWindowFlags(QtCore.Qt.Window)
+            widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
+            widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
+            widget.show()
+    else:
+        def vertex_composite_inspect(self):
+            widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
+            widget.setWindowFlags(QtCore.Qt.Window)
+            widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
+            widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            widget.closeRequested.connect(gc.collect)
+            widget.show()
         
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        
