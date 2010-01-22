@@ -196,7 +196,6 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
-
             #cleanup
             if 'fedora' in get_platform():
                 dist_list = clean_list_for_fedora(dist_list)
@@ -206,7 +205,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 version = dist._version or ""
                 platform = dist.platform or ""
 
-                txt = "%s %s %s" % (project_name, version, platform, )
+                txt = "%s %s %s -- " % (project_name, version, platform, )
 
                 ignore = False
                 update = False
@@ -237,8 +236,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 if(ignore):
                     continue
                 if(update): 
-                    txt += " -- UPDATE --"
-
+                    txt += "UPDATE --"
+                txt += 'FILENAME -- %s' % dist.egg_name()
                 # Filter depending of mode
                 if(mode == "ALL" or mode == "INSTALLED"):
                     ok = True
@@ -685,22 +684,22 @@ def clean_list_for_fedora(dist_list):
     new_list = [] 
     local_platform = get_platform()
     for dist in dist_list:
-        if dist.platform: # if pre-compiled files, we only want those with fedora tag
+        if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']: # openalea_meta have linux tag now.
+            new_list.append(dist)
+        elif dist.platform: # if pre-compiled files, we only want those with fedora tag
             if 'linux-i686' in dist.egg_name():
                 if 'fedora-10' in local_platform: #fedora 10 case
                     if 'fc10' in dist.version:
-                        if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
-                            new_list.append(dist)
-            if 'linux-i686' in dist.egg_name():
-                if 'fedora-11' in local_platform: #fedora 11 case
+                        new_list.append(dist)
+                elif 'fedora-11' in local_platform: #fedora 11 case
                     if 'fc11' in dist.version:
-                        if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
-                            new_list.append(dist)
-        if 'openalea' == dist.project_name.lower(): # openalea_meta have linux tag now.
+                        new_list.append(dist)
+                elif 'fedora-12' in local_platform: #fedora 11 case
+                    if 'fc12' in dist.version:
+                        new_list.append(dist)
+        elif dist.platform is None: # if non pre-compiled files, we keep them 
+            #if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
             new_list.append(dist)
-        if dist.platform is None: # if non pre-compiled files, we keep them 
-            if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
-                new_list.append(dist)
     return new_list                
                 
 
