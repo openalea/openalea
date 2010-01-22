@@ -355,6 +355,15 @@ class Edge(Element):
 
     def edge(self):
         return self.get_observed()
+        
+    def clear_observed(self):
+        if(self.src):
+            try: self.src.unregister_listener(self)
+            except: pass
+        if(self.dst):
+            try: self.dst.unregister_listener(self)            
+            except: pass
+        return Element.clear_observed(self)
 
     def set_edge_path(self, path):
 	self.__edge_path = path
