@@ -44,7 +44,7 @@ def list_modules (pkgdir) :
 		pth = join(pkgdir,name) 
 		if isfile(pth) :
 			mod_name,ext = splitext(name)
-			if ext == ".py" :
+			if ext == ".py" and " " not in mod_name :
 				yield mod_name
 		elif isdir(pth) :
 			if not name.startswith(".") and is_package(pth) :
