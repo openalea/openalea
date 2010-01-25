@@ -35,7 +35,7 @@ import os, sys
 try:
     from openalea.misc.multisetup import Multisetup
 except ImportError:
-    print 'Install OpenAlea.Misc first'
+    print 'Install OpenAlea.Deploy first'
     try:
         sys.path.insert(0, os.path.join('misc', 'src', 'openalea', 'misc'))
         from multisetup import Multisetup

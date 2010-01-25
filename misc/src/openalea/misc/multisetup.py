@@ -270,23 +270,20 @@ class Multisetup(object):
             try:
                 from openalea.deploy.console import bold, red, green, \
                     color_terminal, nocolor, underline, purple
-
-                if not color_terminal():
-                    # Windows' poor cmd box doesn't understand ANSI sequences
-                    nocolor()
             except:
-                bold = str
-                purple = str
-                red = str
-                green = str
-                underline= str
-
+                try:
+                    import sys
+                    import os
+                    sys.path.insert(0, os.path.join('deploy', 'src', 'openalea', 'deploy'))
+                    from console import bold, red, green, \
+                        color_terminal, nocolor, underline, purple
+                except:
+                    print 'install deploy first'
+            if not color_terminal():
+                # Windows' poor cmd box doesn't understand ANSI sequences
+                nocolor()
         else:
-            purple = str
-            bold = str
-            red = str
-            green = str
-            underline= str
+            bold = purple = red = green = underline = str
 
         print bold("Running multisetup version %s" % __revision__.split()[2])
 
