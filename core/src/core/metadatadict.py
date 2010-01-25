@@ -75,7 +75,7 @@ class MetaDataDict(observer.Observed):
         if key not in self._metaTypes :
             raise Exception("This key doesn't exists : " + key)
 
-        if valType and (self._metaTypes[key] != valType): raise Exception("Type mismatch."):
+        if valType and (self._metaTypes[key] != valType): raise Exception("Type mismatch.")
            
         del self._metaTypes[key]
         del self._metaValues[key]
