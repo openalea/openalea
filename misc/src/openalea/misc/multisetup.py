@@ -16,7 +16,6 @@ __revision__ = " $Id$"
 
 import sys, os
 from optparse import OptionParser
-
 from subprocess import call, PIPE, Popen
 
 
@@ -269,7 +268,7 @@ class Multisetup(object):
         """
         if color:
             try:
-                from sphinx.util.console import bold, red, green, \
+                from openalea.deploy.console import bold, red, green, \
                     color_terminal, nocolor, underline, purple
 
                 if not color_terminal():
