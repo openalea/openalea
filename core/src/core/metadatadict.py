@@ -53,18 +53,14 @@ class MetaDataDict(observer.Observed):
         for k in keys:
             d[k] = None
         return repr(d)
-#         stri = "{"
-#         for key, val in self._metaValues.iteritems():
-#             stri = stri+ "\"" + key + "\" : [" + val[0].__name__ + ", " + repr(val[1]) + "],"
-#         stri = stri[:-1] + "}"
-#         return stri
+
 
     def __len__(self):
         return len(self._metaTypes)
 
     def add_metadata(self, key, valType, notify=True):
         """Creates a new entry in the meta data registry.
-        The data to set will be of the given 'type' type."""
+        The data to set will be of the given 'valType' type."""
 
         if key in self._metaTypes :
             raise Exception("This key already exists : " + key)

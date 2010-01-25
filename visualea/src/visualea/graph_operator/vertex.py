@@ -31,14 +31,28 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     #makes the items remain in memory. We get them, unregister
     #them from their observed objects and remove them from the
     #scene.
+    #This function is not meant to be fast. It tries to lessen the
+    #creation of new references because we already have so many of them
     items = scene.items()
-    items = [(i,(i.clear_observed())) for i in items if isinstance(i, qtgraphview.Element)]
-    for it in items:
-        try:
-            it[0].scene().removeItem(it[0])
-        except:
-            pass
-        del it
+    our_items = [i for i in items if isinstance(i, qtgraphview.Element)]
+    
+    it = our_items.pop()
+    while it:
+        it.clear_observed()
+        it.remove_from_view(scene)
+        items.remove(it)
+        try: it = our_items.pop()
+        except IndexError: it = None
+    
+    it = items.pop()
+    while it:
+        scene.removeItem(it)
+        try: it = items.pop()
+        except IndexError: it = None
+    
+    del items
+    del our_items
+    
     gc.collect()
 
 class VertexOperators(object):
@@ -50,22 +64,14 @@ class VertexOperators(object):
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
 
-    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
-        def vertex_composite_inspect(self):
-            widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
-            widget.setWindowFlags(QtCore.Qt.Window)
-            widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
-            widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
-            widget.show()
-    else:
-        def vertex_composite_inspect(self):
-            widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
-            widget.setWindowFlags(QtCore.Qt.Window)
-            widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
-            widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
-            widget.show()
+    def vertex_composite_inspect(self):
+        widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
+        widget.setWindowFlags(QtCore.Qt.Window)
+        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
+        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
+        widget.destroyed.connect(gc.collect)
+        widget.show()
         
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        

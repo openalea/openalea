@@ -62,10 +62,13 @@ class GraphElementObserverBase(observer.AbstractListener):
         else:
             return self.__observed
 
-    def clear_observed(self):
+    def clear_observed(self, *args):
         try:
             self.__observed().unregister_listener(self)
         except:
+            try: self.__observed.unregister_listener(self)
+            except: pass
+        finally:
             self.__observed = None
         return
 

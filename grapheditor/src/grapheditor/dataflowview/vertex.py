@@ -169,7 +169,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def setGeometry(self, geom):
         #forcing a full recomputation of the geometry so that shrinking works
         pos = self.pos()
-        QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(), pos.y(),-1.0,-1.0))
+        QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(), 
+                                                              pos.y(),-1.0,-1.0))
         pos = self.pos()
         self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      [pos.x(), pos.y()])
@@ -247,7 +248,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         """
         """
         QtGui.QGraphicsWidget.__init__(self)
-        qtgraphview.Element.__init__(self, port)
+        qtgraphview.Element.__init__(self, observed=port)
+        
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
 
@@ -275,11 +277,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
             elif(sender == self.port().vertex() and event[1]=="position"):
                 self.__update_scene_center()
 
-    def clear_observed(self):
+    def clear_observed(self, *args):
         self.port().vertex().unregister_listener(self)
         qtgraphview.Element.clear_observed(self)
         return
-
 
     def get_scene_center(self):
         pos = self.rect().center() + self.scenePos()
