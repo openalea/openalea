@@ -54,7 +54,6 @@ class MetaDataDict(observer.Observed):
             d[k] = None
         return repr(d)
 
-
     def __len__(self):
         return len(self._metaTypes)
 
@@ -70,6 +69,20 @@ class MetaDataDict(observer.Observed):
             self.notify_listeners(("metadata_added", key, valType))
         return
 
+    def remove_metadata(self, key, valType=None, notify=True):
+        """Removes an entry in the meta data registry."""
+
+        if key not in self._metaTypes :
+            raise Exception("This key doesn't exists : " + key)
+
+        if valType and (self._metaTypes[key] != valType): raise Exception("Type mismatch."):
+           
+        del self._metaTypes[key]
+        del self._metaValues[key]
+        if(notify):
+            self.notify_listeners(("metadata_removed", key, valType))
+        return        
+        
     def set_metadata(self, key, value, notify=True):
         """Sets the value of a meta data."""
         if value is None : return 
