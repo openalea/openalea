@@ -33,25 +33,34 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     #scene.
     #This function is not meant to be fast. It tries to lessen the
     #creation of new references because we already have so many of them
+
+    grapheditor_items = []
+    other_items       = []
+
+    def wrapper(l1, l2):
+        def sort(i):
+            l1.append(i) if isinstance(i, qtgraphview.Element) else l2.append(i)
+        return sort
+
     items = scene.items()
-    our_items = [i for i in items if isinstance(i, qtgraphview.Element)]
+    map( wrapper(grapheditor_items, other_items), items)
+    del items
+
+    it = other_items.pop()
+    while it:
+        scene.removeItem(it)
+        try: it = other_items.pop()
+        except IndexError: it = None
     
-    it = our_items.pop()
+    it = grapheditor_items.pop()
     while it:
         it.clear_observed()
         it.remove_from_view(scene)
-        items.remove(it)
-        try: it = our_items.pop()
+        try: it = grapheditor_items.pop()
         except IndexError: it = None
-    
-    it = items.pop()
-    while it:
-        scene.removeItem(it)
-        try: it = items.pop()
-        except IndexError: it = None
-    
-    del items
-    del our_items
+
+    del other_items
+    del grapheditor_items
     
     gc.collect()
 
