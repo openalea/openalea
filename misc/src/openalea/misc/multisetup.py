@@ -266,14 +266,14 @@ class Multisetup(object):
             .. todo:: Need to clean/refactor this code with respect to
                 the log files (stdout/stderr). One solution would be to use the module logger.
         """
+        import sys
+        import os		
         if color:
             try:
                 from openalea.deploy.console import bold, red, green, \
                     color_terminal, nocolor, underline, purple
             except:
                 try:
-                    import sys
-                    import os
                     sys.path.insert(0, os.path.join('deploy', 'src', 'openalea', 'deploy'))
                     from console import bold, red, green, \
                         color_terminal, nocolor, underline, purple
