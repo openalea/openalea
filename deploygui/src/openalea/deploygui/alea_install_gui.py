@@ -4,7 +4,7 @@
 #
 #       OpenAlea.DeployGui: OpenAlea installation frontend
 #
-#       Copyright 2006-2007 INRIA - CIRAD - INRA  
+#       Copyright 2006-2007 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -12,7 +12,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """Main Module for installation graphical frontend"""
@@ -52,7 +52,7 @@ def busy_pointer(f):
         ret = f(*args)
         QtGui.QApplication.restoreOverrideCursor ()
         return ret
-        
+
     return wrapped
 
 
@@ -79,10 +79,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.action_Quit, QtCore.SIGNAL("triggered()"), self.quit)
         self.connect(self.action_About, QtCore.SIGNAL("triggered()"), self.about)
         self.connect(self.action_Web, QtCore.SIGNAL("triggered()"), self.web)
-        
+
         self.connect(self.checkAll, QtCore.SIGNAL("clicked()"), self.check_all)
         self.connect(self.ClearAll, QtCore.SIGNAL("clicked()"), self.clear_all)
-        
+
         self.connect(self.radioAll, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.radioRecommended, QtCore.SIGNAL("clicked()"), self.refresh)
         self.connect(self.radioUpdate, QtCore.SIGNAL("clicked()"), self.refresh)
@@ -118,8 +118,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def about(self):
         """ Display About Dialog """
-        
-        _mess = QtGui.QMessageBox.about(self, 
+
+        _mess = QtGui.QMessageBox.about(self,
                     "About OpenAlea Installer,r%s" % (__revision__.split(' ')[3]),
                     u"Copyright \xa9  2006-2009 INRIA - CIRAD - INRA\n" +
                     "This Software is distributed under the Cecill-V2 License.\n\n" +
@@ -148,18 +148,18 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def check_all(self):
         """ Check all entry in the list """
-        
+
         for i in xrange(self.packageList.count()):
-            
+
             item = self.packageList.item(i)
             item.setCheckState(QtCore.Qt.Checked)
 
-        
+
     def clear_all(self):
         """ UnCheck all entry in the list """
-        
+
         for i in xrange(self.packageList.count()):
-            
+
             item = self.packageList.item(i)
             item.setCheckState(QtCore.Qt.Unchecked)
 
@@ -183,7 +183,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         if(mode == "INSTALLED"):
             self.proceedButton.setText("Remove")
             self.pi = env
-           
+
         else:
             self.proceedButton.setText("Install")
             self.pi = PackageIndex("")
@@ -196,11 +196,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # Be carefull : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
-            #cleanup
+            # linux cleanup
             if 'fedora' in get_platform():
                 dist_list = clean_list_for_fedora(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
-            
+
             for dist in dist_list :
                 version = dist._version or ""
                 platform = dist.platform or ""
@@ -209,7 +209,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
                 ignore = False
                 update = False
-                
+
                 # Filter
                 # Select only egg
                 if(dist.precedence != pkg_resources.EGG_DIST):
@@ -219,8 +219,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 # compare with already installed egg
                 if(mode != "INSTALLED"):
                     installed_version = [d.version for d in env[project_name]]
-                   
-                         
+
+
                     if installed_version:
                         max_version = max(installed_version, key=parse_version)
                         new_version = version
@@ -228,23 +228,23 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                         if parse_version(max_version) < parse_version(new_version):
                             print max_version, new_version, installed_version
                             update = True
-                            
+
                         else:
                             ignore = True
                             continue
 
                 if(ignore):
                     continue
-                if(update): 
+                if(update):
                     txt += "UPDATE --"
                 txt += 'FILENAME -- %s' % dist.egg_name()
                 # Filter depending of mode
                 if(mode == "ALL" or mode == "INSTALLED"):
                     ok = True
-                    
+
                 elif(mode == "RECOMMENDED"):
                     # Keep only most recent package
-                    if(project_name in in_list): 
+                    if(project_name in in_list):
                         ok = False
                         continue
 
@@ -256,9 +256,9 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                             ok = True
                             break
 
-                    if(not ok): 
+                    if(not ok):
                         continue
-                    
+
                 elif(mode == "UPDATE" and update
                      and project_name not in in_list):
                     # Keep only most recent package
@@ -274,8 +274,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     listitem.setCheckState(QtCore.Qt.Unchecked)
                     pname = "%s==%s"%(project_name, version)
                     self.pnamemap[txt] = (pname, dist)
-                            
-            
+
+
         print "Done\n"
 
 
@@ -284,7 +284,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ Return the list of the repository """
 
         ret = set()
-        
+
         for i in xrange(self.locationList.count()):
             item = self.locationList.item(i)
             ret.add(str(item.text()))
@@ -294,7 +294,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def write(self, text):
         """ Write to log """
-        
+
         cursor = self.logText.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         cursor.insertText(text)
@@ -302,7 +302,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.logText.ensureCursorVisible()
 
         QtGui.QApplication.processEvents()
-        
+
     def flush(self):
         pass
 
@@ -313,22 +313,22 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def install_egg(self):
         """ Install manually an egg """
-        
+
         loc = str(self.requestEdit.text())
         if(not loc): return
-        
+
         ok = self.install_package(loc, loc)
         self.display_finish_message(ok)
         self.refresh()
-   
-        
+
+
     def proceed(self):
         """ Install selected packages """
         ok = True
 
         for i in xrange(self.packageList.count()):
             item = self.packageList.item(i)
-            
+
             if(item and item.checkState() == QtCore.Qt.Checked):
                 pname, dist = self.pnamemap[str(item.text())]
 
@@ -336,12 +336,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     print "Removing ", pname
                     ret = self.remove_package(pname, dist.location)
                     ok = ret and ok
-                    
+
                 else:
                     print "Installing ", pname, ok
                     ret = self.install_package(pname, dist.location)
                     ok = ret and ok
-                    
+
         if(ok):
             self.configuration()
 
@@ -353,14 +353,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def configuration(self):
         """ Call alea_config """
         set_env()
-        
+
 
     @busy_pointer
     def install_package(self, pname, location):
         """ Start alea_install for a particular project name, given a location
         return True if OK
         """
-        
+
         print "Installing %s\n"%(pname,)
         try:
             repositories = []
@@ -392,14 +392,14 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         else:
             mess = QtGui.QMessageBox.warning(self, "OpenAlea Installer",
                                              "An error occured. Check the log output.")
-        
-        
+
+
     @busy_pointer
     def remove_package(self, pname, location):
         """ Remove a distribution
         return True if OK
         """
-        
+
         try:
             print "Remove ", location
             if(os.path.isdir(location)):
@@ -432,7 +432,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def remove_location(self):
         """ Remove a repository """
-        
+
         for i in xrange(self.locationList.count()):
             item = self.locationList.item(i)
             if(item and item.isSelected()):
@@ -445,7 +445,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         login, ok = QtGui.QInputDialog.getText(self, "Login", "Enter your login name:",
                                           QtGui.QLineEdit.Normal, "")
         if not ok : return
-        
+
         password, ok = QtGui.QInputDialog.getText(self, "Password", "Enter your password:",
                                                QtGui.QLineEdit.Password, "")
 
@@ -467,7 +467,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def get_filename(self):
         """ Retrieve a local egg filename """
-        
+
         filename = QtGui.QFileDialog.getOpenFileName(
             self, "Choose an Egg", QtCore.QDir.homePath(), "Egg (*.egg)")
 
@@ -477,12 +477,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def get_custom_dirname(self, widget_to_fill = None, widget_to_use_to_start = None):
         """ Select a dirname for local custom package """
-        
+
         init_path = ''
-        if not widget_to_fill.text().isEmpty() : 
+        if not widget_to_fill.text().isEmpty() :
             init_path = str(widget_to_fill.text())
 
-        if not widget_to_use_to_start is None: 
+        if not widget_to_use_to_start is None:
             init_path = str(widget_to_use_to_start.text())
 
         if len(init_path) == 0:
@@ -492,17 +492,17 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             self, "Local Custom Package Directory", init_path )
         dirname = str(dirname)
         if(dirname) : widget_to_fill.setText(dirname)
-        
+
 
     def get_base_custom_dirname(self):
         """ select a base dirname for custom package """
-        
+
         self.get_custom_dirname(self.customPackageDirEdit)
 
-        
+
     def resetCustom(self):
         """ reset custom package form """
-        
+
         self.customPackageNameEdit.clear()
         self.customPackageVersionEdit.clear()
         self.customPackageDirEdit.clear()
@@ -513,11 +513,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.customPythonPackageEdit.clear()
         self.pythonNamespaceFrame.setChecked(False)
         self.namespaceEdit.setText(self.recommended_prefix[0])
-        
+
 
     def updateCppFrame(self, enabled):
         """ update cpp information frame of custom package """
-        
+
         if enabled:
             if not self.customPackageDirEdit.text().isEmpty():
                 self.customPackageIncludeEdit.setText(
@@ -530,22 +530,22 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 self.customPackageIncludeEdit.clear()
                 self.customPackageLibEdit.clear()
                 self.customPackageBinEdit.clear()
-        
+
 
     def updatePythonFrame(self, enabled):
         """ update python information frame of custom package """
-        
+
         if enabled:
           if self.customPackageDirEdit.text():
             self.customPythonPackageEdit.setText(
                 os.path.join(str(self.customPackageDirEdit.text()),'src','openalea'))
         else:
             self.customPythonPackageEdit.clear()
-        
+
 
     def applyCustom(self):
         """ Apply custom package form """
-        
+
         pkg_name = str(self.customPackageNameEdit.text())
         pkg_version = str(self.customPackageVersionEdit.text())
         pkg_dir = str(self.customPackageDirEdit.text())
@@ -561,8 +561,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             return
 
         os.chdir(pkg_dir)
-        args = { 'name' : pkg_name, 'version':pkg_version,  
-                 'zip_safe' : False, 
+        args = { 'name' : pkg_name, 'version':pkg_version,
+                 'zip_safe' : False,
                  'script_args':['-q', 'develop'], 'script_name':"" }
 
         # build lib and inc dirs
@@ -570,7 +570,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # Cpp module arguments
             pkg_lib = os.path.normpath(relative_path(pkg_dir,str(self.customPackageLibEdit.text())))
             if not os.path.exists(str(self.customPackageLibEdit.text())):
-                QtGui.QMessageBox.warning(self,'Invalid package path', 
+                QtGui.QMessageBox.warning(self,'Invalid package path',
                                           'Invalid path : '
                                           + str(self.customPackageLibEdit.text()))
                 return
@@ -578,11 +578,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             args['lib_dirs'] = {'lib' : pkg_lib,}
             pkg_inc = os.path.normpath(
                 relative_path(pkg_dir,str(self.customPackageIncludeEdit.text())))
-            
+
             if not os.path.exists(str(self.customPackageIncludeEdit.text())):
                 QtGui.QMessageBox.warning(self,
-                                          'Invalid package path', 
-                                          'Invalid path : ' + 
+                                          'Invalid package path',
+                                          'Invalid path : ' +
                                           str(self.customPackageIncludeEdit.text()))
                 return
 
@@ -592,26 +592,26 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     relative_path(pkg_dir,str(self.customPackageBinEdit.text())))
 
                 if not os.path.exists(str(self.customPackageBinEdit.text())):
-                    QtGui.QMessageBox.warning(self,'Invalid package path', 
-                                              'Invalid path : ' + 
+                    QtGui.QMessageBox.warning(self,'Invalid package path',
+                                              'Invalid path : ' +
                                               str(self.customPackageBinEdit.text()))
                     return
 
                 args['bin_dirs'] = {'bin' : pkg_bin,}
-        
+
         if self.customPythonPackageFrame.isChecked():
             # Python module arguments
             # module base name and path
             py_base_path = os.path.normpath(str(self.customPythonPackageEdit.text()))
             if not os.path.exists(py_base_path):
-                QtGui.QMessageBox.warning(self, 'Invalid package path', 
+                QtGui.QMessageBox.warning(self, 'Invalid package path',
                                               'Invalid path : ' + py_base_path)
                 return
 
             py_base_relative_path = os.path.normpath(relative_path(pkg_dir, py_base_path))
             py_base_module      = os.path.basename(py_base_path)
             py_base_module_path = os.path.dirname(py_base_relative_path)
-            
+
             # submodule
             submodules = find_packages(py_base_path)
 
@@ -624,7 +624,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
             if len(py_base_module) == 0:
                 QtGui.QMessageBox.warning(self,'Invalid custom python package',
-                                          'python package name for path "' + 
+                                          'python package name for path "' +
                                           py_base_relative_path+'" is invalid !')
                 return
 
@@ -659,16 +659,16 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         print 'Done\n'
         self.display_finish_message(ok)
         self.refresh()
-        
-               
+
+
 
 def main_app(args=None):
 
     if args is None : args = sys.argv
-    
+
     # Restore default signal handler for CTRL+C
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-       
+
     app = QtGui.QApplication(args)
 
     win = MainWindow()
@@ -678,10 +678,10 @@ def main_app(args=None):
 def clean_list_for_fedora(dist_list):
     """
     Keep only linux-i686 that have the fedora tag, e.g. fc10 or fc11
-    Remove also the vplants and alinea meta files, otherwise new dev files 
+    Remove also the vplants and alinea meta files, otherwise new dev files
     will be downloaded
     """
-    new_list = [] 
+    new_list = []
     local_platform = get_platform()
     for dist in dist_list:
         if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']: # openalea_meta have linux tag now.
@@ -689,19 +689,19 @@ def clean_list_for_fedora(dist_list):
         elif dist.platform: # if pre-compiled files, we only want those with fedora tag
             if 'linux-i686' in dist.egg_name():
                 if 'fedora-10' in local_platform: #fedora 10 case
-                    if 'fc10' in dist.version:
+                    if 'fedora-10' in dist.version or 'fc10' in dist.version:
                         new_list.append(dist)
                 elif 'fedora-11' in local_platform: #fedora 11 case
-                    if 'fc11' in dist.version:
+                    if 'fedora-11' in dist.version or 'fc11' in dist.version:
                         new_list.append(dist)
-                elif 'fedora-12' in local_platform: #fedora 11 case
-                    if 'fc12' in dist.version:
+                elif 'fedora-12' in local_platform: #fedora 12 case
+                    if 'fedora-12' in dist.version or 'fc12' in dist.version:
                         new_list.append(dist)
-        elif dist.platform is None: # if non pre-compiled files, we keep them 
+        elif dist.platform is None: # if non pre-compiled files, we keep them
             #if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
             new_list.append(dist)
-    return new_list                
-                
+    return new_list
+
 
 def check_system_setuptools():
     """
@@ -733,7 +733,7 @@ def main(args=None):
     envdict = check_system_setuptools()
 
     if sys.platform.lower().startswith('win'):
-        status = os.execle(sys.executable, sys.executable, "-c", 
+        status = os.execle(sys.executable, sys.executable, "-c",
                   '"import sys; from openalea.deploygui import alea_install_gui;sys.argv="'+str(args)+'";alea_install_gui.main_app(sys.argv)"',
                   envdict)
     else:
@@ -755,4 +755,4 @@ def main(args=None):
 
 if __name__ == "__main__":
     main(sys.argv)
-    
+
