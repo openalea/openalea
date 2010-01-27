@@ -6,11 +6,9 @@ import os, os.path, sys, distutils.util
 name="MinGW"
 version="5.1.4-1"
 description="MinGW compiler distrubution with GCC 4.4"
-author="The guys at www.mingw.org for the hard work, Daniel Barbeau for the egg"
+author="The guys at www.mingw.org for the hard work, Daniel Barbeau Vasquez for the egg"
 author_email="daniel.barbeau@sophia.inria.fr"
 url="www.mingw.org"
-pyVer = "py"+ str(sys.version_info[0]) + "." + str(sys.version_info[1])
-
 
 
 def unix_style_join(*args):
@@ -43,14 +41,13 @@ MINGWDIR = MINGWDIR.replace("\\", "/") #because distutils expects / instead of \
 #####################################################################
 # some voodoo to identify the files to copy and where to place them #
 #####################################################################
-targetSite = unix_style_join("Lib", "site-packages")
-eggName = name+"-"+version.replace("-","_")+"-"+pyVer+"-"+distutils.util.get_platform()+".egg"
 raw_files = os.walk(MINGWDIR)
 data_files = []
 for i,j,k in raw_files:
     for f in k:
-        rel = os.path.relpath(i,MINGWDIR).replace("\\","/") #because distutils expects / instead of \\
-        targetdir = unix_style_join( targetSite, eggName, "" if rel == "." else rel)
+        #we want to reproduce the same hierarchy inside the egg.
+        #as inside the MINGWDIR.
+        rel = os.path.relpath(i,MINGWDIR).replace("\\","/") 
         file_ = unix_style_join( rel, f)        
         data_files.append( ("" if rel == "." else rel,[file_]) )
 
@@ -65,6 +62,11 @@ setup(name=name,
       url=url,
       data_files = data_files,
       zip_safe = False,
+      bin_dirs = { 'bin' : 'bin' },
+      lib_dirs = { 'lib' : 'lib' },      
+      inc_dirs = { 'include' : 'include' },
+      setup_requires = ['openalea.deploy'],
+      dependency_links = ['http://openalea.gforge.inria.fr/pi'],      
       )
       
 os.chdir(OLD_DIR)
