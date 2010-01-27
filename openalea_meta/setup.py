@@ -45,6 +45,8 @@ install_requires = alea_dependencies
 if 'win' in platform:
     install_requires += external_dependencies 
 
+build_prefix = "build-scons"
+
 setup(
     name = name,
     version = version,
@@ -62,6 +64,8 @@ setup(
     packages=find_packages('src'),
 
     package_dir={"":"src" },
+
+    scons_scripts=['SConstruct'],
 
     # Add package platform libraries if any
     include_package_data=True,
