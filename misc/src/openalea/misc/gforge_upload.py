@@ -25,8 +25,8 @@ except:
 
 import sys
 
-available_mode = ['query', 'add', 'remove', 'delete']
-available_project = ['openalea', 'vplants', 'alinea']
+#available_mode = ['query', 'add', 'remove', 'delete']
+#available_project = ['openalea', 'vplants', 'alinea']
 
 server = GForgeProxy()
 
@@ -49,6 +49,10 @@ class Uploader(object):
     type --help to get more help and usage
 
     """
+
+    available_mode = ['query', 'add', 'remove', 'delete']
+    available_project = ['openalea', 'vplants', 'alinea']
+
     def __init__(self, opts):
         """Initialization of project/package/release and file names
         path of directory where the files exist
@@ -59,7 +63,7 @@ class Uploader(object):
         self.release = opts.release
         self.filename = opts.glob
         self.glob = opts.glob
-        self.directory = opts.directory
+        self.mode = opts.mode
         self.server = server
         self.server_packages = None
         self.server_releases = None
@@ -79,9 +83,17 @@ class Uploader(object):
         #self.server.login(self.login, self.password)
         self.mylogin()
 
+    def info(self):
+        print 'GFORGE Uploading -----------------------------------'
+        print 'Project: %s' % self.project
+        print 'Package: %s' % self.package
+        print 'Release: %s' % self.release
+        print 'Filname(s): %s' %  self.glob
+
     def mylogin(self):
         """  Open a session """
         import getpass
+        self.info()
         if(self.login is None):
             self.login = raw_input(green("Enter your GForge login:"))
         if(self.password is None):
@@ -163,13 +175,13 @@ class Uploader(object):
         return pt
 
     def check_project(self):
-        if self.project not in available_project:
-            print 'Error command : project must be either %s' % available_project
+        if self.project not in self.available_project:
+            print 'Error command : project must be either %s' % self.available_project
             sys.exit(0)
 
 
     def add_package(self):
-        msg =  'Package %s not found in the %s project. ' % (self.package, self.project)
+        msg =  purple('Package %s not found in the %s project. ' % (self.package, self.project))
         msg += purple('Shall we add %s package in %s project ? ' % (self.package, self.project))
         if self.ask(msg):
             if self.dry_run:
@@ -177,7 +189,7 @@ class Uploader(object):
                 pass
             else:
                 self.server.add_package(self.project, self.package)
-                print '%s package has been created on the server' % self.release
+                print '%s package has been created on the server' % self.package
         else:
             print 'quitting'
             self.server.logout()
@@ -188,14 +200,14 @@ class Uploader(object):
         self.check_project()
         packages = server.get_packages(self.project)
         self.server_packages = packages
-        if self.package is None:
-            print 'you must provide package with --package. Available packages are %s' % self.server_packages
+        if self.package is None or self.package.startswith('-'):
+            print red('you must provide a valid package with --package. Available packages are %s' % self.server_packages)
             sys.exit(0)
         if self.package not in self.server_packages:
             self.add_package()
 
     def add_release(self):
-        msg = 'Relase %s not found in package %s (%s project). ' % (self.release, self.package, self.project)
+        msg = purple('Relase %s not found in package %s (%s project). ' % (self.release, self.package, self.project))
         msg += purple('Shall we add it the release %s release in %s package' % (self.release, self.package))
         if self.ask(msg):
             if self.dry_run:
@@ -221,7 +233,7 @@ class Uploader(object):
 
 
     def add_file(self, file):
-        msg = '%s will be added to the gforge (in %s). Shall we proceed ? ' % (os.path.basename(file), self.get_location())
+        msg = purple('%s will be added to the gforge (in %s). Shall we proceed ? ' % (os.path.basename(file), self.get_location()))
         f_type = self.file_type(os.path.basename(file))
         p_type = self.proc_type(os.path.basename(file))
         if self.ask(msg):
@@ -317,7 +329,7 @@ class Uploader(object):
 
         files = glob.glob(self.glob)
         if len(files)==0:
-            print 'No file with glob % found. Nothing to upload' % (self.glob)
+            print 'No file with glob %s found. Nothing to upload' % (self.glob)
             sys.exit(0)
 
         print purple('You are about to upload the following files on the gforge (in %s): ' % self.get_location())
@@ -404,7 +416,19 @@ class Uploader(object):
             else:
                 print 'skipped'
 
-
+    def run(self):
+        # Query the project/package/release
+        if self.mode == 'query':
+            self.query()
+        # Add package and release on the server and upload files if any on the server
+        elif self.mode == 'add':
+            self.add()
+        # Remove package/release/files from the server
+        elif self.mode == 'remove' or self.mode == 'delete':
+            uploader.remove()
+        else:
+            print 'Use --mode to provide a mode in %s. Type --help for more options ' % self.available_mode
+            sys.exit(0)
 
 
 def main():
@@ -442,8 +466,6 @@ def main():
     parser.add_option("-n", "--dry-run",
                       action='store_true', default=False,
                        help="don't actually do anything")
-    parser.add_option("-d", "--dir", dest='directory', default= '.',
-        help="directory which contains the various files [default: %default]")
     parser.add_option("-l", "--login", dest='login', default= None,
         help="GForge login")
     parser.add_option("-p", "--password", dest='password', default= None,
@@ -478,20 +500,8 @@ def main():
  
     # Create the Uploader object
     uploader = Uploader(opts)
-    # Query the project/package/release
-    if opts.mode == 'query':
-        uploader.query()
+    uploader.run()
 
-    # Add package and release on the server and upload files if any on the server
-    elif opts.mode == 'add':
-        uploader.add()
-
-    # Remove package/release/files from the server
-    elif opts.mode == 'remove' or opts.mode == 'delete':
-        uploader.remove()
-    else:
-        print 'Use --mode to provide a mode in %s. Type --help for more options ' % available_mode
-        sys.exit(0)
 
 
 if __name__=='__main__' :
