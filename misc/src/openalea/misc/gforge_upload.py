@@ -425,7 +425,7 @@ class Uploader(object):
             self.add()
         # Remove package/release/files from the server
         elif self.mode == 'remove' or self.mode == 'delete':
-            uploader.remove()
+            self.remove()
         else:
             print 'Use --mode to provide a mode in %s. Type --help for more options ' % self.available_mode
             sys.exit(0)
