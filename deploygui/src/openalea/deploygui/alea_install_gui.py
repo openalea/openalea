@@ -687,14 +687,16 @@ def clean_list_for_fedora(dist_list):
         if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']: # openalea_meta have linux tag now.
             new_list.append(dist)
         elif dist.platform: # if pre-compiled files, we only want those with fedora tag
+            # Note that local_platform returns fedora-10 with a dash
+            # and dist_version returns the name provided in the tag that is without tag
             if 'linux-i686' in dist.egg_name():
-                if 'fedora10' in local_platform: #fedora 10 case
+                if 'fedora-10' in local_platform: #fedora 10 case
                     if 'fedora10' in dist.version or 'fc10' in dist.version:
                         new_list.append(dist)
-                elif 'fedora11' in local_platform: #fedora 11 case
+                elif 'fedora-11' in local_platform: #fedora 11 case
                     if 'fedora11' in dist.version or 'fc11' in dist.version:
                         new_list.append(dist)
-                elif 'fedora12' in local_platform: #fedora 12 case
+                elif 'fedora-12' in local_platform: #fedora 12 case
                     if 'fedora12' in dist.version or 'fc12' in dist.version:
                         new_list.append(dist)
                 else:
