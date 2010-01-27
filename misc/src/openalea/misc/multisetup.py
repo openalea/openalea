@@ -29,7 +29,14 @@ except:
     except:
         from openalea.core.path import path
 
-
+try:
+    from openalea.deploy.console import bold, red, green, \
+        color_terminal, nocolor, underline, purple
+except:
+    pj = os.path.join
+    sys.path.insert(0, pj('deploy', 'src', 'openalea', 'deploy'))
+    from console import bold, red, green, \
+        color_terminal, nocolor, underline, purple
 
 """ some remaining examples of setuptools commands:
             'clean': '-a',
@@ -278,7 +285,7 @@ class Multisetup(object):
                     from console import bold, red, green, \
                         color_terminal, nocolor, underline, purple
                 except:
-                    print 'install deploy first'
+                    pass
             if not color_terminal():
                 # Windows' poor cmd box doesn't understand ANSI sequences
                 nocolor()
