@@ -73,7 +73,7 @@ setup(
                  "sphinx_upload = openalea.deploy.command:sphinx_upload",
                  "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
-                 "upload_dist = openalea.deploy.command:upload_dist",
+                 "egg_upload = openalea.deploy.command:egg_upload",
 
                  ],
 
