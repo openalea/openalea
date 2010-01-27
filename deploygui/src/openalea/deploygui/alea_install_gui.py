@@ -688,15 +688,18 @@ def clean_list_for_fedora(dist_list):
             new_list.append(dist)
         elif dist.platform: # if pre-compiled files, we only want those with fedora tag
             if 'linux-i686' in dist.egg_name():
-                if 'fedora-10' in local_platform: #fedora 10 case
-                    if 'fedora-10' in dist.version or 'fc10' in dist.version:
+                if 'fedora10' in local_platform: #fedora 10 case
+                    if 'fedora10' in dist.version or 'fc10' in dist.version:
                         new_list.append(dist)
-                elif 'fedora-11' in local_platform: #fedora 11 case
-                    if 'fedora-11' in dist.version or 'fc11' in dist.version:
+                elif 'fedora11' in local_platform: #fedora 11 case
+                    if 'fedora11' in dist.version or 'fc11' in dist.version:
                         new_list.append(dist)
-                elif 'fedora-12' in local_platform: #fedora 12 case
-                    if 'fedora-12' in dist.version or 'fc12' in dist.version:
+                elif 'fedora12' in local_platform: #fedora 12 case
+                    if 'fedora12' in dist.version or 'fc12' in dist.version:
                         new_list.append(dist)
+                else:
+                    print 'warning::linux platform %s not taken into account within alea_install_gui module' % local_platform
+                    print 'all linux version found will be shown.'
         elif dist.platform is None: # if non pre-compiled files, we keep them
             #if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
             new_list.append(dist)
