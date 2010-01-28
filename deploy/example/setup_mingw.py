@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-import os, os.path, sys, distutils.util
+import os, os.path, sys, distutils.util, glob
+
+if distutils.util.get_platform() != "win32":
+    print "Do not run this outside MSWindows."
+    sys.exit(-1)
 
 name="MinGW"
 version="5.1.4-1"
@@ -36,7 +40,7 @@ if not os.path.exists(os.path.join(MINGWDIR, "bin", "mingw32-g++.exe")):
 if not os.path.exists(os.path.join(MINGWDIR, "bin", "mingw32-g++.exe")):
     print "ERROR: could not find MINGW directory :", MINGWDIR 
     sys.exit(-1)
-os.chdir(MINGWDIR)
+
 MINGWDIR = MINGWDIR.replace("\\", "/") #because distutils expects / instead of \\
 
 #####################################################################
@@ -71,4 +75,5 @@ setup(name=name,
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],
       )
       
-os.chdir(OLD_DIR)
+egg = glob.glob("dist/*.egg")[0]
+os.rename(egg, egg[:-4]+"-win32.egg")      

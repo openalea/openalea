@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-import os, os.path, glob, sys, distutils.util, shutil
+import os, os.path, glob, sys, shutil
 
 name="PIL"
 version="1.1.7"
@@ -35,20 +35,6 @@ del os.path
 del os
 del sys
 """
-
-
-def unix_style_join(*args):
-    l = len(args)
-    if l == 1 : return args[0]
-    
-    ret = args[0]
-    for i in range(1,l-1):
-        ret += ("/" if args[i]!="" else "")+ args[i]
-    
-    if args[l-1] != "":
-        ret += ("/" if args[l-2]!="" else "") + args[l-1]
-        
-    return ret
     
     
 ####################################
@@ -78,20 +64,20 @@ PIL_DIR = PIL_DIR.replace("\\", "/") #because distutils expects / instead of \\
 # some voodoo to identify the files to copy and where to place them #
 #####################################################################
 py_files = glob.glob(PIL_DIR+"/*.py")
-pyd_files = glob.glob(PIL_DIR+"/*.pyd")
+other_files = glob.glob(PIL_DIR+"/*.pyd")
 py_modules = []
 data_files = []
 for f in py_files:
     file_ = os.path.relpath(f,PIL_DIR).replace("\\","/").replace(".py","")      
     py_modules.append( file_ )
-for f in pyd_files:
+for f in other_files:
     file_ = os.path.relpath(f,PIL_DIR).replace("\\","/")
     data_files.append(file_)    
 
 ############################
 # DON'T LOOK, THIS IS UGLY #
 ############################
-all_copyable_files = py_files + pyd_files
+all_copyable_files = py_files + other_files
 HERE = os.getcwd()
 for f in all_copyable_files : 
     shutil.copy2(f, HERE)
@@ -113,8 +99,11 @@ try:
           zip_safe = False,
           )
           
+    egg = glob.glob("dist/*.egg")[0]
+    os.rename(egg, egg[:-4]+"-win32.egg")
+    
 except Exception, e:
     print e
 finally:
     for f in all_copyable_files : 
-        os.remove(os.path.relpath(f, PIL_DIR))      
+        os.remove(os.path.relpath(f, PIL_DIR))

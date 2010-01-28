@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-import os, os.path, sys, distutils.util
+import os, os.path, sys, distutils.util, glob
+
+if distutils.util.get_platform() != "win32":
+    print "Do not run this outside MSWindows."
+    sys.exit(-1)
 
 name="BisonFlex"
 version="2.4.1-2.5.35"
@@ -68,3 +72,5 @@ setup(name=name,
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],      
       )
       
+egg = glob.glob("dist/*.egg")[0]
+os.rename(egg, egg[:-4]+"-win32.egg")
