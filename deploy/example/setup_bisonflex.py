@@ -9,6 +9,7 @@ description="Bison and Flex from the MSYS project"
 author="The guys at www.mingw.org for the hard work, Daniel Barbeau Vasquez for the egg"
 author_email="daniel.barbeau@sophia.inria.fr"
 url="www.mingw.org"
+license = "http://www.mingw.org/license"
 
 
 def unix_style_join(*args):
@@ -57,6 +58,7 @@ setup(name=name,
       author=author,
       author_email=author_email,
       url=url,
+      license=license,
       data_files = data_files,
       zip_safe = False,
       bin_dirs = { 'bin' : 'bin' },

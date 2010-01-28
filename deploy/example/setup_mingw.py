@@ -9,6 +9,7 @@ description="MinGW compiler distrubution with GCC 4.4"
 author="The guys at www.mingw.org for the hard work, Daniel Barbeau Vasquez for the egg"
 author_email="daniel.barbeau@sophia.inria.fr"
 url="www.mingw.org"
+license = "http://www.mingw.org/license"
 
 
 def unix_style_join(*args):
@@ -61,12 +62,13 @@ setup(name=name,
       author_email=author_email,
       url=url,
       data_files = data_files,
+      license=license,
       zip_safe = False,
       bin_dirs = { 'bin' : 'bin' },
       lib_dirs = { 'lib' : 'lib' },      
       inc_dirs = { 'include' : 'include' },
       setup_requires = ['openalea.deploy'],
-      dependency_links = ['http://openalea.gforge.inria.fr/pi'],      
+      dependency_links = ['http://openalea.gforge.inria.fr/pi'],
       )
       
 os.chdir(OLD_DIR)
