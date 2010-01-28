@@ -15,7 +15,9 @@ author_email="daniel.barbeau@sophia.inria.fr"
 url="www.mingw.org"
 license = "http://www.mingw.org/license"
 
-
+#########
+# UTILS #
+#########
 def unix_style_join(*args):
     l = len(args)
     if l == 1 : return args[0]
@@ -49,9 +51,9 @@ for i,j,k in raw_files:
     for f in k:
         #we want to reproduce the same hierarchy inside the egg.
         #as inside the BISFLEXDIR.
-        rel = os.path.relpath(i,BISFLEXDIR).replace("\\","/") 
-        file_ = unix_style_join( rel, f)        
-        data_files.append( ("" if rel == "." else rel,[file_]) )
+        rel_direc = os.path.relpath(i,BISFLEXDIR).replace("\\","/") 
+        file_ = unix_style_join( rel_direc, f)        
+        data_files.append( ("" if rel_direc == "." else rel_direc,[file_]) )
 
 #############
 # Let's go! #

@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-import os, os.path, glob, sys, shutil
+import os, os.path, glob, sys, shutil, distutils.util
+
+if distutils.util.get_platform() != "win32":
+    print "Do not run this outside MSWindows."
+    sys.exit(-1)
 
 name="PIL"
 version="1.1.7"
@@ -11,6 +15,11 @@ author_email="daniel.barbeau@sophia.inria.fr"
 url="http://www.pythonware.com/products/pil/"
 license = "http://www.pythonware.com/products/pil/license.htm"
 
+#########################################################
+# Content of the PIL.py module that fakes the namespace #
+# It remaps the top level modules as local variables    #
+# with the same name as the modules.                    #
+#########################################################
 PIL_MODULE = """
 #Compatibility module for users that do "from PIL import Image".
 #Author : Daniel Barbeau, Virtual Plants, INRIA-CIRAD
@@ -65,11 +74,13 @@ PIL_DIR = PIL_DIR.replace("\\", "/") #because distutils expects / instead of \\
 #####################################################################
 py_files = glob.glob(PIL_DIR+"/*.py")
 other_files = glob.glob(PIL_DIR+"/*.pyd")
+other_files += glob.glob(PIL_DIR+"/*.pth")
 py_modules = []
 data_files = []
 for f in py_files:
-    file_ = os.path.relpath(f,PIL_DIR).replace("\\","/").replace(".py","")      
-    py_modules.append( file_ )
+    #because we must represent them as modules we replace slashes by dots.
+    file_ = os.path.relpath(f,PIL_DIR).replace("\\","/")
+    py_modules.append( file_[:-3] )
 for f in other_files:
     file_ = os.path.relpath(f,PIL_DIR).replace("\\","/")
     data_files.append(file_)    
