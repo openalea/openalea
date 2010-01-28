@@ -94,9 +94,9 @@ if pkg is not None:
             rel_file = unix_style_join(rel , f)
             ext = os.path.splitext(f)[1]
             if(ext == ".py"):
-                py_modules.append( rel_file[:-3].replace("./","").replace("/",".") ) #because we must represent them as modules
-            elif(ext == ".txt" or ext == ".pyd" or ext == "" or ext == ".example"):
-                data_files.append( ("" if rel == "." else rel,[rel_file]) )
+                py_modules.append( pkg+"."+rel_file[:-3].replace("./","").replace("/",".") ) #because we must represent them as modules
+            elif(ext in [".txt", ".pyd", "" , ".example"]):
+                data_files.append( (pkg if rel == "." else unix_style_join(pkg,rel),[unix_style_join(pkg,rel_file)]) )
             else:
                 continue
             
@@ -104,10 +104,7 @@ if pkg is not None:
     # DON'T LOOK, THIS IS UGLY #
     ###########################
     HERE = os.getcwd()
-    for file in all_copyable_files[0] : 
-        shutil.copy2(file, HERE)
-    for dir in all_copyable_files[1] : 
-        shutil.copytree(dir, unix_style_join(HERE, os.path.relpath(dir,NUMSCI_DIR)))
+    shutil.copytree(NUMSCI_DIR, unix_style_join(HERE, pkg))
 
 
     #############
@@ -119,10 +116,7 @@ if pkg is not None:
     metadata["zip_safe"]=False
     setup(**metadata)
 
-    for file in all_copyable_files[0] : 
-        os.remove(unix_style_join(HERE, os.path.relpath(file,NUMSCI_DIR)))
-    for dir in all_copyable_files[1] : 
-        shutil.rmtree(unix_style_join(HERE, os.path.relpath(dir,NUMSCI_DIR)))
+    shutil.rmtree(unix_style_join(HERE, pkg))
 
     egg = glob.glob("dist/*.egg")[0]
     os.rename(egg, egg[:-4]+"-win32.egg")
