@@ -199,12 +199,19 @@ class Uploader(object):
     def check_packages(self):
         self.check_project()
         packages = server.get_packages(self.project)
+        packages.sort()
         self.server_packages = packages
         if self.package is None or self.package.startswith('-'):
             print red('you must provide a valid package with --package. Available packages are %s' % self.server_packages)
             sys.exit(0)
         if self.package not in self.server_packages:
-            self.add_package()
+            if self.mode == 'add':
+                self.add_package()
+            else:
+                print red('Check your package name. Available packages are')
+                for package in packages:
+                    print '\t %s'  % package
+                sys.exit(0)
 
     def add_release(self):
         msg = purple('Relase %s not found in package %s (%s project). ' % (self.release, self.package, self.project))
@@ -253,12 +260,19 @@ class Uploader(object):
 
     def check_releases(self):
         releases = server.get_releases(self.project, self.package)
+        releases.sort()
         self.server_releases = releases
         if self.release is None:
             print 'you must provide release with --release. Available releases are %s' % self.server_releases
             sys.exit(0)
         if self.release not in self.server_releases:
-            self.add_release()
+            if self.mode == 'add':
+                self.add_release()
+            else:
+                print red('Check your release name. Available releases are')
+                for release in releases:
+                    print '\t %s'  % release
+                sys.exit(0)
 
     def check_files(self):
         files = server.get_files(self.project, self.package, self.release)

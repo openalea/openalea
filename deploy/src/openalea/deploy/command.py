@@ -918,8 +918,6 @@ class egg_upload(Command):
             arguments += ' --login %s' % self.login
         if self.glob:
             arguments += " --glob %s" % self.glob
-        else:
-            arguments += " --glob dist/*.egg"
         if self.password:
             arguments += ' --password %s'%  self.password
         if self.dry_run:
