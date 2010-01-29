@@ -165,17 +165,17 @@ class Multisetup(object):
         print "  -v, --verbose                  run verbosely [default=False]"
         print "  -k, --keep-going               force the commands running[default=False]"
         print "  -h, --help                     show detailed help message"
-        print "  --package                      list of packages to run"
+        print "  --packages                     list of packages to run"
         print "                                 [default: deploy / deploygui / core / scheduler / visualea / stdlib / sconsx / misc]"
-        print "  --exclude-package              list of packages to not run"
+        print "  --exclude-packages              list of packages to not run"
         print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
 
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
         """
-        if '--package' in self.commands:
-            index = self.commands.index('--package')
-            self.commands.remove('--package')
+        if '--packages' in self.commands:
+            index = self.commands.index('--packages')
+            self.commands.remove('--packages')
             self.packages = set()
             found = True
             while found is True:
@@ -193,11 +193,11 @@ class Multisetup(object):
                     continue
             #self.commands.pop(index)
 
-        if '--exclude-package' in self.commands:
+        if '--exclude-packages' in self.commands:
             # keep track of --exclude-package index
-            index = self.commands.index('--exclude-package')
+            index = self.commands.index('--exclude-packages')
             # remove it from the commands
-            self.commands.remove('--exclude-package')
+            self.commands.remove('--exclude-packages')
             # remove all packages provided afterwards until next arguments is found
             found = True
             while found is True:
@@ -220,7 +220,7 @@ class Multisetup(object):
                     if package_to_remove.startswith('-'):
                         break
                     # or is invalid
-                    raise ValueError('--exclude-package error: package %s not found in package list' \
+                    raise ValueError('--exclude-packages error: package %s not found in package list' \
                         % self.commands[index])
 
             #self.commands.pop(index)
