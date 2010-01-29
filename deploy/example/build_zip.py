@@ -16,8 +16,8 @@ def qt4(directory = path('qt4'), name='qt4'):
     d = path('.')
     for pattern in patterns:
         for fn in d.walkfiles(pattern):
-	    print 'add ', fn
-	    zf.write(fn)
+	      print 'add ', fn
+	      zf.write(fn)
 
     zf.close()
     os.chdir(curdir)
@@ -41,8 +41,8 @@ def qt4_dev (directory=path('qt4-dev'), name='qt4_dev'):
         d = path(dir)
 	for pattern in patterns:
             for fn in d.walkfiles(pattern):
-	        print 'add ', fn
-	        zf.write(fn)
+                print 'add ', fn
+                zf.write(fn)
 
     zf.close()
     os.chdir(curdir)
