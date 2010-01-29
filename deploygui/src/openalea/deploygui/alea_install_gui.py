@@ -691,9 +691,9 @@ def select_linux(dist_list):
     # get the linux distribution. get_dist is simply platform.dist()
     # that returns ['fedora','10','Cmabridge'] on fedora 10
     # or ['Ubuntu','9.10','Karmic'] under Ubuntu 9.10. Note the upper case
-    distribution_name = '_'.join(get.dist()[0:1]).lower()
-    distribution_name_version = '_'.join(get.dist()[0:2]).lower()
-    distribution_version = '_'.join(get.dist()[1:2])
+    distribution_name = '_'.join(get_dist()[0:1]).lower()
+    distribution_name_version = '_'.join(get_dist()[0:2]).lower()
+    distribution_version = '_'.join(get_dist()[1:2])
     # variable used to tell if current linux platform has been found
     released_linux = True
 
