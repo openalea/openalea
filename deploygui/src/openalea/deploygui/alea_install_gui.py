@@ -239,7 +239,11 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     continue
                 if(update):
                     txt += "UPDATE --"
-                txt += 'FILENAME -- %s' % dist.egg_name()
+
+                # for debug usage:
+                #txt += 'FILENAME -- %s' % dist.egg_name()
+
+
                 # Filter depending of mode
                 if(mode == "ALL" or mode == "INSTALLED"):
                     ok = True
