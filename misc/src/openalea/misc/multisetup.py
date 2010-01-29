@@ -8,7 +8,7 @@ there are a few commands dedicated to multisetup (see --help).
 
 >>> python multisetup install
 >>> python multisetup install sdist --dist-dir ../dist
->>> python multisetup --verbose --keep-going install sdist --dist-dir ../dist
+>>> python multisetup --quiet --keep-going install sdist --dist-dir ../dist
 """
 
 __license__ = "Cecill-C"
@@ -46,51 +46,9 @@ except:
             'latex': "--builder latex -E",
             'sphinx_upload': "",
             'pdf': "",
-            'upload_dist':'--verbose',
 """
 
 
-oa_dirs = """deploy
-        deploygui
-        core
-        visualea
-        sconsx
-        stdlib
-        scheduler
-        misc
-        openalea_meta
-        """
-
-vp_dirs = """
-        PlantGL
-        tool
-        stat_tool
-        sequence_analysis
-        amlobj
-        mtg
-        tree_matching
-        aml
-        fractalysis
-        tree
-        tree_statistic
-        container
-        newmtg
-        WeberPenn
-        lpy
-        """
-
-alinea_dirs = """
-    caribu
-    graphtal
-    adel
-    topvine"""
-
-"""
-        self.openalea_sphinx_dirs=deploy deploygui core visualea sconsx
-         stdlib misc openalea_meta scheduler
-        self.vplants_sphinx_dirs=PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg
-        self.alinea_sphinx_dirs=caribu
-"""
 
 """
         #
@@ -108,7 +66,7 @@ alinea_dirs = """
 
 class Multisetup(object):
 
-    def __init__(self, commands, packages=None, curdir='.', verbose=False):
+    def __init__(self, commands, packages=None, curdir='.', verbose=True):
         """
 
         :param commands: list of user commands or command
@@ -162,7 +120,7 @@ class Multisetup(object):
         print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
         print "  multisetup.py install          will install the package\n"
         print "Global options:"
-        print "  -v, --verbose                  run verbosely [default=False]"
+        print "  --quiet                        do not show setup outputs [default=False]"
         print "  -k, --keep-going               force the commands running[default=False]"
         print "  -h, --help                     show detailed help message"
         print "  --packages                     list of packages to run"
@@ -172,6 +130,10 @@ class Multisetup(object):
 
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
+
+        .. todo:: known issue: python multisetup.py --packages with two 
+            packages will be confuse by following commands. Must be put 
+            at the end of the command
         """
         if '--packages' in self.commands:
             index = self.commands.index('--packages')
@@ -230,16 +192,13 @@ class Multisetup(object):
         """Search and remove multisetup options
 
         Get the user command line arguments (self.commands) that are dedicated
-        to multisetup such as --help, --verbose, --keep-going so that the
+        to multisetup such as --help, --quiet, --keep-going so that the
         remaining commands are fully comptatible with setuptools.
         """
 
-        if '--verbose' in self.commands:
-            self.verbose = True
-            self.commands.remove('--verbose')
-        if '-v' in self.commands:
-            self.verbose = True
-            self.commands.remove('-v')
+        if '--quiet' in self.commands:
+            self.verbose = False
+            self.commands.remove('--quiet')
 
         if '-k' in self.commands:
             self.force = True

@@ -228,15 +228,19 @@ class Uploader(object):
             self.server.logout()
 
     def remove_file(self, file):
+        """returns True if file removed"""
         msg = purple('GforgeUpload -- Removing file: %s will be removed (in %s). Shall we proceed ? ' % (os.path.basename(file), self.get_location()))
         if self.ask(msg):
             if self.dry_run:
-                pass
+                return True
+
             else:
                 self.server.remove_file(self.project, self.package, self.release, os.path.basename(file))
             print '%s removed' % os.path.basename(file)
+            return True
         else:
             print '%s not deleted as requested' % file
+            return False
 
 
     def add_file(self, file):
@@ -353,8 +357,8 @@ class Uploader(object):
         for file in files:
             if os.path.basename(file) in self.server_files:
                 print purple('%s already present on the gforge (in %s). It will therefore be replaced' %(os.path.basename(file), self.get_location()))
-                self.remove_file(file)
-            self.add_file(file)
+                if self.remove_file(file):
+                    self.add_file(file)
 
 
     def remove(self):
