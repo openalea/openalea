@@ -199,7 +199,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
             # linux cleanup
-            if 'Linux' in get_platform():
+            p=get_platform()
+            if 'Linux' in p:
                 dist_list = select_linux(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
 
@@ -676,7 +677,6 @@ def main_app(args=None):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     app = QtGui.QApplication(args)
-
     win = MainWindow()
     win.show()
     return app.exec_()
@@ -713,13 +713,18 @@ def select_linux(dist_list):
                 # then we keep this egg
                 # Note the condition on 'fc' to be backward compatible 
                 # with release 0.7
-                if distribution_name in get_platform():
-                    if distribution_name_version in dist.version \
-                        or 'fc'+distribution_vesrion in dist.version:
-                            new_list.append(dist)
-                else:
-                    released_linux = False
-                    new_list.append(dist)
+                try:
+                    if distribution_name in get_platform():
+                        if distribution_name_version in dist.version \
+                            or 'fc'+distribution_version in dist.version:
+                                new_list.append(dist)
+                    else:
+                        released_linux = False
+                        new_list.append(dist)
+                except:
+                    print 'error' 
+                    print distribution_name_version
+                    print get_platform()
         elif dist.platform is None: # if non pre-compiled files, we keep them
             new_list.append(dist)
 
