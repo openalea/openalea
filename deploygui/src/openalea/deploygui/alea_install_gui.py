@@ -24,7 +24,9 @@ url =  "http://openalea.gforge.inria.fr"
 import sys, os
 import shutil
 import signal
+# renamed to avoid conflcits with global import ?
 from platform import platform as get_platform
+from platform import dist as get_dist
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -197,8 +199,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
             # linux cleanup
-            if 'fedora' in get_platform():
-                dist_list = clean_list_for_fedora(dist_list)
+            if 'Linux' in get_platform():
+                dist_list = select_linux(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
 
             for dist in dist_list :
@@ -675,36 +677,51 @@ def main_app(args=None):
     win.show()
     return app.exec_()
 
-def clean_list_for_fedora(dist_list):
+def select_linux(dist_list):
     """
-    Keep only linux-i686 that have the fedora tag, e.g. fc10 or fc11
-    Remove also the vplants and alinea meta files, otherwise new dev files
-    will be downloaded
+    Keep only linux-i686 that have the fedora or ubuntu tag, e.g. fedora_10
+    fedora_11, Ubuntu_9.10 ...
+
     """
     new_list = []
-    local_platform = get_platform()
+    # get the linux distribution. get_dist is simply platform.dist()
+    # that returns ['fedora','10','Cmabridge'] on fedora 10
+    # or ['Ubuntu','9.10','Karmic'] under Ubuntu 9.10. Note the upper case
+    distribution_name = '_'.join(get.dist()[0:1]).lower()
+    distribution_name_version = '_'.join(get.dist()[0:2]).lower()
+    distribution_version = '_'.join(get.dist()[1:2])
+    # variable used to tell if current linux platform has been found
+    released_linux = True
+
+    # loop over all eggs
     for dist in dist_list:
-        if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']: # openalea_meta have linux tag now.
+        # openalea_meta and vplants_meta have linux tag now so this if
+        # may be obsolet
+        if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']:
+            # since release 0.8.0, there is a linux tag as well in the
+            # metafiles. we may want to remoev this switch in the future.
             new_list.append(dist)
-        elif dist.platform: # if pre-compiled files, we only want those with fedora tag
-            # Note that local_platform returns fedora-10 with a dash
-            # and dist_version returns the name provided in the tag that is without tag
+        # if pre-compiled files, we only want those with a linux tag
+        # that corresponds to the local platform
+        elif dist.platform:
             if 'linux-i686' in dist.egg_name():
-                if 'fedora-10' in local_platform: #fedora 10 case
-                    if 'fedora10' in dist.version or 'fc10' in dist.version:
-                        new_list.append(dist)
-                elif 'fedora-11' in local_platform: #fedora 11 case
-                    if 'fedora11' in dist.version or 'fc11' in dist.version:
-                        new_list.append(dist)
-                elif 'fedora-12' in local_platform: #fedora 12 case
-                    if 'fedora12' in dist.version or 'fc12' in dist.version:
-                        new_list.append(dist)
+                # if the name of the egg corresponds to the local platform
+                # then we keep this egg
+                # Note the condition on 'fc' to be backward compatible 
+                # with release 0.7
+                if distribution_name in get_platform():
+                    if distribution_name_version in dist.version \
+                        or 'fc'+distribution_vesrion in dist.version:
+                            new_list.append(dist)
                 else:
-                    print 'warning::linux platform %s not taken into account within alea_install_gui module' % local_platform
-                    print 'all linux version found will be shown.'
+                    released_linux = False
+                    new_list.append(dist)
         elif dist.platform is None: # if non pre-compiled files, we keep them
-            #if dist.project_name.lower()!='vplants' and dist.project_name.lower()!='alinea':
             new_list.append(dist)
+
+    if released_linux == False:
+        print """warning::linux platform %s not taken into account within alea_install_gui module""" % get_platform()
+        print 'all linux version found will be shown.'
     return new_list
 
 
