@@ -1,7 +1,7 @@
 # -*- coding: iso-8859-15 -*-
 
 # Header
-import os, sys
+import os, sys, distutils.util
 pj= os.path.join
 
 from setuptools import setup
@@ -19,6 +19,8 @@ long_description= 'This egg was created from the source file. libQGLViewer was p
 
 license= 'GPL' 
 
+data_files = 'PyQGLViewer.pyd' if distutils.util.get_platform() == "win32" else 'PyQGLViewer.so'
+
 # Main setup
 setup(
     # Meta data
@@ -33,7 +35,7 @@ setup(
     package_data = {'sip':['*.sip'], 'examples':['*.py']},
     lib_dirs = { 'lib' : 'lib'  },
     inc_dirs = { 'include' : 'include' },
-    data_files = [('',['PyQGLViewer.so'])],
+    data_files = [('',[data_files])],
 
     zip_safe = False,
     setup_requires = ['openalea.deploy'],
