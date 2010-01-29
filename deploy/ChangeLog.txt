@@ -1,4 +1,10 @@
 
+OpenAlea.Deploy 0.8.0
+---------------------
+
+**Revision 2194**
+
+- add add_plat_name option in setuptools
 - Add Sphinx documentation in ./doc and update the setup.cfg accordingly
 
 OpenAlea.Deploy 0.7.0

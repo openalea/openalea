@@ -105,7 +105,8 @@ def has_ext_modules(dist):
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
                 dist.lib_dirs or dist.inc_dirs or
-                dist.bin_dirs)
+                dist.bin_dirs) or \
+                dist.add_plat_name
     except:
         return dist.has_ext_modules()
 
@@ -306,6 +307,18 @@ def validate_postinstall_scripts(dist, attr, value):
         raise DistutilsSetupError(
             "%r must be a list of strings (got %r)" % (attr, value))
 
+def validate_add_plat_name(dist, attr, value):
+    """ Validation for add_plat_name keyword"""
+    try:
+        assert_bool(dist, attr, value)
+
+        if (value):
+            # Change commands
+            set_has_ext_modules(dist)
+
+    except (TypeError, ValueError, AttributeError, AssertionError):
+        raise DistutilsSetupError(
+            "%r must be a boolean (got %r)" % (attr, value))
 
 def write_keys_arg(cmd, basename, filename, force=False):
     """ Egg-info writer """
