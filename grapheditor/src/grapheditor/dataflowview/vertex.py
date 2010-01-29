@@ -200,7 +200,8 @@ class GraphicalInVertex(GraphicalVertex):
     # ---> other events
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
-        Default implementation updates the model's ad-hoc position value."""
+        For the graphical input vertex we compute it's position to be at
+        the top of the scene."""
         if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
         self.deaf()
         rect = self.scene().itemsBoundingRect()
@@ -219,7 +220,8 @@ class GraphicalOutVertex(GraphicalVertex):
     # ---> other events
     def polishEvent(self):
         """Qt-specific call to handle events that occur on polishing phase.
-        Default implementation updates the model's ad-hoc position value."""
+        For the graphical output vertex we compute it's position to be at
+        the bottom of the scene."""
         if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
         self.deaf()
         rect = self.scene().itemsBoundingRect()
@@ -250,7 +252,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         QtGui.QGraphicsWidget.__init__(self)
         qtgraphview.Element.__init__(self, observed=port)
         
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, False)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
 
         port.vertex().register_listener(self)

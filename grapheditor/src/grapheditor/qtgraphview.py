@@ -229,8 +229,6 @@ class Vertex(Element):
         # self.deaf()
         # point = self.scenePos()
         # cPos = point + self.rect().center()
-        # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     # [cPos.x(), cPos.y()])
         # self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                        # [point.x(), point.y()])
         # self.deaf(False)
@@ -241,8 +239,6 @@ class Vertex(Element):
         # self.deaf()
         # point = event.newPos()
         # cPos = point + self.rect().center()
-        # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     # [cPos.x(), cPos.y()])
         # self.vertex().get_ad_hoc_dict().set_metadata('position', 
                                                      # [point.x(), point.y()])
         # self.deaf(False)
@@ -584,7 +580,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             pos = self.mapToScene(event.pos())
             pos = [pos.x(), pos.y()]
             self.new_edge_set_destination(*pos)
-            return
+            return QtGui.QGraphicsView.mouseMoveEvent(self, event)
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
