@@ -359,6 +359,8 @@ class Uploader(object):
                 print purple('%s already present on the gforge (in %s). It will therefore be replaced' %(os.path.basename(file), self.get_location()))
                 if self.remove_file(file):
                     self.add_file(file)
+            else:
+                self.add_file(file)
 
 
     def remove(self):
