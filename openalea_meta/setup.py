@@ -14,7 +14,7 @@ for key,value in metadata.iteritems():
 
 platform = sys.platform
 if platform.startswith('win'):
-    external_dependencies = ['matplotlib>=0.99.1',
+    external_dependencies = ['matplotlib==0.99.1',
                              'scipy>=0.7.1',
                              'numpy>=1.4.0']
 else:
