@@ -29,7 +29,6 @@ from openalea.core.compositenode import CompositeNode
 from openalea.grapheditor import qtgraphview, dataflowview
 
 
-#import visualea_integration_vertex
 
 ####################################################
 # Handling the drag and drop events over the graph #
@@ -111,8 +110,10 @@ def keyPressDelete(view, e):
     e.setAccepted(True)
 
 def keyPressSpace(view, e):
-    view.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
-    e.setAccepted(True)
+    QtGui.QGraphicsView.keyPressEvent(view,e)
+    if not e.isAccepted():
+        view.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+        e.setAccepted(True)
 
 def keyReleaseSpace(view, e):
     view.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
