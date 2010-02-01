@@ -908,6 +908,7 @@ class egg_upload(Command):
             raise ValueError(" --package must be provided")
 
     def run(self):
+
         from openalea.misc.gforge_upload import Uploader
         from optparse import OptionParser
         parser = OptionParser()
@@ -931,15 +932,15 @@ class egg_upload(Command):
             arguments += ' --login %s' % self.login
         if self.glob:
             arguments += " --glob %s" % self.glob
-        if self.password:
-            arguments += ' --password %s'%  self.password
+        elif self.mode=='add':
+            arguments += ' --glob dist/*egg'
         if self.dry_run:
             arguments += ' --dry-run %s' % self.dry_run
-        print self.yes_to_all
         if self.yes_to_all == 1:
             arguments += ' --yes-to-all '
 
-        print 'Command that will be called is gforge_upload %s' % arguments 
+        print 'Command that will be called is : \n\tgforge_upload %s' % arguments 
+        # password is afterwards so that it does not appear on the screen!
         if self.password:
             arguments += ' --password %s'%  self.password
         #and finally call the command
