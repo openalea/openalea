@@ -195,7 +195,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         # Parse each distribution
         for project_name in self.pi:
             # Sort list by version
-            # Be carefull : use parse_version rather than comparing strings!!
+            # Be careful : use parse_version rather than comparing strings!!
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
             # linux cleanup
@@ -691,6 +691,8 @@ def select_linux(dist_list):
     # get the linux distribution. get_dist is simply platform.dist()
     # that returns ['fedora','10','Cmabridge'] on fedora 10
     # or ['Ubuntu','9.10','Karmic'] under Ubuntu 9.10. Note the upper case
+    # and the underscore to join the elements (underscore used to name file
+    # under gforge but - sign used by platform
     distribution_name = '_'.join(get_dist()[0:1]).lower()
     distribution_name_version = '_'.join(get_dist()[0:2]).lower()
     distribution_version = '_'.join(get_dist()[1:2])
@@ -699,8 +701,8 @@ def select_linux(dist_list):
 
     # loop over all eggs
     for dist in dist_list:
-        # openalea_meta and vplants_meta have linux tag now so this if
-        # may be obsolet
+        # openalea_meta and vplants_meta have a generci linux tag.
+        # they must be checked first !
         if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']:
             # since release 0.8.0, there is a linux tag as well in the
             # metafiles. we may want to remoev this switch in the future.
@@ -714,9 +716,10 @@ def select_linux(dist_list):
                 # Note the condition on 'fc' to be backward compatible 
                 # with release 0.7
                 try:
-                    if distribution_name in get_platform():
-                        if distribution_name_version in dist.version \
-                            or 'fc'+distribution_version in dist.version:
+                    # check that current platform is found
+                    if distribution_name in get_platform().lower():
+                        if distribution_name_version in dist.egg_name() \
+                            or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
                     else:
                         released_linux = False
@@ -729,7 +732,7 @@ def select_linux(dist_list):
             new_list.append(dist)
 
     if released_linux == False:
-        print """warning::linux platform %s not taken into account within alea_install_gui module""" % get_platform()
+        print """warning::iyour linux platform %s is not under the OpenAlea release""" % get_platform()
         print 'all linux version found will be shown.'
     return new_list
 
