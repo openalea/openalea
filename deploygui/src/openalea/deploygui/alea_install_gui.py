@@ -728,9 +728,6 @@ def select_linux(dist_list):
                         if distribution_name_version in dist.egg_name() \
                             or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
-                                print 'KEPT=',dist.egg_name()
-                        else:
-                            print 'REMOVE=',dist.egg_name()
                 except:
                     print 'error' 
                     print distribution_name_version
