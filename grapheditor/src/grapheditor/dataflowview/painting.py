@@ -56,6 +56,7 @@ def default_dataflow_paint(owner, painter, option, widget):
     path.moveTo(3.0,3.0)
     painter.drawPath(path)
     path.moveTo(0.0,0.0)
+    pen = QtGui.QPen(QtCore.Qt.black, 1)
 
     userColor = owner.vertex().get_ad_hoc_dict().get_metadata("userColor")
     if( userColor is None ):
@@ -64,11 +65,13 @@ def default_dataflow_paint(owner, painter, option, widget):
     if hasattr(owner.vertex(), 'raise_exception'):
         color = default_error_color
         if(owner.isSelected()):
+            pen = QtGui.QPen(QtCore.Qt.red, 1)
             secondcolor = default_selected_error_color
         else:
             secondcolor = default_not_selected_error_color                
     else:
         if(owner.isSelected()):
+            pen = QtGui.QPen(QtGui.QColor(180, 180, 255, 255), 1)
             color = default_selected_color
         elif(owner.vertex().get_ad_hoc_dict().get_metadata("useUserColor")):
             color=QtGui.QColor(*userColor)
@@ -88,7 +91,7 @@ def default_dataflow_paint(owner, painter, option, widget):
     gradient.setColorAt(0.8, secondcolor)
     painter.setBrush(QtGui.QBrush(gradient))
 
-    painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
+    painter.setPen(pen)
     painter.drawPath(path)
 
     if(owner.vertex().block):

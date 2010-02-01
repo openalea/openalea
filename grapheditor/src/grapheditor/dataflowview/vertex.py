@@ -26,6 +26,7 @@ from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview
 from . import painting
 
+import traceback
 
 """
 
@@ -162,6 +163,16 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             caption = " "
         self._caption.setText(caption)
         if(self.layout()): self.layout().updateGeometry()
+        
+    def remove_from_view(self, view):
+        """An element removes itself from the given view"""
+        count = self._inPortLayout.count()
+        for i in range(count):
+            self._inPortLayout.removeAt(i)
+        count = self._outPortLayout.count()
+        for i in range(count):
+            self._outPortLayout.removeAt(i)
+        qtgraphview.Vertex.remove_from_view(self, view)        
 
     ###############################
     # ----Qt World overloads----  #
@@ -185,7 +196,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     # polishEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                                # "polishEvent")
     # moveEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                             # "moveEvent")
+                               # "moveEvent")
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                                    "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
@@ -197,41 +208,12 @@ class GraphicalInVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         GraphicalVertex.__init__(self, vertex, graph, parent=None)
 
-    # ---> other events
-    def polishEvent(self):
-        """Qt-specific call to handle events that occur on polishing phase.
-        For the graphical input vertex we compute it's position to be at
-        the top of the scene."""
-        if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
-        self.deaf()
-        rect = self.scene().itemsBoundingRect()
-        point = QtCore.QPointF( rect.center().x(), rect.top() - self.rect().height() )
-        self.setPos(point)
-        self.deaf(False)
-        QtGui.QGraphicsWidget.polishEvent(self)
-        for view in self.scene().views() : view.show_entire_scene()
-  
-        
+
         
 class GraphicalOutVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         GraphicalVertex.__init__(self, vertex, graph, parent=None)
         
-    # ---> other events
-    def polishEvent(self):
-        """Qt-specific call to handle events that occur on polishing phase.
-        For the graphical output vertex we compute it's position to be at
-        the bottom of the scene."""
-        if self.vertex().get_ad_hoc_dict().get_metadata("position") != [0,0] : return
-        self.deaf()
-        rect = self.scene().itemsBoundingRect()
-        point = QtCore.QPointF( rect.center().x(), rect.bottom() + self.rect().height() )
-        self.setPos(point)
-        self.deaf(False)
-        QtGui.QGraphicsWidget.polishEvent(self)
-        for view in self.scene().views() : view.show_entire_scene()
-     
-                
 
 
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
@@ -280,7 +262,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
                 self.__update_scene_center()
 
     def clear_observed(self, *args):
-        self.port().vertex().unregister_listener(self)
+        try:
+            self.port().vertex().unregister_listener(self)
+        except:
+            traceback.print_stack(), self.tooltip()
         qtgraphview.Element.clear_observed(self)
         return
 
