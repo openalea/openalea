@@ -65,8 +65,9 @@ class DataflowOperators(object):
         Export selected node in a new factory
         """
         widget = self.get_graph_view()
-        index  = widget.parent().indexOf(widget)
 
+        # FIRST WE PREPARE THE USER INTERFACE STUFF
+        # ------------------------------------------
         # Get default package id
         default_factory = self.get_graph().factory
         if(default_factory and default_factory.package):
@@ -79,24 +80,31 @@ class DataflowOperators(object):
         dialog = NewGraph("Group Selection", self.get_package_manager(), widget, 
                           io=False, pkg_id=pkg_id, name=name)
         ret = dialog.exec_()
-
         if(not ret): return
+
+        # NOW WE DO THE HARD WORK
+        # -----------------------
         
         factory = dialog.create_cnfactory(self.get_package_manager())
-
         items = widget.get_selected_items(qtgraphview.Vertex)
         if(not items): return None
         
         pos = widget.get_selection_center(items)
 
+        def cmp_x(i1, i2):
+            return cmp(i1.scenePos().x(), i2.scenePos.x())
+
+        items.sort(cmp=cmp_x)        
+
         # Instantiate the new node
-        itemids = [i.vertex().get_id() for i in items]
-        self.get_graph().to_factory(factory, itemids, auto_io=True)
+        itemIds = [i.vertex().get_id() for i in items]
+        
+        self.get_graph().to_factory(factory, itemIds, auto_io=True)
         newVert = factory.instantiate([self.get_graph().factory.get_id()])
         if newVert:
-            widget.setEnabled(False)
-            newId = self.get_graph().add_vertex(newVert, [pos.x(), pos.y()])
-            newEdges = self.get_graph().compute_external_io(newVert, newId)
+            widget.setEnabled(False) #to prevent too many redraws during the grouping
+            newId    = self.get_graph().add_vertex(newVert, [pos.x(), pos.y()])
+            newEdges = self.get_graph().compute_external_io(itemIds, newId)
             for edges in newEdges:
                 self.get_graph().add_edge((edges[0], edges[1]), 
                                       (edges[2], edges[3]))
@@ -145,7 +153,6 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            index  = widget.parent().indexOf(widget)
 
             # Get Position from cursor
             position = widget.mapToScene(
