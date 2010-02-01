@@ -199,8 +199,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
             # linux cleanup
-            p=get_platform()
-            if 'Linux' in p:
+            
+            if 'Linux' in get_platform() and mode != 'INSTALLED':
                 dist_list = select_linux(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
 
@@ -696,8 +696,6 @@ def select_linux(dist_list):
     distribution_name = '_'.join(get_dist()[0:1]).lower()
     distribution_name_version = '_'.join(get_dist()[0:2]).lower()
     distribution_version = '_'.join(get_dist()[1:2])
-    # variable used to tell if current linux platform has been found
-    released_linux = True
 
     # loop over all eggs
     for dist in dist_list:
@@ -706,7 +704,12 @@ def select_linux(dist_list):
         if dist.project_name.lower() in ['vplants', 'openalea', 'alinea']:
             # since release 0.8.0, there is a linux tag as well in the
             # metafiles. we may want to remoev this switch in the future.
-            new_list.append(dist)
+            # hack for fedora (if vplants-0.8.0-linux present, it will look for
+            # highest vesrion, which are ubuntu...
+            if distribution_name=='fedora' and distribution_version>=11:
+                pass 
+            else:
+                new_list.append(dist)
         # if pre-compiled files, we only want those with a linux tag
         # that corresponds to the local platform
         elif dist.platform:
@@ -717,13 +720,17 @@ def select_linux(dist_list):
                 # with release 0.7
                 try:
                     # check that current platform is found
+	            # print "distribution_name=", distribution_name
+	            # print "get_platform=", get_platform().lower()
+	            # print "distribution name version=", distribution_name_version
+	            # print "dist.egg_name()", dist.egg_name()
                     if distribution_name in get_platform().lower():
                         if distribution_name_version in dist.egg_name() \
                             or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
-                    else:
-                        released_linux = False
-                        new_list.append(dist)
+                                print 'KEPT=',dist.egg_name()
+                        else:
+                            print 'REMOVE=',dist.egg_name()
                 except:
                     print 'error' 
                     print distribution_name_version
@@ -731,9 +738,6 @@ def select_linux(dist_list):
         elif dist.platform is None: # if non pre-compiled files, we keep them
             new_list.append(dist)
 
-    if released_linux == False:
-        print """warning::iyour linux platform %s is not under the OpenAlea release""" % get_platform()
-        print 'all linux version found will be shown.'
     return new_list
 
 
