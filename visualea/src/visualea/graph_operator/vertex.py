@@ -72,6 +72,28 @@ class VertexOperators(object):
 
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
+        
+    def set_composite_in_out_position(self, vertex):           
+        verticalNodeSize = 40    
+        midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
+        first = True
+        for node in vertex.vertex_property("_actor").itervalues():
+            if node == vertex.node(vertex.id_in) or node == vertex.node(vertex.id_out):
+                continue
+            posX, posY = node.get_ad_hoc_dict().get_metadata("position")
+            if first:
+                top, bottom, left, right = posY, posY, posX, posX
+                first = False
+                continue
+            top     = min( top, posY )
+            bottom  = max( bottom, posY )
+            left    = min( left, posX )
+            right   = max( right, posX )
+        midX = (left+right)/2
+        print midX, top, bottom, left, right
+        inNode, outNode= vertex.node(vertex.id_in), vertex.node(vertex.id_out)
+        inNode.get_ad_hoc_dict().set_metadata("position", [midX, top - verticalNodeSize])
+        outNode.get_ad_hoc_dict().set_metadata("position", [midX, bottom + verticalNodeSize])
 
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
@@ -80,6 +102,7 @@ class VertexOperators(object):
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.destroyed.connect(gc.collect)
+        self.set_composite_in_out_position(self.vertexItem().vertex())
         widget.show()
         
     def vertex_run(self):
