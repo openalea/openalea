@@ -451,7 +451,7 @@ class FloatingEdge( Edge ):
                 return
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
-            print "consolidation failed :", type(e), e
+            print "consolidation failed :", type(e), e, ". Are you sure you plugged the right ports?"
         return
         
     def get_connections(self):
