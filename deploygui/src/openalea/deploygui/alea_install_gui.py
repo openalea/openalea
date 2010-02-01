@@ -706,7 +706,7 @@ def select_linux(dist_list):
             # metafiles. we may want to remoev this switch in the future.
             # hack for fedora (if vplants-0.8.0-linux present, it will look for
             # highest vesrion, which are ubuntu...
-            if distribution_name=='fedora' and distribution_version>=11 and dis.project_name.lower() =='vplants':
+            if distribution_name=='fedora' and distribution_version>=11 and dist.project_name.lower() =='vplants':
                 pass 
             else:
                 new_list.append(dist)
