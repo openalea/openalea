@@ -264,8 +264,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     def clear_observed(self, *args):
         try:
             self.port().vertex().unregister_listener(self)
-        except:
-            traceback.print_stack(), self.tooltip()
+        except Exception, e:
+            print e, "relax, this is probably harmless."
         qtgraphview.Element.clear_observed(self)
         return
 
