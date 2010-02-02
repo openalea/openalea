@@ -686,6 +686,11 @@ def select_linux(dist_list):
     Keep only linux-i686 that have the fedora or ubuntu tag, e.g. fedora_10
     fedora_11, Ubuntu_9.10 ...
 
+    if fedora >= 11, we do not want the vplants_linux that will download the 
+    best match for linux, that the highest version (i.e., x.y.z.linux_ubuntu)
+
+    for other platform, we will take the default one that is ubuntu
+
     """
     new_list = []
     # get the linux distribution. get_dist is simply platform.dist()
@@ -720,14 +725,21 @@ def select_linux(dist_list):
                 # with release 0.7
                 try:
                     # check that current platform is found
-	            # print "distribution_name=", distribution_name
-	            # print "get_platform=", get_platform().lower()
-	            # print "distribution name version=", distribution_name_version
-	            # print "dist.egg_name()", dist.egg_name()
                     if distribution_name in get_platform().lower():
                         if distribution_name_version in dist.egg_name() \
                             or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
+                        #by default, we give all available egg which belongs to the same distribution
+                        else:
+                            # the default one is ubuntu
+                            new_list.append(dist)
+                    # if 'fedora' or ubuntu not in distribution platform name then
+                    # there is no release version, but we can provide a default one
+                    elif distribution_name not in ['fedora', 'ubuntu']:
+                        # the default one is ubuntu 9.10
+                        if 'ubuntu_9.10' in dist.egg_name():
+                            new_list.append(dist)
+                        
                 except:
                     print 'error' 
                     print distribution_name_version
