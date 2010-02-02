@@ -90,7 +90,6 @@ class VertexOperators(object):
             left    = min( left, posX )
             right   = max( right, posX )
         midX = (left+right)/2
-        print midX, top, bottom, left, right
         inNode, outNode= vertex.node(vertex.id_in), vertex.node(vertex.id_out)
         inNode.get_ad_hoc_dict().set_metadata("position", [midX, top - verticalNodeSize])
         outNode.get_ad_hoc_dict().set_metadata("position", [midX, bottom + verticalNodeSize])
