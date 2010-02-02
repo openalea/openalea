@@ -92,7 +92,7 @@ class DataflowOperators(object):
         pos = widget.get_selection_center(items)
 
         def cmp_x(i1, i2):
-            return cmp(i1.scenePos().x(), i2.scenePos.x())
+            return cmp(i1.scenePos().x(), i2.scenePos().x())
 
         items.sort(cmp=cmp_x)        
 
