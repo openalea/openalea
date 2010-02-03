@@ -33,7 +33,7 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     #scene.
     #This function is not meant to be fast. It tries to lessen the
     #creation of new references because we already have so many of them
-
+    #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
     grapheditor_items = []
     other_items       = []
 
@@ -63,6 +63,7 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     del grapheditor_items
     
     gc.collect()
+
 
 class VertexOperators(object):
     def __init__(self):
@@ -99,7 +100,7 @@ class VertexOperators(object):
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-#        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
+        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.destroyed.connect(gc.collect)
         self.set_composite_in_out_position(self.vertexItem().vertex())
         widget.show()

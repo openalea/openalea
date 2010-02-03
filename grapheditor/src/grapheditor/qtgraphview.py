@@ -186,8 +186,6 @@ class Vertex(Element):
         self.__paintStrategy = defaultPaint
 
     vertex = baselisteners.GraphElementObserverBase.get_observed
-    # def vertex(self):
-    #     return self.get_observed()
 	 	
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
@@ -219,24 +217,6 @@ class Vertex(Element):
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-    #---> other events
-    # def polishEvent(self):
-        # """Qt-specific call to handle events that occur on polishing phase.
-        # Default implementation updates the model's ad-hoc position value."""
-        # self.deaf()
-        # point = self.scenePos()
-        # cPos = point + self.rect().center()
-        # self.store_view_data('position', [point.x(), point.y()])
-        # self.deaf(False)
-
-    # def moveEvent(self, event):
-        # """Qt-specific call to handle events that occur on item moving.
-        # Default updates the model's ad-hoc position value."""
-        # self.deaf()
-        # point = event.newPos()
-        # cPos = point + self.rect().center()
-        # self.store_view_data('position', [point.x(), point.y()])
-        # self.deaf(False)
 
     def mousePressEvent(self, event):
         """Qt-specific call to handle mouse clicks on the vertex.
@@ -324,17 +304,7 @@ class Edge(Element):
 
         self.srcBBox = baselisteners.ObservedBlackBox(self, src)
         self.dstBBox = baselisteners.ObservedBlackBox(self, dest)
-        
-        # self.src = None
-        # self.dst = None
-
-        # if(src)  : 
-        #     self.initialise(src)
-        #     self.src = weakref.ref(src)
-        # if(dest) : 
-        #     self.initialise(dest)
-        #     self.dst = weakref.ref(dest)
-
+ 
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
 
@@ -346,17 +316,11 @@ class Edge(Element):
                                QtCore.Qt.RoundJoin))
 
     edge = baselisteners.GraphElementObserverBase.get_observed
-    # def edge(self):
-    #     return self.get_observed()
-        
-    # def clear_observed(self, *args):
-    #     if(self.src):
-    #         try: self.src().unregister_listener(self)
-    #         except Exception, e: print e
-    #     if(self.dst):
-    #         try: self.dst().unregister_listener(self)
-    #         except Exception, e: print e
-    #     return Element.clear_observed(self)
+
+    def clear_observed(self, *args):
+        self.srcBBox.clear_observed()       
+        self.dstBBox.clear_observed()
+        Element.clear_observed(self, *args)
 
     def set_edge_path(self, path):
         self.__edge_path = path
@@ -390,10 +354,6 @@ class Edge(Element):
                     self.setVisible(True)
 
     def initialise_from_model(self):
-        # srcadhoc = self.src().get_ad_hoc_dict()
-        # dstadhoc = self.dst().get_ad_hoc_dict()
-        # self.src().exclusive_command(self, srcadhoc.simulate_full_data_change)
-        # self.dst().exclusive_command(self, dstadhoc.simulate_full_data_change)
         self.announce_view_data_src(exclusive=self)
         self.announce_view_data_dst(exclusive=self)
 
@@ -527,7 +487,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         cls.__defaultDropHandler = handler
 
     #A few signals that strangely enough don't exist in QWidget
-    #closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
+    closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
 
 
@@ -634,7 +594,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking
         on some operating systems"""
-        #self.closeRequested.emit(self, self.scene())
+        self.closeRequested.emit(self, self.scene())
         self.clear_scene()
         return QtGui.QGraphicsView.closeEvent(self, evt)
 

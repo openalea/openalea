@@ -183,16 +183,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         for i in range(count):
             it = self._inPortLayout.itemAt(i)
             items.append(it.graphicsItem())
-            # print it, it.graphicsItem()
-            # it.graphicsItem().remove_from_view(view)
-            # self._inPortLayout.removeAt(i)
         count = self._outPortLayout.count()
         for i in range(count):
             it = self._outPortLayout.itemAt(i)
             items.append(it.graphicsItem())
-            # print it, it.graphicsItem()
-            # it.graphicsItem().remove_from_view(view)
-            # self._outPortLayout.removeAt(i)
         it = items.pop()
         while it:
             it.remove_from_view(view)
@@ -203,7 +197,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             self._inPortLayout.removeAt(i)
         for i in range(self._outPortLayout.count()):
             self._outPortLayout.removeAt(i)
-
         qtgraphview.Vertex.remove_from_view(self, view)        
 
     ###############################
@@ -265,15 +258,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
       
         self.__vertBBox = baselisteners.ObservedBlackBox(self,port.vertex())
-        # port.vertex().register_listener(self)
         self.setZValue(1.5)
         self.highlighted = False
         
         port.simulate_construction_notifications()
 
     port = baselisteners.GraphElementObserverBase.get_observed
-    # def port(self):
-    #     return self.get_observed()
 
     def notify(self, sender, event):
         if(event[0] in ["tooltip_modified", "stop_eval"]):
@@ -293,7 +283,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     def clear_observed(self, *args):
         try:
             self.__vertBBox.clear_observed()
-            # self.port().vertex().unregister_listener(self)
         except Exception, e:
             print e, "relax, this is probably harmless."
         qtgraphview.Element.clear_observed(self)

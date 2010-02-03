@@ -24,7 +24,7 @@ import weakref
 
 from openalea.core import observer
 
-import interfaces, traceback
+import interfaces
 
 
 
@@ -44,31 +44,42 @@ class ObservedBlackBox(object):
     def __init__(self, owner, observed):
         self.__owner = weakref.ref(owner)
         self.__observed = None
-        if observed: self.__call__(observed)
+        self.__is_true = False
+        self.__call__(observed)
 
-    def __call__(self, observed=None):
-        """If observed is provided, sets the observed,
+    def __call__(self, *args):
+        """If args is provided, sets the args,
         else, returns the observed"""
-        if observed and self.__observed is not None:
-            return
-        if observed and isinstance(observed, observer.Observed):
-            self.clear_observed = self.__clear_true_observed
-            self.get_observed = self.__get_true_observed
-            self.__set_true_observed(observed)
-        elif observed:
-            self.clear_observed = self.__clear_fake_observed
-            self.get_observed = self.__get_fake_observed
-            self.__set_fake_observed(observed)
+        if len(args) == 1:
+            observed = args[0]
+            if observed and self.__observed is not None:
+                return #don't overwrite the existing observed
+            if observed :
+                if isinstance(observed, observer.Observed): self.__patch_true()
+                else: self.__patch_fake()
+            else : self.__patch_fake()
+            self.__set_observed(observed)
         else :
             return self.get_observed()
 
     def clear_observed(self):
-        traceback.print_stack()
         raise Exception("clear_obs : You first need to set the observed with the () operator")
 
     def get_observed(self):
-        traceback.print_stack()
         raise Exception("get_obs : You first need to set the observed with the () operator")
+
+    def __set_observed(self, obs):
+        raise Exception("set_obs : You first need to set the observed with the () operator")    
+
+    def __patch_true(self):
+        self.clear_observed = self.__clear_true_observed
+        self.get_observed = self.__get_true_observed
+        self.__set_observed = self.__set_true_observed
+
+    def __patch_fake(self):
+        self.clear_observed = self.__clear_fake_observed
+        self.get_observed = self.__get_fake_observed
+        self.__set_observed = self.__set_fake_observed
 
     def __set_true_observed(self, obs):
         self.__owner().initialise(obs)
@@ -83,7 +94,7 @@ class ObservedBlackBox(object):
     def __get_fake_observed(self):
         return self.__observed()
 
-    def __clear_true_observed(self):
+    def __clear_true_observed(self, which=None):
         try:
             self.__observed().unregister_listener(self.__owner())
         except:
@@ -92,7 +103,7 @@ class ObservedBlackBox(object):
         finally:
             self.__observed = None
 
-    def __clear_fake_observed(self):
+    def __clear_fake_observed(self, which=None):
         self.__observed = None
         
 
@@ -230,9 +241,6 @@ class GraphListenerBase(observer.AbstractListener):
         else:
             self.__observed = weakref.ref(graph) #might not need to be weak.
 
-    # def get_scene(self):
-    #     raise NotImplementedError
-
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
     #############################################################
@@ -248,12 +256,14 @@ class GraphListenerBase(observer.AbstractListener):
         return element
 
     def vertex_added(self, vtype, vertexModel):
+        if vertexModel is None : return
         vertexWidget = self._vertexWidgetFactory(vtype, vertexModel, self.graph())
         vertexWidget.add_to_view(self.get_scene())        
         self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
         return self.__element_added(vertexWidget)
 
     def edge_added(self, etype, edgeModel, src, dst):
+        if edgeModel is None : return
         edgeWidget = self._edgeWidgetFactory(etype, edgeModel, self.graph(),
                                              src, dst)
         edgeWidget.add_to_view(self.get_scene())
@@ -261,6 +271,7 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__element_added(edgeWidget)
 
     def vertex_removed(self, vtype, vertexModel):
+        if vertexModel is None : return
         vertexWidget = self.vertexmap.get(vertexModel)
         if(vertexWidget is None): return
         vertexWidget().remove_from_view(self.get_scene())
@@ -268,6 +279,7 @@ class GraphListenerBase(observer.AbstractListener):
         return
 
     def edge_removed(self, vtype, edgeModel):
+        if edgeModel is None : return
         edgeWidget = self.edgemap.get(edgeModel)
         if(edgeWidget is None): return
         edgeWidget().remove_from_view(self.get_scene())

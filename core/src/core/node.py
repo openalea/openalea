@@ -214,6 +214,10 @@ class AbstractPort(dict, Observed, AbstractListener):
         self.get_ad_hoc_dict().simulate_full_data_change()
         self.notify_listeners(("tooltip_modified", self.get_tip()))
 
+    def simulate_destruction_notifications(self):
+        pass
+
+
     def __hash__(self):
         return id(self)
 
@@ -366,6 +370,15 @@ class Node(AbstractNode):
             self.notify_listeners(("caption_modified", self.internal_data["caption"]))
             self.notify_listeners(("tooltip_modified", self.get_tip()))
             self.notify_listeners(("internal_data_changed",))
+        except Exception, e:
+            print e
+
+    def simulate_destruction_notifications(self):
+        try:
+            for i in self.input_desc:
+                self.notify_listeners(("input_port_removed", i))
+            for i in self.output_desc:
+                self.notify_listeners(("output_port_removed", i))
         except Exception, e:
             print e
             
