@@ -24,7 +24,7 @@ import weakref
 
 from openalea.core import observer
 
-import interfaces
+import interfaces, traceback
 
 
 
@@ -39,38 +39,77 @@ class StrategyError( Exception ):
 
 
 
+
+class ObservedBlackBox(object):
+    def __init__(self, owner, observed):
+        self.__owner = weakref.ref(owner)
+        self.__observed = None
+        if observed: self.__call__(observed)
+
+    def __call__(self, observed=None):
+        """If observed is provided, sets the observed,
+        else, returns the observed"""
+        if observed and self.__observed is not None:
+            return
+        if observed and isinstance(observed, observer.Observed):
+            self.clear_observed = self.__clear_true_observed
+            self.get_observed = self.__get_true_observed
+            self.__set_true_observed(observed)
+        elif observed:
+            self.clear_observed = self.__clear_fake_observed
+            self.get_observed = self.__get_fake_observed
+            self.__set_fake_observed(observed)
+        else :
+            return self.get_observed()
+
+    def clear_observed(self):
+        traceback.print_stack()
+        raise Exception("clear_obs : You first need to set the observed with the () operator")
+
+    def get_observed(self):
+        traceback.print_stack()
+        raise Exception("get_obs : You first need to set the observed with the () operator")
+
+    def __set_true_observed(self, obs):
+        self.__owner().initialise(obs)
+        self.__observed = weakref.ref(obs, self.clear_observed)
+
+    def __set_fake_observed(self, obs):
+        self.__observed = obs
+
+    def __get_true_observed(self):
+        return self.__observed()
+
+    def __get_fake_observed(self):
+        return self.__observed()
+
+    def __clear_true_observed(self):
+        try:
+            self.__observed().unregister_listener(self.__owner())
+        except:
+            try: self.__observed.unregister_listener(self.__owner())
+            except: pass
+        finally:
+            self.__observed = None
+
+    def __clear_fake_observed(self):
+        self.__observed = None
+        
+
 class GraphElementObserverBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
     
     def __init__(self, observed=None, graph=None):
         observer.AbstractListener.__init__(self)
-        self.__observed = None
-        self.set_observed(observed)
+        self.__obsBBox = ObservedBlackBox(self, observed)
         self.set_graph(graph)
         return
 
-    def set_observed(self, observed):
-        if(isinstance(observed, observer.Observed)):
-            self.initialise(observed)
-            self.__observed = weakref.ref(observed, self.clear_observed)
-        else:
-            self.__observed = observed
-
     def get_observed(self):
-        if(isinstance(self.__observed, weakref.ref)):
-            return self.__observed()
-        else:
-            return self.__observed
+        return self.__obsBBox()
 
     def clear_observed(self, *args):
-        try:
-            self.__observed().unregister_listener(self)
-        except:
-            try: self.__observed.unregister_listener(self)
-            except: pass
-        finally:
-            self.__observed = None
-        return
+        self.__obsBBox.clear_observed()
 
     def set_graph(self, graph):
         if(graph is not None):
@@ -88,9 +127,9 @@ class GraphElementObserverBase(observer.AbstractListener):
                     self.position_changed(*event[2])
 
     def initialise_from_model(self):
-        adhoc = self.get_observed().get_ad_hoc_dict()
-        self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
-
+        # adhoc = self.get_observed().get_ad_hoc_dict()
+        # self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
+        self.announce_view_data(exclusive=self)
 
 class GraphListenerBase(observer.AbstractListener):
     """This widget strictly watches the given graph.

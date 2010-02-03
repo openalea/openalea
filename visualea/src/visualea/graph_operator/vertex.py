@@ -99,7 +99,7 @@ class VertexOperators(object):
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
+#        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.destroyed.connect(gc.collect)
         self.set_composite_in_out_position(self.vertexItem().vertex())
         widget.show()

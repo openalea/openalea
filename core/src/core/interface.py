@@ -96,17 +96,22 @@ class IInterfaceMetaClass(type):
     def check(cls, obj):
         """Check if obj matches this interface."""
         objMem = dir(obj)
+        notImp = []
 
         stop = False
         for i in cls.__interface_decl__:
-            if i not in objMem: 
+            if i not in objMem:
+                notImp.append(i)
                 stop = True
             else : 
                 continue
 
         if stop:
             # The check failed.
-            raise UserWarning('Object %s does not belong to the Interface %s '%(str(obj),cls.__name__))
+            stri = "Unimplemented : \n"
+            for i in notImp:
+                stri += "\t"+i+"\n" 
+            raise UserWarning('Object %s does not belong to the Interface %s \n%s '%(str(obj),cls.__name__,stri))
 
         return not stop
 

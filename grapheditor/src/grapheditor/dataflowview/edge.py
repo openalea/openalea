@@ -23,6 +23,7 @@ from PyQt4 import QtCore, QtGui
 from .. import qtgraphview
 from .. import edgefactory
 from . import vertex
+from grapheditor import baselisteners
 
 from math import sqrt
 
@@ -107,5 +108,28 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         event.accept()
         
     def remove(self):
-        self.graph().remove_edge( (self.src().vertex(), self.src()),
-                                  (self.dst().vertex(), self.dst()) )
+        self.graph().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
+                                  (self.dstBBox().vertex(), self.dstBBox()) )
+
+    def store_view_data(self, key, value):
+        raise NotImplementedError
+
+    def get_view_data(self, key):
+        raise NotImplementedError
+
+    def announce_view_data(self, exclusive=False):
+        raise NotImplementedError        
+
+    def announce_view_data_src(self, exclusive=False):
+        if not exclusive:
+            self.srcBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.srcBBox().exclusive_command(exclusive, 
+                                             self.srcBBox().get_ad_hoc_dict().simulate_full_data_change)
+
+    def announce_view_data_dst(self, exclusive=False):
+        if not exclusive:
+            self.dstBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.dstBBox().exclusive_command(exclusive, 
+                                             self.dstBBox().get_ad_hoc_dict().simulate_full_data_change)

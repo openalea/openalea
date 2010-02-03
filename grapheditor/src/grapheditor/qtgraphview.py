@@ -185,9 +185,9 @@ class Vertex(Element):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
         self.__paintStrategy = defaultPaint
 
-    def vertex(self):
-        """retreive the vertex"""
-        return self.get_observed()
+    vertex = baselisteners.GraphElementObserverBase.get_observed
+    # def vertex(self):
+    #     return self.get_observed()
 	 	
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
@@ -209,10 +209,7 @@ class Vertex(Element):
             self.deaf(True)
             point = value.toPointF()
             cPos = point + self.rect().center()
-            # self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                         # [cPos.x(), cPos.y()])
-            self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                         [point.x(), point.y()])
+            self.store_view_data('position', [point.x(), point.y()])
             self.deaf(False)
             return value
             
@@ -229,8 +226,7 @@ class Vertex(Element):
         # self.deaf()
         # point = self.scenePos()
         # cPos = point + self.rect().center()
-        # self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                       # [point.x(), point.y()])
+        # self.store_view_data('position', [point.x(), point.y()])
         # self.deaf(False)
 
     # def moveEvent(self, event):
@@ -239,8 +235,7 @@ class Vertex(Element):
         # self.deaf()
         # point = event.newPos()
         # cPos = point + self.rect().center()
-        # self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                     # [point.x(), point.y()])
+        # self.store_view_data('position', [point.x(), point.y()])
         # self.deaf(False)
 
     def mousePressEvent(self, event):
@@ -272,9 +267,7 @@ class Annotation(Element):
         Element.__init__(self, annotation, graph)
         return
 
-    def annotation(self):
-        """Access to the annotation"""
-        return self.get_observed()
+    annotation = baselisteners.GraphElementObserverBase.get_observed
 
     def notify(self, sender, event):
         """Model event dispatcher.
@@ -310,7 +303,7 @@ class Annotation(Element):
             cursor.clearSelection()
             self.setTextCursor(cursor)
             
-        self.annotation().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
+        self.store_view_data('text', str(self.toPlainText()))
 
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
@@ -328,16 +321,19 @@ class Edge(Element):
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
-        
-        self.src = None
-        self.dst = None
 
-        if(src)  : 
-            self.initialise(src)
-            self.src = weakref.ref(src)
-        if(dest) : 
-            self.initialise(dest)
-            self.dst = weakref.ref(dest)
+        self.srcBBox = baselisteners.ObservedBlackBox(self, src)
+        self.dstBBox = baselisteners.ObservedBlackBox(self, dest)
+        
+        # self.src = None
+        # self.dst = None
+
+        # if(src)  : 
+        #     self.initialise(src)
+        #     self.src = weakref.ref(src)
+        # if(dest) : 
+        #     self.initialise(dest)
+        #     self.dst = weakref.ref(dest)
 
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
@@ -349,17 +345,18 @@ class Edge(Element):
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
 
-    def edge(self):
-        return self.get_observed()
+    edge = baselisteners.GraphElementObserverBase.get_observed
+    # def edge(self):
+    #     return self.get_observed()
         
-    def clear_observed(self, *args):
-        if(self.src):
-            try: self.src().unregister_listener(self)
-            except Exception, e: print e
-        if(self.dst):
-            try: self.dst().unregister_listener(self)
-            except Exception, e: print e
-        return Element.clear_observed(self)
+    # def clear_observed(self, *args):
+    #     if(self.src):
+    #         try: self.src().unregister_listener(self)
+    #         except Exception, e: print e
+    #     if(self.dst):
+    #         try: self.dst().unregister_listener(self)
+    #         except Exception, e: print e
+    #     return Element.clear_observed(self)
 
     def set_edge_path(self, path):
         self.__edge_path = path
@@ -382,26 +379,27 @@ class Edge(Element):
         if(event[0] == "metadata_changed"):
             if(event[1]=="connectorPosition"):
                     pos = event[2]
-                    if(sender==self.src()):
+                    if(sender==self.srcBBox()):
                         self.update_line_source(*pos)
-                    elif(sender==self.dst()):
+                    elif(sender==self.dstBBox()):
                         self.update_line_destination(*pos)
-            elif(event[1]=="hide" and (sender==self.dst() or sender==self.src())):
+            elif(event[1]=="hide" and (sender==self.dstBBox() or sender==self.srcBBox())):
                 if event[2]:
                     self.setVisible(False)
                 else:
                     self.setVisible(True)
 
     def initialise_from_model(self):
-        srcadhoc = self.src().get_ad_hoc_dict()
-        dstadhoc = self.dst().get_ad_hoc_dict()
-        self.src().exclusive_command(self, srcadhoc.simulate_full_data_change)
-        self.dst().exclusive_command(self, dstadhoc.simulate_full_data_change)
-
+        # srcadhoc = self.src().get_ad_hoc_dict()
+        # dstadhoc = self.dst().get_ad_hoc_dict()
+        # self.src().exclusive_command(self, srcadhoc.simulate_full_data_change)
+        # self.dst().exclusive_command(self, dstadhoc.simulate_full_data_change)
+        self.announce_view_data_src(exclusive=self)
+        self.announce_view_data_dst(exclusive=self)
 
     def remove(self):
         view = self.scene().views()[0]
-        view.graph().remove_edge(self.src(), self.dst())
+        view.graph().remove_edge(self.srcBBox(), self.dstBBox())
         
 
     ############
@@ -529,7 +527,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         cls.__defaultDropHandler = handler
 
     #A few signals that strangely enough don't exist in QWidget
-    closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
+    #closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
 
 
@@ -636,7 +634,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking
         on some operating systems"""
-        self.closeRequested.emit(self, self.scene())
+        #self.closeRequested.emit(self, self.scene())
         self.clear_scene()
         return QtGui.QGraphicsView.closeEvent(self, evt)
 
