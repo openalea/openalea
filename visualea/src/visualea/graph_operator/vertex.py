@@ -103,6 +103,7 @@ class VertexOperators(object):
         widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.destroyed.connect(gc.collect)
         self.set_composite_in_out_position(self.vertexItem().vertex())
+        widget.centerOn(widget.scene().itemsBoundingRect().center())
         widget.show()
         
     def vertex_run(self):
