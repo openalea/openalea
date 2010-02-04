@@ -54,7 +54,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         self.hiddenPorts_item.setVisible(False)
         
         # ---Small cross when the vertex has hidden ports---
-        self.modified_item = QtGui.QGraphicsRectItem(5,5,7,7, self)
+        self.modified_item = QtGui.QGraphicsRectItem(2.5,12.5,7,7, self)
         self.modified_item.setBrush(self.eval_color)
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.modified_item.setVisible(False)
@@ -238,7 +238,7 @@ class GraphicalOutVertex(GraphicalVertex):
 
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     """ A vertex port """
-    MAX_TIPLEN = 2000
+    MAX_TIPLEN = 1000
     __spacing  = 5.0
     WIDTH      = 10.0
     HEIGHT     = 10.0
@@ -284,7 +284,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         try:
             self.__vertBBox.clear_observed()
         except Exception, e:
-            print e, "relax, this is probably harmless."
+            pass # print e, "relax, this is probably harmless."
         qtgraphview.Element.clear_observed(self)
         return
 
