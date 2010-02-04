@@ -693,6 +693,7 @@ def select_linux(dist_list):
 
     """
     new_list = []
+    released_linux_distribution = ['fedora_10','fedora_11','fedora_12','ubuntu_9.10']
     # get the linux distribution. get_dist is simply platform.dist()
     # that returns ['fedora','10','Cmabridge'] on fedora 10
     # or ['Ubuntu','9.10','Karmic'] under Ubuntu 9.10. Note the upper case
@@ -725,11 +726,11 @@ def select_linux(dist_list):
                 # with release 0.7
                 try:
                     # check that current platform is found
-                    if distribution_name in get_platform().lower():
+                    if distribution_name_version in released_linux_distribution:
                         if distribution_name_version in dist.egg_name() \
                             or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
-                    elif distribution_name_version not in released_linux_distribution:
+                    else:
                         new_list.append(dist)
                         
                 except:
