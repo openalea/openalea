@@ -729,21 +729,11 @@ def select_linux(dist_list):
                         if distribution_name_version in dist.egg_name() \
                             or 'fc'+distribution_version in dist.egg_name():
                                 new_list.append(dist)
-                        #by default, we give all available egg which belongs to the same distribution
-                        else:
-                            # the default one is ubuntu
-                            new_list.append(dist)
-                    # if 'fedora' or ubuntu not in distribution platform name then
-                    # there is no release version, but we can provide a default one
-                    elif distribution_name not in ['fedora', 'ubuntu']:
-                        # the default one is ubuntu 9.10
-                        if 'ubuntu_9.10' in dist.egg_name():
-                            new_list.append(dist)
+                    elif distribution_name_version not in released_linux_distribution:
+                        new_list.append(dist)
                         
                 except:
-                    print 'error' 
-                    print distribution_name_version
-                    print get_platform()
+                    pass
         elif dist.platform is None: # if non pre-compiled files, we keep them
             new_list.append(dist)
 
