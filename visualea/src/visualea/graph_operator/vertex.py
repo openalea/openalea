@@ -53,11 +53,13 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
         except IndexError: it = None
     
     it = grapheditor_items.pop()
-    # while it:
-    #     it.remove_from_view(scene)
-    #     it.clear_observed()
-    #     try: it = grapheditor_items.pop()
-    #     except IndexError: it = None
+
+    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
+        while it:
+            scene.removeItem(it)
+            it.clear_observed()
+            try: it = grapheditor_items.pop()
+            except IndexError: it = None
 
     del other_items
     del grapheditor_items
