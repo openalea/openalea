@@ -102,7 +102,7 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         """ Context menu event : Display the menu"""
         menu = QtGui.QMenu(event.widget())
         action = menu.addAction("Delete connection")
-        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        action.triggered.connect(self.remove)
         menu.move(event.screenPos())
         menu.show()
         event.accept()
