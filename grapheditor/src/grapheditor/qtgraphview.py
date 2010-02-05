@@ -520,7 +520,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-        #self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
         
@@ -604,14 +603,14 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     #########################
     def scale_view(self, factor):
         self.scale(factor, factor)
-
+        
     def show_entire_scene (self) :
         """Scale the scene and center it
         in order to display the entire content
         without scrolling.
         """
         sc_rect = self.scene().itemsBoundingRect()
-        
+
         sc_center = sc_rect.center()
         if sc_rect.width() > 0. :
             w_ratio = self.width() / sc_rect.width() * 0.9

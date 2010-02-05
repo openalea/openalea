@@ -55,7 +55,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
             self.deaf(False)
         return QtGui.QGraphicsTextItem.sceneEvent(self, event)
 
-    def store_view_data(self, key, value):
+    def store_view_data(self, key, value, notify=True):
         self.annotation().get_ad_hoc_dict().set_metadata(key, value)
 
     def get_view_data(self, key):

@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 import os, weakref, gc #gc is needed because there is a collection problem with the node inspector
-from openalea.visualea.util import open_dialog
+from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
 from openalea.core import observer
@@ -37,13 +37,13 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     grapheditor_items = []
     other_items       = []
 
-    def wrapper(l1, l2):
-        def sort(i):
+    def sort(l1, l2):
+        def wrapper(i):
             l1.append(i) if isinstance(i, qtgraphview.Element) else l2.append(i)
-        return sort
+        return wrapper
 
     items = scene.items()
-    map( wrapper(grapheditor_items, other_items), items)
+    map( sort(grapheditor_items, other_items), items)
     del items
 
     it = other_items.pop()
@@ -53,11 +53,11 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
         except IndexError: it = None
     
     it = grapheditor_items.pop()
-    while it:
-        it.clear_observed()
-        it.remove_from_view(scene)
-        try: it = grapheditor_items.pop()
-        except IndexError: it = None
+    # while it:
+    #     it.remove_from_view(scene)
+    #     it.clear_observed()
+    #     try: it = grapheditor_items.pop()
+    #     except IndexError: it = None
 
     del other_items
     del grapheditor_items
@@ -74,26 +74,6 @@ class VertexOperators(object):
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
         
-    def set_composite_in_out_position(self, vertex):           
-        verticalNodeSize = 40    
-        midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
-        first = True
-        for node in vertex.vertex_property("_actor").itervalues():
-            if node == vertex.node(vertex.id_in) or node == vertex.node(vertex.id_out):
-                continue
-            posX, posY = node.get_ad_hoc_dict().get_metadata("position")
-            if first:
-                top, bottom, left, right = posY, posY, posX, posX
-                first = False
-                continue
-            top     = min( top, posY )
-            bottom  = max( bottom, posY )
-            left    = min( left, posX )
-            right   = max( right, posX )
-        midX = (left+right)/2
-        inNode, outNode= vertex.node(vertex.id_in), vertex.node(vertex.id_out)
-        inNode.get_ad_hoc_dict().set_metadata("position", [midX, top - verticalNodeSize])
-        outNode.get_ad_hoc_dict().set_metadata("position", [midX, bottom + verticalNodeSize])
 
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
@@ -102,10 +82,11 @@ class VertexOperators(object):
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.destroyed.connect(gc.collect)
-        self.set_composite_in_out_position(self.vertexItem().vertex())
-        widget.centerOn(widget.scene().itemsBoundingRect().center())
+        widget.show_entire_scene()
         widget.show()
         
+    @exception_display
+    @busy_cursor
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        
 

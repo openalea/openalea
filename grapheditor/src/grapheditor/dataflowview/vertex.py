@@ -111,7 +111,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     ####################
     # Observer methods #
     ####################
-    def store_view_data(self, key, value):
+    def store_view_data(self, key, value, notify=True):
         self.vertex().get_ad_hoc_dict().set_metadata(key, value)
 
     def get_view_data(self, key):
@@ -223,16 +223,48 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
                               "itemChange")
 
 
+
+def set_composite_in_out_position(graph, isInNode):           
+    verticalNodeSize = 60    
+    midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
+    first = True
+    for node in graph.vertex_property("_actor").itervalues():
+        if node == graph.node(graph.id_in) or node == graph.node(graph.id_out):
+            continue
+        posX, posY = node.get_ad_hoc_dict().get_metadata("position")
+        if first:
+            top, bottom, left, right = posY, posY, posX, posX
+            first = False
+            continue
+        top     = min( top, posY )
+        bottom  = max( bottom, posY )
+        left    = min( left, posX )
+        right   = max( right, posX )
+
+    midX = (left+right)/2
+    if isInNode : 
+        y = top - verticalNodeSize
+        graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
+    else : 
+        y = bottom + verticalNodeSize
+        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
+        
                               
 class GraphicalInVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         GraphicalVertex.__init__(self, vertex, graph, parent=None)
 
+    def polishEvent(self):
+        set_composite_in_out_position(self.graph(), True)
+        GraphicalVertex.polishEvent(self)
 
-        
 class GraphicalOutVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         GraphicalVertex.__init__(self, vertex, graph, parent=None)
+
+    def polishEvent(self):
+        set_composite_in_out_position(self.graph(), False)
+        GraphicalVertex.polishEvent(self)
         
 
 

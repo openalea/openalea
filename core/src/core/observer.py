@@ -21,7 +21,8 @@ __revision__ = " $Id$ "
 
 ###############################################################################
 
-import weakref, gc
+import weakref
+from collections import deque
 
 
 class Observed(object):
@@ -111,6 +112,7 @@ class AbstractListener(object):
 
     def __init__(self):
         self.__deaf = False
+        self.__eventQueue = None
 
     def initialise(self, observed):
         """ Register self as a listener to observed """
@@ -126,18 +128,39 @@ class AbstractListener(object):
     def deaf(self, setDeaf=True):
         self.__deaf=setDeaf
 
+    def queue_call_notifications(self, call, *args, **kwargs):
+        self.__eventQueue = deque()
+        call(*args, **kwargs)
+        self.call_notify(self, "PROCESS_QUEUE")
+
     def call_notify(self, sender, event=None):
         """
         Basic implementation call directly notify function
         Sub class can override this method to implement different call strategy
         (like signal slot)
         """
-        if( not hasattr(self, "_AbstractListener__deaf") or not self.__deaf):
+        if sender == self and event == "PROCESS_QUEUE":
+            if self.__deaf : self.__eventQueue = None
+            elif len(self.__eventQueue) > 0 :
+                e = self.__eventQueue.popleft()
+                while e: 
+                    self.notify(e[0], e[1])
+                    try : e = self.__eventQueue.popleft()
+                    except IndexError : e = None
+                self.__eventQueue = None
+                                    
+        #if we are running a call with delayed event delivery 
+        #we queue the events:
+        if self.__eventQueue :
+            self.__eventQueue.append((sender, event))
+            return
+        
+        if not self.__deaf:
             self.notify(sender, event)
 
     def notify(self, sender, event=None):
         """
-        This function is called by observed object
+        This function is called by observed objects
         
         :param sender: the observed object which send notification
         :param event: the data associated to the notification
