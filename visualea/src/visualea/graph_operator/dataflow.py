@@ -55,8 +55,8 @@ class DataflowOperators(object):
                 if self.get_graph().is_vertex_protected(i.vertex()): continue
                 self.get_graph().remove_vertex(i.vertex())
             elif isinstance(i, qtgraphview.Edge):
-                self.get_graph().remove_edge((i.src().vertex(), i.src()),
-                                         (i.dst().vertex(), i.dst()) )
+                self.get_graph().remove_edge((i.srcBBox().vertex(), i.srcBBox()),
+                                         (i.dstBBox().vertex(), i.dstBBox()) )
             elif isinstance(i, qtgraphview.Annotation):
                 self.get_graph().remove_vertex(i.annotation())
 

@@ -114,14 +114,6 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
     store_view_data = None
     get_view_data   = None
     announce_view_data = None
-    # def store_view_data(self, key, value):
-    #     raise NotImplementedError
-
-    # def get_view_data(self, key):
-    #     raise NotImplementedError
-
-    # def announce_view_data(self, exclusive=False):
-    #     raise NotImplementedError        
 
     def announce_view_data_src(self, exclusive=False):
         if not exclusive:

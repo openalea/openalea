@@ -1101,7 +1101,7 @@ class ContinuousEvalListener(AbstractListener):
 
     def __init__(self, dataflow, vid):
         """ dataflow, vid : dataflow.eval_as_expression(vid)"""
-
+        AbstractListener.__init__(self)
         self.dataflow = dataflow
         self.vid = vid
 
