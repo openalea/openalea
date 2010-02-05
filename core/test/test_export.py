@@ -38,3 +38,6 @@ def test_export():
     import app
     # requires X server 
     # app.main(sys.argv)
+    os.remove("app.py")
+    try:
+        os.remove("app.pyc")

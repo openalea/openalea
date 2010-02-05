@@ -168,7 +168,12 @@ class AbstractNode(Observed, AbstractListener):
 class Annotation(AbstractNode):
     def __init__(self):
         AbstractNode.__init__(self)
-        
+
+    def to_script (self):
+        """Script translation of this node.
+        """
+        return ""
+    
 class AbstractPort(dict, Observed, AbstractListener):
     """
     The class describing the ports.
