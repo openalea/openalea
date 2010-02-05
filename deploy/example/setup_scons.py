@@ -46,10 +46,7 @@ setup(
 
     package_dir=package_dir,
 
-
-    #lib_dirs = { 'lib' : 'lib' },
     bin_dirs = {'EGG-INFO/scripts': 'script'},
-    #inc_dirs = { 'scripts' : 'script' },
 
     zip_safe = False,
     setup_requires = ['openalea.deploy'],
