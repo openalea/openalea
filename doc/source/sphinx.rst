@@ -1,43 +1,49 @@
 #################################
-About the sphinx documentation
+How to use sphinx ? 
 #################################
-.. topic:: Target
-
-    Developers and Adminsitrators
 
 .. module:: main
     :synopsis: how to manage the sphinx documentation in OpenAlea and related projects
 
 .. sidebar:: Summary
 
-    :Version: |version|
     :Release: |release|
     :Date: |today|
-    :Author: See `Authors`_ section
-    :ChangeLog: See `ChangeLog`_ section
+    :Authors: **Thomas Cokelaer**
+    :Target: developers and administrators
+    :status: in progress
 
 .. topic:: Overview
 
     * `Compiling the documentation`_ with Sphinx
     * `How to initialise a new package`_
-    * `ReSt and Sphinx syntax <tutorial/rest_syntax.html>`_
-    * `How to document your docstrings <tutorial/sphinx_python_docstring.html>`_
+    * `ReSt and Sphinx syntax <sphinx/rest_syntax.html>`_
+    * `How to document your docstrings <sphinx/sphinx_python_docstring.html>`_
     * How to `Upload the documentation`_ of a package on the web
+
+
 
 
 Introduction
 ============
 
-We have decided to use Sphinx to document the entire OpenAlea project. The proposal that justifies this choice is available on our WIKI `Sphinx proposal <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=documentation:doctests:sphinx_proposal>`_.
+Using Sphinx to generate Reference guide is not as straightforward as using a tool such as Epydoc but brings a much more flexible and powerful tool that allows us to create user guide and tutorials as well.
 
-Using Sphinx is not as straightforward as using a tool such as Epydoc but brings a much more flexible and powerful tool:  we can combine Reference guide, user guide and tutorials all together, we can use LaTeX for equations, and structure a document exactly as we want.
- 
-Here below we hope that you will find some helps to start with Sphinx. 
+It uses the reST syntax, that is quite simple to learn and has the advantagse to be human readable (useful for the docstrings !) . Moreover, it comes with many plugins such as LaTeX that can be used for equations.
+
+Here below we hope that you will find some helps to start with Sphinx.
 
 First, you will need to install Sphinx, which is done very easily using easy_install::
 
     easy_install -U sphinx
 
+Quick Start
+=============
+
+.. toctree::
+    :maxdepth: 1
+
+    sphinx/quickstart.rst
 
 Compiling the documentation
 ===========================
@@ -55,7 +61,11 @@ The HTML outputs should be ready in **./doc/html**. Similarly, you can have a La
 
     python setup.py build_sphinx -b latex
 
-.. note:: Sphinx takes care to parse only the files that have changed. You may want to force the building using the -E option: python setup.py build_sphinx -E
+.. note:: Sphinx takes care to parse only the files that have changed. You may want to force the building using the -E option as follows:
+
+::
+
+    python setup.py build_sphinx -E
 
 From the ./doc directory using Makefile
 -----------------------------------------
@@ -77,6 +87,8 @@ If the build is successful and if you have an SSH key on the GForge, you may eve
     
     python setup.py sphinx_upload --username <your gforge username> 
 
+.. note:: setuptools will look in the setup.cfg file looking for **project** and **package** in the [upload_sphinx] section. (see next section)
+
 .. warning:: Exception, the openalea/doc directory is not yet a package; In order to upload the documentation, use the script sphinx_upload.py that is present in ./openalea/doc.
 
 How to initialise a new package
@@ -97,37 +109,37 @@ Sphinx and reST syntax
 
 It's time to start writting documentation. Well, with Sphinx you will need to learn a new language, that is called **reST** for **restructuredText**. No worries, it is quite simple and you will get plenty of examples. Indeed, all those pages contains a link to the source code (see in the right sidebar), so it will be a good starting point. 
 
-If you want to know more, here are two links. The quickstart allows you to start a sphinx project from scrach outisde OpenAlea so that you can test yourself reST. The second link is a summary of useful syntax used in reST and/or Sphinx.
+Here are some links related to the sphinx syntax
 
 .. toctree::
     :maxdepth: 1
-    
-    tutorial/quickstart
-    tutorial/rest_syntax
-    tutorial/sphinx_python_docstring
-    tutorial/rst_tutorial
-    tutorial/sphinx_tutorial
+
+    sphinx/rest_syntax
+    sphinx/sphinx_python_docstring
+    sphinx/rst_tutorial
+    sphinx/sphinx_tutorial
+    sphinx/doctest
+    sphinx/howto
 
 
 Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
 
-Concerning the docstring, here below you can find links showing how to fill them. 
+.. note:: Administrators may be interested in the following link that was used to test different type of doctring syntax 
 
 .. toctree::
     :maxdepth: 1
 
-    Example, how to fill your docstrings<tutorial/template>
+    Example, how to fill your docstrings<sphinx/template>
 
-Extra information
-=================
+Administrators usage
+====================
 
-Here below, you will find some extra information related to Sphinx (e.g., all the possible commands) and more generally, information related to docstrings and code conventions.
+Here below, you will find some extra information explaining the structures of the documentation on the wiki (administrator usage)
 
 .. toctree::
     :maxdepth: 2
 
     administrator.rst
-    developer.rst
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
@@ -141,6 +153,7 @@ FAQS
 
     rest_faqs.rst
 
+.. _authors::
 Authors
 =======
 

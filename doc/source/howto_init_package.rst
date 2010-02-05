@@ -1,29 +1,27 @@
 .. _howto_init_package:
 
 
-How to initialise a package to generate Sphinx documentation
-############################################################
+.. How to initialise a package to generate Sphinx documentation
+  ############################################################
+
+
+.. sidebar:: Summary
+
+    :Topic: reST and Sphinx documentation
+    :Date: |today|
+    :Author: Thomas Cokelaer
+    :status: mature
+
 
 .. contents::
-
 
 .. warning::
 
     Remember that you must have your package accessible in your Python environment to generate the sphinx documentation.
 
-Sphinx configuration
-====================
-Sphinx installation
--------------------
-
-First of all you need sphinx (latest version or at least 0.6.3). If not installed, use easy_install as follows in your environment::
-
-    easy_install -U sphinx
-
-sphinx and setuptools
----------------------
-
-sphinx is include within setuptools, therefore you can use the following command to build the HTML documentation::
+Update setuptools configuration file
+=====================================
+Sphinx includes support to setuptools, therefore you can use the following command to build the HTML documentation::
 
     python setup.py build_sphinx
 
@@ -36,14 +34,12 @@ However, you **must** tell where is the documentation, in particular the configu
 
 These options will tell Sphinx to look into the doc directory to search for a file called **conf.py** and to build the HTML outputs into the **./doc/_build/html** directory.
 
-Sphinx configuration file
--------------------------
+Obtain a valid sphinx configuration file
+==========================================
 
-Go into the ./doc directory::
+From openalea/starter/doc directory get the file called **conf.py** and copy it into the ./doc directory.
 
-    cd doc
-
-Here, you will need a configuration file **conf.py**::
+It should look like::
 
     import os,sys
     from openalea.misc.sphinx_configuration import *
@@ -59,10 +55,11 @@ Here, you will need a configuration file **conf.py**::
 
     project = project + '.' + package
 
-This file looks for a common conf.py file to all OpenAlea package that can be found  in **./misc/src/openalea/misc/sphinx_configuration.py**
+.. warning:: The file **conf.py** looks for another conf.py file that is common to all OpenAlea package that can be found  in **./misc/src/openalea/misc/sphinx_configuration.py**. You should not edit those files in principle.
 
-metainfo file
---------------
+
+Update the package metainfo file
+================================
 
 The file conf.py search for a metainfo file called metainfo.ini that should be at the same level as **`setup.py** and **setup.cfg** files. The metainfo must contains version, project, name, package and authors tags but may contain other metainfo to be used by the **setup.py** file ::
 
@@ -82,7 +79,7 @@ The file conf.py search for a metainfo file called metainfo.ini that should be a
 
 
 Setup the source (ReST) files
--------------------------------
+=============================
 
 
 To finalise you sphinx setup, you should look into an already setup package and from the **doc** directory, copy the Makefile, make.bat, contents.rst, user/index.rst, user/overview.txt and user/autosum.rst to get an architecture as follows::
