@@ -1,5 +1,6 @@
 Include test in your docstrings
 ================================
+.. warning:: **in progress**
 
 To be able to parse the examples/test in your docstrings use the following syntax:
 

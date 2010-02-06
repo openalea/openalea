@@ -22,3 +22,7 @@ However, the main documentation about Sphinx in OpenAlea will be gathered in thi
     :numbered:
 
     source/sphinx.rst
+    some coding conventions<source/developers/developer>
+    source/openalea.rst
+
+

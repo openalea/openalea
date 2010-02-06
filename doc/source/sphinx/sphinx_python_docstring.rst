@@ -14,10 +14,25 @@ How to document your docstrings
 
 .. topic:: Overview
 
-    This example shows how to document your docstrings
+    This example shows how to document your docstrings and how to interpret it 
+    within your reST document.
 
 
+The docstring
+-------------
+
+Let us suppose that you have such a docstring:
 
 .. literalinclude:: docstring.py
     :language: python
 
+Autodocument your module
+-------------------------
+
+Then, you can use the **automodule** directive as follows::
+
+    .. automodule:: docstring.py
+
+which gives the following interpretation:
+
+.. automodule:: docstring

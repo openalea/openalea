@@ -15,10 +15,10 @@ How to use sphinx ?
 
 .. topic:: Overview
 
-    * `Compiling the documentation`_ with Sphinx
-    * `How to initialise a new package`_
     * `ReSt and Sphinx syntax <sphinx/rest_syntax.html>`_
     * `How to document your docstrings <sphinx/sphinx_python_docstring.html>`_
+    * `Compiling the documentation`_ with Sphinx
+    * `How to initialise a new package`_
     * How to `Upload the documentation`_ of a package on the web
 
 
@@ -115,49 +115,35 @@ Here are some links related to the sphinx syntax
     :maxdepth: 1
 
     sphinx/rest_syntax
-    sphinx/sphinx_python_docstring
     sphinx/rst_tutorial
-    sphinx/sphinx_tutorial
+    sphinx/sphinx_python_docstring
     sphinx/doctest
-    sphinx/howto
+    sphinx/rest_faqs.rst
 
 
 Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
 
 .. note:: Administrators may be interested in the following link that was used to test different type of doctring syntax 
 
-.. toctree::
-    :maxdepth: 1
-
-    Example, how to fill your docstrings<sphinx/template>
-
 Administrators usage
 ====================
-
 Here below, you will find some extra information explaining the structures of the documentation on the wiki (administrator usage)
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
-    administrator.rst
+    Different methods to fill the docstrings (admin usage)<sphinx/template>
+    sphinx/administrator.rst
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
    .. _visualea: ../visualea.html
 
-FAQS
-====
 
-.. toctree::
-    :maxdepth: 1
+.. _authors:
 
-    rest_faqs.rst
-
-.. _authors::
 Authors
 =======
-
-This documentation was written by 
 
 .. include:: AUTHORS.txt
 

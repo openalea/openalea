@@ -1,7 +1,7 @@
 
 
-Gforge
-======
+How and where to upload sphinx documentation of a package
+=========================================================
 
 When developes decide to upload their package, they will use the **python setup build_sphinx** command, which calls the command.py module in the deploy package. There, there is a class called sphinx_upload that will scp the **html** and **latex** directories into the gforge. 
 

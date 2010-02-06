@@ -1,8 +1,8 @@
 .. note:: the commands in this page requires only Sphinx. It is independant of OpenAlea project.
 
 
-Creat your own sphinx project
------------------------------
+Create your own sphinx project
+------------------------------
 If you want to start your own documentation with Sphinx, the simplest way is as follows.
 
 First,you need to install **Sphinx** using easy_install::

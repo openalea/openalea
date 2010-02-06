@@ -1,4 +1,14 @@
 
+0.8.0 release
+-------------
+
+* Simplify the usage of sphinx
+  * upload all released packages documentation on the webpage
+  * update this documentation
+
+0.7.0 release
+-------------
+
 Add sphinx documentation:
 	+ common_conf.py
 	+ common.ini to be used by all packages (similar to the original conf.py file used by Sphinx

@@ -17,3 +17,4 @@ tabs advantages
   * avoid to type a lot of spaces BUT most of the editors have options to replace the effect of pressing the tab key by the relevant number of spaces.
   * people can dynamically change the indentation.
 
+We decided to use spaces instead of tabs as much as possible.
