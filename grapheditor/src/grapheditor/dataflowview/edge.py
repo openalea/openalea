@@ -46,7 +46,9 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
         srcPortItem = self.scene().itemAt( self.sourcePoint )
 
         #creation of a square which is a selected zone for ports 
-        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2), (self.destPoint.y() - boxsize/2), boxsize, boxsize);
+        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2), 
+                             (self.destPoint.y() - boxsize/2), 
+                             boxsize, boxsize);
         dstPortItems = self.scene().items(rect)        
         #the following could be more generic maybe?
         dstPortItems = [item for item in dstPortItems if isinstance(item, vertex.GraphicalPort)]

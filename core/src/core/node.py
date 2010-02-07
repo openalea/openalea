@@ -339,6 +339,8 @@ class Node(AbstractNode):
         """
 
         AbstractNode.__init__(self)
+        self.clear_inputs()
+        self.clear_outputs()
         self.set_io(inputs, outputs)
 
         # Node State
@@ -540,31 +542,42 @@ class Node(AbstractNode):
         :param outputs: list of dict(name='X', interface=IFloat)
         """
 
-        # Values
-        self.inputs = []
-        self.outputs = []
+        # # Values
+        if(len(inputs) != len(self.inputs)):
+            self.clear_inputs()
+            if inputs:
+                for d in inputs:
+                    self.add_input(**d)
 
-        # Description (list of dict (name=, interface=, ...))
-        self.input_desc = []
-        self.output_desc = []
-
-        self.map_index_in = {}
-        self.map_index_out = {}
-
-        # Input states : "connected", "hidden"
-        self.input_states = []
-
-        # Process in and out
-        if inputs:
-            for d in inputs:
-                self.add_input(**d)
-
-        if outputs:
-            for d in outputs:
-                self.add_output(**d)
+        if(len(outputs) != len(self.outputs)):
+            self.clear_outputs()
+            if outputs:
+                for d in outputs:
+                    self.add_output(**d)
 
         #to_script
         self._to_script_func = None
+
+    def clear_inputs(self):
+        # Values
+        self.inputs = []
+        # Description (list of dict (name=, interface=, ...))
+        self.input_desc = []
+        #translation of name to id or id to id (identity)...
+        self.map_index_in = {}
+        # Input states : "connected", "hidden"
+        self.input_states = []
+        self.notify_listeners(("cleared_input_ports",))
+
+    def clear_outputs(self):
+        # Values
+        self.outputs = []
+        # Description (list of dict (name=, interface=, ...))
+        self.output_desc = []
+        #translation of name to id or id to id (identity)...
+        self.map_index_out = {}
+        self.notify_listeners(("cleared_output_ports",))
+        
 
     def add_input(self, **kargs):
         """ Create an input port """

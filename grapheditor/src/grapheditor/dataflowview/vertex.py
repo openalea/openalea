@@ -25,7 +25,7 @@ from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview, baselisteners
 from . import painting
-
+from collections import deque
 import traceback
 
 """
@@ -165,6 +165,11 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         elif(event[0] == "output_port_added"):
             self.__add_out_connection(event[1])
             
+        elif(event[0] == "cleared_input_ports"):
+            self.__remove_inputs()
+
+        elif(event[0] == "cleared_output_ports"):
+            self.__remove_outputs()
             
         qtgraphview.Vertex.notify(self, sender, event)
         
@@ -175,28 +180,52 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             caption = " "
         self._caption.setText(caption)
         if(self.layout()): self.layout().updateGeometry()
-        
-    def remove_from_view(self, view):
-        """An element removes itself from the given view"""
+
+    def __remove_inputs(self, view=None):
+        if not view: view = self.scene()
         count = self._inPortLayout.count()
-        items = []
+        items = deque()
         for i in range(count):
             it = self._inPortLayout.itemAt(i)
             items.append(it.graphicsItem())
+        try : it = items.popleft()
+        except: return
+        while it:
+            it.remove_from_view(view)
+            try: it = items.popleft()
+            except IndexError: it = None            
+        for i in range(self._inPortLayout.count()):
+            self._inPortLayout.removeAt(i)
+
+        self.layout().removeItem(self._inPortLayout)
+        self._inPortLayout = QtGui.QGraphicsLinearLayout()
+        self.layout().insertItem(0, self._inPortLayout)
+
+    def __remove_outputs(self, view=None):
+        if not view: view = self.scene()
         count = self._outPortLayout.count()
+        items = deque()
         for i in range(count):
             it = self._outPortLayout.itemAt(i)
             items.append(it.graphicsItem())
-        it = items.pop()
+        try : it = items.popleft()
+        except: return
         while it:
             it.remove_from_view(view)
-            try: it = items.pop()
+            try: it = items.popleft()
             except IndexError: it = None            
-            
-        for i in range(self._inPortLayout.count()):
-            self._inPortLayout.removeAt(i)
         for i in range(self._outPortLayout.count()):
-            self._outPortLayout.removeAt(i)
+            self._outPortLayout.removeAt(i)        
+
+        self.layout().removeItem(self._outPortLayout)
+        self._outPortLayout = QtGui.QGraphicsLinearLayout()
+        self.layout().insertItem(0, self._outPortLayout)
+
+        
+    def remove_from_view(self, view):
+        """An element removes itself from the given view"""
+        self.__remove_outputs(view)
+        self.__remove_inputs(view)
         qtgraphview.Vertex.remove_from_view(self, view)        
 
     ###############################
@@ -224,7 +253,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
 
 
-def set_composite_in_out_position(graph, isInNode):           
+def set_composite_in_out_position(graph, isInNode):
+    """Recomputes the position of In and Out ports to place them above or below
+    every other port"""
     verticalNodeSize = 60    
     midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
     first = True
@@ -298,9 +329,14 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     port = baselisteners.GraphElementObserverBase.get_observed
 
     def notify(self, sender, event):
+        try : self.port(); self.__vertBBox()
+        except : 
+            self.clear_observed()
+            del self
+            return
+
         if(event[0] in ["tooltip_modified", "stop_eval"]):
             self.__update_tooltip()
-
         elif(event[0]=="metadata_changed"):
             if(sender == self.port()):
                 if(event[1]=="hide"):

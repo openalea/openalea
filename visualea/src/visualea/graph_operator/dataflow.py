@@ -131,8 +131,8 @@ class DataflowOperators(object):
         if newVert:
             #to prevent too many redraws during the grouping we queue events then process
             #them all at once.
-            correct_positions(newVert)
             widget.queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
+            correct_positions(newVert)
 
         
         try:
@@ -268,8 +268,8 @@ class DataflowOperators(object):
         ret = dialog.exec_()
 
         if(ret):
-            print dialog.inputs, dialog.outputs
             self.get_graph().set_io(dialog.inputs, dialog.outputs)
+
 
 
     def graph_reload_from_factory(self, index=None):

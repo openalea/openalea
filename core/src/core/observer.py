@@ -151,7 +151,7 @@ class AbstractListener(object):
                                     
         #if we are running a call with delayed event delivery 
         #we queue the events:
-        if self.__eventQueue :
+        if self.__eventQueue is not None :
             self.__eventQueue.append((sender, event))
             return
         

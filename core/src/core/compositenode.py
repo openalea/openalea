@@ -445,7 +445,6 @@ class CompositeNode(Node, DataFlow):
             self.remove_node(self.id_in)
             self.id_in = None
 
-
         if(self.id_out is not None
            and len(outputs) != self.node(self.id_out).get_nb_input()):
             self.remove_node(self.id_out)
@@ -461,7 +460,6 @@ class CompositeNode(Node, DataFlow):
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
             self.node(self.id_out).set_io(outputs, ())
-
 
         Node.set_io(self, inputs, outputs)
 
