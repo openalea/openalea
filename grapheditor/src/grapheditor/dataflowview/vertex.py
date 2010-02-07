@@ -24,9 +24,8 @@ from openalea.core.node import InputPort, OutputPort
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview, baselisteners
-from . import painting
+import painting
 from collections import deque
-import traceback
 
 """
 

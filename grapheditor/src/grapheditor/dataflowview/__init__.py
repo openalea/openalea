@@ -25,8 +25,8 @@ import vertex
 import edge
 import anno
 import adapter
-from .. import baselisteners
-from .. import qtgraphview
+from openalea.grapheditor import baselisteners
+from openalea.grapheditor import qtgraphview
 
 
 class Strategy(object):

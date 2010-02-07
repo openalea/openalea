@@ -24,9 +24,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import string
-import copy
 import pprint
-import __builtin__
 import copy
 
 from openalea.core.node import AbstractFactory, AbstractPort, Node

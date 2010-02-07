@@ -20,9 +20,9 @@ __revision__ = " $Id$ "
 import weakref
 from PyQt4 import QtCore, QtGui
 
-from .. import qtgraphview
-from .. import edgefactory
-from . import vertex
+from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import edgefactory
+import vertex
 from grapheditor import baselisteners
 
 from math import sqrt
