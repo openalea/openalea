@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__revision__ = "$Id$"
+
 # This Setup script has been commented to ease the writing of your own file. 
 
 # A setup script mainly consist of a call to the setup function of setuptool, 
@@ -22,7 +25,7 @@ from setuptools import setup, find_packages
 # Reads the metainfo file
 from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in zip(metadata.keys(), metadata.values()):
+for key,value in metadat.iteritems():
     exec("%s = '%s'" % (key, value))
 
 #The metainfo files must contains
@@ -125,12 +128,12 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-		    #'console_scripts': [
-                     #       'fake_script = openalea.fakepackage.amodule:console_script', ],
-                     # 'gui_scripts': [
-                      #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-		#	'wralea': wralea_entry_points
-		},
+        #'console_scripts': [
+        #       'fake_script = openalea.fakepackage.amodule:console_script', ],
+        # 'gui_scripts': [
+        #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
+        #	'wralea': wralea_entry_points
+        },
     )
 
 
