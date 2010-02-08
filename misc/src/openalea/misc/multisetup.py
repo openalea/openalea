@@ -8,15 +8,14 @@ there are a few commands dedicated to multisetup (see --help).
 
 >>> python multisetup install
 >>> python multisetup install sdist --dist-dir ../dist
->>> python multisetup --verbose --keep-going install sdist --dist-dir ../dist
+>>> python multisetup --quiet --keep-going install sdist --dist-dir ../dist
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: make_develop.py 1695 2009-03-11 17:54:15Z cokelaer $"
+__revision__ = " $Id$"
 
 import sys, os
 from optparse import OptionParser
-
 from subprocess import call, PIPE, Popen
 
 
@@ -30,62 +29,26 @@ except:
     except:
         from openalea.core.path import path
 
-
+try:
+    from openalea.deploy.console import bold, red, green, \
+        color_terminal, nocolor, underline, purple
+except:
+    pj = os.path.join
+    sys.path.insert(0, pj('deploy', 'src', 'openalea', 'deploy'))
+    from console import bold, red, green, \
+        color_terminal, nocolor, underline, purple
 
 """ some remaining examples of setuptools commands:
             'clean': '-a',
-            'undevelop': '-u',
             'distribution': '' ,
             'release':  'install bdist_egg -d ../../dist ',
             'html': "--builder html -E",
             'latex': "--builder latex -E",
             'sphinx_upload': "",
             'pdf': "",
-            'upload_dist':'--verbose',
 """
 
 
-oa_dirs = """deploy
-        deploygui
-        core
-        visualea
-        sconsx
-        stdlib
-        scheduler
-        misc
-        openalea_meta
-        """
-
-vp_dirs = """
-        PlantGL
-        tool
-        stat_tool
-        sequence_analysis
-        amlobj
-        mtg
-        tree_matching
-        aml
-        fractalysis
-        tree
-        tree_statistic
-        container
-        newmtg
-        WeberPenn
-        lpy
-        """
-
-alinea_dirs = """
-    caribu
-    graphtal
-    adel
-    topvine"""
-
-"""
-        self.openalea_sphinx_dirs=deploy deploygui core visualea sconsx
-         stdlib misc openalea_meta scheduler
-        self.vplants_sphinx_dirs=PlantGL stat_tool tool vplants_meta sequence_analysis lpy container newmtg
-        self.alinea_sphinx_dirs=caribu
-"""
 
 """
         #
@@ -99,21 +62,11 @@ alinea_dirs = """
 """
 
 
-"""        # setup for the undevelop command
-        if self.command == 'undevelop':
-            # if undevelop, we uninstall in the reversed order
-            # of the installation. For instance, in OpenAlea case, we want
-            # deploy package to be installed first be removed last. This
-            # prevents warnings and potential errors due to original
-            # distutils being used.
-            dirs.reverse()
-"""
-
 
 
 class Multisetup(object):
 
-    def __init__(self, commands, packages=None, curdir='.', verbose=False):
+    def __init__(self, commands, packages=None, curdir='.', verbose=True):
         """
 
         :param commands: list of user commands or command
@@ -167,62 +120,90 @@ class Multisetup(object):
         print "  mulisetup.py sdist -d ./dist   will create a source distribution underneath 'dist/'"
         print "  multisetup.py install          will install the package\n"
         print "Global options:"
-        print "  --verbose                      run verbosely [default=False]"
-        print "  --keep-going                   force the commands running[default=False]"
-        print "  --help                         show detailed help message"
-        print "  --package                      list of packages to run"
+        print "  --quiet                        do not show setup outputs [default=False]"
+        print "  -k, --keep-going               force the commands running[default=False]"
+        print "  -h, --help                     show detailed help message"
+        print "  --packages                     list of packages to run"
         print "                                 [default: deploy / deploygui / core / scheduler / visualea / stdlib / sconsx / misc]"
-        print "  --exclude-package              list of packages to not run"
+        print "  --exclude-packages              list of packages to not run"
         print "usage: multisetup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]\n"
-
 
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
+
+        .. todo:: known issue: python multisetup.py --packages with two 
+            packages will be confuse by following commands. Must be put 
+            at the end of the command
         """
-        if '--package' in self.commands:
+        if '--packages' in self.commands:
+            index = self.commands.index('--packages')
+            self.commands.remove('--packages')
             self.packages = set()
-            while '--package' in self.commands:
-                index = self.commands.index('--package')
-                self.commands.remove('--package')
-                # check that commands[p] is in dirs
-                self.packages.add(self.commands[index])
-                self.commands.pop(index)
-
-        if '--exclude-package' in self.commands:
-            while '--exclude-package' in self.commands:
-                index = self.commands.index('--exclude-package')
-                self.commands.remove('--exclude-package')
-                # check that commands[index] is in dirs
-                if self.commands[index] in self.packages:
-                    self.packages.remove(self.commands[index])
+            found = True
+            while found is True:
+                try: #test is no more argument
+                    self.commands[index]
+                except: # then breaks
+                    break
+                # otherwise if next argument starts with -, break
+                if self.commands[index].startswith('-'):
+                    break
+                # or carry on to gather package names
                 else:
-                    print 'Warnings %s not found in package list' \
-                        % self.commands[index]
-                self.commands.pop(index)
+                    self.packages.add(self.commands[index])
+                    self.commands.remove(self.commands[index])
+                    continue
+            #self.commands.pop(index)
 
-    """def parse_intern_commands(self):
-        ""Search and replace user command from multisetup command (e.g., release, html...)
-        ""
-        for cmd in self.commands:
-            if cmd in commands_keys:
-                r = self.commands.index(cmd)
-                self.commands.remove(cmd)
-                self.commands.insert(r, commands_keys[cmd] )
-    """
+        if '--exclude-packages' in self.commands:
+            # keep track of --exclude-package index
+            index = self.commands.index('--exclude-packages')
+            # remove it from the commands
+            self.commands.remove('--exclude-packages')
+            # remove all packages provided afterwards until next arguments is found
+            found = True
+            while found is True:
+                # look for next argument/package that may be the end of the command
+                try:
+                    package_to_remove = self.commands[index]
+                except:
+                    break
+                # if this is a valid package name
+                if package_to_remove in self.packages:
+                    # remove it from the package list
+                    self.packages.remove(package_to_remove)
+                    # and from the command line
+                    self.commands.remove(package_to_remove)
+                    # until we found another package
+                    continue
+                # otherwise, it is an argument that 
+                else:
+                    #starts with a - sign
+                    if package_to_remove.startswith('-'):
+                        break
+                    # or is invalid
+                    raise ValueError('--exclude-packages error: package %s not found in package list' \
+                        % self.commands[index])
+
+            #self.commands.pop(index)
+
 
     def parse_commands(self):
         """Search and remove multisetup options
 
         Get the user command line arguments (self.commands) that are dedicated
-        to multisetup such as --help, --verbose, --keep-going so that the
+        to multisetup such as --help, --quiet, --keep-going so that the
         remaining commands are fully comptatible with setuptools.
         """
 
-        if ('--verbose') in self.commands:
-            self.verbose = True
-            self.commands.remove('--verbose')
+        if '--quiet' in self.commands:
+            self.verbose = False
+            self.commands.remove('--quiet')
 
-        if ('--keep-going') in self.commands:
+        if '-k' in self.commands:
+            self.force = True
+            self.commands.remove('-k')
+        if '--keep-going' in self.commands:
             self.force = True
             self.commands.remove('--keep-going')
 
@@ -251,27 +232,24 @@ class Multisetup(object):
             .. todo:: Need to clean/refactor this code with respect to
                 the log files (stdout/stderr). One solution would be to use the module logger.
         """
+        import sys
+        import os		
         if color:
             try:
-                from sphinx.util.console import bold, red, green, \
+                from openalea.deploy.console import bold, red, green, \
                     color_terminal, nocolor, underline, purple
-
-                if not color_terminal():
-                    # Windows' poor cmd box doesn't understand ANSI sequences
-                    nocolor()
             except:
-                bold = str
-                purple = str
-                red = str
-                green = str
-                underline= str
-
+                try:
+                    sys.path.insert(0, os.path.join('deploy', 'src', 'openalea', 'deploy'))
+                    from console import bold, red, green, \
+                        color_terminal, nocolor, underline, purple
+                except:
+                    pass
+            if not color_terminal():
+                # Windows' poor cmd box doesn't understand ANSI sequences
+                nocolor()
         else:
-            purple = str
-            bold = str
-            red = str
-            green = str
-            underline= str
+            bold = purple = red = green = underline = str
 
         print bold("Running multisetup version %s" % __revision__.split()[2])
 
