@@ -23,7 +23,7 @@ from PyQt4 import QtCore, QtGui
 from openalea.grapheditor import qtgraphview
 from openalea.grapheditor import edgefactory
 import vertex
-from grapheditor import baselisteners
+from openalea.grapheditor import baselisteners
 
 from math import sqrt
 
