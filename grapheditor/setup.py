@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__revision__ = "$Id$"
+
 # This Setup script has been commented to ease the writing of your own file. 
 
 # A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
@@ -15,7 +18,7 @@ from setuptools import setup, find_packages
 
 from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in zip(metadata.keys(), metadata.values()):
+for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 
@@ -45,10 +48,7 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 # (linux users generally want to void this behaviour and will use the dependance list of your documentation)
 # (dependance to deploy is mandatory for runing this script)
 setup_requires = ['openalea.deploy']
-if("win32" in sys.platform):
-    install_requires = ['openalea.core']
-else:
-    install_requires = ['openalea.core']
+install_requires = ['openalea.core']
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
 

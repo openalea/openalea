@@ -185,6 +185,15 @@ class IGraphViewElement(object):
         """
         raise NotImplementedError
 
+    def store_view_data(self, key, value, notify=True):
+        raise NotImplementedError
+
+    def get_view_data(self, key):
+        raise NotImplementedError
+
+    def announce_view_data(self, exclusive=False):
+        raise NotImplementedError        
+
 #------*************************************************------#
 #yep, it is the same right now, but it might change in the futur
 IGraphViewVertex = IGraphViewElement 
@@ -218,10 +227,18 @@ class IGraphViewEdge(IGraphViewElement):
         """(\"metadata_changed\", \"canvasPosition\", [x,x], list)"""
         raise NotImplementedError
 
+    def announce_view_data_src(self, exclusive=False):
+        raise NotImplementedError        
+
+    def announce_view_data_dst(self, exclusive=False):
+        raise NotImplementedError        
+
+
 #------*************************************************------#
-class IGraphViewFloatingEdge(IGraphViewElement):
+class IGraphViewFloatingEdge(object):
     """Interface for edges to be drawn during
     creation time, ie while the user drags."""
+    __metaclass__ = interface.IInterfaceMetaClass
 
     def __init__(self, src):
         raise NotImplementedError
@@ -233,6 +250,7 @@ class IGraphViewFloatingEdge(IGraphViewElement):
 
     def get_connections(self, *args):
         raise NotImplementedError
+
 
 #------*************************************************------#
 class IGraphViewVertexPaintStrategy(object):

@@ -20,6 +20,32 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtCore, QtGui
 
+
+class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):
+    def __init__(self, label, parent=None):
+        QtGui.QGraphicsWidget.__init__(self, parent)
+        self.__label = QtGui.QGraphicsSimpleTextItem(self)
+        self.__label.setText(label)
+        
+    def boundingRect(self):
+        return self.__label.boundingRect()
+        
+    def shape(self):
+        return self.__label.shape()
+  
+    def size(self):
+        return self.boundingRect().size()
+        
+    def sizeHint(self, blop, blip):
+        return self.size()        
+
+    def setText(self, text):
+        self.__label.setText(text)
+        self.updateGeometry()
+        
+    def paint(self, painter, paintOpts, widget):
+        self.__label.paint(painter, paintOpts, widget)
+        
 class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
     """Embed a QWidget in a QGraphicsItem without the ugly background.
 
@@ -39,17 +65,12 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
 
         """
         QtGui.QGraphicsProxyWidget.__init__(self, parent)
-        dummy=QtGui.QWidget()
-        dummy.setContentsMargins(0,0,0,0)
-        layout=QtGui.QGridLayout()
-        layout.setContentsMargins(0,0,0,0)
-        layout.addWidget(widget,0,0,
-                         QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
-        dummy.setLayout(layout)
-        self.setWidget(dummy)
+        self.setWidget(widget)
         self.__noMouseEventForward = True
 
     def event(self, event):
+        #needed or else it catches events before getting to the nodes in dataflowviews and
+        #makes tooltips invisible.
         if(event.type()==QtCore.QEvent.GraphicsSceneHoverMove and self.__noMouseEventForward):
             event.ignore()
             return True
