@@ -55,8 +55,8 @@ class DataflowOperators(object):
                 if self.get_graph().is_vertex_protected(i.vertex()): continue
                 self.get_graph().remove_vertex(i.vertex())
             elif isinstance(i, qtgraphview.Edge):
-                self.get_graph().remove_edge((i.src().vertex(), i.src()),
-                                         (i.dst().vertex(), i.dst()) )
+                self.get_graph().remove_edge((i.srcBBox().vertex(), i.srcBBox()),
+                                         (i.dstBBox().vertex(), i.dstBBox()) )
             elif isinstance(i, qtgraphview.Annotation):
                 self.get_graph().remove_vertex(i.annotation())
 
@@ -65,8 +65,9 @@ class DataflowOperators(object):
         Export selected node in a new factory
         """
         widget = self.get_graph_view()
-        index  = widget.parent().indexOf(widget)
 
+        # FIRST WE PREPARE THE USER INTERFACE STUFF
+        # ------------------------------------------
         # Get default package id
         default_factory = self.get_graph().factory
         if(default_factory and default_factory.package):
@@ -79,29 +80,60 @@ class DataflowOperators(object):
         dialog = NewGraph("Group Selection", self.get_package_manager(), widget, 
                           io=False, pkg_id=pkg_id, name=name)
         ret = dialog.exec_()
-
         if(not ret): return
+
+        # NOW WE DO THE HARD WORK
+        # -----------------------
         
         factory = dialog.create_cnfactory(self.get_package_manager())
-
         items = widget.get_selected_items(qtgraphview.Vertex)
         if(not items): return None
         
         pos = widget.get_selection_center(items)
+        def cmp_x(i1, i2):
+            return cmp(i1.scenePos().x(), i2.scenePos().x())
+        items.sort(cmp=cmp_x)        
 
-        # Instantiate the new node
-        itemids = [i.vertex().get_id() for i in items]
-        self.get_graph().to_factory(factory, itemids, auto_io=True)
+        # Instantiate the new node:
+        itemIds = [i.vertex().get_id() for i in items]
+        self.get_graph().to_factory(factory, itemIds, auto_io=True)
         newVert = factory.instantiate([self.get_graph().factory.get_id()])
-        if newVert:
-            widget.setEnabled(False)
-            newId = self.get_graph().add_vertex(newVert, [pos.x(), pos.y()])
-            newEdges = self.get_graph().compute_external_io(newVert, newId)
+
+        # Evaluate the new connections:
+        def evaluate_new_connections(newGraph, newGPos, idList):
+            newId    = self.get_graph().add_vertex(newGraph, [newGPos.x(), newGPos.y()])
+            newEdges = self.get_graph().compute_external_io(idList, newId)
             for edges in newEdges:
                 self.get_graph().add_edge((edges[0], edges[1]), 
                                       (edges[2], edges[3]))
             self.graph_remove_selection(items)
-            widget.setEnabled(True)
+
+        def correct_positions(newGraph):
+            _minX, _minY = None, None
+            for vid in newGraph.vertices():
+                if vid == newGraph.id_in or vid == newGraph.id_out:
+                    continue
+                node = newGraph.node(vid)
+                if not _minX and not _minY:
+                    _minX, _minY = node.get_ad_hoc_dict().get_metadata("position")
+                _nminX, _nminY = node.get_ad_hoc_dict().get_metadata("position")
+                _minX= min(_minX, _nminX)
+                _minY= min(_minY, _nminY)
+            for vid in newGraph.vertices():
+                if vid == newGraph.id_in or vid == newGraph.id_out:
+                    continue
+                pos = newGraph.node(vid).get_ad_hoc_dict().get_metadata("position")
+                # the 50 is there to have a margin at the top and right of the
+                # nodes.
+                pos[0] = pos[0] - _minX + 50 
+                pos[1] = pos[1] - _minY + 50
+                
+        if newVert:
+            #to prevent too many redraws during the grouping we queue events then process
+            #them all at once.
+            widget.queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
+            correct_positions(newVert)
+
         
         try:
             factory.package.write()
@@ -145,7 +177,6 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            index  = widget.parent().indexOf(widget)
 
             # Get Position from cursor
             position = widget.mapToScene(
@@ -163,9 +194,11 @@ class DataflowOperators(object):
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
+            widget.scene().clearSelection()
             new_ids = self.get_session().clipboard.paste(self.get_graph(), 
                                                      modifiers, 
                                                      meta=True)
+
 
     def graph_close(self):
        # Try to save factory if widget is a graph
@@ -236,7 +269,7 @@ class DataflowOperators(object):
 
         if(ret):
             self.get_graph().set_io(dialog.inputs, dialog.outputs)
-            widget.rebuild_scene()
+
 
 
     def graph_reload_from_factory(self, index=None):

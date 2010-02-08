@@ -1,14 +1,14 @@
+# -*- coding: utf-8 -*-
+__revision__ = "$Id$"
+
 import sys
 from setuptools import setup, find_packages
-sys.path.append("src")
-import visualea.metainfo as metainfo
 from os.path import join as pj
 
-
-
 from openalea.deploy.metainfo import read_metainfo
+
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in zip(metadata.keys(), metadata.values()):
+for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 namespace = 'openalea'
@@ -52,7 +52,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['openalea.core'],
+    install_requires = ['openalea.core', 'openalea.grapheditor'],
 
     )
 
