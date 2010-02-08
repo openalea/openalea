@@ -57,7 +57,7 @@ def start_qt(factory, node):
     app.exec_()
 
 
-def load_package_manager(pkg_id, node_id):
+def load_package_manager(*args):
     """ Return the package manager
 
     :param pkg_id:  package id
@@ -65,8 +65,6 @@ def load_package_manager(pkg_id, node_id):
     :returns: package manager
 
     """
-    print "\nSearching '%s:%s'..." % (pkg_id, node_id)
-
     pm = PackageManager()
     pm.init(verbose=False)
 
@@ -85,7 +83,7 @@ def get_node(component, inputs, pm=None):
     pkg_id, node_id = component
 
     if (not pm):
-        pm = load_package_manager(pkg_id, node_id)
+        pm = load_package_manager()
 
     try:
         factory = pm[pkg_id][node_id]
@@ -150,7 +148,7 @@ def query(component, pm=None):
     pkg_id, node_id = component
 
     if (not pm):
-        pm = load_package_manager(pkg_id, node_id)
+        pm = load_package_manager()
 
     # package not found
     if (not pkg_id or not pm.has_key(pkg_id)):
@@ -266,6 +264,25 @@ def get_intput_callback(option, opt_str, value, parser):
 
     setattr(parser.values, option.dest, value)
 
+def function(factory):
+    ''' Return a function which is evaluated like a python function.
+
+    factory is a NodeFactory.
+    '''
+    node = factory.instantiate()
+
+    def f(*args, **kwds):
+        for i, v in enumerate(args):
+            node.set_input(i,v)
+        for k, v in kwds.iteritems():
+            node.set_input(k,v)
+
+        node.eval()
+
+        nb_output = node.get_nb_output()
+        return tuple(node.output(i) for i in range(nb_output))
+    
+    return f
 
 def main():
     """ Parse options """

@@ -96,17 +96,22 @@ class IInterfaceMetaClass(type):
     def check(cls, obj):
         """Check if obj matches this interface."""
         objMem = dir(obj)
+        notImp = []
 
         stop = False
-        print "====> Interface testing " + cls.__name__ + " : " + str(obj)
         for i in cls.__interface_decl__:
-            print "\t=> Testing for " + str(i) + "... ",
-            if i not in objMem: 
-                print "false"
+            if i not in objMem:
+                notImp.append(i)
                 stop = True
             else : 
-                print "true"
                 continue
+
+        if stop:
+            # The check failed.
+            stri = "Unimplemented : \n"
+            for i in notImp:
+                stri += "\t"+i+"\n" 
+            raise UserWarning('Object %s does not belong to the Interface %s \n%s '%(str(obj),cls.__name__,stri))
 
         return not stop
 
@@ -339,6 +344,7 @@ class IInterfaceWidget(AbstractListener):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
+        AbstractListener.__init__(self)
         self.node = node
         self.param_str = parameter_str
 
