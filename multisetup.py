@@ -35,7 +35,7 @@ import os, sys
 try:
     from openalea.misc.multisetup import Multisetup
 except ImportError:
-    print 'Install OpenAlea.Misc first'
+    print 'Install OpenAlea.Deploy first'
     try:
         sys.path.insert(0, os.path.join('misc', 'src', 'openalea', 'misc'))
         from multisetup import Multisetup
@@ -48,11 +48,12 @@ deploy
 deploygui 
 core 
 scheduler 
+grapheditor
 visualea 
 stdlib 
 sconsx
 misc
-grapheditor
+openalea_meta
 """.split()
 
 
@@ -62,7 +63,17 @@ def main():
     args = sys.argv[1:]
     if  len(args) == 1 and args[0] in ['-h', '--help']:
         Multisetup.help()
+    elif args[0]=='--update-version':
+        for dir in dirs:
+            old_version = args[1]
+            new_version = args[2]
+            cmd  = "sed  -i -e 's/%s/%s/ ' %s/metainfo.ini" % (old_version, new_version, dir)
+            print cmd
+            os.system(cmd)
+
     else:
+        if 'develop -u' in args:
+            dirs.reverse()
         mysetup = Multisetup(curdir='.', commands=args, packages=dirs)
         mysetup.run()
 
