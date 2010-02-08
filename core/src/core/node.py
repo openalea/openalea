@@ -543,13 +543,13 @@ class Node(AbstractNode):
         """
 
         # # Values
-        if(len(inputs) != len(self.inputs)):
+        if( inputs is None or len(inputs) != len(self.inputs)):
             self.clear_inputs()
             if inputs:
                 for d in inputs:
                     self.add_input(**d)
 
-        if(len(outputs) != len(self.outputs)):
+        if( outputs is None or len(outputs) != len(self.outputs)):
             self.clear_outputs()
             if outputs:
                 for d in outputs:
