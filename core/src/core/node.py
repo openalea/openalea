@@ -63,7 +63,6 @@ def gen_port_list(size):
         mylist.append(dict(name='t'+str(i), interface=None, value=i))
     return mylist
 
-
 class AbstractNode(Observed, AbstractListener):
     """
     An AbstractNode is the atomic entity in a dataflow.
@@ -79,14 +78,22 @@ class AbstractNode(Observed, AbstractListener):
 
     #describes which data and what type
     #are expected to be found in the ad_hoc
-    #dictionnary. Used by views.
-    __ad_hoc_slots__ = {}
-    __ad_hoc_from_old_map__ = {}
-
+    #dictionnary. Used by views. 
+    #__ad_hoc_slots__ = {} Created at runtime
+    #__ad_hoc_from_old_map__ = {} Created at runtime
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__={}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
+            
         cls.__ad_hoc_slots__[name] = (_type, default)
         if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
             cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self):
@@ -94,13 +101,15 @@ class AbstractNode(Observed, AbstractListener):
         Default Constructor
         Create Internal Data dictionnary
         """
-
         Observed.__init__(self)
         AbstractListener.__init__(self)
 
         #gengraph
         self.__id = None
-        self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        if hasattr(self, "__ad_hoc_slots__"):
+            self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+        else:
+            self.set_ad_hoc_dict(metadatadict.MetaDataDict())
         #/gengraph
 
         # Internal Data (caption...)
@@ -155,7 +164,16 @@ class AbstractNode(Observed, AbstractListener):
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
+        
+class Annotation(AbstractNode):
+    def __init__(self):
+        AbstractNode.__init__(self)
 
+    def to_script (self):
+        """Script translation of this node.
+        """
+        return ""
+    
 class AbstractPort(dict, Observed, AbstractListener):
     """
     The class describing the ports.
@@ -164,14 +182,22 @@ class AbstractPort(dict, Observed, AbstractListener):
 
     #describes which data and what type
     #are expected to be found in the ad_hoc
-    #dictionnary. Used by views
-    __ad_hoc_slots__ = {}
-    __ad_hoc_from_old_map__ = {}
-
+    #dictionnary. Used by views. 
+    #__ad_hoc_slots__ = {} Created at runtime
+    #__ad_hoc_from_old_map__ = {} Created at runtime
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__={}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
+            
         cls.__ad_hoc_slots__[name] = (_type, default)
         if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
             cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self, vertex):
@@ -182,13 +208,20 @@ class AbstractPort(dict, Observed, AbstractListener):
         #gengraph
         self.vertex = ref(vertex)
         self.__id = None
-        self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
+        if hasattr(self, "__ad_hoc_slots__"):
+            self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
+        else:
+            self.__ad_hoc_dict = metadatadict.MetaDataDict()
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
 
     def simulate_construction_notifications(self):
         self.get_ad_hoc_dict().simulate_full_data_change()
         self.notify_listeners(("tooltip_modified", self.get_tip()))
+
+    def simulate_destruction_notifications(self):
+        pass
+
 
     def __hash__(self):
         return id(self)
@@ -306,6 +339,8 @@ class Node(AbstractNode):
         """
 
         AbstractNode.__init__(self)
+        self.clear_inputs()
+        self.clear_outputs()
         self.set_io(inputs, outputs)
 
         # Node State
@@ -342,6 +377,15 @@ class Node(AbstractNode):
             self.notify_listeners(("caption_modified", self.internal_data["caption"]))
             self.notify_listeners(("tooltip_modified", self.get_tip()))
             self.notify_listeners(("internal_data_changed",))
+        except Exception, e:
+            print e
+
+    def simulate_destruction_notifications(self):
+        try:
+            for i in self.input_desc:
+                self.notify_listeners(("input_port_removed", i))
+            for i in self.output_desc:
+                self.notify_listeners(("output_port_removed", i))
         except Exception, e:
             print e
             
@@ -498,29 +542,42 @@ class Node(AbstractNode):
         :param outputs: list of dict(name='X', interface=IFloat)
         """
 
-        # Values
-        self.inputs = []
-        self.outputs = []
+        # # Values
+        if( inputs is None or len(inputs) != len(self.inputs)):
+            self.clear_inputs()
+            if inputs:
+                for d in inputs:
+                    self.add_input(**d)
 
-        # Description (list of dict (name=, interface=, ...))
-        self.input_desc = []
-        self.output_desc = []
+        if( outputs is None or len(outputs) != len(self.outputs)):
+            self.clear_outputs()
+            if outputs:
+                for d in outputs:
+                    self.add_output(**d)
 
-        self.map_index_in = {}
-        self.map_index_out = {}
-
-        # Input states : "connected", "hidden"
-        self.input_states = []
-
-        # Process in and out
-	for d in inputs:
-	    self.add_input(**d)
-
-	for d in outputs:
-	    self.add_output(**d)
-        
         #to_script
         self._to_script_func = None
+
+    def clear_inputs(self):
+        # Values
+        self.inputs = []
+        # Description (list of dict (name=, interface=, ...))
+        self.input_desc = []
+        #translation of name to id or id to id (identity)...
+        self.map_index_in = {}
+        # Input states : "connected", "hidden"
+        self.input_states = []
+        self.notify_listeners(("cleared_input_ports",))
+
+    def clear_outputs(self):
+        # Values
+        self.outputs = []
+        # Description (list of dict (name=, interface=, ...))
+        self.output_desc = []
+        #translation of name to id or id to id (identity)...
+        self.map_index_out = {}
+        self.notify_listeners(("cleared_output_ports",))
+        
 
     def add_input(self, **kargs):
         """ Create an input port """
@@ -548,7 +605,7 @@ class Node(AbstractNode):
         index = len(self.inputs) - 1
         self.map_index_in[name] = index
         self.map_index_in[index] = index
-	port.set_id(index)
+        port.set_id(index)
 
         self.set_input(name, value, False)
         self.notify_listeners(("input_port_added", port))
@@ -567,7 +624,7 @@ class Node(AbstractNode):
         index = len(self.outputs) - 1
         self.map_index_out[name] = index
         self.map_index_out[index] = index
-	port.set_id(index)
+        port.set_id(index)
         self.notify_listeners(("output_port_added", port))
         return port
 
@@ -1039,7 +1096,7 @@ class NodeFactory(AbstractFactory):
         else:
             try:
                 node = classobj(self.inputs, self.outputs)
-            except TypeError:
+            except TypeError, e:
                 node = classobj()
 
         # Properties

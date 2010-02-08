@@ -24,9 +24,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import string
-import copy
 import pprint
-import __builtin__
 import copy
 
 from openalea.core.node import AbstractFactory, AbstractPort, Node
@@ -169,10 +167,12 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Set IO internal data
         try:
-            new_df.node(new_df.id_in).internal_data = \
-                self.elt_data['__in__'].copy()
-            new_df.node(new_df.id_out).internal_data = \
-                self.elt_data['__out__'].copy()
+            self.load_ad_hoc_data(new_df.node(new_df.id_in), 
+                                  copy.deepcopy(self.elt_data["__in__"]), 
+                                  copy.deepcopy(self.elt_ad_hoc.get("__in__", None)))
+            self.load_ad_hoc_data(new_df.node(new_df.id_out),
+                                  copy.deepcopy(self.elt_data["__out__"]), 
+                                  copy.deepcopy(self.elt_ad_hoc.get("__out__", None)))
         except:
             pass
 
@@ -188,11 +188,9 @@ class CompositeNodeFactory(AbstractFactory):
 
             new_df.connect(source_vid, source_port, target_vid, target_port)
 
-
         # Set continuous evaluation
         for vid in cont_eval:
              new_df.set_continuous_eval(vid, True)
-
 
         # Set call stack to its original state
         call_stack.pop()
@@ -225,7 +223,6 @@ class CompositeNodeFactory(AbstractFactory):
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        node.internal_data.update(attributes)
         #/gengraph                                                           
 
         # copy node input data if any
@@ -234,11 +231,9 @@ class CompositeNodeFactory(AbstractFactory):
         #gengraph
         for p in range(ins+1):
             port = node.add_input(name="In"+str(p))
-            port.set_id(p)
 
         for p in range(outs+1):
             port = node.add_output(name="Out"+str(p))
-            port.set_id(p)
         #/gengraph
 
         #gengraph
@@ -310,54 +305,30 @@ class CompositeNodeFactory(AbstractFactory):
         return idmap.values()
 
     def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
-        #reading new files
         if elt_ad_hoc and len(elt_ad_hoc):
+            #reading new files
             node.set_ad_hoc_dict(metadatadict.MetaDataDict(elt_ad_hoc))
-            return
-        
-        #extracting ad hoc data from old files.
-        #we parse the Node class' __ad_hoc_from_old_map__
-        #which defines conversions between new ad_hoc_dict keywords
-        #and old internal_data keywords.
-        #These dictionnaries are used to extend ad_hoc_dict of a node with the
-        #data that views expect. See dataflowview.__init__ for an example.
-        #roughly:
-        #for each new keyword fetch the data from old keywords in internal data.
-        #    if there is only one old keyword, cast the data to the desired type
-        #        using __ad_hoc_slots__ and set the metadata.
-        #    if there are more than just one keyword, extract the data into 
-        #        a list. Then convert the list to the desired type and set the
-        #        metadata.
-        toDelete = [] #used to store the keys that will be removed from the internal_data
-                      #todo before 0.8 remove this and simply pop the values 
-        position = [0.0,0.0]
-        for key, val in Node.__ad_hoc_from_old_map__.iteritems():
-            conversion = val #list of old keys to convert
-            if len(conversion)==1: #if we want to convert one old value to one new value (ex: color)
-                _type, default = Node.__ad_hoc_slots__.get(key)
-                data = elt_data.get(conversion[0])
-                if(data is None):
-                    data = default
-                if data is None :
-                    continue
-                node.get_ad_hoc_dict().set_metadata(key, _type(data))
-            else: #is we want to convert to old values to one single new value (ex: posx, posy => position)
-                components = [] #list that stores the new values
-                _type, default = Node.__ad_hoc_slots__.get(key)
-                for i in conversion:
-                    components.append(elt_data.get(i))
-                if None in components:
-                    components = default
-                node.get_ad_hoc_dict().set_metadata(key, _type(components))
-            toDelete += conversion
-
-        if(__debug__):
-            if( hasattr(__builtin__,"__debug_with_old__") and __builtin__.__debug_with_old__):
-                pass
         else:
-            for key in toDelete:
-                del elt_data[key]
+            #extracting ad hoc data from old files.
+            #we parse the Node class' __ad_hoc_from_old_map__
+            #which defines conversions between new ad_hoc_dict keywords
+            #and old internal_data keywords.
+            #These dictionnaries are used to extend ad_hoc_dict of a node with the
+            #data that views expect. See dataflowview.__init__ for an example.
+            if hasattr(node, "__ad_hoc_from_old_map__"):
+                for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
+                    data = [] #list that stores the new values
+                    _type, default = node.__ad_hoc_slots__.get(newKey)
+                    for key in oldKeys:
+                        data.append(elt_data.pop(key, None))
+                    if len(data) == 1 : data = data[0]
+                    if data is None or (isinstance(data, list) and None in data):
+                        data = default
+                    if data is None : continue
+                    node.get_ad_hoc_dict().set_metadata(newKey, _type(data))
 
+        #finally put the internal data (elt_data) where it has always been expected.
+        node.internal_data.update(elt_data)
 
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
@@ -371,16 +342,17 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
+        
         #gengraph                     
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        node.internal_data.update(attributes)
         #/gengraph                                                           
 
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
         #gengraph
+        
         for vs in values:
             try:
                 #the two first elements are the historical
@@ -395,9 +367,6 @@ class CompositeNodeFactory(AbstractFactory):
         
         return node
 
-    #########################################################
-    # ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT!ALERT #
-    #########################################################
     #########################################################
     # This shouldn't be here, it is related to visual stuff #
     #########################################################
@@ -467,17 +436,16 @@ class CompositeNode(Node, DataFlow):
         Inputs and outputs are list of dict(name='', interface='', value='')
         """
 
-        #I/O ports
+        # I/O ports
         # Remove node if nb of input has changed
         if(self.id_in is not None
            and len(inputs) != self.node(self.id_in).get_nb_output()):
-            self.remove_vertex(self.id_in)
+            self.remove_node(self.id_in)
             self.id_in = None
-
 
         if(self.id_out is not None
            and len(outputs) != self.node(self.id_out).get_nb_input()):
-            self.remove_vertex(self.id_out)
+            self.remove_node(self.id_out)
             self.id_out = None
 
         # Create new io node if necessary
@@ -486,11 +454,10 @@ class CompositeNode(Node, DataFlow):
         else:
             self.node(self.id_in).set_io((), inputs)
 
-        if(self.id_out is None):
+        if(self.id_out is None):      
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
             self.node(self.id_out).set_io(outputs, ())
-
 
         Node.set_io(self, inputs, outputs)
 
@@ -766,7 +733,7 @@ class CompositeNode(Node, DataFlow):
         if auto_io is true :  inputs and outputs are connected to the free
         ports
         """
-
+    
         # Clear the factory
         sgfactory.clear()
 
@@ -826,11 +793,23 @@ class CompositeNode(Node, DataFlow):
 
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
-
+            #Forward compatibility for versions earlier than 0.8.0
+            #We do the exact opposite than in load_ad_hoc_data, have a look there.                    
+            if hasattr(node, "__ad_hoc_from_old_map__"):                
+                for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
+                    if len(oldKeys)==0: continue
+                    # elif len(oldKeys)==1: #if we want to convert one new value to one old value (ex: color=>color)
+                        # data = node.get_ad_hoc_dict().get_metadata(newKey)
+                        # sgfactory.elt_data[vid][oldKeys[0]] = data
+                    # else: #if we want to convert one new value to several old values (ex: position => posx, posy )
+                    data = node.get_ad_hoc_dict().get_metadata(newKey)
+                    for pos, newKey in enumerate(oldKeys):
+                        sgfactory.elt_data[vid][newKey] = data[pos] if isinstance(data, list) else data
+                
             #gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
-
+            #/gengraph
 
             # Copy value
             if(not node.get_nb_input()):
@@ -840,8 +819,7 @@ class CompositeNode(Node, DataFlow):
                     [(port, repr(node.get_input(port))) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
-            #/gengraph
-
+                        
         self.graph_modified = False
 
         # Set node factory if all node have been exported
@@ -860,6 +838,7 @@ class CompositeNode(Node, DataFlow):
         """
         vid = self.add_vertex(vid)
 
+        node.set_id(vid)
         for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
 
@@ -880,20 +859,27 @@ class CompositeNode(Node, DataFlow):
 
     #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
-        if(vid):  vertex.set_id(vid)
-        
-        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
-                else "vertex"
-        if (not isinstance(vertex, CompositeNodeOutput) and 
-            not isinstance(vertex, CompositeNodeInput)):
+        vtype = "vertex"
+        doNotify = True
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
+        elif isinstance(vertex, CompositeNodeOutput): 
+            vtype = "outNode"
+            doNotify = True if len(vertex.input_desc) else False
+        elif isinstance(vertex, CompositeNodeInput) : 
+            vtype = "inNode"
+            doNotify = True if len(vertex.output_desc) else False
+        else: pass
+        if doNotify:
             self.notify_listeners(("vertex_added", (vtype, vertex)))
 
     def notify_vertex_removal(self, vertex):
-        vtype = "annotation" if(vertex.__class__.__dict__.has_key("__graphitem__")) \
-                else "vertex"
-        if (not isinstance(vertex, CompositeNodeOutput) and 
-            not isinstance(vertex, CompositeNodeInput)):
-            self.notify_listeners(("vertex_removed", (vtype, vertex)))
+        vtype = "vertex"
+        doNotify = True
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
+        elif isinstance(vertex, CompositeNodeOutput): vtype = "outNode"
+        elif isinstance(vertex, CompositeNodeInput) : vtype = "inNode"
+        else: pass
+        self.notify_listeners(("vertex_removed", (vtype, vertex)))
     #/gengraph
 
 
@@ -904,8 +890,8 @@ class CompositeNode(Node, DataFlow):
         :param vtx_id: element id
         """
         node = self.node(vtx_id)
-        if(vtx_id == self.id_in or vtx_id == self.id_out):
-            return
+        if vtx_id == self.id_in : self.id_in = None 
+        elif vtx_id == self.id_out : self.id_out = None
         self.remove_vertex(vtx_id)
 
     #gengraph
@@ -945,12 +931,42 @@ class CompositeNode(Node, DataFlow):
 
             #don't notify if the edge is connected to the input or
             #output nodes.
-            if(src_id == self.id_in or dst_id == self.id_out):
-                continue
+            # if(src_id == self.id_in or dst_id == self.id_out):
+                # continue
 
             edgedata = "default", eid, src_port, dst_port
-            self.notify_listeners(("edge_added", edgedata))
-            
+            self.notify_listeners(("edge_added", edgedata)) 
+    #/gengraph
+
+    #gengraph
+    def simulate_destruction_notifications(self):
+        """emits messages as if we were adding elements to
+        the composite node"""
+        Node.simulate_destruction_notifications(self)
+
+        ids = self.vertices()
+        for eltid in ids:
+            node = self.node(eltid)
+            self.notify_vertex_removal(node)
+       
+        for eid in self.edges():
+            (src_id, dst_id) = self.source(eid), self.target(eid)
+            etype=None
+            src_port_id = self.local_id(self.source_port(eid))
+            dst_port_id = self.local_id(self.target_port(eid))
+
+            nodeSrc = self.node(src_id)
+            nodeDst = self.node(dst_id)
+            src_port = nodeSrc.output_desc[src_port_id]
+            dst_port = nodeDst.input_desc[dst_port_id]
+
+            #don't notify if the edge is connected to the input or
+            #output nodes.
+            # if(src_id == self.id_in or dst_id == self.id_out):
+                # continue
+
+            edgedata = "default", eid
+            self.notify_listeners(("edge_removed", edgedata))   
     #/gengraph
 
     def connect(self, src_id, port_src, dst_id, port_dst):
@@ -979,8 +995,8 @@ class CompositeNode(Node, DataFlow):
 
         #don't notify if the edge is connected to the input or
         #output nodes.
-        if(src_id == self.id_in or dst_id == self.id_out):
-            return 
+        # if(src_id == self.id_in or dst_id == self.id_out):
+            # return 
 
         edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edge_added", edgedata))
@@ -1081,7 +1097,7 @@ class ContinuousEvalListener(AbstractListener):
 
     def __init__(self, dataflow, vid):
         """ dataflow, vid : dataflow.eval_as_expression(vid)"""
-
+        AbstractListener.__init__(self)
         self.dataflow = dataflow
         self.vid = vid
 
@@ -1098,16 +1114,15 @@ class CompositeNodeInput(Node):
         inputs : list of dict(name='', interface='', value'',...)
         """
 
-        Node.__init__(self)
+        Node.__init__(self, outputs=inputs)
         
         #gengraph
-        for i, d in enumerate(inputs):
-            port = self.add_output(**d)
-            port.set_id(i)
+        #for d in inputs:
+            #port = self.add_output(**d)
         #/gengraph
 
-        self.internal_data['posx'] = 20
-        self.internal_data['posy'] = 5
+        # self.internal_data['posx'] = 20
+        # self.internal_data['posy'] = 5
         self.internal_data['caption'] = "In"
 
     def set_input(self, input_pid, val=None, *args):
@@ -1134,16 +1149,15 @@ class CompositeNodeOutput(Node):
         """
         outputs : list of dict(name='', interface='', value'',...)
         """
-        Node.__init__(self)
+        Node.__init__(self, inputs=outputs)
 
         #gengraph
-        for i, d in enumerate(outputs):
-            port = self.add_input(**d)
-            port.set_id(i)
+        #for d in outputs:
+            #port = self.add_input(**d)
         #/gengraph
 
-        self.internal_data['posx'] = 20
-        self.internal_data['posy'] = 250
+        # self.internal_data['posx'] = 20
+        # self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
     def get_output(self, output_pid):

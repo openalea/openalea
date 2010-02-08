@@ -53,21 +53,14 @@ class MetaDataDict(observer.Observed):
         for k in keys:
             d[k] = None
         return repr(d)
-#         stri = "{"
-#         for key, val in self._metaValues.iteritems():
-#             stri = stri+ "\"" + key + "\" : [" + val[0].__name__ + ", " + repr(val[1]) + "],"
-#         stri = stri[:-1] + "}"
-#         return stri
 
     def __len__(self):
         return len(self._metaTypes)
 
     def add_metadata(self, key, valType, notify=True):
         """Creates a new entry in the meta data registry.
-        The data to set will be of the given 'type' type."""
+        The data to set will be of the given 'valType' type."""
 
-        if key == 'userColor':
-            print key, valType
         if key in self._metaTypes :
             raise Exception("This key already exists : " + key)
 
@@ -76,6 +69,20 @@ class MetaDataDict(observer.Observed):
             self.notify_listeners(("metadata_added", key, valType))
         return
 
+    def remove_metadata(self, key, valType=None, notify=True):
+        """Removes an entry in the meta data registry."""
+
+        if key not in self._metaTypes :
+            raise Exception("This key doesn't exists : " + key)
+
+        if valType and (self._metaTypes[key] != valType): raise Exception("Type mismatch.")
+           
+        del self._metaTypes[key]
+        del self._metaValues[key]
+        if(notify):
+            self.notify_listeners(("metadata_removed", key, valType))
+        return        
+        
     def set_metadata(self, key, value, notify=True):
         """Sets the value of a meta data."""
         if value is None : return 

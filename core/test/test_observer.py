@@ -18,6 +18,9 @@ notified = False
 
 class mylistener(AbstractListener):
 
+    def __init__(self):
+        AbstractListener.__init__(self)
+    
     def notify(self, *args):
         global notified
         notified = True
