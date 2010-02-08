@@ -20,7 +20,7 @@ a scheduler in a different thread
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 from time import sleep
 from threading import Thread
