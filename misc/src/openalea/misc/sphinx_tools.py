@@ -9,8 +9,8 @@ Example:
 
 
 """
-__author__ = "$Author: Thomas.Cokelaer@sophia.inria.fr $"
-__revision__ = "$Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $"
+__author__ = "$Author$"
+__revision__ = "$Id$"
 __license__ = "Cecill-C"
 
 import os
@@ -183,7 +183,7 @@ class SphinxToolsError(Exception):
     def __init__(self, msg):
         self.msg = msg
     def __str__(self):
-        return self.msg + "$Name: $,  $Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $"
+        return self.msg + "$Name: $,  $Id$"
 
 
 class Tools(object):
@@ -684,7 +684,7 @@ def ParseParameters(check=True):
 
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog SVN $Id: sphinx_tools.py 1695 2009-03-11 17:54:15Z cokelaer $ \n" \
+        version = "%prog SVN $Id$ \n" \
       + "$Name:  $\n"  + __author__)
 
     parser.add_option("-m", "--package", metavar='PACKAGE',
