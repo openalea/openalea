@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+__revision__ = "$Id$"
+
 # Install setuptools if necessary
 try:
     from ez_setup import use_setuptools
@@ -18,7 +21,7 @@ except:
 
 
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in zip(metadata.keys(), metadata.values()):
+for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 
@@ -53,6 +56,7 @@ setup(
                  "scons_parameters = setuptools.dist:assert_string_list",
                  "create_namespaces = openalea.deploy.command:validate_create_namespaces",
                  "postinstall_scripts = openalea.deploy.command:validate_postinstall_scripts",
+                 "add_plat_name = openalea.deploy.command:validate_add_plat_name",
                  ],
 
               "egg_info.writers": [
@@ -67,10 +71,10 @@ setup(
                  "create_namespaces = openalea.deploy.command:create_namespaces",
                  "alea_install = openalea.deploy.command:alea_install",
                  "alea_upload = openalea.deploy.command:alea_upload",
-                 "sphinx_upload = openalea.deploy.command:sphinx_upload",
+                 "upload_sphinx = openalea.deploy.command:upload_sphinx",
                  "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
-                 "upload_dist = openalea.deploy.command:upload_dist",
+                 "egg_upload = openalea.deploy.command:egg_upload",
 
                  ],
 

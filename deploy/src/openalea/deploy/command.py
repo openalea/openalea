@@ -105,7 +105,8 @@ def has_ext_modules(dist):
         return Distribution.has_ext_modules(dist) or \
                (dist.scons_scripts or
                 dist.lib_dirs or dist.inc_dirs or
-                dist.bin_dirs)
+                dist.bin_dirs) or \
+                dist.add_plat_name
     except:
         return dist.has_ext_modules()
 
@@ -306,6 +307,18 @@ def validate_postinstall_scripts(dist, attr, value):
         raise DistutilsSetupError(
             "%r must be a list of strings (got %r)" % (attr, value))
 
+def validate_add_plat_name(dist, attr, value):
+    """ Validation for add_plat_name keyword"""
+    try:
+        assert_bool(dist, attr, value)
+
+        if (value):
+            # Change commands
+            set_has_ext_modules(dist)
+
+    except (TypeError, ValueError, AttributeError, AssertionError):
+        raise DistutilsSetupError(
+            "%r must be a boolean (got %r)" % (attr, value))
 
 def write_keys_arg(cmd, basename, filename, force=False):
     """ Egg-info writer """
@@ -833,7 +846,7 @@ from %s.__init__ import *
         set_env()
 
 
-class upload_dist(Command):
+class egg_upload(Command):
     """ extension to setuptools to upload a distribution on the gforge
 
     :param release:  compulsory argument to specify the release name, as 
@@ -845,86 +858,99 @@ class upload_dist(Command):
 
     :Examples:
 
-        >>> python setup.py upload_dist --filename dist/*egg --login name 
+        >>> python setup.py egg_upload --filename dist/*egg --login name 
         ... --release 0.7
 
     You can add the options in the setup.cfg::
 
-        >>> [upload_dist]
+        >>> [egg_dist]
         >>> filename = ./dist/*egg
         >>> login = yourname
     """  
-    
+
     description = "Upload the package on the OpenAlea GForge repository"
 
     user_options = [('login=', 'l', 'login name to the gforge'),
-                    ('password=', 'p', 'your password to the gforge account'),
-                    ('verbose=', None, 'verbose option on'),
-                    ('release=', 'r', 'release name, e.g., 0.7'),
-                    ('filename=', 'f', 'a filename or regular expression default is dist/* '),
-                    ('replace-files=', None, 'replace file if alrady present on the GForge')]
+                    ('password=', None, 'your password to the gforge account'),
+                    ('release=', None, 'release number. if not provided, try to obtain it from the setup.py'),
+                    ('package=', None, 'name of the pacakge (compulsary)'),
+                    ('project=', None, 'project [vplants, openalea] default:openalea'),
+                    ('mode=', None, 'mode in [add, delete, query], default:add'),
+                    ('glob=', None, 'a glob for filenames, if not provide, looks into ./dist/* '),
+                    ('yes-to-all', None, 'reply yes to all questions (in particular it will overwrite existing files')]
 
 
     def initialize_options(self):
         self.login = None
         self.password = None
-        self.verbose = False
-        self.filename = None
+        self.glob = None
         self.release = None
-        self.replace_files = False
-        
+        self.project = 'openalea'
+        self.package = None
+        self.yes_to_all = False
+        self.dry_run = None
+        self.mode = 'add'
+
     def finalize_options(self): 
-    
+
         if self.release is None:
-            import warnings
-            warnings.warn("""
-    the --release argument is neither a user argument nor in .pydistutils.
-    Searching for a valid version in setup.py 
-    """)
             try:
+                import warnings
                 version = self.distribution.metadata.version
-                # a version should be like x.y.z so, we split string and keep 
-                # the two first part x and y. We join them back with dots to get
-                # the release string
                 self.release = '.'.join(version.split('.')[0:2])
-                warnings.warn('Found release %s.' % self.release)
+                warnings.warn('Release not provided but found one in the setup.py (%s).' % self.release)
             except Exception, e:
                 print e , 'release could not be found.'
-             
+                import sys
+                sys.exit(0)
+
+        if self.package is None:
+            raise ValueError(" --package must be provided")
 
     def run(self):
-        
-        #todo: by default verbose equals 1 . why ?
-        # if provided as user aguments --verbose is set to '' why ?  
-        if self.verbose == '':
-            self.verbose = True
-        if self.replace_files == '':
-            self.replace_files = True
-            
-        cmd = 'upload_dist '
-        
+
+        from openalea.misc.gforge_upload import Uploader
+        from optparse import OptionParser
+        parser = OptionParser()
+        # here we need to have the destination names in agreement with prototype of Uploader class
+        parser.add_option("--project", dest="project", default='openalea')
+        parser.add_option("--package", dest="package", default=None)
+        parser.add_option("--release", dest="release", default=None)
+        parser.add_option("--login",    dest="login", default=None)
+        parser.add_option("--mode",    dest="mode", default="add")
+        parser.add_option("--password", dest="password", default=None)
+        parser.add_option("--dry-run", dest="dry_run", default=None)
+        parser.add_option("--glob", dest="glob", default=None)
+        parser.add_option("--yes-to-all", dest="non_interactive", action="store_true", default=False)
+
+        # now , we mimic the user arguments
+        arguments = ' --mode %s' % self.mode
+        arguments += ' --project %s' % self.project
+        arguments += ' --package %s' % self.package
+        arguments += ' --release %s' % self.release
         if self.login:
-            cmd += ' --login %s' % self.login            
+            arguments += ' --login %s' % self.login
+        if self.glob:
+            arguments += " --glob %s" % self.glob
+        elif self.mode=='add':
+            arguments += ' --glob dist/*egg'
+        if self.dry_run:
+            arguments += ' --dry-run %s' % self.dry_run
+        if self.yes_to_all == 1:
+            arguments += ' --yes-to-all '
+
+        print 'Command that will be called is : \n\tgforge_upload %s' % arguments 
+        # password is afterwards so that it does not appear on the screen!
         if self.password:
-            cmd += ' --password %s' % self.password
-        if self.verbose is True:
-            cmd += ' --verbose '
-        if self.replace_files is True:
-            cmd += ' --replace-files '
-        if self.filename:
-            cmd += ' --filename %s' % self.filename
-        if self.release:
-            cmd += ' --release %s' % self.release
-            
-        if self.verbose is True:
-            print cmd
-        
-        status = subprocess.call(cmd, stdout=None, stderr=None, shell=True)
-        if status != 0:
-            print 'This command failed'
-            print cmd
-            return 1                
-        
+            arguments += ' --password %s'%  self.password
+        #and finally call the command
+        (options, args) = parser.parse_args(arguments.split(" "))
+
+        uploader = Uploader(options)
+        uploader.run()
+
+
+
 
 class pylint(Command):
     """ pylint extensions to setuptools
@@ -1013,7 +1039,7 @@ class pylint(Command):
             raise('missing --pylint-packages in setup.py. skipped pylint processing')
 
 
-class sphinx_upload(Command):
+class upload_sphinx(Command):
     """
     Upload sphinx documentation to the GForge repository (wiki)
 
@@ -1045,14 +1071,12 @@ class sphinx_upload(Command):
     def finalize_options(self):
         if (not self.package):
             self.package = self.distribution.metadata.get_name()
-            # if the project is not specified, we try to extract it from setup.py
-            # !! in some packages, the namespace is different from the prokect.
-            # For instance container is in vplants but has the openalea namespace
-            if not self.project:
-                self.project = self.package.split('.')[0].lower()
-            if not self.project:
-                raise ValueError('project could not be determied. Try to provide it manually (openalea, vplants, alinea)')
 
+        if not self.project:
+            raise ValueError("""Project field missing. Provide it in your setup.cfg, in the [upload_sphinx] section. 
+                It should be either vplants, alinea or openalea""")
+        elif self.project not in ['vplants','alinea','openalea']:
+            raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section""")
         if (not self.release):
             version = self.distribution.metadata.version
             try:
@@ -1078,24 +1102,13 @@ class sphinx_upload(Command):
 
         print self.project
         for output in  ['html' , 'latex']:
-            #todo: check that the version that will be uploaded it newer than that on the server
-            directory = self.package
-            try:
-                directory = self.package.split('.')[1]
-                if 'PlantGL' in directory:
-                    pass
-                else:
-                    directory = directory.lower()
-            except:
-                directory = self.package
-
             cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/_build/' \
                 % ( os.path.join('doc', '_build', output), 
                     self.username,
                     self.DOMAIN,
                     '/home/groups/openalea/htdocs/doc/',
                     self.project,
-                    directory
+                    self.package
                     )
             self.upload_file(cmd1)
 

@@ -5,10 +5,13 @@ __revision__ =" $Id$"
 
 import os, sys
 
-
 def run_setup(command):
     """ run the setup.py with a particular command """
-    os.system("cd fakepackage;" + sys.executable + " setup.py " + command)
+    oldDir = os.getcwd()
+    os.chdir("fakepackage")
+    py = sys.executable
+    os.spawnl(os.P_WAIT, py, py, "setup.py", command)
+    os.chdir(oldDir)
 
 
 def test_build():
