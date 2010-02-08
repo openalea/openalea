@@ -20,9 +20,10 @@ __revision__ = " $Id$ "
 import weakref
 from PyQt4 import QtCore, QtGui
 
-from .. import qtgraphview
-from .. import edgefactory
-from . import vertex
+from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import edgefactory
+import vertex
+from openalea.grapheditor import baselisteners
 
 from math import sqrt
 
@@ -45,7 +46,9 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
         srcPortItem = self.scene().itemAt( self.sourcePoint )
 
         #creation of a square which is a selected zone for ports 
-        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2), (self.destPoint.y() - boxsize/2), boxsize, boxsize);
+        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2), 
+                             (self.destPoint.y() - boxsize/2), 
+                             boxsize, boxsize);
         dstPortItems = self.scene().items(rect)        
         #the following could be more generic maybe?
         dstPortItems = [item for item in dstPortItems if isinstance(item, vertex.GraphicalPort)]
@@ -101,11 +104,29 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         """ Context menu event : Display the menu"""
         menu = QtGui.QMenu(event.widget())
         action = menu.addAction("Delete connection")
-        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        action.triggered.connect(self.remove)
         menu.move(event.screenPos())
         menu.show()
         event.accept()
         
     def remove(self):
-        self.graph().remove_edge( (self.src().vertex(), self.src()),
-                                  (self.dst().vertex(), self.dst()) )
+        self.graph().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
+                                  (self.dstBBox().vertex(), self.dstBBox()) )
+
+    store_view_data = None
+    get_view_data   = None
+    announce_view_data = None
+
+    def announce_view_data_src(self, exclusive=False):
+        if not exclusive:
+            self.srcBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.srcBBox().exclusive_command(exclusive, 
+                                             self.srcBBox().get_ad_hoc_dict().simulate_full_data_change)
+
+    def announce_view_data_dst(self, exclusive=False):
+        if not exclusive:
+            self.dstBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.dstBBox().exclusive_command(exclusive, 
+                                             self.dstBBox().get_ad_hoc_dict().simulate_full_data_change)

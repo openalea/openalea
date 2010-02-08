@@ -19,12 +19,14 @@ __revision__ = " $Id$ "
 
 from openalea.core import compositenode
 from openalea.core import node
+from openalea.core import system
+from openalea.core.system import systemnodes
 import vertex
 import edge
 import anno
 import adapter
-from .. import baselisteners
-from .. import qtgraphview
+from openalea.grapheditor import baselisteners
+from openalea.grapheditor import qtgraphview
 
 
 class Strategy(object):
@@ -43,7 +45,9 @@ class Strategy(object):
     @classmethod
     def get_vertex_widget_types(cls):
         return {"vertex":vertex.GraphicalVertex,
-                "annotation":anno.GraphicalAnnotation}
+                "annotation":anno.GraphicalAnnotation,
+                "inNode":vertex.GraphicalInVertex,
+                "outNode":vertex.GraphicalOutVertex}
 
     @classmethod
     def get_edge_widget_factory(cls):
@@ -86,15 +90,14 @@ def GraphicalEdgeFactory(etype, *args, **kwargs):
 
 if(__name__ != "__main__"):
     #we declare what are the node model ad hoc data we require:
-    node.Node.extend_ad_hoc_slots("userColor"        ,list, None,  "user_color")
-    node.Node.extend_ad_hoc_slots("useUserColor"     ,bool, True,  "use_user_color", )
-    node.Node.extend_ad_hoc_slots("position"         ,list, [0,0], "posx", "posy")
-    node.Node.extend_ad_hoc_slots("text"             ,str,  "",    "txt")
-    node.Node.extend_ad_hoc_slots("connectorPosition",list, [0,0], "posx", "posy")
-
+    node.AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
+    node.Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
+    node.Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )    
+    node.Annotation.extend_ad_hoc_slots("text", str, "", "txt")
+    
     #we declare what are the node model ad hoc data we require:
     node.AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
     node.AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
-    
+
     #we register this strategy
     baselisteners.GraphListenerBase.register_strategy(Strategy)

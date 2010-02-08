@@ -185,9 +185,7 @@ class Vertex(Element):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)        
         self.__paintStrategy = defaultPaint
 
-    def vertex(self):
-        """retreive the vertex"""
-        return self.get_observed()
+    vertex = baselisteners.GraphElementObserverBase.get_observed
 	 	
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
@@ -209,44 +207,16 @@ class Vertex(Element):
             self.deaf(True)
             point = value.toPointF()
             cPos = point + self.rect().center()
-            self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                         [cPos.x(), cPos.y()])
-            self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                         [point.x(), point.y()])
+            self.store_view_data('position', [point.x(), point.y()])
             self.deaf(False)
             return value
             
-
     def paint(self, painter, option, widget):
         """Qt-specific call to paint things."""
         if self.__paintStrategy is None:
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-    # ---> other events
-    def polishEvent(self):
-        """Qt-specific call to handle events that occur on polishing phase.
-        Default updates the model's ad-hoc position value."""
-        self.deaf()
-        point = self.scenePos()
-        cPos = point + self.rect().center()
-        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     [cPos.x(), cPos.y()])
-        self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                       [point.x(), point.y()])
-        self.deaf(False)
-
-    def moveEvent(self, event):
-        """Qt-specific call to handle events that occur on item moving.
-        Default updates the model's ad-hoc position value."""
-        self.deaf()
-        point = event.newPos()
-        cPos = point + self.rect().center()
-        self.vertex().get_ad_hoc_dict().set_metadata('connectorPosition',
-                                                     [cPos.x(), cPos.y()])
-        self.vertex().get_ad_hoc_dict().set_metadata('position', 
-                                                     [point.x(), point.y()])
-        self.deaf(False)
 
     def mousePressEvent(self, event):
         """Qt-specific call to handle mouse clicks on the vertex.
@@ -277,9 +247,7 @@ class Annotation(Element):
         Element.__init__(self, annotation, graph)
         return
 
-    def annotation(self):
-        """Access to the annotation"""
-        return self.get_observed()
+    annotation = baselisteners.GraphElementObserverBase.get_observed
 
     def notify(self, sender, event):
         """Model event dispatcher.
@@ -293,7 +261,9 @@ class Annotation(Element):
         Element.notify(self, sender, event)
 
 
-    # ---->controllers
+    #####################
+    # ----Qt World----  #
+    #####################            
     def mouseDoubleClickEvent(self, event):
         """ todo """
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
@@ -313,7 +283,7 @@ class Annotation(Element):
             cursor.clearSelection()
             self.setTextCursor(cursor)
             
-        self.annotation().get_ad_hoc_dict().set_metadata('text', str(self.toPlainText()))
+        self.store_view_data('text', str(self.toPlainText()))
 
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
@@ -331,17 +301,10 @@ class Edge(Element):
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
-        
-        self.src = None
-        self.dst = None
 
-        if(src)  : 
-            self.initialise(src)
-            self.src = weakref.ref(src)
-        if(dest) : 
-            self.initialise(dest)
-            self.dst = weakref.ref(dest)
-
+        self.srcBBox = baselisteners.ObservedBlackBox(self, src)
+        self.dstBBox = baselisteners.ObservedBlackBox(self, dest)
+ 
         self.sourcePoint = QtCore.QPointF()
         self.destPoint = QtCore.QPointF()
 
@@ -352,11 +315,15 @@ class Edge(Element):
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
 
-    def edge(self):
-        return self.get_observed()
+    edge = baselisteners.GraphElementObserverBase.get_observed
+
+    def clear_observed(self, *args):
+        self.srcBBox.clear_observed()       
+        self.dstBBox.clear_observed()
+        Element.clear_observed(self, *args)
 
     def set_edge_path(self, path):
-	self.__edge_path = path
+        self.__edge_path = path
         path = self.__edge_path.get_path(self.sourcePoint, self.destPoint)
         self.setPath(path)
         
@@ -376,26 +343,23 @@ class Edge(Element):
         if(event[0] == "metadata_changed"):
             if(event[1]=="connectorPosition"):
                     pos = event[2]
-                    if(sender==self.src()):
+                    if(sender==self.srcBBox()):
                         self.update_line_source(*pos)
-                    elif(sender==self.dst()):
+                    elif(sender==self.dstBBox()):
                         self.update_line_destination(*pos)
-            elif(event[1]=="hide" and (sender==self.dst() or sender==self.src())):
+            elif(event[1]=="hide" and (sender==self.dstBBox() or sender==self.srcBBox())):
                 if event[2]:
                     self.setVisible(False)
                 else:
                     self.setVisible(True)
 
     def initialise_from_model(self):
-        srcadhoc = self.src().get_ad_hoc_dict()
-        dstadhoc = self.dst().get_ad_hoc_dict()
-        self.src().exclusive_command(self, srcadhoc.simulate_full_data_change)
-        self.dst().exclusive_command(self, dstadhoc.simulate_full_data_change)
-
+        self.announce_view_data_src(exclusive=self)
+        self.announce_view_data_dst(exclusive=self)
 
     def remove(self):
         view = self.scene().views()[0]
-        view.graph().remove_edge(self.src(), self.dst())
+        view.graph().remove_edge(self.srcBBox(), self.dstBBox())
         
 
     ############
@@ -445,7 +409,8 @@ class FloatingEdge( Edge ):
                 return
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
-            print "consolidation failed :", e
+            pass
+            # print "consolidation failed :", type(e), e, ". Are you sure you plugged the right ports?"
         return
         
     def get_connections(self):
@@ -522,6 +487,8 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def set_default_drop_handler(cls, handler):
         cls.__defaultDropHandler = handler
 
+    #A few signals that strangely enough don't exist in QWidget
+    closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
 
 
@@ -548,19 +515,11 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
-        # ---Custom tooltip system---
-        # self.__tooltipTimer = QtCore.QTimer()
-        # self.__tooltipTimer.setInterval(800)
-        # self.connect(self.__tooltipTimer, QtCore.SIGNAL("timeout()"),
-        #              self.tooltipTrigger)
-        # self.__tooltipPos = None
-
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-        #self.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.rebuild_scene()
         
@@ -570,9 +529,6 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     ##################
     # QtWorld-Events #
     ##################
-    # def tooltipTrigger(self):
-    #     self.__tooltipTimer.stop()
-    
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
@@ -582,7 +538,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             pos = self.mapToScene(event.pos())
             pos = [pos.x(), pos.y()]
             self.new_edge_set_destination(*pos)
-            return
+            return QtGui.QGraphicsView.mouseMoveEvent(self, event)
         QtGui.QGraphicsView.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -634,20 +590,27 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
+    def closeEvent(self, evt):
+        """a big hack to cleanly remove items from the view
+        and delete the python objects so that they stop leaking
+        on some operating systems"""
+        self.closeRequested.emit(self, self.scene())
+        self.clear_scene()
+        return QtGui.QGraphicsView.closeEvent(self, evt)
 
     #########################
     # Other utility methods #
     #########################
     def scale_view(self, factor):
         self.scale(factor, factor)
-
+        
     def show_entire_scene (self) :
         """Scale the scene and center it
         in order to display the entire content
         without scrolling.
         """
         sc_rect = self.scene().itemsBoundingRect()
-        
+
         sc_center = sc_rect.center()
         if sc_rect.width() > 0. :
             w_ratio = self.width() / sc_rect.width() * 0.9
@@ -676,6 +639,12 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
+    def get_items(self, filterType=None, subcall=None):
+        """ """
+        return [ (item if subcall is None else eval("item."+subcall))
+                 for item in self.items() if 
+                 (True if filterType is None else isinstance(item, filterType))]        
+        
     def get_selected_items(self, filterType=None, subcall=None):
         """ """
         return [ (item if subcall is None else eval("item."+subcall))
@@ -725,5 +694,5 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
 
         return dstPortItem
 
-        
+     
 

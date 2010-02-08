@@ -56,26 +56,29 @@ def default_dataflow_paint(owner, painter, option, widget):
     path.moveTo(3.0,3.0)
     painter.drawPath(path)
     path.moveTo(0.0,0.0)
+    pen = QtGui.QPen(QtCore.Qt.black, 1)
 
-    userColor = owner.vertex().get_ad_hoc_dict().get_metadata("userColor")
+    userColor = owner.get_view_data("userColor")
     if( userColor is None ):
-        owner.vertex().get_ad_hoc_dict().set_metadata("useUserColor", False)
+        owner.store_view_data("useUserColor", False)
 
     if hasattr(owner.vertex(), 'raise_exception'):
         color = default_error_color
         if(owner.isSelected()):
+            pen = QtGui.QPen(QtCore.Qt.red, 1)
             secondcolor = default_selected_error_color
         else:
             secondcolor = default_not_selected_error_color                
     else:
         if(owner.isSelected()):
+            pen = QtGui.QPen(QtGui.QColor(180, 180, 255, 255), 1)
             color = default_selected_color
-        elif(owner.vertex().get_ad_hoc_dict().get_metadata("useUserColor")):
+        elif(owner.get_view_data("useUserColor")):
             color=QtGui.QColor(*userColor)
         else:
             color = default_not_selected_color
 
-    if(owner.vertex().get_ad_hoc_dict().get_metadata("useUserColor")):
+    if(owner.get_view_data("useUserColor")):
         secondcolor=QtGui.QColor(*userColor)
     elif(owner.vertex().user_application):
         secondcolor = QtGui.QColor(255, 144, 0, 200)
@@ -88,14 +91,9 @@ def default_dataflow_paint(owner, painter, option, widget):
     gradient.setColorAt(0.8, secondcolor)
     painter.setBrush(QtGui.QBrush(gradient))
 
-    painter.setPen(QtGui.QPen(QtCore.Qt.black, 1))
+    painter.setPen(pen)
     painter.drawPath(path)
 
     if(owner.vertex().block):
         painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
         painter.drawPath(path)
-
-    if(not owner._all_inputs_visible()):
-        painter.font().setBold(True)
-        pos = rect.width() - 4*default_margin , owner._inPortLayout.geometry().bottom()+4
-        painter.drawText(QtCore.QPointF(*pos), "+")

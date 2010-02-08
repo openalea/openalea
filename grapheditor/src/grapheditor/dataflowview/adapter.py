@@ -73,11 +73,11 @@ class GraphAdapter(object):
     def add_edge(self, src, dst):
         if(type(src[0])==int):
             vtxIdSrc, portIdSrc = src[0], src[1]
-            vtkIdDst, portIdDst = dst[0], dst[1]
+            vtxIdDst, portIdDst = dst[0], dst[1]
         else:
             vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
-            vtkIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
-        self.graph().connect(vtxIdSrc, portIdSrc, vtkIdDst, portIdDst)
+            vtxIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
+        self.graph().connect(vtxIdSrc, portIdSrc, vtxIdDst, portIdDst)
 
     def remove_edge(self, src, dst):
         vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
