@@ -115,7 +115,6 @@ Here are some links related to the sphinx syntax
     :maxdepth: 1
 
     sphinx/rest_syntax
-    sphinx/rst_tutorial
     sphinx/sphinx_python_docstring
     sphinx/doctest
     sphinx/rest_faqs.rst
