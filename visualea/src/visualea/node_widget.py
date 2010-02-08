@@ -40,7 +40,7 @@ class SignalSlotListener(AbstractListener):
     """ Listener with QT Signal/Slot support """
 
     def __init__(self):
-        
+        AbstractListener.__init__(self)        
         # Create a QObject if necessary
         if(not isinstance(self, QtCore.QObject)):
             self.obj = QtCore.QObject()

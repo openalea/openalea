@@ -18,10 +18,54 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
-import weakref, gc #gc is needed because there is a collection problem with the node inspector
-from openalea.visualea.util import open_dialog
+import os, weakref, gc #gc is needed because there is a collection problem with the node inspector
+from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
+from openalea.core import observer
+
+
+
+def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
+    #there is a reference count problem in dataflowview that
+    #makes the items remain in memory. We get them, unregister
+    #them from their observed objects and remove them from the
+    #scene.
+    #This function is not meant to be fast. It tries to lessen the
+    #creation of new references because we already have so many of them
+    #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
+    grapheditor_items = []
+    other_items       = []
+
+    def sort(l1, l2):
+        def wrapper(i):
+            l1.append(i) if isinstance(i, qtgraphview.Element) else l2.append(i)
+        return wrapper
+
+    items = scene.items()
+    map( sort(grapheditor_items, other_items), items)
+    del items
+
+    it = other_items.pop()
+    while it:
+        scene.removeItem(it)
+        try: it = other_items.pop()
+        except IndexError: it = None
+    
+    it = grapheditor_items.pop()
+
+    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
+        while it:
+            scene.removeItem(it)
+            it.clear_observed()
+            try: it = grapheditor_items.pop()
+            except IndexError: it = None
+
+    del other_items
+    del grapheditor_items
+    
+    gc.collect()
+
 
 class VertexOperators(object):
     def __init__(self):
@@ -31,19 +75,20 @@ class VertexOperators(object):
 
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
+        
 
     def vertex_composite_inspect(self):
-        #collect dangling PyQt objects which have lost their C++ side.
-        #There is probably a circular reference somewhere in the dataflowview code
-        #that prevents dead GraphicalVertex instances to be collected by simple
-        #reference counting. I haven't found it so for the moment, we use this
-        #workaround:
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
+        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.connect(widget, QtCore.SIGNAL("destroyed(QObject*)"), gc.collect)
+        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
+        widget.destroyed.connect(gc.collect)
+        widget.show_entire_scene()
         widget.show()
         
+    @exception_display
+    @busy_cursor
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        
 
@@ -138,3 +183,4 @@ class VertexOperators(object):
         if(ret):
             for k in editor.modified_key:
                 self.vertexItem().vertex().set_data(k, editor.pdict[k])
+

@@ -52,20 +52,17 @@ def processText(txt):
     return txt
 
 use_error_box = True
-errorbox = None
 
 def exception_display(f):
     """ Decorator to display exception if raised """
     def display_error(parent,title,stack):
         global use_error_box
-        global errorbox
         if not use_error_box:
                 QtGui.QMessageBox.critical(None,'Exception raised !',title)
         else:
-            if errorbox is None:
-                errorbox = QtGui.QErrorMessage(parent)
-                errorbox.setModal(True)
-                errorbox.resize(700,250)
+            errorbox = QtGui.QErrorMessage(parent)
+            errorbox.setModal(True)
+            errorbox.resize(700,250)
             errorbox.setWindowTitle(title)
             txt = '<B>Traceback (most recent call last):</B><BR>'
             txt += processText(''.join(stack))
