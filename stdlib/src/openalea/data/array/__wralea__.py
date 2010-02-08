@@ -23,7 +23,6 @@ from openalea.core.pkgdict import protected
 
 
 __name__ = "openalea.data structure.array"
-#__alias__ = ['catalog.data', 'openalea.data']
 
 __version__ = '0.0.1'
 __license__ = "Cecill-C"
