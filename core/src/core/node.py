@@ -237,7 +237,7 @@ class AbstractPort(dict, Observed, AbstractListener):
 
     def copy_to(self, other):
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
-        self.transfer_listeners_to_observer(other)
+        self.transfer_listeners(other)
     
     #gengraph
     def get_ad_hoc_dict(self):
@@ -416,7 +416,7 @@ class Node(AbstractNode):
         # we copy some attributes.
         other.internal_data.update(self.internal_data)
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
-        self.transfer_listeners_to_observer(other)
+        self.transfer_listeners(other)
         for portOld, portNew in zip(self.input_desc + self.output_desc, 
                                     other.input_desc + other.output_desc):
             portOld.copy_to(portNew)  

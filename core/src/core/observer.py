@@ -61,8 +61,8 @@ class Observed(object):
                 self.unregister_listener(listener)
             self.__postNotifs.append(discard_listener_after)          
             
-    def transfer_listeners_to_observer(self, newObs):
-        """Takes all this observer's listeners, unregisters them
+    def transfer_listeners(self, newObs):
+        """Takes all this observed's listeners, unregisters them
         from itself and registers them to the newObs, calling
         listener.change_observer if implemented"""
         self.__isNotifying = True
