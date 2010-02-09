@@ -231,7 +231,7 @@
     </widget>
     <widget class="QMenu" name="menuLast_open">
      <property name="title">
-      <string>last open</string>
+      <string>Open recent</string>
      </property>
     </widget>
     <addaction name="action_Run"/>
