@@ -32,8 +32,7 @@ class MetaDataDict(observer.Observed):
 
         if(slots):
             if( isinstance(slots, self.__class__) ):
-                self._metaValues = slots._metaValues.copy()
-                self._metaTypes = slots._metaTypes.copy()
+                self.update(slots)
             else:
                 for name, value in slots.iteritems():
                     if (isinstance(value, tuple) or isinstance(value, list)) and \
@@ -45,6 +44,10 @@ class MetaDataDict(observer.Observed):
                         val = value
                     self.add_metadata(name, typ )
                     self.set_metadata(name, val)
+                    
+    def update(self, other):
+        self._metaValues = other._metaValues.copy()
+        self._metaTypes = other._metaTypes.copy()    
 
     def __repr__(self):
         if(not len(self._metaValues)): return "{}"
