@@ -43,8 +43,8 @@ def default_dataflow_paint(owner, painter, option, widget):
     rect = owner.rect() 
     if(path is None or owner.shapeChanged):
         path = QtGui.QPainterPath()
-        top = owner._inPortLayout.geometry().center().y()
-        bottom = owner._outPortLayout.geometry().center().y()
+        top = owner._inPortLayout().geometry().center().y()
+        bottom = owner._outPortLayout().geometry().center().y()
         rect.setTop(top)
         rect.setBottom(bottom)
         path.addRoundedRect(rect, default_corner_radius, default_corner_radius)

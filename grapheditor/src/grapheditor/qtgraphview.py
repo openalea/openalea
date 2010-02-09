@@ -317,6 +317,25 @@ class Edge(Element):
 
     edge = baselisteners.GraphElementObserverBase.get_observed
 
+    def change_observer(self, old, new):
+        if old == self.srcBBox():
+            self.set_observed_source(new)
+        elif old == self.dstBBox():
+            self.set_observed_destination(new)
+        else:
+            Element.change_observed(self, old, new)
+        return
+        
+    def set_observed_source(self, src):
+        """todo evaluate this for inclusion into the interfaces"""
+        self.srcBBox.clear_observed()
+        self.srcBBox(src)
+    
+    def set_observed_destination(self, dest):
+        """todo evaluate this for inclusion into the interfaces"""
+        self.dstBBox.clear_observed()
+        self.dstBBox(dest)
+        
     def clear_observed(self, *args):
         self.srcBBox.clear_observed()       
         self.dstBBox.clear_observed()
