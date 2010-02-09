@@ -410,7 +410,9 @@ class CompositeNode(Node, DataFlow):
         # graph modification status
         self.graph_modified = False
         self.evaluating = False
-
+    def copy_to(self, other):
+        raise NotImplementedError
+        
     def reset(self):
         """ Reset nodes """
 
@@ -1041,7 +1043,6 @@ class CompositeNode(Node, DataFlow):
             raise IncompatibleNodeError()
 
         self.set_actor(vid, newnode)
-        #gengraph should notify something here.
 
     # Continuous eval functions
 
