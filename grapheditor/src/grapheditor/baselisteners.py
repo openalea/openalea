@@ -42,7 +42,7 @@ class StrategyError( Exception ):
 
 class ObservedBlackBox(object):
     def __init__(self, owner, observed):
-        self.__owner = weakref.ref(owner)
+        self.owner = weakref.ref(owner)
         self.__observed = None
         self.__is_true = False
         self.__call__(observed)
@@ -82,7 +82,7 @@ class ObservedBlackBox(object):
         self.__set_observed = self.__set_fake_observed
 
     def __set_true_observed(self, obs):
-        self.__owner().initialise(obs)
+        self.owner().initialise(obs)
         self.__observed = weakref.ref(obs, self.clear_observed)
 
     def __set_fake_observed(self, obs):
@@ -92,13 +92,13 @@ class ObservedBlackBox(object):
         return self.__observed()
 
     def __get_fake_observed(self):
-        return self.__observed()
+        return self.__observed
 
     def __clear_true_observed(self, which=None):
         try:
-            self.__observed().unregister_listener(self.__owner())
+            self.__observed().unregister_listener(self.owner())
         except:
-            try: self.__observed.unregister_listener(self.__owner())
+            try: self.__observed.unregister_listener(self.owner())
             except: pass
         finally:
             self.__observed = None
@@ -116,11 +116,21 @@ class GraphElementObserverBase(observer.AbstractListener):
         self.set_graph(graph)
         return
 
+    def set_observed(self, observed):
+        if self.get_observed():
+            raise Exception("Clear observer before setting a new one")
+        self.__obsBBox(observed)
+        
     def get_observed(self):
-        return self.__obsBBox()
+        try: return self.__obsBBox()
+        except TypeError: return None
 
     def clear_observed(self, *args):
         self.__obsBBox.clear_observed()
+        
+    def change_observer(self, old, new):
+        self.__obsBBox.clear_observed()
+        self.set_observed(new)
 
     def set_graph(self, graph):
         if(graph is not None):
@@ -138,8 +148,6 @@ class GraphElementObserverBase(observer.AbstractListener):
                     self.position_changed(*event[2])
 
     def initialise_from_model(self):
-        # adhoc = self.get_observed().get_ad_hoc_dict()
-        # self.get_observed().exclusive_command(self, adhoc.simulate_full_data_change)
         self.announce_view_data(exclusive=self)
 
 class GraphListenerBase(observer.AbstractListener):
@@ -200,8 +208,9 @@ class GraphListenerBase(observer.AbstractListener):
         observer.AbstractListener.__init__(self)
 
         #mappings from models to widgets
-        self.vertexmap = {}
-        self.edgemap = {}
+        self.widgetmap = {}
+        # self.vertexmap = {}
+        # self.edgemap = {}
 
         #obtaining types from the strategy.
         self._vertexWidgetFactory = None
@@ -250,41 +259,64 @@ class GraphListenerBase(observer.AbstractListener):
         elif(event[0]=="edge_added") : self.edge_added(*event[1])
         elif(event[0]=="vertex_removed") : self.vertex_removed(*event[1])
         elif(event[0]=="edge_removed") : self.edge_removed(*event[1])
-
-    def __element_added(self, element):
-        self.post_addition(element)
-        return element
-
+            
     def vertex_added(self, vtype, vertexModel):
         if vertexModel is None : return
         vertexWidget = self._vertexWidgetFactory(vtype, vertexModel, self.graph())
-        vertexWidget.add_to_view(self.get_scene())        
-        self.vertexmap[vertexModel] = weakref.ref(vertexWidget)
-        return self.__element_added(vertexWidget)
+        return self._element_added(vertexWidget, vertexModel)
 
     def edge_added(self, etype, edgeModel, src, dst):
         if edgeModel is None : return
         edgeWidget = self._edgeWidgetFactory(etype, edgeModel, self.graph(),
                                              src, dst)
-        edgeWidget.add_to_view(self.get_scene())
-        self.edgemap[edgeModel] = weakref.ref(edgeWidget)
-        return self.__element_added(edgeWidget)
+        return self._element_added(edgeWidget, edgeModel)
 
     def vertex_removed(self, vtype, vertexModel):
         if vertexModel is None : return
-        vertexWidget = self.vertexmap.get(vertexModel)
-        if(vertexWidget is None): return
-        vertexWidget().remove_from_view(self.get_scene())
-        del self.vertexmap[vertexModel]
-        return
+        return self._element_removed(vertexModel)
 
     def edge_removed(self, vtype, edgeModel):
         if edgeModel is None : return
-        edgeWidget = self.edgemap.get(edgeModel)
-        if(edgeWidget is None): return
-        edgeWidget().remove_from_view(self.get_scene())
-        del self.edgemap[edgeModel]
-        return
+        return self._element_removed(edgeModel)
+        
+    def _element_added(self, widget, model):
+        widget.add_to_view(self.get_scene())
+        self._register_widget_with_model(widget, model)
+        
+    def _register_widget_with_model(self, widget, model):
+        widgetWeakRef = weakref.ref(widget, self._widget_died)
+        modelWidgets = self.widgetmap.get(model, None)
+        if not modelWidgets: self.widgetmap[model] = set()
+        self.widgetmap[model].add(widgetWeakRef)
+        self.widgetmap[widgetWeakRef] = model    
+        self.post_addition(widget) #virtual function call
+        return widget
+        
+    def _unregister_widget_from_model(self, widget, model):
+        if model is None : return
+        widgets = self.widgetmap.get(model, None)
+        if(widgets is None): return
+        for widgetWeakRef in widgets:
+            if widgetWeakRef() == widget : toDiscard = widgetWeakRef
+        widgets.discard(toDiscard)
+        
+    def _element_removed(self, model):
+        if model is None : return
+        widgets = self.widgetmap.pop(model, None)
+        if(widgets is None): return
+        for widgetWeakRef in widgets:
+            self.widgetmap.pop(widgetWeakRef, None)
+            widget = widgetWeakRef(); widget.remove_from_view(self.get_scene()) 
+            del widgetWeakRef
+    
+    def _widget_died(self, widgetWeakRef):
+        model = self.widgetmap.pop(widgetWeakRef, None)
+        if not model: return
+            # raise Exception("__widget_died without associated model")
+        modelWidgets = self.widgetmap.get(model, None)
+        if not modelWidgets : return
+        modelWidgets.discard(widgetWeakRef)
+            
 
     ###########################################################
     # Controller methods come next. They DO MODIFY the model. #
