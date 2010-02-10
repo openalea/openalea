@@ -235,6 +235,10 @@ class AbstractPort(dict, Observed, AbstractListener):
             self.notify_listeners(event)
     #/gengraph
 
+    def copy_to(self, other):
+        other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
+        self.transfer_listeners(other)
+    
     #gengraph
     def get_ad_hoc_dict(self):
         return self.__ad_hoc_dict
@@ -384,8 +388,10 @@ class Node(AbstractNode):
         try:
             for i in self.input_desc:
                 self.notify_listeners(("input_port_removed", i))
+            self.notify_listeners(("cleared_input_ports",))
             for i in self.output_desc:
                 self.notify_listeners(("output_port_removed", i))
+            self.notify_listeners(("cleared_output_ports",))
         except Exception, e:
             print e
             
@@ -406,7 +412,15 @@ class Node(AbstractNode):
         AbstractNode.notify(self, sender, event)
     #/gengraph
 
-
+    def copy_to(self, other):
+        # we copy some attributes.
+        other.internal_data.update(self.internal_data)
+        other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
+        self.transfer_listeners(other)
+        for portOld, portNew in zip(self.input_desc + self.output_desc, 
+                                    other.input_desc + other.output_desc):
+            portOld.copy_to(portNew)  
+    
     def get_process_obj(self):
         """ Return the process obj """
         return self
