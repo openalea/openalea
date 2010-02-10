@@ -94,18 +94,24 @@ def _validate_md5(egg_name, data):
 
 #Allow us to log in from deploy.
 #get the auth file that we need:
-import os.path
-import urllib, getpass
-filename = os.path.join(os.getcwd(), "auth.py")
-urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
-                    filename )
+try:
+    import os.path
+    import urllib, getpass
+    filename = os.path.join(os.getcwd(), "auth.py")
+    urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
+                        filename )
 
-import auth
-#now that it is imported (in memory), we don't need it anymore:
-os.remove(filename)
-os.remove(filename+"c")
-
+    import auth
+    #now that it is imported (in memory), we don't need it anymore:
+    os.remove(filename)
+    os.remove(filename+"c")
+    GFORGE_LOGIN_AVAILABLE = True
+except:
+    print >> sys.stderr, ("GForge authentification disabled")
+    GFORGE_LOGIN_AVAILABLE = False
+    
 def cli_login():
+    if not GFORGE_LOGIN_AVAILABLE : print "GForge not available, auth module cannot be loaded."
     print 'GFORGE login\n'
     print "gforge username: ",
     login = raw_input()
