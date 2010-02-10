@@ -664,11 +664,7 @@ class PyPackageReaderWralea(PyPackageReader):
         for name in palias:
             if protected(name) in pkgmanager:
                 alias_pkg = pkgmanager[protected(name)]
-                if debug:
-                    print alias_pkg.name
                 for name_factory, factory in p.iteritems():
-                    if debug:
-                        print name_factory
                     if name_factory not in alias_pkg and \
                      alias_pkg.name+'.'+name_factory not in pkgmanager:
                          alias_pkg[name_factory] = factory

@@ -45,6 +45,33 @@ class Observed(object):
                 self.register_listener(listener)
             self.__postNotifs.append(push_listener_after)
             
+    def unregister_listener(self, listener):
+        """ Remove listener from the list of listeners """
+        if(not self.__isNotifying):
+            if isinstance(listener, weakref.ref):
+                self.listeners.discard(listener)
+            else:
+                for lis in self.listeners:
+                    if lis() == listener:
+                        toDiscard = lis
+                        break
+                self.listeners.discard(toDiscard)
+        else:
+            def discard_listener_after():
+                self.unregister_listener(listener)
+            self.__postNotifs.append(discard_listener_after)          
+            
+    def transfer_listeners(self, newObs):
+        """Takes all this observed's listeners, unregisters them
+        from itself and registers them to the newObs, calling
+        listener.change_observer if implemented"""
+        self.__isNotifying = True
+        for lis in self.listeners:
+            self.unregister_listener(lis)
+            newObs.register_listener(lis())
+            lis().change_observer(self, newObs)
+        self.__isNotifying = False
+            
     def exclusive_command(self, who, command, *args, **kargs):
         """Executes a call "command" and if it triggers any
         signal from this observed object along the way, "who" will
@@ -56,10 +83,6 @@ class Observed(object):
         self.__exclusive = who
         command(*args, **kargs)
         self.__exclusive = None
-
-    def unregister_listener(self, listener):
-        """ Remove listener from the list of listeners """
-        self.listeners.discard(listener)
 
     def notify_listeners(self, event=None):
         """
@@ -121,6 +144,9 @@ class AbstractListener(object):
         observed.register_listener(self)
         if (self.notify_lock == None):
             self.notify_lock = list()
+            
+    def change_observer(self, old, new):
+        return
 
     def is_notification_locked(self):
         return self.notify_lock != None and len(self.notify_lock)>0

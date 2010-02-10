@@ -21,8 +21,8 @@ from PyQt4 import QtGui, QtCore
 import os, weakref, gc #gc is needed because there is a collection problem with the node inspector
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
-from openalea.grapheditor import qtgraphview #no need to reload the dataflow package.
-from openalea.core import observer
+from openalea.grapheditor import qtgraphview
+from openalea.core import observer, node
 
 
 
@@ -82,8 +82,10 @@ class VertexOperators(object):
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
-        widget.destroyed.connect(gc.collect)
+        if not (os.name == "posix" and "Ubuntu" in os.uname()[3]):
+            widget.destroyed.connect(gc.collect)
+        else:
+            widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.show_entire_scene()
         widget.show()
         
@@ -122,23 +124,36 @@ class VertexOperators(object):
     def vertex_reset(self):
         self.vertexItem().vertex().reset()
 
+    def vertex_observer_swap(self, oldVertex, newVertex):
+        """replaces the actor of a vertex by another one in the views only!
+        not model-wise. For that, use vertex_replace, vertex_reload."""
+        self.vertexItem().terminate_from_model()  # graphical vertex clears its input and output port
+        oldVertex.copy_to(newVertex)
+        self.vertexItem().initialise_from_model() # graphical vertex restarts
+        #currently, the grapheditor widget maps models with graphical items
+        #to track which graphic item to delete when something is being
+        #deleted in the model:
+        self.get_graph_view()._unregister_widget_from_model(self.vertexItem(), oldVertex)
+        self.get_graph_view()._register_widget_with_model(self.vertexItem(), newVertex)
+
+    @exception_display
+    @busy_cursor
     def vertex_replace(self):
         """ Replace a node by an other """
-        
         self.dialog = NodeChooser(self.get_graph_view())
         self.dialog.search('', self.vertexItem().vertex().get_nb_input(), 
                            self.vertexItem().vertex().get_nb_output())
         ret = self.dialog.exec_()
-
         if(not ret): return
         
         factory = self.dialog.get_selection()
-        newnode = factory.instantiate()
-        self.get_graph().replace_vertex(self.vertexItem().vertex(), newnode)
+        oldVertex = self.vertexItem().vertex()
+        newVertex = factory.instantiate()
+        self.get_graph().replace_vertex(oldVertex, newVertex)
+        self.vertex_observer_swap(oldVertex, newVertex)
 
     def vertex_reload(self):
         """ Reload the vertex """
-
         # Reload package
         factory = self.vertexItem().vertex().factory
         package = factory.package
@@ -146,11 +161,10 @@ class VertexOperators(object):
             package.reload()
 
         # Reinstantiate the vertex
-        newvertex = factory.instantiate()
-        self.get_graph().set_actor(self.vertexItem().vertex().get_id(), newvertex)
-        newvertex.internal_data.update(self.vertexItem().vertex().internal_data)
-        self.vertexItem().set_observed(newvertex)
-        self.vertexItem().initialise_from_model()
+        newVertex = factory.instantiate()
+        oldVertex = self.vertexItem().vertex()
+        self.get_graph().set_actor(oldVertex.get_id(), newVertex)
+        self.vertex_observer_swap(oldVertex, newVertex)        
 
     def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
