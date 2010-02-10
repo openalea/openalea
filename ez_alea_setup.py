@@ -336,13 +336,15 @@ def install_pkg(name):
         print "Add sudo before your python command, or use --install-dir."
 
 def welcome_setup():
-    revision = __revision__.strip().split()
-    if len(revision) > 2:
-        revision = revision[2]
-    else:
-        revision = '0.8'
-    print "Running ez_alea_setup version %s" % revision
-
+    try:
+        revision = __revision__.strip().split()
+        if len(revision) > 2:
+            revision = revision[2]
+        else:
+            revision = '0.8'
+        print "Running ez_alea_setup version %s" % revision
+    except:
+        pass
     print  """
     
 -----------------------------------------------------------------------------
