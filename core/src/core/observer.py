@@ -55,7 +55,7 @@ class Observed(object):
                     if lis() == listener:
                         toDiscard = lis
                         break
-                self.listener.discard(toDiscard)
+                self.listeners.discard(toDiscard)
         else:
             def discard_listener_after():
                 self.unregister_listener(listener)

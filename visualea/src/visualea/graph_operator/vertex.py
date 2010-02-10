@@ -84,6 +84,8 @@ class VertexOperators(object):
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         if not (os.name == "posix" and "Ubuntu" in os.uname()[3]):
             widget.destroyed.connect(gc.collect)
+        else:
+            widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.show_entire_scene()
         widget.show()
         
