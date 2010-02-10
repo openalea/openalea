@@ -56,8 +56,10 @@ def cmp_posx(x, y):
     """todo"""
     (xpid, xvid, xactor) = x
     (ypid, yvid, yactor) = y
-    px = xactor.internal_data.get('posx', 0)
-    py = yactor.internal_data.get('posx', 0)
+    #px = xactor.internal_data.get('posx', 0)
+    #py = yactor.internal_data.get('posx', 0)
+    px = xactor.get_ad_hoc_dict().get_metadata('position')[0]
+    py = yactor.get_ad_hoc_dict().get_metadata('position')[0]
 
     ret = cmp(px, py)
     if (not ret):
