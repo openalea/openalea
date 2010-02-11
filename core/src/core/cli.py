@@ -46,7 +46,7 @@ def get_welcome_msg():
 def get_datapool_code(data_key):
     """ Return the python code to access to 'data_key' in the datapool """
 
-    return "datapool['%s']" % (data_key, )
+    return "%s = datapool['%s']" % (data_key, data_key )
 
 
 def get_node_code(node_id):
