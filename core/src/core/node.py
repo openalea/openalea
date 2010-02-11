@@ -1188,11 +1188,9 @@ class NodeFactory(AbstractFactory):
         """
 
         if(self.nodemodule_name):
-
             # Test if the module is already in sys.modules
             if(self.nodemodule_path and self.module_cache
                and not hasattr(self.module_cache, 'oa_invalidate')):
-
                 return self.module_cache
 
             # load module
@@ -1203,7 +1201,7 @@ class NodeFactory(AbstractFactory):
             self.nodemodule_path = pathname
 
             sys.path.append(os.path.dirname(pathname))
-            nodemodule = imp.load_module(str(id(self.nodemodule_name)),
+            nodemodule = imp.load_module(str(id(self.nodemodule_path+self.nodemodule_name)),
                     file, pathname, desc)
             sys.path = sav_path
 
