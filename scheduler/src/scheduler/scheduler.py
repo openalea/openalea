@@ -2,7 +2,7 @@
 #
 #       scheduler: simple scheduling of tasks
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Christophe Pradal <christophe.pradal@cirad.fr>
