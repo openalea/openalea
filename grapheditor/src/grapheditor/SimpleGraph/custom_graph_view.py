@@ -81,6 +81,19 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
 
     def paint(self, painter, painterOptions, widget):
         QtGui.QGraphicsEllipseItem.paint(self, painter, painterOptions, widget)
+        
+    def store_view_data(self, key, value, notify=True):
+        self.vertex().get_ad_hoc_dict().set_metadata(key, value, notify)
+
+    def get_view_data(self, key):
+        return self.vertex().get_ad_hoc_dict().get_metadata(key)
+
+    def announce_view_data(self, exclusive=False):
+        if not exclusive:
+            self.vertex().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.vertex().exclusive_command(exclusive,
+                                            self.vertex().get_ad_hoc_dict().simulate_full_data_change)       
 
 
 class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
@@ -99,9 +112,25 @@ class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
         event.accept()
         
     def remove(self):
-        self.graph().remove_edge( self.src(), self.dst() )
+        self.graph().remove_edge( self.srcBBox(), self.dstBBox() )
+        
+    store_view_data = None
+    get_view_data   = None
+    announce_view_data = None
+        
+    def announce_view_data_src(self, exclusive=False):
+        if not exclusive:
+            self.srcBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.srcBBox().exclusive_command(exclusive, 
+                                             self.srcBBox().get_ad_hoc_dict().simulate_full_data_change)
 
-
+    def announce_view_data_dst(self, exclusive=False):
+        if not exclusive:
+            self.dstBBox().get_ad_hoc_dict().simulate_full_data_change()
+        else:
+            self.dstBBox().exclusive_command(exclusive, 
+                                             self.dstBBox().get_ad_hoc_dict().simulate_full_data_change)
 
 
 class SimpleFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
