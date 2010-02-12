@@ -25,6 +25,8 @@ class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):
     def __init__(self, label, parent=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
         self.__label = QtGui.QGraphicsSimpleTextItem(self)
+        font = self.__label.font()
+        font.setBold(True)
         self.__label.setText(label)
         
     def boundingRect(self):
