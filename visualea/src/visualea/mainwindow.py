@@ -42,7 +42,6 @@ from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.grapheditor import qtgraphview
-from openalea.grapheditor import dataflowview
 from graph_operator import GraphOperator
 import visualea_integration
 import compositenode_widget

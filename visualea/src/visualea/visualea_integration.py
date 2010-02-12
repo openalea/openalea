@@ -26,7 +26,8 @@ from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError, InputPort, OutputPort
 from openalea.core.compositenode import CompositeNode
-from openalea.grapheditor import qtgraphview, dataflowview
+from openalea.grapheditor import qtgraphview
+from openalea.visualea import dataflowview
 
 
 
