@@ -314,7 +314,7 @@ class CompositeNodeFactory(AbstractFactory):
             #which defines conversions between new ad_hoc_dict keywords
             #and old internal_data keywords.
             #These dictionnaries are used to extend ad_hoc_dict of a node with the
-            #data that views expect. See dataflowview.__init__ for an example.
+            #data that views expect. See node.initialise_standard_metadata() for an example.
             if hasattr(node, "__ad_hoc_from_old_map__"):
                 for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
                     data = [] #list that stores the new values

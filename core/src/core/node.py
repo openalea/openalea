@@ -37,12 +37,9 @@ from weakref import ref
 import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
-
 import metadatadict
 
 # Exceptions
-
-
 class RecursionError (Exception):
     """todo"""
     pass
@@ -54,7 +51,17 @@ class InstantiationError(Exception):
 
 
 # Utility function
+def initialise_standard_metadata():
+    """Declares the standard keys used by the Node structures. Called at the end of this file"""
+    #we declare what are the node model ad hoc data we require:
+    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
+    Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
+    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )    
+    Annotation.extend_ad_hoc_slots("text", str, "", "txt")
 
+    #we declare what are the node model ad hoc data we require:
+    AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
+    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
 
 def gen_port_list(size):
     """ Generate a list of port description """
@@ -76,11 +83,6 @@ class AbstractNode(Observed, AbstractListener):
         - rename internal_data into attributes.
     """
 
-    #describes which data and what type
-    #are expected to be found in the ad_hoc
-    #dictionnary. Used by views. 
-    #__ad_hoc_slots__ = {} Created at runtime
-    #__ad_hoc_from_old_map__ = {} Created at runtime
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
         if( not hasattr(cls, "__ad_hoc_slots__")):
@@ -185,6 +187,7 @@ class AbstractPort(dict, Observed, AbstractListener):
     #dictionnary. Used by views. 
     #__ad_hoc_slots__ = {} Created at runtime
     #__ad_hoc_from_old_map__ = {} Created at runtime
+    #have a look at openalea.core.standard_meta_data.py
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
         if( not hasattr(cls, "__ad_hoc_slots__")):
@@ -1348,3 +1351,5 @@ $NAME = Factory(name=$PNAME,
                                       WIDGETMODULE=repr(f.widgetmodule_name),
                                       WIDGETCLASS=repr(f.widgetclass_name), )
         return result
+
+initialise_standard_metadata()
