@@ -309,17 +309,16 @@ class DataflowOperators(object):
         #adapter.graph() returns the real graph.
         return (self.get_graph().graph(), tempfactory)
     
-    def graph_preview_application(self):
+    def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
         widget = self.get_graph_view()
         
-        graph, tempfactory = self.__get_current_factory("Preview")
-        widget.deaf()
+        graph, tempfactory = self.__get_current_factory(name)
         w = qtgraphview.View(widget.parent(), graph)
-        widget.deaf(False)
-        #w = tempfactory.instantiate_widget(node, widget, autonomous=True)
+        w.viewport().setEnabled(False)
 
         open_dialog(widget, w, 'Preview Application')
+        return graph, tempfactory
 
 
     def graph_export_application(self):
@@ -344,11 +343,7 @@ class DataflowOperators(object):
         name = str(result)
         if(not name) : name = "OpenAlea Application"
         
-        graph, tempfactory = self.__get_current_factory(name)
-        widget.deaf()
-        w = qtgraphview.View(widget.parent(), graph)
-        widget.deaf(False)
-        
+        graph, tempfactory = self.graph_preview_application(name)
         #export_app comes from openalea.core
         export_app.export_app(name, filename, tempfactory) 
         

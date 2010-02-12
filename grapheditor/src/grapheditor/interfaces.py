@@ -192,12 +192,12 @@ class IGraphViewElement(object):
         raise NotImplementedError
 
     def announce_view_data(self, exclusive=False):
-        raise NotImplementedError        
-
+        raise NotImplementedError
+        
 #------*************************************************------#
-#yep, it is the same right now, but it might change in the futur
-IGraphViewVertex = IGraphViewElement 
-
+class IGraphViewVertex (IGraphViewElement):
+    def lock_position(self, val=True):
+        raise NotImplementedError
 
 #------*************************************************------#
 class IGraphViewAnnotation(IGraphViewElement):

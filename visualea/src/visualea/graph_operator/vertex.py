@@ -18,53 +18,11 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
-import os, weakref, gc #gc is needed because there is a collection problem with the node inspector
+import weakref
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.grapheditor import qtgraphview
 from openalea.core import observer, node
-
-
-
-def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
-    #there is a reference count problem in dataflowview that
-    #makes the items remain in memory. We get them, unregister
-    #them from their observed objects and remove them from the
-    #scene.
-    #This function is not meant to be fast. It tries to lessen the
-    #creation of new references because we already have so many of them
-    #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
-    grapheditor_items = []
-    other_items       = []
-
-    def sort(l1, l2):
-        def wrapper(i):
-            l1.append(i) if isinstance(i, qtgraphview.Element) else l2.append(i)
-        return wrapper
-
-    items = scene.items()
-    map( sort(grapheditor_items, other_items), items)
-    del items
-
-    it = other_items.pop()
-    while it:
-        scene.removeItem(it)
-        try: it = other_items.pop()
-        except IndexError: it = None
-    
-    it = grapheditor_items.pop()
-
-    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
-        while it:
-            scene.removeItem(it)
-            it.clear_observed()
-            try: it = grapheditor_items.pop()
-            except IndexError: it = None
-
-    del other_items
-    del grapheditor_items
-    
-    gc.collect()
 
 
 class VertexOperators(object):
@@ -82,10 +40,6 @@ class VertexOperators(object):
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        if not (os.name == "posix" and "Ubuntu" in os.uname()[3]):
-            widget.destroyed.connect(gc.collect)
-        else:
-            widget.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)
         widget.show_entire_scene()
         widget.show()
         
