@@ -19,7 +19,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-import weakref, types
+import weakref, types, sip, os
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
@@ -145,6 +145,8 @@ class Element(baselisteners.GraphElementObserverBase):
         point = QtCore.QPointF(args[0], args[1])
         self.setPos(point)
 
+    def lock_position(self, val=True):
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
 
 
 
@@ -226,7 +228,7 @@ class Vertex(Element):
         if (graphview and event.buttons() & QtCore.Qt.LeftButton and
             event.modifiers() & QtCore.Qt.ControlModifier):
             pos = [event.scenePos().x(), event.scenePos().y()]
-            graphview.new_edge_start(pos)
+            graphview.new_edge_start(pos, source=self)
             return
 
 
@@ -377,8 +379,7 @@ class Edge(Element):
         self.announce_view_data_dst(exclusive=self)
 
     def remove(self):
-        view = self.scene().views()[0]
-        view.graph().remove_edge(self.srcBBox(), self.dstBBox())
+        self.graph().remove_edge(self.srcBBox(), self.dstBBox())
         
 
     ############
@@ -429,7 +430,7 @@ class FloatingEdge( Edge ):
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
             pass
-            # print "consolidation failed :", type(e), e, ". Are you sure you plugged the right ports?"
+            #print "consolidation failed :", type(e), e, ". Are you sure you plugged the right ports?"
         return
         
     def get_connections(self):
@@ -534,6 +535,11 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
+        if not (os.name == "posix" and "Ubuntu" in os.uname()[3]):
+            self.destroyed.connect(gc.collect)
+        else:
+            self.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)        
+        
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -692,6 +698,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         but crash during execution if the method is not implemented, where
         the interface checking system could prevent the application from
         starting, with a die-early behaviour."""
+        self.scene().clearSelection()
         if(self.__selectAdditions):
             element.setSelected(True)
 
@@ -714,4 +721,43 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         return dstPortItem
 
      
+import gc
+def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
+    #there is a reference count problem in dataflowview that
+    #makes the items remain in memory. We get them, unregister
+    #them from their observed objects and remove them from the
+    #scene.
+    #This function is not meant to be fast. It tries to lessen the
+    #creation of new references because we already have so many of them
+    #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
+    grapheditor_items = []
+    other_items       = []
 
+    def sort(l1, l2):
+        def wrapper(i):
+            l1.append(i) if isinstance(i, Element) else l2.append(i)
+        return wrapper
+
+    items = scene.items()
+    map( sort(grapheditor_items, other_items), items)
+    del items
+
+    it = other_items.pop()
+    while it:
+        scene.removeItem(it)
+        try: it = other_items.pop()
+        except IndexError: it = None
+    
+    it = grapheditor_items.pop()
+
+    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
+        while it:
+            scene.removeItem(it)
+            it.clear_observed()
+            try: it = grapheditor_items.pop()
+            except IndexError: it = None
+
+    del other_items
+    del grapheditor_items
+    
+    gc.collect()

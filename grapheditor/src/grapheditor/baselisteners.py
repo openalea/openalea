@@ -181,7 +181,7 @@ class GraphListenerBase(observer.AbstractListener):
         elTypes = graphadapter.get_vertex_types()
         for vt in elTypes:
             vtype = vertexWidgetTypes.get(vt, None)
-            assert interfaces.IGraphViewElement.check(vtype)
+            assert interfaces.IGraphViewVertex.check(vtype)
 
         #checking connectable types
         elTypes = stratCls.get_connector_types()
@@ -234,6 +234,7 @@ class GraphListenerBase(observer.AbstractListener):
         self.currentItem = None
         #an edge currently being drawn,
         self.__newEdge = None
+        self.__newEdgeSource = None
 
     def graph(self):
         if(isinstance(self.__observed, weakref.ref)):
@@ -325,9 +326,12 @@ class GraphListenerBase(observer.AbstractListener):
     def is_creating_edge(self):
         return True if self.__newEdge else False
     
-    def new_edge_start(self, srcPt, etype="default"):
+    def new_edge_start(self, srcPt, etype="default", source=None):
         self.__newEdge = self._edgeWidgetFactory("floating-"+etype, srcPt, self.graph())
         self.__newEdge.add_to_view(self.get_scene())
+        if  source: 
+            self.__newEdgeSource = source
+            self.__newEdgeSource.lock_position(True)
 
     def new_edge_set_destination(self, *dest):
         if self.currentItem:
@@ -351,7 +355,10 @@ class GraphListenerBase(observer.AbstractListener):
         if self.currentItem:
             self.currentItem.set_highlighted(False)
             self.currentItem = None
-        self.__newEdge = None
+        self.__newEdge = None 
+        if self.__newEdgeSource:
+            self.__newEdgeSource.lock_position(False)
+            self.__newEdgeSource = None
             
 
     #########################
