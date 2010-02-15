@@ -209,8 +209,6 @@ class GraphListenerBase(observer.AbstractListener):
 
         #mappings from models to widgets
         self.widgetmap = {}
-        # self.vertexmap = {}
-        # self.edgemap = {}
 
         #obtaining types from the strategy.
         self._vertexWidgetFactory = None
@@ -280,6 +278,9 @@ class GraphListenerBase(observer.AbstractListener):
         if edgeModel is None : return
         return self._element_removed(edgeModel)
         
+    def clear_scene(self):
+        self.widgetmap = {}
+        
     def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
         self._register_widget_with_model(widget, model)
@@ -298,7 +299,7 @@ class GraphListenerBase(observer.AbstractListener):
         widgets = self.widgetmap.get(model, None)
         if(widgets is None): return
         for widgetWeakRef in widgets:
-            if widgetWeakRef() == widget : toDiscard = widgetWeakRef
+            if widgetWeakRef() == widget : toDiscard = widgetWeakRef; break
         widgets.discard(toDiscard)
         
     def _element_removed(self, model):
