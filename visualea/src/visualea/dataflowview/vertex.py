@@ -43,6 +43,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         qtgraphview.Vertex.__init__(self, vertex, graph)
         self.set_painting_strategy(painting.default_dataflow_paint)
         self.setZValue(1)
+        self.destroyed.connect(self.clear_observed)
 
         # used by the node shape cache in painting.py
         # to speed up rendering.
@@ -63,14 +64,28 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         layout.setOrientation(QtCore.Qt.Vertical)
         layout.setSpacing(2)
         self.setLayout(layout)
-        self.__reset_inPorts_layout()
+
+        layout = QtGui.QGraphicsLinearLayout()
+        self.layout().addItem(layout)
+        self._inPortLayout = weakref.ref(layout)
         cap = qtutils.AleaQGraphicsLabelWidget("")
         self._caption = weakref.ref(cap)
-        layout.addItem(self._caption())
-        self.__reset_outPorts_layout()
-        layout.setAlignment(self._caption(), QtCore.Qt.AlignHCenter)
+        self.layout().addItem(self._caption())
+        layout = QtGui.QGraphicsLinearLayout()
+        self.layout().addItem(layout)
+        self._outPortLayout = weakref.ref(layout)
+
+        self.__configure_layout(self._inPortLayout())
+        self.__configure_layout(self._outPortLayout())
+        self.layout().setAlignment(self._caption(), QtCore.Qt.AlignHCenter)
 
         self.initialise_from_model()
+
+    def remove_from_view(self, view):
+        """An element removes itself from the given view"""
+        self.__remove_outputs(view)
+        self.__remove_inputs(view)
+        qtgraphview.Vertex.remove_from_view(self, view)         
 
     def terminate_from_model(self):
         """todo evaluate this for inclusion into the interfaces"""
@@ -93,10 +108,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     
     def __add_in_connection(self, port):
         graphicalConn = GraphicalPort(port)
+        self.destroyed.connect(graphicalConn.close_and_delete)
         self._inPortLayout().addItem(graphicalConn)
 
     def __add_out_connection(self, port):
         graphicalConn = GraphicalPort(port)
+        self.destroyed.connect(graphicalConn.close_and_delete)
         self._outPortLayout().addItem(graphicalConn)
 
     ####################
@@ -173,64 +190,22 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         if(self.layout()): self.layout().updateGeometry()
 
     def __remove_inputs(self, view=None):
-        if not view: view = self.scene()
-        count = self._inPortLayout().count()
-        items = deque()
-        for i in range(count):
-            it = self._inPortLayout().itemAt(i)
-            items.append(it.graphicsItem())
-        try : it = items.popleft()
-        except: return
-        while it:
-            it.remove_from_view(view)
-            try: it = items.popleft()
-            except IndexError: it = None            
-        for i in range(self._inPortLayout().count()):
-            self._inPortLayout().removeAt(0)
-        self.__reset_inPorts_layout()
-            
-    def __reset_inPorts_layout(self):
-        try : self.layout().removeItem(self._inPortLayout())
-        except : pass
-        lay = QtGui.QGraphicsLinearLayout()
-        self._inPortLayout = weakref.ref(lay)
-        self.layout().insertItem(0, self._inPortLayout())
-        self.layout().setAlignment(self._inPortLayout(), QtCore.Qt.AlignHCenter)
-        self._inPortLayout().setSpacing(0.0)
-        self._inPortLayout().setMinimumHeight(GraphicalPort.HEIGHT)
+        self.clear_layout(self._inPortLayout())
 
     def __remove_outputs(self, view=None):
-        if not view: view = self.scene()
-        count = self._outPortLayout().count()
-        items = deque()
-        for i in range(count):
-            it = self._outPortLayout().itemAt(i)
-            items.append(it.graphicsItem())
-        try : it = items.popleft()
-        except: return
-        while it:
-            it.remove_from_view(view)
-            try: it = items.popleft()
-            except IndexError: it = None            
-        for i in range(self._outPortLayout().count()):
-            self._outPortLayout().removeAt(0)
-        self.__reset_outPorts_layout()
-
-    def __reset_outPorts_layout(self):
-        try : self.layout().removeItem(self._outPortLayout())
-        except : pass
-        lay = QtGui.QGraphicsLinearLayout()
-        self._outPortLayout = weakref.ref(lay)
-        self.layout().insertItem(-1, self._outPortLayout())
-        self.layout().setAlignment(self._outPortLayout(), QtCore.Qt.AlignHCenter)   
-        self._outPortLayout().setSpacing(0.0)
-        self._outPortLayout().setMinimumHeight(GraphicalPort.HEIGHT)
+        self.clear_layout(self._outPortLayout())
         
-    def remove_from_view(self, view):
-        """An element removes itself from the given view"""
-        self.__remove_outputs(view)
-        self.__remove_inputs(view)
-        qtgraphview.Vertex.remove_from_view(self, view)        
+    def clear_layout(self, layout):
+        count = layout.count()
+        for i in range(count):
+            layout.removeAt(0)
+
+    def __configure_layout(self, layout):
+        layout.setSpacing(0.0)
+        layout.setMinimumHeight(GraphicalPort.HEIGHT)
+        self.layout().setAlignment(layout, QtCore.Qt.AlignHCenter)
+
+               
 
     ###############################
     # ----Qt World overloads----  #
@@ -321,6 +296,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         QtGui.QGraphicsWidget.__init__(self)
         qtgraphview.Element.__init__(self, observed=port)
         
+        
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, False)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
       
@@ -331,6 +307,11 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         port.simulate_construction_notifications()
 
     port = baselisteners.GraphElementObserverBase.get_observed
+    
+    def close_and_delete(self, obj):
+        self.clear_observed()
+        del self
+        
 
     def notify(self, sender, event):
         try : self.port(); self.__vertBBox()

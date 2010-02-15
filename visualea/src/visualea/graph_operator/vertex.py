@@ -38,8 +38,7 @@ class VertexOperators(object):
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
         widget.setWindowFlags(QtCore.Qt.Window)
-        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
-        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())        
         widget.show_entire_scene()
         widget.show()
         
