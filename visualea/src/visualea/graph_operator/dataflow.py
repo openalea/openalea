@@ -33,7 +33,8 @@ class DataflowOperators(object):
         self.get_graph().eval_as_expression()
 
     def graph_reset(self):
-        ret = QtGui.QMessageBox.question(self, 
+        widget = self.get_graph_view()
+        ret = QtGui.QMessageBox.question(widget, 
                                          "Reset Workspace",
                                          "Reset will delete all input values.\n" + \
                                              "Continue ?\n",
@@ -83,8 +84,7 @@ class DataflowOperators(object):
         if(not ret): return
 
         # NOW WE DO THE HARD WORK
-        # -----------------------
-        
+        # -----------------------        
         factory = dialog.create_cnfactory(self.get_package_manager())
         items = widget.get_selected_items(qtgraphview.Vertex)
         if(not items): return None
@@ -132,7 +132,7 @@ class DataflowOperators(object):
             #to prevent too many redraws during the grouping we queue events then process
             #them all at once.
             widget.queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
-            correct_positions(newVert)
+            #correct_positions(newVert)
 
         
         try:
@@ -311,13 +311,13 @@ class DataflowOperators(object):
     
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
-        widget = self.get_graph_view()
-        
+        widget = self.get_graph_view()        
         graph, tempfactory = self.__get_current_factory(name)
         w = qtgraphview.View(widget.parent(), graph)
-        w.viewport().setEnabled(False)
-
-        open_dialog(widget, w, 'Preview Application')
+        w.setWindowFlags(QtCore.Qt.Window)
+        w.lock_mouse_events()
+        w.setWindowTitle('Preview Application')
+        w.show()
         return graph, tempfactory
 
 
