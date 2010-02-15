@@ -518,6 +518,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     def __init__(self, parent, graph):
         QtGui.QGraphicsView.__init__(self, parent)
         baselisteners.GraphListenerBase.__init__(self, graph)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
@@ -530,14 +531,14 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             if "Event" in name and hand:
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
 
-        self.__selectAdditions=False
+        self.__selectAdditions  = False #select newly added items
+        self.__mouseIsLocked    = False #lock mouse click events
+        self.__keyboardIsLocked = False #lock keyboard events
         
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
 
-        if not (os.name == "posix" and "Ubuntu" in os.uname()[3]):
-            self.destroyed.connect(gc.collect)
-        else:
+        if (os.name == "posix" and "Ubuntu" in os.uname()[3]):
             self.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)        
         
         # ---Qt Stuff---
@@ -554,6 +555,18 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     ##################
     # QtWorld-Events #
     ##################
+    def event(self, event):
+        _type = event.type()
+        if ((_type == QtCore.QEvent.KeyPress or 
+            _type == QtCore.QEvent.KeyRelease) 
+            and self.__keyboardIsLocked):
+            return True
+        if ((_type == QtCore.QEvent.MouseButtonPress or 
+            _type == QtCore.QEvent.MouseButtonRelease)
+            and self.__keyboardIsLocked):
+            return True
+        return QtGui.QGraphicsView.event(self, event)
+            
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
@@ -571,17 +584,21 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             self.new_edge_end()
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
 
-    def accept_event(self, event):
-        """ Return True if event is accepted """
+    def accept_drop(self, event):
+        """ Return the format of the object if a handler is registered for it.
+        If not, if there is a default handler, returns True, else returns False.
+        """
         for format in self.__application_integration__["mimeHandlers"].keys():
             if event.mimeData().hasFormat(format): return format
         return True if self.__defaultDropHandler else False
 
     def dragEnterEvent(self, event):
-        event.setAccepted(True if self.accept_event(event) else False)
+        """While the user hasn't released the object, this method is called
+        to tell qt if the view accepts the object or not."""
+        event.setAccepted(True if self.accept_drop(event) else False)
             
     def dragMoveEvent(self, event):
-        format = self.accept_event(event)
+        format = self.accept_drop(event)
         if (format):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
@@ -589,14 +606,12 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             event.ignore()
 
     def dropEvent(self, event):
-        format = self.accept_event(event)
+        format = self.accept_drop(event)
         handler = self.__application_integration__["mimeHandlers"].get(format)
         if(handler):
             handler(self, event)
         else:
-            self.__defaultDropHandler(event)
-        
-
+            self.__defaultDropHandler(event)        
         QtGui.QGraphicsView.dropEvent(self, event)
 
     def keyPressEvent(self, event):
@@ -626,6 +641,12 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
     #########################
     # Other utility methods #
     #########################
+    def lock_mouse_events(self, val=True):
+        self.__mouseIsLocked = val
+    
+    def lock_keyboard_events(self, val=True):
+        self.__keyboardIsLocked = val
+        
     def scale_view(self, factor):
         self.scale(factor, factor)
         
@@ -663,6 +684,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         """ Remove all items from the scene """
         scene = QtGui.QGraphicsScene(self)
         self.setScene(scene)
+        baselisteners.GraphListenerBase.clear_scene(self)
 
     def get_items(self, filterType=None, subcall=None):
         """ """
@@ -731,33 +753,22 @@ def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
     #creation of new references because we already have so many of them
     #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
     grapheditor_items = []
-    other_items       = []
 
-    def sort(l1, l2):
+    def sort(l1):
         def wrapper(i):
-            l1.append(i) if isinstance(i, Element) else l2.append(i)
+            l1.append(i) if isinstance(i, Element) else None
         return wrapper
 
     items = scene.items()
-    map( sort(grapheditor_items, other_items), items)
+    map( sort(grapheditor_items), items)
     del items
 
-    it = other_items.pop()
-    while it:
-        scene.removeItem(it)
-        try: it = other_items.pop()
-        except IndexError: it = None
-    
-    it = grapheditor_items.pop()
-
-    if os.name == "posix" and "Ubuntu" in os.uname()[3]:
+    if len(grapheditor_items) != 0:
+        it = grapheditor_items.pop()
         while it:
             scene.removeItem(it)
-            it.clear_observed()
             try: it = grapheditor_items.pop()
             except IndexError: it = None
 
-    del other_items
-    del grapheditor_items
-    
+    del grapheditor_items    
     gc.collect()
