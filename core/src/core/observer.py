@@ -51,6 +51,7 @@ class Observed(object):
             if isinstance(listener, weakref.ref):
                 self.listeners.discard(listener)
             else:
+                toDiscard = None
                 for lis in self.listeners:
                     if lis() == listener:
                         toDiscard = lis

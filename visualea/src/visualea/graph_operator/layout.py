@@ -29,7 +29,7 @@ class LayoutOperators(object):
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find median base #TODO beware of relative to parent coordinates
             ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
@@ -40,7 +40,7 @@ class LayoutOperators(object):
                                                              [item.vertex().get_ad_hoc_dict().get_metadata("position")[0],ymean])
         
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return
 
@@ -51,7 +51,7 @@ class LayoutOperators(object):
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
@@ -62,7 +62,7 @@ class LayoutOperators(object):
                                                              [xmean,
                                                               item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return
 
@@ -73,7 +73,7 @@ class LayoutOperators(object):
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -87,7 +87,7 @@ class LayoutOperators(object):
                                                               item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
         
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return
 
@@ -98,7 +98,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.get_selected_items(qtgraphview.Vertex)        
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)        
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -112,7 +112,7 @@ class LayoutOperators(object):
                                                               item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
         
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return
 
@@ -123,7 +123,7 @@ class LayoutOperators(object):
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.Vertex)        
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)        
         if len(items) > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
             xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
@@ -150,7 +150,7 @@ class LayoutOperators(object):
                 current_x += dist + item.boundingRect().width()
         
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return
 
@@ -161,7 +161,7 @@ class LayoutOperators(object):
         if widget is None :
             return
         
-        items = widget.get_selected_items(qtgraphview.Vertex)        
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)        
         if len(items) > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
             ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)
@@ -188,6 +188,6 @@ class LayoutOperators(object):
                 current_y += dist + item.boundingRect().height()
             
             #notify
-            widget.notify(None,("graph_modified",) )
+            widget.scene().notify(None,("graph_modified",) )
         
         return

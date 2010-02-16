@@ -347,7 +347,7 @@ class MainWindow(QtGui.QMainWindow,
 
         #check if the current selection is coloured and tick the 
         #menu item if an item of the selection uses the user color.
-        items = widget.get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)
         self.actionUseCustomColor.setChecked(False)
         for i in items:
             if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
@@ -482,15 +482,6 @@ class MainWindow(QtGui.QMainWindow,
         if(not caption) :
             i = self.session.workspaces.index(graph)
             caption = "Workspace %i - %s"%(i, graph.get_caption())
-
-        #if we're in debug mode and want to have the old behaviour too
-        #we create floating EditGraphWidgets
-        if(__debug__):
-            if(__builtin__.__debug_with_old__):
-                old = compositenode_widget.EditGraphWidget(graph, self)
-                old.setWindowFlags(QtCore.Qt.Window)
-                old.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-                old.show()
 
         index = self.tabWorkspace.insertTab(pos, gwidget, caption)
         self.tabWorkspace.setCurrentIndex(index)

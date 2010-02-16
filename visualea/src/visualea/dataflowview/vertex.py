@@ -91,10 +91,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         """todo evaluate this for inclusion into the interfaces"""
         self.vertex().exclusive_command(self, self.vertex().simulate_destruction_notifications)
         
-    def initialise_from_model(self):
-        qtgraphview.Vertex.initialise_from_model(self)
-        self.vertex().exclusive_command(self, self.vertex().simulate_construction_notifications)
-
 
     #####################################
     # pseudo-protected or private stuff #
@@ -128,9 +124,12 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def announce_view_data(self, exclusive=False):
         if not exclusive:
             self.vertex().get_ad_hoc_dict().simulate_full_data_change()
+            self.vertex().simulate_construction_notifications()
         else:
             self.vertex().exclusive_command(exclusive,
                                             self.vertex().get_ad_hoc_dict().simulate_full_data_change)
+            self.vertex().exclusive_command(exclusive, 
+                                            self.vertex().simulate_construction_notifications)
 
     def notify(self, sender, event): 
         """ Notification sent by the vertex associated to the item """
@@ -380,9 +379,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     # QtWorld-Events #
     ##################
     def mousePressEvent(self, event):
-        graphview = self.scene().views()[0]
-        if (graphview and event.buttons() & QtCore.Qt.LeftButton):
-            graphview.new_edge_start(self.get_scene_center())
+        scene = self.scene()
+        if (scene and event.buttons() & QtCore.Qt.LeftButton):
+            scene.new_edge_start(self.get_scene_center())
             return
 
     def paint(self, painter, option, widget):
