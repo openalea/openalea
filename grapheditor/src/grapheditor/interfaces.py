@@ -87,11 +87,11 @@ class IGraphListener(object):
     def edge_removed(self, edgeModel):
         raise NotImplementedError
 
-    def new_edge_scene_init(self, *args, **kwargs):
-        raise NotImplementedError
-    
-    def new_edge_scene_cleanup(self, *args, **kwargs):
-        raise NotImplementedError
+#    def new_edge_scene_init(self, *args, **kwargs):
+#        raise NotImplementedError
+#    
+#    def new_edge_scene_cleanup(self, *args, **kwargs):
+#        raise NotImplementedError
 
     def find_closest_connectable(self, *args, **kwargs):
         raise NotImplementedError
@@ -100,6 +100,15 @@ class IGraphListener(object):
         raise NotImplementedError
 
     def is_connectable(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def clear(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def initialise_from_model(self):
+        raise NotImplementedError
+
+    def announce_view_data(self, exclusive=False):
         raise NotImplementedError
 
 #------*************************************************------#
@@ -191,6 +200,9 @@ class IGraphViewElement(object):
     def get_view_data(self, key):
         raise NotImplementedError
 
+    def initialise_from_model(self):
+        raise NotImplementedError
+
     def announce_view_data(self, exclusive=False):
         raise NotImplementedError
         
@@ -252,89 +264,3 @@ class IGraphViewFloatingEdge(object):
         raise NotImplementedError
 
 
-#------*************************************************------#
-class IGraphViewVertexPaintStrategy(object):
-    __metaclass__ = interface.IInterfaceMetaClass
-
-    @classmethod
-    def paint(cls, item, painter, option, widget):
-        """
-        Implement this to completely override the drawing
-        process.
-
-        :Returns:
-        True if the method did the complete painting
-        or False if it doesn't want to override the
-        caller's painting routine.
-
-        :Parameters:
-            - item - the graphical item calling this function.
-            - painter - the painter object used to draw the view.
-            - option - options to tweak the drawing of the item.
-            - widget - the widget being painted on.
-         
-        """
-        raise NotImplementedError
-    
-    @classmethod
-    def get_path(cls, widget):
-        """ 
-	Path representing the object.
-        
-	:Returns: The path that will draw the
-        boundary of the item.
-        """
-        raise NotImplementedError
-    
-    @classmethod
-    def get_gradient(cls, widget):
-        """ 
-	Gradient to fill the object with.
-        
-        :Returns: The gradient to brush the item
-        with. It can return None and let the gradient
-        be defined by the first and second color. The
-        direction of the gradient will be determined
-        by the caller.
-        """
-        raise NotImplementedError
-    
-    @classmethod
-    def get_first_color(cls, widget):
-        """
-	Returns the first color of the gradient.
-	"""
-        raise NotImplementedError
-    
-    @classmethod
-    def get_second_color(cls, widget):
-        """
-	Returns the second color of the gradient.
-	"""
-        raise NotImplementedError
-    
-    @classmethod
-    def prepaint(self, widget, paintEvent, painter, state):
-        """A routine to do things before the actual painting happens.
-
-        :Parameters:
-            - item - the graphical item calling this function.
-            - painter - the painter object used to draw the view.
-            - option - options to tweak the drawing of the item.
-            - widget - the widget being painted on.
-
-         """
-        raise NotImplementedError
-
-    @classmethod
-    def postpaint(self, widget, paintEvent, painter, state):
-        """A routine to do things after the actual painting occured.
-
-        :Parameters:
-            - item - the graphical item calling this function.
-            - painter - the painter object used to draw the view.
-            - option - options to tweak the drawing of the item.
-            - widget - the widget being painted on.
-
-         """
-        raise NotImplementedError

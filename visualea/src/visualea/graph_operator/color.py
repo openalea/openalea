@@ -22,7 +22,7 @@ from openalea.grapheditor import qtgraphview
 
 class ColorOperators(object):
     def graph_set_selection_color(self):
-        items = self.get_graph_view().get_selected_items(qtgraphview.Vertex)
+        items = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
         length = len(items)
         if(length==0): return
         if(length==1):
@@ -48,7 +48,7 @@ class ColorOperators(object):
                 pass
 
     def graph_useUserColor(self, useit):
-        items = self.get_graph_view().get_selected_items(qtgraphview.Vertex)
+        items = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
         if(not items): return
         scheduleASetColor = False
         for i in items:
@@ -62,5 +62,5 @@ class ColorOperators(object):
         if(scheduleASetColor):
             self.graph_set_selection_color()
 
-    vertex_set_color      = graph_set_selection_color
+    vertex_set_color    = graph_set_selection_color
     vertex_useUserColor = graph_useUserColor

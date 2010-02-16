@@ -28,7 +28,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
-        QtGui.QGraphicsTextItem.__init__(self, parent)
+        QtGui.QGraphicsTextItem.__init__(self, "Click to edit", parent)
         qtgraphview.Annotation.__init__(self, annotation, graphadapter)
 
         # ---Qt Stuff---
@@ -47,13 +47,16 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
     def set_text(self, text):
         self.setPlainText(text)
 
-    def sceneEvent(self, event):
-        if( event.type() == QtCore.QEvent.GraphicsSceneMouseMove ):
-            self.deaf()
-            point = event.scenePos() - event.pos()
-            self.store_view_data('position', [point.x(), point.y()])
-            self.deaf(False)
-        return QtGui.QGraphicsTextItem.sceneEvent(self, event)
+    itemChange = mixin_method(qtgraphview.Annotation, QtGui.QGraphicsTextItem,
+                              "itemChange")
+
+#    def sceneEvent(self, event):
+#        if( event.type() == QtCore.QEvent.GraphicsSceneMouseMove ):
+#            self.deaf()
+#            point = event.scenePos() - event.pos()
+#            self.store_view_data('position', [point.x(), point.y()])
+#            self.deaf(False)
+#        return QtGui.QGraphicsTextItem.sceneEvent(self, event)
 
     def store_view_data(self, key, value, notify=True):
         self.annotation().get_ad_hoc_dict().set_metadata(key, value)

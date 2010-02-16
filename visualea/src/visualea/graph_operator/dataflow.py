@@ -49,7 +49,7 @@ class DataflowOperators(object):
         
     def graph_remove_selection(self, items=None):
         if(not items):
-            items = self.get_graph_view().get_selected_items()
+            items = self.get_graph_view().scene().get_selected_items()
         if(not items): return
         for i in items:
             if isinstance(i, qtgraphview.Vertex):
@@ -86,10 +86,10 @@ class DataflowOperators(object):
         # NOW WE DO THE HARD WORK
         # -----------------------        
         factory = dialog.create_cnfactory(self.get_package_manager())
-        items = widget.get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(qtgraphview.Vertex)
         if(not items): return None
         
-        pos = widget.get_selection_center(items)
+        pos = widget.scene().get_selection_center(items)
         def cmp_x(i1, i2):
             return cmp(i1.scenePos().x(), i2.scenePos().x())
         items.sort(cmp=cmp_x)        
@@ -152,7 +152,7 @@ class DataflowOperators(object):
             except:
                 pass
         else:
-            s = self.get_graph_view().get_selected_items(qtgraphview.Vertex)
+            s = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
             s = [i.vertex().get_id() for i in s]
             if(not s): return 
             self.get_session().clipboard.clear()
@@ -181,7 +181,7 @@ class DataflowOperators(object):
             # Get Position from cursor
             position = widget.mapToScene(
                 widget.mapFromGlobal(widget.cursor().pos()))
-            widget.select_added_elements(True)
+            widget.scene().select_added_elements(True)
             
             cnode = self.get_session().clipboard.instantiate()
 
@@ -294,7 +294,7 @@ class DataflowOperators(object):
 
         newGraph = self.get_graph().factory.instantiate()
         widget.set_graph(newGraph)
-        widget.rebuild_scene()
+        widget.scene().rebuild()
         self.get_session().workspaces[index] = newGraph
 
     def __get_current_factory(self, name):
@@ -315,6 +315,7 @@ class DataflowOperators(object):
         graph, tempfactory = self.__get_current_factory(name)
         w = qtgraphview.View(widget.parent(), graph)
         w.setWindowFlags(QtCore.Qt.Window)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         w.lock_mouse_events()
         w.setWindowTitle('Preview Application')
         w.show()

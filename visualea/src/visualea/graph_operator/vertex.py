@@ -32,12 +32,12 @@ class VertexOperators(object):
         self.vertexItem = None
 
     def set_vertex_item(self, vertexItem):
-        self.vertexItem = weakref.ref(vertexItem)
-        
+        self.vertexItem = weakref.ref(vertexItem)        
 
     def vertex_composite_inspect(self):
-        widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())
+        widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())    
         widget.setWindowFlags(QtCore.Qt.Window)
+        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())        
         widget.show_entire_scene()
         widget.show()
@@ -81,13 +81,13 @@ class VertexOperators(object):
         """replaces the actor of a vertex by another one in the views only!
         not model-wise. For that, use vertex_replace, vertex_reload."""
         self.vertexItem().terminate_from_model()  # graphical vertex clears its input and output port
-        oldVertex.copy_to(newVertex)
+        oldVertex.copy_to(newVertex)              # copies attributes, including listeners
         self.vertexItem().initialise_from_model() # graphical vertex restarts
         #currently, the grapheditor widget maps models with graphical items
         #to track which graphic item to delete when something is being
         #deleted in the model:
-        self.get_graph_view()._unregister_widget_from_model(self.vertexItem(), oldVertex)
-        self.get_graph_view()._register_widget_with_model(self.vertexItem(), newVertex)
+        self.get_graph_view().scene()._unregister_widget_from_model(self.vertexItem(), oldVertex)
+        self.get_graph_view().scene()._register_widget_with_model(self.vertexItem(), newVertex)
 
     @exception_display
     @busy_cursor

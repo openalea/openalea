@@ -88,23 +88,6 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
         QtGui.QGraphicsProxyWidget.setWidget(self, widget)
 
 
-    ############
-    # QT WORLD #
-    ############
-    # def paint(self, painter, paintOptions, widget):
-    # 	"""Overrides the painting of a QGraphicsProxyWidget.
-	
-    #     :Parameters:
-    #      - painter (QtGui.QPainter) - The painter to paint with
-    #      - paintOptions (QtGui.QStyleOptionsGraphicsItem) - Info one can use
-    #        to do the painting
-    #      - widget (QtGui.QWidget) - The widget being painted on.
-
-    #     """
-    #     #NEEDED TO OVERLOAD THIS TO GET RID OF THE UGLY BACKGROUND
-    #     #AROUND THE WIDGET.
-    #     self.widget().render(painter, QtCore.QPoint(), QtGui.QRegion(), 
-    #                          QtGui.QWidget.RenderFlags()|QtGui.QWidget.DrawChildren)
 
 
 

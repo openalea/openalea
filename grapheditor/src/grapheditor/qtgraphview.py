@@ -19,7 +19,8 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-import weakref, types, sip, os
+import weakref, types, os, gc
+import exceptions, warnings
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
@@ -39,6 +40,10 @@ __AIK__ = [
     "keyPressEvent",
     "contextMenuEvent"
     ]
+
+
+
+
 
     
 #------*************************************************------#
@@ -149,7 +154,6 @@ class Element(baselisteners.GraphElementObserverBase):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
 
 
-
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
@@ -208,7 +212,7 @@ class Vertex(Element):
         if change == QtGui.QGraphicsItem.ItemPositionChange:
             self.deaf(True)
             point = value.toPointF()
-            cPos = point + self.rect().center()
+            cPos = point + self.boundingRect().center()
             self.store_view_data('position', [point.x(), point.y()])
             self.deaf(False)
             return value
@@ -224,11 +228,11 @@ class Vertex(Element):
         """Qt-specific call to handle mouse clicks on the vertex.
         Default implementation initiates the creation of an edge from
         the vertex."""
-        graphview = self.scene().views()[0]
-        if (graphview and event.buttons() & QtCore.Qt.LeftButton and
+        scene = self.scene()
+        if (scene and event.buttons() & QtCore.Qt.LeftButton and
             event.modifiers() & QtCore.Qt.ControlModifier):
             pos = [event.scenePos().x(), event.scenePos().y()]
-            graphview.new_edge_start(pos, source=self)
+            scene.new_edge_start(pos, source=self)
             return
 
 
@@ -259,13 +263,23 @@ class Annotation(Element):
         if(event[0] == "metadata_changed"):
             if(event[1]=="text"):
                 if(event[2]): self.set_text(event[2])
+                else : self.set_text("Click to edit")
 
         Element.notify(self, sender, event)
 
 
     #####################
     # ----Qt World----  #
-    #####################            
+    #####################      
+    def itemChange(self, change, value):
+        if change == QtGui.QGraphicsItem.ItemPositionChange:
+            self.deaf(True)
+            point = value.toPointF()
+            cPos = point + self.boundingRect().center()
+            self.store_view_data('position', [point.x(), point.y()])
+            self.deaf(False)
+            return value
+      
     def mouseDoubleClickEvent(self, event):
         """ todo """
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
@@ -286,7 +300,6 @@ class Annotation(Element):
             self.setTextCursor(cursor)
             
         self.store_view_data('text', str(self.toPlainText()))
-
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
 
 
@@ -430,7 +443,8 @@ class FloatingEdge( Edge ):
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
             pass
-            #print "consolidation failed :", type(e), e, ". Are you sure you plugged the right ports?"
+            #print "consolidation failed :", type(e), e,\
+            #". Are you sure you plugged the right ports?"
         return
         
     def get_connections(self):
@@ -451,10 +465,134 @@ class FloatingEdge( Edge ):
         return srcVertexItem.vertex(), dstVertexItem.vertex()
 
 
+#------*************************************************------#
+class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
+    """A Qt implementation of GraphListenerBase"""
+    def __init__(self, parent, graph):
+        QtGui.QGraphicsScene.__init__(self, parent)
+        baselisteners.GraphListenerBase.__init__(self, graph)
+        self.__selectAdditions  = False #select newly added items
+        self.__views = set()
+        self.initialise_from_model()
+        
+    def register_view(self,  view):
+        self.__views.add(weakref.ref(view))
+
+    def unregister_view(self,  view):
+        toDiscard = None
+        for v in self.__views:
+            if v() == view : toDiscard = v; break
+        self.__views.remove(toDiscard)
+        self.graph().unregister_listener(view)
+        if len(self.__views)==0: self.clear()
+
+    def get_scene(self):
+        return self
+
+    def find_closest_connectable(self, pos, boxsize = 10.0):
+        #creation of a square which is a selected zone for while ports 
+        rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
+        dstPortItems = self.items(rect)      
+        dstPortItems = [item for item in dstPortItems if self.is_connectable(item)]
+
+        distance = float('inf')
+        dstPortItem = None
+        for item in dstPortItems:
+            d = sqrt((item.boundingRect().center().x() - pos[0])**2 + 
+                        (item.boundingRect().center().y() - pos[1])**2)
+            if d < distance:
+                distance = d
+                dstPortItem = item            
+        return dstPortItem
+
+    def post_addition(self, element):
+        """defining virtual bases makes the program start
+        but crash during execution if the method is not implemented, where
+        the interface checking system could prevent the application from
+        starting, with a die-early behaviour."""
+        self.clearSelection()
+        if(self.__selectAdditions):
+            element.setSelected(True)
+
+    def rebuild(self):
+        """ Build the scene with graphic vertex and edge"""
+        self.clear()
+        self.initialise_from_model()
+
+    def clear(self):
+        """ Remove all items from the scene """
+        QtGui.QGraphicsScene.clear(self)
+        baselisteners.GraphListenerBase.clear(self)
+        gc.collect()
+
+    def announce_view_data(self, exclusive=True):
+        gph = self.graph()
+        gph.exclusive_command( self,
+                               gph.simulate_construction_notifications )
+
+    ##################
+    # QtWorld-Events #
+    ##################
+    def mouseMoveEvent(self, event):
+        if(self.is_creating_edge()):
+            pos = event.scenePos()#self.mapToScene(event.pos())
+            pos = [pos.x(), pos.y()]
+            self.new_edge_set_destination(*pos)
+            return QtGui.QGraphicsScene.mouseMoveEvent(self, event)
+        QtGui.QGraphicsScene.mouseMoveEvent(self, event)
+
+    def mouseReleaseEvent(self, event):
+        if(self.is_creating_edge()):
+            self.new_edge_end()
+        QtGui.QGraphicsScene.mouseReleaseEvent(self, event)
+        
+    #########################
+    # Other utility methods #
+    #########################
+    def select_added_elements(self, val):
+        self.__selectAdditions=val
+
+    def get_items(self, filterType=None, subcall=None):
+        """ """
+        return [ (item if subcall is None else eval("item."+subcall))
+                 for item in self.items() if 
+                 (True if filterType is None else isinstance(item, filterType))]        
+        
+    def get_selected_items(self, filterType=None, subcall=None):
+        """ """
+        return [ (item if subcall is None else eval("item."+subcall))
+                 for item in self.items() if item.isSelected() and
+                 (True if filterType is None else isinstance(item, filterType))]
+                     
+    def get_selection_center(self, selection=None):
+        """ """
+        items = None
+        if selection: items = selection
+        else: items = self.get_selected_items()
+
+        l = len(items)
+        if(l == 0) : return QtCore.QPointF(30,30)
+        
+        sx = sum((i.pos().x() for i in items))
+        sy = sum((i.pos().y() for i in items))
+        return QtCore.QPointF( float(sx)/l, float(sy)/l )
+        
+
 
 #------*************************************************------#
-class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
-    """A Qt implementation of GraphListenerBase    """
+
+#create deprecation wrappers
+def deprecate(methodName, newName=None):
+    if newName is None : newName = methodName
+    def deprecation_wrapper(self, *args, **kwargs):
+        warnings.warn(exceptions.DeprecationWarning(
+                            "Please use self.scene().%s instead"%(newName,)),
+                      stacklevel=2)
+        return getattr(self.scene(), newName)(*args, **kwargs)
+    return deprecation_wrapper
+
+class View(QtGui.QGraphicsView):
+    """A View implementing client customisation """
 
     ####################################
     # ----Class members come first---- #
@@ -508,16 +646,15 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         cls.__defaultDropHandler = handler
 
     #A few signals that strangely enough don't exist in QWidget
-    closeRequested = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
+    closing = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
 
 
     ####################################
     # ----Instance members follow----  #
     ####################################   
-    def __init__(self, parent, graph):
+    def __init__(self, parent, graph=None):
         QtGui.QGraphicsView.__init__(self, parent)
-        baselisteners.GraphListenerBase.__init__(self, graph)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
@@ -531,15 +668,18 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             if "Event" in name and hand:
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
 
-        self.__selectAdditions  = False #select newly added items
         self.__mouseIsLocked    = False #lock mouse click events
         self.__keyboardIsLocked = False #lock keyboard events
-        
-        scene = QtGui.QGraphicsScene(self)
-        self.setScene(scene)
 
-        if (os.name == "posix" and "Ubuntu" in os.uname()[3]):
-            self.closeRequested.connect(HACK_CLEANUP_INSPECTOR_GRAPHVIEW)        
+        if graph: 
+            #if the graph has already a qtgraphview.Scene GraphListener
+            #reuse it:
+            existingScene = None
+            for listener in graph.listeners:
+                if isinstance(listener(), Scene):
+                    existingScene = listener()
+                    break
+            self.setScene(existingScene if existingScene else Scene(None, graph))      
         
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
@@ -547,15 +687,21 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-        self.rebuild_scene()
-        
-    def get_scene(self):
-        return self.scene()
+
+    def setScene(self, scene):
+        self.__scene = scene
+        scene.register_view(self)
+        self.closing.connect(scene.unregister_view)
+        QtGui.QGraphicsView.setScene(self, scene)
+
+    def graph(self):
+        return self.scene().graph()
 
     ##################
     # QtWorld-Events #
     ##################
     def event(self, event):
+        """Overloaded just to allow global lock of user events"""
         _type = event.type()
         if ((_type == QtCore.QEvent.KeyPress or 
             _type == QtCore.QEvent.KeyRelease) 
@@ -571,19 +717,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
 
-    def mouseMoveEvent(self, event):
-        if(self.is_creating_edge()):
-            pos = self.mapToScene(event.pos())
-            pos = [pos.x(), pos.y()]
-            self.new_edge_set_destination(*pos)
-            return QtGui.QGraphicsView.mouseMoveEvent(self, event)
-        QtGui.QGraphicsView.mouseMoveEvent(self, event)
-
-    def mouseReleaseEvent(self, event):
-        if(self.is_creating_edge()):
-            self.new_edge_end()
-        QtGui.QGraphicsView.mouseReleaseEvent(self, event)
-
+    # ----drag and drop----
     def accept_drop(self, event):
         """ Return the format of the object if a handler is registered for it.
         If not, if there is a default handler, returns True, else returns False.
@@ -629,13 +763,12 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
             action(self, event)
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
-
+            
     def closeEvent(self, evt):
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking
         on some operating systems"""
-        self.closeRequested.emit(self, self.scene())
-        self.clear_scene()
+        self.closing.emit(self, self.scene())
         return QtGui.QGraphicsView.closeEvent(self, evt)
 
     #########################
@@ -672,103 +805,20 @@ class View(QtGui.QGraphicsView, baselisteners.GraphListenerBase):
         mat.scale(sc_scale,sc_scale)
         self.setMatrix(mat)
         self.centerOn(sc_center)
-    
-    def rebuild_scene(self):
-        """ Build the scene with graphic vertex and edge"""
-        self.clear_scene()
-        gph = self.graph()
-        gph.exclusive_command( self,
-                               gph.simulate_construction_notifications )
 
-    def clear_scene(self):
-        """ Remove all items from the scene """
-        scene = QtGui.QGraphicsScene(self)
-        self.setScene(scene)
-        baselisteners.GraphListenerBase.clear_scene(self)
+    ######################
+    # Deprecated methods #
+    ######################
+    rebuild_scene = deprecate("rebuild")
+    clear_scene = deprecate("clear")
+    get_items = deprecate("get_items")
+    get_selected_items = deprecate("get_selected_items")
+    get_selection_center = deprecate("get_selection_center")
+    select_added_elements = deprecate("select_added_elements")
+    post_addition = deprecate("post_addition")
+    notify = deprecate("notify")
 
-    def get_items(self, filterType=None, subcall=None):
-        """ """
-        return [ (item if subcall is None else eval("item."+subcall))
-                 for item in self.items() if 
-                 (True if filterType is None else isinstance(item, filterType))]        
-        
-    def get_selected_items(self, filterType=None, subcall=None):
-        """ """
-        return [ (item if subcall is None else eval("item."+subcall))
-                 for item in self.items() if item.isSelected() and
-                 (True if filterType is None else isinstance(item, filterType))]
-                     
-    def get_selection_center(self, selection=None):
-        items = None
-        if selection:
-            items = selection
-        else:
-            items = self.get_selected_items()
 
-        l = len(items)
-        if(l == 0) : return QtCore.QPointF(30,30)
-        
-        sx = sum((i.pos().x() for i in items))
-        sy = sum((i.pos().y() for i in items))
-        return QtCore.QPointF( float(sx)/l, float(sy)/l )
-
-    def select_added_elements(self, val):
-        self.__selectAdditions=val
-
-    def post_addition(self, element):
-        """defining virtual bases makes the program start
-        but crash during execution if the method is not implemented, where
-        the interface checking system could prevent the application from
-        starting, with a die-early behaviour."""
-        self.scene().clearSelection()
-        if(self.__selectAdditions):
-            element.setSelected(True)
-
-    def find_closest_connectable(self, pos):
-        boxsize = 10.0
-        #creation of a square which is a selected zone for while ports 
-        rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
-        dstPortItems = self.scene().items(rect)      
-        dstPortItems = [item for item in dstPortItems if item.__class__ in self.connector_types]
-
-        distance = float('inf')
-        dstPortItem = None
-        for item in dstPortItems:
-            d = sqrt((item.boundingRect().center().x() - pos[0])**2 + 
-                        (item.boundingRect().center().y() - pos[1])**2)
-            if d < distance:
-                distance = d
-                dstPortItem = item            
-
-        return dstPortItem
+interfaces.IGraphListener.check(Scene)
 
      
-import gc
-def HACK_CLEANUP_INSPECTOR_GRAPHVIEW(graphview, scene):
-    #there is a reference count problem in dataflowview that
-    #makes the items remain in memory. We get them, unregister
-    #them from their observed objects and remove them from the
-    #scene.
-    #This function is not meant to be fast. It tries to lessen the
-    #creation of new references because we already have so many of them
-    #graphview.graph().exclusive_command(graphview, graphview.graph().simulate_destruction_notifications)
-    grapheditor_items = []
-
-    def sort(l1):
-        def wrapper(i):
-            l1.append(i) if isinstance(i, Element) else None
-        return wrapper
-
-    items = scene.items()
-    map( sort(grapheditor_items), items)
-    del items
-
-    if len(grapheditor_items) != 0:
-        it = grapheditor_items.pop()
-        while it:
-            scene.removeItem(it)
-            try: it = grapheditor_items.pop()
-            except IndexError: it = None
-
-    del grapheditor_items    
-    gc.collect()

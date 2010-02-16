@@ -39,74 +39,6 @@ class StrategyError( Exception ):
 
 
 
-
-class ObservedBlackBox(object):
-    def __init__(self, owner, observed):
-        self.owner = weakref.ref(owner)
-        self.__observed = None
-        self.__is_true = False
-        self.__call__(observed)
-
-    def __call__(self, *args):
-        """If args is provided, sets the args,
-        else, returns the observed"""
-        if len(args) == 1:
-            observed = args[0]
-            if observed and self.__observed is not None:
-                return #don't overwrite the existing observed
-            if observed :
-                if isinstance(observed, observer.Observed): self.__patch_true()
-                else: self.__patch_fake()
-            else : self.__patch_fake()
-            self.__set_observed(observed)
-        else :
-            return self.get_observed()
-
-    def clear_observed(self):
-        raise Exception("clear_obs : You first need to set the observed with the () operator")
-
-    def get_observed(self):
-        raise Exception("get_obs : You first need to set the observed with the () operator")
-
-    def __set_observed(self, obs):
-        raise Exception("set_obs : You first need to set the observed with the () operator")    
-
-    def __patch_true(self):
-        self.clear_observed = self.__clear_true_observed
-        self.get_observed = self.__get_true_observed
-        self.__set_observed = self.__set_true_observed
-
-    def __patch_fake(self):
-        self.clear_observed = self.__clear_fake_observed
-        self.get_observed = self.__get_fake_observed
-        self.__set_observed = self.__set_fake_observed
-
-    def __set_true_observed(self, obs):
-        self.owner().initialise(obs)
-        self.__observed = weakref.ref(obs, self.clear_observed)
-
-    def __set_fake_observed(self, obs):
-        self.__observed = obs
-
-    def __get_true_observed(self):
-        return self.__observed()
-
-    def __get_fake_observed(self):
-        return self.__observed
-
-    def __clear_true_observed(self, which=None):
-        try:
-            self.__observed().unregister_listener(self.owner())
-        except:
-            try: self.__observed.unregister_listener(self.owner())
-            except: pass
-        finally:
-            self.__observed = None
-
-    def __clear_fake_observed(self, which=None):
-        self.__observed = None
-        
-
 class GraphElementObserverBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
     
@@ -150,13 +82,14 @@ class GraphElementObserverBase(observer.AbstractListener):
     def initialise_from_model(self):
         self.announce_view_data(exclusive=self)
 
+
+
 class GraphListenerBase(observer.AbstractListener):
-    """This widget strictly watches the given graph.
+    """This object strictly watches the given graph.
     It deduces the correct representation out
     of a known list of representations.
     
-    It is MVC oriented with both views and controllers
-    represented by distinct methods.
+    It is MVC oriented.
     """
 
     __available_strategies__ = {}
@@ -249,6 +182,9 @@ class GraphListenerBase(observer.AbstractListener):
         else:
             self.__observed = weakref.ref(graph) #might not need to be weak.
 
+    def initialise_from_model(self):
+        self.announce_view_data(exclusive=self)
+
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
     #############################################################
@@ -278,7 +214,7 @@ class GraphListenerBase(observer.AbstractListener):
         if edgeModel is None : return
         return self._element_removed(edgeModel)
         
-    def clear_scene(self):
+    def clear(self):
         self.widgetmap = {}
         
     def _element_added(self, widget, model):
@@ -352,7 +288,7 @@ class GraphListenerBase(observer.AbstractListener):
             except Exception, e :
                 pass
             finally:
-                self.__newEdge.remove_from_view(self.scene())
+                self.__newEdge.remove_from_view(self.get_scene())
         if self.currentItem:
             self.currentItem.set_highlighted(False)
             self.currentItem = None
@@ -379,4 +315,84 @@ class GraphListenerBase(observer.AbstractListener):
         self._adapterType = _type
 
     def is_connectable(self, obj):
-        return type(obj) in self.connector_types
+        return obj.__class__ in self.connector_types
+        
+        
+        
+class ObservedBlackBox(object):
+    def __init__(self, owner, observed):
+        self.owner = weakref.ref(owner)
+        self.__observed = None
+        self.__is_true = False
+        self.__call__(observed)
+
+    def __call__(self, *args):
+        """If args is provided, sets the args,
+        else, returns the observed"""
+        if len(args) == 1:
+            observed = args[0]
+            if observed and self.__observed is not None:
+                return #don't overwrite the existing observed
+            if observed :
+                if isinstance(observed, observer.Observed): self.__patch_true()
+                else: self.__patch_fake()
+            else : self.__patch_fake()
+            self.__set_observed(observed)
+        else :
+            return self.get_observed()
+
+    def clear_observed(self):
+        raise Exception("clear_obs : You first need to set the observed with the () operator")
+
+    def get_observed(self):
+        raise Exception("get_obs : You first need to set the observed with the () operator")
+
+    def __set_observed(self, obs):
+        raise Exception("set_obs : You first need to set the observed with the () operator")    
+        
+    def get_observers(self):
+        raise Exception("get_observers : You first need to set the observed with the () operator")    
+        
+    def __patch_true(self):
+        self.clear_observed = self.__clear_true_observed
+        self.get_observed = self.__get_true_observed
+        self.get_observers = self.__get_observers_true
+        self.__set_observed = self.__set_true_observed
+
+    def __patch_fake(self):
+        self.clear_observed = self.__clear_fake_observed
+        self.get_observed = self.__get_fake_observed
+        self.get_observers = self.__get_observers_fake        
+        self.__set_observed = self.__set_fake_observed
+
+    def __set_true_observed(self, obs):
+        self.owner().initialise(obs)
+        self.__observed = weakref.ref(obs, self.clear_observed)
+
+    def __set_fake_observed(self, obs):
+        self.__observed = obs
+
+    def __get_true_observed(self):
+        return self.__observed()
+
+    def __get_fake_observed(self):
+        return self.__observed
+
+    def __clear_true_observed(self, which=None):
+        try:
+            self.__observed().unregister_listener(self.owner())
+        except:
+            try: self.__observed.unregister_listener(self.owner())
+            except: pass
+        finally:
+            self.__observed = None
+
+    def __clear_fake_observed(self, which=None):
+        self.__observed = None        
+        
+    def __get_observers_true(self):
+        return self.__observed().listeners
+        
+    def __get_observers_fake(self):
+        return 0 #ugh... don't know how to do anything smart here yet.
+        
