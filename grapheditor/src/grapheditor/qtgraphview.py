@@ -509,8 +509,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         """defining virtual bases makes the program start
         but crash during execution if the method is not implemented, where
         the interface checking system could prevent the application from
-        starting, with a die-early behaviour."""
-        self.clearSelection()
+        starting, with a die-early behaviour."""        
         if(self.__selectAdditions):
             element.setSelected(True)
 
@@ -535,7 +534,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     ##################
     def mouseMoveEvent(self, event):
         if(self.is_creating_edge()):
-            pos = event.scenePos()#self.mapToScene(event.pos())
+            pos = event.scenePos()
             pos = [pos.x(), pos.y()]
             self.new_edge_set_destination(*pos)
             return QtGui.QGraphicsScene.mouseMoveEvent(self, event)
@@ -580,7 +579,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
 
 #------*************************************************------#
-
 #create deprecation wrappers
 def deprecate(methodName, newName=None):
     if newName is None : newName = methodName
@@ -668,8 +666,8 @@ class View(QtGui.QGraphicsView):
             if "Event" in name and hand:
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
 
-        self.__mouseIsLocked    = False #lock mouse click events
-        self.__keyboardIsLocked = False #lock keyboard events
+        # self.__mouseIsLocked    = False #lock mouse click events
+        # self.__keyboardIsLocked = False #lock keyboard events
 
         if graph: 
             #if the graph has already a qtgraphview.Scene GraphListener
@@ -699,20 +697,7 @@ class View(QtGui.QGraphicsView):
 
     ##################
     # QtWorld-Events #
-    ##################
-    def event(self, event):
-        """Overloaded just to allow global lock of user events"""
-        _type = event.type()
-        if ((_type == QtCore.QEvent.KeyPress or 
-            _type == QtCore.QEvent.KeyRelease) 
-            and self.__keyboardIsLocked):
-            return True
-        if ((_type == QtCore.QEvent.MouseButtonPress or 
-            _type == QtCore.QEvent.MouseButtonRelease)
-            and self.__keyboardIsLocked):
-            return True
-        return QtGui.QGraphicsView.event(self, event)
-            
+    ##################         
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
@@ -774,12 +759,6 @@ class View(QtGui.QGraphicsView):
     #########################
     # Other utility methods #
     #########################
-    def lock_mouse_events(self, val=True):
-        self.__mouseIsLocked = val
-    
-    def lock_keyboard_events(self, val=True):
-        self.__keyboardIsLocked = val
-        
     def scale_view(self, factor):
         self.scale(factor, factor)
         
