@@ -52,6 +52,8 @@ def OpenAleaNodeFactoryHandler(view, event):
 
         position = view.mapToScene(event.pos())
         try:
+            view.scene().clearSelection()
+            view.scene().select_added_items(True)
             node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, position=[position.x(), position.y()])
         except RecursionError:
@@ -83,6 +85,8 @@ def OpenAleaNodeDataPoolHandler(view, event):
 
         # Set key val
         try:
+            view.scene().clearSelection()
+            view.scene().select_added_items(True)
             node = factory.instantiate([view.graph().factory.get_id()])
             view.graph().add_vertex(node, [position.x(), position.y()])
         except RecursionError:

@@ -48,9 +48,15 @@ class DataflowOperators(object):
         self.get_graph().invalidate() #TODO : check what this does signal-wise
         
     def graph_remove_selection(self, items=None):
-        if(not items):
-            items = self.get_graph_view().scene().get_selected_items()
+        def cmp(a,b):
+            """edges need to be deleted before any other element"""
+            if type(a) == qtgraphview.Edge and type(b) == qtgraphview.Vertex : return 1            
+            if type(a) == type(b) : return 0
+            return -1
+        
+        if(not items): items = self.get_graph_view().scene().get_selected_items()            
         if(not items): return
+        items.sort(cmp)
         for i in items:
             if isinstance(i, qtgraphview.Vertex):
                 if self.get_graph().is_vertex_protected(i.vertex()): continue
@@ -109,19 +115,15 @@ class DataflowOperators(object):
             self.graph_remove_selection(items)
 
         def correct_positions(newGraph):
-            _minX, _minY = None, None
+            _minX = _minY = float("inf")
             for vid in newGraph.vertices():
-                if vid == newGraph.id_in or vid == newGraph.id_out:
-                    continue
+                if vid in (newGraph.id_in, newGraph.id_out): continue
                 node = newGraph.node(vid)
-                if not _minX and not _minY:
-                    _minX, _minY = node.get_ad_hoc_dict().get_metadata("position")
                 _nminX, _nminY = node.get_ad_hoc_dict().get_metadata("position")
                 _minX= min(_minX, _nminX)
                 _minY= min(_minY, _nminY)
             for vid in newGraph.vertices():
-                if vid == newGraph.id_in or vid == newGraph.id_out:
-                    continue
+                if vid in (newGraph.id_in, newGraph.id_out): continue
                 pos = newGraph.node(vid).get_ad_hoc_dict().get_metadata("position")
                 # the 50 is there to have a margin at the top and right of the
                 # nodes.
@@ -131,8 +133,8 @@ class DataflowOperators(object):
         if newVert:
             #to prevent too many redraws during the grouping we queue events then process
             #them all at once.
-            widget.queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
-            #correct_positions(newVert)
+            widget.scene().queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
+            correct_positions(newVert)
 
         
         try:
@@ -146,20 +148,20 @@ class DataflowOperators(object):
         
     def graph_copy(self):
         """ Copy Selection """
-        if(self.get_interpreter().hasFocus()):
+        if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().copy()
             except:
                 pass
         else:
-            s = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
-            s = [i.vertex().get_id() for i in s]
+            s = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex, 
+                                                                 "vertex().get_id()")
             if(not s): return 
             self.get_session().clipboard.clear()
             self.get_graph().to_factory(self.get_session().clipboard, s, auto_io=False)
 
     def graph_cut(self):
-        if(self.get_interpreter().hasFocus()):
+        if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().copy()
             except:
@@ -170,34 +172,37 @@ class DataflowOperators(object):
 
     def graph_paste(self):
         """ Paste from clipboard """
-        if(self.get_interpreter().hasFocus()):
+        if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().paste()
             except:
                 pass
         else:
-            widget = self.get_graph_view()
-
-            # Get Position from cursor
-            position = widget.mapToScene(
-                widget.mapFromGlobal(widget.cursor().pos()))
-            widget.scene().select_added_elements(True)
-            
+            widget = self.get_graph_view()                
             cnode = self.get_session().clipboard.instantiate()
-
-            min_x = min([cnode.node(vid).get_ad_hoc_dict().get_metadata("position")[0] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
-            min_y = min([cnode.node(vid).get_ad_hoc_dict().get_metadata("position")[1] for vid in cnode if vid not in (cnode.id_in, cnode.id_out)])
-
+            
+            min_x = min_y = float("inf")          
+            for vid in cnode:
+                if vid in (cnode.id_in, cnode.id_out): continue
+                pos = cnode.node(vid).get_ad_hoc_dict().get_metadata("position")
+                min_x = min(pos[0], min_x); min_y = min(pos[1], min_y)
+            
+            position = widget.mapToScene(widget.mapFromGlobal(widget.cursor().pos()))
             def lam(n):
                 x = n.get_ad_hoc_dict().get_metadata("position")
-                x = [x[0]-min_x + position.x()+30, x[1]-min_y + position.y()+30]
+                x[0] = x[0]-min_x + position.x()+30
+                x[1] = x[1]-min_y + position.y()+30
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
             widget.scene().clearSelection()
-            new_ids = self.get_session().clipboard.paste(self.get_graph(), 
-                                                     modifiers, 
-                                                     meta=True)
+            widget.setUpdatesEnabled(False)    
+            widget.scene().queue_call_notifications(self.get_session().clipboard.paste,
+                                                    self.get_graph(), 
+                                                    modifiers, 
+                                                    meta=True)
+            widget.setUpdatesEnabled(True)
+            widget.update()
 
 
     def graph_close(self):
@@ -316,7 +321,7 @@ class DataflowOperators(object):
         w = qtgraphview.View(widget.parent(), graph)
         w.setWindowFlags(QtCore.Qt.Window)
         w.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        w.lock_mouse_events()
+        w.setInteractive(False)
         w.setWindowTitle('Preview Application')
         w.show()
         return graph, tempfactory
