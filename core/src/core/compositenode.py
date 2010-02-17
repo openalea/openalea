@@ -995,10 +995,6 @@ class CompositeNode(Node, DataFlow):
         src_port = nodeSrc.output_desc[port_src]
         dst_port = nodeDst.input_desc[port_dst]
 
-        #don't notify if the edge is connected to the input or
-        #output nodes.
-        # if(src_id == self.id_in or dst_id == self.id_out):
-            # return 
 
         edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edge_added", edgedata))
