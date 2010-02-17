@@ -220,7 +220,6 @@ class MainWindow(QtGui.QMainWindow,
         # final init
         self.session = session
         self.session.simulate_workspace_addition()
-        self.operator.set_session(self.session)
         #load personnal GUI settings
         self.read_settings()
 
@@ -432,8 +431,7 @@ class MainWindow(QtGui.QMainWindow,
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
         self.session.close_workspace(cindex, False)
-        w.close()
-
+        w.close()      
       
     def current_view (self) :
         """ Return the active widget """
@@ -474,6 +472,7 @@ class MainWindow(QtGui.QMainWindow,
         try:
             gwidget = qtgraphview.View(self, graph)
             gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
             return

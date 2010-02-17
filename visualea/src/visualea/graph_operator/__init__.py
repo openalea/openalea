@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
+from openalea.grapheditor import qtgraphview
 import dataflow, layout, color, vertex, port
 
 #################################
@@ -33,6 +34,8 @@ class GraphOperator(Observed,
                     vertex.VertexOperators,
                     port.PortOperators):
 
+    __main = None
+                    
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
         dataflow.DataflowOperators.__init__(self)
@@ -40,7 +43,7 @@ class GraphOperator(Observed,
         color.ColorOperators.__init__(self)
         vertex.VertexOperators.__init__(self)
 
-        self.__main = None
+        # self.__main = None
 
         self.graphView = None
         self.graph     = None
@@ -62,8 +65,11 @@ class GraphOperator(Observed,
 
     def bind_action(self, action, functionName, *otherSlots):
         func, argcount = self.__get_wrapped(functionName)
+        QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), 
+                                self.identify_focused_graph_view )        
         if (argcount) < 2 :
             QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
+
             for f in otherSlots:
                 QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), f )
         else:
@@ -74,6 +80,8 @@ class GraphOperator(Observed,
 
     def unbind_action(self, action, functionName=None, *otherSlots):
         func, argcount = self.__get_wrapped(functionName)
+        QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), 
+                                self.identify_focused_graph_view )          
         if(argcount < 2):
             QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), func )
             for f in otherSlots:
@@ -102,59 +110,38 @@ class GraphOperator(Observed,
     ###########
     # setters #
     ###########
+    @classmethod
     def set_main(self, main):
-        self.__main = main
+        GraphOperator.__main = main
 
-    def set_graph_view(self, graphView):
-        self.graphView = graphView
-
-    def set_graph(self, graph):
-        self.graph     = graph
-
-    def set_session(self, session):
-        self.__session = session
-
-    def set_interpreter(self, interp):
-        self.__interpreter = interp
-
-    def set_package_manager(self, pkgmanager):
-        self.__pkgmanager = pkgmanager
-
-    # def get_session(self):
-    #     return self.__session
-
-    # def get_interpreter(self):
-    #     return self.__interpreter
-
-    # def get_package_manager(self):
-    #     return self.__pkgmanager
+    ###########
+    # getters #
+    ###########
     def get_session(self):
-        try:
-            return self.__main.session
-        except:
-            return self.__session
+        return self.__main.session
 
     def get_interpreter(self):
-        try:
-            return self.__main.interpreterWidget
-        except:
-            return self.__interpreter
+        return self.__main.interpreterWidget
 
     def get_package_manager(self):
-        try:
-            return self.__main.pkgmanager
-        except:
-            return self.__pkgmanager
+        return self.__main.pkgmanager
 
-    def get_graph_view(self):
-        if self.graphView:
-            return self.graphView
+    def identify_focused_graph_view(self, *args):
+        self.graphView = None
+        gv = QtGui.QApplication.focusWidget()
+        if type(gv)==qtgraphview.View: 
+            self.graphView = gv
         else:
-            try:
-                return self.__main.tabWorkspace.currentWidget()
-            except:
-                return self.graphView
-
+            widgets = self.get_session().get_graph_views()
+            for i in widgets:
+                if i.hasFocus() : self.graphView = i
+            if not self.graphView:
+                self.graphView = self.__main.tabWorkspace.currentWidget()
+        return self.graphView           
+            
+    def get_graph_view(self):
+        return self.graphView
+        
     def get_graph(self):
         graphView = self.get_graph_view()
         if graphView:

@@ -32,23 +32,15 @@ class VertexOperators(object):
         self.vertexItem = None
 
     def set_vertex_item(self, vertexItem):
-        self.vertexItem = weakref.ref(vertexItem)        
-
-    def change_graph_view_on_close(self, arg):
-        self.set_graph_view(None)
+        self.vertexItem = weakref.ref(vertexItem)    
 
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())    
+        self.get_session().add_graph_view(widget) #automatically removed when widget dies
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        widget.destroyed.connect(self.change_graph_view_on_close)
-
-        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())        
+        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.show_entire_scene()
-
-        # Set the current graph view to intercept the workspace menu events.
-        self.set_graph_view(widget)
-
         widget.show()
         
     @exception_display
@@ -86,7 +78,7 @@ class VertexOperators(object):
     def vertex_reset(self):
         self.vertexItem().vertex().reset()
 
-    def vertex_observer_swap(self, oldVertex, newVertex):
+    def vertex_observer_copy(self, oldVertex, newVertex):
         """replaces the actor of a vertex by another one in the views only!
         not model-wise. For that, use vertex_replace, vertex_reload."""
         self.vertexItem().terminate_from_model()  # graphical vertex clears its input and output port
@@ -112,7 +104,7 @@ class VertexOperators(object):
         oldVertex = self.vertexItem().vertex()
         newVertex = factory.instantiate()
         self.get_graph().replace_vertex(oldVertex, newVertex)
-        self.vertex_observer_swap(oldVertex, newVertex)
+        self.vertex_observer_copy(oldVertex, newVertex)
 
     def vertex_reload(self):
         """ Reload the vertex """
@@ -126,7 +118,7 @@ class VertexOperators(object):
         newVertex = factory.instantiate()
         oldVertex = self.vertexItem().vertex()
         self.get_graph().set_actor(oldVertex.get_id(), newVertex)
-        self.vertex_observer_swap(oldVertex, newVertex)        
+        self.vertex_observer_copy(oldVertex, newVertex)        
 
     def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
