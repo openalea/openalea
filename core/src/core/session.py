@@ -23,6 +23,7 @@ __revision__ = " $Id$ "
 
 import os
 import sys
+import weakref
 
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
@@ -48,6 +49,7 @@ class Session(Observed):
 
         self.workspaces = []
         self.cworkspace = -1 # current workspace
+        self.graphViews = weakref.WeakKeyDictionary()
 
         self.datapool = DataPool()
 
@@ -62,17 +64,24 @@ class Session(Observed):
 
         self.init()
 
-        #gengraph
+    #gengraph
     def simulate_workspace_addition(self):
         for ws in self.workspaces:
             self.notify_listeners(("workspace_added", ws))
-
+    #/gengraph
+    
     def get_current_workspace(self, ):
         """ Return the current workspace object """
         return self.workspaces[self.cworkspace]
 
     ws = property(get_current_workspace)
 
+    def get_graph_views(self):
+        return self.graphViews.keys()
+    
+    def add_graph_view(self, view):
+        self.graphViews[view] = None
+    
     def add_workspace(self, compositenode=None, notify=True):
         """
         Open a new workspace in the session
