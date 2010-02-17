@@ -549,7 +549,13 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # Other utility methods #
     #########################
     def select_added_elements(self, val):
+        warnings.warn(exceptions.DeprecationWarning(
+                      "Please use self.%s instead"%("select_added_items",)),
+                      stacklevel=2)    
         self.__selectAdditions=val
+        
+    def select_added_items(self, val):
+        self.__selectAdditions=val    
 
     def get_items(self, filterType=None, subcall=None):
         """ """
