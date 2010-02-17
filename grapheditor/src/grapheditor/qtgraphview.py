@@ -679,7 +679,7 @@ class View(QtGui.QGraphicsView):
                 if isinstance(listener(), Scene):
                     existingScene = listener()
                     break
-			print "reusing existing scene? : ", existingScene
+            print "reusing existing scene? : ", existingScene
             self.setScene(existingScene if existingScene else Scene(None, graph))      
         
         # ---Qt Stuff---
