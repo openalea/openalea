@@ -65,31 +65,30 @@ class GraphOperator(Observed,
 
     def bind_action(self, action, functionName, *otherSlots):
         func, argcount = self.__get_wrapped(functionName)
-        QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), 
-                                self.identify_focused_graph_view )        
+        action.triggered[""].connect(self.identify_focused_graph_view )
+        action.triggered[bool].connect(self.identify_focused_graph_view )        
         if (argcount) < 2 :
-            QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), func )
-
+            action.triggered[""].connect(func)
             for f in otherSlots:
-                QtCore.QObject.connect(action, QtCore.SIGNAL("triggered()"), f )
+                action.triggered[""].connect(f)
         else:
-            QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), func )
+            action.triggered[bool].connect(func)
             for f in otherSlots:
-                QtCore.QObject.connect(action, QtCore.SIGNAL("triggered(bool)"), f )
+                action.triggered[bool].connect(f)      
         return action
 
     def unbind_action(self, action, functionName=None, *otherSlots):
         func, argcount = self.__get_wrapped(functionName)
-        QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), 
-                                self.identify_focused_graph_view )          
-        if(argcount < 2):
-            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), func )
+        action.triggered[""].disconnect(self.identify_focused_graph_view )
+        action.triggered[bool].disconnect(self.identify_focused_graph_view )        
+        if (argcount) < 2 :
+            action.triggered[""].disconnect(func)
             for f in otherSlots:
-                QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), f )
+                action.triggered[""].disconnect(f)
         else:
-            QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered(bool)"), func )
+            action.triggered[bool].disconnect(func)
             for f in otherSlots:
-                QtCore.QObject.disconnect(action, QtCore.SIGNAL("triggered()"), f )
+                action.triggered[bool].disconnect(f)      
         return action    
 
     def __add__(self, other):
