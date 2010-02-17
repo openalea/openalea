@@ -652,8 +652,6 @@ class View(QtGui.QGraphicsView):
     #A few signals that strangely enough don't exist in QWidget
     closing = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)   
 
-
-
     ####################################
     # ----Instance members follow----  #
     ####################################   
@@ -672,8 +670,6 @@ class View(QtGui.QGraphicsView):
             if "Event" in name and hand:
                 setattr(self, name, types.MethodType(hand,self,self.__class__))
 
-        # self.__mouseIsLocked    = False #lock mouse click events
-        # self.__keyboardIsLocked = False #lock keyboard events
 
         if graph: 
             #if the graph has already a qtgraphview.Scene GraphListener
@@ -683,6 +679,7 @@ class View(QtGui.QGraphicsView):
                 if isinstance(listener(), Scene):
                     existingScene = listener()
                     break
+			print "reusing existing scene? : ", existingScene
             self.setScene(existingScene if existingScene else Scene(None, graph))      
         
         # ---Qt Stuff---
@@ -703,7 +700,7 @@ class View(QtGui.QGraphicsView):
 
     ##################
     # QtWorld-Events #
-    ##################         
+    ##################              
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
@@ -739,6 +736,7 @@ class View(QtGui.QGraphicsView):
             self.__defaultDropHandler(event)        
         QtGui.QGraphicsView.dropEvent(self, event)
 
+    # ----hotkeys----
     def keyPressEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
         action = self.__application_integration__["pressHotkeyMap"].get(combo)
@@ -755,6 +753,7 @@ class View(QtGui.QGraphicsView):
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
             
+    # ----low level----
     def closeEvent(self, evt):
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking

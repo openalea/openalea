@@ -155,7 +155,7 @@
      <x>0</x>
      <y>0</y>
      <width>852</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -348,6 +348,9 @@
    <property name="shortcut">
     <string>Ctrl+Z</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="action_Run">
    <property name="text">
@@ -355,6 +358,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="action_New_Network">
@@ -408,10 +414,16 @@
    <property name="shortcut">
     <string>Ctrl+E</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionExport_to_Application">
    <property name="text">
     <string>Export to Application</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionClear_Data_Pool">
@@ -459,6 +471,9 @@
    <property name="text">
     <string>&amp;Delete</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="action_New_Empty_Workspace">
    <property name="text">
@@ -467,6 +482,9 @@
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionReload_from_Model">
    <property name="text">
@@ -474,6 +492,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionPreferences">
@@ -485,6 +506,9 @@
    <property name="text">
     <string>Configure I/O</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionGroup_Selection">
    <property name="text">
@@ -492,6 +516,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionOpen_Console">
@@ -512,6 +539,9 @@
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="action_Paste">
    <property name="text">
@@ -519,6 +549,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="action_Cut">
@@ -528,6 +561,9 @@
    <property name="shortcut">
     <string>Ctrl+X</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionReset">
    <property name="text">
@@ -536,10 +572,16 @@
    <property name="shortcut">
     <string>Ctrl+K</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionPreview_Application">
    <property name="text">
     <string>Preview Application</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionLeft_Panel">
@@ -580,6 +622,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionClea_r_Console">
@@ -667,6 +712,9 @@
   <action name="actionTo_script">
    <property name="text">
     <string>to script</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
  </widget>
