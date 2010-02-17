@@ -34,12 +34,21 @@ class VertexOperators(object):
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)        
 
+    def change_graph_view_on_close(self, arg):
+        self.set_graph_view(None)
+
     def vertex_composite_inspect(self):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())    
         widget.setWindowFlags(QtCore.Qt.Window)
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        widget.destroyed.connect(self.change_graph_view_on_close)
+
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())        
         widget.show_entire_scene()
+
+        # Set the current graph view to intercept the workspace menu events.
+        self.set_graph_view(widget)
+
         widget.show()
         
     @exception_display

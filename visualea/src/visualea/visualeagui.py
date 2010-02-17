@@ -96,6 +96,7 @@ def main(args):
     """
 
     QtGui.QApplication.processEvents()    
+
     win = MainWindow(session)
     win.show()    
     splash.finish(win);
