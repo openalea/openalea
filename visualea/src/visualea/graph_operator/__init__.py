@@ -147,13 +147,17 @@ class GraphOperator(Observed,
             return self.__pkgmanager
 
     def get_graph_view(self):
-        try:
-            return self.__main.tabWorkspace.currentWidget()
-        except:
+        if self.graphView:
             return self.graphView
+        else:
+            try:
+                return self.__main.tabWorkspace.currentWidget()
+            except:
+                return self.graphView
 
     def get_graph(self):
-        try:
-            return self.__main.tabWorkspace.currentWidget().graph()
-        except:
+        graphView = self.get_graph_view()
+        if graphView:
+            return graphView.graph()
+        else:
             return self.graph
