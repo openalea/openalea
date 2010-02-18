@@ -74,7 +74,7 @@ def main(args):
     win = open_window(f)
     win.show()
     
-#    return app.exec_()
+    return app.exec_()
 
 
 
