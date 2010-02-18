@@ -25,30 +25,47 @@ class MetaDataDict(observer.Observed):
     """Attach meta data of a graphical representation
     of a graph component. This metadata can be 
     used to customize the appearance of the node."""
-    def __init__(self, slots=None):
+    def __init__(self, **kwargs):
+        """Use kwargs to construct the dictionnary.
+        Supported keywords are :
+            - dict  :  copy=aMetaDataDict or a Dict {key:value,...}
+            - slots  : types=aDictOf {keyName : (keyType,default)}
+        They are mutually exclusive! The constructor won't 
+        try anything smart as this often leads to problems.
+        """
         observer.Observed.__init__(self)
         self._metaValues = {}
         self._metaTypes = {}
 
-        if(slots):
-            if( isinstance(slots, self.__class__) ):
-                self.update(slots)
+        if kwargs.get("dict", False):
+            values = kwargs.get("dict")
+            if( isinstance(values, self.__class__) ):
+                self.update(values)
             else:
-                for name, value in slots.iteritems():
+                for name, value in values.iteritems():
                     if (isinstance(value, tuple) or isinstance(value, list)) and \
-                       len(value) == 2  and isinstance(value[0],type):
-
+                        len(value) == 2  and isinstance(value[0], type):
                         typ, val = value
-                    else:
-                        typ =  type(value) if value is not None else None
-                        val = value
-                    self.add_metadata(name, typ )
+                    typ =  type(value) if value is not None else None
+                    val = value
+                    self.add_metadata(name, typ)
                     self.set_metadata(name, val)
+        elif(kwargs.get("slots", False)):
+            slots = kwargs.get("slots")
+            self.set_slots(slots)  
+
                     
     def update(self, other):
         self._metaValues = other._metaValues.copy()
         self._metaTypes = other._metaTypes.copy()    
-
+        
+    def set_slots(self, types, contruction=True):
+        for name, value in types.iteritems():
+            typ, val = value
+            self._metaTypes[name] = typ
+            if contruction : 
+                self._metaValues[name] = val
+            
     def __repr__(self):
         if(not len(self._metaValues)): return "{}"
         keys = set(self._metaTypes)-set(self._metaValues)
@@ -92,13 +109,13 @@ class MetaDataDict(observer.Observed):
         if key not in self._metaTypes :
             raise Exception("This key does not exist : " + key)
 
-        if key in self._metaTypes and type(value) != self._metaTypes[key] :
-            print(self.__class__, "set_metadata : Unexpected value type", key, 
-                  " : ", type(value),
-                  " assuming duck-typing")
+        valType = self._metaTypes[key]  
+        if key in self._metaTypes and type(value) != valType :
+            print self.__class__, "set_metadata : Unexpected value type", key, \
+                  " : ", type(value), "instead of", valType, \
+                  " assuming duck-typing"
 
         self._metaValues[key] = value
-        valType = self._metaTypes[key]
         if(notify): 
             self.notify_listeners(("metadata_changed", key, value, valType))
         return
