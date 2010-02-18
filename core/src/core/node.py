@@ -37,7 +37,7 @@ from weakref import ref
 import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
-import metadatadict
+from metadatadict import MetaDataDict
 
 # Exceptions
 class RecursionError (Exception):
@@ -50,7 +50,7 @@ class InstantiationError(Exception):
     pass
 
 
-# Utility function
+# Utility functions
 def initialise_standard_metadata():
     """Declares the standard keys used by the Node structures. Called at the end of this file"""
     #we declare what are the node model ad hoc data we require:
@@ -86,9 +86,9 @@ class AbstractNode(Observed, AbstractListener):
     @classmethod
     def extend_ad_hoc_slots(cls, name, _type, default, *args):
         if( not hasattr(cls, "__ad_hoc_slots__")):
-            cls.__ad_hoc_slots__={}
+            cls.__ad_hoc_slots__ = {}
         else:
-            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy() #inherit
             
         cls.__ad_hoc_slots__[name] = (_type, default)
         if len(args)>0:
@@ -109,9 +109,9 @@ class AbstractNode(Observed, AbstractListener):
         #gengraph
         self.__id = None
         if hasattr(self, "__ad_hoc_slots__"):
-            self.set_ad_hoc_dict(metadatadict.MetaDataDict(self.__ad_hoc_slots__))
+            self.set_ad_hoc_dict(MetaDataDict())
         else:
-            self.set_ad_hoc_dict(metadatadict.MetaDataDict())
+            self.set_ad_hoc_dict(MetaDataDict())
         #/gengraph
 
         # Internal Data (caption...)
@@ -129,8 +129,9 @@ class AbstractNode(Observed, AbstractListener):
     #/gengraph
 
     #gengraph
-    def set_ad_hoc_dict(self, d):
+    def set_ad_hoc_dict(self, d, useSlotDefault=True):
         self.__ad_hoc_dict = d
+        d.set_slots(self.__ad_hoc_slots__, useSlotDefault)
         self.initialise(d)
 
     def get_ad_hoc_dict(self):
@@ -212,9 +213,9 @@ class AbstractPort(dict, Observed, AbstractListener):
         self.vertex = ref(vertex)
         self.__id = None
         if hasattr(self, "__ad_hoc_slots__"):
-            self.__ad_hoc_dict = metadatadict.MetaDataDict(self.__ad_hoc_slots__)
+            self.__ad_hoc_dict = MetaDataDict(slots=self.__ad_hoc_slots__)
         else:
-            self.__ad_hoc_dict = metadatadict.MetaDataDict()
+            self.__ad_hoc_dict = MetaDataDict()
         self.initialise(self.__ad_hoc_dict)
         #/gengraph
 
@@ -353,11 +354,6 @@ class Node(AbstractNode):
         # Node State
         self.modified = True
 
-        #gengraph
-        self.__internal_dict = metadatadict.MetaDataDict()
-        self.initialise(self.__internal_dict)
-        #/gengraph
-
         # Internal Data
         self.internal_data["caption"] = '' #str(self.__class__.__name__)
         self.internal_data["lazy"] = True
@@ -401,19 +397,9 @@ class Node(AbstractNode):
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
-    #gengraph
                                   
     def get_tip(self):
         return self.__doc__
-
-    def get_internal_dict(self):
-        return self.__internal_dict
-
-    def notify(self, sender, event):
-        if(sender == self.__internal_dict):
-            self.notify_listeners(event)
-        AbstractNode.notify(self, sender, event)
-    #/gengraph
 
     def copy_to(self, other):
         # we copy some attributes.
