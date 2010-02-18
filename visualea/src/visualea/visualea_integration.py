@@ -164,10 +164,10 @@ def vertexMouseDoubleClickEvent(graphItem, event):
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     graphItem = weakref.ref(graphItem)
-    view = graphItem().scene().views()[0]
-    operator=GraphOperator(view, graphItem().graph())
+    widget = graphItem().scene().views()[0]
+    operator=GraphOperator(widget, graphItem().graph())
     operator.set_vertex_item(graphItem())
-    menu = QtGui.QMenu(view)
+    menu = QtGui.QMenu(widget)
 
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
@@ -182,7 +182,28 @@ def vertexContextMenuEvent(graphItem, event):
     menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
     menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
     menu.addSeparator()
-
+    menu.addAction(operator("Set user color",  menu, "graph_set_selection_color"))
+    
+    #check if the current selection is coloured and tick the 
+    #menu item if an item of the selection uses the user color.
+    action = operator("Use user color",  menu, "graph_useUserColor")
+    action.setCheckable(True)
+    action.setChecked(False)
+    items = widget.scene().get_selected_items(qtgraphview.Vertex)
+    for i in items:
+        if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
+            action.setChecked(True)
+            break    
+    menu.addAction(action)
+    menu.addSeparator()
+    menu.addAction(operator("Align horizontally", menu,  "graph_align_selection_horizontal"))
+    menu.addAction(operator("Align left", menu,  "graph_align_selection_left"))
+    menu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
+    menu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
+    menu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
+    menu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))    
+    menu.addSeparator()
+    
     action = operator("Mark as User Application", menu, "vertex_mark_user_app")
     action.setCheckable(True)
     action.setChecked( bool(graphItem().vertex().user_application))
