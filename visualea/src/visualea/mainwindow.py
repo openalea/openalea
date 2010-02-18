@@ -43,7 +43,6 @@ from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.grapheditor import qtgraphview
 from graph_operator import GraphOperator
-import visualea_integration
 import compositenode_widget
 import __builtin__
 
