@@ -49,7 +49,7 @@ class Annotation(QtGui.QGraphicsTextItem, AbstractListener):
 
         scene = graphview.scene()
         QtGui.QGraphicsTextItem.__init__(self)
-        AbstractListener.__init_(self)
+        AbstractListener.__init__(self)
         
         # members
         self.elt_id = elt_id
