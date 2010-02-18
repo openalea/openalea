@@ -126,6 +126,18 @@ class GraphOperator(Observed,
         return self.__main.pkgmanager
 
     def identify_focused_graph_view(self, *args):
+        """Looks in various places to find which graph view
+        asked for an operation. Here is the strategy:
+        1) Ask the application for the widget in focus. 
+            If it is a graph view that it becomes the GraphOperator's view.
+        2) If this fails, search in the session's list of 
+            graph views for one that hasFocus() == True.
+        3) If this fails, return the current widget from MainWindow's tabwidget.
+        The identified view can then be retreived by : operator.get_graph_view()
+        This method is bound to every action created or decorated by the operator.
+        
+        @note : this method might be better in Session?
+        """
         self.graphView = None
         gv = QtGui.QApplication.focusWidget()
         if type(gv)==qtgraphview.View: 
