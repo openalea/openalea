@@ -39,6 +39,7 @@ from openalea.visualea.node_widget import NodeWidget, SignalSlotListener
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.node_widget import DefaultNodeWidget
+from openalea.grapheditor import qtgraphview
 
 import traceback
 from tooltip import VertexTooltip
@@ -179,7 +180,9 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
 
 
-        dataflow_widget = EditGraphWidget(self.node, self.container)
+        
+        #dataflow_widget = EditGraphWidget(self.node, self.container)
+        dataflow_widget = qtgraphview.View(self.container, self.node)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget
 
