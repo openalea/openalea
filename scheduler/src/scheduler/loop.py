@@ -79,7 +79,7 @@ class Loop (object) :
 		"""
 		self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
 		self._current_step = 0
-		self._gen = scheduler.run()
+		self._gen = self._scheduler.run()
 		if self._init_func is not None :
 			self._init_func()
 	
