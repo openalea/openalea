@@ -168,7 +168,6 @@
      </property>
      <addaction name="action_Image"/>
      <addaction name="action_Svg"/>
-     <addaction name="action_Application"/>
     </widget>
     <addaction name="action_New_Session"/>
     <addaction name="action_Open_Session"/>
@@ -346,7 +345,7 @@
     <string>Close Current Workspace</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Z</string>
+    <string>Ctrl+F4</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
