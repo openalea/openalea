@@ -226,7 +226,7 @@ class IInt(IInterface):
             self.step == default_step):
             return self.__class__.__name__
         else:
-            return 'IFloat(min=%d, max=%d, step=%d)' % \
+            return 'IInt(min=%d, max=%d, step=%d)' % \
                 (self.min, self.max, self.step)
 
 
