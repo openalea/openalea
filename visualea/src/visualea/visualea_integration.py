@@ -164,6 +164,7 @@ def vertexMouseDoubleClickEvent(graphItem, event):
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     graphItem = weakref.ref(graphItem)
+    graphItem().setSelected(True)
     widget = graphItem().scene().views()[0]
     operator=GraphOperator(widget, graphItem().graph())
     operator.set_vertex_item(graphItem())
@@ -196,13 +197,6 @@ def vertexContextMenuEvent(graphItem, event):
             break    
     menu.addAction(action)
     menu.addSeparator()
-    menu.addAction(operator("Align horizontally", menu,  "graph_align_selection_horizontal"))
-    menu.addAction(operator("Align left", menu,  "graph_align_selection_left"))
-    menu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
-    menu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
-    menu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
-    menu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))    
-    menu.addSeparator()
     
     action = operator("Mark as User Application", menu, "vertex_mark_user_app")
     action.setCheckable(True)
@@ -221,8 +215,29 @@ def vertexContextMenuEvent(graphItem, event):
 
     menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
 
-    menu.move(event.screenPos())
+    menu.addSeparator()
+    alignMenu = menu.addMenu("Align...")
+    alignMenu.setDisabled(True)
+    if len(items)>1:
+        alignMenu.setDisabled(False)
+        alignMenu.addAction(operator("Align horizontally", menu,  "graph_align_selection_horizontal"))
+        alignMenu.addAction(operator("Align left", menu,  "graph_align_selection_left"))
+        alignMenu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
+        alignMenu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
+        alignMenu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
+        alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))        
+    
+    
+    pos = event.screenPos()
+    menu.move(pos)
     menu.show()
+    rect = menu.rect() ; rect.moveTo(pos)
+    #fix the position of the menu if it tries to popup too close to the lower & right edges.
+    #bad fixing strategy probably: what if we were create arabian menus?
+    #We should maube sublcass QMenu to handle screen real estate and reuse it.
+    if not QtGui.QApplication.desktop().availableGeometry(widget).contains(rect, True):
+        pos2 = menu.rect().bottomLeft()
+        menu.move(pos-pos2)
     event.accept()
 
 
