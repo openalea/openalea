@@ -150,6 +150,8 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         name = str(self.nameEdit.text())
         category = str(self.categoryEdit.currentText().toAscii())
+        if not category:
+            category = 'Unclassified'
         description = str(self.descriptionEdit.text().toAscii())
         
         return (name, self.get_package(), category, description)
@@ -209,8 +211,9 @@ class NewGraph(QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         factory.package.write()
 
         # update category
-        if(oldcat != cat):
-            self.pmanager.category[oldcat].remove(factory)
+        if(oldcat != cat): 
+            if oldcat in self.pmanager.category:
+                self.pmanager.category[oldcat].remove(factory)
             self.pmanager.update_category(factory.package)
 
 
