@@ -213,8 +213,8 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
                      self.display_rightpanel)
         
-        action = self.menu_Workspace.addAction("DEBUG")
-        self.connect(action, SIGNAL("triggered()"), self.debug)
+        # action = self.menu_Workspace.addAction("DEBUG")
+        # self.connect(action, SIGNAL("triggered()"), self.debug)
         
         # final init
         self.session = session
@@ -384,8 +384,10 @@ class MainWindow(QtGui.QMainWindow,
 
     def quit(self):
         """ Quit Application """
-
-        #QtGui.QApplication.closeAllWindows()
+        if( QtGui.QMessageBox.question(self, "Quit?", "Are you sure you want to quit?",
+                                       QtGui.QMessageBox.Ok|QtGui.QMessageBox.Cancel) == 
+                        QtGui.QMessageBox.Ok):
+            QtGui.QApplication.exit(0)
 
 
     def notify(self, sender, event):

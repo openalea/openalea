@@ -1,8 +1,8 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file '.\resources\mainwindow.ui'
 #
-# Created: Wed Feb 17 15:11:55 2010
+# Created: Fri Feb 19 14:38:26 2010
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -262,7 +262,6 @@ class Ui_MainWindow(object):
         self.actionTo_script.setObjectName("actionTo_script")
         self.menu_Export.addAction(self.action_Image)
         self.menu_Export.addAction(self.action_Svg)
-        self.menu_Export.addAction(self.action_Application)
         self.menu_File.addAction(self.action_New_Session)
         self.menu_File.addAction(self.action_Open_Session)
         self.menu_File.addAction(self.action_Save_Session)
@@ -370,7 +369,7 @@ class Ui_MainWindow(object):
         self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Load Package/Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "&Reload All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "Close Current Workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Close_current_workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Z", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Close_current_workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F4", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&Composite Node", None, QtGui.QApplication.UnicodeUTF8))
