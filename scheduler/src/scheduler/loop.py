@@ -28,19 +28,36 @@ from threading import Thread
 class Loop (object) :
 	"""Create a thread to evaluate a scheduler.
 	"""
-	def __init__ (self, scheduler, post_step_func = None) :
-		"""Initialise the loop.
+	def __init__ (self, scheduler, post_step_func = None, init_func = None) :
+		"""Constructor
 		
-		scheduler: a scheduler to manage each step
-		post_step_func: a function that will be
-		                called after each step
+		.. warning:: for this object to works fine,
+		   especially with `reinit` method, tasks
+		   must be registered in the scheduler prior
+		   to construct this object
+		
+		:Parameters:
+		 - `scheduler` (Scheduler) - a scheduler
+		    to manage each step
+		 - `post_step_func` (function) - a function
+		        that take no arguments and will be
+		        called after each step
+		 - `init_func` (function) - a function
+		        that take no arguments and will be 
+		        called at each reinitialisation
+		        (including this constructor)
 		"""
 		self._scheduler = scheduler
-		self._gen = scheduler.run()
 		self._post_step_func = post_step_func
+		self._init_func = init_func
 		self._running = False
 		self._thread = None
-		self._current_step = 0
+		
+		#register initial state of the scheduler
+		self._initial_state = tuple(self._scheduler._tasks) #TODO hack pabo
+		
+		#initialise iterator
+		self.reinit()
 	
 	###############################################
 	#
@@ -56,6 +73,15 @@ class Loop (object) :
 		"""Current step reached by the scheduler.
 		"""
 		return self._current_step
+	
+	def reinit (self) :
+		"""Restart scheduler from 0
+		"""
+		self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
+		self._current_step = 0
+		self._gen = scheduler.run()
+		if self._init_func is not None :
+			self._init_func()
 	
 	def step (self) :
 		"""Perform one step of the scheduler
