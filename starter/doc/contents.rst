@@ -1,4 +1,4 @@
-.. Do not edit. 
+.. Do not edit.Only change the starter name  to your convenience
 
 .. _starter:
 
