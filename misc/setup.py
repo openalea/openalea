@@ -37,6 +37,8 @@ setup(
 
     package_dir = { '' : 'src'},
 
+    share_dirs = { 'share' : 'share' },
+
 
     entry_points = {
         "console_scripts": [
