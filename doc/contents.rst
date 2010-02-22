@@ -6,7 +6,7 @@ Sphinx documentation
     :Topic: reST and Sphinx documentation
     :Date: |today|
     :Author: Thomas Cokelaer
-    :status: 80% done
+    :status: mature
 
 
 

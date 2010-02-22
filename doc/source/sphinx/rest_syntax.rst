@@ -787,7 +787,7 @@ Adding raw html
 
 .. ---------------------------------------------------
 
-.. _Sphinx: http://sphinx.pocoo.org/index.html
+.. .. _Sphinx: http://sphinx.pocoo.org/index.html
 
 
 .. Here below are coded the different aliases, reference, citation
