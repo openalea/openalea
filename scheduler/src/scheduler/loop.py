@@ -77,13 +77,16 @@ class Loop (object) :
 	def reinit (self) :
 		"""Restart scheduler from 0
 		"""
+		if self.running() :
+			self.pause()
+		
 		self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
 		self._current_step = 0
 		self._gen = self._scheduler.run()
 		if self._init_func is not None :
 			self._init_func()
 	
-	def step (self) :
+	def _step (self) :
 		"""Perform one step of the scheduler
 		in the current thread.
 		"""
@@ -92,13 +95,22 @@ class Loop (object) :
 			self._post_step_func()
 		return self._current_step
 	
+	def step (self) :
+		"""Perform one step of the scheduler
+		in the current thread.
+		"""
+		if self.running() :
+			self.pause()
+		
+		return self._step()
+	
 	def _loop (self) :
 		"""Internal function that advance from one step.
 		"""
 		while True :
 			if not self._running :
 				return
-			self.step()
+			self._step()
 			sleep(0.01)
 	
 	def play (self) :
