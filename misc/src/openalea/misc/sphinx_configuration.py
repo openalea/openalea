@@ -14,27 +14,25 @@
 
 
 import sys, os
-
-if 'OPENALEA' not in os.environ.keys(): 
-    raise ValueError("""In order to use Sphinx, you must set an environment variable called OPENALEA
-This variable must point to the main openalea directory (e.g. /home/user/openalea) where the 
-sub directory ./doc/ may be found
-
-Under Linux and Mac, type export OPENALEA=/home/user/openalea
-
-""")
-
-openalea = os.path.join(os.environ['OPENALEA'], 'doc')
+import openalea.misc as misc
 
 
+# figure out where is installed misc so as to get all the sphinx configuration templates, 
+# and extensions that can be found in misc/share
 
+#develop mode
+openalea = misc.__path__[0] + os.sep +'..' + os.sep + '..' + os.sep + '..' + os.sep +'share' + os.sep
+if os.path.isdir(os.path.join(openalea, 'sphinxext')):
+    print 'develop mode'
+    sys.path.append(os.path.join(openalea,'sphinxext'))
+else:
+    #install mode
+    openalea = misc.__path__[0] + os.sep +'..' + os.sep + '..' + os.sep +'share' + os.sep
+    if os.path.isdir(os.path.join(openalea, 'sphinxext')):
+        sys.path.append(os.path.join(openalea,'sphinxext'))
+    else:
+        raise ImportError('could not find the share directory of openalea.misc.')
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.append(
-    os.path.join(os.environ['OPENALEA'], 
-    os.path.join('doc','sphinxext')))
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
@@ -148,13 +146,13 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = os.path.join(openalea, 'source','images', 'wiki_logo_openalea.png')
+html_logo = os.path.join(openalea, 'images', 'wiki_logo_openalea.png')
 
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = os.path.join(openalea, 'source', 'images', 'oaicon.ico')
+html_favicon = os.path.join(openalea, 'images', 'oaicon.ico')
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -1,0 +1,25 @@
+{% set package=project.split('.')[1] %}
+
+<h3>Download</h3>
+
+<p>Current version: <b>{{ version }}</b></p>
+
+
+
+{%- if package!='doc' -%}
+<p> Get <b>{{project.split('.')[0]|title}}</b> from our WIKI page <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=download">OpenAlea wiki</a> or this package (<b>{{project}}</b>) directly from the <a href="http://gforge.inria.fr/frs/?group_id=79">OpenAlea GForge</a></p>
+{%- endif -%}
+
+{%- if package=='doc' -%}
+<p> Get {{project.split('.')[0]}} from our WIKI page <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=download">OpenAlea wiki</a> <p>
+{%- endif -%}
+
+
+<h3>Questions? Suggestions?</h3>
+
+<p>Join the <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=forum">OpenAlea group</a> forum and mailing lists.</p>
+  
+<p>You can also open an issue at the
+<a href="https://gforge.inria.fr/tracker/?group_id=79">tracker</a>.</p>
+
+

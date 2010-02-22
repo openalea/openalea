@@ -1,0 +1,33 @@
+{% set thisproject=project.split('.')[0] %}
+
+
+{% set openalea = 'http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=openalea' %}
+
+
+
+
+<!-- this will appear on the openalea page of the sphinx documentation-->
+{%- if thisproject=="openalea" -%}
+<h1>Welcome to Openalea documentation</h1>
+<h2>Overview</h2>
+{% include "openalea_overview.html" %}
+<p>Here below, you can find links to OpenAlea Projects, for users and developpers, as well as help on how to complete this documentation. </p> <p>More documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a></p>
+{%- endif -%}
+
+<!-- this will appear on the vplants page of the sphinx documentation-->
+{%- if thisproject=="vplants" -%}
+<h1>Welcome to Vplants documentation</h1>
+{% include "vplants_overview.html" %}
+<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More
+documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
+</p>
+{%- endif -%}
+
+<!-- this will appear on the alinea page of the sphinx documentation-->
+{%- if thisproject=="alinea" -%}
+<h1>Welcome to Alinea documentation</h1>
+{% include "alinea_overview.html" %}
+<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More
+documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
+{%- endif -%}
+

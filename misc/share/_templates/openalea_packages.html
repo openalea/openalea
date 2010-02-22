@@ -1,0 +1,45 @@
+
+
+{% set shift = '../../../' %}
+
+
+{% block body %}
+<h2>OpenAlea released packages</h2>
+<table class="contentstable" align="center" style="margin-left: 30px"><tr>
+<td width="30%">
+  <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("core/doc/_build/html/contents")}}">Core</a><br/>
+   <span class="linkdescr">core of openalea (e.g., package management)</span></p>
+  <span class="linkdescr">target: developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("deploy/doc/_build/html/contents")}}">Deploy</a><br/>
+  <span class="linkdescr">installation, package deployment, ...</span></p>
+  <span class="linkdescr">target: developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("deploygui/doc/_build/html/contents")}}">DeployGui</a><br/>
+  <span class="linkdescr">GUI to install/uninstall packages</span></p>
+  <span class="linkdescr">target: users, developers</span></p>
+  </td><td width="30%">
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("misc/doc/_build/html/contents")}}">Misc</a><br/>
+  <span class="linkdescr">miscellaneous tools (e.g, sphinx, developers tools)</span></p>
+  <span class="linkdescr">target: developers, administrators</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("stdlib/doc/_build/html/contents")}}">Stdlib</a><br/>
+  <span class="linkdescr">standard tools (stats, image, data, files</span></p>
+  <span class="linkdescr">target: users, developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("sconsx/doc/_build/html/contents")}}">Sconsx</a><br/>
+  <span class="linkdescr">scons extension</span></p>
+  <span class="linkdescr">target: developers, administrators</span></p>
+  </td><td width="30%">
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("visualea/doc/_build/html/contents")}}">Visualea</a><br/>
+  <span class="linkdescr">Graphical application (visual programming)</span></p>
+  <span class="linkdescr">target: users, developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("scheduler/doc/_build/html/contents")}}">Scheduler</a><br/>
+  <span class="linkdescr">target: users, developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("grapheditor/doc/_build/html/contents")}}">Graph Editor</a><br/>
+  <span class="linkdescr">target: users, developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("svgdraw/doc/_build/html/contents")}}">SVGDraw</a><br/>
+  <span class="linkdescr">target: users, developers</span></p>
+ <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("pglviewer/doc/_build/html/contents")}}">pglviewer</a><br/>
+  <span class="linkdescr">target: users, developers</span></p>
+</td></tr>
+  </table>
+
+{% endblock %}
+
