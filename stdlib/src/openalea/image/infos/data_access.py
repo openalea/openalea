@@ -71,5 +71,5 @@ def size (image) :
     """
     return width and height of the image
     """
-    return image.size,
+    return image.size[0], image.size[1]
 
