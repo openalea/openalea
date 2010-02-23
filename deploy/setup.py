@@ -24,8 +24,10 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
-
 keywords = ['setuptools', 'shared lib']
+
+print project
+print package
 
 setup(
     # Metadata for PyPi

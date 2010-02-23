@@ -1074,9 +1074,9 @@ class upload_sphinx(Command):
 
         if not self.project:
             raise ValueError("""Project field missing. Provide it in your setup.cfg, in the [upload_sphinx] section. 
-                It should be either vplants, alinea or openalea""")
+                It should be either vplants, alinea or openalea. %s provided""" % self.project)
         elif self.project not in ['vplants','alinea','openalea']:
-            raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section""")
+            raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section. %s provided""" % self.project)
         if (not self.release):
             version = self.distribution.metadata.version
             try:
@@ -1100,7 +1100,6 @@ class upload_sphinx(Command):
                """
         print "Copying files on the GForge. Be patient ..."
 
-        print self.project
         for output in  ['html' , 'latex']:
             cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/_build/' \
                 % ( os.path.join('doc', '_build', output), 
@@ -1120,8 +1119,8 @@ class upload_sphinx(Command):
         status = subprocess.call(command ,stdout=open('/tmp/test','w'),stderr=None, shell=True)
         if status!=0:
             print 'This command failed'
-            print command
-            return 1
+            import sys
+            sys.exit(status)
         print "Files uploaded."
 
 
