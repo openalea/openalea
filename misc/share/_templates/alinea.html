@@ -1,7 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
 
-{% include "common_header.html" %}
+
+
+<h1>Welcome to Alinea documentation</h1>
+{% include "alinea_overview.html" %}
+<p>This documentation is in progress and many aspects of {{project|title}} are not covered yet. More
+documentation about the project and this package can be found on the <a href="{{openalea}}">OpenAlea Wiki</a>
+</p>
+
+
 {% include "alinea_packages.html" %}
 {% include "common_footer.html" %}
 
