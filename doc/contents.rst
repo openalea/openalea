@@ -1,12 +1,17 @@
-Sphinx documentation
-####################
+Developers documentation
+#########################
 
-.. topic:: Summary
+.. sidebar:: Summary
 
-    :Topic: reST and Sphinx documentation
+    :Release: |release|
     :Date: |today|
-    :Author: Thomas Cokelaer
+    :Authors: **Thomas Cokelaer**
+    :Target: developers and administrators
     :status: mature
+
+.. topic:: Overview
+
+    reST and Sphinx documentation
 
 
 
@@ -18,11 +23,11 @@ The `OpenAlea wiki <http://openalea.gforge.inria.fr/>`_ contains a     `proposal
 However, the main documentation about Sphinx in OpenAlea will be gathered in this page, using the Sphinx syntax obviously ;-) .
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :numbered:
 
-    source/sphinx.rst
+    source/sphinx/sphinx.rst
     some coding conventions<source/developers/developer>
-    source/openalea.rst
+    source/tutorials/openalea.rst
 
 

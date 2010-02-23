@@ -1,4 +1,15 @@
-.. note:: the commands in this page requires only Sphinx. It is independant of OpenAlea project.
+.. sidebar:: Summary
+
+    :Release: |release|
+    :Date: |today|
+    :Authors: **Thomas Cokelaer**
+    :Target: developers and administrators
+    :status: mature
+
+.. topic:: Overview
+
+    How to quickly start a new Sphinx project without OpenAlea framework.
+
 
 
 Create your own sphinx project

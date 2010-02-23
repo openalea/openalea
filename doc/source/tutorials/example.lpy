@@ -1,0 +1,21 @@
+angle = 20
+
+context().turtle.setAngleIncrement(angle)
+
+Axiom: X
+
+def EndEach(lstring):
+
+    print lstring
+
+derivation length: 7
+production:
+X --> F[+X]F[-X]+X
+F --> FF
+
+
+homomorphism:
+
+F --> SetWidth(0.5) F
+
+endlsystem

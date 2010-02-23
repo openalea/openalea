@@ -11,12 +11,12 @@ How to use sphinx ?
     :Date: |today|
     :Authors: **Thomas Cokelaer**
     :Target: developers and administrators
-    :status: in progress
+    :status: mature
 
 .. topic:: Overview
 
-    * `ReSt and Sphinx syntax <sphinx/rest_syntax.html>`_
-    * `How to document your docstrings <sphinx/sphinx_python_docstring.html>`_
+    * `ReSt and Sphinx syntax <rest_syntax.html>`_
+    * `How to document your docstrings <sphinx_python_docstring.html>`_
     * `Compiling the documentation`_ with Sphinx
     * `How to initialise a new package`_
     * How to `Upload the documentation`_ of a package on the web
@@ -43,7 +43,7 @@ Quick Start
 .. toctree::
     :maxdepth: 1
 
-    sphinx/quickstart.rst
+    quickstart.rst
 
 Compiling the documentation
 ===========================
@@ -114,10 +114,10 @@ Here are some links related to the sphinx syntax
 .. toctree::
     :maxdepth: 1
 
-    sphinx/rest_syntax
-    sphinx/sphinx_python_docstring
-    sphinx/doctest
-    sphinx/rest_faqs.rst
+    rest_syntax
+    sphinx_python_docstring
+    doctest
+    rest_faqs.rst
 
 
 Once you are familiar with reST, you can jump to your code to add documenation either directly in the docstrings of your python modules or inside the **doc/user** directory of your package using reST.
@@ -131,8 +131,8 @@ Here below, you will find some extra information explaining the structures of th
 .. toctree::
     :maxdepth: 1
 
-    Different methods to fill the docstrings (admin usage)<sphinx/template>
-    sphinx/administrator.rst
+    Different methods to fill the docstrings (admin usage)<template>
+    administrator.rst
   
 
 .. _OpenAlea: http://openalea.gforge.inria.fr
@@ -144,12 +144,12 @@ Here below, you will find some extra information explaining the structures of th
 Authors
 =======
 
-.. include:: AUTHORS.txt
+.. include:: ../AUTHORS.txt
 
 ChangeLog
 =========
 
-.. include:: ChangeLog.txt
+.. include:: ../ChangeLog.txt
 
 
 

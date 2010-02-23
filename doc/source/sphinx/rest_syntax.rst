@@ -5,6 +5,14 @@
 Restructured Text (reST) and Sphinx CheatSheet
 ##############################################
 
+.. sidebar:: Summary
+
+    :Release: |release|
+    :Date: |today|
+    :Authors: **Thomas Cokelaer**
+    :Target: developers and administrators
+    :status: mature
+
 .. contents::
    :depth: 2
 

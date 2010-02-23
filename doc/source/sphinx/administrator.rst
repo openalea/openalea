@@ -1,5 +1,19 @@
 
 
+
+.. sidebar:: Summary
+
+    :Release: |release|
+    :Date: |today|
+    :Authors: **Thomas Cokelaer**
+    :Target: developers and administrators
+    :status: mature
+
+.. topic:: Overview
+
+    How to upload sphinx documentation
+
+
 How and where to upload sphinx documentation of a package
 =========================================================
 
