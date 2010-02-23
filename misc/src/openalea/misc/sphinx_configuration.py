@@ -51,7 +51,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'numpyext.only_directives',
     'numpyext.numpydoc',
-    'numpyext.plot_directive',
+    #'numpyext.plot_directive',
     ]
 
 todo_include_todos=True
