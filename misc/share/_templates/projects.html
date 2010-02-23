@@ -1,24 +1,22 @@
 
-
-<h2>Openalea projects</h2>
-<table class="contentstable" align="center" style="margin-left: 30px"><tr>
-<td width="30%">
-  <p class="biglink"><a class="biglink" href="{{pathto("openalea")}}">OpenAlea</a><br/>
-   <span class="linkdescr">Openalea, Visualea</span></p>
-</td><td width="30%">
-  <p class="biglink"><a class="biglink" href="{{pathto("vplants")}}">VPlants</a><br/>
-   <span class="linkdescr">VPlants sphinx documentation main page</span></p>
-</td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{pathto("alinea")}}">Alinea</a><br/>
-  <span class="linkdescr">Alinea sphinx documentation main page</span></p>
-</td>
+<table cellpadding="3" cellspacing="3" border="2" align="center" class="contentstable" style="margin-left: 30px"><tr>
+<tr valign="top">
+    <td>{% include "openalea_overview.html" %}</td>
+    <td width="40%">
+    <a href="{{pathto("openalea")}}"><img height="200px" width="100%" src="_static/openalea.png" alt="test"></img></a> </td>
+</tr>
+<tr valign="top">
+    <td>{% include "vplants_overview.html" %}</td>
+    <td width="40%">
+    <a href="{{pathto("vplants")}}"><img src="_static/vplants.png" width="100%" height="158" border="2" alt="test"></img></a> </td>
 </tr>
 <tr>
-<td width="30%"> <a href="{{pathto("openalea")}}"><img height="150px" width="100%" src="_static/openalea.png" alt="test"></img></a> </td>
-<td width="30%"> <a href="{{pathto("vplants")}}"><img height="150px" width="100%" src="_static/vplants.png"></img></a> </td>
-<td width="30%"> <a href="{{pathto("alinea")}}"><img height="150px" width="100%" src="_static/alinea.png"></img></a> </td>
+    <td>{% include "alinea_overview.html" %}</td>
+    <td width="40%">
+    <a href="{{pathto("alinea")}}"><img src="_static/alinea.png" width="100%" height="150" border="5" alt="test"></img></a> </td>
 </tr>
-  </table>
+
+</table>
 
 
 
