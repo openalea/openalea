@@ -8,24 +8,19 @@
 {% block body %}
 
 
-<h1>Welcome to Openalea, Vplants and Alinea documentation</h1>
+<h1>Welcome to Openalea documentation</h1>
 
-<!-- finally, if this is the main page, we add extra information about the documentation and sphinx-->
-{%- if package=='doc'-%}
-{% include "projects.html" %}
-
-
-
-<h2>Sphinx documentation, developers and tutorials</h2>
+<h2>OpenAlea Document Center</h2>
 <table class="contentstable" align="center" style="margin-left: 30px"><tr>
 <td width="50%">
   <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Contents</a><br/>
-   <span class="linkdescr">Information about Sphinx, how to document your package, ...            </span></p>
+   <span class="linkdescr">OpenAlea Document Center: Policy, users tutorials, developer guidelines, release processes, Sphinx and how to document your code, ... </span></p>
   </td>
 </tr>
   </table>
-{%- endif -%}
 
+<h2>Projects documentation (user and reference guides)</h2>
   
+{% include "projects.html" %}
 {% endblock %}
 
