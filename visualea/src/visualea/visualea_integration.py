@@ -139,7 +139,6 @@ qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
 #################################
 # QtEvent handlers for vertices #
 #################################
-
 def vertexMouseDoubleClickEvent(graphItem, event):
     graphItem = weakref.ref(graphItem)
     if event.button()==QtCore.Qt.LeftButton:
@@ -159,27 +158,29 @@ def vertexMouseDoubleClickEvent(graphItem, event):
         elif('run' in str):
             operator.vertex_run()
 
-
-
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     graphItem = weakref.ref(graphItem)
     graphItem().setSelected(True)
-    widget = graphItem().scene().views()[0]
-    operator=GraphOperator(widget, graphItem().graph())
+    operator = GraphOperator()
     operator.set_vertex_item(graphItem())
-    menu = QtGui.QMenu(widget)
-    items = widget.scene().get_selected_items(qtgraphview.Vertex)
+    operator.identify_focused_graph_view()
+    w = operator.get_graph_view()
+    menu = QtGui.QMenu(w)
+    operator.identify_focused_graph_view()
+    items = w.scene().get_selected_items(qtgraphview.Vertex)
+    enabled = not w.scene().edition_locked()
     
+
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
     if isinstance(graphItem().vertex(), CompositeNode):
         menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))    
     menu.addSeparator()
-    menu.addAction(operator("Delete",          menu, "vertex_remove"))
-    menu.addAction(operator("Reset",           menu, "vertex_reset"))
-    menu.addAction(operator("Replace By",      menu, "vertex_replace"))
-    menu.addAction(operator("Reload",          menu, "vertex_reload"))
+    menu.addAction(operator("Delete",          menu, "vertex_remove", enabled=enabled))
+    menu.addAction(operator("Reset",           menu, "vertex_reset", enabled=enabled))
+    menu.addAction(operator("Replace By",      menu, "vertex_replace", enabled=enabled))
+    menu.addAction(operator("Reload",          menu, "vertex_reload", enabled=enabled))
     menu.addSeparator()
     menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
     menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
@@ -199,10 +200,10 @@ def vertexContextMenuEvent(graphItem, event):
     action.setCheckable(True)
     action.setChecked(graphItem().vertex().block)
     menu.addAction(action)
-
+    
     menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
-
     menu.addSeparator()
+    
     alignMenu = menu.addMenu("Align...")
     alignMenu.setDisabled(True)
     if len(items)>1:
@@ -214,6 +215,7 @@ def vertexContextMenuEvent(graphItem, event):
         alignMenu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
         alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))
 
+    #The colouring
     colorMenu = menu.addMenu("Color...")
     colorMenu.addAction(operator("Set user color...", colorMenu, "graph_set_selection_color"))
     #check if the current selection is coloured and tick the 
@@ -227,7 +229,6 @@ def vertexContextMenuEvent(graphItem, event):
             break    
     colorMenu.addAction(action)
     
-    
     #display the menu...
     pos = event.screenPos()
     menu.move(pos)
@@ -236,17 +237,17 @@ def vertexContextMenuEvent(graphItem, event):
     #fix the position of the menu if it tries to popup too close to the lower & right edges.
     #bad fixing strategy probably: what if we were create arabian menus?
     #We should maube sublcass QMenu to handle screen real estate and reuse it.
-    if not QtGui.QApplication.desktop().availableGeometry(widget).contains(rect, True):
+    if not QtGui.QApplication.desktop().availableGeometry(w).contains(rect, True):
         pos2 = menu.rect().bottomLeft()
         menu.move(pos-pos2)
     event.accept()
 
 
 
-qtgraphview.Vertex.set_event_handler("mouseDoubleClickEvent",
-                                                vertexMouseDoubleClickEvent)
-qtgraphview.Vertex.set_event_handler("contextMenuEvent",
-                                                vertexContextMenuEvent)
+dataflowview.vertex.GraphicalVertex.set_event_handler("mouseDoubleClickEvent", vertexMouseDoubleClickEvent,
+                                      dataflowview.adapter.GraphAdapter)
+dataflowview.vertex.GraphicalVertex.set_event_handler("contextMenuEvent", vertexContextMenuEvent,
+                                      dataflowview.adapter.GraphAdapter)
 
 
 
@@ -269,8 +270,8 @@ def portContextMenuEvent(graphItem, event):
 
         event.accept()
 
-dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent",
-                                                    portContextMenuEvent)
+dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent", portContextMenuEvent,
+                                                    dataflowview.adapter.GraphAdapter)
 
 
 
@@ -278,10 +279,22 @@ dataflowview.vertex.GraphicalPort.set_event_handler("contextMenuEvent",
 # QtEvent handlers for edges #
 ##############################
 
-#nothing special here the default
-#actions of the dataflow strategy
-#are fine
 
+def edgeContextMenuEvent(graphEdge, event):
+    """ Context menu event : Display the menu"""
+    operator = GraphOperator()
+    operator.identify_focused_graph_view()
+    w = operator.get_graph_view()
+    if w.scene().edition_locked() : return
+    menu = QtGui.QMenu(event.widget())
+    action = menu.addAction("Delete connection")
+    action.triggered.connect(graphEdge.remove)
+    menu.move(event.screenPos())
+    menu.show()
+    event.accept()
+
+dataflowview.edge.GraphicalEdge.set_event_handler("contextMenuEvent", edgeContextMenuEvent,
+                                                  dataflowview.adapter.GraphAdapter)
 
 ####################################
 # QtEvent handlers for annotations #

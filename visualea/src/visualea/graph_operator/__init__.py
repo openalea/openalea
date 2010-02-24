@@ -57,8 +57,9 @@ class GraphOperator(Observed,
     ######################################
     # Get Qt Actions for methods in here #
     ######################################
-    def get_action(self, actionName, parent, functionName, *otherSlots):
+    def get_action(self, actionName, parent, functionName, enabled=True, *otherSlots):
         action = QtGui.QAction(actionName, parent)
+        action.setEnabled(enabled)
         return self.bind_action(action, functionName, *otherSlots)
 
     def bind_action(self, action, functionName, *otherSlots):
@@ -68,10 +69,12 @@ class GraphOperator(Observed,
         if (argcount) < 2 :
             action.triggered[""].connect(func)
             for f in otherSlots:
+                print f
                 action.triggered[""].connect(f)
         else:
             action.triggered[bool].connect(func)
             for f in otherSlots:
+                print f
                 action.triggered[bool].connect(f)      
         return action
 
