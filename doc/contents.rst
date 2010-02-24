@@ -5,27 +5,26 @@ Developers documentation
 
     :Release: |release|
     :Date: |today|
-    :Authors: **Thomas Cokelaer**
-    :Target: developers and administrators
-    :status: mature
+    :Authors: **Daniel Barbeau, Thomas Cokelaer, Eric Moscardi, Christophe Pradal**
+    :Target: users, developers and administrators
+    :status: some mature, some in progress
 
-.. topic:: Overview
+.. topic:: OpenAlea Document Center
 
-    reST and Sphinx documentation
+    * OpenAlea offcial documents
+    * sphinx related
+    * release guidelines
+    * General tutorials
 
 
-
-Sphinx is a standard tool that ease the generation of user documentation as well as reference guide. It is base on the reST syntax.
-
-
-The `OpenAlea wiki <http://openalea.gforge.inria.fr/>`_ contains a     `proposal <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=documentation:doctests:sphinx_proposal>`_  that justify the usage of Sphinx within OpenAlea so as to document the code. In the wiki, developers can also find a quick help on `how to upload sphinx documentation <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=documentation:sphinx_upload>`_
-
-However, the main documentation about Sphinx in OpenAlea will be gathered in this page, using the Sphinx syntax obviously ;-) .
 
 .. toctree::
     :maxdepth: 1
     :numbered:
 
+
+    source/policy.rst
+    source/release/index.rst
     source/sphinx/sphinx.rst
     some coding conventions<source/developers/developer>
     source/tutorials/openalea.rst
