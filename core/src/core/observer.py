@@ -65,12 +65,12 @@ class Observed(object):
     def transfer_listeners(self, newObs):
         """Takes all this observed's listeners, unregisters them
         from itself and registers them to the newObs, calling
-        listener.change_observer if implemented"""
+        listener.change_observed if implemented"""
         self.__isNotifying = True
         for lis in self.listeners:
             self.unregister_listener(lis)
             newObs.register_listener(lis())
-            lis().change_observer(self, newObs)
+            lis().change_observed(self, newObs)
         self.__isNotifying = False
             
     def exclusive_command(self, who, command, *args, **kargs):
@@ -146,7 +146,7 @@ class AbstractListener(object):
         if (self.notify_lock == None):
             self.notify_lock = list()
             
-    def change_observer(self, old, new):
+    def change_observed(self, old, new):
         return
 
     def is_notification_locked(self):
