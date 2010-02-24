@@ -47,7 +47,7 @@ class ColorOperators(object):
                 print "graph_set_selection_color exception", e
                 pass
 
-    def graph_useUserColor(self, useit):
+    def graph_use_user_color(self, useit):
         items = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
         if(not items): return
         scheduleASetColor = False
@@ -63,4 +63,4 @@ class ColorOperators(object):
             self.graph_set_selection_color()
 
     vertex_set_color    = graph_set_selection_color
-    vertex_useUserColor = graph_useUserColor
+    vertex_use_user_color = graph_use_user_color

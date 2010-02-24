@@ -202,7 +202,7 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally")
         self.operator + (self.actionDistributeVertically, "graph_distribute_selection_vertically")
         self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
-        self.operator + (self.actionUseCustomColor, "graph_useUserColor")                
+        self.operator + (self.actionUseCustomColor, "graph_use_user_color")                
 
         self.connect(self.actionTo_script, SIGNAL("triggered()"), self.to_python_script)
         
@@ -445,7 +445,7 @@ class MainWindow(QtGui.QMainWindow,
 
             if(i< self.tabWorkspace.count()):
                 widget = self.tabWorkspace.widget(i)
-                if(node != widget.graph().graph()):
+                if(node != widget.scene().graph().graph()):
                     self.close_tab_workspace(i)
                 self.open_widget_tab(node, factory=node.factory, pos = i)
             
@@ -463,7 +463,7 @@ class MainWindow(QtGui.QMainWindow,
         # Test if the node is already opened
         for i in range(self.tabWorkspace.count()):
             widget = self.tabWorkspace.widget(i)
-            n = widget.graph().graph()
+            n = widget.scene().graph().graph()
             if(graph is n):
                 self.tabWorkspace.setCurrentIndex(i)
                 return
@@ -725,7 +725,7 @@ class MainWindow(QtGui.QMainWindow,
         if widget is None:
             return
         
-        composite_node = widget.graph().graph()
+        composite_node = widget.scene().graph().graph()
         if composite_node is not None :
             print "BEGIN script"
             print composite_node.to_script(),"END script"

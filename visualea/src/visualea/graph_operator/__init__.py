@@ -43,8 +43,6 @@ class GraphOperator(Observed,
         color.ColorOperators.__init__(self)
         vertex.VertexOperators.__init__(self)
 
-        # self.__main = None
-
         self.graphView = None
         self.graph     = None
         self.__session = None
@@ -102,7 +100,8 @@ class GraphOperator(Observed,
     def __get_wrapped(self, funcname):
         func = getattr(self,funcname,None)
         def wrapped(*args, **kwargs):
-            func(*args, **kwargs)
+            if self.get_graph() is None : return
+            return func(*args, **kwargs)
         return wrapped, func.func_code.co_argcount 
 
 
@@ -156,6 +155,6 @@ class GraphOperator(Observed,
     def get_graph(self):
         graphView = self.get_graph_view()
         if graphView:
-            return graphView.graph()
+            return graphView.scene().graph()
         else:
             return self.graph
