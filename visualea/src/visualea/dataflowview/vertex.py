@@ -199,7 +199,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         for i in range(count):
             item = layout.itemAt(0)
             layout.removeAt(0)
-            self.scene().removeItem(item.graphicsItem())
+            del item
 
     def __configure_layout(self, layout):
         layout.setSpacing(0.0)

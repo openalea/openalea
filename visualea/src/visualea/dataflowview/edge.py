@@ -99,15 +99,6 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         qtgraphview.Edge.__init__(self, edgeModel, graphadapter, port1, port2)
         self.setZValue(0.5)
         self.initialise_from_model()
-
-    def contextMenuEvent(self, event):
-        """ Context menu event : Display the menu"""
-        menu = QtGui.QMenu(event.widget())
-        action = menu.addAction("Delete connection")
-        action.triggered.connect(self.remove)
-        menu.move(event.screenPos())
-        menu.show()
-        event.accept()
         
     def remove(self):
         self.graph().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),

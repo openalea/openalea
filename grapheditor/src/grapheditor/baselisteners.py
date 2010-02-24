@@ -147,6 +147,7 @@ class GraphListenerBase(observer.AbstractListener):
         self._vertexWidgetFactory = None
         self._edgeWidgetFactory = None
         self._adapterType = None
+        self._lockEdition = False
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls):
@@ -180,7 +181,7 @@ class GraphListenerBase(observer.AbstractListener):
             ga = self._adapterType(graph)
             self.__observed = ga
         else:
-            self.__observed = weakref.ref(graph) #might not need to be weak.
+            self.__observed = weakref.ref(graph) #might not need to be weak.            
 
     def initialise_from_model(self):
         self.announce_view_data(exclusive=self)
@@ -188,7 +189,6 @@ class GraphListenerBase(observer.AbstractListener):
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
     #############################################################
-    
     def notify(self, sender, event):
         if(event[0]=="vertex_added") : self.vertex_added(*event[1])
         elif(event[0]=="edge_added") : self.edge_added(*event[1])
@@ -259,6 +259,12 @@ class GraphListenerBase(observer.AbstractListener):
     ###########################################################
     # Controller methods come next. They DO MODIFY the model. #
     ###########################################################
+    def lock_edition(self, val):
+        self._lockEdition = val
+        
+    def edition_locked(self):
+        return self._lockEdition
+    
     #---Low-Level Edge Interaction---
     def is_creating_edge(self):
         return True if self.__newEdge else False

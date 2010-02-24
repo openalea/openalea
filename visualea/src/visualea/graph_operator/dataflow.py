@@ -54,6 +54,7 @@ class DataflowOperators(object):
             if type(a) == type(b) : return 0
             return -1
         
+        if self.get_graph_view().scene().edition_locked(): return
         if(not items): items = self.get_graph_view().scene().get_selected_items()            
         if(not items): return
         items.sort(cmp)
@@ -72,6 +73,7 @@ class DataflowOperators(object):
         Export selected node in a new factory
         """
         widget = self.get_graph_view()
+        if widget.scene().edition_locked(): return
 
         # FIRST WE PREPARE THE USER INTERFACE STUFF
         # ------------------------------------------
@@ -148,13 +150,17 @@ class DataflowOperators(object):
         
     def graph_copy(self):
         """ Copy Selection """
+        
+        
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().copy()
             except:
                 pass
         else:
-            s = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex, 
+            widget = self.get_graph_view()
+            if widget.scene().edition_locked(): return
+            s = widget.scene().get_selected_items(qtgraphview.Vertex, 
                                                                  "vertex().get_id()")
             if(not s): return 
             self.get_session().clipboard.clear()
@@ -167,18 +173,22 @@ class DataflowOperators(object):
             except:
                 pass
         else:
+            widget = self.get_graph_view()
+            if widget.scene().edition_locked(): return        
             self.graph_copy()
             self.graph_remove_selection()
 
     def graph_paste(self):
         """ Paste from clipboard """
+        if self.get_graph_view.scene().edition_locked(): return
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().paste()
             except:
                 pass
         else:
-            widget = self.get_graph_view()                
+            widget = self.get_graph_view()
+            if widget.scene().edition_locked(): return            
             cnode = self.get_session().clipboard.instantiate()
             
             min_x = min_y = float("inf")          
@@ -238,6 +248,7 @@ class DataflowOperators(object):
         Export workspace index to its factory
         """
         widget = self.get_graph_view()
+        if widget.scene().edition_locked(): return 
         index  = widget.parent().indexOf(widget)
 
         # Get a composite node factory
@@ -266,7 +277,8 @@ class DataflowOperators(object):
     def graph_configure_io(self):
         """ Configure workspace IO """
         widget = self.get_graph_view()
-
+        if widget.scene().edition_locked(): return 
+        
         dialog = IOConfigDialog(self.get_graph().input_desc,
                                 self.get_graph().output_desc,
                                 parent=widget)
@@ -280,6 +292,7 @@ class DataflowOperators(object):
     def graph_reload_from_factory(self, index=None):
         """ Reload a tab node givin its index"""
         widget = self.get_graph_view()
+        if widget.scene().edition_locked(): return 
         if(index is None):
             index  = widget.parent().indexOf(widget)
 
@@ -316,13 +329,13 @@ class DataflowOperators(object):
     
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
-        widget = self.get_graph_view()        
+        widget = self.get_graph_view()  
         graph, tempfactory = self.__get_current_factory(name)
-        w = qtgraphview.View(widget.parent(), graph)
+        w = qtgraphview.View(widget.parent(), graph, clone=True)
         w.setWindowFlags(QtCore.Qt.Window)
         w.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        w.setInteractive(False)
         w.setWindowTitle('Preview Application')
+        w.scene().lock_edition(True)
         w.show()
         return graph, tempfactory
 
@@ -330,7 +343,6 @@ class DataflowOperators(object):
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
         widget = self.get_graph_view()
-
         # Get Filename
         filename = QtGui.QFileDialog.getSaveFileName(
             widget, "Python Application", 
@@ -349,7 +361,7 @@ class DataflowOperators(object):
         name = str(result)
         if(not name) : name = "OpenAlea Application"
         
-        graph, tempfactory = self.graph_preview_application(name)
+        graph, tempfactory = self.__get_current_factory(name)
         #export_app comes from openalea.core
         export_app.export_app(name, filename, tempfactory) 
         

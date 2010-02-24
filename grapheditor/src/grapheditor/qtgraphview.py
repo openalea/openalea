@@ -44,10 +44,71 @@ __AIK__ = [
 
 
 
+class ClientCustomisableWidget(object):
+   ####################################
+    # ----Class members come first---- #
+    ####################################
+    
+    @classmethod
+    def set_event_handler(cls, key, handler, graphType):
+        """Let handler take care of the event named by key.
 
+        :Parameters:
+            - key (str) - The name of the event.
+            - handler (callable) - The handler to register with key.
+
+
+         The key can be any of
+           * \"mouseMoveEvent\"
+           * \"mouseReleaseEvent\"
+           * \"mousePressEvent\"
+           * \"mouseDoubleClickEvent\"
+           * \"keyReleaseEvent\"
+           * \"keyPressEvent\"
+           * \"contextMenuEvent\"
+
+        See the Qt documentation of those to know the expected signature
+        of the handler (usually : handlerName(QObject, event)).
+          
+        """
+        if cls in [Vertex, Edge, Annotation, View] : 
+            raise Exception("%s.set_event_handler. Don't use this on classes from qtgraphview"%(cls,))
+            return
+        if not hasattr(cls, "__application_integration__"):
+            cls.__application_integration__ = {}
+            cls.__originals__ = {}
+        if not graphType in cls.__application_integration__:
+            cls.__application_integration__[graphType] = dict( zip(__AIK__,[None]*len(__AIK__)) )
+        if key in cls.__application_integration__[graphType]:
+            cls.__application_integration__[graphType][key]=handler
+            try : cls.__originals__[key] = getattr(cls, key)
+            except : pass
+              
+        
+
+    ####################################
+    # ----Instance members follow----  #
+    ####################################  
+    def init_handlers(self, graphType):
+        """we bind application overloads if they exist
+        once and for all. As this happens after the
+        class is constructed, it overrides any method
+        called "name" with an application-specific method
+        to handle events."""
+        #TODO: make this a little more static to speed up widget instantiation.
+        if (not hasattr(self, "__application_integration__") or not 
+            graphType in self.__application_integration__): return      
+        for name, hand in self.__application_integration__[graphType].iteritems():
+            if "Event" in name and hand:
+                setattr(self, name, types.MethodType(hand, self, self.__class__))
+                
+    def reset_event_handlers(self):
+        if hasattr(self, "__originals__"):
+            for name, hand in self.__originals__.iteritems():
+                setattr(self, name, types.MethodType(hand, self, self.__class__))
     
 #------*************************************************------#
-class Element(baselisteners.GraphElementObserverBase):
+class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
     """Base class for elements in a qtgraphview.View.
 
     Implements basic listeners calls for elements of a graph.
@@ -78,37 +139,6 @@ class Element(baselisteners.GraphElementObserverBase):
     """
 
     ####################################
-    # ----Class members come first---- #
-    ####################################
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
-
-    @classmethod
-    def set_event_handler(cls, key, handler):
-        """Let handler take care of the event named by key.
-
-        :Parameters:
-            - key (str) - The name of the event.
-            - handler (callable) - The handler to register with key.
-
-
-         The key can be any of
-           * \"mouseMoveEvent\"
-           * \"mouseReleaseEvent\"
-           * \"mousePressEvent\"
-           * \"mouseDoubleClickEvent\"
-           * \"keyReleaseEvent\"
-           * \"keyPressEvent\"
-           * \"contextMenuEvent\"
-
-        See the Qt documentation of those to know the expected signature
-        of the handler (usually : handlerName(QObject, event)).
-          
-        """
-        if key in cls.__application_integration__:
-            cls.__application_integration__[key]=handler
-
-
-    ####################################
     # ----Instance members follow----  #
     ####################################    
     def __init__(self, observed=None, graph=None):
@@ -122,16 +152,7 @@ class Element(baselisteners.GraphElementObserverBase):
         baselisteners.GraphElementObserverBase.__init__(self, 
                                                         observed, 
                                                         graph)
-
-        #we bind application overloads if they exist
-        #once and for all. As this happens after the
-        #class is constructed, it overrides any method
-        #called "name" with an application-specific method
-        #to handle events.
-        for name, hand in self.__application_integration__.iteritems():
-            if "Event" in name and hand:
-                setattr(self, name, types.MethodType(hand,self,self.__class__))
-
+        self.init_handlers(type(graph))
 
     #################################
     # IGraphViewElement realisation #
@@ -170,12 +191,6 @@ class Vertex(Element):
     Of course, if it doesn't match your needs you
     can override it completely in your subclass."""
     
-    ####################################
-    # ----Class members come first---- #
-    ####################################    
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
-
-
     ####################################
     # ----Instance members follow----  #
     ####################################    
@@ -240,8 +255,6 @@ class Vertex(Element):
 #------*************************************************------#
 class Annotation(Element):
     """An abstract graphic item that represents a graph annotation"""
-
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
     def __init__(self, annotation, graph):
         """
@@ -308,8 +321,6 @@ class Annotation(Element):
 #------*************************************************------#
 class Edge(Element):
     """Base class for Qt based edges."""
-
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
     def __init__(self, edge=None, graph=None, src=None, dest=None):
         Element.__init__(self, edge, graph)
@@ -424,8 +435,6 @@ class Edge(Element):
 
 
 class FloatingEdge( Edge ):
-
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
 
     def __init__(self, srcPoint, graph):
         Edge.__init__(self, None, graph, None, None)
@@ -656,21 +665,13 @@ class View(QtGui.QGraphicsView):
     ####################################
     # ----Instance members follow----  #
     ####################################   
-    def __init__(self, parent, graph=None):
+    def __init__(self, parent, graph=None, clone=False):
         QtGui.QGraphicsView.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
-        #we bind application overloads if they exist
-        #once and for all. As this happens after the
-        #class is constructed, it overrides any method
-        #called "name" with an application-specific method
-        #to handle events.
-        for name, hand in self.__application_integration__.iteritems():
-            if "Event" in name and hand:
-                setattr(self, name, types.MethodType(hand,self,self.__class__))
-
+        self.init_handlers()
 
         if graph: 
             #if the graph has already a qtgraphview.Scene GraphListener
@@ -680,8 +681,7 @@ class View(QtGui.QGraphicsView):
                 if isinstance(listener(), Scene):
                     existingScene = listener()
                     break
-            # print "reusing existing scene? : ", existingScene
-            self.setScene(existingScene if existingScene else Scene(None, graph))      
+            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))      
         
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
@@ -689,8 +689,28 @@ class View(QtGui.QGraphicsView):
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        
+    def init_handlers(self):
+        """ We bind application overloads if they exist
+        once and for all. As this happens after the
+        class is constructed, it overrides any method
+        called "name" with an application-specific method
+        to handle events. """
+        for name, hand in self.__application_integration__.iteritems():
+            if "Event" in name and hand:
+                setattr(self, name, types.MethodType(hand,self,self.__class__))
+    
+    # def reset_handlers(self):
+        # """ Restore the basic handlers """
+        # for name, hand in self.__application_integration__.iteritems():
+            # if "Event" in name and hand:
+                # setattr(self, name, getattr(QtGui.QGraphicsView, name))    
+                # # setattr(self, name, types.MethodType(hand,self,self.__class__))    
+    
 
     def setScene(self, scene):
+        """ Overload of QGraphicsView.setScene to correctly handle multiple views
+        of the same scene using reference counting. """
         self.__scene = scene
         scene.register_view(self)
         self.closing.connect(scene.unregister_view)
@@ -698,7 +718,12 @@ class View(QtGui.QGraphicsView):
 
     ##################
     # QtWorld-Events #
-    ##################              
+    ##################
+    def reset_item_event_handlers(self):
+        items = self.scene().get_items(Element)
+        for i in items:
+            i.reset_event_handlers()
+        
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
         self.scale_view(delta)
@@ -795,7 +820,7 @@ class View(QtGui.QGraphicsView):
     set_graph = deprecate("set_graph")
     rebuild_scene = deprecate("rebuild")
     clear_scene = deprecate("clear")
-    get_items = deprecate("get_items")
+    get_selected_items = deprecate("get_items")
     get_selected_items = deprecate("get_selected_items")
     get_selection_center = deprecate("get_selection_center")
     select_added_elements = deprecate("select_added_elements")
