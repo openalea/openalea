@@ -332,7 +332,7 @@ class Edge(Element):
 
     edge = baselisteners.GraphElementObserverBase.get_observed
 
-    def change_observer(self, old, new):
+    def change_observed(self, old, new):
         if old == self.srcBBox():
             self.set_observed_source(new)
         elif old == self.dstBBox():
@@ -483,7 +483,8 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         for v in self.__views:
             if v() == view : toDiscard = v; break
         self.__views.remove(toDiscard)
-        self.graph().unregister_listener(view)
+        try: self.graph().unregister_listener(view)
+        except : pass
         if len(self.__views)==0: self.clear()
 
     def get_scene(self):
@@ -695,9 +696,6 @@ class View(QtGui.QGraphicsView):
         self.closing.connect(scene.unregister_view)
         QtGui.QGraphicsView.setScene(self, scene)
 
-    def graph(self):
-        return self.scene().graph()
-
     ##################
     # QtWorld-Events #
     ##################              
@@ -793,6 +791,8 @@ class View(QtGui.QGraphicsView):
     ######################
     # Deprecated methods #
     ######################
+    graph = deprecate("graph")
+    set_graph = deprecate("set_graph")
     rebuild_scene = deprecate("rebuild")
     clear_scene = deprecate("clear")
     get_items = deprecate("get_items")

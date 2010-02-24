@@ -298,7 +298,7 @@ class DataflowOperators(object):
 
 
         newGraph = self.get_graph().factory.instantiate()
-        widget.set_graph(newGraph)
+        widget.scene().set_graph(newGraph)
         widget.scene().rebuild()
         self.get_session().workspaces[index] = newGraph
 

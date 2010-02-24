@@ -60,8 +60,8 @@ class GraphElementObserverBase(observer.AbstractListener):
     def clear_observed(self, *args):
         self.__obsBBox.clear_observed()
         
-    def change_observer(self, old, new):
-        self.__obsBBox.clear_observed()
+    def change_observed(self, old, new):
+        self.clear_observed()
         self.set_observed(new)
 
     def set_graph(self, graph):

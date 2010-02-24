@@ -54,8 +54,8 @@ def OpenAleaNodeFactoryHandler(view, event):
         try:
             view.scene().clearSelection()
             view.scene().select_added_items(True)
-            node = factory.instantiate([view.graph().factory.get_id()])
-            view.graph().add_vertex(node, position=[position.x(), position.y()])
+            node = factory.instantiate([view.scene().graph().factory.get_id()])
+            view.scene().graph().add_vertex(node, position=[position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -87,8 +87,8 @@ def OpenAleaNodeDataPoolHandler(view, event):
         try:
             view.scene().clearSelection()
             view.scene().select_added_items(True)
-            node = factory.instantiate([view.graph().factory.get_id()])
-            view.graph().add_vertex(node, [position.x(), position.y()])
+            node = factory.instantiate([view.scene().graph().factory.get_id()])
+            view.scene().graph().add_vertex(node, [position.x(), position.y()])
         except RecursionError:
             mess = QtGui.QMessageBox.warning(view, "Error",
                                              "A graph cannot be contained in itself.")
@@ -110,7 +110,7 @@ qtgraphview.View.set_mime_handler_map(mimeFormatsMap)
 # Handling keyboard events on the graph view #
 ##############################################
 def keyPressDelete(view, e):
-    operator=GraphOperator(view, view.graph())
+    operator=GraphOperator(view, view.scene().graph())
     operator.graph_remove_selection()
     e.setAccepted(True)
 
@@ -169,7 +169,8 @@ def vertexContextMenuEvent(graphItem, event):
     operator=GraphOperator(widget, graphItem().graph())
     operator.set_vertex_item(graphItem())
     menu = QtGui.QMenu(widget)
-
+    items = widget.scene().get_selected_items(qtgraphview.Vertex)
+    
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
     if isinstance(graphItem().vertex(), CompositeNode):
@@ -182,20 +183,6 @@ def vertexContextMenuEvent(graphItem, event):
     menu.addSeparator()
     menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
     menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
-    menu.addSeparator()
-    menu.addAction(operator("Set user color",  menu, "graph_set_selection_color"))
-    
-    #check if the current selection is coloured and tick the 
-    #menu item if an item of the selection uses the user color.
-    action = operator("Use user color",  menu, "graph_useUserColor")
-    action.setCheckable(True)
-    action.setChecked(False)
-    items = widget.scene().get_selected_items(qtgraphview.Vertex)
-    for i in items:
-        if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
-            action.setChecked(True)
-            break    
-    menu.addAction(action)
     menu.addSeparator()
     
     action = operator("Mark as User Application", menu, "vertex_mark_user_app")
@@ -225,9 +212,23 @@ def vertexContextMenuEvent(graphItem, event):
         alignMenu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
         alignMenu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
         alignMenu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
-        alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))        
+        alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))
+
+    colorMenu = menu.addMenu("Color...")
+    colorMenu.addAction(operator("Set user color...", colorMenu, "graph_set_selection_color"))
+    #check if the current selection is coloured and tick the 
+    #menu item if an item of the selection uses the user color.
+    action = operator("Use user color",  colorMenu, "graph_use_user_color")
+    action.setCheckable(True)
+    action.setChecked(False)
+    for i in items:
+        if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
+            action.setChecked(True)
+            break    
+    colorMenu.addAction(action)
     
     
+    #display the menu...
     pos = event.screenPos()
     menu.move(pos)
     menu.show()
@@ -256,7 +257,7 @@ def portContextMenuEvent(graphItem, event):
     if isinstance(graphItem.port(), OutputPort):
         graphItem = weakref.ref(graphItem)
         view = graphItem().scene().views()[0]
-        operator=GraphOperator(view, view.graph())
+        operator=GraphOperator(view, view.scene().graph())
         operator.set_port_item(graphItem())
         menu = QtGui.QMenu(view)
 

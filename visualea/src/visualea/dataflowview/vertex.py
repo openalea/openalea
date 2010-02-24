@@ -17,10 +17,10 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref,sys
+import weakref, sys
 from PyQt4 import QtCore, QtGui
 from openalea.core import observer
-from openalea.core.node import InputPort, OutputPort
+from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview, baselisteners
@@ -197,7 +197,9 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def clear_layout(self, layout):
         count = layout.count()
         for i in range(count):
+            item = layout.itemAt(0)
             layout.removeAt(0)
+            self.scene().removeItem(item.graphicsItem())
 
     def __configure_layout(self, layout):
         layout.setSpacing(0.0)
@@ -279,7 +281,7 @@ class GraphicalOutVertex(GraphicalVertex):
 
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     """ A vertex port """
-    MAX_TIPLEN = 1000
+    MAX_TIPLEN = 2000
     __spacing  = 5.0
     WIDTH      = 10.0
     HEIGHT     = 10.0
@@ -295,7 +297,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         QtGui.QGraphicsWidget.__init__(self)
         qtgraphview.Element.__init__(self, observed=port)
         
-        
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, False)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
       
@@ -306,6 +307,13 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         port.simulate_construction_notifications()
 
     port = baselisteners.GraphElementObserverBase.get_observed
+        
+    def change_observed(self, old, new):
+        if isinstance(new, AbstractPort):
+            qtgraphview.Element.change_observed(self, old, new)
+        elif isinstance(new, AbstractNode):
+            self.__vertBBox.clear_observed()
+            self.__vertBBox(new)
     
     def close_and_delete(self, obj):
         self.clear_observed()
@@ -354,9 +362,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         elif isinstance(self.port(), InputPort):
             data = node.get_input(self.port().get_id())
         s = str(data)
-        if(len(s) > self.MAX_TIPLEN): s = "String too long..."
-        #self.setToolTip("Value: " + s)
-        self.setToolTip(self.port().get_tip(data) )
+        if(len(s) > self.MAX_TIPLEN): 
+            s = "String too long..."
+            self.setToolTip(s)
+        else:
+            #self.setToolTip("Value: " + s)
+            self.setToolTip(self.port().get_tip(data) )
     
     def set_highlighted(self, val):
         self.highlighted = val
