@@ -20,7 +20,14 @@ __revision__ = " $Id$ "
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
+#To handle availability of actions automatically
+from openalea.grapheditor import interactionstates as OAGIS
+functionInteractionMasks = {}
+masker = OAGIS.make_interaction_level_decorator(functionInteractionMasks)
+
 class ColorOperators(object):
+
+    @masker(OAGIS.EDITIONLEVELLOCK_2)
     def graph_set_selection_color(self):
         items = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
         length = len(items)
@@ -47,6 +54,7 @@ class ColorOperators(object):
                 print "graph_set_selection_color exception", e
                 pass
 
+    @masker(OAGIS.EDITIONLEVELLOCK_2)
     def graph_use_user_color(self, useit):
         items = self.get_graph_view().scene().get_selected_items(qtgraphview.Vertex)
         if(not items): return

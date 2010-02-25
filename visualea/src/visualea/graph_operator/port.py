@@ -20,11 +20,16 @@ __revision__ = " $Id$ "
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
+#To handle availability of actions automatically
+from openalea.grapheditor import interactionstates as OAGIS
+functionInteractionMasks = {}
+masker = OAGIS.make_interaction_level_decorator(functionInteractionMasks)
+
 class PortOperators(object):
     def set_port_item(self, portitem):
         self.__portItem = portitem
 
-
+    @masker(OAGIS.EDITIONLEVELLOCK_1)
     def port_print_value(self):
         """ Print the value of the connector """
 
@@ -32,7 +37,7 @@ class PortOperators(object):
         data = node.get_output(self.__portItem.port().get_id())
         print data
 
-
+    @masker(OAGIS.EDITIONLEVELLOCK_2)
     def port_send_to_pool(self):
 
         (result, ok) = QtGui.QInputDialog.getText(self.get_graph_view(), "Data Pool", "Instance name",

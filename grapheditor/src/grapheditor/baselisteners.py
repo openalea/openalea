@@ -147,7 +147,7 @@ class GraphListenerBase(observer.AbstractListener):
         self._vertexWidgetFactory = None
         self._edgeWidgetFactory = None
         self._adapterType = None
-        self._lockEdition = False
+        self._interactionFlag = 0
 
         stratCls = self.__available_strategies__.get(graph.__class__,None)
         if(not stratCls):
@@ -259,11 +259,11 @@ class GraphListenerBase(observer.AbstractListener):
     ###########################################################
     # Controller methods come next. They DO MODIFY the model. #
     ###########################################################
-    def lock_edition(self, val):
-        self._lockEdition = val
+    def set_interaction_flag(self, val):
+        self._interactionFlag = val
         
-    def edition_locked(self):
-        return self._lockEdition
+    def get_interaction_flag(self):
+        return self._interactionFlag
     
     #---Low-Level Edge Interaction---
     def is_creating_edge(self):
