@@ -71,8 +71,10 @@ class ClientCustomisableWidget(object):
         of the handler (usually : handlerName(QObject, event)).
           
         """
-        if cls in [Vertex, Edge, Annotation, View] : 
-            raise Exception("%s.set_event_handler. Don't use this on classes from qtgraphview"%(cls,))
+        if cls in [Vertex, Edge, Annotation] : 
+            raise Exception(str(cls)+".set_event_handler.\n" + \
+                                     "Don't use this on classes from qtgraphview " + \
+                                     "except qtgraphview.View")
             return
         if not hasattr(cls, "__application_integration__"):
             cls.__application_integration__ = {}
@@ -605,43 +607,15 @@ def deprecate(methodName, newName=None):
         return getattr(self.scene(), newName)(*args, **kwargs)
     return deprecation_wrapper
 
-class View(QtGui.QGraphicsView):
+class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     """A View implementing client customisation """
 
     ####################################
     # ----Class members come first---- #
     ####################################
     __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
-    __application_integration__["mimeHandlers"]={}
-    __application_integration__["pressHotkeyMap"]={}
-    __application_integration__["releaseHotkeyMap"]={}
-
+    __application_integration__.update({"mimeHandlers":{}, "pressHKMap":{}, "releaseHKMap":{}})
     __defaultDropHandler = None
-
-    @classmethod
-    def set_event_handler(cls, key, handler):
-        """Let handler take care of the event named by key.
-        
-        :Parameters:
-            - key (str) - The name of the event.
-            - handler (callable) - The handler to register with key.
-
-
-         The key can be any of
-           * \"mouseMoveEvent\"
-           * \"mouseReleaseEvent\"
-           * \"mousePressEvent\"
-           * \"mouseDoubleClickEvent\"
-           * \"keyReleaseEvent\"
-           * \"keyPressEvent\"
-           * \"contextMenuEvent\"
-
-        See the Qt documentation of those to know the expected signature
-        of the handler (usually : handlerName(QObject, event)).
-          
-        """
-        if key in cls.__application_integration__:
-            cls.__application_integration__[key]=handler
     
     @classmethod
     def set_mime_handler_map(cls, mapping):
@@ -649,11 +623,11 @@ class View(QtGui.QGraphicsView):
 
     @classmethod
     def set_keypress_handler_map(cls, mapping):
-        cls.__application_integration__["pressHotkeyMap"] = mapping
+        cls.__application_integration__["pressHKMap"] = mapping
 
     @classmethod
     def set_keyrelease_handler_map(cls, mapping):
-        cls.__application_integration__["releaseHotkeyMap"] = mapping
+        cls.__application_integration__["releaseHKMap"] = mapping
 
     @classmethod
     def set_default_drop_handler(cls, handler):
@@ -671,9 +645,7 @@ class View(QtGui.QGraphicsView):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
-        self.init_handlers()
-
-        if graph: 
+        if graph:            
             #if the graph has already a qtgraphview.Scene GraphListener
             #reuse it:
             existingScene = None
@@ -682,6 +654,7 @@ class View(QtGui.QGraphicsView):
                     existingScene = listener()
                     break
             self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))      
+            self.init_handlers(type(self.scene().graph()))
         
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
@@ -690,24 +663,6 @@ class View(QtGui.QGraphicsView):
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         
-    def init_handlers(self):
-        """ We bind application overloads if they exist
-        once and for all. As this happens after the
-        class is constructed, it overrides any method
-        called "name" with an application-specific method
-        to handle events. """
-        for name, hand in self.__application_integration__.iteritems():
-            if "Event" in name and hand:
-                setattr(self, name, types.MethodType(hand,self,self.__class__))
-    
-    # def reset_handlers(self):
-        # """ Restore the basic handlers """
-        # for name, hand in self.__application_integration__.iteritems():
-            # if "Event" in name and hand:
-                # setattr(self, name, getattr(QtGui.QGraphicsView, name))    
-                # # setattr(self, name, types.MethodType(hand,self,self.__class__))    
-    
-
     def setScene(self, scene):
         """ Overload of QGraphicsView.setScene to correctly handle multiple views
         of the same scene using reference counting. """
@@ -762,7 +717,7 @@ class View(QtGui.QGraphicsView):
     # ----hotkeys----
     def keyPressEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
-        action = self.__application_integration__["pressHotkeyMap"].get(combo)
+        action = self.__application_integration__["pressHKMap"].get(combo)
         if(action):
             action(self, event)
         else:
@@ -770,7 +725,7 @@ class View(QtGui.QGraphicsView):
 
     def keyReleaseEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
-        action = self.__application_integration__["releaseHotkeyMap"].get(combo)
+        action = self.__application_integration__["releaseHKMap"].get(combo)
         if(action):
             action(self, event)
         else:
