@@ -46,14 +46,18 @@ for e, v in zip(enum, values):
 TOPOLOGICALLOCK=VERTEXADDITIONLOCK|VERTEXDELETIONLOCK|EDGEADDITIONLOCK|EDGEDELETIONLOCK
 
     
-    
-
-def make_interaction_level_decorator():
+def make_interaction_level_decorator(dic=None):
     class InteractionLevelClass(object):
-        FIMD = {} #Function Interaction Mask Dictionary
+        FIMD = {} if not dic else dic #Function Interaction Mask Dictionary
         def __init__(self, level):
             self.level = level            
         def __call__(self, f):
             InteractionLevelClass.FIMD[f.__name__] = self.level
-            return f            
+            return f
+        @classmethod
+        def add(cls, *others):
+            ret = cls.FIMD.copy()
+            for cl in others:
+                ret.update(cl.FIMD)
+            return ret
     return InteractionLevelClass
