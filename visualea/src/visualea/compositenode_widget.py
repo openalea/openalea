@@ -32,6 +32,8 @@ from openalea.core.observer import lock_notify
 from openalea.core.settings import Settings
 from openalea.core import cli
 
+from graph_operator import GraphOperator
+
 import annotation
 
 from openalea.visualea.node_widget import NodeWidget, SignalSlotListener
@@ -179,9 +181,6 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 userapp_layout.addLayout(buttons)
 
 
-
-        
-        #dataflow_widget = EditGraphWidget(self.node, self.container)
         dataflow_widget = qtgraphview.View(self.container, self.node)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget
@@ -202,8 +201,8 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
         self.node.eval_as_expression(self.sender().id)
 
     def open_widget(self):
-        self.dataflow_widget.open_item(self.sender().id)
-
+        operator = GraphOperator(graph=self.node)
+        operator.vertex_open(self.sender().id)
 
     def exit(self):
         self.parent().close()
