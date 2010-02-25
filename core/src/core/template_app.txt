@@ -47,8 +47,7 @@ $FACTORY_CODE
 def open_window(factory):
 
     dialog = QtGui.QDialog()
-    widget = factory.instantiate_widget()
-    widget.set_autonomous()
+    widget = factory.instantiate_widget(autonomous=True)
 
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     widget.setParent(dialog)
