@@ -25,7 +25,13 @@ from openalea.grapheditor import qtgraphview
 from openalea.core import observer, node
 
 
+
+
+
 class VertexOperators(object):
+
+    __vertexWidgetMap__ = weakref.WeakKeyDictionary()
+
     def __init__(self):
         # ---reference to the widget of this vertex---
         self._vertexWidget = None
@@ -48,29 +54,40 @@ class VertexOperators(object):
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        
 
-    def vertex_open(self):
-        if(self._vertexWidget):
-            if(self._vertexWidget.isVisible()):
-                self._vertexWidget.raise_ ()
-                self._vertexWidget.activateWindow ()
+    def vertex_open(self, vid=None):
+        vertex = self.get_graph().node(vid) if vid is not None else self.vertexItem().vertex()
+                
+        # if(self._vertexWidget):
+            # if(self._vertexWidget.isVisible()):
+                # self._vertexWidget.raise_ ()
+                # self._vertexWidget.activateWindow ()
+            # else:
+                # self._vertexWidget.show()
+            # return
+        
+        vwidget = VertexOperators.__vertexWidgetMap__.get(vertex, None)
+        if(vwidget):
+            if(vwidget.isVisible()):
+                vwidget.raise_ ()
+                vwidget.activateWindow ()
             else:
-                self._vertexWidget.show()
+                vwidget.show()
             return
 
-        factory = self.vertexItem().vertex().get_factory()
-        if(not factory) : return
         # Create the dialog. 
         # NOTE: WE REQUEST THE MODEL TO CREATE THE DIALOG
         # THIS IS NOT DESIRED BECAUSE IT COUPLES THE MODEL
-        # TO THE UI.
-        innerWidget = factory.instantiate_widget(self.vertexItem().vertex(), None)
+        # TO THE UI.            
+        factory = vertex.get_factory()
+        if(not factory) : return
+        innerWidget = factory.instantiate_widget(vertex, None)
         if(not innerWidget) : return 
         if (innerWidget.is_empty()):
             innerWidget.close()
             del innerWidget
             return
 
-        self._vertexWidget = open_dialog(self.get_graph_view(), innerWidget, factory.get_id(), False)
+        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(self.get_graph_view(), innerWidget, factory.get_id(), False)
 
     def vertex_remove(self):
         self.get_graph().remove_vertex(self.vertexItem().vertex())
