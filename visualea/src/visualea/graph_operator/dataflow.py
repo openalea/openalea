@@ -27,8 +27,7 @@ from openalea.core import export_app
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
-functionInteractionMasks = {}
-masker = OAGIS.make_interaction_level_decorator(functionInteractionMasks)
+masker = OAGIS.make_interaction_level_decorator()
 
 class DataflowOperators(object):
 

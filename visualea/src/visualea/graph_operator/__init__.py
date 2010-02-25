@@ -35,12 +35,12 @@ class GraphOperator(Observed,
                     port.PortOperators):
 
     __main = None
-    __funcInteractionMasks = {}
-    __funcInteractionMasks.update(dataflow.functionInteractionMasks)
-    __funcInteractionMasks.update(layout.functionInteractionMasks)
-    __funcInteractionMasks.update(color.functionInteractionMasks)
-    __funcInteractionMasks.update(vertex.functionInteractionMasks)
-    __funcInteractionMasks.update(port.functionInteractionMasks)
+    __FIMD = {}
+    __FIMD.update(dataflow.masker.FIMD)
+    __FIMD.update(layout.masker.FIMD)
+    __FIMD.update(color.masker.FIMD)
+    __FIMD.update(vertex.masker.FIMD)
+    __FIMD.update(port.masker.FIMD)
                     
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
@@ -65,7 +65,7 @@ class GraphOperator(Observed,
     ######################################
     def get_action(self, actionName, parent, functionName, *otherSlots):
         graphView = self.get_graph_view()
-        funcFlag  = self.__funcInteractionMasks.get(functionName, None)
+        funcFlag  = self.__FIMD.get(functionName, None)
 
         action = QtGui.QAction(actionName, parent)
         action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
@@ -114,7 +114,7 @@ class GraphOperator(Observed,
         func = getattr(self, funcname, None)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
-            funcFlag  = self.__funcInteractionMasks.get(funcname, None)
+            funcFlag  = self.__FIMD.get(funcname, None)
             if graphView and funcFlag is not None:
                 if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return

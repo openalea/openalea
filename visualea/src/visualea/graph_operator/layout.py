@@ -22,8 +22,7 @@ from openalea.grapheditor import qtgraphview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
-functionInteractionMasks = {}
-masker = OAGIS.make_interaction_level_decorator(functionInteractionMasks)
+masker = OAGIS.make_interaction_level_decorator()
 
 class LayoutOperators(object):
 
