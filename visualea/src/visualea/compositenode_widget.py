@@ -42,8 +42,8 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.node_widget import DefaultNodeWidget
 from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import interactionstates as OAGIS
 
-import traceback
 from tooltip import VertexTooltip
 import weakref
 
@@ -182,6 +182,7 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
 
 
         dataflow_widget = qtgraphview.View(self.container, self.node)
+        dataflow_widget.scene().set_interaction_flag(OAGIS.TOPOLOGICALLOCK|OAGIS.EDITIONLEVELLOCK_2)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget
 

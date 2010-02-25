@@ -27,6 +27,7 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError, InputPort, OutputPort
 from openalea.core.compositenode import CompositeNode
 from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import interactionstates as OAGIS
 from openalea.visualea import dataflowview
 
 
@@ -162,14 +163,14 @@ def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     graphItem = weakref.ref(graphItem)
     graphItem().setSelected(True)
+    
     operator = GraphOperator()
-    operator.set_vertex_item(graphItem())
     operator.identify_focused_graph_view()
+    operator.set_vertex_item(graphItem())
     w = operator.get_graph_view()
     menu = QtGui.QMenu(w)
-    operator.identify_focused_graph_view()
     items = w.scene().get_selected_items(qtgraphview.Vertex)
-    enabled = not w.scene().edition_locked()
+    #enabled = not w.scene().edition_locked()
     
 
     menu.addAction(operator("Run",             menu, "vertex_run"))
@@ -177,10 +178,10 @@ def vertexContextMenuEvent(graphItem, event):
     if isinstance(graphItem().vertex(), CompositeNode):
         menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))    
     menu.addSeparator()
-    menu.addAction(operator("Delete",          menu, "vertex_remove", enabled=enabled))
-    menu.addAction(operator("Reset",           menu, "vertex_reset", enabled=enabled))
-    menu.addAction(operator("Replace By",      menu, "vertex_replace", enabled=enabled))
-    menu.addAction(operator("Reload",          menu, "vertex_reload", enabled=enabled))
+    menu.addAction(operator("Delete",          menu, "vertex_remove"))
+    menu.addAction(operator("Reset",           menu, "vertex_reset"))
+    menu.addAction(operator("Replace By",      menu, "vertex_replace"))
+    menu.addAction(operator("Reload",          menu, "vertex_reload"))
     menu.addSeparator()
     menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
     menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
@@ -285,7 +286,7 @@ def edgeContextMenuEvent(graphEdge, event):
     operator = GraphOperator()
     operator.identify_focused_graph_view()
     w = operator.get_graph_view()
-    if w.scene().edition_locked() : return
+    if w.scene().get_interaction_flag() & OAGIS.TOPOLOGICALLOCK : return
     menu = QtGui.QMenu(event.widget())
     action = menu.addAction("Delete connection")
     action.triggered.connect(graphEdge.remove)

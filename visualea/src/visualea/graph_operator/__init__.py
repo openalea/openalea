@@ -35,6 +35,12 @@ class GraphOperator(Observed,
                     port.PortOperators):
 
     __main = None
+    __funcInteractionMasks = {}
+    __funcInteractionMasks.update(dataflow.functionInteractionMasks)
+    __funcInteractionMasks.update(layout.functionInteractionMasks)
+    __funcInteractionMasks.update(color.functionInteractionMasks)
+    __funcInteractionMasks.update(vertex.functionInteractionMasks)
+    __funcInteractionMasks.update(port.functionInteractionMasks)
                     
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
@@ -57,9 +63,13 @@ class GraphOperator(Observed,
     ######################################
     # Get Qt Actions for methods in here #
     ######################################
-    def get_action(self, actionName, parent, functionName, enabled=True, *otherSlots):
+    def get_action(self, actionName, parent, functionName, *otherSlots):
+        graphView = self.get_graph_view()
+        funcFlag  = self.__funcInteractionMasks.get(functionName, None)
+
         action = QtGui.QAction(actionName, parent)
-        action.setEnabled(enabled)
+        action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
+                
         return self.bind_action(action, functionName, *otherSlots)
 
     def bind_action(self, action, functionName, *otherSlots):
@@ -101,12 +111,15 @@ class GraphOperator(Observed,
     __call__ = get_action    
     
     def __get_wrapped(self, funcname):
-        func = getattr(self,funcname,None)
+        func = getattr(self, funcname, None)
         def wrapped(*args, **kwargs):
+            graphView = self.get_graph_view()
+            funcFlag  = self.__funcInteractionMasks.get(funcname, None)
+            if graphView and funcFlag is not None:
+                if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return
             return func(*args, **kwargs)
         return wrapped, func.func_code.co_argcount 
-
 
     ###########
     # setters #
