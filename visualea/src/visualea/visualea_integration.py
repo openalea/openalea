@@ -132,9 +132,22 @@ keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):keyPressDelete,
 keyReleaseMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):keyReleaseSpace
                     }
 
+def viewContextMenuEvent(view, event):
+    if(view.itemAt(event.pos())):
+        QtGui.QGraphicsView.contextMenuEvent(view, event)
+        return
+
+    operator=GraphOperator(view)
+    menu = QtGui.QMenu(view)
+    action = menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
+    menu.move(event.globalPos())
+    menu.show()
+    event.accept()
+ 
 qtgraphview.View.set_keypress_handler_map(keyPressMapping)
 qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
-
+qtgraphview.View.set_event_handler("contextMenuEvent", viewContextMenuEvent,
+                                      dataflowview.adapter.GraphAdapter)
 
 
 #################################
