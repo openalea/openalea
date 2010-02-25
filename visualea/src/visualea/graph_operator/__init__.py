@@ -35,12 +35,7 @@ class GraphOperator(Observed,
                     port.PortOperators):
 
     __main = None
-    __FIMD = {}
-    __FIMD.update(dataflow.masker.FIMD)
-    __FIMD.update(layout.masker.FIMD)
-    __FIMD.update(color.masker.FIMD)
-    __FIMD.update(vertex.masker.FIMD)
-    __FIMD.update(port.masker.FIMD)
+    __FIMD = dataflow.masker.add(layout.masker, color.masker, vertex.masker, port.masker)
                     
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
