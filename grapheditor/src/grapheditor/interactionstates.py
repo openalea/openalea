@@ -48,12 +48,12 @@ TOPOLOGICALLOCK=VERTEXADDITIONLOCK|VERTEXDELETIONLOCK|EDGEADDITIONLOCK|EDGEDELET
     
     
 
-def make_interaction_level_decorator(dic):
+def make_interaction_level_decorator():
     class InteractionLevelClass(object):
-        dico = dic
+        FIMD = {} #Function Interaction Mask Dictionary
         def __init__(self, level):
             self.level = level            
         def __call__(self, f):
-            InteractionLevelClass.dico[f.__name__] = self.level
+            InteractionLevelClass.FIMD[f.__name__] = self.level
             return f            
     return InteractionLevelClass
