@@ -23,6 +23,7 @@ from openalea.visualea.util import open_dialog, exception_display, busy_cursor
 from openalea.visualea.dialogs import NewGraph, FactorySelector
 from openalea.visualea.dialogs import IOConfigDialog
 from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
 
 #To handle availability of actions automatically
@@ -154,6 +155,24 @@ class DataflowOperators(object):
                                              "You try to write in a System Package:\n")
         self.notify_listeners(("graphoperator_newfactory", factory))
 
+    
+    @masker(OAGIS.TOPOLOGICALLOCK)
+    def graph_add_annotation(self, position=None):
+        # Get Position from cursor
+        widget = self.get_graph_view()
+        if(not position) :
+            position = widget.mapToScene(
+            widget.mapFromGlobal(widget.cursor().pos()))
+
+        # Add new node
+        pkgmanager = PackageManager()
+        pkg = pkgmanager["System"]
+        factory = pkg.get_factory("annotation")
+        
+        node = factory.instantiate([widget.scene().graph().factory.get_id()])
+        widget.scene().graph().add_vertex(node, position=[position.x(), position.y()])
+        
+        
     @masker(OAGIS.TOPOLOGICALLOCK)
     def graph_copy(self):
         """ Copy Selection """
