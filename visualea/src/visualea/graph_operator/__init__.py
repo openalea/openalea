@@ -63,17 +63,19 @@ class GraphOperator(Observed,
     ######################################
     # Get Qt Actions for methods in here #
     ######################################
-    def get_action(self, actionName, parent, functionName, *otherSlots):
+    def get_action(self, actionName=None, parent=None, fName=None, *otherSlots):
+        if actionName is None and parent is None and fName is not None:
+            return self.__get_wrapped(fName)[0]
         graphView = self.get_graph_view()
-        funcFlag  = self.__FIMD.get(functionName, None)
+        funcFlag  = self.__FIMD.get(fName, None)
 
         action = QtGui.QAction(actionName, parent)
         action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
                 
-        return self.bind_action(action, functionName, *otherSlots)
+        return self.bind_action(action, fName, *otherSlots)
 
-    def bind_action(self, action, functionName, *otherSlots):
-        func, argcount = self.__get_wrapped(functionName)
+    def bind_action(self, action, fName, *otherSlots):
+        func, argcount = self.__get_wrapped(fName)
         action.triggered[""].connect(self.identify_focused_graph_view )
         action.triggered[bool].connect(self.identify_focused_graph_view )        
         if (argcount) < 2 :
@@ -88,8 +90,8 @@ class GraphOperator(Observed,
                 action.triggered[bool].connect(f)      
         return action
 
-    def unbind_action(self, action, functionName=None, *otherSlots):
-        func, argcount = self.__get_wrapped(functionName)
+    def unbind_action(self, action, fName=None, *otherSlots):
+        func, argcount = self.__get_wrapped(fName)
         action.triggered[""].disconnect(self.identify_focused_graph_view )
         action.triggered[bool].disconnect(self.identify_focused_graph_view )        
         if (argcount) < 2 :
@@ -110,11 +112,11 @@ class GraphOperator(Observed,
 
     __call__ = get_action    
     
-    def __get_wrapped(self, funcname):
-        func = getattr(self, funcname, None)
+    def __get_wrapped(self, fName):
+        func = getattr(self, fName, None)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
-            funcFlag  = self.__FIMD.get(funcname, None)
+            funcFlag  = self.__FIMD.get(fName, None)
             if graphView and funcFlag is not None:
                 if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return

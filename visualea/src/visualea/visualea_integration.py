@@ -112,7 +112,7 @@ qtgraphview.View.set_mime_handler_map(mimeFormatsMap)
 ##############################################
 def keyPressDelete(view, e):
     operator=GraphOperator(view, view.scene().graph())
-    operator.graph_remove_selection()
+    operator(fName="graph_remove_selection")()
     e.setAccepted(True)
 
 def keyPressSpace(view, e):
@@ -155,9 +155,9 @@ def vertexMouseDoubleClickEvent(graphItem, event):
         operator.set_vertex_item(graphItem())
 
         if('open' in str):
-            operator.vertex_open()
+            operator(fName="vertex_open")()
         elif('run' in str):
-            operator.vertex_run()
+            operator(fName="vertex_run")()
 
 def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
