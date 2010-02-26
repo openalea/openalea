@@ -224,13 +224,14 @@ class DataflowOperators(object):
             position = widget.mapToScene(widget.mapFromGlobal(widget.cursor().pos()))
             def lam(n):
                 x = n.get_ad_hoc_dict().get_metadata("position")
-                x[0] = x[0]-min_x + position.x()+30
-                x[1] = x[1]-min_y + position.y()+30
+                x[0] = x[0]-min_x + position.x()+10
+                x[1] = x[1]-min_y + position.y()+10
                 n.get_ad_hoc_dict().set_metadata("position", x)
             
             modifiers = [("position", lam)]
             widget.scene().clearSelection()
-            widget.setUpdatesEnabled(False)    
+            widget.scene().select_added_items(True)
+            widget.setUpdatesEnabled(False)  
             widget.scene().queue_call_notifications(self.get_session().clipboard.paste,
                                                     self.get_graph(), 
                                                     modifiers, 
