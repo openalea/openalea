@@ -532,8 +532,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         but crash during execution if the method is not implemented, where
         the interface checking system could prevent the application from
         starting, with a die-early behaviour."""        
-        if(self.__selectAdditions):
-            element.setSelected(True)
+        element.setSelected(self.__selectAdditions)
 
     def rebuild(self):
         """ Build the scene with graphic vertex and edge"""
@@ -574,7 +573,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         WAWarn(EXDeprecationWarning(
                       "Please use self.%s instead"%("select_added_items",)),
                       stacklevel=2)    
-        self.__selectAdditions=val
+        self.select_added_items(val)
         
     def select_added_items(self, val):
         self.__selectAdditions=val    
