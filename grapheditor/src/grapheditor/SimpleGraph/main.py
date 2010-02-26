@@ -26,7 +26,6 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         self.__graph = Graph()
         self.__graphView = View(self, self.__graph)
-        self.__graphView.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setCentralWidget(self.__graphView)
 
 

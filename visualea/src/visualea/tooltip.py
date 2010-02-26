@@ -31,7 +31,6 @@ class VertexTooltip( QtGui.QWidget ):
     def __init__(self, parent=None):
         #QtGui.QWidget.__init__(self, parent, QtCore.Qt.Popup)
         QtGui.QWidget.__init__(self, parent, QtCore.Qt.ToolTip)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setBackgroundRole(QtGui.QPalette.ToolTipBase)
         self.setForegroundRole(QtGui.QPalette.AlternateBase)

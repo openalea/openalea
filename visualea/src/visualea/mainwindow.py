@@ -472,7 +472,6 @@ class MainWindow(QtGui.QMainWindow,
         gwidget = None
         try:
             gwidget = qtgraphview.View(self, graph)
-            gwidget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
