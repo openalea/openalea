@@ -355,7 +355,6 @@ class DataflowOperators(object):
         graph, tempfactory = self.__get_current_factory(name)
         w = qtgraphview.View(widget.parent(), graph, clone=True)
         w.setWindowFlags(QtCore.Qt.Window)
-        w.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         w.setWindowTitle('Preview Application')
         w.scene().set_interaction_flag(OAGIS.TOPOLOGICALLOCK|OAGIS.EDITIONLEVELLOCK_2)
         w.show()

@@ -46,7 +46,6 @@ class VertexOperators(object):
         widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())    
         self.get_session().add_graph_view(widget) #automatically removed when widget dies
         widget.setWindowFlags(QtCore.Qt.Window)
-        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
         widget.show_entire_scene()
         widget.show()

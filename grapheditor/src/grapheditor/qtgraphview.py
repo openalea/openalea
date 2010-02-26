@@ -18,9 +18,11 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
-import weakref, types, os, gc
-import exceptions, warnings
+from weakref    import ref as WEAKREFRef
+from types      import MethodType as TYPESMethodType
+from gc         import collect as GCcollect
+from exceptions import DeprecationWarning as EXDeprecationWarning
+from warnings   import warn as WAWarn
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
@@ -102,12 +104,12 @@ class ClientCustomisableWidget(object):
             graphType in self.__application_integration__): return      
         for name, hand in self.__application_integration__[graphType].iteritems():
             if "Event" in name and hand:
-                setattr(self, name, types.MethodType(hand, self, self.__class__))
+                setattr(self, name, TYPESMethodType(hand, self, self.__class__))
                 
     def reset_event_handlers(self):
         if hasattr(self, "__originals__"):
             for name, hand in self.__originals__.iteritems():
-                setattr(self, name, types.MethodType(hand, self, self.__class__))
+                setattr(self, name, TYPESMethodType(hand, self, self.__class__))
     
 #------*************************************************------#
 class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
@@ -485,9 +487,12 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
         self.initialise_from_model()
-        
+
+    #############################################################################
+    # Functions to correctly cooperate with the View class (reference counting) #
+    #############################################################################
     def register_view(self,  view):
-        self.__views.add(weakref.ref(view))
+        self.__views.add(WEAKREFRef(view))
 
     def unregister_view(self,  view):
         toDiscard = None
@@ -496,8 +501,13 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         self.__views.remove(toDiscard)
         try: self.graph().unregister_listener(view)
         except : pass
-        if len(self.__views)==0: self.clear()
-
+        if len(self.__views)==0: 
+            self.clear()
+            
+        
+    #################################
+    # IGraphListener implementation #
+    #################################
     def get_scene(self):
         return self
 
@@ -534,7 +544,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         """ Remove all items from the scene """
         QtGui.QGraphicsScene.clear(self)
         baselisteners.GraphListenerBase.clear(self)
-        gc.collect()
+        GCcollect()
 
     def announce_view_data(self, exclusive=True):
         gph = self.graph()
@@ -561,7 +571,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # Other utility methods #
     #########################
     def select_added_elements(self, val):
-        warnings.warn(exceptions.DeprecationWarning(
+        WAWarn(EXDeprecationWarning(
                       "Please use self.%s instead"%("select_added_items",)),
                       stacklevel=2)    
         self.__selectAdditions=val
@@ -601,7 +611,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 def deprecate(methodName, newName=None):
     if newName is None : newName = methodName
     def deprecation_wrapper(self, *args, **kwargs):
-        warnings.warn(exceptions.DeprecationWarning(
+        WAWarn(EXDeprecationWarning(
                             "Please use self.scene().%s instead"%(newName,)),
                       stacklevel=2)
         return getattr(self.scene(), newName)(*args, **kwargs)
@@ -641,7 +651,6 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     ####################################   
     def __init__(self, parent, graph=None, clone=False):
         QtGui.QGraphicsView.__init__(self, parent)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
@@ -667,8 +676,9 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
         """ Overload of QGraphicsView.setScene to correctly handle multiple views
         of the same scene using reference counting. """
         self.__scene = scene
-        scene.register_view(self)
-        self.closing.connect(scene.unregister_view)
+        if scene is not None:
+            scene.register_view(self)
+            self.closing.connect(scene.unregister_view)
         QtGui.QGraphicsView.setScene(self, scene)
 
     ##################
@@ -737,6 +747,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
         and delete the python objects so that they stop leaking
         on some operating systems"""
         self.closing.emit(self, self.scene())
+        self.setScene(None)
         return QtGui.QGraphicsView.closeEvent(self, evt)
 
     #########################
