@@ -35,9 +35,6 @@ import time
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-import __builtin__
-__builtin__.__debug_with_old__ = False
-
 def set_stdout():
     """Disable stdout if using pythonw"""
     if("pythonw" in sys.executable):
@@ -47,11 +44,9 @@ def set_stdout():
 
 
 def main(args):
-    global __builtin__
-
     set_stdout()
     app = QtGui.QApplication(args)
-
+    
     # Check Version
     version = QtCore.QT_VERSION_STR
     # QT_VERSION_STR implement __le__ operator
@@ -104,6 +99,7 @@ def main(args):
 
 
 
+    
 if __name__ == "__main__":
     main(sys.argv)
     

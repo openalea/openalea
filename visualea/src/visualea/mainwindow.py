@@ -44,7 +44,6 @@ from openalea.visualea.dialogs import PreferencesDialog, NewData
 from openalea.grapheditor import qtgraphview
 from graph_operator import GraphOperator
 import compositenode_widget
-import __builtin__
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
