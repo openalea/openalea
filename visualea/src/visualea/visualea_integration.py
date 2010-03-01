@@ -317,3 +317,10 @@ dataflowview.edge.GraphicalEdge.set_event_handler("contextMenuEvent", edgeContex
 #nothing special here the default
 #actions of the dataflow strategy
 #are fine
+
+
+
+dataflowview.vertex.GraphicalVertex.static_init_handlers(dataflowview.adapter.GraphAdapter)
+dataflowview.vertex.GraphicalPort.static_init_handlers(dataflowview.adapter.GraphAdapter)
+dataflowview.edge.GraphicalEdge.static_init_handlers(dataflowview.adapter.GraphAdapter)
+qtgraphview.View.static_init_handlers(dataflowview.adapter.GraphAdapter)
