@@ -25,6 +25,7 @@ from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import mixin_method
 from openalea.grapheditor import qtgraphview, baselisteners
 import painting
+import adapter
 from collections import deque
 
 """
@@ -303,7 +304,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         self.__vertBBox = baselisteners.ObservedBlackBox(self,port.vertex())
         self.setZValue(1.5)
         self.highlighted = False
-        
         port.simulate_construction_notifications()
 
     port = baselisteners.GraphElementObserverBase.get_observed

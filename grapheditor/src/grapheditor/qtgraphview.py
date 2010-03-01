@@ -87,29 +87,25 @@ class ClientCustomisableWidget(object):
             cls.__application_integration__[graphType][key]=handler
             try : cls.__originals__[key] = getattr(cls, key)
             except : pass
-              
         
-
-    ####################################
-    # ----Instance members follow----  #
-    ####################################  
-    def init_handlers(self, graphType):
+    @classmethod
+    def static_init_handlers(cls, graphType):
         """we bind application overloads if they exist
         once and for all. As this happens after the
         class is constructed, it overrides any method
         called "name" with an application-specific method
         to handle events."""
-        #TODO: make this a little more static to speed up widget instantiation.
-        if (not hasattr(self, "__application_integration__") or not 
-            graphType in self.__application_integration__): return      
-        for name, hand in self.__application_integration__[graphType].iteritems():
+        if (not hasattr(cls, "__application_integration__") or not 
+            graphType in cls.__application_integration__): return      
+        for name, hand in cls.__application_integration__[graphType].iteritems():
             if "Event" in name and hand:
-                setattr(self, name, TYPESMethodType(hand, self, self.__class__))
-                
-    def reset_event_handlers(self):
-        if hasattr(self, "__originals__"):
-            for name, hand in self.__originals__.iteritems():
-                setattr(self, name, TYPESMethodType(hand, self, self.__class__))
+                setattr(cls, name, TYPESMethodType(hand, None, cls))
+        
+    @classmethod
+    def reset_event_handlers(cls):
+        if hasattr(cls, "__originals__"):
+            for name, hand in cls.__originals__.iteritems():
+                setattr(cls, name, TYPESMethodType(hand, None, cls))
     
 #------*************************************************------#
 class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
@@ -156,7 +152,6 @@ class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
         baselisteners.GraphElementObserverBase.__init__(self, 
                                                         observed, 
                                                         graph)
-        self.init_handlers(type(graph))
 
     #################################
     # IGraphViewElement realisation #
@@ -661,8 +656,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
                 if isinstance(listener(), Scene):
                     existingScene = listener()
                     break
-            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))      
-            self.init_handlers(type(self.scene().graph()))
+            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))
         
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
