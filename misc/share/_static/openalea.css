@@ -252,3 +252,37 @@ clear:both;
 padding:2px;
 }
 
+
+table.mycontentstable {
+border:1px solid;
+}
+
+
+table.mycontentstable tr{
+vertical-align:top;
+text-align:center
+}
+
+table.mycontentstable td{
+width:30%;
+font-style:italic;
+margin:5px;
+padding:5px
+}
+
+table.mycontentstable a{
+font-size:1.3em;
+text-align:center;
+valign:center;
+}
+
+table.mycontentstable p{
+font-size:90%;
+text-align:left;
+margin:1px;
+padding:1px
+}
+
+table.mycontentstable span{
+text-align:center;
+}

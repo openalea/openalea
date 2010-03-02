@@ -5,41 +5,127 @@
 
 {% block body %}
 <h2>OpenAlea released packages</h2>
-<table class="contentstable" align="center" style="margin-left: 30px"><tr>
-<td width="30%">
-  <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("core/doc/_build/html/contents")}}">Core</a><br/>
-   <span class="linkdescr">core of openalea (e.g., package management)</span></p>
-  <span class="linkdescr">target: developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("deploy/doc/_build/html/contents")}}">Deploy</a><br/>
-  <span class="linkdescr">installation, package deployment, ...</span></p>
-  <span class="linkdescr">target: developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("deploygui/doc/_build/html/contents")}}">DeployGui</a><br/>
-  <span class="linkdescr">GUI to install/uninstall packages</span></p>
-  <span class="linkdescr">target: users, developers</span></p>
-  </td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("misc/doc/_build/html/contents")}}">Misc</a><br/>
-  <span class="linkdescr">miscellaneous tools (e.g, sphinx, developers tools)</span></p>
-  <span class="linkdescr">target: developers, administrators</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("stdlib/doc/_build/html/contents")}}">Stdlib</a><br/>
-  <span class="linkdescr">standard tools (stats, image, data, files</span></p>
-  <span class="linkdescr">target: users, developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("sconsx/doc/_build/html/contents")}}">Sconsx</a><br/>
-  <span class="linkdescr">scons extension</span></p>
-  <span class="linkdescr">target: developers, administrators</span></p>
-  </td><td width="30%">
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("visualea/doc/_build/html/contents")}}">Visualea</a><br/>
-  <span class="linkdescr">Graphical application (visual programming)</span></p>
-  <span class="linkdescr">target: users, developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("scheduler/doc/_build/html/contents")}}">Scheduler</a><br/>
-  <span class="linkdescr">target: users, developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("grapheditor/doc/_build/html/contents")}}">Graph Editor</a><br/>
-  <span class="linkdescr">target: users, developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("svgdraw/doc/_build/html/contents")}}">SVGDraw</a><br/>
-  <span class="linkdescr">target: users, developers</span></p>
- <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("pglviewer/doc/_build/html/contents")}}">pglviewer</a><br/>
-  <span class="linkdescr">target: users, developers</span></p>
-</td></tr>
-  </table>
+
+
+<table cellpadding="0" cellspacing="0" border="0" vertical-align="top" class="mycontentstable">
+<tr>
+    <td>
+    <p style="text-align:center">
+        <a href="{{shift}}{{pathto("core/doc/_build/html/contents.html")}}">CORE</a>
+      </p>
+      <hr/>
+      <p>
+        Core of openalea (e.g., package management).
+         <br/>
+         <b>target</b>: developers
+      </p>
+    </td>
+   <td>
+      <p style="text-align:center">
+            <a href="{{shift}}{{pathto("deploy/doc/_build/html/contents.html")}}">DEPLOY</a>
+      </p>
+      <hr/>
+      <p>Installation, package deployment, ...
+      <br/>
+      <b>target</b>: developers
+      </p>
+   </td>
+   <td>
+      <p style="text-align:center">
+            <a href="{{shift}}{{pathto("deploygui/doc/_build/html/contents.html")}}">DEPLOYGUI</a>
+      </p>
+      <hr/>
+      <p>
+            GUI to install/uninstall packages
+        <br/>
+        <b>target:</b> users, developers
+      </p>
+    </td>
+</tr>
+
+ <tr>
+    <td>
+        <p style="text-align:center">
+                <a href="{{shift}}{{pathto("misc/doc/_build/html/contents.html")}}">MISC</a>
+            </p>
+            <hr/>
+        <p>
+                Miscellaneous tools (e.g, sphinx, developers tools)
+                <br/>
+                <b>target:</b> developers, administrators
+        </p>
+    </td>
+
+    <td>
+        <p style="text-align:center">
+          <a href="{{shift}}{{pathto("stdlib/doc/_build/html/contents.html")}}">STDLIB</a>
+            </p>
+            <hr/>
+        <p>
+        Standard tools (stats, image, data, files
+        <br/>
+        <b>target:</b> users, developers
+        </p>
+    </td>
+
+    <td>
+        <p style="text-align:center">
+            <a href="{{shift}}{{pathto("sconsx/doc/_build/html/contents.html")}}">SCONSX</a>
+            </p>
+            <hr/>
+        <p>
+        Scons extension
+        <br/>
+        <b>target:</b> developers, administrators
+        </p>
+    </td>
+</tr>
+
+<tr>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("visualea/doc/_build/html/contents.html")}}">VISUALEA</a>
+        </p>
+        <hr/>
+        <p>
+        Graphical application (visual programming)
+        <br/>
+        <b>target:</b> users, developers
+        </p>
+   </td>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("scheduler/doc/_build/html/contents.html")}}">SCHEDULER</a>
+        </p>
+        <hr/>
+        <b>target:<b/> users, developers</span></p>
+    </td>
+    <td>
+        <p style="text-align:center">
+        <a  href="{{shift}}{{pathto("grapheditor/doc/_build/html/contents.html")}}">GRAPH EDITOR</a>
+        </p>
+        <hr/>
+        <b>target:</b> users, developers</span></p>
+    </td>
+
+ </tr>
+ <tr>
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("svgdraw/doc/_build/html/contents.html")}}">SVGDRAW</a>
+        </p>
+        <hr/>
+        <p><b>target:</b> users, developers</p>
+    </td>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("pglviewer/doc/_build/html/contents.html")}}">PGLVIEWER</a>
+        </p>
+        <hr/>
+        <p><b>target:</b> users, developers</p>
+    </td>
+</tr>
+ </table>
 
 {% endblock %}
 
