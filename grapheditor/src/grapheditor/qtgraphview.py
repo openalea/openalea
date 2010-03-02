@@ -601,8 +601,8 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
 
 #------*************************************************------#
-#create deprecation wrappers
 def deprecate(methodName, newName=None):
+    """create deprecation wrappers"""
     if newName is None : newName = methodName
     def deprecation_wrapper(self, *args, **kwargs):
         WAWarn(EXDeprecationWarning(
