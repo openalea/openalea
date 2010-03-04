@@ -309,7 +309,6 @@ class InputPort(AbstractPort):
     def is_hidden(self):
         """True if the port should not be displayed."""
         return self.get("hide", False)
-        #return self.get_ad_hoc_dict().get_metadata("hide")
 
 
 class OutputPort(AbstractPort):
@@ -612,6 +611,8 @@ class Node(AbstractNode):
 
         self.set_input(name, value, False)
         self.notify_listeners(("input_port_added", port))
+        port.get_ad_hoc_dict().set_metadata("hide",
+                                            kargs.get("hide",False))
         return port
 
     def add_output(self, **kargs):

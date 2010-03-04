@@ -800,18 +800,14 @@ class CompositeNode(Node, DataFlow):
             if hasattr(node, "__ad_hoc_from_old_map__"):                
                 for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
                     if len(oldKeys)==0: continue
-                    # elif len(oldKeys)==1: #if we want to convert one new value to one old value (ex: color=>color)
-                        # data = node.get_ad_hoc_dict().get_metadata(newKey)
-                        # sgfactory.elt_data[vid][oldKeys[0]] = data
-                    # else: #if we want to convert one new value to several old values (ex: position => posx, posy )
                     data = node.get_ad_hoc_dict().get_metadata(newKey)
                     for pos, newKey in enumerate(oldKeys):
                         sgfactory.elt_data[vid][newKey] = data[pos] if isinstance(data, list) else data
                 
-            #gengraph
+            # gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
-            #/gengraph
+            # /gengraph
 
             # Copy value
             if(not node.get_nb_input()):
