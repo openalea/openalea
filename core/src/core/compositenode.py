@@ -404,12 +404,11 @@ class CompositeNode(Node, DataFlow):
 
         self.id_in = None
         self.id_out = None
-
         Node.__init__(self, inputs, outputs)
-
         # graph modification status
         self.graph_modified = False
         self.evaluating = False
+
     def copy_to(self, other):
         raise NotImplementedError
         
