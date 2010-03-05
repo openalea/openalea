@@ -25,6 +25,7 @@ from openalea.visualea.dialogs import IOConfigDialog
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
+from compositenode_inspector import Inspector
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -153,7 +154,7 @@ class DataflowOperators(object):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-        self.notify_listeners(("graphoperator_newfactory", factory))
+        self.notify_listeners(("graphoperator_graphsaved", factory))
 
     
     @masker(OAGIS.TOPOLOGICALLOCK)
@@ -243,7 +244,9 @@ class DataflowOperators(object):
     def graph_close(self):
        # Try to save factory if widget is a graph
         widget = self.get_graph_view()
-        index  = widget.parent().indexOf(widget)
+        if isinstance(widget, Inspector):
+            # print "Forbidden in CompositeNodeInspector"
+            return
 
         try:
             modified = self.get_graph().graph_modified
@@ -264,40 +267,35 @@ class DataflowOperators(object):
             pass
 
         # Update session
-        self.get_session().close_workspace(index, False)
-        widget.parent().removeWidget(widget)
-        widget.close()
+        self.notify_listeners(("graphoperator_graphclosed", widget))
 
     @masker(OAGIS.EDITIONLEVELLOCK_2)
     def graph_export_to_factory(self):
         """
-        Export workspace index to its factory
+        Export workspace to its factory
         """
         widget = self.get_graph_view()
-        index  = widget.parent().indexOf(widget)
 
         # Get a composite node factory
-        dialog = FactorySelector(self.get_graph().factory, widget)
+        graph = self.get_graph()
+        dialog = FactorySelector(graph.factory, widget)        
             
         # Display Dialog
         ret = dialog.exec_()
         if(ret == 0): return None
         factory = dialog.get_factory()
 
-        self.get_graph().to_factory(factory, None)
-        self.get_graph().factory = factory
-        caption = "Workspace %i - %s"%(index, factory.name)
+        graph.to_factory(factory, None)
+        graph.graph().factory = factory
+        graph.set_caption(factory.name)
         
-        widget.parent().parent().setTabText(index, caption)
-
         try:
             factory.package.write()
-
         except AttributeError, e:
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "Trying to write in a System Package!\n")
-        self.notify_listeners(("graphoperator_newfactory", factory))
+        self.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
     @masker(OAGIS.TOPOLOGICALLOCK)
     def graph_configure_io(self):
@@ -312,30 +310,32 @@ class DataflowOperators(object):
             self.get_graph().set_io(dialog.inputs, dialog.outputs)
 
     @masker(OAGIS.EDITIONLEVELLOCK_1)
-    def graph_reload_from_factory(self, index=None):
-        """ Reload a tab node givin its index"""
+    def graph_reload_from_factory(self):
+        """ Reload a tab node """
         widget = self.get_graph_view()
-        if(index is None):
-            index  = widget.parent().indexOf(widget)
+        if isinstance(widget, Inspector):
+            # print "Forbidden in CompositeNodeInspector"
+            return
 
         name = self.get_graph().factory.name
 
         if(self.get_graph().graph_modified):
             # Show message
             ret = QtGui.QMessageBox.question(widget, "Reload workspace '%s'"%(name),
-                                             "Reload will discard recent changes on "\
-                                                 + "workspace '%s'.\n"%(name)+
-                                             "Continue ?\n",
+                                             "Reload will discard recent changes on " +
+                                             "workspace '%s'.\nContinue?"%(name),
                                              QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
             
             if(ret == QtGui.QMessageBox.No):
                 return
 
-
+        oldGraph = self.get_graph()
         newGraph = self.get_graph().factory.instantiate()
+
         widget.scene().set_graph(newGraph)
         widget.scene().rebuild()
-        self.get_session().workspaces[index] = newGraph
+        self.notify_listeners(("graphoperator_graphreloaded", widget, newGraph, oldGraph))
+
 
     def __get_current_factory(self, name):
         """ Build a temporary factory for current workspace
@@ -353,6 +353,10 @@ class DataflowOperators(object):
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
         widget = self.get_graph_view()  
+        if isinstance(widget, Inspector):
+            # print "Forbidden in CompositeNodeInspector"
+            return
+
         graph, tempfactory = self.__get_current_factory(name)
         w = qtgraphview.View(widget.parent(), graph, clone=True)
         w.setWindowFlags(QtCore.Qt.Window)
@@ -365,6 +369,10 @@ class DataflowOperators(object):
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
         widget = self.get_graph_view()
+        if isinstance(widget, Inspector):
+            # print "Forbidden in CompositeNodeInspector"
+            return
+
         # Get Filename
         filename = QtGui.QFileDialog.getSaveFileName(
             widget, "Python Application", 

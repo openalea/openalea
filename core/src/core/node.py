@@ -610,9 +610,9 @@ class Node(AbstractNode):
         port.set_id(index)
 
         self.set_input(name, value, False)
-        self.notify_listeners(("input_port_added", port))
         port.get_ad_hoc_dict().set_metadata("hide",
                                             kargs.get("hide",False))
+        self.notify_listeners(("input_port_added", port))
         return port
 
     def add_output(self, **kargs):
