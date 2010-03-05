@@ -21,17 +21,16 @@ from PyQt4 import QtGui, QtCore
 import weakref
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
-from openalea.grapheditor import qtgraphview
+
 from openalea.core import observer, node
+import compositenode_inspector
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
 masker = OAGIS.make_interaction_level_decorator()
 
 class VertexOperators(object):
-
-    __vertexWidgetMap__ = weakref.WeakKeyDictionary()
-    
+    __vertexWidgetMap__ = weakref.WeakKeyDictionary()    
 
     def __init__(self):
         # ---reference to the widget of this vertex---
@@ -43,22 +42,23 @@ class VertexOperators(object):
 
     @masker(OAGIS.EDITIONLEVELLOCK_1)
     def vertex_composite_inspect(self):
-        widget = qtgraphview.View(self.get_graph_view(), self.vertexItem().vertex())    
-        self.get_session().add_graph_view(widget) #automatically removed when widget dies
-        widget.setWindowFlags(QtCore.Qt.Window)
-        widget.setWindowTitle("Inspecting " + self.vertexItem().vertex().get_caption())
+        widget = compositenode_inspector.Inspector(self.get_graph_view(),
+                                                   self.vertexItem().vertex(),
+                                                   self.get_main().operator,
+                                                   self)
         widget.show_entire_scene()
         widget.show()
-      
+     
     @exception_display
     @busy_cursor
     @masker(OAGIS.EDITIONLEVELLOCK_1)  
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())        
 
+
     @masker(OAGIS.EDITIONLEVELLOCK_1)
-    def vertex_open(self, vid=None):
-        vertex = self.get_graph().node(vid) if vid is not None else self.vertexItem().vertex()
+    def vertex_open(self):
+        vertex = self.vertexItem().vertex()
                 
         vwidget = VertexOperators.__vertexWidgetMap__.get(vertex, None)
         if(vwidget):
@@ -82,7 +82,10 @@ class VertexOperators(object):
             del innerWidget
             return
 
-        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(self.get_graph_view(), innerWidget, factory.get_id(), False)
+        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(self.get_graph_view(), 
+                                                                  innerWidget, 
+                                                                  factory.get_id(), 
+                                                                  False)
 
     @masker(OAGIS.TOPOLOGICALLOCK)
     def vertex_remove(self):

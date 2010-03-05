@@ -17,11 +17,13 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+
 def range2n(x):
     l = []
     for i in range(x):
         l.append(2**i)
     return l
+
 
 #Names of the enumeration
 enum = [ "VERTEXADDITIONLOCK",
@@ -50,10 +52,12 @@ def make_interaction_level_decorator(dic=None):
     class InteractionLevelClass(object):
         FIMD = {} if not dic else dic #Function Interaction Mask Dictionary
         def __init__(self, level):
-            self.level = level            
+            self.level = level
+       
         def __call__(self, f):
             InteractionLevelClass.FIMD[f.__name__] = self.level
             return f
+
         @classmethod
         def add(cls, *others):
             ret = cls.FIMD.copy()

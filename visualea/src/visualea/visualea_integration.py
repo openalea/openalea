@@ -125,6 +125,7 @@ def keyReleaseSpace(view, e):
     view.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
     e.setAccepted(True)
 
+
 keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):keyPressDelete,
                   (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):keyPressSpace
                   }
@@ -147,7 +148,7 @@ def viewContextMenuEvent(view, event):
 qtgraphview.View.set_keypress_handler_map(keyPressMapping)
 qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
 qtgraphview.View.set_event_handler("contextMenuEvent", viewContextMenuEvent,
-                                      dataflowview.adapter.GraphAdapter)
+                                   dataflowview.adapter.GraphAdapter)
 
 
 #################################
