@@ -17,7 +17,8 @@ __institutes__ = 'INRIA/CIRAD'
 __icon__ = 'icon.png'
 
 
-__all__ = ['py_pylab_PyLabAbsolute', 'py_pylab_PyLabPlot', 'py_pylab_PyLabHist', 'py_pylab_PyLabRandom', 'py_pylab_PyLabScatter', 'py_pylab_PyLabAcorr']
+__all__ = ['py_pylab_PyLabAbsolute', 'py_pylab_PyLabPlot', 'py_pylab_PyLabHist', 'py_pylab_PyLabRandom', 'py_pylab_PyLabScatter', 'py_pylab_PyLabAcorr', 'py_pylab_PyLabBoxPlot']
+
 
 
 
@@ -105,3 +106,13 @@ py_pylab_PyLabAcorr = Factory(name='PyLabAcorr',
 
 
 
+py_pylab_PyLabBoxPlot = Factory(name='PyLabBoxPlot',
+                description='pylab.boxplot interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabBoxPlot',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+               )

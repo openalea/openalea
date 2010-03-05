@@ -408,3 +408,56 @@ class PyLabScatter(Node):
 
 
 
+
+class PyLabBoxPlot(Node):
+    """pylab.boxplot interface
+
+
+    :param x: data
+    :parma notch: (default 0)
+    :param sym: '+'
+    :param  vert: 1
+    :param  whis: 1.5,
+    :param  positions: None
+    :param widths:None
+
+    .. todo:: 
+    :authors: Thomas Cokelaer
+    """
+    def __init__(self):
+        """init docstring"""
+        from pylab import plot
+        Node.__init__(self)
+        #self.__doc__+=plot.__doc__
+
+        self.add_input(name="x")
+        self.add_input(name="notch", interface=IInt, value=0)
+        self.add_input(name="sym", interface = IEnumStr(markers.keys()),
+            value = 'plus marker')
+        self.add_input(name="vert", interface = IInt,  value = 1)
+
+        self.add_input(name="xlabel", interface = IStr, value = "")
+        self.add_input(name="ylabel", interface = IStr, value = "")
+        self.add_input(name="title", interface = IStr, value = "")
+        self.add_input(name="grid", interface = IBool, value = True)
+
+        self.add_output(name="figure")
+
+    def __call__(self, inputs):
+        x = self.get_input("x")
+        from pylab import boxplot ,show, clf, xlabel, ylabel, hold, title, grid
+        clf()
+        fig = boxplot(x, 
+                sym=markers[self.get_input("sym")],
+                vert=self.get_input("vert"),
+                notch=self.get_input("notch"))
+
+        xlabel(self.get_input("xlabel"))
+        ylabel(self.get_input("ylabel"))
+        title(self.get_input("title"))
+        grid(self.get_input("grid"))
+        show()
+        return (fig,)
+
+
+
