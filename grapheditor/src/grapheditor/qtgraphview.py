@@ -31,7 +31,6 @@ import edgefactory
 
 from math import sqrt
 
-
 #__Application_Integration_Keys__
 __AIK__ = [
     "mouseMoveEvent",
@@ -43,11 +42,11 @@ __AIK__ = [
     "contextMenuEvent"
     ]
 
-
+__AIK_GDict__ = dict(zip(__AIK__,[None]*len(__AIK__)))
 
 
 class ClientCustomisableWidget(object):
-   ####################################
+    ####################################
     # ----Class members come first---- #
     ####################################
     
@@ -78,12 +77,11 @@ class ClientCustomisableWidget(object):
                                      "Don't use this on classes from qtgraphview " + \
                                      "except qtgraphview.View")
             return
+            
         if not hasattr(cls, "__application_integration__"):
             cls.__application_integration__ = {}
             cls.__originals__ = {}
-        if not graphType in cls.__application_integration__:
-            cls.__application_integration__[graphType] = dict( zip(__AIK__,[None]*len(__AIK__)) )
-        if key in cls.__application_integration__[graphType]:
+        if key in cls.__application_integration__.setdefault(graphType, __AIK_GDict__.copy()):
             cls.__application_integration__[graphType][key]=handler
             try : cls.__originals__[key] = getattr(cls, key)
             except : pass
