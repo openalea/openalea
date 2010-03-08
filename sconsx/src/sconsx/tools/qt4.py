@@ -46,7 +46,7 @@ class QT:
             qt_inc = '/usr/include/qt4'
             qt_lib = '/usr/lib'
         elif not qt_dir:
-	    try: 
+            try: 
               if isinstance(platform, Win32) or isinstance(platform, Darwin):
                   # Try to use openalea egg
                   from openalea.deploy import get_base_dir

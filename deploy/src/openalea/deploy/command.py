@@ -702,12 +702,12 @@ def set_env(dyn_lib=None):
     for d in bin_dirs:
         try:
             for f in os.listdir(d):
-	        filepath = os.path.join(d, f)
+                filepath = os.path.join(d, f)
                 if os.path.isfile(filepath):
                     if not os.access(filepath, os.X_OK):
-            	        os.chmod(filepath, stat.S_IRWXU | stat.S_IXGRP +  stat.S_IRGRP | stat.S_IXOTH + stat.S_IROTH)
-	except:
-	    pass
+                        os.chmod(filepath, stat.S_IRWXU | stat.S_IXGRP +  stat.S_IRGRP | stat.S_IXOTH + stat.S_IROTH)
+        except:
+            pass
 
     if (is_virtual_env()):
         print "EDIT the activate script to setup PATH and/or LD_LIBRARY_PATH"
