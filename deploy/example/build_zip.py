@@ -39,7 +39,7 @@ def qt4_dev (directory=path('qt4-dev'), name='qt4_dev'):
 
     for dir, patterns in dirs.iteritems():
         d = path(dir)
-	for pattern in patterns:
+        for pattern in patterns:
             for fn in d.walkfiles(pattern):
                 print 'add ', fn
                 zf.write(fn)

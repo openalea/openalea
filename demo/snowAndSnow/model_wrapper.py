@@ -102,7 +102,7 @@ class NodeAbsAngVisualisation( Node ):
         self.add_output( name="VisualSequence", interface=None)
         
     def __call__( self, inputs ):
-	return ( phyllotaxis.generate_VisualSequence_prim_id2abs_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
+        return ( phyllotaxis.generate_VisualSequence_prim_id2abs_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
 
 
 class NodeRelTimeVisualisation( Node ):
