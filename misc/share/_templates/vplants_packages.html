@@ -5,66 +5,115 @@
 {% block body %}
 
 <h2>VPlants released packages</h2>
-<table class="contentstable" align="center" style="margin-left: 30px">
-    <tr>
-        <td width="30%">
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("newmtg/doc/_build/html/contents")}}">MTG</a><br/>
-            <span class="linkdescr">Multi graph </span></p>
-            <span class="linkdescr">target: users</span></p>
+<table cellpadding="0" cellspacing="0" border="0" vertical-align="top" class="mycontentstable">
+<tr>
+    <td>
+        <p style="text-align:center">
+            <a href="{{shift}}{{pathto("newmtg/doc/_build/html/contents")}}">MTG</a>
+        </p>
+        <hr/>
+        <p>
+             Multi graph <br/>
+            <b>Target:</b> users
+        </p>
+    </td>
+    <td>
+        <p style="text-align:center">
+            <a  href="{{shift}}{{pathto("PlantGL/doc/_build/html/contents")}}">PlantGL</a>
+        </p><hr/>
+        <p>
+            Geometrical tools<br/>
+            <b>Target:</b> users<br:>
+        </p>
+    </td>
+    <td>
+        <p style="text-align:center">
+             <a   href="{{shift}}{{pathto("stat_tool/doc/_build/html/contents")}}">StatTool</a>
+        </p><hr/>
+        <p>
+            Statistical tools
+            <br/>
+            <b>Target:</b> users
+        </p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("fractalysis/doc/_build/html/contents")}}">Fractalysis</a>
+        </p><hr/>
+        <p>
+            Fractalysis tool <br/>
+            <b>Target:</b> users
+         </p>
+    </td>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("tissue/doc/_build/html/contents")}}">Tissue</a>
+        </p><hr/>
+             Simulation tools on plant tissues <br/>
+            <b>Target:</b> modelers, users
+        </p>
+    </td>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("sequence_analysis/doc/_build/html/contents")}}">Sequence Analysis</a>
+        </p><hr/>
+        <p>
+            statistical tools on sequence (markov,...) <br/>
+            <b>Target:</b> users
+        </p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("tool/doc/_build/html/contents")}}">Tool</a></p><hr/>
+            C++ library used by stat_tool and sequence_analysis<br/>
+            <b>Target:</b>users, developers</p>
+    </td>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("tree_statistic/doc/_build/html/contents")}}">Tree statistic</a></p><hr/>
+            statistical tools dedicated to trees<br/>
+            <b>Target:</b>users, developers</p>
 
-            <p class="biglink"><a class="biglink" href="{{shift}}{{pathto("PlantGL/doc/_build/html/contents")}}">PlantGL</a><br/>
-            <span class="linkdescr">Geometrical tools</span></p>
-            <span class="linkdescr">target: users</span></p>
+    </td>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("lpy/doc/_build/html/contents")}}">LPy</a></p><hr/>
+            Python version of Lindenmayer Systems. <br/>
+            <b>Target:</b> users</p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("container/doc/_build/html/contents")}}">Container</a></p><hr/>
+            container <br/>
+            <b>Target:</b> users</p>
+    </td>
 
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("stat_tool/doc/_build/html/contents")}}">Stat_Tool</a><br/>
-            <span class="linkdescr">statistical tools</span></p>
-            <span class="linkdescr">target: users</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("fractalysis/doc/_build/html/contents")}}">Fractalysis</a><br/>
-            <span class="linkdescr">Fractalysis tool </span></p>
-            <span class="linkdescr">target: users </span></p>
-
-        </td>
-        <td width="30%">
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("WeberPenn/doc/_build/html/contents")}}">WeberPenn</a></p><hr/>
+            WeberPenn <br/>
+            <b>Target:</b> users </p>
+    </td>
             
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("tissue/doc/_build/html/contents")}}">Tissue</a><br/>
-            <span class="linkdescr">Simulation tools on plant tissues </span></p>
-            <span class="linkdescr">target: modelers, users</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("sequence_analysis/doc/_build/html/contents")}}">Sequence Analysis</a><br/>
-            <span class="linkdescr">statistical tools on sequence (markov,...) </span></p>
-            <span class="linkdescr">target: users</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("tool/doc/_build/html/contents")}}">Tool</a><br/>
-            <span class="linkdescr">C++ library used by stat_tool and sequence_analysis</span></p>
-            <span class="linkdescr">target:users, developers</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("tree_statistic/doc/_build/html/contents")}}">Tree statistic</a><br/>
-            <span class="linkdescr">statistical tools dedicated to trees</span></p>
-            <span class="linkdescr">target:users, developers</span></p>
-
-        </td>
-
-        <td width="30%">
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("lpy/doc/_build/html/contents")}}">LPy</a><br/>
-            <span class="linkdescr">Python version of Lindenmayer Systems. </span></p>
-            <span class="linkdescr">target: users</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("container/doc/_build/html/contents")}}">Container</a><br/>
-            <span class="linkdescr">container </span></p>
-            <span class="linkdescr">target: users</span></p>
-
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("WeberPenn/doc/_build/html/contents")}}">WeberPenn</a><br/>
-            <span class="linkdescr">WeberPenn </span></p>
-            <span class="linkdescr">target: users </span></p>
-            
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("mechanics/doc/_build/html/contents")}}">Mechanics</a><br/>
-            <span class="linkdescr">Mechanics </span></p>
-            <span class="linkdescr">target: users </span></p>
-            <p class="biglink"><a class="biglink"  href="{{shift}}{{pathto("vtissue/doc/_build/html/contents")}}">VTissue</a><br/>
-            <span class="linkdescr">Vtissue </span></p>
-            <span class="linkdescr">target: users </span></p>
-        </td>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("mechanics/doc/_build/html/contents")}}">Mechanics</a></p><hr/>
+            Mechanics <br/>
+            <b>Target:</b> users </p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="text-align:center">
+            <a   href="{{shift}}{{pathto("vtissue/doc/_build/html/contents")}}">VTissue</a></p><hr/>
+            Vtissue <br/>
+            <b>Target:</b> users </p>
         </td>
 
     </tr>

@@ -388,15 +388,23 @@ class MainWindow(QtGui.QMainWindow,
                         QtGui.QMessageBox.Ok):
             QtGui.QApplication.exit(0)
 
-
     def notify(self, sender, event):
         """ Notification from observed """
-        if(event and event[0] == "graphoperator_newfactory"):
-            self.reinit_treeview()
-            return
+        if event and sender == self.operator :
+            index = self.tabWorkspace.indexOf(event[1])
+            if(event[0] == "graphoperator_graphsaved"):
+                if index > -1:
+                    self.reinit_treeview()                
+                    caption = "Workspace %i - %s"%(index, event[2].name)
+                    self.tabWorkspace.setTabText(index, caption)
+            elif(event[0] == "graphoperator_graphclosed"):
+                if index > -1:
+                    self.close_tab_workspace(index)
+            elif(event[0] == "graphoperator_graphreloaded"):
+                if index > -1:
+                    self.session.workspaces[index] = event[2]
 
-        if(type(sender) == type(self.session)):
-            
+        if(type(sender) == type(self.session)):            
             if(event and event[0]=="workspace_added"):
                 graph=event[1]
                 self.open_widget_tab(graph, graph.factory)
@@ -432,6 +440,7 @@ class MainWindow(QtGui.QMainWindow,
         self.tabWorkspace.removeTab(cindex)
         self.session.close_workspace(cindex, False)
         w.close()      
+        del w
       
     def current_view (self) :
         """ Return the active widget """

@@ -85,43 +85,43 @@ class NodeModel(object):
         print  "current_prim: ",self.model.current_prim
         return ({"prim2init_pos":self.model.i_prim2init_pos.copy(), "prim2time":self.model.i_prim2time.copy(), "current_prim":self.model.current_prim}, )
             
-	
+
 class NodeDivAngVisualisation( Node ):
     def __init__( self ):
-	Node.__init__( self )
-	self.add_input( name= "SnowAndSnowModelResult", interface=None)
+        Node.__init__( self )
+        self.add_input( name= "SnowAndSnowModelResult", interface=None)
         self.add_output( name="VisualSequence", interface=None)
         
     def __call__( self, inputs ):
-	return ( phyllotaxis.generate_VisualSequence_prim_id2div_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
+        return ( phyllotaxis.generate_VisualSequence_prim_id2div_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
 
 class NodeAbsAngVisualisation( Node ):
     def __init__( self ):
-	Node.__init__( self )
-	self.add_input( name= "SnowAndSnowModelResult", interface=None)
+        Node.__init__( self )
+        self.add_input( name= "SnowAndSnowModelResult", interface=None)
         self.add_output( name="VisualSequence", interface=None)
         
     def __call__( self, inputs ):
-	return ( phyllotaxis.generate_VisualSequence_prim_id2abs_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
+        return ( phyllotaxis.generate_VisualSequence_prim_id2abs_angle( self.get_input( "SnowAndSnowModelResult" )["prim2init_pos"]), )
 
 
 class NodeRelTimeVisualisation( Node ):
     def __init__( self ):
-	Node.__init__( self )
-	self.add_input( name= "SnowAndSnowModelResult", interface=None)
+        Node.__init__( self )
+        self.add_input( name= "SnowAndSnowModelResult", interface=None)
 
-	self.add_output( name="VisualSequence", interface=None)
+        self.add_output( name="VisualSequence", interface=None)
         
     def __call__( self, inputs ):
-	return (  phyllotaxis.generate_VisualSequence_prim_id2rel_time( self.get_input( "SnowAndSnowModelResult" )["prim2time"]) , )
+        return (  phyllotaxis.generate_VisualSequence_prim_id2rel_time( self.get_input( "SnowAndSnowModelResult" )["prim2time"]) , )
 
 class NodeAbsTimeVisualisation( Node ):
     def __init__( self ):
-	Node.__init__( self )
-	self.add_input( name= "SnowAndSnowModelResult", interface=None)
+        Node.__init__( self )
+        self.add_input( name= "SnowAndSnowModelResult", interface=None)
 
-	self.add_output( name="VisualSequence", interface=None)
-        
+        self.add_output( name="VisualSequence", interface=None)
+
     def __call__( self, inputs ):
-	return (  phyllotaxis.generate_VisualSequence_prim_id2abs_time( self.get_input( "SnowAndSnowModelResult" )["prim2time"]) , )
-    
+        return (  phyllotaxis.generate_VisualSequence_prim_id2abs_time( self.get_input( "SnowAndSnowModelResult" )["prim2time"]) , )
+

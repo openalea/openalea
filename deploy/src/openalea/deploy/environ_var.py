@@ -72,12 +72,12 @@ def set_lsb_env(name, vars):
         # If profile.d directory is not writable, try to update $HOM/.bashrc
         try:
             script_name = ".%s.sh"%(name)
-	    
-	    # On Mac, we set the /etc/profile file (there is not .bashrc file)	
+
+            # On Mac, we set the /etc/profile file (there is not .bashrc file)	
             if "darwin" in sys.platform.lower():
-	        filename =  '/etc/bashrc'
-	    else:		
-            	filename = os.path.join(os.path.expanduser('~'), ".bashrc")
+                filename =  '/etc/bashrc'
+            else:
+                filename = os.path.join(os.path.expanduser('~'), ".bashrc")
             filehandle = open(filename, 'r')
             bashrc = filehandle.read()
             filehandle.close()

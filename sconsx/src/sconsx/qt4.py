@@ -448,7 +448,7 @@ def enable_modules(self, modules, debug=False, suffix = '') :
         self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
         return
     if sys.platform=="darwin" :
-	if not suffix: 
+        if not suffix: 
             suffix = '.4'
         # TODO: Test debug version on Mac
         self.AppendUnique(LIBPATH=[os.path.join('$QTDIR','lib')])
@@ -456,7 +456,7 @@ def enable_modules(self, modules, debug=False, suffix = '') :
         self.AppendUnique(LINKFLAGS="-F$QTDIR/lib")
         self.AppendUnique(LINKFLAGS="-L$QTDIR/lib") #TODO clean!
         if debug : debugSuffix = 'd'
-	if suffix : debugSuffix = '.4'
+        if suffix : debugSuffix = '.4'
         for module in modules :
             self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include")])
             self.AppendUnique(CPPPATH=[os.path.join("$QTDIR","include",module)])

@@ -22,10 +22,6 @@ from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
 import dataflow, layout, color, vertex, port
 
-#################################
-# QtEvent handlers for vertices #
-#################################
-
 
 class GraphOperator(Observed, 
                     dataflow.DataflowOperators,
@@ -128,6 +124,10 @@ class GraphOperator(Observed,
     ###########
     # getters #
     ###########
+    @classmethod
+    def get_main(self):
+        return GraphOperator.__main
+
     def get_session(self):
         return self.__main.session
 
