@@ -66,13 +66,33 @@ drawstyles = {}
 for key,value in Line2D.drawStyles.iteritems():
     drawstyles[value.replace('_draw_','')]=key
 
+# line style --, -., .....
 linestyles = {}
 for key,value in Line2D.lineStyles.iteritems():
     linestyles[value.replace('_draw_','')]=key
 
+# markers : o, square, ...
 markers = {}
 for key,value in Line2D.markers.iteritems():
     markers[value.replace('_draw_','')]=key
+
+
+cmaps=['autumn','bone', 'cool','copper','flag','gray','hot','hsv','jet','pink', 'prism', 'spring', 'summer', 'winter'] 
+
+locations={'best' : 0, 
+    'upper right'  : 1,  
+    'upper left'   : 2, 
+    'lower left'   : 3, 
+    'lower right'  : 4, 
+    'right'        : 5, 
+    'center left'  : 6, 
+    'center right' : 7, 
+    'lower center' : 8, 
+    'upper center' : 9, 
+    'center'       : 10,} 
+
+
+
 
 
 def get_kwds_from_line2d(line2d, kwds={}):
@@ -268,24 +288,32 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
         self.add_input(name="grid",         interface=IBool, value = True)
         self.add_input(name="legend",       interface=IBool, value=True)
         self.add_input(name="show",       interface=IBool, value=True)
-        self.add_input(name="figure",       interface=IInt, value=1)
+        self.add_input(name="figure", interface=IDict, value={"num":1})
+        self.add_input(name="axes", interface=IDict, value={})
 
         self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import figure, plot, show, clf, xlabel, ylabel, hold, title, grid, Line2D, legend
+        from pylab import figure, plot, show, clf, xlabel, ylabel, hold, title, grid, Line2D, legend, axes
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
-        figure(self.get_input("figure"))
+        
+        clf()
+        #figure(**self.get_input('figure'))
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=markers[self.get_input("marker")]
         kwds['linestyle']=linestyles[self.get_input("linestyle")]
         kwds['color']=colors[self.get_input("color")]
         kwds['label']=self.get_input("label")
+        print self.get_input("axes")
+        #kwds['figure'] = figure(**self.get_input("figure"))
+        figure(**self.get_input("figure"))
+        #kwds['axes'] = axes(**self.get_input("axes"))
+        axes(**self.get_input("axes"))
+        print kwds
         #kwds['axes']=self.get_input("axes")
         #print self.get_input("axes")
-        clf()
 
         if xinputs == None:
             raise ValueError('x not set. connect a line2D or array or list')
@@ -300,7 +328,7 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
                     print x
-                    line2dkwds = get_kwds_from_line2d(x, kwds)
+                    line2dkwds = get_kwds_from_line2d(x, **kwds)
                     print line2dkwds
                     plot(x.get_xdata(), x.get_ydata(),**line2dkwds)
                     hold(True)
@@ -314,6 +342,7 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
+                    print kwds
                     plot(x, **kwds)
                     hold(True)
 
@@ -757,22 +786,30 @@ class PyLabFigure(Node):
         #from pylab import figure
         #self.__doc__+=figure.__doc__
         Node.__init__(self)
-        self.add_input(name="num", interface=IInt, value=None)
+        self.add_input(name="num", interface=IInt, value=1)
         self.add_input(name="figsize", interface=ITuple3, value=(8, 6))
         self.add_input(name="dpi", interface=IFloat, value=80.)
         self.add_input(name="facecolor", interface=IEnumStr(colors.keys()), value='white')
         self.add_input(name="edgecolor", interface=IEnumStr(colors.keys()), value='black')
 
-        self.add_output(name="fig")
+        self.add_output(name="figure")
+        self.add_output(name="kwds", interface=IDict, value={})
 
     def __call__(self, inputs):
         from pylab import figure
+        kwds={}
+        kwds['num']=self.get_input('num')
+        kwds['figsize']=self.get_input('figsize')
+        kwds['facecolor']=self.get_input('facecolor')
+        kwds['edgecolor']=self.get_input('edgecolor')
+        kwds['dpi']=self.get_input('dpi')
+
         fig = figure(num=self.get_input('num'),
                      figsize=self.get_input('figsize'),
                      dpi=self.get_input('dpi'),
                      facecolor=self.get_input('facecolor'),
                      edgecolor=self.get_input('edgecolor'))
-        return (fig, )
+        return fig,kwds
 
 
 class PyLabLine2D(Node):
@@ -873,6 +910,7 @@ class PyLabAxes(Node):
         #sharex    otherax        current axes shares xaxis attribute with otherax
         #sharey    otherax        current axes shares yaxis attribute with otherax
         self.add_output(name='axes')
+        self.add_output(name='kwds', interface=IDict, value={})
 
     def __call__(self, inputs):
         from pylab import axes
@@ -881,7 +919,7 @@ class PyLabAxes(Node):
         kwds['frameon'] = self.get_input('frameon')
         kwds['polar'] = self.get_input('polar')
         aa = axes(**kwds)
-        return (aa,)
+        return aa, kwds
 
 
 
