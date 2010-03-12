@@ -286,10 +286,10 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
         self.add_input(name="ylabel",       interface=IStr, value = "")
         self.add_input(name="title",        interface=IStr, value = "")
         self.add_input(name="grid",         interface=IBool, value = True)
-        self.add_input(name="legend",       interface=IBool, value=True)
-        self.add_input(name="show",       interface=IBool, value=True)
-        self.add_input(name="figure", interface=IDict, value={"num":1})
-        self.add_input(name="axes", interface=IDict, value={})
+        self.add_input(name="legend",       interface=IDict, value={'legend on':True})
+        self.add_input(name="show",         interface=IBool, value=True)
+        self.add_input(name="figure",       interface=IDict, value={"num":1})
+        self.add_input(name="axes",         interface=IDict, value={})
 
         self.add_output(name='output')
 
@@ -307,9 +307,7 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
         kwds['color']=colors[self.get_input("color")]
         kwds['label']=self.get_input("label")
         print self.get_input("axes")
-        #kwds['figure'] = figure(**self.get_input("figure"))
-        figure(**self.get_input("figure"))
-        #kwds['axes'] = axes(**self.get_input("axes"))
+        fig = figure(**self.get_input("figure"))
         axes(**self.get_input("axes"))
         print kwds
         #kwds['axes']=self.get_input("axes")
@@ -328,7 +326,7 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
                     print x
-                    line2dkwds = get_kwds_from_line2d(x, **kwds)
+                    line2dkwds = get_kwds_from_line2d(x, kwds)
                     print line2dkwds
                     plot(x.get_xdata(), x.get_ydata(),**line2dkwds)
                     hold(True)
@@ -376,8 +374,12 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
                    plot(x, y, **kwds)
                    hold(True)
 
-        if self.get_input('legend') is True:
-            legend(loc='best')
+        print self.get_input("legend").keys()
+        if self.get_input("legend")['legend on']==True:
+            #does this copy is needed?
+            mykwds = self.get_input("legend")
+            del mykwds['legend on']
+            legend(**mykwds)
 
         self.ylabel(self.get_input("ylabel"))
         self.xlabel(self.get_input("xlabel"))
@@ -385,8 +387,8 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
         grid(self.get_input("grid"))
         if self.get_input("show") is True:
             show()
-        dummy=[]
-        return (dummy, )
+        
+        return (fig, )
 
 class PyLabHist(Node, YLabel, XLabel, Title):
     """pylab.hist interface
@@ -763,17 +765,60 @@ class PyLabBoxPlot(Node):
 
 
 class PyLabLegend(Node):
+    """to be done"""
+    location = {'best':0,
+                'upper right': 1, 
+                'upper left': 2,
+                'lower left': 3,
+                'lower right': 4,
+                'right': 5,
+                'center left': 6,
+                'center right': 7,
+                'lower center': 8,
+                'upper center': 9,
+                'center': 10}
+
     def __init__(self):
         Node.__init__(self)
-        self.add_input(name="legend on", interface=IBool, value=False)
-        self.add_input(name="legend", interface=IStr, value=None)
+        self.add_input(name="legend on", interface=IBool, value=True)
+        self.add_input(name="shadow", interface=IBool, value=False)
+        self.add_input(name="location", interface=IEnumStr(locations.keys()), value=0)
+        self.add_input(name="numpoints", interface=IInt, value=2)
+        self.add_input(name="markerscale", interface=IFloat(0.1,10,0.1), value=1)
+        self.add_input(name="fancybox", interface=IBool, value=True)
+        self.add_input(name="ncol", interface=IInt(1,10), value=1)
+        self.add_input(name="mode", interface=IEnumStr({'None':'None','Expanded':'exapanded'}), value=None)
+        self.add_input(name="title", interface=IStr, value=None)
+        #rodo scatterpoints
+        #borderpad          the fractional whitespace inside the legend border
+        #    labelspacing       the vertical space between the legend entries
+        #    handlelength       the length of the legend handles
+        #    handletextpad      the pad between the legend handle and text
+        #    borderaxespad      the pad between the axes and legend border
+        #    columnspacing      the spacing between columns
+        #borderaxespad
+        self.add_input(name="properties to be done", interface=IDict, value=None)
+        #p = pylab.matplotlib.font_manager.FontProperties(size=26)
+
+        self.add_output(name="kwds", interface=IDict, value={})
 
     def __call__(self, inputs):
         from pylab import legend
-        if self.get_input('legend') is None:
-            legend(loc='best')
-        else:
-            legend(self.get_input('legend'), loc='best')
+        kwds = {}
+        # !!!this one is not pylab option
+        kwds['legend on'] = self.get_input('legend on')
+        # pylab options
+        kwds['loc'] = self.get_input('location')
+        kwds['numpoints'] = self.get_input('numpoints')
+        kwds['loc'] = self.get_input('location')
+        kwds['fancybox'] = self.get_input('fancybox')
+        kwds['markerscale'] = self.get_input('markerscale')
+        kwds['shadow'] = self.get_input('shadow')
+        kwds['ncol'] = self.get_input('ncol')
+        kwds['mode'] = self.get_input('mode')
+        kwds['title'] = self.get_input('title')
+
+        return kwds
 
 class PyLabFigure(Node):
     """pylab.figure interface
@@ -783,8 +828,6 @@ class PyLabFigure(Node):
     :authors: Thomas Cokelaer
     """
     def __init__(self):
-        #from pylab import figure
-        #self.__doc__+=figure.__doc__
         Node.__init__(self)
         self.add_input(name="num", interface=IInt, value=1)
         self.add_input(name="figsize", interface=ITuple3, value=(8, 6))
@@ -792,7 +835,6 @@ class PyLabFigure(Node):
         self.add_input(name="facecolor", interface=IEnumStr(colors.keys()), value='white')
         self.add_input(name="edgecolor", interface=IEnumStr(colors.keys()), value='black')
 
-        self.add_output(name="figure")
         self.add_output(name="kwds", interface=IDict, value={})
 
     def __call__(self, inputs):
@@ -803,13 +845,8 @@ class PyLabFigure(Node):
         kwds['facecolor']=self.get_input('facecolor')
         kwds['edgecolor']=self.get_input('edgecolor')
         kwds['dpi']=self.get_input('dpi')
-
-        fig = figure(num=self.get_input('num'),
-                     figsize=self.get_input('figsize'),
-                     dpi=self.get_input('dpi'),
-                     facecolor=self.get_input('facecolor'),
-                     edgecolor=self.get_input('edgecolor'))
-        return fig,kwds
+        #fig = figure(**kwds)
+        return kwds
 
 
 class PyLabLine2D(Node):
