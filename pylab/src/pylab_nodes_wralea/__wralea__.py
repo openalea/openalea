@@ -20,12 +20,14 @@ __icon__ = 'icon.png'
 __all__ = ['py_pylab_PyLabAbsolute', 'py_pylab_PyLabBoxPlot', 'py_pylab_PyLabPlot', 'py_pylab_PyLabHist', 'py_pylab_PyLabScatter', 'py_pylab_PyLabFigure', 'py_pylab_PyLabXLabel', 'py_pylab_PyLabRandom', 'py_pylab_PyLabAcorr', 'py_pylab_PyLabLine2D', 'py_pylab_PyLabLegend','py_pylab_PyLabTextOptions' , 'py_pylab_PyLabAxes', 
 'py_pylab_PyLabPolar',
 'py_pylab_PyLabPie',
-'py_pylab_PyLabShow',
 'py_pylab_PyLabYLabel',
 'py_pylab_PyLabTitle',
 'py_pylab_PyLabRectangle',
 'py_pylab_PyLabBar',
 'py_pylab_PyLabLogLog',
+'py_pylab_PyLabFontProperties',
+'py_pylab_PyLabCohere',
+'py_pylab_PyLabAxis',
 
 ]
 
@@ -229,6 +231,19 @@ py_pylab_PyLabAxes = Factory(name='PyLabAxes',
                 lazy=False
                )
 
+py_pylab_PyLabAxis = Factory(name='PyLabAxis',
+                description='pylab.axes interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxis',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
 py_pylab_PyLabPolar = Factory(name='PyLabPolar',
                 description='pylab.polar interface.',
                 category='visualization, data processing',
@@ -253,17 +268,6 @@ py_pylab_PyLabPie = Factory(name='PyLabPie',
                 lazy=False
                )
 
-py_pylab_PyLabShow = Factory(name='PyLabShow',
-                description='pylab.pie interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabShow',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabTitle = Factory(name='PyLabTitle',
                 description='pylab.title interface.',
@@ -317,3 +321,28 @@ py_pylab_PyLabLogLog = Factory(name='PyLabLogLog',
                 widgetclass=None,
                 lazy=False
                )
+
+py_pylab_PyLabFontProperties = Factory(name='PyLabFontProperties',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabFontProperties',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabCohere = Factory(name='PyLabCohere',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabCohere',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+

@@ -29,8 +29,75 @@ from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
+axis = {
+    'off':'off',
+    'manual':'manual',
+    'equal':'equal',
+    'tight':'tight',
+    'scaled':'scaled',
+    'image':'image',
+    'auto':'auto',
+    'normal':'normal'
+    }
 
-family = {
+sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
+
+detrends = {
+    'none':'detrend_none',
+    'linear':'detrend_linear',
+    'mean':'detrend_mean'
+    }
+
+streches = {
+    'ultra-condensed':'ultra-condensed',
+    'extra-condensed':'extra-condensed',
+    'condensed':'condensed',
+    'semi-condensed':'semi-condensed',
+    'normal':'normal',
+    'semi-expanded':'semi-expanded',
+    'expanded':'expanded',
+    'extra-expanded':'extra-expanded' ,
+    'ultra-expanded':'ultra-expanded'
+    }
+
+weights = {
+    'ultralight':'ultralight',
+    'light':'light',
+    'normal':'normal',
+    'regular':'regular',
+    'book':'book',
+    'medium':'medium',
+    'roman':'roman',
+    'semibold':'semibold',
+    'demibold':'demibold',
+    'demi':'demi',
+    'bold':'bold',
+    'heavy':'heavy',
+    'extra bold':'extra bold',
+    'black':'black'
+    }
+
+
+sizes = {
+    'xx-small':'xx-small',
+    'x-small':'x-small',
+    'small':'small',
+    'medium':'medium',
+    'large':'large',
+    'x-large':'x-large',
+    'xx-large':'xx-large'
+    }
+
+styles = {
+    'italic':'italic',
+    'normal':'normal',
+    'oblique':'oblique'}
+
+variants = {
+    'normal':'normal',
+    'small-caps':'small-caps'}
+
+families = {
     'serif':'serif',
     'sans-serif':'sans-serif',
     'cursive':'cursive',
@@ -76,96 +143,62 @@ markers = {}
 for key,value in Line2D.markers.iteritems():
     markers[value.replace('_draw_','')]=key
 
+#pylab.Line2D.filled_markers
+
+fillstyles={'top':'top',
+    'full':'full',
+    'bottom':'bottom',
+    'left':'left',
+    'right':'right',
+    }
+
 
 cmaps=['autumn','bone', 'cool','copper','flag','gray','hot','hsv','jet','pink', 'prism', 'spring', 'summer', 'winter'] 
 
-locations={'best' : 0, 
-    'upper right'  : 1,  
-    'upper left'   : 2, 
-    'lower left'   : 3, 
-    'lower right'  : 4, 
-    'right'        : 5, 
-    'center left'  : 6, 
-    'center right' : 7, 
-    'lower center' : 8, 
-    'upper center' : 9, 
-    'center'       : 10,} 
+locations={
+    'best' : 0,
+    'upper right'  : 1,
+    'upper left'   : 2,
+    'lower left'   : 3,
+    'lower right'  : 4,
+    'right'        : 5,
+    'center left'  : 6,
+    'center right' : 7,
+    'lower center' : 8,
+    'upper center' : 9,
+    'center'       : 10,}
 
 
 
 
 
-def get_kwds_from_line2d(line2d, kwds={}):
+def get_kwds_from_line2d(line2d, kwds={}, type=None):
     """create a dict from line2d properties
     """
     kwds['color']=line2d.get_color()
     kwds['linestyle']=line2d.get_linestyle()
-    kwds['markersize']=line2d.get_markersize()
     kwds['linewidth']=line2d.get_linewidth()
-    kwds['marker']=line2d.get_marker()
+    if type!='linecollection':
+        kwds['marker']=line2d.get_marker()
+        kwds['markersize']=line2d.get_markersize()
+        kwds['markeredgewidth']=line2d.get_markeredgewidth()
+        kwds['markersize']=line2d.get_markersize()
+        kwds['fillstyle']=line2d.get_fillstyle()
+        kwds['markeredgecolor']=line2d.get_markeredgecolor()
     kwds['label']=line2d.get_label()
     kwds['alpha']=line2d.get_alpha()
     return kwds
 
-class Title():
-    def __init__(self):
-        pass
 
-    def title(self, data):
-        from pylab import title
-        if type(data)==str:
-            title(data)
-        else:
-            try:
-                args = data[0]
-                kwargs = data[1]
-                title(args, **kwargs)
-            except:
-                print data
-                print 'could not convert data into args=data[0], kwargs=data[1]'
-                pass
-
-class XLabel():
-    def __init__(self):
-        pass
-
-    def xlabel(self, data):
-        from pylab import xlabel
-        if type(data) == str:
-            xlabel(data)
-        else:
-            try:
-                args = data[0]
-                kwargs = data[1]
-                xlabel(args, **kwargs)
-            except:
-                print data
-                print 'could not convert data into args=data[0], kwargs=data[1]'
-                pass
-
-class YLabel():
-    def __init__(self):
-        pass
-
-    def ylabel(self, data):
-        from pylab import ylabel
-        if type(data) == str:
-            ylabel(data)
-        else:
-            try:
-                args = data[0]
-                kwargs = data[1]
-                ylabel(args, **kwargs)
-            except:
-                print data
-                print 'could not convert data into args=data[0], kwargs=data[1]'
-                pass
 
 class Plotting(Node):
-    def __init__(self,  inputs):
+
+    ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
+    ERROR_FAILURE = 'Failed to generate the image. check your entries.'
+
+    def __init__(self,  inputs={}):
         Node.__init__(self)
         self._show = True
-        self._figure = 1
         self._title = None
         self._ylabel = None
         self._xlabel = None
@@ -173,70 +206,119 @@ class Plotting(Node):
         for input in inputs:
             self.add_input(**input)
 
-        self.add_input(name="show", interface=IBool, value=True)
-        self.add_input(name="xlabel", interface=IStr, value="")
-        self.add_input(name="ylabel", interface=IStr, value = "")
-        self.add_input(name="title", interface=IStr, value = "")
+        self.add_input(name="show",   interface=IBool, value=True)
+        self.add_input(name="grid",   interface=IBool, value=True)
+        self.add_input(name="xlabel", interface=IStr,  value="")
+        self.add_input(name="ylabel", interface=IStr,  value = "")
+        self.add_input(name="title",  interface=IStr,  value = "")
+        self.add_input(name="figure", interface=IDict, value={"num":1})
+        self.add_input(name='legend', interface=IDict, value={'legend on':True})
+        self.add_input(name='axes',   interface=IDict, value={})
+        self.add_input(name='axis',   interface=IDict, value={'type':'normal', 'xmin':None, 'xmax':None, 'ymin':None, 'ymax':None})
+
+        self.add_output(name='output')
 
     def show(self):
         from pylab import show
-        if self._show is True:
+        if self.get_input('show'):
             show()
+
+    def grid(self):
+        from pylab import grid
+        grid(self.get_input('grid'))
 
     def figure(self):
         from pylab import figure
-        figure(self._figure)
+        fig = figure(**self.get_input('figure'))
+        return fig
+
+    def axes(self):
+        from pylab import axes
+        axes(**self.get_input('axes'))
+
+    def axis(self):
+        from pylab import axis
+        import copy
+
+        kwds = copy.deepcopy(self.get_input('axis'))
+        type = kwds['type']
+        del kwds['type']
+        if type!='manual':
+            axis(type)
+        else:
+            print 'b'
+            print kwds
+            axis(**kwds)
 
     def title(self):
         from pylab import title
-        title(self._title)
-    
+        try:
+            import copy
+            text = self.get_input('title')['text']
+            kwds = copy.deepcopy(self.get_input('title'))
+            del kwds['text']
+            title(text, **kwds)
+        except:
+            title(self.get_input('title'))
+
     def xlabel(self):
         from pylab import xlabel
-        xlabel(self._xlabel)
-    
+        try:
+            import copy
+            text = self.get_input('xlabel')['text']
+            kwds = copy.deepcopy(self.get_input('xlabel'))
+            del kwds['text']
+            xlabel(text, **kwds)
+        except:
+            xlabel(self.get_input('xlabel'))
+
     def ylabel(self):
         from pylab import ylabel
-        ylabel(self._ylabel)
-    
+        try:
+            import copy
+            text = self.get_input('ylabel')['text']
+            kwds = copy.deepcopy(self.get_input('ylabel'))
+            del kwds['text']
+            ylabel(text, kwds)
+        except:
+            ylabel(self.get_input('ylabel'))
+
+    def legend(self):
+        from pylab import legend
+        try:
+            import copy
+            if self.get_input("legend")['legend on']==True:
+                mykwds = copy.deepcopy(self.get_input("legend"))
+                del mykwds['legend on']
+                print 'legendc'
+                print mykwds
+                try:
+                    legend(**mykwds)
+                except ValueError, e:
+                    print e
+                print 'legendd'
+        except:
+            print 'warning:: legend failed'
+            pass
+
+    def error(self, message):
+        from pylab import text
+        text(0., 0.6, message, backgroundcolor='red')
+
     def properties(self):
+        self.legend()
         self.title()
         self.xlabel()
         self.ylabel()
-        self.figure()
-        self.show()
-
-class PyLabLogLog(Plotting):
-
-    def __init__(self):
-        inputs = [
-                    {'name':'x', 'interface':None, 'value':None},
-                    {'name':'y', 'interface':None, 'value':None}
-        ]
-        Plotting.__init__(self, inputs)
-
-    def __call__(self, inputs):
-        from pylab import loglog, clf, show, figure,plot
-        clf()
-        plot(self.get_input('x'), self.get_input('y'))
-        self.properties()
-        self.title()
-        self.xlabel()
-        self.ylabel()
-        self.figure()
+        self.grid()
+        self.axis()
         self.show()
 
 
-class Labels():
-    def __init__(self):
-        self.add_input(name="xlabel")
-        self.add_input(name="ylabel")
-        self.add_input(name="title")
-        self.add_input(name="subtitle")
 
 
-#//////////////////////////////////////////////////////////////////////////////
-class PyLabPlot(Node, XLabel, YLabel, Title):
+
+class PyLabPlot(Plotting):
     """pylab.plot interface
 
     if x is an array, y should be an array as well or a list of array (assuming
@@ -264,40 +346,21 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
     """
     def __init__(self):
         """init docstring"""
-        from pylab import plot
-        Node.__init__(self)
-        YLabel.__init__(self)
-        XLabel.__init__(self)
-        Title.__init__(self)
-        #self.__doc__+=plot.__doc__
-
-        #plot format options
-        self.add_input(name="x")
-        self.add_input(name="y", value=None)
-        self.add_input(name="label",        interface=IStr, value=None)
-        self.add_input(name="marker",       interface=IEnumStr(markers.keys()), value='circle')
-        self.add_input(name="markersize",   interface=IFloat, value=10)
-        self.add_input(name="linestyle",    interface=IEnumStr(linestyles.keys()), value='solid')
-        self.add_input(name="color",        interface=IEnumStr(colors.keys()), value='blue')
-        #self.add_input(name="axes")
-
-        # standard figure options
-        self.add_input(name="xlabel",       interface=IStr, value="")
-        self.add_input(name="ylabel",       interface=IStr, value = "")
-        self.add_input(name="title",        interface=IStr, value = "")
-        self.add_input(name="grid",         interface=IBool, value = True)
-        self.add_input(name="legend",       interface=IDict, value={'legend on':True})
-        self.add_input(name="show",         interface=IBool, value=True)
-        self.add_input(name="figure",       interface=IDict, value={"num":1})
-        self.add_input(name="axes",         interface=IDict, value={})
-
-        self.add_output(name='output')
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import figure, plot, show, clf, xlabel, ylabel, hold, title, grid, Line2D, legend, axes
+        from pylab import plot, clf,  hold,  Line2D
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
-        
+
         clf()
         #figure(**self.get_input('figure'))
         kwds = {}
@@ -305,34 +368,28 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
         kwds['marker']=markers[self.get_input("marker")]
         kwds['linestyle']=linestyles[self.get_input("linestyle")]
         kwds['color']=colors[self.get_input("color")]
-        kwds['label']=self.get_input("label")
-        print self.get_input("axes")
-        fig = figure(**self.get_input("figure"))
-        axes(**self.get_input("axes"))
-        print kwds
-        #kwds['axes']=self.get_input("axes")
-        #print self.get_input("axes")
+
+        fig = self.figure()
+        self.axes()
 
         if xinputs == None:
-            raise ValueError('x not set. connect a line2D or array or list')
+            raise ValueError(self.ERROR_NOXDATA)
+        if type(xinputs)!=list:
+            xinputs = [xinputs]
+        if type(yinputs)!=list:
+            yinputs = [yinputs]
 
         # case of an x input without y input. line2D are all manage in this if statement
-        if yinputs is None:
-            #convert input data to list
-            if type(xinputs)!=list:
-                xinputs = [xinputs]
-
+        if yinputs[0]==None:
             #plot(line2D) and plot([line2D, line2D])
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
-                    print x
                     line2dkwds = get_kwds_from_line2d(x, kwds)
-                    print line2dkwds
-                    plot(x.get_xdata(), x.get_ydata(),**line2dkwds)
+                    #returns the processed data ?
+                    plot(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
                     hold(True)
             #plot([x1,None,x2,None, ...) and plot(x1)
             else:
-                print 'plot(x), plot([x1,x2,x3])'
                 c = enumerate(colors)
                 for x in xinputs:
                     try:
@@ -340,20 +397,11 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
-                    print kwds
                     plot(x, **kwds)
                     hold(True)
 
         else:
-            #convert input data to list
-            if type(yinputs)!=list:
-                yinputs = [yinputs]
-
-            if type(xinputs)!=list:
-                xinputs = [xinputs]
-
             if len(xinputs)==1:
-                print 'plot(x,y) and plot(x, [y1,y2])'
                 # plot(x,y) and plot(x, [y1,y2])
                 c = enumerate(colors)
                 for y in yinputs:
@@ -367,30 +415,108 @@ class PyLabPlot(Node, XLabel, YLabel, Title):
             else:
                 if len(xinputs)!=len(yinputs):
                     print 'warning more x inputs than y inputs. correct the connectors'
-                print 'plot([x1,x2], [y1,y2])'
                 # plot([x1,x2], [y1,y2])
                 # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
                    plot(x, y, **kwds)
                    hold(True)
 
-        print self.get_input("legend").keys()
-        if self.get_input("legend")['legend on']==True:
-            #does this copy is needed?
-            mykwds = self.get_input("legend")
-            del mykwds['legend on']
-            legend(**mykwds)
+        self.properties()
 
-        self.ylabel(self.get_input("ylabel"))
-        self.xlabel(self.get_input("xlabel"))
-        self.title(self.get_input("title"))
-        grid(self.get_input("grid"))
-        if self.get_input("show") is True:
-            show()
-        
-        return (fig, )
 
-class PyLabHist(Node, YLabel, XLabel, Title):
+
+class PyLabLogLog(PyLabPlot):
+    """
+    status: 80% completed
+
+    .. todo:: this documentsation, add subsx/subsy nonposx and basex options
+    """
+    def __init__(self):
+        PyLabPlot.__init__(self)
+        """*basex*/*basey*: scalar > 1
+        base of the *x*/*y* logarithm
+
+      *subsx*/*subsy*: [ None | sequence ]
+        the location of the minor *x*/*y* ticks; *None* defaults
+        to autosubs, which depend on the number of decades in the
+        plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
+        :meth:`matplotlib.axes.Axes.set_yscale` for details
+
+      *nonposx*/*nonposy*: ['mask' | 'clip' ]
+        non-positive values in *x* or *y* can be masked as
+        invalid, or clipped to a very small positive number
+        """
+    def __call__(self, inputs):
+        from pylab import loglog, clf,hold
+        xinputs = self.get_input("x")
+        yinputs = self.get_input("y")
+
+        clf()
+        #figure(**self.get_input('figure'))
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=markers[self.get_input("marker")]
+        kwds['linestyle']=linestyles[self.get_input("linestyle")]
+        kwds['color']=colors[self.get_input("color")]
+
+        fig = self.figure()
+        self.axes()
+
+        if xinputs == None:
+            raise ValueError(self.ERROR_NOXDATA)
+        if type(xinputs)!=list:
+            xinputs = [xinputs]
+        if type(yinputs)!=list:
+            yinputs = [yinputs]
+
+        # case of an x input without y input. line2D are all manage in this if statement
+        if yinputs[0]==None:
+            #plot(line2D) and plot([line2D, line2D])
+            if type(xinputs[0])==Line2D:
+                for x in xinputs:
+                    line2dkwds = get_kwds_from_line2d(x, kwds)
+                    #returns the processed data ?
+                    loglog(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
+                    hold(True)
+            #plot([x1,None,x2,None, ...) and plot(x1)
+            else:
+                c = enumerate(colors)
+                for x in xinputs:
+                    try:
+                        color = c.next()
+                        kwds['color']=color[1]
+                    except:
+                        print 'no more colors'
+                    loglog(x, **kwds)
+                    hold(True)
+
+        else:
+            if len(xinputs)==1:
+                # plot(x,y) and plot(x, [y1,y2])
+                c = enumerate(colors)
+                for y in yinputs:
+                    try:
+                        color = c.next()
+                        kwds['color']=color[1]
+                    except:
+                        print 'no more colors'
+                    loglog(xinputs[0], y, **kwds)
+                    hold(True)
+            else:
+                if len(xinputs)!=len(yinputs):
+                    print 'warning more x inputs than y inputs. correct the connectors'
+                # plot([x1,x2], [y1,y2])
+                # plot([x1], [y1])
+                for x,y in zip(xinputs, yinputs):
+                   loglog(x, y, **kwds)
+                   hold(True)
+        self.properties()
+
+        return fig
+
+
+
+class PyLabHist(Plotting):
     """pylab.hist interface
 
     :param x: input data
@@ -418,12 +544,6 @@ class PyLabHist(Node, YLabel, XLabel, Title):
     """
 
     def __init__(self):
-        Node.__init__(self)
-        YLabel.__init__(self)
-        XLabel.__init__(self)
-        Title.__init__(self)
-        #self.__doc__+=hist.__doc__
-
         self.histtype = {
                 'bar':'bar',
                 'barstacked':'barstacked',
@@ -431,8 +551,10 @@ class PyLabHist(Node, YLabel, XLabel, Title):
                 'stepfilled':'stepfilled'}
         self.orientation = {'horizontal':'horizontal', 'vertical':'vertical'}
         self.align = {'mid':'mid', 'right':'right', 'left':'left'}
+        
+        inputs = [{'name':x}]
+        Plotting.__init__(self, inputs)
 
-        self.add_input(name="x")
         self.add_input(name="bins", interface = IInt, value=10)
         self.add_input(name="facecolor", interface = IEnumStr(colors.keys()), value = 'blue')
         #self.add_input(name="range", interface = ITuple3, value = None)
@@ -442,13 +564,6 @@ class PyLabHist(Node, YLabel, XLabel, Title):
         self.add_input(name="align", interface = IEnumStr(self.align.keys()), value='mid')
         self.add_input(name="orientation", interface = IEnumStr(self.orientation.keys()), value='vertical')
         self.add_input(name="log", interface = IBool, value = False)
-        self.add_input(name="grid", interface = IBool, value = True)
-        self.add_input(name="figure", interface=IInt, value=1)
-
-        self.add_input(name="xlabel", interface = IStr, value = "")
-        self.add_input(name="ylabel", interface = IStr, value = "")
-        self.add_input(name="title", interface = IStr, value = "")
-        self.add_input(name="show", interface = IBool, value = True)
 
         self.add_input(name="kwargs", interface = IDict, value={'alpha':1., 'animated':False})
         
@@ -482,9 +597,9 @@ class PyLabHist(Node, YLabel, XLabel, Title):
           zorder: any number        
           """
     def __call__(self, inputs):
-        from pylab import show, clf, xlabel, ylabel, hold, title, grid, hist, figure
+        from pylab import clf, hold, hist
         clf()
-        figure(self.get_input('figure'))
+        self.figure()
         kwds={}
         print self.get_input('kwargs')
         #!! facecolor is alrady in the Hist node, so override it if available in kwargs dict
@@ -509,19 +624,12 @@ class PyLabHist(Node, YLabel, XLabel, Title):
             print e
             raise ValueError('tttt')
 
-        self.ylabel(self.get_input("ylabel"))
-        self.xlabel(self.get_input("xlabel"))
-        self.title(self.get_input("title"))
-
-        grid(self.get_input("grid"))
-        if self.get_input('show'):
-            show()
-
+        self.properties()
         return (res[0],res[1])
  #range=None   bottom=None,    rwidth=None,
 
 
-class PyLabAcorr(Node, Title, XLabel, YLabel):
+class PyLabAcorr(Plotting):
     """pylab.acorr interface
 
      Plot the autocorrelation of x. If normed = True, normalize
@@ -542,49 +650,44 @@ class PyLabAcorr(Node, Title, XLabel, YLabel):
     """
 
     def __init__(self):
-        from pylab import hist
-        Node.__init__(self)
-        XLabel.__init__(self)
-        YLabel.__init__(self)
-        Title.__init__(self)
-        #self.__doc__+=hist.__doc__
-
-        # acorr options
-        self.add_input(name="x")
-        self.add_input(name="maxlags", interface = IInt, value=10)
-        self.add_input(name="normed", interface = IBool, value = False)
-        self.add_input(name="usevlines", interface = IBool, value = True)
-        self.add_input(name="kwargs", interface = IDict, value = {})
-
-        # general options
-        self.add_input(name="xlabel", interface = IStr, value = "")
-        self.add_input(name="ylabel", interface = IStr, value = "")
-        self.add_input(name="title", interface = IStr, value = "")
-        self.add_input(name="grid", interface = IBool, value = True)
-
-        # output
-        self.add_output(name="figure")
+        inputs = [
+                    {'name':'x', 'interface':None, 'value':None},
+                    {'name':"maxlags",   'interface':IInt,  'value':10},
+                    {'name':"normed",    'interface':IBool, 'value':False},
+                    {'name':"usevlines", 'interface':IBool, 'value':True},
+                    {'name':'detrend', 'interface':IEnumStr(detrends.keys()), 'value':'none'},
+                    {'name':"kwargs",    'interface':IDict, 'value':{}}
+                ]
+        Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import show, clf, xlabel, ylabel, hold, title, grid, acorr
+        from pylab import clf, hold, acorr, Line2D
+        import pylab
         clf()
+        fig = self.figure()
+        self.axes()
         x = self.get_input("x")
-        try:
-            
-            fig = acorr(x,
-                maxlags=self.get_input("maxlags"),
-                normed=self.get_input("normed"),
-                usevlines=self.get_input("usevlines"),
-                )
-        except ValueError,e:
-            print e
 
-        self.xlabel(self.get_input("xlabel"))
-        self.ylabel(self.get_input("ylabel"))
-        self.title(self.get_input("title"))
-        grid(self.get_input("grid"))
-        show()
-        return (fig,)
+        kwds = {}
+        kwds['maxlags'] = self.get_input("maxlags")
+        kwds['normed'] = self.get_input("normed")
+        kwds['usevlines'] = self.get_input("usevlines")
+        kwds['detrend'] = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+
+        res = None
+        xinputs=self.get_input('x')
+        if type(xinputs)!=list:
+            xinputs = [xinputs]
+
+        #line2dkwds = get_kwds_from_line2d(x, self.get_input('kwargs'), type='linecollection')
+        #returns the processed data ?
+        for x in xinputs:
+            res =  acorr(x, **kwds)
+            hold(True)
+        #self.error(self.ERROR_FAILURE)
+        self.properties()
+
+        return res
 
 
 
@@ -646,7 +749,7 @@ class PyLabAbsolute(Node):
 
 
 
-class PyLabScatter(Node, YLabel, XLabel, Title):
+class PyLabScatter(Plotting):
     """pylab.scatter interface
 
     :param x: the first input data set
@@ -663,56 +766,39 @@ class PyLabScatter(Node, YLabel, XLabel, Title):
     :authors: Thomas Cokelaer
     """
     def __init__(self):
-        """init docstring"""
-        from pylab import plot
-        Node.__init__(self)
-        XLabel.__init__(self)
-        YLabel.__init__(self)
-        Title.__init__(self)
-        #self.__doc__+=plot.__doc__
-
+        inputs = {}
+        Plotting.__init(self, inputs)
         self.add_input(name="x")
         self.add_input(name="y", value=None)
         self.add_input(name="sizes", value=20)
         self.add_input(name="colors", value='r')
-
         self.add_input(name="label", interface = IStr, value=None)
         self.add_input(name="marker", interface = IEnumStr(markers.keys()), value = 'circle')
         self.add_input(name="color", interface = IEnumStr(colors.keys()),  value='blue')
-
-
-        self.add_input(name="xlabel", interface = IStr, value = "")
-        self.add_input(name="ylabel", interface = IStr, value = "")
-        self.add_input(name="title", interface = IStr, value = "")
-        
-        self.add_input(name="grid", interface = IBool, value = True)
         self.add_input(name="alpha", interface = IFloat, value = 0.5)
 
-        self.add_output(name="figure")
 
     def __call__(self, inputs):
+        from pylab import scatter, clf,  hold 
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
         colors = self.get_input("colors")
-        from pylab import scatter ,show, clf, xlabel, ylabel, hold, title, grid
         clf()
-        fig = scatter(x,y, s=sizes,c=colors,
+        fig = self.figure()
+        self.axes()
+        scatter(x,y, s=sizes,c=colors,
                 marker=markers[self.get_input("marker")],
                 alpha=self.get_input("alpha"),
                 label=self.get_input("label"))
+        self.properties()
 
-        grid(self.get_input("grid"))
-        self.ylabel(self.get_input("ylabel"))
-        self.xlabel(self.get_input("xlabel"))
-        self.title(self.get_input("title"))
-        show()
-        return (fig,)
+        return fig
 
 
 
 
-class PyLabBoxPlot(Node):
+class PyLabBoxPlot(Plotting):
     """pylab.boxplot interface
 
 
@@ -729,8 +815,8 @@ class PyLabBoxPlot(Node):
     """
     def __init__(self):
         """init docstring"""
-        from pylab import plot
-        Node.__init__(self)
+        inputs = {}
+        Plotting.__init__(self, inputs)
         #self.__doc__+=plot.__doc__
 
         self.add_input(name="x")
@@ -738,45 +824,23 @@ class PyLabBoxPlot(Node):
         self.add_input(name="sym", interface = IEnumStr(markers.keys()), value='circle')
         self.add_input(name="vert", interface = IInt,  value = 1)
 
-        self.add_input(name="xlabel", interface = IStr, value = "")
-        self.add_input(name="ylabel", interface = IStr, value = "")
-        self.add_input(name="title", interface = IStr, value = "")
-        self.add_input(name="grid", interface = IBool, value = True)
-        self.add_input(name="figure", interface=IInt, value=1)
-
-        self.add_output(name="figure")
 
     def __call__(self, inputs):
         x = self.get_input("x")
-        from pylab import boxplot ,show, clf, xlabel, ylabel, hold, title, grid, figure
+        from pylab import boxplot, clf, hold
         clf()
-        figure(self.get_input('figure'))
-        fig = boxplot(x, 
+        fig = self.figure()
+        self.axes()
+        boxplot(x, 
                 sym=markers[self.get_input("sym")],
                 vert=self.get_input("vert"),
                 notch=self.get_input("notch"))
-
-        xlabel(self.get_input("xlabel"))
-        ylabel(self.get_input("ylabel"))
-        title(self.get_input("title"))
-        grid(self.get_input("grid"))
-        show()
-        return (fig,)
+        self.properties()
+        return fig
 
 
 class PyLabLegend(Node):
     """to be done"""
-    location = {'best':0,
-                'upper right': 1, 
-                'upper left': 2,
-                'lower left': 3,
-                'lower right': 4,
-                'right': 5,
-                'center left': 6,
-                'center right': 7,
-                'lower center': 8,
-                'upper center': 9,
-                'center': 10}
 
     def __init__(self):
         Node.__init__(self)
@@ -797,7 +861,7 @@ class PyLabLegend(Node):
         #    borderaxespad      the pad between the axes and legend border
         #    columnspacing      the spacing between columns
         #borderaxespad
-        self.add_input(name="properties to be done", interface=IDict, value=None)
+        self.add_input(name="prop", interface=IDict, value={})
         #p = pylab.matplotlib.font_manager.FontProperties(size=26)
 
         self.add_output(name="kwds", interface=IDict, value={})
@@ -817,6 +881,7 @@ class PyLabLegend(Node):
         kwds['ncol'] = self.get_input('ncol')
         kwds['mode'] = self.get_input('mode')
         kwds['title'] = self.get_input('title')
+        kwds['prop'] = self.get_input('prop')
 
         return kwds
 
@@ -860,7 +925,10 @@ class PyLabLine2D(Node):
         self.add_input(name="color", interface=IEnumStr(colors.keys()),value='blue')
         self.add_input(name="marker", interface=IEnumStr(markers.keys()),value='circle')
         self.add_input(name="markersize", interface=IInt, value=10)
+        self.add_input(name="markeredgewidth", interface=IFloat(0.,10,0.1) , value=None)
+        self.add_input(name="markeredgecolor", interface=IEnumStr(colors.keys()), value='None')
         self.add_input(name="linewidth", interface=IFloat, value=1.)
+        self.add_input(name="fillstyle", interface=IEnumStr(fillstyles.keys()), value='full')
         self.add_input(name="label", interface=IStr, value=None)
         self.add_input(name="alpha", interface=IFloat(0.,1., step=0.1), value=1.0)
 
@@ -868,9 +936,11 @@ class PyLabLine2D(Node):
 
     def __call__(self, inputs):
         from pylab import Line2D
-        xdata=self.get_input('xdata'),
-        ydata=self.get_input('ydata'),
+        xdata=self.get_input('xdata')
+        ydata=self.get_input('ydata')
+        #why?
         if ydata is None:
+            print 'a'
             ydata = xdata
             xdata = range(0, len(ydata))
         output = Line2D(
@@ -881,16 +951,15 @@ class PyLabLine2D(Node):
             marker=markers[self.get_input('marker')],
             label=self.get_input('label'),
             markersize=self.get_input('markersize'),
+            markeredgecolor=colors[self.get_input('markeredgecolor')],
+            markeredgewidth=self.get_input('markeredgewidth'),
             linewidth=self.get_input('linewidth'),
+            fillstyle=self.get_input('fillstyle'),
             alpha=self.get_input('alpha'),
         )
         return (output, )
 
 """
-markeredgewidth=None,
-markeredgecolor=None, 
-markerfacecolor=None, 
-fillstyle='full', 
 antialiased=None, 
 dash_capstyle=None,
 solid_capstyle=None, 
@@ -901,7 +970,6 @@ drawstyle=None,
  markevery=None,
 **kwargs)
 
- alpha: float (0.0 transparent through 1.0 opaque)         
       animated: [True | False]         
       antialiased or aa: [True | False]         
       axes: an :class:`~matplotlib.axes.Axes` instance         
@@ -915,12 +983,8 @@ drawstyle=None,
       data: 2D array         
       drawstyle: [ 'default' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' ]         
       figure: a :class:`matplotlib.figure.Figure` instance         
-      fillstyle: ['full' | 'left' | 'right' | 'bottom' | 'top']         
       gid: an id string         
-      linewidth or lw: float value in points         
       lod: [True | False]         
-      markeredgecolor or mec: any matplotlib color         
-      markeredgewidth or mew: float value in points         
       markerfacecolor or mfc: any matplotlib color         
       markevery: None | integer | (startind, stride)
       picker: float distance in points or callable pick function         ``fn(artist, event)``         
@@ -932,8 +996,6 @@ drawstyle=None,
       transform: a :class:`matplotlib.transforms.Transform` instance         
       url: a url string         
       visible: [True | False]         
-      xdata: 1D array         
-      ydata: 1D array         
       zorder: any number         
 
 """
@@ -946,7 +1008,7 @@ class PyLabAxes(Node):
         self.add_input(name='polar', interface=IBool, value=False)
         #sharex    otherax        current axes shares xaxis attribute with otherax
         #sharey    otherax        current axes shares yaxis attribute with otherax
-        self.add_output(name='axes')
+        #self.add_output(name='axes')
         self.add_output(name='kwds', interface=IDict, value={})
 
     def __call__(self, inputs):
@@ -955,9 +1017,41 @@ class PyLabAxes(Node):
         kwds['axisbg'] = self.get_input('axisbg')
         kwds['frameon'] = self.get_input('frameon')
         kwds['polar'] = self.get_input('polar')
-        aa = axes(**kwds)
-        return aa, kwds
+        #aa = axes(**kwds)
+        return kwds
 
+class PyLabAxis(Node):
+
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='type', interface=IEnumStr(axis.keys()), value='normal')
+        self.add_input(name='xmin', interface=IFloat(step=0.1), value=0.)
+        self.add_input(name='xmax', interface=IFloat(step=0.1), value=1.)
+        self.add_input(name='ymin', interface=IFloat(step=0.1), value=0.)
+        self.add_input(name='ymax', interface=IFloat(step=0.1), value=1.)
+        self.add_output(name='kwds', interface=IDict, value={})
+
+    def __call__(self, inputs):
+        from pylab import axis
+        kwds = {}
+        kwds['type'] = self.get_input('type')
+        kwds['xmin'] = self.get_input('xmin')
+        kwds['xmax'] = self.get_input('xmax')
+        kwds['ymin'] = self.get_input('ymin')
+        kwds['ymax'] = self.get_input('ymax')
+        #aa = axes(**kwds)
+        return kwds
+
+
+
+
+class PyLabTextOptions(Node):
+
+    def __init__(self):
+
+        Node.__init__(self)
+        #self.add_input(name="text", interface=IStr)
+        #self.add_input(name="fontdict", interface=IDict, value=None)
 
 
 
@@ -1056,13 +1150,12 @@ class PyLabPolar(Node):
 
 
 
-class PyLabPie(Node, Title, XLabel, YLabel):
+class PyLabPie(Plotting):
 
     def __init__(self):
-        Node.__init__(self)
-        Title.__init__(self)
-        XLabel.__init__(self)
-        YLabel.__init__(self)
+        inputs = {}
+        Plotting.__init__(self)
+
         self.add_input(name="x")
         self.add_input(name="explode", interface=ISequence, value=None)
         self.add_input(name="colors", interface=IStr, value=None)
@@ -1072,16 +1165,12 @@ class PyLabPie(Node, Title, XLabel, YLabel):
         self.add_input(name="shadow", interface=IBool, value=False)
         self.add_input(name="hold", interface=IBool, value=False)
         self.add_input(name="autopct", interface=IStr, value=None)
-        self.add_input(name="figure", interface=IInt, value=1)
-        self.add_input(name="show", interface=IBool, value=True)
-        self.add_input(name="xlabel", interface = IStr, value = "")
-        self.add_input(name="ylabel", interface = IStr, value = "")
-        self.add_input(name="title", interface = IStr, value = "")
         self.add_output(name="figure")
 
     def __call__(self, inputs):
-        from pylab import pie, show, clf, figure
-        figure(self.get_input('figure'))
+        from pylab import pie, clf
+        fig = self.figure()
+        self.axes()
         clf()
         kwds = {}
         kwds['explode'] = self.get_input('explode')
@@ -1093,27 +1182,11 @@ class PyLabPie(Node, Title, XLabel, YLabel):
         kwds['hold'] = self.get_input('hold')
         kwds['autopct'] = self.get_input('autopct')
 
-        fig = pie(self.get_input('x'), **kwds)
+        pie(self.get_input('x'), **kwds)
 
-        self.ylabel(self.get_input("ylabel"))
-        self.xlabel(self.get_input("xlabel"))
-        self.title(self.get_input("title"))
+        self.properties()
+        return fig
 
-        if self.get_input('show'):
-            show()
-
-        return (fig,)
-
-
-class PyLabShow(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="all", interface=IDict())
-
-    def __call__(self, inputs):
-        from pylab import show, hold
-        show()
 
 
 
@@ -1143,9 +1216,10 @@ class PyLabXLabel(Node):
         for key, value in self.get_input('kwargs').iteritems():
             kwargs[key]=value
 
-        xlabel(self.get_input('text'), **kwargs)
+        #xlabel(self.get_input('text'), **kwargs)
+        kwargs['text'] = self.get_input('text')
 
-        return (self.get_input('text'), kwargs, )
+        return kwargs
 
 class PyLabYLabel(Node):
 
@@ -1169,18 +1243,20 @@ class PyLabYLabel(Node):
         for key, value in self.get_input('kwargs').iteritems():
             kwargs[key]=value
 
-        ylabel(self.get_input('text'), **kwargs)
-
-        return (self.get_input('text'), kwargs, )
+        #ylabel(self.get_input('text'), **kwargs)
+        kwargs['text'] = self.get_input('text')
+        return kwargs
 
 
 class PyLabTitle(Node):
 
     def __init__(self):
+        from matplotlib import font_manager
         Node.__init__(self)
         self.add_input(name="text", interface=IStr, value=None)
         self.add_input(name="fontsize", interface=IFloat, value=12)
         self.add_input(name="color", interface=IEnumStr(colors.keys()), value='black')
+        #self.add_input(name="fontproperties", interface=IDict, value=font_manager.FontProperties())
         self.add_input(name='kwargs', interface=IDict, value={})
 
         self.add_output(name='output', interface=IDict, value={})
@@ -1190,16 +1266,18 @@ class PyLabTitle(Node):
 
         kwargs = {}
         kwargs['fontsize'] = self.get_input('fontsize')
+        #kwargs['fontproperties'] = self.get_input('fontproperties')
         kwargs['color'] = self.get_input('color')
         if 'text' in kwargs.keys():
             self.set_input('text', kwargs['text'], notify=True)
-        print self.get_input('kwargs')
         for key, value in self.get_input('kwargs').iteritems():
             kwargs[key]=value
 
-        title(self.get_input('text'), **kwargs)
-
-        return (self.get_input('text'), kwargs)
+        #print self.get_input('text')
+        #print kwargs
+        #title(self.get_input('text'), **kwargs)
+        kwargs['text'] = self.get_input('text')
+        return kwargs
 
 
 
@@ -1257,48 +1335,144 @@ class PyLabRectangle(Node):
 
 
 
-
-
-
-class PyLabBar(Node):
+class PyLabFontProperties(Node):
 
     def __init__(self):
         Node.__init__(self)
-        self.add_input(name="height",  value=None)
-        self.add_input(name="position",value=None)
-        self.add_input(name="show", interface=IBool, value=True)
-        self.add_input(name="figure", interface=IInt, value=1)
+        self.add_input(name='family', interface=IEnumStr(families.keys()), value='serif')
+        self.add_input(name='style', interface=IEnumStr(styles.keys()), value='normal')
+        self.add_input(name='variant', interface=IEnumStr(variants.keys()), value='normal')
+        self.add_input(name='weight', interface=IEnumStr(weights.keys()), value='normal')
+        self.add_input(name='stretch', interface=IEnumStr(streches.keys()), value='normal')
+        self.add_input(name='size', interface=IEnumStr(sizes.keys()), value='medium')
+        #todo size could be number, similarly for stretch and weight
+        #self.add_input(name='fname', fname=None)
+        #self.add_input(name='_init', _init=None)
+        #todo style, variant and strethc do not seem to work
+        self.add_output(name='kwds', interface=IDict, value={})
+
+    def __call__(self,inputs):
+        kwds = {}
+        kwds['family'] = self.get_input('family')
+        kwds['style'] = self.get_input('style')
+        kwds['size'] = self.get_input('size')
+        kwds['variant'] = self.get_input('variant')
+        kwds['weight'] = self.get_input('weight')
+        kwds['stretch'] = self.get_input('stretch')
+
+        return kwds
+
+
+class PyLabBar(Plotting):
+
+    def __init__(self):
+        inputs = [
+            {'name':'height', 'interface':ISequence, 'value':[]},
+            {'name':'left', 'interface':ISequence, 'value':[]}
+        ]
+        Plotting.__init__(self, inputs)
 
 
     def __call__(self, inputs):
-        from pylab import bar, hold, show, figure,clf
-        figure(self.get_input('figure'))
+        from pylab import bar, hold, clf
         clf()
+        fig = self.figure()
+        self.axes()
+        left = self.get_input('left')
         height = self.get_input('height')
-        position = self.get_input('position')
 
-        print position
-        print type(position)
-        print type(position[0])
-        print height
-
-        if type(position[0])==float:
+        res = None
+        if type(left[0])==float:
             print 'a'
-            width = position[1] - position[0]
+            width = left[1] - left[0]
             print width
-            bar(position[1:], height, width=width)
+            res = bar(left[1:], height, width=width)
         else:
             print 'b'
             c = enumerate(colors)
-            for x,y in zip(position, height):
+            for x,y in zip(left, height):
                 color = c.next()
                 print color
                 print x
                 print y
                 #width = x[1]-x[0]
                 width=0.1
-                bar(x[1:],y, width=width, color=color[1], alpha=0.5)
+                res = bar(x[1:],y, width=width, color=color[1], alpha=0.5)
                 hold(True)
+        self.properties()
 
-        if self.get_input('show') is True:
-            show()
+        return res
+
+class PyLabCohere(Plotting):
+    """ A function or a vector of length *NFFT*. To create window
+          vectors see :func:`window_hanning`, :func:`window_none`,
+          :func:`numpy.blackman`, :func:`numpy.hamming`,
+          :func:`numpy.bartlett`, :func:`scipy.signal`,
+          :func:`scipy.signal.get_window`, etc. The default is
+          :func:`window_hanning`.  If a function is passed as the
+          argument, it must take a data segment as an argument and
+          return the windowed version of the segment.
+    """
+    def __init__(self):
+        #     window = mlab.window_hanning, noverlap=0, pad_to=None,
+        #     sides='default', scale_by_freq=None, **kwargs)
+        inputs = [
+            {'name':'x',            'interface':None,   'value':None},
+            {'name':'y',            'interface':None,   'value':None},
+            {'name':'NFFT',         'interface':IInt,   'value':256},
+            {'name':'Fs',           'interface':IFloat, 'value':2.},
+            {'name':'detrend',      'interface':IEnumStr(detrends.keys()), 'value':'none'},
+            #{'name':'window',       'interface':None, 'value':'tobedone'},
+            {'name':'noverlap',     'interface':IInt,   'value':0},
+            {'name':'pad_to',       'interface':IInt,   'value':None},
+            {'name':'sides',        'interface':IEnumStr(sides.keys()), 'value':'default'},
+            #{'name':'scale_by_freq','interface':IBool,  'value':True},
+            {'name':'Fc',           'interface':IFloat, 'value':0},
+            ]
+
+        Plotting.__init__(self, inputs)
+
+
+    def __call__(self, inputs):
+        from pylab import cohere, clf, detrend_none, detrend_linear, detrend_mean, hold
+        import pylab
+        clf()
+        fig = self.figure()
+        self.axes()
+        kwds = {}
+        kwds['NFFT'] = self.get_input('NFFT')
+        kwds['Fs'] = self.get_input('Fs')
+        kwds['detrend'] = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+        #kwds['window'] = self.get_input('window')
+        kwds['noverlap'] = self.get_input('noverlap')
+        kwds['pad_to'] = self.get_input('pad_to')
+        kwds['sides'] = self.get_input('sides')
+        #kwds['scale_by_freq'] = self.get_input('scale_by_freq')
+        kwds['Fc'] = self.get_input('Fc')
+
+        cxy = None
+        freq = None
+        try:
+            cxy, freq = cohere(self.get_input('x'), self.get_input('y'), **kwds)
+        except:
+            xinputs=self.get_input('x')
+            if type(xinputs)!=list:
+                xinputs = [xinputs]
+            if type(xinputs[0])==Line2D:
+                for x in xinputs:
+                    line2dkwds = get_kwds_from_line2d(x, kwds)
+                    #returns the processed data ?
+                    cxy, freq = cohere(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
+                    hold(True)
+
+        self.properties()
+        return (cxy, freq)
+
+
+class Windowing(Node):
+    """ should include hanning, ...."""
+    def __init__(self):
+        pass
+
+    def __call__(self, inputs):
+        pass
