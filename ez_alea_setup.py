@@ -98,7 +98,7 @@ try:
     import os.path
     import urllib, getpass
     filename = os.path.join(os.getcwd(), "auth.py")
-    urllib.urlretrieve( "http://gforge.inria.fr/plugins/scmsvn/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
+    urllib.urlretrieve( "http://gforge.inria.fr/scm/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
                         filename )
 
     import auth
