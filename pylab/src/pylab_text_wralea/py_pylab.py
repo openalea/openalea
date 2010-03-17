@@ -561,8 +561,7 @@ class PyLabHist(Plotting):
             {'name':'histtype',     'interface':IEnumStr(self.histtype.keys()), 'value':'bar'},
             {'name':'align',        'interface':IEnumStr(self.align.keys()), 'value':'mid'},
             {'name':'orientation',  'interface':IEnumStr(self.orientation.keys()), 'value':'vertical'},
-            {'name':'log',          'interface':IBool,  'value':False},
-            {'name':'label',          'interface':IStr,  'value':None}
+            {'name':'log',          'interface':IBool,  'value':False}
         ]
         Plotting.__init__(self, inputs)
 
@@ -571,19 +570,23 @@ class PyLabHist(Plotting):
         self.add_input(name="kwargs", interface = IDict, value={'alpha':1., 'animated':False})
         
 
-        self.add_output(name="position")
         self.add_output(name="counts")
+        self.add_output(name="position")
         """
           antialiased or aa: [True | False]  or None for default         
           axes: an :class:`~matplotlib.axes.Axes` instance         
           clip_box: a :class:`matplotlib.transforms.Bbox` instance         
           clip_on: [True | False]         
           clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
+          color: matplotlib color arg or sequence of rgba tuples
           contains: a callable function         
           edgecolor or ec: mpl color spec, or None for default, or 'none' for no color         
+          facecolor or fc: mpl color spec, or None for default, or 'none' for no color         
+          figure: a :class:`matplotlib.figure.Figure` instance         
           fill: [True | False]         
           gid: an id string         
           hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]         
+          label: any string         
           linestyle or ls: ['solid' | 'dashed' | 'dashdot' | 'dotted']         
           linewidth or lw: float or None for default         
           lod: [True | False]         
@@ -603,35 +606,28 @@ class PyLabHist(Plotting):
         print self.get_input('kwargs')
         #!! facecolor is alrady in the Hist node, so override it if available in kwargs dict
         kwds['facecolor'] = self.get_input('facecolor')
-        if self.get_input('label'):
-            kwds['label'] = self.get_input('facecolor')
         for key,value in self.get_input('kwargs').iteritems():
             kwds[key] = value
-        xinputs = self.get_input('x')
-        if type(xinputs)!=list:
-            xinputs = [xinputs]
+
         try:
-            for x in xinputs:
-                
-                res = hist(x,
-                    bins=self.get_input("bins"),
-                    normed=self.get_input("normed"),
-                    #range=self.get_input("range"),
-                    log=self.get_input("log"),
-                    orientation=self.get_input("orientation"),
-                    figure=self.get_input("figure"),
-                    histtype=self.get_input("histtype"),
-                    align=self.get_input("align"),
-                    cumulative=self.get_input("cumulative"),
-                    **kwds)
-            hold(True)
+            res = hist(self.get_input('x'),
+                bins=self.get_input("bins"),
+                normed=self.get_input("normed"),
+                #range=self.get_input("range"),
+                log=self.get_input("log"),
+                orientation=self.get_input("orientation"),
+                figure=self.get_input("figure"),
+                histtype=self.get_input("histtype"),
+                align=self.get_input("align"),
+                cumulative=self.get_input("cumulative"),
+                **kwds)
         except ValueError, e:
             res = (None, None)
             print e
             raise ValueError('tttt')
 
         self.properties()
-        return (res, res[1],res[0])
+        return (res[0],res[1])
  #range=None   bottom=None,    rwidth=None,
 
 
@@ -772,18 +768,16 @@ class PyLabScatter(Plotting):
     :authors: Thomas Cokelaer
     """
     def __init__(self):
-        inputs = [
-            {'name':'x',        'value':None},
-            {'name':'y',        'value':None},
-            {'name':'sizes',    'value':20},
-            {'name':'colors',   'value':'r'},
-            {'name':"label",    'interface':IStr,       'value':None},
-            {'name':"marker",   'interface':IEnumStr(markers.keys()), 'value' : 'circle'},
-            {'name':"color",    'interface':IEnumStr(colors.keys()),  'value':'blue'},
-            {'name':"alpha",    'interface':IFloat,     'value' : 0.5},
-        ]
-
-        Plotting.__init__(self, inputs)
+        inputs = {}
+        Plotting.__init(self, inputs)
+        self.add_input(name="x")
+        self.add_input(name="y", value=None)
+        self.add_input(name="sizes", value=20)
+        self.add_input(name="colors", value='r')
+        self.add_input(name="label", interface = IStr, value=None)
+        self.add_input(name="marker", interface = IEnumStr(markers.keys()), value = 'circle')
+        self.add_input(name="color", interface = IEnumStr(colors.keys()),  value='blue')
+        self.add_input(name="alpha", interface = IFloat, value = 0.5)
 
 
     def __call__(self, inputs):
@@ -823,14 +817,15 @@ class PyLabBoxPlot(Plotting):
     """
     def __init__(self):
         """init docstring"""
-        inputs = [
-            {'name':"x"},
-            {'name':"notch",    'interface':IInt, 'value':0},
-            {'name':"sym",      'interface':IEnumStr(markers.keys()), 'value':'circle'},
-            {'name':"vert",     'interface':IInt,  'value':1},
-        ]
+        inputs = {}
         Plotting.__init__(self, inputs)
         #self.__doc__+=plot.__doc__
+
+        self.add_input(name="x")
+        self.add_input(name="notch", interface=IInt, value=0)
+        self.add_input(name="sym", interface = IEnumStr(markers.keys()), value='circle')
+        self.add_input(name="vert", interface = IInt,  value = 1)
+
 
     def __call__(self, inputs):
         x = self.get_input("x")
@@ -845,6 +840,80 @@ class PyLabBoxPlot(Plotting):
         self.properties()
         return fig
 
+
+class PyLabLegend(Node):
+    """to be done"""
+
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name="legend on", interface=IBool, value=True)
+        self.add_input(name="shadow", interface=IBool, value=False)
+        self.add_input(name="location", interface=IEnumStr(locations.keys()), value=0)
+        self.add_input(name="numpoints", interface=IInt, value=2)
+        self.add_input(name="markerscale", interface=IFloat(0.1,10,0.1), value=1)
+        self.add_input(name="fancybox", interface=IBool, value=True)
+        self.add_input(name="ncol", interface=IInt(1,10), value=1)
+        self.add_input(name="mode", interface=IEnumStr({'None':'None','Expanded':'exapanded'}), value=None)
+        self.add_input(name="title", interface=IStr, value=None)
+        #rodo scatterpoints
+        #borderpad          the fractional whitespace inside the legend border
+        #    labelspacing       the vertical space between the legend entries
+        #    handlelength       the length of the legend handles
+        #    handletextpad      the pad between the legend handle and text
+        #    borderaxespad      the pad between the axes and legend border
+        #    columnspacing      the spacing between columns
+        #borderaxespad
+        self.add_input(name="prop", interface=IDict, value={})
+        #p = pylab.matplotlib.font_manager.FontProperties(size=26)
+
+        self.add_output(name="kwds", interface=IDict, value={})
+
+    def __call__(self, inputs):
+        from pylab import legend
+        kwds = {}
+        # !!!this one is not pylab option
+        kwds['legend on'] = self.get_input('legend on')
+        # pylab options
+        kwds['loc'] = self.get_input('location')
+        kwds['numpoints'] = self.get_input('numpoints')
+        kwds['loc'] = self.get_input('location')
+        kwds['fancybox'] = self.get_input('fancybox')
+        kwds['markerscale'] = self.get_input('markerscale')
+        kwds['shadow'] = self.get_input('shadow')
+        kwds['ncol'] = self.get_input('ncol')
+        kwds['mode'] = self.get_input('mode')
+        kwds['title'] = self.get_input('title')
+        kwds['prop'] = self.get_input('prop')
+
+        return kwds
+
+class PyLabFigure(Node):
+    """pylab.figure interface
+
+    Create figure
+
+    :authors: Thomas Cokelaer
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name="num", interface=IInt, value=1)
+        self.add_input(name="figsize", interface=ITuple3, value=(8, 6))
+        self.add_input(name="dpi", interface=IFloat, value=80.)
+        self.add_input(name="facecolor", interface=IEnumStr(colors.keys()), value='white')
+        self.add_input(name="edgecolor", interface=IEnumStr(colors.keys()), value='black')
+
+        self.add_output(name="kwds", interface=IDict, value={})
+
+    def __call__(self, inputs):
+        from pylab import figure
+        kwds={}
+        kwds['num']=self.get_input('num')
+        kwds['figsize']=self.get_input('figsize')
+        kwds['facecolor']=self.get_input('facecolor')
+        kwds['edgecolor']=self.get_input('edgecolor')
+        kwds['dpi']=self.get_input('dpi')
+        #fig = figure(**kwds)
+        return kwds
 
 
 class PyLabLine2D(Node):
@@ -1300,8 +1369,8 @@ class PyLabBar(Plotting):
 
     def __init__(self):
         inputs = [
-            {'name':'left', 'interface':ISequence, 'value':[]},
-            {'name':'height', 'interface':ISequence, 'value':[]}
+            {'name':'height', 'interface':ISequence, 'value':[]},
+            {'name':'left', 'interface':ISequence, 'value':[]}
         ]
         Plotting.__init__(self, inputs)
 
@@ -1313,10 +1382,6 @@ class PyLabBar(Plotting):
         self.axes()
         left = self.get_input('left')
         height = self.get_input('height')
-
-        if type(left)!=list:
-            left = [left]
-
 
         res = None
         if type(left[0])==float:

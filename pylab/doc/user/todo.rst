@@ -3,7 +3,7 @@ Available as a visualea node
 =============================
 
 =============== ========================================================
-Function         Description
+iplotting Func  Description
 =============== ========================================================
 acorr           plot the autocorrelation function
 bar             make a bar chart
@@ -14,10 +14,19 @@ scatter         make a scatter plot
 polar           make a polar plot on a PolarAxes
 pie             pie charts
 loglog          a log log plot
+=============== ========================================================
+
+
+=============== ========================================================
+text            Description
+=============== ========================================================
+axes
+axis
+figure
 legend          make an axes legend
 xlabel          add an xlabel to the current axes
 ylabel          add a ylabel to the current axes
-title           add a title to the current axes
+ititle           add a title to the current axes
 text            add some text at location x,y to the current axes
 =============== ========================================================
 
@@ -25,9 +34,9 @@ text            add some text at location x,y to the current axes
 =============== ========================================================
 classes
 =============== ========================================================
-line2D          used by plot
+line2D          used by plot functions
+fontproperties  used by text functions
 =============== ========================================================
-
 
 
 
@@ -47,12 +56,10 @@ Function         Description
 =============== ========================================================
 annotate        annotate something in the figure
 arrow           add an arrow to the axes
-axes            create a new axes
 axhline         draw a horizontal line across axes
 axvline         draw a vertical line across axes
 axhspan         draw a horizontal bar across axes
 axvspan         draw a vertical bar across axes
-axis            set or return the current axis limits
 barbs           a (wind) barb plot
 barh            a horizontal bar chart
 broken_barh     a set of horizontal bars with gaps
@@ -63,7 +70,6 @@ clf             clear a figure window
 clim            adjust the color limits of the current image
 close           close a figure window
 colorbar        add a colorbar to the current figure
-cohere          make a plot of coherence
 contour         make a contour plot
 contourf        make a filled contour plot
 csd             make a plot of cross spectral density
@@ -73,7 +79,6 @@ errorbar        make an errorbar graph
 figlegend       make legend on the figure rather than the axes
 figimage        make a figure image
 figtext         add text in figure coords
-figure          create or change active figure
 fill            make filled polygons
 fill_between    make filled polygons between two curves
 findobj         recursively find all objects matching some criteria
@@ -92,7 +97,6 @@ imread          load image file into array
 imsave          save array as an image file
 imshow          plot image data
 ishold          return the hold state of the current axes
-legend          make an axes legend
 matshow         display a matrix in a new figure preserving aspect
 pcolor          make a pseudocolor plot
 pcolormesh      make a pseudocolor plot using a quadrilateral mesh
@@ -116,22 +120,11 @@ subplot_tool    launch the subplot configuration tool
 suptitle        add a figure title
 table           add a table to the plot
 thetagrids      customize the radial theta grids and labels for polar
-title           add a title to the current axes
 xcorr           plot the autocorrelation function of x and y
 xlim            set/get the xlimits
 ylim            set/get the ylimits
 xticks          set/get the xticks
 yticks          set/get the yticks
-xlabel          add an xlabel to the current axes
-ylabel          add a ylabel to the current axes
-autumn          set the default colormap to autumn
-bone            set the default colormap to bone
-cool            set the default colormap to cool
-copper          set the default colormap to copper
-flag            set the default colormap to flag
-gray            set the default colormap to gray
-hot             set the default colormap to hot
-hsv             set the default colormap to hsv
 =============== ========================================================
 
 
@@ -139,15 +132,11 @@ hsv             set the default colormap to hsv
 =============== =========================================================
 Command         Description
 =============== =========================================================
-axes            Create a new axes
-axis            Set or return the current axis limits
-bar             make a bar chart
 cla             clear current axes
 clabel          label a contour plot
 clf             clear a figure window
 close           close a figure window
 colorbar        add a colorbar to the current figure
-cohere          make a plot of coherence
 contour         make a contour plot
 contourf        make a filled contour plot
 csd             make a plot of cross spectral density
@@ -164,9 +153,6 @@ gca             return the current axes
 gcf             return the current figure
 gci             get the current image, or None
 getp            get a graphics property
-hold            set the hold state on current axes
-legend          add a legend to the axes
-loglog          a log log plot
 imread          load image file into array
 imsave          save array as an image file
 imshow          plot image data
@@ -186,9 +172,6 @@ specgram        a spectrogram plot
 stem            make a stem plot
 subplot         make a subplot (numrows, numcols, axesnum)
 table           add a table to the axes
-text            add some text at location x,y to the current axes
-title           add a title to the current axes
-xlabel          add an xlabel to the current axes
 =============== =========================================================
 
 
@@ -198,10 +181,10 @@ pylab functions
 
 
 
-pylab.detrend                  pylab.hypergeometric           pylab.nan_to_num               pylab.select
-pylab.detrend_linear           pylab.hypot                    pylab.nbytes                   pylab.semilogx
-pylab.add                      pylab.detrend_mean             pylab.i0                       pylab.ndarray                  pylab.semilogy
-pylab.add_docstring            pylab.detrend_none             pylab.identity                 pylab.ndenumerate              pylab.__setattr__
+pylab.hypergeometric           pylab.nan_to_num               pylab.select
+pylab.hypot                    pylab.nbytes                   pylab.semilogx
+pylab.add                      pylab.i0                       pylab.ndarray                  pylab.semilogy
+pylab.add_docstring            pylab.identity                 pylab.ndenumerate              pylab.__setattr__
 pylab.add_newdoc               pylab.diag                     pylab.ifft                     pylab.ndim                     pylab.setbufsize
 pylab.add_newdocs              pylab.diagflat                 pylab.ifft2                    pylab.ndindex                  pylab.set_cmap
 pylab.alen                     pylab.diagonal                 pylab.ifftn                    pylab.negative                 pylab.setdiff1d
@@ -246,7 +229,7 @@ pylab.Artist                   pylab.ERR_RAISE                pylab.ioff        
 pylab.asanyarray               pylab.errstate                 pylab.ion                      pylab.pcolormesh               pylab.split
 pylab.asarray                  pylab.ERR_WARN                 pylab.ipmt                     pylab.permutation              pylab.spring
 pylab.asarray_chkfinite        pylab.exception_to_str         pylab.irefft                   pylab.pi                       pylab.spy
-pylab.ascontiguousarray        pylab.exp                      pylab.irefft2                  pylab.pie                      pylab.sqrt
+pylab.ascontiguousarray        pylab.exp                      pylab.irefft2                  pylab.sqrt
 pylab.asfarray                 pylab.expand_dims              pylab.irefftn                  pylab.piecewise                pylab.square
 pylab.asfortranarray           pylab.expm1                    pylab.irfft                    pylab.PINF                     pylab.squeeze
 pylab.asmatrix                 pylab.exponential              pylab.irfft2                   pylab.pink                     pylab.standard_cauchy
@@ -293,7 +276,7 @@ pylab.BUFSIZE                  pylab.fliplr                   pylab.lexsort     
 pylab.__builtins__             pylab.flipud                   pylab.liaupunov                pylab.qr                       pylab.tile
 pylab.Button                   pylab.float_                   pylab.linalg                   pylab.quiver                   pylab.title
 pylab.byte                     pylab.float32                  pylab.LinAlgError              pylab.quiverkey                pylab.trace
-pylab.byte_bounds              pylab.float64                  pylab.Line2D                   pylab.r_                       pylab.transpose
+pylab.byte_bounds              pylab.float64                  pylab.r_                       pylab.transpose
 pylab.bytes                    pylab.float96                  pylab.LinearLocator            pylab.radians                  pylab.trapz
 pylab.c_                       pylab.floating                 pylab.linspace                 pylab.RAISE                    pylab.tri
 pylab.can_cast                 pylab.FLOATING_POINT_SUPPORT   pylab.little_endian            pylab.rand                     pylab.triangular
@@ -314,7 +297,7 @@ pylab.cla                      pylab.frombuffer               pylab.logical_or  
 pylab.clabel                   pylab.fromfile                 pylab.logical_xor              pylab.rcParamsDefault          pylab.UFUNC_BUFSIZE_DEFAULT
 pylab.__class__                pylab.fromfunction             pylab.logistic                 pylab.real                     pylab.UFUNC_PYVALS_NAME
 pylab.clf                      pylab.fromiter                 pylab.LogLocator               pylab.real_if_close            pylab.uint
-pylab.clim                     pylab.frompyfunc               pylab.loglog                   pylab.rec                      pylab.uint0
+pylab.clim                     pylab.frompyfunc               pylab.rec                      pylab.uint0
 pylab.clip                     pylab.fromregex                pylab.lognormal                pylab.rec2csv                  pylab.uint16
 pylab.CLIP                     pylab.fromstring               pylab.logseries                pylab.rec_append_fields        pylab.uint32
 pylab.clongdouble              pylab.FuncFormatter            pylab.logspace                 pylab.recarray                 pylab.uint64
@@ -444,10 +427,10 @@ pylab.matplotlib.mlab.csvformat_factory                 pylab.matplotlib.mlab.__
 pylab.matplotlib.mlab.defaultformatd                    pylab.matplotlib.mlab.inside_poly                       pylab.matplotlib.mlab.rec_summarize
 pylab.matplotlib.mlab.__delattr__                       pylab.matplotlib.mlab.is_closed_polygon                 pylab.matplotlib.mlab.__reduce__
 pylab.matplotlib.mlab.demean                            pylab.matplotlib.mlab.ispower2                          pylab.matplotlib.mlab.__reduce_ex__
-pylab.matplotlib.mlab.detrend                           pylab.matplotlib.mlab.isvector                          pylab.matplotlib.mlab.__repr__
-pylab.matplotlib.mlab.detrend_linear                    pylab.matplotlib.mlab.kwdocd                            pylab.matplotlib.mlab.rk4
-pylab.matplotlib.mlab.detrend_mean                      pylab.matplotlib.mlab.l1norm                            pylab.matplotlib.mlab.rms_flat
-pylab.matplotlib.mlab.detrend_none                      pylab.matplotlib.mlab.l2norm                            pylab.matplotlib.mlab.safe_isinf
+pylab.matplotlib.mlab.isvector                          pylab.matplotlib.mlab.__repr__
+pylab.matplotlib.mlab.kwdocd                            pylab.matplotlib.mlab.rk4
+pylab.matplotlib.mlab.l1norm                            pylab.matplotlib.mlab.rms_flat
+pylab.matplotlib.mlab.l2norm                            pylab.matplotlib.mlab.safe_isinf
 pylab.matplotlib.mlab.__dict__                          pylab.matplotlib.mlab.less_simple_linear_interpolation  pylab.matplotlib.mlab.safe_isnan
 pylab.matplotlib.mlab.dist                              pylab.matplotlib.mlab.levypdf                           pylab.matplotlib.mlab.save
 pylab.matplotlib.mlab.distances_along_curve             pylab.matplotlib.mlab.liaupunov                         pylab.matplotlib.mlab.segments_intersect
@@ -487,8 +470,8 @@ matplotlib.cm                      matplotlib.get_backend             matplotlib
 matplotlib._cm                     matplotlib._get_configdir          matplotlib.mlab                    matplotlib.rcParamsDefault         matplotlib.validate_cairo_format
 matplotlib._cntr                   matplotlib.get_configdir           matplotlib.mpl                     matplotlib.rcsetup                 matplotlib.validate_toolbar
 matplotlib.collections             matplotlib._get_data_path          matplotlib.__name__                matplotlib.re                      matplotlib.verbose
-matplotlib.colorbar                matplotlib.get_data_path           matplotlib.__new__                 matplotlib.__reduce__              matplotlib.Verbose
-matplotlib.colors                  matplotlib._get_data_path_cached   matplotlib.NEWCONFIG               matplotlib.__reduce_ex__           matplotlib.__version__
+matplotlib.get_data_path           matplotlib.__new__                 matplotlib.__reduce__              matplotlib.Verbose
+matplotlib._get_data_path_cached   matplotlib.NEWCONFIG               matplotlib.__reduce_ex__           matplotlib.__version__
 matplotlib.compare_versions        matplotlib.get_example_data        matplotlib.nn                      matplotlib.__repr__                matplotlib.warnings
 matplotlib.contour                 matplotlib._get_home               matplotlib.numpy                   matplotlib.__revision__            matplotlib.widgets
 matplotlib.converter               matplotlib.get_home                matplotlib.nxutils                 matplotlib.s                       
@@ -500,7 +483,6 @@ matplotlib.__date__                matplotlib.get_py2exe_datafiles    matplotlib
 
 
  cumsum    - the cumulative sum along a dimension
-      detrend   - remove the mean or besdt fit line from an array
       diag      - the k-th diagonal of matrix
       diff      - the n-th differnce of an array
       eig       - the eigenvalues and eigen vectors of v

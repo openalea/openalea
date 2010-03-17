@@ -67,6 +67,7 @@ setup(
             "wralea": [ "openalea.pylab = pylab_main_wralea",
                         "openalea.pylab.demo = pylab_demo_wralea",
                         "openalea.pylab.nodes = pylab_nodes_wralea",
+                        "openalea.pylab.text = pylab_text_wralea",
                         "openalea.pylab.test = pylab_test_wralea",
             ]
             },

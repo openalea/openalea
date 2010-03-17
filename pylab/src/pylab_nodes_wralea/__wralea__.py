@@ -17,17 +17,21 @@ __institutes__ = 'INRIA/CIRAD'
 __icon__ = 'icon.png'
 
 
-__all__ = ['py_pylab_PyLabAbsolute', 'py_pylab_PyLabBoxPlot', 'py_pylab_PyLabPlot', 'py_pylab_PyLabHist', 'py_pylab_PyLabScatter', 'py_pylab_PyLabFigure', 'py_pylab_PyLabXLabel', 'py_pylab_PyLabRandom', 'py_pylab_PyLabAcorr', 'py_pylab_PyLabLine2D', 'py_pylab_PyLabLegend','py_pylab_PyLabTextOptions' , 'py_pylab_PyLabAxes', 
-'py_pylab_PyLabPolar',
-'py_pylab_PyLabPie',
-'py_pylab_PyLabYLabel',
-'py_pylab_PyLabTitle',
-'py_pylab_PyLabRectangle',
-'py_pylab_PyLabBar',
-'py_pylab_PyLabLogLog',
-'py_pylab_PyLabFontProperties',
-'py_pylab_PyLabCohere',
-'py_pylab_PyLabAxis',
+__all__ = [
+    'py_pylab_PyLabAbsolute',
+    'py_pylab_PyLabBoxPlot',
+    'py_pylab_PyLabPlot',
+    'py_pylab_PyLabHist',
+    'py_pylab_PyLabScatter',
+    'py_pylab_PyLabRandom',
+    'py_pylab_PyLabAcorr',
+    'py_pylab_PyLabLine2D',
+    'py_pylab_PyLabPolar',
+    'py_pylab_PyLabPie',
+#    'py_pylab_PyLabRectangle',
+#    'py_pylab_PyLabBar',
+    'py_pylab_PyLabLogLog',
+    'py_pylab_PyLabCohere',
 
 ]
 
