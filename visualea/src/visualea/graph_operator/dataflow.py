@@ -29,42 +29,42 @@ from compositenode_inspector import Inspector
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
-masker = OAGIS.make_interaction_level_decorator()
+interactionMask = OAGIS.make_interaction_level_decorator()
 
 class DataflowOperators(object):
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     @exception_display
     @busy_cursor
     def graph_run(self):
         self.get_graph().eval_as_expression()
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)            
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_reset(self):
         widget = self.get_graph_view()
-        ret = QtGui.QMessageBox.question(widget, 
+        ret = QtGui.QMessageBox.question(widget,
                                          "Reset Workspace",
                                          "Reset will delete all input values.\n" + \
                                              "Continue ?\n",
-                                         QtGui.QMessageBox.Yes, 
+                                         QtGui.QMessageBox.Yes,
                                          QtGui.QMessageBox.No,)
         if(ret == QtGui.QMessageBox.No):
             return
         self.get_graph().reset() #check what this does signal-wise
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)    
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_invalidate(self):
         self.get_graph().invalidate() #TODO : check what this does signal-wise
-        
-    @masker(OAGIS.TOPOLOGICALLOCK)
+
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_remove_selection(self, items=None):
         def cmp(a,b):
             """edges need to be deleted before any other element"""
-            if type(a) == qtgraphview.Edge and type(b) == qtgraphview.Vertex : return 1            
+            if type(a) == qtgraphview.Edge and type(b) == qtgraphview.Vertex : return 1
             if type(a) == type(b) : return 0
             return -1
-        
-        if(not items): items = self.get_graph_view().scene().get_selected_items()            
+
+        if(not items): items = self.get_graph_view().scene().get_selected_items()
         if(not items): return
         items.sort(cmp)
         for i in items:
@@ -77,7 +77,7 @@ class DataflowOperators(object):
             elif isinstance(i, qtgraphview.Annotation):
                 self.get_graph().remove_vertex(i.annotation())
 
-    @masker(OAGIS.TOPOLOGICALLOCK)
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_group_selection(self):
         """
         Export selected node in a new factory
@@ -95,21 +95,21 @@ class DataflowOperators(object):
             pkg_id = None
             name = ""
 
-        dialog = NewGraph("Group Selection", self.get_package_manager(), widget, 
+        dialog = NewGraph("Group Selection", self.get_package_manager(), widget,
                           io=False, pkg_id=pkg_id, name=name)
         ret = dialog.exec_()
         if(not ret): return
 
         # NOW WE DO THE HARD WORK
-        # -----------------------        
+        # -----------------------
         factory = dialog.create_cnfactory(self.get_package_manager())
         items = widget.scene().get_selected_items(qtgraphview.Vertex)
         if(not items): return None
-        
+
         pos = widget.scene().get_selection_center(items)
         def cmp_x(i1, i2):
             return cmp(i1.scenePos().x(), i2.scenePos().x())
-        items.sort(cmp=cmp_x)        
+        items.sort(cmp=cmp_x)
 
         # Instantiate the new node:
         itemIds = [i.vertex().get_id() for i in items]
@@ -121,7 +121,7 @@ class DataflowOperators(object):
             newId    = self.get_graph().add_vertex(newGraph, [newGPos.x(), newGPos.y()])
             newEdges = self.get_graph().compute_external_io(idList, newId)
             for edges in newEdges:
-                self.get_graph().add_edge((edges[0], edges[1]), 
+                self.get_graph().add_edge((edges[0], edges[1]),
                                       (edges[2], edges[3]))
             self.graph_remove_selection(items)
 
@@ -138,16 +138,16 @@ class DataflowOperators(object):
                 pos = newGraph.node(vid).get_ad_hoc_dict().get_metadata("position")
                 # the 50 is there to have a margin at the top and right of the
                 # nodes.
-                pos[0] = pos[0] - _minX + 50 
+                pos[0] = pos[0] - _minX + 50
                 pos[1] = pos[1] - _minY + 50
-                
+
         if newVert:
             #to prevent too many redraws during the grouping we queue events then process
             #them all at once.
             widget.scene().queue_call_notifications(evaluate_new_connections, newVert, pos, itemIds)
             correct_positions(newVert)
 
-        
+
         try:
             factory.package.write()
         except AttributeError, e:
@@ -156,8 +156,8 @@ class DataflowOperators(object):
                                              "You try to write in a System Package:\n")
         self.notify_listeners(("graphoperator_graphsaved", factory))
 
-    
-    @masker(OAGIS.TOPOLOGICALLOCK)
+
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_add_annotation(self, position=None):
         # Get Position from cursor
         widget = self.get_graph_view()
@@ -169,16 +169,16 @@ class DataflowOperators(object):
         pkgmanager = PackageManager()
         pkg = pkgmanager["System"]
         factory = pkg.get_factory("annotation")
-        
+
         node = factory.instantiate([widget.scene().graph().factory.get_id()])
         widget.scene().graph().add_vertex(node, position=[position.x(), position.y()])
-        
-        
-    @masker(OAGIS.TOPOLOGICALLOCK)
+
+
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_copy(self):
         """ Copy Selection """
-        
-        
+
+
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().copy()
@@ -186,13 +186,13 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            s = widget.scene().get_selected_items(qtgraphview.Vertex, 
+            s = widget.scene().get_selected_items(qtgraphview.Vertex,
                                                                  "vertex().get_id()")
-            if(not s): return 
+            if(not s): return
             self.get_session().clipboard.clear()
             self.get_graph().to_factory(self.get_session().clipboard, s, auto_io=False)
 
-    @masker(OAGIS.TOPOLOGICALLOCK)
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_cut(self):
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
@@ -200,11 +200,11 @@ class DataflowOperators(object):
             except:
                 pass
         else:
-            widget = self.get_graph_view()     
+            widget = self.get_graph_view()
             self.graph_copy()
             self.graph_remove_selection()
 
-    @masker(OAGIS.TOPOLOGICALLOCK)
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_paste(self):
         """ Paste from clipboard """
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
@@ -213,34 +213,34 @@ class DataflowOperators(object):
             except:
                 pass
         else:
-            widget = self.get_graph_view()          
+            widget = self.get_graph_view()
             cnode = self.get_session().clipboard.instantiate()
-            
-            min_x = min_y = float("inf")          
+
+            min_x = min_y = float("inf")
             for vid in cnode:
                 if vid in (cnode.id_in, cnode.id_out): continue
                 pos = cnode.node(vid).get_ad_hoc_dict().get_metadata("position")
                 min_x = min(pos[0], min_x); min_y = min(pos[1], min_y)
-            
+
             position = widget.mapToScene(widget.mapFromGlobal(widget.cursor().pos()))
             def lam(n):
                 x = n.get_ad_hoc_dict().get_metadata("position")
                 x[0] = x[0]-min_x + position.x()+10
                 x[1] = x[1]-min_y + position.y()+10
                 n.get_ad_hoc_dict().set_metadata("position", x)
-            
+
             modifiers = [("position", lam)]
             widget.scene().clearSelection()
             widget.scene().select_added_items(True)
-            widget.setUpdatesEnabled(False)  
+            widget.setUpdatesEnabled(False)
             widget.scene().queue_call_notifications(self.get_session().clipboard.paste,
-                                                    self.get_graph(), 
-                                                    modifiers, 
+                                                    self.get_graph(),
+                                                    modifiers,
                                                     meta=True)
             widget.setUpdatesEnabled(True)
             widget.update()
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_close(self):
        # Try to save factory if widget is a graph
         widget = self.get_graph_view()
@@ -256,9 +256,9 @@ class DataflowOperators(object):
                                                  "Graph has been modified.\n"+
                                                  "Do you want to report modification "+
                                                  "in the model ?\n",
-                                                 QtGui.QMessageBox.Yes, 
+                                                 QtGui.QMessageBox.Yes,
                                                  QtGui.QMessageBox.No,)
-            
+
                 if(ret == QtGui.QMessageBox.Yes):
                     self.graph_export_to_factory()
 
@@ -269,7 +269,7 @@ class DataflowOperators(object):
         # Update session
         self.notify_listeners(("graphoperator_graphclosed", widget))
 
-    @masker(OAGIS.EDITIONLEVELLOCK_2)
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
     def graph_export_to_factory(self):
         """
         Export workspace to its factory
@@ -278,8 +278,8 @@ class DataflowOperators(object):
 
         # Get a composite node factory
         graph = self.get_graph()
-        dialog = FactorySelector(graph.factory, widget)        
-            
+        dialog = FactorySelector(graph.factory, widget)
+
         # Display Dialog
         ret = dialog.exec_()
         if(ret == 0): return None
@@ -288,7 +288,7 @@ class DataflowOperators(object):
         graph.to_factory(factory, None)
         graph.graph().factory = factory
         graph.set_caption(factory.name)
-        
+
         try:
             factory.package.write()
         except AttributeError, e:
@@ -297,7 +297,7 @@ class DataflowOperators(object):
                                              "Trying to write in a System Package!\n")
         self.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
-    @masker(OAGIS.TOPOLOGICALLOCK)
+    @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_configure_io(self):
         """ Configure workspace IO """
         widget = self.get_graph_view()
@@ -309,7 +309,7 @@ class DataflowOperators(object):
         if(ret):
             self.get_graph().set_io(dialog.inputs, dialog.outputs)
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_reload_from_factory(self):
         """ Reload a tab node """
         widget = self.get_graph_view()
@@ -325,7 +325,7 @@ class DataflowOperators(object):
                                              "Reload will discard recent changes on " +
                                              "workspace '%s'.\nContinue?"%(name),
                                              QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
+
             if(ret == QtGui.QMessageBox.No):
                 return
 
@@ -341,18 +341,18 @@ class DataflowOperators(object):
         """ Build a temporary factory for current workspace
         Return (node, factory)
         """
-        
+
         tempfactory = CompositeNodeFactory(name = name)
         self.get_graph().to_factory(tempfactory)
-        
+
         #self.get_graph() in this case returns an adapter.
         #adapter.graph() returns the real graph.
         return (self.get_graph().graph(), tempfactory)
-    
-    @masker(OAGIS.EDITIONLEVELLOCK_1)
+
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
-        widget = self.get_graph_view()  
+        widget = self.get_graph_view()
         if isinstance(widget, Inspector):
             # print "Forbidden in CompositeNodeInspector"
             return
@@ -365,7 +365,7 @@ class DataflowOperators(object):
         w.show()
         return graph, tempfactory
 
-    @masker(OAGIS.EDITIONLEVELLOCK_1)
+    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
         widget = self.get_graph_view()
@@ -375,9 +375,9 @@ class DataflowOperators(object):
 
         # Get Filename
         filename = QtGui.QFileDialog.getSaveFileName(
-            widget, "Python Application", 
+            widget, "Python Application",
             QtCore.QDir.homePath(), "Python file (*.py)")
-        
+
         filename = str(filename)
         if(not filename):
             return
@@ -390,8 +390,8 @@ class DataflowOperators(object):
 
         name = str(result)
         if(not name) : name = "OpenAlea Application"
-        
+
         graph, tempfactory = self.__get_current_factory(name)
         #export_app comes from openalea.core
-        export_app.export_app(name, filename, tempfactory) 
-        
+        export_app.export_app(name, filename, tempfactory)
+

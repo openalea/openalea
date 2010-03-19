@@ -23,7 +23,7 @@ from openalea.grapheditor import qtgraphview
 import dataflow, layout, color, vertex, port
 
 
-class GraphOperator(Observed, 
+class GraphOperator(Observed,
                     dataflow.DataflowOperators,
                     layout.LayoutOperators,
                     color.ColorOperators,
@@ -31,8 +31,11 @@ class GraphOperator(Observed,
                     port.PortOperators):
 
     __main = None
-    __FIMD = dataflow.masker.add(layout.masker, color.masker, vertex.masker, port.masker)
-                    
+    __FIMD = dataflow.interactionMask.add(layout.interactionMask,
+                                          color.interactionMask,
+                                          vertex.interactionMask,
+                                          port.interactionMask)
+
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
         dataflow.DataflowOperators.__init__(self)
@@ -62,13 +65,13 @@ class GraphOperator(Observed,
 
         action = QtGui.QAction(actionName, parent)
         action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
-                
+
         return self.bind_action(action, fName, *otherSlots)
 
     def bind_action(self, action, fName, *otherSlots):
         func, argcount = self.__get_wrapped(fName)
         action.triggered[""].connect(self.identify_focused_graph_view )
-        action.triggered[bool].connect(self.identify_focused_graph_view )        
+        action.triggered[bool].connect(self.identify_focused_graph_view )
         if (argcount) < 2 :
             action.triggered[""].connect(func)
             for f in otherSlots:
@@ -78,13 +81,13 @@ class GraphOperator(Observed,
             action.triggered[bool].connect(func)
             for f in otherSlots:
                 print f
-                action.triggered[bool].connect(f)      
+                action.triggered[bool].connect(f)
         return action
 
     def unbind_action(self, action, fName=None, *otherSlots):
         func, argcount = self.__get_wrapped(fName)
         action.triggered[""].disconnect(self.identify_focused_graph_view )
-        action.triggered[bool].disconnect(self.identify_focused_graph_view )        
+        action.triggered[bool].disconnect(self.identify_focused_graph_view )
         if (argcount) < 2 :
             action.triggered[""].disconnect(func)
             for f in otherSlots:
@@ -92,8 +95,8 @@ class GraphOperator(Observed,
         else:
             action.triggered[bool].disconnect(func)
             for f in otherSlots:
-                action.triggered[bool].disconnect(f)      
-        return action    
+                action.triggered[bool].disconnect(f)
+        return action
 
     def __add__(self, other):
         self.bind_action(*other)
@@ -101,8 +104,8 @@ class GraphOperator(Observed,
     def __sub__(self, other):
         self.unbind_action(*other)
 
-    __call__ = get_action    
-    
+    __call__ = get_action
+
     def __get_wrapped(self, fName):
         func = getattr(self, fName, None)
         def wrapped(*args, **kwargs):
@@ -112,7 +115,7 @@ class GraphOperator(Observed,
                 if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return
             return func(*args, **kwargs)
-        return wrapped, func.func_code.co_argcount 
+        return wrapped, func.func_code.co_argcount
 
     ###########
     # setters #
@@ -140,19 +143,19 @@ class GraphOperator(Observed,
     def identify_focused_graph_view(self, *args):
         """Looks in various places to find which graph view
         asked for an operation. Here is the strategy:
-        1) Ask the application for the widget in focus. 
+        1) Ask the application for the widget in focus.
             If it is a graph view that it becomes the GraphOperator's view.
-        2) If this fails, search in the session's list of 
+        2) If this fails, search in the session's list of
             graph views for one that hasFocus() == True.
         3) If this fails, return the current widget from MainWindow's tabwidget.
         The identified view can then be retreived by : operator.get_graph_view()
         This method is bound to every action created or decorated by the operator.
-        
+
         @note : this method might be better in Session?
         """
         self.graphView = None
         gv = QtGui.QApplication.focusWidget()
-        if type(gv)==qtgraphview.View: 
+        if type(gv)==qtgraphview.View:
             self.graphView = gv
         else:
             widgets = self.get_session().get_graph_views()
@@ -160,11 +163,11 @@ class GraphOperator(Observed,
                 if i.hasFocus() : self.graphView = i
             if not self.graphView:
                 self.graphView = self.__main.tabWorkspace.currentWidget()
-        return self.graphView           
-            
+        return self.graphView
+
     def get_graph_view(self):
         return self.graphView
-        
+
     def get_graph(self):
         graphView = self.get_graph_view()
         if graphView:

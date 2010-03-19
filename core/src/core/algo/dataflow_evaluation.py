@@ -4,7 +4,7 @@
 #
 #       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
-#       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#       File author(): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
@@ -310,13 +310,13 @@ class LambdaEvaluation(PriorityEvaluation):
     def eval_vertex(self, vid, context, lambda_value, *args):
         """
         Evaluate the vertex vid
-        
+
         This function is called both by the user (eval a node and its parents)
         and by the SubDataFlow evaluation.
 
         First the graph is traversed by the algorithm in a bottom-up way.
         The SubDataflow is stored in the inputs.
-        
+
 
         :param context: is a list a value to assign to lambdas
 
@@ -411,7 +411,7 @@ class LambdaEvaluation(PriorityEvaluation):
     def eval(self, vtx_id=None, context=None):
         """
         Eval the dataflow from vtx_id with a particular context
-        
+
         :param vtx_id: vertex id to start the evaluation
         :param context: list a value to assign to lambda variables
         """
@@ -687,7 +687,7 @@ class ToScriptEvaluation(AbstractEvaluation):
 
         # Eval the node
         script += actor.to_script()
-        
+
         return script
 
     def eval(self, *args):
@@ -702,6 +702,6 @@ class ToScriptEvaluation(AbstractEvaluation):
         script = ""
         for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0):
             script += self.eval_vertex(vid)
-        
+
         return script
 
