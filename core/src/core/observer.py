@@ -44,7 +44,7 @@ class Observed(object):
             def push_listener_after():
                 self.register_listener(listener)
             self.__postNotifs.append(push_listener_after)
-            
+
     def unregister_listener(self, listener):
         """ Remove listener from the list of listeners """
         if(not self.__isNotifying):
@@ -60,8 +60,8 @@ class Observed(object):
         else:
             def discard_listener_after():
                 self.unregister_listener(listener)
-            self.__postNotifs.append(discard_listener_after)          
-            
+            self.__postNotifs.append(discard_listener_after)
+
     def transfer_listeners(self, newObs):
         """Takes all this observed's listeners, unregisters them
         from itself and registers them to the newObs, calling
@@ -72,7 +72,7 @@ class Observed(object):
             newObs.register_listener(lis())
             lis().change_observed(self, newObs)
         self.__isNotifying = False
-            
+
     def exclusive_command(self, who, command, *args, **kargs):
         """Executes a call "command" and if it triggers any
         signal from this observed object along the way, "who" will
@@ -88,7 +88,7 @@ class Observed(object):
     def notify_listeners(self, event=None):
         """
         Send a notification to all listeners
-        
+
         :param event: an object to pass to the notify function
         """
 
@@ -128,7 +128,6 @@ class Observed(object):
         odict['listeners'] = set()
         return odict
 
-
 class AbstractListener(object):
     """ Listener base class """
 
@@ -145,7 +144,7 @@ class AbstractListener(object):
         observed.register_listener(self)
         if (self.notify_lock == None):
             self.notify_lock = list()
-            
+
     def change_observed(self, old, new):
         return
 
@@ -170,25 +169,25 @@ class AbstractListener(object):
             if self.__deaf : self.__eventQueue = None
             elif len(self.__eventQueue) > 0 :
                 e = self.__eventQueue.popleft()
-                while e: 
+                while e:
                     self.notify(e[0], e[1])
                     try : e = self.__eventQueue.popleft()
                     except IndexError : e = None
                 self.__eventQueue = None
-                                    
-        #if we are running a call with delayed event delivery 
+
+        #if we are running a call with delayed event delivery
         #we queue the events:
         if self.__eventQueue is not None :
             self.__eventQueue.append((sender, event))
             return
-        
+
         if not self.__deaf:
             self.notify(sender, event)
 
     def notify(self, sender, event=None):
         """
         This function is called by observed objects
-        
+
         :param sender: the observed object which send notification
         :param event: the data associated to the notification
         """

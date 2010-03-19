@@ -51,18 +51,6 @@ class InstantiationError(Exception):
 
 
 # Utility functions
-def initialise_standard_metadata():
-    """Declares the standard keys used by the Node structures. Called at the end of this file"""
-    #we declare what are the node model ad hoc data we require:
-    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
-    Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
-    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )    
-    Annotation.extend_ad_hoc_slots("text", str, "", "txt")
-
-    #we declare what are the node model ad hoc data we require:
-    AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
-    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
-
 def gen_port_list(size):
     """ Generate a list of port description """
     mylist = []
@@ -70,7 +58,64 @@ def gen_port_list(size):
         mylist.append(dict(name='t'+str(i), interface=None, value=i))
     return mylist
 
-class AbstractNode(Observed, AbstractListener):
+def initialise_standard_metadata():
+    """Declares the standard keys used by the Node structures. Called at the end of this file"""
+    #we declare what are the node model ad hoc data we require:
+    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
+    Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
+    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
+    Annotation.extend_ad_hoc_slots("text", str, "", "txt")
+
+    #we declare what are the node model ad hoc data we require:
+    AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
+    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
+
+
+
+
+########################
+# Node related classes #
+########################
+class HasAdHoc(AbstractListener):
+    @classmethod
+    def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        """
+        Describes which data and what type are expected to be found in the ad_hoc
+        dictionnary. Used by views.__ad_hoc_slots__ = {} Created at runtime
+        __ad_hoc_from_old_map__ = {}. Created at runtime have a look at
+        openalea.core.standard_meta_data.py
+        """
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__ = {}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy() #inherit
+
+        cls.__ad_hoc_slots__[name] = (_type, default)
+        if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
+            cls.__ad_hoc_from_old_map__[name] = args
+
+    def __init__(self):
+        AbstractListener.__init__(self)
+        self.set_ad_hoc_dict(MetaDataDict())
+
+    def notify(self, sender, event):
+        if(sender == self.__ad_hoc_dict):
+            self.notify_listeners(event)
+
+    def set_ad_hoc_dict(self, d, useSlotDefault=True):
+        self.__ad_hoc_dict = d
+        if hasattr(self, "__ad_hoc_slots__"):
+            d.set_slots(self.__ad_hoc_slots__, useSlotDefault)
+        self.initialise(d)
+
+    def get_ad_hoc_dict(self):
+        return self.__ad_hoc_dict
+
+class AbstractNode(Observed, HasAdHoc):
     """
     An AbstractNode is the atomic entity in a dataflow.
 
@@ -83,35 +128,17 @@ class AbstractNode(Observed, AbstractListener):
         - rename internal_data into attributes.
     """
 
-    @classmethod
-    def extend_ad_hoc_slots(cls, name, _type, default, *args):
-        if( not hasattr(cls, "__ad_hoc_slots__")):
-            cls.__ad_hoc_slots__ = {}
-        else:
-            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy() #inherit
-            
-        cls.__ad_hoc_slots__[name] = (_type, default)
-        if len(args)>0:
-            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
-                cls.__ad_hoc_from_old_map__={}
-            else:
-                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
-            cls.__ad_hoc_from_old_map__[name] = args
 
     def __init__(self):
         """
         Default Constructor
         Create Internal Data dictionnary
         """
+        HasAdHoc.__init__(self)
         Observed.__init__(self)
-        AbstractListener.__init__(self)
 
         #gengraph
         self.__id = None
-        if hasattr(self, "__ad_hoc_slots__"):
-            self.set_ad_hoc_dict(MetaDataDict())
-        else:
-            self.set_ad_hoc_dict(MetaDataDict())
         #/gengraph
 
         # Internal Data (caption...)
@@ -121,22 +148,6 @@ class AbstractNode(Observed, AbstractListener):
         # The default layout
         self.view = None
         self.user_application = None
-
-    #gengraph
-    def notify(self, sender, event):
-        if(sender == self.__ad_hoc_dict):
-            self.notify_listeners(event)
-    #/gengraph
-
-    #gengraph
-    def set_ad_hoc_dict(self, d, useSlotDefault=True):
-        self.__ad_hoc_dict = d
-        d.set_slots(self.__ad_hoc_slots__, useSlotDefault)
-        self.initialise(d)
-
-    def get_ad_hoc_dict(self):
-        return self.__ad_hoc_dict
-    #/gengraph
 
     #gengraph
     def get_id(self):
@@ -167,7 +178,7 @@ class AbstractNode(Observed, AbstractListener):
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
-        
+
 class Annotation(AbstractNode):
     def __init__(self):
         AbstractNode.__init__(self)
@@ -176,47 +187,21 @@ class Annotation(AbstractNode):
         """Script translation of this node.
         """
         return ""
-    
-class AbstractPort(dict, Observed, AbstractListener):
+
+class AbstractPort(dict, Observed, HasAdHoc):
     """
     The class describing the ports.
     AbstractPort is a dict for historical reason.
     """
 
-    #describes which data and what type
-    #are expected to be found in the ad_hoc
-    #dictionnary. Used by views. 
-    #__ad_hoc_slots__ = {} Created at runtime
-    #__ad_hoc_from_old_map__ = {} Created at runtime
-    #have a look at openalea.core.standard_meta_data.py
-    @classmethod
-    def extend_ad_hoc_slots(cls, name, _type, default, *args):
-        if( not hasattr(cls, "__ad_hoc_slots__")):
-            cls.__ad_hoc_slots__={}
-        else:
-            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy()
-            
-        cls.__ad_hoc_slots__[name] = (_type, default)
-        if len(args)>0:
-            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
-                cls.__ad_hoc_from_old_map__={}
-            else:
-                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
-            cls.__ad_hoc_from_old_map__[name] = args
-
     def __init__(self, vertex):
         dict.__init__(self)
+        HasAdHoc.__init__(self)
         Observed.__init__(self)
-        AbstractListener.__init__(self)
 
         #gengraph
         self.vertex = ref(vertex)
         self.__id = None
-        if hasattr(self, "__ad_hoc_slots__"):
-            self.__ad_hoc_dict = MetaDataDict(slots=self.__ad_hoc_slots__)
-        else:
-            self.__ad_hoc_dict = MetaDataDict()
-        self.initialise(self.__ad_hoc_dict)
         #/gengraph
 
     def simulate_construction_notifications(self):
@@ -234,21 +219,10 @@ class AbstractPort(dict, Observed, AbstractListener):
         return id(self)==id(other)
 
     #gengraph
-    def notify(self, sender, event):
-        if(sender == self.__ad_hoc_dict):
-            self.notify_listeners(event)
-    #/gengraph
-
     def copy_to(self, other):
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
         self.transfer_listeners(other)
-    
-    #gengraph
-    def get_ad_hoc_dict(self):
-        return self.__ad_hoc_dict
-    #/gengraph
 
-    #gengraph
     def get_id(self):
         return self.__id
 
@@ -324,17 +298,6 @@ class Node(AbstractNode):
     Inputs and Outpus are indexed by their position or by a name (str)
     """
 
-    __functionnal_slots__ = {"caption"             : str, 
-                             "lazy"                : bool, 
-                             "block"               : bool, 
-                             "priority"            : int, 
-                             "hide"                : bool,
-                             "port_hide_changed"   : set, 
-                             "is_in_error_state"   : bool,
-                             "is_user_application" : bool}
-
-
-
     def __init__(self, inputs=(), outputs=()):
         """
 
@@ -360,10 +323,6 @@ class Node(AbstractNode):
         self.internal_data["priority"] = 0
         self.internal_data["hide"] = True # hide in composite node widget
         self.internal_data["port_hide_changed"] = set()
-        #gengraph
-        self.internal_data["is_in_error_state"] = False
-        self.internal_data["is_user_application"] = False
-        #/gengraph
 
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
@@ -392,23 +351,23 @@ class Node(AbstractNode):
             self.notify_listeners(("cleared_output_ports",))
         except Exception, e:
             print e
-            
+
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
-                                  
+
     def get_tip(self):
         return self.__doc__
 
     def copy_to(self, other):
         # we copy some attributes.
-        other.internal_data.update(self.internal_data)
-        other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
         self.transfer_listeners(other)
-        for portOld, portNew in zip(self.input_desc + self.output_desc, 
+        #other.internal_data.update(self.internal_data)
+        other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
+        for portOld, portNew in zip(self.input_desc + self.output_desc,
                                     other.input_desc + other.output_desc):
-            portOld.copy_to(portNew)  
-    
+            portOld.copy_to(portNew)
+
     def get_process_obj(self):
         """ Return the process obj """
         return self
@@ -437,8 +396,9 @@ class Node(AbstractNode):
         index = self.map_index_in[name]
         return self.input_desc[index]
 
-    # Properties
-
+    ##############
+    # Properties #
+    ##############
     def get_lazy(self):
         """todo"""
         return self.internal_data.get("lazy", True)
@@ -448,7 +408,6 @@ class Node(AbstractNode):
         self.internal_data["lazy"] = data
         self.notify_listeners(("internal_data_changed", "lazy", data))
 
-    # if this is a class attributes, it should be moved to the top
     lazy = property(get_lazy, set_lazy)
 
     def get_block(self):
@@ -460,7 +419,6 @@ class Node(AbstractNode):
         self.internal_data["block"] = data
         self.notify_listeners(("internal_data_changed", "blocked", data))
 
-    # if this is a class attributes, it should be moved to the top
     block = property(get_block, set_block)
 
     def get_user_application(self):
@@ -472,7 +430,6 @@ class Node(AbstractNode):
         self.internal_data["user_application"] = data
         self.notify_listeners(("internal_data_changed", "user_application", data))
 
-    # if this is a class attributes, it should be moved to the top
     user_application = property(get_user_application, set_user_application)
 
     def set_caption(self, newcaption):
@@ -484,7 +441,6 @@ class Node(AbstractNode):
         """ Return the node caption """
         return self.internal_data.get('caption', "")
 
-    # if this is a class attributes, it should be moved to the top
     caption = property(get_caption, set_caption)
 
     def is_port_hidden(self, index_key):
@@ -503,7 +459,7 @@ class Node(AbstractNode):
     def set_port_hidden(self, index_key, state):
         """
         Set the hidden state of a port.
-        
+
         :param index_key: the input port index.
         :param state: a boolean value.
         """
@@ -518,10 +474,9 @@ class Node(AbstractNode):
         elif(index in changed):
             changed.remove(index)
             self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
-            
+
 
     # Status
-
     def unvalidate_input(self, index_key, notify=True):
         """
         Unvalidate node and notify listeners.
@@ -535,7 +490,6 @@ class Node(AbstractNode):
             self.continuous_eval.notify_listeners(("node_modified", ))
 
     # Declarations
-
     def set_io(self, inputs, outputs):
         """
         Define the number of inputs and outputs
@@ -579,7 +533,7 @@ class Node(AbstractNode):
         #translation of name to id or id to id (identity)...
         self.map_index_out = {}
         self.notify_listeners(("cleared_output_ports",))
-        
+
 
     def add_input(self, **kargs):
         """ Create an input port """
@@ -774,7 +728,7 @@ class Node(AbstractNode):
         self.notify_listeners(("input_modified", -1))
 
         self.continuous_eval.notify_listeners(("node_modified", self))
-    
+
     def to_script (self):
         """Script translation of this node.
         """
@@ -1017,7 +971,7 @@ class NodeFactory(AbstractFactory):
         self.nodeclass_name = nodeclass
         self.widgetmodule_name = widgetmodule
         self.widgetclass_name = widgetclass
-        
+
         self.toscriptclass_name = kargs.get("toscriptclass_name",None)
 
         # Cache
@@ -1111,7 +1065,7 @@ class NodeFactory(AbstractFactory):
                 node.set_caption(self.name)
         except:
             pass
-        
+
         # to script
         if self.toscriptclass_name is not None :
             node._to_script_func = module.__dict__.get(self.toscriptclass_name, None)
@@ -1208,7 +1162,7 @@ class NodeFactory(AbstractFactory):
     def get_node_file(self):
         """
         Return the path of the python module.
-         
+
         """
 
         if(self.nodemodule_path):

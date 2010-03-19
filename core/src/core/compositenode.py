@@ -53,7 +53,7 @@ class CompositeNodeFactory(AbstractFactory):
     def __init__(self, *args, **kargs):
         """
         CompositeNodeFactory accept more optional parameters:
-        
+
         - inputs: list of dict(name = '', interface='', value='')
         - outputs: list of dict(name = '', interface='', value='')
         - doc: documentation
@@ -95,10 +95,10 @@ class CompositeNodeFactory(AbstractFactory):
     def copy(self, **args):
         """
         Copy factory.
-        
+
         :param path: new search path
         :param replace_pkg: old and new package names.
-        
+
         When replace package is set, change the package id for all the
         elt factories.
         """
@@ -127,7 +127,7 @@ class CompositeNodeFactory(AbstractFactory):
         This function overide default implementation of NodeFactory
 
         :param call_stack: the list of NodeFactory id already in recursion stack (in order to avoid infinite loop)
-        
+
         """
 
         # Test for infinite loop
@@ -167,11 +167,11 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Set IO internal data
         try:
-            self.load_ad_hoc_data(new_df.node(new_df.id_in), 
-                                  copy.deepcopy(self.elt_data["__in__"]), 
+            self.load_ad_hoc_data(new_df.node(new_df.id_in),
+                                  copy.deepcopy(self.elt_data["__in__"]),
                                   copy.deepcopy(self.elt_ad_hoc.get("__in__", None)))
             self.load_ad_hoc_data(new_df.node(new_df.id_out),
-                                  copy.deepcopy(self.elt_data["__out__"]), 
+                                  copy.deepcopy(self.elt_data["__out__"]),
                                   copy.deepcopy(self.elt_ad_hoc.get("__out__", None)))
         except:
             pass
@@ -219,11 +219,11 @@ class CompositeNodeFactory(AbstractFactory):
 
         node = Node()
 
-        #gengraph                     
+        #gengraph
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        #/gengraph                                                           
+        #/gengraph
 
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
@@ -243,7 +243,7 @@ class CompositeNodeFactory(AbstractFactory):
                 #values : port Id and port value
                 #beyond that are extensions added by gengraph:
                 #the ad_hoc_dict representation is third.
-                port, v = vs[:2] 
+                port, v = vs[:2]
                 node.set_input(port, eval(v))
                 if(len(vs)>2):
                     node.input_desc[port].set_ad_hoc_dict(vs[2])
@@ -306,8 +306,9 @@ class CompositeNodeFactory(AbstractFactory):
 
     def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
         if elt_ad_hoc and len(elt_ad_hoc):
-            #reading new files
-            node.set_ad_hoc_dict(metadatadict.MetaDataDict(dict=elt_ad_hoc), useSlotDefault=False)
+            #reading 0.8+ files.
+            d = metadatadict.MetaDataDict(dict=elt_ad_hoc)
+            node.set_ad_hoc_dict(d, useSlotDefault=False)
         else:
             #extracting ad hoc data from old files.
             #we parse the Node class' __ad_hoc_from_old_map__
@@ -332,9 +333,9 @@ class CompositeNodeFactory(AbstractFactory):
 
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
-        
+
         instantiate only elt_id in CompositeNode
-        
+
         :param call_stack: a list of parent id (to avoid infinite recursion)
         """
         (package_id, factory_id) = self.elt_factory[vid]
@@ -342,17 +343,17 @@ class CompositeNodeFactory(AbstractFactory):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
-        
-        #gengraph                     
+
+        #gengraph
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        #/gengraph                                                           
+        #/gengraph
 
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
         #gengraph
-        
+
         for vs in values:
             try:
                 #the two first elements are the historical
@@ -364,7 +365,7 @@ class CompositeNodeFactory(AbstractFactory):
                                                                      node.is_port_hidden(port))
             except:
                 continue
-        
+
         return node
 
     #########################################################
@@ -379,7 +380,7 @@ class CompositeNodeFactory(AbstractFactory):
         widget composed with the node sub widget is returned.
 
         """
-        if(edit):            
+        if(edit):
             from openalea.visualea.compositenode_widget import EditGraphWidget
             return EditGraphWidget(node, parent)
 
@@ -411,7 +412,7 @@ class CompositeNode(Node, DataFlow):
 
     def copy_to(self, other):
         raise NotImplementedError
-        
+
     def reset(self):
         """ Reset nodes """
 
@@ -433,7 +434,7 @@ class CompositeNode(Node, DataFlow):
     def set_io(self, inputs, outputs):
         """
         Define inputs and outputs
-        
+
         Inputs and outputs are list of dict(name='', interface='', value='')
         """
 
@@ -455,7 +456,7 @@ class CompositeNode(Node, DataFlow):
         else:
             self.node(self.id_in).set_io((), inputs)
 
-        if(self.id_out is None):      
+        if(self.id_out is None):
             self.id_out = self.add_node(CompositeNodeOutput(outputs))
         else:
             self.node(self.id_out).set_io(outputs, ())
@@ -552,7 +553,7 @@ class CompositeNode(Node, DataFlow):
         from algo.dataflow_evaluation import ToScriptEvaluation
         algo = ToScriptEvaluation(self)
         return algo.eval()
-    
+
     def node(self, vid):
         """ Convenience function """
         return self.actor(vid)
@@ -734,7 +735,7 @@ class CompositeNode(Node, DataFlow):
         if auto_io is true :  inputs and outputs are connected to the free
         ports
         """
-    
+
         # Clear the factory
         sgfactory.clear()
 
@@ -795,14 +796,14 @@ class CompositeNode(Node, DataFlow):
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
             #Forward compatibility for versions earlier than 0.8.0
-            #We do the exact opposite than in load_ad_hoc_data, have a look there.                    
-            if hasattr(node, "__ad_hoc_from_old_map__"):                
+            #We do the exact opposite than in load_ad_hoc_data, have a look there.
+            if hasattr(node, "__ad_hoc_from_old_map__"):
                 for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
                     if len(oldKeys)==0: continue
                     data = node.get_ad_hoc_dict().get_metadata(newKey)
                     for pos, newKey in enumerate(oldKeys):
                         sgfactory.elt_data[vid][newKey] = data[pos] if isinstance(data, list) else data
-                
+
             # gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
@@ -816,7 +817,7 @@ class CompositeNode(Node, DataFlow):
                     [(port, repr(node.get_input(port))) for port
                         in xrange(len(node.inputs))
                         if node.input_states[port] is not "connected"]
-                        
+
         self.graph_modified = False
 
         # Set node factory if all node have been exported
@@ -858,11 +859,11 @@ class CompositeNode(Node, DataFlow):
     def notify_vertex_addition(self, vertex, vid=None):
         vtype = "vertex"
         doNotify = True
-        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
-        elif isinstance(vertex, CompositeNodeOutput): 
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
+        elif isinstance(vertex, CompositeNodeOutput):
             vtype = "outNode"
             doNotify = True if len(vertex.input_desc) else False
-        elif isinstance(vertex, CompositeNodeInput) : 
+        elif isinstance(vertex, CompositeNodeInput) :
             vtype = "inNode"
             doNotify = True if len(vertex.output_desc) else False
         else: pass
@@ -872,7 +873,7 @@ class CompositeNode(Node, DataFlow):
     def notify_vertex_removal(self, vertex):
         vtype = "vertex"
         doNotify = True
-        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation" 
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
         elif isinstance(vertex, CompositeNodeOutput): vtype = "outNode"
         elif isinstance(vertex, CompositeNodeInput) : vtype = "inNode"
         else: pass
@@ -883,11 +884,11 @@ class CompositeNode(Node, DataFlow):
     def remove_node(self, vtx_id):
         """
         remove a node from the graph
-        
+
         :param vtx_id: element id
         """
         node = self.node(vtx_id)
-        if vtx_id == self.id_in : self.id_in = None 
+        if vtx_id == self.id_in : self.id_in = None
         elif vtx_id == self.id_out : self.id_out = None
         self.remove_vertex(vtx_id)
 
@@ -914,7 +915,7 @@ class CompositeNode(Node, DataFlow):
         for eltid in ids:
             node = self.node(eltid)
             self.notify_vertex_addition(node)
-       
+
         for eid in self.edges():
             (src_id, dst_id) = self.source(eid), self.target(eid)
             etype=None
@@ -932,7 +933,7 @@ class CompositeNode(Node, DataFlow):
                 # continue
 
             edgedata = "default", eid, src_port, dst_port
-            self.notify_listeners(("edge_added", edgedata)) 
+            self.notify_listeners(("edge_added", edgedata))
     #/gengraph
 
     #gengraph
@@ -945,7 +946,7 @@ class CompositeNode(Node, DataFlow):
         for eltid in ids:
             node = self.node(eltid)
             self.notify_vertex_removal(node)
-       
+
         for eid in self.edges():
             (src_id, dst_id) = self.source(eid), self.target(eid)
             etype=None
@@ -963,12 +964,12 @@ class CompositeNode(Node, DataFlow):
                 # continue
 
             edgedata = "default", eid
-            self.notify_listeners(("edge_removed", edgedata))   
+            self.notify_listeners(("edge_removed", edgedata))
     #/gengraph
 
     def connect(self, src_id, port_src, dst_id, port_dst):
-        """ Connect 2 elements 
-        
+        """ Connect 2 elements
+
         :param src_id: source node id
         :param port_src: source output port number
         :param dst_id: destination node id
@@ -997,7 +998,7 @@ class CompositeNode(Node, DataFlow):
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements
-        
+
         :param src_id: source node id
         :param port_src: source output port number
         :param dst_id: destination node id
@@ -1027,7 +1028,9 @@ class CompositeNode(Node, DataFlow):
         """ Replace the node vid by newnode """
 
         oldnode = self.actor(vid)
+        caption = newnode.caption
         newnode.internal_data.update(oldnode.internal_data)
+        newnode.caption = caption
 
         if(oldnode.get_nb_input() != newnode.get_nb_input() or
             oldnode.get_nb_output() != newnode.get_nb_output()):
@@ -1107,7 +1110,7 @@ class CompositeNodeInput(Node):
         """
 
         Node.__init__(self, outputs=inputs)
-        
+
         #gengraph
         #for d in inputs:
             #port = self.add_output(**d)
@@ -1129,7 +1132,7 @@ class CompositeNodeInput(Node):
 
     def eval(self):
         return False
-    
+
     def to_script (self):
         return ""
 
@@ -1166,7 +1169,7 @@ class CompositeNodeOutput(Node):
 
     def eval(self):
         return False
-    
+
     def to_script (self):
         return ""
 
