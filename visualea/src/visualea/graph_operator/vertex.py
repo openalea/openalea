@@ -116,7 +116,6 @@ class VertexOperators(object):
         newVertex = factory.instantiate()
         self.get_graph().replace_vertex(oldVertex, newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
-        newVertex.caption = newVertex.caption
 
     @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
     def vertex_reload(self):
