@@ -27,6 +27,7 @@ __all__ = [
 'py_pylab_PyLabFontProperties',
 'py_pylab_PyLabAxis',
 'py_pylab_PyLabAxes',
+'py_pylab_PyLabColorBar',
 ]
 
 
@@ -138,6 +139,18 @@ py_pylab_PyLabFontProperties = Factory(name='PyLabFontProperties',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabFontProperties',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabColorBar = Factory(name='PyLabColorBar',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabColorBar',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,

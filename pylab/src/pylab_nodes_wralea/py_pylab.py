@@ -122,6 +122,7 @@ colors = {
     'cyan':'c',
     'magenta':'m',
     'yellow':'y',
+    'purple':'purple',
     'black':'k',
     'white':'w',
     'None':'None'}
@@ -213,10 +214,20 @@ class Plotting(Node):
         self.add_input(name="title",  interface=IStr,  value = "")
         self.add_input(name="figure", interface=IDict, value={"num":1})
         self.add_input(name='legend', interface=IDict, value={'legend on':True})
+        self.add_input(name='colorbar', interface=IBool, value=True)
         self.add_input(name='axes',   interface=IDict, value={})
         self.add_input(name='axis',   interface=IDict, value={'type':'normal', 'xmin':None, 'xmax':None, 'ymin':None, 'ymax':None})
 
         self.add_output(name='output')
+
+    def colorbar(self):
+        from pylab import colorbar
+        if type(self.get_input('colorbar'))==bool:
+            if self.get_input('colorbar'):
+                colorbar()
+        else:
+            kwds = self.get_input('colorbar')
+            colorbar(**kwds)
 
     def show(self):
         from pylab import show
@@ -312,6 +323,7 @@ class Plotting(Node):
         self.ylabel()
         self.grid()
         self.axis()
+        self.colorbar()
         self.show()
 
 
