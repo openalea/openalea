@@ -26,7 +26,7 @@ from graph_operator import GraphOperator
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError, InputPort, OutputPort
 from openalea.core.compositenode import CompositeNode
-from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import qtgraphview, qtutils
 from openalea.grapheditor import interactionstates as OAGIS
 from openalea.visualea import dataflowview
 
@@ -139,12 +139,12 @@ def viewContextMenuEvent(view, event):
         return
 
     operator=GraphOperator(view)
-    menu = QtGui.QMenu(view)
+    menu = qtutils.AleaQMenu(view)
     action = menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
-    menu.move(event.globalPos())
     menu.show()
+    menu.move(event.globalPos())
     event.accept()
- 
+
 qtgraphview.View.set_keypress_handler_map(keyPressMapping)
 qtgraphview.View.set_keyrelease_handler_map(keyReleaseMapping)
 qtgraphview.View.set_event_handler("contextMenuEvent", viewContextMenuEvent,
@@ -177,20 +177,20 @@ def vertexContextMenuEvent(graphItem, event):
     """ Context menu event : Display the menu"""
     graphItem = weakref.ref(graphItem)
     graphItem().setSelected(True)
-    
+
     operator = GraphOperator()
     operator.identify_focused_graph_view()
     operator.set_vertex_item(graphItem())
-    w = operator.get_graph_view()
-    menu = QtGui.QMenu(w)
-    items = w.scene().get_selected_items(qtgraphview.Vertex)
-    #enabled = not w.scene().edition_locked()
-    
+    widget = operator.get_graph_view()
+    menu = qtutils.AleaQMenu(widget)
+    items = widget.scene().get_selected_items(qtgraphview.Vertex)
+    #enabled = not widget.scene().edition_locked()
+
 
     menu.addAction(operator("Run",             menu, "vertex_run"))
     menu.addAction(operator("Open Widget",     menu, "vertex_open"))
     if isinstance(graphItem().vertex(), CompositeNode):
-        menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))    
+        menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
     menu.addSeparator()
     menu.addAction(operator("Delete",          menu, "vertex_remove"))
     menu.addAction(operator("Reset",           menu, "vertex_reset"))
@@ -200,7 +200,7 @@ def vertexContextMenuEvent(graphItem, event):
     menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
     menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
     menu.addSeparator()
-    
+
     action = operator("Mark as User Application", menu, "vertex_mark_user_app")
     action.setCheckable(True)
     action.setChecked( bool(graphItem().vertex().user_application))
@@ -215,10 +215,10 @@ def vertexContextMenuEvent(graphItem, event):
     action.setCheckable(True)
     action.setChecked(graphItem().vertex().block)
     menu.addAction(action)
-    
+
     menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
     menu.addSeparator()
-    
+
     alignMenu = menu.addMenu("Align...")
     alignMenu.setDisabled(True)
     if len(items)>1:
@@ -233,7 +233,7 @@ def vertexContextMenuEvent(graphItem, event):
     #The colouring
     colorMenu = menu.addMenu("Color...")
     colorMenu.addAction(operator("Set user color...", colorMenu, "graph_set_selection_color"))
-    #check if the current selection is coloured and tick the 
+    #check if the current selection is coloured and tick the
     #menu item if an item of the selection uses the user color.
     action = operator("Use user color",  colorMenu, "graph_use_user_color")
     action.setCheckable(True)
@@ -241,20 +241,13 @@ def vertexContextMenuEvent(graphItem, event):
     for i in items:
         if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
             action.setChecked(True)
-            break    
+            break
     colorMenu.addAction(action)
-    
+
     #display the menu...
     pos = event.screenPos()
-    menu.move(pos)
     menu.show()
-    rect = menu.rect() ; rect.moveTo(pos)
-    #fix the position of the menu if it tries to popup too close to the lower & right edges.
-    #bad fixing strategy probably: what if we were create arabian menus?
-    #We should maube sublcass QMenu to handle screen real estate and reuse it.
-    if not QtGui.QApplication.desktop().availableGeometry(w).contains(rect, True):
-        pos2 = menu.rect().bottomLeft()
-        menu.move(pos-pos2)
+    menu.move(pos)
     event.accept()
 
 
@@ -272,16 +265,16 @@ dataflowview.vertex.GraphicalVertex.set_event_handler("contextMenuEvent", vertex
 def portContextMenuEvent(graphItem, event):
     if isinstance(graphItem.port(), OutputPort):
         graphItem = weakref.ref(graphItem)
-        view = graphItem().scene().views()[0]
-        operator=GraphOperator(view, view.scene().graph())
+        operator=GraphOperator()
+        operator.identify_focused_graph_view()
         operator.set_port_item(graphItem())
-        menu = QtGui.QMenu(view)
+        menu = qtutils.AleaQMenu(operator.get_graph_view())
 
         menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
         menu.addAction(operator("Print",        menu, "port_print_value"))
 
-        menu.move(event.screenPos())
         menu.show()
+        menu.move(event.screenPos())
 
         event.accept()
 
@@ -301,11 +294,11 @@ def edgeContextMenuEvent(graphEdge, event):
     operator.identify_focused_graph_view()
     w = operator.get_graph_view()
     if w.scene().get_interaction_flag() & OAGIS.TOPOLOGICALLOCK : return
-    menu = QtGui.QMenu(event.widget())
+    menu = qtutils.AleaQMenu(event.widget())
     action = menu.addAction("Delete connection")
     action.triggered.connect(graphEdge.remove)
-    menu.move(event.screenPos())
     menu.show()
+    menu.move(event.screenPos())
     event.accept()
 
 dataflowview.edge.GraphicalEdge.set_event_handler("contextMenuEvent", edgeContextMenuEvent,

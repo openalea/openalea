@@ -28,26 +28,26 @@ class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):
         font = self.__label.font()
         font.setBold(True)
         self.__label.setText(label)
-        
+
     def boundingRect(self):
         return self.__label.boundingRect()
-        
+
     def shape(self):
         return self.__label.shape()
-  
+
     def size(self):
         return self.boundingRect().size()
-        
+
     def sizeHint(self, blop, blip):
-        return self.size()        
+        return self.size()
 
     def setText(self, text):
         self.__label.setText(text)
         self.updateGeometry()
-        
+
     def paint(self, painter, paintOpts, widget):
         self.__label.paint(painter, paintOpts, widget)
-        
+
 class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
     """Embed a QWidget in a QGraphicsItem without the ugly background.
 
@@ -80,7 +80,7 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
 
     def setMouseEventForward(self, val):
         self.__noMouseEventForward = val
-        
+
     def setWidget(self, widget):
         widget.setBackgroundRole(QtGui.QPalette.Background)
         widget.setAutoFillBackground(True)
@@ -88,7 +88,46 @@ class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
         QtGui.QGraphicsProxyWidget.setWidget(self, widget)
 
 
+class AleaQMenu(QtGui.QMenu):
+    def __init__(self, arg1=None, arg2=None):
+        if isinstance(arg1, QtGui.QWidget):
+            QtGui.QMenu.__init__(self, arg1)
+        else:
+            QtGui.QMenu.__init__(self, arg1, arg2)
 
+    def move(self, pos):
+        QtGui.QMenu.move(self, pos)
+        rect = self.rect(); rect.moveTo(pos)
+        #fix the position of the menu if it tries to popup too close to the lower & right edges.
+        #bad fixing strategy probably: what if we were create arabian menus?
+        #We should maube sublcass QMenu to handle screen real estate and reuse it.
+        desktopGeom = QtGui.QApplication.desktop().availableGeometry(self.parent())
+        contained, edges = qrect_contains(desktopGeom, rect, True)
+        if not contained and edges.count(0) > 2:
+            dx = edges[0] if edges[0] else edges[1]
+            dy = edges[2] if edges[2] else edges[3]
+            rect.translate(dx, dy)
+            QtGui.QMenu.move(self,rect.topLeft())
+
+def qrect_contains(r1, r2, proper):
+    assert r1 is not None
+    assert r2 is not None
+    dl,dr,dt,db = [0]*4
+    contains = False
+
+    if r1.contains(r2, proper):
+        contains = True
+    elif r1.intersects(r2):
+        if r2.left() < r1.left():
+            dl = r1.left() - r2.left()
+        if r2.right() > r1.right():
+            dr = r1.right() - r2.right()
+        if r2.top() < r1.top():
+            dt = r1.top() - r2.top()
+        if r2.bottom() > r1.bottom():
+            db = r1.bottom() - r2.bottom()
+
+    return contains, (dl,dr,dt,db)
 
 
 def mixin_method(mixinOne, mixinTwo, methodname, firstWins = False, invert=False, caller=None):
