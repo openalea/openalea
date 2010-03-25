@@ -32,6 +32,8 @@ __all__ = [
 #    'py_pylab_PyLabBar',
     'py_pylab_PyLabLogLog',
     'py_pylab_PyLabCohere',
+    'py_pylab_PyLabSubPlot',
+    'py_pylab_PyLabSubPlotTool',
 
 ]
 
@@ -343,6 +345,30 @@ py_pylab_PyLabCohere = Factory(name='PyLabCohere',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabCohere',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabSubPlot = Factory(name='PyLabSubPlot',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSubPlot',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabSubPlotTool = Factory(name='PyLabSubPlotTool',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSubPlotTool',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,

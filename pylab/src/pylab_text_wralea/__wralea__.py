@@ -28,6 +28,22 @@ __all__ = [
 'py_pylab_PyLabAxis',
 'py_pylab_PyLabAxes',
 'py_pylab_PyLabColorBar',
+'py_pylab_PyLabGetCurrentFigure',
+'py_pylab_PyLabARange',
+'py_pylab_PyLabExp',
+'py_pylab_PyLabCos',
+'py_pylab_PyLabSaveFig',
+'py_pylab_PyLabColorMap',
+'py_pylab_PyLabAnnotate',
+'py_pylab_PyLabBBox',
+'py_pylab_PyLabYAArow',
+'py_pylab_PyLabFancyArrowPatch',
+'py_pylab_PyLabShow',
+'py_pylab_PyLabAxhline',
+'py_pylab_PyLabAxvline',
+'py_pylab_PyLabPatch',
+'py_pylab_PyLabAxhspan',
+'py_pylab_PyLabAxvspan',
 ]
 
 
@@ -158,3 +174,182 @@ py_pylab_PyLabColorBar = Factory(name='PyLabColorBar',
                 lazy=False
                )
 
+py_pylab_PyLabGetCurrentFigure = Factory(name='PyLabGetCurrentFigure',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabGetCurrentFigure',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabARange = Factory(name='PyLabARange',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabARange',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabExp = Factory(name='PyLabExp',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabExp',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabCos = Factory(name='PyLabCos',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabCos',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
+py_pylab_PyLabSaveFig = Factory(name='PyLabSaveFig',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSaveFig',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
+py_pylab_PyLabColorMap = Factory(name='PyLabColorMap',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabColorMap',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabAnnotate = Factory(name='PyLabAnnotate',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAnnotate',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabBBox = Factory(name='PyLabBBox',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabBBox',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
+
+py_pylab_PyLabYAArow = Factory(name='PyLabYAArow',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabYAArow',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabShow = Factory(name='PyLabShow',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabShow',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabFancyArrowPatch = Factory(name='PyLabFancyArrowPatch',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabFancyArrowPatch',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabAxhline = Factory(name='PyLabAxhline',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxhline',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabAxvline = Factory(name='PyLabAxvline',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxvline',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+               )
+
+py_pylab_PyLabPatch = Factory(name='PyLabPatch',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabPatch',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+               )
+
+py_pylab_PyLabAxhspan = Factory(name='PyLabAxhspan',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxhspan',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+               )
+
+py_pylab_PyLabAxvspan = Factory(name='PyLabAxvspan',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxvspan',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )

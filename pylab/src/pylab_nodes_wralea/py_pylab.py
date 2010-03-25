@@ -29,6 +29,7 @@ from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
+
 axis = {
     'off':'off',
     'manual':'manual',
@@ -153,9 +154,6 @@ fillstyles={'top':'top',
     'right':'right',
     }
 
-
-cmaps=['autumn','bone', 'cool','copper','flag','gray','hot','hsv','jet','pink', 'prism', 'spring', 'summer', 'winter'] 
-
 locations={
     'best' : 0,
     'upper right'  : 1,
@@ -176,10 +174,14 @@ locations={
 def get_kwds_from_line2d(line2d, kwds={}, type=None):
     """create a dict from line2d properties
     """
-    kwds['color']=line2d.get_color()
-    kwds['linestyle']=line2d.get_linestyle()
+    if type!='hist':
+        kwds['color']=line2d.get_color()
+    else:
+        kwds['facecolor']=line2d.get_color()
+    if type!='hist':
+        kwds['linestyle']=line2d.get_linestyle()
     kwds['linewidth']=line2d.get_linewidth()
-    if type!='linecollection':
+    if type!='linecollection' and type!='hist':
         kwds['marker']=line2d.get_marker()
         kwds['markersize']=line2d.get_markersize()
         kwds['markeredgewidth']=line2d.get_markeredgewidth()
@@ -209,25 +211,35 @@ class Plotting(Node):
 
         self.add_input(name="show",   interface=IBool, value=True)
         self.add_input(name="grid",   interface=IBool, value=True)
+        self.add_input(name="subplot",interface=IInt(1,20,1), value=1)
         self.add_input(name="xlabel", interface=IStr,  value="")
         self.add_input(name="ylabel", interface=IStr,  value = "")
         self.add_input(name="title",  interface=IStr,  value = "")
-        self.add_input(name="figure", interface=IDict, value={"num":1})
-        self.add_input(name='legend', interface=IDict, value={'legend on':True})
-        self.add_input(name='colorbar', interface=IBool, value=True)
+        self.add_input(name="figure", interface=IInt(1,20,1), value=1)
+        self.add_input(name='legend', interface=IBool, value=True)
+        self.add_input(name='colorbar', interface=IBool, value=False)
         self.add_input(name='axes',   interface=IDict, value={})
         self.add_input(name='axis',   interface=IDict, value={'type':'normal', 'xmin':None, 'xmax':None, 'ymin':None, 'ymax':None})
 
         self.add_output(name='output')
+        self.colorbar_called = False
+        self.subplot_call = 1
+        self.axes_shown = None
+        self.fig = None
 
     def colorbar(self):
         from pylab import colorbar
+        print self.colorbar_called
+        if self.colorbar_called == True:
+            return
         if type(self.get_input('colorbar'))==bool:
-            if self.get_input('colorbar'):
+            if self.get_input('colorbar')==True:
                 colorbar()
+                self.corlorbar_called=True
         else:
             kwds = self.get_input('colorbar')
             colorbar(**kwds)
+            self.corlorbar_called=True
 
     def show(self):
         from pylab import show
@@ -240,17 +252,34 @@ class Plotting(Node):
 
     def figure(self):
         from pylab import figure
-        fig = figure(**self.get_input('figure'))
-        return fig
+        args = self.get_input('figure')
+        if type(args)==int:
+            fig = figure(args)
+        else:
+            fig = figure(**args)
+
+        self.fig = fig
 
     def axes(self):
-        from pylab import axes
-        axes(**self.get_input('axes'))
+        if self.axes_shown is not None:
+            try:
+                self.fig.delaxes(self.axes_shown)
+            except:
+                pass
+        if len(self.get_input('axes'))>0:
+            from pylab import axes
+            import copy
+            args = self.get_input('axes')
+            kwds = copy.deepcopy(args)
+            #using axes([], ...) does not have the same behaviour as axes(position=[], ...)
+            del kwds['position']
+            self.axes_shown = axes(args['position'], **kwds)
+        else:
+            self.axes_shown = None
 
     def axis(self):
         from pylab import axis
         import copy
-
         kwds = copy.deepcopy(self.get_input('axis'))
         type = kwds['type']
         del kwds['type']
@@ -296,25 +325,39 @@ class Plotting(Node):
 
     def legend(self):
         from pylab import legend
-        try:
-            import copy
-            if self.get_input("legend")['legend on']==True:
-                mykwds = copy.deepcopy(self.get_input("legend"))
-                del mykwds['legend on']
-                print 'legendc'
-                print mykwds
-                try:
-                    legend(**mykwds)
-                except ValueError, e:
-                    print e
-                print 'legendd'
-        except:
-            print 'warning:: legend failed'
-            pass
+        args = self.get_input('legend')
+        if type(args)==bool:
+            if args:
+                legend()
+        else:
+            legend(**args)
 
     def error(self, message):
         from pylab import text
         text(0., 0.6, message, backgroundcolor='red')
+
+    def subplot(self):
+        from pylab import subplot
+
+        try:
+            row = self.get_input('subplot')[0]
+            column = self.get_input('subplot')[1]
+            number = self.get_input('subplot')[2]
+            kwds = self.get_input('subplot')[3]
+        except:
+            row = 1
+            column = 1
+            number = 1
+            kwds = {}
+        # this is a hack to prevent colorbar to add-on in an axes when called several times
+        # calling subplot(2,1,1) or subplot(111) 
+        if self.subplot_call == 1:
+            subplot(row, column, number, **kwds)
+            self.subplot_call = 2
+        else:
+            subplot(int(str(row)+str(column)+str(number)), **kwds)
+            self.subplot_call = 1
+
 
     def properties(self):
         self.legend()
@@ -325,10 +368,6 @@ class Plotting(Node):
         self.axis()
         self.colorbar()
         self.show()
-
-
-
-
 
 class PyLabPlot(Plotting):
     """pylab.plot interface
@@ -369,21 +408,21 @@ class PyLabPlot(Plotting):
         Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import plot, clf,  hold,  Line2D
+        from pylab import plot, cla,  hold,  Line2D
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
 
-        clf()
-        #figure(**self.get_input('figure'))
+        #first, we select the figure, we use subplot() that may be overwritten by axes()
+        self.figure()
+        #self.subplot()
+        self.axes()
+        cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=markers[self.get_input("marker")]
         kwds['linestyle']=linestyles[self.get_input("linestyle")]
         kwds['color']=colors[self.get_input("color")]
-
-        fig = self.figure()
-        self.axes()
-
+        print kwds
         if xinputs == None:
             raise ValueError(self.ERROR_NOXDATA)
         if type(xinputs)!=list:
@@ -413,7 +452,7 @@ class PyLabPlot(Plotting):
                     hold(True)
 
         else:
-            if len(xinputs)==1:
+            if len(xinputs)==1 and len(yinputs)!=1:
                 # plot(x,y) and plot(x, [y1,y2])
                 c = enumerate(colors)
                 for y in yinputs:
@@ -459,11 +498,10 @@ class PyLabLogLog(PyLabPlot):
         invalid, or clipped to a very small positive number
         """
     def __call__(self, inputs):
-        from pylab import loglog, clf,hold
+        from pylab import loglog, cla,hold
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
 
-        clf()
         #figure(**self.get_input('figure'))
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
@@ -471,8 +509,9 @@ class PyLabLogLog(PyLabPlot):
         kwds['linestyle']=linestyles[self.get_input("linestyle")]
         kwds['color']=colors[self.get_input("color")]
 
-        fig = self.figure()
+        self.figure()
         self.axes()
+        cla()
 
         if xinputs == None:
             raise ValueError(self.ERROR_NOXDATA)
@@ -488,7 +527,7 @@ class PyLabLogLog(PyLabPlot):
                 for x in xinputs:
                     line2dkwds = get_kwds_from_line2d(x, kwds)
                     #returns the processed data ?
-                    loglog(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
+                    res =loglog(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
                     hold(True)
             #plot([x1,None,x2,None, ...) and plot(x1)
             else:
@@ -499,7 +538,7 @@ class PyLabLogLog(PyLabPlot):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
-                    loglog(x, **kwds)
+                    res =loglog(x, **kwds)
                     hold(True)
 
         else:
@@ -512,7 +551,7 @@ class PyLabLogLog(PyLabPlot):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
-                    loglog(xinputs[0], y, **kwds)
+                    res = loglog(xinputs[0], y, **kwds)
                     hold(True)
             else:
                 if len(xinputs)!=len(yinputs):
@@ -520,11 +559,11 @@ class PyLabLogLog(PyLabPlot):
                 # plot([x1,x2], [y1,y2])
                 # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
-                   loglog(x, y, **kwds)
+                   res = loglog(x, y, **kwds)
                    hold(True)
         self.properties()
 
-        return fig
+        return res
 
 
 
@@ -574,7 +613,7 @@ class PyLabHist(Plotting):
             {'name':'align',        'interface':IEnumStr(self.align.keys()), 'value':'mid'},
             {'name':'orientation',  'interface':IEnumStr(self.orientation.keys()), 'value':'vertical'},
             {'name':'log',          'interface':IBool,  'value':False},
-            {'name':'label',          'interface':IStr,  'value':None}
+            {'name':'label',          'interface':IStr,  'value':''}
         ]
         Plotting.__init__(self, inputs)
 
@@ -608,34 +647,36 @@ class PyLabHist(Plotting):
           zorder: any number        
           """
     def __call__(self, inputs):
-        from pylab import clf, hold, hist
-        clf()
+        from pylab import cla, hold, hist, Line2D
         self.figure()
+        self.axes()
+        cla()
         kwds={}
-        print self.get_input('kwargs')
+        kwds['bins']=self.get_input("bins")
+        kwds['normed']=self.get_input("normed")
+        kwds['facecolor']=self.get_input("facecolor")
+        kwds['label']=self.get_input("label")
+        kwds['log']=self.get_input("log")
+        kwds['orientation']=self.orientation[self.get_input("orientation")]
+        kwds['figure']=self.get_input("figure")
+        kwds['histtype']=self.histtype[self.get_input("histtype")]
+        kwds['align']=self.align[self.get_input("align")]
+        kwds['cumulative']=self.get_input("cumulative")
         #!! facecolor is alrady in the Hist node, so override it if available in kwargs dict
-        kwds['facecolor'] = self.get_input('facecolor')
-        if self.get_input('label'):
-            kwds['label'] = self.get_input('facecolor')
         for key,value in self.get_input('kwargs').iteritems():
             kwds[key] = value
+
         xinputs = self.get_input('x')
         if type(xinputs)!=list:
             xinputs = [xinputs]
         try:
             for x in xinputs:
-                
-                res = hist(x,
-                    bins=self.get_input("bins"),
-                    normed=self.get_input("normed"),
-                    #range=self.get_input("range"),
-                    log=self.get_input("log"),
-                    orientation=self.get_input("orientation"),
-                    figure=self.get_input("figure"),
-                    histtype=self.get_input("histtype"),
-                    align=self.get_input("align"),
-                    cumulative=self.get_input("cumulative"),
-                    **kwds)
+                if type(x)==Line2D:
+                    line2dkwds = get_kwds_from_line2d(x, kwds, type='hist')
+                    print line2dkwds
+                    res = hist(x.get_ydata(orig=False),**line2dkwds)
+                else:
+                    res = hist(x,**kwds)
             hold(True)
         except ValueError, e:
             res = (None, None)
@@ -681,9 +722,9 @@ class PyLabAcorr(Plotting):
     def __call__(self, inputs):
         from pylab import clf, hold, acorr, Line2D
         import pylab
-        clf()
-        fig = self.figure()
+        self.figure()
         self.axes()
+        cla()
         x = self.get_input("x")
 
         kwds = {}
@@ -799,21 +840,22 @@ class PyLabScatter(Plotting):
 
 
     def __call__(self, inputs):
-        from pylab import scatter, clf,  hold 
+        from pylab import scatter, cla,  subplot
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
         colors = self.get_input("colors")
-        clf()
-        fig = self.figure()
+        self.figure()
+        #self.subplot()
         self.axes()
-        scatter(x,y, s=sizes,c=colors,
+        cla()
+        res = scatter(x,y, s=sizes,c=colors,
                 marker=markers[self.get_input("marker")],
                 alpha=self.get_input("alpha"),
                 label=self.get_input("label"))
         self.properties()
 
-        return fig
+        return res
 
 
 
@@ -846,16 +888,16 @@ class PyLabBoxPlot(Plotting):
 
     def __call__(self, inputs):
         x = self.get_input("x")
-        from pylab import boxplot, clf, hold
-        clf()
-        fig = self.figure()
+        from pylab import boxplot, cla, hold
+        self.figure()
         self.axes()
-        boxplot(x, 
+        cla()
+        res = boxplot(x, 
                 sym=markers[self.get_input("sym")],
                 vert=self.get_input("vert"),
                 notch=self.get_input("notch"))
         self.properties()
-        return fig
+        return res
 
 
 
@@ -864,8 +906,8 @@ class PyLabLine2D(Node):
     def __init__(self):
         Node.__init__(self)
 
-        self.add_input(name="xdata")
-        self.add_input(name="ydata", value=None)
+        self.add_input(name="xdata", value=[])
+        self.add_input(name="ydata", value=[])
         self.add_input(name="linestyle", interface=IEnumStr(linestyles.keys()), value='solid')
         self.add_input(name="color", interface=IEnumStr(colors.keys()),value='blue')
         self.add_input(name="marker", interface=IEnumStr(markers.keys()),value='circle')
@@ -884,7 +926,7 @@ class PyLabLine2D(Node):
         xdata=self.get_input('xdata')
         ydata=self.get_input('ydata')
         #why?
-        if ydata is None:
+        if len(ydata)==0:
             print 'a'
             ydata = xdata
             xdata = range(0, len(ydata))
@@ -1113,10 +1155,10 @@ class PyLabPie(Plotting):
         Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import pie, clf
-        fig = self.figure()
+        from pylab import pie, cla
+        self.figure()
         self.axes()
-        clf()
+        cla()
         kwds = {}
         kwds['explode'] = self.get_input('explode')
         kwds['colors'] = self.get_input('colors')
@@ -1127,10 +1169,10 @@ class PyLabPie(Plotting):
         kwds['hold'] = self.get_input('hold')
         kwds['autopct'] = self.get_input('autopct')
 
-        pie(self.get_input('x'), **kwds)
+        res = pie(self.get_input('x'), **kwds)
 
         self.properties()
-        return fig
+        return res
 
 
 
@@ -1226,9 +1268,6 @@ class PyLabTitle(Node):
 
 
 
-
-
-
 class PyLabRectangle(Node):
     def __init__(self):
         Node.__init__(self)
@@ -1319,10 +1358,11 @@ class PyLabBar(Plotting):
 
 
     def __call__(self, inputs):
-        from pylab import bar, hold, clf
-        clf()
-        fig = self.figure()
+        from pylab import bar, hold, cla
+        
+        self.figure()
         self.axes()
+        cla()
         left = self.get_input('left')
         height = self.get_input('height')
 
@@ -1385,11 +1425,12 @@ class PyLabCohere(Plotting):
 
 
     def __call__(self, inputs):
-        from pylab import cohere, clf, detrend_none, detrend_linear, detrend_mean, hold
+        from pylab import cohere, cla, detrend_none, detrend_linear, detrend_mean, hold
         import pylab
-        clf()
-        fig = self.figure()
+        cla()
+        self.figure()
         self.axes()
+        cla()
         kwds = {}
         kwds['NFFT'] = self.get_input('NFFT')
         kwds['Fs'] = self.get_input('Fs')
@@ -1427,3 +1468,38 @@ class Windowing(Node):
 
     def __call__(self, inputs):
         pass
+
+
+class PyLabSubPlotTool(Node):
+    def __init__(self):
+
+        Node.__init__(self)
+        self.add_input(name='input')
+        self.add_output(name='output')
+    def __call___(self, inputs):
+        from pylab import subplot_tool 
+        #s = subplot_tool()
+        return (s)
+
+
+class PyLabSubPlot(Node):
+
+    def __init__(self):
+
+        Node.__init__(self)
+        self.add_input(name='row', interface=IInt, value=1)
+        self.add_input(name='col', interface=IInt, value=1)
+        self.add_input(name='num', interface=IInt, value=1)
+        self.add_input(name='polar', interface=IBool, value=False)
+        self.add_output(name='test')
+
+    def __call__(self, inputs):
+        #from pylab import subplot
+        row = self.get_input('row')
+        col = self.get_input('col')
+        num = self.get_input('num')
+        kwds = {}
+        kwds['polar'] = self.get_input('polar')
+        #subplot(row, col, num)
+
+        return (row, col, num, kwds)
