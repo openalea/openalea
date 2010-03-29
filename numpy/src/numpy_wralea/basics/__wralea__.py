@@ -1,7 +1,7 @@
 # -*- python -*-
 # -*- coding: latin-1 -*-
 #
-#       basics : numpy package
+#       creation : numpy package
 #
 #       Copyright 2006 - 2010 INRIA - CIRAD - INRA  
 #
@@ -19,8 +19,8 @@ __doc__ = """ openalea.numpy """
 __revision__ = " $Id: $ "
 
 
-__name__ = "openalea.numpy.basics"
-__alias__ = ["numpy.basics"]
+__name__ = "openalea.numpy.creation"
+__alias__ = ["numpy.creation"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -28,6 +28,7 @@ __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Numpy wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
+__icon__ = 'icon.png'
 
 __all__ = []
 
@@ -143,3 +144,60 @@ linspace = Factory(name= "linspace",
 
 __all__.append("linspace")
 
+
+eye = Factory(name= "eye", 
+              	description= "Return a 2-D array with ones on the diagonal and zeros elsewhere", 
+              	category = "numpy",
+		inputs = ( dict(name='N', interface=IInt),
+        		   dict(name='M', interface=IInt, value=None),
+        		   dict(name='k', interface=IInt, value=0),
+                           dict(name='dtype', interface=IEnumStr(list_type), 
+                       		value='float64'),),
+        	outputs = (dict(name='array', interface=ISequence),), 
+              	nodemodule = "numpy",
+              	nodeclass = "eye",
+               )
+
+__all__.append("eye")
+
+
+tri = Factory(name= "tri", 
+              	description= "Construct an array filled with ones at and below the given diagonal", 
+              	category = "numpy",
+		inputs = ( dict(name='N', interface=IInt),
+        		   dict(name='M', interface=IInt, value=None),
+        		   dict(name='k', interface=IInt, value=0),
+                           dict(name='dtype', interface=IEnumStr(list_type), 
+                       		value='float64'),),
+        	outputs = (dict(name='array', interface=ISequence),), 
+              	nodemodule = "numpy",
+              	nodeclass = "tri",
+               )
+
+__all__.append("tri")
+
+
+diag = Factory(name= "diag", 
+              	description= "Extract a diagonal or construct a diagonal array", 
+              	category = "numpy",
+		inputs = ( dict(name='v', interface=IInt),
+        		   dict(name='k', interface=IInt, value=0),),
+        	outputs = (dict(name='array', interface=ISequence),), 
+              	nodemodule = "numpy",
+              	nodeclass = "diag",
+               )
+
+__all__.append("diag")
+
+
+vander = Factory(name= "vander", 
+              	description= "Generate a Van der Monde matrix", 
+              	category = "numpy",
+		inputs = ( dict(name='x', interface=ISequence),
+        		   dict(name='N', interface=IInt, value=None),),
+        	outputs = (dict(name='array', interface=ISequence),), 
+              	nodemodule = "numpy",
+              	nodeclass = "vander",
+               )
+
+__all__.append("vander")
