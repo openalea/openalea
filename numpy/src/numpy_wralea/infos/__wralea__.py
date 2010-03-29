@@ -28,6 +28,7 @@ __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Numpy wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
+__icon__ = 'icon.png'
 
 __all__ = []
 
@@ -71,27 +72,27 @@ size = Factory(name = "size",
 __all__.append("size")
 
 
-dtype = Factory(name = "dtype",
-		description = "Number of elements in the array",
-		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence),),
-		outputs = (dict(name='dtype', interface= IInt),),
-                nodemodule = "numpy",
-		nodeclass = "dtype",
-		)
+#dtype = Factory(name = "dtype",
+#		description = "Number of elements in the array",
+#		category = "numpy",
+#		inputs = (dict(name='array', interface=ISequence),),
+#		outputs = (dict(name='dtype', interface= IInt),),
+#               nodemodule = "numpy",
+#		nodeclass = "dtype",
+#		)
 
-__all__.append("dtype")
+#__all__.append("dtype")
 
 
-itemsize = Factory(name = "itemsize",
-		description = "The element size of this data-type object",
-		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence),),
-		outputs = (dict(name='itemsize', interface= IInt),),
-                nodemodule = "numpy",
-		nodeclass = "itemsize",
-		)
+#itemsize = Factory(name = "itemsize",
+#		description = "The element size of this data-type object",
+#		category = "numpy",
+#		inputs = (dict(name='array', interface=ISequence),),
+#		outputs = (dict(name='itemsize', interface= IInt),),
+#               nodemodule = "numpy",
+#		nodeclass = "itemsize",
+#		)
 
-__all__.append("itemsize")
+#__all__.append("itemsize")
 
 
