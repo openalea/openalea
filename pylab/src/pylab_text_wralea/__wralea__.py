@@ -44,6 +44,10 @@ __all__ = [
 'py_pylab_PyLabPatch',
 'py_pylab_PyLabAxhspan',
 'py_pylab_PyLabAxvspan',
+'py_pylab_PyLabBox',
+'py_pylab_PyLabXLim',
+'py_pylab_PyLabYLim',
+'py_pylab_PyLabXTicks',
 ]
 
 
@@ -351,5 +355,37 @@ py_pylab_PyLabAxvspan = Factory(name='PyLabAxvspan',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabAxvspan',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabBox = Factory(name='PyLabBox',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabBox',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabXLim = Factory(name='PyLabXLim',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabXLim',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabYLim = Factory(name='PyLabYLim',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabYLim',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabXTicks = Factory(name='PyLabXTicks',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabXTicks',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )

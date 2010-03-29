@@ -229,6 +229,27 @@ def get_kwds_from_line2d(line2d, kwds={}, type=None):
     return kwds
 
 
+def line2d2kwds(line2d, kwds={}):
+    try:
+        for key, value in line2d.properties().properties():
+            kwds[key] = value
+    except:
+        print 'warning: line2d may not be a valid Line2D object'
+        pass
+    return kwds
+
+
+def text2kwds(text, kwds={}):
+    try:
+        for key, value in text.properties().properties():
+            kwds[key] = value
+    except:
+        print 'warning: text may not be a valid Text object'
+        pass
+    return kwds
+
+def font2kwds(font, kwds={}):
+    pass
 
 
 class PyLabRandom(Node):
@@ -458,20 +479,25 @@ class PyLabTextOptions(Node):
         self.add_input(name="alpha", interface=IFloat(0., 1., step=0.1), value=0.5)
         self.add_input(name="color", interface=IEnumStr(colors.keys()), value='blue')
         self.add_input(name='backgroundcolor', interface=IEnumStr(colors.keys()), value='white')
+        self.add_input(name='rotation', interface=IFloat, value='horizontal')
         #self.add_input(name="withdash", interface=IBool, value=False)
         self.add_input(name="kwargs", interface=IDict, value={})
+        self.add_input(name="fontproperties", interface=IDict, value={})
 
         self.add_output(name="kwargs", interface=IDict, value=None)
 
 
     def __call__(self, inputs):
         from pylab import text
+        from matplotlib.font_manager import FontProperties as FP
         kwds = {}
         #kwds['text'] = self.get_input('text')
         kwds['fontsize'] = self.get_input('fontsize')
         kwds['alpha'] = self.get_input('alpha')
         kwds['color'] = self.get_input('color')
         kwds['backgroundcolor'] = self.get_input('backgroundcolor')
+        kwds['rotation'] = self.get_input('rotation')
+        kwds['fontproperties'] = FP(**self.get_input('fontproperties'))
         for key, value in self.get_input('kwargs').iteritems():
             try:
                 kwds[key] = value
@@ -486,7 +512,6 @@ class PyLabTextOptions(Node):
 """ 
       animated: [True | False]         
       axes: an :class:`~matplotlib.axes.Axes` instance         
-      backgroundcolor: any matplotlib color         
       bbox: rectangle prop dict         
       clip_box: a :class:`matplotlib.transforms.Bbox` instance         
       clip_on: [True | False]    i
@@ -498,7 +523,6 @@ class PyLabTextOptions(Node):
       contains: a callable function         
       family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]         
       figure: a :class:`matplotlib.figure.Figure` instance         
-      fontproperties or font_properties: a :class:`matplotlib.font_manager.FontProperties` instance         
       gid: an id string         
       horizontalalignment or ha: [ 'center' | 'right' | 'left' ]         
       label: any string         
@@ -507,7 +531,6 @@ class PyLabTextOptions(Node):
       multialignment: ['left' | 'right' | 'center' ]         
       picker: [None|float|boolean|callable]         
       rasterized: [True | False | None]         
-      rotation: [ angle in degrees | 'vertical' | 'horizontal' ]         
       rotation_mode: unknown
       size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]         
       snap: unknown
@@ -549,7 +572,7 @@ class PyLabXLabel(Node):
         self.add_input(name="fontsize", interface=IFloat, value=12.)
         self.add_input(name="verticalalignment", interface=IEnumStr(verticalalignment.keys()), value='top')
         self.add_input(name="horizontalalignment", interface=IEnumStr(horizontalalignment.keys()), value='center')
-        self.add_input(name="kwargs", interface=IDict, value={})
+        self.add_input(name="text properties", interface=IDict, value={})
 
         self.add_output(name='kwargs', interface=IDict, value={})
 
@@ -711,7 +734,6 @@ class PyLabFontProperties(Node):
 
 
 class PyLabShow(Node):
-    """ should include hanning, ...."""
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='input')
@@ -722,6 +744,40 @@ class PyLabShow(Node):
         if self.get_input('legend')!=None:
             legend(**self.get_input('legend'))
         show()
+
+class PyLabBox(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='input')
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import box
+        box()
+
+
+class PyLabXLim(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='xmin', interface=IFloat, value=None )
+        self.add_input(name='xmax', interface=IFloat, value=None )
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import xlim
+        xlim(self.get_input('xmin'), self.get_input('xmax'))
+
+class PyLabYLim(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='ymin', interface=IFloat, value=None )
+        self.add_input(name='ymax', interface=IFloat, value=None )
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import ylim
+        ylim(self.get_input('ymin'), self.get_input('ymax'))
+
 
 class PyLabSaveFig(Node):
     """ should include hanning, ...."""
@@ -772,6 +828,7 @@ class PyLabColorMap(Node):
         self.add_input(name='colormap', interface=IEnumStr(cmaps.keys()), value='jet')
         self.add_input(name='show', interface=IBool, value=False)
         self.add_input(name='showall', interface=IBool, value=False)
+        self.add_output(name='output')
 
     def __call__(self, inputs):
         from numpy import outer, arange, ones
@@ -783,7 +840,6 @@ class PyLabColorMap(Node):
             figure(figsize=(10,5))
             clf()
             l = len(cmaps)
-            print l
             subplots_adjust(top=0.9,bottom=0.05,left=0.01,right=0.99)
             for index, m in enumerate(cmaps):
                 print index
@@ -793,7 +849,6 @@ class PyLabColorMap(Node):
                 imshow(a.transpose(),aspect='auto',cmap=get_cmap(m),origin="lower")
                 #title(m,rotation=0,fontsize=10)
                 text(0.5,0.5, m)
-            
             show()
         elif self.get_input('show') is True:
             figure(figsize=(10,5))
@@ -802,7 +857,8 @@ class PyLabColorMap(Node):
             imshow(a.transpose(),aspect='auto',cmap=get_cmap(maps),origin="lower")
             title(maps,rotation=0,fontsize=10)
             show()
-
+        res = get_cmap(maps)
+        return res
 
 
 class Windowing(Node):
@@ -1108,6 +1164,31 @@ class PyLabAxvspan(Node):
         return res
 
 
+
+class PyLabXTicks(Node):
+
+    """Does not work yet"""
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='locs', interface=ISequence, value=None)
+        self.add_input(name='labels', interface=ISequence, value=None)
+        self.add_input(name='text properties', interface=IDict, value={})
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import xticks
+        kwds = {}
+        for key, value in self.get_input('text properties').iteritems():
+            kwds[key] = value
+        del kwds['fontsize']
+        print kwds
+        if self.get_input('locs') and self.get_input('labels'):
+            res = xticks(self.get_input('locs'), self.get_input('labels'), **kwds)
+        elif self.get_input('locs'):
+            res = xticks(self.get_input('locs'),  **kwds)
+        else:
+            res = xticks(**kwds)
+        return res
 
 
 
