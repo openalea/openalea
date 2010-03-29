@@ -126,7 +126,8 @@ colors = {
     'purple':'purple',
     'black':'k',
     'white':'w',
-    'None':'None'}
+    'None':'None'
+    }
 
 
 from pylab import Line2D
@@ -369,60 +370,30 @@ class Plotting(Node):
         self.colorbar()
         self.show()
 
-class PyLabPlot(Plotting):
-    """pylab.plot interface
 
-    if x is an array, y should be an array as well or a list of array (assuming
-    they all have the same x). All must have the same length.
 
-    if x is a line2D, y is not used.
+class PlotxyInterface():
+    ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
+    ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
-    x can also be a list of Line2D objects.
-
-    if x is made of Line2D, their format strings are used (label, color, linewidth...)
-    Otherwise, the default values (in pylabplot) are used.
-
-    :param x: either an array or a PyLabLine2D object or a list of PyLabLine2D objects.
-    :param x: either an array or list of arrays
-    :param label: None by default
-    :param marker: circle marker by default
-    :param linestyle: solid line by default
-    :param color: blue by default
-    :param xlabel: none by default
-    :param ylabel: none by default
-    :param title: none by default
-
-    .. todo:: case where there are several y entries and/or x
-    :authors: Thomas Cokelaer
-    """
     def __init__(self):
-        """init docstring"""
-        inputs = [
-                    {'name':'x',            'interface':None,                           'value':None},
-                    {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
-                    {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
-        ]
-        Plotting.__init__(self, inputs)
+        pass
 
-    def __call__(self, inputs):
-        from pylab import plot, cla,  hold,  Line2D
+    def call(self, plottype, kwds):
+        from pylab import hold
+        if plottype=='plot':
+            from pylab import plot as plot
+        elif plottype=='loglog':
+            from pylab import loglog as plot
+        elif plottype=='semilogx':
+            from pylab import semilogx as plot
+        elif plottype=='semilogy':
+            from pylab import semilogy as plot
+
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
-        self.figure()
-        #self.subplot()
-        self.axes()
-        cla()
-        kwds = {}
-        kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
-        print kwds
+        # convert x and y inputs into lists
         if xinputs == None:
             raise ValueError(self.ERROR_NOXDATA)
         if type(xinputs)!=list:
@@ -470,101 +441,156 @@ class PyLabPlot(Plotting):
                 # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
                    plot(x, y, **kwds)
-                   hold(True)
+        pass
 
-        self.properties()
+class PyLabPlot(Plotting, PlotxyInterface):
+    """pylab.plot interface
 
+    if x is an array, y should be an array as well or a list of array (assuming
+    they all have the same x). All must have the same length.
 
+    if x is a line2D, y is not used.
 
-class PyLabLogLog(PyLabPlot):
-    """
-    status: 80% completed
+    x can also be a list of Line2D objects.
 
-    .. todo:: this documentsation, add subsx/subsy nonposx and basex options
+    if x is made of Line2D, their format strings are used (label, color, linewidth...)
+    Otherwise, the default values (in pylabplot) are used.
+
+    :param x: either an array or a PyLabLine2D object or a list of PyLabLine2D objects.
+    :param x: either an array or list of arrays
+    :param label: None by default
+    :param marker: circle marker by default
+    :param linestyle: solid line by default
+    :param color: blue by default
+    :param xlabel: none by default
+    :param ylabel: none by default
+    :param title: none by default
+
+    .. todo:: case where there are several y entries and/or x
+    :authors: Thomas Cokelaer
     """
     def __init__(self):
-        PyLabPlot.__init__(self)
-        """*basex*/*basey*: scalar > 1
-        base of the *x*/*y* logarithm
+        """init docstring"""
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
 
-      *subsx*/*subsy*: [ None | sequence ]
-        the location of the minor *x*/*y* ticks; *None* defaults
-        to autosubs, which depend on the number of decades in the
-        plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
-        :meth:`matplotlib.axes.Axes.set_yscale` for details
-
-      *nonposx*/*nonposy*: ['mask' | 'clip' ]
-        non-positive values in *x* or *y* can be masked as
-        invalid, or clipped to a very small positive number
-        """
     def __call__(self, inputs):
-        from pylab import loglog, cla,hold
-        xinputs = self.get_input("x")
-        yinputs = self.get_input("y")
+        from pylab import cla
 
-        #figure(**self.get_input('figure'))
+        #first, we select the figure, we use subplot() that may be overwritten by axes()
+        self.figure()
+        #self.subplot()
+        self.axes()
+        cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=markers[self.get_input("marker")]
         kwds['linestyle']=linestyles[self.get_input("linestyle")]
         kwds['color']=colors[self.get_input("color")]
 
-        self.figure()
-        self.axes()
-        cla()
+        self.call('plot', kwds)
 
-        if xinputs == None:
-            raise ValueError(self.ERROR_NOXDATA)
-        if type(xinputs)!=list:
-            xinputs = [xinputs]
-        if type(yinputs)!=list:
-            yinputs = [yinputs]
-
-        # case of an x input without y input. line2D are all manage in this if statement
-        if yinputs[0]==None:
-            #plot(line2D) and plot([line2D, line2D])
-            if type(xinputs[0])==Line2D:
-                for x in xinputs:
-                    line2dkwds = get_kwds_from_line2d(x, kwds)
-                    #returns the processed data ?
-                    res =loglog(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
-                    hold(True)
-            #plot([x1,None,x2,None, ...) and plot(x1)
-            else:
-                c = enumerate(colors)
-                for x in xinputs:
-                    try:
-                        color = c.next()
-                        kwds['color']=color[1]
-                    except:
-                        print 'no more colors'
-                    res =loglog(x, **kwds)
-                    hold(True)
-
-        else:
-            if len(xinputs)==1:
-                # plot(x,y) and plot(x, [y1,y2])
-                c = enumerate(colors)
-                for y in yinputs:
-                    try:
-                        color = c.next()
-                        kwds['color']=color[1]
-                    except:
-                        print 'no more colors'
-                    res = loglog(xinputs[0], y, **kwds)
-                    hold(True)
-            else:
-                if len(xinputs)!=len(yinputs):
-                    print 'warning more x inputs than y inputs. correct the connectors'
-                # plot([x1,x2], [y1,y2])
-                # plot([x1], [y1])
-                for x,y in zip(xinputs, yinputs):
-                   res = loglog(x, y, **kwds)
-                   hold(True)
         self.properties()
 
-        return res
 
+
+class PyLabLogLog(Plotting, PlotxyInterface):
+    def __init__(self):
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        #first, we select the figure, we use subplot() that may be overwritten by axes()
+        self.figure()
+        #self.subplot()
+        self.axes()
+        cla()
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=markers[self.get_input("marker")]
+        kwds['linestyle']=linestyles[self.get_input("linestyle")]
+        kwds['color']=colors[self.get_input("color")]
+
+        self.call('loglog', kwds)
+        self.properties()
+
+class PyLabSemiLogy(Plotting, PlotxyInterface):
+    def __init__(self):
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        #first, we select the figure, we use subplot() that may be overwritten by axes()
+        self.figure()
+        #self.subplot()
+        self.axes()
+        cla()
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=markers[self.get_input("marker")]
+        kwds['linestyle']=linestyles[self.get_input("linestyle")]
+        kwds['color']=colors[self.get_input("color")]
+
+        self.call('semilogy', kwds)
+        self.properties()
+
+class PyLabSemiLogx(Plotting, PlotxyInterface):
+    def __init__(self):
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        #first, we select the figure, we use subplot() that may be overwritten by axes()
+        self.figure()
+        #self.subplot()
+        self.axes()
+        cla()
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=markers[self.get_input("marker")]
+        kwds['linestyle']=linestyles[self.get_input("linestyle")]
+        kwds['color']=colors[self.get_input("color")]
+
+        self.call('semilogy', kwds)
+        self.properties()
 
 
 class PyLabHist(Plotting):
@@ -1503,3 +1529,72 @@ class PyLabSubPlot(Node):
         #subplot(row, col, num)
 
         return (row, col, num, kwds)
+
+
+
+
+class PyLabHexBin(Plotting):
+
+    def __init__(self):
+
+        scales = {'linear':'linear','log':'log'}
+        inputs = [
+            {'name':"x"},
+            {'name':"y"},
+            {'name':"bins", 'interface':ISequence, 'value':[]},
+            #bins could be 'log', None, integer or sequence
+            {'name':"gridsize", 'interface':IInt, 'value':100},
+            {'name':"xscale", 'interface':IEnumStr(scales.keys()), 'value':'linear'},
+            {'name':"yscale", 'interface':IEnumStr(scales.keys()), 'value':'linear'},
+            {'name':"mincnt", 'interface':IInt, 'value':None},
+            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
+            {'name':"marginals", 'interface':IBool, 'value':False},
+            #{'name':"norm", 'interface':matplotlib.colors.Normalize, 'value':[vmin,vmax]},
+            # inorm sets vmin and vmax. So choose either norm method or vmin/vmax method.
+            {'name':"vmin", 'interface':IFloat, 'value':None},
+            {'name':"vmax", 'interface':IFloat, 'value':None},
+            {'name':"extent", 'value':None},
+            {'name':"linewidths", 'interface':IFloat(0,10,1), 'value':None},
+            {'name':"edgecolors", 'interface':IEnumStr(colors.keys()), 'value':None},
+            {'name':"cmap", 'interface':IStr, 'value':None},
+        ]
+
+        """ x, y,  norm=None, vmin=None, vmax=None,
+        linewidths=None, edgecolors='none'
+        reduce_C_function = np.mean, mincnt=None, marginals=True
+        **kwargs)"""
+        Plotting.__init__(self, inputs)
+
+
+    def __call__(self, inputs):
+        from pylab import hexbin, cla
+        kwds={}
+        if len(self.get_input('bins'))>=1:
+            kwds['bins'] = self.get_input('bins')
+        else:
+            kwds['bins'] = None
+        kwds['xscale'] = self.get_input('xscale')
+        kwds['yscale'] = self.get_input('yscale')
+        kwds['gridsize'] = self.get_input('gridsize')
+        #None by default
+        if self.get_input('mincnt'):
+            kwds['mincnt'] = self.get_input('mincnt')
+        print  self.get_input('cmap')
+        if self.get_input('cmap'):
+            kwds['cmap'] = self.get_input('cmap')
+
+        kwds['marginals'] = self.get_input('marginals')
+        kwds['alpha'] = self.get_input('alpha')
+        kwds['vmax'] = self.get_input('vmax')
+        kwds['vmax'] = self.get_input('vmax')
+        kwds['linewidths'] = self.get_input('linewidths')
+        if self.get_input('edgecolors'):
+            kwds['edgecolors'] = colors[self.get_input('edgecolors')]
+
+        print kwds
+
+        self.figure()
+        self.axes()
+        cla()
+        hexbin(self.get_input('x'), self.get_input('y'), **kwds)
+        self.properties()

@@ -31,9 +31,12 @@ __all__ = [
 #    'py_pylab_PyLabRectangle',
 #    'py_pylab_PyLabBar',
     'py_pylab_PyLabLogLog',
+    'py_pylab_PyLabSemiLogx',
+    'py_pylab_PyLabSemiLogy',
     'py_pylab_PyLabCohere',
     'py_pylab_PyLabSubPlot',
     'py_pylab_PyLabSubPlotTool',
+    'py_pylab_PyLabHexBin',
 
 ]
 
@@ -369,6 +372,43 @@ py_pylab_PyLabSubPlotTool = Factory(name='PyLabSubPlotTool',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabSubPlotTool',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabSemiLogx = Factory(name='PyLabSemiLogx',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSemiLogx',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabSemiLogy = Factory(name='PyLabSemiLogy',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSemiLogy',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
+py_pylab_PyLabHexBin = Factory(name='PyLabHexBin',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabHexBin',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,
