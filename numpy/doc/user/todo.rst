@@ -3,13 +3,17 @@ List of Numpy functionalities available as visualea nodes
 ===========================================================
 
 =============== ========================================================
-basics
+Creation
 =============== ========================================================
 arange()	Return evenly spaced values within a given interval
 array()		Create an array
+diag()          Extract a diagonal or construct a diagonal array        
 empty()		Return a new array of given shape and type, without initializing entries
+eye()           Return a 2-D array with ones on the diagonal and zeros elsewhere
 linspace()	Return evenly spaced numbers over a specified interval
 ones()		Return a new array of given shape and type, filled with ones
+tri()           Construct an array filled with ones at and below the given diagonal
+vander()        Generate a Van der Monde matrix (not running for the moment)
 zeros()		Return a new array of given shape and type, filled with zeros
 =============== ========================================================
 =============== ========================================================
@@ -18,14 +22,22 @@ infos
 ndim		Number of array dimensions
 shape		Tuple of array dimensions
 size		Number of elements in the array
-dtype		Create a data type object
-itemsize	The element size of this data-type object
 =============== ========================================================
 =============== ========================================================
-operations
+Array math
 =============== ========================================================
+clip()		Clip (limit) the values in an array
+cross()		Return the cross product of two (arrays of) vectors
+cumprod()	Return the cumulative product of elements along a given axis
+cumsum()	Return the cumulative sum of the elements along a given axis
+diff()		Calculate the n-th order discrete difference along given axis
+digitize()	Return the indices of the bins to which each value in input array belongs
 dot()		Dot product of two arrays
+inv()		Compute the (multiplicative) inverse of a matrix
+outer()		Compute the outer product of two vectors
+poly1d		A one-dimensional polynomial class
 reshape()	Gives a new shape to an array without changing its data
+putmask()	Changes elements of an array based on conditional and input values
 =============== ========================================================
 
 
@@ -35,6 +47,8 @@ to be add in Visualea
 =============== ========================================================
 Function         Description
 =============== ========================================================
+dtype		Create a data type object
+itemsize	The element size of this data-type object
 ...
 []
 abs()
@@ -83,7 +97,6 @@ c_[]
 cast[]()
 ceil()
 choose()
-clip()
 column_stack()
 compress()
 concatenate()
@@ -93,20 +106,13 @@ copy()
 corrcoef()
 cos()
 cov()
-cross()
-cumprod()
-cumsum()
 delete()
-diag()
 diagflat()
 diagonal()
-diff()
-digitize()
 dsplit()
 dstack()
 empty_like()
 expand_dims()
-eye()
 fft()
 fftfreq()
 fftshift()
@@ -177,7 +183,6 @@ polyfit()
 prod()
 ptp()
 put()
-putmask()
 r_[]
 rand()
 randint()
@@ -221,7 +226,6 @@ tofile()
 tolist()
 trace()
 transpose()
-tri()
 tril()
 trim_zeros()
 triu()
@@ -229,7 +233,6 @@ typeDict()
 uniform()
 unique()
 unique1d()
-vander()
 var()
 vdot()
 vectorize()
