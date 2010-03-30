@@ -18,6 +18,9 @@
 __doc__ = """ openalea.numpy """
 __revision__ = " $Id: $ "
 
+from openalea.core import Factory
+from openalea.core.interface import *
+
 
 __name__ = "openalea.numpy.math"
 __alias__ = ["numpy.math"]
@@ -32,10 +35,11 @@ __icon__ = 'icon.png'
 
 __all__ = []
 
-from openalea.core import Factory
-from openalea.core.interface import *
 
 list_type = ['bool', 'uint8', 'uint16', 'uint32', 'uint64', 'int8', 'int16', 'int32', 'int64', 'float32', 'float64', 'float96', 'complex64', 'complex128', 'complex192']
+
+# for the convolve function:
+modes = ['full','valid','same']
 
 
 dot = Factory(name = "dot",
@@ -94,6 +98,20 @@ cumprod = Factory(name = "cumprod",
 		)
 
 __all__.append("cumprod")
+
+
+convolve = Factory(name = "convolve",
+    description = "Return the cumulative product of elements along a given axis",
+    category = "numpy",
+    inputs = (
+                dict(name='array', interface=ISequence),
+                dict(name='array', interface=ISequence),
+                dict(name='mode', interface=IEnumStr(modes), value='full'),),
+    outputs = (dict(name='array', interface= ISequence),),
+                nodemodule = "numpy",
+    nodeclass = "convolve",
+    )
+__all__.append("convolve")
 
 
 cumsum = Factory(name = "cumsum",
@@ -205,4 +223,364 @@ putmask = Factory(name = "putmask",
 		)
 
 __all__.append("putmask")
+
+tan = Factory(name = "tan",
+    description = "  Compute tangent element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "tan",
+    )
+__all__.append("tan")
+
+    
+cos = Factory(name = "cos",
+    description = "  Cosine element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "cos",
+    )
+__all__.append("cos")
+
+    
+sin = Factory(name = "sin",
+    description = "  Sine tangent element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "sin",
+    )
+__all__.append("sin")
+
+    
+arcsin = Factory(name = "arcsin",
+    description = "   Inverse sine elementwise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arcsin",
+    )
+__all__.append("arcsin")
+
+    
+arccos = Factory(name = "arccos",
+    description = "   Trigonometric inverse cosine, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arccos",
+    )
+__all__.append("arccos")
+
+    
+arctan = Factory(name = "arctan",
+    description = "   Trigonometric inverse tangent, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arctan",
+    )
+__all__.append("arctan")
+
+    
+degrees = Factory(name = "degrees",
+    description = "  Convert angles from radians to degrees.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "degrees",
+    )
+__all__.append("degrees")
+
+    
+radians = Factory(name = "radians",
+    description = "  Convert angles from degrees to radians.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "radians",
+    )
+__all__.append("radians")
+
+    
+    
+deg2rad = Factory(name = "deg2rad",
+    description = "  Convert angles from degrees to radians.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "deg2rad",
+    )
+__all__.append("deg2rad")
+
+    
+rad2deg = Factory(name = "rad2deg",
+    description = "  Convert angles from radians to degrees.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "rad2deg",
+    )
+__all__.append("rad2deg")
+
+    
+sinh = Factory(name = "sinh",
+    description = " Hyperbolic sine, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "sinh",
+    )
+__all__.append("sinh")
+
+    
+cosh = Factory(name = "cosh",
+    description = " Hyperbolic cosine, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "cosh",
+    )
+__all__.append("cosh")
+
+    
+tanh = Factory(name = "tanh",
+    description = " Compute hyperbolic tangent element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "tanh",
+    )
+__all__.append("tanh")
+
+    
+arcsinh = Factory(name = "arcsinh",
+    description = "  Inverse hyperbolic sine elementwise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arcsinh",
+    )
+__all__.append("arcsinh")
+
+    
+arccosh = Factory(name = "arccosh",
+    description = "  Inverse hyperbolic cosine, elementwise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arccosh",
+    )
+__all__.append("arccosh")
+
+    
+arctanh = Factory(name = "arctanh",
+    description = "  Inverse hyperbolic tangent elementwise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "arctanh",
+    )
+__all__.append("arctanh")
+
+    
+rint = Factory(name = "rint",
+    description = " Round elements of the array to the nearest integer.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "rint",
+    )
+__all__.append("rint")
+
+    
+floor = Factory(name = "floor",
+    description = "    Return the floor of the input, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "floor",
+    )
+__all__.append("floor")
+
+    
+ceil = Factory(name = "ceil",
+    description = " Return the ceiling of the input, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "ceil",
+    )
+__all__.append("ceil")
+
+    
+trunc = Factory(name = "trunc",
+    description = "    Return the truncated value of the input, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "trunc",
+    )
+__all__.append("trunc")
+
+    
+exp = Factory(name = "exp",
+    description = "  Calculate the exponential of all elements in the input array.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "exp",
+    )
+__all__.append("exp")
+
+    
+expm1 = Factory(name = "expm1",
+    description = "    Calculate exp(x) - 1 for all elements in the array.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "expm1",
+    )
+__all__.append("expm1")
+
+    
+exp2 = Factory(name = "exp2",
+    description = " Calculate 2**p for all p in the input array.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "exp2",
+    )
+__all__.append("exp2")
+
+    
+log = Factory(name = "log",
+    description = "  Natural logarithm, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "log",
+    )
+__all__.append("log")
+
+    
+log10 = Factory(name = "log10",
+    description = "    Return the base 10 logarithm of the input array, element-wise",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "log10",
+    )
+__all__.append("log10")
+
+    
+sqrt = Factory(name = "sqrt",
+    description = " Return the positive square-root of an array, element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "sqrt",
+    )
+__all__.append("sqrt")
+
+    
+square = Factory(name = "square",
+    description = "   Return the element-wise square of the input.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "square",
+    )
+__all__.append("square")
+
+    
+absolute = Factory(name = "absolute",
+    description = " Calculate the absolute value element-wise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "absolute",
+    )
+__all__.append("absolute")
+
+    
+fabs = Factory(name = "fabs",
+    description = " Compute the absolute values elementwise.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "fabs",
+    )
+__all__.append("fabs")
+
+    
+sign = Factory(name = "sign",
+    description = " Returns an element-wise indication of the sign of a number.",
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "sign",
+    )
+__all__.append("sign")
 
