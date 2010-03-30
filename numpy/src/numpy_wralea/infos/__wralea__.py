@@ -18,9 +18,10 @@
 __doc__ = """ openalea.numpy """
 __revision__ = " $Id: $ "
 
+from openalea.core import Factory
+from openalea.core.interface import *
 
 __name__ = "openalea.numpy.infos"
-__alias__ = ["numpy.infos"]
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -32,42 +33,40 @@ __icon__ = 'icon.png'
 
 __all__ = []
 
-from openalea.core import Factory
-from openalea.core.interface import *
 
 
 ndim = Factory( name = "ndim", 
                 description = "Number of array dimensions", 
                 category = "numpy",
-	        inputs = (dict(name='array', interface=ISequence),),
-		outputs = (dict(name='ndim', interface= IInt),),
+                inputs = (dict(name='array', interface=ISequence),),
+                outputs = (dict(name='ndim', interface= IInt),),
                 nodemodule = "numpy",
                 nodeclass = "ndim",
               )
-
 __all__.append("ndim")
 
 
+
 shape = Factory(name = "shape",
-		description = "Tuple of array dimensions",
-		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence),),
-		outputs = (dict(name='shape', interface= ITuple3),),
+                description = "Tuple of array dimensions",
+                category = "numpy",
+                inputs = (dict(name='array', interface=ISequence),),
+                outputs = (dict(name='shape', interface= ITuple3),),
                 nodemodule = "numpy",
-		nodeclass = "shape",
-		)
+                nodeclass = "shape",
+               )
 
 __all__.append("shape")
 
 
 size = Factory(name = "size",
-		description = "Number of elements in the array",
-		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence),),
-		outputs = (dict(name='size', interface= IInt),),
+                description = "Number of elements in the array",
+                category = "numpy",
+                inputs = (dict(name='array', interface=ISequence),),
+                outputs = (dict(name='size', interface= IInt),),
                 nodemodule = "numpy",
-		nodeclass = "size",
-		)
+                nodeclass = "size",
+              )
 
 __all__.append("size")
 
