@@ -145,6 +145,22 @@ linspace = Factory(name= "linspace",
 
 __all__.append("linspace")
 
+logspace = Factory(name= "logspace",
+           	description= "Return numbers spaced evenly on a log scale.",
+           	category = "numpy",
+		inputs = ( dict(name='start', interface=IFloat,	value=0),
+     		   dict(name='stop', interface=IFloat,value=4),
+     		   dict(name='num', interface=IFloat,value=5),
+     		   dict(name='endpoint', interface=IBool,value=True),
+     		   dict(name='base', interface=IBool, value=10.0),),
+     	outputs = (dict(name='samples', interface=ISequence),
+     		   dict(name='step', interface=IFloat),),
+           	nodemodule = "numpy",
+           	nodeclass = "logspace",
+            )
+
+__all__.append("logspace")
+
 
 eye = Factory(name= "eye",
            	description= "Return a 2-D array with ones on the diagonal and zeros elsewhere",
@@ -176,6 +192,30 @@ tri = Factory(name= "tri",
             )
 
 __all__.append("tri")
+
+tril = Factory(name= "tril",
+           	description= "Lower triangular.     Return a copy of an array with elements above the k-th diagonal zeroed.
+",
+           	category = "numpy",
+		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0),
+     	outputs = (dict(name='array', interface=ISequence),),
+           	nodemodule = "numpy",
+           	nodeclass = "tril",
+            )
+
+__all__.append("tril")
+
+triu = Factory(name= "triu",
+           	description= "Upper triangular.  Return a copy of an array with elements below the k-th diagonal zeroed.
+",
+           	category = "numpy",
+		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0),
+     	outputs = (dict(name='array', interface=ISequence),),
+           	nodemodule = "numpy",
+           	nodeclass = "triu",
+            )
+
+__all__.append("triu")
 
 
 diag = Factory(name= "diag",
