@@ -252,59 +252,6 @@ def font2kwds(font, kwds={}):
     pass
 
 
-class PyLabRandom(Node):
-    """pylab.random interface
-
-    Returns uniform random distribution array between a
-    minimum (0.)  and maximum value (1)
-
-    :param length: length of the random array
-    :param min: min value (default is 0.)
-    :param max: max value  (default is 1)
-
-    :authors: Thomas Cokelaer
-    """
-    def __init__(self):
-        #from pylab import random
-        #self.__doc__ += random.__doc__
-        Node.__init__(self)
-        self.add_input(name="length", interface = IInt, value=100)
-        self.add_input(name="min", interface = IFloat, value=0.)
-        self.add_input(name="max", interface = IFloat, value=1.)
-        self.add_output(name="result")
-
-    def __call__(self, inputs):
-        from pylab import random
-        m = self.get_input("min")
-        M = self.get_input("max")
-        n = self.get_input("length")
-
-        if m and M:
-            res = m + (M-m)* random(n)
-        else:
-            res = random(n)
-
-        return(res,)
-
-
-class PyLabAbsolute(Node):
-    """pylab.absolute interface
-
-    Returns absolute values of the input data
-
-    :authors: Thomas Cokelaer
-    """
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="data")
-        self.add_output(name="result")
-
-    def __call__(self, inputs):
-        from pylab import absolute
-        data = self.get_input("data")
-        return (absolute(data),)
-
-
 def PyLabExp(t):
     from pylab import exp
     return (exp(t))
@@ -312,6 +259,38 @@ def PyLabExp(t):
 def PyLabCos(t, w=1.):
     from pylab import cos
     return (cos(w*t))
+
+class PyLabMeshGrid(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=ISequence, value=[])
+        self.add_input(name='y', interface=ISequence, value=[])
+        self.add_output(name='X', interface=ISequence, value=[])
+        self.add_output(name='Y', interface=ISequence, value=[])
+
+    def __call__(self, inputs):
+        from pylab import meshgrid
+        X,Y = meshgrid(self.get_input('x'),self.get_input('y'))
+        return (X, Y,)
+
+class PyLabData1(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='X', interface=ISequence, value=[])
+        self.add_input(name='Y', interface=ISequence, value=[])
+    def __call__(self, inputs):
+        from matplotlib.mlab import bivariate_normal
+        #delta = 0.025  
+        #x = np.arange(-3.0, 3.0, delta)
+        #y = np.arange(-2.0, 2.0, delta)
+        X = self.get_input('X')
+        Y = self.get_input('Y')
+        Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+        Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+        # difference of Gaussians
+        Z = 10.0 * (Z2 - Z1)
+
+        return Z
 
 class PyLabARange(Node):
     """pylab.arange interface
@@ -583,7 +562,7 @@ class PyLabXLabel(Node):
         kwargs['fontsize'] = self.get_input('fontsize')
         kwargs['verticalalignment'] = self.get_input('verticalalignment')
         kwargs['horizontalalignment'] = self.get_input('horizontalalignment')
-        for key, value in self.get_input('kwargs').iteritems():
+        for key, value in self.get_input('text properties').iteritems():
             kwargs[key]=value
 
         #xlabel(self.get_input('text'), **kwargs)
@@ -599,7 +578,7 @@ class PyLabYLabel(Node):
         self.add_input(name="fontsize", interface=IFloat, value=12.)
         self.add_input(name="verticalalignment", interface=IEnumStr(verticalalignment.keys()), value='top')
         self.add_input(name="horizontalalignment", interface=IEnumStr(horizontalalignment.keys()), value='center')
-        self.add_input(name="kwargs", interface=IDict, value={})
+        self.add_input(name="text properties", interface=IDict, value={})
 
         self.add_output(name='kwargs', interface=IDict, value={})
 
@@ -610,7 +589,7 @@ class PyLabYLabel(Node):
         kwargs['fontsize'] = self.get_input('fontsize')
         kwargs['verticalalignment'] = self.get_input('verticalalignment')
         kwargs['horizontalalignment'] = self.get_input('horizontalalignment')
-        for key, value in self.get_input('kwargs').iteritems():
+        for key, value in self.get_input('text properties').iteritems():
             kwargs[key]=value
 
         #ylabel(self.get_input('text'), **kwargs)
@@ -1190,6 +1169,38 @@ class PyLabXTicks(Node):
             res = xticks(**kwds)
         return res
 
+class PyLabYTicks(Node):
+
+    """Does not work yet"""
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='locs', interface=ISequence, value=None)
+        self.add_input(name='labels', interface=ISequence, value=None)
+        self.add_input(name='text properties', interface=IDict, value={})
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import yticks
+        kwds = {}
+        for key, value in self.get_input('text properties').iteritems():
+            kwds[key] = value
+        del kwds['fontsize']
+        print kwds
+        if self.get_input('locs') and self.get_input('labels'):
+            res = yticks(self.get_input('locs'), self.get_input('labels'), **kwds)
+        elif self.get_input('locs'):
+            res = yticks(self.get_input('locs'),  **kwds)
+        else:
+            res = yticks(**kwds)
+        return res
+
+
+
+class PyLabPatch(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
+        self.add_input(name='axes', interface=IDict, value={})
 
 
 class PyLabPatch(Node):
@@ -1234,4 +1245,19 @@ zorder  any number
         kwds['edgecolor'] = colors[self.get_input('edgecolor')]
         kwds['facecolor'] = colors[self.get_input('facecolor')]
         return kwds
+
+class PyLabGrid(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='on', interface=IBool, value=True)
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from pylab import grid
+         
+        if self.get_input('on'):
+            grid(True)
+        else:
+            grid(False)
+
 

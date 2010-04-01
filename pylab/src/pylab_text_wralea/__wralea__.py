@@ -48,6 +48,10 @@ __all__ = [
 'py_pylab_PyLabXLim',
 'py_pylab_PyLabYLim',
 'py_pylab_PyLabXTicks',
+'py_pylab_PyLabYTicks',
+'py_pylab_PyLabGrid',
+'py_pylab_PyLabMeshGrid',
+'py_pylab_PyLabData1',
 ]
 
 
@@ -387,5 +391,34 @@ py_pylab_PyLabXTicks = Factory(name='PyLabXTicks',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabXTicks',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabYTicks = Factory(name='PyLabYTicks',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabYTicks',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+py_pylab_PyLabGrid = Factory(name='PyLabGrid',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabGrid',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+py_pylab_PyLabMeshGrid = Factory(name='PyLabMeshGrid',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabMeshGrid',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+py_pylab_PyLabData1 = Factory(name='PyLabData1',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabData1',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
