@@ -37,6 +37,15 @@ __all__ = [
     'py_pylab_PyLabSubPlot',
     'py_pylab_PyLabSubPlotTool',
     'py_pylab_PyLabHexBin',
+    'py_pylab_PyLabContour',
+    'py_pylab_PyLabContourf',
+    'py_pylab_PyLabCLabel',
+    'py_pylab_PyLabCsd',
+    'py_pylab_PyLabPsd',
+    'py_pylab_PyLabSpecgram',
+    'py_pylab_PyLabStem',
+    'py_pylab_PyLabPcolor',
+    'py_pylab_PyLabStep',
 
 ]
 
@@ -409,6 +418,115 @@ py_pylab_PyLabHexBin = Factory(name='PyLabHexBin',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabHexBin',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+
+py_pylab_PyLabContour = Factory(name='PyLabContour',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabContour',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabContourf = Factory(name='PyLabContourf',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabContour',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabCLabel = Factory(name='PyLabCLabel',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabCLabel',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabCsd = Factory(name='PyLabCsd',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabCsd',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabPsd = Factory(name='PyLabPsd',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabPsd',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabSpecgram = Factory(name='PyLabSpecgram',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSpecgram',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabStem = Factory(name='PyLabStem',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabStem',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabPcolor = Factory(name='PyLabPcolor',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabPcolor',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabStep = Factory(name='PyLabStep',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabStep',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,

@@ -172,17 +172,19 @@ locations={
 
 
 
-def get_kwds_from_line2d(line2d, kwds={}, type=None):
+def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
     """create a dict from line2d properties
     """
-    if type!='hist':
-        kwds['color']=line2d.get_color()
-    else:
-        kwds['facecolor']=line2d.get_color()
-    if type!='hist':
-        kwds['linestyle']=line2d.get_linestyle()
+    import copy
+    kwds = copy.deepcopy(input_kwds)
+    if type=='stem':
+        return input_kwds
+    
+    kwds['color']=line2d.get_color()
+    kwds['facecolor']=line2d.get_color()
+    kwds['linestyle']=line2d.get_linestyle()
     kwds['linewidth']=line2d.get_linewidth()
-    if type!='linecollection' and type!='hist':
+    if type!='linecollection':
         kwds['marker']=line2d.get_marker()
         kwds['markersize']=line2d.get_markersize()
         kwds['markeredgewidth']=line2d.get_markeredgewidth()
@@ -191,6 +193,36 @@ def get_kwds_from_line2d(line2d, kwds={}, type=None):
         kwds['markeredgecolor']=line2d.get_markeredgecolor()
     kwds['label']=line2d.get_label()
     kwds['alpha']=line2d.get_alpha()
+
+
+
+    if type=='hist':
+        del kwds['color']
+        del kwds['linestyle']
+        del kwds['marker']
+        del kwds['markersize']
+        del kwds['markeredgewidth']
+        del kwds['markersize']
+        del kwds['fillstyle']
+        del kwds['markeredgecolor']
+
+    if type in ['csd', 'psd', 'step']:
+        del kwds['facecolor']
+
+    if type=='specgram':
+        del kwds['facecolor']
+        del kwds['color']
+        del kwds['linewidth']
+        del kwds['linestyle']
+        del kwds['marker']
+        del kwds['markersize']
+        del kwds['markeredgewidth']
+        del kwds['fillstyle']
+        del kwds['markeredgecolor']
+
+    if type=='plot':
+        del kwds['facecolor']
+
     return kwds
 
 
@@ -230,17 +262,17 @@ class Plotting(Node):
 
     def colorbar(self):
         from pylab import colorbar
-        print self.colorbar_called
         if self.colorbar_called == True:
             return
         if type(self.get_input('colorbar'))==bool:
             if self.get_input('colorbar')==True:
                 colorbar()
                 self.corlorbar_called=True
+                self.set_input('colorbar', False)
         else:
             kwds = self.get_input('colorbar')
             colorbar(**kwds)
-            self.corlorbar_called=True
+            self.colorbar_called=True
 
     def show(self):
         from pylab import show
@@ -368,6 +400,7 @@ class Plotting(Node):
         self.grid()
         self.axis()
         self.colorbar()
+        self.set_input('colorbar', False)
         self.show()
 
 
@@ -389,6 +422,16 @@ class PlotxyInterface():
             from pylab import semilogx as plot
         elif plottype=='semilogy':
             from pylab import semilogy as plot
+        elif plottype=='csd':
+            from pylab import csd as plot
+        elif plottype=='psd':
+            from pylab import psd as plot
+        elif plottype=='specgram':
+            from pylab import specgram as plot
+        elif plottype=='stem':
+            from pylab import stem as plot
+        elif plottype=='step':
+            from pylab import step as plot
 
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
@@ -406,9 +449,18 @@ class PlotxyInterface():
             #plot(line2D) and plot([line2D, line2D])
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
-                    line2dkwds = get_kwds_from_line2d(x, kwds)
+                    print kwds
+                    line2dkwds = get_kwds_from_line2d(x, kwds, type=plottype)
+                    print line2dkwds
                     #returns the processed data ?
-                    plot(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
+                    if plottype in ['specgram', 'psd']:
+                        plot(x.get_ydata(orig=False), **line2dkwds)
+                    else:
+                        try:
+                            plot(x.get_xdata(orig=False), x.get_ydata(orig=False), **line2dkwds)
+                        except:
+                            print kwds
+                            print line2dkwds
                     hold(True)
             #plot([x1,None,x2,None, ...) and plot(x1)
             else:
@@ -440,7 +492,7 @@ class PlotxyInterface():
                 # plot([x1,x2], [y1,y2])
                 # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
-                   plot(x, y, **kwds)
+                    plot(x, y, **kwds)
         pass
 
 class PyLabPlot(Plotting, PlotxyInterface):
@@ -699,7 +751,6 @@ class PyLabHist(Plotting):
             for x in xinputs:
                 if type(x)==Line2D:
                     line2dkwds = get_kwds_from_line2d(x, kwds, type='hist')
-                    print line2dkwds
                     res = hist(x.get_ydata(orig=False),**line2dkwds)
                 else:
                     res = hist(x,**kwds)
@@ -834,6 +885,7 @@ class PyLabAbsolute(Node):
 
 
 
+
 class PyLabScatter(Plotting):
     """pylab.scatter interface
 
@@ -953,7 +1005,6 @@ class PyLabLine2D(Node):
         ydata=self.get_input('ydata')
         #why?
         if len(ydata)==0:
-            print 'a'
             ydata = xdata
             xdata = range(0, len(ydata))
         output = Line2D(
@@ -1559,10 +1610,7 @@ class PyLabHexBin(Plotting):
             {'name':"cmap", 'interface':IStr, 'value':None},
         ]
 
-        """ x, y,  norm=None, vmin=None, vmax=None,
-        linewidths=None, edgecolors='none'
-        reduce_C_function = np.mean, mincnt=None, marginals=True
-        **kwargs)"""
+        """         reduce_C_function = np.mean, """
         Plotting.__init__(self, inputs)
 
 
@@ -1579,7 +1627,6 @@ class PyLabHexBin(Plotting):
         #None by default
         if self.get_input('mincnt'):
             kwds['mincnt'] = self.get_input('mincnt')
-        print  self.get_input('cmap')
         if self.get_input('cmap'):
             kwds['cmap'] = self.get_input('cmap')
 
@@ -1591,10 +1638,358 @@ class PyLabHexBin(Plotting):
         if self.get_input('edgecolors'):
             kwds['edgecolors'] = colors[self.get_input('edgecolors')]
 
-        print kwds
 
         self.figure()
         self.axes()
         cla()
         hexbin(self.get_input('x'), self.get_input('y'), **kwds)
         self.properties()
+
+
+class PyLabCLabel(Node):
+
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='fontsize', interface=IInt, value=10)
+        self.add_input(name='inline', interface=IBool, value=True)
+        self.add_input(name='rightside_up', interface=IBool, value=True)
+        self.add_input(name='inline_spacing', interface=IInt, value=5)
+        self.add_input(name='fmt', interface=IStr, value='%1.3f')
+        self.add_input(name='colors', interface=IEnumStr(colors.keys()), value=None)
+        # colors may be a list such as ('r', 'green', 'blue', (1,1,0), '#afeeee', '0.5')
+        self.add_output(name='kwds')
+
+    def __call__(self, inputs):
+        from pylab import clabel
+        kwds = {}
+        kwds['fontsize'] = self.get_input('fontsize')
+        kwds['inline'] = self.get_input('inline')
+        kwds['rightside_up'] = self.get_input('rightside_up')
+        kwds['inline_spacing'] = self.get_input('inline_spacing')
+        kwds['fmt'] = self.get_input('fmt')
+        try:
+            kwds['colors'] = colors[self.get_input('colors')]
+        except:
+            kwds['colors'] = self.get_input('colors')
+
+        return kwds
+
+
+
+
+class PcolorInterface():
+    """to be completed"""
+    def __init__(self):
+        self.inputs = []
+        self.inputs.append({'name': 'X', 'value':None})
+        self.inputs.append({'name': 'Y', 'value':None})
+        self.inputs.append({'name': 'Z', 'value':None})
+        self.inputs.append({'name':"cmap", 'interface':IStr, 'value':None})
+        """todo:: norm, vmin/vmax, shading, edgecolor, alpha"""
+    def get_kwds(self):
+
+        self.kwds = {}
+        if self.get_input('cmap'):
+            self.kwds['cmap'] = self.get_input('cmap')
+
+    def __call__(self, inputs):
+        raise NotImplementedError
+
+
+#class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
+class PyLabPcolor(Plotting, PcolorInterface):
+    def __init__(self):
+        PcolorInterface.__init__(self)
+        Plotting.__init__(self, self.inputs)
+
+    def __call__(self, inputs):
+        from pylab import pcolor, cla
+        self.figure()
+        self.axes()
+        cla()
+        X = self.get_input('X')
+        Y = self.get_input('Y')
+        Z = self.get_input('Z')
+        self.get_kwds()
+        if X is not None and Y is not None:
+            pcolor(X, Y, Z, **self.kwds)
+        elif Z is not None:
+            pcolor(Z, **self.kwds)
+        else:
+            raise ValueError('Z is compulsary. If X provided, Y must be provided as well.')
+
+        self.properties() 
+
+
+
+
+class PyLabContour(Plotting):
+
+    def __init__(self):
+
+        inputs = [
+            {'name':"X"},
+            {'name':"Y"},
+            {'name':"Z"},
+            {'name':"n", 'interface':IInt, 'value':None},
+            {'name':"filled", 'interface':IBool, 'value':False},
+            {'name':"linewidths", 'interface':IInt, 'value':1.},
+            {'name':"linestyles", 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
+            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
+            {'name':"cmap", 'interface':IStr, 'value':None},
+            #{'name':"origin", 'interface':IStr, 'value':None},could be lower, upper, image
+            #extent, colorsm,extent,locator,extend
+            #contourf:  m antialiased, nchunk
+            {'name':"clabel", 'interface':IDict, 'value':{'inline':True, 'fontsize':10, 'rightside_up':True, 'inline_spacing':5, 'fmt':'%1.3f'}}
+        ]
+        Plotting.__init__(self, inputs)
+
+
+    def __call__(self, inputs):
+        from pylab import clabel, cla, contour, contourf
+
+        kwds={}
+        X = self.get_input('X')
+        Y = self.get_input('Y')
+        Z = self.get_input('Z')
+        n = self.get_input('n')
+        if type(n)==int and n<=0:
+            n= None
+
+        kwds['linewidths']=self.get_input('linewidths')
+        kwds['alpha']=self.get_input('alpha')
+        if self.get_input('linestyles') in [None, 'None']:
+            kwds['linestyles']='solid'
+        else:
+            kwds['linestyles']=linestyles[self.get_input('linestyles')]
+        if self.get_input('cmap'):
+            kwds['cmap']=self.get_input('cmap')
+
+        self.figure()
+        self.axes()
+        cla()
+        if n is None:
+            if self.get_input('filled')==True:
+                contourf(X,Y,Z, **kwds)
+                if self.get_input('colorbar') is True:
+                    from pylab import colorbar
+                    colorbar()
+                    self.set_input('colorbar', False)
+                #superimpose the contour in black and reset cmap because either colors or cmap must be none
+                kwds['colors'] = 'k'
+                kwds['cmap'] = None
+                CS = contour(X,Y,Z, **kwds)
+            else:
+                CS = contour(X,Y,Z, **kwds)
+        else:
+            if self.get_input('filled')==True:
+                contourf(X,Y,Z,n, **kwds)
+                if self.get_input('colorbar') is True:
+                    from pylab import colorbar
+                    colorbar()
+                    self.set_input('colorbar', False)
+                #superimpose the contour in black and reset cmap because either colors or cmap must be none
+                kwds['colors'] = 'k'
+                kwds['cmap'] = None
+                CS = contour(X,Y,Z,n, **kwds)
+            else:
+                CS = contour(X,Y,Z,n, **kwds)
+        if type(self.get_input('clabel'))==clabel:
+            pass
+        else:
+            kwds2 = {}
+            kwds2 = self.get_input('clabel')
+            clabel(CS, **kwds2)
+        self.properties()
+        return CS
+
+
+class PsdInterface():
+    from pylab import mlab
+    windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
+    sides = [ 'default','onesided','twosided']
+    def __init__(self, type='x', noverlap=0, nfft=256, cmap=False):
+        self.kwds = {}
+        if type=='xy':
+            self.inputs = [
+            {'name':"x"},
+            {'name':"y"}]
+        else:
+            self.inputs = [
+            {'name':"x"},]
+
+        self.inputs.extend([
+            {'name':"NFFT",     'interface':IInt, 'value':nfft},
+            {'name':"Fs",       'interface':IInt, 'value':2},
+            {'name':"Fc",       'interface':IInt, 'value':0},
+            {'name':"noverlap", 'interface':IInt, 'value':noverlap},
+            {'name':"sides", 'interface':IEnumStr(self.sides), 'value':'default'},
+            {'name':"pad_to", 'interface':IInt, 'value':None},
+            {'name':'detrend', 'interface':IEnumStr(detrends.keys()), 'value':'none'},
+            {'name':'scale_by_freq', 'interface':IBool, 'value':True},
+            {'name':"window", 'interface':IEnumStr(self.windows.keys()), 'value':'hanning'},])
+
+        if cmap:
+            self.inputs.extend([{'name':"cmap", 'interface':IStr, 'value':None}])
+
+        """TODO : csd( 
+        scale_by_freq=None)"""
+
+    def get_kwds(self):
+        self.kwds['NFFT'] = self.get_input('NFFT')
+        self.kwds['Fs'] = self.get_input('Fs')
+        self.kwds['Fc'] = self.get_input('Fc')
+        self.kwds['noverlap'] = self.get_input('noverlap')
+        self.kwds['sides'] = self.get_input('sides')
+        self.kwds['pad_to'] = self.get_input('pad_to')
+        self.kwds['scale_by_freq'] = self.get_input('scale_by_freq')
+        if self.get_input('detrend')!='none':
+            from pylab import detrend_none, detrend_linear, detrend_mean
+            import pylab
+            self.kwds['detrend'] = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+
+    def set_window(self):
+        if self.get_input('window') in ['hanning', 'none']:
+            self.kwds['window']=self.windows[self.get_input('window')]
+        else:
+            self.kwds['window'] = self.get_input('window')
+            assert len(self.kwds['window'])==self.kwds['NFFT'], '!! NFFT and window''s length must be equal'
+    def __call__(self, inputs):
+        raise NotImplementedError
+
+
+class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
+
+    def __init__(self):
+        PsdInterface.__init__(self, type='x')
+        Plotting.__init__(self, self.inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        kwds=self.get_kwds()
+        self.set_window()
+        self.figure()
+        self.axes()
+        cla()
+
+        #psd has no y, yet, self.call requires an x and a y input. So let us cheat:
+        try:
+            self.get_input('y')
+        except:
+            self.add_input(name='y', value=None)
+
+        c = self.call('psd',self.kwds)
+        self.properties()
+        return c
+
+
+class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
+
+    def __init__(self):
+        PsdInterface.__init__(self, type='xy')
+        Plotting.__init__(self, self.inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        self.get_kwds()
+        self.set_window()
+        self.figure()
+        self.axes()
+        cla()
+        c = self.call('csd',self.kwds)
+        self.properties()
+        return c
+
+class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
+
+    def __init__(self):
+        PsdInterface.__init__(self, type='x', noverlap=128, cmap=True)
+        Plotting.__init__(self, self.inputs)
+        PlotxyInterface.__init__(self)
+        #         xextent=None, 
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        self.get_kwds()
+        self.set_window()
+        self.figure()
+        self.axes()
+        print self.kwds
+        cla()
+        if self.get_input('cmap'):
+            self.kwds['cmap'] = self.get_input('cmap')
+        try:
+            self.get_input('y')
+        except:
+            self.add_input(name='y', value=None)
+        c = self.call('specgram',self.kwds)
+        self.properties()
+        return c
+
+
+
+class PyLabStem(Plotting, PlotxyInterface):
+
+    def __init__(self):
+        inputs = [
+            {'name': 'x'},
+            {'name':'y'},
+            {'name':'marker_color', 'interface':IEnumStr(colors.keys()), 'value':'blue'},
+            {'name':'line_color', 'interface':IEnumStr(colors.keys()), 'value':'blue'},
+            {'name':'base_color', 'interface':IEnumStr(colors.keys()), 'value':'red'},
+            {'name':'marker_style', 'interface':IEnumStr(markers.keys()), 'value':'circle'},
+            {'name':'line_style', 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
+            {'name':'base_style', 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        self.figure()
+        self.axes()
+        cla()
+        kwds = {}
+        kwds['markerfmt'] = colors[self.get_input('marker_color')]+ markers[self.get_input('marker_style')]
+        kwds['basefmt'] = colors[self.get_input('base_color')]+ linestyles[self.get_input('base_style')]
+        kwds['linefmt'] = colors[self.get_input('line_color')]+ linestyles[self.get_input('line_style')]
+        print kwds
+        c = self.call('stem', kwds)
+        self.properties()
+        return c
+
+
+
+class PyLabStep(Plotting, PlotxyInterface):
+
+    def __init__(self):
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        self.figure()
+        self.axes()
+        cla()
+
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=markers[self.get_input("marker")]
+        kwds['color']=colors[self.get_input("color")]
+        c = self.call('step', kwds)
+        self.properties()
+        return c
