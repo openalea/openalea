@@ -14,11 +14,10 @@ for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 
-pkg_root_dir = 'src'
-pkgs = [ pkg for pkg in find_packages(pkg_root_dir) if namespace not in pkg]
+pkgs = [ pkg for pkg in find_packages('src') if namespace not in pkg]
 top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
 packages = [ namespace + "." + pkg for pkg in pkgs]
-package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs] )
+package_dir = dict( [('','src')] + [(namespace + "." + pkg,  "src/" + pkg) for pkg in top_pkgs] )
 
 setup_requires = ['openalea.deploy']
 # web sites where to find eggs
@@ -34,6 +33,8 @@ install_requires = []
 
 # setup function call
 #
+print packages
+print package_dir
 setup(
     # Meta data (no edition needed if you correctly defined the variables above)
     name=name,
@@ -63,7 +64,7 @@ setup(
     inc_dirs = { 'include' : build_prefix+'/include' },
 
     include_package_data = True,
-           entry_points = {
+    entry_points = {
             "wralea": [ "openalea.pylab = pylab_main_wralea",
                         "openalea.pylab.demo = pylab_demo_wralea",
                         "openalea.pylab.nodes = pylab_nodes_wralea",
