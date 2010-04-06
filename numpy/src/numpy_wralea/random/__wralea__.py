@@ -39,7 +39,7 @@ randn = Factory(name = "randn",
     category = "numpy",
     inputs = (dict(name='n', interface=IInt),),
     outputs = (dict(name='array', interface= ISequence),),
-                    nodemodule = "numpy",
+    nodemodule = "vnumpy",
     nodeclass = "randn",
     )
 
