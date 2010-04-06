@@ -194,10 +194,9 @@ tri = Factory(name= "tri",
 __all__.append("tri")
 
 tril = Factory(name= "tril",
-           	description= "Lower triangular.     Return a copy of an array with elements above the k-th diagonal zeroed.
-",
+           	description= "Lower triangular.     Return a copy of an array with elements above the k-th diagonal zeroed.",
            	category = "numpy",
-		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0),
+		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0)),
      	outputs = (dict(name='array', interface=ISequence),),
            	nodemodule = "numpy",
            	nodeclass = "tril",
@@ -206,10 +205,9 @@ tril = Factory(name= "tril",
 __all__.append("tril")
 
 triu = Factory(name= "triu",
-           	description= "Upper triangular.  Return a copy of an array with elements below the k-th diagonal zeroed.
-",
+           	description= "Upper triangular.  Return a copy of an array with elements below the k-th diagonal zeroed.",
            	category = "numpy",
-		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0),
+		inputs = ( dict(name='m'),   dict(name='k', interface=IInt, value=0)),
      	outputs = (dict(name='array', interface=ISequence),),
            	nodemodule = "numpy",
            	nodeclass = "triu",
