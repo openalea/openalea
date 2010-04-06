@@ -3,9 +3,9 @@
 #
 #       amlPy function implementation
 #
-#       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA
+#       Copyright or (C) or Copr. 2010 INRIA - CIRAD - INRA
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -42,6 +42,13 @@ axis = {
     }
 
 sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
+
+from pylab import cm, get_cmap
+maps=[m for m in cm.datad if not m.endswith("_r")]
+cmaps = {}
+for c in maps:
+    cmaps[c] = get_cmap(c)
+cmaps['None'] = None
 
 detrends = {
     'none':'detrend_none',
@@ -432,6 +439,8 @@ class PlotxyInterface():
             from pylab import stem as plot
         elif plottype=='step':
             from pylab import step as plot
+        elif plottype=='fill':
+            from pylab import fill as plot
 
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
@@ -551,7 +560,7 @@ class PyLabPlot(Plotting, PlotxyInterface):
         self.call('plot', kwds)
 
         self.properties()
-
+        return self.axes_shown
 
 
 class PyLabLogLog(Plotting, PlotxyInterface):
@@ -583,6 +592,7 @@ class PyLabLogLog(Plotting, PlotxyInterface):
 
         self.call('loglog', kwds)
         self.properties()
+        return self.axes_shown
 
 class PyLabSemiLogy(Plotting, PlotxyInterface):
     def __init__(self):
@@ -613,6 +623,7 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
 
         self.call('semilogy', kwds)
         self.properties()
+        return self.axes_shown
 
 class PyLabSemiLogx(Plotting, PlotxyInterface):
     def __init__(self):
@@ -643,6 +654,7 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
 
         self.call('semilogy', kwds)
         self.properties()
+        return self.axes_shown
 
 
 class PyLabHist(Plotting):
@@ -661,7 +673,6 @@ class PyLabHist(Plotting):
     :param ylabel: none by default, could be output of PyLabYLabel
     :param title: none by default, could be output of PyLabTitle
     
-    :param kwargs: should be the outpt of PyLabRectangle or see pylab.hist for options
 
     .. todo::
 
@@ -696,9 +707,8 @@ class PyLabHist(Plotting):
         Plotting.__init__(self, inputs)
 
         #self.add_input(name="range", interface = ITuple3, value = None)
-
+        #rectangle
         self.add_input(name="kwargs", interface = IDict, value={'alpha':1., 'animated':False})
-        
 
         self.add_output(name="position")
         self.add_output(name="counts")
@@ -797,7 +807,7 @@ class PyLabAcorr(Plotting):
         Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import clf, hold, acorr, Line2D
+        from pylab import clf, hold, acorr, Line2D, cla
         import pylab
         self.figure()
         self.axes()
@@ -822,6 +832,7 @@ class PyLabAcorr(Plotting):
             hold(True)
         #self.error(self.ERROR_FAILURE)
         self.properties()
+        return self.axes_shown
 
         return res
 
@@ -932,6 +943,7 @@ class PyLabScatter(Plotting):
                 alpha=self.get_input("alpha"),
                 label=self.get_input("label"))
         self.properties()
+        return self.axes_shown
 
         return res
 
@@ -975,6 +987,7 @@ class PyLabBoxPlot(Plotting):
                 vert=self.get_input("vert"),
                 notch=self.get_input("notch"))
         self.properties()
+        return self.axes_shown
         return res
 
 
@@ -1249,6 +1262,7 @@ class PyLabPie(Plotting):
         res = pie(self.get_input('x'), **kwds)
 
         self.properties()
+        return self.axes_shown
         return res
 
 
@@ -1345,55 +1359,6 @@ class PyLabTitle(Node):
 
 
 
-class PyLabRectangle(Node):
-    def __init__(self):
-        Node.__init__(self)
-
-        self.add_input(name='alpha', interface=IFloat(0.,1.), value=1.0)
-        self.add_input(name='facecolor', interface=IEnumStr(colors.keys()), value='blue')
-        self.add_input(name='edgecolor', interface=IEnumStr(colors.keys()), value='black')
-        self.add_input(name='linestyle', interface=IEnumStr(linestyles.keys()), value='solid')
-
-        self.add_input(name='kwargs', interface=IDict, value={})
-
-        self.add_output(name='output', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        kwds = {}
-        kwds['alpha'] = self.get_input('alpha')
-        kwds['facecolor'] = self.get_input('facecolor')
-        kwds['edgecolor'] = self.get_input('edgecolor')
-        kwds['linestyle'] = self.get_input('linestyle')
-        for key,value in self.get_input('kwargs'):
-            kwds[key]=value
-        return (kwds)
-
-    """
-
-      animated: [True | False]         
-      antialiased or aa: [True | False]  or None for default         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: matplotlib color arg or sequence of rgba tuples
-      contains: a callable function         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      fill: [True | False]         
-      gid: an id string         
-      hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]         
-      label: any string         
-      linewidth or lw: float or None for default         
-      lod: [True | False]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
-      snap: unknown
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      visible: [True | False]         
-      zorder: any number        
-    """
-
 
 
 class PyLabFontProperties(Node):
@@ -1468,6 +1433,7 @@ class PyLabBar(Plotting):
                 res = bar(x[1:],y, width=width, color=color[1], alpha=0.5)
                 hold(True)
         self.properties()
+        return self.axes_shown
 
         return res
 
@@ -1535,6 +1501,7 @@ class PyLabCohere(Plotting):
                     hold(True)
 
         self.properties()
+        return self.axes_shown
         return (cxy, freq)
 
 
@@ -1632,7 +1599,7 @@ class PyLabHexBin(Plotting):
 
         kwds['marginals'] = self.get_input('marginals')
         kwds['alpha'] = self.get_input('alpha')
-        kwds['vmax'] = self.get_input('vmax')
+        kwds['vmin'] = self.get_input('vmin')
         kwds['vmax'] = self.get_input('vmax')
         kwds['linewidths'] = self.get_input('linewidths')
         if self.get_input('edgecolors'):
@@ -1644,6 +1611,7 @@ class PyLabHexBin(Plotting):
         cla()
         hexbin(self.get_input('x'), self.get_input('y'), **kwds)
         self.properties()
+        return self.axes_shown
 
 
 class PyLabCLabel(Node):
@@ -1719,6 +1687,7 @@ class PyLabPcolor(Plotting, PcolorInterface):
             raise ValueError('Z is compulsary. If X provided, Y must be provided as well.')
 
         self.properties() 
+        return self.axes_shown
 
 
 
@@ -1801,6 +1770,7 @@ class PyLabContour(Plotting):
             kwds2 = self.get_input('clabel')
             clabel(CS, **kwds2)
         self.properties()
+        #todo: return self.axes_shown
         return CS
 
 
@@ -1882,6 +1852,7 @@ class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
 
         c = self.call('psd',self.kwds)
         self.properties()
+        #todo return self.axes_shown
         return c
 
 
@@ -1902,7 +1873,7 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
         cla()
         c = self.call('csd',self.kwds)
         self.properties()
-        return c
+        return self.axes_shown
 
 class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
 
@@ -1929,8 +1900,7 @@ class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
             self.add_input(name='y', value=None)
         c = self.call('specgram',self.kwds)
         self.properties()
-        return c
-
+        return self.axes_shown
 
 
 class PyLabStem(Plotting, PlotxyInterface):
@@ -1962,7 +1932,7 @@ class PyLabStem(Plotting, PlotxyInterface):
         print kwds
         c = self.call('stem', kwds)
         self.properties()
-        return c
+        return self.axes_shown
 
 
 
@@ -1992,4 +1962,264 @@ class PyLabStep(Plotting, PlotxyInterface):
         kwds['color']=colors[self.get_input("color")]
         c = self.call('step', kwds)
         self.properties()
-        return c
+        return self.axes_shown
+
+
+
+
+class PyLabQuiver(Plotting):
+
+    def __init__(self):
+        self.angles = ['uv', 'xy']
+        self.units= ['width','height','dots','inches','x','y']
+        self.pivots = ['tail', 'middle', 'tip']
+        inputs = [
+                    {'name':'X',            'interface':None,                           'value':None},
+                    {'name':'Y',            'interface':None,                           'value':None},
+                    {'name':'U',            'interface':None,                           'value':None},
+                    {'name':'V',            'interface':None,                           'value':None},
+                    {'name':'C',            'interface':None,                           'value':None},
+                    {'name':'units',        'interface':IEnumStr(self.units),           'value':'width'},
+                    {'name':'angles',       'interface':IEnumStr(self.angles),          'value':'uv'},
+                    {'name':'scale',        'interface':IFloat,                         'value':None},
+                    {'name':'width',        'interface':IFloat(0.005, 1, 0.005),      'value':None},
+                    {'name':'headwidth',    'interface':IFloat,                         'value':3},
+                    {'name':'headlength',   'interface':IFloat,                         'value':5},
+                    {'name':'headaxislength','interface':IFloat,                        'value':4.5},
+                    {'name':'minshaft',     'interface':IFloat,                         'value':1},
+                    {'name':'minlength',    'interface':IFloat,                         'value':1},
+                    {'name':'pivot',        'interface':IEnumStr(self.pivots),               'value':'tail'},
+                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'None'},
+                    {'name':'polycollection', 'interface':IDict,        'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+
+    def __call__(self, inputs):
+        from pylab import quiver, cla
+
+        self.figure()
+        self.axes()
+        cla()
+
+        X = self.get_input('X')
+        Y = self.get_input('Y')
+        U = self.get_input('U')
+        V = self.get_input('V')
+        C = self.get_input('C')
+        kwds = {}
+        for key in ['units', 'angles', 'scale', 'width', 'headwidth', 'headlength', 'headaxislength', 'minshaft', 'minlength']:
+            kwds[key]=self.get_input(key)
+        if self.get_input('color')!='None':
+            kwds['color']=colors[self.get_input('color')]
+        for key, value in self.get_input('polycollection').iteritems():
+            kwds[key]=value
+        
+        if X is None and Y is None and C is None and U is not None and V is not None:
+            c = quiver(U, V, **kwds)
+        if X is None and Y is None and C is not None and U is not None and V is not None:
+            c = quiver(U, V, C, **kwds)
+        if X is not None and Y is not None and C is None and U is not None and V is not None:
+            c = quiver(X, Y, U, V, **kwds)
+        if X is not None and Y is not None and C is not None and U is not None and V is not None:
+            c = quiver(X, Y, U, V, C, **kwds)
+
+        self.properties()
+        return self.axes_shown
+
+
+class PyLabFill(Plotting, PlotxyInterface):
+
+    def __init__(self):
+        inputs = [
+                    {'name':'x'},
+                    {'name':'y'},
+                    {'name':'linewidth',    'interface':IFloat,    'value':1},
+                    {'name':'facecolor',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'kwargs (Patch)','interface':IDict,                          'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+        #todo : as many patch as x/y
+
+    def __call__(self, inputs):
+        from pylab import fill, cla
+
+        self.figure()
+        self.axes()
+        kwds = self.get_input('kwargs (Patch)')
+        kwds['facecolor'] = colors[self.get_input('facecolor')]
+        kwds['linewidth'] = self.get_input('linewidth')
+
+        c = self.call('fill', kwds)
+
+        self.properties()
+        return self.axes_shown
+
+class PyLabFillBetween(Plotting, PlotxyInterface):
+
+    def __init__(self):
+        inputs = [
+                    {'name':'x'},
+                    {'name':'y1'},
+                    {'name':'y2'},
+                    {'name':'where', 'interface':IStr, 'value':'None'},
+                    {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+        #todo : as many patch as x/y
+
+    def __call__(self, inputs):
+        from pylab import fill_between, cla
+
+        self.figure()
+        self.axes()
+        try:
+            kwds = self.get_input('kwargs (Patch)')
+            del kwds['fill']
+        except:
+            kwds = {}
+        x = self.get_input('x')
+        y1 = self.get_input('y1')
+        y2 = self.get_input('y2')
+        where = eval(str(self.get_input('where')))
+        c = fill_between(x, y1, y2, where=where, **kwds)
+        self.properties()
+        return self.axes_shown
+
+
+
+
+
+
+
+class PyLabErrorBar(Plotting, PlotxyInterface):
+
+    def __init__(self):
+        inputs = [
+                    {'name':'x'},
+                    {'name':'y'},
+                    {'name':'xerr', 'value':None},
+                    {'name':'yerr', 'value':None},
+                    {'name':'ecolor', 'value':None},
+                    {'name':'elinewidth', 'value':None},
+                    {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        PlotxyInterface.__init__(self)
+        #todo : as many patch as x/y
+
+    def __call__(self, inputs):
+        from pylab import errorbar, cla
+
+        self.figure()
+        self.axes()
+        try:
+            kwds = self.get_input('kwargs (Patch)')
+            del kwds['fill']
+        except:
+            kwds = {}
+
+        x = self.get_input('x')
+        y = self.get_input('y')
+        xerr = self.get_input('xerr')
+        yerr = self.get_input('yerr')
+        c = errorbar(x, y, xerr, yerr, **kwds)
+        self.properties()
+        return self.axes_shown
+
+
+class PyLabImshow(Plotting):
+
+
+    "todo: origin=None, extent=None,"""
+
+    def __init__(self):
+        self.aspect = ['None', 'auto', 'equal']
+        self.interpolation = ['None', 'nearest', 'bilinear',
+          'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
+          'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+          'bessel', 'mitchell', 'sinc', 'lanczos']
+        inputs = [
+                    {'name':'image'},
+                    {'name':"cmap", 'interface':IEnumStr(cmaps.keys()), 'value':'None'},
+                    {'name':"interpolation", 'interface':IEnumStr(self.interpolation), 'value':'None'},
+                    {'name':"aspect", 'interface':IEnumStr(self.aspect), 'value':'None'},
+                    {'name':"alpha", 'interface':IFloat(0., 1., 0.01), 'value':1},
+                    {'name':"vmin", 'interface':IFloat, 'value':None},
+                    {'name':"vmax", 'interface':IFloat, 'value':None},
+                    {'name':'kwargs (Artist)','interface':IDict, 'value':{}},
+        ]
+        #norm is not implemented: use vmin/vmax instead
+        Plotting.__init__(self, inputs)
+
+    def __call__(self, inputs):
+        from pylab import imshow, cla
+
+        self.figure()
+        self.axes()
+
+        try:
+            kwds = self.get_input('kwargs (Patch)')
+            del kwds['fill']
+        except:
+            kwds = {}
+
+        X = self.get_input('image')
+        print self.get_input('cmap')
+        if self.get_input('cmap'):
+            kwds['cmap']=get_cmap(self.get_input('cmap'))
+        kwds['alpha'] = self.get_input('alpha')
+        kwds['vmin'] = self.get_input('vmin')
+        kwds['vmax'] = self.get_input('vmax')
+        if self.get_input('interpolation')!='None':
+            kwds['interpolation'] = self.get_input('interpolation')
+        if self.get_input('aspect')!='None':
+            kwds['aspect'] = self.get_input('aspect')
+        print kwds
+        c = imshow(X, **kwds)
+        self.properties()
+        return self.axes_shown
+
+    """
+      *origin*: [ None | 'upper' | 'lower' ]
+        Place the [0,0] index of the array in the upper left or lower left
+        corner of the axes. If *None*, default to rc ``image.origin``.
+      *extent*: [ None | scalars (left, right, bottom, top) ]
+        Data limits for the axes.  The default assigns zero-based row,
+        column indices to the *x*, *y* centers of the pixels.
+      *shape*: [ None | scalars (columns, rows) ]
+        For raw buffer images
+      *filternorm*:
+        A parameter for the antigrain image resize filter.  From the
+        antigrain documentation, if *filternorm* = 1, the filter normalizes
+        integer values and corrects the rounding errors. It doesn't do
+        anything with the source floating point values, it corrects only
+        integers according to the rule of 1.0 which means that any sum of
+        pixel weights must be equal to 1.0.  So, the filter function must
+        produce a graph of the proper shape.
+      *filterrad*:
+        The filter radius for filters that have a radius
+        parameter, i.e. when interpolation is one of: 'sinc',
+        'lanczos' or 'blackman'
+    Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
+
+      alpha: float (0.0 transparent through 1.0 opaque)         
+      animated: [True | False]         
+      axes: an :class:`~matplotlib.axes.Axes` instance         
+      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
+      clip_on: [True | False]         
+      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
+      contains: a callable function         
+      figure: a :class:`matplotlib.figure.Figure` instance         
+      gid: an id string         
+      label: any string         
+      lod: [True | False]         
+      picker: [None|float|boolean|callable]         
+      rasterized: [True | False | None]         
+      snap: unknown
+      transform: :class:`~matplotlib.transforms.Transform` instance         
+      url: a url string         
+      visible: [True | False]         
+      zorder: any number         
+    """

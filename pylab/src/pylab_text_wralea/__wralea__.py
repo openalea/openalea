@@ -41,7 +41,6 @@ __all__ = [
 'py_pylab_PyLabShow',
 'py_pylab_PyLabAxhline',
 'py_pylab_PyLabAxvline',
-'py_pylab_PyLabPatch',
 'py_pylab_PyLabAxhspan',
 'py_pylab_PyLabAxvspan',
 'py_pylab_PyLabBox',
@@ -338,13 +337,6 @@ py_pylab_PyLabAxvline = Factory(name='PyLabAxvline',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                )
 
-py_pylab_PyLabPatch = Factory(name='PyLabPatch',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabPatch',
-                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
-               )
 
 py_pylab_PyLabAxhspan = Factory(name='PyLabAxhspan',
                 description='pylab.fontproperties interface.',

@@ -633,56 +633,6 @@ class PyLabTitle(Node):
 
 
 
-class PyLabRectangle(Node):
-    def __init__(self):
-        Node.__init__(self)
-
-        self.add_input(name='alpha', interface=IFloat(0.,1.), value=1.0)
-        self.add_input(name='facecolor', interface=IEnumStr(colors.keys()), value='blue')
-        self.add_input(name='edgecolor', interface=IEnumStr(colors.keys()), value='black')
-        self.add_input(name='linestyle', interface=IEnumStr(linestyles.keys()), value='solid')
-
-        self.add_input(name='kwargs', interface=IDict, value={})
-
-        self.add_output(name='output', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        kwds = {}
-        kwds['alpha'] = self.get_input('alpha')
-        kwds['facecolor'] = self.get_input('facecolor')
-        kwds['edgecolor'] = self.get_input('edgecolor')
-        kwds['linestyle'] = self.get_input('linestyle')
-        for key,value in self.get_input('kwargs'):
-            kwds[key]=value
-        return (kwds)
-
-    """
-
-      animated: [True | False]         
-      antialiased or aa: [True | False]  or None for default         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: matplotlib color arg or sequence of rgba tuples
-      contains: a callable function         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      fill: [True | False]         
-      gid: an id string         
-      hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]         
-      label: any string         
-      linewidth or lw: float or None for default         
-      lod: [True | False]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
-      snap: unknown
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      visible: [True | False]         
-      zorder: any number        
-    """
-
-
 
 class PyLabFontProperties(Node):
 
@@ -865,6 +815,7 @@ class PyLabColorBar(Node):
         self.add_input(name='format', interface=IStr, value=None)
         self.add_input(name='label', interface=IStr, value=None)
         self.add_input(name='cmap', interface=IEnumStr, value=None)
+        self.add_input(name='show', interface=IBool, value=False)
         self.add_output(name='kwargs', interface=IDict, value={})
 
     def __call__(self, inputs):
@@ -880,7 +831,8 @@ class PyLabColorBar(Node):
             kwds['ticks'] = self.get_input('ticks')
         kwds['format'] = self.get_input('format')
 
-        #c = colorbar(**kwds)
+        if self.get_input('show'):
+            c = colorbar(**kwds)
 
         if self.get_input('label') is not None:
             c.set_label(self.get_input('label'))
@@ -1201,13 +1153,6 @@ class PyLabPatch(Node):
         Node.__init__(self)
         self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
         self.add_input(name='axes', interface=IDict, value={})
-
-
-class PyLabPatch(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
-        self.add_input(name='axes', interface=IDict, value={})
         self.add_input(name='color', interface=IEnumStr(colors.keys()), value='blue')
         self.add_input(name='edgecolor', interface=IEnumStr(colors.keys()), value=None)
         self.add_input(name='facecolor', interface=IEnumStr(colors.keys()), value=None)
@@ -1260,4 +1205,121 @@ class PyLabGrid(Node):
         else:
             grid(False)
 
+
+class PyLabCircle(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=IFloat, value=0)
+        self.add_input(name='y', interface=IFloat, value=0)
+        self.add_input(name='radius', interface=IFloat, value=5)
+        self.add_input(name='patch', interface=IDict, value={})
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from pylab import Circle
+
+        c = Circle((self.get_input('x'), self.get_input('y')),
+            self.get_input('radius'), **self.get_input('patch'))
+        return c
+
+class PyLabEllipse(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=IFloat, value=0)
+        self.add_input(name='y', interface=IFloat, value=0)
+        self.add_input(name='width', interface=IFloat, value=1)
+        self.add_input(name='height', interface=IFloat, value=1)
+        self.add_input(name='angle', interface=IFloat, value=0)
+        self.add_input(name='patch', interface=IDict, value={})
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from matplotlib.patches import Ellipse
+
+        c = Ellipse((self.get_input('x'), self.get_input('y')),
+            self.get_input('width'), self.get_input('height'), self.get_input('angle'), 
+            **self.get_input('patch'))
+        return c
+
+
+class PyLabAddPatches(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='axe', interface=IDict, value=None)
+        self.add_input(name='patches', interface=ISequence,  value=[])
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from pylab import Circle, draw
+
+        axe = self.get_input('axe')
+        if axe is not None:
+            patches2add = []
+            #if type(self.get_input('patches'))!=list:
+            #    patches = list(self.get_input('patches'))
+            #else:
+            patches = self.get_input('patches')
+            for patch in patches:
+                axe.add_patch(patch)
+            draw()
+        #return axe
+
+
+
+class PyLabRectangle(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=IFloat, value=0)
+        self.add_input(name='y', interface=IFloat, value=0)
+        self.add_input(name='width', interface=IFloat, value=1)
+        self.add_input(name='height', interface=IFloat, value=1)
+        self.add_input(name='patch', interface=IDict, value={})
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from pylab import Rectangle
+
+        c = Rectangle((self.get_input('x'), self.get_input('y')),
+            self.get_input('width'), self.get_input('height'), 
+            **self.get_input('patch'))
+        return c
+
+class PyLabWedge(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=IFloat, value=0)
+        self.add_input(name='y', interface=IFloat, value=0)
+        self.add_input(name='r', interface=IFloat, value=0)
+        self.add_input(name='theta1', interface=IFloat, value=0)
+        self.add_input(name='theta2', interface=IFloat, value=0)
+        self.add_input(name='width', interface=IFloat(0.01,1,0.01), value=None)
+        self.add_input(name='patch', interface=IDict, value={})
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from matplotlib.patches import Wedge
+        c = Wedge((self.get_input('x'), self.get_input('y')), 
+                self.get_input('r'), self.get_input('theta1'), 
+                self.get_input('theta2'), self.get_input('width'),
+                **self.get_input('patch'))
+        return c
+
+class PyLabPolygon(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='x', interface=ISequence, value=[])
+        self.add_input(name='y', interface=ISequence, value=[])
+        self.add_input(name='closed', interface=IBool, value=True)
+        self.add_input(name='patch', interface=IDict, value={})
+        self.add_output(name='return',value=None)
+
+    def __call__(self, inputs):
+        from pylab import Polygon
+        from numpy import array
+        #build up a (5,2) shape array from two x,y lists
+        a = []
+        for x,y in zip(self.get_input('x'), self.get_input('y')):
+            a.append((x,y))
+        c = Polygon(a, self.get_input('closed'), **self.get_input('patch'))
+        return c
 
