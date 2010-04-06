@@ -26,7 +26,7 @@ from warnings   import warn as WAWarn
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
-from . import baselisteners, interfaces
+import baselisteners, interfaces
 import edgefactory
 
 from math import sqrt
