@@ -1,33 +1,69 @@
-.. this file is dedicated to the reference guide
-
-.. In order to include a module so that it is automatically documented, it must in your python path
-
-.. In other words, sphinx will automatically create the reference guide (using automodule)
-   only if it can import the module.
-
-.. Keep the structure of this file as close as possible to the orginal one
-
-
-.. _starter_reference:
-
 Reference guide
 ###############
+.. topic:: in progress
+
 .. contents::
 
+.. currentmodule:: openalea.pylab_nodes_wralea.py_pylab
+
+Overview
+========
+
+All nodes that plot data are based on the base class :class:`~openalea.pylab_nodes_wralea.py_pylab.Plotting`
+
+.. inheritance-diagram:: openalea.pylab_nodes_wralea.py_pylab
+    :parts: 1
+
+.. inheritance-diagram:: PyLabScatter
+    :parts: 1
+
+.. inheritance-diagram:: openalea.pylab_nodes_wralea.py_pylab.PyLabPsd
+    :parts: 1
+
+Base classes
+------------
+.. autosummary::
+
+    Plotting
+    PlotxyInterface
+    PsdInterface
+
+.. autosummary::
+
+    PyLabLine2D
+
+Plots where x and y are 1-D arrays
+==================================
+
+.. .. inheritance-diagram:: openalea.pylab_nodes_wralea.py_pylab.PyLabPlot,openalea.pylab_nodes_wralea.py_pylab.Scatter 
+    :parts: 1
+
+.. autosummary::
+
+    PyLabPlot
+    PyLabScatter
+    PyLabSemiLogx
+    PyLabSemiLogy
+    PyLabLogLog
+    PyLabStem
+    PyLabStep
+    PyLabFill
+    PyLabFillBetween
+
+Power spectral densities
+========================
+
+.. autosummary::
+
+    PyLabPsd
+    PyLabCsd
+    PyLabSpecgram
 
 
-.. currentmodule:: openalea.starter.tree
+Api 
+===
 
-:mod:`openalea.starter.tree` module
-===============================================
-
-Download the source file :download:`../../src/starter/tree.py`.
-
-
-.. automodule:: openalea.starter.tree
-    :members:
-    :undoc-members:
-    :inherited-members:
+.. automodule:: openalea.pylab_nodes_wralea.py_pylab
+    :members: 
     :show-inheritance:
-    :synopsis: doc todo
 

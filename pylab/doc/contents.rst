@@ -29,10 +29,10 @@ Documentation
     :maxdepth: 1
 
     User Guide<user/index.rst>   
+    Reference Guide<user/autosum.rst>
+    Developer Guide <user/todo.rst>
 
-..    Reference Guide<user/autosum.rst>
-
-- A `PDF <../latex/pylab.pdf>`_ version of |pylab| documentation is 
+- A `PDF <../latex/main.pdf>`_ version of |pylab| documentation is 
   available.
 
 .. seealso::
@@ -58,4 +58,4 @@ License
 .. note:: `Cecill-C <http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html>`_ 
     license is a LGPL compatible license.
 
-.. |pylab| replace:: OpenAlea.Starter
+.. |pylab| replace:: OpenAlea.Pylab

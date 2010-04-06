@@ -1,9 +1,11 @@
 .. _pylab_user:
 
+.. topic:: in progress
+
 OpenAlea.Pylab User Guide
 ##########################
 
 
 .. toctree::
 
-    todo.rst
+    manual.rst
