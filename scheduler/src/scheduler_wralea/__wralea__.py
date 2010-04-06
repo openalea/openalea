@@ -31,7 +31,7 @@ __authors__ = 'Jerome Chopard'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Scheduler Node library.'
 __url__ = 'http://openalea.gforge.inria.fr'
-
+__icon__ = 'icon.png'
 __all__ = []
 
 task = Factory( name= "task", 
