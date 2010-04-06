@@ -70,6 +70,8 @@ setup(
                         "openalea.pylab.nodes = pylab_nodes_wralea",
                         "openalea.pylab.text = pylab_text_wralea",
                         "openalea.pylab.test = pylab_test_wralea",
+                        "openalea.pylab.patches = pylab_patches_wralea",
+                        "openalea.pylab.mplot3d = pylab_3d_wralea",
             ]
             },
 
