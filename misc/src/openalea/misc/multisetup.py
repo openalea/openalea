@@ -227,10 +227,6 @@ class Multisetup(object):
         """Enter in all package defined and Executing 'python setup.py' with
            user command.
 
-           Create stdout and stderr files (default)
-
-            .. todo:: Need to clean/refactor this code with respect to
-                the log files (stdout/stderr). One solution would be to use the module logger.
         """
         import sys
         import os		
@@ -255,11 +251,6 @@ class Multisetup(object):
 
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
-        if not self.verbose:
-            stdout = open('stdout', 'w')
-            stderr = open('stderr', 'w')
-            stdout.close()
-            stderr.close()
 
 
         print 'Will process the following directories: ',
@@ -282,23 +273,10 @@ class Multisetup(object):
                     print e
 
 
-                if not self.verbose:
-                    stdout = open('../stdout', 'a+')
-                    stdout.write('#####################################\n')
-                    stdout.write('*** running setup.py in: ' + directory + '\n')
-                    #stdout.close()
-
-                    stderr = open('../stderr', 'a+')
-                    stderr.write('#####################################\n')
-                    stderr.write('*** running setup.py in: ' + directory + '\n')
-                    #stdout.close()
-
-
                 #print underline('Entering %s package' % directory.basename())
                 for cmd in self.commands:
                     setup_command = 'python setup.py %s ' % cmd
                     print "\tExecuting " + setup_command + '...processing',
-                    sys.stdout.flush()
 
 
                     #Run setup.py with user commands
@@ -313,31 +291,13 @@ class Multisetup(object):
                                         shell=True)
                         #status = process.wait()
                         outputs, errors = process.communicate()
-                        try:
-                            stdout.write(outputs)
-                            stdout.close()
-                        except:
-                            pass
-                        try:
-                            stderr.write(errors)
-                            stderr.close()
-                        except:
-                            pass
                     if process.returncode == 0:
                         print green('done')
                     else:
                         if not self.verbose:
-                            print red('\tFailed. (see the file stderr; error code %s) ' %
+                            print red('\tFailed. ( error code %s) ' %
                                   (process.returncode))
                             os.chdir(self.curdir)
-#                            if process.returncode != 0 and not self.verbose:
-#                                errorfile = open('stderr', 'r').readlines()
-#                                for line in errorfile[-50:]:
-#                                    if line.startswith('\n'):
-#                                        print line
-#                                    else:
-#                                        print line.replace('\n', '')
-
 
                         if not self.force:
                             raise RuntimeError()
