@@ -129,44 +129,6 @@ py_pylab_PyLabScatter = Factory(name='PyLabScatter',
 
 
 
-py_pylab_PyLabFigure = Factory(name='PyLabFigure',
-                description='pylab.figure interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabFigure',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-
-
-
-py_pylab_PyLabXLabel = Factory(name='PyLabXLabel',
-                description='pylab.xlabel interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabXLabel',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-py_pylab_PyLabYLabel = Factory(name='PyLabYLabel',
-                description='pylab.ylabel interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabYLabel',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabRandom = Factory(name='PyLabRandom',
                 description='pylab.random interface.',
@@ -210,61 +172,6 @@ py_pylab_PyLabLine2D = Factory(name='PyLabLine2D',
                 lazy=False
                )
 
-
-
-
-py_pylab_PyLabLegend = Factory(name='PyLabLegend',
-                description='pylab.legend interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabLegend',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-
-
-
-py_pylab_PyLabTextOptions = Factory(name='PyLabTextOptions',
-                description='pylab.text interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabTextOptions',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-py_pylab_PyLabAxes = Factory(name='PyLabAxes',
-                description='pylab.axes interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabAxes',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-py_pylab_PyLabAxis = Factory(name='PyLabAxis',
-                description='pylab.axes interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabAxis',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-
 py_pylab_PyLabPolar = Factory(name='PyLabPolar',
                 description='pylab.polar interface.',
                 category='visualization, data processing',
@@ -290,34 +197,6 @@ py_pylab_PyLabPie = Factory(name='PyLabPie',
                )
 
 
-py_pylab_PyLabTitle = Factory(name='PyLabTitle',
-                description='pylab.title interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabTitle',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-
-
-
-
-
-py_pylab_PyLabRectangle = Factory(name='PyLabRectangle',
-                description='pylab.rectangle interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabRectangle',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabBar = Factory(name='PyLabBar',
                 description='pylab.bar interface.',
@@ -343,17 +222,6 @@ py_pylab_PyLabLogLog = Factory(name='PyLabLogLog',
                 lazy=False
                )
 
-py_pylab_PyLabFontProperties = Factory(name='PyLabFontProperties',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabFontProperties',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabCohere = Factory(name='PyLabCohere',
                 description='pylab.fontproperties interface.',

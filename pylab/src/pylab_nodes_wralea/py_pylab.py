@@ -15,8 +15,7 @@
 #
 ###############################################################################
 
-__doc__="""
-amlPy functions
+__doc__="""pylab plotting nodes
 """
 
 __license__= "Cecill-C"
@@ -235,11 +234,12 @@ def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
 
 
 class Plotting(Node):
-
+    """test"""
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
     def __init__(self,  inputs={}):
+        """testw"""
         Node.__init__(self)
         self._show = True
         self._title = None
@@ -413,6 +413,7 @@ class Plotting(Node):
 
 
 class PlotxyInterface():
+    """test"""
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
@@ -505,33 +506,34 @@ class PlotxyInterface():
         pass
 
 class PyLabPlot(Plotting, PlotxyInterface):
-    """pylab.plot interface
+    """VisuAlea version of pylab.plot
 
-    if x is an array, y should be an array as well or a list of array (assuming
-    they all have the same x). All must have the same length.
+    The x connector must be connected. It must be in one of the following format:
 
-    if x is a line2D, y is not used.
+        * a 1-D array.
+            * If nothing is connected to `y`, then `x` is used as `y` (similarly to pylab.plot behaviour)
+            * A 1-D array of same length may be connected to `y`.
+            * Several 1-D arrays of same length as `x` may be connected to `y`. Therefore, 
+              these arrays have the same `x` data
+        * a Line2D object (see :ref:`Line2D`). `y` must  be empty in such case.
+        * a list of Line2D objects. `y` must be empty in such case
 
-    x can also be a list of Line2D objects.
-
-    if x is made of Line2D, their format strings are used (label, color, linewidth...)
-    Otherwise, the default values (in pylabplot) are used.
+    In order to customize the input data at will, it is necesserary to convert the xy data into a 
+    :class:`PyLabLine2D` object and to pass it to the `x` connector. In such case, the y connector
+    becomes useless.
 
     :param x: either an array or a PyLabLine2D object or a list of PyLabLine2D objects.
-    :param x: either an array or list of arrays
-    :param label: None by default
+    :param y: either an array or list of arrays
     :param marker: circle marker by default
-    :param linestyle: solid line by default
-    :param color: blue by default
-    :param xlabel: none by default
-    :param ylabel: none by default
-    :param title: none by default
+    :param markersize: marker size  (float, default=10)
+    :param linestyle: solid line by default (default=solid)
+    :param color: (default=blue)
 
-    .. todo:: case where there are several y entries and/or x
+    :return: the axes in which the data are plotted.
+
     :authors: Thomas Cokelaer
     """
     def __init__(self):
-        """init docstring"""
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
@@ -564,7 +566,15 @@ class PyLabPlot(Plotting, PlotxyInterface):
 
 
 class PyLabLogLog(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.loglog
+
+    see :class:`PyLabPlot` documentation
+
+    :Author: Thomas Cokelaer
+    """
+
     def __init__(self):
+        self.__doc__ = PyLabPlot.__doc__
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
@@ -595,7 +605,14 @@ class PyLabLogLog(Plotting, PlotxyInterface):
         return self.axes_shown
 
 class PyLabSemiLogy(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.semilogy
+
+    see :class:`PyLabPlot` documentation
+
+    :Author: Thomas Cokelaer
+    """
     def __init__(self):
+        self.__doc__ = PyLabPlot.__doc__
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
@@ -626,7 +643,14 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
         return self.axes_shown
 
 class PyLabSemiLogx(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.semilogx
+
+    see :class:`PyLabPlot` documentation
+
+    :Author: Thomas Cokelaer
+    """
     def __init__(self):
+        self.__doc__ = PyLabPlot.__doc__
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
@@ -953,7 +977,6 @@ class PyLabScatter(Plotting):
 class PyLabBoxPlot(Plotting):
     """pylab.boxplot interface
 
-
     :param x: data
     :parma notch: (default 0)
     :param sym: '+'
@@ -962,8 +985,8 @@ class PyLabBoxPlot(Plotting):
     :param  positions: None
     :param widths:None
 
-    .. todo:: 
     :authors: Thomas Cokelaer
+
     """
     def __init__(self):
         """init docstring"""
@@ -993,7 +1016,7 @@ class PyLabBoxPlot(Plotting):
 
 
 class PyLabLine2D(Node):
-
+    """todo"""
     def __init__(self):
         Node.__init__(self)
 
@@ -1077,137 +1100,6 @@ drawstyle=None,
 
 """
 
-class PyLabAxes(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='axisbg', interface=IEnumStr(colors.keys()), value='white')
-        self.add_input(name='frameon', interface=IBool, value=True)
-        self.add_input(name='polar', interface=IBool, value=False)
-        #sharex    otherax        current axes shares xaxis attribute with otherax
-        #sharey    otherax        current axes shares yaxis attribute with otherax
-        #self.add_output(name='axes')
-        self.add_output(name='kwds', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import axes
-        kwds = {}
-        kwds['axisbg'] = self.get_input('axisbg')
-        kwds['frameon'] = self.get_input('frameon')
-        kwds['polar'] = self.get_input('polar')
-        #aa = axes(**kwds)
-        return kwds
-
-class PyLabAxis(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='type', interface=IEnumStr(axis.keys()), value='normal')
-        self.add_input(name='xmin', interface=IFloat(step=0.1), value=0.)
-        self.add_input(name='xmax', interface=IFloat(step=0.1), value=1.)
-        self.add_input(name='ymin', interface=IFloat(step=0.1), value=0.)
-        self.add_input(name='ymax', interface=IFloat(step=0.1), value=1.)
-        self.add_output(name='kwds', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import axis
-        kwds = {}
-        kwds['type'] = self.get_input('type')
-        kwds['xmin'] = self.get_input('xmin')
-        kwds['xmax'] = self.get_input('xmax')
-        kwds['ymin'] = self.get_input('ymin')
-        kwds['ymax'] = self.get_input('ymax')
-        #aa = axes(**kwds)
-        return kwds
-
-
-
-
-class PyLabTextOptions(Node):
-
-    def __init__(self):
-
-        Node.__init__(self)
-        #self.add_input(name="text", interface=IStr)
-        #self.add_input(name="fontdict", interface=IDict, value=None)
-
-
-
-class PyLabTextOptions(Node):
-
-    def __init__(self):
-
-        Node.__init__(self)
-        #self.add_input(name="text", interface=IStr)
-        #self.add_input(name="fontdict", interface=IDict, value=None)
-        self.add_input(name="fontsize", interface=IFloat, value=12.)
-        self.add_input(name="alpha", interface=IFloat(0., 1., step=0.1), value=0.5)
-        self.add_input(name="color", interface=IEnumStr(colors.keys()), value='blue')
-        self.add_input(name='backgroundcolor', interface=IEnumStr(colors.keys()), value='white')
-        #self.add_input(name="withdash", interface=IBool, value=False)
-        self.add_input(name="kwargs", interface=IDict, value={})
-
-        self.add_output(name="kwargs", interface=IDict, value=None)
-
-
-    def __call__(self, inputs):
-        from pylab import text
-        kwds = {}
-        #kwds['text'] = self.get_input('text')
-        kwds['fontsize'] = self.get_input('fontsize')
-        kwds['alpha'] = self.get_input('alpha')
-        kwds['color'] = self.get_input('color')
-        kwds['backgroundcolor'] = self.get_input('backgroundcolor')
-        for key, value in self.get_input('kwargs').iteritems():
-            try:
-                kwds[key] = value
-            except:
-                print 'key already defined. skip it'
-                pass
-
-        #res = text(0,0, self.get_input('text'), **kwds)
-
-        return ( kwds,)
-
-""" 
-      animated: [True | False]         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      backgroundcolor: any matplotlib color         
-      bbox: rectangle prop dict         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]    i
- clip_on: [True | False]         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: any matplotlib color         
-      contains: a callable function         
-      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      fontproperties or font_properties: a :class:`matplotlib.font_manager.FontProperties` instance         
-      gid: an id string         
-      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]         
-      label: any string         
-      linespacing: float (multiple of font size)         
-      lod: [True | False]         
-      multialignment: ['left' | 'right' | 'center' ]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
-      rotation: [ angle in degrees | 'vertical' | 'horizontal' ]         
-      rotation_mode: unknown
-      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]         
-      snap: unknown
-      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]         
-      style or fontstyle: [ 'normal' | 'italic' | 'oblique']         
-      text: string or anything printable with '%s' conversion.         
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      variant or fontvariant: [ 'normal' | 'small-caps' ]         
-      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]         
-      visible: [True | False]         
-      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]         
-      zorder: any number         
-"""
-
 
 class PyLabPolar(Node):
 
@@ -1266,129 +1158,6 @@ class PyLabPie(Plotting):
         return res
 
 
-
-
-
-
-
-
-class PyLabXLabel(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="text", interface=IStr, value=None)
-        self.add_input(name="fontsize", interface=IFloat, value=12.)
-        self.add_input(name="verticalalignment", interface=IEnumStr(verticalalignment.keys()), value='top')
-        self.add_input(name="horizontalalignment", interface=IEnumStr(horizontalalignment.keys()), value='center')
-        self.add_input(name="kwargs", interface=IDict, value={})
-
-        self.add_output(name='kwargs', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import xlabel, hold
-
-        kwargs = {}
-        kwargs['fontsize'] = self.get_input('fontsize')
-        kwargs['verticalalignment'] = self.get_input('verticalalignment')
-        kwargs['horizontalalignment'] = self.get_input('horizontalalignment')
-        for key, value in self.get_input('kwargs').iteritems():
-            kwargs[key]=value
-
-        #xlabel(self.get_input('text'), **kwargs)
-        kwargs['text'] = self.get_input('text')
-
-        return kwargs
-
-class PyLabYLabel(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="text", interface=IStr, value=None)
-        self.add_input(name="fontsize", interface=IFloat, value=12.)
-        self.add_input(name="verticalalignment", interface=IEnumStr(verticalalignment.keys()), value='top')
-        self.add_input(name="horizontalalignment", interface=IEnumStr(horizontalalignment.keys()), value='center')
-        self.add_input(name="kwargs", interface=IDict, value={})
-
-        self.add_output(name='kwargs', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import ylabel, hold
-
-        kwargs = {}
-        kwargs['fontsize'] = self.get_input('fontsize')
-        kwargs['verticalalignment'] = self.get_input('verticalalignment')
-        kwargs['horizontalalignment'] = self.get_input('horizontalalignment')
-        for key, value in self.get_input('kwargs').iteritems():
-            kwargs[key]=value
-
-        #ylabel(self.get_input('text'), **kwargs)
-        kwargs['text'] = self.get_input('text')
-        return kwargs
-
-
-class PyLabTitle(Node):
-
-    def __init__(self):
-        from matplotlib import font_manager
-        Node.__init__(self)
-        self.add_input(name="text", interface=IStr, value=None)
-        self.add_input(name="fontsize", interface=IFloat, value=12)
-        self.add_input(name="color", interface=IEnumStr(colors.keys()), value='black')
-        #self.add_input(name="fontproperties", interface=IDict, value=font_manager.FontProperties())
-        self.add_input(name='kwargs', interface=IDict, value={})
-
-        self.add_output(name='output', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import title
-
-        kwargs = {}
-        kwargs['fontsize'] = self.get_input('fontsize')
-        #kwargs['fontproperties'] = self.get_input('fontproperties')
-        kwargs['color'] = self.get_input('color')
-        if 'text' in kwargs.keys():
-            self.set_input('text', kwargs['text'], notify=True)
-        for key, value in self.get_input('kwargs').iteritems():
-            kwargs[key]=value
-
-        #print self.get_input('text')
-        #print kwargs
-        #title(self.get_input('text'), **kwargs)
-        kwargs['text'] = self.get_input('text')
-        return kwargs
-
-
-
-
-
-class PyLabFontProperties(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='family', interface=IEnumStr(families.keys()), value='serif')
-        self.add_input(name='style', interface=IEnumStr(styles.keys()), value='normal')
-        self.add_input(name='variant', interface=IEnumStr(variants.keys()), value='normal')
-        self.add_input(name='weight', interface=IEnumStr(weights.keys()), value='normal')
-        self.add_input(name='stretch', interface=IEnumStr(streches.keys()), value='normal')
-        self.add_input(name='size', interface=IEnumStr(sizes.keys()), value='medium')
-        #todo size could be number, similarly for stretch and weight
-        #self.add_input(name='fname', fname=None)
-        #self.add_input(name='_init', _init=None)
-        #todo style, variant and strethc do not seem to work
-        self.add_output(name='kwds', interface=IDict, value={})
-
-    def __call__(self,inputs):
-        kwds = {}
-        kwds['family'] = self.get_input('family')
-        kwds['style'] = self.get_input('style')
-        kwds['size'] = self.get_input('size')
-        kwds['variant'] = self.get_input('variant')
-        kwds['weight'] = self.get_input('weight')
-        kwds['stretch'] = self.get_input('stretch')
-
-        return kwds
-
-
 class PyLabBar(Plotting):
 
     def __init__(self):
@@ -1401,7 +1170,7 @@ class PyLabBar(Plotting):
 
     def __call__(self, inputs):
         from pylab import bar, hold, cla
-        
+
         self.figure()
         self.axes()
         cla()
@@ -1503,15 +1272,6 @@ class PyLabCohere(Plotting):
         self.properties()
         return self.axes_shown
         return (cxy, freq)
-
-
-class Windowing(Node):
-    """ should include hanning, ...."""
-    def __init__(self):
-        pass
-
-    def __call__(self, inputs):
-        pass
 
 
 class PyLabSubPlotTool(Node):
@@ -1646,7 +1406,9 @@ class PyLabCLabel(Node):
 
 
 class PcolorInterface():
-    """to be completed"""
+    """
+
+    .. note:: pcolormesh is equivalent to pcolor. """
     def __init__(self):
         self.inputs = []
         self.inputs.append({'name': 'X', 'value':None})
@@ -1666,6 +1428,10 @@ class PcolorInterface():
 
 #class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
 class PyLabPcolor(Plotting, PcolorInterface):
+    """
+
+
+    .. note:: pcolormesh is equivalent to pcolor. """
     def __init__(self):
         PcolorInterface.__init__(self)
         Plotting.__init__(self, self.inputs)
@@ -1775,6 +1541,7 @@ class PyLabContour(Plotting):
 
 
 class PsdInterface():
+    """test"""
     from pylab import mlab
     windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
     sides = [ 'default','onesided','twosided']
@@ -1829,7 +1596,7 @@ class PsdInterface():
 
 
 class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
-
+    """test"""
     def __init__(self):
         PsdInterface.__init__(self, type='x')
         Plotting.__init__(self, self.inputs)
@@ -1857,6 +1624,7 @@ class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
 
 
 class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
+    """test"""
 
     def __init__(self):
         PsdInterface.__init__(self, type='xy')
@@ -1876,6 +1644,7 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
         return self.axes_shown
 
 class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
+    """test"""
 
     def __init__(self):
         PsdInterface.__init__(self, type='x', noverlap=128, cmap=True)
