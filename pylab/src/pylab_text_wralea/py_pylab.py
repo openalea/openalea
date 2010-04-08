@@ -386,7 +386,7 @@ class PyLabFigure(Node):
         kwds['facecolor']=self.get_input('facecolor')
         kwds['edgecolor']=self.get_input('edgecolor')
         kwds['dpi']=self.get_input('dpi')
-        #fig = figure(**kwds)
+        fig = figure(**kwds)
         return kwds
 
 
@@ -544,7 +544,14 @@ class PyLabPolar(Node):
 
 
 class PyLabXLabel(Node):
+    """VisuAlea version of pylab.xlabel
 
+    :param text:
+    :param fontsize:
+    :param verticalalignement:
+    :param horizontalalignment:
+    :param text properties: output of a :class:`TextProperties` Node
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name="text", interface=IStr, value=None)
@@ -571,7 +578,15 @@ class PyLabXLabel(Node):
         return kwargs
 
 class PyLabYLabel(Node):
+    """VisuAlea version of pylab.ylabel
 
+    :param text:
+    :param fontsize:
+    :param verticalalignement:
+    :param horizontalalignment:
+    :param text properties: output of a :class:`TextProperties` Node
+
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name="text", interface=IStr, value=None)

@@ -29,18 +29,9 @@ from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
 
-axis = {
-    'off':'off',
-    'manual':'manual',
-    'equal':'equal',
-    'tight':'tight',
-    'scaled':'scaled',
-    'image':'image',
-    'auto':'auto',
-    'normal':'normal'
-    }
 
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
+
+#sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
 from pylab import cm, get_cmap
 maps=[m for m in cm.datad if not m.endswith("_r")]
@@ -49,133 +40,85 @@ for c in maps:
     cmaps[c] = get_cmap(c)
 cmaps['None'] = None
 
-detrends = {
-    'none':'detrend_none',
-    'linear':'detrend_linear',
-    'mean':'detrend_mean'
-    }
 
-streches = {
-    'ultra-condensed':'ultra-condensed',
-    'extra-condensed':'extra-condensed',
-    'condensed':'condensed',
-    'semi-condensed':'semi-condensed',
-    'normal':'normal',
-    'semi-expanded':'semi-expanded',
-    'expanded':'expanded',
-    'extra-expanded':'extra-expanded' ,
-    'ultra-expanded':'ultra-expanded'
-    }
+class Detrends():
+    """Provides a list of valid detrend options
 
-weights = {
-    'ultralight':'ultralight',
-    'light':'light',
-    'normal':'normal',
-    'regular':'regular',
-    'book':'book',
-    'medium':'medium',
-    'roman':'roman',
-    'semibold':'semibold',
-    'demibold':'demibold',
-    'demi':'demi',
-    'bold':'bold',
-    'heavy':'heavy',
-    'extra bold':'extra bold',
-    'black':'black'
-    }
+        * 'none':
+        * 'linear'
+        * 'mean'
+    """
+    def __init__(self):
+
+        self.detrends = {
+            'none':'detrend_none',
+            'linear':'detrend_linear',
+            'mean':'detrend_mean'
+            }
 
 
-sizes = {
-    'xx-small':'xx-small',
-    'x-small':'x-small',
-    'small':'small',
-    'medium':'medium',
-    'large':'large',
-    'x-large':'x-large',
-    'xx-large':'xx-large'
-    }
+class Colors():
+    """Provide a dictionary of colors
 
-styles = {
-    'italic':'italic',
-    'normal':'normal',
-    'oblique':'oblique'}
+    'blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'purple', 'black', 'white', 'None',
+    """
+    def __init__(self):
 
-variants = {
-    'normal':'normal',
-    'small-caps':'small-caps'}
+        self.colors = {
+            'blue':'b',
+            'green':'g',
+            'red':'r',
+            'cyan':'c',
+            'magenta':'m',
+            'yellow':'y',
+            'purple':'purple',
+            'black':'k',
+            'white':'w',
+            'None':'None'
+             }
 
-families = {
-    'serif':'serif',
-    'sans-serif':'sans-serif',
-    'cursive':'cursive',
-    'fantasy':'fantisy',
-    'monospace':'monospace'}
+class DrawStyles():
+    """Provides a list of valid draw styles
 
-horizontalalignment = {
-    'center':'center',
-    'right':'right' ,
-    'left':'left' }
-
-verticalalignment = {
-    'center':'center' ,
-    'top':'top' ,
-    'bottom':'bottom' ,
-    'baseline':'baseline'}
-
-colors = {
-    'blue':'b',
-    'green':'g',
-    'red':'r',
-    'cyan':'c',
-    'magenta':'m',
-    'yellow':'y',
-    'purple':'purple',
-    'black':'k',
-    'white':'w',
-    'None':'None'
-    }
+    Found by introspection in pylab.Line2D.drawStyles
+    """
+    def __init__(self):
+        from pylab import Line2D
+        self.drawstyles = {}
+        for key,value in Line2D.drawStyles.iteritems():
+            self.drawstyles[value.replace('_draw_','')]=key
 
 
-from pylab import Line2D
+class LineStyles():
+    """Provides a list of valid draw styles
 
-drawstyles = {}
-for key,value in Line2D.drawStyles.iteritems():
-    drawstyles[value.replace('_draw_','')]=key
+    Found by introspection in pylab.Line2D.lineStyles
 
-# line style --, -., .....
-linestyles = {}
-for key,value in Line2D.lineStyles.iteritems():
-    linestyles[value.replace('_draw_','')]=key
+        *  --
+        * -.
+        *  ...
+    """
 
-# markers : o, square, ...
-markers = {}
-for key,value in Line2D.markers.iteritems():
-    markers[value.replace('_draw_','')]=key
+    def __init__(self):
+        from pylab import Line2D
+        self.linestyles = {}
+        for key,value in Line2D.lineStyles.iteritems():
+            self.linestyles[value.replace('_draw_','')]=key
 
-#pylab.Line2D.filled_markers
+class Markers():
+    """Provides a list of valid markers
 
-fillstyles={'top':'top',
-    'full':'full',
-    'bottom':'bottom',
-    'left':'left',
-    'right':'right',
-    }
+    Found by introspection in pylab.Line2D.markers
 
-locations={
-    'best' : 0,
-    'upper right'  : 1,
-    'upper left'   : 2,
-    'lower left'   : 3,
-    'lower right'  : 4,
-    'right'        : 5,
-    'center left'  : 6,
-    'center right' : 7,
-    'lower center' : 8,
-    'upper center' : 9,
-    'center'       : 10,}
+        *  circle : o,
+        * square, ...
+    """
 
-
-
+    def __init__(self):
+        from pylab import Line2D
+        self.markers = {}
+        for key,value in Line2D.markers.iteritems():
+            self.markers[value.replace('_draw_','')]=key
 
 
 def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
@@ -234,12 +177,31 @@ def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
 
 
 class Plotting(Node):
-    """test"""
+    """This class provides common connector related to decorate a figure or axes.
+
+    It is a base class to all Plotting nodes so that they inherits from the Node class, 
+    and get common connectors:
+
+        * grid
+        * xlabel
+        * ylabel
+        * title
+        * figure
+        * legend
+        * colorbar
+        * axes
+        * axis
+
+
+    It also guarantee to have at least 1 output defined within each Plotting nodes.
+
+    .. warning:: show and subplot are obsolet
+    :author: Thomas Cokelaer
+    """
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
     def __init__(self,  inputs={}):
-        """testw"""
         Node.__init__(self)
         self._show = True
         self._title = None
@@ -268,6 +230,15 @@ class Plotting(Node):
         self.fig = None
 
     def colorbar(self):
+        """call pylab.colorbar()
+
+        .. warning:: a known issue with pylab is that colorbar cannot be deleted.
+            except by using a clf() call, which delete also all other axes and not
+            only the current one. So, we add a mechanism to call colorbar if not 
+            already called.
+        
+        It can also inherit from the :class:`PyLabColorbar` keywords arguments.
+        """
         from pylab import colorbar
         if self.colorbar_called == True:
             return
@@ -282,15 +253,21 @@ class Plotting(Node):
             self.colorbar_called=True
 
     def show(self):
+        """call pylab.show"""
         from pylab import show
         if self.get_input('show'):
             show()
 
     def grid(self):
+        """call pylab.grid"""
         from pylab import grid
         grid(self.get_input('grid'))
 
     def figure(self):
+        """call pylab.figure()
+
+        It can also inherit from the :class:`PyLabrFigure` keywords arguments.
+        """
         from pylab import figure
         args = self.get_input('figure')
         if type(args)==int:
@@ -301,6 +278,12 @@ class Plotting(Node):
         self.fig = fig
 
     def axes(self):
+        """call pylab.axes
+
+        if an axes is called, we first delete the previous one.
+
+        It can also inherit from the :class:`PyLabAxes` keywords arguments.
+        """
         if self.axes_shown is not None:
             try:
                 self.fig.delaxes(self.axes_shown)
@@ -318,6 +301,11 @@ class Plotting(Node):
             self.axes_shown = None
 
     def axis(self):
+        """call pylab.axis
+
+        it can also inherit from the :class:`PyLabAxis` keywords arguments
+
+        """
         from pylab import axis
         import copy
         kwds = copy.deepcopy(self.get_input('axis'))
@@ -331,6 +319,11 @@ class Plotting(Node):
             axis(**kwds)
 
     def title(self):
+        """call pylab.title
+
+        it can also inherit from the :class:`PyLabTitle` keywords arguments
+
+        """
         from pylab import title
         try:
             import copy
@@ -342,6 +335,11 @@ class Plotting(Node):
             title(self.get_input('title'))
 
     def xlabel(self):
+        """call pylab.xlabel
+
+        it can also inherit from the :class:`PyLabXLabel` keywords arguments
+
+        """
         from pylab import xlabel
         try:
             import copy
@@ -353,6 +351,11 @@ class Plotting(Node):
             xlabel(self.get_input('xlabel'))
 
     def ylabel(self):
+        """call pylab.ylabel
+
+        it can also inherit from the :class:`PyLabYLabel` keywords arguments
+
+        """
         from pylab import ylabel
         try:
             import copy
@@ -364,6 +367,11 @@ class Plotting(Node):
             ylabel(self.get_input('ylabel'))
 
     def legend(self):
+        """call pylab.legend
+
+        it can also inherit from the :class:`PyLabLegend` keywords arguments
+
+        """
         from pylab import legend
         args = self.get_input('legend')
         if type(args)==bool:
@@ -372,11 +380,10 @@ class Plotting(Node):
         else:
             legend(**args)
 
-    def error(self, message):
-        from pylab import text
-        text(0., 0.6, message, backgroundcolor='red')
-
     def subplot(self):
+        """
+        .. warning::  obsolet
+        """
         from pylab import subplot
 
         try:
@@ -400,6 +407,8 @@ class Plotting(Node):
 
 
     def properties(self):
+        """This is an alias method that calls legend, title, xlabel, ylabel, 
+        grid, axis, colorbar and show"""
         self.legend()
         self.title()
         self.xlabel()
@@ -412,16 +421,49 @@ class Plotting(Node):
 
 
 
-class PlotxyInterface():
-    """test"""
+class PlotxyInterface(Colors, LineStyles, Markers):
+    """A base class common to some plotting functions
+
+    The plotting functions that uses this base class are:
+
+        * plot
+        * loglog
+        * semilogx, semilogy
+        * csd, psd, specgram
+        * stem
+        * step
+        * fill
+
+    They are plotting x data or x verus y data.
+
+    This is used to manage the different possible x and y inputs.
+
+    See :class:`PyLabPlot` for more explanation.
+
+    It inherits from :class:`Colors`, :class:`LineStyles` and :class:`Markers` so that if there are 
+    several inputs a basic combination of different colors and line styles are used.
+
+    For more tunable colors and line styles, use the :class:`Line2D` convertor before passing 
+    the data to a node.
+
+    """
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
     def __init__(self):
-        pass
+        Colors.__init__(self)
+        LineStyles.__init__(self)
+        Markers.__init__(self)
+
 
     def call(self, plottype, kwds):
-        from pylab import hold
+        """Function used to call the plot specified by`plottype`
+
+        :param plottype: must be one of plot, loglog, semilogx, semilogy, csd, psd, specgram, step, stem, fill
+
+        if several x are provided, different colors will be used for the markers cycling over the available :class:`Colors`
+        """
+        from pylab import hold, Line2D
         if plottype=='plot':
             from pylab import plot as plot
         elif plottype=='loglog':
@@ -474,7 +516,7 @@ class PlotxyInterface():
                     hold(True)
             #plot([x1,None,x2,None, ...) and plot(x1)
             else:
-                c = enumerate(colors)
+                c = enumerate(self.colors)
                 for x in xinputs:
                     try:
                         color = c.next()
@@ -487,7 +529,7 @@ class PlotxyInterface():
         else:
             if len(xinputs)==1 and len(yinputs)!=1:
                 # plot(x,y) and plot(x, [y1,y2])
-                c = enumerate(colors)
+                c = enumerate(self.colors)
                 for y in yinputs:
                     try:
                         color = c.next()
@@ -534,30 +576,28 @@ class PyLabPlot(Plotting, PlotxyInterface):
     :authors: Thomas Cokelaer
     """
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
         self.figure()
-        #self.subplot()
         self.axes()
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
+        kwds['color']=self.colors[self.get_input("color")]
 
         self.call('plot', kwds)
 
@@ -575,30 +615,28 @@ class PyLabLogLog(Plotting, PlotxyInterface):
 
     def __init__(self):
         self.__doc__ = PyLabPlot.__doc__
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
         self.figure()
-        #self.subplot()
         self.axes()
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
+        kwds['color']=self.colors[self.get_input("color")]
 
         self.call('loglog', kwds)
         self.properties()
@@ -613,30 +651,28 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
     """
     def __init__(self):
         self.__doc__ = PyLabPlot.__doc__
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
         self.figure()
-        #self.subplot()
         self.axes()
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
+        kwds['color']=self.colors[self.get_input("color")]
 
         self.call('semilogy', kwds)
         self.properties()
@@ -651,30 +687,28 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
     """
     def __init__(self):
         self.__doc__ = PyLabPlot.__doc__
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
         self.figure()
-        #self.subplot()
         self.axes()
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
+        kwds['color']=self.colors[self.get_input("color")]
 
         self.call('semilogy', kwds)
         self.properties()
@@ -684,19 +718,18 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
 class PyLabHist(Plotting):
     """pylab.hist interface
 
-    :param x: input data
+    :param x: the input data (1D array)
     :param bins: binning number (default is 10)
     :param facecolor: blue by default
-    :param normed:
-    :param log:
-    :param histtype:
-    :param orientation:
-    :param align:
+    :param normed: normalised histogram (False by default)
+    :param cumulative: cumulated histogram (False by default)
+    :param histtype: (bar, step, stepfilled, etc) 
+    :param alignment: (bar, step, stepfilled, etc) 
+    :param orientation: horizontal or vertical (default is vertical)
+    :param log: logarithmic scale (default is False)
+    :param label: a text label
 
-    :param xlabel: none by default, could be output of PyLabXLabel
-    :param ylabel: none by default, could be output of PyLabYLabel
-    :param title: none by default, could be output of PyLabTitle
-    
+    :returns: axes object
 
     .. todo::
 
@@ -708,18 +741,14 @@ class PyLabHist(Plotting):
     """
 
     def __init__(self):
-        self.histtype = {
-                'bar':'bar',
-                'barstacked':'barstacked',
-                'step' :'step',
-                'stepfilled':'stepfilled'}
+        self.histtype = {'bar':'bar','barstacked':'barstacked',  'step' :'step','stepfilled':'stepfilled'}
         self.orientation = {'horizontal':'horizontal', 'vertical':'vertical'}
         self.align = {'mid':'mid', 'right':'right', 'left':'left'}
-        
+        self.colors = Colors().colors 
         inputs = [
             {'name':'x'},
             {'name':'bins',         'interface':IInt, 'value':10},
-            {'name':'facecolor',    'interface':IEnumStr(colors.keys()), 'value':'blue'},
+            {'name':'facecolor',    'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
             {'name':'normed',       'interface':IBool, 'value':False},
             {'name':'cumulative',   'interface':IBool, 'value':False},
             {'name':'histtype',     'interface':IEnumStr(self.histtype.keys()), 'value':'bar'},
@@ -766,7 +795,7 @@ class PyLabHist(Plotting):
         kwds={}
         kwds['bins']=self.get_input("bins")
         kwds['normed']=self.get_input("normed")
-        kwds['facecolor']=self.get_input("facecolor")
+        kwds['facecolor']=self.colors[self.get_input("facecolor")]
         kwds['label']=self.get_input("label")
         kwds['log']=self.get_input("log")
         kwds['orientation']=self.orientation[self.get_input("orientation")]
@@ -799,7 +828,7 @@ class PyLabHist(Plotting):
  #range=None   bottom=None,    rwidth=None,
 
 
-class PyLabAcorr(Plotting):
+class PyLabAcorr(Plotting, Detrends):
     """pylab.acorr interface
 
      Plot the autocorrelation of x. If normed = True, normalize
@@ -815,17 +844,18 @@ class PyLabAcorr(Plotting):
     :param ylabel: none by default
     :param title: none by default
 
-
+    .. todo:: finalise doc and function
     :authors: Thomas Cokelaer
     """
 
     def __init__(self):
+        Detrends.__init__(self)
         inputs = [
                     {'name':'x', 'interface':None, 'value':None},
                     {'name':"maxlags",   'interface':IInt,  'value':10},
                     {'name':"normed",    'interface':IBool, 'value':False},
                     {'name':"usevlines", 'interface':IBool, 'value':True},
-                    {'name':'detrend', 'interface':IEnumStr(detrends.keys()), 'value':'none'},
+                    {'name':'detrend', 'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
                     {'name':"kwargs",    'interface':IDict, 'value':{}}
                 ]
         Plotting.__init__(self, inputs)
@@ -854,7 +884,6 @@ class PyLabAcorr(Plotting):
         for x in xinputs:
             res =  acorr(x, **kwds)
             hold(True)
-        #self.error(self.ERROR_FAILURE)
         self.properties()
         return self.axes_shown
 
@@ -922,10 +951,13 @@ class PyLabAbsolute(Node):
 
 
 class PyLabScatter(Plotting):
-    """pylab.scatter interface
+    """VisuAlea version of pylab.scatter
 
-    :param x: the first input data set
-    :param y: the second input data set (optional)
+    create a scatter plot of the x-y input data
+
+
+    :param x: a x-data array
+    :param y: a y-data array
     :param label: None by default
     :param marker: circle marker by default
     :param linestyle: solid line by default
@@ -934,18 +966,25 @@ class PyLabScatter(Plotting):
     :param ylabel: none by default
     :param title: none by default
 
-    .. todo:: case where there are several y entries and/or x
-    :authors: Thomas Cokelaer
+    :return: the axes object
+
+    .. todo:: deal with several multiple x-y data sets (e.g., line 2D?)
+    
+    .. todo:: add vmin/vmax, cmap
+
+    :author: Thomas Cokelaer
     """
     def __init__(self):
+        self.colors = Colors().colors
+        print self.colors
+        self.markers = Markers().markers
         inputs = [
             {'name':'x',        'value':None},
             {'name':'y',        'value':None},
             {'name':'sizes',    'value':20},
-            {'name':'colors',   'value':'r'},
+            {'name':"color",    'interface':IEnumStr(self.colors.keys()),  'value':'blue'},
+            {'name':"marker",   'interface':IEnumStr(self.markers.keys()), 'value' : 'circle'},
             {'name':"label",    'interface':IStr,       'value':None},
-            {'name':"marker",   'interface':IEnumStr(markers.keys()), 'value' : 'circle'},
-            {'name':"color",    'interface':IEnumStr(colors.keys()),  'value':'blue'},
             {'name':"alpha",    'interface':IFloat,     'value' : 0.5},
         ]
 
@@ -953,23 +992,20 @@ class PyLabScatter(Plotting):
 
 
     def __call__(self, inputs):
-        from pylab import scatter, cla,  subplot
+        from pylab import scatter, cla
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
-        colors = self.get_input("colors")
+        color = self.get_input("color")
         self.figure()
-        #self.subplot()
         self.axes()
         cla()
-        res = scatter(x,y, s=sizes,c=colors,
-                marker=markers[self.get_input("marker")],
+        res = scatter(x,y, s=sizes,c=color,
+                marker=self.markers[self.get_input("marker")],
                 alpha=self.get_input("alpha"),
                 label=self.get_input("label"))
         self.properties()
         return self.axes_shown
-
-        return res
 
 
 
@@ -989,11 +1025,11 @@ class PyLabBoxPlot(Plotting):
 
     """
     def __init__(self):
-        """init docstring"""
+        self.markers = Markers().markers
         inputs = [
             {'name':"x"},
             {'name':"notch",    'interface':IInt, 'value':0},
-            {'name':"sym",      'interface':IEnumStr(markers.keys()), 'value':'circle'},
+            {'name':"sym",      'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
             {'name':"vert",     'interface':IInt,  'value':1},
         ]
         Plotting.__init__(self, inputs)
@@ -1006,7 +1042,7 @@ class PyLabBoxPlot(Plotting):
         self.axes()
         cla()
         res = boxplot(x, 
-                sym=markers[self.get_input("sym")],
+                sym=self.markers[self.get_input("sym")],
                 vert=self.get_input("vert"),
                 notch=self.get_input("notch"))
         self.properties()
@@ -1015,21 +1051,25 @@ class PyLabBoxPlot(Plotting):
 
 
 
-class PyLabLine2D(Node):
+class PyLabLine2D(Node, Colors, LineStyles, Markers):
     """todo"""
     def __init__(self):
+        self.fillstyles=['top','full','bottom','left','right']
+        Colors.__init__(self)
+        LineStyles.__init__(self)
+        Markers.__init__(self)
         Node.__init__(self)
 
         self.add_input(name="xdata", value=[])
         self.add_input(name="ydata", value=[])
-        self.add_input(name="linestyle", interface=IEnumStr(linestyles.keys()), value='solid')
-        self.add_input(name="color", interface=IEnumStr(colors.keys()),value='blue')
-        self.add_input(name="marker", interface=IEnumStr(markers.keys()),value='circle')
+        self.add_input(name="linestyle", interface=IEnumStr(self.linestyles.keys()), value='solid')
+        self.add_input(name="color", interface=IEnumStr(self.colors.keys()),value='blue')
+        self.add_input(name="marker", interface=IEnumStr(self.markers.keys()),value='circle')
         self.add_input(name="markersize", interface=IInt, value=10)
         self.add_input(name="markeredgewidth", interface=IFloat(0.,10,0.1) , value=None)
-        self.add_input(name="markeredgecolor", interface=IEnumStr(colors.keys()), value='None')
+        self.add_input(name="markeredgecolor", interface=IEnumStr(self.colors.keys()), value='None')
         self.add_input(name="linewidth", interface=IFloat, value=1.)
-        self.add_input(name="fillstyle", interface=IEnumStr(fillstyles.keys()), value='full')
+        self.add_input(name="fillstyle", interface=IEnumStr(self.fillstyles), value='full')
         self.add_input(name="label", interface=IStr, value=None)
         self.add_input(name="alpha", interface=IFloat(0.,1., step=0.1), value=1.0)
 
@@ -1046,12 +1086,12 @@ class PyLabLine2D(Node):
         output = Line2D(
             xdata=xdata,
             ydata=ydata,
-            linestyle=linestyles[self.get_input('linestyle')],
-            color=colors[self.get_input('color')],
-            marker=markers[self.get_input('marker')],
+            linestyle=self.linestyles[self.get_input('linestyle')],
+            color=self.colors[self.get_input('color')],
+            marker=self.markers[self.get_input('marker')],
             label=self.get_input('label'),
             markersize=self.get_input('markersize'),
-            markeredgecolor=colors[self.get_input('markeredgecolor')],
+            markeredgecolor=self.colors[self.get_input('markeredgecolor')],
             markeredgewidth=self.get_input('markeredgewidth'),
             linewidth=self.get_input('linewidth'),
             fillstyle=self.get_input('fillstyle'),
@@ -1159,7 +1199,7 @@ class PyLabPie(Plotting):
 
 
 class PyLabBar(Plotting):
-
+    """.. todo:: to be completed"""
     def __init__(self):
         inputs = [
             {'name':'left', 'interface':ISequence, 'value':[]},
@@ -1183,20 +1223,15 @@ class PyLabBar(Plotting):
 
         res = None
         if type(left[0])==float:
-            print 'a'
             width = left[1] - left[0]
             print width
             print left
             print height
             res = bar(left[1:], height, width=width)
         else:
-            print 'b'
-            c = enumerate(colors)
+            c = enumerate(self.colors)
             for x,y in zip(left, height):
                 color = c.next()
-                print color
-                print x
-                print y
                 #width = x[1]-x[0]
                 width=0.1
                 res = bar(x[1:],y, width=width, color=color[1], alpha=0.5)
@@ -1206,7 +1241,7 @@ class PyLabBar(Plotting):
 
         return res
 
-class PyLabCohere(Plotting):
+class PyLabCohere(Plotting, Detrends):
     """ A function or a vector of length *NFFT*. To create window
           vectors see :func:`window_hanning`, :func:`window_none`,
           :func:`numpy.blackman`, :func:`numpy.hamming`,
@@ -1215,20 +1250,24 @@ class PyLabCohere(Plotting):
           :func:`window_hanning`.  If a function is passed as the
           argument, it must take a data segment as an argument and
           return the windowed version of the segment.
+
+    .. todo:: to be completed
     """
     def __init__(self):
         #     window = mlab.window_hanning, noverlap=0, pad_to=None,
         #     sides='default', scale_by_freq=None, **kwargs)
+        Detrends.__init__(self)
+        self.sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
         inputs = [
             {'name':'x',            'interface':None,   'value':None},
             {'name':'y',            'interface':None,   'value':None},
             {'name':'NFFT',         'interface':IInt,   'value':256},
             {'name':'Fs',           'interface':IFloat, 'value':2.},
-            {'name':'detrend',      'interface':IEnumStr(detrends.keys()), 'value':'none'},
+            {'name':'detrend',      'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
             #{'name':'window',       'interface':None, 'value':'tobedone'},
             {'name':'noverlap',     'interface':IInt,   'value':0},
             {'name':'pad_to',       'interface':IInt,   'value':None},
-            {'name':'sides',        'interface':IEnumStr(sides.keys()), 'value':'default'},
+            {'name':'sides',        'interface':IEnumStr(self.sides.keys()), 'value':'default'},
             #{'name':'scale_by_freq','interface':IBool,  'value':True},
             {'name':'Fc',           'interface':IFloat, 'value':0},
             ]
@@ -1274,47 +1313,12 @@ class PyLabCohere(Plotting):
         return (cxy, freq)
 
 
-class PyLabSubPlotTool(Node):
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input(name='input')
-        self.add_output(name='output')
-    def __call___(self, inputs):
-        from pylab import subplot_tool 
-        #s = subplot_tool()
-        return (s)
-
-
-class PyLabSubPlot(Node):
-
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input(name='row', interface=IInt, value=1)
-        self.add_input(name='col', interface=IInt, value=1)
-        self.add_input(name='num', interface=IInt, value=1)
-        self.add_input(name='polar', interface=IBool, value=False)
-        self.add_output(name='test')
-
-    def __call__(self, inputs):
-        #from pylab import subplot
-        row = self.get_input('row')
-        col = self.get_input('col')
-        num = self.get_input('num')
-        kwds = {}
-        kwds['polar'] = self.get_input('polar')
-        #subplot(row, col, num)
-
-        return (row, col, num, kwds)
-
-
-
 
 class PyLabHexBin(Plotting):
+    """ .. todo:: tohis documentation"""
 
     def __init__(self):
-
+        self.colors = Colors().colors
         scales = {'linear':'linear','log':'log'}
         inputs = [
             {'name':"x"},
@@ -1333,7 +1337,7 @@ class PyLabHexBin(Plotting):
             {'name':"vmax", 'interface':IFloat, 'value':None},
             {'name':"extent", 'value':None},
             {'name':"linewidths", 'interface':IFloat(0,10,1), 'value':None},
-            {'name':"edgecolors", 'interface':IEnumStr(colors.keys()), 'value':None},
+            {'name':"edgecolors", 'interface':IEnumStr(self.colors.keys()), 'value':None},
             {'name':"cmap", 'interface':IStr, 'value':None},
         ]
 
@@ -1363,7 +1367,7 @@ class PyLabHexBin(Plotting):
         kwds['vmax'] = self.get_input('vmax')
         kwds['linewidths'] = self.get_input('linewidths')
         if self.get_input('edgecolors'):
-            kwds['edgecolors'] = colors[self.get_input('edgecolors')]
+            kwds['edgecolors'] = self.colors[self.get_input('edgecolors')]
 
 
         self.figure()
@@ -1375,15 +1379,17 @@ class PyLabHexBin(Plotting):
 
 
 class PyLabCLabel(Node):
+    """ .. todo:: tohis documentation"""
 
     def __init__(self):
+        self.colors = Colors().colors
         Node.__init__(self)
         self.add_input(name='fontsize', interface=IInt, value=10)
         self.add_input(name='inline', interface=IBool, value=True)
         self.add_input(name='rightside_up', interface=IBool, value=True)
         self.add_input(name='inline_spacing', interface=IInt, value=5)
         self.add_input(name='fmt', interface=IStr, value='%1.3f')
-        self.add_input(name='colors', interface=IEnumStr(colors.keys()), value=None)
+        self.add_input(name='colors', interface=IEnumStr(self.colors.keys()), value=None)
         # colors may be a list such as ('r', 'green', 'blue', (1,1,0), '#afeeee', '0.5')
         self.add_output(name='kwds')
 
@@ -1396,7 +1402,7 @@ class PyLabCLabel(Node):
         kwds['inline_spacing'] = self.get_input('inline_spacing')
         kwds['fmt'] = self.get_input('fmt')
         try:
-            kwds['colors'] = colors[self.get_input('colors')]
+            kwds['colors'] = self.colors[self.get_input('colors')]
         except:
             kwds['colors'] = self.get_input('colors')
 
@@ -1406,9 +1412,7 @@ class PyLabCLabel(Node):
 
 
 class PcolorInterface():
-    """
-
-    .. note:: pcolormesh is equivalent to pcolor. """
+    """ .. todo:: tohis documentation"""
     def __init__(self):
         self.inputs = []
         self.inputs.append({'name': 'X', 'value':None})
@@ -1428,7 +1432,7 @@ class PcolorInterface():
 
 #class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
 class PyLabPcolor(Plotting, PcolorInterface):
-    """
+    """ .. todo:: tohis documentation
 
 
     .. note:: pcolormesh is equivalent to pcolor. """
@@ -1459,9 +1463,11 @@ class PyLabPcolor(Plotting, PcolorInterface):
 
 
 class PyLabContour(Plotting):
+    """ .. todo:: tohis documentation"""
 
     def __init__(self):
 
+        self.linestyles = LineStyles().linestyles
         inputs = [
             {'name':"X"},
             {'name':"Y"},
@@ -1469,7 +1475,7 @@ class PyLabContour(Plotting):
             {'name':"n", 'interface':IInt, 'value':None},
             {'name':"filled", 'interface':IBool, 'value':False},
             {'name':"linewidths", 'interface':IInt, 'value':1.},
-            {'name':"linestyles", 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
+            {'name':"linestyles", 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
             {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
             {'name':"cmap", 'interface':IStr, 'value':None},
             #{'name':"origin", 'interface':IStr, 'value':None},could be lower, upper, image
@@ -1496,7 +1502,7 @@ class PyLabContour(Plotting):
         if self.get_input('linestyles') in [None, 'None']:
             kwds['linestyles']='solid'
         else:
-            kwds['linestyles']=linestyles[self.get_input('linestyles')]
+            kwds['linestyles']=self.linestyles[self.get_input('linestyles')]
         if self.get_input('cmap'):
             kwds['cmap']=self.get_input('cmap')
 
@@ -1540,12 +1546,40 @@ class PyLabContour(Plotting):
         return CS
 
 
-class PsdInterface():
-    """test"""
-    from pylab import mlab
-    windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
-    sides = [ 'default','onesided','twosided']
+class PsdInterface(Detrends):
+    """base class for the :class:`PyLabSpecgram`, :class:`PyLabCsd`, :class:`PyLabPsd` classes.
+
+    :param type: either 'xy' or 'x' to specify number of inputs.
+    :param noverlap: default is 0 (Specgram requires value >0).
+    :param nfft: default is 256
+    :param cmap: the colormap
+
+
+    This class defines the following VisuAlea connectors:
+
+    :param NFFT: The number of data points used in each block for 
+        the FFT. The default is 256.
+    :param Fs:  The sampling frequency. The default is 2.
+    :param Fc:   The center frequency of *x*. Default is 0.
+    :param noverlap: The number of points of overlap between blocks.  
+        The default value is 0.
+    :param sides: Specifies which sides of the PSD to return. Default is 'default'.
+    :param pad_to:  The number of points to which the data segment is padded when
+          performing the FFT. The default is None.
+    :param detrend:  The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend (default is 'none')
+    :param scale_by_freq:   (default is True)
+    :param window: function or a vector of length *NFFT*. default is hanning window
+        To create other window, use the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabWindow` node.
+    
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+
+    """
     def __init__(self, type='x', noverlap=0, nfft=256, cmap=False):
+        from pylab import mlab
+        Detrends.__init__(self)
+        self.windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
+        self.sides = ['default','onesided','twosided']
         self.kwds = {}
         if type=='xy':
             self.inputs = [
@@ -1562,7 +1596,7 @@ class PsdInterface():
             {'name':"noverlap", 'interface':IInt, 'value':noverlap},
             {'name':"sides", 'interface':IEnumStr(self.sides), 'value':'default'},
             {'name':"pad_to", 'interface':IInt, 'value':None},
-            {'name':'detrend', 'interface':IEnumStr(detrends.keys()), 'value':'none'},
+            {'name':'detrend', 'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
             {'name':'scale_by_freq', 'interface':IBool, 'value':True},
             {'name':"window", 'interface':IEnumStr(self.windows.keys()), 'value':'hanning'},])
 
@@ -1572,7 +1606,8 @@ class PsdInterface():
         """TODO : csd( 
         scale_by_freq=None)"""
 
-    def get_kwds(self):
+    def _get_kwds(self):
+        """returns a dictionary with the parameters"""
         self.kwds['NFFT'] = self.get_input('NFFT')
         self.kwds['Fs'] = self.get_input('Fs')
         self.kwds['Fc'] = self.get_input('Fc')
@@ -1585,7 +1620,8 @@ class PsdInterface():
             import pylab
             self.kwds['detrend'] = getattr(pylab, 'detrend_'+self.get_input('detrend'))
 
-    def set_window(self):
+    def _set_window(self):
+        """Get the correct windowing function. """
         if self.get_input('window') in ['hanning', 'none']:
             self.kwds['window']=self.windows[self.get_input('window')]
         else:
@@ -1596,7 +1632,27 @@ class PsdInterface():
 
 
 class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
-    """test"""
+    """VisuAlea version of pylab.psd
+
+    :param x: the signal to analyse (a 1D- array)
+    :param NFFT: The number of data points used in each block for 
+        the FFT. The default is 256.
+    :param Fs:  The sampling frequency. The default is 2.
+    :param Fc:   The center frequency of *x*. Default is 0.
+    :param noverlap: The number of points of overlap between blocks.  
+        The default value is 0.
+    :param sides: Specifies which sides of the PSD to return. Default is 'default'.
+    :param pad_to:  The number of points to which the data segment is padded when
+          performing the FFT. The default is None.
+    :param detrend:  The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend (default is 'none')
+    :param scale_by_freq:   (default is True)
+    :param window: function or a vector of length *NFFT*. default is hanning window
+        To create other window, use the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabWindow` node.
+
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         PsdInterface.__init__(self, type='x')
         Plotting.__init__(self, self.inputs)
@@ -1605,8 +1661,8 @@ class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
     def __call__(self, inputs):
         from pylab import cla
 
-        kwds=self.get_kwds()
-        self.set_window()
+        kwds=self._get_kwds()
+        self._set_window()
         self.figure()
         self.axes()
         cla()
@@ -1624,7 +1680,28 @@ class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
 
 
 class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
-    """test"""
+    """VisuAlea version of pylab.csd
+
+    :param x: the signal to analyse (a 1D- array)
+    :param y: the signal to analyse (a 1D- array)
+    :param NFFT: The number of data points used in each block for
+        the FFT. The default is 256.
+    :param Fs:  The sampling frequency. The default is 2.
+    :param Fc:   The center frequency of *x*. Default is 0.
+    :param noverlap: The number of points of overlap between blocks.
+        The default value is 0.
+    :param sides: Specifies which sides of the PSD to return. Default is 'default'.
+    :param pad_to:  The number of points to which the data segment is padded when
+          performing the FFT. The default is None.
+    :param detrend:  The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend (default is 'none')
+    :param scale_by_freq:   (default is True)
+    :param window: function or a vector of length *NFFT*. default is hanning window
+        To create other window, use the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabWindow` node.
+
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         PsdInterface.__init__(self, type='xy')
@@ -1634,8 +1711,8 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
     def __call__(self, inputs):
         from pylab import cla
 
-        self.get_kwds()
-        self.set_window()
+        self._get_kwds()
+        self._set_window()
         self.figure()
         self.axes()
         cla()
@@ -1644,7 +1721,27 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
         return self.axes_shown
 
 class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
-    """test"""
+    """VisuAlea version of pylab.psd
+
+    :param x: the signal to analyse (a 1D- array)
+    :param NFFT: The number of data points used in each block for 
+        the FFT. The default is 128.
+    :param Fs:  The sampling frequency. The default is 2.
+    :param Fc:   The center frequency of *x*. Default is 0.
+    :param noverlap: The number of points of overlap between blocks.
+        The default value is 128.
+    :param sides: Specifies which sides of the PSD to return. Default is 'default'.
+    :param pad_to:  The number of points to which the data segment is padded when
+          performing the FFT. The default is None.
+    :param detrend:  The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend (default is 'none')
+    :param scale_by_freq:   (default is True)
+    :param window: function or a vector of length *NFFT*. default is hanning window
+        To create other window, use the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabWindow` node.
+
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         PsdInterface.__init__(self, type='x', noverlap=128, cmap=True)
@@ -1655,8 +1752,8 @@ class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
     def __call__(self, inputs):
         from pylab import cla
 
-        self.get_kwds()
-        self.set_window()
+        self._get_kwds()
+        self._set_window()
         self.figure()
         self.axes()
         print self.kwds
@@ -1673,20 +1770,35 @@ class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
 
 
 class PyLabStem(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.stem
+
+    :param x: 1D array
+    :param y: 1D array
+    :param marker_color: color of the marker (see :ref:`colors`)
+    :param line_color: color of the line (see :ref:`colors`)
+    :param base_color: color of the base line (see ref:`colors`)
+    :param marker_style:
+    :param line_style:
+    :param base_style:
+
+    :return: a axes object
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
             {'name': 'x'},
-            {'name':'y'},
-            {'name':'marker_color', 'interface':IEnumStr(colors.keys()), 'value':'blue'},
-            {'name':'line_color', 'interface':IEnumStr(colors.keys()), 'value':'blue'},
-            {'name':'base_color', 'interface':IEnumStr(colors.keys()), 'value':'red'},
-            {'name':'marker_style', 'interface':IEnumStr(markers.keys()), 'value':'circle'},
-            {'name':'line_style', 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
-            {'name':'base_style', 'interface':IEnumStr(linestyles.keys()), 'value':'solid'},
+            {'name': 'y'},
+            {'name':'marker_color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+            {'name':'line_color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+            {'name':'base_color', 'interface':IEnumStr(self.colors.keys()), 'value':'red'},
+            {'name':'marker_style', 'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
+            {'name':'line_style', 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
+            {'name':'base_style', 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
@@ -1695,28 +1807,39 @@ class PyLabStem(Plotting, PlotxyInterface):
         self.axes()
         cla()
         kwds = {}
-        kwds['markerfmt'] = colors[self.get_input('marker_color')]+ markers[self.get_input('marker_style')]
-        kwds['basefmt'] = colors[self.get_input('base_color')]+ linestyles[self.get_input('base_style')]
-        kwds['linefmt'] = colors[self.get_input('line_color')]+ linestyles[self.get_input('line_style')]
-        print kwds
+        kwds['markerfmt'] = self.colors[self.get_input('marker_color')]+ self.markers[self.get_input('marker_style')]
+        kwds['basefmt'] = self.colors[self.get_input('base_color')]+ self.linestyles[self.get_input('base_style')]
+        kwds['linefmt'] = self.colors[self.get_input('line_color')]+ self.linestyles[self.get_input('line_style')]
         c = self.call('stem', kwds)
         self.properties()
         return self.axes_shown
 
 
-
 class PyLabStep(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.step
 
+    :param x: 1D array
+    :param y: 1D array
+    :param marker: marker (see :ref:`markers`)
+    :param markersize:  (default is 10)
+    :param color: (see ref:`colors`)
+
+    :return: a axes object
+
+    .. todo:: where parameter
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
-                    {'name':'x',            'interface':None,                           'value':None},
-                    {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(markers.keys()),       'value':'circle'},
-                    {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
+                    {'name':'x', 'interface':None, 'value':None},
+                    {'name':'y', 'interface':None, 'value':None},
+                    {'name':'marker', 'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
+                    {'name':'markersize', 'interface':IFloat, 'value':10},
+                    {'name':'color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
 
     def __call__(self, inputs):
         from pylab import cla
@@ -1727,8 +1850,8 @@ class PyLabStep(Plotting, PlotxyInterface):
 
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=markers[self.get_input("marker")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['color']=self.colors[self.get_input("color")]
         c = self.call('step', kwds)
         self.properties()
         return self.axes_shown
@@ -1736,9 +1859,11 @@ class PyLabStep(Plotting, PlotxyInterface):
 
 
 
-class PyLabQuiver(Plotting):
+class PyLabQuiver(Plotting, Colors):
+    """ .. todo:: tohis documentation"""
 
     def __init__(self):
+        Colors.__init__(self)
         self.angles = ['uv', 'xy']
         self.units= ['width','height','dots','inches','x','y']
         self.pivots = ['tail', 'middle', 'tip']
@@ -1758,7 +1883,7 @@ class PyLabQuiver(Plotting):
                     {'name':'minshaft',     'interface':IFloat,                         'value':1},
                     {'name':'minlength',    'interface':IFloat,                         'value':1},
                     {'name':'pivot',        'interface':IEnumStr(self.pivots),               'value':'tail'},
-                    {'name':'color',        'interface':IEnumStr(colors.keys()),        'value':'None'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'None'},
                     {'name':'polycollection', 'interface':IDict,        'value':{}},
         ]
         Plotting.__init__(self, inputs)
@@ -1779,7 +1904,7 @@ class PyLabQuiver(Plotting):
         for key in ['units', 'angles', 'scale', 'width', 'headwidth', 'headlength', 'headaxislength', 'minshaft', 'minlength']:
             kwds[key]=self.get_input(key)
         if self.get_input('color')!='None':
-            kwds['color']=colors[self.get_input('color')]
+            kwds['color']=self.colors[self.get_input('color')]
         for key, value in self.get_input('polycollection').iteritems():
             kwds[key]=value
         
@@ -1797,17 +1922,29 @@ class PyLabQuiver(Plotting):
 
 
 class PyLabFill(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.fill
+
+    :param x: 1D array
+    :param y: 1D array
+    :param linewidth:
+    :param facecolor:
+    :param patch: connect a :class:`~openalea.pylab_patches.wralea.py_pylab.Patch`.
+
+    :return: a axes object
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x'},
                     {'name':'y'},
-                    {'name':'linewidth',    'interface':IFloat,    'value':1},
-                    {'name':'facecolor',        'interface':IEnumStr(colors.keys()),        'value':'blue'},
-                    {'name':'kwargs (Patch)','interface':IDict,                          'value':{}},
+                    {'name':'linewidth', 'interface':IFloat, 'value':1},
+                    {'name':'facecolor', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+                    {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
         #todo : as many patch as x/y
 
     def __call__(self, inputs):
@@ -1816,7 +1953,7 @@ class PyLabFill(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         kwds = self.get_input('kwargs (Patch)')
-        kwds['facecolor'] = colors[self.get_input('facecolor')]
+        kwds['facecolor'] = self.colors[self.get_input('facecolor')]
         kwds['linewidth'] = self.get_input('linewidth')
 
         c = self.call('fill', kwds)
@@ -1825,8 +1962,20 @@ class PyLabFill(Plotting, PlotxyInterface):
         return self.axes_shown
 
 class PyLabFillBetween(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.fill_between
 
+    :param x: 1D array
+    :param y1: 1D array
+    :param y2: 1D array
+    :param where:
+    :param patch: connect a :class:`~openalea.pylab_patches.wralea.py_pylab.Patch`.
+
+    :return: a axes object
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x'},
                     {'name':'y1'},
@@ -1835,7 +1984,6 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
                     {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
         #todo : as many patch as x/y
 
     def __call__(self, inputs):
@@ -1863,8 +2011,27 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
 
 
 class PyLabErrorBar(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.errorbar
+
+    :param x: 1D array
+    :param y: 1D array
+    :param xerr: 1D array
+    :param yerr: 1D array (optional)
+    :param ecolor: color of the error bars
+    :param elinewidth: width of the errorbars
+    :param Patch: a node to provide :class:`Patch` arguments
+
+    .. todo:: fmt='-', capsize=3, barsabove=False, lolims=False, uplims=False, xlolims=False, xuplims=False)
+
+    :param patch: connect a :class:`~openalea.pylab_patches.wralea.py_pylab.Patch`.
+
+    :return: a axes object
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
+        PlotxyInterface.__init__(self)
         inputs = [
                     {'name':'x'},
                     {'name':'y'},
@@ -1875,7 +2042,6 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
                     {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
-        PlotxyInterface.__init__(self)
         #todo : as many patch as x/y
 
     def __call__(self, inputs):
@@ -1899,9 +2065,10 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
 
 
 class PyLabImshow(Plotting):
+    """ .. todo:: tohis documentation
 
 
-    "todo: origin=None, extent=None,"""
+    todo: origin=None, extent=None,"""
 
     def __init__(self):
         self.aspect = ['None', 'auto', 'equal']

@@ -29,95 +29,11 @@ from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
-#matplotlib.pyplot.rcParams
-
-axis = {
-    'off':'off',
-    'manual':'manual',
-    'equal':'equal',
-    'tight':'tight',
-    'scaled':'scaled',
-    'image':'image',
-    'auto':'auto',
-    'normal':'normal'
-    }
-
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
-
-detrends = {
-    'none':'detrend_none',
-    'linear':'detrend_linear',
-    'mean':'detrend_mean'
-    }
-
-streches = {
-    'ultra-condensed':'ultra-condensed',
-    'extra-condensed':'extra-condensed',
-    'condensed':'condensed',
-    'semi-condensed':'semi-condensed',
-    'normal':'normal',
-    'semi-expanded':'semi-expanded',
-    'expanded':'expanded',
-    'extra-expanded':'extra-expanded' ,
-    'ultra-expanded':'ultra-expanded'
-    }
-
-weights = {
-    'ultralight':'ultralight',
-    'light':'light',
-    'normal':'normal',
-    'regular':'regular',
-    'book':'book',
-    'medium':'medium',
-    'roman':'roman',
-    'semibold':'semibold',
-    'demibold':'demibold',
-    'demi':'demi',
-    'bold':'bold',
-    'heavy':'heavy',
-    'extra bold':'extra bold',
-    'black':'black'
-    }
-
-
-sizes = {
-    'xx-small':'xx-small',
-    'x-small':'x-small',
-    'small':'small',
-    'medium':'medium',
-    'large':'large',
-    'x-large':'x-large',
-    'xx-large':'xx-large'
-    }
 
 styles = {
     'italic':'italic',
     'normal':'normal',
     'oblique':'oblique'}
-
-variants = {
-    'normal':'normal',
-    'small-caps':'small-caps'}
-
-families = {
-    'serif':'serif',
-    'sans-serif':'sans-serif',
-    'cursive':'cursive',
-    'fantasy':'fantisy',
-    'monospace':'monospace'}
-
-horizontalalignment = {
-    'center':'center',
-    'right':'right' ,
-    'left':'left' }
-
-verticalalignment = {
-    'center':'center' ,
-    'top':'top' ,
-    'bottom':'bottom' ,
-    'baseline':'baseline'}
-
-ticks= {'auto':'auto', 'None':'None'}
 
 colors = {
     'blue':'b',
@@ -129,7 +45,6 @@ colors = {
     'black':'k',
     'white':'w',
     'None':'None'}
-
 
 from pylab import Line2D
 
@@ -147,116 +62,15 @@ markers = {}
 for key,value in Line2D.markers.iteritems():
     markers[value.replace('_draw_','')]=key
 
-#pylab.Line2D.filled_markers
-
-fillstyles={'top':'top',
-    'full':'full',
-    'bottom':'bottom',
-    'left':'left',
-    'right':'right',
-    }
-
-from pylab import cm, get_cmap
-maps=[m for m in cm.datad if not m.endswith("_r")]
-cmaps = {}
-for c in maps:
-    cmaps[c] = get_cmap(c)
-
-locations={
-    'best' : 0,
-    'upper right'  : 1,
-    'upper left'   : 2,
-    'lower left'   : 3,
-    'lower right'  : 4,
-    'right'        : 5,
-    'center left'  : 6,
-    'center right' : 7,
-    'lower center' : 8,
-    'upper center' : 9,
-    'center'       : 10,}
-
-
-orientation_fig = {
-    'portrait':'portrait',
-    'landscape':'landscape'}
-
-
-papertypes = {
-    'letter':'letter',
-    'legal':'legal',
-    'executive':'executive',
-    'ledger':'ledger',
-    'a0':'a0',
-    'a1':'a1',
-    'a2':'a2',
-    'a3':'a3',
-    'a4':'a4',
-    'a5':'a5',
-    'a6':'a6',
-    'a7':'a7',
-    'a8':'a8',
-    'a9':'a9',
-    'a10':'a10',
-    'b0':'b0',
-    'b1':'b1',
-    'b2':'b2',
-    'b3':'b3',
-    'b4':'b4',
-    'b5':'b5',
-    'b6':'b6',
-    'b7':'b7',
-    'b8':'b8',
-    'b9':'b9',
-    'b10':'b10'
-    }
-
-
-def get_kwds_from_line2d(line2d, kwds={}, type=None):
-    """create a dict from line2d properties
-    """
-    kwds['color']=line2d.get_color()
-    kwds['linestyle']=line2d.get_linestyle()
-    kwds['linewidth']=line2d.get_linewidth()
-    if type!='linecollection':
-        kwds['marker']=line2d.get_marker()
-        kwds['markersize']=line2d.get_markersize()
-        kwds['markeredgewidth']=line2d.get_markeredgewidth()
-        kwds['markersize']=line2d.get_markersize()
-        kwds['fillstyle']=line2d.get_fillstyle()
-        kwds['markeredgecolor']=line2d.get_markeredgecolor()
-    kwds['label']=line2d.get_label()
-    kwds['alpha']=line2d.get_alpha()
-    return kwds
-
-
-def line2d2kwds(line2d, kwds={}):
-    try:
-        for key, value in line2d.properties().properties():
-            kwds[key] = value
-    except:
-        print 'warning: line2d may not be a valid Line2D object'
-        pass
-    return kwds
-
-
-def text2kwds(text, kwds={}):
-    try:
-        for key, value in text.properties().properties():
-            kwds[key] = value
-    except:
-        print 'warning: text may not be a valid Text object'
-        pass
-    return kwds
-
-def font2kwds(font, kwds={}):
-    pass
-
-
-
 
 
 
 class PyLabPatch(Node):
+    """VisuAlea version of pylab.patch
+
+
+    .. todo:: finalise the options?
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
@@ -302,6 +116,14 @@ zorder  any number
 
 
 class PyLabCircle(Node):
+    """VisuAlea version of Circle
+
+    :param *x*: x coordinate of circle's center
+    :param *y*: y coordinate of circle's center
+    :param *radius*: radius of the circle
+    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    """
+
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='x', interface=IFloat, value=0)
@@ -318,7 +140,18 @@ class PyLabCircle(Node):
         return c
 
 class PyLabEllipse(Node):
+    """VisuAlea version of Ellipse
+
+    :param *x*: x coordinate of ellipse center
+    :param *y*: y coordinate of ellipse center
+    :param *width*: width of horizontal axis
+    :param *height*: length of vertical axis
+    :param *angle*:  rotation in degrees (anti-clockwise)
+    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    """
     def __init__(self):
+        from matplotlib.patches import Ellipse
+        self.__doc__+=Ellipse.__init__.__doc__
         Node.__init__(self)
         self.add_input(name='x', interface=IFloat, value=0)
         self.add_input(name='y', interface=IFloat, value=0)
@@ -338,6 +171,7 @@ class PyLabEllipse(Node):
 
 
 class PyLabAddPatches(Node):
+    """Assemble several patches into an axes"""
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='axe', interface=IDict, value=None)
@@ -362,6 +196,14 @@ class PyLabAddPatches(Node):
 
 
 class PyLabRectangle(Node):
+    """VisuAlea version of Rectangle
+
+    :param *x*: x coordinate of lower left rectangle
+    :param *y*: y coordinate of lower left rectangle
+    :param *width*: width of the rectangle
+    :param *height*: height of the rectangle
+    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='x', interface=IFloat, value=0)
@@ -380,6 +222,16 @@ class PyLabRectangle(Node):
         return c
 
 class PyLabWedge(Node):
+    """VisuAlea version of Wedge
+
+    :param *x*: x-coordinate of wedge's center
+    :param *y*: y-coordinate of wedge's center
+    :param *r*: radius that sweeps *theta1* and *theta2*
+    :param *theta1*:
+    :param *theta2*:
+    :param *width*: if provided, then a partial wedge is drawn from inner radius *r* - *width* to outer radius *r*.
+    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='x', interface=IFloat, value=0)
@@ -400,6 +252,13 @@ class PyLabWedge(Node):
         return c
 
 class PyLabPolygon(Node):
+    """VisuAilea version of Polygon
+
+    :param *x*: array with shape Nx1
+    :param *y*: array with shape Nx1.
+    :param *closed*: polygon will be closed so the starting and ending points are the same (default is True)
+    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='x', interface=ISequence, value=[])
