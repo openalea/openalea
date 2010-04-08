@@ -1,6 +1,10 @@
 Tutorials
 #########
 
+This tutorial presents some of the nodes implemented in the **openalea.pylab** package, which provides an interface to pylab functionalities within VisuAlea.
+
+We do not present all the nodes but only the most relevant ones so as to describe the logic that has been used.
+
 
 Plot
 =====
