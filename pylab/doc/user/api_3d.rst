@@ -24,7 +24,7 @@ Plots where x and y are 1-D arrays
 
 .. autosummary::
 
-    PyLabPlot3d
+    PyLabPlot3D
 
 
 Api 

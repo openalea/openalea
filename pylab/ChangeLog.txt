@@ -1,2 +1,3 @@
-* 10 March 2010: starting layout of this package
+* 8 April 2010: start documentation
 * 6 April 2010: most of pylab plotting functionalities (plot, quiver, contour, scatter, ...) available within VisuAlea. Starting 3d plots (e.g., line3d).
+* 10 March 2010: starting layout of this package

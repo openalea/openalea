@@ -33,8 +33,6 @@ install_requires = []
 
 # setup function call
 #
-print packages
-print package_dir
 setup(
     # Meta data (no edition needed if you correctly defined the variables above)
     name=name,

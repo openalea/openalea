@@ -2,3 +2,11 @@ This is an OpenAlea package that interface most of the
 `Pylab/Matplotlib <http://matplotlib.sourceforge.net/index.html>`_ functionalities
 as nodes in VisuAlea. 
 
+See the User guide to learn how to create this scatter plot within visualea
+with as little as 8 nodes.
+
+  .. image:: _static/screenshotv.png
+     :width: 28%
+
+  .. image:: _static/screenshot.png
+     :width: 28%

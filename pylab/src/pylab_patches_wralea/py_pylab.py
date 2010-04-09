@@ -1,11 +1,11 @@
 ###############################################################################
 # -*- python -*-
 #
-#       amlPy function implementation
+#       VisuAlea implementation of pylab.matplotlib.patch
 #
 #       Copyright or (C) or Copr. 2006 INRIA - CIRAD - INRA
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Thomas Cokelaer  <Thomas.Cokelaer@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -15,8 +15,7 @@
 #
 ###############################################################################
 
-__doc__="""
-amlPy functions
+__doc__="""VisuAlea implementation of pylab.matplotlib.patch
 """
 
 __license__= "Cecill-C"
@@ -252,12 +251,13 @@ class PyLabWedge(Node):
         return c
 
 class PyLabPolygon(Node):
-    """VisuAilea version of Polygon
+    """VisuAlea version of Polygon
 
     :param *x*: array with shape Nx1
     :param *y*: array with shape Nx1.
     :param *closed*: polygon will be closed so the starting and ending points are the same (default is True)
     :param *patch*:  a :class:`PyLabPatch` object (optional)
+
     """
     def __init__(self):
         Node.__init__(self)

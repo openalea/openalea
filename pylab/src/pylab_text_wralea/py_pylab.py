@@ -162,18 +162,25 @@ cmaps = {}
 for c in maps:
     cmaps[c] = get_cmap(c)
 
-locations={
-    'best' : 0,
-    'upper right'  : 1,
-    'upper left'   : 2,
-    'lower left'   : 3,
-    'lower right'  : 4,
-    'right'        : 5,
-    'center left'  : 6,
-    'center right' : 7,
-    'lower center' : 8,
-    'upper center' : 9,
-    'center'       : 10,}
+
+class Locations():
+    """location class used by :class:`PyLabLegend`
+
+    """
+    def __init__():
+
+        self.locations = {
+            'best' : 0,
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4,
+            'right'        : 5,
+            'center left'  : 6,
+            'center right' : 7,
+            'lower center' : 8,
+            'upper center' : 9,
+            'center'       : 10,}
 
 
 orientation_fig = {
@@ -319,12 +326,29 @@ class PyLabARange(Node):
 
 
 class PyLabLegend(Node):
-    """to be done"""
+    """VisuAlea version of pylab.legend
 
+    :param *shadow*: draw a shadow behind legend. 
+    :param *location*: legend location. See :class:`Locations` 
+    :param *numpoints*: the number of points in the legend for line
+    :param *markercolor*:
+    :param *fancybox*: draw a frame with a round fancybox
+    :param *ncol*: number of columns. default is 1
+    :param *mode*: if mode is "expand", the legend will be horizontally expanded
+    :param *title*: the legend title
+    :param *prop*: connect an optional :class`PyLabFontProperties` object to customise further
+    
+    .. todo::   *scatterpoints*: integer, *scatteroffsets*: , markerscale*: expand
+      *bbox_to_anchor* ,  *bbox_transform*
+        borderpad, labelspacing, handlelength,andletextpad,  borderaxespad,  columnspacing
+
+    :author: Thomas Cokelaer
+    """
     def __init__(self):
         Node.__init__(self)
+        self.locations = Locations().locations
         self.add_input(name="shadow", interface=IBool, value=False)
-        self.add_input(name="location", interface=IEnumStr(locations.keys()), value=0)
+        self.add_input(name="location", interface=IEnumStr(self.locations.keys()), value=0)
         self.add_input(name="numpoints", interface=IInt, value=2)
         self.add_input(name="markerscale", interface=IFloat(0.1,10,0.1), value=1)
         self.add_input(name="fancybox", interface=IBool, value=True)
@@ -678,6 +702,19 @@ class PyLabFontProperties(Node):
 
 
 class PyLabShow(Node):
+    """VisuAlea version of pylab.show
+    
+    Since all plotting nodes call the pylab.show() command, 
+    this node is in principle useless. 
+    However, it may be used as a common node to connect several 
+    plotting nodes.
+
+    :param input: connect whatever you want to be executed
+    :param legend: obsolet
+    :return:nothing
+ 
+    :author: Thomas Cokelaer
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='input')
@@ -1028,8 +1065,19 @@ alpha: float (0.0 transparent through 1.0 opaque)
 
 
 class PyLabAxhline(Node):
+    """VisuAlea version of pylab.axhline
 
-    """ should include colornap and colorbar options"""
+    :param *y*: the y position
+    :param *xmin*: starting x position
+    :param *xmax*: ending x position
+    :param *hold*: True by default
+    :param *kwargs Line2D*: connect a Line2D object (optional)
+
+    :returns: pylab.axhline output
+    :author: Thomas Cokelaer
+    .. todo:: should include colormap and colorbar options
+
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='y', interface=IFloat, value=0.5)
@@ -1049,8 +1097,19 @@ class PyLabAxhline(Node):
         return res
 
 class PyLabAxvline(Node):
+    """VisuAlea version of pylab.axvline
 
-    """ should include colornap and colorbar options"""
+    :param *x*: the y position
+    :param *ymin*: starting x position
+    :param *ymax*: ending x position
+    :param *hold*: True by default
+    :param *kwargs Line2D*: connect a Line2D object (optional)
+
+    :returns: pylab.axhline output
+    :author: Thomas Cokelaer
+
+    .. todo:: should include colormap and colorbar options
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='x', interface=IFloat, value=0.5)
@@ -1070,8 +1129,20 @@ class PyLabAxvline(Node):
         return res
 
 class PyLabAxhspan(Node):
+    """VisuAlea version of pylab.axvspan
 
-    """ should include colornap and colorbar options"""
+    :param *ymin*: starting y position
+    :param *ymax*: ending y position
+    :param *xmin*: starting x position
+    :param *xmax*: ending x position
+    :param *hol*: True by default
+    :param *kwargs Patch*: connect a Patch object (optional)
+
+    :returns: pylab.axhspan output
+    :author: Thomas Cokelaer
+
+    .. todo:: should include colormap and colorbar options
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='ymin', interface=IFloat, value=0)
@@ -1090,8 +1161,20 @@ class PyLabAxhspan(Node):
         return res
 
 class PyLabAxvspan(Node):
+    """VisuAlea version of pylab.axvspan
 
-    """ should include colornap and colorbar options"""
+    :param *xmin*: starting x position
+    :param *xmax*: ending x position
+    :param *ymin*: starting y position
+    :param *ymax*: ending y position
+    :param *hol*: True by default
+    :param *kwargs Patch*: connect a Patch object (optional)
+
+    :returns: pylab.axvspan output
+
+    :author: Thomas Cokelaer
+    .. todo:: should include colormap and colorbar options
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='xmin', interface=IFloat, value=0)
@@ -1112,8 +1195,11 @@ class PyLabAxvspan(Node):
 
 
 class PyLabXTicks(Node):
+    """VisuAlea version of pylab.xticks
 
-    """Does not work yet"""
+
+    :author: Thomas Cokelaer
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='locs', interface=ISequence, value=None)
@@ -1162,179 +1248,4 @@ class PyLabYTicks(Node):
         return res
 
 
-
-class PyLabPatch(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
-        self.add_input(name='axes', interface=IDict, value={})
-        self.add_input(name='color', interface=IEnumStr(colors.keys()), value='blue')
-        self.add_input(name='edgecolor', interface=IEnumStr(colors.keys()), value=None)
-        self.add_input(name='facecolor', interface=IEnumStr(colors.keys()), value=None)
-        self.add_input(name='figure', interface=IDict, value=None)
-        self.add_input(name='fill', interface=IBool, value=True)
-        self.add_input(name='label', interface=IStr, value=None)
-        self.add_input(name='linestyle', interface=IEnumStr(linestyles.keys()), value='solid')
-        self.add_input(name='linewidth', interface=IFloat, value=None)
-
-        self.add_output(name='output')
-    """animated    [True | False]
-antialiased or aa   [True | False] or None for default
-axes    an Axes instance
-clip_box    a matplotlib.transforms.Bbox instance
-clip_on     [True | False]
-clip_path   [ (Path, Transform) | Patch | None ]
-contains    a callable function
-gid     an id string
-hatch   [ '/' | '\' | '|' | '-' | '+' | 'x''| 'o' | 'O' | '.' | '*' ]
-lod     True  False
-picker  [None|float|boolean|callable]
-rasterized  [True | False | None]
-snap    unknown
-transform   Transform instance
-url     a url string
-visible     [True | False]
-zorder  any number
-    """
-    def __call__(self, inputs):
-        kwds = {}
-        for x in ['alpha', 'axes', 'figure', 'fill', 'label', 'linestyle', 'linewidth']:
-            kwds[x]=self.get_input(x)
-        if self.get_input('color')!='None':
-            kwds['color'] = colors[self.get_input('color')] 
-        kwds['edgecolor'] = colors[self.get_input('edgecolor')]
-        kwds['facecolor'] = colors[self.get_input('facecolor')]
-        return kwds
-
-class PyLabGrid(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='on', interface=IBool, value=True)
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import grid
-         
-        if self.get_input('on'):
-            grid(True)
-        else:
-            grid(False)
-
-
-class PyLabCircle(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=IFloat, value=0)
-        self.add_input(name='y', interface=IFloat, value=0)
-        self.add_input(name='radius', interface=IFloat, value=5)
-        self.add_input(name='patch', interface=IDict, value={})
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import Circle
-
-        c = Circle((self.get_input('x'), self.get_input('y')),
-            self.get_input('radius'), **self.get_input('patch'))
-        return c
-
-class PyLabEllipse(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=IFloat, value=0)
-        self.add_input(name='y', interface=IFloat, value=0)
-        self.add_input(name='width', interface=IFloat, value=1)
-        self.add_input(name='height', interface=IFloat, value=1)
-        self.add_input(name='angle', interface=IFloat, value=0)
-        self.add_input(name='patch', interface=IDict, value={})
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from matplotlib.patches import Ellipse
-
-        c = Ellipse((self.get_input('x'), self.get_input('y')),
-            self.get_input('width'), self.get_input('height'), self.get_input('angle'), 
-            **self.get_input('patch'))
-        return c
-
-
-class PyLabAddPatches(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='axe', interface=IDict, value=None)
-        self.add_input(name='patches', interface=ISequence,  value=[])
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import Circle, draw
-
-        axe = self.get_input('axe')
-        if axe is not None:
-            patches2add = []
-            #if type(self.get_input('patches'))!=list:
-            #    patches = list(self.get_input('patches'))
-            #else:
-            patches = self.get_input('patches')
-            for patch in patches:
-                axe.add_patch(patch)
-            draw()
-        #return axe
-
-
-
-class PyLabRectangle(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=IFloat, value=0)
-        self.add_input(name='y', interface=IFloat, value=0)
-        self.add_input(name='width', interface=IFloat, value=1)
-        self.add_input(name='height', interface=IFloat, value=1)
-        self.add_input(name='patch', interface=IDict, value={})
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import Rectangle
-
-        c = Rectangle((self.get_input('x'), self.get_input('y')),
-            self.get_input('width'), self.get_input('height'), 
-            **self.get_input('patch'))
-        return c
-
-class PyLabWedge(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=IFloat, value=0)
-        self.add_input(name='y', interface=IFloat, value=0)
-        self.add_input(name='r', interface=IFloat, value=0)
-        self.add_input(name='theta1', interface=IFloat, value=0)
-        self.add_input(name='theta2', interface=IFloat, value=0)
-        self.add_input(name='width', interface=IFloat(0.01,1,0.01), value=None)
-        self.add_input(name='patch', interface=IDict, value={})
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from matplotlib.patches import Wedge
-        c = Wedge((self.get_input('x'), self.get_input('y')), 
-                self.get_input('r'), self.get_input('theta1'), 
-                self.get_input('theta2'), self.get_input('width'),
-                **self.get_input('patch'))
-        return c
-
-class PyLabPolygon(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=ISequence, value=[])
-        self.add_input(name='y', interface=ISequence, value=[])
-        self.add_input(name='closed', interface=IBool, value=True)
-        self.add_input(name='patch', interface=IDict, value={})
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import Polygon
-        from numpy import array
-        #build up a (5,2) shape array from two x,y lists
-        a = []
-        for x,y in zip(self.get_input('x'), self.get_input('y')):
-            a.append((x,y))
-        c = Polygon(a, self.get_input('closed'), **self.get_input('patch'))
-        return c
 
