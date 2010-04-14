@@ -49,12 +49,16 @@ extensions = [
     'sphinx.ext.pngmath', 
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
-    'numpyext.only_directives',
-    'numpyext.numpydoc',
+    #'numpyext.only_directives',
+    #'numpyext.numpydoc',
     #'numpyext.plot_directive',
     ]
+# note that the numpy directives is buggy. Example: class and init are not recognised as two entities for the autoclass_content=both here below
+
 
 todo_include_todos=True
+inheritance_node_attrs = dict(shape='ellipse', fontsize=14, height=0.75,
+                              color='dodgerblue1', style='filled')
 
 
 #to have the docstring of the class and its init method
