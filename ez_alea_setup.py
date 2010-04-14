@@ -22,6 +22,7 @@ from optparse import *
 DEFAULT_VERSION = "0.6c11"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
+NO_ENTER = False #If True, no request to press RETURN will be done.
 
 md5_data = {
     'setuptools-0.6b1-py2.3.egg': '8822caf901250d848b996b7f25c6e6ca',
@@ -96,9 +97,10 @@ def _validate_md5(egg_name, data):
 #get the auth file that we need:
 try:
     import os.path
-    import urllib, getpass
+    import urllib, getpass, urllib2
+    urllib2.urlopen("http://gforge.inria.fr/", timeout=4) #raises an error if timeouts.
     filename = os.path.join(os.getcwd(), "auth.py")
-    urllib.urlretrieve( "http://gforge.inria.fr/scm/viewcvs.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
+    urllib.urlretrieve( "http://gforge.inria.fr/scm/viewvc.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
                         filename )
 
     import auth
@@ -106,7 +108,8 @@ try:
     os.remove(filename)
     os.remove(filename+"c")
     GFORGE_LOGIN_AVAILABLE = True
-except:
+except Exception, e:
+    print e
     print >> sys.stderr, ("GForge authentification disabled")
     GFORGE_LOGIN_AVAILABLE = False
     
@@ -220,7 +223,6 @@ and place it in this directory before rerunning this script.)
 def main(argv, version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""
 
-
     try:
         import setuptools
     except ImportError:
@@ -239,11 +241,11 @@ def main(argv, version=DEFAULT_VERSION):
             "You have an obsolete version of setuptools installed.  Please\n"
             "remove it from your system entirely before rerunning this script.")
             sys.exit(2)
-
+    
     req = "setuptools>="+version
     import pkg_resources
     try:
-        pkg_resources.require(req)
+        pkg_resources.require(req)                
     except pkg_resources.VersionConflict:
         try:
             from setuptools.command.easy_install import main
@@ -252,14 +254,14 @@ def main(argv, version=DEFAULT_VERSION):
         main(list(argv)+[download_setuptools(delay=0)])
         sys.exit(0) # try to force an exit
     else:
-        # hardcoded version of --install-dir
+        # hardcoded version of --install-dir        
         if '--install-dir' in argv:
             argv = None
 
         if argv:
             from setuptools.command.easy_install import main
             main(argv)
-        else:
+        else:            
             print "Setuptools version %s or greater has been installed." % \
                 version
             print '(Run "ez_setup.py -U setuptools" to reinstall or upgrade.)'
@@ -370,7 +372,7 @@ def welcome():
 This script will download and install OpenAlea Installer.
 The process can take a long time depending of your network connection.
 Please, be patient !"""
-    raw_input("Press Enter to continue...")
+    if(not NO_ENTER): raw_input("Press Enter to continue...")
     print "\n"
 
 
@@ -505,7 +507,7 @@ def non_root_initialisation():
             os.mkdir(opts.install_dir+'/bin')
             os.mkdir(opts.install_dir+'/lib')
 
-    raw_input("\n== Press Enter to continue. ==\n")
+    if(not NO_ENTER): raw_input("\n== Press Enter to continue. ==\n")
 
     # check presence of ~/.pydistutils
     if opts.install_dir:
@@ -594,7 +596,8 @@ def ParseParameters():
         help="install setuptools (root installation)")
     parser.add_option("-g", "--gforge", action="store_true",default=False,
                       help="Authenticate into the gforge server")
-
+    parser.add_option("-n", "--no-enter-request", action="store_true",default=False,
+                      help="Skip all requests for Enter pressing.")
     (opts, args) = parser.parse_args()
     return opts, args
 
@@ -627,10 +630,16 @@ if (__name__ == "__main__"):
         install_setuptools()
         sys.exit(0)
 
+    if opts.no_enter_request:
+        NO_ENTER = True
+        try:    sys.argv.remove('--no-enter-request')
+        except: pass
+        try:    sys.argv.remove('-n')
+        except: pass        
 
     # Execute the script in 2 process
     # This part is called the second time.
-    if("openalea" in sys.argv):
+    if("openalea" in sys.argv):       
         # Second call: install openalea.
         if opts.gforge :
             cli_login()
@@ -659,7 +668,7 @@ if (__name__ == "__main__"):
         # Install setup tools
         print '\nInstalling setuptools if needed\n'.upper()
         install_setuptools()
-
+  
         # Start again in an other process with openalea option
         # to take into account modifications
         if opts.install_dir:
@@ -668,4 +677,4 @@ if (__name__ == "__main__"):
         else:
             os.system('%s "%s" openalea %s'%(sys.executable, __file__, original_args_string))
 
-        raw_input("\n== Press Enter to finish. ==")
+        if(not NO_ENTER): raw_input("\n== Press Enter to finish. ==")
