@@ -323,10 +323,11 @@ def install_deploy(opts=None):
         print 'Installing openalea.Deploy'
         main(['-f', dependency_links, "openalea.deploy"])
         print 'OpenAlea.Deploy installed'
-    except:
+    except Exception, e:
+        print e
         print "Cannot install openalea.deploy. Do you have root permission ?"
         print "Add sudo before your python command, or use --install-dir."
-        sys.exit(0)
+        sys.exit(-1)
 
 
 def install_pkg(name):
