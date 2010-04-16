@@ -48,13 +48,17 @@ class Loop (object) :
 		        (including this constructor)
 		"""
 		self._scheduler = scheduler
-		self._post_step_func = post_step_func
-		self._init_func = init_func
+		self._post_step_func = [] if post_step_func is None else [post_step_func]
+		self._init_func = [] if init_func is None else [init_func]
+		self._end_func = None
 		self._running = False
 		self._thread = None
 		
 		#register initial state of the scheduler
-		self._initial_state = tuple(self._scheduler._tasks) #TODO hack pabo
+		if self._scheduler:
+			self._initial_state = tuple(self._scheduler._tasks) #TODO hack pabo
+		else:
+			self._initial_state = tuple() #TODO hack pabo
 		
 		#initialise iterator
 		self.reinit()
@@ -74,26 +78,42 @@ class Loop (object) :
 		"""
 		return self._current_step
 	
+	def add_init_processing(self,func):
+		if self._init_func is None :
+			self._init_func = [func]
+		else : self._init_func.append(func)
+	
 	def reinit (self) :
 		"""Restart scheduler from 0
 		"""
 		if self.running() :
 			self.pause()
 		
-		self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
-		self._current_step = 0
-		self._gen = self._scheduler.run()
+		if self._scheduler:
+			self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
+			self._current_step = 0
+			self._gen = self._scheduler.run()
 		if self._init_func is not None :
-			self._init_func()
+			for init_func in self._init_func:
+				init_func()
 	
 	def _step (self) :
 		"""Perform one step of the scheduler
 		in the current thread.
 		"""
 		self._current_step = self._gen.next()
-		if self._post_step_func is not None :
-			self._post_step_func()
+		self._post_step_processing()
 		return self._current_step
+	
+	def add_post_step_processing(self,func):
+		if self._post_step_func is None :
+			self._post_step_func = [func]
+		else : self._post_step_func.append(func)
+	
+	def _post_step_processing(self):
+		if self._post_step_func is not None :
+			for post_func in self._post_step_func:
+				post_func()
 	
 	def step (self) :
 		"""Perform one step of the scheduler
