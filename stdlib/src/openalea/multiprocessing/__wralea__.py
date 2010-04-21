@@ -1,45 +1,51 @@
-# -*- python -*-
-#
-#       OpenAlea.StdLib
-#
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
-#
-#       Distributed under the Cecill-C License.
-#       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
-################################################################################
 
-""" openalea.multiprocessing operator """
-__revision__=" $Id$ "
-
+# This file has been generated at Tue Mar  9 09:07:19 2010
 
 from openalea.core import *
 
-__name__ = "openalea.multiprocessing"
 
-__alias__ = []
+__name__ = 'openalea.multiprocessing'
 
-__version__ = '0.0.2'
+__editable__ = True
+__description__ = 'Functional Node library.'
 __license__ = 'CECILL-C'
+__url__ = 'http://openalea.gforge.inria.fr'
+__alias__ = []
+__version__ = '0.1.0'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
-__description__ = 'Functional Node library.'
-__url__ = 'http://openalea.gforge.inria.fr'
-
-__all__ = ['pmap_',]    
+__icon__ = ''
 
 
-pmap_ = Factory( name="pmap",
-               description="Apply a function on a sequence",
-               category="Functional",
-               inputs=(dict(name='func', interface=IFunction), 
-                       dict(name='seq', interface=ISequence), 
-                       dict(name='N', interface=IInt(min=1))),
-               nodemodule="parallel",
-               nodeclass="pymap",
+__all__ = ['parallel_map_parallel_map', 'parallel_pymap']
+
+
+
+parallel_map_parallel_map = Factory(name='parallel map',
+                description='',
+                category='Unclassified',
+                nodemodule='parallel_map',
+                nodeclass='parallel_map',
+                inputs=[{'interface': IFunction, 'name': 'function', 'value': None, 'desc': ''}, {'interface': ISequence, 'name': 'seq', 'value': None, 'desc': ''}],
+                outputs=[{'interface': None, 'name': 'result', 'desc': ''}],
+                widgetmodule=None,
+                widgetclass=None,
                )
+
+
+
+
+parallel_pymap = Factory(name='pmap',
+                description='Apply a function on a sequence',
+                category='Functional',
+                nodemodule='parallel',
+                nodeclass='pymap',
+                inputs=({'interface': IFunction, 'name': 'func'}, {'interface': ISequence, 'name': 'seq'}, {'interface': IInt(min=1, max=16777216, step=1), 'name': 'N'}),
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+               )
+
+
 
 

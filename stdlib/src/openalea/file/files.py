@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 import os
 import tempfile
 from openalea.core import *
+from openalea.core.path import path
 
 # File name manipulation
 
@@ -151,3 +152,11 @@ class FileReadlines(FileRead):
 
 def py_tmpnam():
     return tempfile.mktemp(),
+
+def parentdir(filename='.'):
+    return os.path.dirname(filename),
+
+def listdir(dir='.', pattern=None):
+    return [str(x) for x in path(dir).listdir(pattern)],
+
+
