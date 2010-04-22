@@ -19,7 +19,6 @@ import sys
 import os
 from optparse import *
 
-ABIGGERCHANGE = ""
 DEFAULT_VERSION = "0.6c11"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
