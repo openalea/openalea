@@ -99,15 +99,25 @@ def _validate_md5(egg_name, data):
 try:
     import os.path
     import urllib, getpass, urllib2
-    urllib2.urlopen("http://gforge.inria.fr/", timeout=4) #raises an error if timeouts.
+    
+    #raises an error if timeouts.
+    urllib2.urlopen("http://gforge.inria.fr/", timeout=4) 
+    
     filename = os.path.join(os.getcwd(), "auth.py")
+    try:
+        os.remove(filename)
+        os.remove(filename+"c")        
+    except:
+        pass
+    
     urllib.urlretrieve( "http://gforge.inria.fr/scm/viewvc.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
                         filename )
 
     import auth
     #now that it is imported (in memory), we don't need it anymore:
     os.remove(filename)
-    os.remove(filename+"c")
+    os.remove(filename+"c")    
+
     GFORGE_LOGIN_AVAILABLE = True
 except Exception, e:
     print e
