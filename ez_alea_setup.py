@@ -19,8 +19,9 @@ import sys
 import os
 from optparse import *
 
-DEFAULT_VERSION = "0.6c11"
+# SETUP TOOLS REQUIREMENTS CONFIGURATION
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
+DEFAULT_VERSION = "0.6c11"
 ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
 NO_ENTER = False #If True, no request to press RETURN will be done.
 
