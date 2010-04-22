@@ -22,7 +22,7 @@ from optparse import *
 # SETUP TOOLS REQUIREMENTS CONFIGURATION
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 DEFAULT_VERSION = "0.6c11"
-ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi"
+ALEA_PI_URL = "http://openalea.gforge.inria.fr/pi" #url where Openalea packages lay.
 NO_ENTER = False #If True, no request to press RETURN will be done.
 
 md5_data = {
