@@ -15,8 +15,7 @@ This file can also be run as a script to install or upgrade setuptools.
 """
 __revision__ = " $Id$ "
 
-import sys
-import os
+import sys, os
 from optparse import *
 
 # SETUP TOOLS REQUIREMENTS CONFIGURATION
