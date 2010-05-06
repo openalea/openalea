@@ -46,6 +46,8 @@ class MultipleRedirection:
         for stream in self.streams:
             stream.write(str)
 
+    def flush(self):
+        pass
 
 class ThreadedRedirection:
     """ Dummy file which redirects stream to threaded gui output """
@@ -67,6 +69,8 @@ class ThreadedRedirection:
         else:
             self.guistream.write(str)
 
+    def flush(self):
+        pass
             
 class GraphicalStreamRedirection:
     """ Redirection of a stream as graphic output """
