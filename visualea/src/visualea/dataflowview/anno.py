@@ -28,6 +28,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
+        print "Graphical Annotation"
         QtGui.QGraphicsTextItem.__init__(self, "Click to edit", parent)
         qtgraphview.Annotation.__init__(self, annotation, graphadapter)
 
@@ -45,7 +46,10 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
         return
 
     def set_text(self, text):
+        print "set text ", text
+        
         self.setPlainText(text)
+        #self.store_view_data('text', text, notify=False)
 
     itemChange = mixin_method(qtgraphview.Annotation, QtGui.QGraphicsTextItem,
                               "itemChange")
@@ -59,12 +63,15 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
 #        return QtGui.QGraphicsTextItem.sceneEvent(self, event)
 
     def store_view_data(self, key, value, notify=True):
+        print "store view data", key, value
         self.annotation().get_ad_hoc_dict().set_metadata(key, value)
 
     def get_view_data(self, key):
+        print "get view data", key
         return self.annotation().get_ad_hoc_dict().get_metadata(key)
 
     def announce_view_data(self, exclusive=False):
+        print 'announce_view_data ' 
         if not exclusive:
             self.annotation().get_ad_hoc_dict().simulate_full_data_change()
         else:
