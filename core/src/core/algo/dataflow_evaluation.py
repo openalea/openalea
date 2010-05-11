@@ -148,7 +148,18 @@ class BrutEvaluation(AbstractEvaluation):
 
     def is_stopped(self, vid, actor):
         """ Return True if evaluation must be stop at this vertex """
-        return actor.block or vid in self._evaluated
+        
+        if vid in self._evaluated:
+            return True
+
+        if actor.block:
+            status = True
+            n = actor.get_nb_output()
+            outputs = [i for i in range(n) if actor.get_output(i) is not None ]
+            if not outputs: 
+                status = False
+            return status
+        return False 
 
     def eval_vertex(self, vid, *args):
         """ Evaluate the vertex vid """
@@ -272,7 +283,6 @@ class GeneratorEvaluation(AbstractEvaluation):
             self.reeval = ret
 
     def eval(self, vtx_id=None):
-
         df = self._dataflow
 
         if (vtx_id is not None):
@@ -287,10 +297,11 @@ class GeneratorEvaluation(AbstractEvaluation):
 
         # Execute
         for vid, actor in leafs:
-            self.reeval = True
-            while(self.reeval):
-                self.clear()
-                self.eval_vertex(vid)
+            if not self.is_stopped(vid, actor):
+                self.reeval = True
+                while(self.reeval):
+                    self.clear()
+                    self.eval_vertex(vid)
 
         return False
 
@@ -324,6 +335,10 @@ class LambdaEvaluation(PriorityEvaluation):
 
         df = self._dataflow
         actor = df.actor(vid)
+
+        # Do not evaluate a node which is blocked
+        if self.is_stopped(vid, actor):
+            return
 
         self._evaluated.add(vid)
 
