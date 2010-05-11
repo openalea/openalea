@@ -656,8 +656,9 @@ class Node(AbstractNode):
         Return True if the node need a reevaluation
         """
         # lazy evaluation
-        if(self.block or
-           (self.lazy and not self.modified)):
+        if self.block and self.get_nb_output() != 0 and self.output(0) is not None:
+            return False
+        if(self.lazy and not self.modified):
             return False
 
         self.notify_listeners(("start_eval", ))
