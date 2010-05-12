@@ -72,7 +72,7 @@ class ClientCustomisableWidget(object):
         of the handler (usually : handlerName(QObject, event)).
 
         """
-        if cls in [Vertex, Edge, Annotation] :
+        if cls in [Vertex, Edge] :
             raise Exception(str(cls)+".set_event_handler.\n" + \
                                      "Don't use this on classes from qtgraphview " + \
                                      "except qtgraphview.View")
@@ -249,73 +249,6 @@ class Vertex(Element):
             pos = [event.scenePos().x(), event.scenePos().y()]
             scene.new_edge_start(pos, source=self)
             return
-
-
-
-#------*************************************************------#
-class Annotation(Element):
-    """An abstract graphic item that represents a graph annotation"""
-
-    def __init__(self, annotation, graph):
-        """
-        :Parameters:
-            - annotation - The annotation object to watch.
-            - graph      - The owner of the annotation
-
-        """
-        Element.__init__(self, annotation, graph)
-        return
-
-    annotation = baselisteners.GraphElementObserverBase.get_observed
-
-    def notify(self, sender, event):
-        """Model event dispatcher.
-        Intercepts the \"MetaDataChanged\" event with the \"text\" key
-        and redirects it to self.set_text(self). Any other event
-        if processed by the superclass' notify method."""
-        if(event[0] == "metadata_changed"):
-            if(event[1]=="text"):
-                if(event[2]): self.set_text(event[2])
-                else : self.set_text("Click to edit")
-
-        Element.notify(self, sender, event)
-
-
-    #####################
-    # ----Qt World----  #
-    #####################
-    def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemPositionChange:
-            self.deaf(True)
-            point = value.toPointF()
-            cPos = point + self.boundingRect().center()
-            self.store_view_data('position', [point.x(), point.y()])
-            self.deaf(False)
-            return value
-
-    def mouseDoubleClickEvent(self, event):
-        """ todo """
-        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
-        self.setSelected(True)
-        self.setFocus()
-        cursor = self.textCursor()
-        cursor.select(QtGui.QTextCursor.Document)
-        self.setTextCursor(cursor)
-
-    def focusOutEvent(self, event):
-        """ todo """
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
-
-        # unselect text
-        cursor = self.textCursor ()
-        if(cursor.hasSelection()):
-            cursor.clearSelection()
-            self.setTextCursor(cursor)
-
-        self.store_view_data('text', unicode(self.toPlainText()))
-        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-
-
 
 
 #------*************************************************------#
@@ -576,13 +509,13 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def get_items(self, filterType=None, subcall=None):
         """ """
-        return [ (item if subcall is None else eval("item."+subcall))
+        return [ (item if subcall is None else subcall(item))
                  for item in self.items() if
                  (True if filterType is None else isinstance(item, filterType))]
 
     def get_selected_items(self, filterType=None, subcall=None):
         """ """
-        return [ (item if subcall is None else eval("item."+subcall))
+        return [ (item if subcall is None else subcall(item))
                  for item in self.items() if item.isSelected() and
                  (True if filterType is None else isinstance(item, filterType))]
 
