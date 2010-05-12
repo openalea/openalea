@@ -19,23 +19,24 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 
-from openalea.grapheditor import qtgraphview
+from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor.qtutils import mixin_method
 
 
-class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
+class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
     """ Text annotation on the data flow """
+    
+    __def_string__ = u"Double-click to edit"
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
-        print "Graphical Annotation"
-        QtGui.QGraphicsTextItem.__init__(self, "Click to edit", parent)
-        qtgraphview.Annotation.__init__(self, annotation, graphadapter)
+        QtGui.QGraphicsTextItem.__init__(self, self.__def_string__, parent)
+        qtgraphview.Vertex.__init__(self, annotation, graphadapter)
 
-        # ---Qt Stuff---
+        # ---Qt Stuff---        
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
+        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setZValue(2.0)
 
         font = self.font()
@@ -46,26 +47,60 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
         self.initialise_from_model()
         return
 
-    def set_text(self, text):
-        print "set text ", text
-        
-        self.setPlainText(text)
-        #self.store_view_data('text', text, notify=False)
+    annotation = baselisteners.GraphElementObserverBase.get_observed        
 
-  
-    itemChange = mixin_method(qtgraphview.Annotation, QtGui.QGraphicsTextItem,
+    #####################
+    # ----Qt World----  #
+    #####################
+    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsTextItem,
                               "itemChange")
+                              
+    paint = mixin_method(None, QtGui.QGraphicsTextItem,
+                              "paint")                              
+                              
+    mousePressEvent = mixin_method( QtGui.QGraphicsTextItem, qtgraphview.Vertex,
+                                   "mousePressEvent")
+        
+    def mouseDoubleClickEvent(self, event):
+        self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
+        self.setSelected(True)
+        self.setFocus() #setting selection doesn't set the focus
+        QtGui.QGraphicsTextItem.mouseDoubleClickEvent(self, event)
+
+    def keyPressEvent(self, event):
+        QtGui.QGraphicsTextItem.keyPressEvent(self, event)              
+        
+    def focusOutEvent(self, event):
+        text = unicode(self.toPlainText())
+        if(text != self.__def_string__):
+            self.store_view_data('text', text)
+        self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        QtGui.QGraphicsTextItem.focusOutEvent(self, event)
+        
+        
+    #########################
+    # ----Other things----  #
+    #########################
+    def notify(self, sender, event):
+        if event:
+            if event[0] == "metadata_changed":
+                if event[1] == "text":
+                    self.set_text(event[2])
+                    return
+        qtgraphview.Vertex.notify(self, sender, event)
+    
+    def set_text(self, text):
+        if text == u"" :
+            text = self.__def_string__
+        self.setPlainText(text)
 
     def store_view_data(self, key, value, notify=True):
-        print "store view data", key, value
         self.annotation().get_ad_hoc_dict().set_metadata(key, value)
 
     def get_view_data(self, key):
-        print "get view data", key
         return self.annotation().get_ad_hoc_dict().get_metadata(key)
 
     def announce_view_data(self, exclusive=False):
-        print 'announce_view_data ' 
         if not exclusive:
             self.annotation().get_ad_hoc_dict().simulate_full_data_change()
         else:

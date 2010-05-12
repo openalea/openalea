@@ -232,7 +232,22 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                               "itemChange")
 
+                              
+class GraphicalInVertex(GraphicalVertex):
+    def __init__(self, vertex, graph, parent=None):
+        GraphicalVertex.__init__(self, vertex, graph, parent=None)
 
+    def polishEvent(self):
+        set_composite_in_out_position(self.graph(), True)
+        GraphicalVertex.polishEvent(self)
+
+class GraphicalOutVertex(GraphicalVertex):
+    def __init__(self, vertex, graph, parent=None):
+        GraphicalVertex.__init__(self, vertex, graph, parent=None)
+
+    def polishEvent(self):
+        set_composite_in_out_position(self.graph(), False)
+        GraphicalVertex.polishEvent(self)
 
 def set_composite_in_out_position(graph, isInNode):
     """Recomputes the position of In and Out ports to place them above or below
@@ -259,27 +274,14 @@ def set_composite_in_out_position(graph, isInNode):
         graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
     else :
         y = bottom + verticalNodeSize
-        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
+        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])        
 
 
-class GraphicalInVertex(GraphicalVertex):
-    def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None)
-
-    def polishEvent(self):
-        set_composite_in_out_position(self.graph(), True)
-        GraphicalVertex.polishEvent(self)
-
-class GraphicalOutVertex(GraphicalVertex):
-    def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None)
-
-    def polishEvent(self):
-        set_composite_in_out_position(self.graph(), False)
-        GraphicalVertex.polishEvent(self)
-
-
-
+        
+        
+        
+        
+        
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     """ A vertex port """
     MAX_TIPLEN = 2000

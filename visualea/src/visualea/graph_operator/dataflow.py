@@ -26,6 +26,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
 from compositenode_inspector import Inspector
+from openalea.visualea import dataflowview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -74,7 +75,7 @@ class DataflowOperators(object):
             elif isinstance(i, qtgraphview.Edge):
                 self.get_graph().remove_edge((i.srcBBox().vertex(), i.srcBBox()),
                                          (i.dstBBox().vertex(), i.dstBBox()) )
-            elif isinstance(i, qtgraphview.Annotation):
+            elif isinstance(i, dataflowview.anno.GraphicalAnnotation):
                 self.get_graph().remove_vertex(i.annotation())
 
     @interactionMask(OAGIS.TOPOLOGICALLOCK)
@@ -186,9 +187,14 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            s = widget.scene().get_selected_items(qtgraphview.Vertex,
-                                                                 "vertex().get_id()")
+            s = widget.scene().get_selected_items(qtgraphview.Vertex)
             if(not s): return
+
+            #Are we copying in an annotation? Big hack
+            for i in s:
+                if i.hasFocus() : return 
+                
+            s = [i.vertex().get_id() for i in s]
             self.get_session().clipboard.clear()
             self.get_graph().to_factory(self.get_session().clipboard, s, auto_io=False)
 
@@ -215,7 +221,13 @@ class DataflowOperators(object):
         else:
             widget = self.get_graph_view()
             cnode = self.get_session().clipboard.instantiate()
-
+            s = widget.scene().get_selected_items(qtgraphview.Vertex)
+            if(not s): return
+            
+            #Are we pasting in an annotation? Big hack
+            for i in s:
+                if i.hasFocus() : print i; return
+                
             min_x = min_y = float("inf")
             for vid in cnode:
                 if vid in (cnode.id_in, cnode.id_out): continue
