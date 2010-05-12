@@ -183,7 +183,7 @@ def vertexContextMenuEvent(graphItem, event):
     operator.set_vertex_item(graphItem())
     widget = operator.get_graph_view()
     menu = qtutils.AleaQMenu(widget)
-    items = widget.scene().get_selected_items(qtgraphview.Vertex)
+    items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
     #enabled = not widget.scene().edition_locked()
 
 

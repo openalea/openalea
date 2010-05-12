@@ -61,7 +61,7 @@ class DataflowOperators(object):
     def graph_remove_selection(self, items=None):
         def cmp(a,b):
             """edges need to be deleted before any other element"""
-            if type(a) == qtgraphview.Edge and type(b) == qtgraphview.Vertex : return 1
+            if type(a) == qtgraphview.Edge and type(b) == dataflowview.vertex.GraphicalVertex : return 1
             if type(a) == type(b) : return 0
             return -1
 
@@ -69,7 +69,7 @@ class DataflowOperators(object):
         if(not items): return
         items.sort(cmp)
         for i in items:
-            if isinstance(i, qtgraphview.Vertex):
+            if isinstance(i, dataflowview.vertex.GraphicalVertex):
                 if self.get_graph().is_vertex_protected(i.vertex()): continue
                 self.get_graph().remove_vertex(i.vertex())
             elif isinstance(i, qtgraphview.Edge):
@@ -104,7 +104,7 @@ class DataflowOperators(object):
         # NOW WE DO THE HARD WORK
         # -----------------------
         factory = dialog.create_cnfactory(self.get_package_manager())
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if(not items): return None
 
         pos = widget.scene().get_selection_center(items)
@@ -187,7 +187,7 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            s = widget.scene().get_selected_items(qtgraphview.Vertex)
+            s = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
             if(not s): return
 
             #Are we copying in an annotation? Big hack
@@ -221,7 +221,7 @@ class DataflowOperators(object):
         else:
             widget = self.get_graph_view()
             cnode = self.get_session().clipboard.instantiate()
-            s = widget.scene().get_selected_items(qtgraphview.Vertex)
+            s = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
             if(not s): return
             
             #Are we pasting in an annotation? Big hack

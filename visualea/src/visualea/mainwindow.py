@@ -42,6 +42,7 @@ from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.grapheditor import qtgraphview
+from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
 import compositenode_widget
 
@@ -344,7 +345,7 @@ class MainWindow(QtGui.QMainWindow,
 
         #check if the current selection is coloured and tick the 
         #menu item if an item of the selection uses the user color.
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         self.actionUseCustomColor.setChecked(False)
         for i in items:
             if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
