@@ -213,6 +213,9 @@ def list_select(items, index):
         return None
 
 
+def none():
+    """ None singleton """
+    return None,
 # DEPRECATED
 
 

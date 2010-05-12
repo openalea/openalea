@@ -254,3 +254,16 @@ pdir = Factory( name=protected("packagedir"),
               )
 
 __all__.append('pdir')
+
+none_ = Factory( name="None", 
+              description="None object", 
+              category="datatype", 
+              nodemodule="data",
+              nodeclass="none",
+              
+              outputs=(dict(name="None" ),),
+              )
+
+
+__all__.append('none_')
+
