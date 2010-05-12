@@ -26,6 +26,21 @@ from openalea.core import ScriptLibrary
 from openalea.core.node import AbstractNode, Node
 from openalea.core.dataflow import SubDataflow
 
+class CurrentCycle (object) :
+    """small object used to store current cycle
+    """
+    def __init__ (self, current_cycle) :
+        self._current_cycle = current_cycle
+    
+    def current_cycle (self) :
+        return self._current_cycle
+    
+    def set_current_cycle (self, cycle) :
+        self._current_cycle = cycle
+
+def current_cycle (ini_cycle) :
+    ccycle = CurrentCycle(ini_cycle)
+    return ccycle.set_current_cycle,ccycle.current_cycle
 
 def create_task (function, delay, priority, name, start) :
     task = Task(function,delay,priority,name)
@@ -78,10 +93,28 @@ def create_scheduler_script (inputs, outputs) :
     
     return script
 
-def run (scheduler, nb_step) :
+def create_scheduler_object (current_cycle) :
+    scheduler = Scheduler()
+    scheduler._current_cycle = current_cycle
+    
+    return scheduler,scheduler.current_cycle
+
+def register_task (scheduler, function, delay, priority, name, start) :
+    task = Task(function,delay,priority,name)
+    if start < 0 :
+        start = None
+    
+    scheduler.register(task,start)
+    
+    return scheduler,
+
+def run (scheduler, nb_step, set_current_cycle) :
     g = scheduler.run()
     for i in range(nb_step):
         next_cycle = g.next()
+        if set_current_cycle is not None :
+            set_current_cycle(scheduler.current_cycle() )
+    
     return scheduler,
 
 def run_scheduler_script (inputs, outputs) :

@@ -34,6 +34,18 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __icon__ = 'icon.png'
 __all__ = []
 
+ccycle = Factory( name= "current_cycle", 
+                description= "",
+                category = "",
+                nodemodule = "scheduler",
+                nodeclass = "current_cycle",
+                inputs=(dict(name="ini", interface=IInt,),),
+                outputs=(dict(name="set", interface=IFunction,),
+                         dict(name="get", interface=IFunction,),),
+            )
+
+__all__.append('ccycle')
+
 task = Factory( name= "task", 
                 description= "",
                 category = "",
@@ -68,7 +80,8 @@ run = Factory( name= "run",
                 nodemodule = "scheduler",
                 nodeclass = "run",
                 inputs=(dict(name="scheduler",),
-                dict(name="nb_step", interface=IInt,),),
+                        dict(name="nb_step", interface=IInt,),
+                        dict(name="set_current_cycle", interface=IFunction, value=None),),
                 outputs=(dict(name="scheduler", interface=None,),),
                 toscriptclass_name = "run_script",
             )

@@ -15,8 +15,7 @@
 #
 
 """
-This module defines a loop to evaluate
-a scheduler in a different thread
+This module defines a loop to evaluate a scheduler in a different thread
 """
 
 __license__= "Cecill-C"
@@ -31,27 +30,24 @@ class Loop (object) :
 	def __init__ (self, scheduler, post_step_func = None, init_func = None) :
 		"""Constructor
 		
-		.. warning:: for this object to works fine,
-		   especially with `reinit` method, tasks
-		   must be registered in the scheduler prior
-		   to construct this object
+		.. warning:: for this object to works fine, especially with `reinit
+		             method, tasks must be registered in the scheduler prior
+		             to construct this object
 		
 		:Parameters:
-		 - `scheduler` (Scheduler) - a scheduler
-		    to manage each step
-		 - `post_step_func` (function) - a function
-		        that take no arguments and will be
-		        called after each step
-		 - `init_func` (function) - a function
-		        that take no arguments and will be 
-		        called at each reinitialisation
-		        (including this constructor)
+		 - `scheduler` (Scheduler) - a scheduler to manage each step
+		 - `post_step_func` (function) - a function that take no arguments and
+		                                 will be called after each step
+		 - `init_func` (function) - a function that take no arguments and will
+		       be called at each reinitialisation (including this constructor)
 		"""
 		self._scheduler = scheduler
-		self._post_step_func = [] if post_step_func is None else [post_step_func]
+		self._post_step_func = [] if post_step_func is None \
+		                          else [post_step_func]
 		self._init_func = [] if init_func is None else [init_func]
 		self._end_func = None
 		self._running = False
+		self._step_in_progress = False
 		self._thread = None
 		
 		#register initial state of the scheduler
@@ -76,12 +72,13 @@ class Loop (object) :
 	def current_step (self) :
 		"""Current step reached by the scheduler.
 		"""
-		return self._current_step
+		return self._scheduler.current_cycle()
 	
-	def add_init_processing(self,func):
+	def add_init_processing (self, func) :
 		if self._init_func is None :
 			self._init_func = [func]
-		else : self._init_func.append(func)
+		else :
+			self._init_func.append(func)
 	
 	def reinit (self) :
 		"""Restart scheduler from 0
@@ -89,21 +86,21 @@ class Loop (object) :
 		if self.running() :
 			self.pause()
 		
-		if self._scheduler:
-			self._scheduler._tasks = list(self._initial_state) #TODO hack pabo
-			self._current_step = 0
-			self._gen = self._scheduler.run()
-		if self._init_func is not None :
-			for init_func in self._init_func:
-				init_func()
+		sch = self._scheduler
+		if sch is not None :
+			sch._tasks = list(self._initial_state) #TODO hack pabo
+			sch._current_cycle = 0 #TODO hack pabo
+			self._gen = sch.run()
+		
+		for init_func in self._init_func :
+			init_func()
 	
 	def _step (self) :
-		"""Perform one step of the scheduler
-		in the current thread.
+		"""Internal function that actually perform one step of the scheduler
 		"""
-		self._current_step = self._gen.next()
+		next_cycle = self._gen.next()
 		self._post_step_processing()
-		return self._current_step
+		return next_cycle
 	
 	def add_post_step_processing(self,func):
 		if self._post_step_func is None :
@@ -116,16 +113,25 @@ class Loop (object) :
 				post_func()
 	
 	def step (self) :
-		"""Perform one step of the scheduler
-		in the current thread.
+		"""Perform one step of the scheduler in the current thread
 		"""
+		#test for multiple call to this function (multithreading)
+		if self._step_in_progress :
+			return
+		
+		#test for call to this function while play is already activated
 		if self.running() :
 			self.pause()
 		
-		return self._step()
+		#perform step
+		self._step_in_progress = True
+		ret = self._step()
+		self._step_in_progress = False
+		return ret
 	
 	def _loop (self) :
-		"""Internal function that advance from one step.
+		"""Internal function that advance step by step
+		as long as running is True.
 		"""
 		while True :
 			if not self._running :
@@ -134,20 +140,28 @@ class Loop (object) :
 			sleep(0.01)
 	
 	def play (self) :
-		"""Create a thread and evaluate the
-		scheduler infinitely.
+		"""Create a thread and evaluate the scheduler infinitely
 		"""
 		self._running = True
 		self._thread = Thread(None,self._loop)
 		self._thread.start()
 	
 	def pause (self) :
-		"""Pause the current thread.
-		Wait for the current step to be finished
-		before exiting the thread.
+		"""Pause the current thread
+		
+		Wait for the current step to be finished before exiting the thread.
 		"""
+		#stop thread
 		self._running = False
+		
+		#kill thread properly
 		if self._thread is not None :
 			while self._thread.isAlive() :
 				sleep(0.01)
 			self._thread = None
+
+
+
+
+
+

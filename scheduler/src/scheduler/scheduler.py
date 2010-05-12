@@ -26,6 +26,9 @@ class Scheduler (object) :
     def __init__ (self) :
         """Initialise the Scheduler.
         """
+        #current step of evaluation
+        self._current_cycle = 0
+        
         #heapqueue of tasks
         self._tasks = []
     
@@ -38,6 +41,14 @@ class Scheduler (object) :
         """Iterate on all scheduled tasks.
         """
         return (task for cycle,task in self._tasks)
+    
+    def current_cycle (self) :
+        """Retrieve the value of the current cycle
+        
+        .. warning:: the current cycle has already been evaluated. The next
+                     next cycle to be executed is returned by `run`.
+        """
+        return self._current_cycle
     
     ###############################################
     #
@@ -53,7 +64,9 @@ class Scheduler (object) :
                     uses task delay.
         """
         if start_time is None :
-            start_time = task.delay()
+            start_time = self._current_cycle + task.delay()
+        else :
+            assert start_time >= self._current_cycle
         
         heappush(self._tasks, (start_time,task) )
     
@@ -70,9 +83,9 @@ class Scheduler (object) :
         tasks = self._tasks
         while len(tasks) > 0 :
             #retrieve tasks to evaluate at this cycle
-            current_cycle,task = heappop(tasks)
+            self._current_cycle,task = heappop(tasks)
             task_list = [(task.priority(),task)]
-            while len(tasks) > 0 and tasks[0][0] == current_cycle :
+            while len(tasks) > 0 and tasks[0][0] == self._current_cycle :
                 cc,task = heappop(tasks)
                 task_list.append( (task.priority(),task) )
             
@@ -85,7 +98,7 @@ class Scheduler (object) :
                 delay = task.evaluate()
                 #reinsert the task in the heapqueue
                 if delay is not None :
-                    heappush(tasks, (current_cycle + delay,task) )
+                    heappush(tasks, (self._current_cycle + delay,task) )
             
             #return
             if len(tasks) > 0 :
