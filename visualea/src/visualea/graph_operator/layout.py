@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
+from openalea.visualea import dataflowview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -35,7 +36,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 1 :
             #find median base #TODO beware of relative to parent coordinates
             ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
@@ -58,7 +59,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
@@ -81,7 +82,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -107,7 +108,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -133,7 +134,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
             xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
@@ -172,7 +173,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(qtgraphview.Vertex)
+        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         if len(items) > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
             ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)
