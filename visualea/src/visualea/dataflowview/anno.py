@@ -35,6 +35,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
         # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         self.setZValue(2.0)
 
         font = self.font()
@@ -51,16 +52,9 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Annotation):
         self.setPlainText(text)
         #self.store_view_data('text', text, notify=False)
 
+  
     itemChange = mixin_method(qtgraphview.Annotation, QtGui.QGraphicsTextItem,
                               "itemChange")
-
-#    def sceneEvent(self, event):
-#        if( event.type() == QtCore.QEvent.GraphicsSceneMouseMove ):
-#            self.deaf()
-#            point = event.scenePos() - event.pos()
-#            self.store_view_data('position', [point.x(), point.y()])
-#            self.deaf(False)
-#        return QtGui.QGraphicsTextItem.sceneEvent(self, event)
 
     def store_view_data(self, key, value, notify=True):
         print "store view data", key, value
