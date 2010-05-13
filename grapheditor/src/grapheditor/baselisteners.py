@@ -22,7 +22,12 @@ __revision__ = " $Id$ "
 import types
 import weakref
 
-from openalea.core import observer
+try:
+    from openalea.core import observer
+except ImportError:
+    # This will fail.
+    # Please, have a local copy to remove the dependency on core.
+    import observer
 
 import interfaces
 
@@ -54,8 +59,10 @@ class GraphElementObserverBase(observer.AbstractListener):
         self.__obsBBox(observed)
 
     def get_observed(self):
-        try: return self.__obsBBox()
-        except TypeError: return None
+        try: 
+            return self.__obsBBox()
+        except TypeError: 
+            return None
 
     def clear_observed(self, *args):
         self.__obsBBox.clear_observed()
