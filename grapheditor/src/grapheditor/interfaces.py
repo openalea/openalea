@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.Visualea: OpenAlea graphical user interface
+#       OpenAlea.GraphEditor: OpenAlea graphical user interface
 #
 #       Copyright 2006-2009 INRIA - CIRAD - INRA
 #

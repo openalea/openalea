@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
 __revision__ = "$Id$"
 
-# This Setup script has been commented to ease the writing of your own file. 
-
-# A setup script mainly consist of a call to the setup function of setuptool, that allows to create a distribution archive of a set of python modules grouped in packages (ie in directories with an __init__.py file).
-# In the context of OpenAlea, this function has been extended by the openalea.deploy module to ease the simultaneaous distribution of binaries and libraries.
-
-
-
-# (To adapt this script for your package, you mainly have to change the content of the variable defined before the call to setup function, and comment out unused options in the call of the function)
-
 import sys
 import os
 
 from setuptools import setup, find_packages
 
-
 from openalea.deploy.metainfo import read_metainfo
+
 metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
