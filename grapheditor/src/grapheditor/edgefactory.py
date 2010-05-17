@@ -115,7 +115,7 @@ class SplineEdgePath(PolylineEdgePath):
     def __init__(self): 
         PolylineEdgePath.__init__(self)
 
-    def get_path self, p1, p2):
+    def get_path( self, p1, p2):
         self.p1 = p1
         self.p2 = p2
         path = QtGui.QPainterPath(self.p1)
