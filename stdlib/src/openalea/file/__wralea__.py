@@ -218,4 +218,11 @@ files_listdir =  Factory(name='listdir',
                 outputs=({'interface': IDirStr, 'name': 'DirStr'},),
                )
 
-
+start =  Factory(name='start',
+                description='Open a file with the default application',
+                category='File,IO',
+                nodemodule='files',
+                nodeclass='start',
+                inputs=({'interface': IFileStr, 'name': 'path', 'value': '.'},),
+               )
+__all__.append('start')

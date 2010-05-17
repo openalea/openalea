@@ -16,7 +16,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import os
+import sys, os, subprocess
 import tempfile
 from openalea.core import *
 from openalea.core.path import path
@@ -159,4 +159,14 @@ def parentdir(filename='.'):
 def listdir(dir='.', pattern=None):
     return [str(x) for x in path(dir).listdir(pattern)],
 
+
+def start(path):
+    if hasattr(os, 'startfile'): # Windows
+        os.startfile(path)
+    else:
+        if sys.platform.startswith('darwin'): # Mac OS X
+            command = 'open'
+        else: # Linux
+            command = 'xdg-open'
+        subprocess.call([command, path])
 
