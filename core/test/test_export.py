@@ -41,3 +41,5 @@ def test_export():
     os.remove("app.py")
     try:
         os.remove("app.pyc")
+    except:
+        pass
