@@ -27,7 +27,7 @@ dependency_links = ['http://openalea.gforge.inria.fr/pi']
 # scons build-prefix 
 #(to be kept only if you contruct C/C++ binaries)
 
-build_prefix = "build-scons"
+#build_prefix = "build-scons"
 install_requires = []
 
 
@@ -58,8 +58,8 @@ setup(
     dependency_links = dependency_links,
 
 
-    lib_dirs = {'lib' : build_prefix+'/lib' },
-    inc_dirs = { 'include' : build_prefix+'/include' },
+    #lib_dirs = {'lib' : build_prefix+'/lib' },
+    #inc_dirs = { 'include' : build_prefix+'/include' },
 
     include_package_data = True,
     entry_points = {
