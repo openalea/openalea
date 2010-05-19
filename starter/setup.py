@@ -21,15 +21,16 @@ import sys
 import os
 
 from setuptools import setup, find_packages
+from openalea.deploy.metainfo import read_metainfo
 
 # Reads the metainfo file
-from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadat.iteritems():
     exec("%s = '%s'" % (key, value))
 
 #The metainfo files must contains
-# version, release, project, name, namespace, pkg_name, description, long_description
+# version, release, project, name, namespace, pkg_name,
+# description, long_description,
 # authors, authors_email, url and license
 # * note that authors and authors_email have an s even though there is only one author
 # * version is 0.7.0 and release 0.7
