@@ -52,6 +52,7 @@ setup(
                  "inc_dirs = openalea.deploy.command:validate_bin_dirs",
                  "bin_dirs = openalea.deploy.command:validate_bin_dirs",
                  "share_dirs = openalea.deploy.command:validate_share_dirs",
+                 "cmake_scripts = openalea.deploy.command:validate_cmake_scripts",
                  "scons_scripts = openalea.deploy.command:validate_scons_scripts",
                  "pylint_packages = openalea.deploy.command:validate_pylint_packages",
                  "pylint_options = openalea.deploy.command:validate_pylint_options",
@@ -69,6 +70,7 @@ setup(
                  ],
 
               "distutils.commands":[
+                 "cmake = openalea.deploy.command:cmake",
                  "scons = openalea.deploy.command:scons",
                  "create_namespaces = openalea.deploy.command:create_namespaces",
                  "alea_install = openalea.deploy.command:alea_install",

@@ -184,6 +184,7 @@ class build_ext(old_build_ext):
         # Run others commands
 
         self.run_command("scons")
+        self.run_command("cmake")
 
         # Add lib_dirs and include_dirs in packages
         # Copy the directories containing the files generated
@@ -237,6 +238,17 @@ def validate_scons_scripts(dist, attr, value):
         distutils.command.build.build = build
         setuptools.command.install_lib.install_lib = cmd_install_lib
         set_has_ext_modules(dist)
+
+
+def validate_cmake_scripts(dist, attr, value):
+    """ Validation for cmake_scripts keyword """
+    assert_string_list(dist, attr, value)
+    if (value):
+        setuptools.command.build_ext.build_ext = build_ext
+        distutils.command.build.build = build
+        setuptools.command.install_lib.install_lib = cmd_install_lib
+        set_has_ext_modules(dist)
+
 
 def validate_pylint_options(dist, attr, value):
     
@@ -434,6 +446,111 @@ class scons(Command):
                     raise SconsError()
 
             except SconsError, i:
+                print i, " Failure..."
+                sys.exit(1)
+
+            except Exception, i:
+                print "!! Error : Cannot execute scons command:", i,
+                print " Failure..."
+                sys.exit(1)
+
+
+# CMake Management
+
+class CMakeError(Exception):
+    """CMake subprocess Exception"""
+
+    def __str__(self):
+        return "CMake subprocess has failed."
+
+
+class cmake(Command):
+    """
+    Call CMake in an external process.
+    """
+
+    description = "Run CMake"
+
+    def initialize_options(self):
+        self.cmake_scripts = []   #cmake directory
+        self.build_dir = None        #build directory
+
+    def finalize_options(self):
+
+        # Set default values
+        try:
+            self.cmake_scripts = self.distribution.cmake_scripts
+        except:
+            pass
+
+
+        self.set_undefined_options('build_ext',
+                                   ('build_lib', 'build_dir'),
+                                    )
+
+
+    def run(self):
+        """
+        Run Cmake command with subprocess module if available.
+        """
+        if (not self.cmake_scripts):
+            return
+
+        # try to import subprocess package
+        try:
+            import subprocess
+            subprocess_enabled = True
+        except ImportError:
+            subprocess_enabled = False
+
+        
+        # run each CMake script from setup.py
+        for s in self.cmake_scripts:
+            try:
+                # Join all the SCons parameters.
+                #file_param = s
+                file_param = '../src' 
+
+                cmake_cmd = 'cmake'
+                
+                cmake_cmd_param = file_param 
+                commandstr = cmake_cmd + ' ' + cmake_cmd_param
+
+                print commandstr
+
+                if not os.path.isdir('build-cmake') :
+                    os.mkdir('build-cmake') 
+
+                os.chdir('build-cmake')
+
+                                
+                # Run CMake
+                if (subprocess_enabled):
+                    retval = subprocess.call(commandstr, shell=True)
+                else: 
+                    retval =os.system(commandstr)
+
+                # Test if command success with return value
+                if (retval != 0):
+                    raise CMakeError()
+
+
+                make_cmd = 'make'
+                commandstr = make_cmd 
+
+                # Run Make
+                if (subprocess_enabled):
+                    retval = subprocess.call(commandstr, shell=True)
+                else:
+                    retval =os.system(commandstr)
+
+                # Test if command success with return value
+                if (retval != 0):
+                    raise CMakeError()
+
+                os.chdir(os.pardir)
+
+            except CMakeError, i:
                 print i, " Failure..."
                 sys.exit(1)
 
