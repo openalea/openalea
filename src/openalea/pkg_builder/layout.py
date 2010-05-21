@@ -8,6 +8,7 @@ Usage:
 
 import sys, re
 import getopt
+from string import Template
 
 from openalea.core.path import path
 
@@ -50,7 +51,7 @@ class PackageBuilder(object):
 
             print "Creating %s ..." % ( d, )
             try:
-                d.makedirs(mode=755)
+                d.makedirs()
             except OSError, e:
                 if e.args[ 0 ] != 17:
                     raise
@@ -88,11 +89,11 @@ class PackageBuilder(object):
 
         # alias
         dirs = self.dirs
-
+        wralea_name = self.name+"_wralea"
         if 'python' in self.languages:
             dirs.extend([
                self.pkg_dir/"src"/"openalea"/self.name,
-               self.pkg_dir/"src"/"openalea"/self.name/"wralea",
+               self.pkg_dir/"src"/"openalea"/wralea_name,
                ])
         if 'cpp' in self.languages:
             dirs.extend([
@@ -125,15 +126,17 @@ class PackageBuilder(object):
         ]
 
     def wraleafiles(self):
+        wralea_name = self.name+"_wralea"
         return [
         self.pkg_dir/"src"/"openalea"/self.name/"__init__.py",
-        self.pkg_dir/"src"/"openalea"/self.name/"wralea"/"wralea.py",
+        self.pkg_dir/"src"/"openalea"/wralea_name/"__wralea__.py",
         ]
 
     def sconsfiles(self):
         if 'cpp' in self.languages:
             return [
                     self.pkg_dir/"SConstruct",
+                    self.pkg_dir/"src"/"cpp"/"SConscript",
                    ]
         else:
             return []
@@ -141,57 +144,83 @@ class PackageBuilder(object):
     def setupfiles(self):
         return [
         self.pkg_dir/"setup.py",
+        self.pkg_dir/"metainfo.ini",
         ]
 
     def template_wralea(self):
         files = self.wraleafiles()
         for f in files:
-            if "wralea.py" in f:
+            if "__wralea__.py" in f:
                 break
         if not f.exists():
             self.mkfiles(files)
             
         wralea_py = f
-        wralea_txt = """
-from openalea.core import *
 
-def register_packages(pkgmanager):
-    ''' Initialisation function
-    
-    Return the list of packages to be included in the package manager.
-    This function is called by the package manager.
-    '''
+        tpl_wralea = path(__file__).dirname()/'template_wralea.txt'
 
-    metainfo={ 'version' : '0.0.0',
-               'license' : 'XXX',
-               'authors' : 'XXX',
-               'institutes' : 'XXX',
-               'description' : 'XXX',
-               'url' : 'htp://XXX.org'
-               }
+        print tpl_wralea
 
-    package = Package('%s', metainfo)
-
-    # begin adding Factory after this line.
-
-    # end adding factories
-
-    pkgmanager.add_package(package)
-
-""" % (self.name,)
+        wralea_txt = Template(open(tpl_wralea).read())
+        wralea_txt = wralea_txt.substitute(NAME=self.name)
 
         print "Creating a template version for %s ..." % ( wralea_py, )
         f = open(wralea_py, "w")
         f.write(wralea_txt)
         f.close()
 
+    def template_legal(self):
+        ''' Build new files from a default one.
+
+        If the template file exist and the current file is empty, create a new one.
+        '''
+        files = self.legalfiles()
+        tpl_files = []
+        for f in files:
+            if not f.exists() or f.size == 0:
+                tpl_file = path(__file__).dirname()/'template_'+f.basename()
+                tpl_files.append(tpl_file)
+            
+        wralea_py = f
+
+        wralea_txt = Template(open(tpl_wralea).read())
+        wralea_txt = wralea_txt.substitute(NAME=self.name)
+
+        print "Creating a template version for %s ..." % ( wralea_py, )
+        f = open(wralea_py, "w")
+        f.write(wralea_txt)
+        f.close()
         
 
+    def template_setup(self):
+        ''' Build a setup.py and an associated metainfo.ini '''
+        files = self.setupfiles()
 
-def create( name, python=True, cpp=False, c=False, fortran=False ):
+        tpl_setup = path(__file__).dirname()/'template_setup.py'
+        setup_py = self.pkg_dir/"setup.py"
+
+        if setup_py.exists() and setup_py.size != 0:
+            return
+
+        setup_txt = Template(open(tpl_setup).read())
+        setup_txt = setup_txt.substitute(HAS_SCONS=bool(self.cpp))
+        print "Creating a template version for %s ..." % ( setup_py, )
+        f = open(setup_py, "w")
+        f.write(setup_txt)
+        f.close()
+
+    def template_scons(self):
+        ''' Build default SConstruct and SConscript files. '''
+        pass
+
+
+def create( name, 
+            python=True, cpp=False, c=False, fortran=False,
+            project='openalea', release='0.8' ):
 
     pkg = PackageLayout(name)
     pkg.set_languages(cpp=cpp, c=c, fortran=fortran)
+    pkg.set_project(project)
 
     if not pkg.check_name():
         print "Error, package name %s is invalid" % ( name, )

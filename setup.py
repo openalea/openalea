@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 name = 'OpenAlea.PkgBuilder'
 namespace = 'openalea'
 pkg_name = 'openalea.pkg_builder'
-version = '0.1.0' 
+version = '0.2.0' 
 description = 'Creates a layout for openalea packages based on defined guidelines.' 
 
 author = 'Christophe Pradal'

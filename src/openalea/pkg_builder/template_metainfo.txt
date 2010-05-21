@@ -1,0 +1,18 @@
+
+[metainfo]
+version = 0.8.3
+release = 0.8
+; must be in [openalea, vplants, alinea]
+project = openalea
+; the filename of the egg
+name = OpenAlea.Starter
+; default namespace 
+namespace = openalea
+; package is going to be used by Sphinx to create the title
+package = starter
+description= Starter package for OpenAlea.
+long_description= The Starter package is a typical package example to help developper to create their own package, compatible with OpenAlea standards. It defines best practices for build, installation, coding rules, and license information. It contains code in C++, Python, as well as Boost.Python wrappers.
+authors= Samuel Dufour-Kowalski, Christophe Pradal
+authors_email = samuel.dufour@sophia.inria.fr, christophe.pradal@cirad.fr
+url = http://openalea.gforge.inria.fr
+license = Cecill-C
