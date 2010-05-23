@@ -22,7 +22,6 @@ from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor.qtutils import mixin_method
 
-
 class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
     """ Text annotation on the data flow """
     
