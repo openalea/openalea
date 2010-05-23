@@ -320,11 +320,11 @@ class Edge(Element):
     def notify(self, sender, event):
         if(event[0] == "metadata_changed"):
             if(event[1]=="connectorPosition"):
-                    pos = event[2]
-                    if(sender==self.srcBBox()):
-                        self.update_line_source(*pos)
-                    elif(sender==self.dstBBox()):
-                        self.update_line_destination(*pos)
+                pos = event[2]
+                if(sender==self.srcBBox()):
+                    self.update_line_source(*pos)
+                elif(sender==self.dstBBox()):
+                    self.update_line_destination(*pos)
             elif(event[1]=="hide" and (sender==self.dstBBox() or sender==self.srcBBox())):
                 if event[2]:
                     self.setVisible(False)
@@ -384,20 +384,23 @@ class FloatingEdge( Edge ):
                 return
             graph.add_edge(srcVertex, dstVertex)
         except Exception, e:
-            pass
-            #print "consolidation failed :", type(e), e,\
-            #". Are you sure you plugged the right ports?"
+            # pass
+            print "consolidation failed :", type(e), e,\
+            ". Are you sure you plugged the right ports?"
         return
 
     def get_connections(self):
         #find the vertex items that were activated
-        srcVertexItem = self.scene().itemAt( self.sourcePoint )
-        dstVertexItem = self.scene().itemAt( self.destPoint   )
+        
+        srcVertexItem = self.scene().find_closest_connectable(self.sourcePoint, boxsize = 2)
+        dstVertexItem = self.scene().find_closest_connectable(self.destPoint, boxsize = 2)
 
-        view = self.scene().views()[0]
+        scene = self.scene()
 
-        if( type(dstVertexItem) not in view.connector_types or
-            type(dstVertexItem) not in view.connector_types):
+        if( type(srcVertexItem) not in scene.connector_types or
+            type(dstVertexItem) not in scene.connector_types):
+            raise Exception( "Non connectable types for : " + str(srcVertexItem) + " : " + \
+                                str(dstVertexItem) )
             return None, None
 
         #if the input and the output are on the same vertex...
@@ -408,6 +411,14 @@ class FloatingEdge( Edge ):
 
 
 #------*************************************************------#
+class EventEater( QtCore.QObject ) :
+    def __init__(self, parent):
+        QtCore.QObject.__init__(self, parent)
+        
+    def eventFilter(self, obj, event):
+        print obj, event
+        return QtCore.QObject.eventFilter(self, obj, event);
+        
 class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase"""
     def __init__(self, parent, graph):
@@ -416,6 +427,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
         self.initialise_from_model()
+        # self.installEventFilter(EventEater(self))
 
     #############################################################################
     # Functions to correctly cooperate with the View class (reference counting) #
@@ -442,6 +454,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def find_closest_connectable(self, pos, boxsize = 10.0):
         #creation of a square which is a selected zone for while ports
+        if isinstance(pos, QtCore.QPointF) : pos = pos.x(), pos.y()
         rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
         dstPortItems = self.items(rect)
         dstPortItems = [item for item in dstPortItems if self.is_connectable(item)]
@@ -487,13 +500,12 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
             pos = event.scenePos()
             pos = [pos.x(), pos.y()]
             self.new_edge_set_destination(*pos)
-            return QtGui.QGraphicsScene.mouseMoveEvent(self, event)
         QtGui.QGraphicsScene.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         if(self.is_creating_edge()):
             self.new_edge_end()
-        QtGui.QGraphicsScene.mouseReleaseEvent(self, event)
+        QtGui.QGraphicsScene.mouseReleaseEvent(self, event)       
 
     #########################
     # Other utility methods #
@@ -545,6 +557,7 @@ def deprecate(methodName, newName=None):
         return getattr(self.scene(), newName)(*args, **kwargs)
     return deprecation_wrapper
 
+    
 class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     """A View implementing client customisation """
 
@@ -582,14 +595,14 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
-        if graph:
+        if graph is not None:
             #if the graph has already a qtgraphview.Scene GraphListener
             #reuse it:
             existingScene = None
-            for listener in graph.listeners:
-                if isinstance(listener(), Scene):
-                    existingScene = listener()
-                    break
+            # for listener in graph.listeners:
+                # if isinstance(listener(), Scene):
+                    # existingScene = listener()
+                    # break
             self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))
 
         # ---Qt Stuff---

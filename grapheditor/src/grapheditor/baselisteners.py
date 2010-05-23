@@ -234,6 +234,17 @@ class GraphListenerBase(observer.AbstractListener):
         self._register_widget_with_model(widget, model)
 
     def _register_widget_with_model(self, widget, model):
+        """ 
+        This method maps widgets to models. A single model
+        can be viewed be many widgets.
+        Because it is very difficult to track ownership of
+        widgets or models, GraphEditor tries to create only
+        weak references to the widgets to reduce the risk of leaks
+        comming from OS-specific memory management issues.
+        The resulting mapping is used to cleanly remove widgets from
+        the views when the model has been deleted.
+        It uses the weakref callback to maintain the mapping up-to-date.
+        """
         widgetWeakRef = weakref.ref(widget, self._widget_died)
         modelWidgets = self.widgetmap.get(model, None)
         if not modelWidgets: self.widgetmap[model] = set()
@@ -306,6 +317,7 @@ class GraphListenerBase(observer.AbstractListener):
             try:
                 self.__newEdge.consolidate(self.graph())
             except Exception, e :
+                #print e
                 pass
             finally:
                 self.__newEdge.remove_from_view(self.get_scene())
