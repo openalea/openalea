@@ -13,6 +13,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+'''
+Code Review
+-----------
+
+This file is no longer used.
+Skip it.
+'''
+
 from openalea.core.external import *
 
 def define_factory(package):
