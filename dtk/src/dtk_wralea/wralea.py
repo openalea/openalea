@@ -13,11 +13,25 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+'''
+CR: Paths are user dependent.
+Options: 
+    - Use environment variable: DTK_DIR or DTKPATH
+    - Search on the system where DTK is installed
+    - use config files (.dtkrc)
+
+Another option is to add DTKPATH in the config settings of OpenAlea.
+'''
+
 dtkCorePath = "/Users/moscardi/Work/dtk/dtk_build/modules"
 PluginsPath = "/Users/moscardi/Work/medular-plugins/medular-plugins_build/lib:/Users/moscardi/Work/mars-plugins/build/lib"
 
 import sys
 
+# DTK must be installed as a Python package.
+# Change import core into import dtk.core
+# You do not have the permission to change the singleton sys.modules
+# until you have to restore it at the end of the file.
 try:
     sys.path.insert(0, dtkCorePath)
     del sys.modules['core']
@@ -27,8 +41,6 @@ except: pass
 import core
 from openalea.core import *
 from openalea.core.external import *
-
-#import py_dtk
 
 
 def register_packages(pkgmanager):
@@ -41,19 +53,19 @@ def register_packages(pkgmanager):
                'url' : ''
                 }
 
-    dtk_obj = dtk_Builder(PluginsPath)
-    dtk_obj.get_plugins()
+    dtk_manager = DTKPluginManager(PluginsPath)
 
-    for plugin in dtk_obj.plugins:
-        dtk_obj.get_plugin_description(plugin)
-        metainfo['description'] = dtk_obj.plugin_description
-        package = dtk_obj.add_package(plugin, metainfo)
-        #dtk_obj.add_factory(plugin, package)
+    for plugin in dtk_manager.plugins:
+        # create a python property for plugil_description
+        # name it description rather than plugin_description
+        desc = plugin.description()
+        metainfo['description'] = desc
+        package = dtk_manager.alea_package(plugin, metainfo)
         if package:
             pkgmanager.add_package(package)
 
 
-class dtk_Builder(object):
+class DTKPluginManager(object):
     """
     """
 
@@ -62,19 +74,16 @@ class dtk_Builder(object):
         self.plugins_path = plugins_path
 
         self.plugin_manager = None
-        self.plugins = None
-        self.data_plugins = {}
-        self.plugin_name = None
-        self.plugin_types = None
-        self.plugin_description = None
-        self.category = None
+        self._plugins = None
+        self._data_plugins = {}
+        #self.plugin_name = None
+        #self.category = None
         self.factory = None
         self.inputs_list = []
-        self.inputs = None
-        self.load_plugin_manager()
-        self.get_data_plugins()
 
-    def load_plugin_manager(self):
+        self._init()
+
+    def _init(self):
         """
         Loading of plugin manager of dtk
         """
@@ -84,82 +93,54 @@ class dtk_Builder(object):
         self.plugin_manager.initialize()
     
 
-    def get_plugins(self):
+    @property
+    def plugins(self):
         """
         Loading the list of plugins
         """
     
-        self.plugins = [p.name() for p in self.plugin_manager.plugins()]
+        if self._plugins is None:
+            self._plugins = list(self.plugin_manager.plugins())
+        return self._plugins
     
 
-    def get_plugin_name(self, plugin):
-        """
-        Getting the plugin name
-        """
-    
-        self.plugin_name = self.plugin_manager.plugin(plugin).name()
 
-
-    def get_plugin_types(self, plugin):
+    @property
+    def data_plugins(self):
         """
-        Loading the list of plugin types
+        Return the list of data plugins
         """
-    
-        self.plugin_types = self.plugin_manager.plugin(plugin).types()
+        if not self._data_plugins:
+            for plugin in self.plugins:
+                for t in plugin.types():
+                    dtk_data = core.dtkAbstractDataFactory.instance().create(t)
+                    if dtk_data:
+                        self._data_plugins[dtk_data] = t
+        return self._data_plugins
 
-
-    def get_plugin_description(self, plugin):
-        """
-        Getting of the description of plugin
-        """
-    
-        self.plugin_description = self.plugin_manager.plugin(plugin).description()
-
-
-    def get_data_plugins(self):
-        """
-        Getting the list of data plugins
-        """
-    
-        self.get_plugins()
-        for p in self.plugins:
-            self.get_plugin_types(p)
-            for t in self.plugin_types:
-                dtk_data = core.dtkAbstractDataFactory.instance().create(t)
-                if dtk_data:
-                    self.data_plugins[dtk_data] = t
-
-
-    def add_package(self, plugin, metainfo):
-        self.get_category(plugin)
-        #if self.category == 'Data':
-        #    if ('Reader' in plugin) or ('Writer' in plugin):
-        #        package = Package("dtk.%s" %plugin, metainfo)
-        #        self.add_factory(plugin, package)
-        #    else:
-        #        package = None 
-        #else:
-        #    package = Package("dtk.%s" %plugin, metainfo)
-        #    self.add_factory(plugin, package)
-    
-        package = Package("dtk.%s" %plugin, metainfo)
-        self.add_factory(plugin, package)
+    def alea_package(self, plugin, metainfo):
+        ''' Create an OpenAlea package. '''
+        package = Package("dtk.%s" %plugin.name(), metainfo)
+        self.add_alea_factories(plugin, package)
 
         return package
 
 
-    def add_factory(self, plugin, package):
-        self.get_plugin_types(plugin)
+    def add_alea_factories(self, plugin, package):
         # getting of category of plugin (data, view or process)   
-        for t in self.plugin_types:
+        
+        category = self.get_category(plugin)
+
+        for t in plugin.types():
             # creating of dtkFactory (dtkAbstractData, dtkAbstractView, or dtkAbstractProcess)
-            self.create_dtk_factory(t)
-            in_list = self.define_inputs(t)
-            out_list = self.define_outputs()
-            node_class = self.define_nodeclass()   
+            self.create_dtk_factory(t, category)
+            in_list = self.define_inputs(t, category)
+            out_list = self.define_outputs(category)
+            node_class = self.define_nodeclass(category)   
+            desc = plugin.description()
             nf = Factory(   name= t, 
-                            description= self.plugin_manager.plugin(plugin).description(),
-                            category = "dtk.%s" %self.category, 
+                            description= desc,
+                            category = "dtk.%s" %category, 
                             nodemodule = "py_dtk",
                             nodeclass = node_class,
                             inputs = in_list,
@@ -169,45 +150,47 @@ class dtk_Builder(object):
             package.add_factory( nf )
 
 
-    def create_dtk_factory(self, plugin_type):
+    def create_dtk_factory(self, plugin_type, category):
 
-        if self.category == 'View': 
+        if category == 'View': 
             if 'Interactor' in plugin_type:
                 self.factory = None    
             else : 
                 self.factory = core.dtkAbstractViewFactory.instance().create(plugin_type)
 
-        if self.category == 'Process': 
+        if category == 'Process': 
             self.factory = core.dtkAbstractProcessFactory.instance().create(plugin_type)
 
-        if self.category == 'Data':
+        if category == 'Data':
             if ('Reader' in plugin_type) or ('Writer' in plugin_type):
                 self.factory = None
             else: 
                 self.factory = core.dtkAbstractDataFactory.instance().create(plugin_type)
 
 
-    def define_inputs(self, plugin_type):
+    def define_inputs(self, plugin_type, category):
         inputs_list = [] 
+        data_plugins = self.data_plugins
+
         if self.factory:
             try:
                 self.inputs_list = self.factory.properties()
                 inputs_list = [dict(name=input, interface=IEnumStr(self.factory.propertyValues(input)), value=self.factory.property(input)) for input in self.inputs_list]
             except:
                 pass
-            if self.category != 'Data':
+            if category != 'Data':
                 inputs_list.insert(0,dict(name='dtkData', interface=None))
-                if self.category == 'View':
+                if category == 'View':
                     inputs_list.append(dict(name='dtkViewInteractor', interface= None))
             else:
                 inputs_list.append(dict(name='data', interface= None))
         else:
-            if self.category == 'Data':
+            if category == 'Data':
                 inputs_list.insert(0,dict(name='filename', interface= IFileStr))
                 if ('Reader' in plugin_type):
-                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([self.data_plugins[d] for d in self.data_plugins if d.reader(plugin_type)]),))
+                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.reader(plugin_type)]),))
                 elif ('Writer' in plugin_type):
-                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([self.data_plugins[d] for d in self.data_plugins if d.writer(plugin_type)]),))
+                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.writer(plugin_type)]),))
                 else:
                     return    
             else:
@@ -216,11 +199,11 @@ class dtk_Builder(object):
         return inputs_list
 
 
-    def define_outputs(self):
+    def define_outputs(self, category):
         if self.factory:
             output = (dict(name='dtkData', interface=None),)
         else :
-            if self.category == 'View':
+            if category == 'View':
                 output = (dict(name='dtkViewInteractor', interface=None),)
             else:
                 output = (dict(name='dtkData', interface=None),)
@@ -228,32 +211,31 @@ class dtk_Builder(object):
         return output
 
 
-    def define_nodeclass(self):
+    def define_nodeclass(self, category):
+        node_class = None
+
         if self.factory:
-            node_class = 'dtk_%s' %self.category            
-        else:
-            if self.category == 'View':
-                node_class = 'dtk_Interactor' 
-            elif self.category == 'Data':
-                node_class = 'dtk_Data_Reader_Writer'
-            else:
-                return
- 
+            node_class = 'dtk_%s' %category            
+        elif category == 'View':
+            node_class = 'dtk_Interactor' 
+        elif category == 'Data':
+            node_class = 'dtk_Data_Reader_Writer'
+
         return node_class
 
 
     def get_category(self, plugin):
 
+        category = None
         if 'view' in self.plugin_manager.plugin(plugin).tags():
-            self.category = 'View'
- 
+            category = 'View'
+
         elif 'process' in self.plugin_manager.plugin(plugin).tags():
-            self.category = 'Process'
- 
+            category = 'Process'
+
         elif 'data' in self.plugin_manager.plugin(plugin).tags():
-            self.category = 'Data'
- 
-        else:
-            'unknown plugin'
-            return
+            category = 'Data'
+
+        return category
+
 
