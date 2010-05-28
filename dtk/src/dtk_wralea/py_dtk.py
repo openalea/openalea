@@ -27,150 +27,146 @@ import sip
 
 from openalea.core import *
 
-
-class dtk_Process(Node):
-    """
+class DtkNode(Node):
     """
 
-    def __init__(self, inputs=(), outputs=()):
-
-        Node.__init__(self, inputs, outputs)
-        self.process = None
-
-    def __call__(self, inputs):
-
-        if not self.process:
-            self.process = core.dtkAbstractProcessFactory.instance().create(self.get_caption())
-            self.process.setInput(self.get_input("dtkData"))
-            for port in self.input_desc:
-                self.process.setProperty(port['name'], self.get_input(port['name']))
-            self.process.update()
-            return self.process.output()
-
-
-class dtk_View(Node):
     """
-    """
+    def __init__(self, inputs, outputs):
+        super(DtkNode,self).__init__(inputs, outputs)
+        self.dtk_factory = None
+        self._data = None
+    
+    def data(self, name='dtkData'):
+        factory = self.dtk_factory
 
-    def __init__(self, inputs=(), outputs=()):
-
-        Node.__init__(self, inputs, outputs)
-        self.view = None
-
-
-    def __call__(self, inputs):
-
-        if not self.view:
-            self.view = core.dtkAbstractViewFactory.instance().create(self.get_caption())
-            self.view.showMaximized()
-
-            self.view.setData(self.get_input("dtkData"))
-
-        for p in self.view.properties():
-            self.view.setProperty(p, self.get_input(p))
-
-        if (self.get_input("dtkViewInteractor")):
-
-            interactor_name = self.get_input("dtkViewInteractor")['name']
-            interactor_properties = self.get_input("dtkViewInteractor")['properties']
-
-            self.view.enableInteractor(interactor_name)
-            interactor = self.view.interactor(interactor_name)
+        if factory is None:
+            self._data = self.get_input(name)
+            factory.setInput(self._data)
             
-            for p in interactor_properties:
-                interactor.setProperty(p, interactor_properties[p])
+        data = self.get_input(name)
+        if data != self._data:
+            self._data = data
+            factory.setInput(self._data)
+
+    def setProperty(self):        
+        for p in self.dtk_factory.properties():
+            self.dtk_factory.setProperty(p, self.get_input(p))
+
+    #@property
+    def name(self):
+        return self.get_caption()
+
+
+class dtk_Process(DtkNode):
+    """
+    """
+
+    def __call__(self, inputs):
+
+        if self.dtk_factory is None:
+            self.dtk_factory = core.dtkAbstractProcessFactory.instance().create(self.name())
+            
+        self.data('dtkData')
+        self.setProperty()
+
+        self.dtk_factory.update()
+        return self.dtk_factory.output(),
+
+
+class dtk_View(DtkNode):
+    """
+    """
+
+    def interact(self, name):
+        self.dtk_factory.enableInteractor(name)
+        return self.dtk_factory.interactor(name)
+    def animate(self, name):
+        self.dtk_factory.enableAnimator(name)
+        return self.dtk_factory.animator(name)
+    def navigate(self, name):
+        self.dtk_factory.enableNavigator(name)
+        return self.dtk_factory.navigator(name)
+
+    def __call__(self, inputs):
+
+        if self.dtk_factory is None:
+            self.dtk_factory = core.dtkAbstractViewFactory.instance().create(self.name())
+            self.dtk_factory.showMaximized()
+
+        self.data('dtkData')
+        self.setProperty()
+
+        d = dict(zip(("dtkViewInteractor","dtkViewNavigator","dtkViewAnimator"),
+                     (self.interact, self.navigate, self.animate)))        
+        for dtkview, method in d.items():
+            
+            input = self.get_input(dtkview)
+            if input:
+                name = input['name']
+                properties = input['properties']
+                interactor = method(name)
+
+                for p, k in properties.iteritems():
+                    interactor.setProperty(p, k)
                 
-        if (self.get_input("dtkViewNavigator")):
-            
-            navigator_name = self.get_input("dtkViewNavigator")['name']
-            navigator_properties = self.get_input("dtkViewNavigator")['properties']
+        self.dtk_factory.update()
+        self.dtk_factory.reset()
 
-            self.view.enableNavigator(navigator_name)
-            navigator = self.view.navigator(navigator_name)
-            
-            for p in navigator_properties:
-                navigator.setProperty(p, navigator_properties[p])
-
-        if (self.get_input("dtkViewAnimator")):
-            
-            animator_name = self.get_input("dtkViewAnimator")['name']
-            animator_properties = self.get_input("dtkViewAnimator")['properties']
-
-            self.view.enableAnimator(animator_name)
-            animator = self.view.animator(animator_name)
-            
-            for p in animator_properties:
-                animator.setProperty(p, animator_properties[p])
-        
-        self.view.update()
-        self.view.reset()
-        widget = self.view.widget()
+        widget = self.dtk_factory.widget()
         widget = sip.wrapinstance(widget.__long__(), QtGui.QWidget)
         widget.show()
 
 
-class dtk_Data_Reader_Writer(Node):
+class dtk_Data_Reader_Writer(DtkNode):
     """
     """
-
-    def __init__(self, inputs=(), outputs=()):
-
-        Node.__init__(self, inputs, outputs)
-        self.data = None
 
 
     def __call__(self, inputs):
 
-        if not self.data:
-            self.data = core.dtkAbstractDataFactory.instance().create(self.get_input("dtkDataType"))
-            if 'Reader' in self.get_caption():
-                self.data.enableReader(self.get_caption())
-                self.data.read(self.get_input("filename"))
-            elif 'Writer' in self.get_caption():
-                self.data.enableWriter(self.get_caption())
-                self.data.write(self.get_input("filename"))
+        if self.dtk_factory is None:
+            self.dtk_factory = core.dtkAbstractDataFactory.instance().create(self.get_input("dtkDataType"))
+            if 'Reader' in self.name():
+                self.dtk_factory.enableReader(self.name())
+                self.dtk_factory.read(self.get_input("filename"))
+            elif 'Writer' in self.name():
+                self.dtk_factory.enableWriter(self.name())
+                self.dtk_factory.write(self.get_input("filename"))
             else:
                 return
-        return self.data
+        return self.dtk_factory
 
 
-class dtk_Data(Node):
+class dtk_Data(DtkNode):
     """
     """
-
-    def __init__(self, inputs=(), outputs=()):
-
-        Node.__init__(self, inputs, outputs)
-        self.data = None
-
 
     def __call__(self, inputs):
         
-        if not self.data:
-            self.data = core.dtkAbstractDataFactory.instance().create(self.get_caption())
-            self.data.setData(self.get_input("data"))
-        return self.data
+        if self.dtk_factory is None:
+            self.dtk_factory = core.dtkAbstractDataFactory.instance().create(self.name())
+
+        self.data('data')
+        self.setProperty()
+
+        return self.dtk_factory
 
 
-class dtk_Interactor(Node):
+class dtk_Interactor(DtkNode):
     """
     """
-
-    def __init__(self, inputs=(), outputs=()):
-
-        Node.__init__(self, inputs, outputs)
-        self.dtkViewInteractor = None
 
     def __call__(self, inputs):
         
         output = {}
         properties = {}
-        output['name'] = self.get_caption()
+        output['name'] = self.name()
+
         for p in range(self.get_nb_input()):
-            input = self.input_desc[p]['name']
-            properties[input] = self.get_input(input)
+            input_name = self.input_desc[p]['name']
+            properties[input_name] = inputs[p]
         output['properties'] = properties
-        return output
+        return output,
 
 
 

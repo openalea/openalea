@@ -23,8 +23,9 @@ Options:
 Another option is to add DTKPATH in the config settings of OpenAlea.
 '''
 
+# The file .config/inria/dtk.conf is used to set Plugins PATH
+
 dtkCorePath = "/Users/moscardi/Work/dtk/dtk_build/modules"
-PluginsPath = "/Users/moscardi/Work/medular-plugins/medular-plugins_build/lib:/Users/moscardi/Work/mars-plugins/build/lib"
 
 import sys
 
@@ -53,7 +54,7 @@ def register_packages(pkgmanager):
                'url' : ''
                 }
 
-    dtk_manager = DTKPluginManager(PluginsPath)
+    dtk_manager = DTKPluginManager()
 
     for plugin in dtk_manager.plugins:
         # create a python property for plugil_description
@@ -69,15 +70,12 @@ class DTKPluginManager(object):
     """
     """
 
-    def __init__(self, plugins_path = PluginsPath):
+    def __init__(self):
         
-        self.plugins_path = plugins_path
-
+        
         self.plugin_manager = None
         self._plugins = None
         self._data_plugins = {}
-        #self.plugin_name = None
-        #self.category = None
         self.factory = None
         self.inputs_list = []
 
@@ -89,7 +87,6 @@ class DTKPluginManager(object):
         """
 
         self.plugin_manager = core.dtkPluginManager.instance()
-        self.plugin_manager.setPath(self.plugins_path)
         self.plugin_manager.initialize()
     
 
