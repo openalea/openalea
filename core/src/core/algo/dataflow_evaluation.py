@@ -152,13 +152,16 @@ class BrutEvaluation(AbstractEvaluation):
         if vid in self._evaluated:
             return True
 
-        if actor.block:
-            status = True
-            n = actor.get_nb_output()
-            outputs = [i for i in range(n) if actor.get_output(i) is not None ]
-            if not outputs: 
-                status = False
-            return status
+        try:
+            if actor.block:
+                status = True
+                n = actor.get_nb_output()
+                outputs = [i for i in range(n) if actor.get_output(i) is not None ]
+                if not outputs: 
+                    status = False
+                return status
+        except:
+            pass
         return False 
 
     def eval_vertex(self, vid, *args):
@@ -240,7 +243,12 @@ class GeneratorEvaluation(AbstractEvaluation):
 
     def is_stopped(self, vid, actor):
         """ Return True if evaluation must be stop at this vertex """
-        return actor.block or vid in self._evaluated
+        stopped = False
+        try:
+            stopped = actor.block or vid in self._evaluated
+        except:
+            pass
+        return stopped
 
     def clear(self):
         """ Clear evaluation variable """
