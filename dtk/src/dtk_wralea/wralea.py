@@ -135,8 +135,8 @@ class DTKPluginManager(object):
             # creating of dtkFactory (dtkAbstractData, dtkAbstractView, or dtkAbstractProcess)
             self.create_dtk_factory(t, category)
             in_list = self.define_inputs(t, category)
-            out_list = self.define_outputs(category)
-            node_class = self.define_nodeclass(category)   
+            out_list = self.define_outputs(t, category)
+            node_class = self.define_nodeclass(t, category)   
             desc = plugin.description()
             nf = Factory(   name= t, 
                             description= desc,
@@ -152,12 +152,17 @@ class DTKPluginManager(object):
 
     def create_dtk_factory(self, plugin_type, category):
 
-        if category == 'View': 
+        if category == 'View':
+            view_factory = core.dtkAbstractViewFactory.instance()
             if 'Interactor' in plugin_type:
-                self.factory = None    
+                self.factory = view_factory.interactor(plugin_type)
+            elif 'Animator' in plugin_type:
+                self.factory = view_factory.animator(plugin_type)
+            elif 'Navigator' in plugin_type:
+                self.factory = view_factory.navigator(plugin_type)
             else : 
-                self.factory = core.dtkAbstractViewFactory.instance().create(plugin_type)
-
+                self.factory = view_factory.create(plugin_type)
+  
         if category == 'Process': 
             self.factory = core.dtkAbstractProcessFactory.instance().create(plugin_type)
 
@@ -178,12 +183,17 @@ class DTKPluginManager(object):
                 inputs_list = [dict(name=input, interface=IEnumStr(self.factory.propertyValues(input)), value=self.factory.property(input)) for input in self.inputs_list]
             except:
                 pass
-            if category != 'Data':
-                inputs_list.insert(0,dict(name='dtkData', interface=None))
-                if category == 'View':
+            if category == 'Data':
+                inputs_list.insert(0,dict(name='data', interface= None))
+
+            elif category == 'View':
+                if not ('Interactor' in plugin_type) or ('Animator' in plugin_type) or ('Navigator' in plugin_type):
+                    inputs_list.insert(0,dict(name='dtkData', interface=None))
+                    inputs_list.append(dict(name='dtkViewAnimator', interface= None))
                     inputs_list.append(dict(name='dtkViewInteractor', interface= None))
-            else:
-                inputs_list.append(dict(name='data', interface= None))
+                    inputs_list.append(dict(name='dtkViewNavigator', interface= None))
+            elif category == 'Process':
+                inputs_list.insert(0,dict(name='dtkData', interface=None))
         else:
             if category == 'Data':
                 inputs_list.insert(0,dict(name='filename', interface= IFileStr))
@@ -199,41 +209,50 @@ class DTKPluginManager(object):
         return inputs_list
 
 
-    def define_outputs(self, category):
-        if self.factory:
-            output = (dict(name='dtkData', interface=None),)
-        else :
-            if category == 'View':
+    def define_outputs(self, plugin_type, category):
+        if category == 'View':
+            if ('Interactor' in plugin_type):
                 output = (dict(name='dtkViewInteractor', interface=None),)
+            elif ('Animator' in plugin_type):
+                output = (dict(name='dtkViewAnimator', interface=None),)
+            elif ('Navigator' in plugin_type):
+                output = (dict(name='dtkViewNavigator', interface=None),)
             else:
                 output = (dict(name='dtkData', interface=None),)
+        else:
+            output = (dict(name='dtkData', interface=None),)
 
         return output
 
 
-    def define_nodeclass(self, category):
+    def define_nodeclass(self, plugin_type, category):
         node_class = None
 
-        if self.factory:
-            node_class = 'dtk_%s' %category            
-        elif category == 'View':
-            node_class = 'dtk_Interactor' 
+        if self.factory:           
+            if category == 'View':
+                if ('Interactor' in plugin_type) or ('Animator' in plugin_type) or ('Navigator' in plugin_type):
+                    node_class = 'dtk_Interactor'
+                else:
+                    node_class = 'dtk_View'
+            else:
+                node_class = 'dtk_%s' %category
+
         elif category == 'Data':
             node_class = 'dtk_Data_Reader_Writer'
-
+        
         return node_class
 
 
     def get_category(self, plugin):
 
         category = None
-        if 'view' in self.plugin_manager.plugin(plugin).tags():
+        if 'view' in plugin.tags():
             category = 'View'
 
-        elif 'process' in self.plugin_manager.plugin(plugin).tags():
+        elif 'process' in plugin.tags():
             category = 'Process'
 
-        elif 'data' in self.plugin_manager.plugin(plugin).tags():
+        elif 'data' in plugin.tags():
             category = 'Data'
 
         return category
