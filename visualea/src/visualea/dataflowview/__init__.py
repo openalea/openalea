@@ -65,11 +65,65 @@ class Strategy(object):
         """Return a classobj defining the type of widget
         that represents an annotation"""
         return adapter.GraphAdapter
-    
+
     @classmethod
     def get_connector_types(cls):
         return [vertex.GraphicalPort]
 
+    @classmethod
+    def initialise_graph_view(cls, graphView, graphModel):
+        # -- do the base node class initialisation --
+        mdict  = graphModel.get_ad_hoc_dict()
+
+        #graphical data init.
+        mdict.simulate_full_data_change(graphView, graphModel)
+
+        #other attributes init
+        for i in graphModel.input_desc:
+            graphView.notify(graphModel, ("input_port_added", i))
+        for i in graphModel.output_desc:
+            graphView.notify(graphModel, ("output_port_added", i))
+        for i in graphModel.map_index_in:
+            graphView.notify(graphModel, ("input_modified", i))
+        graphView.notify(graphModel, ("caption_modified", graphModel.internal_data["caption"]))
+        graphView.notify(graphModel, ("tooltip_modified", graphModel.get_tip()))
+        graphView.notify(graphModel, ("internal_data_changed",))
+
+        # -- then the composite node class initialisation --
+        ids = graphModel.vertices()
+        for eltid in ids:
+            vtype = "vertex"
+            doNotify = True
+            vertex = graphModel.node(eltid)
+            if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
+            elif isinstance(vertex, compositenode.CompositeNodeOutput):
+                vtype = "outNode"
+                doNotify = True if len(vertex.input_desc) else False
+            elif isinstance(vertex, compositenode.CompositeNodeInput) :
+                vtype = "inNode"
+                doNotify = True if len(vertex.output_desc) else False
+            else: pass
+            if doNotify:
+                graphView.notify(graphModel, ("vertex_added", (vtype, vertex)))
+
+        for eid in graphModel.edges():
+            (src_id, dst_id) = graphModel.source(eid), graphModel.target(eid)
+            etype=None
+            src_port_id = graphModel.local_id(graphModel.source_port(eid))
+            dst_port_id = graphModel.local_id(graphModel.target_port(eid))
+
+            nodeSrc = graphModel.node(src_id)
+            nodeDst = graphModel.node(dst_id)
+            src_port = nodeSrc.output_desc[src_port_id]
+            dst_port = nodeDst.input_desc[dst_port_id]
+
+            #don't notify if the edge is connected to the input or
+            #output nodes.
+            # if(src_id == graphModel.id_in or dst_id == graphModel.id_out):
+                # continue
+
+            edgedata = "default", eid, src_port, dst_port
+            graphView.notify(graphModel, ("edge_added", edgedata))
 
 
 def GraphicalVertexFactory(vtype, *args, **kwargs):

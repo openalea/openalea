@@ -21,19 +21,77 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-from openalea.core import interface
+class IInterfaceMetaClass(type):
+    """
+    IInterface Metaclass
+    Also adds a method to the interface class that checks
+    that the given object implements the class' interface.
+    Allows some sort of safe-ducktyping"""
+
+
+    def __new__(cls, name, bases, dict):
+        dict["check"] = classmethod(IInterfaceMetaClass.check)
+        newCls = type.__new__(cls, name, bases, dict)
+
+        ###--CONTRACT CHECKING INFRASTRUCTURE---
+        newCls.__interface_decl__ = [i for i in dict.keys()]
+        for base in bases:
+            if(hasattr(base, "__interface_decl__")):
+                   newCls.__interface_decl__ += base.__interface_decl__
+
+        #removing some objects that aren't part of the interface
+        if("__metaclass__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__metaclass__")
+        if("__module__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__module__")
+        if("__doc__" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("__doc__")
+        if("check" in newCls.__interface_decl__):
+            newCls.__interface_decl__.remove("check")
+        ###--!!CONTRACT CHECKING INFRASTRUCTURE---
+        return newCls
+
+    def __init__(cls, name, bases, dic):
+        super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
+
+    def check(cls, obj):
+        """Check if obj matches this interface."""
+        objMem = dir(obj)
+        notImp = []
+
+        stop = False
+        for i in cls.__interface_decl__:
+            if i not in objMem:
+                notImp.append(i)
+                stop = True
+            else :
+                continue
+
+        if stop:
+            # The check failed.
+            stri = "Unimplemented : \n"
+            for i in notImp:
+                stri += "\t"+i+"\n"
+            raise UserWarning('Object %s does not belong to the Interface %s \n%s '%(str(obj),cls.__name__,stri))
+
+        return not stop
 
 
 class IGraphViewStrategies(object):
-    """Define implementations of this trait 
+    """Define implementations of this trait
     class to define the behaviour of the graph.
-    For example : DataFlowGraphViewTrait, TreeGraphViewTrait, 
+    For example : DataFlowGraphViewTrait, TreeGraphViewTrait,
     NetworkGraphViewTrait..."""
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     @classmethod
     def get_graph_model_type(cls):
         """Returns the classobj defining the graph type"""
+        raise NotImplementedError
+
+    @classmethod
+    def initialise_graph_view(cls, graphView, graphModel):
+        """intialise graph view from model"""
         raise NotImplementedError
 
     @classmethod
@@ -69,11 +127,11 @@ class IGraphViewStrategies(object):
     @classmethod
     def get_connector_types(cls):
         raise NotImplementedError
-    
+
 
 #------*************************************************------#
 class IGraphListener(object):
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     def vertex_added(self, vtype, vertexModel):
         raise NotImplementedError
@@ -87,11 +145,14 @@ class IGraphListener(object):
     def edge_removed(self, edgeModel):
         raise NotImplementedError
 
-#    def new_edge_scene_init(self, *args, **kwargs):
-#        raise NotImplementedError
-#    
-#    def new_edge_scene_cleanup(self, *args, **kwargs):
-#        raise NotImplementedError
+    def new_edge_start(self, srcPt, etype, source):
+        raise NotImplementedError
+
+    def new_edge_set_destination(self, *dest):
+        raise NotImplementedError
+
+    def new_edge_end(self):
+        raise NotImplementedError
 
     def find_closest_connectable(self, *args, **kwargs):
         raise NotImplementedError
@@ -108,12 +169,11 @@ class IGraphListener(object):
     def initialise_from_model(self):
         raise NotImplementedError
 
-    def announce_view_data(self, exclusive=False):
-        raise NotImplementedError
+
 
 #------*************************************************------#
 class IGraphAdapter(object):
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     def add_vertex(self, *args, **kargs):
         NotImplementedError
@@ -162,7 +222,7 @@ class IGraphAdapter(object):
 #------*************************************************------#
 class IGraphViewConnectable(object):
     """Interface for connectable objects"""
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     def set_highlighted(self, *args, **kwargs):
         raise NotImplementedError
@@ -173,7 +233,7 @@ class IGraphViewConnectable(object):
 #------*************************************************------#
 class IGraphViewElement(object):
     """Base class for elements in a GraphView"""
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     def position_changed(self, *args):
         """Place the element's representation in
@@ -186,7 +246,7 @@ class IGraphViewElement(object):
 
     def remove_from_view(self, view):
         """remove this element from the graphical view"""
-        raise NotImplementedError        
+        raise NotImplementedError
 
     def notify(self, sender, event):
         """called by the observed objects
@@ -203,9 +263,6 @@ class IGraphViewElement(object):
     def initialise_from_model(self):
         raise NotImplementedError
 
-    def announce_view_data(self, exclusive=False):
-        raise NotImplementedError
-        
 #------*************************************************------#
 class IGraphViewVertex (IGraphViewElement):
     def lock_position(self, val=True):
@@ -239,18 +296,12 @@ class IGraphViewEdge(IGraphViewElement):
         """(\"metadata_changed\", \"canvasPosition\", [x,x], list)"""
         raise NotImplementedError
 
-    def announce_view_data_src(self, exclusive=False):
-        raise NotImplementedError        
-
-    def announce_view_data_dst(self, exclusive=False):
-        raise NotImplementedError        
-
 
 #------*************************************************------#
 class IGraphViewFloatingEdge(object):
     """Interface for edges to be drawn during
     creation time, ie while the user drags."""
-    __metaclass__ = interface.IInterfaceMetaClass
+    __metaclass__ = IInterfaceMetaClass
 
     def __init__(self, src):
         raise NotImplementedError

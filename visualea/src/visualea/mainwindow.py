@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -44,14 +44,13 @@ from openalea.visualea.dialogs import PreferencesDialog, NewData
 from openalea.grapheditor import qtgraphview
 from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
-import compositenode_widget
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  SignalSlotListener) :
 
     def __init__(self, session, parent=None):
-        """        
+        """
         @param session : user session
         @param parent : parent window
         """
@@ -74,7 +73,7 @@ class MainWindow(QtGui.QMainWindow,
 
         #last opened nodes
         self._last_opened = []
-        
+
         # python interpreter
         interpreter = Interpreter()
         cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
@@ -140,7 +139,7 @@ class MainWindow(QtGui.QMainWindow,
                      self.save_session)
         self.connect(self.actionSave_as, SIGNAL("triggered()"), self.save_as)
         self.connect(self.action_Quit, SIGNAL("triggered()"), self.quit)
-        
+
         self.connect(self.action_Image, SIGNAL("triggered()"), self.export_image)
         self.connect(self.action_Svg, SIGNAL("triggered()"), self.export_image_svg)
 
@@ -154,7 +153,7 @@ class MainWindow(QtGui.QMainWindow,
         self.connect(self.actionNew_Package, SIGNAL("triggered()"), self.new_package)
         self.connect(self.action_Data_File, SIGNAL("triggered()"), self.new_data)
         self.connect(self.actionShow_log, SIGNAL("triggered()"), self.pkgmanager.log.print_log)
-        
+
         # DataPool Menu
         self.connect(self.actionClear_Data_Pool, SIGNAL("triggered()"), self.clear_data_pool)
 
@@ -165,8 +164,8 @@ class MainWindow(QtGui.QMainWindow,
                      self.open_python_console)
         self.connect(self.actionClea_r_Console, SIGNAL("triggered()"),
                      self.clear_python_console)
-        
-        # WorkspaceMenu 
+
+        # WorkspaceMenu
         self._last_open_action_group = QtGui.QActionGroup(self)
         self.connect(self._last_open_action_group,
                      SIGNAL("triggered(QAction*)"),
@@ -175,11 +174,11 @@ class MainWindow(QtGui.QMainWindow,
         self.operator = GraphOperator()
         self.operator.set_main(self)
         self.operator.register_listener(self)
-        QtCore.QObject.connect(self.menu_Workspace, 
-                               QtCore.SIGNAL("aboutToShow()"), 
+        QtCore.QObject.connect(self.menu_Workspace,
+                               QtCore.SIGNAL("aboutToShow()"),
                                self.__wsMenuShow)
         QtCore.QObject.connect(self.action_New_Empty_Workspace,
-                               QtCore.SIGNAL("triggered()"), 
+                               QtCore.SIGNAL("triggered()"),
                                self.new_workspace)
         self.operator + (self.action_Run, "graph_run")
         self.operator + (self.actionInvalidate, "graph_invalidate")
@@ -201,21 +200,21 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionAlignMean, "graph_align_selection_mean")
         self.operator + (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally")
         self.operator + (self.actionDistributeVertically, "graph_distribute_selection_vertically")
-        self.operator + (self.actionSetCustomColor, "graph_set_selection_color")                
-        self.operator + (self.actionUseCustomColor, "graph_use_user_color")                
+        self.operator + (self.actionSetCustomColor, "graph_set_selection_color")
+        self.operator + (self.actionUseCustomColor, "graph_use_user_color")
 
         self.connect(self.actionTo_script, SIGNAL("triggered()"), self.to_python_script)
-        
+
         # Window Mneu
         self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
-        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"), 
+        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"),
                      self.display_leftpanel)
-        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"), 
+        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"),
                      self.display_rightpanel)
-        
+
         # action = self.menu_Workspace.addAction("DEBUG")
         # self.connect(action, SIGNAL("triggered()"), self.debug)
-        
+
         # final init
         self.session = session
         self.session.simulate_workspace_addition()
@@ -227,35 +226,35 @@ class MainWindow(QtGui.QMainWindow,
         print "items",v.expanded_items
         print "model",v.model()
         print "map",v.model().index_map
-    
+
     def write_settings (self) :
         """Save application settings.
         """
         settings = Settings()
-        
+
         #main window
         settings.set("MainWindow","size","(%d,%d)" % (self.width(),self.height() ) )
         settings.set("MainWindow","pos","(%d,%d)" % (self.x(),self.y() ) )
-        
+
         sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_2.sizes() )
         settings.set("MainWindow","splitter_2",sizes)
         sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_3.sizes() )
         settings.set("MainWindow","splitter_3",sizes)
-        
+
         #tree view
         settings.set("TreeView","open","[]")
-        
+
         #workspace
         last_open = "[%s]" % ",".join("'%s'" % item for item in self._last_opened)
         settings.set("WorkSpace","last",last_open)
-        
+
         settings.write_to_disk()
-    
+
     def read_settings (self) :
         """Read application settings.
         """
         settings = Settings()
-        
+
         #main window
         try :
             size = eval(settings.get("MainWindow","size") )
@@ -298,21 +297,21 @@ class MainWindow(QtGui.QMainWindow,
             pass
         except NoOptionError :
             pass
-    
+
     def redo_last_open_menu (self) :
         """Create entries for last opened nodes.
         """
         self.menuLast_open.clear()
         for action in self._last_open_action_group.actions() :
             self._last_open_action_group.removeAction(action)
-        
+
         for i,node_descr in enumerate(self._last_opened) :
             action = self.menuLast_open.addAction(node_descr)
             action.setShortcut("Ctrl+%d" % (i + 1) )
             self._last_open_action_group.addAction(action)
-        
+
         self.menuLast_open.setEnabled(len(self._last_opened) > 0)
-    
+
     def reopen_last (self, action) :
         """Reopen a last open node.
         """
@@ -322,7 +321,7 @@ class MainWindow(QtGui.QMainWindow,
         manager = PackageManager()
         factory = manager[pkgid][name]
         self.open_compositenode(factory)
-    
+
     def add_last_open (self, pkgid, factory_name) :
         """Register a new lest opened node.
         """
@@ -331,19 +330,19 @@ class MainWindow(QtGui.QMainWindow,
             self._last_opened.remove(key)
         except ValueError :
             pass
-        
+
         self._last_opened.insert(0,key)
         if len(self._last_opened) > 4 :
             del self._last_opened[-1]
-        
+
         self.redo_last_open_menu()
-    
+
     def __wsMenuShow(self):
         widget = self.tabWorkspace.currentWidget()
         if widget is None:
             return
 
-        #check if the current selection is coloured and tick the 
+        #check if the current selection is coloured and tick the
         #menu item if an item of the selection uses the user color.
         items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         self.actionUseCustomColor.setChecked(False)
@@ -351,20 +350,20 @@ class MainWindow(QtGui.QMainWindow,
             if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
                 self.actionUseCustomColor.setChecked(True)
                 break
-    
+
     def open_compositenode(self, factory):
         """ open a  composite node editor """
         node = factory.instantiate()
 
         self.session.add_workspace(node, notify=False)
         self.open_widget_tab(node, factory=factory)
-        
+
         self.add_last_open(factory.__pkg_id__,factory.name)
 
 
     def about(self):
         """ Display About Dialog """
-        
+
         mess = QtGui.QMessageBox.about(self, "About Visualea",
                                        "Version %s\n\n"%(metainfo.get_version()) +
                                        "VisuAlea is part of the OpenAlea framework.\n"+
@@ -385,7 +384,7 @@ class MainWindow(QtGui.QMainWindow,
     def quit(self):
         """ Quit Application """
         if( QtGui.QMessageBox.question(self, "Quit?", "Are you sure you want to quit?",
-                                       QtGui.QMessageBox.Ok|QtGui.QMessageBox.Cancel) == 
+                                       QtGui.QMessageBox.Ok|QtGui.QMessageBox.Cancel) ==
                         QtGui.QMessageBox.Ok):
             QtGui.QApplication.exit(0)
 
@@ -395,7 +394,7 @@ class MainWindow(QtGui.QMainWindow,
             index = self.tabWorkspace.indexOf(event[1])
             if(event[0] == "graphoperator_graphsaved"):
                 if index > -1:
-                    self.reinit_treeview()                
+                    self.reinit_treeview()
                     caption = "Workspace %i - %s"%(index, event[2].name)
                     self.tabWorkspace.setTabText(index, caption)
             elif(event[0] == "graphoperator_graphclosed"):
@@ -405,20 +404,20 @@ class MainWindow(QtGui.QMainWindow,
                 if index > -1:
                     self.session.workspaces[index] = event[2]
 
-        if(type(sender) == type(self.session)):            
+        if(type(sender) == type(self.session)):
             if(event and event[0]=="workspace_added"):
                 graph=event[1]
                 self.open_widget_tab(graph, graph.factory)
             else:
                 self.update_tabwidget()
                 self.reinit_treeview()
-    
+
     def closeEvent(self, event):
         """ Close All subwindows """
-        
+
         #Save personnal settings
         self.write_settings()
-        
+
         #close windows
         for i in range(self.tabWorkspace.count()):
             w = self.tabWorkspace.widget(i)
@@ -426,27 +425,27 @@ class MainWindow(QtGui.QMainWindow,
 
         event.accept()
 
-    
+
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.cat_model.reset()
         self.pkg_model.reset()
         self.datapool_model.reset()
         self.search_model.reset()
-                   
+
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
         self.session.close_workspace(cindex, False)
-        w.close()      
+        w.close()
         del w
-      
+
     def current_view (self) :
         """ Return the active widget """
         return self.tabWorkspace.currentWidget()
-    
+
     def update_tabwidget(self):
         """ open tab widget """
         # open tab widgets
@@ -457,7 +456,7 @@ class MainWindow(QtGui.QMainWindow,
                 if(node != widget.scene().graph().graph()):
                     self.close_tab_workspace(i)
                 self.open_widget_tab(node, factory=node.factory, pos = i)
-            
+
         # close last tabs
         removelist = range( len(self.session.workspaces), self.tabWorkspace.count())
         removelist.reverse()
@@ -497,7 +496,7 @@ class MainWindow(QtGui.QMainWindow,
             gwidget.show_entire_scene()
 
         return index
-        
+
 
     def add_pkgdir(self):
 
@@ -506,7 +505,7 @@ class MainWindow(QtGui.QMainWindow,
             self.pkgmanager.load_directory(str(dirname))
             self.reinit_treeview()
 
-    
+
     def reload_all(self):
 
         # Reload package manager
@@ -521,13 +520,13 @@ class MainWindow(QtGui.QMainWindow,
     def ws_changed(self, index):
         """ Current workspace has changed """
         self.session.cworkspace = index
-        
-            
+
+
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
         pos = self.tabWorkspace.mapFromGlobal(event.globalPos())
-        
+
         tabBar = self.tabWorkspace.tabBar()
         count = tabBar.count()
 
@@ -539,14 +538,14 @@ class MainWindow(QtGui.QMainWindow,
 
         # if no bar was hit, return
         if (index<0):
-            return 
+            return
 
         # set hit bar to front
         self.tabWorkspace.setCurrentIndex(index)
-        
+
         def close_current_ws():
             self.close_tab_workspace(index)
-        
+
         menu = QtGui.QMenu(self)
 
         action = menu.addAction("Close")
@@ -607,10 +606,10 @@ class MainWindow(QtGui.QMainWindow,
 
             self.pkgmanager.create_user_package(name, metainfo, path)
             self.reinit_treeview()
-        
+
     def exec_python_script(self):
         """ Choose a python source and execute it """
-            
+
         filename = QtGui.QFileDialog.getOpenFileName(
             self, "Python Script", "Python script (*.py)")
 
@@ -619,10 +618,10 @@ class MainWindow(QtGui.QMainWindow,
 
         import code
         file = open(filename, 'r')
-        
+
         sources = ''
         compiled = None
-        
+
         for line in file:
             sources += line
             compiled = code.compile_command(sources, filename)
@@ -634,14 +633,14 @@ class MainWindow(QtGui.QMainWindow,
     def open_python_console(self):
         """ Set focus on the python shell """
         self.interpreterWidget.setFocus(QtCore.Qt.ShortcutFocusReason)
-    
+
     def clear_python_console(self):
         """ Clear python shell """
         self.interpreterWidget.clear()
 
     def new_session(self):
         self.session.clear()
-       
+
     def open_session(self):
 
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -654,7 +653,7 @@ class MainWindow(QtGui.QMainWindow,
 
     def save_session(self):
         """ Save menu entry """
-        
+
         if(not self.session.session_filename):
             self.save_as()
         else :
@@ -662,7 +661,7 @@ class MainWindow(QtGui.QMainWindow,
 
     def save_as(self):
         """ Save as menu entry """
-        
+
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "OpenAlea Session",  QtCore.QDir.homePath(), "Session file (*.oas)")
 
@@ -670,7 +669,7 @@ class MainWindow(QtGui.QMainWindow,
         if(not filename) : return
 
         self.session.save(filename)
-        
+
     def clear_data_pool(self):
         """ Clear the data pool """
 
@@ -681,7 +680,7 @@ class MainWindow(QtGui.QMainWindow,
 
         results = self.pkgmanager.search_node(str(self.search_lineEdit.text()))
         self.search_model.set_results(results)
-        
+
     def find_node(self):
         """ Find node Command """
 
@@ -694,9 +693,9 @@ class MainWindow(QtGui.QMainWindow,
 
         dialog = PreferencesDialog(self)
         ret = dialog.exec_()
-        # ! does not return anythin and do not use ret ? 
+        # ! does not return anythin and do not use ret ?
 
-    # Drag and drop support 
+    # Drag and drop support
     def dragEnterEvent(self, event):
         """todo"""
         if event.mimeData().hasUrls():
@@ -717,11 +716,11 @@ class MainWindow(QtGui.QMainWindow,
             print e
             event.ignore()
 
-            
+
     # Window support
     def display_leftpanel(self, toggled):
         self.splitter_2.setVisible(toggled)
-    
+
 
     def display_rightpanel(self, toggled):
         self.splitter.setVisible(toggled)
@@ -732,7 +731,7 @@ class MainWindow(QtGui.QMainWindow,
         widget = self.tabWorkspace.currentWidget()
         if widget is None:
             return
-        
+
         composite_node = widget.scene().graph().graph()
         if composite_node is not None :
             print "BEGIN script"
@@ -740,13 +739,13 @@ class MainWindow(QtGui.QMainWindow,
 
     def export_image(self):
         """ Export current workspace to an image """
-        
+
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "Export image",  QtCore.QDir.homePath(), "PNG Image (*.png)")
 
         filename = str(filename)
         if(not filename) : return
-        
+
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
         rect = view.scene().sceneRect()
@@ -762,13 +761,13 @@ class MainWindow(QtGui.QMainWindow,
 
     def export_image_svg(self):
         """ Export current workspace to an image """
-        
+
         filename = QtGui.QFileDialog.getSaveFileName(
             self, "Export svg image",  QtCore.QDir.homePath(), "SVG Image (*.svg)")
 
         filename = str(filename)
         if(not filename) : return
-        
+
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
         rect = view.scene().sceneRect()
