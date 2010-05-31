@@ -20,20 +20,22 @@ __revision__ = " $Id$ "
 import weakref
 from openalea.core import node
 from openalea.core import compositenode
+import openalea.grapheditor.base as grapheditorbase
 
-class GraphAdapter(object):
+class GraphAdapter(grapheditorbase.GraphAdapterBase):
     """An adapter to openalea.core.compositenode"""
     def __init__(self, graph):
-        self.set_graph(graph)
+        grapheditorbase.GraphAdapterBase.__init__(self, graph)
 
     def __getattr__(self, name):
+        "shortcut to access to methods of the real graph that we don't implement"""
         return getattr( self.graph(), name )
-
-    def simulate_construction_notifications(self):
-        self.graph().simulate_construction_notifications()
 
     def set_graph(self, graph):
         self.graph = weakref.ref(graph)
+
+    def get_vertex(self, vid):
+        return self.graph().node(vid)
 
     def add_vertex(self, vertex, position=None):
         try:
@@ -45,15 +47,25 @@ class GraphAdapter(object):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "A graph cannot be contained in itself.")
 
-    def get_vertex(self, vid):
-        return self.graph().node(vid)
-
     def remove_vertex(self, vertex):
         self.graph().remove_node(vertex.get_id())
 
-    def remove_vertices(self, vertexList):
-        for vert in vertexList:
-            self.remove_vertex(vert)
+    def add_edge(self, src, dst):
+        if(type(src[0])==int):
+            vtxIdSrc, portIdSrc = src[0], src[1]
+            vtxIdDst, portIdDst = dst[0], dst[1]
+        else:
+            vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
+            vtxIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
+        self.graph().connect(vtxIdSrc, portIdSrc, vtxIdDst, portIdDst)
+
+    def remove_edge(self, src, dst):
+        vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
+        vtkIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
+        self.graph().disconnect(vtxIdSrc, portIdSrc, vtkIdDst, portIdDst)
+
+    # -- Utility methods, not always useful/relevant.
+
 
     def replace_vertex(self, oldVertex, newVertex):
         self.graph().replace_node(oldVertex.get_id(), newVertex)
@@ -70,19 +82,6 @@ class GraphAdapter(object):
     def get_vertex_output(self, vid, pid):
         return self.graph().node(vid).output_desc[pid]
 
-    def add_edge(self, src, dst):
-        if(type(src[0])==int):
-            vtxIdSrc, portIdSrc = src[0], src[1]
-            vtxIdDst, portIdDst = dst[0], dst[1]
-        else:
-            vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
-            vtxIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
-        self.graph().connect(vtxIdSrc, portIdSrc, vtxIdDst, portIdDst)
-
-    def remove_edge(self, src, dst):
-        vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
-        vtkIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
-        self.graph().disconnect(vtxIdSrc, portIdSrc, vtkIdDst, portIdDst)
 
     #type checking
     def is_input(self, input):
@@ -100,7 +99,7 @@ class GraphAdapter(object):
 
     def is_legal_connection(self, src, dst):
         pass
-        
+
     @classmethod
     def get_vertex_types(cls):
         return ["annotation", "vertex"]

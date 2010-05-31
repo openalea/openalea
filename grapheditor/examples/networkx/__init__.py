@@ -11,6 +11,7 @@ them.
 import networkx as nx
 import weakref
 from openalea.core import observer
+import grapheditor.base
 
 #These variables are shared by both the model
 #and the Views. Conceptually, this is not good.
@@ -45,17 +46,15 @@ class NXObservedProxyEdge( observer.Observed ):
         self.g = weakref.ref(graph)
 
     def notify_update(self):
-        pass #self.notify_listeners(self.e, ("update",))
+        pass
 
-class NXObservedGraph( observer.Observed ):
+class NXObservedGraph( grapheditor.base.GraphAdapterBase, observer.Observed ):
     """An adapter to networkx.Graph"""
     def __init__(self):
+        grapheditor.base.GraphAdapterBase.__init__(self)
         observer.Observed.__init__(self)
         self.set_graph(nx.Graph())
         self.__curVtx = 0
-
-    def set_graph(self, graph):
-        self.graph = graph
 
     def new_vertex(self, position=None):
         self.add_vertex(self.__curVtx, position=position)
@@ -73,9 +72,6 @@ class NXObservedGraph( observer.Observed ):
             self.graph.add_node(vertex, **kwargs)
             self.notify_listeners(("vertex_added", ("vertex", proxy)))
 
-    def get_vertex(self, vid):
-        return vid # ?
-
     def remove_vertex(self, vertex_proxy):
         n = vertex_proxy.v
         edges = self.graph.edges([n])
@@ -84,10 +80,6 @@ class NXObservedGraph( observer.Observed ):
             self.remove_edge(src, tgt)
         self.graph.remove_node(n)
         self.notify_listeners(("vertex_removed", ("vertex",vertex_proxy)))
-
-    def remove_vertices(self, vertex_proxies):
-        for vp in vertex_proxies:
-            self.remove_vertex(vp)
 
     def add_edge(self, src_proxy, tgt_proxy, **kwargs):
         g = self.graph
@@ -112,46 +104,7 @@ class NXObservedGraph( observer.Observed ):
 
 
     def remove_edges(self, edge_proxies):
-        for ep in edge_proxies:
-            self.remove_edge(*ep.e)
-
-    # -- Utility methods, not always useful.
-    def replace_vertex(self, oldVertex, newVertex):
-        raise NotImplementedError
-
-    def get_vertex_inputs(self, graphicalV):
-        return self.graph.edges(graphicalV.v, data=True)
-
-    def get_vertex_outputs(self, graphicalV):
-        return self.graph.edges(graphicalV.v, data=True)
-
-    def get_vertex_input(self, graphicalV, pid):
-        return self.graph.edges(graphicalV.v, data=True)[pid]
-
-    def get_vertex_output(self, graphicalV, pid):
-        return self.graph.edges(graphicalV.v, data=True)[pid]
-
-    #type checking
-    def is_input(self, input):
-        return True
-
-    def is_output(self, output):
-        return True
-
-    #other checks
-    def is_vertex_protected(self, vertex):
-        return False
-
-    def is_legal_connection(self, src, dst):
-        return True
-
-    @classmethod
-    def get_vertex_types(cls):
-        return ["vertex"]
-
-    @classmethod
-    def get_edge_types(cls):
-        return ["default"]
+        grapheditor.base.GraphAdapterBase.remove_edges(self, (ep.e for ep in edge_proxies))
 
 #------------------------
 # -- the graph qt view --
@@ -173,17 +126,15 @@ class GraphicalNode( qtgraphview.Vertex, QtGui.QGraphicsEllipseItem  ):
         self.setZValue(1.0)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
-
         #set the initial position of the GRAPHICAL item
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex().v]["position"]))
+
+    def initialise_from_model(self):
+        raise NotImplementedError
 
     def notify(self, sender, event):
         #Do cool stuff here
         qtgraphview.Vertex.notify(self, sender, event)
-
-
-    def announce_view_data(self, *args, **kwargs):
-        pass
 
     def get_view_data(self, *args, **kwargs):
         return self.graph().graph.node[self.vertex().v][args[0]]
@@ -212,19 +163,15 @@ class GraphicalEdge( qtgraphview.Edge, QtGui.QGraphicsPathItem  ):
         dest.notify_update()
         self.setZValue(0.0)
 
+    def initialise_from_model(self):
+        raise NotImplementedError
 
     def notify(self, sender, event):
         qtgraphview.Edge.notify(self, sender, event)
 
     store_view_data = None
     get_view_data   = None
-    announce_view_data = None
 
-    def announce_view_data_src(self, *args, **kwargs):
-        pass
-
-    def announce_view_data_dst(self, *args, **kwargs):
-        pass
 
 class GraphicalFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     def __init__(self, srcPoint, graph):
@@ -238,7 +185,6 @@ class GraphicalFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
 # -- the graph strategy --
 #-------------------------
 class Strategy(object):
-
     @classmethod
     def get_graph_model_type(cls):
         """Returns the classobj defining the graph type"""
@@ -275,6 +221,9 @@ class Strategy(object):
     def get_connector_types(cls):
         return [GraphicalNode]
 
+    @classmethod
+    def initialise_graph_view(cls, graphView, graphModel):
+        return
 
 def GraphicalVertexFactory(vtype, *args, **kwargs):
     VertexClass = Strategy.get_vertex_widget_types().get(vtype)
@@ -307,12 +256,11 @@ View.set_default_drop_handler(dropHandler)
 View.set_event_handler("mouseDoubleClickEvent", dropHandler, NXObservedGraph)
 
 def removeNode(view, event):
-    nodes = view.scene().get_selected_items(filterType=GraphicalNode)
-    vertices = [n.vertex() for n in nodes]
-    view.scene().graph().remove_vertices(vertices)
-
+    graphAdapter = view.scene().graph()
+    vertices = view.scene().get_selected_items(filterType=GraphicalNode, subcall=lambda x:x.vertex())
+    graphAdapter.remove_vertices(vertices)
     edges = view.scene().get_selected_items(filterType=GraphicalEdge)
-    view.scene().graph().remove_edges(e.edge() for e in edges)
+    graphAdapter.remove_edges(e.edge() for e in edges)
     event.setAccepted(True)
 
 keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):removeNode,}

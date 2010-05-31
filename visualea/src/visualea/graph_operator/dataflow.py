@@ -192,8 +192,8 @@ class DataflowOperators(object):
 
             #Are we copying in an annotation? Big hack
             for i in s:
-                if i.hasFocus() : return 
-                
+                if i.hasFocus() : return
+
             s = [i.vertex().get_id() for i in s]
             self.get_session().clipboard.clear()
             self.get_graph().to_factory(self.get_session().clipboard, s, auto_io=False)
@@ -223,11 +223,11 @@ class DataflowOperators(object):
             cnode = self.get_session().clipboard.instantiate()
             s = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
             if(not s): return
-            
+
             #Are we pasting in an annotation? Big hack
             for i in s:
                 if i.hasFocus() : print i; return
-                
+
             min_x = min_y = float("inf")
             for vid in cnode:
                 if vid in (cnode.id_in, cnode.id_out): continue

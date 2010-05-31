@@ -87,8 +87,10 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
 
     def remove_from_view(self, view):
         """An element removes itself from the given view"""
-        self.__remove_ports_from_view(view)
-        self.__remove_ports_from_view(view, outputs=True)
+        # self.__remove_ports_from_view(view)
+        # self.__remove_ports_from_view(view, outputs=True)
+        self.__remove_ports()
+        self.__remove_ports(outputs=True)
         qtgraphview.Vertex.remove_from_view(self, view)
 
     def initialise_from_model(self):
@@ -204,17 +206,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         if(self.layout()): self.layout().updateGeometry()
 
     def __remove_ports(self, outputs=False):
-        if outputs:
-            self.clear_layout(self._outPortLayout())
-        else:
-            self.clear_layout(self._inPortLayout())
-
-    def __remove_ports_from_view(self, view, outputs=False):
         lay = self._outPortLayout() if outputs else self._inPortLayout()
-        count = lay.count()
-        for i in range(count):
-            item = lay.itemAt(0)
-            item.graphicsItem().remove_from_view(view)
+        self.clear_layout(lay)
 
     def clear_layout(self, layout):
         count = layout.count()
@@ -322,7 +315,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         self.highlighted = False
         self.initialise_from_model()
 
-    port = baselisteners.GraphElementObserverBase.get_observed
+    port = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
         port = self.port()
