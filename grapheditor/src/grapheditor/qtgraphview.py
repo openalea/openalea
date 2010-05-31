@@ -331,10 +331,6 @@ class Edge(Element):
                 else:
                     self.setVisible(True)
 
-    def initialise_from_model(self):
-        self.announce_view_data_src(exclusive=self)
-        self.announce_view_data_dst(exclusive=self)
-
     def remove(self):
         self.graph().remove_edge(self.srcBBox(), self.dstBBox())
 
@@ -391,7 +387,7 @@ class FloatingEdge( Edge ):
 
     def get_connections(self):
         #find the vertex items that were activated
-        
+
         srcVertexItem = self.scene().find_closest_connectable(self.sourcePoint, boxsize = 2)
         dstVertexItem = self.scene().find_closest_connectable(self.destPoint, boxsize = 2)
 
@@ -411,14 +407,6 @@ class FloatingEdge( Edge ):
 
 
 #------*************************************************------#
-class EventEater( QtCore.QObject ) :
-    def __init__(self, parent):
-        QtCore.QObject.__init__(self, parent)
-        
-    def eventFilter(self, obj, event):
-        print obj, event
-        return QtCore.QObject.eventFilter(self, obj, event);
-        
 class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase"""
     def __init__(self, parent, graph):
@@ -427,7 +415,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
         self.initialise_from_model()
-        # self.installEventFilter(EventEater(self))
 
     #############################################################################
     # Functions to correctly cooperate with the View class (reference counting) #
@@ -453,7 +440,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         return self
 
     def find_closest_connectable(self, pos, boxsize = 10.0):
-        #creation of a square which is a selected zone for while ports
+        #creation of a square to find connectables inside.
         if isinstance(pos, QtCore.QPointF) : pos = pos.x(), pos.y()
         rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
         dstPortItems = self.items(rect)
@@ -487,11 +474,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         baselisteners.GraphListenerBase.clear(self)
         GCcollect()
 
-    def announce_view_data(self, exclusive=True):
-        gph = self.graph()
-        gph.exclusive_command( self,
-                               gph.simulate_construction_notifications )
-
     ##################
     # QtWorld-Events #
     ##################
@@ -505,7 +487,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     def mouseReleaseEvent(self, event):
         if(self.is_creating_edge()):
             self.new_edge_end()
-        QtGui.QGraphicsScene.mouseReleaseEvent(self, event)       
+        QtGui.QGraphicsScene.mouseReleaseEvent(self, event)
 
     #########################
     # Other utility methods #
@@ -557,7 +539,7 @@ def deprecate(methodName, newName=None):
         return getattr(self.scene(), newName)(*args, **kwargs)
     return deprecation_wrapper
 
-    
+
 class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     """A View implementing client customisation """
 

@@ -59,9 +59,9 @@ class GraphElementObserverBase(observer.AbstractListener):
         self.__obsBBox(observed)
 
     def get_observed(self):
-        try: 
+        try:
             return self.__obsBBox()
-        except TypeError: 
+        except TypeError:
             return None
 
     def clear_observed(self, *args):
@@ -90,10 +90,6 @@ class GraphElementObserverBase(observer.AbstractListener):
             if(event[1]=="position"):
                 if(event[2]):
                     self.position_changed(*event[2])
-
-    def initialise_from_model(self):
-        self.announce_view_data(exclusive=self)
-
 
 
 class GraphListenerBase(observer.AbstractListener):
@@ -166,6 +162,7 @@ class GraphListenerBase(observer.AbstractListener):
             raise StrategyError("Could not find matching strategy :" +
                                 str(stratCls) +
                                 " : " + str(type(graph)))
+        self.__strategy=stratCls
 
         self.set_vertex_widget_factory(stratCls.get_vertex_widget_factory())
         self.set_edge_widget_factory(stratCls.get_edge_widget_factory())
@@ -179,6 +176,9 @@ class GraphListenerBase(observer.AbstractListener):
         #an edge currently being drawn,
         self.__newEdge = None
         self.__newEdgeSource = None
+
+    def get_strategy(self):
+        return self.__strategy
 
     def graph(self):
         if(isinstance(self.__observed, weakref.ref)):
@@ -196,7 +196,7 @@ class GraphListenerBase(observer.AbstractListener):
             self.__observed = weakref.ref(graph) #might not need to be weak.
 
     def initialise_from_model(self):
-        self.announce_view_data(exclusive=self)
+        self.__strategy.initialise_graph_view(self, self.graph())
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
@@ -229,12 +229,16 @@ class GraphListenerBase(observer.AbstractListener):
     def clear(self):
         self.widgetmap = {}
 
+
+    ###############################################################
+    # Internal book-keeping methods to make all system's gc happy #
+    ###############################################################
     def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
         self._register_widget_with_model(widget, model)
 
     def _register_widget_with_model(self, widget, model):
-        """ 
+        """
         This method maps widgets to models. A single model
         can be viewed be many widgets.
         Because it is very difficult to track ownership of
@@ -281,9 +285,9 @@ class GraphListenerBase(observer.AbstractListener):
         modelWidgets.discard(widgetWeakRef)
 
 
-    ###########################################################
-    # Controller methods come next. They DO MODIFY the model. #
-    ###########################################################
+    ########################################################
+    # Controller methods come next. They MODIFY the model. #
+    ########################################################
     def set_interaction_flag(self, val):
         self._interactionFlag = val
 

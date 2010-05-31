@@ -24,15 +24,15 @@ from openalea.grapheditor.qtutils import mixin_method
 
 class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
     """ Text annotation on the data flow """
-    
-    __def_string__ = u"Double-click to edit"
+
+    __def_string__ = u"click to edit"
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
         QtGui.QGraphicsTextItem.__init__(self, self.__def_string__, parent)
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
 
-        # ---Qt Stuff---        
+        # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
@@ -42,24 +42,27 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
         font.setBold(True)
         font.setPointSize(12)
         self.setFont(font)
-        
+
         self.initialise_from_model()
         return
 
-    annotation = baselisteners.GraphElementObserverBase.get_observed        
+    annotation = baselisteners.GraphElementObserverBase.get_observed
+
+    def initialise_from_model(self):
+        self.annotation().get_ad_hoc_dict().simulate_full_data_change(self, self.annotation())
 
     #####################
     # ----Qt World----  #
     #####################
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsTextItem,
                               "itemChange")
-                              
+
     paint = mixin_method(None, QtGui.QGraphicsTextItem,
-                              "paint")                              
-                              
+                              "paint")
+
     mousePressEvent = mixin_method( QtGui.QGraphicsTextItem, qtgraphview.Vertex,
                                    "mousePressEvent")
-        
+
     def mouseDoubleClickEvent(self, event):
         self.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setSelected(True)
@@ -67,16 +70,16 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
         QtGui.QGraphicsTextItem.mouseDoubleClickEvent(self, event)
 
     def keyPressEvent(self, event):
-        QtGui.QGraphicsTextItem.keyPressEvent(self, event)              
-        
+        QtGui.QGraphicsTextItem.keyPressEvent(self, event)
+
     def focusOutEvent(self, event):
         text = unicode(self.toPlainText())
         if(text != self.__def_string__):
             self.store_view_data('text', text)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         QtGui.QGraphicsTextItem.focusOutEvent(self, event)
-        
-        
+
+
     #########################
     # ----Other things----  #
     #########################
@@ -87,7 +90,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
                     self.set_text(event[2])
                     return
         qtgraphview.Vertex.notify(self, sender, event)
-    
+
     def set_text(self, text):
         if text == u"" :
             text = self.__def_string__
@@ -98,10 +101,3 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
 
     def get_view_data(self, key):
         return self.annotation().get_ad_hoc_dict().get_metadata(key)
-
-    def announce_view_data(self, exclusive=False):
-        if not exclusive:
-            self.annotation().get_ad_hoc_dict().simulate_full_data_change()
-        else:
-            self.annotation().exclusive_command(exclusive,
-                                                self.annotation().get_ad_hoc_dict().simulate_full_data_change)

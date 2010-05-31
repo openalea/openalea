@@ -130,11 +130,26 @@ class MetaDataDict(observer.Observed):
             raise Exception("This key does not exist : " + key)
         return  self._metaValues.get(key)
 
-    def simulate_full_data_change(self):
+    def get_metadata_type(self, key):
+        """Gets the value of a meta data."""
+        if key not in self._metaTypes :
+            raise Exception("This key does not exist : " + key)
+        return  self._metaTypes.get(key)
+
+
+    def simulate_full_data_change(self, observer=None, source=None):
         for k in self._metaValues.keys():
             valType = self._metaTypes[k]
             value = self._metaValues[k]
-            self.notify_listeners(("metadata_changed", k, value, valType))
+            if not observer:
+                self.notify_listeners(("metadata_changed", k, value, valType))
+            else:
+                observer.notify(source, ("metadata_changed", k, value, valType))
+
+
+
+    def keys(self):
+        return self._metaTypes.keys()
 
     def __str__(self):
         return self.__repr__()

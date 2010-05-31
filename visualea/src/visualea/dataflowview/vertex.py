@@ -76,21 +76,45 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         self.layout().addItem(layout)
         self._outPortLayout = weakref.ref(layout)
 
-        self.__configure_layout(self._inPortLayout())
-        self.__configure_layout(self._outPortLayout())
+        def __configure_layout(layout):
+            layout.setSpacing(0.0)
+            layout.setMinimumHeight(GraphicalPort.HEIGHT)
+            self.layout().setAlignment(layout, QtCore.Qt.AlignHCenter)
+        __configure_layout(self._inPortLayout())
+        __configure_layout(self._outPortLayout())
         self.layout().setAlignment(self._caption(), QtCore.Qt.AlignHCenter)
-
         self.initialise_from_model()
 
     def remove_from_view(self, view):
         """An element removes itself from the given view"""
-        self.__remove_outputs(view)
-        self.__remove_inputs(view)
+        self.__remove_ports_from_view(view)
+        self.__remove_ports_from_view(view, outputs=True)
         qtgraphview.Vertex.remove_from_view(self, view)
 
+    def initialise_from_model(self):
+        vertex = self.vertex()
+        mdict  = vertex.get_ad_hoc_dict()
+        #graphical data init.
+        mdict.simulate_full_data_change(self, vertex)
+        #other attributes init
+        for i in vertex.input_desc:
+            self.notify(vertex, ("input_port_added", i))
+        for i in vertex.output_desc:
+            self.notify(vertex, ("output_port_added", i))
+        for i in vertex.map_index_in:
+            self.notify(vertex, ("input_modified", i))
+        self.notify(vertex, ("caption_modified", vertex.internal_data["caption"]))
+        self.notify(vertex, ("tooltip_modified", vertex.get_tip()))
+        self.notify(vertex, ("internal_data_changed",))
+
     def terminate_from_model(self):
-        """todo evaluate this for inclusion into the interfaces"""
-        self.vertex().exclusive_command(self, self.vertex().simulate_destruction_notifications)
+        vertex = self.vertex()
+        for i in vertex.input_desc:
+            self.notify(vertex, ("input_port_removed", i))
+        self.notify(vertex, ("cleared_input_ports",))
+        for i in vertex.output_desc:
+            self.notify(vertex, ("output_port_removed", i))
+        self.notify(vertex("cleared_output_ports",))
 
 
     #####################################
@@ -122,16 +146,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     def get_view_data(self, key):
         return self.vertex().get_ad_hoc_dict().get_metadata(key)
 
-    def announce_view_data(self, exclusive=False):
-        if not exclusive:
-            self.vertex().get_ad_hoc_dict().simulate_full_data_change()
-            self.vertex().simulate_construction_notifications()
-        else:
-            self.vertex().exclusive_command(exclusive,
-                                            self.vertex().get_ad_hoc_dict().simulate_full_data_change)
-            self.vertex().exclusive_command(exclusive,
-                                            self.vertex().simulate_construction_notifications)
-
     def notify(self, sender, event):
         """ Notification sent by the vertex associated to the item """
         if event is None : return
@@ -160,7 +174,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             QtGui.QApplication.processEvents()
 
         elif(event[0] == "caption_modified"):
-            self.set_caption(event[1])
+            self.__set_caption(event[1])
 
         elif(event[0] == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
@@ -174,14 +188,14 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             self.__add_out_connection(event[1])
 
         elif(event[0] == "cleared_input_ports"):
-            self.__remove_inputs()
+            self.__remove_ports()
 
         elif(event[0] == "cleared_output_ports"):
-            self.__remove_outputs()
+            self.__remove_ports(outputs=True)
 
         qtgraphview.Vertex.notify(self, sender, event)
 
-    def set_caption(self, caption):
+    def __set_caption(self, caption):
         """Sets the name displayed in the vertex widget, doesn't change
         the vertex data"""
         if caption == "":
@@ -189,11 +203,18 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         self._caption().setText(caption)
         if(self.layout()): self.layout().updateGeometry()
 
-    def __remove_inputs(self, view=None):
-        self.clear_layout(self._inPortLayout())
+    def __remove_ports(self, outputs=False):
+        if outputs:
+            self.clear_layout(self._outPortLayout())
+        else:
+            self.clear_layout(self._inPortLayout())
 
-    def __remove_outputs(self, view=None):
-        self.clear_layout(self._outPortLayout())
+    def __remove_ports_from_view(self, view, outputs=False):
+        lay = self._outPortLayout() if outputs else self._inPortLayout()
+        count = lay.count()
+        for i in range(count):
+            item = lay.itemAt(0)
+            item.graphicsItem().remove_from_view(view)
 
     def clear_layout(self, layout):
         count = layout.count()
@@ -201,13 +222,6 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             item = layout.itemAt(0)
             layout.removeAt(0)
             del item
-
-    def __configure_layout(self, layout):
-        layout.setSpacing(0.0)
-        layout.setMinimumHeight(GraphicalPort.HEIGHT)
-        self.layout().setAlignment(layout, QtCore.Qt.AlignHCenter)
-
-
 
     ###############################
     # ----Qt World overloads----  #
@@ -220,7 +234,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         pos = self.pos()
         self.store_view_data('position', [pos.x(), pos.y()])
 
-        #this is a not so bad place to check for port visibility
+        #this is not such a bad place to check for port visibility
         #because it gets called when ports are hidden.
         self.hiddenPorts_item.setVisible(not self._all_inputs_visible())
         self.hiddenPorts_item.setPos(self.rect().width() - self.hiddenPorts_item.boundingRect().width() - 2,
@@ -232,7 +246,7 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                               "itemChange")
 
-                              
+
 class GraphicalInVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         GraphicalVertex.__init__(self, vertex, graph, parent=None)
@@ -274,14 +288,14 @@ def set_composite_in_out_position(graph, isInNode):
         graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
     else :
         y = bottom + verticalNodeSize
-        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])        
+        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
 
 
-        
-        
-        
-        
-        
+
+
+
+
+
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     """ A vertex port """
     MAX_TIPLEN = 2000
@@ -306,9 +320,17 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         self.__vertBBox = baselisteners.ObservedBlackBox(self,port.vertex())
         self.setZValue(1.5)
         self.highlighted = False
-        port.simulate_construction_notifications()
+        self.initialise_from_model()
 
     port = baselisteners.GraphElementObserverBase.get_observed
+
+    def initialise_from_model(self):
+        port = self.port()
+        mdict  = port.get_ad_hoc_dict()
+        #graphical data init.
+        mdict.simulate_full_data_change(self, port)
+        #update tooltip
+        self.notify(port, ("tooltip_modified", port.get_tip()))
 
     def change_observed(self, old, new):
         if isinstance(new, AbstractPort):
@@ -321,7 +343,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
     def close_and_delete(self, obj):
         self.clear_observed()
         del self
-
 
     def notify(self, sender, event):
         try : self.port(); self.__vertBBox()

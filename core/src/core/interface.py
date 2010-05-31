@@ -55,33 +55,12 @@ class IInterfaceMetaClass(type):
     """
     IInterface Metaclass
     Allow to register corresponding python type
-    Also adds a method to the interface class that checks 
-    that the given object implements the class' interface.
-    Allows some sort of safe-ducktyping"""
+    """
 
 
     all = [] # all interfaces
     def __new__(cls, name, bases, dict):
-        dict["check"] = classmethod(IInterfaceMetaClass.check)
         newCls = type.__new__(cls, name, bases, dict)
-
-        ###--CONTRACT CHECKING INFRASTRUCTURE---
-        newCls.__interface_decl__ = [i for i in dict.keys()]
-        for base in bases:
-            if(hasattr(base, "__interface_decl__")):
-                   newCls.__interface_decl__ += base.__interface_decl__
-
-        #removing some objects that aren't part of the interface
-        if("__metaclass__" in newCls.__interface_decl__):
-            newCls.__interface_decl__.remove("__metaclass__")
-        if("__module__" in newCls.__interface_decl__):
-            newCls.__interface_decl__.remove("__module__")
-        if("__doc__" in newCls.__interface_decl__):
-            newCls.__interface_decl__.remove("__doc__")
-        if("check" in newCls.__interface_decl__):
-            newCls.__interface_decl__.remove("check")
-        ###--!!CONTRACT CHECKING INFRASTRUCTURE---
-
         return newCls
 
     def __init__(cls, name, bases, dic):
@@ -92,28 +71,6 @@ class IInterfaceMetaClass(type):
 
     def __repr__(cls):
         return cls.__name__
-
-    def check(cls, obj):
-        """Check if obj matches this interface."""
-        objMem = dir(obj)
-        notImp = []
-
-        stop = False
-        for i in cls.__interface_decl__:
-            if i not in objMem:
-                notImp.append(i)
-                stop = True
-            else : 
-                continue
-
-        if stop:
-            # The check failed.
-            stri = "Unimplemented : \n"
-            for i in notImp:
-                stri += "\t"+i+"\n" 
-            raise UserWarning('Object %s does not belong to the Interface %s \n%s '%(str(obj),cls.__name__,stri))
-
-        return not stop
 
 # Defaults interfaces
 
