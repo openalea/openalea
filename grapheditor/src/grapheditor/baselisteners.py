@@ -44,7 +44,7 @@ class StrategyError( Exception ):
 
 
 
-class GraphElementObserverBase(observer.AbstractListener):
+class GraphElementListenerBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
 
     def __init__(self, observed=None, graph=None):
@@ -273,7 +273,8 @@ class GraphListenerBase(observer.AbstractListener):
         if(widgets is None): return
         for widgetWeakRef in widgets:
             self.widgetmap.pop(widgetWeakRef, None)
-            widget = widgetWeakRef(); widget.remove_from_view(self.get_scene())
+            widget = widgetWeakRef()
+            widget.remove_from_view(self.get_scene())
             del widgetWeakRef
 
     def _widget_died(self, widgetWeakRef):

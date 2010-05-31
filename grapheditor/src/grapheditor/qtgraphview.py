@@ -106,7 +106,7 @@ class ClientCustomisableWidget(object):
                 setattr(cls, name, TYPESMethodType(hand, None, cls))
 
 #------*************************************************------#
-class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
+class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     """Base class for elements in a qtgraphview.View.
 
     Implements basic listeners calls for elements of a graph.
@@ -147,7 +147,7 @@ class Element(baselisteners.GraphElementObserverBase, ClientCustomisableWidget):
              - graph (ducktype) - The graph owning the item.
 
         """
-        baselisteners.GraphElementObserverBase.__init__(self,
+        baselisteners.GraphElementListenerBase.__init__(self,
                                                         observed,
                                                         graph)
 
@@ -206,7 +206,7 @@ class Vertex(Element):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.__paintStrategy = defaultPaint
 
-    vertex = baselisteners.GraphElementObserverBase.get_observed
+    vertex = baselisteners.GraphElementListenerBase.get_observed
 
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
@@ -274,7 +274,7 @@ class Edge(Element):
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
 
-    edge = baselisteners.GraphElementObserverBase.get_observed
+    edge = baselisteners.GraphElementListenerBase.get_observed
 
     def change_observed(self, old, new):
         if old == self.srcBBox():
@@ -581,10 +581,10 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
             #if the graph has already a qtgraphview.Scene GraphListener
             #reuse it:
             existingScene = None
-            # for listener in graph.listeners:
-                # if isinstance(listener(), Scene):
-                    # existingScene = listener()
-                    # break
+            for listener in graph.listeners:
+                if isinstance(listener(), Scene):
+                    existingScene = listener()
+                    break
             self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))
 
         # ---Qt Stuff---

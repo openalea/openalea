@@ -46,7 +46,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
         self.initialise_from_model()
         return
 
-    annotation = baselisteners.GraphElementObserverBase.get_observed
+    annotation = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
         self.annotation().get_ad_hoc_dict().simulate_full_data_change(self, self.annotation())
