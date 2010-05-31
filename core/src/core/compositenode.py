@@ -906,37 +906,6 @@ class CompositeNode(Node, DataFlow):
     #/gengraph
 
     #gengraph
-    def simulate_construction_notifications(self):
-        """emits messages as if we were adding elements to
-        the composite node"""
-        Node.simulate_construction_notifications(self)
-
-        ids = self.vertices()
-        for eltid in ids:
-            node = self.node(eltid)
-            self.notify_vertex_addition(node)
-
-        for eid in self.edges():
-            (src_id, dst_id) = self.source(eid), self.target(eid)
-            etype=None
-            src_port_id = self.local_id(self.source_port(eid))
-            dst_port_id = self.local_id(self.target_port(eid))
-
-            nodeSrc = self.node(src_id)
-            nodeDst = self.node(dst_id)
-            src_port = nodeSrc.output_desc[src_port_id]
-            dst_port = nodeDst.input_desc[dst_port_id]
-
-            #don't notify if the edge is connected to the input or
-            #output nodes.
-            # if(src_id == self.id_in or dst_id == self.id_out):
-                # continue
-
-            edgedata = "default", eid, src_port, dst_port
-            self.notify_listeners(("edge_added", edgedata))
-    #/gengraph
-
-    #gengraph
     def simulate_destruction_notifications(self):
         """emits messages as if we were adding elements to
         the composite node"""
