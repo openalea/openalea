@@ -184,66 +184,16 @@ class GraphicalFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
 #-------------------------
 # -- the graph strategy --
 #-------------------------
-class Strategy(object):
-    @classmethod
-    def get_graph_model_type(cls):
-        """Returns the classobj defining the graph type"""
-        return NXObservedGraph
-
-    @classmethod
-    def get_vertex_widget_factory(cls):
-        """Returns a factory that instantiates vertices according
-        to their types."""
-        return GraphicalVertexFactory
-
-    @classmethod
-    def get_vertex_widget_types(cls):
-        return {"vertex":GraphicalNode}
-
-    @classmethod
-    def get_edge_widget_factory(cls):
-        """Returns a factory that instantiates edges according
-        to their types."""
-        return GraphicalEdgeFactory
-
-    @classmethod
-    def get_edge_widget_types(cls):
-        return {"default":GraphicalEdge,
-                "floating-default":GraphicalFloatingEdge}
-
-    @classmethod
-    def get_graph_adapter_type(cls):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
-        return None
-
-    @classmethod
-    def get_connector_types(cls):
-        return [GraphicalNode]
-
-    @classmethod
-    def initialise_graph_view(cls, graphView, graphModel):
-        return
-
-def GraphicalVertexFactory(vtype, *args, **kwargs):
-    VertexClass = Strategy.get_vertex_widget_types().get(vtype)
-    if(VertexClass):
-        return VertexClass(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
-
-
-def GraphicalEdgeFactory(etype, *args, **kwargs):
-    EdgeClass = Strategy.get_edge_widget_types().get(etype)
-    if(EdgeClass):
-        return EdgeClass(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
+Strategy = grapheditor.base.GraphStrategy(graphModelType = NXObservedGraph,
+                                          vertexWidgetMap= {"vertex":GraphicalNode},
+                                          edgeWidgetMap  = {"default":GraphicalEdge,
+                                                            "floating-default":GraphicalFloatingEdge},
+                                          connectorTypes = [GraphicalNode],
+                                          adapterType    = None)
 
 
 #we register this strategy
 baselisteners.GraphListenerBase.register_strategy(Strategy)
-
 
 
 #CUSTOMISING THE GRAPH VIEW FOR THIS PARTICULAR DEMO:

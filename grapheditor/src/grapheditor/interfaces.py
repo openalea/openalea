@@ -84,48 +84,42 @@ class IGraphViewStrategies(object):
     NetworkGraphViewTrait..."""
     __metaclass__ = IInterfaceMetaClass
 
-    @classmethod
+
     def get_graph_model_type(cls):
         """Returns the classobj defining the graph type"""
         raise NotImplementedError
 
-    @classmethod
-    def initialise_graph_view(cls, graphView, graphModel):
-        """intialise graph view from model"""
+    def create_vertex_widget(self, vtype, *args, **kwargs):
+        """Instanciates a node matching vtype"""
         raise NotImplementedError
 
-    @classmethod
-    def get_vertex_widget_factory(cls):
-        """Returns a factory that creates vertices
-        according to a type argument"""
+    def create_edge_widget(self, etype, *args, **kwargs):
+        """Instanciates an edge matching etype"""
         raise NotImplementedError
 
-    @classmethod
     def get_vertex_widget_types(cls):
         """Return a dict mapping vertex type names (a str) to the
         graphical representation of it (a class)"""
         raise NotImplementedError
 
-    @classmethod
-    def get_edge_widget_factory(cls):
-        """Returns a factory that creates edges
-        according to a type argument"""
-        raise NotImplementedError
-
-    @classmethod
     def get_edge_widget_types(cls):
         """Return a dict mapping edge type names (a str) to the
         graphical representation of it (a class)"""
         raise NotImplementedError
 
-    @classmethod
-    def get_graph_adapter_type(cls):
+
+    def get_graph_or_adapter_type(cls):
         """Return a classobj defining the type of widget
         that represents an annotation"""
         raise NotImplementedError
 
-    @classmethod
+
     def get_connector_types(cls):
+        raise NotImplementedError
+
+
+    def initialise_graph_view(cls, graphView, graphModel):
+        """intialise graph view from model"""
         raise NotImplementedError
 
 
