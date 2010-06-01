@@ -103,45 +103,9 @@ class GraphListenerBase(observer.AbstractListener):
     __available_strategies__ = {}
 
     @classmethod
-    def register_strategy(cls, stratCls):
-        assert isinstance(stratCls, types.TypeType)
-        assert interfaces.IGraphViewStrategies.check(stratCls)
-
-        graphadapter = stratCls.get_graph_adapter_type()
-        vertexWidgetTypes  = stratCls.get_vertex_widget_types()
-        edgeWidgetTypes  = stratCls.get_edge_widget_types()
-        graphCls = stratCls.get_graph_model_type()
-        assert type(graphCls) == types.TypeType
-
-        if graphadapter is None:
-            graphadapter = graphCls
-
-        assert interfaces.IGraphAdapter.check(graphadapter)
-
-        #checking vertex types
-        elTypes = graphadapter.get_vertex_types()
-        for vt in elTypes:
-            vtype = vertexWidgetTypes.get(vt, None)
-            assert interfaces.IGraphViewVertex.check(vtype)
-
-        #checking connectable types
-        elTypes = stratCls.get_connector_types()
-        for ct in elTypes:
-            assert interfaces.IGraphViewConnectable.check(ct)
-
-        #checking edge types
-        elTypes = graphadapter.get_edge_types()
-        for et in elTypes:
-            etype = edgeWidgetTypes.get(et, None)
-            assert interfaces.IGraphViewEdge.check(etype)
-
-        #checking floating edge types
-        elTypes = edgeWidgetTypes.keys()
-        elTypes = [i for i in elTypes if i.startswith("floating")]
-        for et in elTypes:
-            assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
-
-        cls.__available_strategies__[graphCls]=stratCls
+    def register_strategy(cls, strat):
+        graphCls = strat.get_graph_model_type()
+        cls.__available_strategies__[graphCls]=strat
         return
 
 
@@ -157,17 +121,13 @@ class GraphListenerBase(observer.AbstractListener):
         self._adapterType = None
         self._interactionFlag = 0
 
-        stratCls = self.__available_strategies__.get(graph.__class__,None)
-        if(not stratCls):
+        strat = self.__available_strategies__.get(graph.__class__,None)
+        if(not strat):
             raise StrategyError("Could not find matching strategy :" +
-                                str(stratCls) +
+                                str(strat) +
                                 " : " + str(type(graph)))
-        self.__strategy=stratCls
-
-        self.set_vertex_widget_factory(stratCls.get_vertex_widget_factory())
-        self.set_edge_widget_factory(stratCls.get_edge_widget_factory())
-        self.set_graph_adapter_type(stratCls.get_graph_adapter_type())
-        self.connector_types=stratCls.get_connector_types()
+        self.__strategy=strat
+        self.connector_types=strat.get_connector_types()
         self.set_graph(graph)
 
         #low-level detail, during the edge creation we store
@@ -189,8 +149,8 @@ class GraphListenerBase(observer.AbstractListener):
     def set_graph(self, graph):
         self.initialise(graph) #start listening. Todo: rename this method in
         #the abstract listener class. and make it hold a reference to the observed
-        if(self._adapterType):
-            ga = self._adapterType(graph)
+        if(self.__strategy.has_adapter()):
+            ga = self.__strategy.adapt_graph(graph)
             self.__observed = ga
         else:
             self.__observed = weakref.ref(graph) #might not need to be weak.
@@ -209,13 +169,13 @@ class GraphListenerBase(observer.AbstractListener):
 
     def vertex_added(self, vtype, vertexModel):
         if vertexModel is None : return
-        vertexWidget = self._vertexWidgetFactory(vtype, vertexModel, self.graph())
+        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.graph())
         return self._element_added(vertexWidget, vertexModel)
 
     def edge_added(self, etype, edgeModel, src, dst):
         if edgeModel is None : return
-        edgeWidget = self._edgeWidgetFactory(etype, edgeModel, self.graph(),
-                                             src, dst)
+        edgeWidget = self.__strategy.create_edge_widget(etype, edgeModel, self.graph(),
+                                                        src, dst)
         return self._element_added(edgeWidget, edgeModel)
 
     def vertex_removed(self, vtype, vertexModel):
@@ -300,7 +260,7 @@ class GraphListenerBase(observer.AbstractListener):
         return True if self.__newEdge else False
 
     def new_edge_start(self, srcPt, etype="default", source=None):
-        self.__newEdge = self._edgeWidgetFactory("floating-"+etype, srcPt, self.graph())
+        self.__newEdge = self.__strategy.create_edge_widget("floating-"+etype, srcPt, self.graph())
         self.__newEdge.add_to_view(self.get_scene())
         if  source:
             self.__newEdgeSource = source
@@ -338,19 +298,6 @@ class GraphListenerBase(observer.AbstractListener):
     #########################
     # Other utility methods #
     #########################
-
-    def set_vertex_widget_factory(self, _fac):
-        self._vertexWidgetFactory = _fac
-
-    def set_edge_widget_factory(self, _fac):
-        self._edgeWidgetFactory = _fac
-
-    def set_floating_edge_widget_type(self, _type):
-        self._floatingEdgeWidgetType = _type
-
-    def set_graph_adapter_type(self, _type):
-        self._adapterType = _type
-
     def is_connectable(self, obj):
         return obj.__class__ in self.connector_types
 

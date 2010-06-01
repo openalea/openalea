@@ -27,120 +27,69 @@ import anno
 import adapter
 from openalea.grapheditor import baselisteners
 from openalea.grapheditor import qtgraphview
+import openalea.grapheditor.base as grapheditorbase
 
 
-class Strategy(object):
+def initialise_graph_view_from_model(graphView, graphModel):
+    # -- do the base node class initialisation --
+    mdict  = graphModel.get_ad_hoc_dict()
 
-    @classmethod
-    def get_graph_model_type(cls):
-        """Returns the classobj defining the graph type"""
-        return compositenode.CompositeNode
+    #graphical data init.
+    mdict.simulate_full_data_change(graphView, graphModel)
 
-    @classmethod
-    def get_vertex_widget_factory(cls):
-        """Returns a factory that instantiates vertices according
-        to their types."""
-        return GraphicalVertexFactory
+    #other attributes init (composite node is subclass of node)
+    for i in graphModel.input_desc:
+        graphView.notify(graphModel, ("input_port_added", i))
+    for i in graphModel.output_desc:
+        graphView.notify(graphModel, ("output_port_added", i))
+    for i in graphModel.map_index_in:
+        graphView.notify(graphModel, ("input_modified", i))
+    graphView.notify(graphModel, ("caption_modified", graphModel.internal_data["caption"]))
+    graphView.notify(graphModel, ("tooltip_modified", graphModel.get_tip()))
+    graphView.notify(graphModel, ("internal_data_changed",))
 
-    @classmethod
-    def get_vertex_widget_types(cls):
-        return {"vertex":vertex.GraphicalVertex,
-                "annotation":anno.GraphicalAnnotation,
-                "inNode":vertex.GraphicalInVertex,
-                "outNode":vertex.GraphicalOutVertex}
+    # -- then the composite node class initialisation --
+    ids = graphModel.vertices()
+    for eltid in ids:
+        vtype = "vertex"
+        doNotify = True
+        vertex = graphModel.node(eltid)
+        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
+        elif isinstance(vertex, compositenode.CompositeNodeOutput):
+            vtype = "outNode"
+            doNotify = True if len(vertex.input_desc) else False
+        elif isinstance(vertex, compositenode.CompositeNodeInput) :
+            vtype = "inNode"
+            doNotify = True if len(vertex.output_desc) else False
+        else: pass
+        if doNotify:
+            graphView.notify(graphModel, ("vertex_added", (vtype, vertex)))
 
-    @classmethod
-    def get_edge_widget_factory(cls):
-        """Returns a factory that instantiates edges according
-        to their types."""
-        return GraphicalEdgeFactory
+    for eid in graphModel.edges():
+        (src_id, dst_id) = graphModel.source(eid), graphModel.target(eid)
+        etype=None
+        src_port_id = graphModel.local_id(graphModel.source_port(eid))
+        dst_port_id = graphModel.local_id(graphModel.target_port(eid))
 
-    @classmethod
-    def get_edge_widget_types(cls):
-        return {"default":edge.GraphicalEdge,
-                "floating-default":edge.FloatingEdge}
+        nodeSrc = graphModel.node(src_id)
+        nodeDst = graphModel.node(dst_id)
+        src_port = nodeSrc.output_desc[src_port_id]
+        dst_port = nodeDst.input_desc[dst_port_id]
 
-    @classmethod
-    def get_graph_adapter_type(cls):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
-        return adapter.GraphAdapter
-
-    @classmethod
-    def get_connector_types(cls):
-        return [vertex.GraphicalPort]
-
-    @classmethod
-    def initialise_graph_view(cls, graphView, graphModel):
-        # -- do the base node class initialisation --
-        mdict  = graphModel.get_ad_hoc_dict()
-
-        #graphical data init.
-        mdict.simulate_full_data_change(graphView, graphModel)
-
-        #other attributes init
-        for i in graphModel.input_desc:
-            graphView.notify(graphModel, ("input_port_added", i))
-        for i in graphModel.output_desc:
-            graphView.notify(graphModel, ("output_port_added", i))
-        for i in graphModel.map_index_in:
-            graphView.notify(graphModel, ("input_modified", i))
-        graphView.notify(graphModel, ("caption_modified", graphModel.internal_data["caption"]))
-        graphView.notify(graphModel, ("tooltip_modified", graphModel.get_tip()))
-        graphView.notify(graphModel, ("internal_data_changed",))
-
-        # -- then the composite node class initialisation --
-        ids = graphModel.vertices()
-        for eltid in ids:
-            vtype = "vertex"
-            doNotify = True
-            vertex = graphModel.node(eltid)
-            if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
-            elif isinstance(vertex, compositenode.CompositeNodeOutput):
-                vtype = "outNode"
-                doNotify = True if len(vertex.input_desc) else False
-            elif isinstance(vertex, compositenode.CompositeNodeInput) :
-                vtype = "inNode"
-                doNotify = True if len(vertex.output_desc) else False
-            else: pass
-            if doNotify:
-                graphView.notify(graphModel, ("vertex_added", (vtype, vertex)))
-
-        for eid in graphModel.edges():
-            (src_id, dst_id) = graphModel.source(eid), graphModel.target(eid)
-            etype=None
-            src_port_id = graphModel.local_id(graphModel.source_port(eid))
-            dst_port_id = graphModel.local_id(graphModel.target_port(eid))
-
-            nodeSrc = graphModel.node(src_id)
-            nodeDst = graphModel.node(dst_id)
-            src_port = nodeSrc.output_desc[src_port_id]
-            dst_port = nodeDst.input_desc[dst_port_id]
-
-            #don't notify if the edge is connected to the input or
-            #output nodes.
-            # if(src_id == graphModel.id_in or dst_id == graphModel.id_out):
-                # continue
-
-            edgedata = "default", eid, src_port, dst_port
-            graphView.notify(graphModel, ("edge_added", edgedata))
+        edgedata = "default", eid, src_port, dst_port
+        graphView.notify(graphModel, ("edge_added", edgedata))
 
 
-def GraphicalVertexFactory(vtype, *args, **kwargs):
-    VT = Strategy.get_vertex_widget_types().get(vtype)
-    if(VT):
-        return VT(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
-
-
-def GraphicalEdgeFactory(etype, *args, **kwargs):
-    ET = Strategy.get_edge_widget_types().get(etype)
-    if(ET):
-        return ET(*args, **kwargs)
-    else:
-        raise Exception("vtype not found")
-
+Strategy = grapheditorbase.GraphStrategy( graphModelType       = compositenode.CompositeNode,
+                                          vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
+                                                                  "annotation":anno.GraphicalAnnotation,
+                                                                  "inNode":vertex.GraphicalInVertex,
+                                                                  "outNode":vertex.GraphicalOutVertex},
+                                          edgeWidgetMap        = {"default":edge.GraphicalEdge,
+                                                                  "floating-default":edge.FloatingEdge},
+                                          connectorTypes       = [vertex.GraphicalPort],
+                                          adapterType          = adapter.GraphAdapter,
+                                          graphViewInitialiser = initialise_graph_view_from_model )
 
 if(__name__ != "__main__"):
     #we register this strategy
