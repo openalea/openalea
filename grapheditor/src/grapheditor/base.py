@@ -183,9 +183,6 @@ class GraphStrategy(object):
         for et in elTypes:
             assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
 
-
-        print "here"
-
     def get_graph_model_type(self):
         """Returns the classobj defining the graph type"""
         return self.__graphModelType
