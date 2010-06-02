@@ -495,8 +495,8 @@ class MainWindow(QtGui.QMainWindow,
         #there is a bug in QGraphicsScene+QTabWidget that makes
         #secondary tabs inactive, so we force them to be active
         #by sending new views the QEvent.WindowActivate event.
-        #bugreport:
-        #http://bugreports.qt.nokia.com/browse/QTBUG-11148?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel
+        #The bug is present until Qt4.6.2 at least. Bugreport:
+        #http://bugreports.qt.nokia.com/browse/QTBUG-11148
         QtCore.QCoreApplication.instance().notify(gwidget, QtCore.QEvent(QtCore.QEvent.WindowActivate))
         if gwidget is not None :
             gwidget.show_entire_scene()
