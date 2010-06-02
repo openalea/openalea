@@ -96,18 +96,21 @@ class AleaQMenu(QtGui.QMenu):
             QtGui.QMenu.__init__(self, arg1, arg2)
 
     def move(self, pos):
-        QtGui.QMenu.move(self, pos)
-        rect = self.rect(); rect.moveTo(pos)
+        rect = QtCore.QRect(pos, self.sizeHint())
         #fix the position of the menu if it tries to popup too close to the lower & right edges.
         #bad fixing strategy probably: what if we were create arabian menus?
         #We should maube sublcass QMenu to handle screen real estate and reuse it.
         desktopGeom = QtGui.QApplication.desktop().availableGeometry(self.parent())
         contained, edges = qrect_contains(desktopGeom, rect, True)
-        if not contained and edges.count(0) > 2:
+        if not contained and edges.count(0) > 0:
             dx = edges[0] if edges[0] else edges[1]
             dy = edges[2] if edges[2] else edges[3]
             rect.translate(dx, dy)
             QtGui.QMenu.move(self,rect.topLeft())
+            return
+        else:
+            QtGui.QMenu.move(self, pos)
+
 
 def qrect_contains(r1, r2, proper):
     assert r1 is not None
