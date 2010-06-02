@@ -246,8 +246,8 @@ def vertexContextMenuEvent(graphItem, event):
 
     #display the menu...
     pos = event.screenPos()
-    menu.show()
     menu.move(pos)
+    menu.show()
     event.accept()
 
 
