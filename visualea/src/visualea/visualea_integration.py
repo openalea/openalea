@@ -51,6 +51,23 @@ def OpenAleaNodeFactoryHandler(view, event):
         pkg = pkgmanager[str(package_id)]
         factory = pkg.get_factory(str(factory_id))
 
+        #check if no other instance of this factory is opened
+        operator = GraphOperator()
+        operator.identify_focused_graph_view()
+        session = operator.get_session()
+        for ws in session.workspaces:
+            if factory == ws.factory:
+                res = QtGui.QMessageBox.warning(view, "Other instances are already opened!",
+                                  """You are trying to insert a composite node that has already been opened.
+Doing this might cause confusion later on.
+Do you want to continue?""",
+                                  QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+                if res == QtGui.QMessageBox.Cancel:
+                    return
+                else:
+                    break
+
+
         position = view.mapToScene(event.pos())
         try:
             view.scene().clearSelection()

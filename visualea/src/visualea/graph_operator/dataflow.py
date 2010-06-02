@@ -81,7 +81,7 @@ class DataflowOperators(object):
     @interactionMask(OAGIS.TOPOLOGICALLOCK)
     def graph_group_selection(self):
         """
-        Export selected node in a new factory
+        Export selected nodes in a new factory
         """
         widget = self.get_graph_view()
 
@@ -290,6 +290,21 @@ class DataflowOperators(object):
 
         # Get a composite node factory
         graph = self.get_graph()
+
+        #check if no other instance of this factory is opened
+        session = self.get_session()
+        for ws in session.workspaces:
+            if graph.graph() != ws and graph.factory == ws.factory:
+                res = QtGui.QMessageBox.warning(widget, "Other instances are opened!",
+                                  """You are trying to save a composite node that has been opened multiple times.
+Doing this may discard changes done in the other intances.
+Do you want to continue?""",
+                                  QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+                if res == QtGui.QMessageBox.Cancel:
+                    return
+                else:
+                    break
+
         dialog = FactorySelector(graph.factory, widget)
 
         # Display Dialog
