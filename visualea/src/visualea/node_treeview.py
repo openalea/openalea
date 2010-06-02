@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -71,9 +71,9 @@ def get_icon(item):
         return icon_dict[type(item)]
 
     elif(isinstance(item, PseudoPackage)):
-        
+
         if(item.is_real_package()):
-    
+
             # Try to load package specific icon
             icon = item.item.metainfo.get("icon", None)
             if(icon):
@@ -81,7 +81,7 @@ def get_icon(item):
                 pix = QtGui.QPixmap(icon)
                 if(not pix.isNull()):
                     return QVariant(pix)
- 
+
             # Standard icon
             return icon_dict[type(item.item)]
 
@@ -97,7 +97,7 @@ class PkgModel (QAbstractItemModel) :
     """ QT4 data model (model/view pattern) to support pkgmanager """
 
     def __init__(self, pkgmanager, parent=None):
-        
+
         QAbstractItemModel.__init__(self, parent)
         self.pman = pkgmanager
         self.rootItem = self.pman.get_pseudo_pkg()
@@ -105,7 +105,7 @@ class PkgModel (QAbstractItemModel) :
         self.parent_map = {}
         self.row_map = {}
         self.index_map = {} # map between name and Index object
-        
+
 
     def reset(self):
 
@@ -116,9 +116,9 @@ class PkgModel (QAbstractItemModel) :
     def columnCount(self, parent):
         return 1
 
-    
+
     def data(self, index, role):
-        
+
         if not index.isValid():
             return QtCore.QVariant()
 
@@ -143,10 +143,10 @@ class PkgModel (QAbstractItemModel) :
         # Icon
         elif(role == QtCore.Qt.DecorationRole):
             return get_icon(item)
-            
+
         else:
             return QtCore.QVariant()
-        
+
 
     def flags(self, index):
         if not index.isValid():
@@ -173,7 +173,7 @@ class PkgModel (QAbstractItemModel) :
         except AttributeError :
             pass
         return item.name
-    
+
     def index(self, row, column, parent):
 
         if (not parent.isValid()):
@@ -188,15 +188,15 @@ class PkgModel (QAbstractItemModel) :
         # save parent and row
         self.parent_map[id(childItem)] = parentItem
         self.row_map[id(childItem)] = row
-        
+
         i = self.createIndex(row, column, childItem)
 
         name = self.get_full_name(childItem)
         #self.index_map[childItem.name] = i
         self.index_map[name] = i
- 
+
         return i
-        
+
 
     def parent(self, index):
 
@@ -204,40 +204,40 @@ class PkgModel (QAbstractItemModel) :
             return QtCore.QModelIndex()
 
         childItem = index.internalPointer()
-        
+
         parentItem = self.parent_map[id(childItem)]
-        
+
         # Test if it is the root
         if (not self.parent_map.has_key(id(parentItem)) ):
             return QtCore.QModelIndex()
-        
+
         else:
             row = self.row_map[id(parentItem)]
             return self.createIndex(row, 0, parentItem)
 
 
     def rowCount(self, parent):
-        
+
         if (not parent.isValid()):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
-            
+
         if isinstance(parentItem, AbstractFactory):
             return 0
 
-        # Return the number of DIFFERENT OBJECTS        
+        # Return the number of DIFFERENT OBJECTS
         l = parentItem.nb_public_values()
-        
+
         return l
-        
+
 
 
 class CategoryModel (PkgModel) :
     """ QT4 data model (model/view pattern) to view category """
 
     def __init__(self, pkgmanager, parent=None):
-        
+
         QAbstractItemModel.__init__(self, parent)
         self.pman = pkgmanager
         self.rootItem = self.pman.get_pseudo_cat()
@@ -246,7 +246,7 @@ class CategoryModel (PkgModel) :
         self.row_map = {}
         self.index_map = {}
 
-        
+
     def reset(self):
         self.rootItem = self.pman.get_pseudo_cat()
         # self.parent_map = {}
@@ -259,17 +259,17 @@ class DataPoolModel (QAbstractListModel) :
     """ QT4 data model (model/view pattern) to support Data Pool """
 
     def __init__(self, datapool, parent=None):
-        
+
         QAbstractListModel.__init__(self, parent)
         self.datapool = datapool
 
-        
+
     def reset(self):
         QAbstractItemModel.reset(self)
 
-    
+
     def data(self, index, role):
-        
+
         if (not index.isValid()):
             return QVariant()
 
@@ -294,19 +294,19 @@ class DataPoolModel (QAbstractListModel) :
             l = self.datapool.keys()
             l.sort()
             name = l[index.row()]
-            
+
             tips = [name]
 
             tips.append("%s\n"%(str(self.datapool[name]),))
             tips.append("Dir :")
-            
+
             temp = ""
             for i, n in enumerate(dir(self.datapool[name])):
                 s = str(n)
                 if(len(s) > 20): s = s[:20]
                 temp += s + "\t\t"
                 # 2 column view
-                if(i%2): 
+                if(i%2):
                     tips.append(temp)
                     temp = ""
 
@@ -314,7 +314,7 @@ class DataPoolModel (QAbstractListModel) :
             tipstr = '\n'.join(tips)
 
             return QtCore.QVariant(str(tipstr))
-     
+
         else:
             return QVariant()
 
@@ -334,14 +334,14 @@ class DataPoolModel (QAbstractListModel) :
 
     def rowCount(self, parent):
         return len(self.datapool.keys())
-    
+
 
 
 class SearchModel (QAbstractListModel) :
     """ QT4 data model (model/view pattern) to support Search result"""
 
     def __init__(self, parent=None):
-        
+
         QAbstractListModel.__init__(self, parent)
         self.searchresult = []
 
@@ -357,13 +357,13 @@ class SearchModel (QAbstractListModel) :
         if (row < len(self.searchresult)):
             factory = self.searchresult[row]
             return self.createIndex(row, column, factory)
-            
+
         else:
             return QtCore.QModelIndex()
 
-    
+
     def data(self, index, role):
-        
+
         if (not index.isValid()):
             return QVariant()
 
@@ -385,7 +385,7 @@ class SearchModel (QAbstractListModel) :
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
             return QtCore.QVariant(str(item.get_tip()))
-     
+
         else:
             return QVariant()
 
@@ -423,13 +423,13 @@ class NodeFactoryView(object):
     Base class for all view which display node factories.
     Implements Drag and Drop facilities.
     """
-    
+
     def __init__(self, main_win, parent=None):
         """
         @param main_win : main window
         @param parent : parent widget
         """
-        
+
         self.main_win = ref(main_win)
 
         self.setDragEnabled(True)
@@ -461,7 +461,7 @@ class NodeFactoryView(object):
 
 
     def startDrag(self, supportedActions):
-        
+
         item = self.currentIndex()
 
         itemData = QtCore.QByteArray()
@@ -475,7 +475,7 @@ class NodeFactoryView(object):
         mimeData = QtCore.QMimeData()
 
         mimeData.setData(mimetype, itemData)
-    
+
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
@@ -483,12 +483,12 @@ class NodeFactoryView(object):
 
         drag.start(QtCore.Qt.MoveAction)
 
-        
+
     def get_item_info(self, item):
-        """ 
+        """
         Return (package_id, factory_id, mimetype) corresponding to item.
         """
-        
+
         # put in the Mime Data pkg id and factory id
         obj = item.internalPointer()
 
@@ -496,7 +496,7 @@ class NodeFactoryView(object):
 
             factory_id = obj.get_id()
             pkg_id = obj.package.get_id()
-            
+
             return (pkg_id, factory_id, obj.mimetype)
 
         return ("","", "openalea/notype")
@@ -508,7 +508,7 @@ class NodeFactoryView(object):
         item = self.currentIndex()
         obj =  item.internalPointer()
         menu = None
-        
+
         if(isinstance(obj, AbstractFactory)): # Factory
             menu = QtGui.QMenu(self)
             action = menu.addAction("Open")
@@ -535,7 +535,7 @@ class NodeFactoryView(object):
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
-            
+
             action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_package)
@@ -549,7 +549,7 @@ class NodeFactoryView(object):
             action = menu.addAction("Add Python Node")
             action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("triggered()"), self.add_python_node)
-            
+
             action = menu.addAction("Add Composite Node")
             action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("triggered()"), self.add_composite_node)
@@ -557,13 +557,13 @@ class NodeFactoryView(object):
             action = menu.addAction("Add Data File")
             action.setEnabled(enabled and pkg.is_editable())
             self.connect(action, QtCore.SIGNAL("triggered()"), self.add_data)
-            
+
             menu.addSeparator()
 
             action = menu.addAction("Grab Icon")
             action.setEnabled(enabled)
             self.connect(action, QtCore.SIGNAL("triggered()"), self.grab_icon)
-            
+
             menu.addSeparator()
 
             action = menu.addAction("Move/Rename Package")
@@ -590,17 +590,17 @@ class NodeFactoryView(object):
             menu.move(event.globalPos())
             menu.show()
 
-    
+
     def get_current_pkg(self):
         """ Return the current package """
         item = self.currentIndex()
         obj =  item.internalPointer()
-        # obj is necessary a pseudo package (menu disbled in other case)        
+        # obj is necessary a pseudo package (menu disbled in other case)
         obj = obj.item
 
         return obj
 
-    
+
     def add_python_node(self):
         """ """
         pman = self.model().pman # pkgmanager
@@ -652,7 +652,7 @@ class NodeFactoryView(object):
                                              "Cannot Remove old style package\n")
             return
 
-        if(not pkg.is_editable()): return 
+        if(not pkg.is_editable()): return
 
         ret = QtGui.QMessageBox.question(self, "Remove package",
                                          "Remove %s?\n"%(pkg.name,),
@@ -670,7 +670,7 @@ class NodeFactoryView(object):
         self.main_win().reinit_treeview()
 
 
-    
+
     def grab_icon(self):
         """ Set the package icon """
 
@@ -682,7 +682,7 @@ class NodeFactoryView(object):
         pkg.set_icon(fname)
 
         self.main_win().reinit_treeview()
-    
+
 
     def edit_pkg_code(self):
         """ Edit __wralea__ """
@@ -694,13 +694,13 @@ class NodeFactoryView(object):
             QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot edit code of old style package\n")
             return
-        
+
         filename = pkg.get_wralea_path()
         widget = get_editor()(self)
         widget.edit_file(filename)
         if(widget.is_widget()) : open_dialog(self.main_win(), widget, pkg.name)
 
-        
+
     def reload_package(self):
         """ Reload package """
 
@@ -718,7 +718,7 @@ class NodeFactoryView(object):
 
     def duplicate_package(self):
         """ Duplicate a package """
-        
+
         pkg = self.get_current_pkg()
         pman = self.model().pman # pkgmanager
 
@@ -733,7 +733,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             (name, metainfo, path) = dialog.get_data()
-            
+
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
             pman.add_package(newpkg)
@@ -742,7 +742,7 @@ class NodeFactoryView(object):
 
     def move_package(self):
         """ Move a package """
-        
+
         pkg = self.get_current_pkg()
         pman = self.model().pman # pkgmanager
 
@@ -752,7 +752,7 @@ class NodeFactoryView(object):
             return
 
 
-        (result, ok) = QtGui.QInputDialog.getText(self, "Move/Rename Package", 
+        (result, ok) = QtGui.QInputDialog.getText(self, "Move/Rename Package",
                                                   "Full new name (ex: openalea.data)",
                                                   QtGui.QLineEdit.Normal, )
 
@@ -772,7 +772,7 @@ class NodeFactoryView(object):
 
         dialog = EditPackage(obj, parent = self)
         ret = dialog.exec_()
-        
+
 
     def mouseDoubleClickEvent(self, event):
 
@@ -780,6 +780,19 @@ class NodeFactoryView(object):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
+            session = self.main_win().session
+            for ws in session.workspaces:
+                if obj == ws.factory:
+                    res = QtGui.QMessageBox.warning(self.main_win(), "Other instances are already opened!",
+                                                    """You are trying to open a composite node that has already been opened.
+Doing this might cause confusion later on.
+Do you want to continue?""",
+                                                    QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+                    if res == QtGui.QMessageBox.Cancel:
+                        return
+                    else:
+                        break
+
             self.edit_node()
         elif (not isinstance(obj, Package)):
             self.open_node()
@@ -792,11 +805,11 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
-        
+
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget(autonomous=True)
             open_dialog(self.main_win(), widget, obj.get_id())
-        
+
 
         elif(isinstance(obj, PseudoPackage)):
             # Display URL
@@ -811,7 +824,7 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
-        
+
         if(isinstance(obj, CompositeNodeFactory)):
             self.main_win().open_compositenode(obj)
 
@@ -828,7 +841,7 @@ class NodeFactoryView(object):
 
         item = self.currentIndex()
         obj =  item.internalPointer()
-        
+
         if(isinstance(obj, DataFactory)):
             QtGui.QMessageBox.information(self, "Properties", "Data : %s"%(obj.name))
             return
@@ -837,19 +850,19 @@ class NodeFactoryView(object):
         ret = d.exec_()
         if(ret):
             d.update_factory()
-        
-        
+
+
 
     def remove_node(self):
         """ Remove the node from the package """
-        
+
         item = self.currentIndex()
         obj =  item.internalPointer()
 
         ret = QtGui.QMessageBox.question(self, "Remove Model",
                                          "Remove %s?\n"%(obj.name,),
                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
-            
+
         if(ret == QtGui.QMessageBox.Yes):
 
             try:
@@ -860,7 +873,7 @@ class NodeFactoryView(object):
             del(obj.package[obj.name])
             obj.package.write()
             self.main_win().reinit_treeview()
-       
+
 
 
 
@@ -907,7 +920,7 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
 
 class SearchListView(NodeFactoryView, QtGui.QTreeView):
     """ Specialized QListView to display search results with Drag and Drop support """
-    
+
     def __init__(self, main_win, parent=None):
         """
         @param main_win : main window
@@ -924,18 +937,18 @@ class SearchListView(NodeFactoryView, QtGui.QTreeView):
         for i in range(self.model().columnCount(None)):
             self.resizeColumnToContents(i)
 
-        
+
 
 class DataPoolListView(QtGui.QListView, SignalSlotListener):
     """ Specialized QListView to display data pool contents """
-    
+
     def __init__(self, main_win, datapool, parent=None):
         """
         @param main_win : main window
         @param datapool : datapool instance
         @param parent : parent widget
         """
-        
+
         QtGui.QListView.__init__(self, parent)
         SignalSlotListener.__init__(self)
 
@@ -952,8 +965,8 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         """ Notification by observed """
 
         self.reset()
-        
-        
+
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("openalea/data_instance"):
             event.accept()
@@ -968,7 +981,7 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
             event.ignore()
 
     def dropEvent(self, event):
-        
+
         event.ignore()
 
 
@@ -1003,14 +1016,14 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
 
-        
+
         menu = QtGui.QMenu(self)
         action = menu.addAction("Remove")
         self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_element)
 
         menu.move(event.globalPos())
         menu.show()
-        
+
 
     def remove_element(self):
         """ Remove an element from the datapool"""
@@ -1028,9 +1041,9 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
 
         del(datapool[name])
 
-        
 
-       
+
+
 
 
 
