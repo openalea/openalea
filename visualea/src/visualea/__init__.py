@@ -1,4 +1,4 @@
 import dataflowview
-import visualea_integration
+import grapheditor_integration
 
 
