@@ -443,12 +443,14 @@ Inserting code and Literal blocks
     By default the syntax of the language is Python, but you can specify the language using the **code-block** directive as follows::
 
         .. code-block:: html
+            :linenos:
 
            <h1>code block example</h1>
 
     produces
 
     .. code-block:: html
+       :linenos:
 
        <h1>code block example</h1>
 

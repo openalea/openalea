@@ -5,6 +5,6 @@
 * Access directly to python functionality.
 * Display widgets
 
-  .. image:: .static/visualea.png
+  .. image:: _static/visualea.png
     :width: 60%
 

@@ -16,7 +16,7 @@ To be able to parse the examples/test in your docstrings use the following synta
 
 then, in you doc directory type::
 
-    make doctests
+    make doctest
 
 Rules to follow
 ---------------
