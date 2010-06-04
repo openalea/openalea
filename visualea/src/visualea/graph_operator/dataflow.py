@@ -221,12 +221,6 @@ class DataflowOperators(object):
         else:
             widget = self.get_graph_view()
             cnode = self.get_session().clipboard.instantiate()
-            s = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
-            if(not s): return
-
-            #Are we pasting in an annotation? Big hack
-            for i in s:
-                if i.hasFocus() : print i; return
 
             min_x = min_y = float("inf")
             for vid in cnode:
