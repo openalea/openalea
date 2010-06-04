@@ -1,10 +1,17 @@
 """
-Script creating a valid OpenAlea package layout
 
-Usage:
-  python layout.py PKG_NAME [ src_subdirs ]
+.. topic:: PackageBuilder
+
+    A module that allows to automatically create a new package
+
+    :Code status: mature
+    :Documentation status: mature
+    :Author: Christophe Pradal
+
+    :Revision: $Id$
 
 """
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
@@ -16,9 +23,9 @@ from openalea.core.path import path
 from optparse import OptionParser
 
 
-class Usage(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+#class Usage(Exception):
+#    def __init__(self, msg):
+#        self.msg = msg
 
 
 class PackageBuilder(object):
@@ -29,16 +36,22 @@ class PackageBuilder(object):
 
     :param name: name of the package (directory name, import in python)
     :param package: name as it appears in the egg name e.g., VisuAlea in OpenAlea.VisuAlea
+    :param project: a proper project name (openalea/vplants/alinea)
+    :param release: a relase version 
 
 
-    pkg = PackageBuilder(name='test', package='Test', projec='openalea', release='0.8')
-    pkg.mkdirs()
-    pkg.set_files()
-    pkg.template_legal()
-    pkg.template_setup()
-    pkg.template_scons()
-    pkg.template_wralea()
-    pkg.templated_doc()
+    :Usage:
+
+    ::
+
+        pkg = PackageBuilder(name='test', package='Test', projec='openalea', release='0.8')
+        pkg.mkdirs()
+        pkg.set_files()
+        pkg.template_legal()
+        pkg.template_setup()
+        pkg.template_scons()
+        pkg.template_wralea()
+        pkg.templated_doc()
     """
     good_name = re.compile( "[a-z_]{3,}" )
 
@@ -61,8 +74,9 @@ class PackageBuilder(object):
                 }
 
     def check_project(self):
+        """Checks that the project is the official list of projects [openalea, vplants ,alinea]"""
         if self.project not in ['vlants','alinea','openalea']:
-            raise ValueError("wrong projec name. should be in openalea/vplants/alinea")
+            raise ValueError("wrong project name. should be in openalea/vplants/alinea")
 
     def check_name(self):
         """ Check correctness of pkg name. """
@@ -188,6 +202,8 @@ class PackageBuilder(object):
         ]
 
     def docfiles(self):
+        """setup the filenames for the doc layout"""
+
         return [
             self.pkg_dir/"doc"/"contents.rst",
             self.pkg_dir/"doc"/"Makefile",
@@ -304,7 +320,13 @@ class PackageBuilder(object):
 
 
 def main():
-    """This is the main parsing function to get user arguments
+    """This function is called by alea_create_package script that is installed 
+    on your system when installing OpenAlea.PkgBuilder package.
+
+    To obtain specific help, type::
+
+        alea_create_package --help
+
 
     """
 
@@ -313,8 +335,8 @@ def main():
 
     :Examples:
 
-        python %prog --package mypackage --name MyPackage --project openalea --language cpp
-        %prog --package mypackage --name MyPackage --project openalea --language cpp
+        python %prog --package mypackage --name MyPackage --project openalea --languages cpp
+        %prog --package mypackage --name MyPackage --project openalea --languages cpp fortran
 
     """
 
@@ -322,8 +344,8 @@ def main():
 
     parser.add_option("--project", dest='project', default='openalea',  
         help="project name in [openalea, vplants, alinea]")
-    parser.add_option("--language", dest='language', default=None,  
-        help="a compiled code for wrapping in [cpp, c, fortran]")
+    parser.add_option("--languages", dest='languages', default=None,  
+        help="languages separated by a space [cpp, c, fortran]")
     parser.add_option("--package", dest='package', default='openalea',  
         help="""the package name used a a name directory, or when import a module, e.g., 
             visualea in import openalea.visualea, which is also the directory name""")
@@ -337,13 +359,12 @@ def main():
     if opts.name==None or opts.package ==None:
         raise ValueError("""--name and --package must be provided. See help (--help)""")
     pkg = PackageBuilder(name=opts.name, package=opts.package, release=opts.release)
- 
-    if opts.language=='cpp':
-        pkg.set_languages(cpp=True)
-    elif opts.language=='c':
-        pkg.set_languages(c=True)
-    if opts.language=='fortran':
-        pkg.set_languages(fortran=True)
+
+
+    if opts.languages is not None:
+        languages = opts.languages.split(" ")
+        for language in languages:
+            pkg.set_languages({language:True})
 
     pkg.project = opts.project
 

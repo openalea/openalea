@@ -14,8 +14,8 @@ setup(
     name=name,
     version=version,
     description=description,
-    author=author,
-    author_email=author_email,
+    author=authors,
+    author_email=authors_email,
     url=url,
     license=license,
 

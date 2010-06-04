@@ -1,7 +1,13 @@
+04/06/10
+	* add template for sphinx documentation
+	* more arguments (name/package/release)
+	* this sphinx documentation
+	* add alea_create_script
+
 01/03/10
-  * Update the wralea generation to the new openalea package system
-  * Add template files
+	* Update the wralea generation to the new openalea package system
+	* Add template files
 18/09/07
-  * Rename the package from wizard_layout to pkg_builder
-  * Build a complete package layout for the project
+	 * Rename the package from wizard_layout to pkg_builder
+	 * Build a complete package layout for the project
 
