@@ -1,0 +1,6 @@
+* Add automatic SConscript and SConstruct generation for c++ projects
+* Add automatic setup.py generation based on the project
+* Add a license from a set of license
+* Generate template headers based on the license
+* Add sphinx files for automatic doc generation
+

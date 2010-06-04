@@ -1,0 +1,7 @@
+01/03/10
+  * Update the wralea generation to the new openalea package system
+  * Add template files
+18/09/07
+  * Rename the package from wizard_layout to pkg_builder
+  * Build a complete package layout for the project
+
