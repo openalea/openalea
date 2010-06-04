@@ -1,6 +1,6 @@
-====== Starter ======
+====== $NAME ======
 
-**Authors** : Samuel Dufour-Kowalski /  Christophe Pradal 
+**Authors** : XXX
 
 **Institutes** : INRIA / CIRAD 
 
@@ -14,12 +14,11 @@
 
 === Description ===
 
-Starter is a dummy package. It can be used as an example to create a new autonomous package which
-will be compatible with other OpenAlea packages.
+$NAME is a XXX
 
 
 
-Starter package aims to demonstrate :
+$NAME package aims to demonstrate :
 
   *How to create a simple package with C++ wrappers.
   *How to create a simple SCons and SConsX SConstruct file. 
@@ -28,18 +27,18 @@ Starter package aims to demonstrate :
   
 === Content ===
 
-The starter package contains :
+The $NAME package contains :
 
   *Meta informations files (README.TXT, AUTHORS.TXT, LICENSE.TXT).
-  *General layout to reproduct for others packages (**please replace starter with your package name**).
+  *General layout to reproduct for others packages (**please replace $NAME with your package name**).
   *Installation file (setup.py).
   *Autobuild scripts (SConstruct, src/cpp/SConscript, src/wrapper/SConscript).
   *C++ library (src/cpp, src/include).
   *C++ wrappers example with boost.python (src/wrapper).
-  *Python package (src/starter).
+  *Python package (src/$name).
   *Custom system configuration (options.py and setup.cfg).
 
-Starter package is composed by two **demonstration** C++ libraries : ''libsceneobj_cpp'' and ''libscenecontainer_cpp''.
+$NAME package is composed by two **demonstration** C++ libraries : ''libsceneobj_cpp'' and ''libscenecontainer_cpp''.
 Each library is wrapped in two Python sub modules ''sceneobj'' and ''scenecontainer''
 
 
@@ -72,32 +71,17 @@ Go to http://gforge.inria.fr/frs/?group_id=79
 
 === Installation ===
 
-There is no need to install //starter// since it is an example package.
+There is no need to install //$NAME// since it is an example package.
 
 === Utilisation ===
 
-Starter must be adapted to your need. The default installation command is:
+$NAME must be adapted to your need. The default installation command is:
 
 <code>
 python setup.py install
 </code>
 
 
-===== How to adapt starter for your own package =====
-
-  *Rename the main directory with the name of your package,
-  *Rename the sub-directory ''src/starter'' with the name of your python package and add the python source in
-this directory,
-  *Remove unnecessary files.
-  *Adapt the ''setup.py'' distribution file,
-  *Adapt the meta information files : ''README.TXT'', ''AUTHORS.TXT'', ''LICENSE.TXT'',
-  *Add documentation in the doc subdirectories,
-  *Add examples in the examples directory,
-  *Add test in the test subdirectory,
-
-  *If you developpe C++ files, 
-     *Use the ''src/include'', ''src/cpp'' and ''src/wrapper'' for your headers, source files and wrappers,
-     *Adapt the ''SConsctruct'' and ''SConscript'' compilation scripts for your needs.
 
 ===== Documentation =====
 

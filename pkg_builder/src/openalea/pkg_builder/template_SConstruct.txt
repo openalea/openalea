@@ -8,13 +8,13 @@ ALEASolution = config.ALEASolution
 
 pj = os.path.join
 
-name = 'starter'
+name = '$name'
 
 SConsignFile()
 
 
 options = Options(['../options.py', 'options.py'], ARGUMENTS)
-tools = ['boost_python']
+tools = ['']
 
 env = ALEASolution(options, tools)
 

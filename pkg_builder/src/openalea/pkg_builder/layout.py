@@ -128,13 +128,14 @@ class PackageBuilder(object):
     def wraleafiles(self):
         wralea_name = self.name+"_wralea"
         return [
-        self.pkg_dir/"src"/"openalea"/self.name/"__init__.py",
+        self.pkg_dir/"src"/"openalea"/wralea_name/"__init__.py",
         self.pkg_dir/"src"/"openalea"/wralea_name/"__wralea__.py",
         ]
 
     def sconsfiles(self):
         if 'cpp' in self.languages:
             return [
+                    self.pkg_dir/"options.py",
                     self.pkg_dir/"SConstruct",
                     self.pkg_dir/"src"/"cpp"/"SConscript",
                    ]
@@ -196,7 +197,7 @@ class PackageBuilder(object):
         ''' Build a setup.py and an associated metainfo.ini '''
         files = self.setupfiles()
 
-        tpl_setup = path(__file__).dirname()/'template_setup.py'
+        tpl_setup = path(__file__).dirname()/'template_setup.txt'
         setup_py = self.pkg_dir/"setup.py"
 
         if setup_py.exists() and setup_py.size != 0:
