@@ -5,12 +5,16 @@ Usage:
   python layout.py PKG_NAME [ src_subdirs ]
 
 """
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 import sys, re
 import getopt
 from string import Template
 
 from openalea.core.path import path
+from optparse import OptionParser
+
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -22,23 +26,38 @@ class PackageBuilder(object):
     Provide methods to build a standard layout package.
     Creates standard directories, files.
     May also build templae setup file and SConstruct.
+
+    :param name: name of the package (directory name, import in python)
+    :param package: name as it appears in the egg name e.g., VisuAlea in OpenAlea.VisuAlea
+
+
+    pkg = PackageBuilder(name='test', package='Test', projec='openalea', release='0.8')
+    pkg.mkdirs()
+    pkg.set_files()
+    pkg.template_legal()
+    pkg.template_setup()
+    pkg.template_scons()
+    pkg.template_wralea()
+    pkg.templated_doc()
     """
     good_name = re.compile( "[a-z_]{3,}" )
 
-    def __init__(self, lowercasename, uppercasename, project='openalea', dir = '.'):
-        self.name = lowercasename
-        self.lowercasename = lowercasename
-        self.uppercasename = uppercasename
+    def __init__(self, name=None, package=None, project='openalea', dir = '.', release='0.1'):
+        self.name = name
+        self.lowercasename = package
+        self.uppercasename = name
         self.dir = dir
         self.pkg_dir = path(dir) / self.name
         self.languages = ['python']
         self.project = project
+        self.release = release
 
         self.check_project()
 
         self.metainfo = {'LOWERCASENAME':self.lowercasename,
                         'UPPERCASENAME':self.uppercasename,
-                        'PROJECT':self.project
+                        'PROJECT':self.project,
+                        'RELEASE':self.release,
                 }
 
     def check_project(self):
@@ -282,56 +301,65 @@ class PackageBuilder(object):
             py_file = open(f, "w")
             py_file.write(txt)
             py_file.close()
- 
-def create_layout( name, 
-            python=True, cpp=False, c=False, fortran=False,
-            project='openalea', release='0.8' ):
 
-    pkg = PackageBuilder(name)
-    pkg.set_languages(cpp=cpp, c=c, fortran=fortran)
-    pkg.project = project
+
+def main():
+    """This is the main parsing function to get user arguments
+
+    """
+
+    usage = """
+    %prog create a package layout automatically
+
+    :Examples:
+
+        python %prog --package mypackage --name MyPackage --project openalea --language cpp
+        %prog --package mypackage --name MyPackage --project openalea --language cpp
+
+    """
+
+    parser = OptionParser(usage=usage)
+
+    parser.add_option("--project", dest='project', default='openalea',  
+        help="project name in [openalea, vplants, alinea]")
+    parser.add_option("--language", dest='language', default=None,  
+        help="a compiled code for wrapping in [cpp, c, fortran]")
+    parser.add_option("--package", dest='package', default='openalea',  
+        help="""the package name used a a name directory, or when import a module, e.g., 
+            visualea in import openalea.visualea, which is also the directory name""")
+    parser.add_option("--release", dest='release', default='0.8',  help="the package release")
+    parser.add_option("--name", dest='name', default=None,        help="The name of the package as it appear in the eggname: e.g., VisuAlea in OpenAlea.VisuAlea")
+
+    (opts, args)= parser.parse_args()
+
+    print "Running create_layout version %s" % __revision__.split()[2]
+
+    if opts.name==None or opts.package ==None:
+        raise ValueError("""--name and --package must be provided. See help (--help)""")
+    pkg = PackageBuilder(name=opts.name, package=opts.package, release=opts.release)
+ 
+    if opts.language=='cpp':
+        pkg.set_languages(cpp=True)
+    elif opts.language=='c':
+        pkg.set_languages(c=True)
+    if opts.language=='fortran':
+        pkg.set_languages(fortran=True)
+
+    pkg.project = opts.project
 
     if not pkg.check_name():
-        print "Error, package name %s is invalid" % ( name, )
+        print "Error, package name %s is invalid" % ( opts.name, )
         return 1
 
     pkg.mkdirs()
     pkg.mkfiles()
+
+    pkg.template_legal()
+    pkg.template_setup()
+    pkg.template_scons()
     pkg.template_wralea()
     pkg.template_doc()
 
-    return 0
-
-def main(argv=None):
-    """
-    try:
-        try:
-            opts, args = getopt.getopt(argv[1:], "h", ["help"])
-        except getopt.error, msg:
-             raise Usage(msg)
-        # more code, unchanged
-    except Usage, err:
-        print >>sys.stderr, err.msg
-        print >>sys.stderr, "for help use --help"
-        return 2
-    """
-    if argv is None:
-        argv = sys.argv
-
-    # Argument parsing
-    if len( argv ) < 2:
-        print """
-Usage:
-  python %s PKG_NAME [ c cpp fortran ]
-""" % (argv[0],)
-    return 3 
-
-    name = argv[ 1 ]
-    languages = argv[ 2: ]
-
-    return create_layout(name, languages)
-
 
 if __name__ == "__main__":
-    sys.exit(main())
-
+    main()

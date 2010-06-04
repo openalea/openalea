@@ -31,7 +31,7 @@ setup(
 
     entry_points = {
         "console_scripts": [
-                 "alea_create_package = openalea.pkg_builder.layout.main",
+                 "alea_create_package = openalea.pkg_builder.layout:main",
                  ],
     }
 

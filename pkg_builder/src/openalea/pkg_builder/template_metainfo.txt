@@ -1,7 +1,7 @@
 
 [metainfo]
-version = 0.8.3
-release = 0.8
+version = $RELEASE.0
+release = $RELEASE
 ; must be in [openalea, vplants, alinea]
 project = $PROJECT
 ; the filename of the egg
