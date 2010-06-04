@@ -10,7 +10,7 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    __init__
 
 Indices and tables
@@ -20,3 +20,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+Ugh!
