@@ -98,6 +98,7 @@ class PackageBuilder(object):
         if 'cpp' in self.languages:
             dirs.extend([
                self.pkg_dir/"src"/"cpp",
+               self.pkg_dir/"src"/"wrapper",
                ])
         if 'c' in self.languages:
             dirs.extend([
@@ -109,7 +110,7 @@ class PackageBuilder(object):
                ])
 
     def set_files(self):
-        self.files = [] 
+        self.files = [self.pkg_dir/"src"/"openalea"/self.name/'__init__.py'] 
         self.files += self.legalfiles()
         self.files += self.wraleafiles()
         self.files += self.sconsfiles()
@@ -138,6 +139,7 @@ class PackageBuilder(object):
                     self.pkg_dir/"options.py",
                     self.pkg_dir/"SConstruct",
                     self.pkg_dir/"src"/"cpp"/"SConscript",
+                    self.pkg_dir/"src"/"wrapper"/"SConscript",
                    ]
         else:
             return []
@@ -163,7 +165,7 @@ class PackageBuilder(object):
         print tpl_wralea
 
         wralea_txt = Template(open(tpl_wralea).read())
-        wralea_txt = wralea_txt.substitute(NAME=self.name)
+        wralea_txt = wralea_txt.substitute(NAME=self.name.title(), name=self.name)
 
         print "Creating a template version for %s ..." % ( wralea_py, )
         f = open(wralea_py, "w")
@@ -179,42 +181,60 @@ class PackageBuilder(object):
         tpl_files = []
         for f in files:
             if not f.exists() or f.size == 0:
-                tpl_file = path(__file__).dirname()/'template_'+f.basename()
-                tpl_files.append(tpl_file)
+                tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
+                tpl_files.append((f, tpl_file))
             
-        wralea_py = f
+        for f, tpl in tpl_files:
+            txt = Template(open(tpl).read())
+            txt = txt.substitute(NAME=self.name.title(), name=self.name)
 
-        wralea_txt = Template(open(tpl_wralea).read())
-        wralea_txt = wralea_txt.substitute(NAME=self.name)
-
-        print "Creating a template version for %s ..." % ( wralea_py, )
-        f = open(wralea_py, "w")
-        f.write(wralea_txt)
-        f.close()
+            print "Creating a template version for %s ..." % ( f, )
+            py_file = open(f, "w")
+            py_file.write(txt)
+            py_file.close()
         
 
     def template_setup(self):
         ''' Build a setup.py and an associated metainfo.ini '''
         files = self.setupfiles()
 
-        tpl_setup = path(__file__).dirname()/'template_setup.txt'
-        setup_py = self.pkg_dir/"setup.py"
+        tpl_files = []
+        for f in files:
+            if not f.exists() or f.size == 0:
+                tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
+                tpl_files.append((f, tpl_file))
+            
+        for f, tpl in tpl_files:
+            txt = Template(open(tpl).read())
+            txt = txt.substitute(HAS_SCONS='cpp' in self.languages, NAME=self.name.title(), name=self.name)
 
-        if setup_py.exists() and setup_py.size != 0:
-            return
+            print "Creating a template version for %s ..." % ( f, )
+            py_file = open(f, "w")
+            py_file.write(txt)
+            py_file.close()
 
-        setup_txt = Template(open(tpl_setup).read())
-        setup_txt = setup_txt.substitute(HAS_SCONS=bool(self.cpp))
-        print "Creating a template version for %s ..." % ( setup_py, )
-        f = open(setup_py, "w")
-        f.write(setup_txt)
-        f.close()
 
     def template_scons(self):
         ''' Build default SConstruct and SConscript files. '''
-        pass
+        files = self.sconsfiles()
+        tpl_files = []
+        for f in files:
+            if not f.exists() or f.size == 0:
+                if 'wrapper' in f:
+                    tpl_file = path(__file__).dirname()/'template_SConscript_wrapper.txt'
+                else:
+                    tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
+                tpl_files.append((f, tpl_file))
+            
+        for f, tpl in tpl_files:
+            txt = Template(open(tpl).read())
+            txt = txt.substitute(NAME=self.name.title(), name=self.name)
 
-
+            print "Creating a template version for %s ..." % ( f, )
+            py_file = open(f, "w")
+            py_file.write(txt)
+            py_file.close()
+ 
 def create( name, 
             python=True, cpp=False, c=False, fortran=False,
             project='openalea', release='0.8' ):

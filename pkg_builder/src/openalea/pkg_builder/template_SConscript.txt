@@ -1,0 +1,31 @@
+# -*-python-*-
+
+import os
+bn = os.path.basename
+
+Import( "env" )
+
+lib_env = env.Clone()
+
+#lib_env.EnableQt4Modules(['QtCore','QtOpenGL', 'QtGui'])
+
+# Import/Export symbols for windows
+if lib_env['compiler'] == 'mingw':
+    LINKFLAGS=["-enable-stdcall-fixup",
+               "-enable-auto-import",
+               "-enable-runtime-pseudo-reloc",
+               "-s"]
+    lib_env.AppendUnique(LINKFLAGS=LINKFLAGS)
+
+includes= lib_env.ALEAGlob('*.h')
+sources = lib_env.ALEAGlob('*.cpp')
+
+
+
+# Add defines to export symbols on Windows
+#lib_env.AppendUnique(CPPDEFINES=['MESSAGE'])
+#lib_env.AppendUnique(LIBS=['vptool'])
+
+inc = lib_env.ALEAIncludes( '$name', includes )
+lib = lib_env.ALEALibrary( '$name', sources )
+

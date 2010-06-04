@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__revision__ = "$$Id: $$"
+__revision__ = "$Id: $"
 
 import sys
 import os

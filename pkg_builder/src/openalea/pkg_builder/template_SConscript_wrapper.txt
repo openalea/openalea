@@ -1,0 +1,18 @@
+# -*-python-*-
+
+Import("env")
+
+py_dir = '../openalea/$name'
+
+# Build wrappers as shared libraries
+# First wrapper
+env1 = env.Clone()
+
+sources = env1.ALEAGlob('*.cpp')
+target = "_$name"
+lib = ["$name"]
+
+env1.AppendUnique(LIBS=lib)
+env1.ALEAWrapper(py_dir, target, sources)
+
+
