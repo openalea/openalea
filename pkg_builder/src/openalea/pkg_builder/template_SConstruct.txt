@@ -8,7 +8,7 @@ ALEASolution = config.ALEASolution
 
 pj = os.path.join
 
-name = '$name'
+name = '$LOWERCASENAME'
 
 SConsignFile()
 

@@ -2,7 +2,7 @@
 
 from openalea.core import *
 
-__name__ = '$name'
+__name__ = '$LOWERCASENAME'
 __version__ = None
 __license__ = None
 __author__ = None

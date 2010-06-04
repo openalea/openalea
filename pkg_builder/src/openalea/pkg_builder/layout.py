@@ -25,11 +25,25 @@ class PackageBuilder(object):
     """
     good_name = re.compile( "[a-z_]{3,}" )
 
-    def __init__(self, name, dir = '.'):
-        self.name = name
+    def __init__(self, lowercasename, uppercasename, project='openalea', dir = '.'):
+        self.name = lowercasename
+        self.lowercasename = lowercasename
+        self.uppercasename = uppercasename
         self.dir = dir
-        self.pkg_dir = path(dir) / name
+        self.pkg_dir = path(dir) / self.name
         self.languages = ['python']
+        self.project = project
+
+        self.check_project()
+
+        self.metainfo = {'LOWERCASENAME':self.lowercasename,
+                        'UPPERCASENAME':self.uppercasename,
+                        'PROJECT':self.project
+                }
+
+    def check_project(self):
+        if self.project not in ['vlants','alinea','openalea']:
+            raise ValueError("wrong projec name. should be in openalea/vplants/alinea")
 
     def check_name(self):
         """ Check correctness of pkg name. """
@@ -55,7 +69,7 @@ class PackageBuilder(object):
             except OSError, e:
                 if e.args[ 0 ] != 17:
                     raise
-            
+
     def mkfiles(self, files=None):
         """ Create files on the disk. """
         if not files:
@@ -82,6 +96,9 @@ class PackageBuilder(object):
                self.pkg_dir,
                self.pkg_dir/"src",
                self.pkg_dir/"doc",
+               self.pkg_dir/"doc"/"user",
+               self.pkg_dir/"doc"/"_static",
+               self.pkg_dir/"doc"/"_build",
                self.pkg_dir/"test",
                self.pkg_dir/"example",
                self.pkg_dir/"share",
@@ -115,6 +132,7 @@ class PackageBuilder(object):
         self.files += self.wraleafiles()
         self.files += self.sconsfiles()
         self.files += self.setupfiles()
+        self.files += self.docfiles()
 
     def legalfiles(self):
         return [
@@ -150,6 +168,18 @@ class PackageBuilder(object):
         self.pkg_dir/"metainfo.ini",
         ]
 
+    def docfiles(self):
+        return [
+            self.pkg_dir/"doc"/"contents.rst",
+            self.pkg_dir/"doc"/"Makefile",
+            self.pkg_dir/"doc"/"make.bat",
+            self.pkg_dir/"doc"/"conf.py",
+            self.pkg_dir/"doc"/"user"/"overview.txt",
+            self.pkg_dir/"doc"/"user"/"manual.rst",
+            self.pkg_dir/"doc"/"user"/"index.rst",
+            self.pkg_dir/"doc"/"user"/"autosum.rst",
+        ]
+
     def template_wralea(self):
         files = self.wraleafiles()
         for f in files:
@@ -157,7 +187,7 @@ class PackageBuilder(object):
                 break
         if not f.exists():
             self.mkfiles(files)
-            
+
         wralea_py = f
 
         tpl_wralea = path(__file__).dirname()/'template_wralea.txt'
@@ -165,12 +195,30 @@ class PackageBuilder(object):
         print tpl_wralea
 
         wralea_txt = Template(open(tpl_wralea).read())
-        wralea_txt = wralea_txt.substitute(NAME=self.name.title(), name=self.name)
+        wralea_txt = wralea_txt.substitute(self.metainfo)
 
         print "Creating a template version for %s ..." % ( wralea_py, )
         f = open(wralea_py, "w")
         f.write(wralea_txt)
         f.close()
+
+    def template_doc(self):
+        files = self.docfiles()
+        tpl_files = []
+        for f in files:
+            if not f.exists() or f.size == 0:
+                tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
+                tpl_files.append((f, tpl_file))
+
+        for f, tpl in tpl_files:
+            txt = Template(open(tpl).read())
+            txt = txt.substitute(self.metainfo)
+            print "Creating a template version for %s ..." % ( f, )
+            py_file = open(f, "w")
+            py_file.write(txt)
+            py_file.close()
+
+
 
     def template_legal(self):
         ''' Build new files from a default one.
@@ -183,16 +231,16 @@ class PackageBuilder(object):
             if not f.exists() or f.size == 0:
                 tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
                 tpl_files.append((f, tpl_file))
-            
+
         for f, tpl in tpl_files:
             txt = Template(open(tpl).read())
-            txt = txt.substitute(NAME=self.name.title(), name=self.name)
+            txt = txt.substitute(self.metainfo)
 
             print "Creating a template version for %s ..." % ( f, )
             py_file = open(f, "w")
             py_file.write(txt)
             py_file.close()
-        
+
 
     def template_setup(self):
         ''' Build a setup.py and an associated metainfo.ini '''
@@ -203,10 +251,10 @@ class PackageBuilder(object):
             if not f.exists() or f.size == 0:
                 tpl_file = path(__file__).dirname()/'template_'+f.namebase+'.txt'
                 tpl_files.append((f, tpl_file))
-            
+
         for f, tpl in tpl_files:
             txt = Template(open(tpl).read())
-            txt = txt.substitute(HAS_SCONS='cpp' in self.languages, NAME=self.name.title(), name=self.name)
+            txt = txt.substitute(HAS_SCONS='cpp' in self.languages, **self.metainfo)
 
             print "Creating a template version for %s ..." % ( f, )
             py_file = open(f, "w")
@@ -228,20 +276,20 @@ class PackageBuilder(object):
             
         for f, tpl in tpl_files:
             txt = Template(open(tpl).read())
-            txt = txt.substitute(NAME=self.name.title(), name=self.name)
+            txt = txt.substitute(**self.metainfo)
 
             print "Creating a template version for %s ..." % ( f, )
             py_file = open(f, "w")
             py_file.write(txt)
             py_file.close()
  
-def create( name, 
+def create_layout( name, 
             python=True, cpp=False, c=False, fortran=False,
             project='openalea', release='0.8' ):
 
-    pkg = PackageLayout(name)
+    pkg = PackageBuilder(name)
     pkg.set_languages(cpp=cpp, c=c, fortran=fortran)
-    pkg.set_project(project)
+    pkg.project = project
 
     if not pkg.check_name():
         print "Error, package name %s is invalid" % ( name, )
@@ -250,6 +298,7 @@ def create( name,
     pkg.mkdirs()
     pkg.mkfiles()
     pkg.template_wralea()
+    pkg.template_doc()
 
     return 0
 
@@ -282,7 +331,7 @@ Usage:
 
     return create_layout(name, languages)
 
-        
+
 if __name__ == "__main__":
     sys.exit(main())
 

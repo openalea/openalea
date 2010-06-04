@@ -1,0 +1,23 @@
+.. change to your needs
+
+.. _${LOWERCASENAME}_reference
+
+
+Reference guide
+###################################
+.. contents::
+
+
+
+.. currentmodule:: openalea.pkg_builder.layout
+
+
+:mod:`openalea.pkgbuilder_layout` module
+===============================================
+.. automodule:: openalea.pkg_builder.layout
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: doc todo
+

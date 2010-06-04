@@ -26,6 +26,6 @@ sources = lib_env.ALEAGlob('*.cpp')
 #lib_env.AppendUnique(CPPDEFINES=['MESSAGE'])
 #lib_env.AppendUnique(LIBS=['vptool'])
 
-inc = lib_env.ALEAIncludes( '$name', includes )
-lib = lib_env.ALEALibrary( '$name', sources )
+inc = lib_env.ALEAIncludes( '$LOWERCASENAME', includes )
+lib = lib_env.ALEALibrary( '$LOWERCASENAME', sources )
 
