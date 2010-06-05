@@ -6,6 +6,8 @@
 Welcome to NetworkX GraphEditor Strategy's documentation!
 =========================================================
 
+
+
 Contents:
 
 .. toctree::
@@ -20,4 +22,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-nothign significant
