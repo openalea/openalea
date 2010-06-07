@@ -26,8 +26,7 @@ class Dict(Node):
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
-        import copy
-        return (copy.copy(inputs[0]), )
+        return (dict(inputs[0]), )
 
 
 class Pair(Node):
