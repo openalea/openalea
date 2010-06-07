@@ -1,161 +1,187 @@
+# -*- python -*-
+#
+#       VirtualPlant's buildbot continuous integration scripts.
+#
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+###############################################################################
 
-import platform
-import warnings
-import collections
-import dependencies
+import platform, types, warnings, collections
+import dependencies, os_factory
 
 
 def Openalea(_platform=False):
     return Dependency("openalea", _platform)
-    
+
 def VPlants(_platform=False):
     return Dependency("vplants", _platform)
-    
+
 def Alinea(_platform=False):
-    return Dependency("alinea", _platform)        
+    return Dependency("alinea", _platform)
+
+
 
 class Dependency(object):
     def __init__(self, package, _platform=False):
         self.__canonical_deps = []
         self.__distribution_deps = []
         self.__compensated_deps = []
+        self.__distribCls = None
+        self.__reverseDisctribDict = None
         self.__solve_dependencies(package, _platform)
-        
-        
+
+
     def __str__(self):
         return "canonical->%s\ndistribution->%s\ncompensated->%s"%(str(self.__canonical_deps),
-                                                                 str(self.__distribution_deps), 
+                                                                 str(self.__distribution_deps),
                                                                  str(self.__compensated_deps))
 
     def packages(self):
         return self.__canonical_deps
-    
-    def distribution_packages(self):
-        return self.__distribution_deps
-    
+
+    def runtime_distribution_packages(self):
+        if( self.__reverseDisctribDict ):
+            return [dep for dep  in self.__distribution_deps if self.__reverseDisctribDict[dep][-4:] != "-dev"]
+        else:
+            return [dep for dep  in self.__distribution_deps if "dev" not in dep]
+
+    def development_distribution_packages(self):
+        if( self.__reverseDisctribDict ):
+            return [dep for dep  in self.__distribution_deps if self.__reverseDisctribDict[dep][-4:] == "-dev"]
+        else:
+            return [dep for dep  in self.__distribution_deps if "dev" in dep]
+
     def egg_packages(self):
         return self.__compensated_deps
-    
+
     ############################################################
     # Dependency solving and distribution translation follows: #
     ############################################################
-    def __get_platform(self):
-        _platform = None
-        system = platform.system().lower()
-        if system == "linux":
-            dist, number, name = platform.linux_distribution()
-            _platform = dist.lower() + " " + number.lower() + " " + name.lower()
-        elif system == "windows":
-            dist, host, name, number, proc, procinfo = platform.uname()
-            _platform = dist.lower() + " " + number.lower() + " " + name.lower() + " "+ proc.lower()
-        else:
-            warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
-        return _platform    
-
-    def __intersect_platform_names(self, platformName, packageList, mapping):
-        #find intersection between platformName and de-canonification keys. Gives
-        #the actual platform key. Then we map the canonical name with the platform
-        #key from the distribution_canonical_mappings.
-        good = {}
-        bad = []
-        intersectablePlatformName = set(platformName.split(" "))
-        for pkgNames in packageList:
-            distribs = mapping.get(pkgNames, {})
-            for k in distribs.iterkeys():            
-                inter = intersectablePlatformName & set(k.split(" "))
-                if inter:
-                    good[pkgNames] = k
-                    break;
-            else:
-                bad.append(pkgNames)
-        return good, bad
-    
-    def __decanonify(self, packageList, platformName):
-        decanonifyable, bad = self.__intersect_platform_names(platformName, packageList,
-                                                              dependencies.distribution_canonical_mappings)
-        decanonified = []
-        for cano in packageList:
-            if cano in bad:
-                continue
-            decanoKey = decanonifyable[cano]
-            decanonified.append( dependencies.distribution_canonical_mappings[cano][decanoKey] )
-            
-        return decanonified, bad    
-        
-    def __compensate_blacklisted(self, packageList, platformName):
-        compensatable, bad = self.__intersect_platform_names(platformName, packageList,
-                                                             dependencies.distribution_canonical_blacklists)
-        compensated = []
-        for comp in packageList:
-            if comp in bad:
-                continue        
-            compensationKey = compensatable[comp]
-            compensation = dependencies.distribution_canonical_blacklists[comp][compensationKey]
-            if compensation:
-                compensated.append( compensation )    
-        return compensated, bad
-
-        
     def __solve_dependencies(self, package, _platform=False):
         package_deps = dependencies.canonical_dependencies.get(package, None)
         if not package_deps:
             raise Exception("No such package : " + package)
-            
+
         if _platform == False:
-            _platform = self.__get_platform()
+            _platform = os_factory.Factory.get_platform()
         if _platform == None:
             warnings.warn("No dependency de-canonification")
-                
-        # non recursive dependency solving, euler tour.
+
+        # non recursive dependency browsing, Euler tour.
         pkgList = set()
         ancestors = collections.deque()
         childs = collections.deque()
         currentPkg = package
         currentPkgChilds = package_deps.__iter__()
         while currentPkg:
-            #if current package has childs:
             hasChilds = True
             child = None
             try: child = currentPkgChilds.next()
             except: hasChilds = False
             if hasChilds:
-            #   store the current package as an ancestor
                 ancestors.append(currentPkg)
-            #   store the current child iterator as an ancestor child iterator
                 childs.append(currentPkgChilds)
-            #   the first element of the child iterator becomes the current package    
                 currentPkg = child
-            #   we get the list of children of this new current package.
                 currentPkgChildsList = dependencies.canonical_dependencies.get(currentPkg, None)
                 if currentPkgChildsList:
-            #   it becomes the new current child iterator    
                     currentPkgChilds = currentPkgChildsList.__iter__()
                 else:
                     currentPkgChilds = None
-            #else it is a leaf:                    
             else:
-            #   if the leaf is different from the original package:
                 if currentPkg != package:
-            #       store it in the pgkList    
                     pkgList.add(currentPkg)
                     if len(ancestors) >= 1:
-            #       retore previous package and iterator
                         currentPkg = ancestors.pop()
-                        currentPkgChilds = childs.pop()           
+                        currentPkgChilds = childs.pop()
                     else:
-                        currentPkg = None #stop the loop
-            #   it is the original package (we reached the root): 
+                        currentPkg = None #stops the loop
                 else:
-            #       set the currentPkg to none to stop the loop                
-                    currentPkg = None                
-        
-        pkgList = list(pkgList) #convert set to list
+                    currentPkg = None
+
+        pkgList = list(pkgList)
+        self.__canonical_deps = pkgList
+        self.__distribution_deps = pkgList
+        self.__compensated_deps = pkgList
+
         #de-canonification
         if _platform:
-            self.__canonical_deps = pkgList
-            self.__compensated_deps, others = self.__compensate_blacklisted(pkgList, _platform)
-            self.__distribution_deps = self.__decanonify(others, _platform)[0]      
-        else:
-            self.__canonical_deps = pkgList
-            self.__distribution_deps = pkgList
-            self.__compensated_deps = pkgList
+            self.__distribCls = DistributionPackageFactory().create(_platform)
+            if self.__distribCls:
+                self.__reverseDisctribDict = dict((v,k) for k, v in self.__distribCls.iteritems())
+                otherDeps = []
+                distribDeps = []
+                map(lambda x: otherDeps.append(x) if isinstance(x, EggDependency) else distribDeps.append(x),
+                    self.__distribCls.values())
+                self.__distribution_deps = distribDeps
+                self.__compensated_deps = otherDeps
+
+
+
+
+class DistributionPackageFactory(object):
+    __metaclass__ = os_factory.MSingleton
+    def __init__(self):
+        self.__distPkgs = {}
+
+    def register(self, cls):
+        assert isinstance(type(cls), types.TypeType)
+        name = cls.__name__
+        name = name[:name.find("_PackageNames")].replace("_", " ").lower()
+        print "registering:", name
+        self.__distPkgs[name] = cls
+
+    def create(self, platform=None, conflictSolve=lambda x: x[0]):
+        if platform == None:
+            platform = os_factory.Factory.get_platform()
+
+        #We find the right distribution class by intersecting
+        #the platform description with the X_X_PackageNames classes
+        #whose names are mangled.
+        #the correct disctribution class is the one with which the
+        #intersection is the largest. If there's equality between two
+        #the conflict is solved using the conflictSolve function.
+        platform = platform.split(" ")
+        maxIntersectionAmount  = 0
+        maxIntersectionDistrib = None
+        for dist in self.__distPkgs.iterkeys():
+            intersections = os_factory.Factory.intersect_platform_names(platform, dist.split(" "))[0]
+            numInters = len(intersections)
+            if numInters > maxIntersectionAmount:
+                maxIntersectionAmount = numInters
+                maxIntersectionDistrib = dist
+            elif numInters == maxIntersectionAmount and numInters > 0:
+                if isinstance(maxIntersectionDistrib, list):
+                    maxIntersectionDistrib.append(dist)
+                elif maxIntersectionDistrib is not None:
+                    maxIntersectionDistrib = [maxIntersectionDistrib, dist]
+                else:
+                    maxIntersectionDistrib = dist
+
+        if isinstance(maxIntersectionDistrib, list):
+            maxIntersectionDistrib = conflictSolve(maxIntersectionDistrib)
+
+        print "yielding:", maxIntersectionDistrib, "for requested platform:", platform
+        cls = self.__distPkgs.get(maxIntersectionDistrib, None)
+        if cls: return cls()
+
+
+class EggDependency(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "'EggDependency: " + self.name + "'"
+
+    def __repr__(self):
+        return "'EggDependency: " + self.name + "'"
+
+class DistributionPackageNames(dict):
+    def __init__(self, **packages):
+        dict.__init__(self)
+        self.update(packages)
