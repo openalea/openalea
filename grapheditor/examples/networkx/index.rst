@@ -8,6 +8,7 @@ Welcome to NetworkX GraphEditor Strategy's documentation!
 
 Contents:
 
+One day I will write something good in here
 .. toctree::
    :maxdepth: 2
 
