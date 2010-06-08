@@ -1014,7 +1014,9 @@ class NodeFactory(AbstractFactory):
             if((type(classobj) == types.TypeType)
                or (type(classobj) == types.ClassType)):
 
-                classobj = classobj()
+                _classobj = classobj()
+                if callable(_classobj):
+                    classobj = _classobj
 
             node = FuncNode(self.inputs, self.outputs, classobj)
 
