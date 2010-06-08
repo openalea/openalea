@@ -555,7 +555,7 @@ class cmake(Command):
                 sys.exit(1)
 
             except Exception, i:
-                print "!! Error : Cannot execute scons command:", i,
+                print "!! Error : Cannot execute cmake command:", i,
                 print " Failure..."
                 sys.exit(1)
 
