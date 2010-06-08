@@ -155,7 +155,7 @@ class DataflowOperators(object):
             mess = QtGui.QMessageBox.warning(self, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-        self.notify_listeners(("graphoperator_graphsaved", factory))
+        self.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
 
     @interactionMask(OAGIS.TOPOLOGICALLOCK)
