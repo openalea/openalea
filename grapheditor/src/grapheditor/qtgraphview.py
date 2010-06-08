@@ -503,15 +503,19 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def get_items(self, filterType=None, subcall=None):
         """ """
+        if filterType and not isinstance(filterType, list):
+            filterType = [filterType]
         return [ (item if subcall is None else subcall(item))
                  for item in self.items() if
-                 (True if filterType is None else isinstance(item, filterType))]
+                 (True if filterType is None else (type(item) in filterType))]
 
     def get_selected_items(self, filterType=None, subcall=None):
         """ """
+        if filterType and not isinstance(filterType, list):
+            filterType = [filterType]
         return [ (item if subcall is None else subcall(item))
                  for item in self.items() if item.isSelected() and
-                 (True if filterType is None else isinstance(item, filterType))]
+                 (True if filterType is None else (type(item) in filterType))]
 
     def get_selection_center(self, selection=None):
         """ """
