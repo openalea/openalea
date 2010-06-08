@@ -176,7 +176,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
             QtGui.QApplication.processEvents()
 
         elif(event[0] == "caption_modified"):
-            self.__set_caption(event[1])
+            caption = event[1]
+            self.__set_caption(caption if len(caption)<20 else caption[:20]+"...")
 
         elif(event[0] == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:

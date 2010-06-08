@@ -33,7 +33,8 @@ class PortOperators(object):
         """ Print the value of the connector """
 
         node = self.__portItem.port().vertex()
-        data = node.get_output(self.__portItem.port().get_id())
+        data = str(node.get_output(self.__portItem.port().get_id()))
+        data = data[:500]+"[...truncated]" if len(data)>500 else data
         print data
 
     @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
