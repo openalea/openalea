@@ -166,14 +166,16 @@ class AbstractListener(object):
         (like signal slot)
         """
         if sender == self and event == "PROCESS_QUEUE":
-            if self.__deaf : self.__eventQueue = None
+            if self.__deaf :
+                self.__eventQueue = None
             elif len(self.__eventQueue) > 0 :
                 e = self.__eventQueue.popleft()
                 while e:
                     self.notify(e[0], e[1])
                     try : e = self.__eventQueue.popleft()
-                    except IndexError : e = None
-                self.__eventQueue = None
+                    except IndexError , ex:
+                        e = None
+            self.__eventQueue = None
 
         #if we are running a call with delayed event delivery
         #we queue the events:
