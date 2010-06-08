@@ -26,11 +26,3 @@ def test_alias():
     assert pkgman["pkg_test"]["aliasf1"] is pkgman["pkg_test"]["file1.txt"]
 
 
-def test_catalog():
-    """test_catalog: test init catalog in PackageManager"""
-    pkgman = PackageManager()
-    pkgman.init(verbose=False)
-    assert pkgman["catalog.data"]["int"] is \
-        pkgman["openalea.data structure"]["int"]
-
-
