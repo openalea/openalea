@@ -127,7 +127,7 @@ class GraphListenerBase(observer.AbstractListener):
                                 str(strat) +
                                 " : " + str(type(graph)))
         self.__strategy=strat
-        self.connector_types=strat.get_connector_types()
+        self.connector_types=set(strat.get_connector_types())
         self.set_graph(graph)
 
         #low-level detail, during the edge creation we store
@@ -299,9 +299,10 @@ class GraphListenerBase(observer.AbstractListener):
     # Other utility methods #
     #########################
     def is_connectable(self, obj):
-        return obj.__class__ in self.connector_types
-
-
+        for ct in self.connector_types:
+            if isinstance(obj, ct):
+                return True
+        return False
 
 class ObservedBlackBox(object):
     def __init__(self, owner, observed):
@@ -309,6 +310,9 @@ class ObservedBlackBox(object):
         self.__observed = None
         self.__is_true = False
         self.__call__(observed)
+
+    def is_true(self):
+        return self.__is_true
 
     def __call__(self, *args):
         """If args is provided, sets the args,
@@ -319,6 +323,8 @@ class ObservedBlackBox(object):
                 if self.__observed is not None:
                     return #don't overwrite the existing observed
                 else :
+                    # if isinstance(observed, int):
+                    #     traceback.print_stack()
                     if isinstance(observed, observer.Observed):
                         self.__patch_true()
                     else:
@@ -342,15 +348,17 @@ class ObservedBlackBox(object):
         raise Exception("get_observers : You first need to set the observed with the () operator")
 
     def __patch_true(self):
+        self.__is_true = True
         self.clear_observed = self.__clear_true_observed
         self.get_observed = self.__get_true_observed
-        self.get_observers = self.__get_observers_true
+        self.get_observers = self.__get_true_observers
         self.__set_observed = self.__set_true_observed
 
     def __patch_fake(self):
+        self.__is_true = False
         self.clear_observed = self.__clear_fake_observed
         self.get_observed = self.__get_fake_observed
-        self.get_observers = self.__get_observers_fake
+        self.get_observers = self.__get_fake_observers
         self.__set_observed = self.__set_fake_observed
 
     def __set_true_observed(self, obs):
@@ -374,9 +382,10 @@ class ObservedBlackBox(object):
     def __clear_fake_observed(self, which=None):
         self.__observed = None
 
-    def __get_observers_true(self):
+    def __get_true_observers(self):
         return self.__observed().listeners
 
-    def __get_observers_fake(self):
+    def __get_fake_observers(self):
+        print "fake observers"
         return 0 #ugh... don't know how to do anything smart here yet.
 

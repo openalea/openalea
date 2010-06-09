@@ -26,7 +26,7 @@ from warnings   import warn as WAWarn
 from PyQt4 import QtGui, QtCore
 from openalea.core.settings import Settings
 
-import baselisteners, interfaces
+import baselisteners, interfaces, qtutils
 import edgefactory
 
 from math import sqrt
@@ -174,11 +174,44 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     def lock_position(self, val=True):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
 
+#------*************************************************------#
+class Connector(Element):
+    def __init__(self, *args, **kwargs):
+        Element.__init__(self, *args, **kwargs)
+        self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges, True)
+
+    def set_highlighted(self, val):
+        self.highlighted = val
+        self.update()
+
+    def get_scene_center(self):
+        pos = self.sceneBoundingRect().center()
+        return [pos.x(), pos.y()]
+
+    def notify_position_change(self, pos=None):
+        obs = self.get_observed()
+        if pos is None:
+            pos  = self.get_scene_center()
+        edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
+        for e in edges:
+            e.notify(obs, ("metadata_changed", "connectorPosition", pos))
+
+    #####################
+    # ----Qt World----  #
+    #####################
+    def itemChange(self, change, value):
+        if change == QtGui.QGraphicsItem.ItemScenePositionHasChanged:
+            self.notify_position_change()
+            return value
+
+
+
 
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
     painter.drawEllipse(rect)
+
 
 class Vertex(Element):
     """An abstract graphic item that represents a graph vertex.
@@ -191,10 +224,28 @@ class Vertex(Element):
     Of course, if it doesn't match your needs you
     can override it completely in your subclass."""
 
+
+    class InvisibleConnector(QtGui.QGraphicsEllipseItem, Connector):
+        size = 10
+        def __init__(self, parent, *args, **kwargs):
+            QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
+            Connector.__init__(self, *args, **kwargs)
+            self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
+        itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
+                                  "itemChange")
+        def position_changed(self, *args):
+            """reimplemented to do nothing. otherwise caught
+            position changes from the model (????) and ignored
+            the position it was forced to"""
+            pass
+        def paint(self, painter, paintOptions, widget):
+            return
+
+
     ####################################
     # ----Instance members follow----  #
     ####################################
-    def __init__(self, vertex, graph):
+    def __init__(self, vertex, graph, defaultCenterConnector=False):
         """
         :Parameters:
             - vertex - the vertex to observe.
@@ -202,17 +253,32 @@ class Vertex(Element):
 
         """
         Element.__init__(self, vertex, graph)
+        self.__connectors = []
+        self.__defaultConnector = None
+
+        #must not be called before self.__defaultConnector is defined
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.__paintStrategy = defaultPaint
+        if defaultCenterConnector:
+            self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
 
     vertex = baselisteners.GraphElementListenerBase.get_observed
 
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
-        center = self.rect().center()
-        center = self.mapToScene(center)
+        center = self.sceneBoundingRect().center()
         return [center.x(), center.y()]
+
+    def add_to_view(self, view):
+        Element.add_to_view(self, view)
+        if self.__defaultConnector:
+            self.__defaultConnector.add_to_view(view)
+
+    def remove_from_view(self, view):
+        Element.remove_from_view(self, view)
+        if self.__defaultConnector:
+            self.__defaultConnector.remove_from_view(view)
 
     def set_highlighted(self, value):
         pass
@@ -220,16 +286,38 @@ class Vertex(Element):
     def set_painting_strategy(self, strat):
         self.__paintStrategy = strat
 
+    def add_connector(self, connector):
+        assert isinstance(connector, Connector)
+        self.__connectors.append(connector)
+
+    def remove_connector(self, connector):
+        assert isinstance(connector, Connector)
+        self.__connectors.remove(connector)
+
+
     #####################
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemPositionChange:
+
+        if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
+            if self.__defaultConnector:
+                center = self.sceneBoundingRect().center()
+                self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
+                                                center.y()-Vertex.InvisibleConnector.size/2.0 )
+
+        if change == QtGui.QGraphicsItem.ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
-            cPos = point + self.boundingRect().center()
             self.store_view_data('position', [point.x(), point.y()])
             self.deaf(False)
+
+            if self.__defaultConnector:
+                center = self.sceneBoundingRect().center()
+                self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
+                                                center.y()-Vertex.InvisibleConnector.size/2.0 )
+
+
             return value
 
     def paint(self, painter, option, widget):
@@ -255,26 +343,32 @@ class Vertex(Element):
 class Edge(Element):
     """Base class for Qt based edges."""
 
-    def __init__(self, edge=None, graph=None, src=None, dest=None):
+    def __init__(self, edge=None, graph=None, src=None, dst=None):
         Element.__init__(self, edge, graph)
 
         self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
             QtGui.QGraphicsItem.ItemIsSelectable))
 
-        self.srcBBox = baselisteners.ObservedBlackBox(self, src)
-        self.dstBBox = baselisteners.ObservedBlackBox(self, dest)
+        self.srcPoint = QtCore.QPointF()
+        self.dstPoint = QtCore.QPointF()
+        self.__edge_creator = self.set_edge_creator(edgefactory.EdgeFactory())
 
-        self.sourcePoint = QtCore.QPointF()
-        self.destPoint = QtCore.QPointF()
-
-        self.__edge_path = None
-        self.set_edge_path(edgefactory.EdgeFactory())
-        self.setPen(QtGui.QPen(QtCore.Qt.black, 3,
+        self.setPen(QtGui.QPen(QtCore.Qt.black, 2,
                                QtCore.Qt.SolidLine,
                                QtCore.Qt.RoundCap,
                                QtCore.Qt.RoundJoin))
 
+        self.dstBBox = self.srcBBox = None
+        if src: self.set_observed_source(src)
+        if dst: self.set_observed_destination(dst)
+        self.setPath(self.__edge_creator.get_path(self.srcPoint, self.dstPoint))
+
     edge = baselisteners.GraphElementListenerBase.get_observed
+
+    def set_edge_creator(self, creator):
+        self.__edge_creator = creator
+        self.setPath(self.__edge_creator.get_path(self.srcPoint, self.dstPoint))
+        return creator
 
     def change_observed(self, old, new):
         if old == self.srcBBox():
@@ -286,35 +380,32 @@ class Edge(Element):
         return
 
     def set_observed_source(self, src):
-        """todo evaluate this for inclusion into the interfaces"""
-        self.srcBBox.clear_observed()
-        self.srcBBox(src)
+        if self.srcBBox is None:
+            self.srcBBox = baselisteners.ObservedBlackBox(self, src)
+        else:
+            self.srcBBox.clear_observed()
+            self.srcBBox(src)
 
-    def set_observed_destination(self, dest):
-        """todo evaluate this for inclusion into the interfaces"""
-        self.dstBBox.clear_observed()
-        self.dstBBox(dest)
+    def set_observed_destination(self, dst):
+        if self.dstBBox is None:
+            self.dstBBox = baselisteners.ObservedBlackBox(self, dst)
+        else:
+            self.dstBBox.clear_observed()
+            self.dstBBox(dst)
 
     def clear_observed(self, *args):
         self.srcBBox.clear_observed()
         self.dstBBox.clear_observed()
         Element.clear_observed(self, *args)
 
-    def set_edge_path(self, path):
-        self.__edge_path = path
-        path = self.__edge_path.get_path(self.sourcePoint, self.destPoint)
+    def update_line_source(self, *pos):
+        self.srcPoint = QtCore.QPointF(*pos)
+        path = self.__edge_creator.get_path(self.srcPoint, self.dstPoint)
         self.setPath(path)
 
-    def update_line_source(self, *pos):
-        self.sourcePoint = QtCore.QPointF(*pos)
-        self.__update_line()
-
     def update_line_destination(self, *pos):
-        self.destPoint = QtCore.QPointF(*pos)
-        self.__update_line()
-
-    def __update_line(self):
-        path = self.__edge_path.get_path(self.sourcePoint, self.destPoint)
+        self.dstPoint = QtCore.QPointF(*pos)
+        path = self.__edge_creator.get_path(self.srcPoint, self.dstPoint)
         self.setPath(path)
 
     def notify(self, sender, event):
@@ -339,7 +430,7 @@ class Edge(Element):
     # Qt World #
     ############
     def shape(self):
-        path = self.__edge_path.shape()
+        path = self.__edge_creator.shape()
         if not path:
             return QtGui.QGraphicsPathItem.shape(self)
         else:
@@ -367,18 +458,20 @@ class FloatingEdge( Edge ):
 
     def __init__(self, srcPoint, graph):
         Edge.__init__(self, None, graph, None, None)
-        self.sourcePoint = QtCore.QPointF(*srcPoint)
-        self.destPoint = QtCore.QPointF(self.sourcePoint)
+        self.srcPoint = QtCore.QPointF(*srcPoint)
+        self.dstPoint = QtCore.QPointF(self.srcPoint)
 
     def notify(self, sender, event):
         return
 
     def consolidate(self, graph):
         try:
-            srcVertex, dstVertex = self.get_connections()
+            srcVertex, dstVertex ,sItem, dItem= self.get_connections()
             if(srcVertex == None or dstVertex == None):
                 return
             graph.add_edge(srcVertex, dstVertex)
+            sItem.notify_position_change()
+            dItem.notify_position_change()
         except Exception, e:
             # pass
             print "consolidation failed :", type(e), e,\
@@ -388,22 +481,22 @@ class FloatingEdge( Edge ):
     def get_connections(self):
         #find the vertex items that were activated
 
-        srcVertexItem = self.scene().find_closest_connectable(self.sourcePoint, boxsize = 2)
-        dstVertexItem = self.scene().find_closest_connectable(self.destPoint, boxsize = 2)
+        srcVertexItem = self.scene().find_closest_connectable(self.srcPoint, boxsize = 2)
+        dstVertexItem = self.scene().find_closest_connectable(self.dstPoint, boxsize = 2)
 
         scene = self.scene()
 
-        if( type(srcVertexItem) not in scene.connector_types or
-            type(dstVertexItem) not in scene.connector_types):
+        if( not scene.is_connectable(srcVertexItem) or
+            not scene.is_connectable(dstVertexItem) ):
             raise Exception( "Non connectable types for : " + str(srcVertexItem) + " : " + \
                                 str(dstVertexItem) )
-            return None, None
+            return None, None, None, None
 
         #if the input and the output are on the same vertex...
         if(srcVertexItem == dstVertexItem):
             raise Exception("Nonsense connection : plugging self to self.")
 
-        return srcVertexItem.vertex(), dstVertexItem.vertex()
+        return srcVertexItem.get_observed(), dstVertexItem.get_observed(), srcVertexItem, dstVertexItem
 
 
 #------*************************************************------#
@@ -414,6 +507,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         baselisteners.GraphListenerBase.__init__(self, graph)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
+        self.connector_types.add(Connector)
         self.initialise_from_model()
 
     #############################################################################
