@@ -43,27 +43,8 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     def get_connections(self):
         boxsize = 10.0
         #find the port items that were activated
-        srcPortItem = self.scene().itemAt( self.sourcePoint )
-
-        #creation of a square which is a selected zone for ports
-        rect = QtCore.QRectF((self.destPoint.x() - boxsize/2),
-                             (self.destPoint.y() - boxsize/2),
-                             boxsize, boxsize);
-        #reduce the search area.
-        dstPortItems = self.scene().items(rect)
-        #the following could be more generic maybe?
-        dstPortItems = [item for item in dstPortItems if isinstance(item, vertex.GraphicalPort)]
-
-        distance = float('inf')
-        dstPortItem = None
-
-        for item in dstPortItems:
-            d = sqrt((item.boundingRect().center().x() - self.destPoint.x())**2 +
-                        (item.boundingRect().center().y() - self.destPoint.y())**2)
-            if d < distance:
-                distance = d
-                dstPortItem = item
-
+        srcPortItem = self.scene().itemAt( self.srcPoint )
+        dstPortItem = self.scene().find_closest_connectable(self.dstPoint, boxsize)
         if not dstPortItem: return None, None
 
         #find the vertex items that were activated
@@ -81,11 +62,13 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
         if( self.graph().is_output(srcPortItem.port()) and
             self.graph().is_input(dstPortItem.port())):
             return (srcVertexItem.vertex(), srcPortItem.port()), \
-                (dstVertexItem.vertex(), dstPortItem.port())
+                (dstVertexItem.vertex(), dstPortItem.port()), \
+                srcPortItem, dstPortItem
         elif( self.graph().is_input(srcPortItem.port()) and
               self.graph().is_output(dstPortItem.port())):
             return (dstVertexItem.vertex(), dstPortItem.port()), \
-                (srcVertexItem.vertex(), srcPortItem.port())
+                (srcVertexItem.vertex(), srcPortItem.port()), \
+                srcPortItem, dstPortItem
         else:
             raise Exception("Nonsense connection : " + \
                                 "plugging input to input or output to output")

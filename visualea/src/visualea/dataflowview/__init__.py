@@ -87,7 +87,7 @@ Strategy = grapheditorbase.GraphStrategy( graphModelType       = compositenode.C
                                                                   "outNode":vertex.GraphicalOutVertex},
                                           edgeWidgetMap        = {"default":edge.GraphicalEdge,
                                                                   "floating-default":edge.FloatingEdge},
-                                          connectorTypes       = [vertex.GraphicalPort],
+                                          connectorTypes       = [], #[vertex.GraphicalPort] not necessary if we derive from qtgraphview.Connector
                                           adapterType          = adapter.GraphAdapter,
                                           graphViewInitialiser = initialise_graph_view_from_model )
 

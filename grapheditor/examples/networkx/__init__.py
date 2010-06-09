@@ -121,7 +121,7 @@ from openalea.grapheditor.edgefactory import LinearEdgePath
 class GraphicalNode( qtgraphview.Vertex, QtGui.QGraphicsEllipseItem  ):
     def __init__(self, vertex, graph):
         QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, circleSize, circleSize, None)
-        qtgraphview.Vertex.__init__(self, vertex, graph)
+        qtgraphview.Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
         # ---Qt Stuff---
         self.setZValue(1.0)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
@@ -158,7 +158,7 @@ class GraphicalEdge( qtgraphview.Edge, QtGui.QGraphicsPathItem  ):
     def __init__(self, edge=None, graph=None, src=None, dest=None):
         QtGui.QGraphicsPathItem.__init__(self, None)
         qtgraphview.Edge.__init__(self, edge, graph, src, dest)
-        self.set_edge_path(LinearEdgePath())
+        self.set_edge_creator(LinearEdgePath())
         src.notify_update()
         dest.notify_update()
         self.setZValue(0.0)
@@ -178,7 +178,7 @@ class GraphicalFloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
         """ """
         QtGui.QGraphicsPathItem.__init__(self, None)
         qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
-        self.set_edge_path(LinearEdgePath())
+        self.set_edge_creator(LinearEdgePath())
 
 
 #-------------------------
@@ -188,7 +188,8 @@ Strategy = grapheditor.base.GraphStrategy(graphModelType = NXObservedGraph,
                                           vertexWidgetMap= {"vertex":GraphicalNode},
                                           edgeWidgetMap  = {"default":GraphicalEdge,
                                                             "floating-default":GraphicalFloatingEdge},
-                                          connectorTypes = [GraphicalNode],
+                                          connectorTypes = [], #[GraphicalNode], not necessary since use the default invisible connector
+                                          #of vertices
                                           adapterType    = None)
 
 

@@ -34,18 +34,18 @@ from collections import deque
 
 
 
-class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
+class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
 
     #color of the small box that indicates evaluation
     eval_color = QtGui.QColor(255, 0, 0, 200)
 
-    def __init__(self, vertex, graph, parent=None):
+    def __init__(self, vertex, graph, parent=None, isInOrOut=None):
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
         self.set_painting_strategy(painting.default_dataflow_paint)
         self.setZValue(1)
         self.destroyed.connect(self.clear_observed)
-
+        self.__isInOrOut = isInOrOut
         # used by the node shape cache in painting.py
         # to speed up rendering.
         self.shapeChanged=True
@@ -130,14 +130,16 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         return True
 
     def __add_in_connection(self, port):
-        graphicalConn = GraphicalPort(port)
+        graphicalConn = GraphicalPort(self, port)
         self.destroyed.connect(graphicalConn.close_and_delete)
         self._inPortLayout().addItem(graphicalConn)
+        self.add_connector(graphicalConn)
 
     def __add_out_connection(self, port):
-        graphicalConn = GraphicalPort(port)
+        graphicalConn = GraphicalPort(self, port)
         self.destroyed.connect(graphicalConn.close_and_delete)
         self._outPortLayout().addItem(graphicalConn)
+        self.add_connector(graphicalConn)
 
     ####################
     # Observer methods #
@@ -214,7 +216,8 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
         count = layout.count()
         for i in range(count):
             item = layout.itemAt(0)
-            layout.removeAt(0)
+            self.remove_connector(item.graphicsItem())
+            layout.removeAt(0) #we remove from the start, or else we quickly segfault.
             del item
 
     ###############################
@@ -239,58 +242,49 @@ class GraphicalVertex(QtGui.QGraphicsWidget, qtgraphview.Vertex):
                                    "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
                               "itemChange")
+    def polishEvent(self):
+        if self.__isInOrOut is not None:
+            #fix input or output node position
+            verticalNodeSize = 60
+            midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
+            first = True
+            graph = self.graph()
+            for node in graph.vertex_property("_actor").itervalues():
+                if node == graph.node(graph.id_in) or node == graph.node(graph.id_out):
+                    continue
+                posX, posY = node.get_ad_hoc_dict().get_metadata("position")
+                if first:
+                    top, bottom, left, right = posY, posY, posX, posX
+                    first = False
+                    continue
+                top     = min( top, posY )
+                bottom  = max( bottom, posY )
+                left    = min( left, posX )
+                right   = max( right, posX )
 
+            midX = (left+right)/2
+            if self.__isInOrOut :
+                y = top - verticalNodeSize
+                graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
+            else :
+                y = bottom + verticalNodeSize
+                graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
 
 class GraphicalInVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None)
-
-    def polishEvent(self):
-        set_composite_in_out_position(self.graph(), True)
-        GraphicalVertex.polishEvent(self)
+        GraphicalVertex.__init__(self, vertex, graph, parent=None, isInOrOut=True)
 
 class GraphicalOutVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None)
-
-    def polishEvent(self):
-        set_composite_in_out_position(self.graph(), False)
-        GraphicalVertex.polishEvent(self)
-
-def set_composite_in_out_position(graph, isInNode):
-    """Recomputes the position of In and Out ports to place them above or below
-    every other port"""
-    verticalNodeSize = 60
-    midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
-    first = True
-    for node in graph.vertex_property("_actor").itervalues():
-        if node == graph.node(graph.id_in) or node == graph.node(graph.id_out):
-            continue
-        posX, posY = node.get_ad_hoc_dict().get_metadata("position")
-        if first:
-            top, bottom, left, right = posY, posY, posX, posX
-            first = False
-            continue
-        top     = min( top, posY )
-        bottom  = max( bottom, posY )
-        left    = min( left, posX )
-        right   = max( right, posX )
-
-    midX = (left+right)/2
-    if isInNode :
-        y = top - verticalNodeSize
-        graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
-    else :
-        y = bottom + verticalNodeSize
-        graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
+        GraphicalVertex.__init__(self, vertex, graph, parent=None, isInOrOut=False)
 
 
 
 
 
 
-
-class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
+# --------------------------- ConnectorType ---------------------------------
+class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 2000
     __spacing  = 5.0
@@ -302,16 +296,15 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
 
     __nosize = QtCore.QSizeF(0.0, 0.0)
 
-    def __init__(self, port):
+    def __init__(self, parent, port):
         """
         """
-        QtGui.QGraphicsWidget.__init__(self)
-        qtgraphview.Element.__init__(self, observed=port)
+        QtGui.QGraphicsWidget.__init__(self, parent)
+        qtgraphview.Connector.__init__(self, observed=port)
+        #qtgraphview.Connector.__init__(self, observed=port)
 
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, False)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
 
-        self.__vertBBox = baselisteners.ObservedBlackBox(self,port.vertex())
         self.setZValue(1.5)
         self.highlighted = False
         self.initialise_from_model()
@@ -330,16 +323,14 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         if isinstance(new, AbstractPort):
             qtgraphview.Element.clear_observed(self)
             self.set_observed(new)
-        elif isinstance(new, AbstractNode):
-            self.__vertBBox.clear_observed()
-            self.__vertBBox(new)
 
     def close_and_delete(self, obj):
         self.clear_observed()
         del self
 
     def notify(self, sender, event):
-        try : self.port(); self.__vertBBox()
+        try :
+            self.port()
         except :
             self.clear_observed()
             del self
@@ -355,21 +346,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
                     else:
                         self.show()
                     self.updateGeometry()
-            elif(sender == self.__vertBBox() and event[1]=="position"):
-                self.__update_scene_center()
 
     def clear_observed(self, *args):
-        self.__vertBBox.clear_observed()
         qtgraphview.Element.clear_observed(self)
         return
 
-    def get_scene_center(self):
-        pos = self.rect().center() + self.scenePos()
-        return [pos.x(), pos.y()]
 
-    def __update_scene_center(self):
-        self.port().get_ad_hoc_dict().set_metadata("connectorPosition",
-                                                   self.get_scene_center())
     def __update_tooltip(self):
         node = self.port().vertex()
         if isinstance(self.port(), OutputPort):
@@ -383,10 +365,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
         else:
             #self.setToolTip("Value: " + s)
             self.setToolTip(self.port().get_tip(data) )
-
-    def set_highlighted(self, val):
-        self.highlighted = val
-        self.update()
 
     ##################
     # QtWorld-Layout #
@@ -403,7 +381,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Element):
 
     ##################
     # QtWorld-Events #
-    ##################
+    #################
+    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsWidget,
+                              "itemChange")
+
     def mousePressEvent(self, event):
         scene = self.scene()
         if (scene and event.buttons() & QtCore.Qt.LeftButton):

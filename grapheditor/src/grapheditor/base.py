@@ -21,13 +21,12 @@ from openalea.grapheditor import interfaces
 class GraphAdapterBase(object):
     """Base class for adapter to graph"""
     def __init__(self, graph=None):
-        if graph:
-            self.set_graph(graph)
+        self.set_graph(graph if graph else self)
 
     def set_graph(self, graph):
         self.graph = graph
 
-    def new_vertex(self, position=None):
+    def new_vertex(self, vtype=None, position=None):
         """Create a new vertex at the defined position and add it to the model"""
         raise NotImplementedError
 
