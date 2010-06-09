@@ -20,6 +20,22 @@ interfaces :
 	with read write files
 '''
 
+###########
+#
+#		compile QT interfaces
+#
+###########
+import os
+from PyQt4 import uic
+
+rc_file = "src/%s/visu/icons.qrc" % package
+out_file = "src/%s/visu/icons_rc.py" % package
+os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
+
+f = open("src/%s/visu/slide_viewer_ui.py" % package,'w')
+uic.compileUi("src/%s/visu/slide_viewer.ui" % package,f)
+f.close()
+
 # setup function call
 #
 setup(

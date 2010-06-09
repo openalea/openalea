@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       spatial_image: spatial nd images
+#       spatial_image.visu: visual display of spatial nd images
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
@@ -13,14 +13,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
-This module import the main SpatialImage object and function to manipulate it
+This module import object to provide views on spatial images
 """
 
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-from spatial_image import SpatialImage
-from algo import *
+from palette import *
+from pixmap_view import *
 
-from serial import *
-from visu import *
+from slide_viewer import *
+
