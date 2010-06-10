@@ -282,7 +282,6 @@ class GraphListenerBase(observer.AbstractListener):
             try:
                 self.__newEdge.consolidate(self.graph())
             except Exception, e :
-                #print e
                 pass
             finally:
                 self.__newEdge.remove_from_view(self.get_scene())
@@ -323,8 +322,6 @@ class ObservedBlackBox(object):
                 if self.__observed is not None:
                     return #don't overwrite the existing observed
                 else :
-                    # if isinstance(observed, int):
-                    #     traceback.print_stack()
                     if isinstance(observed, observer.Observed):
                         self.__patch_true()
                     else:
@@ -386,6 +383,5 @@ class ObservedBlackBox(object):
         return self.__observed().listeners
 
     def __get_fake_observers(self):
-        print "fake observers"
         return 0 #ugh... don't know how to do anything smart here yet.
 
