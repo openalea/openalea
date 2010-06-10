@@ -301,12 +301,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Connector.__init__(self, observed=port)
-        #qtgraphview.Connector.__init__(self, observed=port)
-
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
-
-        self.setZValue(1.5)
-        self.highlighted = False
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
