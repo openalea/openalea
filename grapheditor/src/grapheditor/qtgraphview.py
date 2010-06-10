@@ -178,7 +178,10 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
 class Connector(Element):
     def __init__(self, *args, **kwargs):
         Element.__init__(self, *args, **kwargs)
+        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges, True)
+        self.setZValue(1.5)
+        self.highlighted = False
 
     def set_highlighted(self, val):
         self.highlighted = val
@@ -192,6 +195,7 @@ class Connector(Element):
         obs = self.get_observed()
         if pos is None:
             pos  = self.get_scene_center()
+        #the following line is quirky because it relies on core.observer.Observed.listeners
         edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
         for e in edges:
             e.notify(obs, ("metadata_changed", "connectorPosition", pos))
@@ -250,15 +254,16 @@ class Vertex(Element):
         :Parameters:
             - vertex - the vertex to observe.
             - graph - the owner of the vertex
-
         """
         Element.__init__(self, vertex, graph)
         self.__connectors = []
         self.__defaultConnector = None
 
         #must not be called before self.__defaultConnector is defined
+        self.setZValue(1.0)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
             self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
@@ -299,14 +304,13 @@ class Vertex(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-
         if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
             if self.__defaultConnector:
                 center = self.sceneBoundingRect().center()
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
 
-        if change == QtGui.QGraphicsItem.ItemPositionHasChanged:
+        elif change == QtGui.QGraphicsItem.ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data('position', [point.x(), point.y()])
@@ -316,7 +320,6 @@ class Vertex(Element):
                 center = self.sceneBoundingRect().center()
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
-
 
             return value
 
@@ -425,7 +428,6 @@ class Edge(Element):
     def remove(self):
         self.graph().remove_edge(self.srcBBox(), self.dstBBox())
 
-
     ############
     # Qt World #
     ############
@@ -438,14 +440,29 @@ class Edge(Element):
 
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
+        #hack to update start and end points:
+        if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
+            try:
+                srgGraphical = filter(lambda x: isinstance(x(), Connector),
+                                      self.srcBBox().listeners)[0]()
+                dstGraphical = filter(lambda x: isinstance(x(), Connector),
+                                      self.dstBBox().listeners)[0]()
+                srgGraphical.notify_position_change()
+                dstGraphical.notify_position_change()
+            except:
+                #possible errors :
+                # -filter yielded an empty list: index out of range
+                # -item 0 of list is a weakref whose refered object has died
+                # -other.
+                pass
 
-        if (change == QtGui.QGraphicsItem.ItemSelectedChange):
+        elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
             if(value.toBool()):
                 color = QtCore.Qt.blue
             else:
                 color = QtCore.Qt.black
 
-            self.setPen(QtGui.QPen(color, 3,
+            self.setPen(QtGui.QPen(color, 2,
                                    QtCore.Qt.SolidLine,
                                    QtCore.Qt.RoundCap,
                                    QtCore.Qt.RoundJoin))
@@ -473,9 +490,9 @@ class FloatingEdge( Edge ):
             sItem.notify_position_change()
             dItem.notify_position_change()
         except Exception, e:
-            # pass
-            print "consolidation failed :", type(e), e,\
-            ". Are you sure you plugged the right ports?"
+            pass
+            # print "consolidation failed :", type(e), e,\
+            # ". Are you sure you plugged the right ports?"
         return
 
     def get_connections(self):
@@ -551,10 +568,10 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         return dstPortItem
 
     def post_addition(self, element):
-        """defining virtual bases makes the program start
-        but crash during execution if the method is not implemented, where
-        the interface checking system could prevent the application from
-        starting, with a die-early behaviour."""
+        # defining virtual bases makes the program start
+        # but crash during execution if the method is not implemented, where
+        # the interface checking system could prevent the application from
+        # starting, with a die-early behaviour
         element.setSelected(self.__selectAdditions)
 
     def rebuild(self):
