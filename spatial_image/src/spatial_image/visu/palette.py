@@ -19,8 +19,9 @@ This module provide a set of palettes to associate colors to data
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-__all__ = ["grayscale","rainbow","bwrainbow",
-           "palette_factory"]
+palette_names = ["grayscale","rainbow","bwrainbow"]
+
+__all__ = palette_names + ["palette_names","palette_factory"]
 
 from PyQt4.QtGui import QColor
 
@@ -72,10 +73,6 @@ def bwrainbow (cmax) :
 	return pal
 
 def palette_factory (palname, cmax) :
-#	if palname == "grayscale" :
-#		return grayscale(cmax)
-#	elif palname == "rainbow" :
-#		return rainbow(cmax)
-#	elif palname == 
+	assert palname in palette_names
 	return globals()[palname](cmax)
 

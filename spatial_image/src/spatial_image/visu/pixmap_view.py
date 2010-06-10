@@ -92,6 +92,27 @@ class PixmapView (object) :
 		"""
 		raise NotImplementedError("TO subclass")
 	
+	def resolution (self) :
+		"""Return resolution of the pixmap
+		
+		:Returns Type: float,float
+		"""
+		if self._img is None : return
+		return getattr(self._img,"resolution",(1,1) )[:2]
+	
+	def pixmap_real_size (self) :
+		"""Return the spatial extension of the pixmap
+		
+		:Returns Type: float,float
+		"""
+		res = self.resolution()
+		if res is None : return
+		
+		pix = self.pixmap()
+		if pix is None : return
+		
+		return pix.width() * res[0],pix.height() * res[1]
+	
 	########################################
 	#
 	#	view transformation
@@ -171,6 +192,11 @@ class PixmapStackView (PixmapView) :
 		pal = self.palette()
 		data = self.image()
 		
+		#rotation
+		tr = QTransform()
+		tr.rotate(self._transform)
+		
+		#construct pixmaps
 		pix = []
 		for z in xrange(data.shape[2]) :
 			dat = pal[data[:,:,z] ].flatten('F')
@@ -178,7 +204,7 @@ class PixmapStackView (PixmapView) :
 			             data.shape[0],
 			             data.shape[1],
 			             QImage.Format_ARGB32)
-			pix.append(QPixmap.fromImage(img) )
+			pix.append(QPixmap.fromImage(img).transformed(tr) )
 		
 		self._pixmaps = pix
 		self._current_slice = min(max(self._current_slice,0),len(pix) - 1)
