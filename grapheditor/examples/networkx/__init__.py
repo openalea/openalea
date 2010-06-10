@@ -122,10 +122,6 @@ class GraphicalNode( qtgraphview.Vertex, QtGui.QGraphicsEllipseItem  ):
     def __init__(self, vertex, graph):
         QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, circleSize, circleSize, None)
         qtgraphview.Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
-        # ---Qt Stuff---
-        self.setZValue(1.0)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         #set the initial position of the GRAPHICAL item
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex().v]["position"]))
 
@@ -142,7 +138,7 @@ class GraphicalNode( qtgraphview.Vertex, QtGui.QGraphicsEllipseItem  ):
     def store_view_data(self, *args, **kwargs):
         """ Store view data is used to put data relative to the view in a place that can be saved """
         #CODE REVIEW why don't we receive a dictionnary of data instead of this unpredictable stuff?
-        self.graph().add_vertex(self.vertex().v, **dict([args]))
+#        self.graph().add_vertex(self.vertex().v, **dict([args]))
 
     # CODE REVIEW : The mixin_method(t1, t2, callName) is easy to use but one must know that it
     # needs to be done. It creates a wrapper method that calls t1.callName and then t2.callName.
