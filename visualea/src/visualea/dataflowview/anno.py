@@ -75,7 +75,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
     def focusOutEvent(self, event):
         text = unicode(self.toPlainText())
         if(text != self.__def_string__):
-            self.store_view_data('text', text)
+            self.store_view_data(text=text)
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         QtGui.QGraphicsTextItem.focusOutEvent(self, event)
 
@@ -96,8 +96,9 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
             text = self.__def_string__
         self.setPlainText(text)
 
-    def store_view_data(self, key, value, notify=True):
-        self.annotation().get_ad_hoc_dict().set_metadata(key, value)
+    def store_view_data(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            self.vertex().get_ad_hoc_dict().set_metadata(k, v)
 
     def get_view_data(self, key):
         return self.annotation().get_ad_hoc_dict().get_metadata(key)

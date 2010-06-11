@@ -248,7 +248,7 @@ class IGraphViewElement(object):
         """
         raise NotImplementedError
 
-    def store_view_data(self, key, value, notify=True):
+    def store_view_data(self, **kwargs):
         raise NotImplementedError
 
     def get_view_data(self, key):

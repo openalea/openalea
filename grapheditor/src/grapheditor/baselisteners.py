@@ -43,7 +43,6 @@ class StrategyError( Exception ):
         return self._msg
 
 
-
 class GraphElementListenerBase(observer.AbstractListener):
     """Base class for elements in a GraphView"""
 
@@ -167,15 +166,15 @@ class GraphListenerBase(observer.AbstractListener):
         elif(event[0]=="vertex_removed") : self.vertex_removed(*event[1])
         elif(event[0]=="edge_removed") : self.edge_removed(*event[1])
 
-    def vertex_added(self, vtype, vertexModel):
+    def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
-        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.graph())
+        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.graph(), *args, **kwargs)
         return self._element_added(vertexWidget, vertexModel)
 
-    def edge_added(self, etype, edgeModel, src, dst):
+    def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
         if edgeModel is None : return
         edgeWidget = self.__strategy.create_edge_widget(etype, edgeModel, self.graph(),
-                                                        src, dst)
+                                                        src, dst, *args, **kwargs)
         return self._element_added(edgeWidget, edgeModel)
 
     def vertex_removed(self, vtype, vertexModel):

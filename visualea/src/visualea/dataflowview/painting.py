@@ -25,7 +25,7 @@ from PyQt4 import QtGui, QtCore
 default_not_modified_color       = QtGui.QColor(0, 0, 255, 200)
 default_selected_color           = QtGui.QColor(180, 180, 180, 180)
 default_not_selected_color       = QtGui.QColor(255, 255, 255, 100)
-default_error_color              = QtGui.QColor(255, 0, 0, 255)    
+default_error_color              = QtGui.QColor(255, 0, 0, 255)
 default_selected_error_color     = QtGui.QColor(0, 0, 0, 255)
 default_not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
 
@@ -40,7 +40,7 @@ default_paths         = weakref.WeakKeyDictionary()
 def default_dataflow_paint(owner, painter, option, widget):
     global default_paths
     path = default_paths.get(owner, None)
-    rect = owner.rect() 
+    rect = owner.rect()
     if(path is None or owner.shapeChanged):
         path = QtGui.QPainterPath()
         top = owner._inPortLayout().geometry().center().y()
@@ -60,7 +60,7 @@ def default_dataflow_paint(owner, painter, option, widget):
 
     userColor = owner.get_view_data("userColor")
     if( userColor is None ):
-        owner.store_view_data("useUserColor", False)
+        owner.store_view_data(useUserColor=False)
 
     if hasattr(owner.vertex(), 'raise_exception'):
         color = default_error_color
@@ -68,7 +68,7 @@ def default_dataflow_paint(owner, painter, option, widget):
             pen = QtGui.QPen(QtCore.Qt.red, 1)
             secondcolor = default_selected_error_color
         else:
-            secondcolor = default_not_selected_error_color                
+            secondcolor = default_not_selected_error_color
     else:
         if(owner.isSelected()):
             pen = QtGui.QPen(QtGui.QColor(180, 180, 255, 255), 1)
