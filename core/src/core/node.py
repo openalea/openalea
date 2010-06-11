@@ -155,6 +155,9 @@ class AbstractNode(Observed, HasAdHoc):
 
     def set_id(self, id):
         self.__id = id
+        self.internal_data["id"] = self.__id
+        if(self.factory):
+            self.internal_data["factory"] = str(self.factory) + " : \"" + self.factory.get_id() + "\""
     #/gengraph
 
     def set_data(self, key, value, notify=True):
