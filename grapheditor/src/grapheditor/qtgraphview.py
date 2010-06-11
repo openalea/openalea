@@ -208,9 +208,6 @@ class Connector(Element):
             self.notify_position_change()
             return value
 
-
-
-
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
@@ -313,7 +310,7 @@ class Vertex(Element):
         elif change == QtGui.QGraphicsItem.ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
-            self.store_view_data('position', [point.x(), point.y()])
+            self.store_view_data(position=[point.x(), point.y()])
             self.deaf(False)
 
             if self.__defaultConnector:

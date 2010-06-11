@@ -144,8 +144,9 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
     ####################
     # Observer methods #
     ####################
-    def store_view_data(self, key, value, notify=True):
-        self.vertex().get_ad_hoc_dict().set_metadata(key, value)
+    def store_view_data(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            self.vertex().get_ad_hoc_dict().set_metadata(k, v)
 
     def get_view_data(self, key):
         return self.vertex().get_ad_hoc_dict().get_metadata(key)
@@ -183,7 +184,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
 
         elif(event[0] == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
-                self.store_view_data("useUserColor", False, False)
+                self.store_view_data(useUserColor = False)
             self.update()
 
         elif(event[0] == "input_port_added"):
@@ -229,7 +230,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(),
                                                               pos.y(),-1.0,-1.0))
         pos = self.pos()
-        self.store_view_data('position', [pos.x(), pos.y()])
+        self.store_view_data(position=[pos.x(), pos.y()])
 
         #this is not such a bad place to check for port visibility
         #because it gets called when ports are hidden.
