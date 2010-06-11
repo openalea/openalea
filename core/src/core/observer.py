@@ -32,11 +32,13 @@ class Observed(object):
 
         self.listeners = set()
         self.__isNotifying = False
-        self.__postNotifs = []
+        self.__postNotifs = [] #calls to execute after a notication is done
         self.__exclusive = None
 
     def register_listener(self, listener):
-        """ Add listener to list of listeners """
+        """ Add listener to list of listeners.
+        If the observed is currently notifying, the registration
+        is delayed until it finishes."""
         if(not self.__isNotifying):
             wr = weakref.ref(listener, self.unregister_listener)
             self.listeners.add(wr)
@@ -139,7 +141,6 @@ class AbstractListener(object):
 
     def initialise(self, observed):
         """ Register self as a listener to observed """
-
         assert observed != None
         observed.register_listener(self)
         if (self.notify_lock == None):
@@ -155,9 +156,18 @@ class AbstractListener(object):
         self.__deaf=setDeaf
 
     def queue_call_notifications(self, call, *args, **kwargs):
+        """ Runs a call and queues notifications coming from that call
+        to this listener. Once the call is finished, queued notifications
+        are processed FIFO."""
         self.__eventQueue = deque()
         call(*args, **kwargs)
-        self.call_notify(self, "PROCESS_QUEUE")
+        self.__process_queued_calls()
+
+    def __process_queued_calls(self):
+        queue = deque(self.__eventQueue)
+        self.__eventQueue = None
+        for e in queue:
+            self.call_notify(e[0], e[1])
 
     def call_notify(self, sender, event=None):
         """
@@ -165,25 +175,11 @@ class AbstractListener(object):
         Sub class can override this method to implement different call strategy
         (like signal slot)
         """
-        if sender == self and event == "PROCESS_QUEUE":
-            if self.__deaf :
-                self.__eventQueue = None
-            elif len(self.__eventQueue) > 0 :
-                e = self.__eventQueue.popleft()
-                while e:
-                    self.notify(e[0], e[1])
-                    try : e = self.__eventQueue.popleft()
-                    except IndexError , ex:
-                        e = None
-            self.__eventQueue = None
-
         #if we are running a call with delayed event delivery
         #we queue the events:
         if self.__eventQueue is not None :
             self.__eventQueue.append((sender, event))
-            return
-
-        if not self.__deaf:
+        elif not self.__deaf:
             self.notify(sender, event)
 
     def notify(self, sender, event=None):
