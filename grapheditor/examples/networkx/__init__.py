@@ -28,15 +28,14 @@ class NXObservedProxyNode( observer.Observed ):
         self.v = vertex
         self.g = weakref.ref(graph)
 
-    def notify_update(self):
+    def notify_update(self, **kwargs):
+        for item in kwargs.iteritems():
+            self.notify_listeners(item)
         self.notify_position()
 
     def notify_position(self):
         pos = self.g().node[self.v]["position"]
         self.notify_listeners(("metadata_changed", "position", pos))
-        center = pos[0] + halfCircleSize, pos[1] + halfCircleSize
-        self.notify_listeners(("metadata_changed", "connectorPosition", center))
-
 
 class NXObservedProxyEdge( observer.Observed ):
     """ Proxy on networkx edges. """
@@ -56,21 +55,28 @@ class NXObservedGraph( grapheditor.base.GraphAdapterBase, observer.Observed ):
         self.set_graph(nx.Graph())
         self.__curVtx = 0
 
-    def new_vertex(self, position=None):
-        self.add_vertex(self.__curVtx, position=position)
+#    def new_vertex(self, position=None):
+    def new_vertex(self, **kwargs):
+        self.add_vertex(self.__curVtx, **kwargs)
         self.__curVtx += 1
 
     def add_vertex(self, vertex, **kwargs):
         if vertex in self.graph:
-            proxy = self.graph.node[vertex]["proxy"]
-            self.graph.add_node(vertex, **kwargs)
-            proxy.notify_update()
+            return
         else:
             if "position" not in kwargs : kwargs["position"] = [0,0,0]
             proxy = NXObservedProxyNode(vertex, self.graph)
             kwargs["proxy"] = proxy
             self.graph.add_node(vertex, **kwargs)
             self.notify_listeners(("vertex_added", ("vertex", proxy)))
+
+    #not in the adapter interface (yet):
+    def set_vertex_data(self, vertex_proxy, **kwargs):
+        vertex = vertex_proxy.v
+        if vertex in self.graph:
+            proxy = self.graph.node[vertex]["proxy"]
+            self.graph.add_node(vertex, **kwargs)
+            proxy.notify_update(**kwargs)
 
     def remove_vertex(self, vertex_proxy):
         n = vertex_proxy.v
@@ -122,45 +128,42 @@ class GraphicalNode( qtgraphview.Vertex, QtGui.QGraphicsEllipseItem  ):
     def __init__(self, vertex, graph):
         QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, circleSize, circleSize, None)
         qtgraphview.Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
-        #set the initial position of the GRAPHICAL item
-        self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex().v]["position"]))
+        self.initialise_from_model()
 
     def initialise_from_model(self):
-        raise NotImplementedError
+        self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex().v]["position"]))
+        color = self.graph().graph.node[self.vertex().v]["color"]
+        brush = QtGui.QBrush(color)
+        self.setBrush(brush)
 
     def notify(self, sender, event):
-        #Do cool stuff here
         qtgraphview.Vertex.notify(self, sender, event)
 
     def get_view_data(self, *args, **kwargs):
         return self.graph().graph.node[self.vertex().v][args[0]]
 
-    def store_view_data(self, *args, **kwargs):
-        """ Store view data is used to put data relative to the view in a place that can be saved """
-        #CODE REVIEW why don't we receive a dictionnary of data instead of this unpredictable stuff?
-#        self.graph().add_vertex(self.vertex().v, **dict([args]))
+    def store_view_data(self, **kwargs):
+        """This call is executed while self is in "deaf" mode to avoid infinite loops"""
+        pos = kwargs.get('position', None)
+        if pos is not None:
+            self.graph().set_vertex_data(self.vertex(), position=pos)
 
-    # CODE REVIEW : The mixin_method(t1, t2, callName) is easy to use but one must know that it
-    # needs to be done. It creates a wrapper method that calls t1.callName and then t2.callName.
-    # We do this because the classes used in qtgraphview don't know which QGraphicsItem subclass
-    # will be used to implement the actual item in the strategy. Of course you can overload callName
-    # yourself.
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsEllipseItem,
                                    "mousePressEvent")
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsEllipseItem,
                               "itemChange")
+
+    paint = mixin_method(QtGui.QGraphicsEllipseItem, None,
+                         "paint")
 
 class GraphicalEdge( qtgraphview.Edge, QtGui.QGraphicsPathItem  ):
     def __init__(self, edge=None, graph=None, src=None, dest=None):
         QtGui.QGraphicsPathItem.__init__(self, None)
         qtgraphview.Edge.__init__(self, edge, graph, src, dest)
         self.set_edge_creator(LinearEdgePath())
-        src.notify_update()
-        dest.notify_update()
-        self.setZValue(0.0)
 
     def initialise_from_model(self):
-        raise NotImplementedError
+        pass
 
     def notify(self, sender, event):
         qtgraphview.Edge.notify(self, sender, event)
@@ -184,7 +187,8 @@ Strategy = grapheditor.base.GraphStrategy(graphModelType = NXObservedGraph,
                                           vertexWidgetMap= {"vertex":GraphicalNode},
                                           edgeWidgetMap  = {"default":GraphicalEdge,
                                                             "floating-default":GraphicalFloatingEdge},
-                                          connectorTypes = [], #[GraphicalNode], not necessary since use the default invisible connector
+                                          #[GraphicalNode], not necessary since use the default invisible connector
+                                          connectorTypes = [],
                                           #of vertices
                                           adapterType    = None)
 
@@ -194,10 +198,12 @@ baselisteners.GraphListenerBase.register_strategy(Strategy)
 
 
 #CUSTOMISING THE GRAPH VIEW FOR THIS PARTICULAR DEMO:
+from random import randint as rint
 def dropHandler(view, event):
     position = view.mapToScene(event.pos())
     position = [position.x(), position.y()]
-    view.scene().graph().new_vertex(position)
+    view.scene().graph().new_vertex(position=position,
+                                    color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
 
 View.set_default_drop_handler(dropHandler)
 View.set_event_handler("mouseDoubleClickEvent", dropHandler, NXObservedGraph)
@@ -226,8 +232,8 @@ class MainWindow(QtGui.QMainWindow):
 
 
 #THE ENTRY POINT
-def main(args):
-    app = QtGui.QApplication(args)
+def main(argv):
+    app = QtGui.QApplication(["GraphEditor and Networkx Demo"])
     QtGui.QApplication.processEvents()
     win = MainWindow()
     win.show()
