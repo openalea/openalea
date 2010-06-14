@@ -35,9 +35,6 @@ class TypeInterfaceMap(dict):
 
     __metaclass__ = Singleton
 
-    def __init__(self, *args):
-        dict.__init__(self, *args)
-
     def declare_interface(self, type, interface):
         """
         Declare an interface and its optional widget
@@ -47,9 +44,30 @@ class TypeInterfaceMap(dict):
         :param type: Python type
         """
 
-        if(type and not self.has_key(type)):
+        if type and type not in self:
             self[type] = interface
 
+            TypeNameInterfaceMap().declare_interface(str(interface), interface)
+
+class TypeNameInterfaceMap(dict):
+    """
+    Singleton class to map Interface Name with interface type
+    InterfaceWidgetMap inherits from dict class
+    """
+
+    __metaclass__ = Singleton
+
+    def declare_interface(self, name, interface):
+        """
+        Declare an interface and its optional widget
+
+        :param interface: IInterface class object
+
+        :param type: Python type
+        """
+
+        if name and name not in self:
+            self[name] = interface
 
 class IInterfaceMetaClass(type):
     """
