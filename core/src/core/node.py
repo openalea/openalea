@@ -514,6 +514,12 @@ class Node(AbstractNode):
 
         # default value
         if(interface and not kargs.has_key('value')):
+            if isinstance(interface,str):
+                # Create mapping between interface name and interface class
+                from openalea.core.interface import TypeNameInterfaceMap
+                interface = TypeNameInterfaceMap()[interface]
+                kargs['interface'] = interface
+
             value = interface.default()
         else:
             value = kargs.get('value', None)
