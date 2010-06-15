@@ -38,7 +38,6 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     def __init__(self, srcPoint, graph):
         QtGui.QGraphicsPathItem.__init__(self, None)
         qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
-        self.setZValue(0.0)
 
     def get_connections(self):
         boxsize = 10.0
@@ -81,7 +80,7 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         """ """
         QtGui.QGraphicsPathItem.__init__(self, parent)
         qtgraphview.Edge.__init__(self, edgeModel, graphadapter, port1, port2)
-        self.setZValue(0.5)
+        self.__edge_creator = self.set_edge_creator(edgefactory.SplineEdgePath())
         self.initialise_from_model()
 
     def initialise_from_model(self):

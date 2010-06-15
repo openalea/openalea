@@ -1,0 +1,31 @@
+13/05/2010: Code review from Christophe
+---------------------------------------
+GraphEditor would be a standalone package. Otherwise developers from other projects will never use or extend it.
+
+So we need to remove any references to OPenAlea.Core:
+    - interfaces.py:
+        * why do we need to register these interface to OpenAlea?
+        Interface in OpenAlea are only use to define the inputs of a node
+        and associate automagically a widgets to the node.
+        => Use duck typing instead.
+        * However, if you want to define a contract, please document at least
+            - what the class represent
+            - what are the output of the methods
+            - what are their meaning
+        See graph.interface for an example.
+    - edgefactory.py:
+        * EdgeFactory(): Settings are not defined
+        Is this working outside OpenAlea ('UI, 'EdgeStyle')?
+    - baselisteners.py
+        * Depends on openalea.observer: remove it or use a local copy.
+        * The code is not sufficiently autoexplanatory (BlackBox)
+        * set_graph, graph: use property instead
+        * notify: you have to explain very clearly the possible events.
+        * GraphListenerBase.registerstrategy:
+            Separate registration and check. The check has to be done
+            by the caller.
+        * to continue...
+    - qtgraphview.py:
+        *why renaming the functions (WEAKREFref and so on) rather than ref or weakref.ref). It is awfull.
+        * __AIK__? why not __AP_IN_KE__ its much more readable.
+        => replace by __keys (low case with just trailing _.

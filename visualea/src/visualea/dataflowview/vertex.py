@@ -43,7 +43,6 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
         self.set_painting_strategy(painting.default_dataflow_paint)
-        self.setZValue(1)
         self.destroyed.connect(self.clear_observed)
         self.__isInOrOut = isInOrOut
         # used by the node shape cache in painting.py
