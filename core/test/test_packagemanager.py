@@ -42,14 +42,14 @@ def test_load_pm():
     pkgman = PackageManager()
     pkgman.init()
 
-    simpleop = pkgman["Catalog.Data"]
+    simpleop = pkgman["openalea.flow control"]
     assert simpleop
 
-    addfactory = simpleop.get_factory('int')
+    addfactory = simpleop.get_factory('command')
     assert addfactory != None
     assert addfactory.instantiate()
 
-    valfactory = simpleop.get_factory('float')
+    valfactory = simpleop.get_factory('rendez vous')
     assert valfactory != None
 
 

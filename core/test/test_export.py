@@ -12,16 +12,23 @@ import sys
 
 def test_export():
     """test export"""
+    d= {}
+    execfile('catalog.py', globals(), d)
+    pkg = d['pkg']
+    plus_node= pkg['plus'].instantiate()
+    float_node= pkg['float'].instantiate()
+    int_node= pkg['int'].instantiate()
+    string_node= pkg['string'].instantiate()
     pm = PackageManager()
-    pm.init()
+    pm.add_package(pkg)
 
     sg = CompositeNode()
 
     # build the compositenode factory
-    addid = sg.add_node(pm.get_node("Catalog.Math", "+"))
-    val1id = sg.add_node(pm.get_node("Catalog.Data", "float"))
-    val2id = sg.add_node(pm.get_node("Catalog.Data", "float"))
-    val3id = sg.add_node(pm.get_node("Catalog.Data", "float"))
+    addid = sg.add_node(plus_node)
+    val1id = sg.add_node(float_node)
+    val2id = sg.add_node(float_node)
+    val3id = sg.add_node(float_node)
 
     sg.connect(val1id, 0, addid, 0)
     sg.connect(val2id, 0, addid, 1)
@@ -43,3 +50,4 @@ def test_export():
         os.remove("app.pyc")
     except:
         pass
+
