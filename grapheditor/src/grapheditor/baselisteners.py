@@ -29,6 +29,7 @@ except ImportError:
     # Please, have a local copy to remove the dependency on core.
     import observer
 
+import observer
 import interfaces
 
 

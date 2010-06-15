@@ -18,18 +18,25 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from weakref    import ref as WEAKREFRef
-from types      import MethodType as TYPESMethodType
-from gc         import collect as GCcollect
-from exceptions import DeprecationWarning as EXDeprecationWarning
-from warnings   import warn as WAWarn
+import weakref, types, gc, warnings
 from PyQt4 import QtGui, QtCore
-from openalea.core.settings import Settings
-
 import baselisteners, interfaces, qtutils
 import edgefactory
 
 from math import sqrt
+
+
+
+#Some SIP versions don't know about some QGraphicsItem flags or enums yet
+if QtCore.qVersion() < "4.6.2":
+    # -- flags --
+    ItemSendsGeometryChanges = 0x800
+    ItemSendsScenePositionChanges = 0xffff
+else:
+    # -- flags --
+    ItemSendsGeometryChanges = QtGui.QGraphicsItem.ItemSendsGeometryChanges
+    ItemSendsScenePositionChanges = QtGui.QGraphicsItem.ItemSendsScenePositionChanges
+
 
 #__Application_Integration_Keys__
 __AIK__ = [
@@ -97,13 +104,13 @@ class ClientCustomisableWidget(object):
             graphType in cls.__application_integration__): return
         for name, hand in cls.__application_integration__[graphType].iteritems():
             if "Event" in name and hand:
-                setattr(cls, name, TYPESMethodType(hand, None, cls))
+                setattr(cls, name, types.MethodType(hand, None, cls))
 
     @classmethod
     def reset_event_handlers(cls):
         if hasattr(cls, "__originals__"):
             for name, hand in cls.__originals__.iteritems():
-                setattr(cls, name, TYPESMethodType(hand, None, cls))
+                setattr(cls, name, types.MethodType(hand, None, cls))
 
 #------*************************************************------#
 class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
@@ -178,8 +185,8 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
 class Connector(Element):
     def __init__(self, *args, **kwargs):
         Element.__init__(self, *args, **kwargs)
-        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
-        self.setFlag(QtGui.QGraphicsItem.ItemSendsScenePositionChanges, True)
+        self.setFlag(ItemSendsGeometryChanges)
+        self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
 
@@ -256,11 +263,10 @@ class Vertex(Element):
         self.__connectors = []
         self.__defaultConnector = None
 
-        #must not be called before self.__defaultConnector is defined
         self.setZValue(1.0)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
-        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
+        self.setFlag(ItemSendsGeometryChanges)
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
             self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
@@ -346,12 +352,11 @@ class Edge(Element):
     def __init__(self, edge=None, graph=None, src=None, dst=None):
         Element.__init__(self, edge, graph)
 
-        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(
-            QtGui.QGraphicsItem.ItemIsSelectable))
-
+        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(QtGui.QGraphicsItem.ItemIsSelectable))
+        self.setZValue(0.5)
         self.srcPoint = QtCore.QPointF()
         self.dstPoint = QtCore.QPointF()
-        self.__edge_creator = self.set_edge_creator(edgefactory.EdgeFactory())
+        self.__edge_creator = self.set_edge_creator(edgefactory.LinearEdgePath())
 
         self.setPen(QtGui.QPen(QtCore.Qt.black, 2,
                                QtCore.Qt.SolidLine,
@@ -528,7 +533,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # Functions to correctly cooperate with the View class (reference counting) #
     #############################################################################
     def register_view(self,  view):
-        self.__views.add(WEAKREFRef(view))
+        self.__views.add(weakref.ref(view))
 
     def unregister_view(self,  view):
         toDiscard = None
@@ -580,7 +585,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         """ Remove all items from the scene """
         QtGui.QGraphicsScene.clear(self)
         baselisteners.GraphListenerBase.clear(self)
-        GCcollect()
+        gc.collect()
 
     ##################
     # QtWorld-Events #
@@ -601,8 +606,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # Other utility methods #
     #########################
     def select_added_elements(self, val):
-        WAWarn(EXDeprecationWarning(
-                      "Please use self.%s instead"%("select_added_items",)),
+        warnings.warn(DeprecationWarning( "Please use self.%s instead"%("select_added_items",)),
                       stacklevel=2)
         self.select_added_items(val)
 
@@ -645,9 +649,8 @@ def deprecate(methodName, newName=None):
     """create deprecation wrappers"""
     if newName is None : newName = methodName
     def deprecation_wrapper(self, *args, **kwargs):
-        WAWarn(EXDeprecationWarning(
-                            "Please use self.scene().%s instead"%(newName,)),
-                      stacklevel=2)
+        warnings.warn( DeprecationWarning( "Please use self.scene().%s instead"%(newName,)),
+                       stacklevel=2)
         return getattr(self.scene(), newName)(*args, **kwargs)
     return deprecation_wrapper
 

@@ -34,7 +34,6 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
 
         # ---Qt Stuff---
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(0x800) #SIP doesn't know about the ItemSendsGeometryChanges flag yet
         self.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.setZValue(2.0)
 
