@@ -26,7 +26,11 @@ import os, sys
 #import string
 pj = os.path.join
 
-from SCons.Script import SConsignFile, Help, BuildDir
+from SCons.Script import SConsignFile, Help
+try:
+    from SCons.Script import VariantDir
+except ImportError:
+    from SCons.Script import BuildDir as VariantDir
 from SCons.Options import  Options
 from SCons.Options import  PathOption, BoolOption, EnumOption
 from SCons.Variables import PathVariable 
@@ -341,7 +345,7 @@ def ALEASolution(options, tools=[], dir=[]):
     Help(options.GenerateHelpText(env))
 
     prefix = env['build_prefix']
-    BuildDir(prefix, '.')
+    VariantDir(prefix, '.')
 
     env.Prepend(CPPPATH='$build_includedir')
     env.Prepend(LIBPATH='$build_libdir')
