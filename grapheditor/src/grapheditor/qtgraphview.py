@@ -91,7 +91,7 @@ class ClientCustomisableWidget(object):
             - handler (callable) - The handler to register with key.
 
 
-         The key can be any of
+         The key can be any of %s
            * \"mouseMoveEvent\"
            * \"mouseReleaseEvent\"
            * \"mousePressEvent\"
@@ -99,6 +99,7 @@ class ClientCustomisableWidget(object):
            * \"keyReleaseEvent\"
            * \"keyPressEvent\"
            * \"contextMenuEvent\"
+
 
         See the Qt documentation of those to know the expected signature
         of the handler (usually : handlerName(QObject, event)).
@@ -163,9 +164,10 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     (hopefully).
 
     :Listener calls:
-        * position_changed(self,  (posx, posy))
-        * add_to_view(self, view)
-        * remove_from_view(self, view)
+     * position_changed(self,  (posx, posy))
+     * add_to_view(self, view)
+     * remove_from_view(self, view)
+
 
     """
 
@@ -175,8 +177,7 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     def __init__(self, observed=None, graph=None):
         """
         :Parameters:
-             - observed (openalea.core.observer.Observed) - The item to
-             observe.
+             - observed (openalea.core.observer.Observed) - The item to observe.
              - graph (ducktype) - The graph owning the item.
 
         """

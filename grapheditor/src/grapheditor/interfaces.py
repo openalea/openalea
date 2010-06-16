@@ -20,17 +20,14 @@ will check the interfaces match more or less."""
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
+import new
 class IInterfaceMetaClass(type):
     """
-    IInterface Metaclass
-    Also adds a method to the interface class that checks
+    Adds a method to the interface class that checks
     that the given object implements the class' interface.
     Allows some sort of safe-ducktyping"""
 
-
     def __new__(cls, name, bases, dict):
-        dict["check"] = classmethod(IInterfaceMetaClass.check)
         newCls = type.__new__(cls, name, bases, dict)
 
         ###--CONTRACT CHECKING INFRASTRUCTURE---
@@ -55,7 +52,7 @@ class IInterfaceMetaClass(type):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
 
     def check(cls, obj):
-        """Check if obj matches this interface."""
+        """ Check if obj matches this interface. """
         objMem = dir(obj)
         notImp = []
 
