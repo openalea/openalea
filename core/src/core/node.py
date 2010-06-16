@@ -1116,23 +1116,48 @@ class NodeFactory(AbstractFactory):
                and not hasattr(self.module_cache, 'oa_invalidate')):
                 return self.module_cache
 
-            # load module
             sav_path = sys.path
-            sys.path = self.search_path + sav_path
-            (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+            try:
+                # load module
+                sys.path = self.search_path + sav_path
+                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
 
-            self.nodemodule_path = pathname
+                self.nodemodule_path = pathname
 
-            sys.path.append(os.path.dirname(pathname))
-            nodemodule = imp.load_module(str(id(self.nodemodule_path+self.nodemodule_name)),
-                    file, pathname, desc)
-            sys.path = sav_path
+                sys.path.append(os.path.dirname(pathname))
+                nodemodule = imp.load_module(str(id(self.nodemodule_path+self.nodemodule_name)),
+                        file, pathname, desc)
+                sys.path = sav_path
 
-            if(file):
-                file.close()
-            self.module_cache = nodemodule
-            return nodemodule
+                if(file):
+                    file.close()
+                self.module_cache = nodemodule
+                return nodemodule
+            except ImportError:
+                sys.path = self.search_path + sav_path
+                name = self.nodemodule_name
+                package = '.'.join(name.split('.')[0:-1])
+                obj = name.split('.')[-1]
+                execString = 'from %s import %s' % (package, obj)
+                try:
+                    exec execString
+                except SyntaxError:
+                    sys.path = sav_path
+                    raise ImportError("Invalid class specification: %s" % name)
+                exec 'nodemodule = %s' % obj
 
+                exec 'import %s' % package
+                exec 'pkg_temp = %s' % package
+
+                (f, pathname, desc) = imp.find_module(nodemodule, pkg_temp.__path__)
+                if f: 
+                    f.close()
+
+                self.module_cache = nodemodule
+                self.nodemodule_path = pathname
+                
+                sys.path = sav_path
+                return nodemodule
         else:
             # By default use __builtin__ module
             import __builtin__
@@ -1148,13 +1173,13 @@ class NodeFactory(AbstractFactory):
             return self.nodemodule_path
         elif(self.nodemodule_name):
             # load module
-            sav_path = sys.path
-            sys.path = self.search_path + sav_path
-            (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+            #sav_path = sys.path
+            #sys.path = self.search_path + sav_path
+            (file, pathname, desc) = imp.find_module(self.nodemodule_name, self.search_path + sys.path)
 
             self.nodemodule_path = pathname
 
-            sys.path = sav_path
+            #sys.path = sav_path
 
             if(file):
                 file.close()
