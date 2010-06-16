@@ -21,7 +21,7 @@ Small functions to manipulate autosum files
 from os.path import join,dirname,basename,splitext
 from list_modules import list_modules
 
-def generate_autosum (pkg_name) :
+def generate_autosum (pkg_name, filename) :
 	"""Generate an autosum file
 	
 	Parse all modules in the package and create an entry for them
@@ -34,10 +34,7 @@ def generate_autosum (pkg_name) :
 	:Parameters:
 	 - `pkg_name` (str) - path of the package as used in the import statement
 	                      (e.g. pkg_name = 'openalea.svgdraw')
-	
-	:Returns: the text that will be written in "autosum.rst"
-	
-	:Returns Type: str
+	 - `filename` (str) - name of the file in which to write the autosum
 	"""
 	#find package root directory
 	exec "import %s as pkg" % pkg_name
@@ -100,5 +97,7 @@ Download the source file :download:`../../src/%s/%s.py`.
     :synopsis: doc todo
 """ % full_mod_name
 	
-	return txt
+	f = open(filename,'w')
+	f.write(txt)
+	f.close()
 
