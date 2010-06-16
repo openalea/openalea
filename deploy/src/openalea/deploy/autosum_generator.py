@@ -21,17 +21,34 @@ Small functions to manipulate autosum files
 from os.path import join,dirname,basename,splitext
 from list_modules import list_modules
 
-def generate_autosum (user_doc_path) :
+def generate_autosum (pkg_name) :
 	"""Generate an autosum file
 	
-	Parse all modules in the package
-	and create an entry for them
+	Parse all modules in the package and create an entry for them
 	using automodule
+	
+	.. warning:: assert the directory tree of the package is one of:
+	              - package_name/src/package_name
+	              - package_name/src/openalea/package_name
+	
+	:Parameters:
+	 - `pkg_name` (str) - path of the package as used in the import statement
+	                      (e.g. pkg_name = 'openalea.svgdraw')
+	
+	:Returns: the text that will be written in "autosum.rst"
 	
 	:Returns Type: str
 	"""
-	pkg_root = dirname(dirname(user_doc_path) )
-	pkg_name = basename(pkg_root)
+	#find package root directory
+	exec "import %s as pkg" % pkg_name
+	
+	pkg_dir = dirname(pkg.__file__)
+	pkg_dir_name = basename(pkg_dir)
+	
+	src_dir = dirname(pkg_dir)
+	if basename(src_dir) != "src" : #remove 'openalea' dir if needed
+		src_dir = dirname(src_dir)
+		pkg_dir = join(src_dir,pkg_dir_name)
 	
 	txt = """
 .. this file is dedicated to the reference guide
@@ -53,28 +70,30 @@ Reference guide
 	
 	modules = []
 	
-	for mod_name in list_modules(join(pkg_root,"src",pkg_name) ) :
+	print pkg_dir
+	for mod_name in list_modules(pkg_dir) :
 		gr = mod_name.split(".")
 		if not gr[-1].startswith("_") \
-		   and not gr[-1].endswith("_rc") :
-			modules.append([pkg_name] + gr)
+		   and not gr[-1].endswith("_rc") \
+		   and not gr[-1].endswith("_ui") :
+			modules.append(gr)
 	
 	modules.sort()
 	
 	for mod_dec in modules :
-		full_mod_name = ".".join(mod_dec)
+		full_mod_name = ".".join([pkg_name] + mod_dec)
 		print full_mod_name
 		txt += """
-.. currentmodule:: openalea.%s
+.. currentmodule:: %s
 """ % full_mod_name
-		title = ":mod:`openalea.%s` module" % full_mod_name
+		title = ":mod:`%s` module" % full_mod_name
 		txt += "\n" + title + "\n" + "=" * len(title) + "\n\n"
 		txt += """
-Download the source file :download:`../../src/%s.py`.
-""" % join(*mod_dec)
+Download the source file :download:`../../src/%s/%s.py`.
+""" % (pkg_dir_name,join(*mod_dec) )
 		txt += """
 
-.. automodule:: openalea.%s
+.. automodule:: %s
     :members:
     :undoc-members:
     :show-inheritance:
