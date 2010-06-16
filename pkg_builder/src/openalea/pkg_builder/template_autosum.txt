@@ -1,6 +1,6 @@
 .. change to your needs
 
-.. _${LOWERCASENAME}_reference
+.. _${LOWERCASENAME}_reference:
 
 
 Reference guide
