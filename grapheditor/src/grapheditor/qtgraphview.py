@@ -27,35 +27,60 @@ from math import sqrt
 
 
 
-#Some SIP versions don't know about some QGraphicsItem flags or enums yet
-if QtCore.qVersion() < "4.6.2":
+# Some PYQT versions don't know about some QGraphicsItem flags or enums yet
+# even though the underlying Qt knows about it (.sip files not up-to-date
+# when building PyQt). The differences between PYQT_VERSION 4.6.2 and 4.7.3 are:
+# ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
+# 'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
+# 'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
+if QtCore.PYQT_VERSION < 0x040703:
     # -- flags --
     ItemSendsGeometryChanges = 0x800
     ItemSendsScenePositionChanges = 0xffff
+    # -- enums --
+    ItemScenePositionHasChanged = 0x1b
+    ItemPositionHasChanged = 0x9
 else:
     # -- flags --
     ItemSendsGeometryChanges = QtGui.QGraphicsItem.ItemSendsGeometryChanges
     ItemSendsScenePositionChanges = QtGui.QGraphicsItem.ItemSendsScenePositionChanges
+    # -- enums --
+    ItemScenePositionHasChanged = QtGui.QGraphicsItem.ItemScenePositionHasChanged
+    ItemPositionHasChanged = QtGui.QGraphicsItem.ItemPositionHasChanged
 
 
-#__Application_Integration_Keys__
-__AIK__ = [
-    "mouseMoveEvent",
-    "mouseReleaseEvent",
-    "mousePressEvent",
-    "mouseDoubleClickEvent",
-    "keyReleaseEvent",
-    "keyPressEvent",
-    "contextMenuEvent"
-    ]
 
-__AIK_GDict__ = dict(zip(__AIK__,[None]*len(__AIK__)))
 
 
 class ClientCustomisableWidget(object):
+    """ Base class for Qt widgets or graphicwidgets that adds the
+    possibility for subclasses to be set handlers from clients.
+    For example, two clients (AppA and AppB) may use your widget
+    but define different handlers for mouseMoveEvent. Furthermore
+    AppA can define a mouseMoveEventHandlerA for GraphTypeA and
+    mouseMoveEventHandlerB for GraphTypeB.
+
+    This is like installing EventFilters or subclassing the
+    desired class and reimplementing the event methods.
+    However, clients don't need to subclass any more
+    the class and that the monkey patching happens
+    on the class definition, not on the instance, sparing
+    some CPU.
+    """
+
     ####################################
     # ----Class members come first---- #
     ####################################
+    #__Application_Integration_Keys__
+    __AIK__ = [
+        "mouseMoveEvent",
+        "mouseReleaseEvent",
+        "mousePressEvent",
+        "mouseDoubleClickEvent",
+        "keyReleaseEvent",
+        "keyPressEvent",
+        "contextMenuEvent"
+        ]
 
     @classmethod
     def set_event_handler(cls, key, handler, graphType):
@@ -85,10 +110,11 @@ class ClientCustomisableWidget(object):
                                      "except qtgraphview.View")
             return
 
-        if not hasattr(cls, "__application_integration__"):
+        if "__application_integration__" not in cls.__dict__:
             cls.__application_integration__ = {}
             cls.__originals__ = {}
-        if key in cls.__application_integration__.setdefault(graphType, __AIK_GDict__.copy()):
+        emptyMap = dict(zip(cls.__AIK__,[None]*len(cls.__AIK__)))
+        if key in cls.__application_integration__.setdefault(graphType, emptyMap):
             cls.__application_integration__[graphType][key]=handler
             try : cls.__originals__[key] = getattr(cls, key)
             except : pass
@@ -211,7 +237,7 @@ class Connector(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemScenePositionHasChanged:
+        if change == ItemScenePositionHasChanged:
             self.notify_position_change()
             return value
 
@@ -313,7 +339,7 @@ class Vertex(Element):
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
 
-        elif change == QtGui.QGraphicsItem.ItemPositionHasChanged:
+        elif change == ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data(position=[point.x(), point.y()])
@@ -661,7 +687,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     ####################################
     # ----Class members come first---- #
     ####################################
-    __application_integration__= dict( zip(__AIK__,[None]*len(__AIK__)) )
+    __application_integration__= dict( zip(ClientCustomisableWidget.__AIK__,[None]*len(ClientCustomisableWidget.__AIK__)) )
     __application_integration__.update({"mimeHandlers":{}, "pressHKMap":{}, "releaseHKMap":{}})
     __defaultDropHandler = None
 
