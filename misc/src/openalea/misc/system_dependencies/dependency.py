@@ -20,7 +20,6 @@ __all__ = ["Dependency", "EggDependency", "InstallerDependency"]
 
 
 class DistributionPackageFactory(os_factory.BaseOsFactory):
-    __metaclass__ = os_factory.MSingleton
     def __init__(self):
         self.__distPkgs = {}
 
@@ -38,25 +37,53 @@ class DistributionPackageFactory(os_factory.BaseOsFactory):
         if cls: return cls()
 
 
+
+
+# -- Decanonification and handling special package types like eggs --
 class DistributionPackageNames(dict):
+    """Base class for per-OS decanonification"""
     def __init__(self, **packages):
         dict.__init__(self)
         self.update(packages)
+    def update(self, other):
+        ks, vs = zip(*other.iteritems())
+        other = dict(zip(ks,map(lambda x: BaseDependency(x) if isinstance(x,str) else x,
+                                vs)))
+        dict.update(self, other)
 
-class EggDependency(object):
+class BaseDependency(object):
     def __init__(self, name):
         self.name = name
-
     def __str__(self):
-        return "'EggDependency: " + self.name + "'"
+        return self.__class__.__name__ + " " + self.name
+    def __repr__(self):
+        return str(self)
+    def install(self, osInterface, fake):
+        osInterface.package_install(self.name, fake)
+    def is_base(self):return True
+    def distrib_name(self):
+        return self.name
 
-class InstallerDependency(object):
+class EggDependency(BaseDependency):
+    def __init__(self, name):
+        BaseDependency.__init__(self, name)
+    def install(self, osInterface, fake):
+        raise NotImplementedError
+    def is_base(self):return False
+    def distrib_name(self):
+        return ""
+
+class InstallerDependency(BaseDependency):
     def __init__(self, name, path):
-        self.name = name
+        BaseDependency.__init__(self, name)
         self.path = path
-
     def __str__(self):
-        return "'InstallerDependency: " + self.name + ":" + self.path + "'"
+        return BaseDependency.__str__(self) + ":" + self.path
+    def install(self, osInterface, fake):
+        raise NotImplementedError
+    def is_base(self):return False
+    def distrib_name(self):
+        return ""
 
 
 
@@ -84,7 +111,7 @@ class Dependency(object):
         return [dep for canoDep, dep in self.__translation.iteritems() if canoDep[-4:] == "-dev"]
 
     def other_packages(self):
-        return [dep for canoDep, dep in self.__translation.iteritems() if not isinstance(dep, str)]
+        return [dep for canoDep, dep in self.__translation.iteritems() if not dep.is_base()]
 
     ############################################################
     # Dependency solving and distribution translation follows: #

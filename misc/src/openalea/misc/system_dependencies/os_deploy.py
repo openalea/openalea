@@ -12,20 +12,26 @@
 #
 ###############################################################################
 
-from os_factory import Factory
+"""
+This module defines two easy methods to deploy system dependencies
+either for runtime or for development purposes.
+"""
+
+
+from os_factory import OsFactory
 import dependency, distributions
 
 __all__ = ["deploy_runtime_dependencies", "deploy_development_dependencies"]
 
 def deploy_runtime_dependencies(software, osname, fake):
-    theOs = Factory().create(osname)
+    theOs = OsFactory().create(osname)
     dependencies = dependency.Dependency(software, osname)
-    theOs.distributionInstallation(dependencies.runtime_distribution_packages(), fake)
+    theOs.install_packages(dependencies.runtime_distribution_packages(), fake)
 
 def deploy_development_dependencies(software, osname, fake):
-    theOs = Factory().create(osname)
+    theOs = OsFactory().create(osname)
     dependencies = dependency.Dependency(software, osname)
-    theOs.distributionInstallation(dependencies.development_distribution_packages(), fake)
+    theOs.install_packages(dependencies.development_distribution_packages(), fake)
 
 
 

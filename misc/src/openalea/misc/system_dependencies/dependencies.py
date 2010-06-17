@@ -16,7 +16,7 @@
 In this file we describe the dependencies of various projects which
 can reference other projects from the same dict
 
-This file is read by dependency.py.
+This file is read by dependency.py using get_canonincal_dependencies().
 """
 
 
@@ -33,4 +33,5 @@ canonical_dependencies = {
 
 
 def get_canonincal_dependencies():
+    """ Returns a copy of the dependency tree """
     return canonical_dependencies.copy()

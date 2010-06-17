@@ -12,19 +12,28 @@
 #
 ###############################################################################
 
-import platform, subprocess
+import platform, subprocess, abc, collections
 
 __all__=["get_platform"]
 
 class MSingleton(type):
+    """Metaclass that makes the class that uses it a singleton"""
+
     instances = {}
     def __call__(cls, *args, **kwargs):
         return MSingleton.instances.setdefault(cls, type.__call__(cls, *args, **kwargs))
 
 
 class BaseOsFactory(object):
+    """Base class for foactories that create objects depending on the operating system"""
+    __metaclass__ = MSingleton
+
+
     @classmethod
     def get_platform(cls):
+        """Creates a string out of the current platform with names seperated by whitespaces:
+        ex: "fedora 13 goddard" or "ubuntu 9.10 karmic"."""
+
         _platform = None
         system = platform.system().lower()
         if system == "linux":
@@ -37,15 +46,26 @@ class BaseOsFactory(object):
             warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
         return _platform
 
+
     @classmethod
     def intersect_platform_names(cls, requestedPlatformNames, availablePlatformNames):
-       """Find intersection between platformName and packageList subdictionnary keys."""
+       """Find intersection between platformName and packageList subdictionnary keys.
+       ex : ["fedora", "13", "goddard"] and ["fedora", "ubuntu"]
+       returns (["fedora"]), [("13", "goddard"])"""
+
        requestedPlatformNames = set(requestedPlatformNames)
        availablePlatformNames = set(availablePlatformNames)
        return requestedPlatformNames&availablePlatformNames, requestedPlatformNames-availablePlatformNames
 
+
     @classmethod
     def intersect_and_solve(cls, platform, candidates, conflictSolve=lambda x: x[0]):
+        """ Given a platform name from BaseOsFactory.get_platform() or similar, and
+        candidate names (ex: ["fedora 13 goddard", "ubuntu 9.10 karmic"]), this method
+        will return the largest intersection of both lists and use conflictSolve to
+        resolve conflicts when there are several intersections with the same number
+        of items."""
+
         assert platform is not None
         #We find the right distribution class by intersecting
         #the platform description with the X_X_PackageNames classes
@@ -69,19 +89,16 @@ class BaseOsFactory(object):
                     maxIntersectionDistrib = [maxIntersectionDistrib, dist]
                 else:
                     maxIntersectionDistrib = dist
-
         if isinstance(maxIntersectionDistrib, list):
             maxIntersectionDistrib = conflictSolve(maxIntersectionDistrib)
-
         return maxIntersectionDistrib
 
 
-get_platform = BaseOsFactory.get_platform
+get_platform = BaseOsFactory.get_platform #: a shortcut for  BaseOsFactory.get_platform
 
 
-class Factory(BaseOsFactory):
-    __metaclass__ = MSingleton
-
+class OsFactory(BaseOsFactory):
+    """ Factory class that manages OsInterfaces. """
     def __init__(self):
         self.__oses = {}
 
@@ -97,14 +114,28 @@ class Factory(BaseOsFactory):
 
 
 class OsInterface(object):
+    """ Class whose instances define various system operations
+    such as svn, yum/apt/..., etc..."""
     def __init__(self, distIntallerCmd, svnCommand):
         self.__distInstaller = distIntallerCmd
         self.__svnCommand = svnCommand
 
-    def distributionInstallation(self, packages, fake):
-        command = "" +  self.__distInstaller
-        for i in packages:
-            command += " "+i
+    def install_packages(self, packages, fake, batch=True):
+        if not issubclass(packages.__class__, collections.Iterable):
+            packages = [packages]
+        if batch:
+            pkgnames = ""
+            for p in packages:
+                if p.is_base():
+                    pkgnames += p.distrib_name() + " "
+            self.package_install(pkgnames, fake)
+        else:
+            for p in packages:
+                p.install(self, fake)
+
+    def package_install(self, package, fake):
+        command = self.__distInstaller[:]
+        command += " "+ package
 
         if fake:
             print command
@@ -113,5 +144,6 @@ class OsInterface(object):
 
 
 
-Factory().register("ubuntu", OsInterface("apt-get install", "svn"))
-Factory().register("fedora", OsInterface("yum install", "svn"))
+
+OsFactory().register("ubuntu", OsInterface("apt-get install", "svn"))
+OsFactory().register("fedora", OsInterface("yum install", "svn"))
