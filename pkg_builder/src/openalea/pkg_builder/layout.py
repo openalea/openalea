@@ -51,37 +51,40 @@ class PackageBuilder(object):
         pkg.template_setup()
         pkg.template_scons()
         pkg.template_wralea()
-        pkg.templated_doc()
+        pkg.template_doc()
     """
     good_name = re.compile( "[a-z_]{3,}" )
 
-    def __init__(self, name=None, package=None, project='openalea', dir = '.', release='0.1'):
-        self.name = name
-        self.lowercasename = package
-        self.uppercasename = name
+    project_name = dict(openalea='OpenAlea', vplants='VPlants', alinea='Alinea')
+
+    def __init__(self, name=None, project='openalea', dir = '.', release='0.1'):
+        
+        self.name = name # e.g. name = PlantGL
+        self.package = name.lower() # e.g. name = plantgl
         self.dir = dir
-        self.pkg_dir = path(dir) / self.name
+        self.pkg_dir = path(dir) / self.package
         self.languages = ['python']
-        self.project = project
+        self.project = project.lower()
         self.release = release
 
         self.check_project()
 
-        self.metainfo = {'LOWERCASENAME':self.lowercasename,
-                        'UPPERCASENAME':self.uppercasename,
+        self.metainfo = {'PACKAGE':self.package,
+                        'PACKAGE_NAME':self.name,
                         'PROJECT':self.project,
+                        'PROJECT_NAME':self.project_name[self.project],
                         'RELEASE':self.release,
                 }
 
     def check_project(self):
         """Checks that the project is the official list of projects [openalea, vplants ,alinea]"""
-        if self.project not in ['vlants','alinea','openalea']:
+        if self.project not in self.project_name:
             raise ValueError("wrong project name. should be in openalea/vplants/alinea")
 
     def check_name(self):
         """ Check correctness of pkg name. """
-        if not self.good_name.match( self.name ):
-            print "Error, package name %s is invalid" % ( self.name, )
+        if not self.good_name.match( self.package):
+            print "Error, package name %s is invalid" % ( self.package, )
             return False
         return True
 
@@ -109,7 +112,7 @@ class PackageBuilder(object):
             self.set_files()
             files = self.files
 
-        for f in self.files:
+        for f in files:
             print "Creating %s ..." % ( f, )
             f.touch()
 
@@ -139,11 +142,11 @@ class PackageBuilder(object):
 
         # alias
         dirs = self.dirs
-        wralea_name = self.name+"_wralea"
+        wralea_name = self.package+"_wralea"
         if 'python' in self.languages:
             dirs.extend([
-               self.pkg_dir/"src"/"openalea"/self.name,
-               self.pkg_dir/"src"/"openalea"/wralea_name,
+               self.pkg_dir/"src"/self.project/self.package,
+               self.pkg_dir/"src"/self.project/wralea_name,
                ])
         if 'cpp' in self.languages:
             dirs.extend([
@@ -160,7 +163,8 @@ class PackageBuilder(object):
                ])
 
     def set_files(self):
-        self.files = [self.pkg_dir/"src"/"openalea"/self.name/'__init__.py'] 
+        self.files = [self.pkg_dir/"src"/self.project/'__init__.py',
+                      self.pkg_dir/"src"/self.project/self.package/'__init__.py'] 
         self.files += self.legalfiles()
         self.files += self.wraleafiles()
         self.files += self.sconsfiles()
@@ -178,10 +182,10 @@ class PackageBuilder(object):
         ]
 
     def wraleafiles(self):
-        wralea_name = self.name+"_wralea"
+        wralea_name = self.package+"_wralea"
         return [
-        self.pkg_dir/"src"/"openalea"/wralea_name/"__init__.py",
-        self.pkg_dir/"src"/"openalea"/wralea_name/"__wralea__.py",
+        self.pkg_dir/"src"/self.project/wralea_name/"__init__.py",
+        self.pkg_dir/"src"/self.project/wralea_name/"__wralea__.py",
         ]
 
     def sconsfiles(self):
@@ -335,8 +339,8 @@ def main():
 
     :Examples:
 
-        python %prog --package mypackage --name MyPackage --project openalea --languages cpp
-        %prog --package mypackage --name MyPackage --project openalea --languages cpp fortran
+        python %prog --name MyPackage --project openalea --languages cpp
+        %prog --name MyPackage --project openalea --languages cpp fortran
 
     """
 
@@ -346,27 +350,22 @@ def main():
         help="project name in [openalea, vplants, alinea]")
     parser.add_option("--languages", dest='languages', default=None,  
         help="languages separated by a space [cpp, c, fortran]")
-    parser.add_option("--package", dest='package', default='openalea',  
-        help="""the package name used a a name directory, or when import a module, e.g., 
-            visualea in import openalea.visualea, which is also the directory name""")
-    parser.add_option("--release", dest='release', default='0.8',  help="the package release")
-    parser.add_option("--name", dest='name', default=None,        help="The name of the package as it appear in the eggname: e.g., VisuAlea in OpenAlea.VisuAlea")
+    parser.add_option("--release", dest='release', default='0.8', help="the package release")
+    parser.add_option("--name", dest='name', default=None, 
+                      help="The name of the package as it appear in the eggname: e.g., VisuAlea in OpenAlea.VisuAlea")
 
     (opts, args)= parser.parse_args()
 
     print "Running create_layout version %s" % __revision__.split()[2]
 
-    if opts.name==None or opts.package ==None:
-        raise ValueError("""--name and --package must be provided. See help (--help)""")
-    pkg = PackageBuilder(name=opts.name, package=opts.package, release=opts.release)
-
+    if opts.name==None:
+        raise ValueError("""--name must be provided. See help (--help)""")
+    pkg = PackageBuilder(name=opts.name, release=opts.release, project=opts.project)
 
     if opts.languages is not None:
         languages = opts.languages.split(" ")
         for language in languages:
             pkg.set_languages({language:True})
-
-    pkg.project = opts.project
 
     if not pkg.check_name():
         print "Error, package name %s is invalid" % ( opts.name, )

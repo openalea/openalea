@@ -8,12 +8,9 @@ ALEASolution = config.ALEASolution
 
 pj = os.path.join
 
-name = '$LOWERCASENAME'
-
 SConsignFile()
 
-
-options = Options(['../options.py', 'options.py'], ARGUMENTS)
+options = Variables(['../options.py', 'options.py'], ARGUMENTS)
 tools = ['']
 
 env = ALEASolution(options, tools)

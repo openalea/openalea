@@ -2,9 +2,9 @@
 
 from openalea.core import *
 
-__name__ = '$LOWERCASENAME'
-__version__ = None
-__license__ = None
+__name__ = '$PACKAGE_NAME'
+__version__ = '$RELEASE.0'
+__license__ = 'CeCILL-C'
 __author__ = None
 __institutes__ = None
 __description__ = ''

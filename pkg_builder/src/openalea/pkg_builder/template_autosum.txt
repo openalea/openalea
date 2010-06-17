@@ -1,20 +1,18 @@
 .. change to your needs
 
-.. _${LOWERCASENAME}_reference:
+.. _${PACKAGE}_reference:
 
 
 Reference guide
 ###################################
 .. contents::
 
+.. currentmodule:: $PROJECT.$PACKAGE.__init__
 
 
-.. currentmodule:: openalea.pkg_builder.layout
-
-
-:mod:`openalea.pkgbuilder_layout` module
+:mod:`$PROJECT.$PACKAGE` module
 ===============================================
-.. automodule:: openalea.pkg_builder.layout
+.. automodule:: $PROJECT.$PACKAGE.__init__
     :members:
     :undoc-members:
     :inherited-members:

@@ -1,4 +1,4 @@
-====== $UPPERCASENAME ======
+====== $PROJECT_NAME.$PACKAGE_NAME ======
 
 **Authors** : XXX
 
@@ -14,13 +14,13 @@
 
 === Description ===
 
-$UPPERCASENAME is a XXX
+$PROJECT_NAME.$PACKAGE_NAME is a XXX
 
 
 
 === Content ===
 
-The $UPPERCASENAME package contains :
+The $PROJECT_NAME.$PACKAGE_NAME package contains :
 
 
 ===== Installation =====
@@ -51,5 +51,5 @@ python setup.py install
 
 ===== Documentation =====
 
-http://openalea.gforge.inria.fr/doc/$PROJECT/$LOWERCASENAME/doc/_build/html/contents.html
+http://openalea.gforge.inria.fr/doc/$PROJECT/$PACKAGE/doc/_build/html/contents.html
 

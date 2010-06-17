@@ -24,8 +24,9 @@ sources = lib_env.ALEAGlob('*.cpp')
 
 # Add defines to export symbols on Windows
 #lib_env.AppendUnique(CPPDEFINES=['MESSAGE'])
-#lib_env.AppendUnique(LIBS=['vptool'])
+#lib_env.AppendUnique(LIBS=[''])
 
-inc = lib_env.ALEAIncludes( '$LOWERCASENAME', includes )
-lib = lib_env.ALEALibrary( '$LOWERCASENAME', sources )
+inc = lib_env.ALEAIncludes( '$PACKAGE', includes )
+lib = lib_env.ALEALibrary( '$PACKAGE', sources )
 
+#exe = lib_env.ALEAProgram('$PACKAGE', 'main.cpp', LIBS='$PACKAGE')

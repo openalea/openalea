@@ -5,13 +5,13 @@ release = $RELEASE
 ; must be in [openalea, vplants, alinea]
 project = $PROJECT
 ; the filename of the egg
-name = OpenAlea.$UPPERCASENAME
+name = $PROJECT_NAME.$PACKAGE_NAME
 ; default namespace 
-namespace = openalea
+namespace = $PROJECT
 ; package is going to be used by Sphinx to create the title
-package = $LOWERCASENAME
-description= $UPPERCASENAME package for OpenAlea.
-long_description= The $UPPERCASENAME package is a typical package example to help developper to create their own package, compatible with OpenAlea standards. It defines best practices for build, installation, coding rules, and license information. It contains code in C++, Python, as well as Boost.Python wrappers.
+package = $PACKAGE_NAME
+description= $PACKAGE_NAME package for $PROJECT_NAME.
+long_description= The $PROJECT_NAME.$PACKAGE_NAME package is a typical package example to help developper to create their own package, compatible with OpenAlea standards. 
 authors= XXX
 authors_email = XXX@XXX
 url = http://openalea.gforge.inria.fr

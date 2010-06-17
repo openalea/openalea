@@ -1,14 +1,15 @@
 from openalea.pkg_builder import PackageBuilder
 
-
-import shutil
-shutil.rmtree('prospect')
+from openalea.core.path import path
+testpkg = path('testpkg')
+if testpkg.exists():
+    testpkg.rmtree()
 
 def test():
-    pkg = PackageBuilder(name='prospect', package='Prospect')
+    pkg = PackageBuilder(name='TestPkg', project='alinea')
     pkg.check_name()
-    pkg.set_languages(cpp=True, c=True, fortran=True)
     pkg.set_languages(cpp=False, c=False, fortran=False)
+    pkg.set_languages(cpp=True, c=True, fortran=True)
     pkg.mkdirs()
     pkg.mkfiles()
     pkg.template_legal()
@@ -21,9 +22,11 @@ def test():
 
 def test_valid_project():
     try:
-        pkg = PackageBuilder(name='prospect', package='Prospect', project='dummy')
+        pkg = PackageBuilder(name='TestPkg', project='dummy')
     except:
         assert True
+
+    pkg = PackageBuilder(name='TestPkg', project='OpenALEA')
 
 
 def test_run():
@@ -36,9 +39,9 @@ def test_run():
 
     import sys
     sys.argv.append('--name')
-    sys.argv.append('prospect')
-    sys.argv.append('--package')
-    sys.argv.append('Prospect')
+    sys.argv.append('TestPkg')
+    sys.argv.append('--project')
+    sys.argv.append('Alinea')
     sys.argv.append('--language')
     sys.argv.append('cpp')
     layout.main()

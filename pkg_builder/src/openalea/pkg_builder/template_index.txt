@@ -1,6 +1,6 @@
-.. _${LOWERCASENAME}_user:
+.. _${PACKAGE}_user:
 
-$UPPERCASENAME User Guide
+£PROJECT_NAME.$PACKAGE_NAME User Guide
 #######################################
 
 :Version: |version|
@@ -8,13 +8,13 @@ $UPPERCASENAME User Guide
 :Date: |today|
 
 This manual details functions, modules, and objects included in 
-OpenAlea.$UPPERCASENAME, describing what they are and what they do. For a complete 
-reference guide, see :ref:`${LOWERCASENAME}_reference`.
+OpenAlea.$PACKAGE_NAME, describing what they are and what they do. For a complete 
+reference guide, see :ref:`${PACKAGE}_reference`.
 
 .. warning::
 
    This "User Guide" is still very much in progress. 
-   Many aspects of OpenAlea.$UPPERCASENAME are not covered.
+   Many aspects of OpenAlea.$PACKAGE_NAME are not covered.
 
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.

@@ -16,9 +16,9 @@ for key,value in metadata.iteritems():
 # version, release, project, name, namespace, pkg_name,
 # description, long_description,
 # authors, authors_email, url and license
-# * version is 0.7.0 and release 0.7
+# * version is $RELEASE.0 and release $RELEASE
 # * project must be in [openalea, vplants, alinea]
-# * name is the full name (e.g., OpenAlea.$UPPERCASENAME) whereas pkg_name is only 'starter'
+# * name is the full name (e.g., $PROJECT_NAME.$PACKAGE_NAME) whereas pkg_name is only '$PACKAGE'
 
 # name will determine the name of the egg, as well as the name of 
 # the pakage directory under Python/lib/site-packages). It is also 
@@ -61,8 +61,6 @@ else:
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
-
-# TODO: Add wralea entry points
 
 setup(
     name=name,
@@ -109,6 +107,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
+        'wralea' : ['$PACKAGE = $PROJECT.${PACKAGE}_wralea'],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
