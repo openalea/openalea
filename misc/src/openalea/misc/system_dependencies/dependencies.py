@@ -12,6 +12,15 @@
 #
 ###############################################################################
 
+"""
+In this file we describe the dependencies of various projects which
+can reference other projects from the same dict
+
+This file is read by dependency.py.
+"""
+
+
+__all__=["get_canonincal_dependencies"]
 
 canonical_dependencies = {
     "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "svn-dev"],
@@ -23,4 +32,5 @@ canonical_dependencies = {
 }
 
 
-
+def get_canonincal_dependencies():
+    return canonical_dependencies.copy()
