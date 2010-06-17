@@ -72,7 +72,7 @@ import install_lib
 def copy_data_tree(src, dst, exclude_pattern=['(RCS|CVS|\.svn)', '.*\~']):
     """
     Copy an entire directory tree 'src' to a new location 'dst'.
-    
+
     :param exclude_pattern: a list of pattern to exclude.
     """
     names = os.listdir(src)
@@ -251,11 +251,11 @@ def validate_cmake_scripts(dist, attr, value):
 
 
 def validate_pylint_options(dist, attr, value):
-    
+
     try:
         assert type(value[0]) == str
     except ValueError:
-        raise ValueError("""options %s in the setup.py must be a  such as 
+        raise ValueError("""options %s in the setup.py must be a  such as
             --disable-msg=C0103 that can be used as pylint options""" % attr)
 
 
@@ -503,31 +503,31 @@ class cmake(Command):
         except ImportError:
             subprocess_enabled = False
 
-        
+
         # run each CMake script from setup.py
         for s in self.cmake_scripts:
             try:
                 # Join all the SCons parameters.
                 #file_param = s
-                file_param = '../src' 
+                file_param = '../src'
 
                 cmake_cmd = 'cmake'
-                
-                cmake_cmd_param = file_param 
+
+                cmake_cmd_param = file_param
                 commandstr = cmake_cmd + ' ' + cmake_cmd_param
 
                 print commandstr
 
                 if not os.path.isdir('build-cmake') :
-                    os.mkdir('build-cmake') 
+                    os.mkdir('build-cmake')
 
                 os.chdir('build-cmake')
 
-                                
+
                 # Run CMake
                 if (subprocess_enabled):
                     retval = subprocess.call(commandstr, shell=True)
-                else: 
+                else:
                     retval =os.system(commandstr)
 
                 # Test if command success with return value
@@ -536,7 +536,7 @@ class cmake(Command):
 
 
                 make_cmd = 'make'
-                commandstr = make_cmd 
+                commandstr = make_cmd
 
                 # Run Make
                 if (subprocess_enabled):
@@ -658,7 +658,7 @@ class install(old_install):
         cmd = alea_install(
             self.distribution, args="x", root=self.root, record=self.record,
         )
-        
+
         cmd.install_dyn_lib = self.install_dyn_lib
         cmd.ensure_finalized()  # finalize before bdist_egg munges install cmd
 
@@ -677,7 +677,7 @@ class install(old_install):
 class alea_install(old_easy_install):
     """
     Overload old_easy_install to add
-    
+
     - Environment variable
     - Postinstall Scripts
     """
@@ -719,14 +719,14 @@ class alea_install(old_easy_install):
         if (self.dist.key in pkg_resources.working_set.by_key):
             del pkg_resources.working_set.by_key[self.dist.key]
         pkg_resources.working_set.add(self.dist)
-        
+
 	# Call postinstall
         self.postinstall(self.dist)
-        
+
 	# Set environment
         set_env(self.install_dyn_lib)
-       
-	
+
+
     def set_system(self):
         """ Set environment """
         if ("win32" in sys.platform):
@@ -752,7 +752,7 @@ class alea_install(old_easy_install):
         ret = old_easy_install.process_distribution(self, requirement, dist, deps, *info)
         # save distribution
         self.dist = dist
-       
+
         return ret
 
     def postinstall(self, dist):
@@ -815,7 +815,7 @@ def set_env(dyn_lib=None):
     print "The following directories contains shared library :", '\n'.join(lib_dirs), '\n'
     print "The following directories contains binaries :", '\n'.join(bin_dirs), '\n'
 
-    # To fix the lost of access rights during the step of extract and instal .egg on Linux and MacOsX   
+    # To fix the lost of access rights during the step of extract and instal .egg on Linux and MacOsX
     for d in bin_dirs:
         try:
             for f in os.listdir(d):
@@ -833,7 +833,7 @@ def set_env(dyn_lib=None):
     all_dirs = set(lib_dirs + bin_dirs)
     set_win_env(['OPENALEA_LIB=%s'%(';'.join(all_dirs)),
                  'PATH=%OPENALEA_LIB%', ])
-                 
+
     try:
         vars = ['OPENALEA_LIB=%s'%(':'.join(lib_dirs)),
                 'OPENALEA_BIN=%s'%(':'.join(bin_dirs)),
@@ -966,7 +966,7 @@ from %s.__init__ import *
 class egg_upload(Command):
     """ extension to setuptools to upload a distribution on the gforge
 
-    :param release:  compulsory argument to specify the release name, as 
+    :param release:  compulsory argument to specify the release name, as
         it appears on the gforge web site of Openalea, that is at
         https://gforge.inria.fr/frs/?group_id=79
     :param filename: a distribution filename or a regular expression such as ./dist/*egg
@@ -975,7 +975,7 @@ class egg_upload(Command):
 
     :Examples:
 
-        >>> python setup.py egg_upload --filename dist/*egg --login name 
+        >>> python setup.py egg_upload --filename dist/*egg --login name
         ... --release 0.7
 
     You can add the options in the setup.cfg::
@@ -983,7 +983,7 @@ class egg_upload(Command):
         >>> [egg_dist]
         >>> filename = ./dist/*egg
         >>> login = yourname
-    """  
+    """
 
     description = "Upload the package on the OpenAlea GForge repository"
 
@@ -1008,7 +1008,7 @@ class egg_upload(Command):
         self.dry_run = None
         self.mode = 'add'
 
-    def finalize_options(self): 
+    def finalize_options(self):
 
         if self.release is None:
             try:
@@ -1056,7 +1056,7 @@ class egg_upload(Command):
         if self.yes_to_all == 1:
             arguments += ' --yes-to-all '
 
-        print 'Command that will be called is : \n\tgforge_upload %s' % arguments 
+        print 'Command that will be called is : \n\tgforge_upload %s' % arguments
         # password is afterwards so that it does not appear on the screen!
         if self.password:
             arguments += ' --password %s'%  self.password
@@ -1067,6 +1067,48 @@ class egg_upload(Command):
         uploader.run()
 
 
+class system_deploy(Command):
+    """ extension to setuptools to automatically install
+    system dependencies (rpms, debs, etc...)
+    """
+
+    import openalea.misc.system_dependencies as sys_deps
+
+    description = "Install all required dependencies of a project using the platform's installer"
+
+    user_options = [('project=', None, 'openalea, vplant or alinea'),
+                    ('platform=', None, 'the platform to deploy on (windows, fedora, ubuntu, karmic, ubuntu karmic.' + \
+                     'Defaults to the current one'),
+                    ('dev', None, 'if specified, installs dev packages'),
+                    ('dry-run', None, 'if specified, nothing will be done besides printing'),
+                    ('yes-to-all', None, 'reply yes to all questions')]
+
+
+    def initialize_options(self):
+        self.project = None
+        self.platform = None
+        self.dev = False
+        self.dry_run = False
+        self.yes_to_all = False
+
+    def finalize_options(self):
+        if self.project is None:
+            raise ValueError(" --project must be provided")
+        else:
+            projects = self.sys_deps.get_canonincal_dependencies().keys()
+            if self.project.lower() not in projects:
+                raise ValueError(" project must be one of %s"%(str(projects),))
+
+        if self.platform is None:
+            self.platform = self.sys_deps.get_platform()
+            print 'Using current platform:', self.platform
+
+    def run(self):
+        self.sys_deps.deploy_runtime_dependencies(self.project, self.platform, self.dry_run)
+        if self.dev:
+            self.sys_deps.deploy_development_dependencies(self.project, self.platform, self.dry_run)
+
+
 
 
 class pylint(Command):
@@ -1074,18 +1116,18 @@ class pylint(Command):
 
     There are two optional arguments, --pylint-packages and --pylint-options
     that can be provided in the setup.cfg file, or in the setup.py file, or as
-    user arguments (see examples). 
+    user arguments (see examples).
 
     The results (pylint's output) will be saved in the file .pylint.output
 
     :Examples:
-    
+
         >>> python setup.py pylint
         >>> python setup.py pylint --pylint-packages
         >>> python setup.py pylint --pylint-options --disable-msg=C0103
 
     You can add the options in the setup.cfg::
-    
+
         >>> [pylint]
         >>> pylint-packages = src/openalea/stat_tool,src/openalea/stat_tool
         >>> pylint-options = --disable-msg=C0103
@@ -1114,37 +1156,37 @@ class pylint(Command):
         # get the packages to give to pylint
 
         # if not defined in the setup.py or not provided as user arguments,
-        # look into the setup.cfg 
-        if (not self.pylint_packages):    
+        # look into the setup.cfg
+        if (not self.pylint_packages):
             self.pylint_packages = self.distribution.pylint_packages
             #print self.pylint_packages
-        
-        # if not defined in the setup.py or not provided as user arguments,
-        # look into the setup.cfg 
-        if (not self.pylint_options):
-            self.pylint_options = self.distribution.pylint_options 
 
-        # in the setup.cfg case or in the user arguments case, we have a 
+        # if not defined in the setup.py or not provided as user arguments,
+        # look into the setup.cfg
+        if (not self.pylint_options):
+            self.pylint_options = self.distribution.pylint_options
+
+        # in the setup.cfg case or in the user arguments case, we have a
         # string (that we convert into a list)
         if isinstance(self.pylint_packages, str):
             self.pylint_packages = self.pylint_packages.split(',')
-        
+
         # otherwise, we already have a list
         if self.pylint_options is None:
             self.pylint_options = ''
-        
+
 
     def run(self):
-        print '    PYLINT processing' 
+        print '    PYLINT processing'
         if self.pylint_packages:
             #print '    Processing ' + self.pylint_packages + ' through pylint'
             cmd = 'pylint '
             for package in self.pylint_packages:
-                cmd +=  package.replace('/', os.sep) + os.sep + '*.py ' 
+                cmd +=  package.replace('/', os.sep) + os.sep + '*.py '
             cmd += ' ' + self.pylint_options
             cmd += self.pylint_base_options
             print cmd
-            status = subprocess.call(cmd, 
+            status = subprocess.call(cmd,
                                      stdout=open(self.output_filename,'w+'),
                                      stderr=None, shell=True)
             if status!=0:
@@ -1190,7 +1232,7 @@ class upload_sphinx(Command):
             self.package = self.distribution.metadata.get_name()
 
         if not self.project:
-            raise ValueError("""Project field missing. Provide it in your setup.cfg, in the [upload_sphinx] section. 
+            raise ValueError("""Project field missing. Provide it in your setup.cfg, in the [upload_sphinx] section.
                 It should be either vplants, alinea or openalea. %s provided""" % self.project)
         elif self.project not in ['vplants','alinea','openalea']:
             raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section. %s provided""" % self.project)
@@ -1212,14 +1254,14 @@ class upload_sphinx(Command):
         """.. todo:: fix this code so that gforge proxy and scp are not both used."""
         print """
                 Warning: this option (sphinx_upload) will use the scp command to copy
-                the documentation on the gforge. Be sure to have the right to do so. 
+                the documentation on the gforge. Be sure to have the right to do so.
                 Requires to copy your ssh key on the server !
                """
         print "Copying files on the GForge. Be patient ..."
 
         for output in  ['html' , 'latex']:
             cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/_build/' \
-                % ( os.path.join('doc', '_build', output), 
+                % ( os.path.join('doc', '_build', output),
                     self.username,
                     self.DOMAIN,
                     '/home/groups/openalea/htdocs/doc/',

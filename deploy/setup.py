@@ -32,7 +32,7 @@ print package
 setup(
     # Metadata for PyPi
     name = name,
-    version = version, 
+    version = version,
     author = authors,
     author_email = authors_email,
     description = description,
@@ -42,7 +42,7 @@ setup(
 
     namespace_packages = ["openalea"],
     packages = find_packages('src'),
-    package_dir = { '' : 'src', }, 
+    package_dir = { '' : 'src', },
     include_package_data = True,
     zip_safe = True,
 
@@ -79,7 +79,7 @@ setup(
                  "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
                  "egg_upload = openalea.deploy.command:egg_upload",
-
+                 "system_deploy = openalea.deploy.command:system_deploy",
                  ],
 
               "console_scripts": [

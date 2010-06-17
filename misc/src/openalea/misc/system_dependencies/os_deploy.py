@@ -13,18 +13,19 @@
 ###############################################################################
 
 from os_factory import Factory
-import dependency
+import dependency, distributions
 
+__all__ = ["deploy_runtime_dependencies", "deploy_development_dependencies"]
 
-def deploy_runtime_dependencies(software, osname):
+def deploy_runtime_dependencies(software, osname, fake):
     theOs = Factory().create(osname)
     dependencies = dependency.Dependency(software, osname)
-    theOs.distributionInstallation(dependencies.runtime_distribution_packages())
+    theOs.distributionInstallation(dependencies.runtime_distribution_packages(), fake)
 
-def deploy_development_dependencies(software, osname):
+def deploy_development_dependencies(software, osname, fake):
     theOs = Factory().create(osname)
     dependencies = dependency.Dependency(software, osname)
-    theOs.distributionInstallation(dependencies.development_distribution_packages())
+    theOs.distributionInstallation(dependencies.development_distribution_packages(), fake)
 
 
 
