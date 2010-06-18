@@ -6,26 +6,27 @@ Reference guide
 
 Class Inheritance diagram
 =========================
-.. .. inheritance-diagram:: openalea.grapheditor.edgefactory
+.. .. inheritance-diagram:: openalea.grapheditor.base.py
 .. .. inheritance-diagram:: openalea.grapheditor.baselisteners
-.. .. inheritance-diagram:: openalea.grapheditor.qtutils
 .. .. inheritance-diagram:: openalea.grapheditor.qtgraphview
+.. .. inheritance-diagram:: openalea.grapheditor.edgefactory
+.. .. inheritance-diagram:: openalea.grapheditor.qtutils
 .. .. inheritance-diagram:: openalea.grapheditor.interfaces
 
-.. currentmodule:: openalea.grapheditor.edgefactory
+.. currentmodule:: openalea.grapheditor.base
 
-:mod:`openalea.grapheditor.edgefactory` module
-==============================================
+:mod:`openalea.grapheditor.base` module
+================================================
 
-Download the source file :download:`../../src/grapheditor/edgefactory.py`.
+Download the source file :download:`../../src/grapheditor/base.py`.
 
 
-.. automodule:: openalea.grapheditor.edgefactory
+.. automodule:: openalea.grapheditor.base
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: synopsis to be provided
+
 
 .. currentmodule:: openalea.grapheditor.baselisteners
 
@@ -40,23 +41,6 @@ Download the source file :download:`../../src/grapheditor/baselisteners.py`.
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: Generic Graph Widget
-
-
-.. currentmodule:: openalea.grapheditor.qtutils
-
-:mod:`openalea.grapheditor.qtutils` module
-==========================================
-
-Download the source file :download:`../../src/grapheditor/qtutils.py`.
-
-
-.. automodule:: openalea.grapheditor.qtutils
-    :members:
-    :undoc-members:
-    :inherited-members:
-    :show-inheritance:
-    :synopsis: synopsis to be provided
 
 
 .. currentmodule:: openalea.grapheditor.qtgraphview
@@ -70,9 +54,33 @@ Download the source file :download:`../../src/grapheditor/qtgraphview.py`.
 .. automodule:: openalea.grapheditor.qtgraphview
     :members:
     :undoc-members:
-    :inherited-members:
     :show-inheritance:
-    :synopsis: Generic Graph Widget
+
+.. currentmodule:: openalea.grapheditor.edgefactory
+
+:mod:`openalea.grapheditor.edgefactory` module
+==============================================
+
+Download the source file :download:`../../src/grapheditor/edgefactory.py`.
+
+
+.. automodule:: openalea.grapheditor.edgefactory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. currentmodule:: openalea.grapheditor.qtutils
+
+:mod:`openalea.grapheditor.qtutils` module
+==========================================
+
+Download the source file :download:`../../src/grapheditor/qtutils.py`.
+
+
+.. automodule:: openalea.grapheditor.qtutils
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 .. currentmodule:: openalea.grapheditor.interfaces
@@ -86,7 +94,5 @@ Download the source file :download:`../../src/grapheditor/interfaces.py`.
 .. automodule:: openalea.grapheditor.interfaces
     :members:
     :undoc-members:
-    :inherited-members:
     :show-inheritance:
-    :synopsis: Interfaces for the generic graph view module. The graph view ...
 

@@ -1,4 +1,3 @@
-
 .. _graph_editor:
 
 .. module:: graph_editor
@@ -15,7 +14,7 @@ Module description
     :Release: |release|
     :Date: |today|
     :Author: See `Authors`_ section
-    :ChangeLog: See `ChangeLog`_ section
+..    :ChangeLog: See `ChangeLog`_ section
 
 .. topic:: Overview
 
@@ -25,13 +24,15 @@ Documentation
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     User Guide<user/index.rst>
     Reference Guide<user/autosum.rst>
 
-- A `PDF <../latex/main.pdf>`_ version of |graph_editor| documentation is
-  available.
+
+A `PDF <../latex/main.pdf>`_ version of |graph_editor| documentation is
+available.
+
 
 
 Authors
@@ -39,10 +40,10 @@ Authors
 
 .. include:: ../AUTHORS.txt
 
-ChangeLog
-=========
+.. ChangeLog
+.. =========
 
-.. include:: ../ChangeLog.txt
+.. .. include:: ../ChangeLog.txt
 
 License
 =======

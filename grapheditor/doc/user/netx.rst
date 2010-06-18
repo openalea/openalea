@@ -2,8 +2,8 @@ networkx GraphEditor strategy tutorial
 ######################################
 This tutorial describes how to implement a new GraphEditor strategy.
 GraphEditor is a system that implements low level mecanisms needed to
-do basic editing of graphs and uses so called "strategies" to describe 
-specialised behaviours (drawing and editing) for a particuliar graph 
+do editing of graphs and uses so called "strategies" to describe
+specialised behaviours (drawing and editing) for a particuliar graph
 implementation.
 
 This means that to implement a Qt view of a graph you just need to subclass
@@ -23,7 +23,7 @@ the way the user will interact with the model.
 A word about the View and the Controller concepts
 -------------------------------------------------
 The MVC pattern distinguishes these two concepts but in practice they
-are often part of the same thing : the (G)UI. For example, a widget 
+are often part of the same thing : the (G)UI. For example, a widget
 can show an image and let you edit the image in the same area.
 GraphEditor lets you do this (Controller and View mixed in the same widget)
 but it is important to understand that the user interaction works like this :
@@ -54,7 +54,7 @@ This means that sometimes you have to build proxy observers.
 
 The basic problem
 =================
-NetworkX doesn't provide any sort of callback system to allow us to insert *observed* 
+NetworkX doesn't provide any sort of callback system to allow us to insert *observed*
 behaviours to the graph structure so we first need to wrap the graph
 structure in order to emit basic signals.
 

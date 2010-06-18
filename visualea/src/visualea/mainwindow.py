@@ -41,7 +41,7 @@ import metainfo
 from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
 
-from openalea.grapheditor import qtgraphview
+#from openalea.grapheditor import qtgraphview
 from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
 
@@ -479,7 +479,7 @@ class MainWindow(QtGui.QMainWindow,
         #gengraph
         gwidget = None
         try:
-            gwidget = qtgraphview.View(self, graph)
+            gwidget = dataflowview.DataflowView(self, graph)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e

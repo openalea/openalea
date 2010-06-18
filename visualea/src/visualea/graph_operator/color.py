@@ -19,7 +19,6 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
-from openalea.visualea import dataflowview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -29,7 +28,7 @@ class ColorOperators(object):
 
     @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
     def graph_set_selection_color(self):
-        items = self.get_graph_view().scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = self.get_graph_view().scene().get_selected_items(self.vertexType)
         length = len(items)
         if(length==0): return
         if(length==1):
@@ -56,7 +55,7 @@ class ColorOperators(object):
 
     @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
     def graph_use_user_color(self, useit):
-        items = self.get_graph_view().scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = self.get_graph_view().scene().get_selected_items(self.vertexType)
         if(not items): return
         scheduleASetColor = False
         for i in items:

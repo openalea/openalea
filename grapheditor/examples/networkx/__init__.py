@@ -15,7 +15,7 @@ import grapheditor.base
 
 #These variables are shared by both the model
 #and the Views. Conceptually, this is not good.
-circleSize = 10.0
+circleSize = 10.0*2
 halfCircleSize = circleSize/2
 
 #----------------------
@@ -226,6 +226,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
+        self.setMinimumSize(800,600)
         self.__graph = NXObservedGraph()
         self.__graphView = View(self, self.__graph)
         self.setCentralWidget(self.__graphView)

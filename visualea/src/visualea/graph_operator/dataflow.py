@@ -26,7 +26,6 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
 from compositenode_inspector import Inspector
-from openalea.visualea import dataflowview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -61,21 +60,21 @@ class DataflowOperators(object):
     def graph_remove_selection(self, items=None):
         def cmp(a,b):
             """edges need to be deleted before any other element"""
-            if type(a) == qtgraphview.Edge and type(b) == dataflowview.vertex.GraphicalVertex : return 1
+            if type(a) == self.edgeType and type(b) == self.vertexType : return -1
             if type(a) == type(b) : return 0
-            return -1
+            return 1
 
         if(not items): items = self.get_graph_view().scene().get_selected_items()
         if(not items): return
         items.sort(cmp)
         for i in items:
-            if isinstance(i, dataflowview.vertex.GraphicalVertex):
+            if isinstance(i, self.vertexType):
                 if self.get_graph().is_vertex_protected(i.vertex()): continue
                 self.get_graph().remove_vertex(i.vertex())
-            elif isinstance(i, qtgraphview.Edge):
+            elif isinstance(i, self.edgeType):
                 self.get_graph().remove_edge((i.srcBBox().vertex(), i.srcBBox()),
                                          (i.dstBBox().vertex(), i.dstBBox()) )
-            elif isinstance(i, dataflowview.anno.GraphicalAnnotation):
+            elif isinstance(i, self.annotationType):
                 self.get_graph().remove_vertex(i.annotation())
 
     @interactionMask(OAGIS.TOPOLOGICALLOCK)
@@ -104,7 +103,7 @@ class DataflowOperators(object):
         # NOW WE DO THE HARD WORK
         # -----------------------
         factory = dialog.create_cnfactory(self.get_package_manager())
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if(not items): return None
 
         pos = widget.scene().get_selection_center(items)
@@ -179,7 +178,6 @@ class DataflowOperators(object):
     def graph_copy(self):
         """ Copy Selection """
 
-
         if(self.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
             try:
                 self.get_interpreter().copy()
@@ -187,7 +185,7 @@ class DataflowOperators(object):
                 pass
         else:
             widget = self.get_graph_view()
-            s = widget.scene().get_selected_items( [dataflowview.vertex.GraphicalVertex, dataflowview.anno.GraphicalAnnotation] )
+            s = widget.scene().get_selected_items( [self.vertexType, self.annotationType] )
             if(not s): return
 
             #Are we copying in an annotation? Big hack

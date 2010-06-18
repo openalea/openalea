@@ -48,6 +48,9 @@ class GraphOperator(Observed,
         self.__session = None
         self.__interpreter = None
         self.__pkgmanager = None
+        self.vertexType = None
+        self.annotationType = None
+        self.edgeType = None
 
         if(graphView):
             self.graphView = graphView

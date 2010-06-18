@@ -19,11 +19,12 @@ __revision__ = " $Id$ "
 
 import weakref, sys
 from PyQt4 import QtCore, QtGui
-from openalea.core import observer
+from openalea.visualea.graph_operator import GraphOperator
+from openalea.core import observer, compositenode
 from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
-from openalea.grapheditor import qtutils
+from openalea.core.settings import Settings
+from openalea.grapheditor import qtgraphview, baselisteners, qtutils
 from openalea.grapheditor.qtutils import mixin_method
-from openalea.grapheditor import qtgraphview, baselisteners
 import painting
 import adapter
 from collections import deque
@@ -238,10 +239,99 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
                                      self._inPortLayout().geometry().top()+4 )
         self.shapeChanged=True
 
-    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                   "mousePressEvent")
-    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                              "itemChange")
+    def mouseDoubleClickEvent(self, event):
+        if event.button()==QtCore.Qt.LeftButton:
+            # Read settings
+            try:
+                localsettings = Settings()
+                str = localsettings.get("UI", "DoubleClick")
+            except:
+                str = "['open']"
+
+            view = self.scene().views()[0]
+            operator=GraphOperator(view, self.graph())
+            operator.set_vertex_item(self)
+
+            if('open' in str):
+                operator(fName="vertex_open")()
+            elif('run' in str):
+                operator(fName="vertex_run")()
+
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+        self.setSelected(True)
+
+        operator = GraphOperator()
+        operator.identify_focused_graph_view()
+        operator.set_vertex_item(self)
+        widget = operator.get_graph_view()
+        menu = qtutils.AleaQMenu(widget)
+        items = widget.scene().get_selected_items(GraphicalVertex)
+
+        menu.addAction(operator("Run",             menu, "vertex_run"))
+        menu.addAction(operator("Open Widget",     menu, "vertex_open"))
+        if isinstance(self.vertex(), compositenode.CompositeNode):
+            menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
+        menu.addSeparator()
+        menu.addAction(operator("Delete",          menu, "vertex_remove"))
+        menu.addAction(operator("Reset",           menu, "vertex_reset"))
+        menu.addAction(operator("Replace By",      menu, "vertex_replace"))
+        menu.addAction(operator("Reload",          menu, "vertex_reload"))
+        menu.addSeparator()
+        menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
+        menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
+        menu.addSeparator()
+
+        action = operator("Mark as User Application", menu, "vertex_mark_user_app")
+        action.setCheckable(True)
+        action.setChecked( bool(self.vertex().user_application))
+        menu.addAction(action)
+
+        action = operator("Lazy", menu, "vertex_set_lazy")
+        action.setCheckable(True)
+        action.setChecked(self.vertex().lazy)
+        menu.addAction(action)
+
+        action = operator("Block", menu, "vertex_block")
+        action.setCheckable(True)
+        action.setChecked(self.vertex().block)
+        menu.addAction(action)
+
+        menu.addAction(operator("Internals", menu, "vertex_edit_internals"))
+        menu.addSeparator()
+
+        alignMenu = menu.addMenu("Align...")
+        alignMenu.setDisabled(True)
+        if len(items)>1:
+            alignMenu.setDisabled(False)
+            alignMenu.addAction(operator("Align horizontally", menu,  "graph_align_selection_horizontal"))
+            alignMenu.addAction(operator("Align left", menu,  "graph_align_selection_left"))
+            alignMenu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
+            alignMenu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
+            alignMenu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
+            alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))
+
+        #The colouring
+        colorMenu = menu.addMenu("Color...")
+        colorMenu.addAction(operator("Set user color...", colorMenu, "graph_set_selection_color"))
+        #check if the current selection is coloured and tick the
+        #menu item if an item of the selection uses the user color.
+        action = operator("Use user color", colorMenu, "graph_use_user_color")
+        action.setCheckable(True)
+        action.setChecked(False)
+        for i in items:
+            if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
+                action.setChecked(True)
+                break
+        colorMenu.addAction(action)
+
+        #display the menu...
+        pos = event.screenPos()
+        menu.move(pos)
+        menu.show()
+        event.accept()
+
+
     def polishEvent(self):
         if self.__isInOrOut is not None:
             #fix input or output node position
@@ -269,6 +359,12 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             else :
                 y = bottom + verticalNodeSize
                 graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
+
+    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
+                                   "mousePressEvent")
+    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
+                              "itemChange")
+
 
 class GraphicalInVertex(GraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
@@ -372,18 +468,26 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     def sizeHint(self, blop, blip):
         return self.size()
 
-
     ##################
     # QtWorld-Events #
     #################
-    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsWidget,
-                              "itemChange")
-
     def mousePressEvent(self, event):
         scene = self.scene()
         if (scene and event.buttons() & QtCore.Qt.LeftButton):
             scene.new_edge_start(self.get_scene_center())
             return
+
+    def contextMenuEvent(self, event):
+        if isinstance(self.port(), OutputPort):
+            operator=GraphOperator()
+            operator.identify_focused_graph_view()
+            operator.set_port_item(self)
+            menu = qtutils.AleaQMenu(operator.get_graph_view())
+            menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
+            menu.addAction(operator("Print",        menu, "port_print_value"))
+            menu.show()
+            menu.move(event.screenPos())
+            event.accept()
 
     def paint(self, painter, option, widget):
         if(not self.isVisible()):
@@ -401,4 +505,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
         painter.drawEllipse(self.__spacing/2+1,1,self.WIDTH-2, self.HEIGHT-2)
+
+
+    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsWidget,
+                              "itemChange")
 
