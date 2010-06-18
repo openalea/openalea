@@ -20,12 +20,9 @@ __revision__ = " $Id$ "
 import weakref
 from PyQt4 import QtCore, QtGui
 
-from openalea.grapheditor import qtgraphview
-from openalea.grapheditor import edgefactory
-import vertex
-from openalea.grapheditor import baselisteners
-
-from math import sqrt
+from openalea.visualea.graph_operator import GraphOperator
+from openalea.grapheditor import baselisteners, qtgraphview, edgefactory, qtutils
+from openalea.grapheditor import interactionstates as OAGIS
 
 class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
@@ -90,6 +87,21 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
     def remove(self):
         self.graph().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
                                   (self.dstBBox().vertex(), self.dstBBox()) )
+
+    def contextMenuEvent(self, event):
+        """ Context menu event : Display the menu"""
+        operator = GraphOperator()
+        operator.edgeType = GraphicalEdge
+        operator.identify_focused_graph_view()
+        w = operator.get_graph_view()
+        if w.scene().get_interaction_flag() & OAGIS.TOPOLOGICALLOCK : return
+        menu = qtutils.AleaQMenu(event.widget())
+        action = menu.addAction("Delete connection")
+        action.triggered.connect(self.remove)
+        menu.show()
+        menu.move(event.screenPos())
+        event.accept()
+
 
     store_view_data = None
     get_view_data   = None

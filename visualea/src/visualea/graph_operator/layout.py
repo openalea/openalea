@@ -19,7 +19,6 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
-from openalea.visualea import dataflowview
 
 #To handle availability of actions automatically
 from openalea.grapheditor import interactionstates as OAGIS
@@ -36,15 +35,16 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 1 :
             #find median base #TODO beware of relative to parent coordinates
             ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
 
             #move all items
             for item in items :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [item.vertex().get_ad_hoc_dict().get_metadata("position")[0],ymean])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [datadict.get_metadata("position")[0],ymean])
 
             #notify
             widget.scene().notify(None,("graph_modified",) )
@@ -59,16 +59,16 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
 
             #move all items
             for item in items :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [xmean,
-                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [xmean, datadict.get_metadata("position")[1]])
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
@@ -82,7 +82,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -91,9 +91,10 @@ class LayoutOperators(object):
 
             #move all items
             for item in items :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [xmean - item.boundingRect().width(),
-                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [xmean - item.boundingRect().width(),
+                                       datadict.get_metadata("position")[1]])
 
             #notify
             widget.scene().notify(None,("graph_modified",) )
@@ -108,8 +109,9 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 1 :
+
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
                         item.boundingRect().width() / 2. \
@@ -117,9 +119,10 @@ class LayoutOperators(object):
 
             #move all items
             for item in items :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [xmean - item.boundingRect().width() / 2.,
-                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [xmean - item.boundingRect().width() / 2.,
+                                       datadict.get_metadata("position")[1]])
 
             #notify
             widget.scene().notify(None,("graph_modified",) )
@@ -134,7 +137,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
             xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
@@ -155,9 +158,9 @@ class LayoutOperators(object):
             current_x = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + first_item.boundingRect().width()
 
             for x,item in item_centers[1:-1] :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [current_x + dist,
-                                                              item.vertex().get_ad_hoc_dict().get_metadata("position")[1]])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [current_x + dist, datadict.get_metadata("position")[1]])
                 current_x += dist + item.boundingRect().width()
 
             #notify
@@ -173,7 +176,7 @@ class LayoutOperators(object):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = widget.scene().get_selected_items(self.vertexType)
         if len(items) > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
             ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)
@@ -182,11 +185,12 @@ class LayoutOperators(object):
 
             #find mean distance between items
             dist = ( (ymax - ymin) - \
-                   sum(item.boundingRect().height() for item in items) )\
+                     sum(item.boundingRect().height() for item in items) )\
                    / (len(items) - 1)
 
             #sort all items by their mean position
-            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + item.boundingRect().height() / 2.,item) for item in items]
+            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + \
+                             item.boundingRect().height() / 2.,item) for item in items]
             item_centers.sort()
 
             #move all items
@@ -194,9 +198,10 @@ class LayoutOperators(object):
             current_y = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + first_item.boundingRect().height()
 
             for y,item in item_centers[1:-1] :
-                item.vertex().get_ad_hoc_dict().set_metadata("position",
-                                                             [item.vertex().get_ad_hoc_dict().get_metadata("position")[0],
-                                                              current_y + dist])
+                datadict = item.vertex().get_ad_hoc_dict()
+                datadict.set_metadata("position",
+                                      [datadict.get_metadata("position")[0],
+                                       current_y + dist])
                 current_y += dist + item.boundingRect().height()
 
             #notify

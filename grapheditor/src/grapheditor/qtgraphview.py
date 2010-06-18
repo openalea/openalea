@@ -685,29 +685,6 @@ def deprecate(methodName, newName=None):
 class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     """A View implementing client customisation """
 
-    ####################################
-    # ----Class members come first---- #
-    ####################################
-    __application_integration__= dict( zip(ClientCustomisableWidget.__AIK__,[None]*len(ClientCustomisableWidget.__AIK__)) )
-    __application_integration__.update({"mimeHandlers":{}, "pressHKMap":{}, "releaseHKMap":{}})
-    __defaultDropHandler = None
-
-    @classmethod
-    def set_mime_handler_map(cls, mapping):
-        cls.__application_integration__["mimeHandlers"].update(mapping)
-
-    @classmethod
-    def set_keypress_handler_map(cls, mapping):
-        cls.__application_integration__["pressHKMap"] = mapping
-
-    @classmethod
-    def set_keyrelease_handler_map(cls, mapping):
-        cls.__application_integration__["releaseHKMap"] = mapping
-
-    @classmethod
-    def set_default_drop_handler(cls, handler):
-        cls.__defaultDropHandler = handler
-
     #A few signals that strangely enough don't exist in QWidget
     closing = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)
 
@@ -729,6 +706,11 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
                     break
             self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))
 
+        self.__defaultDropHandler = None
+        self.__mimeHandlers = {}
+        self.__pressHotkeyMap = {}
+        self.__releaseHotkeyMap = {}
+
         # ---Qt Stuff---
         self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -748,6 +730,18 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     ##################
     # QtWorld-Events #
     ##################
+    def set_mime_handler_map(self, mapping):
+        self.__mimeHandlers.update(mapping)
+
+    def set_keypress_handler_map(self, mapping):
+        self.__pressHotkeyMap.update(mapping)
+
+    def set_keyrelease_handler_map(self, mapping):
+        self.__releaseHotkeyMap = mapping
+
+    def set_default_drop_handler(self, handler):
+        self.__defaultDropHandler = handler
+
     def reset_item_event_handlers(self):
         items = self.scene().get_items(Element)
         for i in items:
@@ -762,7 +756,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
         """ Return the format of the object if a handler is registered for it.
         If not, if there is a default handler, returns True, else returns False.
         """
-        for format in self.__application_integration__["mimeHandlers"].keys():
+        for format in self.__mimeHandlers.keys():
             if event.mimeData().hasFormat(format): return format
         return True if self.__defaultDropHandler else False
 
@@ -781,9 +775,9 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
 
     def dropEvent(self, event):
         format = self.accept_drop(event)
-        handler = self.__application_integration__["mimeHandlers"].get(format)
+        handler = self.__mimeHandlers.get(format)
         if(handler):
-            handler(self, event)
+            handler(event)
         else:
             self.__defaultDropHandler(event)
         QtGui.QGraphicsView.dropEvent(self, event)
@@ -791,17 +785,17 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     # ----hotkeys----
     def keyPressEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
-        action = self.__application_integration__["pressHKMap"].get(combo)
+        action = self.__pressHotkeyMap.get(combo)
         if(action):
-            action(self, event)
+            action(event)
         else:
             QtGui.QGraphicsView.keyPressEvent(self, event)
 
     def keyReleaseEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
-        action = self.__application_integration__["releaseHKMap"].get(combo)
+        action = self.__releaseHotkeyMap.get(combo)
         if(action):
-            action(self, event)
+            action(event)
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
@@ -842,6 +836,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
         mat.scale(sc_scale,sc_scale)
         self.setMatrix(mat)
         self.centerOn(sc_center)
+
 
     ######################
     # Deprecated methods #
