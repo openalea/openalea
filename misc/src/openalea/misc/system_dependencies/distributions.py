@@ -13,6 +13,24 @@
 ###############################################################################
 import dependency
 
+
+# -- our dependency tree --
+
+canonical_dependencies = {
+    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "svn-dev"],
+    "vplants"  : ["openalea", "pyqt4", "boostpython", "qhull", "cgal", "glut",
+                  "pyqt4-dev", "sip4-dev", "qhull-dev",
+                  "cgal-dev", "boostpython-dev", "glut-dev",
+                  "compilers", "bison-dev", "flex-dev"],
+    "alinea"   : ["vplants", "openalea"]
+}
+
+
+def get_canonincal_dependencies():
+    """ Returns a copy of the dependency tree """
+    return canonical_dependencies.copy()
+
+
 # ------------------ UBUNTU ------------------
 class Ubuntu_PackageNames(dependency.DistributionPackageNames):
     def __init__(self):
@@ -41,8 +59,6 @@ class Ubuntu_Karmic_PackageNames(Ubuntu_PackageNames):
         Ubuntu_PackageNames.__init__(self)
         self["boostpython"] = dependency.EggDependency("boostpython")
 
-dependency.DistributionPackageFactory().register(Ubuntu_PackageNames)
-dependency.DistributionPackageFactory().register(Ubuntu_Karmic_PackageNames)
 
 # ------------------ FEDORA ------------------
 class Fedora_PackageNames(dependency.DistributionPackageNames):
@@ -68,7 +84,16 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
         dependency.DistributionPackageNames.__init__(self, **d)
 
 
+# -- Registering Dependency tree --
+dependency.DependencySolver.set_dependency_tree(get_canonincal_dependencies())
+
+
+# -- Registering DitributionPackage translators --
+dependency.DistributionPackageFactory().register(Ubuntu_PackageNames)
+dependency.DistributionPackageFactory().register(Ubuntu_Karmic_PackageNames)
 dependency.DistributionPackageFactory().register(Fedora_PackageNames)
 
 
-
+# -- Registering Operating System interfaces
+dependency.OsInterfaceFactory().register("ubuntu", dependency.OsInterface("apt-get install", "svn"))
+dependency.OsInterfaceFactory().register("fedora", dependency.OsInterface("yum install", "svn"))
