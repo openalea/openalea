@@ -1072,7 +1072,7 @@ class system_deploy(Command):
     system dependencies (rpms, debs, etc...)
     """
 
-    import openalea.misc.system_dependencies as sys_deps
+    import system_dependencies as sys_deps
 
     description = "Install all required dependencies of a project using the platform's installer"
 
