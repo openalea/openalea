@@ -147,6 +147,7 @@ class GraphStrategy(object):
         self.__connectorTypes = connectorTypes
         self.__graphViewInitialiser = graphViewInitialiser
 
+    def check_strategy_and_be_paranoid(self):
         graphadapter = self.get_graph_or_adapter_type()
         vertexWidgetTypes  = self.get_vertex_widget_types()
         edgeWidgetTypes  = self.get_edge_widget_types()
@@ -181,6 +182,7 @@ class GraphStrategy(object):
         elTypes = [i for i in elTypes if i.startswith("floating")]
         for et in elTypes:
             assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
+
 
     def get_graph_model_type(self):
         """Returns the classobj defining the graph type"""
