@@ -100,16 +100,16 @@ class GraphListenerBase(observer.AbstractListener):
     It is MVC oriented.
     """
 
-    __available_strategies__ = {}
+    # __available_strategies__ = {}
 
-    @classmethod
-    def register_strategy(cls, strat):
-        graphCls = strat.get_graph_model_type()
-        cls.__available_strategies__[graphCls]=strat
-        return
+    # @classmethod
+    # def register_strategy(cls, strat):
+    #     graphCls = strat.get_graph_model_type()
+    #     cls.__available_strategies__[graphCls]=strat
+    #     return
 
 
-    def __init__(self, graph):
+    def __init__(self, graph, strat):
         observer.AbstractListener.__init__(self)
 
         #mappings from models to widgets
@@ -121,13 +121,13 @@ class GraphListenerBase(observer.AbstractListener):
         self._adapterType = None
         self._interactionFlag = 0
 
-        strat = self.__available_strategies__.get(graph.__class__,None)
-        if(not strat):
-            raise StrategyError("Could not find matching strategy :" +
-                                str(strat) +
-                                " : " + str(type(graph)))
-        self.__strategy=strat
+        # strat = self.__available_strategies__.get(graph.__class__,None)
+        # if(not strat):
+        #     raise StrategyError("Could not find matching strategy :" +
+        #                         str(strat) +
+        #                         " : " + str(type(graph)))
         self.connector_types=set(strat.get_connector_types())
+        self.__strategy = strat
         self.set_graph(graph)
 
         #low-level detail, during the edge creation we store
@@ -141,19 +141,14 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__strategy
 
     def graph(self):
-        if(isinstance(self.__observed, weakref.ref)):
-            return self.__observed()
-        else:
-            return self.__observed
+#        return self.__observed()
+        return self.__observed
 
     def set_graph(self, graph):
-        self.initialise(graph) #start listening. Todo: rename this method in
-        #the abstract listener class. and make it hold a reference to the observed
-        if(self.__strategy.has_adapter()):
-            ga = self.__strategy.adapt_graph(graph)
-            self.__observed = ga
-        else:
-            self.__observed = weakref.ref(graph) #might not need to be weak.
+        graph.register_listener(self)
+        #        self.initialise(graph)
+#        self.__observed = weakref.ref(graph) #might not need to be weak.
+        self.__observed = graph
 
     def initialise_from_model(self):
         self.__strategy.initialise_graph_view(self, self.graph())

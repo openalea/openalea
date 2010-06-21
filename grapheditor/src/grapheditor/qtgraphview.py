@@ -548,9 +548,9 @@ class FloatingEdge( Edge ):
 #------*************************************************------#
 class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase"""
-    def __init__(self, parent, graph):
+    def __init__(self, parent, graph, strategy):
         QtGui.QGraphicsScene.__init__(self, parent)
-        baselisteners.GraphListenerBase.__init__(self, graph)
+        baselisteners.GraphListenerBase.__init__(self, graph, strategy)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
         self.connector_types.add(Connector)
@@ -691,7 +691,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     ####################################
     # ----Instance members follow----  #
     ####################################
-    def __init__(self, parent, graph=None, clone=False):
+    def __init__(self, parent, graph, strategy, clone=False):
         QtGui.QGraphicsView.__init__(self, parent)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
@@ -704,7 +704,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
                 if isinstance(listener(), Scene):
                     existingScene = listener()
                     break
-            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph))
+            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph, strategy))
 
         self.__defaultDropHandler = None
         self.__mimeHandlers = {}

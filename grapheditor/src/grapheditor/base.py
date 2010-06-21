@@ -137,9 +137,11 @@ class GraphAdapterBase(object):
 
 
 class GraphStrategy(object):
-    def __init__(self, graphModelType, vertexWidgetMap, edgeWidgetMap, connectorTypes=[], adapterType=None, graphViewInitialiser=None):
+    def __init__(self, graphView, graphModelType, vertexWidgetMap, edgeWidgetMap,
+                 connectorTypes=[], adapterType=None, graphViewInitialiser=None):
 
         assert interfaces.IGraphViewStrategies.check(self)
+        self.__graphViewType = graphView
         self.__graphModelType = graphModelType
         self.__vertexWidgetMap = vertexWidgetMap
         self.__edgeWidgetMap = edgeWidgetMap
@@ -148,20 +150,16 @@ class GraphStrategy(object):
         self.__graphViewInitialiser = graphViewInitialiser
 
     def check_strategy_and_be_paranoid(self):
-        graphadapter = self.get_graph_or_adapter_type()
+        graphCls = self.get_graph_type()
         vertexWidgetTypes  = self.get_vertex_widget_types()
         edgeWidgetTypes  = self.get_edge_widget_types()
 
         graphCls = self.get_graph_model_type()
-        assert type(graphCls) == types.TypeType
 
-        if graphadapter is None:
-            graphadapter = graphCls
-
-        assert interfaces.IGraphAdapter.check(graphadapter)
+        assert interfaces.IGraphAdapter.check(graphCls)
 
         #checking vertex types
-        elTypes = graphadapter.get_vertex_types()
+        elTypes = graphCls.get_vertex_types()
         for vt in elTypes:
             vtype = vertexWidgetTypes.get(vt, None)
             assert interfaces.IGraphViewVertex.check(vtype)
@@ -172,7 +170,7 @@ class GraphStrategy(object):
             assert interfaces.IGraphViewConnectable.check(ct)
 
         #checking edge types
-        elTypes = graphadapter.get_edge_types()
+        elTypes = graphCls.get_edge_types()
         for et in elTypes:
             etype = edgeWidgetTypes.get(et, None)
             assert interfaces.IGraphViewEdge.check(etype)
@@ -183,41 +181,45 @@ class GraphStrategy(object):
         for et in elTypes:
             assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
 
-
     def get_graph_model_type(self):
         """Returns the classobj defining the graph type"""
         return self.__graphModelType
 
+    def create_view(self, parent, graph, *args, **kwargs):
+        """Instanciates the view"""
+        view = self.__graphViewType(parent, graph, self, *args,**kwargs)
+        return view
+
     def create_vertex_widget(self, vtype, *args, **kwargs):
-        VertexClass = self.get_vertex_widget_types().get(vtype)
+        VertexClass = self.__vertexWidgetMap.get(vtype)
         if(VertexClass):
             return VertexClass(*args, **kwargs)
         else:
             raise Exception("vtype not found")
 
     def create_edge_widget(self, etype, *args, **kwargs):
-        VertexClass = self.get_edge_widget_types().get(etype)
+        VertexClass = self.__edgeWidgetMap.get(etype)
         if(VertexClass):
             return VertexClass(*args, **kwargs)
         else:
             raise Exception("etype not found")
 
-    def get_vertex_widget_types(self):
-        return self.__vertexWidgetMap
+    # def get_vertex_widget_types(self):
+    #     return self.__vertexWidgetMap
 
-    def get_edge_widget_types(self):
-        return self.__edgeWidgetMap
+    # def get_edge_widget_types(self):
+    #     return self.__edgeWidgetMap
 
-    def has_adapter(self):
-        return self.__adapterType is not None
+    # def has_adapter(self):
+    #     return self.__adapterType is not None
 
-    def adapt_graph(self, graph):
-        return self.__adapterType(graph) if self.has_adapter() else graph
+    # def adapt_graph(self, graph):
+    #     return self.__adapterType(graph) if self.has_adapter() else graph
 
-    def get_graph_or_adapter_type(self):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
-        return self.__adapterType if self.has_adapter() else self.__graphModelType
+    # def get_graph_or_adapter_type(self):
+    #     """Return a classobj defining the type of widget
+    #     that represents an annotation"""
+    #     return self.__graphModelType
 
     def get_connector_types(self):
         return self.__connectorTypes

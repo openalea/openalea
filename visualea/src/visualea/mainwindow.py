@@ -173,6 +173,9 @@ class MainWindow(QtGui.QMainWindow,
         # daniel was here: now the menu is built using the graph operator.
         self.operator = GraphOperator()
         self.operator.set_main(self)
+        self.operator.vertexType = dataflowview.vertex.GraphicalVertex
+        self.operator.annotationType = dataflowview.anno.GraphicalAnnotation
+        self.operator.edgeType = dataflowview.edge.GraphicalEdge
         self.operator.register_listener(self)
         QtCore.QObject.connect(self.menu_Workspace,
                                QtCore.SIGNAL("aboutToShow()"),
@@ -471,15 +474,18 @@ class MainWindow(QtGui.QMainWindow,
         # Test if the node is already opened
         for i in range(self.tabWorkspace.count()):
             widget = self.tabWorkspace.widget(i)
-            n = widget.scene().graph().graph()
-            if(graph is n):
-                self.tabWorkspace.setCurrentIndex(i)
-                return
+            adapter = widget.scene().graph()
+            if adapter:
+                n = adapter.graph()
+                if(graph is n):
+                    self.tabWorkspace.setCurrentIndex(i)
+                    return
 
         #gengraph
         gwidget = None
         try:
-            gwidget = dataflowview.DataflowView(self, graph)
+            adapter = dataflowview.adapter.GraphAdapter(graph)
+            gwidget = dataflowview.GraphicalGraph.create_view(self, adapter)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
