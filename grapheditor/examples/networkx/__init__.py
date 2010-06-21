@@ -9,8 +9,8 @@ them.
 """
 
 import networkx as nx
+from openalea.grapheditor import Observed, GraphAdapterBase
 import weakref
-from openalea.grapheditor import Observed
 
 #These variables are shared by both the model
 #and the Views. Conceptually, this is not good.
@@ -108,6 +108,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 #------------------------
 import sys
 from PyQt4 import QtGui, QtCore
+from openalea.grapheditor import GraphStrategy
 from openalea.grapheditor import Edge, FloatingEdge, Vertex, Scene, View, mixin_method, LinearEdgePath
 from random import randint as rint # for random colors
 
@@ -183,6 +184,9 @@ class GraphicalView( View ):
         edges = view.scene().get_selected_items(filterType=GraphicalEdge)
         graphAdapter.remove_edges(e.edge() for e in edges)
         event.setAccepted(True)
+
+
+
 
 
 #THE APPLICATION'S MAIN WINDOW
