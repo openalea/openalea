@@ -10,9 +10,7 @@ them.
 
 import networkx as nx
 import weakref
-from openalea.grapheditor import *
-# from openalea.core import observer
-# import grapheditor.base
+from openalea.grapheditor import Observed
 
 #These variables are shared by both the model
 #and the Views. Conceptually, this is not good.
