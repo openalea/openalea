@@ -21,14 +21,6 @@ __revision__ = " $Id$ "
 
 import types
 import weakref
-
-try:
-    from openalea.core import observer
-except ImportError:
-    # This will fail.
-    # Please, have a local copy to remove the dependency on core.
-    import observer
-
 import observer
 import interfaces
 
@@ -190,7 +182,7 @@ class GraphListenerBase(observer.AbstractListener):
     ###############################################################
     def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
-        self._register_widget_with_model(widget, model)
+        return self._register_widget_with_model(widget, model)
 
     def _register_widget_with_model(self, widget, model):
         """

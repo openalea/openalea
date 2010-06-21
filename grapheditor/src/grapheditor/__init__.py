@@ -17,9 +17,8 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
-import edgefactory
-import interfaces
-import baselisteners
-import qtgraphview
-import qtutils
+from base import GraphStrategy, GraphAdapterBase
+from edgefactory import LinearEdgePath, SplineEdgePath
+from observer import Observed
+from qtgraphview import Edge, FloatingEdge, Vertex, Scene, View
+from qtutils import mixin_method
