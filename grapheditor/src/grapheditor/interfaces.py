@@ -86,6 +86,10 @@ class IGraphViewStrategies(object):
         """Returns the classobj defining the graph type"""
         raise NotImplementedError
 
+    def create_view(self, parent, graph, *args, **kwargs):
+        """Instanciates the view"""
+        raise NotImplementedError
+
     def create_vertex_widget(self, vtype, *args, **kwargs):
         """Instanciates a node matching vtype"""
         raise NotImplementedError
@@ -94,21 +98,21 @@ class IGraphViewStrategies(object):
         """Instanciates an edge matching etype"""
         raise NotImplementedError
 
-    def get_vertex_widget_types(cls):
-        """Return a dict mapping vertex type names (a str) to the
-        graphical representation of it (a class)"""
-        raise NotImplementedError
+    # def get_vertex_widget_types(cls):
+    #     """Return a dict mapping vertex type names (a str) to the
+    #     graphical representation of it (a class)"""
+    #     raise NotImplementedError
 
-    def get_edge_widget_types(cls):
-        """Return a dict mapping edge type names (a str) to the
-        graphical representation of it (a class)"""
-        raise NotImplementedError
+    # def get_edge_widget_types(cls):
+    #     """Return a dict mapping edge type names (a str) to the
+    #     graphical representation of it (a class)"""
+    #     raise NotImplementedError
 
 
-    def get_graph_or_adapter_type(cls):
-        """Return a classobj defining the type of widget
-        that represents an annotation"""
-        raise NotImplementedError
+    # def get_graph_or_adapter_type(cls):
+    #     """Return a classobj defining the type of widget
+    #     that represents an annotation"""
+    #     raise NotImplementedError
 
 
     def get_connector_types(cls):

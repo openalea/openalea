@@ -37,8 +37,8 @@ class DataflowView( qtgraphview.View ):
     # and simple subclassing. I'm doing this because I don't
     # like big migrations.
 
-    def __init__(self, parent, graph=None, clone=False):
-        qtgraphview.View.__init__(self, parent, graph, clone)
+    def __init__(self, parent, graph, strategy, clone=False):
+        qtgraphview.View.__init__(self, parent, graph, strategy, clone)
 
 
         # -- Configure the drop handlers --
@@ -236,16 +236,14 @@ def initialise_graph_view_from_model(graphView, graphModel):
 
 
 
-Strategy = openalea.grapheditor.base.GraphStrategy( graphModelType       = compositenode.CompositeNode,
-                                                    vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
-                                                                            "annotation":anno.GraphicalAnnotation,
-                                                                            "inNode":vertex.GraphicalInVertex,
-                                                                            "outNode":vertex.GraphicalOutVertex},
-                                                    edgeWidgetMap        = {"default":edge.GraphicalEdge,
-                                                                            "floating-default":edge.FloatingEdge},
-                                                    adapterType          = adapter.GraphAdapter,
-                                                    graphViewInitialiser = initialise_graph_view_from_model )
+GraphicalGraph = openalea.grapheditor.base.GraphStrategy( graphView            = DataflowView,
+                                                          graphModelType       = compositenode.CompositeNode,
+                                                          vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
+                                                                                  "annotation":anno.GraphicalAnnotation,
+                                                                                  "inNode":vertex.GraphicalInVertex,
+                                                                                  "outNode":vertex.GraphicalOutVertex},
+                                                          edgeWidgetMap        = {"default":edge.GraphicalEdge,
+                                                                                  "floating-default":edge.FloatingEdge},
+                                                          adapterType          = adapter.GraphAdapter,
+                                                          graphViewInitialiser = initialise_graph_view_from_model )
 
-if(__name__ != "__main__"):
-    #we register this strategy
-    baselisteners.GraphListenerBase.register_strategy(Strategy)
