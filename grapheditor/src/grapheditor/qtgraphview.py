@@ -296,7 +296,7 @@ class Vertex(Element):
         self.setFlag(ItemSendsGeometryChanges)
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
-            self.__defaultConnector = Vertex.InvisibleConnector(self, vertex, graph)
+            self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
 
     vertex = baselisteners.GraphElementListenerBase.get_observed
 
@@ -307,17 +307,17 @@ class Vertex(Element):
 
     def add_to_view(self, view):
         Element.add_to_view(self, view)
-        # if self.__defaultConnector:
-        #     self.__defaultConnector.add_to_view(view)
-        # for c in self.__connectors:
-        #     c.add_to_view(view)
+        if self.__defaultConnector:
+            self.__defaultConnector.add_to_view(view)
+        for c in self.__connectors:
+            c.add_to_view(view)
 
     def remove_from_view(self, view):
         Element.remove_from_view(self, view)
-        # if self.__defaultConnector:
-        #     self.__defaultConnector.remove_from_view(view)
-        # for c in self.__connectors:
-        #     c.remove_from_view(view)
+        if self.__defaultConnector:
+            self.__defaultConnector.remove_from_view(view)
+        for c in self.__connectors:
+            c.remove_from_view(view)
 
     def set_highlighted(self, value):
         pass
@@ -340,9 +340,10 @@ class Vertex(Element):
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
             if self.__defaultConnector:
-                center = self.boundingRect().center()
+                center = self.sceneBoundingRect().center()
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
+                print center, self.__defaultConnector.sceneBoundingRect().center() - center
 
         elif change == ItemPositionHasChanged:
             self.deaf(True)
@@ -351,10 +352,10 @@ class Vertex(Element):
             self.deaf(False)
 
             if self.__defaultConnector:
-                pass
-                # center = self.sceneBoundingRect().center()
-                # self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
-                #                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
+                center = self.sceneBoundingRect().center()
+                self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
+                                                center.y()-Vertex.InvisibleConnector.size/2.0 )
+                print center, self.__defaultConnector.sceneBoundingRect().center() - center
 
             return value
 
