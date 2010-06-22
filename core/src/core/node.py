@@ -128,7 +128,6 @@ class AbstractNode(Observed, HasAdHoc):
         - rename internal_data into attributes.
     """
 
-
     def __init__(self):
         """
         Default Constructor
@@ -137,10 +136,7 @@ class AbstractNode(Observed, HasAdHoc):
         HasAdHoc.__init__(self)
         Observed.__init__(self)
 
-        #gengraph
         self.__id = None
-        #/gengraph
-
         # Internal Data (caption...)
         self.internal_data = {}
         self.factory = None
@@ -149,7 +145,6 @@ class AbstractNode(Observed, HasAdHoc):
         self.view = None
         self.user_application = None
 
-    #gengraph
     def get_id(self):
         return self.__id
 
@@ -158,7 +153,6 @@ class AbstractNode(Observed, HasAdHoc):
         self.internal_data["id"] = self.__id
         if(self.factory):
             self.internal_data["factory"] = str(self.factory) + " : \"" + self.factory.get_id() + "\""
-    #/gengraph
 
     def set_data(self, key, value, notify=True):
         """ Set internal node data """
@@ -202,10 +196,8 @@ class AbstractPort(dict, Observed, HasAdHoc):
         HasAdHoc.__init__(self)
         Observed.__init__(self)
 
-        #gengraph
         self.vertex = ref(vertex)
         self.__id = None
-        #/gengraph
 
     def __hash__(self):
         return id(self)
@@ -213,7 +205,6 @@ class AbstractPort(dict, Observed, HasAdHoc):
     def __eq__(self, other):
         return id(self)==id(other)
 
-    #gengraph
     def copy_to(self, other):
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
         self.transfer_listeners(other)
@@ -223,7 +214,6 @@ class AbstractPort(dict, Observed, HasAdHoc):
 
     def set_id(self, id):
         self.__id = id
-    #/gengraph
 
     def get_desc(self):
         """ Gets default description """
@@ -1150,12 +1140,12 @@ class NodeFactory(AbstractFactory):
                 exec 'pkg_temp = %s' % package
 
                 (f, pathname, desc) = imp.find_module(nodemodule, pkg_temp.__path__)
-                if f: 
+                if f:
                     f.close()
 
                 self.module_cache = nodemodule
                 self.nodemodule_path = pathname
-                
+
                 sys.path = sav_path
                 return nodemodule
         else:

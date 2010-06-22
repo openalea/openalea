@@ -29,12 +29,9 @@ import copy
 
 from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
-#from openalea.core.node import InstantiationError
 from openalea.core.pkgmanager import PackageManager, UnknownPackageError
 from openalea.core.package import UnknownNodeError
 from openalea.core.dataflow import DataFlow, InvalidEdge
-#from openalea.core.dataflow import PortError
-#from openalea.core.algo.dataflow_copy import structural_copy
 from openalea.core.settings import Settings
 import metadatadict
 
@@ -219,24 +216,19 @@ class CompositeNodeFactory(AbstractFactory):
 
         node = Node()
 
-        #gengraph
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        #/gengraph
 
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
 
-        #gengraph
         for p in range(ins+1):
             port = node.add_input(name="In"+str(p))
 
         for p in range(outs+1):
             port = node.add_output(name="Out"+str(p))
-        #/gengraph
 
-        #gengraph
         for vs in values:
             try:
                 #the two first elements are the historical
@@ -278,10 +270,8 @@ class CompositeNodeFactory(AbstractFactory):
 
                 try:
                     if(callable(func)):
-                        #gengraph
                         if(meta):
                             func(n)
-                        #/gengraph
                         else:
                             n.internal_data[key] = func(n.internal_data[key])
                     else:
@@ -344,15 +334,12 @@ class CompositeNodeFactory(AbstractFactory):
         factory = pkg.get_factory(factory_id)
         node = factory.instantiate(call_stack)
 
-        #gengraph
         attributes = copy.deepcopy(self.elt_data[vid])
         ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
         self.load_ad_hoc_data(node, attributes, ad_hoc)
-        #/gengraph
 
         # copy node input data if any
         values = copy.deepcopy(self.elt_value.get(vid, ()))
-        #gengraph
 
         for vs in values:
             try:
@@ -804,10 +791,8 @@ class CompositeNode(Node, DataFlow):
                     for pos, newKey in enumerate(oldKeys):
                         sgfactory.elt_data[vid][newKey] = data[pos] if isinstance(data, list) else data
 
-            # gengraph
             # Copy ad_hoc data
             sgfactory.elt_ad_hoc[vid] = copy.deepcopy(node.get_ad_hoc_dict())
-            # /gengraph
 
             # Copy value
             if(not node.get_nb_input()):
@@ -844,9 +829,7 @@ class CompositeNode(Node, DataFlow):
             self.add_out_port(vid, local_pid)
 
         self.set_actor(vid, node)
-        #gengraph
         self.notify_vertex_addition(node, vid)
-        #/gengraph
 
         #self.id_cpt += 1
         if(modify):
@@ -855,7 +838,6 @@ class CompositeNode(Node, DataFlow):
 
         return vid
 
-    #gengraph
     def notify_vertex_addition(self, vertex, vid=None):
         vtype = "vertex"
         doNotify = True
@@ -878,34 +860,24 @@ class CompositeNode(Node, DataFlow):
         elif isinstance(vertex, CompositeNodeInput) : vtype = "inNode"
         else: pass
         self.notify_listeners(("vertex_removed", (vtype, vertex)))
-    #/gengraph
-
 
     def remove_node(self, vtx_id):
         """
         remove a node from the graph
-
         :param vtx_id: element id
         """
         node = self.node(vtx_id)
         if vtx_id == self.id_in : self.id_in = None
         elif vtx_id == self.id_out : self.id_out = None
         self.remove_vertex(vtx_id)
-
-    #gengraph
         self.notify_vertex_removal(node)
-    #/gengraph
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True
 
-
-    #gengraph
     def remove_edge(self, eid):
         DataFlow.remove_edge(self, eid)
         self.notify_listeners(("edge_removed", ("default",eid) ))
-    #/gengraph
 
-    #gengraph
     def simulate_destruction_notifications(self):
         """emits messages as if we were adding elements to
         the composite node"""
@@ -934,7 +906,6 @@ class CompositeNode(Node, DataFlow):
 
             edgedata = "default", eid
             self.notify_listeners(("edge_removed", edgedata))
-    #/gengraph
 
     def connect(self, src_id, port_src, dst_id, port_dst):
         """ Connect 2 elements
@@ -954,16 +925,13 @@ class CompositeNode(Node, DataFlow):
         self.graph_modified = True
 
         self.update_eval_listeners(src_id)
-        #gengraph
         nodeSrc = self.node(src_id)
         nodeDst = self.node(dst_id)
         src_port = nodeSrc.output_desc[port_src]
         dst_port = nodeDst.input_desc[port_dst]
 
-
         edgedata = "default", eid, src_port, dst_port
         self.notify_listeners(("edge_added", edgedata))
-        #/gengraph
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
         """ Deconnect 2 elements
@@ -980,9 +948,7 @@ class CompositeNode(Node, DataFlow):
         for eid in self.connected_edges(source_pid):
 
             if self.target_port(eid) == target_pid:
-                #gengraph
                 self.notify_listeners(("edge_removed", ("default",eid)))
-                #/gengraph
                 self.remove_edge(eid)
                 self.actor(dst_id).set_input_state(port_dst, "disconnected")
                 self.notify_listeners(("connection_modified", ))
@@ -1079,14 +1045,6 @@ class CompositeNodeInput(Node):
         """
 
         Node.__init__(self, outputs=inputs)
-
-        #gengraph
-        #for d in inputs:
-            #port = self.add_output(**d)
-        #/gengraph
-
-        # self.internal_data['posx'] = 20
-        # self.internal_data['posy'] = 5
         self.internal_data['caption'] = "In"
 
     def set_input(self, input_pid, val=None, *args):
@@ -1114,14 +1072,6 @@ class CompositeNodeOutput(Node):
         outputs : list of dict(name='', interface='', value'',...)
         """
         Node.__init__(self, inputs=outputs)
-
-        #gengraph
-        #for d in outputs:
-            #port = self.add_input(**d)
-        #/gengraph
-
-        # self.internal_data['posx'] = 20
-        # self.internal_data['posy'] = 250
         self.internal_data['caption'] = "Out"
 
     def get_output(self, output_pid):
