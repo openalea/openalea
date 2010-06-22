@@ -212,8 +212,8 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
 class Connector(Element):
     def __init__(self, *args, **kwargs):
         Element.__init__(self, *args, **kwargs)
-        self.setFlag(ItemSendsGeometryChanges)
-        self.setFlag(ItemSendsScenePositionChanges)
+        # self.setFlag(ItemSendsGeometryChanges)
+        # self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
 
@@ -309,15 +309,15 @@ class Vertex(Element):
         Element.add_to_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.add_to_view(view)
-        for c in self.__connectors:
-            c.add_to_view(view)
+        # for c in self.__connectors:
+        #     c.add_to_view(view)
 
     def remove_from_view(self, view):
         Element.remove_from_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.remove_from_view(view)
-        for c in self.__connectors:
-            c.remove_from_view(view)
+        # for c in self.__connectors:
+        #     c.remove_from_view(view)
 
     def set_highlighted(self, value):
         pass
@@ -343,7 +343,9 @@ class Vertex(Element):
                 center = self.sceneBoundingRect().center()
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
-                print center, self.__defaultConnector.sceneBoundingRect().center() - center
+                self.__defaultConnector.notify_position_change()
+            for c in self.__connectors:
+                c.notify_position_change()
 
         elif change == ItemPositionHasChanged:
             self.deaf(True)
@@ -355,7 +357,9 @@ class Vertex(Element):
                 center = self.sceneBoundingRect().center()
                 self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
                                                 center.y()-Vertex.InvisibleConnector.size/2.0 )
-                print center, self.__defaultConnector.sceneBoundingRect().center() - center
+                self.__defaultConnector.notify_position_change()
+            for c in self.__connectors:
+                c.notify_position_change()
 
             return value
 
