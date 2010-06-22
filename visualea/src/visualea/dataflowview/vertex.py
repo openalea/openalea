@@ -441,7 +441,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         qtgraphview.Element.clear_observed(self)
         return
 
-
     def __update_tooltip(self):
         node = self.port().vertex()
         if isinstance(self.port(), OutputPort):
