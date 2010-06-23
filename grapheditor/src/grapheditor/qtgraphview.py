@@ -378,7 +378,7 @@ class Vertex(Element):
         if (scene and event.buttons() & QtCore.Qt.LeftButton and
             event.modifiers() & QtCore.Qt.ControlModifier):
             pos = [event.scenePos().x(), event.scenePos().y()]
-            scene.new_edge_start(pos, source=self)
+            scene._new_edge_start(pos, source=self)
             return
 
 
@@ -563,7 +563,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         baselisteners.GraphListenerBase.__init__(self, graph, strategy)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
-        self.connector_types.add(Connector)
+        self._connector_types.add(Connector)
         self.initialise_from_model()
 
     #############################################################################
@@ -577,7 +577,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         for v in self.__views:
             if v() == view : toDiscard = v; break
         self.__views.remove(toDiscard)
-        try: self.graph().unregister_listener(view)
+        try: self.get_graph().unregister_listener(view)
         except : pass
         if len(self.__views)==0:
             self.clear()
@@ -628,15 +628,15 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # QtWorld-Events #
     ##################
     def mouseMoveEvent(self, event):
-        if(self.is_creating_edge()):
+        if(self._is_creating_edge()):
             pos = event.scenePos()
             pos = [pos.x(), pos.y()]
-            self.new_edge_set_destination(*pos)
+            self._new_edge_set_destination(*pos)
         QtGui.QGraphicsScene.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        if(self.is_creating_edge()):
-            self.new_edge_end()
+        if(self._is_creating_edge()):
+            self._new_edge_end()
         QtGui.QGraphicsScene.mouseReleaseEvent(self, event)
 
     #########################

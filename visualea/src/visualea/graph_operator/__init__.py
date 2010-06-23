@@ -31,10 +31,6 @@ class GraphOperator(Observed,
                     port.PortOperators):
 
     __main = None
-    __FIMD = dataflow.interactionMask.add(layout.interactionMask,
-                                          color.interactionMask,
-                                          vertex.interactionMask,
-                                          port.interactionMask)
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
@@ -64,10 +60,7 @@ class GraphOperator(Observed,
         if actionName is None and parent is None and fName is not None:
             return self.__get_wrapped(fName)[0]
         graphView = self.get_graph_view()
-        funcFlag  = self.__FIMD.get(fName, None)
-
         action = QtGui.QAction(actionName, parent)
-        action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
 
         return self.bind_action(action, fName, *otherSlots)
 
@@ -113,9 +106,6 @@ class GraphOperator(Observed,
         func = getattr(self, fName, None)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
-            funcFlag  = self.__FIMD.get(fName, None)
-            if graphView and funcFlag is not None:
-                if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return
             return func(*args, **kwargs)
         return wrapped, func.func_code.co_argcount
@@ -174,6 +164,6 @@ class GraphOperator(Observed,
     def get_graph(self):
         graphView = self.get_graph_view()
         if graphView:
-            return graphView.scene().graph()
+            return graphView.scene().get_graph()
         else:
             return self.graph

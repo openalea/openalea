@@ -28,7 +28,7 @@ class PortOperators(object):
     def set_port_item(self, portitem):
         self.__portItem = portitem
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def port_print_value(self):
         """ Print the value of the connector """
 
@@ -37,7 +37,7 @@ class PortOperators(object):
         data = data[:500]+"[...truncated]" if len(data)>500 else data
         print data
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def port_send_to_pool(self):
 
         (result, ok) = QtGui.QInputDialog.getText(self.get_graph_view(), "Data Pool", "Instance name",

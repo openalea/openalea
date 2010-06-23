@@ -96,10 +96,12 @@ class DataflowView( qtgraphview.View ):
 
             position = self.mapToScene(event.pos())
             try:
-                self.scene().clearSelection()
-                self.scene().select_added_items(True)
-                node = factory.instantiate([self.scene().graph().factory.get_id()])
-                self.scene().graph().add_vertex(node, position=[position.x(), position.y()])
+                scene = self.scene()
+                realGraph = scene.get_graph()
+                scene.clearSelection()
+                scene.select_added_items(True)
+                node = factory.instantiate([realGraph.factory.get_id()])
+                scene.add_vertex(node, position=[position.x(), position.y()])
             except RecursionError:
                 mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
@@ -129,10 +131,12 @@ class DataflowView( qtgraphview.View ):
 
             # Set key val
             try:
-                self.scene().clearSelection()
-                self.scene().select_added_items(True)
-                node = factory.instantiate([self.scene().graph().factory.get_id()])
-                self.scene().graph().add_vertex(node, [position.x(), position.y()])
+                scene = self.scene()
+                scene.clearSelection()
+                scene.select_added_items(True)
+                realGraph = scene.get_graph()
+                node = factory.instantiate([realGraph.factory.get_id()])
+                scene.add_vertex(node, [position.x(), position.y()])
             except RecursionError:
                 mess = QtGui.QMessageBox.warning(self, "Error",
                                                  "A graph cannot be contained in itself.")
@@ -148,7 +152,7 @@ class DataflowView( qtgraphview.View ):
     # Handling keyboard events on the graph view #
     ##############################################
     def key_press_delete(self, e):
-        operator=GraphOperator(self, self.scene().graph())
+        operator=GraphOperator(self, self.scene().get_graph())
         operator.vertexType = vertex.GraphicalVertex
         operator.annotationType = anno.GraphicalAnnotation
         operator.edgeType = edge.GraphicalEdge
@@ -181,8 +185,10 @@ class DataflowView( qtgraphview.View ):
         event.accept()
 
 
-
-def initialise_graph_view_from_model(graphView, graphModel):
+import traceback
+def initialise_graph_view_from_model(arg , graphView, graphModel):
+    traceback.print_stack()
+    print arg , graphView, graphModel
     # -- do the base node class initialisation --
     mdict  = graphModel.get_ad_hoc_dict()
 
@@ -237,13 +243,13 @@ def initialise_graph_view_from_model(graphView, graphModel):
 
 
 GraphicalGraph = openalea.grapheditor.base.GraphStrategy( graphView            = DataflowView,
-                                                          graphModelType       = compositenode.CompositeNode,
                                                           vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
                                                                                   "annotation":anno.GraphicalAnnotation,
                                                                                   "inNode":vertex.GraphicalInVertex,
                                                                                   "outNode":vertex.GraphicalOutVertex},
                                                           edgeWidgetMap        = {"default":edge.GraphicalEdge,
                                                                                   "floating-default":edge.FloatingEdge},
-                                                          adapterType          = adapter.GraphAdapter,
-                                                          graphViewInitialiser = initialise_graph_view_from_model )
+                                                          graphViewInitialiser = initialise_graph_view_from_model,
+                                                          adapterType          = adapter.GraphAdapter )
+
 

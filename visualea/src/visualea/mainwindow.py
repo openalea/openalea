@@ -456,7 +456,7 @@ class MainWindow(QtGui.QMainWindow,
 
             if(i< self.tabWorkspace.count()):
                 widget = self.tabWorkspace.widget(i)
-                if(node != widget.scene().graph().graph()):
+                if(node != widget.scene().get_graph()):
                     self.close_tab_workspace(i)
                 self.open_widget_tab(node, factory=node.factory, pos = i)
 
@@ -474,18 +474,18 @@ class MainWindow(QtGui.QMainWindow,
         # Test if the node is already opened
         for i in range(self.tabWorkspace.count()):
             widget = self.tabWorkspace.widget(i)
-            adapter = widget.scene().graph()
-            if adapter:
-                n = adapter.graph()
-                if(graph is n):
+            other = widget.scene().get_graph()
+            if other:
+                if(graph is other):
                     self.tabWorkspace.setCurrentIndex(i)
                     return
 
         #gengraph
         gwidget = None
         try:
-            adapter = dataflowview.adapter.GraphAdapter(graph)
-            gwidget = dataflowview.GraphicalGraph.create_view(self, adapter)
+            #adapter = dataflowview.adapter.GraphAdapter(graph)
+            noodles = dataflowview.GraphicalGraph(graph)
+            gwidget = noodles.create_view(self)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
@@ -744,7 +744,7 @@ class MainWindow(QtGui.QMainWindow,
         if widget is None:
             return
 
-        composite_node = widget.scene().graph().graph()
+        composite_node = widget.scene().get_graph()
         if composite_node is not None :
             print "BEGIN script"
             print composite_node.to_script(),"END script"

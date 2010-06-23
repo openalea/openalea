@@ -92,35 +92,23 @@ class GraphListenerBase(observer.AbstractListener):
     It is MVC oriented.
     """
 
-    # __available_strategies__ = {}
-
-    # @classmethod
-    # def register_strategy(cls, strat):
-    #     graphCls = strat.get_graph_model_type()
-    #     cls.__available_strategies__[graphCls]=strat
-    #     return
-
 
     def __init__(self, graph, strat):
         observer.AbstractListener.__init__(self)
+        assert graph is not None
+        assert strat is not None
 
         #mappings from models to widgets
+        #used by cleanup (gc) procedures
         self.widgetmap = {}
 
+        self.__graph           = graph
+        self.__strategy        = strat
         #obtaining types from the strategy.
-        self._vertexWidgetFactory = None
-        self._edgeWidgetFactory = None
-        self._adapterType = None
-        self._interactionFlag = 0
-
-        # strat = self.__available_strategies__.get(graph.__class__,None)
-        # if(not strat):
-        #     raise StrategyError("Could not find matching strategy :" +
-        #                         str(strat) +
-        #                         " : " + str(type(graph)))
-        self.connector_types=set(strat.get_connector_types())
-        self.__strategy = strat
-        self.set_graph(graph)
+        self._connector_types=set(strat.get_connector_types())
+        self.__observableGraph = strat.get_observable_graph()
+        self.__graphAdapter    = strat.get_graph_adapter()
+        self.__observableGraph.register_listener(self)
 
         #low-level detail, during the edge creation we store
         #the connectable graphical item closest to the mice.
@@ -132,18 +120,21 @@ class GraphListenerBase(observer.AbstractListener):
     def get_strategy(self):
         return self.__strategy
 
-    def graph(self):
-#        return self.__observed()
-        return self.__observed
+    def get_graph(self):
+        return self.__graph
 
-    def set_graph(self, graph):
-        graph.register_listener(self)
-        #        self.initialise(graph)
-#        self.__observed = weakref.ref(graph) #might not need to be weak.
-        self.__observed = graph
+    def get_adapter(self):
+        return self.__graphAdapter
+
+    def get_observable_graph(self):
+        return self.__observableGraph
 
     def initialise_from_model(self):
-        self.__strategy.initialise_graph_view(self, self.graph())
+        self.__strategy.initialise_graph_view(self, self.get_graph())
+
+    def clear(self):
+        self.widgetmap = {}
+
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
@@ -156,12 +147,12 @@ class GraphListenerBase(observer.AbstractListener):
 
     def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
-        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.graph(), *args, **kwargs)
+        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
         return self._element_added(vertexWidget, vertexModel)
 
     def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
         if edgeModel is None : return
-        edgeWidget = self.__strategy.create_edge_widget(etype, edgeModel, self.graph(),
+        edgeWidget = self.__strategy.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
         return self._element_added(edgeWidget, edgeModel)
 
@@ -173,8 +164,59 @@ class GraphListenerBase(observer.AbstractListener):
         if edgeModel is None : return
         return self._element_removed(edgeModel)
 
-    def clear(self):
-        self.widgetmap = {}
+    ##################################################################
+    # Protected controller methods come next. They MODIFY the model. #
+    ##################################################################
+    def add_vertex(self, *args, **kargs):
+        self.__graphAdapter.add_vertex(*args, **kwargs)
+
+    def get_vertex(self, *args, **kargs):
+        self.__graphAdapter.get_vertex(*args, **kwargs)
+
+    def remove_vertex(self, *args, **kargs):
+        self.__graphAdapter.remove_vertex(*args, **kwargs)
+
+    def remove_vertices(self, *args, **kargs):
+        self.__graphAdapter.remove_vertices(*args, **kwargs)
+
+    def get_vertex_inputs(self, *args, **kargs):
+        self.__graphAdapter.get_vertex_inputs(*args, **kwargs)
+
+    def get_vertex_outputs(self, *args, **kargs):
+        self.__graphAdapter.get_vertex_outputs(*args, **kwargs)
+
+    def get_vertex_input(self, *args, **kargs):
+        self.__graphAdapter.get_vertex_input(*args, **kwargs)
+
+    def get_vertex_output(self, *args, **kargs):
+        self.__graphAdapter.get_vertex_output(*args, **kwargs)
+
+    def add_edge(self, *args, **kargs):
+        rself.__graphAdapter.add_edge(*args, **kwargs)
+
+    def remove_edge(self, *args, **kargs):
+        self.__graphAdapter.remove_edge(*args, **kwargs)
+
+    #########################
+    # Other utility methods #
+    #########################
+    def is_connectable(self, obj):
+        for ct in self._connector_types:
+            if isinstance(obj, ct):
+                return True
+        return False
+
+    def is_input(self, *args, **kargs):
+        self.__graphAdapter.is_input(*args, **kwargs)
+
+    def is_output(self, *args, **kargs):
+        self.__graphAdapter.is_output(*args, **kwargs)
+
+    def get_vertex_types(self):
+        self.__graphAdapter.get_vertex_types()
+
+    def get_edge_types(self):
+        self.__graphAdapter.get_edge_types()
 
 
     ###############################################################
@@ -233,27 +275,22 @@ class GraphListenerBase(observer.AbstractListener):
         modelWidgets.discard(widgetWeakRef)
 
 
-    ########################################################
-    # Controller methods come next. They MODIFY the model. #
-    ########################################################
-    def set_interaction_flag(self, val):
-        self._interactionFlag = val
-
-    def get_interaction_flag(self):
-        return self._interactionFlag
+    ##################################################################
+    # Protected controller methods come next. They MODIFY the model. #
+    ##################################################################
 
     #---Low-Level Edge Interaction---
-    def is_creating_edge(self):
+    def _is_creating_edge(self):
         return True if self.__newEdge else False
 
-    def new_edge_start(self, srcPt, etype="default", source=None):
-        self.__newEdge = self.__strategy.create_edge_widget("floating-"+etype, srcPt, self.graph())
+    def _new_edge_start(self, srcPt, etype="default", source=None):
+        self.__newEdge = self.__strategy.create_edge_widget("floating-"+etype, srcPt, self.get_graph())
         self.__newEdge.add_to_view(self.get_scene())
         if  source:
             self.__newEdgeSource = source
             self.__newEdgeSource.lock_position(True)
 
-    def new_edge_set_destination(self, *dest):
+    def _new_edge_set_destination(self, *dest):
         if self.currentItem:
             self.currentItem.set_highlighted(False)
         if(self.__newEdge):
@@ -264,10 +301,10 @@ class GraphListenerBase(observer.AbstractListener):
         self.__newEdge.update_line_destination(*dest)
 
 
-    def new_edge_end(self):
+    def _new_edge_end(self):
         if(self.__newEdge):
             try:
-                self.__newEdge.consolidate(self.graph())
+                self.__newEdge.consolidate(self.get_graph())
             except Exception, e :
                 pass
             finally:
@@ -281,14 +318,9 @@ class GraphListenerBase(observer.AbstractListener):
             self.__newEdgeSource = None
 
 
-    #########################
-    # Other utility methods #
-    #########################
-    def is_connectable(self, obj):
-        for ct in self.connector_types:
-            if isinstance(obj, ct):
-                return True
-        return False
+
+
+
 
 class ObservedBlackBox(object):
     def __init__(self, owner, observed):

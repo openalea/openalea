@@ -26,7 +26,7 @@ interactionMask = OAGIS.make_interaction_level_decorator()
 
 class ColorOperators(object):
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_set_selection_color(self):
         items = self.get_graph_view().scene().get_selected_items(self.vertexType)
         length = len(items)
@@ -53,7 +53,7 @@ class ColorOperators(object):
                 print "graph_set_selection_color exception", e
                 pass
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_use_user_color(self, useit):
         items = self.get_graph_view().scene().get_selected_items(self.vertexType)
         if(not items): return

@@ -40,7 +40,7 @@ class VertexOperators(object):
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_composite_inspect(self):
         widget = compositenode_inspector.Inspector(self.get_graph_view(),
                                                    self.vertexItem().vertex(),
@@ -51,12 +51,12 @@ class VertexOperators(object):
 
     @exception_display
     @busy_cursor
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_run(self):
         self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())
 
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_open(self):
         vertex = self.vertexItem().vertex()
 
@@ -87,22 +87,22 @@ class VertexOperators(object):
                                                                   factory.get_id(),
                                                                   False)
 
-    @interactionMask(OAGIS.TOPOLOGICALLOCK)
+    
     def vertex_remove(self):
         self.get_graph().remove_vertex(self.vertexItem().vertex())
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_reset(self):
         self.vertexItem().vertex().reset()
 
-    @interactionMask(OAGIS.TOPOLOGICALLOCK)
+    
     def vertex_observer_copy(self, oldVertex, newVertex):
         """ Copies attributes from old vertex to new vertex, including listeners."""
         oldVertex.copy_to(newVertex)
 
     @exception_display
     @busy_cursor
-    @interactionMask(OAGIS.TOPOLOGICALLOCK)
+    
     def vertex_replace(self):
         """ Replace a node by an other """
         self.dialog = NodeChooser(self.get_graph_view())
@@ -117,7 +117,7 @@ class VertexOperators(object):
         self.get_graph().replace_vertex(oldVertex, newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_reload(self):
         """ Reload the vertex """
         # Reload package
@@ -132,7 +132,7 @@ class VertexOperators(object):
         self.get_graph().set_actor(oldVertex.get_id(), newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
 
@@ -142,25 +142,25 @@ class VertexOperators(object):
         if(ok):
             n.caption = str(result) #I HATE PROPERTIES, REALLY!
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_show_hide_ports(self):
         """ Open port show/hide dialog """
         editor = ShowPortDialog(self.vertexItem().vertex(), self.get_graph_view())
         editor.exec_()
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def vertex_mark_user_app(self, val):
         self.get_graph().set_continuous_eval(self.vertexItem().vertex().get_id(), bool(val))
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def vertex_set_lazy(self, val):
         self.vertexItem().vertex().lazy = val #I DO HATE PROPERTIES, REALLY!
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_block(self, val):
         self.vertexItem().vertex().block = val #I DEFINITELY DO HATE PROPERTIES, REALLY!
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+    
     def vertex_edit_internals(self):
         """ Edit node internal data """
         editor = DictEditor(self.vertexItem().vertex().internal_data, self.get_graph_view())

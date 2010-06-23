@@ -26,7 +26,7 @@ interactionMask = OAGIS.make_interaction_level_decorator()
 
 class LayoutOperators(object):
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne.
         """
@@ -51,7 +51,7 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_left (self):
         """Align all items on their left side.
         """
@@ -74,7 +74,7 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_right (self):
         """Align all items on their right side.
         """
@@ -101,7 +101,7 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_mean (self):
         """Align all items vertically around a mean ligne.
         """
@@ -129,7 +129,7 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_distribute_selection_horizontally (self):
         """distribute the horizontal distances between items.
         """
@@ -168,7 +168,7 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_distribute_selection_vertically (self):
         """distribute the vertical distances between items.
         """
