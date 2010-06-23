@@ -167,36 +167,42 @@ class GraphListenerBase(observer.AbstractListener):
     ##################################################################
     # Protected controller methods come next. They MODIFY the model. #
     ##################################################################
-    def add_vertex(self, *args, **kargs):
+    def new_vertex(self, *args, **kwargs):
+        return self.__graphAdapter.new_vertex(*args, **kwargs)    
+    
+    def add_vertex(self, *args, **kwargs):
         self.__graphAdapter.add_vertex(*args, **kwargs)
 
-    def get_vertex(self, *args, **kargs):
+    def get_vertex(self, *args, **kwargs):
         self.__graphAdapter.get_vertex(*args, **kwargs)
 
-    def remove_vertex(self, *args, **kargs):
+    def remove_vertex(self, *args, **kwargs):
         self.__graphAdapter.remove_vertex(*args, **kwargs)
 
-    def remove_vertices(self, *args, **kargs):
+    def remove_vertices(self, *args, **kwargs):
         self.__graphAdapter.remove_vertices(*args, **kwargs)
 
-    def get_vertex_inputs(self, *args, **kargs):
+    def get_vertex_inputs(self, *args, **kwargs):
         self.__graphAdapter.get_vertex_inputs(*args, **kwargs)
 
-    def get_vertex_outputs(self, *args, **kargs):
+    def get_vertex_outputs(self, *args, **kwargs):
         self.__graphAdapter.get_vertex_outputs(*args, **kwargs)
 
-    def get_vertex_input(self, *args, **kargs):
+    def get_vertex_input(self, *args, **kwargs):
         self.__graphAdapter.get_vertex_input(*args, **kwargs)
 
-    def get_vertex_output(self, *args, **kargs):
+    def get_vertex_output(self, *args, **kwargs):
         self.__graphAdapter.get_vertex_output(*args, **kwargs)
 
-    def add_edge(self, *args, **kargs):
+    def add_edge(self, *args, **kwargs):
         rself.__graphAdapter.add_edge(*args, **kwargs)
 
-    def remove_edge(self, *args, **kargs):
+    def remove_edge(self, *args, **kwargs):
         self.__graphAdapter.remove_edge(*args, **kwargs)
 
+    def remove_edges(self, *args, **kwargs):
+        self.__graphAdapter.remove_edges(*args, **kwargs)
+        
     #########################
     # Other utility methods #
     #########################
@@ -206,10 +212,10 @@ class GraphListenerBase(observer.AbstractListener):
                 return True
         return False
 
-    def is_input(self, *args, **kargs):
+    def is_input(self, *args, **kwargs):
         self.__graphAdapter.is_input(*args, **kwargs)
 
-    def is_output(self, *args, **kargs):
+    def is_output(self, *args, **kwargs):
         self.__graphAdapter.is_output(*args, **kwargs)
 
     def get_vertex_types(self):

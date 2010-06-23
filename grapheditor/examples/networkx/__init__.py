@@ -187,6 +187,14 @@ class GraphicalView( View ):
 
 
 
+#-------------------------
+# -- the graph strategy --
+#-------------------------
+GraphicalGraph = GraphStrategy( graphView       = GraphicalView,
+                                vertexWidgetMap = {"vertex":GraphicalNode},
+                                edgeWidgetMap   = {"default":GraphicalEdge,
+                                                   "floating-default":GraphicalFloatingEdge},
+                                adapterType     = None)
 
 
 #THE APPLICATION'S MAIN WINDOW
@@ -194,19 +202,12 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
-        #-------------------------
-        # -- the graph strategy --
-        #-------------------------
-        GraphicalGraph = GraphStrategy( graphView       = GraphicalView,
-                                        graphModelType  = NXObservedGraph,
-                                        vertexWidgetMap = {"vertex":GraphicalNode},
-                                        edgeWidgetMap   = {"default":GraphicalEdge,
-                                                           "floating-default":GraphicalFloatingEdge},
-                                        adapterType     = None)
+
 
         self.setMinimumSize(800,600)
         self.__graph = NXObservedGraph()
-        self.__graphView = GraphicalGraph.create_view(self, self.__graph)
+        noodles = GraphicalGraph(self.__graph)
+        self.__graphView = noodles.create_view(parent=self)
         self.setCentralWidget(self.__graphView)
 
 
