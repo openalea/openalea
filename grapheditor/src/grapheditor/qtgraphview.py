@@ -242,6 +242,15 @@ class Connector(Element):
             self.notify_position_change()
             return value
 
+    def mousePressEvent(self, event):
+        scene = self.scene()
+        if (scene and event.buttons() & QtCore.Qt.LeftButton and
+            event.modifiers() & QtCore.Qt.ControlModifier):
+            scene._new_edge_start(self.get_scene_center())
+        else:
+            super(self.__class__, self).mousePressEvent(event)
+        
+            
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
@@ -266,8 +275,7 @@ class Vertex(Element):
             QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
-        itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
-                                  "itemChange")
+
         def position_changed(self, *args):
             """reimplemented to do nothing. otherwise caught
             position changes from the model (????) and ignored
@@ -275,7 +283,10 @@ class Vertex(Element):
             pass
         # def paint(self, painter, paintOptions, widget):
         #     return
-
+        itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
+                                  "itemChange")
+        # mousePressEvent = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
+                                               # "mousePressEvent")                                  
 
     ####################################
     # ----Instance members follow----  #
@@ -370,16 +381,16 @@ class Vertex(Element):
         self.__paintStrategy(self, painter, option, widget)
 
 
-    def mousePressEvent(self, event):
-        """Qt-specific call to handle mouse clicks on the vertex.
-        Default implementation initiates the creation of an edge from
-        the vertex."""
-        scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton and
-            event.modifiers() & QtCore.Qt.ControlModifier):
-            pos = [event.scenePos().x(), event.scenePos().y()]
-            scene._new_edge_start(pos, source=self)
-            return
+    # def mousePressEvent(self, event):
+        # """Qt-specific call to handle mouse clicks on the vertex.
+        # Default implementation initiates the creation of an edge from
+        # the vertex."""
+        # scene = self.scene()
+        # if (scene and event.buttons() & QtCore.Qt.LeftButton and
+            # event.modifiers() & QtCore.Qt.ControlModifier):
+            # pos = [event.scenePos().x(), event.scenePos().y()]
+            # scene._new_edge_start(pos, source=self)
+            # return
 
 
 #------*************************************************------#

@@ -262,6 +262,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.setSelected(True)
 
         operator = GraphOperator()
+        operator.vertexType = GraphicalVertex
         operator.identify_focused_graph_view()
         operator.set_vertex_item(self)
         widget = operator.get_graph_view()
@@ -270,8 +271,8 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
 
         menu.addAction(operator("Run",             menu, "vertex_run"))
         menu.addAction(operator("Open Widget",     menu, "vertex_open"))
-        if isinstance(self.vertex(), compositenode.CompositeNode):
-            menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
+        # if isinstance(self.vertex(), compositenode.CompositeNode):
+            # menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
         menu.addSeparator()
         menu.addAction(operator("Delete",          menu, "vertex_remove"))
         menu.addAction(operator("Reset",           menu, "vertex_reset"))
@@ -470,11 +471,11 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     ##################
     # QtWorld-Events #
     #################
-    def mousePressEvent(self, event):
-        scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton):
-            scene.new_edge_start(self.get_scene_center())
-            return
+    # def mousePressEvent(self, event):
+        # scene = self.scene()
+        # if (scene and event.buttons() & QtCore.Qt.LeftButton):
+            # scene._new_edge_start(self.get_scene_center())
+            # return
 
     def contextMenuEvent(self, event):
         if isinstance(self.port(), OutputPort):

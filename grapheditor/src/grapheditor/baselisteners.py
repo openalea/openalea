@@ -104,6 +104,7 @@ class GraphListenerBase(observer.AbstractListener):
 
         self.__graph           = graph
         self.__strategy        = strat
+        self.__strategyCls     = strat.__class__
         #obtaining types from the strategy.
         self._connector_types=set(strat.get_connector_types())
         self.__observableGraph = strat.get_observable_graph()
@@ -122,6 +123,16 @@ class GraphListenerBase(observer.AbstractListener):
 
     def get_graph(self):
         return self.__graph
+        
+    def set_graph(self, graph, adapter=None, observable=None):
+        strat                  = self.__strategyCls(graph, adapter, observable)
+        self.__strategy        = strat
+        self.__graph           = graph
+        #obtaining types from the strategy.
+        self._connector_types=set(strat.get_connector_types())
+        self.__observableGraph = strat.get_observable_graph()
+        self.__graphAdapter    = strat.get_graph_adapter()
+        self.__observableGraph.register_listener(self)              
 
     def get_adapter(self):
         return self.__graphAdapter

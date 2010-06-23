@@ -17,6 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
@@ -33,8 +34,11 @@ class GraphOperator(Observed):
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
                        color.ColorOperators(self), vertex.VertexOperators(self) ]
         
-        self.__availableNames = dict([[(meth, getattr(operator, meth)) for meth in operator] \
-                                for operator in self.__ops])
+        self.__availableNames = {}
+        
+        for operator in self.__ops:
+            for meth in dir(operator):
+                self.__availableNames[meth] = getattr(operator, meth)
 
         self.graphView      = None
         self.graph          = None
@@ -44,6 +48,7 @@ class GraphOperator(Observed):
         self.vertexType     = None
         self.annotationType = None
         self.edgeType       = None
+        self.vertexItem = None
 
         if(graphView):
             self.graphView = graphView
@@ -115,6 +120,13 @@ class GraphOperator(Observed):
     def set_main(self, main):
         GraphOperator.__main = main
 
+
+    def set_vertex_item(self, vertexItem):
+        self.vertexItem = weakref.ref(vertexItem)
+        
+    def set_port_item(self, portitem):
+        self.portItem = weakref.ref(portitem)
+        
     ###########
     # getters #
     ###########
@@ -158,6 +170,9 @@ class GraphOperator(Observed):
 
     def get_graph_view(self):
         return self.graphView
+        
+    def get_graph_scene(self):
+        return self.graphView.scene()  
 
     def get_graph(self):
         graphView = self.get_graph_view()

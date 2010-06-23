@@ -185,9 +185,7 @@ class DataflowView( qtgraphview.View ):
         event.accept()
 
 
-import traceback
 def initialise_graph_view_from_model(arg , graphView, graphModel):
-    traceback.print_stack()
     print arg , graphView, graphModel
     # -- do the base node class initialisation --
     mdict  = graphModel.get_ad_hoc_dict()

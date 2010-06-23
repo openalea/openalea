@@ -17,9 +17,9 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import weakref
 import base as graphOpBase
 from PyQt4 import QtGui, QtCore
-import weakref
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 
@@ -29,34 +29,29 @@ import compositenode_inspector
 class VertexOperators(graphOpBase.Base):
     __vertexWidgetMap__ = weakref.WeakKeyDictionary()
 
-    def __init__(self):
+    def __init__(self, master):
+        graphOpBase.Base.__init__(self, master)
         # ---reference to the widget of this vertex---
         self._vertexWidget = None
-        self.vertexItem = None
 
-    def set_vertex_item(self, vertexItem):
-        self.vertexItem = weakref.ref(vertexItem)
-
-    
     def vertex_composite_inspect(self):
-        widget = compositenode_inspector.Inspector(self.get_graph_view(),
-                                                   self.vertexItem().vertex(),
-                                                   self.get_main().operator,
+        master = self.master
+        widget = compositenode_inspector.Inspector(master.get_graph_view(),
+                                                   master.vertexItem().vertex(),
+                                                   master.get_main().operator,
                                                    self)
         widget.show_entire_scene()
         widget.show()
 
     @exception_display
     @busy_cursor
-    
     def vertex_run(self):
-        self.get_graph().eval_as_expression(self.vertexItem().vertex().get_id())
+        master = self.master
+        master.get_graph().eval_as_expression(master.vertexItem().vertex().get_id())
 
-
-    
     def vertex_open(self):
-        vertex = self.vertexItem().vertex()
-
+        master = self.master
+        vertex = master.vertexItem().vertex()
         vwidget = VertexOperators.__vertexWidgetMap__.get(vertex, None)
         if(vwidget):
             if(vwidget.isVisible()):
@@ -79,91 +74,97 @@ class VertexOperators(graphOpBase.Base):
             del innerWidget
             return
 
-        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(self.get_graph_view(),
+        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(master.get_graph_view(),
                                                                   innerWidget,
                                                                   factory.get_id(),
                                                                   False)
 
-    
+
     def vertex_remove(self):
-        self.get_graph().remove_vertex(self.vertexItem().vertex())
+        master = self.master
+        master.get_graph_scene().remove_vertex(master.vertexItem().vertex())
 
-    
+
     def vertex_reset(self):
-        self.vertexItem().vertex().reset()
+        self.master.vertexItem().vertex().reset()
 
-    
-    def vertex_observer_copy(self, oldVertex, newVertex):
+
+    @classmethod
+    def vertex_observer_copy(oldVertex, newVertex):
         """ Copies attributes from old vertex to new vertex, including listeners."""
         oldVertex.copy_to(newVertex)
 
     @exception_display
     @busy_cursor
-    
     def vertex_replace(self):
         """ Replace a node by an other """
-        self.dialog = NodeChooser(self.get_graph_view())
-        self.dialog.search('', self.vertexItem().vertex().get_nb_input(),
-                           self.vertexItem().vertex().get_nb_output())
-        ret = self.dialog.exec_()
+        master = self.master
+        dialog = NodeChooser(master.get_graph_view())
+        vItem = master.vertexItem()
+        dialog.search('', vItem.vertex().get_nb_input(),
+                      vItem.vertex().get_nb_output())
+        ret = dialog.exec_()
         if(not ret): return
 
-        factory = self.dialog.get_selection()
-        oldVertex = self.vertexItem().vertex()
+        factory = dialog.get_selection()
+        oldVertex = vItem.vertex()
         newVertex = factory.instantiate()
-        self.get_graph().replace_vertex(oldVertex, newVertex)
+        master.get_graph().replace_vertex(oldVertex, newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
-    
+
     def vertex_reload(self):
         """ Reload the vertex """
         # Reload package
-        factory = self.vertexItem().vertex().factory
+        vItem = self.master.vertexItem()
+        factory = vItem.vertex().factory
         package = factory.package
         if(package):
             package.reload()
 
         # Reinstantiate the vertex
         newVertex = factory.instantiate()
-        oldVertex = self.vertexItem().vertex()
+        oldVertex = vItem.vertex()
         self.get_graph().set_actor(oldVertex.get_id(), newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
-    
+
     def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
 
-        n = self.vertexItem().vertex()
+        n = self.master.vertexItem().vertex()
         (result, ok) = QtGui.QInputDialog.getText(None, "Node caption", "",
                                    QtGui.QLineEdit.Normal, n.caption)
         if(ok):
             n.caption = str(result) #I HATE PROPERTIES, REALLY!
 
-    
+
     def vertex_show_hide_ports(self):
         """ Open port show/hide dialog """
-        editor = ShowPortDialog(self.vertexItem().vertex(), self.get_graph_view())
+        editor = ShowPortDialog(self.master.vertexItem().vertex(), self.master.get_graph_view())
         editor.exec_()
 
-    
+
     def vertex_mark_user_app(self, val):
-        self.get_graph().set_continuous_eval(self.vertexItem().vertex().get_id(), bool(val))
+        master = self.master
+        master.get_graph().set_continuous_eval(master.vertexItem().vertex().get_id(), bool(val))
 
-    
+
     def vertex_set_lazy(self, val):
-        self.vertexItem().vertex().lazy = val #I DO HATE PROPERTIES, REALLY!
+        self.master.vertexItem().vertex().lazy = val #I DO HATE PROPERTIES, REALLY!
 
-    
+
     def vertex_block(self, val):
-        self.vertexItem().vertex().block = val #I DEFINITELY DO HATE PROPERTIES, REALLY!
+        self.master.vertexItem().vertex().block = val #I DEFINITELY DO HATE PROPERTIES, REALLY!
 
-    
+
     def vertex_edit_internals(self):
         """ Edit node internal data """
-        editor = DictEditor(self.vertexItem().vertex().internal_data, self.get_graph_view())
+        master = self.master 
+        editor = DictEditor(master.vertexItem().vertex().internal_data, self.master.get_graph_view())
         ret = editor.exec_()
 
         if(ret):
             for k in editor.modified_key:
-                self.vertexItem().vertex().set_data(k, editor.pdict[k])
+                master.vertexItem().vertex().set_data(k, editor.pdict[k])
 
