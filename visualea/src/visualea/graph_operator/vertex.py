@@ -17,6 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 import weakref
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
@@ -25,11 +26,7 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.core import observer, node
 import compositenode_inspector
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
-
-class VertexOperators(object):
+class VertexOperators(graphOpBase.Base):
     __vertexWidgetMap__ = weakref.WeakKeyDictionary()
 
     def __init__(self):

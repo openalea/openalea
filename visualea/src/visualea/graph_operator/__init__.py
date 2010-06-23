@@ -23,30 +23,27 @@ from openalea.grapheditor import qtgraphview
 import dataflow, layout, color, vertex, port
 
 
-class GraphOperator(Observed,
-                    dataflow.DataflowOperators,
-                    layout.LayoutOperators,
-                    color.ColorOperators,
-                    vertex.VertexOperators,
-                    port.PortOperators):
+class GraphOperator(Observed):
 
     __main = None
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
-        dataflow.DataflowOperators.__init__(self)
-        layout.LayoutOperators.__init__(self)
-        color.ColorOperators.__init__(self)
-        vertex.VertexOperators.__init__(self)
 
-        self.graphView = None
-        self.graph     = None
-        self.__session = None
-        self.__interpreter = None
-        self.__pkgmanager = None
-        self.vertexType = None
+        self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
+                       color.ColorOperators(self), vertex.VertexOperators(self) ]
+        
+        self.__availableNames = dict([[(meth, getattr(operator, meth)) for meth in operator] \
+                                for operator in self.__ops])
+
+        self.graphView      = None
+        self.graph          = None
+        self.__session      = None
+        self.__interpreter  = None
+        self.__pkgmanager   = None
+        self.vertexType     = None
         self.annotationType = None
-        self.edgeType = None
+        self.edgeType       = None
 
         if(graphView):
             self.graphView = graphView
@@ -103,7 +100,8 @@ class GraphOperator(Observed,
     __call__ = get_action
 
     def __get_wrapped(self, fName):
-        func = getattr(self, fName, None)
+        #func = getattr(self, fName, None)
+        func = self.__availableNames.get(fName)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
             if self.get_graph() is None : return

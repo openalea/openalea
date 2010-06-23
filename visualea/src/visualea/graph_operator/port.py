@@ -17,14 +17,13 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
 
-class PortOperators(object):
+class PortOperators(graphOpBase.Base):
+
     def set_port_item(self, portitem):
         self.__portItem = portitem
 

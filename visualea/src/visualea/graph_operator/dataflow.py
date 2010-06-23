@@ -17,6 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
@@ -27,11 +28,8 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
 from compositenode_inspector import Inspector
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
 
-class DataflowOperators(object):
+class DataflowOperators(graphOpBase.Base):
 
     
     @exception_display
