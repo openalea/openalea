@@ -65,8 +65,6 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
         self.graph().disconnect(vtxIdSrc, portIdSrc, vtkIdDst, portIdDst)
 
     # -- Utility methods, not always useful/relevant.
-
-
     def replace_vertex(self, oldVertex, newVertex):
         self.graph().replace_node(oldVertex.get_id(), newVertex)
 
@@ -81,7 +79,6 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
 
     def get_vertex_output(self, vid, pid):
         return self.graph().node(vid).output_desc[pid]
-
 
     #type checking
     def is_input(self, input):

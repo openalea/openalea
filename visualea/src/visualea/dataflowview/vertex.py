@@ -398,6 +398,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Connector.__init__(self, observed=port)
         self.__interfaceColor = None
+        self.set_connection_modifiers(QtCore.Qt.NoModifier)
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
@@ -474,13 +475,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     ##################
     # QtWorld-Events #
     #################
-    def mousePressEvent(self, event):
-        #we overide the basic handler from qtgraphview.Connector
-        scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton):
-            scene._new_edge_start(self.get_scene_center())
-            return
-
     def contextMenuEvent(self, event):
         if isinstance(self.port(), OutputPort):
             operator=GraphOperator()

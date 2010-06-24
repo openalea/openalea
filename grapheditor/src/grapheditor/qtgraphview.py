@@ -216,6 +216,14 @@ class Connector(Element):
         # self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
+        self.__makeConnectionMouseButton = QtCore.Qt.LeftButton
+        self.__makeConnectionModifiers   = QtCore.Qt.ControlModifier
+
+    def set_connection_button(self, button):
+        self.__makeConnectionMouseButton = button
+        
+    def set_connection_modifiers(self, modifiers):
+        self.__makeConnectionModifiers   = modifiers
 
     def set_highlighted(self, val):
         self.highlighted = val
@@ -244,13 +252,13 @@ class Connector(Element):
 
     def mousePressEvent(self, event):
         scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton and
-            event.modifiers() & QtCore.Qt.ControlModifier):
+        if (scene and event.buttons() & self.__makeConnectionMouseButton and
+            event.modifiers() == self.__makeConnectionModifiers):
             scene._new_edge_start(self.get_scene_center())
         else:
             super(self.__class__, self).mousePressEvent(event)
-        
-            
+
+
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
@@ -286,7 +294,7 @@ class Vertex(Element):
         itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
                                   "itemChange")
         # mousePressEvent = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
-                                               # "mousePressEvent")                                  
+                                               # "mousePressEvent")
 
     ####################################
     # ----Instance members follow----  #
@@ -320,15 +328,11 @@ class Vertex(Element):
         Element.add_to_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.add_to_view(view)
-        # for c in self.__connectors:
-        #     c.add_to_view(view)
 
     def remove_from_view(self, view):
         Element.remove_from_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.remove_from_view(view)
-        # for c in self.__connectors:
-        #     c.remove_from_view(view)
 
     def set_highlighted(self, value):
         pass
@@ -380,17 +384,6 @@ class Vertex(Element):
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-
-    # def mousePressEvent(self, event):
-        # """Qt-specific call to handle mouse clicks on the vertex.
-        # Default implementation initiates the creation of an edge from
-        # the vertex."""
-        # scene = self.scene()
-        # if (scene and event.buttons() & QtCore.Qt.LeftButton and
-            # event.modifiers() & QtCore.Qt.ControlModifier):
-            # pos = [event.scenePos().x(), event.scenePos().y()]
-            # scene._new_edge_start(pos, source=self)
-            # return
 
 
 #------*************************************************------#
@@ -540,9 +533,9 @@ class FloatingEdge( Edge ):
             sItem.notify_position_change()
             dItem.notify_position_change()
         except Exception, e:
-            
-            print "consolidation failed :", type(e), e,\
-            ". Are you sure you plugged the right ports?"
+            pass
+            # print "consolidation failed :", type(e), e,\
+            # ". Are you sure you plugged the right ports?"
         return
 
     def get_connections(self):
