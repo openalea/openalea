@@ -30,24 +30,27 @@ from math import sqrt
 # Some PYQT versions don't know about some QGraphicsItem flags or enums yet
 # even though the underlying Qt knows about it (.sip files not up-to-date
 # when building PyQt). The differences between PYQT_VERSION 4.6.2 and 4.7.3 are:
-# ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
-# 'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
-# 'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
-if QtCore.PYQT_VERSION < 0x040703:
+unportableFlags = ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
+                   'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
+                   'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
+        
+
+__dict__ = globals()        
+for f in unportableFlags:
+    try:
+        __dict__[f] = getattr(QtGui.QGraphicsItem, f)
+    except Exception, e:
+        __dict__[f] = 0
+# if it's just the PyQt Version that is too old we have a hack as
+# the qt flag exists but is simply not exposed.
+# this is not bug free: if the Qt guys change the enum order, we're wrecked.
+if QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
     # -- flags --
     ItemSendsGeometryChanges = 0x800
     ItemSendsScenePositionChanges = 0xffff
     # -- enums --
     ItemScenePositionHasChanged = 0x1b
     ItemPositionHasChanged = 0x9
-else:
-    # -- flags --
-    ItemSendsGeometryChanges = QtGui.QGraphicsItem.ItemSendsGeometryChanges
-    ItemSendsScenePositionChanges = QtGui.QGraphicsItem.ItemSendsScenePositionChanges
-    # -- enums --
-    ItemScenePositionHasChanged = QtGui.QGraphicsItem.ItemScenePositionHasChanged
-    ItemPositionHasChanged = QtGui.QGraphicsItem.ItemPositionHasChanged
-
 
 
 
@@ -212,7 +215,7 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
 class Connector(Element):
     def __init__(self, *args, **kwargs):
         Element.__init__(self, *args, **kwargs)
-        # self.setFlag(ItemSendsGeometryChanges)
+        self.setFlag(ItemSendsGeometryChanges)
         # self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
