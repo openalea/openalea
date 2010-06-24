@@ -271,8 +271,8 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
 
         menu.addAction(operator("Run",             menu, "vertex_run"))
         menu.addAction(operator("Open Widget",     menu, "vertex_open"))
-        # if isinstance(self.vertex(), compositenode.CompositeNode):
-            # menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
+        if isinstance(self.vertex(), compositenode.CompositeNode):
+            menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
         menu.addSeparator()
         menu.addAction(operator("Delete",          menu, "vertex_remove"))
         menu.addAction(operator("Reset",           menu, "vertex_reset"))

@@ -21,16 +21,17 @@ import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
-import dataflow, layout, color, vertex, port
 
-
+def do_imports():
+    import dataflow, layout, color, vertex, port
+    
 class GraphOperator(Observed):
 
-    __main = None
+    __main__ = None
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
-
+        do_imports()
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
                        color.ColorOperators(self), vertex.VertexOperators(self),
                        port.PortOperators(self)]
@@ -49,7 +50,7 @@ class GraphOperator(Observed):
         self.vertexType     = None
         self.annotationType = None
         self.edgeType       = None
-        self.vertexItem = None
+        self.vertexItem     = None
 
         if(graphView):
             self.graphView = graphView
@@ -119,7 +120,7 @@ class GraphOperator(Observed):
     ###########
     @classmethod
     def set_main(self, main):
-        GraphOperator.__main = main
+        GraphOperator.__main__ = main
 
 
     def set_vertex_item(self, vertexItem):
@@ -133,16 +134,16 @@ class GraphOperator(Observed):
     ###########
     @classmethod
     def get_main(self):
-        return GraphOperator.__main
+        return GraphOperator.__main__
 
     def get_session(self):
-        return self.__main.session
+        return self.__main__.session
 
     def get_interpreter(self):
-        return self.__main.interpreterWidget
+        return self.__main__.interpreterWidget
 
     def get_package_manager(self):
-        return self.__main.pkgmanager
+        return self.__main__.pkgmanager
 
     def identify_focused_graph_view(self, *args):
         """Looks in various places to find which graph view
@@ -166,7 +167,7 @@ class GraphOperator(Observed):
             for i in widgets:
                 if i.hasFocus() : self.graphView = i
             if not self.graphView:
-                self.graphView = self.__main.tabWorkspace.currentWidget()
+                self.graphView = self.__main__.tabWorkspace.currentWidget()
         return self.graphView
 
     def get_graph_view(self):

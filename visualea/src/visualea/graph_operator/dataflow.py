@@ -26,7 +26,7 @@ from openalea.visualea.dialogs import IOConfigDialog
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
-from compositenode_inspector import Inspector
+from compositenode_inspector import InspectorView
 
 
 class DataflowOperators(graphOpBase.Base):
@@ -258,7 +258,7 @@ class DataflowOperators(graphOpBase.Base):
        # Try to save factory if widget is a graph
         master = self.master
         widget = master.get_graph_view()
-        if isinstance(widget, Inspector):
+        if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
 
@@ -344,7 +344,7 @@ Do you want to continue?""",
         """ Reload a tab node """
         master = self.master
         widget = master.get_graph_view()
-        if isinstance(widget, Inspector):
+        if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
 
@@ -384,7 +384,7 @@ Do you want to continue?""",
         """ Open Application widget """
         master = self.master
         widget = master.get_graph_view()
-        if isinstance(widget, Inspector):
+        if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
 
@@ -401,7 +401,7 @@ Do you want to continue?""",
         """ Export current workspace composite node to an Application """
         master = self.master
         widget = master.get_graph_view()
-        if isinstance(widget, Inspector):
+        if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
 

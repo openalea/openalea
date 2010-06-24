@@ -236,41 +236,41 @@ def GraphStrategy(graphView, vertexWidgetMap, edgeWidgetMap,
                    adapterType=None):
                                                  
     class __GraphStrategy(object):
-        __graphViewType        = graphView
-        __vertexWidgetMap      = vertexWidgetMap
-        __edgeWidgetMap        = edgeWidgetMap
-        __connectorTypes       = connectorTypes
-        __graphViewInitialiser = graphViewInitialiser
-        __adapterType          = adapterType
+        __graphViewType__        = graphView
+        __vertexWidgetMap__      = vertexWidgetMap
+        __edgeWidgetMap__        = edgeWidgetMap
+        __connectorTypes__       = connectorTypes
+        __graphViewInitialiser__ = graphViewInitialiser
+        __adapterType__          = adapterType
             
         def __init__(self, graph, graphAdapter=None, observableGraph=None):
             self.graph = graph
-            self.graphAdapter = graph if self.__adapterType is None \
-                else self.__adapterType(graph) 
+            self.graphAdapter = graph if self.__adapterType__ is None \
+                else self.__adapterType__(graph) 
             self.observableGraph = graph if observableGraph is None \
                 else observableGraph
             
-        def create_view(self, parent, *args, **kwargs):
+        def create_view(self, parent=None, *args, **kwargs):
             """Instanciates the view"""
-            view = self.__graphViewType(parent, self.graph, self, *args,**kwargs)
+            view = self.__graphViewType__(parent, self.graph, self, *args,**kwargs)
             return view
 
         def create_vertex_widget(self, vtype, *args, **kwargs):
-            VertexClass = self.__vertexWidgetMap.get(vtype)
+            VertexClass = self.__vertexWidgetMap__.get(vtype)
             if(VertexClass):
                 return VertexClass(*args, **kwargs)
             else:
                 raise Exception("vtype not found")
 
         def create_edge_widget(self, etype, *args, **kwargs):
-            VertexClass = self.__edgeWidgetMap.get(etype)
+            VertexClass = self.__edgeWidgetMap__.get(etype)
             if(VertexClass):
                 return VertexClass(*args, **kwargs)
             else:
                 raise Exception("etype not found")
 
         def get_connector_types(self):
-            return self.__connectorTypes
+            return self.__connectorTypes__
             
         def get_observable_graph(self):
             return self.observableGraph
@@ -279,7 +279,7 @@ def GraphStrategy(graphView, vertexWidgetMap, edgeWidgetMap,
             return self.graphAdapter        
 
         def initialise_graph_view(self, graphView, graphModel):
-            if self.__graphViewInitialiser is not None:
-                self.__graphViewInitialiser(graphView, graphModel)   
+            if self.__graphViewInitialiser__ is not None:
+                self.__graphViewInitialiser__(graphView, graphModel)   
 
     return __GraphStrategy

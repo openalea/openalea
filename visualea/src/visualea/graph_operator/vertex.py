@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 import weakref
 import base as graphOpBase
 from PyQt4 import QtGui, QtCore
+from openalea.core.compositenode import CompositeNode
 from openalea.visualea.util import busy_cursor, exception_display, open_dialog
 from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 
@@ -35,12 +36,18 @@ class VertexOperators(graphOpBase.Base):
         self._vertexWidget = None
 
     def vertex_composite_inspect(self):
+        from openalea.visualea.dataflowview import GraphicalGraph
         master = self.master
-        widget = compositenode_inspector.Inspector(master.get_graph_view(),
-                                                   master.vertexItem().vertex(),
-                                                   master.get_main().operator,
-                                                   self)
+        vertex = master.vertexItem().vertex()
+        view   = master.get_graph_view()
+        if not isinstance(vertex, CompositeNode):
+            return
+        widget = compositenode_inspector.CompositeInspector(vertex).create_view(view,
+                                                                                master.__main__.operator,
+                                                                                master)
+        #widget = GraphicalGraph(vertex).create_view()
         widget.show_entire_scene()
+        widget.setWindowFlags(QtCore.Qt.Window)
         widget.show()
 
     @exception_display
