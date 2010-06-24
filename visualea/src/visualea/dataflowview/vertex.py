@@ -441,6 +441,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
                     else:
                         self.show()
                     self.updateGeometry()
+        qtgraphview.Connector.notify(self, sender, event)
 
     def clear_observed(self, *args):
         qtgraphview.Element.clear_observed(self)
