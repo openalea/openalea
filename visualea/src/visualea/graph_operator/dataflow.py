@@ -389,10 +389,10 @@ Do you want to continue?""",
             return
 
         graph, tempfactory = self.__get_current_factory(name)
-        w = qtgraphview.View(widget.parent(), graph, clone=True)
+        from openalea.visualea.dataflowview import GraphicalGraph
+        w = GraphicalGraph(graph).create_view(widget, clone=True)
         w.setWindowFlags(QtCore.Qt.Window)
         w.setWindowTitle('Preview Application')
-        w.scene().set_interaction_flag
         w.show()
         return graph, tempfactory
 
