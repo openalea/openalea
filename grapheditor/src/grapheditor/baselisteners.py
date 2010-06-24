@@ -185,7 +185,7 @@ class GraphListenerBase(observer.AbstractListener):
         self.__graphAdapter.add_vertex(*args, **kwargs)
 
     def get_vertex(self, *args, **kwargs):
-        self.__graphAdapter.get_vertex(*args, **kwargs)
+        return self.__graphAdapter.get_vertex(*args, **kwargs)
 
     def remove_vertex(self, *args, **kwargs):
         self.__graphAdapter.remove_vertex(*args, **kwargs)
@@ -194,19 +194,19 @@ class GraphListenerBase(observer.AbstractListener):
         self.__graphAdapter.remove_vertices(*args, **kwargs)
 
     def get_vertex_inputs(self, *args, **kwargs):
-        self.__graphAdapter.get_vertex_inputs(*args, **kwargs)
+        return self.__graphAdapter.get_vertex_inputs(*args, **kwargs)
 
     def get_vertex_outputs(self, *args, **kwargs):
-        self.__graphAdapter.get_vertex_outputs(*args, **kwargs)
+        return self.__graphAdapter.get_vertex_outputs(*args, **kwargs)
 
     def get_vertex_input(self, *args, **kwargs):
-        self.__graphAdapter.get_vertex_input(*args, **kwargs)
+        return self.__graphAdapter.get_vertex_input(*args, **kwargs)
 
     def get_vertex_output(self, *args, **kwargs):
-        self.__graphAdapter.get_vertex_output(*args, **kwargs)
+        return self.__graphAdapter.get_vertex_output(*args, **kwargs)
 
     def add_edge(self, *args, **kwargs):
-        rself.__graphAdapter.add_edge(*args, **kwargs)
+        self.__graphAdapter.add_edge(*args, **kwargs)
 
     def remove_edge(self, *args, **kwargs):
         self.__graphAdapter.remove_edge(*args, **kwargs)
@@ -224,16 +224,16 @@ class GraphListenerBase(observer.AbstractListener):
         return False
 
     def is_input(self, *args, **kwargs):
-        self.__graphAdapter.is_input(*args, **kwargs)
+        return self.__graphAdapter.is_input(*args, **kwargs)
 
     def is_output(self, *args, **kwargs):
-        self.__graphAdapter.is_output(*args, **kwargs)
+        return self.__graphAdapter.is_output(*args, **kwargs)
 
     def get_vertex_types(self):
-        self.__graphAdapter.get_vertex_types()
+        return self.__graphAdapter.get_vertex_types()
 
     def get_edge_types(self):
-        self.__graphAdapter.get_edge_types()
+        return self.__graphAdapter.get_edge_types()
 
 
     ###############################################################

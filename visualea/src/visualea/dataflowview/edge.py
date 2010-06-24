@@ -54,13 +54,13 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
-        if( self.graph().is_output(srcPortItem.port()) and
-            self.graph().is_input(dstPortItem.port())):
+        if( self.scene().is_output(srcPortItem.port()) and
+            self.scene().is_input(dstPortItem.port())):
             return (srcVertexItem.vertex(), srcPortItem.port()), \
                 (dstVertexItem.vertex(), dstPortItem.port()), \
                 srcPortItem, dstPortItem
-        elif( self.graph().is_input(srcPortItem.port()) and
-              self.graph().is_output(dstPortItem.port())):
+        elif( self.scene().is_input(srcPortItem.port()) and
+              self.scene().is_output(dstPortItem.port())):
             return (dstVertexItem.vertex(), dstPortItem.port()), \
                 (srcVertexItem.vertex(), srcPortItem.port()), \
                 srcPortItem, dstPortItem

@@ -536,13 +536,13 @@ class FloatingEdge( Edge ):
             srcVertex, dstVertex ,sItem, dItem= self.get_connections()
             if(srcVertex == None or dstVertex == None):
                 return
-            graph.add_edge(srcVertex, dstVertex)
+            self.scene().add_edge(srcVertex, dstVertex)
             sItem.notify_position_change()
             dItem.notify_position_change()
         except Exception, e:
-            pass
-            # print "consolidation failed :", type(e), e,\
-            # ". Are you sure you plugged the right ports?"
+            
+            print "consolidation failed :", type(e), e,\
+            ". Are you sure you plugged the right ports?"
         return
 
     def get_connections(self):
