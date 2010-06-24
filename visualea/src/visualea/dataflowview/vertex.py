@@ -397,6 +397,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Connector.__init__(self, observed=port)
+        self.__interfaceColor = None
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
@@ -406,6 +407,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         mdict  = port.get_ad_hoc_dict()
         #graphical data init.
         mdict.simulate_full_data_change(self, port)
+        interface = port.get_interface()
+        if interface and interface.__color__ is not None:
+            self.__interfaceColor = QtGui.QColor(*interface.__color__)
         #update tooltip
         self.notify(port, ("tooltip_modified", port.get_tip()))
 
@@ -470,11 +474,12 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     ##################
     # QtWorld-Events #
     #################
-    # def mousePressEvent(self, event):
-        # scene = self.scene()
-        # if (scene and event.buttons() & QtCore.Qt.LeftButton):
-            # scene._new_edge_start(self.get_scene_center())
-            # return
+    def mousePressEvent(self, event):
+        #we overide the basic handler from qtgraphview.Connector
+        scene = self.scene()
+        if (scene and event.buttons() & QtCore.Qt.LeftButton):
+            scene._new_edge_start(self.get_scene_center())
+            return
 
     def contextMenuEvent(self, event):
         if isinstance(self.port(), OutputPort):
@@ -498,8 +503,13 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
             gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.red).light(120))
             gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkRed).light(120))
         else:
-            gradient.setColorAt(0.8, QtGui.QColor(QtCore.Qt.yellow).light(120))
-            gradient.setColorAt(0.2, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+            if self.__interfaceColor is None:
+                gradient.setColorAt(0.8, QtGui.QColor(QtCore.Qt.yellow).light(120))
+                gradient.setColorAt(0.2, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+            else:
+                gradient.setColorAt(0.8, self.__interfaceColor.light(120))
+                gradient.setColorAt(0.2, self.__interfaceColor.light(120))
+                
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
