@@ -134,7 +134,7 @@ class GraphAdapterBase(object):
 
             
 
-def GraphStrategy(graphView, vertexWidgetMap, edgeWidgetMap,
+def GraphStrategyMaker(graphView, vertexWidgetMap, edgeWidgetMap,
                    connectorTypes=[], graphViewInitialiser=None,
                    adapterType=None):
                                                  

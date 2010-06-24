@@ -108,7 +108,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 #------------------------
 import sys
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import GraphStrategy
+from openalea.grapheditor import GraphStrategyMaker
 from openalea.grapheditor import Edge, FloatingEdge, Vertex, Scene, View, mixin_method, LinearEdgePath
 from random import randint as rint # for random colors
 
@@ -190,7 +190,7 @@ class GraphicalView( View ):
 #-------------------------
 # -- the graph strategy --
 #-------------------------
-GraphicalGraph = GraphStrategy( graphView       = GraphicalView,
+GraphicalGraph = GraphStrategyMaker( graphView       = GraphicalView,
                                 vertexWidgetMap = {"vertex":GraphicalNode},
                                 edgeWidgetMap   = {"default":GraphicalEdge,
                                                    "floating-default":GraphicalFloatingEdge},

@@ -239,7 +239,7 @@ def initialise_graph_view_from_model(arg , graphView, graphModel):
 
 
 
-GraphicalGraph = openalea.grapheditor.base.GraphStrategy( graphView            = DataflowView,
+GraphicalGraph = openalea.grapheditor.base.GraphStrategyMaker( graphView            = DataflowView,
                                                           vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
                                                                                   "annotation":anno.GraphicalAnnotation,
                                                                                   "inNode":vertex.GraphicalInVertex,
