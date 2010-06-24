@@ -36,7 +36,7 @@ class DataflowOperators(graphOpBase.Base):
     @busy_cursor
     def graph_run(self):
         master = self.master
-        self.get_graph().eval_as_expression()
+        master.get_graph().eval_as_expression()
 
     
     def graph_reset(self):
@@ -50,18 +50,18 @@ class DataflowOperators(graphOpBase.Base):
                                          QtGui.QMessageBox.No,)
         if(ret == QtGui.QMessageBox.No):
             return
-        master.get_graph().reset() #check what this does signal-wise
+        master.get_graph().reset()
 
     
     def graph_invalidate(self):
-        self.master.get_graph().invalidate() #TODO : check what this does signal-wise
+        self.master.get_graph().invalidate()
 
     
     def graph_remove_selection(self, items=None):
         master = self.master
         def cmp(a,b):
             """edges need to be deleted before any other element"""
-            if type(a) == self.edgeType and type(b) == self.vertexType : return -1
+            if type(a) == master.edgeType and type(b) == master.vertexType : return -1
             if type(a) == type(b) : return 0
             return 1
 
@@ -73,10 +73,10 @@ class DataflowOperators(graphOpBase.Base):
             if isinstance(i, master.vertexType):
                 if scene.get_adapter().is_vertex_protected(i.vertex()): continue
                 scene.remove_vertex(i.vertex())
-            elif isinstance(i, self.edgeType):
+            elif isinstance(i, master.edgeType):
                 scene.remove_edge((i.srcBBox().vertex(), i.srcBBox()),
                                   (i.dstBBox().vertex(), i.dstBBox()) )
-            elif isinstance(i, self.annotationType):
+            elif isinstance(i, master.annotationType):
                 scene.remove_vertex(i.annotation())
 
     
@@ -85,6 +85,7 @@ class DataflowOperators(graphOpBase.Base):
         master = self.master
         widget = master.get_graph_view()
         graph  = master.get_graph()
+        adapter = widget.scene().get_adapter()
 
         # FIRST WE PREPARE THE USER INTERFACE STUFF
         # ------------------------------------------
@@ -107,7 +108,7 @@ class DataflowOperators(graphOpBase.Base):
         # -----------------------
         factory = dialog.create_cnfactory(pm)
         scene = widget.scene()
-        items = scene.get_selected_items(self.vertexType)
+        items = scene.get_selected_items(master.vertexType)
         if(not items): return None
 
         pos = scene.get_selection_center(items)
@@ -122,11 +123,11 @@ class DataflowOperators(graphOpBase.Base):
 
         # Evaluate the new connections:
         def evaluate_new_connections(newGraph, newGPos, idList):
-            newId    = graph.add_vertex(newGraph, [newGPos.x(), newGPos.y()])
+            newId    = adapter.add_vertex(newGraph, [newGPos.x(), newGPos.y()])
             newEdges = graph.compute_external_io(idList, newId)
             for edges in newEdges:
-                graph.add_edge((edges[0], edges[1]),
-                                      (edges[2], edges[3]))
+                adapter.add_edge((edges[0], edges[1]),
+                                 (edges[2], edges[3]))
             self.graph_remove_selection(items)
 
         def correct_positions(newGraph):
@@ -155,10 +156,10 @@ class DataflowOperators(graphOpBase.Base):
         try:
             factory.package.write()
         except AttributeError, e:
-            mess = QtGui.QMessageBox.warning(self, "Error",
+            mess = QtGui.QMessageBox.warning(widget, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-        self.notify_listeners(("graphoperator_graphsaved", widget, factory))
+        master.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
 
     
@@ -280,7 +281,7 @@ class DataflowOperators(graphOpBase.Base):
             pass
 
         # Update session
-        self.notify_listeners(("graphoperator_graphclosed", widget))
+        master.notify_listeners(("graphoperator_graphclosed", widget))
 
     
     def graph_export_to_factory(self):
@@ -294,7 +295,7 @@ class DataflowOperators(graphOpBase.Base):
         #check if no other instance of this factory is opened
         session = master.get_session()
         for ws in session.workspaces:
-            if graph.graph() != ws and graph.factory == ws.factory:
+            if graph != ws and graph.factory == ws.factory:
                 res = QtGui.QMessageBox.warning(widget, "Other instances are opened!",
                                   """You are trying to save a composite node that has been opened multiple times.
 Doing this may discard changes done in the other intances.
@@ -313,7 +314,7 @@ Do you want to continue?""",
         factory = dialog.get_factory()
 
         graph.to_factory(factory, None)
-        graph.graph().factory = factory
+        graph.factory = factory
         graph.set_caption(factory.name)
 
         try:
@@ -322,7 +323,7 @@ Do you want to continue?""",
             mess = QtGui.QMessageBox.warning(widget, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "Trying to write in a System Package!\n")
-        self.notify_listeners(("graphoperator_graphsaved", widget, factory))
+        master.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
     
     def graph_configure_io(self):
@@ -353,7 +354,7 @@ Do you want to continue?""",
         if(graph.graph_modified):
             # Show message
             ret = QtGui.QMessageBox.question(widget, "Reload workspace '%s'"%(name),
-                                             "Reload will discard recent changes on " +
+                                             "Reloading will discard recent changes on " +
                                              "workspace '%s'.\nContinue?"%(name),
                                              QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
 
@@ -365,7 +366,7 @@ Do you want to continue?""",
 
         widget.scene().set_graph(newGraph)
         widget.scene().rebuild()
-        self.notify_listeners(("graphoperator_graphreloaded", widget, newGraph, oldGraph))
+        master.notify_listeners(("graphoperator_graphreloaded", widget, newGraph, oldGraph))
 
 
     def __get_current_factory(self, name):

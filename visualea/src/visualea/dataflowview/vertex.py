@@ -327,8 +327,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         colorMenu.addAction(action)
 
         #display the menu...
-        pos = event.screenPos()
-        menu.move(pos)
+        menu.move(event.screenPos())
         menu.show()
         event.accept()
 

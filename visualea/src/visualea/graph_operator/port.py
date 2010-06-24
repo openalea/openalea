@@ -22,9 +22,7 @@ from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
 
-class PortOperators(graphOpBase.Base):
-
-    
+class PortOperators(graphOpBase.Base):    
     def port_print_value(self):
         """ Print the value of the connector """
         

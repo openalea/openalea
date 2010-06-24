@@ -172,7 +172,7 @@ class DataflowView( qtgraphview.View ):
     ###########################################
     # Handling context menu on the graph view #
     ###########################################
-    def viewContextMenuEvent(self, event):
+    def contextMenuEvent(self, event):
         if(self.itemAt(event.pos())):
             QtGui.QGraphicsView.contextMenuEvent(self, event)
             return
@@ -180,13 +180,12 @@ class DataflowView( qtgraphview.View ):
         operator=GraphOperator(self)
         menu = qtutils.AleaQMenu(self)
         action = menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
-        menu.show()
         menu.move(event.globalPos())
+        menu.show()
         event.accept()
 
 
 def initialise_graph_view_from_model(arg , graphView, graphModel):
-    print arg , graphView, graphModel
     # -- do the base node class initialisation --
     mdict  = graphModel.get_ad_hoc_dict()
 

@@ -32,7 +32,8 @@ class GraphOperator(Observed):
         Observed.__init__(self)
 
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
-                       color.ColorOperators(self), vertex.VertexOperators(self) ]
+                       color.ColorOperators(self), vertex.VertexOperators(self),
+                       port.PortOperators(self)]
         
         self.__availableNames = {}
         

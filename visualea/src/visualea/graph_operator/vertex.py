@@ -90,7 +90,7 @@ class VertexOperators(graphOpBase.Base):
 
 
     @classmethod
-    def vertex_observer_copy(oldVertex, newVertex):
+    def vertex_observer_copy(cls, oldVertex, newVertex):
         """ Copies attributes from old vertex to new vertex, including listeners."""
         oldVertex.copy_to(newVertex)
 
@@ -98,7 +98,8 @@ class VertexOperators(graphOpBase.Base):
     @busy_cursor
     def vertex_replace(self):
         """ Replace a node by an other """
-        master = self.master
+        master  = self.master
+        adapter = master.get_graph_scene().get_adapter()
         dialog = NodeChooser(master.get_graph_view())
         vItem = master.vertexItem()
         dialog.search('', vItem.vertex().get_nb_input(),
@@ -109,14 +110,15 @@ class VertexOperators(graphOpBase.Base):
         factory = dialog.get_selection()
         oldVertex = vItem.vertex()
         newVertex = factory.instantiate()
-        master.get_graph().replace_vertex(oldVertex, newVertex)
+        adapter.replace_vertex(oldVertex, newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
 
     def vertex_reload(self):
         """ Reload the vertex """
         # Reload package
-        vItem = self.master.vertexItem()
+        master = self.master
+        vItem = master.vertexItem()
         factory = vItem.vertex().factory
         package = factory.package
         if(package):
@@ -125,7 +127,7 @@ class VertexOperators(graphOpBase.Base):
         # Reinstantiate the vertex
         newVertex = factory.instantiate()
         oldVertex = vItem.vertex()
-        self.get_graph().set_actor(oldVertex.get_id(), newVertex)
+        master.get_graph().set_actor(oldVertex.get_id(), newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
 
