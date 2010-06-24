@@ -17,25 +17,22 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
+class LayoutOperators(graphOpBase.Base):
 
-class LayoutOperators(object):
-
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_horizontal(self):
-        """Align all items on a median ligne.
-        """
-        widget = self.get_graph_view()
+        """Align all items on a median ligne"""
+        master = self.master
+        widget = master.get_graph_view()
 
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 1 :
             #find median base #TODO beware of relative to parent coordinates
             ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
@@ -51,15 +48,15 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_left (self):
-        """Align all items on their left side.
-        """
-        widget = self.get_graph_view()
+        """Align all items on their left side."""
+        master = self.master
+        widget = master.get_graph_view()
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
@@ -74,15 +71,15 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_right (self):
-        """Align all items on their right side.
-        """
-        widget = self.get_graph_view()
+        """Align all items on their right side"""
+        master = self.master
+        widget = master.get_graph_view()
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
             xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
@@ -101,15 +98,15 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_align_selection_mean (self):
-        """Align all items vertically around a mean ligne.
-        """
-        widget = self.get_graph_view()
+        """Align all items vertically around a mean line."""
+        master = self.master
+        widget = master.get_graph_view()
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 1 :
 
             #find left ligne #TODO beware of relative to parent coordinates
@@ -129,15 +126,15 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_distribute_selection_horizontally (self):
-        """distribute the horizontal distances between items.
-        """
-        widget = self.get_graph_view()
+        """distribute the horizontal distances between items."""
+        master = self.master
+        widget = master.get_graph_view()
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
             xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
@@ -168,15 +165,15 @@ class LayoutOperators(object):
 
         return
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_distribute_selection_vertically (self):
-        """distribute the vertical distances between items.
-        """
-        widget = self.get_graph_view()
+        """distribute the vertical distances between items."""
+        master = self.master
+        widget = master.get_graph_view()
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(self.vertexType)
+        items = widget.scene().get_selected_items(master.vertexType)
         if len(items) > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
             ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)

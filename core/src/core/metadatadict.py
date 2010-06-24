@@ -28,7 +28,7 @@ class MetaDataDict(observer.Observed):
     def __init__(self, **kwargs):
         """Use kwargs to construct the dictionnary.
         Supported keywords are :
-            - dict  :  copy=aMetaDataDict or a Dict {key:value,...}
+            - dict  :  dict=aMetaDataDict or a Dict {key:value,...}
             - slots  : types=aDictOf {keyName : (keyType,default)}
         They are mutually exclusive! The constructor won't
         try anything smart as this often leads to problems.

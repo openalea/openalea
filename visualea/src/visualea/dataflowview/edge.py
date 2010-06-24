@@ -22,7 +22,6 @@ from PyQt4 import QtCore, QtGui
 
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.grapheditor import baselisteners, qtgraphview, edgefactory, qtutils
-from openalea.grapheditor import interactionstates as OAGIS
 
 class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
@@ -55,13 +54,13 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
 
         #actually, the source might not be an output, and the target
         #might not be an input, so we sort:
-        if( self.graph().is_output(srcPortItem.port()) and
-            self.graph().is_input(dstPortItem.port())):
+        if( self.scene().is_output(srcPortItem.port()) and
+            self.scene().is_input(dstPortItem.port())):
             return (srcVertexItem.vertex(), srcPortItem.port()), \
                 (dstVertexItem.vertex(), dstPortItem.port()), \
                 srcPortItem, dstPortItem
-        elif( self.graph().is_input(srcPortItem.port()) and
-              self.graph().is_output(dstPortItem.port())):
+        elif( self.scene().is_input(srcPortItem.port()) and
+              self.scene().is_output(dstPortItem.port())):
             return (dstVertexItem.vertex(), dstPortItem.port()), \
                 (srcVertexItem.vertex(), srcPortItem.port()), \
                 srcPortItem, dstPortItem
@@ -85,16 +84,11 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         self.dstBBox().get_ad_hoc_dict().simulate_full_data_change(self, self.dstBBox())
 
     def remove(self):
-        self.graph().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
-                                  (self.dstBBox().vertex(), self.dstBBox()) )
+        self.scene().get_adapter().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
+                                                (self.dstBBox().vertex(), self.dstBBox()) )
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
-        operator = GraphOperator()
-        operator.edgeType = GraphicalEdge
-        operator.identify_focused_graph_view()
-        w = operator.get_graph_view()
-        if w.scene().get_interaction_flag() & OAGIS.TOPOLOGICALLOCK : return
         menu = qtutils.AleaQMenu(event.widget())
         action = menu.addAction("Delete connection")
         action.triggered.connect(self.remove)
@@ -102,6 +96,3 @@ class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
         menu.move(event.screenPos())
         event.accept()
 
-
-    store_view_data = None
-    get_view_data   = None

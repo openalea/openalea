@@ -132,98 +132,57 @@ class GraphAdapterBase(object):
         return ["default"]
 
 
+            
 
+def GraphStrategyMaker(graphView, vertexWidgetMap, edgeWidgetMap,
+                   connectorTypes=[], graphViewInitialiser=None,
+                   adapterType=None):
+                                                 
+    class __GraphStrategy(object):
+        __graphViewType__        = graphView
+        __vertexWidgetMap__      = vertexWidgetMap
+        __edgeWidgetMap__        = edgeWidgetMap
+        __connectorTypes__       = connectorTypes
+        __graphViewInitialiser__ = graphViewInitialiser
+        __adapterType__          = adapterType
+            
+        def __init__(self, graph, graphAdapter=None, observableGraph=None):
+            self.graph = graph
+            self.graphAdapter = graph if self.__adapterType__ is None \
+                else self.__adapterType__(graph) 
+            self.observableGraph = graph if observableGraph is None \
+                else observableGraph
+            
+        def create_view(self, parent=None, *args, **kwargs):
+            """Instanciates the view"""
+            view = self.__graphViewType__(parent, self.graph, self, *args,**kwargs)
+            return view
 
+        def create_vertex_widget(self, vtype, *args, **kwargs):
+            VertexClass = self.__vertexWidgetMap__.get(vtype)
+            if(VertexClass):
+                return VertexClass(*args, **kwargs)
+            else:
+                raise Exception("vtype not found")
 
+        def create_edge_widget(self, etype, *args, **kwargs):
+            VertexClass = self.__edgeWidgetMap__.get(etype)
+            if(VertexClass):
+                return VertexClass(*args, **kwargs)
+            else:
+                raise Exception("etype not found")
 
-class GraphStrategy(object):
-    def __init__(self, graphView, graphModelType, vertexWidgetMap, edgeWidgetMap,
-                 connectorTypes=[], adapterType=None, graphViewInitialiser=None):
+        def get_connector_types(self):
+            return self.__connectorTypes__
+            
+        def get_observable_graph(self):
+            return self.observableGraph
+        
+        def get_graph_adapter(self):      
+            return self.graphAdapter        
 
-        assert interfaces.IGraphViewStrategies.check(self)
-        self.__graphViewType = graphView
-        self.__graphModelType = graphModelType
-        self.__vertexWidgetMap = vertexWidgetMap
-        self.__edgeWidgetMap = edgeWidgetMap
-        self.__adapterType = adapterType
-        self.__connectorTypes = connectorTypes
-        self.__graphViewInitialiser = graphViewInitialiser
+        def initialise_graph_view(self, graphView, graphModel):
+            if self.__graphViewInitialiser__ is not None:
+                self.__graphViewInitialiser__(graphView, graphModel)   
 
-    def check_strategy_and_be_paranoid(self):
-        graphCls = self.get_graph_type()
-        vertexWidgetTypes  = self.get_vertex_widget_types()
-        edgeWidgetTypes  = self.get_edge_widget_types()
-
-        graphCls = self.get_graph_model_type()
-
-        assert interfaces.IGraphAdapter.check(graphCls)
-
-        #checking vertex types
-        elTypes = graphCls.get_vertex_types()
-        for vt in elTypes:
-            vtype = vertexWidgetTypes.get(vt, None)
-            assert interfaces.IGraphViewVertex.check(vtype)
-
-        #checking connectable types
-        elTypes = self.get_connector_types()
-        for ct in elTypes:
-            assert interfaces.IGraphViewConnectable.check(ct)
-
-        #checking edge types
-        elTypes = graphCls.get_edge_types()
-        for et in elTypes:
-            etype = edgeWidgetTypes.get(et, None)
-            assert interfaces.IGraphViewEdge.check(etype)
-
-        #checking floating edge types
-        elTypes = edgeWidgetTypes.keys()
-        elTypes = [i for i in elTypes if i.startswith("floating")]
-        for et in elTypes:
-            assert interfaces.IGraphViewFloatingEdge.check(edgeWidgetTypes[et])
-
-    def get_graph_model_type(self):
-        """Returns the classobj defining the graph type"""
-        return self.__graphModelType
-
-    def create_view(self, parent, graph, *args, **kwargs):
-        """Instanciates the view"""
-        view = self.__graphViewType(parent, graph, self, *args,**kwargs)
-        return view
-
-    def create_vertex_widget(self, vtype, *args, **kwargs):
-        VertexClass = self.__vertexWidgetMap.get(vtype)
-        if(VertexClass):
-            return VertexClass(*args, **kwargs)
-        else:
-            raise Exception("vtype not found")
-
-    def create_edge_widget(self, etype, *args, **kwargs):
-        VertexClass = self.__edgeWidgetMap.get(etype)
-        if(VertexClass):
-            return VertexClass(*args, **kwargs)
-        else:
-            raise Exception("etype not found")
-
-    # def get_vertex_widget_types(self):
-    #     return self.__vertexWidgetMap
-
-    # def get_edge_widget_types(self):
-    #     return self.__edgeWidgetMap
-
-    # def has_adapter(self):
-    #     return self.__adapterType is not None
-
-    # def adapt_graph(self, graph):
-    #     return self.__adapterType(graph) if self.has_adapter() else graph
-
-    # def get_graph_or_adapter_type(self):
-    #     """Return a classobj defining the type of widget
-    #     that represents an annotation"""
-    #     return self.__graphModelType
-
-    def get_connector_types(self):
-        return self.__connectorTypes
-
-    def initialise_graph_view(self, graphView, graphModel):
-        if self.__graphViewInitialiser is not None:
-            self.__graphViewInitialiser(graphView, graphModel)
+    return __GraphStrategy

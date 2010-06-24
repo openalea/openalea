@@ -17,18 +17,16 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
+class ColorOperators(graphOpBase.Base):
 
-class ColorOperators(object):
-
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_set_selection_color(self):
-        items = self.get_graph_view().scene().get_selected_items(self.vertexType)
+        master = self.master
+        items = master.get_graph_view().scene().get_selected_items(master.vertexType)
         length = len(items)
         if(length==0): return
         if(length==1):
@@ -39,7 +37,7 @@ class ColorOperators(object):
         else:
             color = QtGui.QColor(100,100,100,255)
 
-        color = QtGui.QColorDialog.getColor(color, self.get_graph_view())
+        color = QtGui.QColorDialog.getColor(color, master.get_graph_view())
 
         if not color.isValid():
             return
@@ -53,9 +51,10 @@ class ColorOperators(object):
                 print "graph_set_selection_color exception", e
                 pass
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def graph_use_user_color(self, useit):
-        items = self.get_graph_view().scene().get_selected_items(self.vertexType)
+        master = self.master
+        items = master.get_graph_view().scene().get_selected_items(master.vertexType)
         if(not items): return
         scheduleASetColor = False
         for i in items:
