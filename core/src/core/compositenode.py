@@ -368,8 +368,8 @@ class CompositeNodeFactory(AbstractFactory):
 
         """
         if(edit):
-            from openalea.visualea.compositenode_widget import EditGraphWidget
-            return EditGraphWidget(node, parent)
+            from openalea.visualea.dataflowview import GraphicalGraph
+            return GraphicalGraph(node).create_view(parent)
 
         if(node == None):
             node = self.instantiate()
