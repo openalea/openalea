@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from base import GraphStrategy, GraphAdapterBase
+from base import GraphStrategyMaker, GraphAdapterBase
 from edgefactory import LinearEdgePath, SplineEdgePath
 from observer import Observed
 from qtgraphview import Edge, FloatingEdge, Vertex, Scene, View

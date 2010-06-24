@@ -17,35 +17,31 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import base as graphOpBase
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
-#To handle availability of actions automatically
-from openalea.grapheditor import interactionstates as OAGIS
-interactionMask = OAGIS.make_interaction_level_decorator()
 
-class PortOperators(object):
-    def set_port_item(self, portitem):
-        self.__portItem = portitem
-
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_1)
+class PortOperators(graphOpBase.Base):    
     def port_print_value(self):
         """ Print the value of the connector """
-
-        node = self.__portItem.port().vertex()
-        data = str(node.get_output(self.__portItem.port().get_id()))
+        
+        node = self.master.portItem().port().vertex()
+        data = str(node.get_output(self.master.portItem().port().get_id()))
         data = data[:500]+"[...truncated]" if len(data)>500 else data
         print data
 
-    @interactionMask(OAGIS.EDITIONLEVELLOCK_2)
+    
     def port_send_to_pool(self):
+        master = self.master
 
-        (result, ok) = QtGui.QInputDialog.getText(self.get_graph_view(), "Data Pool", "Instance name",
+        (result, ok) = QtGui.QInputDialog.getText(master.get_graph_view(), "Data Pool", "Instance name",
                                                   QtGui.QLineEdit.Normal, )
         if(ok):
             from openalea.core.session import DataPool
             datapool = DataPool()  # Singleton
 
-            node = self.__portItem.port().vertex()
-            data = node.get_output(self.__portItem.port().get_id())
+            port = self.master.portItem().port()
+            node = port.vertex()
+            data = node.get_output(port.get_id())
             datapool[str(result)] = data

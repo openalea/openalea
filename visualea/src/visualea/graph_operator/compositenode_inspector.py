@@ -20,12 +20,13 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtCore
 from openalea.core.observer import AbstractListener
-from openalea.grapheditor import qtgraphview
+from openalea.visualea.dataflowview import DataflowView, GraphicalGraph
 from openalea.visualea.util import exception_display
+import openalea.grapheditor.base
 
-class Inspector(qtgraphview.View, AbstractListener):
-    def __init__(self, parent, graph, mainOperator, parentOperator):
-        qtgraphview.View.__init__(self, parent, graph)
+class InspectorView(DataflowView, AbstractListener):
+    def __init__(self, parent, graph, strategy, mainOperator, parentOperator, clone=False):
+        DataflowView.__init__(self, parent, graph, strategy, clone)
         AbstractListener.__init__(self)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle("Inspecting " + graph.get_caption())
@@ -46,3 +47,7 @@ class Inspector(qtgraphview.View, AbstractListener):
                 pass
             return
         super(Inspector, self).notify(sender, event)
+
+        
+class CompositeInspector(GraphicalGraph):
+    __graphViewType__ = InspectorView

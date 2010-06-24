@@ -17,40 +17,40 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
-import dataflow, layout, color, vertex, port
 
+def do_imports():
+    import dataflow, layout, color, vertex, port
+    
+class GraphOperator(Observed):
 
-class GraphOperator(Observed,
-                    dataflow.DataflowOperators,
-                    layout.LayoutOperators,
-                    color.ColorOperators,
-                    vertex.VertexOperators,
-                    port.PortOperators):
-
-    __main = None
-    __FIMD = dataflow.interactionMask.add(layout.interactionMask,
-                                          color.interactionMask,
-                                          vertex.interactionMask,
-                                          port.interactionMask)
+    __main__ = None
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
-        dataflow.DataflowOperators.__init__(self)
-        layout.LayoutOperators.__init__(self)
-        color.ColorOperators.__init__(self)
-        vertex.VertexOperators.__init__(self)
+        do_imports()
+        self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
+                       color.ColorOperators(self), vertex.VertexOperators(self),
+                       port.PortOperators(self)]
+        
+        self.__availableNames = {}
+        
+        for operator in self.__ops:
+            for meth in dir(operator):
+                self.__availableNames[meth] = getattr(operator, meth)
 
-        self.graphView = None
-        self.graph     = None
-        self.__session = None
-        self.__interpreter = None
-        self.__pkgmanager = None
-        self.vertexType = None
+        self.graphView      = None
+        self.graph          = None
+        self.__session      = None
+        self.__interpreter  = None
+        self.__pkgmanager   = None
+        self.vertexType     = None
         self.annotationType = None
-        self.edgeType = None
+        self.edgeType       = None
+        self.vertexItem     = None
 
         if(graphView):
             self.graphView = graphView
@@ -64,10 +64,7 @@ class GraphOperator(Observed,
         if actionName is None and parent is None and fName is not None:
             return self.__get_wrapped(fName)[0]
         graphView = self.get_graph_view()
-        funcFlag  = self.__FIMD.get(fName, None)
-
         action = QtGui.QAction(actionName, parent)
-        action.setEnabled(not graphView.scene().get_interaction_flag() & funcFlag)
 
         return self.bind_action(action, fName, *otherSlots)
 
@@ -110,12 +107,10 @@ class GraphOperator(Observed,
     __call__ = get_action
 
     def __get_wrapped(self, fName):
-        func = getattr(self, fName, None)
+        #func = getattr(self, fName, None)
+        func = self.__availableNames.get(fName)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
-            funcFlag  = self.__FIMD.get(fName, None)
-            if graphView and funcFlag is not None:
-                if graphView.scene().get_interaction_flag() & funcFlag : return
             if self.get_graph() is None : return
             return func(*args, **kwargs)
         return wrapped, func.func_code.co_argcount
@@ -125,23 +120,30 @@ class GraphOperator(Observed,
     ###########
     @classmethod
     def set_main(self, main):
-        GraphOperator.__main = main
+        GraphOperator.__main__ = main
 
+
+    def set_vertex_item(self, vertexItem):
+        self.vertexItem = weakref.ref(vertexItem)
+        
+    def set_port_item(self, portitem):
+        self.portItem = weakref.ref(portitem)
+        
     ###########
     # getters #
     ###########
     @classmethod
     def get_main(self):
-        return GraphOperator.__main
+        return GraphOperator.__main__
 
     def get_session(self):
-        return self.__main.session
+        return self.__main__.session
 
     def get_interpreter(self):
-        return self.__main.interpreterWidget
+        return self.__main__.interpreterWidget
 
     def get_package_manager(self):
-        return self.__main.pkgmanager
+        return self.__main__.pkgmanager
 
     def identify_focused_graph_view(self, *args):
         """Looks in various places to find which graph view
@@ -165,15 +167,18 @@ class GraphOperator(Observed,
             for i in widgets:
                 if i.hasFocus() : self.graphView = i
             if not self.graphView:
-                self.graphView = self.__main.tabWorkspace.currentWidget()
+                self.graphView = self.__main__.tabWorkspace.currentWidget()
         return self.graphView
 
     def get_graph_view(self):
         return self.graphView
+        
+    def get_graph_scene(self):
+        return self.graphView.scene()  
 
     def get_graph(self):
         graphView = self.get_graph_view()
         if graphView:
-            return graphView.scene().graph()
+            return graphView.scene().get_graph()
         else:
             return self.graph

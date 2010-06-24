@@ -140,13 +140,13 @@ class IGraphListener(object):
     def edge_removed(self, edgeModel):
         raise NotImplementedError
 
-    def new_edge_start(self, srcPt, etype, source):
+    def _new_edge_start(self, srcPt, etype, source):
         raise NotImplementedError
 
-    def new_edge_set_destination(self, *dest):
+    def _new_edge_set_destination(self, *dest):
         raise NotImplementedError
 
-    def new_edge_end(self):
+    def _new_edge_end(self):
         raise NotImplementedError
 
     def find_closest_connectable(self, *args, **kwargs):
@@ -206,12 +206,10 @@ class IGraphAdapter(object):
     def is_output(self, *args, **kargs):
         raise NotImplementedError
 
-    @classmethod
-    def get_vertex_types(cls):
+    def get_vertex_types(self):
         raise NotImplementedError
 
-    @classmethod
-    def get_edge_types(cls):
+    def get_edge_types(self):
         raise NotImplementedError
 
 #------*************************************************------#

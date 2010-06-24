@@ -262,6 +262,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.setSelected(True)
 
         operator = GraphOperator()
+        operator.vertexType = GraphicalVertex
         operator.identify_focused_graph_view()
         operator.set_vertex_item(self)
         widget = operator.get_graph_view()
@@ -326,8 +327,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         colorMenu.addAction(action)
 
         #display the menu...
-        pos = event.screenPos()
-        menu.move(pos)
+        menu.move(event.screenPos())
         menu.show()
         event.accept()
 
@@ -397,6 +397,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         """
         QtGui.QGraphicsWidget.__init__(self, parent)
         qtgraphview.Connector.__init__(self, observed=port)
+        self.__interfaceColor = None
+        self.set_connection_modifiers(QtCore.Qt.NoModifier)
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
@@ -406,6 +408,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         mdict  = port.get_ad_hoc_dict()
         #graphical data init.
         mdict.simulate_full_data_change(self, port)
+        interface = port.get_interface()
+        if interface and interface.__color__ is not None:
+            self.__interfaceColor = QtGui.QColor(*interface.__color__)
         #update tooltip
         self.notify(port, ("tooltip_modified", port.get_tip()))
 
@@ -470,12 +475,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     ##################
     # QtWorld-Events #
     #################
-    def mousePressEvent(self, event):
-        scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton):
-            scene.new_edge_start(self.get_scene_center())
-            return
-
     def contextMenuEvent(self, event):
         if isinstance(self.port(), OutputPort):
             operator=GraphOperator()
@@ -498,8 +497,13 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
             gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.red).light(120))
             gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkRed).light(120))
         else:
-            gradient.setColorAt(0.8, QtGui.QColor(QtCore.Qt.yellow).light(120))
-            gradient.setColorAt(0.2, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+            if self.__interfaceColor is None:
+                gradient.setColorAt(0.8, QtGui.QColor(QtCore.Qt.yellow).light(120))
+                gradient.setColorAt(0.2, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+            else:
+                gradient.setColorAt(0.8, self.__interfaceColor.light(120))
+                gradient.setColorAt(0.2, self.__interfaceColor.light(120))
+                
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 

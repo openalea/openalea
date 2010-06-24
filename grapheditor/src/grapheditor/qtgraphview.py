@@ -216,6 +216,14 @@ class Connector(Element):
         # self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
+        self.__makeConnectionMouseButton = QtCore.Qt.LeftButton
+        self.__makeConnectionModifiers   = QtCore.Qt.ControlModifier
+
+    def set_connection_button(self, button):
+        self.__makeConnectionMouseButton = button
+        
+    def set_connection_modifiers(self, modifiers):
+        self.__makeConnectionModifiers   = modifiers
 
     def set_highlighted(self, val):
         self.highlighted = val
@@ -242,6 +250,15 @@ class Connector(Element):
             self.notify_position_change()
             return value
 
+    def mousePressEvent(self, event):
+        scene = self.scene()
+        if (scene and event.buttons() & self.__makeConnectionMouseButton and
+            event.modifiers() == self.__makeConnectionModifiers):
+            scene._new_edge_start(self.get_scene_center())
+        else:
+            super(self.__class__, self).mousePressEvent(event)
+
+
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
     rect = owner.rect()
@@ -266,8 +283,7 @@ class Vertex(Element):
             QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
-        itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
-                                  "itemChange")
+
         def position_changed(self, *args):
             """reimplemented to do nothing. otherwise caught
             position changes from the model (????) and ignored
@@ -275,7 +291,10 @@ class Vertex(Element):
             pass
         # def paint(self, painter, paintOptions, widget):
         #     return
-
+        itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
+                                  "itemChange")
+        # mousePressEvent = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
+                                               # "mousePressEvent")
 
     ####################################
     # ----Instance members follow----  #
@@ -309,15 +328,11 @@ class Vertex(Element):
         Element.add_to_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.add_to_view(view)
-        # for c in self.__connectors:
-        #     c.add_to_view(view)
 
     def remove_from_view(self, view):
         Element.remove_from_view(self, view)
         if self.__defaultConnector:
             self.__defaultConnector.remove_from_view(view)
-        # for c in self.__connectors:
-        #     c.remove_from_view(view)
 
     def set_highlighted(self, value):
         pass
@@ -369,17 +384,6 @@ class Vertex(Element):
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-
-    def mousePressEvent(self, event):
-        """Qt-specific call to handle mouse clicks on the vertex.
-        Default implementation initiates the creation of an edge from
-        the vertex."""
-        scene = self.scene()
-        if (scene and event.buttons() & QtCore.Qt.LeftButton and
-            event.modifiers() & QtCore.Qt.ControlModifier):
-            pos = [event.scenePos().x(), event.scenePos().y()]
-            scene.new_edge_start(pos, source=self)
-            return
 
 
 #------*************************************************------#
@@ -525,7 +529,7 @@ class FloatingEdge( Edge ):
             srcVertex, dstVertex ,sItem, dItem= self.get_connections()
             if(srcVertex == None or dstVertex == None):
                 return
-            graph.add_edge(srcVertex, dstVertex)
+            self.scene().add_edge(srcVertex, dstVertex)
             sItem.notify_position_change()
             dItem.notify_position_change()
         except Exception, e:
@@ -563,7 +567,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         baselisteners.GraphListenerBase.__init__(self, graph, strategy)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
-        self.connector_types.add(Connector)
+        self._connector_types.add(Connector)
         self.initialise_from_model()
 
     #############################################################################
@@ -577,7 +581,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         for v in self.__views:
             if v() == view : toDiscard = v; break
         self.__views.remove(toDiscard)
-        try: self.graph().unregister_listener(view)
+        try: self.get_graph().unregister_listener(view)
         except : pass
         if len(self.__views)==0:
             self.clear()
@@ -628,15 +632,15 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # QtWorld-Events #
     ##################
     def mouseMoveEvent(self, event):
-        if(self.is_creating_edge()):
+        if(self._is_creating_edge()):
             pos = event.scenePos()
             pos = [pos.x(), pos.y()]
-            self.new_edge_set_destination(*pos)
+            self._new_edge_set_destination(*pos)
         QtGui.QGraphicsScene.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        if(self.is_creating_edge()):
-            self.new_edge_end()
+        if(self._is_creating_edge()):
+            self._new_edge_end()
         QtGui.QGraphicsScene.mouseReleaseEvent(self, event)
 
     #########################

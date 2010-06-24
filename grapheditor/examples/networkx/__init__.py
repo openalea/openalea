@@ -108,7 +108,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 #------------------------
 import sys
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import GraphStrategy
+from openalea.grapheditor import GraphStrategyMaker
 from openalea.grapheditor import Edge, FloatingEdge, Vertex, Scene, View, mixin_method, LinearEdgePath
 from random import randint as rint # for random colors
 
@@ -174,19 +174,27 @@ class GraphicalView( View ):
     def dropHandler(self, event):
         position = self.mapToScene(event.pos())
         position = [position.x(), position.y()]
-        self.scene().graph().new_vertex(position=position,
-                                        color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
+        self.scene().new_vertex(position=position,
+                                color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
 
-    def removeNode(view, event):
-        graphAdapter = view.scene().graph()
-        vertices = view.scene().get_selected_items(filterType=GraphicalNode, subcall=lambda x:x.vertex())
-        graphAdapter.remove_vertices(vertices)
-        edges = view.scene().get_selected_items(filterType=GraphicalEdge)
-        graphAdapter.remove_edges(e.edge() for e in edges)
+    def removeNode(self, event):
+        scene = self.scene()
+        vertices = scene.get_selected_items(filterType=GraphicalNode, subcall=lambda x:x.vertex())
+        scene.remove_vertices(vertices)
+        edges = scene.get_selected_items(filterType=GraphicalEdge)
+        scene.remove_edges(e.edge() for e in edges)
         event.setAccepted(True)
 
 
 
+#-------------------------
+# -- the graph strategy --
+#-------------------------
+GraphicalGraph = GraphStrategyMaker( graphView       = GraphicalView,
+                                vertexWidgetMap = {"vertex":GraphicalNode},
+                                edgeWidgetMap   = {"default":GraphicalEdge,
+                                                   "floating-default":GraphicalFloatingEdge},
+                                adapterType     = None)
 
 
 #THE APPLICATION'S MAIN WINDOW
@@ -194,19 +202,12 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
-        #-------------------------
-        # -- the graph strategy --
-        #-------------------------
-        GraphicalGraph = GraphStrategy( graphView       = GraphicalView,
-                                        graphModelType  = NXObservedGraph,
-                                        vertexWidgetMap = {"vertex":GraphicalNode},
-                                        edgeWidgetMap   = {"default":GraphicalEdge,
-                                                           "floating-default":GraphicalFloatingEdge},
-                                        adapterType     = None)
+
 
         self.setMinimumSize(800,600)
         self.__graph = NXObservedGraph()
-        self.__graphView = GraphicalGraph.create_view(self, self.__graph)
+        noodles = GraphicalGraph(self.__graph)
+        self.__graphView = noodles.create_view(parent=self)
         self.setCentralWidget(self.__graphView)
 
 
