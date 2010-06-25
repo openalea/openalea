@@ -599,7 +599,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     def find_closest_connectable(self, pos, boxsize = 10.0):
         #creation of a square to find connectables inside.
         if isinstance(pos, QtCore.QPointF) : pos = pos.x(), pos.y()
-        print pos, boxsize
         rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
         dstPortItems = self.items(rect)
         dstPortItems = [item for item in dstPortItems if self.is_connectable(item)]
