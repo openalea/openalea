@@ -92,6 +92,7 @@ class IInterfaceMetaClass(type):
 
 # Defaults interfaces
 
+import color_palette #used for colors of interfaces
 
 class IInterface(object):
     """ Abstract base class for all interfaces """
@@ -118,7 +119,7 @@ class IStr(IInterface):
     """ String interface """
 
     __pytype__ = types.StringType
-    __color__  = (0,125,0)
+    __color__  = color_palette.maroon
 
     @classmethod
     def default(cls):
@@ -127,7 +128,7 @@ class IStr(IInterface):
 
 class IFileStr(IStr):
     """ File Path interface """
-    __color__  = (0,125,100)
+    __color__  = color_palette.maroon
 
     def __init__(self, filter="All (*.*)", save=False, **kargs):
         IInterface.__init__(self, **kargs)
@@ -144,13 +145,13 @@ class IFileStr(IStr):
 
 class IDirStr(IStr):
     """ Directory Path interface """
-    __color__  = (100,125,0)
+    __color__  = color_palette.maroon
     pass
 
 
 class ITextStr(IStr):
     """ Long String interface """
-    __color__  = (100,125,100)
+    __color__  = color_palette.maroon
     pass
 
 
@@ -158,7 +159,7 @@ class IFloat(IInterface):
     """ Float interface """
 
     __pytype__ = types.FloatType
-    __color__  = (0,125,170)
+    __color__  = color_palette.blue
 
     def __init__(self, min = -2.**24, max = 2.**24, step=1., **kargs):
         IInterface.__init__(self, **kargs)
@@ -186,7 +187,7 @@ class IFloat(IInterface):
 class IInt(IInterface):
     """ Int interface """
     __pytype__ = types.IntType
-    __color__  = (0,0,255)
+    __color__  = color_palette.blue
 
     def __init__(self, min = -2**24, max = 2**24, step=1, **kargs):
         IInterface.__init__(self, **kargs)
@@ -215,7 +216,7 @@ class IBool(IInterface):
     """ Bool interface """
 
     __pytype__ = types.BooleanType
-    __color__  = (100,0,255)    
+    __color__  = color_palette.aqua
 
     @classmethod
     def default(cls):
@@ -224,7 +225,7 @@ class IBool(IInterface):
 
 class IEnumStr(IStr):
     """ String enumeration """
-    __color__  = (100,125,255) 
+    __color__  = color_palette.purple
 
     def __init__(self, enum = [], **kargs):
         IInterface.__init__(self, **kargs)
@@ -236,19 +237,19 @@ class IEnumStr(IStr):
 
 class IRGBColor(IInterface):
     """ RGB Color """
-    __color__  = (0,255,0) 
+    __color__  = color_palette.lime
     pass
 
 
 class IDateTime(IInterface):
     """ DateTime """
-    __color__  = (175,100,50) 
+    __color__  = color_palette.teal
     pass
 
 
 class ITuple3(IInterface):
     """ Tuple3 """
-    __color__  = (175,175,175) 
+    __color__  = color_palette.fuchsia
     
     @classmethod
     def default(cls):
@@ -257,14 +258,14 @@ class ITuple3(IInterface):
 
 class IFunction(IInterface):
     """ Function interface """
-    __color__  = (175,255,255) 
+    __color__  = color_palette.white
     __pytype__ = types.FunctionType
 
 
 class ISequence(IInterface):
     """ Sequence interface (list, tuple, ...) """
     __pytype__ = types.ListType
-    __color__  = (175,100,0) 
+    __color__  = color_palette.green
 
     @classmethod
     def default(cls):
@@ -274,7 +275,7 @@ class ISequence(IInterface):
 class IDict(IInterface):
     """ Dictionary interface """
     __pytype__ = types.DictType
-    __color__  = (175,120,0) 
+    __color__  = color_palette.olive
 
     @classmethod
     def default(cls):
@@ -284,7 +285,7 @@ class IDict(IInterface):
 
 class IData(IStr):
     """ Package data interface """
-    pass
+    __color__  = color_palette.silver
 
 # Dictionary to map Interface with corresponding widget
 
