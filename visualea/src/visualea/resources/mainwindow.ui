@@ -166,14 +166,30 @@
      <property name="title">
       <string>&amp;Export</string>
      </property>
+     <widget class="QMenu" name="menuApplication">
+      <property name="title">
+       <string>Application</string>
+      </property>
+      <addaction name="actionPreview_Application"/>
+      <addaction name="actionExport_to_Application"/>
+     </widget>
+     <addaction name="menuApplication"/>
+     <addaction name="actionTo_script"/>
+     <addaction name="separator"/>
      <addaction name="action_Image"/>
      <addaction name="action_Svg"/>
     </widget>
-    <addaction name="action_New_Session"/>
-    <addaction name="action_Open_Session"/>
-    <addaction name="action_Save_Session"/>
-    <addaction name="actionSave_as"/>
+    <widget class="QMenu" name="menuLast_open">
+     <property name="title">
+      <string>Open recent</string>
+     </property>
+    </widget>
+    <addaction name="action_New_Empty_Workspace"/>
+    <addaction name="menuLast_open"/>
     <addaction name="separator"/>
+    <addaction name="actionReload_from_Model"/>
+    <addaction name="action_Close_current_workspace"/>
+    <addaction name="action_Export_to_Factory"/>
     <addaction name="menu_Export"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
@@ -228,32 +244,16 @@
      <addaction name="actionSetCustomColor"/>
      <addaction name="actionUseCustomColor"/>
     </widget>
-    <widget class="QMenu" name="menuLast_open">
-     <property name="title">
-      <string>Open recent</string>
-     </property>
-    </widget>
     <addaction name="action_Run"/>
     <addaction name="actionInvalidate"/>
     <addaction name="actionReset"/>
     <addaction name="actionConfigure_I_O"/>
-    <addaction name="menuLast_open"/>
     <addaction name="separator"/>
     <addaction name="actionGroup_Selection"/>
     <addaction name="action_Copy"/>
     <addaction name="action_Paste"/>
     <addaction name="action_Cut"/>
     <addaction name="action_Delete_2"/>
-    <addaction name="separator"/>
-    <addaction name="action_New_Empty_Workspace"/>
-    <addaction name="action_Close_current_workspace"/>
-    <addaction name="separator"/>
-    <addaction name="action_Export_to_Factory"/>
-    <addaction name="actionReload_from_Model"/>
-    <addaction name="separator"/>
-    <addaction name="actionExport_to_Application"/>
-    <addaction name="actionPreview_Application"/>
-    <addaction name="actionTo_script"/>
     <addaction name="separator"/>
     <addaction name="menuAlign"/>
     <addaction name="menuColour"/>
@@ -710,10 +710,15 @@
   </action>
   <action name="actionTo_script">
    <property name="text">
-    <string>to script</string>
+    <string>Script</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionGf">
+   <property name="text">
+    <string>gf</string>
    </property>
   </action>
  </widget>
