@@ -19,6 +19,6 @@ __revision__ = " $Id$ "
 
 from base import GraphStrategyMaker, GraphAdapterBase
 from edgefactory import LinearEdgePath, SplineEdgePath
-from observer import Observed
+from openalea.grapheditor.observer import Observed
 from qtgraphview import Edge, FloatingEdge, Vertex, Scene, View
 from qtutils import mixin_method
