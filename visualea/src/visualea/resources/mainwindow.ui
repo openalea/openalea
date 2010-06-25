@@ -187,9 +187,9 @@
     <addaction name="action_New_Empty_Workspace"/>
     <addaction name="menuLast_open"/>
     <addaction name="separator"/>
-    <addaction name="actionReload_from_Model"/>
-    <addaction name="action_Close_current_workspace"/>
     <addaction name="action_Export_to_Factory"/>
+    <addaction name="action_Close_current_workspace"/>
+    <addaction name="actionReload_from_Model"/>
     <addaction name="menu_Export"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
@@ -345,7 +345,7 @@
     <string>Close Current Workspace</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+F4</string>
+    <string>Ctrl+W</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
@@ -411,7 +411,7 @@
     <string>&amp;Save as Composite Node</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string>Ctrl+S</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
@@ -479,7 +479,7 @@
     <string>&amp;New Empty Workspace</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>Ctrl+T</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>

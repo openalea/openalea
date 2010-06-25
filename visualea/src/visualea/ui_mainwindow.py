@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'resources\mainwindow.ui'
 #
-# Created: Fri Jun 25 10:52:49 2010
+# Created: Fri Jun 25 17:38:06 2010
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -274,9 +274,9 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.action_New_Empty_Workspace)
         self.menu_File.addAction(self.menuLast_open.menuAction())
         self.menu_File.addSeparator()
-        self.menu_File.addAction(self.actionReload_from_Model)
-        self.menu_File.addAction(self.action_Close_current_workspace)
         self.menu_File.addAction(self.action_Export_to_Factory)
+        self.menu_File.addAction(self.action_Close_current_workspace)
+        self.menu_File.addAction(self.actionReload_from_Model)
         self.menu_File.addAction(self.menu_Export.menuAction())
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_Quit)
@@ -369,7 +369,7 @@ class Ui_MainWindow(object):
         self.action_Add_File.setText(QtGui.QApplication.translate("MainWindow", "&Load Package/Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Auto_Search.setText(QtGui.QApplication.translate("MainWindow", "&Reload All packages", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Close_current_workspace.setText(QtGui.QApplication.translate("MainWindow", "Close Current Workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Close_current_workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F4", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Close_current_workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setText(QtGui.QApplication.translate("MainWindow", "&Run ", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Run.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Network.setText(QtGui.QApplication.translate("MainWindow", "&Composite Node", None, QtGui.QApplication.UnicodeUTF8))
@@ -383,7 +383,7 @@ class Ui_MainWindow(object):
         self.action_Save_Session.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave_as.setText(QtGui.QApplication.translate("MainWindow", "Save &as", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Export_to_Factory.setText(QtGui.QApplication.translate("MainWindow", "&Save as Composite Node", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Export_to_Factory.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Export_to_Factory.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExport_to_Application.setText(QtGui.QApplication.translate("MainWindow", "Export to Application", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClear_Data_Pool.setText(QtGui.QApplication.translate("MainWindow", "Clear Data Pool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFind_Node.setText(QtGui.QApplication.translate("MainWindow", "&Find Node", None, QtGui.QApplication.UnicodeUTF8))
@@ -396,7 +396,7 @@ class Ui_MainWindow(object):
         self.action_OpenNode.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Delete_2.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.action_New_Empty_Workspace.setText(QtGui.QApplication.translate("MainWindow", "&New Empty Workspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_New_Empty_Workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_New_Empty_Workspace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+T", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReload_from_Model.setText(QtGui.QApplication.translate("MainWindow", "Reload", None, QtGui.QApplication.UnicodeUTF8))
         self.actionReload_from_Model.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
