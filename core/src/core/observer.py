@@ -20,14 +20,17 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 try:
-    from openalea.grapheditor.observer import *
+    import openalea.grapheditor
     graphobserver = True
-except ImportError:
+except ImportError, e:
+    print "NOT using graph editor observer", e
     graphobserver = False
 
 ###############################################################################
 
-if not graphobserver:
+if graphobserver:
+    from openalea.grapheditor.observer import *
+else:
    import weakref
    from collections import deque
 
