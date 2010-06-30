@@ -42,8 +42,8 @@ __all__ = []
 read = Factory( name= "read inr", 
 				description= "",
 				category = "",
-				nodemodule = "serial",
-				nodeclass = "read",
+				nodemodule = "spatial",
+				nodeclass = "read_inrimage",
 				inputs=(dict(name="filename", interface=IFileStr,),),
 				outputs=(dict(name="img", interface=None,),),
 			)
@@ -53,8 +53,8 @@ __all__.append('read')
 write = Factory( name= "write inr", 
 				description= "",
 				category = "",
-				nodemodule = "serial",
-				nodeclass = "write",
+				nodemodule = "spatial",
+				nodeclass = "write_inrimage",
 				inputs=(dict(name="img", interface=None,),
 				        dict(name="filename", interface=IFileStr,),),
 				outputs=(dict(name="img", interface=None,),),
@@ -78,4 +78,131 @@ info = Factory( name= "info",
 
 __all__.append('info')
 
+
+
+#########################################
+#
+#	seminaire
+#
+#########################################
+
+loadimage = Factory(name= "loadimage", 
+                   description= "load image to numpy array", 
+              	   category = "image",
+ 		   iinputs=(dict(name='filename', interface= IFileStr),),
+		   outputs=(dict(name="matrix", interface=None),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "loadimage",
+               	  )
+
+__all__.append("loadimage")
+
+
+invert = Factory(name= "invert", 
+                   description= "grayscale inversion", 
+              	   category = "image",
+ 		   inputs=(dict(name='matrix', interface=None),),
+		   outputs=(dict(name="matrix", interface=None),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "invert",
+               	  )
+
+__all__.append("invert")
+
+
+
+set_seeds = Factory(name= "set_seeds", 
+                   description= "add seeds", 
+              	   category = "image",
+ 		   inputs=(dict(name='matrix', interface=None),
+                           dict(name='n', interface= IInt),
+                           dict(name='seeds', interface= ISequence),),
+		   outputs=(dict(name="markers", interface=None),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "set_seeds",
+               	  )
+
+__all__.append("set_seeds")
+
+
+get_seeds = Factory(name= "get_seeds", 
+                   description= "extraction of seeds with their center", 
+              	   category = "image",
+ 		   inputs=(dict(name='matrix', interface=None),),
+		   outputs=(dict(name="markers", interface=None),
+                            dict(name="n", interface=IInt),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "get_seeds",
+               	  )
+
+__all__.append("get_seeds")
+
+
+watershed = Factory(name= "watershed_ift", 
+                   description= "segmentation of an image", 
+              	   category = "image",
+ 		   inputs=(dict(name='input', interface=None),
+                           dict(name='markers', interface=None),
+                           dict(name='structure', interface=None),),
+		   outputs=(dict(name="matrix", interface=None),),
+              	   nodemodule = "spatial",
+              	   nodeclass = "watershed_ift",
+               	  )
+
+__all__.append("watershed")
+
+
+threshold = Factory(name= "threshold", 
+                   description= "thresholding of an image", 
+              	   category = "image",
+ 		   inputs=(dict(name='matrix', interface=None),
+                           dict(name='threshold', interface=IInt),),
+		   outputs=(dict(name="matrix", interface=None),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "threshold",
+               	  )
+
+__all__.append("threshold")
+
+
+show = Factory(name= "show", 
+                   description= "show image", 
+              	   category = "image",
+ 		   inputs=(dict(name='matrix', interface=None),),
+		   outputs=(dict(name="matrix", interface=None),),
+              	   nodemodule = "segmentation",
+              	   nodeclass = "show",
+               	  )
+
+__all__.append("show")
+
+
+opening = Factory(name= "opening",
+           	description= "",
+           	category = "image",
+		inputs = ( dict(name='matrix', interface=None),
+     		           dict(name='structure', interface=None),
+			   dict(name='iterations', interface=IInt,value=1),
+			   dict(name='origine', interface=IInt,value=0),),
+     	        outputs = (dict(name='matrix', interface=None),),
+           	nodemodule = "spatial",
+           	nodeclass = "binary_opening",
+            )
+
+__all__.append("opening")
+
+
+closing = Factory(name= "closing",
+           	description= "",
+           	category = "image",
+		inputs = ( dict(name='matrix', interface=None),
+     		           dict(name='structure', interface=None),
+			   dict(name='iterations', interface=IInt,value=1),
+			   dict(name='origine', interface=IInt,value=0),),
+     	        outputs = (dict(name='matrix', interface=None),),
+           	nodemodule = "spatial",
+           	nodeclass = "binary_closing",
+            )
+
+__all__.append("closing")
 
