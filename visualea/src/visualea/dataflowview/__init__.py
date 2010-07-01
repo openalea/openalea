@@ -27,7 +27,9 @@ from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import compositenode, node
 from openalea.core.pkgmanager import PackageManager # for drag and drop
 from openalea.core.node import RecursionError
+from openalea.core.algo import dataflow_evaluation as evalmodule
 from openalea.grapheditor import baselisteners, qtgraphview, qtutils
+
 import openalea.grapheditor.base
 
 
@@ -179,10 +181,25 @@ class DataflowView( qtgraphview.View ):
 
         operator=GraphOperator(self)
         menu = qtutils.AleaQMenu(self)
-        action = menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
+        menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
+
+        # -- Evaluator submenu --
+        evaluatorSubmenu = menu.addMenu("Evaluator")
+        classlist = evalmodule.__evaluators__
+        classlist.sort()
+        selectitem = None
+        for c in classlist:
+            action = operator(c, evaluatorSubmenu, "graph_set_evaluator_"+c)
+            evaluatorSubmenu.addAction(action)
+            action.setCheckable(True)
+            if c == self.scene().get_graph().eval_algo:
+                evaluatorSubmenu.setActiveAction(action)
+                action.setChecked(True)
+
         menu.move(event.globalPos())
         menu.show()
         event.accept()
+
 
 
 def initialise_graph_view_from_model(arg , graphView, graphModel):
