@@ -177,3 +177,4 @@ class VertexOperators(graphOpBase.Base):
             for k in editor.modified_key:
                 master.vertexItem().vertex().set_data(k, editor.pdict[k])
 
+

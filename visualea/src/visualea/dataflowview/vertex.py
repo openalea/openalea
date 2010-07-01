@@ -60,6 +60,13 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.modified_item.setVisible(False)
 
+        # ---Clock image when the vertex has a delay---
+        #self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap('clock.png'), self)
+        #self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        #self.delay_item.setVisible(True)
+        self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
+        self.delay_item.setVisible(False)
+
         # ---Sub items layout---
         layout = QtGui.QGraphicsLinearLayout()
         layout.setOrientation(QtCore.Qt.Vertical)
@@ -158,6 +165,8 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         #this one simply catches events like becoming lazy
         #or blocked of user app...
         if(event[0] in ["internal_data_changed", "data_modified"]):
+            self.delay_item.setVisible(self.vertex().delay>0)
+            self.delay_item.update()
             self.update()
 
         elif(event[0]=="tooltip_modified"):
@@ -237,6 +246,10 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.hiddenPorts_item.setVisible(not self._all_inputs_visible())
         self.hiddenPorts_item.setPos(self.rect().width() - self.hiddenPorts_item.boundingRect().width() - 2,
                                      self._inPortLayout().geometry().top()+4 )
+
+        self.delay_item.setVisible(self.vertex().delay>0)
+        self.delay_item.setPos(1, self._inPortLayout().geometry().top()+1 )
+
         self.shapeChanged=True
 
     def mouseDoubleClickEvent(self, event):
