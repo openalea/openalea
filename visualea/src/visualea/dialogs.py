@@ -946,7 +946,9 @@ class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
 
         # Fill the table
         self.tableWidget.setRowCount(len(pdict.keys()))
-        for (i, (k,v)) in enumerate(pdict.items()):
+        items = pdict.items()
+        items.sort()
+        for (i, (k,v)) in enumerate(items):
 
             item = QtGui.QTableWidgetItem(str(k))
             item.setFlags(QtCore.Qt.ItemIsEnabled)
