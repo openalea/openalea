@@ -776,6 +776,7 @@ class AbstractFactory(Observed):
                  inputs = (),
                  outputs = (),
                  lazy = True,
+                 delay = 0,
                  view=None,
                  alias=None,
                  **kargs):
@@ -811,9 +812,8 @@ class AbstractFactory(Observed):
 
         self.lazy = lazy
         self.view = view
-
+        self.delay = delay
         self.alias = alias
-
     # Package property
 
     def set_pkg(self, port):
@@ -1062,6 +1062,8 @@ class NodeFactory(AbstractFactory):
             node.lazy = self.lazy
             if(not node.caption):
                 node.set_caption(self.name)
+
+            node.delay = self.delay
         except:
             pass
 
