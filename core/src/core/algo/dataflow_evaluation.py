@@ -238,7 +238,6 @@ class GeneratorEvaluation(AbstractEvaluation):
         AbstractEvaluation.__init__(self, dataflow)
         # a property to specify if the node has already been evaluated
         self._evaluated = set()
-        self._in_evaluation = set()
         self.reeval = False # Flag to force reevaluation (for generator)
 
     def is_stopped(self, vid, actor):
@@ -727,4 +726,149 @@ class ToScriptEvaluation(AbstractEvaluation):
             script += self.eval_vertex(vid)
 
         return script
+
+############################################################################
+# Evaluation with scheduling
+
+# The objective is to take 
+
+class DiscreteTimeEvaluation(AbstractEvaluation):
+    """ Evaluation algorithm with generator / priority and selection"""
+
+    def __init__(self, dataflow):
+
+        AbstractEvaluation.__init__(self, dataflow)
+        # a property to specify if the node has already been evaluated
+        self._evaluated = set()
+        self.reeval = False # Flag to force reevaluation (for generator)
+
+        # CPL
+        # At each evaluation of the dataflow, increase the current cycle of 
+        # one unit.
+
+        self._current_cycle = 0
+        # timed nodes are a dict with vid, time >0
+        # when time is 0, remove the node from the dict
+        self._timed_nodes = dict()
+        self._stop = False
+        self._nodes_to_reset = []
+
+    def is_stopped(self, vid, actor):
+        """ Return True if evaluation must be stop at this vertex """
+        stopped = False
+        try:
+            if hasattr(actor,'block'):
+                stopped = actor.block
+            stopped = stopped or vid in self._evaluated
+        except:
+            pass
+
+        return stopped
+
+    def clear(self):
+        """ Clear evaluation variable """
+        self._evaluated.clear()
+        self.reeval = False
+        self._stop = False
+        self._nodes_to_reset = []
+
+    def next_step(self):
+        """ Update the scheduler of one step. """
+        self._current_cycle += 1
+        for vid in self._timed_nodes:
+            self._timed_nodes[vid] -= 1
+
+    def eval_vertex(self, vid):
+        """ Evaluate the vertex vid """
+
+        #print "Step ", self._current_cycle
+
+        df = self._dataflow
+        actor = df.actor(vid)
+
+        self._evaluated.add(vid)
+
+        # For each inputs
+        # Compute the inputs of the node
+        for pid in df.in_ports(vid):
+            inputs = []
+
+            cpt = 0
+            # For each connected node
+            for npid, nvid, nactor in self.get_parent_nodes(pid):
+                # Do no reevaluate the same node
+                if not self.is_stopped(nvid, nactor):
+                    self.eval_vertex(nvid)
+
+                inputs.append(nactor.get_output(df.local_id(npid)))
+                cpt += 1
+
+            # set input as a list or a simple value
+            if (cpt == 1):
+                inputs = inputs[0]
+            if (cpt > 0):
+                actor.set_input(df.local_id(pid), inputs)
+
+        # Eval the node
+        delay = 0
+        # When a node return no delay, we stopped the simulation
+        stop_when_finished = False
+
+        if vid in self._timed_nodes:
+            delay = self._timed_nodes[vid]
+            if delay == 0:
+                del self._timed_nodes[vid]
+                stop_when_finished = True
+
+        if delay == 0:
+            delay = self.eval_vertex_code(vid)
+
+
+        # Reevaluation flag
+        # TODO: Add the node to the scheduler rather to execute
+        if (delay):
+            self._timed_nodes[vid] = int(delay)
+            self.reeval = delay
+        elif stop_when_finished:
+            self._stop = True
+            self._nodes_to_reset.append(vid)
+        elif self._current_cycle > 1000:
+            self._stop = True
+
+    def eval(self, vtx_id=None):
+        self.clear()
+    
+        df = self._dataflow
+
+        if (vtx_id is not None):
+            leafs = [(vtx_id, df.actor(vtx_id))]
+
+        else:
+            # Select the leafs (list of (vid, actor))
+            leafs = [(vid, df.actor(vid))
+                for vid in df.vertices() if df.nb_out_edges(vid)==0]
+
+        leafs.sort(cmp_priority)
+
+        # Execute
+        for vid, actor in leafs:
+            if not self.is_stopped(vid, actor):
+                self.reeval = True
+                while(self.reeval and not self._stop):
+                    self.clear()
+                    self.eval_vertex(vid)
+                    self.next_step()
+
+        if self._stop:
+            self._nodes_to_reset.extend(self._timed_nodes)
+            for vid in self._nodes_to_reset:
+                df.actor(vid).reset()
+
+        #print 'Run %d times the dataflow'%(self._current_cycle,)
+
+        # Reset the state
+        self.clear()
+        self._current_cycle = 0
+
+        return False
 

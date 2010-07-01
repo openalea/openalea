@@ -67,7 +67,7 @@ def initialise_standard_metadata():
     Annotation.extend_ad_hoc_slots("text", str, "", "txt")
 
     #we declare what are the node model ad hoc data we require:
-    AbstractPort.extend_ad_hoc_slots("hide"             ,bool, False)
+    AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
     AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
 
 
@@ -161,6 +161,10 @@ class AbstractNode(Observed, HasAdHoc):
             self.notify_listeners(("data_modified", key, value))
 
     def reset(self):
+        """ Reset Node """
+        pass
+
+    def reload(self):
         """ Reset Node """
         pass
 
@@ -308,6 +312,8 @@ class Node(AbstractNode):
         self.internal_data["priority"] = 0
         self.internal_data["hide"] = True # hide in composite node widget
         self.internal_data["port_hide_changed"] = set()
+        # Add delay
+        self.internal_data["delay"] = 0
 
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
@@ -369,6 +375,17 @@ class Node(AbstractNode):
         self.notify_listeners(("internal_data_changed", "lazy", data))
 
     lazy = property(get_lazy, set_lazy)
+
+    def get_delay(self):
+        """todo"""
+        return self.internal_data.get("delay", 0)
+
+    def set_delay(self, delay):
+        """todo"""
+        self.internal_data["delay"] = delay
+        self.notify_listeners(("internal_data_changed", "delay", delay))
+
+    delay= property(get_delay, set_delay)
 
     def get_block(self):
         """todo"""
@@ -620,11 +637,12 @@ class Node(AbstractNode):
         """
         Evaluate the node by calling __call__
         Return True if the node need a reevaluation
+        and a timed delay if the node need a reevaluation at a later time.
         """
         # lazy evaluation
         if self.block and self.get_nb_output() != 0 and self.output(0) is not None:
             return False
-        if(self.lazy and not self.modified):
+        if (self.delay==0 and self.lazy) and not self.modified:
             return False
 
         self.notify_listeners(("start_eval", ))
@@ -653,7 +671,9 @@ class Node(AbstractNode):
         self.modified = False
         self.notify_listeners(("stop_eval", ))
 
-        return False
+        if self.delay == 0:
+            return False 
+        return self.delay
 
     def __getstate__(self):
         """ Pickle function : remove not saved data"""
@@ -675,7 +695,7 @@ class Node(AbstractNode):
 
         return odict
 
-    def reset(self):
+    def reload(self):
         """ Reset ports """
         for i in range(self.get_nb_output()):
             self.outputs[i] = None
@@ -684,6 +704,16 @@ class Node(AbstractNode):
         for i in xrange(i):
             #if(not connected or self.input_states[i] is "connected"):
             self.set_input(i, self.input_desc[i].get('value', None))
+
+        if(i>0):
+            self.invalidate()
+
+    def reset(self):
+        """ Reset ports """
+        for i in range(self.get_nb_output()):
+            self.outputs[i] = None
+
+        i = self.get_nb_input()
 
         if(i>0):
             self.invalidate()
