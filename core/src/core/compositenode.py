@@ -77,7 +77,7 @@ class CompositeNodeFactory(AbstractFactory):
         self.elt_value = kargs.get("elt_value", {})
         self.elt_ad_hoc = kargs.get("elt_ad_hoc", {})
         from openalea.core.algo.dataflow_evaluation import DefaultEvaluation
-        self.evalalgo = kargs.get("evalalgo", DefaultEvaluation)
+        self.eval_algo = kargs.get("eval_algo", DefaultEvaluation.__name__)
 
         # Documentation
         self.doc = kargs.get('doc', "")
@@ -139,7 +139,7 @@ class CompositeNodeFactory(AbstractFactory):
         new_df.factory = self
         new_df.__doc__ = self.doc
         new_df.set_caption(self.get_id())
-        new_df.evalalgo = self.evalalgo
+        new_df.eval_algo = self.eval_algo
 
         cont_eval = set() # continuous evaluated nodes
 
@@ -397,7 +397,7 @@ class CompositeNode(Node, DataFlow):
         # graph modification status
         self.graph_modified = False
         self.evaluating = False
-        self.evalalgo = None
+        self.eval_algo = None
 
     def copy_to(self, other):
         raise NotImplementedError
@@ -472,7 +472,24 @@ class CompositeNode(Node, DataFlow):
 
     def get_eval_algo(self):
         """ Return the evaluation algo instance """
-        return self.evalalgo
+        try:
+            algo_str = self.eval_algo
+
+            algo_str = algo_str.strip('"'); 
+            algo_str = algo_str.strip("'")
+
+
+            # import module
+            baseimp = "algo.dataflow_evaluation"
+            module = __import__(baseimp, globals(), locals(), [algo_str])
+            classobj = module.__dict__[algo_str]
+            return classobj(self)
+
+        except Exception, e:
+            from  openalea.core.algo.dataflow_evaluation import DefaultEvaluation
+            return DefaultEvaluation(self)
+
+        return self.eval_algo
 
     def eval_as_expression(self, vtx_id=None):
         """
@@ -714,8 +731,8 @@ class CompositeNode(Node, DataFlow):
 
         # Properties
         sgfactory.lazy = self.lazy
-        sgfactory.evalalgo = self.evalalgo
-        print self.evalalgo
+        sgfactory.eval_algo = self.eval_algo
+        #print self.eval_algo
         # I / O
         if(auto_io):
             (ins, outs, sup_connect) = self.compute_io(listid)
@@ -1097,7 +1114,7 @@ $NAME = CompositeNodeFactory(name=$PNAME,
                              elt_value=$ELT_VALUE,
                              elt_ad_hoc=$ELT_AD_HOC,
                              lazy=$LAZY,
-                             evalalgo=$EVALALGO,
+                             eval_algo=$EVALALGO,
                              )
 
 """
@@ -1128,6 +1145,6 @@ $NAME = CompositeNodeFactory(name=$PNAME,
                                       ELT_VALUE=self.pprint_repr(f.elt_value),
                                       ELT_AD_HOC=self.pprint_repr(f.elt_ad_hoc),
                                       LAZY=self.pprint_repr(f.lazy),
-                                      EVALALGO=self.pprint_repr(f.evalalgo),
+                                      EVALALGO=self.pprint_repr(f.eval_algo),
                                       )
         return result

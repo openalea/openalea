@@ -81,7 +81,7 @@ class IterNode(Node):
                 del self.nextval
             return False
 
-class DelayNode(IterNode):
+class IterWithDelayNode(IterNode):
     """ Iteration Node """
 
     def eval(self):
@@ -133,6 +133,36 @@ class StopSimulation(Node):
             return 1
         else:
             return False
+
+class Counter(Node):
+    """ Loop a number of cycle, then stop """
+
+    def __init__(self, *args):
+        """ Constructor """
+
+        Node.__init__(self, *args)
+        self.reset()
+
+    def reset(self):
+        self._current_cycle = None
+
+    def eval(self):
+        """
+        Stop the simulation after a given number of steps
+        """
+        start, stop, step = self.inputs[:3]
+        delay = self.delay
+        if self._current_cycle is None:
+            self._current_cycle = start
+            self.outputs[0] = self._current_cycle
+            return delay
+
+        if self._current_cycle+step < stop:
+            self._current_cycle+= step
+            self.outputs[0] = self._current_cycle
+            return delay
+        
+        return False
 
 class RDVNode(Node):
     """

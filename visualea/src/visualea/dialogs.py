@@ -609,14 +609,14 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         op.identify_focused_graph_view()
         graph = op.get_graph()
         if graph:
-            eval_algo = graph.evalalgo
+            eval_algo = graph.eval_algo
         else:
             try:
                 str = config.get("eval", "type")
                 str = str.strip('"')
                 eval_algo = str.strip("'")
             except:
-                eval_algo = "SelectiveEvaluation"
+                eval_algo = "DefaultEvaluation"
 
         self.update_eval_algo(eval_algo)
 
@@ -631,7 +631,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         if(result):
             self.pathList.addItem(result)
-
 
     def select_editor(self):
         """ Select Python Editor command """
@@ -660,14 +659,15 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         classlist = filter(l, evalmodule.__dict__.values())
 
         # remove multiple instances : uniq
-        #classlist = list(set(classlist))
-        #classlist.sort(cmp=cmp_classes)
+        classlist = list(set(classlist))
+        classlist.sort(cmp=cmp_classes)
 
         selectitem = None
         for c in classlist:
             try:
                 item = QtGui.QListWidgetItem(c.__name__)
                 self.listAlgo.addItem(item)
+                print c.__name__, algo_str
                 if(c.__name__ == algo_str):
                     selectitem = item
             except:
@@ -732,7 +732,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         if(item):
             algostr = str(item.text())
             if graph:
-                graph.evalalgo = algostr
+                graph.eval_algo = algostr
 
             config = Settings()
             config.set("eval", "type", algostr)

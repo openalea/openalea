@@ -58,7 +58,7 @@ iter_with_delay = Factory(name="iter with delay",
                   description="Iteration ", 
                   category="flow control", 
                   nodemodule="systemnodes",
-                  nodeclass="DelayNode",
+                  nodeclass="IterWithDelayNode",
                   inputs = (dict(name="generator", interface=None, value=None),
                             dict(name="delay", interface=IInt, value=1),
                             ),
@@ -66,6 +66,20 @@ iter_with_delay = Factory(name="iter with delay",
 
                   )
 __all__.append('iter_with_delay')
+
+counter = Factory(name="counter", 
+                  description="Count from start to stop, step by step ", 
+                  category="flow control", 
+                  nodemodule="systemnodes",
+                  nodeclass="Counter",
+                  inputs = (dict(name="start", interface=IInt, value=0),
+                            dict(name="stop", interface=IInt, value=10),
+                            dict(name="step", interface=IInt, value=1),
+                            ),
+                  outputs = ( dict(name="value", interface=None), ),
+                  delay = 1,
+                  )
+__all__.append('counter')
 
 stop_simulation = Factory(name="stop simulation", 
                   description="Iteration ", 
