@@ -81,9 +81,13 @@ class VertexOperators(graphOpBase.Base):
             del innerWidget
             return
 
+        title = innerWidget.windowTitle()
+        if title == "":
+            title = factory.get_id()
+
         VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(master.get_graph_view(),
                                                                   innerWidget,
-                                                                  factory.get_id(),
+                                                                  title,
                                                                   False)
 
 
@@ -169,7 +173,7 @@ class VertexOperators(graphOpBase.Base):
 
     def vertex_edit_internals(self):
         """ Edit node internal data """
-        master = self.master 
+        master = self.master
         editor = DictEditor(master.vertexItem().vertex().internal_data, self.master.get_graph_view())
         ret = editor.exec_()
 
