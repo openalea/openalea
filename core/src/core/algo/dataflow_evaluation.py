@@ -148,7 +148,7 @@ class BrutEvaluation(AbstractEvaluation):
 
     def is_stopped(self, vid, actor):
         """ Return True if evaluation must be stop at this vertex """
-        
+
         if vid in self._evaluated:
             return True
 
@@ -157,12 +157,12 @@ class BrutEvaluation(AbstractEvaluation):
                 status = True
                 n = actor.get_nb_output()
                 outputs = [i for i in range(n) if actor.get_output(i) is not None ]
-                if not outputs: 
+                if not outputs:
                     status = False
                 return status
         except:
             pass
-        return False 
+        return False
 
     def eval_vertex(self, vid, *args):
         """ Evaluate the vertex vid """
@@ -449,7 +449,7 @@ class LambdaEvaluation(PriorityEvaluation):
         self.lambda_value.clear() # do not keep context in memory
 
 
-DefaultEvaluation = LambdaEvaluation
+DefaultEvaluation = "LambdaEvaluation"
 #DefaultEvaluation = GeneratorEvaluation
 
 
@@ -730,7 +730,7 @@ class ToScriptEvaluation(AbstractEvaluation):
 ############################################################################
 # Evaluation with scheduling
 
-# The objective is to take 
+# The objective is to take
 
 class DiscreteTimeEvaluation(AbstractEvaluation):
     """ Evaluation algorithm with generator / priority and selection"""
@@ -743,7 +743,7 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
         self.reeval = False # Flag to force reevaluation (for generator)
 
         # CPL
-        # At each evaluation of the dataflow, increase the current cycle of 
+        # At each evaluation of the dataflow, increase the current cycle of
         # one unit.
 
         self._current_cycle = 0
@@ -837,7 +837,7 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
 
     def eval(self, vtx_id=None):
         self.clear()
-    
+
         df = self._dataflow
 
         if (vtx_id is not None):

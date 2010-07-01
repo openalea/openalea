@@ -33,14 +33,16 @@ from math import sqrt
 unportableFlags = ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
                    'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
                    'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
-        
+unportableEnums = ["ItemScenePositionHasChanged", "ItemPositionHasChanged"]
 
-__dict__ = globals()        
-for f in unportableFlags:
+__dict__ = globals()
+for f in unportableFlags+unportableEnums:
     try:
         __dict__[f] = getattr(QtGui.QGraphicsItem, f)
     except Exception, e:
-        __dict__[f] = 0
+        print "symbol not found:", f
+        continue
+
 # if it's just the PyQt Version that is too old we have a hack as
 # the qt flag exists but is simply not exposed.
 # this is not bug free: if the Qt guys change the enum order, we're wrecked.
@@ -224,7 +226,7 @@ class Connector(Element):
 
     def set_connection_button(self, button):
         self.__makeConnectionMouseButton = button
-        
+
     def set_connection_modifiers(self, modifiers):
         self.__makeConnectionModifiers   = modifiers
 
