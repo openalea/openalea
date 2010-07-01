@@ -5,3 +5,4 @@ try:
     import transformations
 except ImportError:
     print "Please install PIL to use Image module"
+from movie import *
