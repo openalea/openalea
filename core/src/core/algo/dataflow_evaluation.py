@@ -23,6 +23,9 @@ import sys
 import traceback as tb
 from openalea.core import ScriptLibrary
 
+
+__evaluators__ = []
+
 class EvaluationException(Exception):
 
     def __init__(self, vid, node, exception, exc_info):
@@ -139,6 +142,7 @@ class AbstractEvaluation(object):
 
 class BrutEvaluation(AbstractEvaluation):
     """ Basic evaluation algorithm """
+    __evaluators__.append("BrutEvaluation")
 
     def __init__(self, dataflow):
 
@@ -208,6 +212,7 @@ class BrutEvaluation(AbstractEvaluation):
 
 class PriorityEvaluation(BrutEvaluation):
     """ Support priority between nodes and selective"""
+    __evaluators__.append("PriorityEvaluation")
 
     def eval(self, vtx_id=None, *args):
         """todo"""
@@ -232,6 +237,7 @@ class PriorityEvaluation(BrutEvaluation):
 
 class GeneratorEvaluation(AbstractEvaluation):
     """ Evaluation algorithm with generator / priority and selection"""
+    __evaluators__.append("GeneratorEvaluation")
 
     def __init__(self, dataflow):
 
@@ -319,6 +325,7 @@ from openalea.core.interface import IFunction
 
 class LambdaEvaluation(PriorityEvaluation):
     """ Evaluation algorithm with support of lambda / priority and selection"""
+    __evaluators__.append("LambdaEvaluation")
 
     def __init__(self, dataflow):
         PriorityEvaluation.__init__(self, dataflow)
