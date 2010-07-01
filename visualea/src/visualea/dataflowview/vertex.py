@@ -163,12 +163,20 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         if event is None : return
 
         #this one simply catches events like becoming lazy
-        #or blocked of user app...
-        if(event[0] in ["internal_data_changed", "data_modified"]):
+        #or blocked of user app, and that do not set any
+        #internal value (handled by the paintEvent method)
+        elif(event[0] == "internal_data_changed"):
             self.delay_item.setVisible(self.vertex().delay>0)
             self.delay_item.update()
             self.update()
-
+        elif(event[0] == "data_modified"):
+            if event[1] == "caption":
+                caption = event[2]
+                self.__set_caption(caption if len(caption)<20 else caption[:20]+"...'")
+            else:
+                self.delay_item.setVisible(self.vertex().delay>0)
+                self.delay_item.update()
+                self.update()
         elif(event[0]=="tooltip_modified"):
             tt = event[1]
             if tt is None:
@@ -517,7 +525,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
             else:
                 gradient.setColorAt(0.8, self.__interfaceColor.light(120))
                 gradient.setColorAt(0.2, self.__interfaceColor.light(120))
-                
+
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
