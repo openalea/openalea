@@ -26,19 +26,21 @@ from openalea.visualea.dialogs import IOConfigDialog
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
+from openalea.core.algo import dataflow_evaluation as evalmodule
 from compositenode_inspector import InspectorView
+
+
 
 
 class DataflowOperators(graphOpBase.Base):
 
-    
     @exception_display
     @busy_cursor
     def graph_run(self):
         master = self.master
         master.get_graph().eval_as_expression()
 
-    
+
     def graph_reset(self):
         master = self.master
         widget = master.get_graph_view()
@@ -52,11 +54,11 @@ class DataflowOperators(graphOpBase.Base):
             return
         master.get_graph().reset()
 
-    
+
     def graph_invalidate(self):
         self.master.get_graph().invalidate()
 
-    
+
     def graph_remove_selection(self, items=None):
         master = self.master
         def cmp(a,b):
@@ -79,7 +81,7 @@ class DataflowOperators(graphOpBase.Base):
             elif isinstance(i, master.annotationType):
                 scene.remove_vertex(i.annotation())
 
-    
+
     def graph_group_selection(self):
         """Export selected nodes in a new factory"""
         master = self.master
@@ -162,7 +164,7 @@ class DataflowOperators(graphOpBase.Base):
         master.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
 
-    
+
     def graph_add_annotation(self, position=None):
         # Get Position from cursor
         widget = self.master.get_graph_view()
@@ -181,7 +183,7 @@ class DataflowOperators(graphOpBase.Base):
         scene.add_vertex(node, position=[position.x(), position.y()])
 
 
-    
+
     def graph_copy(self):
         """ Copy Selection """
         master = self.master
@@ -203,7 +205,7 @@ class DataflowOperators(graphOpBase.Base):
             master.get_session().clipboard.clear()
             master.get_graph().to_factory(master.get_session().clipboard, s, auto_io=False)
 
-    
+
     def graph_cut(self):
         master = self.master
         if(master.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
@@ -216,7 +218,7 @@ class DataflowOperators(graphOpBase.Base):
             self.graph_copy()
             self.graph_remove_selection()
 
-    
+
     def graph_paste(self):
         """ Paste from clipboard """
         master = self.master
@@ -253,7 +255,7 @@ class DataflowOperators(graphOpBase.Base):
             widget.setUpdatesEnabled(True)
             widget.update()
 
-    
+
     def graph_close(self):
        # Try to save factory if widget is a graph
         master = self.master
@@ -283,7 +285,7 @@ class DataflowOperators(graphOpBase.Base):
         # Update session
         master.notify_listeners(("graphoperator_graphclosed", widget))
 
-    
+
     def graph_export_to_factory(self):
         """Export workspace to its factory"""
         master = self.master
@@ -325,7 +327,7 @@ Do you want to continue?""",
                                              "Trying to write in a System Package!\n")
         master.notify_listeners(("graphoperator_graphsaved", widget, factory))
 
-    
+
     def graph_configure_io(self):
         """ Configure workspace IO """
         master = self.master
@@ -339,7 +341,7 @@ Do you want to continue?""",
         if(ret):
             graph.set_io(dialog.inputs, dialog.outputs)
 
-    
+
     def graph_reload_from_factory(self):
         """ Reload a tab node """
         master = self.master
@@ -373,13 +375,13 @@ Do you want to continue?""",
         """ Build a temporary factory for current workspace
         Return (node, factory)
         """
-        master = self.master        
+        master = self.master
         tempfactory = CompositeNodeFactory(name = name)
         graph = master.get_graph()
         graph.to_factory(tempfactory)
         return (graph, tempfactory)
 
-    
+
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
         master = self.master
@@ -396,7 +398,7 @@ Do you want to continue?""",
         w.show()
         return graph, tempfactory
 
-    
+
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
         master = self.master
@@ -426,4 +428,18 @@ Do you want to continue?""",
         graph, tempfactory = self.__get_current_factory(name)
         #export_app comes from openalea.core
         export_app.export_app(name, filename, tempfactory)
+
+
+# -- don't look :) i'm just dynamically adding methods!
+def add_graph_eval_setters():
+    def make_setter(evaluator):
+        def setter(self):
+            master = self.master
+            master.get_graph().eval_algo = evaluator
+        return setter
+    for c in evalmodule.__evaluators__:
+        setattr(DataflowOperators, "graph_set_evaluator_"+c, make_setter(c))
+
+
+add_graph_eval_setters()
 

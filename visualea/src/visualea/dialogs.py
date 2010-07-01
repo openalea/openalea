@@ -604,22 +604,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             self.edge_style = "Spline"
 
-        # Dataflow
-        op = self.parent().operator
-        op.identify_focused_graph_view()
-        graph = op.get_graph()
-        if graph:
-            eval_algo = graph.eval_algo
-        else:
-            try:
-                str = config.get("eval", "type")
-                str = str.strip('"')
-                eval_algo = str.strip("'")
-            except:
-                eval_algo = "DefaultEvaluation"
-
-        self.update_eval_algo(eval_algo)
-
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
 
@@ -643,39 +627,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         if(filename):
             self.commandStr.setText(filename)
-
-
-    def update_eval_algo(self, algo_str):
-        """ Search available evaluation algorithm
-        and select algo_str """
-
-        def cmp_classes(x,y):
-            return cmp(x.__name__, y.__name__)
-
-        import openalea.core.algo.dataflow_evaluation as evalmodule
-
-        # Search class obj in module
-        l = lambda x: isinstance(x, type) and evalmodule.AbstractEvaluation in x.mro()[1:]
-        classlist = filter(l, evalmodule.__dict__.values())
-
-        # remove multiple instances : uniq
-        classlist = list(set(classlist))
-        classlist.sort(cmp=cmp_classes)
-
-        selectitem = None
-        for c in classlist:
-            try:
-                item = QtGui.QListWidgetItem(c.__name__)
-                self.listAlgo.addItem(item)
-                print c.__name__, algo_str
-                if(c.__name__ == algo_str):
-                    selectitem = item
-            except:
-                pass
-
-        if(selectitem):
-            self.listAlgo.setCurrentItem(selectitem)
-
 
     def remove_search_path(self):
         """ Package Manager : Remove a path in the list """
@@ -721,24 +672,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
             for cn in ws:
                 cn.notify_listeners(('graph_modified',))
 
-
-    def valid_dataflow(self):
-        """ Valid dataflow parameter """
-
-        op = self.parent().operator
-        op.identify_focused_graph_view()
-        graph = op.get_graph()
-        item = self.listAlgo.currentItem()
-        if(item):
-            algostr = str(item.text())
-            if graph:
-                graph.eval_algo = algostr
-
-            config = Settings()
-            config.set("eval", "type", algostr)
-            config.write_to_disk()
-
-
     def valid_editor(self):
         """ Valid editor parameter """
         use_ext = bool(self.externalBool.checkState() == QtCore.Qt.Checked)
@@ -757,7 +690,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         self.valid_search_path()
         self.valid_ui()
-        self.valid_dataflow()
+#        self.valid_dataflow()
         self.valid_editor()
         QtGui.QDialog.accept(self)
 
