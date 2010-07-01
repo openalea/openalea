@@ -644,13 +644,19 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         """ Search available evaluation algorithm
         and select algo_str """
 
+        def cmp_classes(x,y):
+            return cmp(x.__name__, y.__name__)
+
         import openalea.core.algo.dataflow_evaluation as evalmodule
         
         # Search class obj in module
         l = lambda x: isinstance(x, type) and evalmodule.AbstractEvaluation in x.mro()
         classlist = filter(l, evalmodule.__dict__.values())
         classlist.remove(evalmodule.AbstractEvaluation)
-        
+        # remove multiple instances : uniq
+        classlist = list(set(classlist))
+        classlist.sort(cmp=cmp_classes)
+
         selectitem = None
         for c in classlist:
             try:
@@ -939,20 +945,20 @@ class DictEditor(QtGui.QDialog, ui_tableedit.Ui_TableEditor):
     def accept(self):
 
         # Check for modification in each row
-        for (i, (k,v)) in enumerate(self.pdict.items()):
-            keyitem = self.tableWidget.item(i, 0)
-            valueitem = self.tableWidget.item(i, 1)
+        n = self.tableWidget.rowCount()
+        for i in range(n):
+            key = str(self.tableWidget.item(i, 0).text())
+            value = str(self.tableWidget.item(i, 1).text())
 
-            if(str(keyitem.text()) != str(k)): continue
-            s = str(valueitem.text())
-            if(s != str(v)):
-                
-                self.modified_key.append(k)
+            v = str(self.pdict[key])
+            if v != value:
+                # value changed
+                self.modified_key.append(key)
                 try:
-                    self.pdict[k] = eval(s)
+                    self.pdict[key] = eval(value)
                 except:
-                    self.pdict[k] = s
-                    
+                    self.pdict[key] = value
+
         QtGui.QDialog.accept(self)
 
 

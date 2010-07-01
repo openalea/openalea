@@ -54,6 +54,32 @@ iter = Factory(name="iter",
                   )
 __all__.append('iter')
 
+iter_with_delay = Factory(name="iter with delay", 
+                  description="Iteration ", 
+                  category="flow control", 
+                  nodemodule="systemnodes",
+                  nodeclass="DelayNode",
+                  inputs = (dict(name="generator", interface=None, value=None),
+                            dict(name="delay", interface=IInt, value=1),
+                            ),
+                  outputs = ( dict(name="value", interface=None), ),
+
+                  )
+__all__.append('iter_with_delay')
+
+stop_simulation = Factory(name="stop simulation", 
+                  description="Iteration ", 
+                  category="flow control", 
+                  nodemodule="systemnodes",
+                  nodeclass="StopSimulation",
+                  inputs = (dict(name="any object"),
+                            dict(name="max nb cycles", interface=IInt, value=10),
+                            ),
+                  outputs = ( dict(name="any"), ),
+
+                  )
+__all__.append('stop_simulation')
+
 rdv = Factory(name="rendez vous", 
               description="Synchronize 2 inputs", 
               category="flow control", 

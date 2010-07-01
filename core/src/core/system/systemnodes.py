@@ -49,6 +49,12 @@ class IterNode(Node):
         Node.__init__(self, *args)
         self.iterable = "Empty"
 
+    def reset(self):
+        """ Reset to the intial state """
+        self.iterable = "Empty"
+        if hasattr(self,'nextval'):
+            del self.nextval
+
     def eval(self):
         """
         Return True if the node need a reevaluation
@@ -75,6 +81,58 @@ class IterNode(Node):
                 del self.nextval
             return False
 
+class DelayNode(IterNode):
+    """ Iteration Node """
+
+    def eval(self):
+        """
+        Return True if the node need a reevaluation
+        """
+        try:
+            if self.iterable == "Empty":
+                self.iterable = iter(self.inputs[0])
+
+            if(hasattr(self, "nextval")):
+                self.outputs[0] = self.nextval
+            else:
+                self.outputs[0] = self.iterable.next()
+
+            self.nextval = self.iterable.next()
+            return self.inputs[1]
+
+        except TypeError, e:
+            self.outputs[0] = self.inputs[0]
+            return False
+
+        except StopIteration, e:
+            self.iterable = "Empty"
+            if(hasattr(self, "nextval")):
+                del self.nextval
+            return False
+
+class StopSimulation(Node):
+    """ Iteration Node """
+
+    def __init__(self, *args):
+        """ Constructor """
+
+        Node.__init__(self, *args)
+        self.reset()
+
+    def reset(self):
+        self._nb_cycles = 0
+
+    def eval(self):
+        """
+        Stop the simulation after a given number of steps
+        """
+        nb_cycles = self.inputs[1]
+        self.outputs[0] = self.inputs[0]
+        self._nb_cycles += 1
+        if self._nb_cycles < nb_cycles:
+            return 1
+        else:
+            return False
 
 class RDVNode(Node):
     """
@@ -362,4 +420,5 @@ class For(Node):
             value = func(value)
 
         return (value, )
+
 
