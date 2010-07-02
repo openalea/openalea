@@ -120,7 +120,7 @@ class AbstractNode(Observed, HasAdHoc):
     An AbstractNode is the atomic entity in a dataflow.
 
     internal_data contains properties specified by users.
-    They can be extended nd the number is not fixed.
+    They can be extended and the number is not fixed.
     We use a dict to distinguish these public properties to the others
     which are used for protected management.
 
