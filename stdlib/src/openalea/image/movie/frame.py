@@ -24,8 +24,11 @@ def register_frames (viewer, step, im_path, name_template) :
 	if viewer is not None and viewer.isVisible() :
 		imname = join(im_path,name_template % step)
 		viewer.saveSnapshot(imname)
+	else :
+		imname = ""
+		print "open viewer first :)"
 	
-	return im_path,name_template
+	return imname,
 
 def frame_list (im_path, name_template) :
 	"""Construct the ordered list of files that obey name_template

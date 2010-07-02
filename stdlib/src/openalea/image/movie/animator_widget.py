@@ -15,13 +15,35 @@
 Expose the animator as a visualea node
 """
 
-__revision__ = " $Id: __wralea__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
+__revision__ = " $$ "
 
+from openalea.core import Node
 from openalea.visualea.node_widget import NodeWidget
 from animator import FrameAnimator
 
-def animator_functor (frames) :
-	return frames,
+class AnimatorNode (Node) :
+	def __init__(self, *args, **kwargs) :
+		Node.__init__(self, *args, **kwargs)
+		self._ini_frames = []
+		self._frames = []
+	
+	def __call__ (self, inputs) :
+		frames,last_frame,fps,loop,reinit = inputs
+		
+		if reinit :
+			self.set_input(4,False)
+			self._ini_frames = frames
+			self._frames = list(frames)
+		
+		if last_frame != "" :
+			self._frames.append(last_frame)
+		
+		return self._frames,
+	
+#	def notify(self, sender, event):
+#		"""Notification sent by node
+#		"""
+#		print event
 
 class AnimatorWidget(NodeWidget,FrameAnimator) :
 	"""
@@ -35,7 +57,15 @@ class AnimatorWidget(NodeWidget,FrameAnimator) :
 		NodeWidget.__init__(self, node)
 		
 		self.notify(node,("caption_modified",node.get_caption() ) )
-		self.notify(node,("input_modified",0) )
+	
+	def showEvent (self, event) :
+		if len(self._pix) == 0 :
+			self.set_frames(self.node._frames)
+		
+		self.notify(self.node,("input_modified",2) )
+		self.notify(self.node,("input_modified",3) )
+		
+		FrameAnimator.showEvent(self,event)
 	
 	def notify(self, sender, event):
 		"""Notification sent by node
@@ -44,5 +74,35 @@ class AnimatorWidget(NodeWidget,FrameAnimator) :
 			self.window().setWindowTitle(event[1])
 		
 		elif event[0] == 'input_modified' :
-			self.set_frames(self.node.get_input(0) )
+			if event[1] == 0 :
+				print "reinit"
+				self.node.func.reinit(self.node.get_input(0) )
+				if self.isVisible() :
+					self.set_frames(self.node._frames)
+					print "renint",self.node._frames
+			elif event[1] == 1 :
+				name = self.node.get_input(1)
+				if name != "" :
+					self.append_frame(name)
+			elif event[1] == 2 :
+				self.set_fps(self.node.get_input(2) )
+			elif event[1] == 3 :
+				self.set_loop(self.node.get_input(3) )
+			elif event[1] == 4 :
+				print "reinit",self.node.get_input(4)
+	
+	def fps_changed (self, fps) :
+		print "fps",fps
+		FrameAnimator.fps_changed(self,fps)
+		self.node.set_input(2,fps)
+	
+	def loop_changed (self, loop) :
+		FrameAnimator.loop_changed(self,loop)
+		self.node.set_input(3,loop)
+	
+	def clear_frames (self) :
+		FrameAnimator.clear_frames(self)
+		self.node.set_input(4,True)
+	
+
 

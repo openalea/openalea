@@ -14,7 +14,7 @@
 
 
 __doc__ = """ openalea.image """
-__revision__ = " $Id: __wralea__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
+__revision__ = " $Id: __wralea__.py$ "
 
 
 from openalea.core import *
@@ -47,8 +47,7 @@ frames = Factory( name= "frames",
 				        dict(name="name_template",
 				             interface=IStr,
 				             value="frame%.4d.png"),),
-				outputs=(dict(name="dir", interface=IDirStr),
-				         dict(name="name_tpl", interface=IStr),),
+				outputs=(dict(name="name", interface=IFileStr),),
 			)
 
 __all__.append('frames')
@@ -67,18 +66,22 @@ frame_list = Factory( name= "frame_list",
 
 __all__.append('frame_list')
 
-animator_widget = Factory( name= "Animator", 
+animator_node = Factory( name= "Animator", 
 				description= "",
 				category = "",
 				nodemodule = "animator_widget",
-				nodeclass = "animator_functor",
+				nodeclass = "AnimatorNode",
 				widgetmodule = "animator_widget",
 				widgetclass = "AnimatorWidget",
-				inputs=(dict(name="frames", interface=ISequence, value=[]),),
+				inputs=(dict(name="frames", interface=ISequence, value=[]),
+				        dict(name="lastframe", interface=IFileStr, value=""),
+				        dict(name="fps", interface=IInt, value=25),
+				        dict(name="loop", interface=IBool, value=True),
+				        dict(name="reinit", interface=IBool, value=False),),
 				outputs=(dict(name="frames", interface=ISequence,),),
 				lazy = True,
 			)
 
-__all__.append('animator_widget')
+__all__.append('animator_node')
 
 

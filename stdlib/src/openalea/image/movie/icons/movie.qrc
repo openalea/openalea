@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/image" >
+        <file>ghostbuster.png</file>
         <file>loop.png</file>
         <file>pause.png</file>
         <file>play.png</file>

@@ -22,6 +22,8 @@ from PyQt4.QtGui import (QMainWindow,QLabel,QToolBar,
 
 import movie_rc
 
+pix_no_frames = QPixmap(":image/ghostbuster.png")
+
 def clone_action (ref_action, clone) :
 	clone.setText(ref_action.text() )
 	clone.setIcon(ref_action.icon() )
@@ -57,6 +59,14 @@ class FrameAnimator (QMainWindow) :
 		QObject.connect(self._action_close,
 		                SIGNAL("triggered(bool)"),
 		                self.close_window)
+		
+		self._menu.addSeparator()
+		
+		self._action_clear = QAction("clear",self)
+		self._menu.addAction(self._action_clear)
+		QObject.connect(self._action_clear,
+		                SIGNAL("triggered(bool)"),
+		                self.clear_frames)
 		
 		self._menu.addSeparator()
 		
@@ -103,6 +113,10 @@ class FrameAnimator (QMainWindow) :
 		self._action_loop.setIcon(QIcon(":image/loop.png") )
 		self._menu.addAction(self._action_loop)
 		
+		QObject.connect(self._action_loop,
+		                SIGNAL("triggered(bool)"),
+		                self.loop_changed)
+		
 		self._fps_edit = QSpinBox()
 		self._action_bar.addWidget(self._fps_edit)
 		self._fps_edit.setRange(1,99)
@@ -128,6 +142,9 @@ class FrameAnimator (QMainWindow) :
 		self.pause()
 		self.window().close()
 	
+	def clear_frames (self) :
+		self.set_frames([])
+	
 	def set_current_frame (self, ind) :
 		"""Set the index of the frame to be displayed
 		"""
@@ -137,7 +154,9 @@ class FrameAnimator (QMainWindow) :
 	def update_pix (self) :
 		"""Change currently displayed frame
 		"""
-		if self._current_frame is not None :
+		if self._current_frame is None :
+			self._view.setPixmap(pix_no_frames)
+		else :
 			self._view.setPixmap(self._pix[self._current_frame])
 	
 	def set_frames (self, frames) :
@@ -148,6 +167,18 @@ class FrameAnimator (QMainWindow) :
 		"""
 		self._pix = [QPixmap(name) for name in frames]
 		
+		self.nb_frame_changed()
+	
+	def append_frame (self, name) :
+		"""Append a new frame at the end of current list
+		
+		:Parameters:
+		 - `name` (str) - filename
+		"""
+		self._pix.append(QPixmap(name) )
+		self.nb_frame_changed()
+	
+	def nb_frame_changed (self) :
 		if len(self._pix) == 0 :
 			self._current_frame = None
 			self._frame_slider.setEnabled(False)
@@ -171,6 +202,15 @@ class FrameAnimator (QMainWindow) :
 	#	animate
 	#
 	############################################
+	def set_loop (self, loop) :
+		self._action_loop.setChecked(loop)
+	
+	def loop_changed (self, loop) :
+		pass
+	
+	def set_fps (self, fps) :
+		self._fps_edit.setValue(fps)
+	
 	def fps_changed (self, fps) :
 		self._timer.setInterval(int(1000. / fps) )
 	
