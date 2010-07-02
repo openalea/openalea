@@ -17,10 +17,30 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
+import random as rd
 from openalea.core import *
 from openalea.core.observer import lock_notify
 import colormap
 from colorsys import hsv_to_rgb,rgb_to_hsv
+
+color_list=[(0,0,0),
+            (255,0,0),
+            (0,255,0),
+            (0,0,255),
+            (255,255,0),
+            (0,255,255),
+            (255,0,255),
+            (128,255,0),
+            (0,128,255),
+            (255,0,128),
+            (0,255,128),
+            (128,0,255),
+            (255,128,0),
+            (128,128,255),
+            (255,128,128),
+            (128,255,128),
+            (255,255,255)
+            ]
 
 class ColorNode (Node) :
 	"""Small color node
@@ -66,6 +86,16 @@ class GreenNode (FixedColorNode) :
 class BlueNode (FixedColorNode) :
 	_color = [0,0,255]
 
+def col_item (ind) :
+	return color_list[ind % len(color_list)],
+
+def random (alpha) :
+	col = tuple(rd.random() * 255 for i in range(3) )
+	if alpha is not None :
+		col += (alpha,)
+	
+	return col,
+
 def rgb (H,S,V, alpha) :
 	rgb_col = tuple(v * 255 for v in hsv_to_rgb(H / 360.,S / 255.,V / 255.) )
 	
@@ -83,16 +113,6 @@ def hsv (rgb_col) :
 		return H,S,V,None
 	else :
 		return H,S,V,rgb_col[3]
-
-class RGB:
-    """
-    RGB Color
-    """
-
-    def __call__(self, inputs):
-        """inputs is the list of input values"""
-        return (inputs, )
-
 
 def color_map(val, minval=0, maxval=1, coul1=80, coul2=20):
     """todo"""

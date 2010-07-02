@@ -94,6 +94,28 @@ blue = Factory(name = "blue",
 
 __all__.append("blue")
 
+col_item = Factory(name = "col_item",
+               description = "color from color list",
+               category = "datatype,image",
+               nodemodule = "py_color",
+               nodeclass = "col_item",
+               inputs = (dict(name = "ind", interface = IInt, value = 0),),
+               outputs = (dict(name = "RGB", interface = IColor),),
+               )
+
+__all__.append("col_item")
+
+random = Factory(name = "random",
+               description = "random color",
+               category = "datatype,image",
+               nodemodule = "py_color",
+               nodeclass = "random",
+               inputs = (dict(name = "alpha", interface = IInt, value = 255),),
+               outputs = (dict(name = "RGB", interface = IColor),),
+               )
+
+__all__.append("random")
+
 rgb = Factory(name="rgb",
               description="RGB tuple",
               category="datatype,image",
