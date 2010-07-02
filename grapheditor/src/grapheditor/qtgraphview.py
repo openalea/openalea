@@ -251,7 +251,7 @@ class Connector(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-        if change == ItemScenePositionHasChanged:
+        if change & (ItemScenePositionHasChanged|ItemPositionHasChanged):
             self.notify_position_change()
             return value
 

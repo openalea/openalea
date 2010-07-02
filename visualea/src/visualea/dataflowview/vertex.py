@@ -115,7 +115,10 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.notify(vertex, ("caption_modified", vertex.internal_data["caption"]))
         self.notify(vertex, ("tooltip_modified", vertex.get_tip()))
         self.notify(vertex, ("internal_data_changed",))
-
+        userColor = self.get_view_data("userColor")
+        if( userColor is None ):
+            self.store_view_data(useUserColor=False)
+        
     def terminate_from_model(self):
         vertex = self.vertex()
         for i in vertex.input_desc:
@@ -246,8 +249,6 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         pos = self.pos()
         QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(),
                                                               pos.y(),-1.0,-1.0))
-        pos = self.pos()
-        self.store_view_data(position=[pos.x(), pos.y()])
 
         #this is not such a bad place to check for port visibility
         #because it gets called when ports are hidden.

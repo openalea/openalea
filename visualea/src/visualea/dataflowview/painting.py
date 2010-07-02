@@ -59,8 +59,6 @@ def default_dataflow_paint(owner, painter, option, widget):
     pen = QtGui.QPen(QtCore.Qt.black, 1)
 
     userColor = owner.get_view_data("userColor")
-    if( userColor is None ):
-        owner.store_view_data(useUserColor=False)
 
     if hasattr(owner.vertex(), 'raise_exception'):
         color = default_error_color
