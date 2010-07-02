@@ -11,29 +11,116 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+"""Node declaration for colors
+"""
 
-__doc__ = """ Wralea for Colormap"""
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from openalea.core import *
+from color_interface import IColor
+from color_interface_widget import IColorWidget
 
 __name__ = "openalea.color"
 __alias__ = ["catalog.color"]
 
-__all__ = ['colormap', 'rgbcolormap', 'rgb']
+__all__ = ['colormap', 'rgbcolormap']
 
+color = Factory(name = "color",
+                description = "edit color",
+                category = "datatype,image",
+                nodemodule = "py_color",
+                nodeclass = "ColorNode",
+                inputs = (dict(name = "RGB",
+                               interface = IColor,
+                               value = (0,0,0) ),),
+                outputs = (dict(name = "RGB", interface = IColor),),
+                )
 
-rgb = Factory( name="rgb",
-               description="RGB tuple",
-               category="datatype,image",
-               nodemodule="py_color",
-               nodeclass="RGB",
-              
-              inputs=(dict(name="RGB", interface=IRGBColor, value=(0,0,0), desc='3 uples RGB color'),),
-              outputs=(dict(name="RGB", interface = ISequence, desc='3 uples RGB color'),),
+__all__.append("color")
+
+black = Factory(name = "black",
+                description = "black color",
+                category = "datatype,image",
+                nodemodule = "py_color",
+                nodeclass = "BlackNode",
+                inputs = (),
+                outputs = (dict(name = "RGB", interface = IColor),),
+                )
+
+__all__.append("black")
+
+white = Factory(name = "white",
+                description = "white color",
+                category = "datatype,image",
+                nodemodule = "py_color",
+                nodeclass = "WhiteNode",
+                inputs = (),
+                outputs = (dict(name = "RGB", interface = IColor),),
+                )
+
+__all__.append("white")
+
+red = Factory(name = "red",
+                description = "red color",
+                category = "datatype,image",
+                nodemodule = "py_color",
+                nodeclass = "RedNode",
+                inputs = (),
+                outputs = (dict(name = "RGB", interface = IColor),),
+                )
+
+__all__.append("red")
+
+green = Factory(name = "green",
+                description = "green color",
+                category = "datatype,image",
+                nodemodule = "py_color",
+                nodeclass = "GreenNode",
+                inputs = (),
+                outputs = (dict(name = "RGB", interface = IColor),),
+                )
+
+__all__.append("green")
+
+blue = Factory(name = "blue",
+               description = "blue color",
+               category = "datatype,image",
+               nodemodule = "py_color",
+               nodeclass = "BlueNode",
+               inputs = (),
+               outputs = (dict(name = "RGB", interface = IColor),),
+               )
+
+__all__.append("blue")
+
+rgb = Factory(name="rgb",
+              description="RGB tuple",
+              category="datatype,image",
+              nodemodule="py_color",
+              nodeclass="rgb",
+              inputs=(dict(name="H", interface=IInt, value=0),
+                      dict(name="S", interface=IInt, value=0),
+                      dict(name="V", interface=IInt, value=0),
+                      dict(name="alpha", interface=IInt, value=None),),
+              outputs=(dict(name="RGB", interface = IColor),),
               )
 
+__all__.append("rgb")
+
+hsv = Factory(name="hsv",
+              description="HSV tuple",
+              category="datatype,image",
+              nodemodule="py_color",
+              nodeclass="hsv",
+              inputs=(dict(name="RGB", interface=IColor, value=(0,0,0) ),),
+              outputs=(dict(name="H", interface=IInt),
+                      dict(name="S", interface=IInt),
+                      dict(name="V", interface=IInt),
+                      dict(name="alpha", interface=IInt),),
+              )
+
+__all__.append("hsv")
 
 colormap = Factory(name='colormap', 
                    description='defines a color map from a range of values [I,J] to RGB', 

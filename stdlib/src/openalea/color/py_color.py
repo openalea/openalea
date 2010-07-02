@@ -18,9 +18,71 @@ __revision__ = " $Id$ "
 
 
 from openalea.core import *
+from openalea.core.observer import lock_notify
 import colormap
-from colorsys import hsv_to_rgb
+from colorsys import hsv_to_rgb,rgb_to_hsv
 
+class ColorNode (Node) :
+	"""Small color node
+	"""
+	def __init__ (self, inputs, outputs) :
+		Node.__init__(self, inputs, outputs)
+		self.set_caption(" ")
+		self.get_ad_hoc_dict().set_metadata("useUserColor",True)
+	
+	def __call__ (self, inputs) :
+		color = list(inputs[0])
+		if len(color) in (3,4) :
+			self.get_ad_hoc_dict().set_metadata("useUserColor",True)
+			self.get_ad_hoc_dict().set_metadata("userColor",color)
+		
+		return color,
+
+class FixedColorNode (Node) :
+	"""Small color node
+	"""
+	_color = None
+	def __init__ (self, inputs, outputs) :
+		Node.__init__(self, inputs, outputs)
+		self.set_caption(" ")
+		self.get_ad_hoc_dict().set_metadata("useUserColor",True)
+		self.get_ad_hoc_dict().set_metadata("userColor",self._color)
+	
+	def __call__ (self, inputs) :
+		return self._color,
+
+class BlackNode (FixedColorNode) :
+	_color = [0,0,0]
+
+class WhiteNode (FixedColorNode) :
+	_color = [255,255,255]
+
+class RedNode (FixedColorNode) :
+	_color = [255,0,0]
+
+class GreenNode (FixedColorNode) :
+	_color = [0,255,0]
+
+class BlueNode (FixedColorNode) :
+	_color = [0,0,255]
+
+def rgb (H,S,V, alpha) :
+	rgb_col = tuple(v * 255 for v in hsv_to_rgb(H / 360.,S / 255.,V / 255.) )
+	
+	if alpha is not None :
+		rgb_col += (alpha,)
+	
+	return rgb_col,
+
+def hsv (rgb_col) :
+	r,g,b = (v / 255. for v in rgb_col[:3])
+	h,s,v = rgb_to_hsv(r,g,b)
+	H,S,V = (h * 360,s * 255,v * 255)
+	
+	if len(rgb_col) == 3 :
+		return H,S,V,None
+	else :
+		return H,S,V,rgb_col[3]
 
 class RGB:
     """
