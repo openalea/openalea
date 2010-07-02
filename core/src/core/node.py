@@ -72,7 +72,6 @@ def initialise_standard_metadata():
 
 
 
-
 ########################
 # Node related classes #
 ########################
@@ -575,7 +574,6 @@ class Node(AbstractNode):
         """
         Define the input value for the specified index/key
         """
-
         index = self.map_index_in[key]
 
         changed = True
@@ -653,8 +651,7 @@ class Node(AbstractNode):
         # Copy outputs
         # only one output
         if len(self.outputs) == 1:
-            if(isinstance(outlist, tuple) and
-               len(outlist) == 1):
+            if hasattr(outlist, "__getitem__") and len(outlist) == 1:
                 self.outputs[0] = outlist[0]
             else:
                 self.outputs[0] = outlist
@@ -717,7 +714,7 @@ class Node(AbstractNode):
 
         if(i>0):
             self.invalidate()
-
+            
     def invalidate(self):
         """ Invalidate node """
 
