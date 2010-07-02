@@ -687,7 +687,8 @@ DefaultEvaluation = LambdaEvaluation
 # #DefaultEvaluation = LambdaEvaluation
 class ToScriptEvaluation(AbstractEvaluation):
     """ Basic transformation into script algorithm """
-
+    __evaluators__.append("ToScriptEvaluation")
+    
     def __init__(self, dataflow):
 
         AbstractEvaluation.__init__(self, dataflow)
@@ -741,6 +742,7 @@ class ToScriptEvaluation(AbstractEvaluation):
 
 class DiscreteTimeEvaluation(AbstractEvaluation):
     """ Evaluation algorithm with generator / priority and selection"""
+    __evaluators__.append("DiscreteTimeEvaluation")
 
     def __init__(self, dataflow):
 
