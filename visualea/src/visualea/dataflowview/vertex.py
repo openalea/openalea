@@ -67,6 +67,12 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.delay_item.setVisible(False)
         self.delay_item.scale(0.3,0.3)
+        
+        self.delay_value_item = QtGui.QGraphicsSimpleTextItem("0",self)
+        self.delay_value_item.setFont(QtGui.QFont("ariana",4) )
+        self.delay_value_item.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0,200) ) )
+        self.delay_value_item.setVisible(False)
+        
         #self.delay_item.setPos(0.2,14.2)
         #self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
         #self.delay_item.setVisible(False)
@@ -135,7 +141,17 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             self.notify(vertex, ("output_port_removed", i))
         self.notify(vertex("cleared_output_ports",))
 
-
+    def update_delay_value_item (self) :
+        self.delay_value_item.setVisible(self.vertex().delay > 0)
+        self.delay_value_item.setText("%d" % self.vertex().delay)
+        self.delay_value_item.update()
+        rect = self.delay_item.sceneBoundingRect()
+        xref = self.delay_item.pos().x() + rect.width() / 2.
+        yref = self.delay_item.pos().y() + rect.height() / 2.
+        rect = self.delay_value_item.boundingRect()
+        self.delay_value_item.setPos(xref - rect.width() / 2.,
+                                     yref - rect.height() / 2.)
+    
     #####################################
     # pseudo-protected or private stuff #
     #####################################
@@ -178,6 +194,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         elif(event[0] == "internal_data_changed"):
             self.delay_item.setVisible(self.vertex().delay>0)
             self.delay_item.update()
+            self.update_delay_value_item()
             self.update()
         elif(event[0] == "data_modified"):
             if event[1] == "caption":
@@ -186,6 +203,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             else:
                 self.delay_item.setVisible(self.vertex().delay>0)
                 self.delay_item.update()
+                self.update_delay_value_item()
                 self.update()
         elif(event[0]=="tooltip_modified"):
             tt = event[1]
@@ -264,9 +282,11 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
                                      self._inPortLayout().geometry().top() - 4.)
 
         self.delay_item.setVisible(self.vertex().delay>0)
+        self.delay_value_item.setVisible(self.vertex().delay>0)
         #self.delay_item.setPos(2, self._inPortLayout().geometry().top()+4 )
         #self.delay_item.setPos(0,self.delay_item.boundingRect().height() )
         self.delay_item.setPos(0, self._inPortLayout().geometry().top() )
+        self.update_delay_value_item()
 
         self.shapeChanged=True
 
