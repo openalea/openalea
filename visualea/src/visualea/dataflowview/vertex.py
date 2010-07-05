@@ -258,7 +258,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
                                      self._inPortLayout().geometry().top()+4 )
 
         self.delay_item.setVisible(self.vertex().delay>0)
-        self.delay_item.setPos(1, self._inPortLayout().geometry().top()+1 )
+        self.delay_item.setPos(2, self._inPortLayout().geometry().top()+4 )
 
         self.shapeChanged=True
 
