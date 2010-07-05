@@ -17,13 +17,12 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from PyQt4.QtGui import QLabel,QPixmap,QColor
 from openalea.core.observer import lock_notify
 from openalea.core.interface import IInterfaceWidget,make_metaclass
-from openalea.image.gui import to_pix
+from openalea.image.gui import to_pix,ScalableLabel
 from image_interface import IImage
 
-class IImageWidget (IInterfaceWidget, QLabel) :
+class IImageWidget (IInterfaceWidget, ScalableLabel) :
 	"""Interface for images expressed as array of triplet of values
 	"""
 	__interface__ = IImage
@@ -38,8 +37,9 @@ class IImageWidget (IInterfaceWidget, QLabel) :
 		 - `parameter_str` (str) - the parameter key the widget is associated to
 		 - `interface` (Ismth) - instance of interface object
 		"""
-		QLabel.__init__(self,parent)
+		ScalableLabel.__init__(self,parent)
 		IInterfaceWidget.__init__(self,node,parent,parameter_str,interface)
+		self.setMinimumSize(100,50)
 		
 		self.notify(node,("input_modified",self.param_str) )
 	
@@ -50,7 +50,7 @@ class IImageWidget (IInterfaceWidget, QLabel) :
 		if event[0] == "input_modified" :
 			img = self.node.get_input(self.param_str)
 			if img is None :
-				self.setPixmap(QPixmap() )
+				self.setText("no pix")
 			else :
 				self.setPixmap(to_pix(img) )
 			

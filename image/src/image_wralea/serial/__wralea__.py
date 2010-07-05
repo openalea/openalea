@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: __wralea__.py 2585 2010-07-02 15:28:03Z chopard $ "
 
 from openalea.core import *
-#from ...image_interface import IImage
+from openalea.image_wralea import IImage
 
 __name__ = "openalea.image.serial"
 
@@ -30,7 +30,7 @@ load = Factory(name = "load",
                 nodemodule = "serial",
                 nodeclass = "load",
                 inputs = (dict(name = "name", interface = IFileStr),),
-                outputs = (dict(name = "img", interface = None),),
+                outputs = (dict(name = "img", interface = IImage),),
                 )
 
 __all__.append("load")

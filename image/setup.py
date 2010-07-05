@@ -17,6 +17,17 @@ Image contains algorithms to play with data images
 and visualea nodes to wrap numpy algorithms
 '''
 
+###########
+#
+#		compile QT interfaces
+#
+###########
+import os
+
+rc_file = "src/image/gui/icons/icons.qrc"
+out_file = "src/image/gui/icons_rc.py"
+os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
+
 # setup function call
 #
 setup(

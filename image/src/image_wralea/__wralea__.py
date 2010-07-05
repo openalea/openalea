@@ -45,6 +45,18 @@ image = Factory(name = "img",
 
 __all__.append("image")
 
+size = Factory(name = "size",
+                description = "size of image",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "size",
+                inputs = (dict(name = "img", interface = IImage),),
+                outputs = (dict(name = "width", interface = IInt),
+                           dict(name = "height", interface = IInt),),
+                )
+
+__all__.append("size")
+
 paste_alpha = Factory(name = "paste_alpha",
                 description = "paste an alpha channel into an image",
                 category = "image",

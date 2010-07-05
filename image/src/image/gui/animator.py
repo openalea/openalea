@@ -202,14 +202,21 @@ class FrameAnimator (QMainWindow) :
 		"""
 		if len(self._frames) == 0 :
 			self._current_frame = None
-			self._frame_slider.setEnabled(False)
-			self._action_bar.setEnabled(False)
-			self._menu.setEnabled(False)
+			for ob in (self._frame_slider,self._action_bar,
+			           self._action_stop,self._action_step,
+			           self._toggle_running,self._fps_edit,
+			           self._action_loop) :
+				ob.setEnabled(False)
+			#self._menu.setEnabled(False)
+			
 		else :
 			self._frame_slider.setRange(0,len(self._frames) - 1)
-			self._frame_slider.setEnabled(True)
-			self._action_bar.setEnabled(True)
-			self._menu.setEnabled(True)
+			for ob in (self._frame_slider,self._action_bar,
+			           self._action_stop,self._action_step,
+			           self._toggle_running,self._fps_edit,
+			           self._action_loop) :
+				ob.setEnabled(True)
+			#self._menu.setEnabled(True)
 			
 			if self._current_frame is None :
 				self._current_frame = 0

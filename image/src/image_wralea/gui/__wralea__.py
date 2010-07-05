@@ -18,10 +18,78 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: __wralea__.py 2585 2010-07-02 15:28:03Z chopard $ "
 
 from openalea.core import *
-#from openalea.image_wralea import IImage
+from openalea.image_wralea import IImage
+from openalea.color import IColor
 
 __name__ = "openalea.image.gui"
 
 __all__ = []
+
+from openalea.core import Factory
+from openalea.core.interface import *
+
+
+frames = Factory( name= "frames", 
+				description= "",
+				category = "",
+				nodemodule = "frame",
+				nodeclass = "register_frames",
+				inputs=(dict(name="viewer", interface=None),
+				        dict(name="step", interface=IInt, value=0),
+				        dict(name="output dir", interface=IDirStr, value=""),
+				        dict(name="name_template",
+				             interface=IStr,
+				             value="frame%.4d.png"),),
+				outputs=(dict(name="name", interface=IFileStr),),
+			)
+
+__all__.append('frames')
+
+frame_list = Factory( name= "frame_list", 
+				description= "",
+				category = "",
+				nodemodule = "frame",
+				nodeclass = "frame_list",
+				inputs=(dict(name="dir", interface=IDirStr, value=""),
+				        dict(name="name_template",
+				             interface=IStr,
+				             value="frame%.4d.png"),),
+				outputs=(dict(name="names", interface=ISequence),),
+			)
+
+__all__.append('frame_list')
+
+animator_node = Factory( name= "Animator", 
+				description= "",
+				category = "",
+				nodemodule = "animator_widget",
+				nodeclass = "AnimatorNode",
+				widgetmodule = "animator_widget",
+				widgetclass = "AnimatorWidget",
+				inputs=(dict(name="frames", interface=ISequence, value=[]),
+				        dict(name="lastframe", interface=IFileStr, value=""),
+				        dict(name="fps", interface=IInt, value=25),
+				        dict(name="loop", interface=IBool, value=True),
+				        dict(name="reinit", interface=IBool, value=False),),
+				outputs=(dict(name="frames", interface=ISequence,),),
+				lazy = True,
+			)
+
+__all__.append('animator_node')
+
+pick_color = Factory( name= "PickColor", 
+				description= "",
+				category = "",
+				nodemodule = "pick_color_widget",
+				nodeclass = "pick_color",
+				widgetmodule = "pick_color_widget",
+				widgetclass = "PickColorWidget",
+				inputs=(dict(name="img", interface=IImage),
+				        dict(name="col", interface=IColor, value=(0,0,0) ),),
+				outputs=(dict(name="col", interface=IColor,),),
+				lazy = True,
+			)
+
+__all__.append('pick_color')
 
 

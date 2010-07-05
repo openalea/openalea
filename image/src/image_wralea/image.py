@@ -23,6 +23,9 @@ from openalea.image import grayscale
 def image (img) :
 	return img,
 
+def size (img) :
+	return img.shape[:2]
+
 def paste_alpha (img, alpha) :
 	return array([img[...,0],img[...,1],img[...,2],alpha]).transpose( (1,2,0) ),
 
