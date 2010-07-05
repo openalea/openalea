@@ -1152,17 +1152,21 @@ class NodeFactory(AbstractFactory):
                     file.close()
                 self.module_cache = nodemodule
                 return nodemodule
-            except ImportError:
-                sys.path = self.search_path + sav_path
+            except ImportError, import_error:
                 name = self.nodemodule_name
+                if '.' not in name:
+                    raise import_error
+                sys.path = self.search_path + sav_path
                 package = '.'.join(name.split('.')[0:-1])
                 obj = name.split('.')[-1]
                 execString = 'from %s import %s' % (package, obj)
                 try:
                     exec execString
-                except SyntaxError:
+                except SyntaxError, syntax_error:
                     sys.path = sav_path
-                    raise ImportError("Invalid class specification: %s" % name)
+                    #raise ImportError("Invalid class specification: %s" % name)
+                    print "Invalid class specification: %s" % name
+                    raise syntax_error
                 exec 'nodemodule = %s' % obj
 
                 exec 'import %s' % package
