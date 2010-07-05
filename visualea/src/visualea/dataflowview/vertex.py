@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref, sys
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui,QtSvg
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
 from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
@@ -51,27 +51,31 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         # to speed up rendering.
         self.shapeChanged=True
 
-        # ---Small box when the vertex is being evaluated---
+        # ---Small cross when the vertex has hidden ports---
         self.hiddenPorts_item = QtGui.QGraphicsSimpleTextItem("+", self)
         self.hiddenPorts_item.setVisible(False)
 
-        # ---Small cross when the vertex has hidden ports---
+        # ---Small box when the vertex is being evaluated---
         self.modified_item = QtGui.QGraphicsRectItem(2.5,12.5,7,7, self)
         self.modified_item.setBrush(self.eval_color)
         self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.modified_item.setVisible(False)
 
         # ---Clock image when the vertex has a delay---
-        self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap(':icons/clock.png'), self)
+        #self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap(':icons/clock.png'), self)
+        self.delay_item = QtSvg.QGraphicsSvgItem(":icons/clock.svg",self)
         self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.delay_item.setVisible(False)
+        self.delay_item.scale(0.3,0.3)
+        #self.delay_item.setPos(0.2,14.2)
         #self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
         #self.delay_item.setVisible(False)
 
         # ---Sub items layout---
         layout = QtGui.QGraphicsLinearLayout()
         layout.setOrientation(QtCore.Qt.Vertical)
-        layout.setSpacing(2)
+        layout.setSpacing(1.)
+        layout.setContentsMargins(2.,0.,2.,0.)
         self.setLayout(layout)
 
         layout = QtGui.QGraphicsLinearLayout()
@@ -83,11 +87,13 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         layout = QtGui.QGraphicsLinearLayout()
         self.layout().addItem(layout)
         self._outPortLayout = weakref.ref(layout)
-
+        
         def __configure_layout(layout):
-            layout.setSpacing(0.0)
+            layout.setSpacing(0.)
+            layout.setContentsMargins(10.,0.,10.,0.)
             layout.setMinimumHeight(GraphicalPort.HEIGHT)
             self.layout().setAlignment(layout, QtCore.Qt.AlignHCenter)
+        
         __configure_layout(self._inPortLayout())
         __configure_layout(self._outPortLayout())
         self.layout().setAlignment(self._caption(), QtCore.Qt.AlignHCenter)
@@ -255,10 +261,12 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         #because it gets called when ports are hidden.
         self.hiddenPorts_item.setVisible(not self._all_inputs_visible())
         self.hiddenPorts_item.setPos(self.rect().width() - self.hiddenPorts_item.boundingRect().width() - 2,
-                                     self._inPortLayout().geometry().top()+4 )
+                                     self._inPortLayout().geometry().top() - 4.)
 
         self.delay_item.setVisible(self.vertex().delay>0)
-        self.delay_item.setPos(2, self._inPortLayout().geometry().top()+4 )
+        #self.delay_item.setPos(2, self._inPortLayout().geometry().top()+4 )
+        #self.delay_item.setPos(0,self.delay_item.boundingRect().height() )
+        self.delay_item.setPos(0, self._inPortLayout().geometry().top() )
 
         self.shapeChanged=True
 
@@ -410,8 +418,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     WIDTH      = 10.0
     HEIGHT     = 10.0
 
-    __size = QtCore.QSizeF(WIDTH+__spacing,
-                           HEIGHT)
+    __size = QtCore.QSizeF(WIDTH + __spacing,HEIGHT)
+#    __size = QtCore.QSizeF(WIDTH,HEIGHT)
 
     __nosize = QtCore.QSizeF(0.0, 0.0)
 
@@ -531,7 +539,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
 
-        painter.drawEllipse(self.__spacing/2+1,1,self.WIDTH-2, self.HEIGHT-2)
+        #painter.drawEllipse(self.__spacing/2+1,1,self.WIDTH-2, self.HEIGHT-2)
+        painter.drawEllipse(QtCore.QRectF(self.__spacing / 2. + 0.,0,
+                                          self.WIDTH, self.HEIGHT) )
 
 
     itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsWidget,
