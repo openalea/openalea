@@ -15,5 +15,6 @@
 	<file>data.png</file>
 	<file>cursor_icon.png</file>
 	<file>package.png</file>
+	<file>clock.png</file>
     </qresource>
 </RCC>
