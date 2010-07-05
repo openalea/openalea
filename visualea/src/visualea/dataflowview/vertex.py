@@ -29,6 +29,7 @@ import painting
 import adapter
 from collections import deque
 
+from .. import images_rc
 """
 
 """
@@ -61,11 +62,11 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.modified_item.setVisible(False)
 
         # ---Clock image when the vertex has a delay---
-        #self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap('clock.png'), self)
-        #self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
-        #self.delay_item.setVisible(True)
-        self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
+        self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap(':icons/clock.png'), self)
+        self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
         self.delay_item.setVisible(False)
+        #self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
+        #self.delay_item.setVisible(False)
 
         # ---Sub items layout---
         layout = QtGui.QGraphicsLinearLayout()
