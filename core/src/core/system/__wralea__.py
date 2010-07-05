@@ -77,7 +77,7 @@ counter = Factory(name="counter",
                             dict(name="step", interface=IInt, value=1),
                             dict(name="dummy", interface=None),
                             ),
-                  outputs = ( dict(name="value", interface=None), ),
+                  outputs = ( dict(name="value", interface=IInt), ),
                   delay = 1,
                   )
 __all__.append('counter')
