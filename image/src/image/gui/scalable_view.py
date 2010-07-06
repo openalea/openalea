@@ -80,12 +80,6 @@ class ScalableLabel (QLabel) :
 	def setPixmap (self, pix) :
 		QLabel.setPixmap(self,pix)
 		self._compute_ratio()
-	
-	def mousePressEvent (self, event) :
-		self.emit(SIGNAL("mouse_press"),event)
-	
-	def mouseMoveEvent (self, event) :
-		self.emit(SIGNAL("mouse_move"),event)
 
 
 class ScalableGraphicsView (QGraphicsView) :
