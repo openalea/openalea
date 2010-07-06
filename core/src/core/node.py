@@ -580,7 +580,7 @@ class Node(AbstractNode):
         if(self.lazy):
             # Test if the inputs has changed
             try:
-                changed = bool(self.inputs[index] != val)
+                changed = (cmp(self.inputs[index], val) != 0)
             except:
                 pass
 
