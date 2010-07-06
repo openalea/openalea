@@ -59,10 +59,10 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.hidden_port_item.setVisible(False)
 
         # ---Small box when the vertex is being evaluated---
-        self.modified_item = QtGui.QGraphicsRectItem(2.5,12.5,7,7, self)
-        self.modified_item.setBrush(self.eval_color)
-        self.modified_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
-        self.modified_item.setVisible(False)
+        self.evaluation_item = QtGui.QGraphicsRectItem(0,0,7,7, self)
+        self.evaluation_item.setBrush(self.eval_color)
+        self.evaluation_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        self.evaluation_item.setVisible(False)
 
         # ---Clock image when the vertex has a delay---
         #self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap(':icons/clock.png'), self)
@@ -145,6 +145,11 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             self.notify(vertex, ("output_port_removed", i))
         self.notify(vertex("cleared_output_ports",))
 
+    def update_evaluation_item (self) :
+        #position
+        self.evaluation_item.setPos(2.5,
+                  self._inPortLayout().geometry().top() + 7.5 )
+    
     def update_hidden_port_item (self) :
         #visible
         visible = not self._all_inputs_visible()
@@ -251,14 +256,14 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             self.setToolTip(tt)
 
         elif(event[0] == "start_eval"):
-            self.modified_item.setVisible(self.isVisible())
-            self.modified_item.update()
+            self.evaluation_item.setVisible(self.isVisible())
+            self.evaluation_item.update()
             self.update()
             QtGui.QApplication.processEvents()
 
         elif(event[0] == "stop_eval"):
-            self.modified_item.setVisible(False)
-            self.modified_item.update()
+            self.evaluation_item.setVisible(False)
+            self.evaluation_item.update()
             self.update()
             QtGui.QApplication.processEvents()
 
@@ -317,6 +322,8 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
 
         #this is not such a bad place to check for port visibility
         #because it gets called when ports are hidden.
+        self.update_evaluation_item()
+        
         self.update_hidden_port_item()
         self.update_delay_item()
 
