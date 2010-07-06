@@ -54,14 +54,8 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         #bouding boxes
 #        self.bounding_box = QtGui.QGraphicsRectItem(0,0,5,5,self)
         
-        # ---Small cross when the vertex has hidden ports---
-        self.hport_point_items = [QtGui.QGraphicsEllipseItem(i * 5,0,4,4,self) \
-                                        for i in (0,1,2)]
-        self.hidden_port_item = QtGui.QGraphicsItemGroup(self)
-        for item in self.hport_point_items :
-            item.setBrush(QtGui.QColor(50,50,50,200) )
-            self.hidden_port_item.addToGroup(item)
-        
+        # ---Small dots when the vertex has hidden ports---
+        self.hidden_port_item = HiddenPort(self)
         self.hidden_port_item.setVisible(False)
 
         # ---Small box when the vertex is being evaluated---
@@ -157,16 +151,11 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.hidden_port_item.setVisible(visible)
         
         if visible :
-            #pos
-            geom = self._inPortLayout().geometry()
-            rect = self.hidden_port_item.boundingRect()
-            self.hidden_port_item.setPos(self.rect().width() - rect.width() - 2,
-                           geom.top() + geom.height() / 2. - rect.height() / 2.)
-            
-            #layout
-            self._inPortLayout().setContentsMargins(0.,0.,rect.width(),0.)
+            self._inPortLayout().addItem(self.hidden_port_item)
+            self._inPortLayout().setAlignment(self.hidden_port_item,
+                                              QtCore.Qt.AlignVCenter)
         else :
-            self._inPortLayout().setContentsMargins(0.,0.,0.,0.)
+            self._inPortLayout().removeItem(self.hidden_port_item)
         
         #self._inPortLayout().invalidate()
         self.layout().invalidate()
@@ -311,10 +300,11 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
     def clear_layout(self, layout):
         count = layout.count()
         for i in range(count):
-            item = layout.itemAt(0)
-            self.remove_connector(item.graphicsItem())
-            layout.removeAt(0) #we remove from the start, or else we quickly segfault.
-            del item
+            item = layout.itemAt(0).graphicsItem()
+            if not isinstance(item,HiddenPort) :
+                self.remove_connector(item)
+                layout.removeAt(0) #we remove from the start, or else we quickly segfault.
+                del item
 
     ###############################
     # ----Qt World overloads----  #
@@ -477,6 +467,35 @@ class GraphicalOutVertex(GraphicalVertex):
 
 
 # --------------------------- ConnectorType ---------------------------------
+class HiddenPort (QtGui.QGraphicsWidget):
+    """Graphical representation of hidden ports
+    """
+    
+    def __init__ (self, parent) :
+        """
+        """
+        QtGui.QGraphicsWidget.__init__(self, parent)
+        self.setToolTip("hidden ports")
+        
+        self._size = QtCore.QSizeF(14.,4.)
+    
+    def size (self) :
+        return self._size
+    
+    def sizeHint (self, which, constraint) :
+        return self.size()
+    
+    def paint(self, painter, option, widget):
+        if not self.isVisible() :
+            return
+        
+        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(50,50,50,200) ) )
+        painter.setPen(QtGui.QPen(QtCore.Qt.black, 0) )
+        
+        for i in (0,1,2) :
+            painter.drawEllipse(QtCore.QRectF(i * 5.,0.,4.,4.) )
+
 class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 2000
@@ -562,10 +581,10 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     # QtWorld-Layout #
     ##################
     def size(self):
-        size = self.__size
-        if(not self.isVisible()):
-            size = self.__nosize
-        return size
+        if self.isVisible() :
+            return self.__size
+        else :
+            return self.__nosize
 
     def sizeHint(self, blop, blip):
         return self.size()
