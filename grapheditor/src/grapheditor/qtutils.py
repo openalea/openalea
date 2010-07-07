@@ -155,6 +155,7 @@ def mixin_method(mixinOne, mixinTwo, methodname, firstWins = False, invert=False
 
     def mixin_call(self, *args, **kwargs):
         v1 = first(self, *args, **kwargs)
+        print second
         v2 = second(self, *args, **kwargs)
         if(firstWins): return v1
         else: return v2
