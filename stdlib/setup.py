@@ -62,7 +62,7 @@ setup(
                    'openalea.data = openalea.data',
                    'openalea.file = openalea.file',
                    'openalea.functional = openalea.functional',
-                   'openalea.image = openalea.image',
+                   #'openalea.image = openalea.image',
                    'openalea.math = openalea.math', 
                    'openalea.model = openalea.model',
                    'openalea.pickling = openalea.pickling', 
