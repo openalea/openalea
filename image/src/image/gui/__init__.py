@@ -20,8 +20,12 @@ This module import functions to graphicaly interact with images
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from pixmap import to_pix
+from pixmap import to_img,to_pix,to_tex
 
 from scalable_view import ScalableLabel
 from animator import FrameAnimator
 
+try :
+	from stack_view import StackView
+except ImportError :
+	print "pglviewer views not available"

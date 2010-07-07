@@ -21,3 +21,4 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from serial import *
 from palette import *
+from spatial_image import SpatialImage

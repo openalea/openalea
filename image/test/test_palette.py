@@ -22,15 +22,22 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from PyQt4.QtGui import QApplication,QLabel
 from openalea.image import rainbow,grayscale
-from openalea.image.gui import to_pix
-from numpy import array
+from openalea.image.gui import to_pix,to_img
+from numpy import array,zeros,uint
 
-data = array(range(10000) ).reshape( (100,100) )
-pal = rainbow(10000)
+data = zeros( (100,100),uint)
+data[50:,:50] += 1
+data[:50,50:] += 2
+data[50:,50:] += 3
+
+pal = array([(255,0,0,255),(0,255,0,255),(0,0,255,255),(0,255,255,255)])
 
 img = pal[data]
 
 qapp = QApplication([])
+
+ii = to_img(img)
+ii.save("toto.png")
 
 pix = to_pix(img)
 

@@ -45,9 +45,17 @@ class SpatialImage (ndarray) :
 		
 		#assert resolution
 		if resolution is None :
-			resolution = (1.,) * (len(obj.shape) - vdim + 1)
-		elif len(resolution) != (len(obj.shape) - vdim + 1) :
-			raise ValueError("data dimension and resolution mismatch")
+			if vdim == 1 :
+				resolution = (1.,) * len(obj.shape)
+			else :
+				resolution = (1.,) * (len(obj.shape) - 1)
+		else :
+			if vdim == 1 :
+				if len(resolution) != len(obj.shape) :
+					raise ValueError("data dimension and resolution mismatch")
+			else :
+				if len(resolution) != (len(obj.shape) - 1) :
+					raise ValueError("data dimension and resolution mismatch")
 		
 		obj.resolution = tuple(resolution)
 		

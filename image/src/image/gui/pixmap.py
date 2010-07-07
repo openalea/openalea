@@ -21,16 +21,16 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from PyQt4.QtGui import QPixmap,QImage
-from numpy import array,uint32
+from numpy import array,zeros,uint32,uint8
 
-def to_pix (img) :
-	"""Transform an image array into a QPixmap
+def to_img (img) :
+	"""Transform an image array into a QImage
 	
 	:Parameters:
-	 -`img` (2x2x3 or 4 array of int) - 2D matrix of RGB(A) image pixels
+	 -`img` (NxMx3 or 4 array of int) - 2D matrix of RGB(A) image pixels
 	                   i will correspond to x and j to y
 	
-	:Returns Type: QPixmap
+	:Returns Type: QImage
 	"""
 	img = array(img,uint32)
 	dat = (img[...,0] << 16) + (img[...,1] << 8) + img[...,2]
@@ -45,4 +45,33 @@ def to_pix (img) :
 	              img.shape[1],
 	              QImage.Format_ARGB32)
 	
-	return QPixmap.fromImage(qimg)
+	return qimg.copy()
+
+def to_pix (img) :
+	"""Transform an image array into a QPixmap
+	
+	:Parameters:
+	 -`img` (NxMx3 or 4 array of int) - 2D matrix of RGB(A) image pixels
+	                   i will correspond to x and j to y
+	
+	:Returns Type: QPixmap
+	"""
+	return QPixmap.fromImage(to_img(img) )
+
+def to_tex (img) :
+	"""Transform an image array into an array usable for texture in opengl
+	
+	:Parameters:
+	 -`img` (NxMx3 or 4 array of int) - 2D matrix of RGB(A) image pixels
+	                   i will correspond to x and j to y
+	
+	:Returns Type: NxMx4 array of uint8
+	"""
+	if img.shape[2] == 4 :
+		return array(img,uint8)
+	else :
+		alpha = zeros(img.shape[:2],uint8) + 255
+		ret = array([img[...,0],img[...,1],img[...,2],alpha],uint8)
+		
+		return ret.transpose( (1,2,0) )
+
