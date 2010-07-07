@@ -13,7 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""Generic Graph Widget"""
+"""Generic Qt Graph Widget"""
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
@@ -294,8 +294,8 @@ class Vertex(Element):
             position changes from the model (????) and ignored
             the position it was forced to"""
             pass
-        # def paint(self, painter, paintOptions, widget):
-        #     return
+        def paint(self, painter, paintOptions, widget):
+            return
         itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
                                   "itemChange")
         # mousePressEvent = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
@@ -875,3 +875,38 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
 interfaces.IGraphListener.check(Scene)
 
 
+
+################################
+# SOME DEFAULT IMPLEMENTATIONS #
+################################
+class DefaultGraphicalEdge( Edge, QtGui.QGraphicsPathItem  ):
+    def __init__(self, edge=None, graph=None, src=None, dest=None):
+        QtGui.QGraphicsPathItem.__init__(self, None)
+        Edge.__init__(self, edge, graph, src, dest)
+        self.set_edge_creator(edgefactory.LinearEdgePath())
+
+    store_view_data = None
+    get_view_data   = None
+
+
+class DefaultGraphicalFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
+    def __init__(self, srcPoint, graph):
+        """ """
+        QtGui.QGraphicsPathItem.__init__(self, None)
+        FloatingEdge.__init__(self, srcPoint, graph)
+        self.set_edge_creator(edgefactory.LinearEdgePath())
+
+
+class DefaultGraphicalVertex( Vertex, QtGui.QGraphicsEllipseItem  ):
+    circleSize = 10.0*2
+    def __init__(self, vertex, graph):
+        QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, self.circleSize, self.circleSize, None)
+        Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
+        self.initialise_from_model()
+
+    mousePressEvent = qtutils.mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
+                                   "mousePressEvent")
+    itemChange = qtutils.mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
+                              "itemChange")
+    paint = qtutils.mixin_method(QtGui.QGraphicsEllipseItem, None,
+                         "paint")

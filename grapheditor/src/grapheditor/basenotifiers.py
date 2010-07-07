@@ -17,10 +17,10 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from base import GraphStrategyMaker, GraphAdapterBase
-from basenotifiers import ObservedVertex
-from edgefactory import LinearEdgePath, SplineEdgePath
-from openalea.grapheditor.observer import Observed
-from qtgraphview import Edge, FloatingEdge, Vertex, Scene, View
-from qtgraphview import DefaultGraphicalEdge, DefaultGraphicalFloatingEdge, DefaultGraphicalVertex
-from qtutils import mixin_method
+
+import observer
+
+class ObservedVertex(observer.Observed):
+    def notify_position(self, pos):
+        self.notify_listeners(("metadata_changed", "position", pos))
+

@@ -9,41 +9,34 @@ them.
 """
 
 import networkx as nx
-from openalea.grapheditor import Observed, GraphAdapterBase
+from openalea.grapheditor import Observed, ObservedVertex, GraphAdapterBase
 import weakref
 
-#These variables are shared by both the model
-#and the Views. Conceptually, this is not good.
-circleSize = 10.0*2
-halfCircleSize = circleSize/2
 
 #----------------------
 # -- the graph model --
 #----------------------
-class NXObservedNode( Observed ):
-    """ Proxy on networkx nodes """
+class NXObservedNode( ObservedVertex):
+    """ An observable networkx node """
     def __init__(self, graph):
-        Observed.__init__(self)
+        ObservedVertex.__init__(self)
         self.g = weakref.ref(graph)
 
     def notify_update(self, **kwargs):
         for item in kwargs.iteritems():
             self.notify_listeners(item)
-        self.notify_position()
-
-    def notify_position(self):
         pos = self.g().node[self]["position"]
-        self.notify_listeners(("metadata_changed", "position", pos))
+        self.notify_position(pos) # defined in base
 
-class NXObservedProxyEdge( Observed ):
-    """ Proxy on networkx edges. """
-    def __init__(self, edge, graph):
-        Observed.__init__(self)
-        self.e = edge
-        self.g = weakref.ref(graph)
+# class NXObservedProxyEdge( Observed ):
+#     """ Proxy on networkx edges. """
+#     def __init__(self, edge, graph):
+#         Observed.__init__(self)
+#         self.e = edge
+#         self.g = weakref.ref(graph)
 
-    def notify_update(self):
-        pass
+#     def notify_update(self):
+#         pass
 
 class NXObservedGraph( GraphAdapterBase, Observed ):
     """An adapter to networkx.Graph"""
@@ -51,7 +44,6 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         GraphAdapterBase.__init__(self)
         Observed.__init__(self)
         self.set_graph(nx.Graph())
-        self.__curVtx = 0
 
     def new_vertex(self, **kwargs):
         vtx = NXObservedNode(self.graph)
@@ -75,21 +67,29 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 
     def add_edge(self, src_vertex, tgt_vertex, **kwargs):
         g = self.graph
-        edge = (src_vertex, tgt_vertex)
+        edge = [src_vertex, tgt_vertex]
+        edge.sort(lambda x, y: cmp(id(x), id(y)))
+        edge = tuple(edge)
+        print "add", edge
         if g.has_edge(*edge):
             return
         else:
-            proxy = NXObservedProxyEdge(edge, g)
-            g.add_edge(*edge, proxy=proxy, **kwargs)
-            self.notify_listeners(("edge_added", ("default", proxy, src_vertex, tgt_vertex)))
+            # proxy = NXObservedProxyEdge(edge, g)
+            # g.add_edge(*edge, proxy=proxy, **kwargs)
+            g.add_edge(*edge, **kwargs)
+            self.notify_listeners(("edge_added", ("default", edge, src_vertex, tgt_vertex)))
 
     def remove_edge(self, src_vertex, tgt_vertex):
-        proxy = self.graph.edge[src_vertex][tgt_vertex]["proxy"]
-        self.graph.remove_edge(src_vertex, tgt_vertex)
-        self.notify_listeners(("edge_removed", ("default",proxy)))
+        edge =  [src_vertex, tgt_vertex]
+        edge.sort(lambda x, y: cmp(id(x), id(y)))
+        edge = tuple(edge)
+        print "remove", edge
+        #proxy = self.graph.edge[src_vertex][tgt_vertex]["proxy"]
+        self.graph.remove_edge(edge[0], edge[1])
+        self.notify_listeners(("edge_removed", ("default",edge)))
 
-    def remove_edges(self, edge_proxies):
-        GraphAdapterBase.remove_edges(self, (ep.e for ep in edge_proxies))
+    def remove_edges(self, edges):
+        GraphAdapterBase.remove_edges(self, (e for e in edges))
 
     # -- not in the adapter interface (yet): --
     def set_vertex_data(self, vertex, **kwargs):
@@ -109,23 +109,16 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 import sys
 from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import GraphStrategyMaker
-from openalea.grapheditor import Edge, FloatingEdge, Vertex, Scene, View, mixin_method, LinearEdgePath
+from openalea.grapheditor import Vertex, View, mixin_method
+from openalea.grapheditor import DefaultGraphicalEdge, DefaultGraphicalFloatingEdge, DefaultGraphicalVertex
 from random import randint as rint # for random colors
 
-class GraphicalNode( Vertex, QtGui.QGraphicsEllipseItem  ):
-    def __init__(self, vertex, graph):
-        QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, circleSize, circleSize, None)
-        Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
-        self.initialise_from_model()
-
+class GraphicalNode( DefaultGraphicalVertex, QtGui.QGraphicsEllipseItem  ):
     def initialise_from_model(self):
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex()]["position"]))
         color = self.graph().graph.node[self.vertex()]["color"]
         brush = QtGui.QBrush(color)
         self.setBrush(brush)
-
-    def notify(self, sender, event):
-        Vertex.notify(self, sender, event)
 
     def get_view_data(self, *args, **kwargs):
         return self.graph().graph.node[self.vertex()][args[0]]
@@ -136,36 +129,12 @@ class GraphicalNode( Vertex, QtGui.QGraphicsEllipseItem  ):
         if pos is not None:
             self.graph().set_vertex_data(self.vertex(), position=pos)
 
-    mousePressEvent = mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
-                                   "mousePressEvent")
-    itemChange = mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
-                              "itemChange")
-
-    paint = mixin_method(QtGui.QGraphicsEllipseItem, None,
-                         "paint")
-
-class GraphicalEdge( Edge, QtGui.QGraphicsPathItem  ):
-    def __init__(self, edge=None, graph=None, src=None, dest=None):
-        QtGui.QGraphicsPathItem.__init__(self, None)
-        Edge.__init__(self, edge, graph, src, dest)
-        self.set_edge_creator(LinearEdgePath())
-
-    store_view_data = None
-    get_view_data   = None
-
-
-class GraphicalFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
-    def __init__(self, srcPoint, graph):
-        """ """
-        QtGui.QGraphicsPathItem.__init__(self, None)
-        FloatingEdge.__init__(self, srcPoint, graph)
-        self.set_edge_creator(LinearEdgePath())
 
 class GraphicalView( View ):
     def __init__(self, parent, graph, strategy, clone=False):
         View.__init__(self, parent, graph, strategy, clone)
         self.set_default_drop_handler(self.dropHandler)
-        keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):self.removeNode,}
+        keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):self.removeElement,}
         self.set_keypress_handler_map(keyPressMapping)
 
     def mouseDoubleClickEvent(self, event):
@@ -177,12 +146,12 @@ class GraphicalView( View ):
         self.scene().new_vertex(position=position,
                                 color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
 
-    def removeNode(self, event):
+    def removeElement(self, event):
         scene = self.scene()
+        edges = scene.get_selected_items(filterType=DefaultGraphicalEdge)
+        scene.remove_edges(e.edge() for e in edges)
         vertices = scene.get_selected_items(filterType=GraphicalNode, subcall=lambda x:x.vertex())
         scene.remove_vertices(vertices)
-        edges = scene.get_selected_items(filterType=GraphicalEdge)
-        scene.remove_edges(e.edge() for e in edges)
         event.setAccepted(True)
 
 
@@ -192,9 +161,8 @@ class GraphicalView( View ):
 #-------------------------
 GraphicalGraph = GraphStrategyMaker( graphView       = GraphicalView,
                                 vertexWidgetMap = {"vertex":GraphicalNode},
-                                edgeWidgetMap   = {"default":GraphicalEdge,
-                                                   "floating-default":GraphicalFloatingEdge},
-                                adapterType     = None)
+                                edgeWidgetMap   = {"default":DefaultGraphicalEdge,
+                                                   "floating-default":DefaultGraphicalFloatingEdge} )
 
 
 #THE APPLICATION'S MAIN WINDOW
