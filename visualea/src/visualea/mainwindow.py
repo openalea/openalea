@@ -756,11 +756,18 @@ class MainWindow(QtGui.QMainWindow,
             self, "Export image",  QtCore.QDir.homePath(), "PNG Image (*.png)")
 
         filename = str(filename)
-        if(not filename) : return
+        if not filename: 
+            return
+        else:
+            if '.' not in filename:
+                filename += '.png'
 
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
+        # Retreive the user layout
         rect = view.scene().sceneRect()
+        matrix = view.matrix()
+        rect = matrix.mapRect(rect)
 
         pixmap = QtGui.QPixmap(rect.width(), rect.height())
         pixmap.fill()
@@ -782,7 +789,11 @@ class MainWindow(QtGui.QMainWindow,
 
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
+
+        # Retreive the user layout
         rect = view.scene().sceneRect()
+        matrix = view.matrix()
+        rect = matrix.mapRect(rect)
 
         svg_gen = QtSvg.QSvgGenerator()
         svg_gen.setFileName(filename)
