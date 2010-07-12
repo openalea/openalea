@@ -230,23 +230,26 @@ class InitNode(Node):
     If state is true, return In0, else return In1
     state is set to false in the first execution.
     """
+    def __init__(self, inputs, outputs):
+
+        Node.__init__(self, inputs, outputs)
+        self.state = True
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-        state = inputs[2]
 
-        if(state):
+        if(self.state):
             ret = inputs[0]
         else:
             ret = inputs[1]
 
-        self.set_input(2, False)
+        self.state = False
         return (ret, )
 
     def reset(self):
         Node.reset(self)
-        self.set_input(2, True)
+        self.state = True
 
 
 class AccuList(Node):
@@ -338,19 +341,19 @@ class Delay(Node):
         self.previous = None
 
     def __call__(self, inputs):
-        init, x, reset = inputs[:3]
-        if reset:
-            self.previous = None
+        init, x = inputs[:2]
 
         if self.previous is None:
-            self.previous = x
-            res = init
+            res = self.previous = init 
         else:
             res = self.previous
             self.previous = x
 
         return res,
 
+    def reset(self):
+        """ Reset to the intial state """
+        self.previous = None
 
 class WhileUniVar(Node):
     """ While Loop Univariate

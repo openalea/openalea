@@ -758,9 +758,8 @@ class MainWindow(QtGui.QMainWindow,
         filename = str(filename)
         if not filename: 
             return
-        else:
-            if '.' not in filename:
-                filename += '.png'
+        elif '.' not in filename:
+            filename += '.png'
 
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
@@ -785,7 +784,10 @@ class MainWindow(QtGui.QMainWindow,
             self, "Export svg image",  QtCore.QDir.homePath(), "SVG Image (*.svg)")
 
         filename = str(filename)
-        if(not filename) : return
+        if not filename: 
+            return
+        elif '.' not in filename:
+            filename += '.png'
 
         # Get current workspace
         view = self.tabWorkspace.currentWidget()
@@ -803,6 +805,4 @@ class MainWindow(QtGui.QMainWindow,
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         view.scene().render(painter, )
         painter.end()
-
-        #pixmap.save(filename)
 
