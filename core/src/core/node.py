@@ -679,18 +679,49 @@ class Node(AbstractNode):
         odict.update(AbstractNode.__getstate__(self))
 
         odict['modified'] = True
-        outputs = odict['outputs']
+
+        
+        outputs = range(len(self.outputs))
         for i in range(self.get_nb_output()):
-            outputs[i] = None
+            try:
+                outputs[i] = copy(self.outputs[i])
+            except:
+                outputs[i] = None
+        odict['outputs'] = outputs
 
-        inputs = odict['inputs']
+        inputs = range(self.get_nb_input())
         for i in range(self.get_nb_input()):
-            if self.input_states[i] is "connected":
+            try:
+                inputs[i] = copy(self.inputs[i])
+            except:
                 inputs[i] = None
+        odict['inputs'] = inputs
 
-        #odict['continuous_eval'].listeners.clear()
+        in_ports = []
+        out_ports = []
+
+        for i, port in enumerate(self.input_desc):
+            port.vertex = None
+            in_ports.append(copy(port))
+            port.vertex = ref(self)
+
+        for i, port in enumerate(self.output_desc):
+            port.vertex = None
+            out_ports.append(copy(port))
+            port.vertex = ref(self)
+
+        odict['input_desc'] = in_ports
+        odict['output_desc'] = out_ports
 
         return odict
+
+    def __setstate__(self, dict):
+        self.__dict__.update(dict)
+
+        for port in self.input_desc:
+            port.vertex = ref(self)
+        for port in self.output_desc:
+            port.vertex = ref(self)
 
     def reload(self):
         """ Reset ports """
@@ -911,6 +942,15 @@ class AbstractFactory(Observed):
         """ Remove files depending of factory """
         pass
 
+    def __getstate__(self):
+        odict = self.__dict__.copy() # copy the dict since we change it
+        odict['__pkg__'] = None # remove weakref reference
+        return odict
+
+    def __setstate__(self, dict):
+        self.__dict__.update(dict)
+        self.get_pkg()
+
 
 def Alias(factory, name):
     """ Create a alias for factory """
@@ -999,7 +1039,13 @@ class NodeFactory(AbstractFactory):
         odict['nodemodule'] = None
         odict['nodeclass'] = None
         odict['module_cache'] = None
+        odict['__pkg__'] = None # remove weakref reference
+
         return odict
+
+    def __setstate__(self, dict):
+        self.__dict__.update(dict)
+        self.get_pkg()
 
     def copy(self, **args):
         """ Copy factory
