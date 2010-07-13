@@ -371,12 +371,16 @@ class NewPackage(QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         if(path):
             self.pathEdit.setText(path)
 
-        self.descriptionEdit.setText(metainfo.get('description', ''))
-        self.versionEdit.setText(metainfo.get('version', ''))
-        self.licenseEdit.setText(metainfo.get('license', ''))
-        self.authorsEdit.setText(metainfo.get('authors', ''))
-        self.institutesEdit.setText(metainfo.get('institutes', ''))
-        self.urlEdit.setText(metainfo.get('url', ''))
+        def value(key):
+            v = metainfo.get(key)
+            return v if v is not None else ''
+
+        self.descriptionEdit.setText(value('description'))
+        self.versionEdit.setText(value('version'))
+        self.licenseEdit.setText(value('license'))
+        self.authorsEdit.setText(value('authors'))
+        self.institutesEdit.setText(value('institutes'))
+        self.urlEdit.setText(value('url'))
 
 
 
