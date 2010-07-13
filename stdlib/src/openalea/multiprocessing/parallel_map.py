@@ -1,3 +1,4 @@
+from types import FunctionType
 
 def parallel_map(function, seq):
     '''    

@@ -33,7 +33,7 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeModel",
                       widgetmodule = None,
                       widgetclass = None,
-		      inputs=[
+                      inputs=[
                         dict(name= "gamma", interface=IFloat, value=3.1, label="test", desc="desc test"),
                         dict( name= "nbr_prims", interface=IInt(min=2, max=2000), value=20,label="test", desc="desc test"),
                         dict( name= "discretisation", interface=IInt(min=4, max=1000), value=20),
@@ -74,7 +74,7 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeDivAngVisualisation",
                       widgetmodule = None,
                       widgetclass = None,
-		      parameters=["prim2init_pos"] 
+              parameters=["prim2init_pos"] 
                       )
 
     package.add_factory( nf )
@@ -86,7 +86,7 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeAbsAngVisualisation",
                       widgetmodule = None,
                       widgetclass = None,
-		      parameters=["prim2init_pos"] 
+              parameters=["prim2init_pos"] 
                       )
 
     package.add_factory( nf )
@@ -98,7 +98,7 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeRelTimeVisualisation",
                       widgetmodule = None,
                       widgetclass = None,
-		      parameters=["prim2time"] 
+              parameters=["prim2time"] 
                       )
 
     package.add_factory( nf )
@@ -110,7 +110,7 @@ def register_packages(pkgmanager):
                       nodeclass = "NodeAbsTimeVisualisation",
                       widgetmodule = None,
                       widgetclass = None,
-		      parameters=["prim2time"] 
+              parameters=["prim2time"] 
                       )
 
     package.add_factory( nf )
