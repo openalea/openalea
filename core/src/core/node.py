@@ -447,9 +447,11 @@ class Node(AbstractNode):
         if (s != state):
             changed.add(index)
             self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
+            self.notify_listeners(("hiddenPortChange",))
         elif(index in changed):
             changed.remove(index)
             self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
+            self.notify_listeners(("hiddenPortChange",))
 
 
     # Status
@@ -669,7 +671,7 @@ class Node(AbstractNode):
         self.notify_listeners(("stop_eval", ))
 
         if self.delay == 0:
-            return False 
+            return False
         return self.delay
 
     def __getstate__(self):
@@ -745,7 +747,7 @@ class Node(AbstractNode):
 
         if(i>0):
             self.invalidate()
-            
+
     def invalidate(self):
         """ Invalidate node """
 

@@ -42,7 +42,7 @@ class GraphicalAnnotation(QtGui.QGraphicsTextItem, qtgraphview.Vertex):
         font.setPointSize(12)
         self.setFont(font)
 
-        self.initialise_from_model()
+#        self.initialise_from_model()
         return
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
