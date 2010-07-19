@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref, sys
+import weakref, sys, traceback
 from PyQt4 import QtCore, QtGui,QtSvg
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
@@ -25,14 +25,12 @@ from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
 from openalea.core.settings import Settings
 from openalea.grapheditor import qtgraphview, baselisteners, qtutils
 from openalea.grapheditor.qtutils import mixin_method
-import painting
 import adapter
-from collections import deque
-
-from .. import images_rc # don't use relative imports please!
-"""
+from openalea.visualea import images_rc
 
 """
+"""
+
 
 class EvalObserver( observer.AbstractListener ):
     def __init__(self, callback):
@@ -43,89 +41,157 @@ class EvalObserver( observer.AbstractListener ):
             self.callback(sender, event)
 
 
+class OpenAleaPortLayoutEngine(object):
 
-class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
+    portSpacing      = 5.0
+    outMargins       = 5.0
+    delayMargins     = 7.0
+    evalColor        = QtGui.QColor(255, 0, 0, 200)
 
-    #color of the small box that indicates evaluation
-    eval_color = QtGui.QColor(255, 0, 0, 200)
+    def __init__(self, graphicalParent):
+        self._parent = weakref.proxy(graphicalParent)
 
-    def __init__(self, vertex, graph, parent=None, isInOrOut=None):
-        QtGui.QGraphicsWidget.__init__(self, parent)
-        qtgraphview.Vertex.__init__(self, vertex, graph)
-        self.set_painting_strategy(painting.default_dataflow_paint)
-        self.destroyed.connect(self.clear_observed)
-        self.__isInOrOut = isInOrOut
-        # used by the node shape cache in painting.py
-        # to speed up rendering.
-        self.shapeChanged=True
-
-        #bouding boxes
-#        self.bounding_box = QtGui.QGraphicsRectItem(0,0,5,5,self)
+        self.vLayout = qtutils.VerticalLayout(margins=(self.outMargins, self.outMargins, 0., 0.),
+                                              center=True)
+        # --- in ports ---
+        self.inPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
+                                                     #margins=(self.outMargins, self.outMargins, 0., 0.),
+                                                     innerMargins=(self.portSpacing,0.),
+                                                     center=True,
+                                                     mins=(5, 5))
+        # --- Caption ---
+        self._caption = QtGui.QGraphicsSimpleTextItem(graphicalParent)
+        self.vLayout.addItem(self._caption)
+        # --- out ports ---
+        self.outPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
+                                                      #margins=(self.outMargins, self.outMargins, 0., 0.),
+                                                      innerMargins=(self.portSpacing,0.),
+                                                      center=True,
+                                                      mins=(5, 5))
 
         # ---Small dots when the vertex has hidden ports---
-        self.hidden_port_item = HiddenPort(self)
-        self.hidden_port_item.setVisible(False)
+        hiddenPortItem = HiddenPort(graphicalParent)
+        hiddenPortItem.setVisible(False)
+        self.hiddenPortItem = hiddenPortItem
 
-        # ---Small box when the vertex is busy, being evaluated---
-        self.busy_item = QtGui.QGraphicsRectItem(0,0,7,7, self)
-        self.busy_item.setBrush(self.eval_color)
-        self.busy_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
-        self.busy_item.setVisible(False)
+        self.inPortLayout.addFinalItem(hiddenPortItem)
+
+        # ---Small box when the vertex is busy, beping evaluated---
+        self._busyItem = QtGui.QGraphicsRectItem(0,0,7,7, graphicalParent)
+        self._busyItem.setBrush(self.evalColor)
+        self._busyItem.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        self._busyItem.setVisible(False)
 
         # ---Clock image when the vertex has a delay---
-        #self.delay_item= QtGui.QGraphicsPixmapItem(QtGui.QPixmap(':icons/clock.png'), self)
-        self.delay_item = QtSvg.QGraphicsSvgItem(":icons/clock.svg",self)
-        self.delay_item.setAcceptedMouseButtons(QtCore.Qt.NoButton)
-        self.delay_item.setVisible(False)
-        self.delay_item.scale(0.5,0.5)
+        self._delayItem = QtSvg.QGraphicsSvgItem(":icons/clock.svg",graphicalParent)
+        self._delayItem.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        self._delayItem.setVisible(False)
 
-        self.delay_value_item = QtGui.QGraphicsSimpleTextItem("0",self)
-        self.delay_value_item.setFont(QtGui.QFont("ariana",6) )
-        self.delay_value_item.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0,200) ) )
-        self.delay_value_item.setZValue(self.delay_item.zValue() + 1)
-        self.delay_value_item.setVisible(False)
-
-        #self.delay_item.setPos(0.2,14.2)
-        #self.delay_item= QtGui.QGraphicsSimpleTextItem("@", self)
-        #self.delay_item.setVisible(False)
-
-        # ---Sub items layout---
-        layout = QtGui.QGraphicsLinearLayout()
-        layout.setOrientation(QtCore.Qt.Vertical)
-        layout.setSpacing(1.)
-        layout.setContentsMargins(2.,0.,2.,0.)
-        self.setLayout(layout)
-
-        layout = QtGui.QGraphicsLinearLayout()
-        self.layout().addItem(layout)
-        self._inPortLayout = weakref.ref(layout)
-        cap = qtutils.AleaQGraphicsLabelWidget("")
-        self._caption = weakref.ref(cap)
-        self.layout().addItem(self._caption())
-        layout = QtGui.QGraphicsLinearLayout()
-        self.layout().addItem(layout)
-        self._outPortLayout = weakref.ref(layout)
-
-        def __configure_layout(layout):
-            layout.setSpacing(0.)
-            layout.setContentsMargins(0.,0.,0.,0.)
-            layout.setMinimumHeight(GraphicalPort.HEIGHT)
-            self.layout().setAlignment(layout, QtCore.Qt.AlignHCenter)
-
-        __configure_layout(self._inPortLayout())
-        __configure_layout(self._outPortLayout())
-        self.layout().setAlignment(self._caption(), QtCore.Qt.AlignHCenter)
-        self.initialise_from_model()
-
-    def remove_from_view(self, view):
-        """An element removes itself from the given view"""
-        # self.__remove_ports_from_view(view)
-        # self.__remove_ports_from_view(view, outputs=True)
-        self.__remove_ports()
-        self.__remove_ports(outputs=True)
-        qtgraphview.Vertex.remove_from_view(self, view)
+        self._delayText = QtGui.QGraphicsSimpleTextItem("0",self._delayItem)
+        self._delayText.setFont(QtGui.QFont("ariana",6) )
+        self._delayText.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0,200) ) )
+        self._delayText.setZValue(self._delayItem.zValue() + 1)
+        self._delayText.setVisible(False)
 
     def initialise_from_model(self):
+        for it in self.inPortLayout+self.outPortLayout:
+            it.initialise_from_model()
+
+    def notify(self, graphicalVertex, event, attach=None):
+        if event=="delayItemChange":
+            self.update_delay_item(graphicalVertex)
+        elif event=="evaluationStart":
+            self._busyItem.setVisible(graphicalVertex.isVisible())
+        elif event=="evaluationStop":
+            self._busyItem.setVisible(False)
+        elif event=="hiddenPortChange":
+            self.update_hidden_port_item(graphicalVertex)
+        elif event=="caption":
+            self.__set_caption(attach)
+        graphicalVertex.refresh_geometry()
+
+    def add_port(self, port, graphicalParent):
+        if isinstance(port, InputPort)    : l=self.inPortLayout
+        elif isinstance(port, OutputPort) : l=self.outPortLayout
+        if port not in l:
+            gp = GraphicalPort(graphicalParent, port)
+            l.addItem(gp)
+            return gp
+
+    def remove_port(self, port):
+        if isinstance(port, InputPort)    : l=self.inPortLayout
+        elif isinstance(port, OutputPort) : l=self.outPortLayout
+        for gp in l:
+            if gp.port() == port:
+                l.removeItem(gp)
+
+    def remove_ports(self, which="input"):
+        if which == "input"    :
+            l = self.inPortLayout
+        elif which == "output" :
+            l = self.outPortLayout
+        for it in l:
+            it.scene().removeItem(it) #???
+        l.clear()
+
+    def layout_items(self, graphicalParent):
+        geom = self.vLayout.boundingRect(force=True)
+        self.vLayout.setPos(QtCore.QPointF(0.,0.))
+        self._busyItem.setPos(0, 0)
+        self._delayItem.setPos( - self._delayItem.boundingRect().width()/2 - self.delayMargins,
+                                (geom.height() - self._delayItem.boundingRect().height())/2 )
+        self._delayText.setPos( (self._delayItem.boundingRect().width()-self._delayText.boundingRect().width())/2,
+                                (self._delayItem.boundingRect().height()-self._delayText.boundingRect().height())/2 )
+        return geom
+
+    def __set_caption(self, caption):
+        """Sets the name displayed in the vertex widget, doesn't change
+        the vertex data"""
+        if caption == "":
+            caption = " "
+        self._caption.setText(caption)
+
+    def _all_inputs_visible(self):
+        for i in self.inPortLayout:
+            if not i.isVisible():
+                return False
+        return True
+
+    def update_hidden_port_item (self, graphicalParent) :
+        visible = not self._all_inputs_visible() and graphicalParent.isVisible()
+        self.hiddenPortItem.setVisible(visible)
+
+    def update_delay_item (self, graphicalParent) :
+        visible = graphicalParent.vertex().delay > 0
+        self._delayItem.setVisible(visible and graphicalParent.isVisible())
+        self._delayText.setVisible(visible and graphicalParent.isVisible())
+        if visible :
+            self._delayText.setText("%d" % graphicalParent.vertex().delay)
+
+
+
+class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRectItem):
+    LayoutEngine = OpenAleaPortLayoutEngine
+
+    # --- PAINTING STUFF ---
+    path_cache   = weakref.WeakKeyDictionary()
+    # Color Definition
+    default_not_modified_color       = QtGui.QColor(0, 0, 255, 200)
+    default_selected_color           = QtGui.QColor(180, 180, 180, 180)
+    default_not_selected_color       = QtGui.QColor(255, 255, 255, 100)
+    default_error_color              = QtGui.QColor(255, 0, 0, 255)
+    default_selected_error_color     = QtGui.QColor(0, 0, 0, 255)
+    default_not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
+
+    #Shape definition
+    default_corner_radius = 2.0
+    default_margin        = 3.0
+
+    def __init__(self, vertex, graph, parent=None):
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, 1, 1, parent)
+        qtgraphview.VertexWithPorts.__init__(self, vertex, graph)
+
+    def _initialise_from_model(self):
         vertex = self.vertex()
         mdict  = vertex.get_ad_hoc_dict()
         #graphical data init.
@@ -140,6 +206,7 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         self.notify(vertex, ("caption_modified", vertex.internal_data["caption"]))
         self.notify(vertex, ("tooltip_modified", vertex.get_tip()))
         self.notify(vertex, ("internal_data_changed",))
+        self.notify(vertex, ("hiddenPortChange",))
         userColor = self.get_view_data("userColor")
         if( userColor is None ):
             self.store_view_data(useUserColor=False)
@@ -153,85 +220,10 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
             self.notify(vertex, ("output_port_removed", i))
         self.notify(vertex("cleared_output_ports",))
 
-    def update_busy_item (self) :
-        #position
-        self.busy_item.setPos(2.5,
-                  self._inPortLayout().geometry().top() + 7.5 )
+    def _refresh_geometry(self, geom):
+        geom = geom.adjusted(0, 5, 0, -5)
 
-    def update_hidden_port_item (self) :
-        #visible
-        visible = not self._all_inputs_visible()
-        self.hidden_port_item.setVisible(visible)
-        geom = self._inPortLayout().geometry()
-        x = geom.x() + geom.width()
-        y = geom.y()
-        self.hidden_port_item.setPos(x,y)
-        # if visible :
-        #     self._inPortLayout().addItem(self.hidden_port_item)
-        #     self._inPortLayout().setAlignment(self.hidden_port_item,
-        #                                       QtCore.Qt.AlignVCenter)
-        # else :
-        #     self._inPortLayout().removeItem(self.hidden_port_item)
-
-        #self._inPortLayout().invalidate()
-        self.layout().invalidate()
-
-    def update_delay_item (self) :
-        #visible
-        visible = self.vertex().delay > 0
-        self.delay_item.setVisible(visible)
-        self.delay_value_item.setVisible(visible)
-
-        if visible :
-            #text
-            self.delay_value_item.setText("%d" % self.vertex().delay)
-            self.delay_value_item.update()
-
-            #position
-            h = self.rect().height()
-            rect1 = self.delay_item.sceneBoundingRect()
-            #self.delay_item.setPos(0, self._inPortLayout().geometry().top() )
-            self.delay_item.setPos(- rect1.width() / 2.,
-                                   h / 2. - rect1.height() / 2.)
-            self.delay_item.update()
-
-            rect = self.delay_item.sceneBoundingRect()
-            xref = self.delay_item.pos().x() + rect.width() / 2.
-            yref = self.delay_item.pos().y() + rect.height() / 2.
-            rect = self.delay_value_item.boundingRect()
-            self.delay_value_item.setPos(xref - rect.width() / 2.,
-                                         yref - rect.height() / 2.)
-
-            self.delay_value_item.update()
-
-            #layout
-            self.layout().setContentsMargins(rect1.width() / 2.,0.,2.,0.)
-        else :
-            self.layout().setContentsMargins(2.,0.,2.,0.)
-
-        self.layout().invalidate()
-
-    #####################################
-    # pseudo-protected or private stuff #
-    #####################################
-    def _all_inputs_visible(self):
-        count = self._inPortLayout().count()
-        for i in range(count):
-            if not self._inPortLayout().itemAt(i).graphicsItem().isVisible():
-                return False
-        return True
-
-    def __add_in_connection(self, port):
-        graphicalConn = GraphicalPort(self, port)
-        self.destroyed.connect(graphicalConn.close_and_delete)
-        self._inPortLayout().addItem(graphicalConn)
-        self.add_connector(graphicalConn)
-
-    def __add_out_connection(self, port):
-        graphicalConn = GraphicalPort(self, port)
-        self.destroyed.connect(graphicalConn.close_and_delete)
-        self._outPortLayout().addItem(graphicalConn)
-        self.add_connector(graphicalConn)
+        self.setRect(geom)
 
     ####################
     # Observer methods #
@@ -250,99 +242,111 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         #this one simply catches events like becoming lazy
         #or blocked of user app, and that do not set any
         #internal value (handled by the paintEvent method)
+        elif event[0] == "hiddenPortChange":
+            self.layoutEngine.notify(self, event[0])
         elif(event[0] == "internal_data_changed"):
-            self.update_delay_item()
-            self.update()
+            self.layoutEngine.notify(self, "delayItemChange")
         elif(event[0] == "data_modified"):
             if event[1] == "caption":
-                caption = event[2]
-                self.__set_caption(caption if len(caption)<20 else caption[:20]+"...'")
+                caption = event[2] if len(event[2])<20 else event[2][:20]+"...'"
+                self.layoutEngine.notify(self, "caption", caption)
             else:
-                self.update_delay_item()
-                self.update()
+                self.layoutEngine.notify(self, "delayItemChange")
         elif(event[0]=="tooltip_modified"):
             tt = event[1]
             if tt is None:
                 tt=""
             self.setToolTip(tt)
-
         elif(event[0] == "start_eval"):
-            self.busy_item.setVisible(self.isVisible())
-            self.busy_item.update()
-            self.update()
+            self.layoutEngine.notify(self, "evaluationStart")
             QtGui.QApplication.processEvents()
 
         elif(event[0] == "stop_eval"):
-            self.busy_item.setVisible(False)
-            self.busy_item.update()
-            self.update()
+            self.layoutEngine.notify(self, "evaluationStop")
             QtGui.QApplication.processEvents()
 
         elif(event[0] == "caption_modified"):
-            caption = event[1]
-            self.__set_caption(caption if len(caption)<20 else caption[:20]+"...'")
+            caption = event[1] if len(event[1])<20 else event[1][:20]+"...'"
+            self.layoutEngine.notify(self, "caption", caption)
 
         elif(event[0] == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
                 self.store_view_data(useUserColor = False)
-            self.update()
-
         elif(event[0] == "input_port_added"):
-            self.__add_in_connection(event[1])
-
+            self.add_port(event[1])
         elif(event[0] == "output_port_added"):
-            self.__add_out_connection(event[1])
-
+            self.add_port(event[1])
         elif(event[0] == "cleared_input_ports"):
-            self.__remove_ports()
-
+            self.remove_ports("input")
         elif(event[0] == "cleared_output_ports"):
-            self.__remove_ports(outputs=True)
+            self.remove_ports("output")
 
-        qtgraphview.Vertex.notify(self, sender, event)
+        qtgraphview.VertexWithPorts.notify(self, sender, event)
 
-    def __set_caption(self, caption):
-        """Sets the name displayed in the vertex widget, doesn't change
-        the vertex data"""
-        if caption == "":
-            caption = " "
-        self._caption().setText(caption)
-        if(self.layout()): self.layout().updateGeometry()
+    def paint(self, painter, options, widget):
+        path = self.path_cache.get(self, None)
+        rect = self.rect()
+        if(path is None or self.shapeChanged):
+            path = QtGui.QPainterPath()
+            path.addRoundedRect(rect, self.default_corner_radius,
+                                self.default_corner_radius)
+            self.shapeChanged = False
+            self.path_cache[self] = path
 
-    def __remove_ports(self, outputs=False):
-        lay = self._outPortLayout() if outputs else self._inPortLayout()
-        self.clear_layout(lay)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
+        path.moveTo(3.0,3.0)
+        painter.drawPath(path)
+        path.moveTo(0.0,0.0)
+        pen = QtGui.QPen(QtCore.Qt.black, 1)
 
-    def clear_layout(self, layout):
-        count = layout.count()
-        for i in range(count):
-            item = layout.itemAt(0).graphicsItem()
-            if not isinstance(item,HiddenPort) :
-                self.remove_connector(item)
-                layout.removeAt(0) #we remove from the start, or else we quickly segfault.
-                del item
+        userColor = self.get_view_data("userColor")
 
-    ###############################
-    # ----Qt World overloads----  #
-    ###############################
-    def setGeometry(self, geom):
-        #forcing a full recomputation of the geometry so that shrinking works
-        pos = self.pos()
-        QtGui.QGraphicsWidget.setGeometry(self, QtCore.QRectF(pos.x(),
-                                                              pos.y(),-1.0,-1.0))
+        if hasattr(self.vertex(), 'raise_exception'):
+            color = self.default_error_color
+            if(self.isSelected()):
+                pen = QtGui.QPen(QtCore.Qt.red, 1)
+                secondcolor = self.default_selected_error_color
+            else:
+                secondcolor = self.default_not_selected_error_color
+        else:
+            if(self.isSelected()):
+                pen = QtGui.QPen(QtGui.QColor(180, 180, 255, 255), 1)
+                color = self.default_selected_color
+            elif(self.get_view_data("useUserColor")):
+                color=QtGui.QColor(*userColor)
+            else:
+                color = self.default_not_selected_color
 
-        #this is not such a bad place to check for port visibility
-        #because it gets called when ports are hidden.
-        self.update_busy_item()
+        if(self.get_view_data("useUserColor")):
+            secondcolor=QtGui.QColor(*userColor)
+        elif(self.vertex().user_application):
+            secondcolor = QtGui.QColor(255, 144, 0, 200)
+        else:
+            secondcolor = self.default_not_modified_color
 
-        self.update_hidden_port_item()
-        self.update_delay_item()
+        # Draw Box
+        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
+        gradient.setColorAt(0.0, color)
+        gradient.setColorAt(0.8, secondcolor)
+        painter.setBrush(QtGui.QBrush(gradient))
 
-#        geom = self._inPortLayout().geometry()
-#        self.bounding_box.setRect(geom)
-#        self.bounding_box.update()
+        painter.setPen(pen)
+        painter.drawPath(path)
 
-        self.shapeChanged=True
+        if(self.vertex().block):
+            painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
+            painter.drawPath(path)
+
+    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
+                                   "mousePressEvent")
+    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
+                              "itemChange")
+
+
+class GraphicalVertex(ObserverOnlyGraphicalVertex):
+    def __init__(self, vertex, graph, parent=None):
+        ObserverOnlyGraphicalVertex.__init__(self, vertex, graph, parent)
 
     def mouseDoubleClickEvent(self, event):
         if event.button()==QtCore.Qt.LeftButton:
@@ -437,105 +441,92 @@ class GraphicalVertex(qtgraphview.Vertex, QtGui.QGraphicsWidget):
         event.accept()
 
 
-    def polishEvent(self):
-        if self.__isInOrOut is not None:
-            #fix input or output node position
-            verticalNodeSize = 60
-            midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
-            first = True
-            graph = self.graph()
-            for node in graph.vertex_property("_actor").itervalues():
-                if node == graph.node(graph.id_in) or node == graph.node(graph.id_out):
-                    continue
-                posX, posY = node.get_ad_hoc_dict().get_metadata("position")
-                if first:
-                    top, bottom, left, right = posY, posY, posX, posX
-                    first = False
-                    continue
-                top     = min( top, posY )
-                bottom  = max( bottom, posY )
-                left    = min( left, posX )
-                right   = max( right, posX )
-
-            midX = (left+right)/2
-            if self.__isInOrOut :
-                y = top - verticalNodeSize
-                graph.node(graph.id_in).get_ad_hoc_dict().set_metadata("position", [midX, y])
-            else :
-                y = bottom + verticalNodeSize
-                graph.node(graph.id_out).get_ad_hoc_dict().set_metadata("position", [midX, y])
-
-    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                                   "mousePressEvent")
-    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsWidget,
-                              "itemChange")
-
 
 class GraphicalInVertex(GraphicalVertex):
-    def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None, isInOrOut=True)
+    def initialise_from_model(self):
+        GraphicalVertex.initialise_from_model(self)
+        self.polishEvent()
+
+    def polishEvent(self):
+        #fix input or output node position
+        midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
+        first = True
+        itemGeoms = self.scene().get_items(filterType=GraphicalVertex, subcall= lambda x: x.boundingRect().translated(x.pos()))
+        bounds = reduce(lambda x,y: x|y, itemGeoms)
+        midX = bounds.center().x()
+        y = bounds.top() - self.boundingRect().height()*2
+        self.store_view_data(position=[midX, y])
 
 class GraphicalOutVertex(GraphicalVertex):
-    def __init__(self, vertex, graph, parent=None):
-        GraphicalVertex.__init__(self, vertex, graph, parent=None, isInOrOut=False)
+    def initialise_from_model(self):
+        GraphicalVertex.initialise_from_model(self)
+        self.polishEvent()
+
+    def polishEvent(self):
+        #fix input or output node position
+        midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
+        first = True
+        itemGeoms = self.scene().get_items(filterType=GraphicalVertex, subcall= lambda x: x.boundingRect().translated(x.pos()))
+        bounds = reduce(lambda x,y: x|y, itemGeoms)
+        midX = bounds.center().x()
+        y = bounds.bottom()
+        self.store_view_data(position=[midX, y])
 
 
 
 
 
 
-# --------------------------- ConnectorType ---------------------------------
-class HiddenPort (QtGui.QGraphicsWidget):
-    """Graphical representation of hidden ports
-    """
-    __size = QtCore.QSizeF(14.,4.)
+class HiddenPort (QtGui.QGraphicsItem):
+    """Graphical representation of hidden ports"""
+    __size = QtCore.QSizeF(15.,4.)
     __nosize = QtCore.QSizeF(0.0, 0.0)
     def __init__ (self, parent) :
-        """
-        """
-        QtGui.QGraphicsWidget.__init__(self, parent)
+        """"""
+        QtGui.QGraphicsItem.__init__(self, parent)
         self.setToolTip("hidden ports")
 
+    def add_to_view(self, view):
+        return
+
+    def initialise_from_model(self):
+        return
+
+    def get_id(self):
+        return float("inf")
+
     def size(self):
-        if self.isVisible() :
-            return self.__size
-        else :
-            return self.__nosize
+        return self.__size
 
     def sizeHint(self, blop, blip):
         return self.size()
 
-    def setVisible(self, visible):
-        self.updateGeometry()
-        QtGui.QGraphicsWidget.setVisible(self, visible)
+    def boundingRect(self):
+        pos  = QtCore.QPointF(0,0)
+        size = self.size()
+        return QtCore.QRectF(pos, size)
 
     def paint(self, painter, option, widget):
         if not self.isVisible() :
             return
-
         painter.setBackgroundMode(QtCore.Qt.TransparentMode)
         painter.setBrush(QtGui.QBrush(QtGui.QColor(50,50,50,200) ) )
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0) )
-
         for i in (0,1,2) :
             painter.drawEllipse(QtCore.QRectF(i * 5.,0.,4.,4.) )
 
-class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
+
+# --------------------------- ConnectorType ---------------------------------
+class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 2000
-    __spacing  = 5.0
     WIDTH      = 10.0
     HEIGHT     = 10.0
-
-    __size = QtCore.QSizeF(WIDTH + __spacing,HEIGHT)
-#    __size = QtCore.QSizeF(WIDTH,HEIGHT)
-
-    __nosize = QtCore.QSizeF(0.0, 0.0)
 
     def __init__(self, parent, port):
         """
         """
-        QtGui.QGraphicsWidget.__init__(self, parent)
+        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, self.WIDTH, self.HEIGHT, parent)
         qtgraphview.Connector.__init__(self, observed=port)
         self.__interfaceColor = None
         self.set_connection_modifiers(QtCore.Qt.NoModifier)
@@ -580,7 +571,6 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
                         self.hide()
                     else:
                         self.show()
-                    self.updateGeometry()
         qtgraphview.Connector.notify(self, sender, event)
 
     def clear_observed(self, *args):
@@ -601,17 +591,8 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
             #self.setToolTip("Value: " + s)
             self.setToolTip(self.port().get_tip(data) )
 
-    ##################
-    # QtWorld-Layout #
-    ##################
-    def size(self):
-        if self.isVisible() :
-            return self.__size
-        else :
-            return self.__nosize
-
-    def sizeHint(self, blop, blip):
-        return self.size()
+    def get_id(self):
+        return self.port().get_id()
 
     ##################
     # QtWorld-Events #
@@ -631,7 +612,7 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
     def paint(self, painter, option, widget):
         if(not self.isVisible()):
             return
-
+        pos = self.pos()
         painter.setBackgroundMode(QtCore.Qt.TransparentMode)
         gradient = QtGui.QLinearGradient(0, 0, 10, 0)
         if self.highlighted:
@@ -647,12 +628,9 @@ class GraphicalPort(QtGui.QGraphicsWidget, qtgraphview.Connector):
 
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
-
-        #painter.drawEllipse(self.__spacing/2+1,1,self.WIDTH-2, self.HEIGHT-2)
-        painter.drawEllipse(QtCore.QRectF(self.__spacing / 2. + 0.,0,
-                                          self.WIDTH, self.HEIGHT) )
+        painter.drawEllipse(QtCore.QRectF(0, 0, self.WIDTH, self.HEIGHT) )
 
 
-    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsWidget,
+    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsItem,
                               "itemChange")
 

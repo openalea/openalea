@@ -18,7 +18,150 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
+import weakref, traceback
 from PyQt4 import QtCore, QtGui
+
+
+
+
+#-- Simple layouts for QGraphicsItems --
+class Layout(object):
+    def __init__(self, parent=None, final=None, margins=(0.,0.,0.,0.),
+                 innerMargins=(0.,0.), center=False, mins=(0.,0.)):
+        self._parent = parent
+        self._final = final
+        self._x1, self._x2, self._y1, self._y2 = margins
+        self._ix1, self._iy1 = innerMargins
+        self._center = center
+        self._minWidth, self._minHeight = mins
+        self._boundCache = None
+        self._items = []
+        if parent:
+            parent.addItem(self)
+
+    def clear(self):
+        self._items = []
+        self._final = None
+
+    def __add__(self, other):
+        return self._items + other._items
+
+    def __iter__(self):
+        return self._items.__iter__()
+
+    def __contains__(self, item):
+        return self._items.__contains__(item)
+
+    def center(self, val):
+        self._center = val
+
+    def sort(self, cmp):
+        self._items.sort(cmp)
+
+    def addFinalItem(self, item):
+        self._final = item
+
+    def addItem(self, item):
+        self._items.append(item)
+
+    def removeItem(self, item):
+        self._items.remove(item)
+
+    def boundingRect(self, force=True):
+        if force or self._boundCache is None:
+            x, y, w, h = self._boundingRect()
+            w = max(w, self._minWidth)
+            h = max(h, self._minHeight)
+            self._boundCache = QtCore.QRectF(x, y, w, h)
+            if self._parent:
+                self._parent.boundCache = None
+        return self._boundCache
+
+    def _boundingRect(self):
+        raise NotImplementedError
+
+    def setPos(self, pos):
+        raise NotImplementedError
+
+    def setMinimumSize(width=None, height=None):
+        if width: self._minWidth = width
+        if height: self._minHeight = height
+
+    def setMargins(self, x1=None, x2=None,
+                   y1=None, y2=None):
+        if x1: self._x1=x1
+        if x2: self._x2=x2,
+        if y1: self._y1=y1
+        if y2: self._y2=y2
+
+    def setInnerMargins(self, ix1=None,
+                        iy1=None):
+        if ix1: self._ix1=ix1
+        if iy1: self._iy1=iy1
+
+    def isVisible(self):
+        return True
+
+class HorizontalLayout(Layout):
+    def _boundingRect(self):
+        width = self._x1 + self._x2
+        height = self._y1 + self._y2
+        geoms = [i.boundingRect() for i in self._items if i.isVisible()]
+        lenGeoms = len(geoms)
+        if lenGeoms>0:
+            width  += sum( g.width() for g in geoms ) + (lenGeoms-1)*self._ix1
+            height += max( g.height() for g in geoms )
+        if self._final and self._final.isVisible():
+            width  += self._final.boundingRect().width()
+            height = max( height, self._final.boundingRect().height() )
+        return 0., 0., width, height
+
+    def setPos(self, pos):
+        offset = pos + QtCore.QPointF(self._x1, self._y1)
+        innerOffset = QtCore.QPointF(self._ix1, self._iy1)
+        items = (i for i in self._items if i.isVisible())
+        selfHeight = self.boundingRect(force=False).height()
+        for it in items:
+            itRect = it.boundingRect()
+            if self._center:
+                offset.setY(offset.y() + (selfHeight - itRect.height())/2.)
+            it.setPos(offset)
+            offset += QtCore.QPointF(itRect.width(), 0.) + innerOffset
+        if self._final and self._final.isVisible():
+            if self._center:
+                offset.setY((selfHeight - self._final.boundingRect().height())/2.)
+            self._final.setPos(offset)
+
+class VerticalLayout(Layout):
+    def _boundingRect(self):
+        width = self._x1 + self._x2
+        height = self._y1 + self._y2
+        geoms = [i.boundingRect() for i in self._items if i.isVisible()]
+        lenGeoms = len(geoms)
+        if lenGeoms>0:
+            width  += max( g.width() for g in geoms )
+            height += sum( g.height() for g in geoms ) + (lenGeoms-1)*self._iy1
+        if self._final and self._final.isVisible():
+            width  = max(width, self._final.boundingRect().width())
+            height += self._final.boundingRect().height()
+        return 0., 0., width, height
+
+    def setPos(self, pos):
+        offset = pos + QtCore.QPointF(self._x1, self._y1)
+        innerOffset = QtCore.QPointF(self._ix1, self._iy1)
+        items = (i for i in self._items if i.isVisible())
+        selfWidth = self.boundingRect(force=False).width()
+        for it in items:
+            itRect = it.boundingRect()
+            if self._center:
+                offset.setX((selfWidth - itRect.width())/2.)
+            it.setPos(offset)
+            offset += QtCore.QPointF(0., itRect.height()) + innerOffset
+        if self._final and self._final.isVisible():
+            if self._center:
+                offset.setX((selfWidth - self._final.boundingRect().width())/2.)
+            self._final.setPos(offset)
+
 
 
 class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):

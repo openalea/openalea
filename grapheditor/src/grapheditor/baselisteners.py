@@ -56,6 +56,9 @@ class GraphElementListenerBase(observer.AbstractListener):
         except TypeError:
             return None
 
+    def initialise_from_model(self):
+        return
+
     def clear_observed(self, *args):
         self.__obsBBox.clear_observed()
 
@@ -91,8 +94,6 @@ class GraphListenerBase(observer.AbstractListener):
 
     It is MVC oriented.
     """
-
-
     def __init__(self, graph, strat):
         observer.AbstractListener.__init__(self)
         assert graph is not None
@@ -123,7 +124,7 @@ class GraphListenerBase(observer.AbstractListener):
 
     def get_graph(self):
         return self.__graph
-        
+
     def set_graph(self, graph, adapter=None, observable=None):
         strat                  = self.__strategyCls(graph, adapter, observable)
         self.__strategy        = strat
@@ -132,7 +133,7 @@ class GraphListenerBase(observer.AbstractListener):
         self._connector_types=set(strat.get_connector_types())
         self.__observableGraph = strat.get_observable_graph()
         self.__graphAdapter    = strat.get_graph_adapter()
-        self.__observableGraph.register_listener(self)              
+        self.__observableGraph.register_listener(self)
 
     def get_adapter(self):
         return self.__graphAdapter
@@ -145,7 +146,6 @@ class GraphListenerBase(observer.AbstractListener):
 
     def clear(self):
         self.widgetmap = {}
-
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
@@ -179,8 +179,8 @@ class GraphListenerBase(observer.AbstractListener):
     # Protected controller methods come next. They MODIFY the model. #
     ##################################################################
     def new_vertex(self, *args, **kwargs):
-        return self.__graphAdapter.new_vertex(*args, **kwargs)    
-    
+        return self.__graphAdapter.new_vertex(*args, **kwargs)
+
     def add_vertex(self, *args, **kwargs):
         self.__graphAdapter.add_vertex(*args, **kwargs)
 
@@ -213,7 +213,7 @@ class GraphListenerBase(observer.AbstractListener):
 
     def remove_edges(self, *args, **kwargs):
         self.__graphAdapter.remove_edges(*args, **kwargs)
-        
+
     #########################
     # Other utility methods #
     #########################
@@ -241,6 +241,7 @@ class GraphListenerBase(observer.AbstractListener):
     ###############################################################
     def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
+        widget.initialise_from_model()
         return self._register_widget_with_model(widget, model)
 
     def _register_widget_with_model(self, widget, model):
