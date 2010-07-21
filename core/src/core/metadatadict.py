@@ -37,6 +37,7 @@ class MetaDataDict(observer.Observed):
         observer.Observed.__init__(self)
         self._metaValues = {}
         self._metaTypes = {}
+        self.__doTypeChecking = False
 
         if kwargs.get("dict", False):
             values = kwargs.get("dict")
@@ -114,7 +115,7 @@ class MetaDataDict(observer.Observed):
             raise Exception("This key does not exist : " + key)
 
         valType = self._metaTypes[key]
-        if key in self._metaTypes and type(value) != valType :
+        if self.__doTypeChecking and type(value) != valType :
             print self.__class__, "set_metadata : Unexpected value type", key, \
                   " : ", type(value), "instead of", valType, \
                   " assuming duck-typing"
@@ -146,7 +147,8 @@ class MetaDataDict(observer.Observed):
             else:
                 observer.notify(source, ("metadata_changed", k, value, valType))
 
-
+    def do_type_checking(self, val):
+        self.__doTypeChecking = val
 
     def keys(self):
         return self._metaTypes.keys()
