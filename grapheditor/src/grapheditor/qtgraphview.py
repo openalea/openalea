@@ -266,7 +266,7 @@ class Connector(Element):
 
 #------*************************************************------#
 def defaultPaint(owner, painter, paintOptions, widget):
-    rect = owner.rect()
+    rect = owner.boundingRect()
     painter.drawEllipse(rect)
 
 

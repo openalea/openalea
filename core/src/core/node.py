@@ -65,6 +65,7 @@ def initialise_standard_metadata():
     Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
     Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
     Annotation.extend_ad_hoc_slots("text", str, "", "txt")
+    Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
 
     #we declare what are the node model ad hoc data we require:
     AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
@@ -682,7 +683,7 @@ class Node(AbstractNode):
 
         odict['modified'] = True
 
-        
+
         outputs = range(len(self.outputs))
         for i in range(self.get_nb_output()):
             try:

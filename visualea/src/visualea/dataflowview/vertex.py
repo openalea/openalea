@@ -17,16 +17,16 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref, sys, traceback
+import weakref
 from PyQt4 import QtCore, QtGui,QtSvg
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
 from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
 from openalea.core.settings import Settings
 from openalea.grapheditor import qtgraphview, baselisteners, qtutils
-from openalea.grapheditor.qtutils import mixin_method
-import adapter
+from openalea.grapheditor.qtutils import mixin_method, safeEffects
 from openalea.visualea import images_rc
+import adapter
 
 """
 """
@@ -169,16 +169,15 @@ class OpenAleaPortLayoutEngine(object):
             self._delayText.setText("%d" % graphicalParent.vertex().delay)
 
 
-
 class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRectItem):
     LayoutEngine = OpenAleaPortLayoutEngine
 
     # --- PAINTING STUFF ---
     path_cache   = weakref.WeakKeyDictionary()
     # Color Definition
-    default_not_modified_color       = QtGui.QColor(0, 0, 255, 200)
-    default_selected_color           = QtGui.QColor(180, 180, 180, 180)
-    default_not_selected_color       = QtGui.QColor(255, 255, 255, 100)
+    default_not_modified_color       = QtGui.QColor(0, 0, 255, 255)
+    default_selected_color           = QtGui.QColor(180, 180, 180, 255)
+    default_not_selected_color       = QtGui.QColor(255, 255, 255, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
     default_selected_error_color     = QtGui.QColor(0, 0, 0, 255)
     default_not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
@@ -190,6 +189,11 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
     def __init__(self, vertex, graph, parent=None):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, 1, 1, parent)
         qtgraphview.VertexWithPorts.__init__(self, vertex, graph)
+        if safeEffects:
+            fx = QtGui.QGraphicsDropShadowEffect()
+            fx.setOffset(2,2)
+            fx.setBlurRadius(5)
+            self.setGraphicsEffect(fx)
 
     def _initialise_from_model(self):
         vertex = self.vertex()
@@ -222,7 +226,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
 
     def _refresh_geometry(self, geom):
         geom = geom.adjusted(0, 5, 0, -5)
-
         self.setRect(geom)
 
     ####################
