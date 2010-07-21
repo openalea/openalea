@@ -23,9 +23,6 @@ from PyQt4 import QtCore, QtGui
 
 
 safeEffects = QtCore.QT_VERSION >= 0x40600 and QtCore.PYQT_VERSION > 0x40704
-print "are effects safe????:", safeEffects
-
-
 
 #-- Simple layouts for QGraphicsItems --
 class Layout(object):
