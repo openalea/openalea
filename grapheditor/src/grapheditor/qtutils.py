@@ -18,9 +18,12 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-import weakref, traceback
+import weakref
 from PyQt4 import QtCore, QtGui
 
+
+safeEffects = QtCore.QT_VERSION >= 0x40600 and QtCore.PYQT_VERSION > 0x40704
+print "are effects safe????:", safeEffects
 
 
 
