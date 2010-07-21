@@ -55,7 +55,6 @@ class OpenAleaPortLayoutEngine(object):
                                               center=True)
         # --- in ports ---
         self.inPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
-                                                     #margins=(self.outMargins, self.outMargins, 0., 0.),
                                                      innerMargins=(self.portSpacing,0.),
                                                      center=True,
                                                      mins=(5, 5))
@@ -64,7 +63,6 @@ class OpenAleaPortLayoutEngine(object):
         self.vLayout.addItem(self._caption)
         # --- out ports ---
         self.outPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
-                                                      #margins=(self.outMargins, self.outMargins, 0., 0.),
                                                       innerMargins=(self.portSpacing,0.),
                                                       center=True,
                                                       mins=(5, 5))
@@ -73,7 +71,6 @@ class OpenAleaPortLayoutEngine(object):
         hiddenPortItem = HiddenPort(graphicalParent)
         hiddenPortItem.setVisible(False)
         self.hiddenPortItem = hiddenPortItem
-
         self.inPortLayout.addFinalItem(hiddenPortItem)
 
         # ---Small box when the vertex is busy, beping evaluated---
@@ -283,7 +280,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
             self.remove_ports("input")
         elif(event[0] == "cleared_output_ports"):
             self.remove_ports("output")
-
+        self.update()
         qtgraphview.VertexWithPorts.notify(self, sender, event)
 
     def paint(self, painter, options, widget):

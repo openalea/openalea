@@ -66,6 +66,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.__headerRect = rect
         self.__moveHandleBottomRightTo(myRect.bottomRight())
         self.setRect(myRect)
+        self.update()
 
     def mousePressEvent(self, event):
         pos         = event.pos()
@@ -80,10 +81,9 @@ class MemoRects(QtGui.QGraphicsRectItem):
     def mouseMoveEvent(self, event):
         if self.__resizing:
             delta = event.pos() - event.lastPos()
-            bottomRight = self.boundingRect().bottomRight()
-            bottomRight += delta
+            bottomRight = self.boundingRect().bottomRight() + delta
             newRect = QtCore.QRectF(0.,0., bottomRight.x(), bottomRight.y())
-            if newRect.isValid() and newRect.contains(self.__headerContentRect.adjusted(0,0,0,self.__handleSize)):
+            if newRect.contains(self.__headerContentRect.adjusted(0,0,0,self.__handleSize)):
                 self.setRect(newRect)
                 self.__headerRect = QtCore.QRectF(0.,0., bottomRight.x(), self.__headerContentRect.height())
                 self.__moveHandleBottomRightTo(newRect.bottomRight())
@@ -97,25 +97,32 @@ class MemoRects(QtGui.QGraphicsRectItem):
             QtGui.QGraphicsRectItem.mouseReleaseEvent(self, event)
 
     def paint(self, painter, paintOptions, widget):
-        painter.fillRect(self.__headerRect, QtGui.QColor(230, 180, 10))
         myRect = self.boundingRect()
-        myRect.setTop(self.__headerRect.bottom())
 
+        painter.fillRect(self.__headerRect, QtGui.QColor(230, 180, 10))
         gradTop = self.__headerRect.bottomLeft()
         gradBot = gradTop + QtCore.QPointF(0,10)
         gradient = QtGui.QLinearGradient(gradTop,gradBot )
         gradient.setColorAt(0, QtGui.QColor(150, 120, 10))
         gradient.setColorAt(1, QtGui.QColor(230, 230, 100))
         brush = QtGui.QBrush(gradient)
-        painter.fillRect(myRect, brush)
+
+        bottomRect = myRect.adjusted(0,self.__headerRect.bottom(),0,0)
+        painter.fillRect(bottomRect, brush)
+
+
+        if not safeEffects:
+            oldPen = painter.pen()
+            pen = QtGui.QPen()
+            pen.setColor(QtGui.QColor(10,10,10,100))
+            pen.setWidth(1)
+            painter.setPen(pen)
+            painter.drawRect(myRect.adjusted(0.5,0.5,-0.5,-0.5))
+            painter.setPen(oldPen)
 
         painter.setBrush(QtGui.QBrush(QtGui.QColor(150, 120, 10)))
-        bottomRight = myRect.bottomRight()
         painter.drawConvexPolygon(self.__handlePoly)
 
-        #instead of having a nice shadow, just draw a border
-        if not safeEffects:
-            QtGui.QGraphicsRectItem.paint(self, painter, paintOptions, widget)
 
 
 
