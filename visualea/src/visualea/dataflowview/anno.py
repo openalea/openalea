@@ -17,16 +17,18 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, QtSvg
 from openalea.grapheditor import qtgraphview, baselisteners
-from openalea.grapheditor.qtutils import mixin_method, safeEffects
-
-
+from openalea.grapheditor.qtutils import (mixin_method, safeEffects, AleaQGraphicsColorWheel,
+                                          AleaQGraphicsEmitingTextItem, AleaQMenu)
+from openalea.visualea.graph_operator import GraphOperator
+from openalea.visualea import images_rc
 
 
 class MemoRects(QtGui.QGraphicsRectItem):
 
-    __handleSize   = 7.5
+    __handleSize    = 7.5
+    __defaultColor  = QtGui.QColor(250, 250, 100)
 
     def __init__(self, rect, parent=None):
         QtGui.QGraphicsRectItem.__init__(self, rect, parent)
@@ -34,16 +36,29 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.__handlePoly = QtGui.QPolygonF([QtCore.QPointF(0, -self.__handleSize),
                                              QtCore.QPointF(0, 0),
                                              QtCore.QPointF(-self.__handleSize,0)])
-        self.__handlePos  = QtCore.QPointF(0,0)
         self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
+        # -- handle --
+        self.__handlePos  = QtCore.QPointF(0,0)
+        # -- header --
         self.__headerContentRect = None
         self.__headerRect = None
-
+        # -- color --
+        self.__color       = None
+        self.__darkerColor = None
+        self.__shadowColor = None
+        self.setColor(self.__defaultColor.darker(110))
+        # -- optionnal cosmetics --
         if safeEffects:
             fx = QtGui.QGraphicsDropShadowEffect()
             fx.setOffset(2,2)
             fx.setBlurRadius(5)
             self.setGraphicsEffect(fx)
+
+    def setColor(self, color):
+        self.__color       = color
+        self.__darkerColor = color.darker(140)
+        self.__shadowColor = color.darker(200)
+        self.update()
 
     def __moveHandleBottomRightTo(self, point):
         delta = point - self.__handlePos
@@ -99,17 +114,16 @@ class MemoRects(QtGui.QGraphicsRectItem):
     def paint(self, painter, paintOptions, widget):
         myRect = self.boundingRect()
 
-        painter.fillRect(self.__headerRect, QtGui.QColor(230, 180, 10))
+        painter.fillRect(self.__headerRect, self.__darkerColor)
         gradTop = self.__headerRect.bottomLeft()
-        gradBot = gradTop + QtCore.QPointF(0,10)
-        gradient = QtGui.QLinearGradient(gradTop,gradBot )
-        gradient.setColorAt(0, QtGui.QColor(150, 120, 10))
-        gradient.setColorAt(1, QtGui.QColor(230, 230, 100))
+        gradBot = gradTop + QtCore.QPointF(0,4)
+        gradient = QtGui.QLinearGradient(gradTop,gradBot)
+        gradient.setColorAt(0, self.__shadowColor)
+        gradient.setColorAt(1, self.__color)
         brush = QtGui.QBrush(gradient)
 
         bottomRect = myRect.adjusted(0,self.__headerRect.bottom(),0,0)
         painter.fillRect(bottomRect, brush)
-
 
         if not safeEffects:
             oldPen = painter.pen()
@@ -120,53 +134,10 @@ class MemoRects(QtGui.QGraphicsRectItem):
             painter.drawRect(myRect.adjusted(0.5,0.5,-0.5,-0.5))
             painter.setPen(oldPen)
 
-        painter.setBrush(QtGui.QBrush(QtGui.QColor(150, 120, 10)))
+        painter.setBrush(QtGui.QBrush(self.__darkerColor))
         painter.drawConvexPolygon(self.__handlePoly)
 
 
-
-
-
-class QGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
-    """ Text annotation on the data flow """
-
-    def wrap(method):
-        def wrapped(self, *args, **kwargs):
-            v = method(self, *args, **kwargs)
-            self.geometryModified.emit(self.boundingRect())
-        return wrapped
-
-    #missing signals
-    geometryModified = QtCore.pyqtSignal(QtCore.QRectF)
-
-    # setDefaultTextColor = wrap(QtGui.QGraphicsTextItem.setDefaultTextColor)
-    setDocument = wrap(QtGui.QGraphicsTextItem.setDocument)
-    setFont = wrap(QtGui.QGraphicsTextItem.setFont)
-    setHtml = wrap(QtGui.QGraphicsTextItem.setHtml)
-    # setOpenExternalLinks = wrap(QtGui.QGraphicsTextItem.setOpenExternalLinks)
-    setPlainText = wrap(QtGui.QGraphicsTextItem.setPlainText)
-    # setTabChangesFocus = wrap(QtGui.QGraphicsTextItem.setTabChangesFocus)
-    # setTextCursor = wrap(QtGui.QGraphicsTextItem.setTextCursor)
-    # setTextInteractionFlags = wrap(QtGui.QGraphicsTextItem.setTextInteractionFlags)
-    setTextWidth = wrap(QtGui.QGraphicsTextItem.setTextWidth)
-
-    dragEnterEvent = wrap(QtGui.QGraphicsTextItem.dragEnterEvent)
-    dragLeaveEvent = wrap(QtGui.QGraphicsTextItem.dragLeaveEvent)
-    dragMoveEvent = wrap(QtGui.QGraphicsTextItem.dragMoveEvent)
-    dropEvent = wrap(QtGui.QGraphicsTextItem.dropEvent)
-    # focusInEvent = wrap(QtGui.QGraphicsTextItem.focusInEvent)
-    # focusOutEvent = wrap(QtGui.QGraphicsTextItem.focusOutEvent)
-    # hoverEnterEvent = wrap(QtGui.QGraphicsTextItem.hoverEnterEvent)
-    # hoverLeaveEvent = wrap(QtGui.QGraphicsTextItem.hoverLeaveEvent)
-    # hoverMoveEvent = wrap(QtGui.QGraphicsTextItem.hoverMoveEvent)
-    inputMethodEvent = wrap(QtGui.QGraphicsTextItem.inputMethodEvent)
-    inputMethodQuery = wrap(QtGui.QGraphicsTextItem.inputMethodQuery)
-    keyPressEvent = wrap(QtGui.QGraphicsTextItem.keyPressEvent)
-    keyReleaseEvent = wrap(QtGui.QGraphicsTextItem.keyReleaseEvent)
-    mouseDoubleClickEvent = wrap(QtGui.QGraphicsTextItem.mouseDoubleClickEvent)
-    mouseMoveEvent = wrap(QtGui.QGraphicsTextItem.mouseMoveEvent)
-    mousePressEvent = wrap(QtGui.QGraphicsTextItem.mousePressEvent)
-    mouseReleaseEvent = wrap(QtGui.QGraphicsTextItem.mouseReleaseEvent)
 
 class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
     """ Text annotation on the data flow """
@@ -177,12 +148,21 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         """ Create a nice annotation """
         MemoRects.__init__(self, QtCore.QRectF())
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
-        self.__textItem = QGraphicsEmitingTextItem(self.__def_string__, self)
+        self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
         self.__textItem.geometryModified.connect(self.setHeaderRect)
         self.__textItem.geometryModified.connect(self.__onTextModified)
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setZValue(-5)
+
+        self.__colorWheel = AleaQGraphicsColorWheel(radius=6, parent=self)
+        self.__colorWheel.colorChanged.connect(self.__onColorWheelChanged)
+        self.__colorWheel.setPos(-self.__colorWheel.rect().center())
+
+        self.setZValue(-100)
+        self.__textItem.setZValue(-99)
+        self.__colorWheel.setZValue(-98)
+
+
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
@@ -201,6 +181,11 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         if(text != self.__def_string__):
             self.store_view_data(text=text)
         self.deaf(False)
+
+    def __onColorWheelChanged(self, color):
+        self.store_view_data(color=[color.red(),
+                                    color.green(),
+                                    color.blue()])
 
     def setRect(self, rect):
         self.deaf(True)
@@ -222,6 +207,11 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
                     rect = QtCore.QRectF(0,0,event[2][0],event[2][1])
                     MemoRects.setRect(self,rect)
                     self.setHeaderRect(self.__textItem.boundingRect())
+                elif event[1] == "color":
+                    col = event[2]
+                    if col:
+                        color = QtGui.QColor(*col)
+                        self.setColor(color)
         qtgraphview.Vertex.notify(self, sender, event)
 
     def set_text(self, text):

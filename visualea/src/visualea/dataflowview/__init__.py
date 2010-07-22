@@ -37,7 +37,7 @@ class DataflowView( qtgraphview.View ):
     # This class is in an intermediate state
     # between using GraphEditor's qtgraphview.View extensibality
     # and simple subclassing. I'm doing this because I don't
-    # like big migrations.
+    # like big migrations. -- DB
 
     def __init__(self, parent, graph, strategy, clone=False):
         qtgraphview.View.__init__(self, parent, graph, strategy, clone)
