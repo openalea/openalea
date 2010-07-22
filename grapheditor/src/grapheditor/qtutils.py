@@ -22,9 +22,111 @@ import weakref
 from PyQt4 import QtCore, QtGui
 
 
+#####################################################
+# A Global to know if using QGraphicsEffect is safe #
+#####################################################
 safeEffects = QtCore.QT_VERSION >= 0x40600 and QtCore.PYQT_VERSION > 0x40704
 
-#-- Simple layouts for QGraphicsItems --
+
+#######################################
+# A very simple signal implementation #
+#######################################
+class AleaSignal(object):
+    def __init__(self, *types):
+        self.types     = types
+        self.callbacks = weakref.WeakKeyDictionary()
+    def connect(self, callback):
+        self.callbacks[callback] = callback
+    def emit(self, args):
+        # do type checking?
+        callbacks = self.callbacks.values()[:]
+        for c in callbacks:
+            c(args)
+
+#############################################################
+# Customized Qt Classes that can be reused in other places. #
+#############################################################
+class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
+    """A QtGui.QGraphicsTextItem that emits geometryModified whenever
+    its geometry can have changed."""
+
+    def wrap(method):
+        """wraps the given method to emit geometryModified after
+        the method call"""
+        def wrapped(self, *args, **kwargs):
+            v = method(self, *args, **kwargs)
+            self.geometryModified.emit(self.boundingRect())
+        return wrapped
+
+    ######################
+    # The Missing Signal #
+    ######################
+    geometryModified = QtCore.pyqtSignal(QtCore.QRectF)
+
+    #############################################################
+    # The Wrapped Method. Commented ones are there because they #
+    # probably don't need to be wrapped (useless).              #
+    #############################################################
+    # setDefaultTextColor = wrap(QtGui.QGraphicsTextItem.setDefaultTextColor)
+    setDocument = wrap(QtGui.QGraphicsTextItem.setDocument)
+    setFont = wrap(QtGui.QGraphicsTextItem.setFont)
+    setHtml = wrap(QtGui.QGraphicsTextItem.setHtml)
+    # setOpenExternalLinks = wrap(QtGui.QGraphicsTextItem.setOpenExternalLinks)
+    setPlainText = wrap(QtGui.QGraphicsTextItem.setPlainText)
+    # setTabChangesFocus = wrap(QtGui.QGraphicsTextItem.setTabChangesFocus)
+    # setTextCursor = wrap(QtGui.QGraphicsTextItem.setTextCursor)
+    # setTextInteractionFlags = wrap(QtGui.QGraphicsTextItem.setTextInteractionFlags)
+    setTextWidth = wrap(QtGui.QGraphicsTextItem.setTextWidth)
+
+    dragEnterEvent = wrap(QtGui.QGraphicsTextItem.dragEnterEvent)
+    dragLeaveEvent = wrap(QtGui.QGraphicsTextItem.dragLeaveEvent)
+    dragMoveEvent = wrap(QtGui.QGraphicsTextItem.dragMoveEvent)
+    dropEvent = wrap(QtGui.QGraphicsTextItem.dropEvent)
+    # focusInEvent = wrap(QtGui.QGraphicsTextItem.focusInEvent)
+    # focusOutEvent = wrap(QtGui.QGraphicsTextItem.focusOutEvent)
+    # hoverEnterEvent = wrap(QtGui.QGraphicsTextItem.hoverEnterEvent)
+    # hoverLeaveEvent = wrap(QtGui.QGraphicsTextItem.hoverLeaveEvent)
+    # hoverMoveEvent = wrap(QtGui.QGraphicsTextItem.hoverMoveEvent)
+    inputMethodEvent = wrap(QtGui.QGraphicsTextItem.inputMethodEvent)
+    inputMethodQuery = wrap(QtGui.QGraphicsTextItem.inputMethodQuery)
+    keyPressEvent = wrap(QtGui.QGraphicsTextItem.keyPressEvent)
+    keyReleaseEvent = wrap(QtGui.QGraphicsTextItem.keyReleaseEvent)
+    mouseDoubleClickEvent = wrap(QtGui.QGraphicsTextItem.mouseDoubleClickEvent)
+    mouseMoveEvent = wrap(QtGui.QGraphicsTextItem.mouseMoveEvent)
+    mousePressEvent = wrap(QtGui.QGraphicsTextItem.mousePressEvent)
+    mouseReleaseEvent = wrap(QtGui.QGraphicsTextItem.mouseReleaseEvent)
+
+
+
+class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem):
+    __stopHues = xrange(0,360,360/12)
+    __stopPos  = [i*1.0/12 for i in xrange(12)]
+
+    ######################
+    # The Missing Signal #
+    ######################
+
+    def __init__(self, radius=3.0, parent=None):
+        QtGui.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
+        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
+        self.colorChanged = AleaSignal(QtGui.QColor)
+        gradient = QtGui.QConicalGradient()
+        gradient.setCenter(radius, radius)
+        for hue, pos in zip(self.__stopHues, self.__stopPos):
+            gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
+        self.setBrush(QtGui.QBrush(gradient))
+
+    def mousePressEvent(self, event):
+        print "hereeee"
+        color = QtGui.QColorDialog.getColor(parent=event.widget())
+        QtGui.QGraphicsEllipseItem.mousePressEvent(self, event)
+        self.colorChanged.emit(color)
+
+
+
+#####################################
+# Simple layouts for QGraphicsItems #
+#####################################
 class Layout(object):
     def __init__(self, parent=None, final=None, margins=(0.,0.,0.,0.),
                  innerMargins=(0.,0.), center=False, mins=(0.,0.)):
@@ -164,71 +266,73 @@ class VerticalLayout(Layout):
 
 
 
-class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):
-    def __init__(self, label, parent=None):
-        QtGui.QGraphicsWidget.__init__(self, parent)
-        self.__label = QtGui.QGraphicsSimpleTextItem(self)
-        font = self.__label.font()
-        font.setBold(True)
-        self.__label.setText(label)
-
-    def boundingRect(self):
-        return self.__label.boundingRect()
-
-    def shape(self):
-        return self.__label.shape()
-
-    def size(self):
-        return self.boundingRect().size()
-
-    def sizeHint(self, blop, blip):
-        return self.size()
-
-    def setText(self, text):
-        self.__label.setText(text)
-        self.updateGeometry()
-
-    def paint(self, painter, paintOpts, widget):
-        self.__label.paint(painter, paintOpts, widget)
-
-class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):
-    """Embed a QWidget in a QGraphicsItem without the ugly background.
-
-    When embedding for ex. a QLabel in a QGraphicsLayout using the normal
-    QGraphicsProxyWidget, the QLabel is rendered with its ugly background
-    and the custom drawing of the QGraphicsItem is hidden.
-    This class overrides the painting routine or the QGraphicsProxyWidget
-    to paint the child widget without the background.
-    """
-    def __init__(self, widget, parent=None):
-        """
-        Ctor.
-
-        :Parameters:
-	 - widget (QtGui.QWidget) - The QWidget to embed
-	 - parent (QtGui.QGraphicsItem) - Reference to the parent.
-
-        """
-        QtGui.QGraphicsProxyWidget.__init__(self, parent)
-        self.setWidget(widget)
-        self.__noMouseEventForward = True
-
-    def event(self, event):
-        #needed or else it catches events before getting to the nodes in dataflowviews and
-        #makes tooltips invisible.
-        if(event.type()==QtCore.QEvent.GraphicsSceneHoverMove and self.__noMouseEventForward):
-            event.ignore()
-            return True
-        return QtGui.QGraphicsProxyWidget.event(self, event)
-
-    def setMouseEventForward(self, val):
-        self.__noMouseEventForward = val
-
-    def setWidget(self, widget):
-        widget.setBackgroundRole(QtGui.QPalette.Background)
-        widget.setAutoFillBackground(True)
-        widget.setStyleSheet("background-color: transparent")
-        QtGui.QGraphicsProxyWidget.setWidget(self, widget)
+#########################################################################################################
+# class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):                                                #
+#     def __init__(self, label, parent=None):                                                           #
+#         QtGui.QGraphicsWidget.__init__(self, parent)                                                  #
+#         self.__label = QtGui.QGraphicsSimpleTextItem(self)                                            #
+#         font = self.__label.font()                                                                    #
+#         font.setBold(True)                                                                            #
+#         self.__label.setText(label)                                                                   #
+#                                                                                                       #
+#     def boundingRect(self):                                                                           #
+#         return self.__label.boundingRect()                                                            #
+#                                                                                                       #
+#     def shape(self):                                                                                  #
+#         return self.__label.shape()                                                                   #
+#                                                                                                       #
+#     def size(self):                                                                                   #
+#         return self.boundingRect().size()                                                             #
+#                                                                                                       #
+#     def sizeHint(self, blop, blip):                                                                   #
+#         return self.size()                                                                            #
+#                                                                                                       #
+#     def setText(self, text):                                                                          #
+#         self.__label.setText(text)                                                                    #
+#         self.updateGeometry()                                                                         #
+#                                                                                                       #
+#     def paint(self, painter, paintOpts, widget):                                                      #
+#         self.__label.paint(painter, paintOpts, widget)                                                #
+#                                                                                                       #
+# class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):                                           #
+#     """Embed a QWidget in a QGraphicsItem without the ugly background.                                #
+#                                                                                                       #
+#     When embedding for ex. a QLabel in a QGraphicsLayout using the normal                             #
+#     QGraphicsProxyWidget, the QLabel is rendered with its ugly background                             #
+#     and the custom drawing of the QGraphicsItem is hidden.                                            #
+#     This class overrides the painting routine or the QGraphicsProxyWidget                             #
+#     to paint the child widget without the background.                                                 #
+#     """                                                                                               #
+#     def __init__(self, widget, parent=None):                                                          #
+#         """                                                                                           #
+#         Ctor.                                                                                         #
+#                                                                                                       #
+#         :Parameters:                                                                                  #
+# 	 - widget (QtGui.QWidget) - The QWidget to embed                                                #
+# 	 - parent (QtGui.QGraphicsItem) - Reference to the parent.                                      #
+#                                                                                                       #
+#         """                                                                                           #
+#         QtGui.QGraphicsProxyWidget.__init__(self, parent)                                             #
+#         self.setWidget(widget)                                                                        #
+#         self.__noMouseEventForward = True                                                             #
+#                                                                                                       #
+#     def event(self, event):                                                                           #
+#         #needed or else it catches events before getting to the nodes in dataflowviews and            #
+#         #makes tooltips invisible.                                                                    #
+#         if(event.type()==QtCore.QEvent.GraphicsSceneHoverMove and self.__noMouseEventForward):        #
+#             event.ignore()                                                                            #
+#             return True                                                                               #
+#         return QtGui.QGraphicsProxyWidget.event(self, event)                                          #
+#                                                                                                       #
+#     def setMouseEventForward(self, val):                                                              #
+#         self.__noMouseEventForward = val                                                              #
+#                                                                                                       #
+#     def setWidget(self, widget):                                                                      #
+#         widget.setBackgroundRole(QtGui.QPalette.Background)                                           #
+#         widget.setAutoFillBackground(True)                                                            #
+#         widget.setStyleSheet("background-color: transparent")                                         #
+#         QtGui.QGraphicsProxyWidget.setWidget(self, widget)                                            #
+#########################################################################################################
 
 
 class AleaQMenu(QtGui.QMenu):
