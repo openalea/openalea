@@ -97,11 +97,11 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     mouseReleaseEvent = wrap(QtGui.QGraphicsTextItem.mouseReleaseEvent)
 
 
-
 class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem):
-    __stopHues = xrange(0,360,360/12)
-    __stopPos  = [i*1.0/12 for i in xrange(12)]
-
+    __stopHues    = xrange(0,360,360/12)
+    __stopPos     = [i*1.0/12 for i in xrange(12)]
+    __baseOpacity = 0.01
+    __numFrames   = 24
     ######################
     # The Missing Signal #
     ######################
@@ -109,20 +109,41 @@ class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem):
     def __init__(self, radius=3.0, parent=None):
         QtGui.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
         self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
+        self.setAcceptHoverEvents(True)
         self.colorChanged = AleaSignal(QtGui.QColor)
         gradient = QtGui.QConicalGradient()
         gradient.setCenter(radius, radius)
         for hue, pos in zip(self.__stopHues, self.__stopPos):
             gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
         self.setBrush(QtGui.QBrush(gradient))
+        self.setOpacity(self.__baseOpacity)
+        self.__timer = QtCore.QTimeLine(500)
+        self.__timer.setFrameRange(0, self.__numFrames)
+        self.__timer.frameChanged.connect(self.__onFrameChanged)
+
+    def __onFrameChanged(self, frame):
+        frame -= 1
+        opacity = (1-self.__baseOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__baseOpacity
+        self.setOpacity(opacity)
 
     def mousePressEvent(self, event):
-        print "hereeee"
+        event.accept()
+
+    def hoverEnterEvent(self, event):
+        if self.__timer.state == QtCore.QTimeLine.Running:
+            self.__timer.stop()
+            self.__timer.setCurrentTime(0)
+        self.setOpacity(1.0)
+
+    def hoverLeaveEvent(self, event):
+        op = self.opacity()
+        self.__timer.start()
+
+    def mouseReleaseEvent(self, event):
+        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
         color = QtGui.QColorDialog.getColor(parent=event.widget())
-        QtGui.QGraphicsEllipseItem.mousePressEvent(self, event)
-        self.colorChanged.emit(color)
-
-
+        if color.isValid():
+            self.colorChanged.emit(color)
 
 #####################################
 # Simple layouts for QGraphicsItems #
