@@ -155,7 +155,7 @@
      <x>0</x>
      <y>0</y>
      <width>852</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -251,8 +251,8 @@
     <addaction name="separator"/>
     <addaction name="actionGroup_Selection"/>
     <addaction name="action_Copy"/>
-    <addaction name="action_Paste"/>
     <addaction name="action_Cut"/>
+    <addaction name="action_Paste"/>
     <addaction name="action_Delete_2"/>
     <addaction name="separator"/>
     <addaction name="menuAlign"/>
@@ -539,7 +539,7 @@
     <string>Ctrl+C</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::WidgetShortcut</enum>
    </property>
   </action>
   <action name="action_Paste">
@@ -550,7 +550,7 @@
     <string>Ctrl+V</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::WidgetShortcut</enum>
    </property>
   </action>
   <action name="action_Cut">
@@ -561,7 +561,7 @@
     <string>Ctrl+X</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::WidgetShortcut</enum>
    </property>
   </action>
   <action name="actionReset">

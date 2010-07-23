@@ -171,6 +171,17 @@ class DataflowView( qtgraphview.View ):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         e.setAccepted(True)
 
+    def keyPressEvent(self, e):
+        qtgraphview.View.keyPressEvent(self, e)
+        if not e.isAccepted() and e.modifiers() == QtCore.Qt.ControlModifier:
+            operator=GraphOperator(self, self.scene().get_graph())
+            if e.key() == QtCore.Qt.Key_C:
+                operator(fName="graph_copy")()
+            elif e.key() == QtCore.Qt.Key_X:
+                operator(fName="graph_cut")()
+            elif e.key() == QtCore.Qt.Key_V:
+                operator(fName="graph_paste")()
+
     ###########################################
     # Handling context menu on the graph view #
     ###########################################

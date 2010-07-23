@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore, QtSvg
 from openalea.grapheditor import qtgraphview, baselisteners
+from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import (mixin_method, safeEffects, AleaQGraphicsColorWheel,
                                           AleaQGraphicsEmitingTextItem, AleaQMenu)
 from openalea.visualea.graph_operator import GraphOperator
@@ -152,7 +153,6 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         self.__textItem.geometryModified.connect(self.setHeaderRect)
         self.__textItem.geometryModified.connect(self.__onTextModified)
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
 
         self.__colorWheel = AleaQGraphicsColorWheel(radius=6, parent=self)
         self.__colorWheel.colorChanged.connect(self.__onColorWheelChanged)
@@ -161,8 +161,6 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
         self.__colorWheel.setZValue(-98)
-
-
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 

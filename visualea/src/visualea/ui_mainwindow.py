@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'resources\mainwindow.ui'
+# Form implementation generated from reading ui file 'resources/mainwindow.ui'
 #
-# Created: Fri Jun 25 17:38:06 2010
-#      by: PyQt4 UI code generator 4.6.2
+# Created: Fri Jul 23 13:05:56 2010
+#      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -94,7 +94,7 @@ class Ui_MainWindow(object):
         self.vboxlayout.addWidget(self.splitter_3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 852, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 852, 21))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -201,13 +201,13 @@ class Ui_MainWindow(object):
         self.actionOpen_Console.setShortcutContext(QtCore.Qt.ApplicationShortcut)
         self.actionOpen_Console.setObjectName("actionOpen_Console")
         self.action_Copy = QtGui.QAction(MainWindow)
-        self.action_Copy.setShortcutContext(QtCore.Qt.ApplicationShortcut)
+        self.action_Copy.setShortcutContext(QtCore.Qt.WidgetShortcut)
         self.action_Copy.setObjectName("action_Copy")
         self.action_Paste = QtGui.QAction(MainWindow)
-        self.action_Paste.setShortcutContext(QtCore.Qt.ApplicationShortcut)
+        self.action_Paste.setShortcutContext(QtCore.Qt.WidgetShortcut)
         self.action_Paste.setObjectName("action_Paste")
         self.action_Cut = QtGui.QAction(MainWindow)
-        self.action_Cut.setShortcutContext(QtCore.Qt.ApplicationShortcut)
+        self.action_Cut.setShortcutContext(QtCore.Qt.WidgetShortcut)
         self.action_Cut.setObjectName("action_Cut")
         self.actionReset = QtGui.QAction(MainWindow)
         self.actionReset.setShortcutContext(QtCore.Qt.ApplicationShortcut)
@@ -303,8 +303,8 @@ class Ui_MainWindow(object):
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.actionGroup_Selection)
         self.menu_Workspace.addAction(self.action_Copy)
-        self.menu_Workspace.addAction(self.action_Paste)
         self.menu_Workspace.addAction(self.action_Cut)
+        self.menu_Workspace.addAction(self.action_Paste)
         self.menu_Workspace.addAction(self.action_Delete_2)
         self.menu_Workspace.addSeparator()
         self.menu_Workspace.addAction(self.menuAlign.menuAction())

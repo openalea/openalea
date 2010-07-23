@@ -26,37 +26,6 @@ import edgefactory
 from math import sqrt
 
 
-
-# Some PYQT versions don't know about some QGraphicsItem flags or enums yet
-# even though the underlying Qt knows about it (.sip files not up-to-date
-# when building PyQt). The differences between PYQT_VERSION 4.6.2 and 4.7.3 are:
-unportableFlags = ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
-                   'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
-                   'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
-unportableEnums = ["ItemScenePositionHasChanged", "ItemPositionHasChanged"]
-
-__dict__ = globals()
-for f in unportableFlags+unportableEnums:
-    try:
-        __dict__[f] = getattr(QtGui.QGraphicsItem, f)
-    except Exception, e:
-        print "symbol not found:", f
-        continue
-
-# if it's just the PyQt Version that is too old we have a hack as
-# the qt flag exists but is simply not exposed.
-# this is not bug free: if the Qt guys change the enum order, we're wrecked.
-if QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
-    # -- flags --
-    ItemSendsGeometryChanges = 0x800
-    ItemSendsScenePositionChanges = 0xffff
-    # -- enums --
-    ItemScenePositionHasChanged = 0x1b
-    ItemPositionHasChanged = 0x9
-
-
-
-
 class ClientCustomisableWidget(object):
     """ Base class for Qt widgets or graphicwidgets that adds the
     possibility for subclasses to be set handlers from clients.
@@ -217,7 +186,7 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
 class Connector(Element):
     def __init__(self, *args, **kwargs):
         Element.__init__(self, *args, **kwargs)
-        self.setFlag(ItemSendsGeometryChanges)
+        self.setFlag(qtutils.ItemSendsGeometryChanges)
         # self.setFlag(ItemSendsScenePositionChanges)
         self.setZValue(1.5)
         self.highlighted = False
@@ -251,7 +220,7 @@ class Connector(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-        if change & (ItemScenePositionHasChanged|ItemPositionHasChanged):
+        if change & (qtutils.ItemScenePositionHasChanged|qtutils.ItemPositionHasChanged):
             self.notify_position_change()
             return value
 
@@ -317,7 +286,7 @@ class Vertex(Element):
         self.setZValue(1.0)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
-        self.setFlag(ItemSendsGeometryChanges)
+        self.setFlag(qtutils.ItemSendsGeometryChanges)
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
             self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
@@ -367,7 +336,7 @@ class Vertex(Element):
             for c in self.__connectors:
                 c.notify_position_change()
 
-        elif change == ItemPositionHasChanged:
+        elif change == qtutils.ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data(position=[point.x(), point.y()])
@@ -431,7 +400,7 @@ class Edge(Element):
     def __init__(self, edge=None, graph=None, src=None, dst=None):
         Element.__init__(self, edge, graph)
 
-        self.setFlag(QtGui.QGraphicsItem.GraphicsItemFlag(QtGui.QGraphicsItem.ItemIsSelectable))
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setZValue(0.5)
         self.srcPoint = QtCore.QPointF()
         self.dstPoint = QtCore.QPointF()
@@ -649,10 +618,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         return dstPortItem
 
     def post_addition(self, element):
-        # defining virtual bases makes the program start
-        # but crash during execution if the method is not implemented, where
-        # the interface checking system could prevent the application from
-        # starting, with a die-early behaviour
         element.setSelected(self.__selectAdditions)
 
     def rebuild(self):
@@ -935,7 +900,6 @@ class DefaultGraphicalVertex( Vertex, QtGui.QGraphicsEllipseItem  ):
     def __init__(self, vertex, graph):
         QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, self.circleSize, self.circleSize, None)
         Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
-     #   self.initialise_from_model()
 
     mousePressEvent = qtutils.mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
                                    "mousePressEvent")

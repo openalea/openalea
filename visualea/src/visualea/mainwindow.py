@@ -62,6 +62,13 @@ class MainWindow(QtGui.QMainWindow,
         self.setAcceptDrops(True)
         self.setAttribute(QtCore.Qt.WA_QuitOnClose)
 
+        #configure GraphOperator class: TODO: make this a singleton
+        GraphOperator.__main__ = self
+        GraphOperator.vertexType = dataflowview.vertex.GraphicalVertex
+        GraphOperator.annotationType = dataflowview.anno.GraphicalAnnotation
+        GraphOperator.edgeType = dataflowview.edge.GraphicalEdge
+
+
         self.pkgmanager = session.pkgmanager
 
         # Set observer
@@ -172,17 +179,19 @@ class MainWindow(QtGui.QMainWindow,
                      self.reopen_last)
         # daniel was here: now the menu is built using the graph operator.
         self.operator = GraphOperator()
-        self.operator.set_main(self)
-        self.operator.vertexType = dataflowview.vertex.GraphicalVertex
-        self.operator.annotationType = dataflowview.anno.GraphicalAnnotation
-        self.operator.edgeType = dataflowview.edge.GraphicalEdge
+        # self.operator.set_main(self)
+        # self.operator.vertexType = dataflowview.vertex.GraphicalVertex
+        # self.operator.annotationType = dataflowview.anno.GraphicalAnnotation
+        # self.operator.edgeType = dataflowview.edge.GraphicalEdge
         self.operator.register_listener(self)
-        QtCore.QObject.connect(self.menu_Workspace,
-                               QtCore.SIGNAL("aboutToShow()"),
-                               self.__wsMenuShow)
-        QtCore.QObject.connect(self.action_New_Empty_Workspace,
-                               QtCore.SIGNAL("triggered()"),
-                               self.new_workspace)
+        self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
+        self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
+        # QtCore.QObject.connect(self.menu_Workspace,
+        #                        QtCore.SIGNAL("aboutToShow()"),
+        #                        self.__wsMenuShow)
+        # QtCore.QObject.connect(self.action_New_Empty_Workspace,
+        #                        QtCore.SIGNAL("triggered()"),
+        #                        self.new_workspace)
         self.operator + (self.action_Run, "graph_run")
         self.operator + (self.actionInvalidate, "graph_invalidate")
         self.operator + (self.actionReset, "graph_reset")
@@ -756,7 +765,7 @@ class MainWindow(QtGui.QMainWindow,
             self, "Export image",  QtCore.QDir.homePath(), "PNG Image (*.png)")
 
         filename = str(filename)
-        if not filename: 
+        if not filename:
             return
         elif '.' not in filename:
             filename += '.png'
@@ -784,7 +793,7 @@ class MainWindow(QtGui.QMainWindow,
             self, "Export svg image",  QtCore.QDir.homePath(), "SVG Image (*.svg)")
 
         filename = str(filename)
-        if not filename: 
+        if not filename:
             return
         elif '.' not in filename:
             filename += '.png'

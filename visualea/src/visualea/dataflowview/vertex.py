@@ -285,33 +285,29 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
 
     def paint(self, painter, options, widget):
         path = self.path_cache.get(self, None)
-        rect = self.rect()
         if(path is None or self.shapeChanged):
+            rect = self.rect()
+            #prevent the painter from drawing outside the bounding rect
+            rect.adjust(1,1,-1,-1)
             path = QtGui.QPainterPath()
             path.addRoundedRect(rect, self.default_corner_radius,
                                 self.default_corner_radius)
             self.shapeChanged = False
             self.path_cache[self] = path
 
-        painter.setPen(QtCore.Qt.NoPen)
-        painter.setBrush(QtGui.QColor(100, 100, 100, 50))
-        path.moveTo(3.0,3.0)
-        painter.drawPath(path)
-        path.moveTo(0.0,0.0)
         pen = QtGui.QPen(QtCore.Qt.black, 1)
-
         userColor = self.get_view_data("userColor")
 
         if hasattr(self.vertex(), 'raise_exception'):
             color = self.default_error_color
             if(self.isSelected()):
-                pen = QtGui.QPen(QtCore.Qt.red, 1)
+                pen.setColor(QtGui.QColor(QtCore.Qt.red))
                 secondcolor = self.default_selected_error_color
             else:
                 secondcolor = self.default_not_selected_error_color
         else:
             if(self.isSelected()):
-                pen = QtGui.QPen(QtGui.QColor(180, 180, 255, 255), 1)
+                pen.setColor(QtGui.QColor(180, 180, 255, 255))
                 color = self.default_selected_color
             elif(self.get_view_data("useUserColor")):
                 color=QtGui.QColor(*userColor)
