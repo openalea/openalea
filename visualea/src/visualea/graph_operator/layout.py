@@ -57,7 +57,7 @@ class LayoutOperators(graphOpBase.Base):
         items = widget.scene().get_selected_items(master.vertexType, lambda x: (x, x.get_view_data("position")) )
         count = len(items)
         if count > 1 :
-            #find left ligne #TODO beware of relative to parent coordinates
+            #find left ligne
             xmean = sum(pos[0] for item, pos in items) / count
 
             #move all items
@@ -106,7 +106,7 @@ class LayoutOperators(graphOpBase.Base):
                                                                                 x.boundingRect().width()) )
         count = len(items)
         if count > 1 :
-            #find left ligne #TODO beware of relative to parent coordinates
+            #find left ligne
             xmean = sum(pos[0] + width/2. for item, pos, width in items) / count
 
             #move all items
@@ -129,10 +129,9 @@ class LayoutOperators(graphOpBase.Base):
                                                                                 x.get_view_data("position"),
                                                                                 x.boundingRect().width()) )
 
-#        items = widget.scene().get_selected_items(master.vertexType)
         count = len(items)
         if count > 2 :
-            #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
+            #find xmin,xmax of selected items
             xmin = min(pos[0] for item, pos, width in items)
             xmax = max(pos[0] + width for item, pos, width in items)
 
@@ -141,8 +140,6 @@ class LayoutOperators(graphOpBase.Base):
 
             # #sort all items by their mean position
             items.sort( lambda x, y: cmp(x[1][0]+x[2]/2, y[1][0]+y[2]/2) )
-            # item_centers = [(pos[0] + width/2., item) for item, pos, width in items]
-            # item_centers.sort()
 
             #first item serves as reference
             item, pos, width = items[0]
@@ -167,10 +164,9 @@ class LayoutOperators(graphOpBase.Base):
         items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
                                                                                 x.get_view_data("position"),
                                                                                 x.boundingRect().height()) )
-#        items = widget.scene().get_selected_items(master.vertexType)
         count = len(items)
         if count > 1 :
-            #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
+            #find ymin,ymax of selected items
             ymin = min(pos[1] for item, pos, height in items)
             ymax = max(pos[1] + height for item, pos, height in items)
 
@@ -179,8 +175,6 @@ class LayoutOperators(graphOpBase.Base):
 
             #sort all items by their mean position
             items.sort( lambda x, y: cmp(x[1][1]+x[2]/2, y[1][1]+y[2]/2) )
-            item_centers = [(pos[1] + height / 2.,item) for item, pos, height in items]
-            item_centers.sort()
 
             #first item serves as reference
             item, pos, height = items[0]
