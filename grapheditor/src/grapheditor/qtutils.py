@@ -22,6 +22,36 @@ import weakref
 from PyQt4 import QtCore, QtGui
 
 
+##################################################################################
+# Some PYQT versions don't know about some QGraphicsItem flags or enums yet      #
+# even though the underlying Qt knows about it (.sip files not up-to-date        #
+# when building PyQt). The differences between PYQT_VERSION 4.6.2 and 4.7.3 are: #
+##################################################################################
+unportableFlags = ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
+                   'ItemScenePositionHasChanged', 'ItemAcceptsInputMethod', 'ItemSendsScenePositionChanges',
+                   'ItemHasNoContents', 'ItemNegativeZStacksBehindParent', 'ItemIsPanel']
+unportableEnums = ["ItemScenePositionHasChanged", "ItemPositionHasChanged"]
+
+__dict__ = globals()
+for f in unportableFlags+unportableEnums:
+    try:
+        __dict__[f] = getattr(QtGui.QGraphicsItem, f)
+    except Exception, e:
+        print "symbol not found:", f
+        continue
+
+# if it's just the PyQt Version that is too old we have a hack as
+# the qt flag exists but is simply not exposed.
+# this is not bug free: if the Qt guys change the enum order, we're wrecked.
+if QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
+    # -- flags --
+    ItemSendsGeometryChanges = 0x800
+    ItemSendsScenePositionChanges = 0xffff
+    # -- enums --
+    ItemScenePositionHasChanged = 0x1b
+    ItemPositionHasChanged = 0x9
+
+
 #####################################################
 # A Global to know if using QGraphicsEffect is safe #
 #####################################################
@@ -50,52 +80,22 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     """A QtGui.QGraphicsTextItem that emits geometryModified whenever
     its geometry can have changed."""
 
-    def wrap(method):
-        """wraps the given method to emit geometryModified after
-        the method call"""
-        def wrapped(self, *args, **kwargs):
-            v = method(self, *args, **kwargs)
-            self.geometryModified.emit(self.boundingRect())
-        return wrapped
-
     ######################
     # The Missing Signal #
     ######################
     geometryModified = QtCore.pyqtSignal(QtCore.QRectF)
 
-    #############################################################
-    # The Wrapped Method. Commented ones are there because they #
-    # probably don't need to be wrapped (useless).              #
-    #############################################################
-    # setDefaultTextColor = wrap(QtGui.QGraphicsTextItem.setDefaultTextColor)
-    setDocument = wrap(QtGui.QGraphicsTextItem.setDocument)
-    setFont = wrap(QtGui.QGraphicsTextItem.setFont)
-    setHtml = wrap(QtGui.QGraphicsTextItem.setHtml)
-    # setOpenExternalLinks = wrap(QtGui.QGraphicsTextItem.setOpenExternalLinks)
-    setPlainText = wrap(QtGui.QGraphicsTextItem.setPlainText)
-    # setTabChangesFocus = wrap(QtGui.QGraphicsTextItem.setTabChangesFocus)
-    # setTextCursor = wrap(QtGui.QGraphicsTextItem.setTextCursor)
-    # setTextInteractionFlags = wrap(QtGui.QGraphicsTextItem.setTextInteractionFlags)
-    setTextWidth = wrap(QtGui.QGraphicsTextItem.setTextWidth)
+    def __init__(self, *args, **kwargs):
+        QtGui.QGraphicsTextItem.__init__(self, *args, **kwargs)
+        self.document().contentsChanged.connect(self.__onDocumentChanged)
 
-    dragEnterEvent = wrap(QtGui.QGraphicsTextItem.dragEnterEvent)
-    dragLeaveEvent = wrap(QtGui.QGraphicsTextItem.dragLeaveEvent)
-    dragMoveEvent = wrap(QtGui.QGraphicsTextItem.dragMoveEvent)
-    dropEvent = wrap(QtGui.QGraphicsTextItem.dropEvent)
-    # focusInEvent = wrap(QtGui.QGraphicsTextItem.focusInEvent)
-    # focusOutEvent = wrap(QtGui.QGraphicsTextItem.focusOutEvent)
-    # hoverEnterEvent = wrap(QtGui.QGraphicsTextItem.hoverEnterEvent)
-    # hoverLeaveEvent = wrap(QtGui.QGraphicsTextItem.hoverLeaveEvent)
-    # hoverMoveEvent = wrap(QtGui.QGraphicsTextItem.hoverMoveEvent)
-    inputMethodEvent = wrap(QtGui.QGraphicsTextItem.inputMethodEvent)
-    inputMethodQuery = wrap(QtGui.QGraphicsTextItem.inputMethodQuery)
-    keyPressEvent = wrap(QtGui.QGraphicsTextItem.keyPressEvent)
-    keyReleaseEvent = wrap(QtGui.QGraphicsTextItem.keyReleaseEvent)
-    mouseDoubleClickEvent = wrap(QtGui.QGraphicsTextItem.mouseDoubleClickEvent)
-    mouseMoveEvent = wrap(QtGui.QGraphicsTextItem.mouseMoveEvent)
-    mousePressEvent = wrap(QtGui.QGraphicsTextItem.mousePressEvent)
-    mouseReleaseEvent = wrap(QtGui.QGraphicsTextItem.mouseReleaseEvent)
+    def __onDocumentChanged(self):
+        self.geometryModified.emit(self.boundingRect())
 
+    # def sceneEvent(self, event):
+    #     ret = QtGui.QGraphicsTextItem.sceneEvent(self, event)
+    #     event.accept()
+    #     return ret
 
 class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem):
     __stopHues    = xrange(0,360,360/12)

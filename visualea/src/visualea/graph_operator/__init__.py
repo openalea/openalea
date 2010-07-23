@@ -24,10 +24,13 @@ from openalea.grapheditor import qtgraphview
 
 def do_imports():
     import dataflow, layout, color, vertex, port
-    
+
 class GraphOperator(Observed):
 
-    __main__ = None
+    __main__       = None
+    vertexType     = None
+    annotationType = None
+    edgeType       = None
 
     def __init__(self, graphView=None, graph=None):
         Observed.__init__(self)
@@ -35,9 +38,9 @@ class GraphOperator(Observed):
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
                        color.ColorOperators(self), vertex.VertexOperators(self),
                        port.PortOperators(self)]
-        
+
         self.__availableNames = {}
-        
+
         for operator in self.__ops:
             for meth in dir(operator):
                 self.__availableNames[meth] = getattr(operator, meth)
@@ -47,9 +50,6 @@ class GraphOperator(Observed):
         self.__session      = None
         self.__interpreter  = None
         self.__pkgmanager   = None
-        self.vertexType     = None
-        self.annotationType = None
-        self.edgeType       = None
         self.vertexItem     = None
 
         if(graphView):
@@ -75,12 +75,10 @@ class GraphOperator(Observed):
         if (argcount) < 2 :
             action.triggered[""].connect(func)
             for f in otherSlots:
-                print f
                 action.triggered[""].connect(f)
         else:
             action.triggered[bool].connect(func)
             for f in otherSlots:
-                print f
                 action.triggered[bool].connect(f)
         return action
 
@@ -107,7 +105,6 @@ class GraphOperator(Observed):
     __call__ = get_action
 
     def __get_wrapped(self, fName):
-        #func = getattr(self, fName, None)
         func = self.__availableNames.get(fName)
         def wrapped(*args, **kwargs):
             graphView = self.get_graph_view()
@@ -125,10 +122,10 @@ class GraphOperator(Observed):
 
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
-        
+
     def set_port_item(self, portitem):
         self.portItem = weakref.ref(portitem)
-        
+
     ###########
     # getters #
     ###########
@@ -172,9 +169,9 @@ class GraphOperator(Observed):
 
     def get_graph_view(self):
         return self.graphView
-        
+
     def get_graph_scene(self):
-        return self.graphView.scene()  
+        return self.graphView.scene()
 
     def get_graph(self):
         graphView = self.get_graph_view()
