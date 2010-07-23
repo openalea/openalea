@@ -23,7 +23,7 @@ from openalea.grapheditor import qtgraphview
 
 class LayoutOperators(graphOpBase.Base):
 
-    
+
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne"""
         master = self.master
@@ -32,23 +32,21 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 1 :
-            #find median base #TODO beware of relative to parent coordinates
-            ymean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items) / len(items)
+        items = widget.scene().get_selected_items( master.vertexType, lambda x: (x, x.get_view_data("position")) )
+        count = len(items)
+        if count > 1 :
+            #find median base
+            ymean = sum(pos[1] for item, pos in items) / count
 
             #move all items
-            for item in items :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [datadict.get_metadata("position")[0],ymean])
-
+            for item, pos in items :
+                item.store_view_data(position=[pos[0], ymean])
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
         return
 
-    
+
     def graph_align_selection_left (self):
         """Align all items on their left side."""
         master = self.master
@@ -56,22 +54,21 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 1 :
+        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x, x.get_view_data("position")) )
+        count = len(items)
+        if count > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items) / len(items)
+            xmean = sum(pos[0] for item, pos in items) / count
 
             #move all items
-            for item in items :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [xmean, datadict.get_metadata("position")[1]])
+            for item, pos in items :
+                item.store_view_data(position=[xmean, pos[1]])
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
         return
 
-    
+
     def graph_align_selection_right (self):
         """Align all items on their right side"""
         master = self.master
@@ -79,26 +76,24 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 1 :
-            #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
-                        item.boundingRect().width() \
-                        for item in items) / len(items)
+        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
+                                                                                x.get_view_data("position"),
+                                                                                x.boundingRect().width()) )
+        count = len(items)
+        if count > 1 :
+            #find left line
+            xmean = sum(pos[0] + width for item, pos, width in items) / count
 
             #move all items
-            for item in items :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [xmean - item.boundingRect().width(),
-                                       datadict.get_metadata("position")[1]])
+            for item, pos, width in items :
+                item.store_view_data(position=[xmean - width, pos[1]])
 
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
         return
 
-    
+
     def graph_align_selection_mean (self):
         """Align all items vertically around a mean line."""
         master = self.master
@@ -106,27 +101,23 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 1 :
-
+        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
+                                                                                x.get_view_data("position"),
+                                                                                x.boundingRect().width()) )
+        count = len(items)
+        if count > 1 :
             #find left ligne #TODO beware of relative to parent coordinates
-            xmean = sum(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + \
-                        item.boundingRect().width() / 2. \
-                        for item in items) / len(items)
+            xmean = sum(pos[0] + width/2. for item, pos, width in items) / count
 
             #move all items
-            for item in items :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [xmean - item.boundingRect().width() / 2.,
-                                       datadict.get_metadata("position")[1]])
-
+            for item, pos, width in items :
+                item.store_view_data(position=[xmean - width/2., pos[1]])
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
         return
 
-    
+
     def graph_distribute_selection_horizontally (self):
         """distribute the horizontal distances between items."""
         master = self.master
@@ -134,38 +125,38 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 2 :
+        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
+                                                                                x.get_view_data("position"),
+                                                                                x.boundingRect().width()) )
+
+#        items = widget.scene().get_selected_items(master.vertexType)
+        count = len(items)
+        if count > 2 :
             #find xmin,xmax of selected items #TODO beware of relative to parent coordinates
-            xmin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] for item in items)
-            xmax = max(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + item.boundingRect().width() \
-                       for item in items)
+            xmin = min(pos[0] for item, pos, width in items)
+            xmax = max(pos[0] + width for item, pos, width in items)
 
             #find mean distance between items
-            dist = ( (xmax - xmin) - \
-                   sum(item.boundingRect().width() for item in items) )\
-                   / (len(items) - 1)
+            dist = ( (xmax - xmin)-sum(width for item, pos, width in items) ) / (count - 1)
 
-            #sort all items by their mean position
-            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + item.boundingRect().width() / 2.,item) for item in items]
-            item_centers.sort()
+            # #sort all items by their mean position
+            items.sort( lambda x, y: cmp(x[1][0]+x[2]/2, y[1][0]+y[2]/2) )
+            # item_centers = [(pos[0] + width/2., item) for item, pos, width in items]
+            # item_centers.sort()
 
-            #move all items
-            first_item = item_centers[0][1]
-            current_x = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[0] + first_item.boundingRect().width()
+            #first item serves as reference
+            item, pos, width = items[0]
+            current_x = pos[0] + width
 
-            for x,item in item_centers[1:-1] :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [current_x + dist, datadict.get_metadata("position")[1]])
-                current_x += dist + item.boundingRect().width()
-
+            for item, pos, width in items[1:-1] :
+                item.store_view_data(position=[current_x + dist, pos[1]])
+                current_x += dist + width
             #notify
             widget.scene().notify(None,("graph_modified",) )
 
         return
 
-    
+
     def graph_distribute_selection_vertically (self):
         """distribute the vertical distances between items."""
         master = self.master
@@ -173,33 +164,31 @@ class LayoutOperators(graphOpBase.Base):
         if widget is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType)
-        if len(items) > 1 :
+        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
+                                                                                x.get_view_data("position"),
+                                                                                x.boundingRect().height()) )
+#        items = widget.scene().get_selected_items(master.vertexType)
+        count = len(items)
+        if count > 1 :
             #find ymin,ymax of selected items #TODO beware of relative to parent coordinates
-            ymin = min(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] for item in items)
-            ymax = max(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + item.boundingRect().height() \
-                       for item in items)
+            ymin = min(pos[1] for item, pos, height in items)
+            ymax = max(pos[1] + height for item, pos, height in items)
 
             #find mean distance between items
-            dist = ( (ymax - ymin) - \
-                     sum(item.boundingRect().height() for item in items) )\
-                   / (len(items) - 1)
+            dist = ( (ymax - ymin) - sum(height for item, pos, height in items) ) / (count - 1)
 
             #sort all items by their mean position
-            item_centers = [(item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + \
-                             item.boundingRect().height() / 2.,item) for item in items]
+            items.sort( lambda x, y: cmp(x[1][1]+x[2]/2, y[1][1]+y[2]/2) )
+            item_centers = [(pos[1] + height / 2.,item) for item, pos, height in items]
             item_centers.sort()
 
-            #move all items
-            first_item = item_centers[0][1]
-            current_y = first_item.vertex().get_ad_hoc_dict().get_metadata("position")[1] + first_item.boundingRect().height()
+            #first item serves as reference
+            item, pos, height = items[0]
+            current_y = pos[1] + height
 
-            for y,item in item_centers[1:-1] :
-                datadict = item.vertex().get_ad_hoc_dict()
-                datadict.set_metadata("position",
-                                      [datadict.get_metadata("position")[0],
-                                       current_y + dist])
-                current_y += dist + item.boundingRect().height()
+            for item, pos, height in items[1:-1] :
+                item.store_view_data(position=[pos[0], current_y + dist])
+                current_y += dist + height
 
             #notify
             widget.scene().notify(None,("graph_modified",) )
