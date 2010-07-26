@@ -73,6 +73,77 @@ class AleaSignal(object):
         for c in callbacks:
             c(args)
 
+###############################################
+# A Vanishing GraphicsItem mixing. Appears on #
+# hover in and vanishes on hover out          #
+###############################################
+class AleaQGraphicsVanishingMixin(object):
+    __baseOpacity = 0.01
+    __numFrames   = 24
+
+    def __init__(self, vanishingTime=500):
+        self.setAcceptHoverEvents(True)
+        self.setOpacity(self.__baseOpacity)
+        self.__timer = QtCore.QTimeLine(vanishingTime)
+        self.__timer.setFrameRange(0, self.__numFrames)
+        self.__timer.frameChanged.connect(self.__onFrameChanged)
+        self.setOpacity(self.__baseOpacity)
+
+    def __onFrameChanged(self, frame):
+        frame -= 1
+        opacity = (1-self.__baseOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__baseOpacity
+        self.setOpacity(opacity)
+
+    def setVanishingTime(self, time):
+        self.__timer.setDuration(time)
+
+    def vanishingTime(self):
+        return self.__timer.duration()
+
+    def hoverEnterEvent(self, event):
+        state = self.__timer.state()
+        if state  == QtCore.QTimeLine.Running:
+            print "running"
+            self.__timer.setPaused(True)
+            if self.__timer.direction == QtCore.QTimeLine.Forward:
+                self.__timer.toggleDirection()
+            self.__timer.setPaused(False)
+        elif state == QtCore.QTimeLine.NotRunning:
+            self.__timer.setCurrentTime(self.__timer.duration())
+            self.__timer.setDirection(QtCore.QTimeLine.Backward)
+            self.__timer.start()
+
+    def hoverLeaveEvent(self, event):
+        state = self.__timer.state()
+        if state  == QtCore.QTimeLine.Running:
+            self.__timer.toggleDirection()
+        elif state == QtCore.QTimeLine.NotRunning:
+            self.__timer.setCurrentTime(0)
+            self.__timer.setDirection(QtCore.QTimeLine.Forward)
+            self.__timer.start()
+
+    def mouseReleaseEvent(self, event):
+        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
+        color = QtGui.QColorDialog.getColor(parent=event.widget())
+        if color.isValid():
+            self.colorChanged.emit(color)
+
+
+###########################################
+# A button like mixin for qgraphics items #
+###########################################
+class AleaQGraphicsButtonMixin(object):
+    def __init__(self):
+        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
+        self.pressed = AleaSignal()
+
+    def mousePressEvent(self, event):
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
+        self.pressed.emit()
+
 #############################################################
 # Customized Qt Classes that can be reused in other places. #
 #############################################################
@@ -92,58 +163,40 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     def __onDocumentChanged(self):
         self.geometryModified.emit(self.boundingRect())
 
-    # def sceneEvent(self, event):
-    #     ret = QtGui.QGraphicsTextItem.sceneEvent(self, event)
-    #     event.accept()
-    #     return ret
 
-class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem):
+
+
+class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishingMixin, AleaQGraphicsButtonMixin):
     __stopHues    = xrange(0,360,360/12)
     __stopPos     = [i*1.0/12 for i in xrange(12)]
-    __baseOpacity = 0.01
-    __numFrames   = 24
     ######################
     # The Missing Signal #
     ######################
 
     def __init__(self, radius=3.0, parent=None):
         QtGui.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
-        self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
-        self.setAcceptHoverEvents(True)
+        AleaQGraphicsVanishingMixin.__init__(self)
+        AleaQGraphicsButtonMixin.__init__(self)
         self.colorChanged = AleaSignal(QtGui.QColor)
         gradient = QtGui.QConicalGradient()
         gradient.setCenter(radius, radius)
         for hue, pos in zip(self.__stopHues, self.__stopPos):
             gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
         self.setBrush(QtGui.QBrush(gradient))
-        self.setOpacity(self.__baseOpacity)
-        self.__timer = QtCore.QTimeLine(500)
-        self.__timer.setFrameRange(0, self.__numFrames)
-        self.__timer.frameChanged.connect(self.__onFrameChanged)
 
-    def __onFrameChanged(self, frame):
-        frame -= 1
-        opacity = (1-self.__baseOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__baseOpacity
-        self.setOpacity(opacity)
-
-    def mousePressEvent(self, event):
-        event.accept()
-
-    def hoverEnterEvent(self, event):
-        if self.__timer.state == QtCore.QTimeLine.Running:
-            self.__timer.stop()
-            self.__timer.setCurrentTime(0)
-        self.setOpacity(1.0)
-
-    def hoverLeaveEvent(self, event):
-        op = self.opacity()
-        self.__timer.start()
-
-    def mouseReleaseEvent(self, event):
-        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
+    def __onButtonPressed(self):
         color = QtGui.QColorDialog.getColor(parent=event.widget())
         if color.isValid():
             self.colorChanged.emit(color)
+
+
+    #################################################################
+    # def mousePressEvent(self, event):                             #
+    #     event.accept()                                            #
+    #                                                               #
+    # def mouseReleaseEvent(self, event):                           #
+    #     QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event) #
+    #################################################################
 
 #####################################
 # Simple layouts for QGraphicsItems #
