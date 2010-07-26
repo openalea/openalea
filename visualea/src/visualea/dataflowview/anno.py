@@ -174,7 +174,6 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         MemoRects.__init__(self, QtCore.QRectF())
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
         self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
-        self.__textItem.geometryModified.connect(self.setHeaderRect)
         self.__textItem.geometryModified.connect(self.__onTextModified)
         self.__textItem.hoveredIn.connect(self.__onHoverIn)
         self.__textItem.hoveredOut.connect(self.__onHoverOut)
@@ -187,11 +186,14 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
 
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
+        self.ignoreLoopback = True
+        self.htmlHasBeenSet = False
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
         self.annotation().get_ad_hoc_dict().simulate_full_data_change(self, self.annotation())
+        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
 
     #####################
     # ----Qt World----  #
@@ -200,11 +202,15 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
                               "itemChange")
 
     def __onTextModified(self, rect):
+        if self.ignoreLoopback:
+            return
+        self.setHeaderRect(rect)
         self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
         if(text != self.__def_string__):
             self.store_view_data(text=text)
+            self.store_view_data(htmlText=unicode(self.__textItem.toHtml()))
         self.deaf(False)
 
     def __onColorWheelChanged(self, color):
@@ -228,13 +234,11 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         self.update()
 
     def __onHoverIn(self, event):
-        #slow but safe way to get the correct view:
         self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.__annoToolbar.appear()
 
     def __onHoverOut(self, event):
         self.__annoToolbar.disappear()
-
 
     def setRect(self, rect):
         self.deaf(True)
@@ -247,11 +251,17 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
     # ----Other things----  #
     #########################
     def notify(self, sender, event):
+        self.ignoreLoopback = True
         if event:
             if event[0] == "metadata_changed":
-                if event[1] == "text":
+                if event[1] == "text" and not self.htmlHasBeenSet:
                     self.set_text(event[2])
                     return
+                elif event[1] == "htmlText":
+                    text = event[2]
+                    if text is not None:
+                        self.set_text(text, html=True)
+                        self.htmlHasBeenSet = True
                 elif event[1] == "rectP2":
                     rect = QtCore.QRectF(0,0,event[2][0],event[2][1])
                     MemoRects.setRect(self,rect)
@@ -262,11 +272,15 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
                         color = QtGui.QColor(*col)
                         self.setColor(color)
         qtgraphview.Vertex.notify(self, sender, event)
+        self.ignoreLoopback = False
 
-    def set_text(self, text):
+    def set_text(self, text, html=False):
         if text == u"" :
             text = self.__def_string__
-        self.__textItem.setPlainText(text)
+        if not html:
+            self.__textItem.setPlainText(text)
+        else:
+            self.__textItem.setHtml(text)
 
     def store_view_data(self, **kwargs):
         for k, v in kwargs.iteritems():

@@ -269,11 +269,12 @@ class AleaQGraphicsFontColorButton(AleaQGraphicsFontButton):
     def __init__(self, parent=None):
         AleaQGraphicsFontButton.__init__(self, parent)
         self.fontColorChanged = AleaSignal(QtGui.QFont)
-        gradient = QtGui.QConicalGradient()
-        gradient.setCenter(self.boundingRect().center())
-        for hue, pos in zip(AleaQGraphicsColorWheel._stopHues, AleaQGraphicsColorWheel._stopPos):
-            gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
-        self.setBrush(QtGui.QBrush(gradient))
+        # gradient = QtGui.QConicalGradient()
+        # gradient.setCenter(self.boundingRect().center())
+        # for hue, pos in zip(AleaQGraphicsColorWheel._stopHues, AleaQGraphicsColorWheel._stopPos):
+        #     gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
+        # self.setBrush(QtGui.QBrush(gradient))
+        self.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0)))
 
     def _onButtonPressed(self, event):
         color = QtGui.QColorDialog.getColor(parent=event.widget())
