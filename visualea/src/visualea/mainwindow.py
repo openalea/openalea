@@ -126,50 +126,45 @@ class MainWindow(QtGui.QMainWindow,
         # Widgets
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
                      self.contextMenuEvent)
-        self.connect(self.tabWorkspace, SIGNAL("currentChanged(int)"), self.ws_changed)
-        self.connect(self.search_lineEdit, SIGNAL("editingFinished()"), self.search_node)
-        self.connect(self.tabWorkspace, SIGNAL("tabCloseRequested(int)"),
-                      self.close_tab_workspace)
+        self.tabWorkspace.currentChanged.connect( self.ws_changed)
+        self.search_lineEdit.editingFinished.connect( self.search_node)
+        self.tabWorkspace.tabCloseRequested.connect( self.close_tab_workspace)
 
 
         # Help Menu
-        self.connect(self.action_About, SIGNAL("triggered()"), self.about)
-        self.connect(self.actionOpenAlea_Web, SIGNAL("triggered()"), self.web)
-        self.connect(self.action_Help, SIGNAL("triggered()"), self.help)
+        self.action_About.triggered.connect( self.about)
+        self.actionOpenAlea_Web.triggered.connect( self.web)
+        self.action_Help.triggered.connect( self.help)
 
         # File Menu
-        self.connect(self.action_New_Session, SIGNAL("triggered()"),\
-                     self.new_session)
-        self.connect(self.action_Open_Session, SIGNAL("triggered()"),\
-                     self.open_session)
-        self.connect(self.action_Save_Session, SIGNAL("triggered()"),\
-                     self.save_session)
-        self.connect(self.actionSave_as, SIGNAL("triggered()"), self.save_as)
-        self.connect(self.action_Quit, SIGNAL("triggered()"), self.quit)
+        self.action_New_Session.triggered.connect( self.new_session)
+        self.action_Open_Session.triggered.connect( self.open_session)
+        self.action_Save_Session.triggered.connect( self.save_session)
+        self.actionSave_as.triggered.connect( self.save_as)
+        self.action_Quit.triggered.connect( self.quit)
 
-        self.connect(self.action_Image, SIGNAL("triggered()"), self.export_image)
-        self.connect(self.action_Svg, SIGNAL("triggered()"), self.export_image_svg)
+        self.action_Image.triggered.connect( self.export_image)
+        self.action_Svg.triggered.connect( self.export_image_svg)
 
         # Package Manager Menu
-        self.connect(self.action_Auto_Search, SIGNAL("triggered()"), self.reload_all)
-        self.connect(self.action_Add_File, SIGNAL("triggered()"), self.add_pkgdir)
-        self.connect(self.actionFind_Node, SIGNAL("triggered()"),
-                     self.find_node)
-        self.connect(self.action_New_Network, SIGNAL("triggered()"), self.new_graph)
-        self.connect(self.actionNew_Python_Node, SIGNAL("triggered()"), self.new_python_node)
-        self.connect(self.actionNew_Package, SIGNAL("triggered()"), self.new_package)
-        self.connect(self.action_Data_File, SIGNAL("triggered()"), self.new_data)
-        self.connect(self.actionShow_log, SIGNAL("triggered()"), self.pkgmanager.log.print_log)
+        self.action_Auto_Search.triggered.connect( self.reload_all)
+        self.action_Add_File.triggered.connect( self.add_pkgdir)
+        self.actionFind_Node.triggered.connect( self.find_node)
+        self.action_New_Network.triggered.connect( self.new_graph)
+        self.actionNew_Python_Node.triggered.connect( self.new_python_node)
+        self.actionNew_Package.triggered.connect( self.new_package)
+        self.action_Data_File.triggered.connect( self.new_data)
+        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
 
         # DataPool Menu
-        self.connect(self.actionClear_Data_Pool, SIGNAL("triggered()"), self.clear_data_pool)
+        self.actionClear_Data_Pool.triggered.connect( self.clear_data_pool)
 
         # Python Menu
-        self.connect(self.action_Execute_script, SIGNAL("triggered()"),
+        self.action_Execute_script.triggered.connect(
                      self.exec_python_script)
-        self.connect(self.actionOpen_Console, SIGNAL("triggered()"),
+        self.actionOpen_Console.triggered.connect(
                      self.open_python_console)
-        self.connect(self.actionClea_r_Console, SIGNAL("triggered()"),
+        self.actionClea_r_Console.triggered.connect(
                      self.clear_python_console)
 
         # WorkspaceMenu
@@ -186,12 +181,6 @@ class MainWindow(QtGui.QMainWindow,
         self.operator.register_listener(self)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
-        # QtCore.QObject.connect(self.menu_Workspace,
-        #                        QtCore.SIGNAL("aboutToShow()"),
-        #                        self.__wsMenuShow)
-        # QtCore.QObject.connect(self.action_New_Empty_Workspace,
-        #                        QtCore.SIGNAL("triggered()"),
-        #                        self.new_workspace)
         self.operator + (self.action_Run, "graph_run")
         self.operator + (self.actionInvalidate, "graph_invalidate")
         self.operator + (self.actionReset, "graph_reset")
@@ -215,14 +204,12 @@ class MainWindow(QtGui.QMainWindow,
         self.operator + (self.actionSetCustomColor, "graph_set_selection_color")
         self.operator + (self.actionUseCustomColor, "graph_use_user_color")
 
-        self.connect(self.actionTo_script, SIGNAL("triggered()"), self.to_python_script)
+        self.actionTo_script.triggered.connect(self.to_python_script)
 
         # Window Mneu
-        self.connect(self.actionPreferences, SIGNAL("triggered()"), self.open_preferences)
-        self.connect(self.actionDisplay_Package_Manager, SIGNAL("toggled(bool)"),
-                     self.display_leftpanel)
-        self.connect(self.actionDisplay_Workspaces, SIGNAL("toggled(bool)"),
-                     self.display_rightpanel)
+        self.actionPreferences.triggered.connect(self.open_preferences)
+        self.actionDisplay_Package_Manager.toggled.connect(self.display_leftpanel)
+        self.actionDisplay_Workspaces.toggled.connect(self.display_rightpanel)
 
         # action = self.menu_Workspace.addAction("DEBUG")
         # self.connect(action, SIGNAL("triggered()"), self.debug)
