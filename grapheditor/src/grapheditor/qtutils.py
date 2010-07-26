@@ -67,11 +67,11 @@ class AleaSignal(object):
         self.callbacks = weakref.WeakKeyDictionary()
     def connect(self, callback):
         self.callbacks[callback] = callback
-    def emit(self, args):
+    def emit(self, *args):
         # do type checking?
         callbacks = self.callbacks.values()[:]
         for c in callbacks:
-            c(args)
+            c(*args)
 
 ###############################################
 # A Vanishing GraphicsItem mixing. Appears on #
@@ -84,6 +84,8 @@ class AleaQGraphicsVanishingMixin(object):
     def __init__(self, vanishingTime=500):
         self.setAcceptHoverEvents(True)
         self.setOpacity(self.__baseOpacity)
+        self.__vanEnabled = True
+        self.__vanishingTime = vanishingTime
         self.__timer = QtCore.QTimeLine(vanishingTime)
         self.__timer.setFrameRange(0, self.__numFrames)
         self.__timer.frameChanged.connect(self.__onFrameChanged)
@@ -94,33 +96,53 @@ class AleaQGraphicsVanishingMixin(object):
         opacity = (1-self.__baseOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__baseOpacity
         self.setOpacity(opacity)
 
+    def setVanishingEnabled(self, val):
+        self.__vanEnabled = val
+        if val == True:
+            if self.__timer.state() == QtCore.QTimeLine.Running:
+                if self.__timer.direction == QtCore.QTimeLine.Backward:
+                    self.appear()
+                else:
+                    self.disappear()
+        else:
+            self.setOpacity(1)
+
     def setVanishingTime(self, time):
+        self.__vanishingTime = time
         self.__timer.setDuration(time)
 
     def vanishingTime(self):
-        return self.__timer.duration()
+        return self.__vanishingTime
 
-    def hoverEnterEvent(self, event):
+    def appear(self):
+        if not self.__vanEnabled:
+            return
         state = self.__timer.state()
+        self.__timer.setDuration(self.__vanishingTime/10)
         if state  == QtCore.QTimeLine.Running:
-            print "running"
-            self.__timer.setPaused(True)
-            if self.__timer.direction == QtCore.QTimeLine.Forward:
-                self.__timer.toggleDirection()
-            self.__timer.setPaused(False)
+            self.__timer.setDirection(QtCore.QTimeLine.Backward)
         elif state == QtCore.QTimeLine.NotRunning:
             self.__timer.setCurrentTime(self.__timer.duration())
             self.__timer.setDirection(QtCore.QTimeLine.Backward)
             self.__timer.start()
 
-    def hoverLeaveEvent(self, event):
+    def disappear(self):
+        if not self.__vanEnabled:
+            return
         state = self.__timer.state()
+        self.__timer.setDuration(self.__vanishingTime)
         if state  == QtCore.QTimeLine.Running:
-            self.__timer.toggleDirection()
+            self.__timer.setDirection(QtCore.QTimeLine.Forward)
         elif state == QtCore.QTimeLine.NotRunning:
             self.__timer.setCurrentTime(0)
             self.__timer.setDirection(QtCore.QTimeLine.Forward)
             self.__timer.start()
+
+    def hoverEnterEvent(self, event):
+        self.appear()
+
+    def hoverLeaveEvent(self, event):
+        self.disappear()
 
     def mouseReleaseEvent(self, event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
@@ -144,6 +166,28 @@ class AleaQGraphicsButtonMixin(object):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
         self.pressed.emit()
 
+########################
+# A horizontal toolbar #
+########################
+class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin):
+    def __init__(self, parent=None):
+        QtGui.QGraphicsRectItem.__init__(self, parent)
+        AleaQGraphicsVanishingMixin.__init__(self)
+        self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, True)
+        self.__layout = HorizontalLayout(parent=None, margins=(2.,2.,2.,2.),
+                                         innerMargins=(1.,1.), center=True,
+                                         mins=(20.,20.))
+
+    def refreshGeometry(self):
+        rect = self.__layout.boundingRect(force=True)
+
+        self.__layout.setPos(QtCore.QPointF(0.,0.))
+        self.setRect(rect)
+
+    def addItem(self, item):
+        self.__layout.addItem(item)
+
+
 #############################################################
 # Customized Qt Classes that can be reused in other places. #
 #############################################################
@@ -165,10 +209,19 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
 
 
 
+###########
+# Buttons #
+###########
+class AleaQGraphicsFontButton(QtGui.QGraphicsSimpleTextItem, AleaQGraphicsButtonMixin):
+    def __init__(self, parent=None):
+        QtGui.QGraphicsSimpleTextItem.__init__(self, "A", parent)
+        AleaQGraphicsButtonMixin.__init__(self)
+        print "ooooooooookay"
 
 class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishingMixin, AleaQGraphicsButtonMixin):
     __stopHues    = xrange(0,360,360/12)
     __stopPos     = [i*1.0/12 for i in xrange(12)]
+
     ######################
     # The Missing Signal #
     ######################
@@ -190,13 +243,7 @@ class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishing
             self.colorChanged.emit(color)
 
 
-    #################################################################
-    # def mousePressEvent(self, event):                             #
-    #     event.accept()                                            #
-    #                                                               #
-    # def mouseReleaseEvent(self, event):                           #
-    #     QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event) #
-    #################################################################
+
 
 #####################################
 # Simple layouts for QGraphicsItems #
@@ -278,11 +325,14 @@ class Layout(object):
     def isVisible(self):
         return True
 
+    def visibleItems(self, subcall=None):
+        return [ i if subcall is None else subcall(i) for i in self._items if i.isVisible() ]
+
 class HorizontalLayout(Layout):
     def _boundingRect(self):
         width = self._x1 + self._x2
         height = self._y1 + self._y2
-        geoms = [i.boundingRect() for i in self._items if i.isVisible()]
+        geoms = self.visibleItems(lambda x:x.boundingRect())
         lenGeoms = len(geoms)
         if lenGeoms>0:
             width  += sum( g.width() for g in geoms ) + (lenGeoms-1)*self._ix1
@@ -295,24 +345,24 @@ class HorizontalLayout(Layout):
     def setPos(self, pos):
         offset = pos + QtCore.QPointF(self._x1, self._y1)
         innerOffset = QtCore.QPointF(self._ix1, self._iy1)
-        items = (i for i in self._items if i.isVisible())
+        items = self.visibleItems()
         selfHeight = self.boundingRect(force=False).height()
         for it in items:
             itRect = it.boundingRect()
             if self._center:
-                offset.setY(offset.y() + (selfHeight - itRect.height())/2.)
+                offset.setY(pos.y()+(selfHeight - itRect.height())/2.)
             it.setPos(offset)
             offset += QtCore.QPointF(itRect.width(), 0.) + innerOffset
         if self._final and self._final.isVisible():
             if self._center:
-                offset.setY((selfHeight - self._final.boundingRect().height())/2.)
+                offset.setY(pos.y()+(selfHeight - self._final.boundingRect().height())/2.)
             self._final.setPos(offset)
 
 class VerticalLayout(Layout):
     def _boundingRect(self):
         width = self._x1 + self._x2
         height = self._y1 + self._y2
-        geoms = [i.boundingRect() for i in self._items if i.isVisible()]
+        geoms = self.visibleItems(lambda x:x.boundingRect())
         lenGeoms = len(geoms)
         if lenGeoms>0:
             width  += max( g.width() for g in geoms )
@@ -325,17 +375,17 @@ class VerticalLayout(Layout):
     def setPos(self, pos):
         offset = pos + QtCore.QPointF(self._x1, self._y1)
         innerOffset = QtCore.QPointF(self._ix1, self._iy1)
-        items = (i for i in self._items if i.isVisible())
+        items = self.visibleItems()
         selfWidth = self.boundingRect(force=False).width()
         for it in items:
             itRect = it.boundingRect()
             if self._center:
-                offset.setX((selfWidth - itRect.width())/2.)
+                offset.setX(pos.x()+(selfWidth - itRect.width())/2.)
             it.setPos(offset)
             offset += QtCore.QPointF(0., itRect.height()) + innerOffset
         if self._final and self._final.isVisible():
             if self._center:
-                offset.setX((selfWidth - self._final.boundingRect().width())/2.)
+                offset.setX(pos.x()+(selfWidth - self._final.boundingRect().width())/2.)
             self._final.setPos(offset)
 
 
