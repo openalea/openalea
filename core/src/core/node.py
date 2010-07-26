@@ -65,6 +65,7 @@ def initialise_standard_metadata():
     Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
     Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
     Annotation.extend_ad_hoc_slots("text", str, "", "txt")
+    Annotation.extend_ad_hoc_slots("htmlText", str, None)
     Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
     Annotation.extend_ad_hoc_slots("color", list, None)
 
