@@ -132,8 +132,7 @@ def read_inrimage (filename) :
 	size = ntyp.itemsize * xdim * ydim * zdim
 	mat = np.fromstring(f.read(size),ntyp)
 	mat = mat.reshape( (zdim,xdim,ydim) )
-	mat = np.rollaxis(mat,1,0)
-	mat = np.rollaxis(mat,2,1)
+	mat = mat.transpose(2,1,0)
 	
 	#create SpatialImage
 	res = tuple(float(prop.pop(k) ) for k in ("VX","VY","VZ") )
@@ -222,7 +221,7 @@ def write_inrimage (img, filename) :
 	f.write(header)
 
 	#write datas
-	lmat = np.rollaxis(img,2,0)
+	lmat = img.transpose(2,1,0)
 	f.write(lmat.tostring() )
 
 	#return

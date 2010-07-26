@@ -20,23 +20,22 @@ Test frame manipulator
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from PyQt4.QtGui import QApplication,QPixmap,QColor
-from openalea.image import rainbow
-from openalea.image.gui import FrameAnimator
+from PyQt4.QtGui import QApplication
+from openalea.image import imread
+from openalea.image.gui import to_pix,ScalableLabel
+from numpy import zeros,uint32
+
+img = imread("4_ocean_currents.png")
+
+#img = zeros( (100,50,3),uint32)
+#img[10:20,10:30,1] = 255
 
 qapp = QApplication([])
 
-pal = rainbow(99)
+pix = to_pix(img)
 
-frames = []
-
-for i in xrange(100) :
-	pix = QPixmap(300,200)
-	pix.fill(QColor(*tuple(pal[i]) ) )
-	frames.append(pix)
-
-w = FrameAnimator()
-w.set_frames(frames)
+w = ScalableLabel()
+w.setPixmap(pix)
 
 w.show()
 

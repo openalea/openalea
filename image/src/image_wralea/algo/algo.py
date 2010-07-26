@@ -25,14 +25,14 @@ from numpy import array,apply_along_axisfrom scipy.ndimage import rotate,gaussi
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 
 def crop (img, x, y, dx, dy) :
-	data = img[x:(x + dx),y:(y + dy),...]
+	data = img[y:(y + dy),x:(x + dx),...]
 	
 	return data,
 
 def paste (img, im2, x, y, reshape) :
 	data = img + 0
-	dx,dy = im2.shape[:2]
-	data[x:(x + dx),y:(y + dy),...] = im2
+	dy,dx = im2.shape[:2]
+	data[y:(y + dy),x:(x + dx),...] = im2
 	
 	return data,
 

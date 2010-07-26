@@ -14,32 +14,22 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
-Test frame manipulator
+Test stack view
 """
 
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from PyQt4.QtGui import QApplication,QPixmap,QColor
-from openalea.image import rainbow
-from openalea.image.gui import FrameAnimator
+from openalea.image import grayscale,read_inrimage,SpatialImage
+from openalea.image.gui import StackView
+from openalea.pglviewer import display
 
-qapp = QApplication([])
+img = read_inrimage("SAM.inr.gz")
+pal = grayscale(img.max(),True)
+pix = SpatialImage(pal[img],img.resolution,vdim = 3)
 
-pal = rainbow(99)
+sv = StackView(pix,slices = range(0,33,4) )
+sv.redraw()
 
-frames = []
-
-for i in xrange(100) :
-	pix = QPixmap(300,200)
-	pix.fill(QColor(*tuple(pal[i]) ) )
-	frames.append(pix)
-
-w = FrameAnimator()
-w.set_frames(frames)
-
-w.show()
-
-qapp.exec_()
-
+display(sv)
 

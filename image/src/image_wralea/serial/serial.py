@@ -22,6 +22,6 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from scipy.misc.pilutil import imread
 def load (filename) :
-	img = imread(filename).transpose( (1,0,2) )
+	img = imread(filename)
 	
 	return img,

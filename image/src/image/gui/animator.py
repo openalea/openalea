@@ -174,7 +174,7 @@ class FrameAnimator (QMainWindow) :
 		"""Set frame names
 		
 		:Parameters:
-		 - `frames` (list of str or QPIxmap) - list of pixmap or frame path
+		 - `frames` (list of str or QPixmap) - list of pixmap or frame path
 		"""
 		self.stop()
 		self._frames = [QPixmap(fr) for fr in frames]

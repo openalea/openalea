@@ -85,7 +85,7 @@ class PickColorWidget(NodeWidget,QWidget) :
 		self._v_layout.addStretch(5)
 		
 		self._h_layout.addLayout(self._v_layout)
-		self._h_layout.addWidget(self._img_lab)
+		self._h_layout.addWidget(self._img_lab,5)
 		
 		self.setLayout(self._h_layout)
 		
@@ -118,7 +118,7 @@ class PickColorWidget(NodeWidget,QWidget) :
 	def mouse_click (self, event) :
 		img = self.node.get_input(0)
 		if img is not None :
-			i,j = self._img_lab.pixmap_coordinates(event.x(),event.y() )
+			j,i = self._img_lab.pixmap_coordinates(event.x(),event.y() )
 			col = img[i,j]
 			print "color",col
 			self.node.set_input(1,col)
@@ -128,7 +128,7 @@ class PickColorWidget(NodeWidget,QWidget) :
 	def mouse_move (self, event) :
 		img = self.node.get_input(0)
 		if img is not None :
-			i,j = self._img_lab.pixmap_coordinates(event.x(),event.y() )
+			j,i = self._img_lab.pixmap_coordinates(event.x(),event.y() )
 			col = img[i,j]
 			self._col_current_lab.pixmap().fill(QColor(*col[:3]) )
 			self._col_current_lab.update()

@@ -21,11 +21,11 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from PyQt4.QtGui import QApplication,QLabel
+from openalea.image import imread
 from openalea.image.gui import to_pix
 from numpy import zeros,uint32
-from scipy.misc.pilutil import imread
 
-img = imread("4_ocean_currents.png").transpose( (1,0,2) )
+img = imread("4_ocean_currents.png")
 
 #img = zeros( (100,50,3),uint32)
 #img[10:20,10:30,1] = 255

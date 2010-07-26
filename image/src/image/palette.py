@@ -26,17 +26,23 @@ palette_names = ["grayscale","rainbow","bwrainbow"]
 
 __all__ = palette_names + ["palette_names","palette_factory"]
 
-def grayscale (cmax) :
+def grayscale (cmax, alpha = False) :
 	"""Grayscale values ranging from 0 to 255
 	
 	:Parameters:
 	 - `cmax` (int) - data maximum value
 	
-	:Returns Type: list of (R,G,B)
+	:Returns Type: list of (R,G,B,(A) )
 	"""
-	pal = [(int(i * 255. / cmax),
-	        int(i * 255. / cmax),
-	        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
+	if alpha :
+		pal = [(int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
+	else :
+		pal = [(int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
 	
 	return array(pal,uint32)
 
@@ -54,7 +60,7 @@ def rainbow (cmax) :
 	
 	return array(pal,uint32)
 
-def bwrainbow (cmax) :
+def bwrainbow (cmax, alpha = False) :
 	"""Black, White plus Rainbow values ranging from red to blue and violet
 	
 	:Parameters:
@@ -63,9 +69,14 @@ def bwrainbow (cmax) :
 	:Returns Type: list of int
 	"""
 	cmax = float(cmax)
-	pal = [(255,255,255),(0,0,0)] \
-	    + [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
-	       for i in xrange(int(cmax - 1) )]
+	if alpha :
+		pal = [(255,255,255,0),(0,0,0,0)] \
+			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
+			   for i in xrange(int(cmax - 1) )]
+	else :
+		pal = [(255,255,255),(0,0,0)] \
+			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
+			   for i in xrange(int(cmax - 1) )]
 	
 	return array(pal,uint32)
 

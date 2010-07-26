@@ -7,12 +7,15 @@ class StackView( ElmView) :
 	"""View a 3D image as a stack of slides
 	"""
 	
-	def __init__ (self, image, alpha_threshold = 0.1,
-	                    start_ind = 0, stop_ind = None, step = 1) :
+	def __init__ (self, image, alpha_threshold = 0.1, slices = None) :
 		"""Constructor
 		
 		:Parameters:
 		 - `image` (NxMx3 or 4 array)
+		 - `alpha_threshold` (float) - threshold below which a pixel is not 
+		                               displayed
+		 - `slices` (list of int) - list of slices to display, if None, all
+		                            slices in the stack will be displayed
 		"""
 		ElmView.__init__(self,"stack")
 		self.use_alpha(True)
@@ -39,13 +42,10 @@ class StackView( ElmView) :
 			self._vx,self._vy,self._vz = 1.,1.,1.
 		
 		#indices
-		#TODO range compliant with step < 0
-		self._start_ind = max(0,start_ind)
-		if stop_ind is None :
-			self._stop_ind = image.shape[2]
+		if slices is None :
+			self._slices = range(image.shape[2])
 		else :
-			self._stop_ind = min(image.shape[2],stop_ind)
-		self._step = step
+			self._slices = [v for v in slices if 0 <= v < image.shape[2] ]
 		
 		#texture images
 		self._pixmaps = []
@@ -66,7 +66,7 @@ class StackView( ElmView) :
 		self._pixmaps = []
 		
 		#create new pixmaps
-		for k in range(self._start_ind,self._stop_ind,self._step) :
+		for k in self._slices :
 			pix = to_tex(img[:,:,k,:])
 			self._pixmaps.append( (k,pix) )
 		
@@ -173,10 +173,11 @@ class StackView( ElmView) :
 		if len(self._pixmaps) == 0 :
 			return None
 		else :
-			xmax = self._image.shape[0] * self._vx / 2.
-			ymax = self._image.shape[1] * self._vy / 2.
-			zmax = self._image.shape[2] * self._vz
-			return BoundingBox( (-xmax,-ymax,0),(xmax,ymax,zmax) )
+			xmax = self._image.shape[1] * self._vx / 2.
+			ymax = self._image.shape[0] * self._vy / 2.
+			zmin = min(self._slices) * self._vz
+			zmax = max(self._slices) * self._vz
+			return BoundingBox( (-xmax,-ymax,zmin),(xmax,ymax,zmax) )
 	
 	def position (self) :
 		"""Position of the displayed element

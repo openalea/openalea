@@ -28,7 +28,8 @@ def to_img (img) :
 	
 	:Parameters:
 	 -`img` (NxMx3 or 4 array of int) - 2D matrix of RGB(A) image pixels
-	                   i will correspond to x and j to y
+	                   i will correspond to y and j to x with origin
+	                   in the top left corner
 	
 	:Returns Type: QImage
 	"""
@@ -40,9 +41,9 @@ def to_img (img) :
 	else :
 		dat += 4278190080
 	
-	qimg = QImage(dat.flatten('F'),
-	              img.shape[0],
+	qimg = QImage(dat.flatten('C'),
 	              img.shape[1],
+	              img.shape[0],
 	              QImage.Format_ARGB32)
 	
 	return qimg.copy()
@@ -63,7 +64,8 @@ def to_tex (img) :
 	
 	:Parameters:
 	 -`img` (NxMx3 or 4 array of int) - 2D matrix of RGB(A) image pixels
-	                   i will correspond to x and j to y
+	                   i will correspond to y and j to x with origin
+	                   in the top left corner
 	
 	:Returns Type: NxMx4 array of uint8
 	"""
