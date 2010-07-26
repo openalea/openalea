@@ -81,7 +81,7 @@ class AleaQGraphicsVanishingMixin(object):
     __baseOpacity = 0.01
     __numFrames   = 24
 
-    def __init__(self, vanishingTime=500):
+    def __init__(self, vanishingTime=500, baseOpacity=__baseOpacity):
         self.setAcceptHoverEvents(True)
         self.setOpacity(self.__baseOpacity)
         self.__vanEnabled = True
@@ -89,11 +89,15 @@ class AleaQGraphicsVanishingMixin(object):
         self.__timer = QtCore.QTimeLine(vanishingTime)
         self.__timer.setFrameRange(0, self.__numFrames)
         self.__timer.frameChanged.connect(self.__onFrameChanged)
-        self.setOpacity(self.__baseOpacity)
+        self.__lowOpacity = baseOpacity
+        self.setOpacity(self.__lowOpacity)
+
+    def setBaseOpactity(self, opacity):
+        self.__lowOpacity = opacity
 
     def __onFrameChanged(self, frame):
         frame -= 1
-        opacity = (1-self.__baseOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__baseOpacity
+        opacity = (1-self.__lowOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__lowOpacity
         self.setOpacity(opacity)
 
     def setVanishingEnabled(self, val):
@@ -117,8 +121,9 @@ class AleaQGraphicsVanishingMixin(object):
     def appear(self):
         if not self.__vanEnabled:
             return
+
         state = self.__timer.state()
-        self.__timer.setDuration(self.__vanishingTime/10)
+        self.__timer.setDuration(self.__vanishingTime/2)
         if state  == QtCore.QTimeLine.Running:
             self.__timer.setDirection(QtCore.QTimeLine.Backward)
         elif state == QtCore.QTimeLine.NotRunning:
@@ -129,6 +134,7 @@ class AleaQGraphicsVanishingMixin(object):
     def disappear(self):
         if not self.__vanEnabled:
             return
+
         state = self.__timer.state()
         self.__timer.setDuration(self.__vanishingTime)
         if state  == QtCore.QTimeLine.Running:
@@ -144,27 +150,23 @@ class AleaQGraphicsVanishingMixin(object):
     def hoverLeaveEvent(self, event):
         self.disappear()
 
-    def mouseReleaseEvent(self, event):
-        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
-        color = QtGui.QColorDialog.getColor(parent=event.widget())
-        if color.isValid():
-            self.colorChanged.emit(color)
-
 
 ###########################################
 # A button like mixin for qgraphics items #
 ###########################################
 class AleaQGraphicsButtonMixin(object):
-    def __init__(self):
+    def __init__(self, auto=True):
         self.setAcceptedMouseButtons(QtCore.Qt.LeftButton)
         self.pressed = AleaSignal()
+        if hasattr(self,  "_onButtonPressed"):
+            self.pressed.connect(self._onButtonPressed)
 
     def mousePressEvent(self, event):
         event.accept()
 
     def mouseReleaseEvent(self, event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
-        self.pressed.emit()
+        self.pressed.emit(event)
 
 ########################
 # A horizontal toolbar #
@@ -173,6 +175,7 @@ class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin)
     def __init__(self, parent=None):
         QtGui.QGraphicsRectItem.__init__(self, parent)
         AleaQGraphicsVanishingMixin.__init__(self)
+        self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, True)
         self.__layout = HorizontalLayout(parent=None, margins=(2.,2.,2.,2.),
                                          innerMargins=(1.,1.), center=True,
@@ -203,29 +206,32 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     def __init__(self, *args, **kwargs):
         QtGui.QGraphicsTextItem.__init__(self, *args, **kwargs)
         self.document().contentsChanged.connect(self.__onDocumentChanged)
+        self.hoveredIn = AleaSignal()
+        self.hoveredOut = AleaSignal()
 
     def __onDocumentChanged(self):
         self.geometryModified.emit(self.boundingRect())
+
+    def hoverEnterEvent(self, event):
+        QtGui.QGraphicsTextItem.hoverEnterEvent(self, event)
+        self.hoveredIn.emit(event)
+
+    def hoverLeaveEvent(self, event):
+        QtGui.QGraphicsTextItem.hoverLeaveEvent(self, event)
+        self.hoveredOut.emit(event)
 
 
 
 ###########
 # Buttons #
 ###########
-class AleaQGraphicsFontButton(QtGui.QGraphicsSimpleTextItem, AleaQGraphicsButtonMixin):
-    def __init__(self, parent=None):
-        QtGui.QGraphicsSimpleTextItem.__init__(self, "A", parent)
-        AleaQGraphicsButtonMixin.__init__(self)
-        print "ooooooooookay"
 
 class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishingMixin, AleaQGraphicsButtonMixin):
-    __stopHues    = xrange(0,360,360/12)
-    __stopPos     = [i*1.0/12 for i in xrange(12)]
-
+    _stopHues    = xrange(0,360,360/12)
+    _stopPos     = [i*1.0/12 for i in xrange(12)]
     ######################
     # The Missing Signal #
     ######################
-
     def __init__(self, radius=3.0, parent=None):
         QtGui.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
         AleaQGraphicsVanishingMixin.__init__(self)
@@ -233,17 +239,46 @@ class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishing
         self.colorChanged = AleaSignal(QtGui.QColor)
         gradient = QtGui.QConicalGradient()
         gradient.setCenter(radius, radius)
-        for hue, pos in zip(self.__stopHues, self.__stopPos):
+        for hue, pos in zip(self._stopHues, self._stopPos):
             gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
         self.setBrush(QtGui.QBrush(gradient))
 
-    def __onButtonPressed(self):
+    def _onButtonPressed(self, event):
         color = QtGui.QColorDialog.getColor(parent=event.widget())
         if color.isValid():
             self.colorChanged.emit(color)
 
+class AleaQGraphicsFontButton(QtGui.QGraphicsSimpleTextItem, AleaQGraphicsButtonMixin):
+    _fontSize=24
+    def __init__(self, parent=None):
+        QtGui.QGraphicsSimpleTextItem.__init__(self, "A", parent)
+        AleaQGraphicsButtonMixin.__init__(self)
+        font = self.font()
+        font.setPixelSize(self._fontSize)
+        font.setBold(True)
+        self.setFont(font)
+        self.fontChanged = AleaSignal(QtGui.QFont)
 
+    def _onButtonPressed(self, event):
+        font, ok = QtGui.QFontDialog.getFont(event.widget())
+        if ok:
+            self.fontChanged.emit(font)
 
+class AleaQGraphicsFontColorButton(AleaQGraphicsFontButton):
+    _fontSize=24
+    def __init__(self, parent=None):
+        AleaQGraphicsFontButton.__init__(self, parent)
+        self.fontColorChanged = AleaSignal(QtGui.QFont)
+        gradient = QtGui.QConicalGradient()
+        gradient.setCenter(self.boundingRect().center())
+        for hue, pos in zip(AleaQGraphicsColorWheel._stopHues, AleaQGraphicsColorWheel._stopPos):
+            gradient.setColorAt(pos, QtGui.QColor.fromHsv(hue, 255, 255, 255))
+        self.setBrush(QtGui.QBrush(gradient))
+
+    def _onButtonPressed(self, event):
+        color = QtGui.QColorDialog.getColor(parent=event.widget())
+        if color.isValid():
+            self.fontColorChanged.emit(color)
 
 #####################################
 # Simple layouts for QGraphicsItems #

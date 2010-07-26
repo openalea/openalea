@@ -365,10 +365,12 @@ class VertexWithPorts(Vertex):
     def __init__(self, vertex, graph):
         Vertex.__init__(self, vertex, graph)
         self.layoutEngine = self.LayoutEngine(self)
+        self.__unconstructed = True
 
     def initialise_from_model(self):
         self._initialise_from_model()
         self.layoutEngine.initialise_from_model()
+        self.__unconstructed = False
         self.refresh_geometry()
 
     def add_port(self, port):
@@ -383,6 +385,8 @@ class VertexWithPorts(Vertex):
         self.layoutEngine.remove_ports(type)
 
     def refresh_geometry(self):
+        if self.__unconstructed:
+            return
         geom = self.layoutEngine.layout_items(self)
         self._refresh_geometry(geom)
 

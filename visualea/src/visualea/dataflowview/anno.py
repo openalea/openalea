@@ -20,14 +20,37 @@ __revision__ = " $Id$ "
 from PyQt4 import QtGui, QtCore, QtSvg
 from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor import qtutils
-from openalea.grapheditor.qtutils import (mixin_method, safeEffects, AleaQGraphicsColorWheel,
-                                          AleaQGraphicsEmitingTextItem, AleaQMenu)
+from openalea.grapheditor.qtutils import *
+############################################################################################################
+# from openalea.grapheditor.qtutils import (mixin_method, safeEffects, AleaQGraphicsColorWheel,            #
+#                                           AleaQGraphicsEmitingTextItem, AleaQMenu, AleaQGraphicsToolbar) #
+############################################################################################################
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import images_rc
+import sip
 
 
+
+###############
+# The toolbar #
+###############
+class AnnotationTextToolbar(AleaQGraphicsToolbar):
+    def __init__(self, parent):
+        AleaQGraphicsToolbar.__init__(self, parent)
+        self.fontButton = AleaQGraphicsFontButton(self)
+        self.fontColorButton = AleaQGraphicsFontColorButton(self)
+        self.colorWheel = AleaQGraphicsColorWheel(radius=12, parent=self)
+        self.colorWheel.setVanishingEnabled(False)
+        self.addItem(self.fontButton)
+        self.addItem(self.fontColorButton)
+        self.addItem(self.colorWheel)
+        self.refreshGeometry()
+        self.setBaseOpactity(0.001)
+
+##################
+# The Annotation #
+##################
 class MemoRects(QtGui.QGraphicsRectItem):
-
     __handleSize    = 7.5
     __defaultColor  = QtGui.QColor(250, 250, 100)
 
@@ -37,6 +60,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.__handlePoly = QtGui.QPolygonF([QtCore.QPointF(0, -self.__handleSize),
                                              QtCore.QPointF(0, 0),
                                              QtCore.QPointF(-self.__handleSize,0)])
+        self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
         # -- handle --
         self.__handlePos  = QtCore.QPointF(0,0)
@@ -152,15 +176,17 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
         self.__textItem.geometryModified.connect(self.setHeaderRect)
         self.__textItem.geometryModified.connect(self.__onTextModified)
+        self.__textItem.hoveredIn.connect(self.__onHoverIn)
+        self.__textItem.hoveredOut.connect(self.__onHoverOut)
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
 
-        self.__colorWheel = AleaQGraphicsColorWheel(radius=6, parent=self)
-        self.__colorWheel.colorChanged.connect(self.__onColorWheelChanged)
-        self.__colorWheel.setPos(-self.__colorWheel.rect().center())
+        self.__annoToolbar = AnnotationTextToolbar(self)
+        self.__annoToolbar.colorWheel.colorChanged.connect(self.__onColorWheelChanged)
+        self.__annoToolbar.fontButton.fontChanged.connect(self.__onTextFontChanged)
+        self.__annoToolbar.fontColorButton.fontColorChanged.connect(self.__onTextFontColorChanged)
 
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
-        self.__colorWheel.setZValue(-98)
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
@@ -173,7 +199,8 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
     itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsTextItem,
                               "itemChange")
 
-    def __onTextModified(self):
+    def __onTextModified(self, rect):
+        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
         if(text != self.__def_string__):
@@ -184,6 +211,30 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         self.store_view_data(color=[color.red(),
                                     color.green(),
                                     color.blue()])
+
+    def __onTextFontChanged(self, font):
+        cursor = self.__textItem.textCursor()
+        fmt = cursor.charFormat()
+        fmt.setFont(font)
+        cursor.mergeCharFormat(fmt)
+
+    def __onTextFontColorChanged(self, color):
+        cursor = self.__textItem.textCursor()
+        fmt = cursor.charFormat()
+        brush = fmt.foreground()
+        brush.setColor(color)
+        fmt.setForeground(QtGui.QBrush(color))
+        cursor.mergeCharFormat(fmt)
+        self.update()
+
+    def __onHoverIn(self, event):
+        #slow but safe way to get the correct view:
+        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
+        self.__annoToolbar.appear()
+
+    def __onHoverOut(self, event):
+        self.__annoToolbar.disappear()
+
 
     def setRect(self, rect):
         self.deaf(True)

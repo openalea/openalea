@@ -33,6 +33,8 @@ from openalea.grapheditor import baselisteners, qtgraphview, qtutils
 import openalea.grapheditor.base
 
 
+
+
 class DataflowView( qtgraphview.View ):
     # This class is in an intermediate state
     # between using GraphEditor's qtgraphview.View extensibality
@@ -41,7 +43,6 @@ class DataflowView( qtgraphview.View ):
 
     def __init__(self, parent, graph, strategy, clone=False):
         qtgraphview.View.__init__(self, parent, graph, strategy, clone)
-
 
         # -- Configure the drop handlers --
         mimeFormatsMap = {"openalea/nodefactory":self.node_factory_drop_handler,
@@ -210,6 +211,11 @@ class DataflowView( qtgraphview.View ):
         menu.move(event.globalPos())
         menu.show()
         event.accept()
+
+
+
+
+
 
 
 
