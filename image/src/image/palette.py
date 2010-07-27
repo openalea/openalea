@@ -22,7 +22,7 @@ __revision__=" $Id: $ "
 from colorsys import hsv_to_rgb,rgb_to_hsv
 from numpy import array,uint32
 
-palette_names = ["grayscale","rainbow","bwrainbow"]
+palette_names = ["grayscale","rainbow","bwrainbow","greenscale"]
 
 __all__ = palette_names + ["palette_names","palette_factory"]
 
@@ -77,6 +77,24 @@ def bwrainbow (cmax, alpha = False) :
 		pal = [(255,255,255),(0,0,0)] \
 			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
 			   for i in xrange(int(cmax - 1) )]
+	
+	return array(pal,uint32)
+
+def greenscale (cmax, alpha = False) :
+	"""from black to green
+	
+	:Parameters:
+	 - `cmax` (int) - data maximum value
+	 - `alpha` (bool) - add an alpha channel
+	
+	:Returns Type: array of (R,G,B)
+	"""
+	cmax = float(cmax)
+	if alpha :
+		pal = [(0,int(i / cmax * 255),0,int(i / cmax * 255) ) \
+		        for i in range(int(cmax) + 1)]
+	else :
+		pal = [(0,int(i / cmax * 255),0) for i in range(int(cmax) + 1)]
 	
 	return array(pal,uint32)
 
