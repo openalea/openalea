@@ -17,8 +17,8 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from numpy import array
-from openalea.image import grayscale
+from numpy import array,uint8
+from openalea.image import grayscale,flatten
 
 def image (img) :
 	return img,
@@ -34,3 +34,12 @@ def apply_palette (data, palette) :
 
 def wra_grayscale (nb) :
 	return grayscale(nb),
+
+def invert (img) :
+	return 255 - img,
+
+def wra_flatten (img_list) :
+	img = flatten(img_list)
+	
+	return img,
+

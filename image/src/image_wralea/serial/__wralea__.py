@@ -28,7 +28,7 @@ load = Factory(name = "load",
                 description = "load image",
                 category = "datatype,image",
                 nodemodule = "serial",
-                nodeclass = "load",
+                nodeclass = "wra_load",
                 inputs = (dict(name = "name", interface = IFileStr),),
                 outputs = (dict(name = "img", interface = IImage),),
                 )

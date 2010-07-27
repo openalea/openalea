@@ -26,7 +26,7 @@ from openalea.visualea.node_widget import NodeWidget
 from openalea.image.gui import to_pix,ScalableLabel,icons_rc
 
 def pick_color (img, col) :
-	return col,
+	return img,col
 
 class InteractiveScalableLabel(ScalableLabel) :
 	"""Add mouse interaction to a scalable label
@@ -54,6 +54,7 @@ class InteractiveScalableLabel(ScalableLabel) :
 	def mouseMoveEvent (self, event) :
 		if self._last_mouse_pos is None :
 			self.emit(SIGNAL("mouse_move"),event)
+
 
 class PickColorWidget(NodeWidget,QWidget) :
 	"""
@@ -119,7 +120,7 @@ class PickColorWidget(NodeWidget,QWidget) :
 		img = self.node.get_input(0)
 		if img is not None :
 			j,i = self._img_lab.pixmap_coordinates(event.x(),event.y() )
-			col = img[i,j]
+			col = tuple(img[i,j])
 			print "color",col
 			self.node.set_input(1,col)
 			self._col_picked_lab.pixmap().fill(QColor(*col[:3]) )

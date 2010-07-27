@@ -92,15 +92,26 @@ grayscale = Factory(name = "grayscale",
 
 __all__.append("grayscale")
 
-toto = Factory(name = "toto",
-                description = "grayscale palette",
+invert = Factory(name = "invert",
+                description = "invert colors and alpha",
                 category = "image",
                 nodemodule = "image",
-                nodeclass = "wra_grayscale",
-                inputs = (dict(name = "nb", interface = IColor, value = (0,0,0) ),),
-                outputs = (dict(name = "pal", interface = None),),
+                nodeclass = "invert",
+                inputs = (dict(name = "data", interface = None),),
+                outputs = (dict(name = "data", interface = None),),
                 )
 
-__all__.append("toto")
+__all__.append("invert")
+
+flatten = Factory(name = "flatten",
+                description = "flatten a set of images with same shape",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "flatten",
+                inputs = (dict(name = "data", interface = ISequence),),
+                outputs = (dict(name = "img", interface = IImage),),
+                )
+
+__all__.append("flatten")
 
 

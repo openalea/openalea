@@ -86,10 +86,33 @@ pick_color = Factory( name= "PickColor",
 				widgetclass = "PickColorWidget",
 				inputs=(dict(name="img", interface=IImage),
 				        dict(name="col", interface=IColor, value=(0,0,0) ),),
-				outputs=(dict(name="col", interface=IColor,),),
+				outputs=(dict(name="img", interface=IImage),
+				         dict(name="col", interface=IColor,),),
 				lazy = True,
 			)
 
 __all__.append('pick_color')
+
+select_box = Factory( name= "SelectBox", 
+				description= "",
+				category = "",
+				nodemodule = "select_box_widget",
+				nodeclass = "select_box",
+				widgetmodule = "select_box_widget",
+				widgetclass = "SelectBoxWidget",
+				inputs=(dict(name="img", interface=IImage),
+				        dict(name="x", interface=IInt, value=0),
+				        dict(name="y", interface=IInt, value=0),
+				        dict(name="dx", interface=IInt, value=0),
+				        dict(name="dy", interface=IInt, value=0),),
+				outputs=(dict(name="img", interface=IImage),
+				        dict(name="x", interface=IInt),
+				        dict(name="y", interface=IInt),
+				        dict(name="dx", interface=IInt),
+				        dict(name="dy", interface=IInt),),
+				lazy = True,
+			)
+
+__all__.append('select_box')
 
 
