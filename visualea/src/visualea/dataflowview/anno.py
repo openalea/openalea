@@ -27,7 +27,7 @@ from openalea.grapheditor.qtutils import *
 ############################################################################################################
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import images_rc
-import sip
+
 
 
 
@@ -202,9 +202,9 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
                               "itemChange")
 
     def __onTextModified(self, rect):
+        self.setHeaderRect(rect)
         if self.ignoreLoopback:
             return
-        self.setHeaderRect(rect)
         self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
