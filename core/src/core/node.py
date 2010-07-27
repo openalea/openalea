@@ -235,7 +235,6 @@ class AbstractPort(dict, Observed, HasAdHoc):
 
     def get_tip(self, current_value = None):
         """ Return the tool tip """
-
         name = self['name']
         interface = self.get('interface', None)
         desc = self.get('desc', '')
