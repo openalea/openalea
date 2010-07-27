@@ -11,7 +11,7 @@ __license__ = 'CECILL-C'
 __url__ = 'http://openalea.gforge.inria.fr'
 __alias__ = ['multisetup']
 __version__ = '0.0.1'
-__authors__ = 'moscardi'
+__authors__ = 'moscardi, cokelaer'
 __institutes__ = 'INRIA/CIRAD'
 
 
@@ -39,7 +39,7 @@ multisetup = Factory(name='multisetup',
                 nodemodule='multisetup',
                 nodeclass='multisetup',
                 inputs=[{'interface': IDirStr, 'name': 'directory', 'value': '', 'desc': 'Project directory'}, 
-                        {'interface': ISequence, 'name': 'command', 'value': ['install', 'bdist_egg -d ../dist'], 'desc': 'Python list of user commands'}, 
+                        {'interface': ISequence, 'name': 'command', 'value': ['install', 'bdist_egg -d .dist'], 'desc': 'Python list of user commands'}, 
                         {'interface': ISequence, 'name': 'packages', 'value': [], 'desc': 'list of packages to process'}, 
                         {'interface': IBool, 'name': 'verbose', 'value': False, 'desc': 'run verbosely'}],
                 outputs=[{'interface': IBool, 'name': 'status', 'desc': ''}],
@@ -77,6 +77,19 @@ openalea_packages = Factory(name='openalea_packages',
 
 __all__.append("openalea_packages")
 
+commands = Factory(name='commands',
+                description='List of commands for setup.py',
+                category='data i/o',
+                nodemodule='commands',
+                nodeclass='commands',
+                inputs=[{'interface': None, 'name': 'in1', 'value': None, 'desc': '', 'hide': True}],
+                outputs=[{'interface': ISequence, 'name': 'commands', 'desc': ''}],
+                widgetmodule=None,
+                widgetclass=None,
+               )
+
+__all__.append("commands")
+
 
 vplants_packages = Factory(name='vplants_packages',
                 description='List of packages to release from vplants project',
@@ -107,11 +120,18 @@ __all__.append("alinea_packages")
 
 
 
+shared_data = Factory(name='shared_data_browser',
+                description='This Widget allows to select data file from known openalea data shared directories',
+                category='data i/o',
+                nodemodule='shared_data',
+                nodeclass='SharedDataBrowser',
+                inputs=[{'interface': ISequence, 'name': 'packages', 'value': [], 'desc': ''},
+                        {'interface': IStr, 'name': 'glob', 'value': '*'}],
+                outputs=[{'interface': IStr, 'name': 'filename'}],
+                widgetmodule='shared_data_widget',
+                widgetclass='SharedDataBrowser',
+               )
 
-
-
-
-
-
+__all__.append("shared_data")
 
 
