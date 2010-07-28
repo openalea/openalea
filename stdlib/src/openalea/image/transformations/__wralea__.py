@@ -18,6 +18,10 @@ __revision__ = " $Id$ "
 
 
 from openalea.core import *
+from Image import *
+from openalea.core import Factory
+from openalea.core.interface import *
+from openalea.image.interface import IPix
 
 __name__ = "openalea.image.transformations"
 __alias__ = ["image.transformations"]
@@ -32,14 +36,9 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = ["blend", "composite", "merge", "merge_rgb", "merge_rgb_data",
            "paste", "putpix", "putpixL", "fillL", "fill_rgb", "put_alpha",
            "split", "rgb2hsl", "hsl2rgb", "hue_distance", "hue_nearest",
-           "levelL", "rainbow_lut", "lut2image",
+           "levelL", "rainbow_lut", "lut2image", "putdata",
            ]
 
-
-
-from openalea.core import Factory
-from openalea.core.interface import *
-from openalea.image.interface import IPix
 
 blend = Factory( name= "blend", 
                  description= "create an interpolation between two images", 
@@ -55,7 +54,7 @@ blend = Factory( name= "blend",
 composite = Factory( name= "composite", 
                      description= "create an interpolation between two images", 
                      category = "Image", 
-                     nodemodule = "image_transfo",
+                     nodemodule = "Image",
                      nodeclass = "composite",
                      inputs=(dict(name="Image", interface=IPix,),
                              dict(name="Image", interface=IPix,),
@@ -278,3 +277,17 @@ lut2image = Factory( name= "lut2image",
               outputs=(dict(name="Rainbow_LUT_Image", interface=IPix,),),
               )
 
+
+putdata = Factory( name= "put data", 
+                   description= "set color of a pixel inside a one band image. The scale and offset values are used to adjust the sequence values: pixel = value * scale + offset", 
+                   category = "Image", 
+                   nodemodule = "image_transfo",
+                   nodeclass = "putdata",
+                   inputs=(dict(name="data", interface= ISequence,),
+                           dict(name="scale",interface=IFloat,value=1.0),
+                           dict(name="offset",interface=IFloat,value=0.0),
+			   dict(name="width", interface=IInt,),
+			   dict(name="height",interface=IInt,),
+                           ),
+                  outputs=(dict(name="Image", interface=IPix,),),
+                  )
