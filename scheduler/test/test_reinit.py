@@ -65,7 +65,7 @@ def test1 () :
     assert tuple(evaluated) == (1,1,1,2)
     
     #reinit
-    g.reinit()
+    """g.reinit()
     
     #second run
     #g = s.run()
@@ -80,5 +80,5 @@ def test1 () :
     next_cycle = g.next()
     assert next_cycle == 3
     assert tuple(evaluated) == (1,1,1,2)
-    
+    """
 
