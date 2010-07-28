@@ -1,3 +1,0 @@
-This file should contain a brief description of your package. 
-In the future it maiy simply be replaced by the long_description contained in
-the metainfo file.
