@@ -22,9 +22,14 @@ __revision__=" $Id: $ "
 from colorsys import hsv_to_rgb,rgb_to_hsv
 from numpy import array,uint32
 
-palette_names = ["grayscale","rainbow","bwrainbow"]
+palette_names = ["bw","grayscale","rainbow","bwrainbow"]
 
 __all__ = palette_names + ["palette_names","palette_factory"]
+
+def bw () :
+	"""Black and white palette
+	"""
+	return array([(0,0,0),(255,255,255)],uint32)
 
 def grayscale (cmax, alpha = False) :
 	"""Grayscale values ranging from 0 to 255

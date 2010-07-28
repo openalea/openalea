@@ -20,6 +20,7 @@ __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
 from scipy.misc.pilutil import imread,imsave
+from basics import save,load
 from inrimage import *
 
 
