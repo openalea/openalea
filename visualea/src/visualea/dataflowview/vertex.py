@@ -182,10 +182,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
     #Shape definition
     default_corner_radius = 2.0
     default_margin        = 3.0
+    pen_width             = 1.0
 
     def __init__(self, vertex, graph, parent=None):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, 1, 1, parent)
         qtgraphview.VertexWithPorts.__init__(self, vertex, graph)
+        self.setPen(QtGui.QPen(QtCore.Qt.black, self.pen_width))
         if safeEffects:
             fx = QtGui.QGraphicsDropShadowEffect()
             fx.setOffset(2,2)
@@ -222,7 +224,8 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
         self.notify(vertex("cleared_output_ports",))
 
     def _refresh_geometry(self, geom):
-        geom = geom.adjusted(0, 5, 0, -5)
+        geom = geom.adjusted(-self.pen_width, GraphicalPort.HEIGHT/2-self.pen_width, 
+                             self.pen_width, -(GraphicalPort.HEIGHT/2-self.pen_width))
         self.setRect(geom)
 
     ####################
@@ -287,16 +290,17 @@ class ObserverOnlyGraphicalVertex(qtgraphview.VertexWithPorts, QtGui.QGraphicsRe
         path = self.path_cache.get(self, None)
         if(path is None or self.shapeChanged):
             rect = self.rect()
-            #prevent the painter from drawing outside the bounding rect
-            rect.adjust(1,1,-1,-1)
+            #prevent the painter from drawing outside the bounding rect:
+            rect.adjust(self.pen_width,self.pen_width,-self.pen_width,-self.pen_width)
             path = QtGui.QPainterPath()
             path.addRoundedRect(rect, self.default_corner_radius,
                                 self.default_corner_radius)
             self.shapeChanged = False
             self.path_cache[self] = path
-
-        pen = QtGui.QPen(QtCore.Qt.black, 1)
+        
         userColor = self.get_view_data("userColor")
+        
+        pen = self.pen()
 
         if hasattr(self.vertex(), 'raise_exception'):
             color = self.default_error_color
