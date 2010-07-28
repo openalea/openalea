@@ -33,12 +33,23 @@ unportableFlags = ['ItemSendsGeometryChanges', 'ItemUsesExtendedStyleOption',
 unportableEnums = ["ItemScenePositionHasChanged", "ItemPositionHasChanged"]
 
 __dict__ = globals()
+__badsymbols = []
 for f in unportableFlags+unportableEnums:
     try:
         __dict__[f] = getattr(QtGui.QGraphicsItem, f)
     except Exception, e:
-        print "symbol not found:", f
+        __badsymbols.append(f)
         continue
+        
+if len(__badsymbols):
+    print \
+"""
+The following QtGui.QGraphicsItem enums and flags were not found.
+These are probably used by a graph view. They might exist but your version
+of PyQt is too old so openalea.grapheditor.qtutils will try to compensate
+them:
+%s
+""" % (__badsymbols)
 
 # if it's just the PyQt Version that is too old we have a hack as
 # the qt flag exists but is simply not exposed.
