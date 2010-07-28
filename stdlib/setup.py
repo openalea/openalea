@@ -15,19 +15,6 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
-if False :
-	###########
-	#
-	#		compile QT interfaces
-	#
-	###########
-	import os
-	
-	rc_file = "src/openalea/image/movie/icons/movie.qrc"
-	out_file = "src/openalea/image/movie/movie_rc.py"
-	os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
-
-
 
 setup(
     name=name,
