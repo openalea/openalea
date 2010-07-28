@@ -18,6 +18,10 @@ __revision__ = " $Id$ "
 
 
 from openalea.core import *
+from openalea.core import Factory
+from openalea.core.interface import *
+
+from openalea.image.interface import IPix, IImageMode
 
 __name__ = "openalea.image.basics"
 __alias__ = ["image.basics"]
@@ -30,14 +34,6 @@ __description__ = 'PIL wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
 __all__ = []
-
-
-
-from openalea.core import Factory
-from openalea.core.interface import *
-
-from openalea.image.interface import IPix, IImageMode
-
 
 
 load2rgb = Factory( name= "load2rgb", 
