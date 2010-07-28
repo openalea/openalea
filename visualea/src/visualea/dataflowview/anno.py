@@ -198,7 +198,7 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
     #####################
     # ----Qt World----  #
     #####################
-    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsTextItem,
+    itemChange = mixin_method(qtgraphview.Vertex, MemoRects,
                               "itemChange")
 
     def __onTextModified(self, rect):
