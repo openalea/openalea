@@ -15,16 +15,17 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
-###########
-#
-#		compile QT interfaces
-#
-###########
-import os
-
-rc_file = "src/openalea/image/movie/icons/movie.qrc"
-out_file = "src/openalea/image/movie/movie_rc.py"
-os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
+if False :
+	###########
+	#
+	#		compile QT interfaces
+	#
+	###########
+	import os
+	
+	rc_file = "src/openalea/image/movie/icons/movie.qrc"
+	out_file = "src/openalea/image/movie/movie_rc.py"
+	os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
 
 
 
@@ -62,7 +63,6 @@ setup(
                    'openalea.data = openalea.data',
                    'openalea.file = openalea.file',
                    'openalea.functional = openalea.functional',
-                   #'openalea.image = openalea.image',
                    'openalea.math = openalea.math', 
                    'openalea.model = openalea.model',
                    'openalea.pickling = openalea.pickling', 
