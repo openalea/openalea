@@ -165,7 +165,7 @@ class AleaQGraphicsButtonMixin(object):
         event.accept()
 
     def mouseReleaseEvent(self, event):
-        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, event)
+        super(type(self), self).mouseReleaseEvent(event)
         self.pressed.emit(event)
 
 ########################
@@ -244,7 +244,7 @@ class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishing
         self.setBrush(QtGui.QBrush(gradient))
 
     def _onButtonPressed(self, event):
-        color = QtGui.QColorDialog.getColor(parent=event.widget())
+        color = QtGui.QColorDialog.getColor(QtCore.Qt.white, event.widget())
         if color.isValid():
             self.colorChanged.emit(color)
 
@@ -277,7 +277,7 @@ class AleaQGraphicsFontColorButton(AleaQGraphicsFontButton):
         self.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0)))
 
     def _onButtonPressed(self, event):
-        color = QtGui.QColorDialog.getColor(parent=event.widget())
+        color = QtGui.QColorDialog.getColor(QtCore.Qt.white, event.widget())
         if color.isValid():
             self.fontColorChanged.emit(color)
 
