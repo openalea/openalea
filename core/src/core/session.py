@@ -215,6 +215,7 @@ class Session(Observed):
             self.workspaces.append(n)
 
         self.notify_listeners()
+        d.close()
 
     def load_module(self, name, path):
 
