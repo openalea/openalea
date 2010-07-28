@@ -18,6 +18,8 @@ __revision__ = " $Id: __wralea__.py$ "
 
 
 from openalea.core import *
+from openalea.core import Factory
+from openalea.core.interface import *
 
 __name__ = "openalea.image.movie"
 
@@ -29,11 +31,6 @@ __description__ = 'PIL wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
 __all__ = []
-
-
-
-from openalea.core import Factory
-from openalea.core.interface import *
 
 
 frames = Factory( name= "frames", 
