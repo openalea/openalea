@@ -20,9 +20,8 @@ This module import functions to manipulate images
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from math import sqrt
-from numpy import array,apply_along_axisfrom scipy.ndimage import rotate,gaussian_filter
-from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
+from scipy.ndimage import rotate,gaussian_filter
+from openalea.image import saturate,high_level,color_select
 
 def crop (img, x, y, dx, dy) :
 	data = img[y:(y + dy),x:(x + dx),...]
@@ -41,60 +40,29 @@ def wra_rotate (img, angle, reshape) :
 	
 	return data,
 
+wra_rotate.__doc__ = rotate.__doc__
+
 def gaussian (img, sigma) :
 	data = gaussian_filter(img,sigma)
 	
 	return data,
 
-def saturate (img) :
-	"""Saturate colors in the image
-	"""
-	def func (pix) :
-		h,s,v = rgb_to_hsv(*tuple(v / 255. for v in pix[:3]) )
-		return tuple(int(v * 255) for v in hsv_to_rgb(h,1.,1.) )
-	
-	data = apply_along_axis(func,2,img)
-	
-	return data,
+gaussian.__doc__ = gaussian_filter.__doc__
 
-def high_level (img, color) :
-	"""Create a mask where all colors below color are transparent
-	"""
-	th = sum(color[:3]) / 3.
-	
-	def func (pix) :
-		if (sum(pix[:3]) / 3.) > th :
-			return 255
-		else :
-			return 0
-	
-	data = apply_along_axis(func,2,img)
-	
-	return data,
+def wra_saturate (img) :
+	return saturate(img),
 
-def color_select (img, color, tol) :
-	"""Create a mask to conserve only colors 
-	around the given color.
-	
-	:ref:`http://en.wikipedia.org/wiki/Color_difference`
-	"""
-	href,lref,sref = rgb_to_hls(*tuple(v / 255. for v in color[:3]) )
-	tol /= 100.
-	
-	def func (pix) :
-		h,l,s = rgb_to_hls(*tuple(v / 255. for v in pix[:3]) )
-		d = sqrt( ( (l - lref) / 1.)**2 + \
-		          ( (s - sref) / (1 + 0.045 * sref) )**2 + \
-		          ( (h - href) / (1 + 0.015 * sref) )**2)
-		
-		if d < tol :
-			return 255
-		else :
-			return 0
-	
-	data = apply_along_axis(func,2,img)
-	
-	return data,
+wra_saturate.__doc__ = saturate.__doc__
+
+def wra_high_level (img, color) :
+	return high_level(img,color),
+
+wra_high_level.__doc__ = high_level.__doc__
+
+def wra_color_select (img, color, tol) :
+	return color_select(img,color,tol),
+
+wra_color_select.__doc__ = color_select.__doc__
 
 
 

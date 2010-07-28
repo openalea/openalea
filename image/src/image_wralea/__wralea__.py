@@ -57,17 +57,20 @@ size = Factory(name = "size",
 
 __all__.append("size")
 
-paste_alpha = Factory(name = "paste_alpha",
-                description = "paste an alpha channel into an image",
+apply_mask = Factory(name = "apply_mask",
+                description = "apply a mask on a image",
                 category = "image",
                 nodemodule = "image",
-                nodeclass = "paste_alpha",
+                nodeclass = "wra_apply_mask",
                 inputs = (dict(name = "img", interface = IImage),
-                          dict(name = "alpha", interface = None),),
+                          dict(name = "mask", interface = None),
+                          dict(name = "background_color",
+                               interface = IColor,
+                               value = None),),
                 outputs = (dict(name = "img", interface = IImage),),
                 )
 
-__all__.append("paste_alpha")
+__all__.append("apply_mask")
 
 apply_palette = Factory(name = "apply_palette",
                 description = "apply a palette to data to create an image",
@@ -80,6 +83,17 @@ apply_palette = Factory(name = "apply_palette",
                 )
 
 __all__.append("apply_palette")
+
+bw = Factory(name = "bw",
+                description = "black and white palette",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "wra_bw",
+                inputs = (),
+                outputs = (dict(name = "pal", interface = None),),
+                )
+
+__all__.append("bw")
 
 grayscale = Factory(name = "grayscale",
                 description = "grayscale palette",

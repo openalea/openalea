@@ -21,7 +21,7 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from openalea.image import imread
-def load (filename) :
-	img = imread(filename)
-	
-	return img,
+def wra_imread (filename) :
+	return imread(filename),
+
+wra_imread.__doc__ = imread.__doc__

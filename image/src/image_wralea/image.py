@@ -18,28 +18,48 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
 from numpy import array,uint8
-from openalea.image import grayscale,flatten
+from openalea.image import bw,grayscale,flatten,apply_mask,SpatialImage
 
 def image (img) :
 	return img,
 
 def size (img) :
-	return img.shape[:2]
+	h,w = img.shape[:2]
+	return w,h
 
-def paste_alpha (img, alpha) :
-	return array([img[...,0],img[...,1],img[...,2],alpha]).transpose( (1,2,0) ),
+def wra_apply_mask (img, mask, background_color) :
+	return apply_mask(img,mask,background_color),
+
+wra_apply_mask.__doc__ = apply_mask.__doc__
 
 def apply_palette (data, palette) :
-	return palette[data],
+	if data.dtype == bool :
+		data = data * 1
+	
+	img = palette[data]
+	
+	if isinstance(data,SpatialImage) :
+		img = SpatialImage(img,img.resolution,palette.shape[1],img.info)
+	
+	return img,
 
 def wra_grayscale (nb) :
 	return grayscale(nb),
 
+wra_grayscale.__doc__ = grayscale.__doc__
+
+def wra_bw () :
+	return bw(),
+
+wra_bw.__doc__ = bw.__doc__
+
 def invert (img) :
-	return 255 - img,
+	if img.dtype == bool :
+		return -img
+	else :
+		return 255 - img,
 
 def wra_flatten (img_list) :
-	img = flatten(img_list)
-	
-	return img,
+	return flatten(img_list),
 
+wra_flatten.__doc__ = flatten.__doc__
