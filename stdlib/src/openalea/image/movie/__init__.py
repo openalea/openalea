@@ -1,2 +1,0 @@
-from animator import FrameAnimator
-
