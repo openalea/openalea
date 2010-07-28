@@ -19,6 +19,12 @@ __revision__ = " $Id$ "
 
 from openalea.core import *
 
+from openalea.core import Factory
+from openalea.core.interface import *
+from openalea.image.interface import IPix
+from openalea.core.traitsui import View, Group, Item
+
+
 __name__ = "openalea.image.geometry"
 __alias__ = ["image.geometry"]
 
@@ -30,12 +36,6 @@ __description__ = 'PIL wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
 __all__ = ["mirror", "crop", "resize", "rotate"]
-
-from openalea.core import Factory
-from openalea.core.interface import *
-from openalea.image.interface import IPix
-from openalea.core.traitsui import View, Group, Item
-
 
 crop = Factory( name= "crop image", 
               description= "crop an image", 
