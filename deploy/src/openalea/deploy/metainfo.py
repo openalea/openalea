@@ -3,6 +3,7 @@
 
 
 compulsary_words = ['project','version','authors','package','release']
+
 def read_metainfo(filename, section='metainfo', verbose=False):
     """Parse a section in a given file using ConfigParser module
 
@@ -60,4 +61,25 @@ def read_metainfo(filename, section='metainfo', verbose=False):
         if word not in metadata.keys():
             raise ValueError('%s field not found in metainfo.ini' % word)
 
+    return metadata
+
+
+def get_metadata(module):
+    """
+
+    >>> import openalea.sta_tool as sa
+    >>> d = metainfo.get_metadata(sa)
+    >>> d.name
+    'VPlants.Stat-Tool'
+
+    """
+    try:
+        import pkginfo
+    except:
+        import warning
+        warning.warn("Missing pkginfo package. You should install it. Using hack version instead.")
+        import openalea.deploy.pkginfo as pkginfo
+        raise ImportError
+    import os
+    metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..','..'))
     return metadata
