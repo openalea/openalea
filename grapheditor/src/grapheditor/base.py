@@ -132,57 +132,58 @@ class GraphAdapterBase(object):
         return ["default"]
 
 
-            
+
 
 def GraphStrategyMaker(graphView, vertexWidgetMap, edgeWidgetMap,
-                   connectorTypes=[], graphViewInitialiser=None,
-                   adapterType=None):
-                                                 
+                       connectorTypes=[], graphViewInitialiser=None,
+                       adapterType=None):
+
     class __GraphStrategy(object):
+        __sceneType__            = None
         __graphViewType__        = graphView
         __vertexWidgetMap__      = vertexWidgetMap
         __edgeWidgetMap__        = edgeWidgetMap
         __connectorTypes__       = connectorTypes
-        __graphViewInitialiser__ = graphViewInitialiser
+        __graphViewInitialiser__ = staticmethod(graphViewInitialiser)
         __adapterType__          = adapterType
-            
-        def __init__(self, graph, graphAdapter=None, observableGraph=None):
-            self.graph = graph
-            self.graphAdapter = graph if self.__adapterType__ is None \
-                else self.__adapterType__(graph) 
-            self.observableGraph = graph if observableGraph is None \
-                else observableGraph
-            
-        def create_view(self, parent=None, *args, **kwargs):
+
+        @classmethod
+        def create_view(cls, graph, observableGraph=None, parent=None,
+                        clone=False, *args, **kwargs):
             """Instanciates the view"""
-            view = self.__graphViewType__(parent, self.graph, self, *args,**kwargs)
+            adapter         = graph if cls.__adapterType__ is None else cls.__adapterType__(graph)
+            observableGraph = graph if observableGraph is None else observableGraph
+
+            view = cls.__graphViewType__(parent, *args,**kwargs)
+            scene = cls.__sceneType__.make_scene(cls, graph, adapter,
+                                                 observableGraph, clone)
+            scene.initialise_from_model()
+            view.set_canvas(scene)
             return view
 
-        def create_vertex_widget(self, vtype, *args, **kwargs):
-            VertexClass = self.__vertexWidgetMap__.get(vtype)
+        @classmethod
+        def create_vertex_widget(cls, vtype, *args, **kwargs):
+            VertexClass = cls.__vertexWidgetMap__.get(vtype)
             if(VertexClass):
                 return VertexClass(*args, **kwargs)
             else:
                 raise Exception("vtype not found")
 
-        def create_edge_widget(self, etype, *args, **kwargs):
-            VertexClass = self.__edgeWidgetMap__.get(etype)
+        @classmethod
+        def create_edge_widget(cls, etype, *args, **kwargs):
+            VertexClass = cls.__edgeWidgetMap__.get(etype)
             if(VertexClass):
                 return VertexClass(*args, **kwargs)
             else:
                 raise Exception("etype not found")
 
-        def get_connector_types(self):
-            return self.__connectorTypes__
-            
-        def get_observable_graph(self):
-            return self.observableGraph
-        
-        def get_graph_adapter(self):      
-            return self.graphAdapter        
+        @classmethod
+        def get_connector_types(cls):
+            return cls.__connectorTypes__
 
-        def initialise_graph_view(self, graphView, graphModel):
-            if self.__graphViewInitialiser__ is not None:
-                self.__graphViewInitialiser__(graphView, graphModel)   
+        @classmethod
+        def initialise_graph_view(cls, graphView, graphModel):
+            if cls.__graphViewInitialiser__ is not None:
+                cls.__graphViewInitialiser__(graphView, graphModel)
 
     return __GraphStrategy

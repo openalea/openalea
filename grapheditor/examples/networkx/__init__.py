@@ -108,9 +108,11 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 #------------------------
 import sys
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import GraphStrategyMaker
-from openalea.grapheditor import Vertex, View, mixin_method
-from openalea.grapheditor import DefaultGraphicalEdge, DefaultGraphicalFloatingEdge, DefaultGraphicalVertex
+from openalea.grapheditor.qt import (Vertex, View, mixin_method,
+                                     QtGraphStrategyMaker,
+                                     DefaultGraphicalEdge,
+                                     DefaultGraphicalFloatingEdge,
+                                     DefaultGraphicalVertex)
 from random import randint as rint # for random colors
 
 class GraphicalNode( DefaultGraphicalVertex, QtGui.QGraphicsEllipseItem  ):
@@ -131,8 +133,8 @@ class GraphicalNode( DefaultGraphicalVertex, QtGui.QGraphicsEllipseItem  ):
 
 
 class GraphicalView( View ):
-    def __init__(self, parent, graph, strategy, clone=False):
-        View.__init__(self, parent, graph, strategy, clone)
+    def __init__(self, parent):
+        View.__init__(self, parent)
         self.set_default_drop_handler(self.dropHandler)
         keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):self.removeElement,}
         self.set_keypress_handler_map(keyPressMapping)
@@ -159,10 +161,10 @@ class GraphicalView( View ):
 #-------------------------
 # -- the graph strategy --
 #-------------------------
-GraphicalGraph = GraphStrategyMaker( graphView       = GraphicalView,
-                                vertexWidgetMap = {"vertex":GraphicalNode},
-                                edgeWidgetMap   = {"default":DefaultGraphicalEdge,
-                                                   "floating-default":DefaultGraphicalFloatingEdge} )
+GraphicalGraph = QtGraphStrategyMaker( graphView       = GraphicalView,
+                                       vertexWidgetMap = {"vertex":GraphicalNode},
+                                       edgeWidgetMap   = {"default":DefaultGraphicalEdge,
+                                                          "floating-default":DefaultGraphicalFloatingEdge} )
 
 
 #THE APPLICATION'S MAIN WINDOW
@@ -171,11 +173,9 @@ class MainWindow(QtGui.QMainWindow):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
 
-
         self.setMinimumSize(800,600)
         self.__graph = NXObservedGraph()
-        noodles = GraphicalGraph(self.__graph)
-        self.__graphView = noodles.create_view(parent=self)
+        self.__graphView = GraphicalGraph.create_view(self.__graph, parent=self)
         self.setCentralWidget(self.__graphView)
 
 

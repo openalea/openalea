@@ -21,6 +21,3 @@ from base import GraphStrategyMaker, GraphAdapterBase
 from basenotifiers import ObservedVertex
 from edgefactory import LinearEdgePath, SplineEdgePath
 from openalea.grapheditor.observer import Observed
-from qtgraphview import Edge, FloatingEdge, Vertex, Scene, View
-from qtgraphview import DefaultGraphicalEdge, DefaultGraphicalFloatingEdge, DefaultGraphicalVertex
-from qtutils import mixin_method
