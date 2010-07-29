@@ -87,6 +87,10 @@ class GraphElementListenerBase(observer.AbstractListener):
                     self.position_changed(*event[2])
 
 
+class GraphViewBase(object):
+    def set_canvas(self, canvas):
+        raise NotImplementedError
+
 class GraphListenerBase(observer.AbstractListener):
     """This object strictly watches the given graph.
     It deduces the correct representation out
@@ -94,23 +98,31 @@ class GraphListenerBase(observer.AbstractListener):
 
     It is MVC oriented.
     """
-    def __init__(self, graph, strat):
+    @classmethod
+    def make_scene(cls, stratCls, g, ga, gobs, clone=False, *args, **kwargs):
+        print "make_scene", g, ga, gobs
+        scene = cls._make_scene(g, clone, *args, **kwargs)
+        scene.set_strategy(stratCls)
+        scene.set_graph(g, ga, gobs)
+        return scene
+
+    @classmethod
+    def _make_scene(cls, *args, **kwargs):
+        raise NotImplementedError
+
+    def __init__(self):
         observer.AbstractListener.__init__(self)
-        assert graph is not None
-        assert strat is not None
 
         #mappings from models to widgets
         #used by cleanup (gc) procedures
         self.widgetmap = {}
 
-        self.__graph           = graph
-        self.__strategy        = strat
-        self.__strategyCls     = strat.__class__
+        self.__graph           = None
+        self.__strategyCls     = None
         #obtaining types from the strategy.
-        self._connector_types=set(strat.get_connector_types())
-        self.__observableGraph = strat.get_observable_graph()
-        self.__graphAdapter    = strat.get_graph_adapter()
-        self.__observableGraph.register_listener(self)
+        self._connector_types  = set()
+        self.__observableGraph = None
+        self.__graphAdapter    = None
 
         #low-level detail, during the edge creation we store
         #the connectable graphical item closest to the mice.
@@ -122,17 +134,18 @@ class GraphListenerBase(observer.AbstractListener):
     def get_strategy(self):
         return self.__strategy
 
+    def set_strategy(self, stratCls):
+        self.__strategyCls = stratCls
+        self._connector_types |= set(stratCls.get_connector_types())
+
     def get_graph(self):
         return self.__graph
 
     def set_graph(self, graph, adapter=None, observable=None):
-        strat                  = self.__strategyCls(graph, adapter, observable)
-        self.__strategy        = strat
         self.__graph           = graph
         #obtaining types from the strategy.
-        self._connector_types=set(strat.get_connector_types())
-        self.__observableGraph = strat.get_observable_graph()
-        self.__graphAdapter    = strat.get_graph_adapter()
+        self.__observableGraph = observable
+        self.__graphAdapter    = adapter
         self.__observableGraph.register_listener(self)
 
     def get_adapter(self):
@@ -142,7 +155,7 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__observableGraph
 
     def initialise_from_model(self):
-        self.__strategy.initialise_graph_view(self, self.get_graph())
+        self.__strategyCls.initialise_graph_view(self, self.get_graph())
 
     def clear(self):
         self.widgetmap = {}
@@ -158,12 +171,12 @@ class GraphListenerBase(observer.AbstractListener):
 
     def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
-        vertexWidget = self.__strategy.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
+        vertexWidget = self.__strategyCls.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
         return self._element_added(vertexWidget, vertexModel)
 
     def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
         if edgeModel is None : return
-        edgeWidget = self.__strategy.create_edge_widget(etype, edgeModel, self.get_graph(),
+        edgeWidget = self.__strategyCls.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
         return self._element_added(edgeWidget, edgeModel)
 
@@ -302,7 +315,7 @@ class GraphListenerBase(observer.AbstractListener):
         return True if self.__newEdge else False
 
     def _new_edge_start(self, srcPt, etype="default", source=None):
-        self.__newEdge = self.__strategy.create_edge_widget("floating-"+etype, srcPt, self.get_graph())
+        self.__newEdge = self.__strategyCls.create_edge_widget("floating-"+etype, srcPt, self.get_graph())
         self.__newEdge.add_to_view(self.get_scene())
         if  source:
             self.__newEdgeSource = source

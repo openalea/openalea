@@ -20,7 +20,7 @@ __revision__ = " $Id$ "
 
 import weakref, types, gc, warnings
 from PyQt4 import QtGui, QtCore
-import baselisteners, interfaces, qtutils
+import base, baselisteners, interfaces, qtutils
 import edgefactory
 
 from math import sqrt
@@ -573,13 +573,27 @@ class FloatingEdge( Edge ):
 #------*************************************************------#
 class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase"""
-    def __init__(self, parent, graph, strategy):
+
+    __instanceMap__ = weakref.WeakKeyDictionary()
+
+    @classmethod
+    def _make_scene(cls, graph, clone=False):
+        if graph is not None:
+            #if the graph has already a qtgraphview.Scene GraphListener
+            #reuse it:
+            existingScene = cls.__instanceMap__.get(graph)
+            if existingScene is None or clone is True:
+                existingScene = Scene(None)
+                cls.__instanceMap__[graph] = existingScene
+            return existingScene
+
+    def __init__(self, parent):
         QtGui.QGraphicsScene.__init__(self, parent)
-        baselisteners.GraphListenerBase.__init__(self, graph, strategy)
+        baselisteners.GraphListenerBase.__init__(self)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
         self._connector_types.add(Connector)
-        self.initialise_from_model()
+
 
     #############################################################################
     # Functions to correctly cooperate with the View class (reference counting) #
@@ -596,7 +610,6 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         except : pass
         if len(self.__views)==0:
             self.clear()
-
 
     #################################
     # IGraphListener implementation #
@@ -703,7 +716,7 @@ def deprecate(methodName, newName=None):
     return deprecation_wrapper
 
 
-class View(QtGui.QGraphicsView, ClientCustomisableWidget):
+class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphViewBase):
     """A View implementing client customisation """
 
     #A few signals that strangely enough don't exist in QWidget
@@ -712,20 +725,10 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
     ####################################
     # ----Instance members follow----  #
     ####################################
-    def __init__(self, parent, graph, strategy, clone=False):
+    def __init__(self, parent):
         QtGui.QGraphicsView.__init__(self, parent)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-
-        if graph is not None:
-            #if the graph has already a qtgraphview.Scene GraphListener
-            #reuse it:
-            existingScene = None
-            for listener in graph.listeners:
-                if isinstance(listener(), Scene):
-                    existingScene = listener()
-                    break
-            self.setScene(existingScene if (existingScene and not clone) else Scene(None, graph, strategy))
 
         self.__defaultDropHandler = None
         self.__mimeHandlers = {}
@@ -747,6 +750,9 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
             scene.register_view(self)
             self.closing.connect(scene.unregister_view)
         QtGui.QGraphicsView.setScene(self, scene)
+
+    def set_canvas(self, scene):
+        self.setScene(scene)
 
     ##################
     # QtWorld-Events #
@@ -876,7 +882,10 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget):
 
 interfaces.IGraphListener.check(Scene)
 
-
+def QtGraphStrategyMaker(*args, **kwargs):
+    _type = base.GraphStrategyMaker(*args, **kwargs)
+    _type.__sceneType__ = Scene
+    return _type
 
 ################################
 # SOME DEFAULT IMPLEMENTATIONS #
