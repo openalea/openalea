@@ -23,6 +23,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from math import sqrt
 from numpy import array,uint8,apply_along_axis,rollaxis
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
+from ..spatial_image import SpatialImage
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
@@ -51,7 +52,7 @@ def bounding_box (mask) :
 		
 		#find imin
 		bb[ind] = 0
-		while (not loc_mask[bb].any() ) and (bb[ind] < imax) :
+		while (bb[ind] < imax) and (not loc_mask[bb].any() ) :
 			bb[ind] += 1
 		
 		if bb[ind] == imax :
@@ -61,7 +62,7 @@ def bounding_box (mask) :
 		
 		#find imax
 		bb[ind] += 1
-		while mask[bb].any() and (bb[ind] < imax) :
+		while (bb[ind] < imax) and mask[bb].any() :
 			bb[ind] += 1
 		
 		bbimax = bb[ind]
@@ -96,33 +97,59 @@ def apply_mask (img, mask, background_color = None) :
 		return rollaxis(array([R,G,B,alpha],img.dtype),0,len(img.shape) )
 	else :
 		raise NotImplementedError
-def flatten (img_list) :
+def flatten (img_list, alpha = False) :
 	"""Concatenate all images into a single image
 	
 	Use alpha to blend images one on top of each other
 	
-	.. warning:: all images must have the same shape either 2D or 3D
-	             and an alpha channel
+	.. warning:: all images must have the same nD shape
+	             and an alpha channel (except maybe for the first one)
 	
-	.. warning:: the resulting image has no alpha channel
+	If alpha is True, the resulting image will use the max of all alpha channels
+	as an alpha channel.
+	
+	.. warning:: if the first image is a SpatialImage, the resulting image will
+	             also be a SpatialImage but no test is made to ensure
+	             consistency in the resolution of the layers
 	
 	:Parameters:
 	 - `img_list` (list of NxM(xP)x4 array of uint8)
+	 - `alpha` (bool) - the resulting image will have an alpha channel or not
 	
-	:Returns Type: NxM(xP)x3 array of uint8
+	:Returns Type: NxM(xP)x3(4) array of uint8
 	"""
-	R = img_list[0][...,0]
-	G = img_list[0][...,1]
-	B = img_list[0][...,2]
+	bg = img_list[0]
+	
+	R = bg[...,0]
+	G = bg[...,1]
+	B = bg[...,2]
+	
+	if bg.shape[-1] == 4 :
+		alpha_list = [bg[...,3] ]
+	else :
+		alpha_list = []
 	
 	for lay in img_list[1:] :
-		alpha = lay[...,3] / 255.
-		ialpha = 1. - alpha
-		R = R * ialpha + lay[...,0] * alpha
-		G = G * ialpha + lay[...,1] * alpha
-		B = B * ialpha + lay[...,2] * alpha
+		A = lay[...,3]
+		alpha_list.append(A)
+		
+		A = A / 255.
+		iA = 1. - A
+		
+		R = R * iA + lay[...,0] * A
+		G = G * iA + lay[...,1] * A
+		B = B * iA + lay[...,2] * A
 	
-	return rollaxis(array([R,G,B],img_list[0].dtype),0,len(img_list[0].shape) )
+	if alpha :
+		A = array(alpha_list).max(axis = 0)
+		ret = rollaxis(array([R,G,B,A],bg.dtype),0,len(bg.shape) )
+	else :
+		ret = rollaxis(array([R,G,B],bg.dtype),0,len(bg.shape) )
+	
+	if isinstance(bg,SpatialImage) :
+		return SpatialImage(ret,bg.resolution,4,bg.info)
+	else :
+		return ret
 
 def saturate (img) :
 	"""Saturate colors in the image
