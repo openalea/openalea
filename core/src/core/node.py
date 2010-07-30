@@ -288,6 +288,25 @@ class Node(AbstractNode):
     Inputs and Outpus are indexed by their position or by a name (str)
     """
 
+    @staticmethod
+    def is_deprecated_event(event):
+        evLen = len(event)
+        conversionTxt = None
+        retEvent = event
+        if evLen == 2:
+            if event[0] == "caption_modified":
+                retEvent      = "data_modified", "caption", event[1]
+                conversionTxt = "('data_modified', 'caption', caption)"
+        elif evLen == 3:
+            if event[0] == "data_modified":
+                if event[1] == "delay":
+                    retEvent      = "internal_state_changed", "delay", event[2]
+                    conversionTxt = "('internal_state_changed', 'delay', delay)"
+            elif event[0] == "internal_data_changed":
+                retEvent = ('internal_state_changed', event[1], event[2])
+                conversionTxt = "('internal_state_changed', 'key', value)"
+        return conversionTxt, retEvent
+
     def __init__(self, inputs=(), outputs=()):
         """
 
@@ -318,6 +337,14 @@ class Node(AbstractNode):
 
         # Observed object to notify final nodes wich are continuously evaluated
         self.continuous_eval = Observed()
+
+    def notify_listeners(self, event):
+        txt, trevent = Node.is_deprecated_event(event)
+        if txt:
+            Observed.notify_listeners(self, trevent)
+            Observed.notify_listeners(self, event)
+        else:
+            Observed.notify_listeners(self, event)
 
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """

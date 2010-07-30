@@ -257,18 +257,16 @@ class Vertex(Element):
             QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
+            self.setVisible(False)
 
         def position_changed(self, *args):
             """reimplemented to do nothing. otherwise caught
             position changes from the model (????) and ignored
             the position it was forced to"""
             pass
-        def paint(self, painter, paintOptions, widget):
-            return
+
         itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
                                   "itemChange")
-        # mousePressEvent = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
-                                               # "mousePressEvent")
 
     ####################################
     # ----Instance members follow----  #
@@ -292,6 +290,9 @@ class Vertex(Element):
             self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
 
     vertex = baselisteners.GraphElementListenerBase.get_observed
+
+    def iter_connectors(self, filter=lambda x:True):
+        return (c for c in self.__connectors if filter(c))
 
     def get_scene_center(self):
         """retrieve the center of the widget on the scene"""
@@ -321,6 +322,7 @@ class Vertex(Element):
     def remove_connector(self, connector):
         assert isinstance(connector, Connector)
         self.__connectors.remove(connector)
+
 
 
     #####################
@@ -358,43 +360,6 @@ class Vertex(Element):
             self.__paintStrategy = defaultPaint
         self.__paintStrategy(self, painter, option, widget)
 
-
-class VertexWithPorts(Vertex):
-    LayoutEngine = None
-
-    def __init__(self, vertex, graph):
-        Vertex.__init__(self, vertex, graph)
-        self.layoutEngine = self.LayoutEngine(self)
-        self.__unconstructed = True
-
-    def initialise_from_model(self):
-        self._initialise_from_model()
-        self.layoutEngine.initialise_from_model()
-        self.__unconstructed = False
-        self.refresh_geometry()
-
-    def add_port(self, port):
-        gp = self.layoutEngine.add_port(port, self)
-        if gp:
-            self.add_connector(gp)
-
-    def remove_port(self, port):
-        self.layoutEngine.remove_port(port)
-
-    def remove_ports(self, type):
-        self.layoutEngine.remove_ports(type)
-
-    def refresh_geometry(self):
-        if self.__unconstructed:
-            return
-        geom = self.layoutEngine.layout_items(self)
-        self._refresh_geometry(geom)
-
-    def _refresh_geometry(self, geom):
-        raise NotImplementedError
-
-    def _initialise_from_model(self):
-        raise NotImplementedError
 
 
 #------*************************************************------#

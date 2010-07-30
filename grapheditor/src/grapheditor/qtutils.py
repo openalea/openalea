@@ -3,7 +3,7 @@
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
 #       Copyright 2006-2009 INRIA - CIRAD - INRA
-#
+1#
 #       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
@@ -40,7 +40,7 @@ for f in unportableFlags+unportableEnums:
     except Exception, e:
         __badsymbols.append(f)
         continue
-        
+
 if len(__badsymbols):
     print \
 """
@@ -205,6 +205,38 @@ class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin)
 #############################################################
 # Customized Qt Classes that can be reused in other places. #
 #############################################################
+class AleaQGraphicsRoundedRectItem(QtGui.QGraphicsRectItem):
+    def __init__(self, radius, cache=False, *args, **kwargs):
+        QtGui.QGraphicsRectItem.__init__(self, *args, **kwargs)
+        self.__radius = radius
+        self.__useCachedPath = cache
+        self.__cachedPath = None
+        if cache:
+            self.refresh_cached_shape()
+
+    def shape(self):
+        if self.__useCachedPath:
+            return self.__cachedPath
+        return self._make_path()
+
+    def _make_path(self, pen=None):
+        if pen == None:
+            pen = self.pen()
+        penWidth = pen.widthF()
+        path = QtGui.QPainterPath()
+        path.addRoundedRect(self.rect().adjusted(penWidth, penWidth,
+                                                 -penWidth, -penWidth),
+                            self.__radius, self.__radius)
+        return path
+
+    def refresh_cached_shape(self):
+        self.__cachedPath = self._make_path()
+
+    def paint(self, painter, options, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawPath(self.shape())
+
 class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     """A QtGui.QGraphicsTextItem that emits geometryModified whenever
     its geometry can have changed."""

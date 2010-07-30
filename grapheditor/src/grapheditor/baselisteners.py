@@ -100,7 +100,6 @@ class GraphListenerBase(observer.AbstractListener):
     """
     @classmethod
     def make_scene(cls, stratCls, g, ga, gobs, clone=False, *args, **kwargs):
-        print "make_scene", g, ga, gobs
         scene = cls._make_scene(g, clone, *args, **kwargs)
         scene.set_strategy(stratCls)
         scene.set_graph(g, ga, gobs)
