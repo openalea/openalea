@@ -24,7 +24,52 @@ from math import sqrt
 from numpy import array,uint8,apply_along_axis,rollaxis
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 
-__all__ = ["apply_mask","flatten","saturate","high_level","color_select"]
+__all__ = ["bounding_box","apply_mask",
+           "flatten","saturate",
+           "high_level","color_select"]
+
+def bounding_box (mask) :
+	"""Compute the bounding box of a mask
+	
+	:Parameters:
+	 - `mask` (array of bool) - a nd array of booleans
+	
+	:Returns: a slice (ind_min,ind_max) for each dimension of the mask or None
+	          if the mask do not contain any True value.
+	          Where ind_min correspond to the first slice that contains a True
+	          value and ind_max correspond to the first slice that contains
+	          only False after slices that contain at least one True value
+	
+	:Returns Type: list of (int,int)
+	"""
+	loc_mask = mask
+	bb = [slice(0,m) for m in mask.shape]
+	
+	for ind in range(len(mask.shape) ) :
+		#find bounding box along ind axis
+		imax = mask.shape[ind]
+		
+		#find imin
+		bb[ind] = 0
+		while (not loc_mask[bb].any() ) and (bb[ind] < imax) :
+			bb[ind] += 1
+		
+		if bb[ind] == imax :
+			return None
+		
+		bbimin = bb[ind]
+		
+		#find imax
+		bb[ind] += 1
+		while mask[bb].any() and (bb[ind] < imax) :
+			bb[ind] += 1
+		
+		bbimax = bb[ind]
+		
+		#restore slice
+		bb[ind] = slice(bbimin,bbimax)
+	
+	return bb
 
 def apply_mask (img, mask, background_color = None) :
 	"""Apply a mask on a given image
