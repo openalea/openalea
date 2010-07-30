@@ -479,9 +479,7 @@ class MainWindow(QtGui.QMainWindow,
         #gengraph
         gwidget = None
         try:
-            #adapter = dataflowview.adapter.GraphAdapter(graph)
-            noodles = dataflowview.GraphicalGraph(graph)
-            gwidget = noodles.create_view(self)
+            gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e

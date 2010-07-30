@@ -42,9 +42,10 @@ class VertexOperators(graphOpBase.Base):
         view   = master.get_graph_view()
         if not isinstance(vertex, CompositeNode):
             return
-        widget = compositenode_inspector.CompositeInspector(vertex).create_view(view,
-                                                                                master.__main__.operator,
-                                                                                master)
+        widget = compositenode_inspector.CompositeInspector.create_view(vertex,
+                                                                        view,
+                                                                        master.__main__.operator,
+                                                                        master)
         #widget = GraphicalGraph(vertex).create_view()
         widget.show_entire_scene()
         widget.setWindowFlags(QtCore.Qt.Window)
