@@ -112,7 +112,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
 
         # ----- drawing nicities -----
         self.setPen(QtGui.QPen(QtCore.Qt.black, self.pen_width))
-        self.__unconstructed = True
         if safeEffects:
             fx = QtGui.QGraphicsDropShadowEffect()
             fx.setOffset(2,2)
@@ -129,9 +128,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         if( userColor is None ):
             self.store_view_data(useUserColor=False)
 
-        self.set_graphical_caption(vertex.caption)
-        self.set_graphical_tooltip(vertex.get_tip())
-
         #add connectors and configure their visibility
         for i in vertex.input_desc + vertex.output_desc:
             self.add_port(i)
@@ -142,9 +138,9 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         #configure other items to be visible or not
         self.update_delay_item()
         self.update_hidden_port_item()
-
-        self.__unconstructed = False
-        self.refresh_geometry()
+        self.set_graphical_tooltip(vertex.get_tip())
+        self.set_graphical_caption(vertex.caption)
+        #self.refresh_geometry() already done by set_graphical_caption
 
     def terminate_from_model(self):
         vertex = self.vertex()
@@ -283,8 +279,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         return geom
 
     def refresh_geometry(self):
-        # if self.__unconstructed:
-        #     return
         halfPortH = GraphicalPort.HEIGHT/2
         geom = self.layout_items().adjusted(-self.pen_width,
                                             halfPortH-self.pen_width,
