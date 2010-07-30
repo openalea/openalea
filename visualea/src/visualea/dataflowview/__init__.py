@@ -28,21 +28,22 @@ from openalea.core import compositenode, node
 from openalea.core.pkgmanager import PackageManager # for drag and drop
 from openalea.core.node import RecursionError
 from openalea.core.algo import dataflow_evaluation as evalmodule
-from openalea.grapheditor import baselisteners, qtgraphview, qtutils
+from openalea.grapheditor import qt
+#from openalea.grapheditor import baselisteners, qtgraphview, qtutils
 
 import openalea.grapheditor.base
 
 
 
 
-class DataflowView( qtgraphview.View ):
+class DataflowView( qt.View ):
     # This class is in an intermediate state
     # between using GraphEditor's qtgraphview.View extensibality
     # and simple subclassing. I'm doing this because I don't
     # like big migrations. -- DB
 
-    def __init__(self, parent, graph, strategy, clone=False):
-        qtgraphview.View.__init__(self, parent, graph, strategy, clone)
+    def __init__(self, parent):
+        qt.View.__init__(self, parent)
 
         # -- Configure the drop handlers --
         mimeFormatsMap = {"openalea/nodefactory":self.node_factory_drop_handler,
@@ -173,7 +174,7 @@ class DataflowView( qtgraphview.View ):
         e.setAccepted(True)
 
     def keyPressEvent(self, e):
-        qtgraphview.View.keyPressEvent(self, e)
+        qt.View.keyPressEvent(self, e)
         if not e.isAccepted() and e.modifiers() == QtCore.Qt.ControlModifier:
             operator=GraphOperator(self, self.scene().get_graph())
             if e.key() == QtCore.Qt.Key_C:
@@ -192,7 +193,7 @@ class DataflowView( qtgraphview.View ):
             return
 
         operator=GraphOperator(self)
-        menu = qtutils.AleaQMenu(self)
+        menu = qt.AleaQMenu(self)
         menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
 
         # -- Evaluator submenu --
@@ -219,7 +220,7 @@ class DataflowView( qtgraphview.View ):
 
 
 
-def initialise_graph_view_from_model(arg , graphView, graphModel):
+def initialise_graph_view_from_model(graphView, graphModel):
     # -- do the base node class initialisation --
     mdict  = graphModel.get_ad_hoc_dict()
 
@@ -271,16 +272,14 @@ def initialise_graph_view_from_model(arg , graphView, graphModel):
 
 
 
-
-
-GraphicalGraph = openalea.grapheditor.base.GraphStrategyMaker( graphView            = DataflowView,
-                                                          vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
-                                                                                  "annotation":anno.GraphicalAnnotation,
-                                                                                  "inNode":vertex.GraphicalInVertex,
-                                                                                  "outNode":vertex.GraphicalOutVertex},
-                                                          edgeWidgetMap        = {"default":edge.GraphicalEdge,
-                                                                                  "floating-default":edge.FloatingEdge},
-                                                          graphViewInitialiser = initialise_graph_view_from_model,
-                                                          adapterType          = adapter.GraphAdapter )
+GraphicalGraph = openalea.grapheditor.qt.QtGraphStrategyMaker( graphView            = DataflowView,
+                                                               vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
+                                                                                       "annotation":anno.GraphicalAnnotation,
+                                                                                       "inNode":vertex.GraphicalInVertex,
+                                                                                       "outNode":vertex.GraphicalOutVertex},
+                                                               edgeWidgetMap        = {"default":edge.GraphicalEdge,
+                                                                                       "floating-default":edge.FloatingEdge},
+                                                               graphViewInitialiser = initialise_graph_view_from_model,
+                                                               adapterType          = adapter.GraphAdapter )
 
 
