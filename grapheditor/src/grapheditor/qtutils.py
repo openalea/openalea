@@ -107,8 +107,7 @@ class AleaQGraphicsVanishingMixin(object):
         self.__lowOpacity = opacity
 
     def __onFrameChanged(self, frame):
-        frame -= 1
-        opacity = (1-self.__lowOpacity)*(self.__numFrames-frame)/self.__numFrames + self.__lowOpacity
+        opacity = frame*(1.0-self.__lowOpacity)/self.__numFrames + self.__lowOpacity
         self.setOpacity(opacity)
 
     def setVanishingEnabled(self, val):
@@ -129,12 +128,12 @@ class AleaQGraphicsVanishingMixin(object):
     def vanishingTime(self):
         return self.__vanishingTime
 
-    def appear(self):
+    def disappear(self):
         if not self.__vanEnabled:
             return
 
         state = self.__timer.state()
-        self.__timer.setDuration(self.__vanishingTime/2)
+        self.__timer.setDuration(self.__vanishingTime)
         if state  == QtCore.QTimeLine.Running:
             self.__timer.setDirection(QtCore.QTimeLine.Backward)
         elif state == QtCore.QTimeLine.NotRunning:
@@ -142,12 +141,12 @@ class AleaQGraphicsVanishingMixin(object):
             self.__timer.setDirection(QtCore.QTimeLine.Backward)
             self.__timer.start()
 
-    def disappear(self):
+    def appear(self):
         if not self.__vanEnabled:
             return
 
         state = self.__timer.state()
-        self.__timer.setDuration(self.__vanishingTime)
+        self.__timer.setDuration(self.__vanishingTime/2)
         if state  == QtCore.QTimeLine.Running:
             self.__timer.setDirection(QtCore.QTimeLine.Forward)
         elif state == QtCore.QTimeLine.NotRunning:
