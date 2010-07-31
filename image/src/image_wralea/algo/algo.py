@@ -21,7 +21,8 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from scipy.ndimage import rotate,gaussian_filter
-from openalea.image import saturate,high_level,color_select
+from openalea.image import (saturate,high_level,color_select
+                            flatten,apply_mask,SpatialImage)
 
 def crop (img, x, y, dx, dy) :
 	data = img[y:(y + dy),x:(x + dx),...]
@@ -35,6 +36,21 @@ def paste (img, im2, x, y, reshape) :
 	
 	return data,
 
+def wra_apply_mask (img, mask, background_color) :
+	return apply_mask(img,mask,background_color),
+
+wra_apply_mask.__doc__ = apply_mask.__doc__
+
+def invert (img) :
+	if img.dtype == bool :
+		return -img
+	else :
+		return 255 - img,
+
+def wra_flatten (img_list) :
+	return flatten(img_list),
+
+wra_flatten.__doc__ = flatten.__doc__
 def wra_rotate (img, angle, reshape) :
 	data = rotate(img,angle,(0,1),reshape)
 	

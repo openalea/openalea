@@ -34,6 +34,11 @@ __icon__ = 'icon.png'
 
 __all__ = []
 
+###################################################
+#
+#		image basics
+#
+###################################################
 image = Factory(name = "img",
                 description = "display image",
                 category = "image",
@@ -45,37 +50,40 @@ image = Factory(name = "img",
 
 __all__.append("image")
 
-size = Factory(name = "size",
-                description = "size of image",
+size2 = Factory(name = "size2",
+                description = "size of a 2D image",
                 category = "image",
                 nodemodule = "image",
-                nodeclass = "size",
+                nodeclass = "size2",
                 inputs = (dict(name = "img", interface = IImage),),
                 outputs = (dict(name = "width", interface = IInt),
                            dict(name = "height", interface = IInt),),
                 )
 
-__all__.append("size")
+__all__.append("size2")
 
-apply_mask = Factory(name = "apply_mask",
-                description = "apply a mask on a image",
+size3 = Factory(name = "size3",
+                description = "size of a 3D image",
                 category = "image",
                 nodemodule = "image",
-                nodeclass = "wra_apply_mask",
-                inputs = (dict(name = "img", interface = IImage),
-                          dict(name = "mask", interface = None),
-                          dict(name = "background_color",
-                               interface = IColor,
-                               value = None),),
-                outputs = (dict(name = "img", interface = IImage),),
+                nodeclass = "size3",
+                inputs = (dict(name = "img", interface = IImage),),
+                outputs = (dict(name = "width", interface = IInt),
+                           dict(name = "height", interface = IInt),
+                           dict(name = "depth", interface = IInt),),
                 )
 
-__all__.append("apply_mask")
+__all__.append("size3")
 
+###################################################
+#
+#		palette
+#
+###################################################
 apply_palette = Factory(name = "apply_palette",
                 description = "apply a palette to data to create an image",
                 category = "image",
-                nodemodule = "image",
+                nodemodule = "palette",
                 nodeclass = "apply_palette",
                 inputs = (dict(name = "data", interface = None),
                           dict(name = "pal", interface = None),),
@@ -87,7 +95,7 @@ __all__.append("apply_palette")
 bw = Factory(name = "bw",
                 description = "black and white palette",
                 category = "image",
-                nodemodule = "image",
+                nodemodule = "palette",
                 nodeclass = "wra_bw",
                 inputs = (),
                 outputs = (dict(name = "pal", interface = None),),
@@ -98,7 +106,7 @@ __all__.append("bw")
 grayscale = Factory(name = "grayscale",
                 description = "grayscale palette",
                 category = "image",
-                nodemodule = "image",
+                nodemodule = "palette",
                 nodeclass = "wra_grayscale",
                 inputs = (dict(name = "nb", interface = IInt, value = 1),),
                 outputs = (dict(name = "pal", interface = None),),
@@ -106,26 +114,31 @@ grayscale = Factory(name = "grayscale",
 
 __all__.append("grayscale")
 
-invert = Factory(name = "invert",
-                description = "invert colors and alpha",
-                category = "image",
-                nodemodule = "image",
-                nodeclass = "invert",
-                inputs = (dict(name = "data", interface = None),),
-                outputs = (dict(name = "data", interface = None),),
-                )
+#########################################
+#
+#	spatial image
+#
+#########################################
+resolution = Factory( name= "resolution", 
+				description= "extract resolution from spatial image",
+				category = "image",
+				nodemodule = "spatial_image",
+				nodeclass = "resolution",
+				inputs=(dict(name="img", interface=IImage,),),
+				outputs=(dict(name="res", interface = ISequence),),
+			)
 
-__all__.append("invert")
+__all__.append('resolution')
 
-flatten = Factory(name = "flatten",
-                description = "flatten a set of images with same shape",
-                category = "image",
-                nodemodule = "image",
-                nodeclass = "flatten",
-                inputs = (dict(name = "data", interface = ISequence),),
-                outputs = (dict(name = "img", interface = IImage),),
-                )
+info = Factory( name= "info", 
+				description= "extract info from spatial image",
+				category = "image",
+				nodemodule = "spatial_image",
+				nodeclass = "info",
+				inputs=(dict(name="img", interface=IImage,),),
+				outputs=(dict(name="info", interface=IDict),),
+			)
 
-__all__.append("flatten")
+__all__.append('info')
 
 

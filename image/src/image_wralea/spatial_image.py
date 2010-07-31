@@ -11,18 +11,19 @@
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-"""Declaration of IImage interface
+"""Declaration of spatial image node functors
 """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from openalea.core.interface import IInterface
-from openalea.core.color_palette import fuchsia
+def info (img) :
+	return getattr(img,"info",{}),
 
-class IImage(IInterface) :
-	"""Interface for images expressed as array of colors
-	"""
-	__color__ = fuchsia
+def resolution (img) :
+	try :
+		return img.resolution,
+	except AttributeError :
+		return (1,) * len(img.shape)
 
 

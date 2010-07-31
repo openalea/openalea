@@ -145,7 +145,7 @@ def read_inrimage (filename) :
 	f.close()
 	return img
 
-def write_inrimage (img, filename) :
+def write_inrimage (filename, img) :
 	"""Write an inrimage zipped or not according to the extension
 	
 	.. warning:: if img is not a `SpatialImage`, default values will be used

@@ -55,6 +55,43 @@ paste = Factory(name = "paste",
 
 __all__.append("paste")
 
+apply_mask = Factory(name = "apply_mask",
+                description = "apply a mask on a image",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "wra_apply_mask",
+                inputs = (dict(name = "img", interface = IImage),
+                          dict(name = "mask", interface = None),
+                          dict(name = "background_color",
+                               interface = IColor,
+                               value = None),),
+                outputs = (dict(name = "img", interface = IImage),),
+                )
+
+__all__.append("apply_mask")
+
+flatten = Factory(name = "flatten",
+                description = "flatten a set of images with same shape",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "flatten",
+                inputs = (dict(name = "data", interface = ISequence),),
+                outputs = (dict(name = "img", interface = IImage),),
+                )
+
+__all__.append("flatten")
+
+invert = Factory(name = "invert",
+                description = "invert colors and alpha",
+                category = "image",
+                nodemodule = "image",
+                nodeclass = "invert",
+                inputs = (dict(name = "data", interface = None),),
+                outputs = (dict(name = "data", interface = None),),
+                )
+
+__all__.append("invert")
+
 rotate = Factory(name = "rotate",
                 description = "rotate an image",
                 category = "image",
