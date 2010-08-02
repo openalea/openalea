@@ -27,7 +27,7 @@ from ..spatial_image import SpatialImage
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
-           "high_level","color_select"]
+           "high_level","color_select","border","margin","stroke"]
 
 def bounding_box (mask) :
 	"""Compute the bounding box of a mask
