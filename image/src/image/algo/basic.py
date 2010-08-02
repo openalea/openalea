@@ -21,7 +21,7 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from math import sqrt
-from numpy import array,uint8,apply_along_axis,rollaxis
+from numpy import array,zeros,uint8,apply_along_axis,rollaxis
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 from ..spatial_image import SpatialImage
 
@@ -216,4 +216,84 @@ def color_select (img, color, tol) :
 		return d < tol
 	
 	return apply_along_axis(func,-1,img)
+
+def border(img, (x_min,y_min,z_min)=(0,0,0), (x_max,y_max,z_max)=(0,0,0) ):
+    """
+    A border is a outside black space that can be added to an array object.
+
+    :Parameters: 
+    - `img` ( NxMxP array)
+                    
+    - `x_min, y_min, z_min` (int, int,int) - The begining of the border
+
+    - `x_max, y_max, z_max` (int, int, int) - The end of the border
+
+    :Returns Type: (N+x_min+x_max) x (M+y_min+y_max) x (P+z_min+z_max) array
+    """
+
+    xdim, ydim, zdim = img.shape
+
+    mat = zeros([xdim+x_min+x_max, ydim+y_min+y_max, zdim+z_min+z_max], img.dtype)
+    mat[x_min:xdim+x_min, y_min:ydim+y_min, z_min:zdim+z_min] = img
+
+    return mat
+
+def margin(img, width, axis=None):
+    """
+    A margin is a inside black space that can be added to an array object.
+
+    :Parameters: 
+    - `img` ( NxMxP array)
+
+    - `width` (int) - size of the margin
+
+    - `axis` (int optional) - axis along which the margin is added.  
+    By default, add in all directions (see also stroke).
+
+    :Returns Type: img
+    """
+
+    xdim, ydim, zdim = img.shape
+
+    mat = zeros((xdim,ydim,zdim), img.dtype)
+    
+    if axis is None:
+        mat[width:-width,width:-width,width:-width] = img[width:-width,width:-width,width:-width]
+    elif axis == 0:
+        mat[width:-width,:,:] = img[width:-width,:,:]
+    elif axis == 1:
+        mat[:,width:-width,:] = img[:,width:-width,:]
+    elif axis == 2:
+        mat[:,:,width:-width] = img[:,:,width:-width]
+    else:
+        raise AttributeError('axis')
+    
+    return mat
+
+
+def stroke(img, width, outside=False):
+    """
+    A stroke is an outline that can be added to an array object.
+
+    :Parameters: 
+    - `img` ( NxMxP array)
+
+    - `width` (int) - size of the stroke
+
+    - `outside` (bool optional) - used to set the position of the stroke.
+    By default, the position of the stroke is inside (outside = False)
+
+    :Return Type : img     
+    """
+
+    xdim,ydim,zdim = img.shape
+
+    if outside:
+        mat = zeros([xdim+2*width, ydim+2*width, zdim+2*width], img.dtype)
+        mat[width:xdim+width, width:ydim+width, width:zdim+width] = img
+    else:
+        mat = zeros((xdim,ydim,zdim), img.dtype)
+        mat[width:-width,width:-width,width:-width] = img[width:-width,width:-width,width:-width]
+
+    return mat
 
