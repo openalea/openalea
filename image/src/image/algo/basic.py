@@ -27,7 +27,7 @@ from ..spatial_image import SpatialImage
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
-           "high_level","color_select","border","margin","stroke"]
+           "high_level","color_select","border","end_margin","stroke"]
 
 def bounding_box (mask) :
 	"""Compute the bounding box of a mask
@@ -238,9 +238,9 @@ def border(img, (x_min,y_min,z_min)=(0,0,0), (x_max,y_max,z_max)=(0,0,0) ):
 
     return mat
 
-def margin(img, width, axis=None):
+def end_margin(img, width, axis=None):
     """
-    A margin is a inside black space that can be added to an array object.
+    A end margin is a inside black space that can be added into the end of array object.
 
     :Parameters: 
     - `img` ( NxMxP array)
@@ -258,13 +258,13 @@ def margin(img, width, axis=None):
     mat = zeros((xdim,ydim,zdim), img.dtype)
     
     if axis is None:
-        mat[width:-width,width:-width,width:-width] = img[width:-width,width:-width,width:-width]
+        mat[:-width,:-width,:-width] = img[:-width,:-width,:-width]
     elif axis == 0:
-        mat[width:-width,:,:] = img[width:-width,:,:]
+        mat[:-width,:,:] = img[:-width,:,:]
     elif axis == 1:
-        mat[:,width:-width,:] = img[:,width:-width,:]
+        mat[:,:-width,:] = img[:,:-width,:]
     elif axis == 2:
-        mat[:,:,width:-width] = img[:,:,width:-width]
+        mat[:,:,:-width] = img[:,:,:-width]
     else:
         raise AttributeError('axis')
     

@@ -22,7 +22,7 @@ __revision__ = " $Id:  $ "
 import numpy as np
 from scipy import ndimage
 
-__all__ = ["component_labeling"]
+__all__ = ["connectivity_4","connectivity_6","connectivity_8","connectivity_26","component_labeling"]
 
 
 # Definition of 3D structure elements :
