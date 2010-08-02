@@ -23,7 +23,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from numpy import array, random, zeros
 from PyQt4.QtGui import QApplication,QLabel
 from openalea.image import (rainbow,grayscale,bw,
-                            apply_mask,saturate,high_level,color_select,border,margin,stroke)
+                            apply_mask,saturate,high_level,color_select,border,end_margin,stroke)
 from openalea.image.gui import to_pix
 
 #create image
@@ -113,49 +113,49 @@ def test_border():
     assert (out[2,:,:] == array([[0,0,0],[0,0,0]]) ).all()
     assert (out[1,:,:] == img).all()
 
-def test_margin():
+def test_end_margin():
     """
-    Test : margin
+    Test : end_margin
     """
     img = random.random((3,4,5))
     
     assert img.shape == (3,4,5)
 
-    out = margin(img,1,0)
+    out = end_margin(img,1,0)
     assert out.shape == (3,4,5)
 
-    assert (out[0,:,:] == zeros((4,5))).all()
+    #assert (out[0,:,:] == zeros((4,5))).all()
     assert (out[2,:,:] == zeros((4,5))).all()
     assert (out[1:2,:,:] == img[1:2,:,:]  ).all()
 
-    out = margin(img,1,1)
+    out = end_margin(img,1,1)
     assert out.shape == (3,4,5)
 
-    assert (out[:,0,:] == zeros((3,5))).all()
+    #assert (out[:,0,:] == zeros((3,5))).all()
     assert (out[:,3,:] == zeros((3,5))).all()
     assert (out[:,1:3,:] == img[:,1:3,:] ).all()
 
-    out = margin(img,1,2)
+    out = end_margin(img,1,2)
     assert out.shape == (3,4,5)
 
-    assert (out[:,:,0] == zeros((3,4))).all()
+    #assert (out[:,:,0] == zeros((3,4))).all()
     assert (out[:,:,4] == zeros((3,4))).all()
     assert (out[:,:,1:4] == img[:,:,1:4] ).all()
 
-    out = margin(img,1)
-    assert (out[0,:,:] == zeros((4,5))).all()
+    out = end_margin(img,1)
+    #assert (out[0,:,:] == zeros((4,5))).all()
     assert (out[2,:,:] == zeros((4,5))).all()
 
-    assert (out[:,0,:] == zeros((3,5))).all()
+    #assert (out[:,0,:] == zeros((3,5))).all()
     assert (out[:,3,:] == zeros((3,5))).all()
 
-    assert (out[:,:,0] == zeros((3,4))).all()
+    #assert (out[:,:,0] == zeros((3,4))).all()
     assert (out[:,:,4] == zeros((3,4))).all()
 
-    assert (out[1:2,1:3,1:4] == img[1:2,1:3,1:4] ).all()
+    assert (out[0:2,0:3,0:4] == img[0:2,0:3,0:4] ).all()
 
     try :
-        out = margin(img,1,3)
+        out = end_margin(img,1,3)
         assert False
     except :
         assert True
