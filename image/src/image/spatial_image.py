@@ -81,4 +81,24 @@ class SpatialImage (ndarray) :
 		
 		#metadata
 		self.info = dict(getattr(obj, 'info', {}) )
+	
+	def clone (self, data) :
+		"""Clone the current image metadata
+		on the given data.
+		
+		.. warning:: vdim is defined according to self.resolution and data.shape
+		
+		:Parameters:
+		 - `data` - (array)
+		
+		:Returns Type: SpatialImage
+		"""
+		if len(data.shape) == len(self.resolution) :
+			vdim = 1
+		elif len(data.shape) - len(self.resolution) == 1 :
+			vdim =data.shape[-1]
+		else :
+			raise UserWarning("unable to handle such data dimension")
+		
+		return SpatialImage(data,self.resolution,vdim,self.info)
 
