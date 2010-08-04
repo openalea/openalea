@@ -7,7 +7,6 @@ import os
 
 
 def test_package():
-    """Test package"""
     metainfo = {'version': '0.0.1',
               'license': 'CECILL-C',
               'authors': 'OpenAlea Consortium',
@@ -21,7 +20,6 @@ def test_package():
 
 
 def test_userpackage():
-    """Test user package"""
     metainfo = {'version': '0.0.1',
               'license': 'CECILL-C',
               'authors': 'OpenAlea Consortium',
@@ -43,10 +41,10 @@ def test_userpackage():
         pass
 
     path = os.path.join(os.path.curdir, "tstpkg")
-    package = UserPackage("DummyPkg", metainfo, path)
+    mypackage = UserPackage("DummyPkg", metainfo, path)
 
 
-    factory = package.create_user_node("TestFact",\
+    factory = mypackage.create_user_node("TestFact",\
          "category test", "this is a test",
                                        gen_port_list(3),
                                        gen_port_list(2))
@@ -57,7 +55,7 @@ def test_userpackage():
     assert os.path.exists("tstpkg/TestFact.py")
     execfile("tstpkg/TestFact.py")
 
-    package.write()
+    mypackage.write()
     assert os.path.exists("tstpkg/__wralea__.py")
     assert os.path.exists("tstpkg/__init__.py")
     execfile("tstpkg/__wralea__.py")
@@ -67,12 +65,16 @@ def test_userpackage():
     pkg2 = UserPackage("ClonePkg", metainfo, path)
     print pkg2.wralea_path
 
-    pkg2.clone_from_package(package)
+
+    # todo this is not working !!
+    from openalea.core.pkgmanager import PackageManager
+    PackageManager().init()
+    pkg2.clone_from_package(mypackage)
     pkg2.write()
 
     assert len(pkg2) == 1
     assert len(pkg2["TestFact"].inputs) == 3
-    assert id(pkg2["TestFact"]) != id(package["TestFact"])
+    assert id(pkg2["TestFact"]) != id(mypackage["TestFact"])
     assert os.path.exists(path)
     assert os.path.exists(os.path.join(path, '__wralea__.py'))
     assert os.path.exists(os.path.join(path, '__init__.py'))
