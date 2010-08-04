@@ -67,7 +67,7 @@ def test_save_workspace():
     sg= CompositeNode()
     # build the subgraph factory
 
-    addid = sg.add_node(pm.get_node("Catalog.Data", "int"))
+    addid = sg.add_node(pm.get_node("pkg_test", "float"))
     sg.to_factory(sgfactory)
     instance = sgfactory.instantiate()
 
