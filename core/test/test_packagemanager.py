@@ -75,9 +75,9 @@ def test_search():
 
     assert 'Test' in pkgman
 
-    res = pkgman.search_node("command")
+    res = pkgman.search_node("sum")
     print res
-    assert "command" in res[0].name
+    assert "sum" in res[0].name
 
 
     # comment these 3 lines because system.command is not part
