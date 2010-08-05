@@ -105,6 +105,7 @@ Available compilers are:
 
 =================== =========================================   ================================
 Variable name       Semantic                                    Default
+=================== =========================================   ================================
 debug               Build in a debug mode                       False
 warnings            Compilation with -Wall and similar          False
 static              Build static libraries (not dynamic)        False
@@ -128,6 +129,7 @@ It set a build directory that allows to separate built files from sources.
 
 =================== =============================================== ========================================
 Variable name       Semantic                                        Default
+=================== =============================================== ========================================
 with_build_dir      build files in a separate directory? (yes/no)   True, yes, 1
 build_prefix        root of the build directory                     Linux: build-linux, Windows: build-win32
 =================== =============================================== ========================================
@@ -141,7 +143,7 @@ The install tool defines where to install various built files on the system like
 
 =============== =============================================================== ====================================
 Variable name   Semantic                                                        Default
---------------- --------------------------------------------------------------- ------------------------------------
+=============== =============================================================== ====================================
 prefix          install architecture-independent files ( /path/to/prefix )      Linux: /usr/local, Windows: C:\local
 exec_prefix     install architecture-dependent files ( /path/to/exec_prefix )   $prefix
 bindir          user executables ( /path/to/bindir )                            $prefix/bin
@@ -163,6 +165,7 @@ The python tool allows to link with the Python library.
 
 =================== =================================================== =======
 Variable name       Semantic                                            Default
+=================== =================================================== =======
 python_includes     Python include files ( /path/to/python_includes )   
 python_lib          Python library path ( /path/to/python_includes )    
 =================== =================================================== =======
@@ -181,6 +184,7 @@ The boost_python tool allows to link with the Boost.Python library. It depends o
     
 =================== ======================================================= =============
 Variable name       Semantic                                                Default
+=================== ======================================================= =============
 boost_includes      Boost_python include files ( /path/to/boost_includes )  /usr/include
 boost_lib           Boost_python libraries path ( /path/to/boost_lib )      /usr/lib
 boost_flags         Boost_python compiler flags     None
@@ -196,6 +200,7 @@ The qt tool allows configure the QT environment. The multithreaded qt library is
 
 =============== ======================= ==========================
 Variable name   Semantic                Default
+=============== ======================= ==========================
 QTDIR           QT directory            QTDIR environment variable
 QT_CPPPATH      QT include directory    $QTDIR/include
 QT_LIBPATH      QT lib directory        $QTDIR/lib
@@ -209,6 +214,7 @@ The opengl tool allows to build with the OpenGL library.
 
 =============== ========================================== =======================================================
 Variable name   Semantic    Default
+=============== ========================================== =======================================================
 gl_includes     GL include files ( /path/to/gl_includes)   Posix: /usr/X11R6/include Windows: Visual include path
 gl_lib          GL library path ( /path/to/gl_lib)         Posix: /usr/X11R6/lib Windows: Visual lib path
 =============== ========================================== =======================================================
@@ -220,6 +226,7 @@ The qhull tool allows to build with the C qhull library.
 
 =================== =============================================== =============
 Variable name       Semantic                                        Default
+=================== =============================================== =============
 qhull_includes      Qhull include files                             /usr/include
 qhull_lib           Qhull library path                              /usr/lib
 qhull_libs_suffix   Qhull library suffix name like -vc80 or -mingw  None
@@ -232,6 +239,7 @@ bison and flex tools for setting binary and/or lib path.
 
 ============== ======================
 Variable name  Semantic
+============== ======================
 bison_bin      Bison binary path
 flex_bin       Flex binary path
 flex_lib       Flex library path
@@ -245,6 +253,7 @@ gnuplot tool for setting the binary path
 
 ==============  ============================================
 Variable name   Semantic
+==============  ============================================
 gnuplot_bin     Gnuplot binary path ( /path/to/gnuplot_bin )
 ==============  ============================================
 
@@ -255,6 +264,7 @@ pthread, readline and termcap. These tools are required by other tools on Posix 
 
 ==================  ======================= ====================
 Variable name       Semantic                Default
+==================  ======================= ====================
 pthread_includes    pthread include files   /usr/include
 pthread_lib         pthread library path    /usr/lib
 readline_includes   readline include files  /usr/include

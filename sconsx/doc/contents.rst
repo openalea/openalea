@@ -5,13 +5,12 @@
 
 .. module:: sconsx
 
-.. include:: ../../doc/alias.rst
 
 OpenAlea Sconsx documentation
 #############################
 
-Module description
-==================
+Package description
+===================
 
 .. sidebar:: Summary
 
@@ -29,7 +28,8 @@ Documentation
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
+    :numbered:
 
     User Guide <user/index.rst>
     Reference Guide <user/autosum.rst>
