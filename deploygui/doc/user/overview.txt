@@ -1,5 +1,7 @@
-|deploygui| is a Graphical front-end to Install/Uninstall packages.
+OpenAlea.Deploy-Gui is a graphical front end for OpenAlea.Deploy :
 
-For more information see : 
+    * Lists the available packages found on the web (support for multiple repository)
+    * Different view point (recommended, update, all) of available packages
+    * Download and install packages and manage their dependencies.
+    * Uninstall packages (no dependency support)
 
-http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:compilation_installation:deploygui:deploygui
