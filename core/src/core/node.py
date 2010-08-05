@@ -665,8 +665,8 @@ class Node(AbstractNode):
     def eval(self):
         """
         Evaluate the node by calling __call__
-        Return True if the node need a reevaluation
-        and a timed delay if the node need a reevaluation at a later time.
+        Return True if the node needs a reevaluation
+        and a timed delay if the node needs a reevaluation at a later time.
         """
         # lazy evaluation
         if self.block and self.get_nb_output() != 0 and self.output(0) is not None:
@@ -686,6 +686,7 @@ class Node(AbstractNode):
                 self.outputs[0] = outlist[0]
             else:
                 self.outputs[0] = outlist
+            self.output_desc[0].notify_listeners(("tooltip_modified",))
 
         else: # multi output
             if(not isinstance(outlist, tuple) and
@@ -693,6 +694,7 @@ class Node(AbstractNode):
                 outlist = (outlist, )
 
             for i in range(min(len(outlist), len(self.outputs))):
+                self.output_desc[i].notify_listeners(("tooltip_modified",))
                 self.outputs[i] = outlist[i]
 
         # Set State
