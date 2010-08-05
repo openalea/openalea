@@ -1,7 +1,6 @@
-
-============ ====================================================
-Authors      * Samuel Dufour-Kowalski
-	     * Christophe Pradal
-Contributors OpenAlea consortium: http://openalea.gforge.inria.fr
-============ ====================================================
+============ ==================== =====
+Authors      * S. Dufour-Kowalski INRIA
+	     * C. Pradal	  CIRAD
+Contributors * D. Barbeau	  INRIA
+============ ==================== =====
 
