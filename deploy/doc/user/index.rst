@@ -10,18 +10,6 @@ Deploy User Guide
 :Release: |release|
 :Date: |today|
 
-This manual details functions, modules, and objects included in 
-OpenAlea.Deploy, describing what they are and what they do. For learning
-how to use OpenAlea.Deploy see :ref:`deploy_reference`.
-
-.. warning::
-
-   This Guide is still very much in progress.
-   Many aspects of OpenAlea.Deploy are not covered.
-
-   More documentation can be found on the
-   `openalea <http://openalea.gforge.inria.fr>`__ wiki.
-
 .. toctree::
     :maxdepth: 1
             
