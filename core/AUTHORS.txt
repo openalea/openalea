@@ -1,1 +1,7 @@
-OpenAlea consortium: http://openalea.gforge.inria.fr
+
+============ ====================================================
+Authors      * Samuel Dufour-Kowalski
+	     * Christophe Pradal
+Contributors OpenAlea consortium: http://openalea.gforge.inria.fr
+============ ====================================================
+

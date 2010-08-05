@@ -1,4 +1,4 @@
-OpenAlea.Core is able to: 
+OpenAlea.Core is able to:
 
 - Discover and manage packages and logical components
 - Build and evaluate dataflows
