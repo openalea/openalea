@@ -10,19 +10,21 @@ Deploygui User Guide
 :Release: |release|
 :Date: |today|
 
-This reference manual details functions, modules, and objects included in 
-OpenAlea.Deploygui, describing what they are and what they do. For learning
-how to use OpenAlea.Deploygui see :ref:`deploygui_reference`.
+OpenAlea.Deploy-Gui is a graphical front end for OpenAlea.Deploy :
 
-.. warning::
+    * Lists the available packages found on the web (support for multiple repository)
+    * Different view point (recommended, update, all) of available packages
+    * Download and install packages and manage their dependencies.
+    * Uninstall packages (no dependency support)
 
-   This "Reference Guide" is still very much work in progress; the material
-   is not organized, and many aspects of OpenAlea.Deploygui are not 
-   covered.
+Download
+--------
 
-   More documentation can be found on the
-   `openalea <http://openalea.gforge.inria.fr>`__ wiki.
+See the `Download Page <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=old_download_page/>`_.
 
-.. toctree::
-    :maxdepth: 1
+
+Screenshots
+-----------
+
+.. image:: ../images/deploygui.png
 
