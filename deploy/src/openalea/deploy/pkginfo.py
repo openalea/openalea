@@ -144,7 +144,7 @@ class Distribution(object):
                     value = get(msg, header_name)
                     if value != 'UNKNOWN':
                         setattr(self, attr_name, value)
-                        
+
     def __iter__(self):
         for header_name, attr_name, multiple in self._getHeaderAttrs():
             yield attr_name
@@ -209,17 +209,18 @@ class Installed(Distribution):
 
 def get_metadata(path_or_module, metadata_version=None):
     """ Try to create a Distribution 'path_or_module'.
-    
+
     o 'path_or_module' may be a module object.
 
     o If a string, 'path_or_module' may point to an sdist file, a bdist
       file, an installed package, or a working checkout (if it contains
       PKG-INFO).
-    
+
     o Return None if 'path_or_module' can't be parsed.
     """
     if isinstance(path_or_module, ModuleType):
         try:
+            #print 'trying install mode'
             return Installed(path_or_module, metadata_version)
         except (ValueError, IOError):
             pass
@@ -230,12 +231,14 @@ def get_metadata(path_or_module, metadata_version=None):
         pass
     else:
         try:
+            #print 'trying install mode 2'
             return Installed(path_or_module, metadata_version)
         except (ValueError, IOError):
             pass
 
     if os.path.isdir(path_or_module):
         try:
+            #print 'trying develop mode  '
             return Develop(path_or_module, metadata_version)
         except (ValueError, IOError):
             pass
