@@ -205,8 +205,8 @@ class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin)
 # Customized Qt Classes that can be reused in other places. #
 #############################################################
 class AleaQGraphicsRoundedRectItem(QtGui.QGraphicsRectItem):
-    def __init__(self, radius, cache=False, *args, **kwargs):
-        QtGui.QGraphicsRectItem.__init__(self, *args, **kwargs)
+    def __init__(self, radius, cache=False, *args):
+        QtGui.QGraphicsRectItem.__init__(self, *args)
         self.__radius = radius
         self.__useCachedPath = cache
         self.__cachedPath = None
