@@ -10,12 +10,6 @@ Deploygui User Guide
 :Release: |release|
 :Date: |today|
 
-OpenAlea.Deploy-Gui is a graphical front end for OpenAlea.Deploy :
-
-    * Lists the available packages found on the web (support for multiple repository)
-    * Different view point (recommended, update, all) of available packages
-    * Download and install packages and manage their dependencies.
-    * Uninstall packages (no dependency support)
 
 Download
 --------
