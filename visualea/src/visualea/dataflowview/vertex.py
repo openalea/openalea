@@ -66,7 +66,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     def __init__(self, vertex, graph, parent=None):
         qtutils.AleaQGraphicsRoundedRectItem.__init__(self,
                                                       self.default_corner_radius, True,
-                                                      0, 0, 1, 1, parent=parent)
+                                                      0, 0, 1, 1, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
 
         # ----- Layout of the item -----
