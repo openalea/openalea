@@ -7,7 +7,7 @@ from openalea.visualea.node_widget import NodeWidget
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-
+import os
 
 class SharedDataBrowser(NodeWidget, QDialog):
     """
@@ -15,15 +15,11 @@ class SharedDataBrowser(NodeWidget, QDialog):
     """
     def __init__(self, node, parent):
 
-
-        print 'a'
         QDialog.__init__(self, parent)
-        print 'b'
         NodeWidget.__init__(self, node)
-        print 'c'
 
         self.packages = ['sequence_analysis', 'stat_tool']
-        self.package = None
+        self.package = 'sequence_analysis'
         self.glob = '*'
         self.path = None
         self.data = None
@@ -96,6 +92,7 @@ class SharedDataBrowser(NodeWidget, QDialog):
             for i, elt in enumerate(self.packages):
                 elt_name = str(elt)
                 self.widget_combo_packages.addItem(elt_name)
+            
         if self.node.get_input(1)!=None:
             self.glob = self.node.get_input(1)
             self.widget_glob.setText(self.glob)
@@ -103,63 +100,72 @@ class SharedDataBrowser(NodeWidget, QDialog):
         #self.node.out_indices = [True for i in self.in_list]
         self.update_packages(self.package)
         self.update_glob(self.glob) #does also update_data
-        self.node.output_filename = str(self.output_filename)
+        self.node.output_filename2 = str(self.output_filename)
 
 
     def update_packages(self, package):
-        valid_keys = ['name', 'package', 'pkg_name', 'url', 'project', 'authors', 
-            'authors_email', 'version', 'release' , 'license', 'url']
         self.package = package
-        if self.package:
-            try:
-                cmd = 'import openalea.%s.data as data' % self.package
-                exec(cmd)
-                self.path = data.path
+        valid_keys = {'name':'name', 'package':'name', 'pkg_name':'name', 'url':'home_page',  'authors':'author', 
+            'author_email':'authors_email', 'version':'version'}
+            
 
+        try:
+            cmd = 'import openalea.%s as mypackage' % self.package
+            exec(cmd)
+            self.path = mypackage.shared_data_path 
+            from openalea.deploy.metainfo import get_metadata
+            cmd = 'import openalea;metadata = get_metadata(openalea.%s)' % self.package
+            exec(cmd)
+        except:
+            self.widget_browser_packages.setText("Could not import this package (%s) or retrieve metainfo" % self.package)
+        txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % self.package
+        for key, value in valid_keys.iteritems():
+            if key=='url':
+                try:
+                    txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), getattr(metadata,value))
+                except:
+                    txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), 'not filled!!')
+            else:
+                try:
+                    txt += '<b>%s</b>: %s<br/>' % (key.title(), getattr(metadata,value))
+                except:
+                    txt += '<b>%s</b>: %s<br/>' % (key.title(), 'not filled')
 
-                cmd = 'import openalea.%s as tmp' % self.package
-                exec(cmd)
-                txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % self.package
-                for key in valid_keys:
-                    if key=='url':
-                        try:
-                            txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), tmp.metadata[key])
-                        except:
-                            txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), 'not filled!!')
-                    else:
-                        try:
-                            txt += '<b>%s</b>: %s<br/>' % (key.title(), tmp.metadata[key])
-                        except:
-                            txt += '<b>%s</b>: %s<br/>' % (key.title(), 'not filled')
-
-                self.widget_browser_packages.setText(txt)
-                print 'Succeeded'
-            except:
-                self.widget_browser_packages.setText("Could not import this package (%s) or retrieve metainfo" % self.package)
+        self.widget_browser_packages.setText(txt)
 
         self.update_data(self.data)
 
     def update_data(self, data):
+        self.output_filename = None
         self.data = data
         import glob
         import os
         filenames = []
+        print self.path, self.glob
         try:
-            filenames = glob.glob(str(self.path) +  str(self.glob))
+            filenames = glob.glob(str(self.path) +  os.sep + str(self.glob))
         except:
             pass
         self.widget_combo_data.clear()
+        print filenames
         for i, elt in enumerate(filenames):
             elt_name = str(elt)
             self.widget_combo_data.addItem(os.path.basename(elt_name))
+        
+        if len(filenames) == 1:
+            print 'a', str(filenames[0])
+            #self.output_filename = str(filenames[0])
+            self.output_filename = os.path.join(str(self.path), os.sep, str(filenames[0]))
+            print 'output=',self.output_filename
+            self.node.output_filename2 = str(self.output_filename)
 
     def selection_data(self, data):
         self.data = data
         import os
-        self.output_filename = os.path.join(str(self.path), str(self.data))
+        self.output_filename = os.path.join(self.path,  str(self.data))
         print 'bbbb'
-        print self.output_filename
-        self.node.output_filename = str(self.output_filename)
+        print self.path, self.output_filename
+        self.node.output_filename2 = str(self.output_filename)
 
     def update_glob(self, glob):
         self.glob = glob
