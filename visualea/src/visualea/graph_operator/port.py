@@ -33,6 +33,15 @@ class PortOperators(graphOpBase.Base):
 
     
     def port_send_to_pool(self):
+        """Send data from a connector to the dataflow
+
+
+        This function is related to the menu that pops up when right clicking on a node.
+
+
+        .. seealso:: :class:`openalea.visualea.dataflowview.vertex.GraphicalPort`
+
+        """
         master = self.master
 
         (result, ok) = QtGui.QInputDialog.getText(master.get_graph_view(), "Data Pool", "Instance name",
@@ -45,3 +54,35 @@ class PortOperators(graphOpBase.Base):
             node = port.vertex()
             data = node.get_output(port.get_id())
             datapool[str(result)] = data
+
+
+    def port_send_to_console(self):
+        """a portconnector to send output on a port directly to the console.
+
+
+        :authors: Thomas Cokelaer, Daniel Barbeau
+        """
+        # get the visualea master
+        master = self.master
+
+        # pop up a widget to specify the instance name
+        (result, ok) = QtGui.QInputDialog.getText(master.get_graph_view(), "Console", "Instance name",
+                                                  QtGui.QLineEdit.Normal, )
+
+        if(ok):
+            port = self.master.portItem().port()
+            node = port.vertex()
+            #data = node.get_output(port.get_id())
+            shell = master.get_interpreter()
+
+            # one way to put the data into the shell session.
+            # another way would be to use shell.interpreter.locals dictionary.
+            shell.interpreter.runsource("%s = session.get_current_workspace().node(%s).output(%s)" 
+                % (result, node.get_id(), port.get_id()))
+            # print the instance name and content as if the user type its name in a shell
+            # this is only to make obvious the availability of the instance in the shell.
+            shell.interpreter.runsource("print '%s'\n" % result)
+            shell.interpreter.runsource("%s\n" % result)
+
+            #
+            shell.setFocus()
