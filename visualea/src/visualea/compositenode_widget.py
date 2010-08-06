@@ -31,32 +31,6 @@ from openalea.visualea.util import busy_cursor, exception_display
 from openalea.visualea.node_widget import DefaultNodeWidget
 from tooltip import VertexTooltip
 
-def rst2alea(text):
-    """Convert docstring into HTML (assuming docstring is in reST format)
-
-    This function uses docutils. Ideally it should use Sphinx
-
-    :param text: the docstring
-
-    :returns: text in HTML format
-
-    .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
-    """
-    try:
-        from docutils import core
-        from docutils.writers.html4css1 import Writer
-        newdoc = text
-        w = Writer()
-        res = core.publish_parts(text, writer=w)['html_body']
-        return res
-    except:
-        res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
-        res  += text
-        for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
-            res = res.replace(name, '<b>'+name.replace(':','') + '</b>')
-        res = res.replace('\n','<br />')
-
-        return res
 
 class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
     """ Display widgets contained in the graph """

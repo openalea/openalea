@@ -31,12 +31,12 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings,NoSectionError,NoOptionError
 from code import InteractiveInterpreter as Interpreter
 
-from openalea.visualea.node_treeview import NodeFactoryTreeView, PkgModel, CategoryModel
+from openalea.visualea.node_treeview import NodeFactoryView, NodeFactoryTreeView, PkgModel, CategoryModel
 from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
 from openalea.visualea.node_treeview import SearchListView, SearchModel
 from openalea.visualea.node_widget import SignalSlotListener
 import metainfo
-
+from openalea.visualea import helpwidget
 
 from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
@@ -95,6 +95,7 @@ class MainWindow(QtGui.QMainWindow,
             NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout1.addWidget(self.packageTreeView)
+        self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # category tree view
         self.cat_model = CategoryModel(self.pkgmanager)
@@ -102,6 +103,7 @@ class MainWindow(QtGui.QMainWindow,
             NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout2.addWidget(self.categoryTreeView)
+        self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # search list view
         self.search_model = SearchModel()
@@ -109,7 +111,7 @@ class MainWindow(QtGui.QMainWindow,
             SearchListView(self, self.searchview)
         self.searchListView.setModel(self.search_model)
         self.vboxlayout3.addWidget(self.searchListView)
-
+        self.searchListView.clicked.connect(self.on_package_manager_focus_change)
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
@@ -117,6 +119,9 @@ class MainWindow(QtGui.QMainWindow,
             DataPoolListView(self, session.datapool, self.pooltab)
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout4.addWidget(self.datapoolListView)
+
+        self.helpWidget = helpwidget.HelpWidget()
+        self.poolTabWidget.addTab(self.helpWidget, "Help")
 
         # use view
       #   self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
@@ -480,6 +485,7 @@ class MainWindow(QtGui.QMainWindow,
         gwidget = None
         try:
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
+            gwidget.scene().focusedItemChanged.connect(self.on_scene_focus_change)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
@@ -722,6 +728,21 @@ class MainWindow(QtGui.QMainWindow,
             print e
             event.ignore()
 
+
+    ############################
+    # Handling the Help widget #
+    ############################
+    def on_scene_focus_change(self, scene, item):
+        assert isinstance(item, dataflowview.vertex.GraphicalVertex)
+        self.helpWidget.set_rst(item.vertex().get_tip())
+
+    def on_package_manager_focus_change(self, item):
+        pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
+        if len(pkg_id) and len(factory_id) and mimetype=="openalea/nodefactory":
+            factory = self.pkgmanager[pkg_id][factory_id]
+            txt = factory.get_tip(asRst=True) + "\n\n" + \
+                  factory.get_documentation()
+            self.helpWidget.set_rst(txt)
 
     # Window support
     def display_leftpanel(self, toggled):
