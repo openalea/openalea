@@ -165,7 +165,7 @@ class DisplayGraphWidget(QtGui.QWidget, NodeWidget):
                 userapp_layout.addLayout(buttons)
 
 
-        dataflow_widget = GraphicalGraph.create_view(self.node, self.container)
+        dataflow_widget = GraphicalGraph.create_view(self.node, parent=self.container)
         #dataflow_widget = qtgraphview.View(self.container, self.node)
         self.container.addTab(dataflow_widget, "Dataflow")
         self.dataflow_widget = dataflow_widget

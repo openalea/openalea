@@ -21,10 +21,6 @@ from PyQt4 import QtGui, QtCore, QtSvg
 from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import *
-############################################################################################################
-# from openalea.grapheditor.qtutils import (mixin_method, safeEffects, AleaQGraphicsColorWheel,            #
-#                                           AleaQGraphicsEmitingTextItem, AleaQMenu, AleaQGraphicsToolbar) #
-############################################################################################################
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import images_rc
 
@@ -186,13 +182,28 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
 
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
-        self.ignoreLoopback = True
-        self.htmlHasBeenSet = False
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
-        self.annotation().get_ad_hoc_dict().simulate_full_data_change(self, self.annotation())
+        rectP2 = self.get_view_data("rectP2")
+        rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
+        MemoRects.setRect(self,rect)
+        self.setHeaderRect(self.__textItem.boundingRect())
+
+        txt = self.get_view_data("htmlText")
+        if txt:
+            self.set_text(txt, html=True)
+        else:
+            txt = self.get_view_data("text")
+            self.set_text(txt)
+
+        color = self.get_view_data("color")
+        if color:
+            color = QtGui.QColor(*color)
+            self.setColor(color)
+
+        qtgraphview.Vertex.initialise_from_model(self)
         self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
 
     #####################
@@ -203,14 +214,13 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
 
     def __onTextModified(self, rect):
         self.setHeaderRect(rect)
-        if self.ignoreLoopback:
-            return
         self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
+        htmlText=unicode(self.__textItem.toHtml())
         if(text != self.__def_string__):
             self.store_view_data(text=text)
-            self.store_view_data(htmlText=unicode(self.__textItem.toHtml()))
+            self.store_view_data(htmlText=htmlText)
         self.deaf(False)
 
     def __onColorWheelChanged(self, color):
@@ -251,7 +261,6 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
     # ----Other things----  #
     #########################
     def notify(self, sender, event):
-        self.ignoreLoopback = True
         if event:
             if event[0] == "metadata_changed":
                 if event[1] == "text" and not self.htmlHasBeenSet:
@@ -272,10 +281,9 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
                         color = QtGui.QColor(*col)
                         self.setColor(color)
         qtgraphview.Vertex.notify(self, sender, event)
-        self.ignoreLoopback = False
 
     def set_text(self, text, html=False):
-        if text == u"" :
+        if text == u"" or text == None :
             text = self.__def_string__
         if not html:
             self.__textItem.setPlainText(text)
