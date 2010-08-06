@@ -4,50 +4,6 @@ Reference guide
 ###############
 .. contents::
 
-Class Inheritance diagram
-=========================
-.. .. inheritance-diagram:: openalea.color.colormap
-.. .. inheritance-diagram:: openalea.color.py_color
-.. .. inheritance-diagram:: openalea.csv.pycsv
-.. .. inheritance-diagram:: openalea.data.array.arrays
-.. .. inheritance-diagram:: openalea.data.data
-.. .. inheritance-diagram:: openalea.data.dict.dicts
-.. .. inheritance-diagram:: openalea.data.list.lists
-.. .. inheritance-diagram:: openalea.data.set.sets
-.. .. inheritance-diagram:: openalea.data.tuple.tuples
-.. .. inheritance-diagram:: openalea.file.files
-.. .. inheritance-diagram:: openalea.functional.functional
-.. .. inheritance-diagram:: openalea.image.basics.basics
-.. .. inheritance-diagram:: openalea.image.basics.view
-.. .. inheritance-diagram:: openalea.image.basics.widgets
-.. .. inheritance-diagram:: openalea.image.data_algo
-.. .. inheritance-diagram:: openalea.image.data_image
-.. .. inheritance-diagram:: openalea.image.geometry.geom_transfo
-.. .. inheritance-diagram:: openalea.image.image_morpho
-.. .. inheritance-diagram:: openalea.image.images
-.. .. inheritance-diagram:: openalea.image.infos.data_access
-.. .. inheritance-diagram:: openalea.image.interface
-.. .. inheritance-diagram:: openalea.image.lookup_table
-.. .. inheritance-diagram:: openalea.image.raster
-.. .. inheritance-diagram:: #openalea.image.svg.svg_inout
-.. .. inheritance-diagram:: openalea.image.transformations.image_transfo
-.. .. inheritance-diagram:: openalea.math.maths
-.. .. inheritance-diagram:: openalea.model.models
-.. .. inheritance-diagram:: openalea.pickling.pickling
-.. .. inheritance-diagram:: openalea.plotools.plotable
-.. .. inheritance-diagram:: openalea.python.python
-.. .. inheritance-diagram:: openalea.spatial.distribGen
-.. .. inheritance-diagram:: openalea.stand.stand_modelling
-.. .. inheritance-diagram:: openalea.stat.descriptive.descriptive
-.. .. inheritance-diagram:: openalea.stat.distribution.distribution
-.. .. inheritance-diagram:: openalea.stat.file.file
-.. .. inheritance-diagram:: openalea.stat.graphics.graphics
-.. .. inheritance-diagram:: openalea.stat.regression.regression
-.. .. inheritance-diagram:: openalea.string.strings
-.. .. inheritance-diagram:: openalea.system.systemnodes
-.. .. inheritance-diagram:: openalea.system.ui_vprint
-.. .. inheritance-diagram:: openalea.system.vprint
-
 .. currentmodule:: openalea.color.colormap
 
 :mod:`openalea.color.colormap` module

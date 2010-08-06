@@ -8,8 +8,8 @@
 OpenAlea Stdlib documentation
 #############################
 
-Module description
-==================
+Package description
+====================
 
 .. sidebar:: Summary
 
@@ -27,7 +27,8 @@ Documentation
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
+    :numbered: 
 
     User guide<user/index.rst>
     Reference guide<user/autosum.rst>

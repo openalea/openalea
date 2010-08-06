@@ -1,1 +1,5 @@
-OpenAlea consortium <http://openalea.gforge.inria.fr>
+======================= ======================================================
+Authors:                OpenAlea consortium <http://openalea.gforge.inria.fr>
+======================= ======================================================
+Contributors:           * Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+======================= ======================================================
