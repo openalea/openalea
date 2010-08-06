@@ -603,6 +603,7 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
             operator.set_port_item(self)
             menu = qtutils.AleaQMenu(operator.get_graph_view())
             menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
+            menu.addAction(operator("Send to console", menu, "port_send_to_console"))
             menu.addAction(operator("Print",        menu, "port_print_value"))
             menu.show()
             menu.move(event.screenPos())
