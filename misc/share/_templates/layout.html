@@ -61,15 +61,11 @@ the JavaScript coming from www.google-analytics.com.
 
 
 {% block relbar1 %}
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
-</div>
+{#<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+</div>#}
 {{ super() }}
 {% endblock %}
 
-
-
-<img src="{{ pathto("../../../../doc/_static/wiki_logo_openalea.png", 1) }}" alt="Openalea logo" />_
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
-
