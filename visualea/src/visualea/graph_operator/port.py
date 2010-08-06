@@ -22,10 +22,26 @@ from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview
 
 
-class PortOperators(graphOpBase.Base):    
+class PortOperators(graphOpBase.Base):
+    """The PortOperators defines the output options of an output connector.
+
+    An output connector can be sent to
+
+        * the datapool,
+        * the python interpreter
+        * or print
+
+    by right clicking on the output connector and selected the appropriate option, as shown on this screenshot.
+
+    .. image:: ../_static/visualea_output_port.png
+        :width: 600px
+        :height: 400px
+        :class: align-center
+
+    """
     def port_print_value(self):
         """ Print the value of the connector """
-        
+
         node = self.master.portItem().port().vertex()
         data = str(node.get_output(self.master.portItem().port().get_id()))
         data = data[:500]+"[...truncated]" if len(data)>500 else data
