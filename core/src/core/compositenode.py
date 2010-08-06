@@ -81,6 +81,11 @@ class CompositeNodeFactory(AbstractFactory):
 
         # Documentation
         self.doc = kargs.get('doc', "")
+        self.__doc__ = self.doc
+
+
+    def get_documentation(self):
+        return self.__doc__
 
     def clear(self):
         """todo"""
@@ -475,7 +480,7 @@ class CompositeNode(Node, DataFlow):
         try:
             algo_str = self.eval_algo
 
-            algo_str = algo_str.strip('"'); 
+            algo_str = algo_str.strip('"');
             algo_str = algo_str.strip("'")
 
 

@@ -63,6 +63,8 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     default_margin        = 3.0
     pen_width             = 1.0
 
+    maxTipLength = 400
+
     def __init__(self, vertex, graph, parent=None):
         qtutils.AleaQGraphicsRoundedRectItem.__init__(self,
                                                       self.default_corner_radius, True,
@@ -183,8 +185,9 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     def set_graphical_tooltip(self, rawtooltip):
         if rawtooltip is None:
             rawtooltip=""
-        if len(rawtooltip)> 400:
-            rawtooltip = rawtooltip[:399]
+        if len(rawtooltip)> self.maxTipLength:
+            rawtooltip = rawtooltip[:self.maxTipLength]
+            rawtooltip += "...\nSee Help tab for complete documentation"
         self.setToolTip(rawtooltip)
 
     ####################
@@ -336,16 +339,17 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
 
 
 
-
-
-
-
-
-
-
 class GraphicalVertex(ObserverOnlyGraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         ObserverOnlyGraphicalVertex.__init__(self, vertex, graph, parent)
+
+    def itemChange(self, change, value):
+        if change==QtGui.QGraphicsItem.ItemSelectedChange:
+            selected = value.toBool()
+            if selected:
+                scene = self.scene()
+                scene.focusedItemChanged.emit(scene, self)
+        return ObserverOnlyGraphicalVertex.itemChange(self, change, value)
 
     def mouseDoubleClickEvent(self, event):
         if event.button()==QtCore.Qt.LeftButton:
@@ -364,6 +368,7 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
                 operator(fName="vertex_open")()
             elif('run' in str):
                 operator(fName="vertex_run")()
+
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -474,7 +479,9 @@ class GraphicalOutVertex(GraphicalVertex):
 
 
 
-
+#########################################################
+# ----------------------- PORTS ----------------------- #
+#########################################################
 
 class HiddenPort (QtGui.QGraphicsItem):
     """Graphical representation of hidden ports"""

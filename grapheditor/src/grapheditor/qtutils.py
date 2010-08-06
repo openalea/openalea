@@ -221,6 +221,8 @@ class AleaQGraphicsRoundedRectItem(QtGui.QGraphicsRectItem):
     def _make_path(self, pen=None):
         if pen == None:
             pen = self.pen()
+        else:
+            self.setPen(pen)
         penWidth = pen.widthF()
         path = QtGui.QPainterPath()
         path.addRoundedRect(self.rect().adjusted(penWidth, penWidth,

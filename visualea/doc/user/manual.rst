@@ -1,7 +1,7 @@
 VisuAlea Manual
 ###############
 
-OpenAlea provides an high level visual programming interface visualea See : Visualea package Launching the application
+Visualea is a high level visual programming GUI for OpenAlea
 
 On Linux, in a shell, run the following command::
 
@@ -12,35 +12,38 @@ On Windows::
     Use start→ OpenAlea → Visualea
     Main Window
 
+CHANGE THIS PICTURE
+.. image:: ../_static/visualea.png
+   :scale: 75
+   :align: left
 
-The main windows is composed by :
-
-    * A- The package manager list logical components
-    * B - The workspaces allows to manipulate functionalities represented as boxes with inputs and outputs.
-    * C - Graphical interface of a node
-    * E - The python interpreter for low level interaction with completion
-    * F - Python code editor
+The main window is composed of :
+    * The package manager (lists nodes),
+    * The workspaces where one can graphically assemble dataflows,
+    * Each node has it's own graphical interface,
+    * The python interpreter for low level interaction (with code completion)
+    * Python code editor
 
 Package Manager
 ===============
-The package manager find dynamically the available components on the system.
+The package manager finds the available components on the system.
 
-.. image:: ../.static/package_manager.png
-   :width: 200px
-   :height: 300px
+.. image:: ../_static/package_manager.png
    :scale: 100
-   :align: center
+   :align: left
 
-The package manager provides different tabs :
+It provides different tabs :
 
-    * The package tab displays the available packages and sub packages
-    * The category tab allows to sort the component in a more convenient way
-    * The search tab provides a research tool. The research is done on the name, category and description for every nodes.
+    * The package tab lists packages and nodes in their physical hierarchy.
+    * The category tab sorts nodes into logical categories to ease-up lookup.
+    * The search tab : search node by matching pattern with node name, category and description.
 
 Package / Node / Dataflow
-=========================
+-------------------------
 
-The package manager contains packages. A package is a distribution unit containing a set of components ( node / graphs). A package has several associated informations like :
+The package manager contains packages. A package is a distribution
+unit containing a set of components ( node / graphs).
+A package has several associated informations like :
 
     * Authors
     * Institutes
@@ -111,7 +114,7 @@ Connecting nodes
 You can connect the nodes between them by doing a drag and drop operation between ports.
 
 
-.. image:: ../.static/connection_nodes.png
+.. image:: ../_static/connection_nodes.png
    :width: 80%
    :height: 200px
    :scale: 100
@@ -235,8 +238,8 @@ Python Operations
 
 At any moment, you can use the python interpreter to launch python command or scripts.
 
-
-.. image:: ../.static/ipython.png
+CHANGE THIS PICTURE
+.. image:: ../_static/ipython.png
    :width: 80%
    :height: 200px
    :scale: 100
@@ -254,7 +257,7 @@ You can also do a drag and drop from the datapool.
 Preferences
 -----------
 
-Interface preferences can be set via the preference dialog : Window → Preferences 
+Interface preferences can be set via the preference dialog : Window → Preferences
 
 Package manager
 ===============

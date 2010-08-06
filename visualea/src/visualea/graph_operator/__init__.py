@@ -51,6 +51,7 @@ class GraphOperator(Observed):
         self.__interpreter  = None
         self.__pkgmanager   = None
         self.vertexItem     = None
+        self.portItem       = None
 
         if(graphView):
             self.graphView = graphView
@@ -118,7 +119,6 @@ class GraphOperator(Observed):
     @classmethod
     def set_main(self, main):
         GraphOperator.__main__ = main
-
 
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)

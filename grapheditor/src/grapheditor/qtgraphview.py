@@ -182,6 +182,7 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     def lock_position(self, val=True):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
 
+
 #------*************************************************------#
 class Connector(Element):
     def __init__(self, *args, **kwargs):
@@ -540,6 +541,10 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     """A Qt implementation of GraphListenerBase"""
 
     __instanceMap__ = weakref.WeakKeyDictionary()
+
+    #A few signals that strangely enough don't exist in QWidget
+    focusedItemChanged = QtCore.pyqtSignal(QtGui.QGraphicsScene, Element)
+
 
     @classmethod
     def _make_scene(cls, graph, clone=False):

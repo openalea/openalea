@@ -484,7 +484,8 @@ class NodeFactoryView(object):
         drag.start(QtCore.Qt.MoveAction)
 
 
-    def get_item_info(self, item):
+    @staticmethod
+    def get_item_info(item):
         """
         Return (package_id, factory_id, mimetype) corresponding to item.
         """

@@ -56,8 +56,16 @@ class GraphElementListenerBase(observer.AbstractListener):
         except TypeError:
             return None
 
+    def store_view_data(self, **kwargs):
+        return None
+
+    def get_view_data(self, key):
+        return None
+
     def initialise_from_model(self):
-        return
+        pos = self.get_view_data("position")
+        if pos:
+            self.position_changed(*pos)
 
     def clear_observed(self, *args):
         self.__obsBBox.clear_observed()
