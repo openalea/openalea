@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.pngmath', 
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.codeview',
     'numpyext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     #'numpyext.numpydoc',
