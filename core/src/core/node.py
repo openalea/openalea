@@ -919,6 +919,9 @@ class AbstractFactory(Observed):
         """ Returns the node factory Id """
         return self.name
 
+    def get_documentation(self):
+        return ""
+
     def get_python_name(self):
         """
         Returns a valid python variable as name.
@@ -931,13 +934,19 @@ class AbstractFactory(Observed):
             name = '_%s' % (id(self))
         return name
 
-    def get_tip(self):
+    def get_tip(self, asRst=False):
         """ Return the node description """
 
-        return "<b>Name:</b> %s<br/>" % (self.name, ) + \
-               "<b>Category:</b> %s<br/>" % (self.category, ) + \
-               "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
-               "<b>Description:</b> %s<br/>" % (self.description, )
+        if not asRst:
+            return "<b>Name:</b> %s<br/>" % (self.name, ) + \
+                   "<b>Category:</b> %s<br/>" % (self.category, ) + \
+                   "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
+                   "<b>Description:</b> %s<br/>" % (self.description, )
+        else:
+            return "**Name:** %s\n\n" % (self.name, ) + \
+                   "**Category:** %s\n\n" % (self.category, ) + \
+                   "**Package:** %s\n\n" % (self.package.name, ) + \
+                   "**Description:** %s\n\n" % (self.description, )
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
@@ -1088,6 +1097,14 @@ class NodeFactory(AbstractFactory):
         ret = AbstractFactory.copy(self, **args)
         ret.search_path = [args['path']]
         return ret
+
+    def get_classobj(self):
+        module = self.get_node_module()
+        classobj = module.__dict__.get(self.nodeclass_name, None)
+        return classobj
+
+    def get_documentation(self):
+        return self.get_classobj().__doc__
 
     def instantiate(self, call_stack=[]):
         """
