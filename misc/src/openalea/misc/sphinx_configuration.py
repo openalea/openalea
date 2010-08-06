@@ -151,7 +151,7 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = os.path.join(openalea, 'images', 'wiki_logo_openalea.png')
+#html_logo = os.path.join(openalea, 'images', 'wiki_logo_openalea.png')
 
 
 # The name of an image file (within the static path) to use as favicon of the
@@ -177,17 +177,22 @@ html_last_updated_fmt = '%b %d, %Y'
 html_index = 'index.html'
 
 #Custom sidebar templates, maps page names to templates.
-html_sidebars = {'index': 'indexsidebar.html'}
+html_sidebars = {
+                    'index': [ 'indexsidebar.html'], 
+                    'contents':'indexsidebar.html',
+                    'openalea':'indexsidebar.html',
+                    'vplants':'indexsidebar.html',
+                    'alinea':'indexsidebar.html',
+
+
+}
+# Additional templates that should be rendered to pages, maps page names to
+# template names.
 html_additional_pages = {   'index': 'index.html',
                             'openalea': 'openalea.html', 
                             'vplants': 'vplants.html',
                             'alinea': 'alinea.html'}
 
-html_sidebars = {}
-
-# Additional templates that should be rendered to pages, maps page names to
-# template names.
-#html_additional_pages = {}
 
 # If false, no module index is generated.
 html_use_modindex = True

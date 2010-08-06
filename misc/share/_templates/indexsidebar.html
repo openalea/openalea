@@ -1,21 +1,21 @@
-{% set package=project.split('.')[1] %}
 
-<h3>Download</h3>
+{%- if project=='openalea' and package=='doc' or 'doc' in package or 'doc' in project -%}
+<a href="http://openalea.gforge.inria.fr"><img src="{{ pathto("../../../doc/source/images/wiki_logo_openalea.png", 1) }}" alt="Openalea logo" /></a>
+{%- else -%} 
+<a href="http://openalea.gforge.inria.fr"><img src="{{ pathto("../../../../doc/source/images/wiki_logo_openalea.png", 1) }}" alt="Openalea logo" /></a>
+{%- endif -%}
 
+
+
+
+
+
+<h3 style="background:gray;border: solid 1px black;margin:0.2em;padding:0.2em ">Download</h3>
 <p>Current version: <b>{{ version }}</b></p>
+<p> Get OpenAlea and related projects from our WIKI page <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=download">OpenAlea wiki</a> or directly from the <a href="http://gforge.inria.fr/frs/?group_id=79">OpenAlea GForge</a></p>
 
 
-
-{%- if package!='doc' -%}
-<p> Get <b>{{project.split('.')[0]|title}}</b> from our WIKI page <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=download">OpenAlea wiki</a> or this package (<b>{{project}}</b>) directly from the <a href="http://gforge.inria.fr/frs/?group_id=79">OpenAlea GForge</a></p>
-{%- endif -%}
-
-{%- if package=='doc' -%}
-<p> Get {{project.split('.')[0]}} from our WIKI page <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=download">OpenAlea wiki</a> <p>
-{%- endif -%}
-
-
-<h3>Questions? Suggestions?</h3>
+<h3 style="background:gray;border: solid 1px black;margin:0.2em;padding:0.2em ">Questions? Suggestions?</h3>
 
 <p>Join the <a href="http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=forum">OpenAlea group</a> forum and mailing lists.</p>
   
