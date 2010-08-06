@@ -168,7 +168,19 @@ Download the source file :download:`../../src/core/datapool.py`.
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: DataPool is a global dictionnary to share data between node i...
+    :synopsis: DataPool is a global dictionnary to share data between node 
+
+.. currentmodule:: openalea.core.external
+
+:mod:`openalea.core.external` module
+====================================
+
+.. automodule:: openalea.core.external
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: todo
 
 
 .. currentmodule:: openalea.core.graph.graph
