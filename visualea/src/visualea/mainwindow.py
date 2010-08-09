@@ -740,7 +740,7 @@ class MainWindow(QtGui.QMainWindow,
         pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
         if len(pkg_id) and len(factory_id) and mimetype=="openalea/nodefactory":
             factory = self.pkgmanager[pkg_id][factory_id]
-            txt = factory.get_tip(asRst=True) + "\n\n" + \
+            txt = factory.get_tip(asRst=True) + "\n\n" + "**Docstring:**\n" +\
                   factory.get_documentation()
             self.helpWidget.set_rst(txt)
 
