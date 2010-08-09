@@ -37,7 +37,8 @@ def rst2alea(text=""):
         return res
     except:
         res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
-        res  += text
+        if text is not None:
+            res += text
         for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
             res = res.replace(name, '<b>'+name.replace(':','') + '</b>')
         res = res.replace('\n','<br />')

@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref, traceback
+import weakref, sip
 from PyQt4 import QtCore, QtGui, QtSvg
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
@@ -46,12 +46,19 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                   ):
     # --- PAINTING STUFF ---
     # Color Definition
-    default_not_modified_color       = QtGui.QColor(0, 0, 255, 255)
-    default_selected_color           = QtGui.QColor(180, 180, 180, 255)
-    default_not_selected_color       = QtGui.QColor(255, 255, 255, 255)
+    default_pen_color                = QtGui.QColor(QtCore.Qt.black)
+    default_pen_selected_color       = QtGui.QColor(QtCore.Qt.white)
+    default_pen_error_color          = QtGui.QColor(QtCore.Qt.red)
+
+    default_top_color                = QtGui.QColor(200, 200, 200, 255)
+    default_bottom_color             = QtGui.QColor(100, 100, 255, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
-    default_selected_error_color     = QtGui.QColor(0, 0, 0, 255)
-    default_not_selected_error_color = QtGui.QColor(100, 0, 0, 255)
+    default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
+    default_lazy_color               = QtGui.QColor(255, 132, 148, 255) #ugly pink
+
+    #gradient stops
+    startPos = 0.0
+    endPos   = 1.0
 
     #Shape definition
     portSpacing      = 5.0
@@ -70,6 +77,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                       self.default_corner_radius, True,
                                                       0, 0, 1, 1, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
+
+
+        # ----- The colors -----
+        self.__topColor    = self.default_top_color
+        self.__bottomColor = self.default_bottom_color
+        self.__penColor    = self.default_pen_color
 
         # ----- Layout of the item -----
         self.vLayout = qtutils.VerticalLayout(margins=(self.outMargins, self.outMargins,
@@ -143,6 +156,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.set_graphical_tooltip(vertex.get_tip())
         self.set_graphical_caption(vertex.caption)
         #self.refresh_geometry() already done by set_graphical_caption
+        self.update_colors() #last because gradient depense on geometry
 
     def terminate_from_model(self):
         vertex = self.vertex()
@@ -171,6 +185,42 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self._delayText.setVisible(visible and self.isVisible())
         if visible :
             self._delayText.setText(str(self.vertex().delay))
+
+    def update_colors(self):
+        self.__topColor    = self.default_top_color
+        self.__bottomColor = self.default_bottom_color
+        self.__penColor    = self.default_pen_color
+
+        if not self.get_view_data("useUserColor"):
+            if self.vertex().raise_exception:
+                self.__topColor    = self.default_error_color
+                self.__bottomColor = self.__topColor.darker()
+                self.__penColor    = self.default_pen_error_color
+            elif self.vertex().lazy:
+                self.__topColor = self.default_lazy_color
+                self.__bottomColor = self.__topColor.darker()
+            elif self.vertex().user_application:
+                self.__topColor = self.default_user_application_color
+                self.__bottomColor = self.__topColor.darker()
+        else:
+            userColor = self.get_view_data("userColor")
+            self.__topColor=QtGui.QColor(*userColor)
+            self.__bottomColor=QtGui.QColor(*userColor)
+
+        pen = self.pen()
+        pen.setColor(self.__penColor)
+
+        gradient = QtGui.QLinearGradient(self.rect().topLeft(),
+                                         self.rect().bottomLeft())
+        gradient.setColorAt(self.startPos, self.__topColor)
+        gradient.setColorAt(self.endPos, self.__bottomColor)
+        brush = QtGui.QBrush(gradient)
+
+        if(self.vertex().block):
+            brush.setStyle(QtCore.Qt.BDiagPattern)
+
+        self.setPen(pen)
+        self.setBrush(brush)
 
     def set_graphical_caption(self, caption):
         """Sets the name displayed in the vertex widget, doesn't change
@@ -213,11 +263,13 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             key = event[1]
             if key == "delay":
                 self.update_delay_item()
-            self.update()
+            elif key == "lazy":
+                self.update_colors()
         elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
                 self.store_view_data(useUserColor = False)
-
+        elif eventTopKey == "exception_state_changed":
+            self.update_colors()
         elif eventTopKey == "hiddenPortChange":
             self.update_hidden_port_item()
         elif(eventTopKey=="tooltip_modified"):
@@ -281,6 +333,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                 (diBr.height()-dtBr.height())/2 )
         return geom
 
+
     def refresh_geometry(self):
         halfPortH = GraphicalPort.HEIGHT/2
         geom = self.layout_items().adjusted(-self.pen_width,
@@ -290,66 +343,57 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.setRect(geom)
         self.refresh_cached_shape()
 
+    ################
+    # Drawing Code #
+    ################
     def paint(self, painter, options, widget):
         path = self.shape()
-        userColor = self.get_view_data("userColor")
-
         pen = self.pen()
-
-        if hasattr(self.vertex(), 'raise_exception'):
-            color = self.default_error_color
-            if(self.isSelected()):
-                pen.setColor(QtGui.QColor(QtCore.Qt.red))
-                secondcolor = self.default_selected_error_color
-            else:
-                secondcolor = self.default_not_selected_error_color
-        else:
-            if(self.isSelected()):
-                pen.setColor(QtGui.QColor(180, 180, 255, 255))
-                color = self.default_selected_color
-            elif(self.get_view_data("useUserColor")):
-                color=QtGui.QColor(*userColor)
-            else:
-                color = self.default_not_selected_color
-
-        if(self.get_view_data("useUserColor")):
-            secondcolor=QtGui.QColor(*userColor)
-        elif(self.vertex().user_application):
-            secondcolor = QtGui.QColor(255, 144, 0, 200)
-        else:
-            secondcolor = self.default_not_modified_color
-
-        # Draw Box
-        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, color)
-        gradient.setColorAt(0.8, secondcolor)
-        painter.setBrush(QtGui.QBrush(gradient))
-
+        brush = self.brush()
         painter.setPen(pen)
+        painter.setBrush(brush)
         painter.drawPath(path)
 
-        if(self.vertex().block):
-            painter.setBrush(QtGui.QBrush(QtCore.Qt.BDiagPattern))
-            painter.drawPath(path)
+    ################
+    # Qt Overloads #
+    ################
+    def itemChange(self, change, value):
+        if change == QtGui.QGraphicsItem.ItemSelectedChange:
+            selected = value.toBool()
+            pen = self.pen()
+            brush = self.brush()
+            gradient = brush.gradient()
+            if selected:
+                pen.setColor(self.default_pen_selected_color)
+                if gradient: #invert the gradient
+                    gradient.setColorAt(self.endPos, self.__topColor)
+                    gradient.setColorAt(self.startPos, self.__bottomColor)
+                scene = self.scene()
+                scene.focusedItemChanged.emit(scene, self)
+            else:
+                pen.setColor(self.default_pen_color)
+                if gradient: #invert the gradient
+                    gradient.setColorAt(self.startPos, self.__topColor)
+                    gradient.setColorAt(self.endPos, self.__bottomColor)
+            self.setPen(pen)
+            self.setBrush(brush)
+
+        qtgraphview.Vertex.itemChange(self, change, value)
+        return QtGui.QGraphicsRectItem.itemChange(self, change, value)
+
 
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
                                    "mousePressEvent")
-    itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
-                              "itemChange")
+    ##########################################################################
+    # itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem, #
+    #                           "itemChange")                                #
+    ##########################################################################
 
 
 
 class GraphicalVertex(ObserverOnlyGraphicalVertex):
     def __init__(self, vertex, graph, parent=None):
         ObserverOnlyGraphicalVertex.__init__(self, vertex, graph, parent)
-
-    def itemChange(self, change, value):
-        if change==QtGui.QGraphicsItem.ItemSelectedChange:
-            selected = value.toBool()
-            if selected:
-                scene = self.scene()
-                scene.focusedItemChanged.emit(scene, self)
-        return ObserverOnlyGraphicalVertex.itemChange(self, change, value)
 
     def mouseDoubleClickEvent(self, event):
         if event.button()==QtCore.Qt.LeftButton:
