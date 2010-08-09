@@ -25,9 +25,10 @@ from openalea.core.path import path
 
 
 class FileName(object):
-    """
-    A file path
-    :param object:
+    """Browser to select a file pathname
+
+    :param object: a file pathname
+
     :returns:  the filename path string
     """
 
@@ -39,7 +40,12 @@ class FileName(object):
 
 
 class DirName(object):
-    """a file path"""
+    """Browser to select a directory name
+
+    :param object: a string representing a valid directory path name
+    :returns: the directory path name (string)
+
+    """
 
     def __call__(self, input):
         """
