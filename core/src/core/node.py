@@ -146,6 +146,7 @@ class AbstractNode(Observed, HasAdHoc):
         # The default layout
         self.view = None
         self.user_application = None
+        self.__inError = False
 
     def get_id(self):
         return self.__id
@@ -181,6 +182,15 @@ class AbstractNode(Observed, HasAdHoc):
     def get_factory(self):
         """ Return the factory of the node (if any) """
         return self.factory
+
+    def get_raise_exception(self):
+        return self.__inError
+
+    def set_raise_exception(self, val):
+        self.__inError = val
+        self.notify_listeners(("exception_state_changed", val))
+
+    raise_exception = property(get_raise_exception, set_raise_exception)
 
 class Annotation(AbstractNode):
     def __init__(self):

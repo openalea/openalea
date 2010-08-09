@@ -103,9 +103,10 @@ class AbstractEvaluation(object):
             ret = node.eval()
             # When an exception is raised, a flag is set.
             # So we remove it when evaluation is ok.
-            if hasattr(node, 'raise_exception'):
-                del node.raise_exception
-                node.notify_listeners(('data_modified', ))
+            node.raise_exception = False
+            # if hasattr(node, 'raise_exception'):
+            #     del node.raise_exception
+            node.notify_listeners(('data_modified', ))
             return ret
 
         except EvaluationException, e:
@@ -688,7 +689,7 @@ DefaultEvaluation = LambdaEvaluation
 class ToScriptEvaluation(AbstractEvaluation):
     """ Basic transformation into script algorithm """
     __evaluators__.append("ToScriptEvaluation")
-    
+
     def __init__(self, dataflow):
 
         AbstractEvaluation.__init__(self, dataflow)
