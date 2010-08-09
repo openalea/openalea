@@ -156,7 +156,7 @@ viewfile = CompositeNodeFactory(name='viewfile',
 
 
 files_FileName = Factory(name='filename',
-                description='File name',
+                description='Browser to select a file pathname',
                 category='File,IO',
                 nodemodule='files',
                 nodeclass='FileName',
