@@ -125,26 +125,44 @@ class DTKPluginManager(object):
 
     def add_alea_factories(self, plugin, package):
         # getting of category of plugin (data, view or process)   
-        
+        desc = plugin.description()
         category = self.get_category(plugin)
-
-        for t in plugin.types():
+        if category == "Reader" or category == "Writer":
             # creating of dtkFactory (dtkAbstractData, dtkAbstractView, or dtkAbstractProcess)
-            self.create_dtk_factory(t, category)
-            in_list = self.define_inputs(t, category)
-            out_list = self.define_outputs(t, category)
-            node_class = self.define_nodeclass(t, category)   
-            desc = plugin.description()
-            nf = Factory(   name= t, 
+            #self.create_dtk_factory(t, category)
+            #in_list = self.define_inputs(category)
+            #out_list = self.define_outputs(category)
+            #node_class = self.define_nodeclass(plugin)   
+            nf = Factory(name= "%s" %plugin.name(), 
+                        description= desc,
+                        category = "dtk", 
+                        nodemodule = "py_dtk",
+                        nodeclass = "dtk%s" %category,
+                        inputs = [dict(name='filename', interface= IFileStr)],
+                        outputs = (dict(name='dtkData', interface=None),)
+                        )
+            package.add_factory( nf )
+
+        else :
+
+            if category != "Data":
+
+                for t in plugin.types():
+                    # creating of dtkFactory (dtkAbstractData, dtkAbstractView, or dtkAbstractProcess)
+                    self.create_dtk_factory(t, category)
+                    in_list = self.define_inputs(t, category)
+                    out_list = self.define_outputs(t, category)
+                    node_class = self.define_nodeclass(t, category)   
+                    nf = Factory(   name= t, 
                             description= desc,
                             category = "dtk.%s" %category, 
                             nodemodule = "py_dtk",
-                            nodeclass = node_class,
+                            nodeclass = "dtk%s" %category,
                             inputs = in_list,
                             outputs = out_list
                             )
             
-            package.add_factory( nf )
+                    package.add_factory( nf )
 
 
     def create_dtk_factory(self, plugin_type, category):
@@ -172,7 +190,7 @@ class DTKPluginManager(object):
 
     def define_inputs(self, plugin_type, category):
         inputs_list = [] 
-        data_plugins = self.data_plugins
+        #data_plugins = self.data_plugins
 
         if self.factory:
             try:
@@ -180,10 +198,10 @@ class DTKPluginManager(object):
                 inputs_list = [dict(name=input, interface=IEnumStr(self.factory.propertyValues(input)), value=self.factory.property(input)) for input in self.inputs_list]
             except:
                 pass
-            if category == 'Data':
-                inputs_list.insert(0,dict(name='data', interface= None))
+            #if category == 'Data':
+            #    inputs_list.insert(0,dict(name='data', interface= None))
 
-            elif category == 'View':
+            if category == 'View':
                 if not ('Interactor' in plugin_type) or ('Animator' in plugin_type) or ('Navigator' in plugin_type):
                     inputs_list.insert(0,dict(name='dtkData', interface=None))
                     inputs_list.append(dict(name='dtkViewAnimator', interface= None))
@@ -192,17 +210,18 @@ class DTKPluginManager(object):
             elif category == 'Process':
                 inputs_list.insert(0,dict(name='dtkData', interface=None))
         else:
-            if category == 'Data':
-                inputs_list.insert(0,dict(name='filename', interface= IFileStr))
-                if ('Reader' in plugin_type):
-                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.reader(plugin_type)]),))
-                elif ('Writer' in plugin_type):
-                    inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.writer(plugin_type)]),))
-                else:
-                    return    
-            else:
-                inputs_list = None
-
+            #if category == 'Data':
+            #    inputs_list.insert(0,dict(name='filename', interface= IFileStr))
+            #    if ('Reader' in plugin_type):
+            #        inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.reader(plugin_type)]),))
+            #    elif ('Writer' in plugin_type):
+            #        inputs_list.append(dict(name='dtkDataType', interface=IEnumStr([k for d, k in data_plugins.iteritems() if d.writer(plugin_type)]),))
+            #    else:
+            #        return    
+            #else:
+            #    inputs_list = None
+            if category == 'Reader' or category == 'Writer':
+                inputs_list.append(dict(name='filename', interface= IFileStr))
         return inputs_list
 
 
@@ -241,17 +260,18 @@ class DTKPluginManager(object):
 
 
     def get_category(self, plugin):
-
         category = None
         if 'view' in plugin.tags():
             category = 'View'
-
         elif 'process' in plugin.tags():
             category = 'Process'
-
         elif 'data' in plugin.tags():
-            category = 'Data'
-
+            if 'reader' in plugin.tags():
+                category = 'Reader'
+            elif 'writer' in plugin.tags():
+                category = 'Writer'
+            else:
+                category = 'Data'
         return category
 
 

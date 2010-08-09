@@ -41,12 +41,12 @@ class DtkNode(Node):
 
         if factory is None:
             self._data = self.get_input(name)
-            factory.setInput(self._data)
+            factory.setData(self._data)
             
         data = self.get_input(name)
         if data != self._data:
             self._data = data
-            factory.setInput(self._data)
+            factory.setData(self._data)
 
     def setProperty(self):        
         for p in self.dtk_factory.properties():
@@ -57,7 +57,7 @@ class DtkNode(Node):
         return self.get_caption()
 
 
-class dtk_Process(DtkNode):
+class dtkProcess(DtkNode):
     """
     """
 
@@ -73,7 +73,7 @@ class dtk_Process(DtkNode):
         return self.dtk_factory.output(),
 
 
-class dtk_View(DtkNode):
+class dtkView(DtkNode):
     """
     """
 
@@ -117,27 +117,50 @@ class dtk_View(DtkNode):
         widget.show()
 
 
-class dtk_Data_Reader_Writer(DtkNode):
+#class dtk_Data_Reader_Writer(DtkNode):
+class dtkReader(DtkNode):
     """
     """
-
 
     def __call__(self, inputs):
 
         if self.dtk_factory is None:
-            self.dtk_factory = core.dtkAbstractDataFactory.instance().create(self.get_input("dtkDataType"))
-            if 'Reader' in self.name():
-                self.dtk_factory.enableReader(self.name())
-                self.dtk_factory.read(self.get_input("filename"))
-            elif 'Writer' in self.name():
-                self.dtk_factory.enableWriter(self.name())
-                self.dtk_factory.write(self.get_input("filename"))
-            else:
-                return
+            #self.dtk_factory = core.dtkAbstractDataFactory.instance().create(self.get_input("dtkDataType"))
+            fname = self.get_input("filename")
+            readers = core.dtkAbstractDataFactory.instance().readers()
+            #if 'Reader' in self.name():
+            #    self.dtk_factory.enableReader(self.name())
+            #    self.dtk_factory.read(self.get_input("filename"))
+            #elif 'Writer' in self.name():
+            #    self.dtk_factory.enableWriter(self.name())
+            #    self.dtk_factory.write(self.get_input("filename"))
+            #else:
+            #    return
+            for r in readers:
+                dataReader = core.dtkAbstractDataFactory.instance().reader(r.first,r.second)
+                if (dataReader.canRead(fname)):
+                    dataReader.read(fname)
+                    self.dtk_factory = dataReader.data()
         return self.dtk_factory
 
+class dtkWriter(DtkNode):
+    """
+    TODO:: check the behavior is correct...
+    """
 
-class dtk_Data(DtkNode):
+    def __call__(self, inputs):
+
+        if self.dtk_factory is None:
+            fname = self.get_input("filename")
+            writers = core.dtkAbstractDataFactory.instance().writers()
+            for w in writers:
+                dataWriter = core.dtkAbstractDataFactory.instance().writer(w.first,w.second)
+                if (dataWriter.canWrite(fname)):
+                    dataWriter.write(fname)
+                    self.dtk_factory = dataWriter.data()
+        return self.dtk_factory
+
+class dtkData(DtkNode):
     """
     """
 
@@ -152,7 +175,7 @@ class dtk_Data(DtkNode):
         return self.dtk_factory
 
 
-class dtk_Interactor(DtkNode):
+class dtkInteractor(DtkNode):
     """
     """
 
