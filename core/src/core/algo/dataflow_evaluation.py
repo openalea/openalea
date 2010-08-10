@@ -106,7 +106,7 @@ class AbstractEvaluation(object):
             node.raise_exception = False
             # if hasattr(node, 'raise_exception'):
             #     del node.raise_exception
-            node.notify_listeners(('data_modified', ))
+            node.notify_listeners(('data_modified', None, None))
             return ret
 
         except EvaluationException, e:
@@ -114,13 +114,13 @@ class AbstractEvaluation(object):
             e.node = node
             # When an exception is raised, a flag is set.
             node.raise_exception = True
-            node.notify_listeners(('data_modified', ))
+            node.notify_listeners(('data_modified', None, None))
             raise e
 
         except Exception, e:
             # When an exception is raised, a flag is set.
             node.raise_exception = True
-            node.notify_listeners(('data_modified', ))
+            node.notify_listeners(('data_modified', None, None))
             raise EvaluationException(vid, node, e, \
                 tb.format_tb(sys.exc_info()[2]))
 
