@@ -43,6 +43,16 @@ class AnnotationTextToolbar(AleaQGraphicsToolbar):
         self.refreshGeometry()
         self.setBaseOpactity(0.001)
 
+    def set_annotation(self, anno):
+        self.colorWheel.colorChanged.disconnect()
+        self.fontButton.fontChanged.disconnect()
+        self.fontColorButton.fontColorChanged.disconnect()
+        if anno is not None:
+            self.colorWheel.colorChanged.connect(anno._onColorWheelChanged)
+            self.fontButton.fontChanged.connect(anno._onTextFontChanged)
+            self.fontColorButton.fontColorChanged.connect(anno._onTextFontColorChanged)
+
+
 ##################
 # The Annotation #
 ##################
@@ -171,14 +181,14 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
         self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
         self.__textItem.geometryModified.connect(self.__onTextModified)
-        self.__textItem.hoveredIn.connect(self.__onHoverIn)
-        self.__textItem.hoveredOut.connect(self.__onHoverOut)
+        # self.__textItem.hoveredIn.connect(self.__onHoverIn)
+        # self.__textItem.hoveredOut.connect(self.__onHoverOut)
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
 
-        self.__annoToolbar = AnnotationTextToolbar(self)
-        self.__annoToolbar.colorWheel.colorChanged.connect(self.__onColorWheelChanged)
-        self.__annoToolbar.fontButton.fontChanged.connect(self.__onTextFontChanged)
-        self.__annoToolbar.fontColorButton.fontColorChanged.connect(self.__onTextFontColorChanged)
+        # self.__annoToolbar = AnnotationTextToolbar(self)
+        # self.__annoToolbar.colorWheel.colorChanged.connect(self._onColorWheelChanged)
+        # self.__annoToolbar.fontButton.fontChanged.connect(self._onTextFontChanged)
+        # self.__annoToolbar.fontColorButton.fontColorChanged.connect(self._onTextFontColorChanged)
 
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
@@ -204,7 +214,7 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
             self.setColor(color)
 
         qtgraphview.Vertex.initialise_from_model(self)
-        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
+#        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
 
     #####################
     # ----Qt World----  #
@@ -214,7 +224,7 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
 
     def __onTextModified(self, rect):
         self.setHeaderRect(rect)
-        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
+#        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
         htmlText=unicode(self.__textItem.toHtml())
@@ -223,18 +233,18 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
             self.store_view_data(htmlText=htmlText)
         self.deaf(False)
 
-    def __onColorWheelChanged(self, color):
+    def _onColorWheelChanged(self, color):
         self.store_view_data(color=[color.red(),
                                     color.green(),
                                     color.blue()])
 
-    def __onTextFontChanged(self, font):
+    def _onTextFontChanged(self, font):
         cursor = self.__textItem.textCursor()
         fmt = cursor.charFormat()
         fmt.setFont(font)
         cursor.mergeCharFormat(fmt)
 
-    def __onTextFontColorChanged(self, color):
+    def _onTextFontColorChanged(self, color):
         cursor = self.__textItem.textCursor()
         fmt = cursor.charFormat()
         brush = fmt.foreground()
@@ -243,12 +253,12 @@ class GraphicalAnnotation(MemoRects, qtgraphview.Vertex):
         cursor.mergeCharFormat(fmt)
         self.update()
 
-    def __onHoverIn(self, event):
-        self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
-        self.__annoToolbar.appear()
+    # def __onHoverIn(self, event):
+    #     self.__annoToolbar.setPos(self.__textItem.boundingRect().topRight())
+    #     self.__annoToolbar.appear()
 
-    def __onHoverOut(self, event):
-        self.__annoToolbar.disappear()
+    # def __onHoverOut(self, event):
+    #     self.__annoToolbar.disappear()
 
     def setRect(self, rect):
         self.deaf(True)

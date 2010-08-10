@@ -38,7 +38,7 @@ import openalea.grapheditor.base
 
 class DataflowView( qt.View ):
     # This class is in an intermediate state
-    # between using GraphEditor's qtgraphview.View extensibality
+    # between using GraphEditor's qtgraphview.View extensibility
     # and simple subclassing. I'm doing this because I don't
     # like big migrations. -- DB
 
@@ -59,6 +59,10 @@ class DataflowView( qt.View ):
 
         self.set_keypress_handler_map(keyPressMapping)
         self.set_keyrelease_handler_map(keyReleaseMapping)
+
+        self.__annoNotAdded = True
+        self.__annoToolBar = anno.AnnotationTextToolbar(None)
+
 
 
     ####################################################
@@ -165,7 +169,7 @@ class DataflowView( qt.View ):
 
     def keyPressEvent(self, e):
         qt.View.keyPressEvent(self, e)
-        if not e.isAccepted() and e.modifiers() == QtCore.Qt.ControlModifier:
+        if not e.isAccepted():
             operator=GraphOperator(self, self.scene().get_graph())
             operator.vertexType = vertex.GraphicalVertex
             operator.annotationType = anno.GraphicalAnnotation
@@ -180,6 +184,27 @@ class DataflowView( qt.View ):
             else:
                 if e.key() == QtCore.Qt.Key_Delete:
                     operator(fName="graph_remove_selection")()
+
+    #########################
+    # Handling mouse events #
+    #########################
+    def mouseMoveEvent(self, e):
+        items = self.items(e.pos())
+        annotations = [i for i in items if isinstance(i, anno.GraphicalAnnotation)]
+        if len(annotations) > 0 :
+            firstAnno = annotations[0]
+            if self.__annoNotAdded:
+                self.scene().addItem(self.__annoToolBar)
+                self.__annoNotAdded = False
+            self.__annoToolBar.setPos(firstAnno.sceneBoundingRect().topRight())
+            self.__annoToolBar.set_annotation(firstAnno)
+            self.__annoToolBar.appear()
+        else:
+            if not self.__annoNotAdded and self.__annoToolBar not in items:
+                self.__annoToolBar.set_annotation(None)
+                self.__annoToolBar.disappear()
+
+        qt.View.mouseMoveEvent(self, e)
 
     ###########################################
     # Handling context menu on the graph view #
@@ -218,6 +243,7 @@ class DataflowView( qt.View ):
 
 
 def initialise_graph_view_from_model(graphView, graphModel):
+
     # -- do the base node class initialisation --
     mdict  = graphModel.get_ad_hoc_dict()
 
@@ -265,8 +291,6 @@ def initialise_graph_view_from_model(graphView, graphModel):
 
         edgedata = "default", eid, src_port, dst_port
         graphView.notify(graphModel, ("edge_added", edgedata))
-
-
 
 
 GraphicalGraph = openalea.grapheditor.qt.QtGraphStrategyMaker( graphView            = DataflowView,

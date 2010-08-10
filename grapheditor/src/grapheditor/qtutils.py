@@ -78,8 +78,13 @@ class AleaSignal(object):
         self.callbacks = weakref.WeakKeyDictionary()
     def connect(self, callback):
         self.callbacks[callback] = callback
+    def disconnect(self, callback=None):
+        if callback is not None:
+            del self.callbacks[callbacks]
+        else:
+            self.callbacks.clear()
     def emit(self, *args):
-        # do type checking?
+        # TODO: do type checking?
         callbacks = self.callbacks.values()[:]
         for c in callbacks:
             c(*args)
@@ -131,10 +136,13 @@ class AleaQGraphicsVanishingMixin(object):
     def disappear(self):
         if not self.__vanEnabled:
             return
+        if self.opacity() == self.__lowOpacity:
+            return
 
         state = self.__timer.state()
         self.__timer.setDuration(self.__vanishingTime)
-        if state  == QtCore.QTimeLine.Running:
+        if state  == QtCore.QTimeLine.Running and \
+               self.__timer.direction() == QtCore.QTimeLine.Forward:
             self.__timer.setDirection(QtCore.QTimeLine.Backward)
         elif state == QtCore.QTimeLine.NotRunning:
             self.__timer.setCurrentTime(self.__timer.duration())
@@ -145,9 +153,13 @@ class AleaQGraphicsVanishingMixin(object):
         if not self.__vanEnabled:
             return
 
+        if self.opacity() == 1.0:
+            return
+
         state = self.__timer.state()
         self.__timer.setDuration(self.__vanishingTime/2)
-        if state  == QtCore.QTimeLine.Running:
+        if state  == QtCore.QTimeLine.Running and \
+               self.__timer.direction() == QtCore.QTimeLine.Backward:
             self.__timer.setDirection(QtCore.QTimeLine.Forward)
         elif state == QtCore.QTimeLine.NotRunning:
             self.__timer.setCurrentTime(0)
