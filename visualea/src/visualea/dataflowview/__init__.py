@@ -51,8 +51,7 @@ class DataflowView( qt.View ):
         self.set_mime_handler_map(mimeFormatsMap)
 
         # -- Configure the keyboard events --
-        keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Delete ):self.key_press_delete,
-                          (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):self.key_press_space
+        keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):self.key_press_space
                           }
 
         keyReleaseMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):self.key_release_space
@@ -155,16 +154,7 @@ class DataflowView( qt.View ):
     ##############################################
     # Handling keyboard events on the graph view #
     ##############################################
-    def key_press_delete(self, e):
-        operator=GraphOperator(self, self.scene().get_graph())
-        operator.vertexType = vertex.GraphicalVertex
-        operator.annotationType = anno.GraphicalAnnotation
-        operator.edgeType = edge.GraphicalEdge
-        operator(fName="graph_remove_selection")()
-        e.setAccepted(True)
-
     def key_press_space(self, e):
-        QtGui.QGraphicsView.keyPressEvent(self,e)
         if not e.isAccepted():
             self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
             e.setAccepted(True)
@@ -177,12 +167,19 @@ class DataflowView( qt.View ):
         qt.View.keyPressEvent(self, e)
         if not e.isAccepted() and e.modifiers() == QtCore.Qt.ControlModifier:
             operator=GraphOperator(self, self.scene().get_graph())
-            if e.key() == QtCore.Qt.Key_C:
-                operator(fName="graph_copy")()
-            elif e.key() == QtCore.Qt.Key_X:
-                operator(fName="graph_cut")()
-            elif e.key() == QtCore.Qt.Key_V:
-                operator(fName="graph_paste")()
+            operator.vertexType = vertex.GraphicalVertex
+            operator.annotationType = anno.GraphicalAnnotation
+            operator.edgeType = edge.GraphicalEdge
+            if e.modifiers() == QtCore.Qt.ControlModifier:
+                if e.key() == QtCore.Qt.Key_C:
+                    operator(fName="graph_copy")()
+                elif e.key() == QtCore.Qt.Key_X:
+                    operator(fName="graph_cut")()
+                elif e.key() == QtCore.Qt.Key_V:
+                    operator(fName="graph_paste")()
+            else:
+                if e.key() == QtCore.Qt.Key_Delete:
+                    operator(fName="graph_remove_selection")()
 
     ###########################################
     # Handling context menu on the graph view #
