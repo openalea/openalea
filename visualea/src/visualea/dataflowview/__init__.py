@@ -50,16 +50,6 @@ class DataflowView( qt.View ):
                           "openalea/data_instance":self.node_datapool_drop_handler}
         self.set_mime_handler_map(mimeFormatsMap)
 
-        # -- Configure the keyboard events --
-        keyPressMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):self.key_press_space
-                          }
-
-        keyReleaseMapping={ (QtCore.Qt.NoModifier, QtCore.Qt.Key_Space ):self.key_release_space
-                            }
-
-        self.set_keypress_handler_map(keyPressMapping)
-        self.set_keyrelease_handler_map(keyReleaseMapping)
-
         self.__annoNotAdded = True
         self.__annoToolBar = anno.AnnotationTextToolbar(None)
         self.__annoToolBar.setSleepOnDisappear(True)
@@ -159,15 +149,6 @@ class DataflowView( qt.View ):
     ##############################################
     # Handling keyboard events on the graph view #
     ##############################################
-    def key_press_space(self, e):
-        if not e.isAccepted():
-            self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
-            e.setAccepted(True)
-
-    def key_release_space(self, e):
-        self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-        e.setAccepted(True)
-
     def keyPressEvent(self, e):
         qt.View.keyPressEvent(self, e)
         if not e.isAccepted():
@@ -176,15 +157,25 @@ class DataflowView( qt.View ):
             operator.annotationType = anno.GraphicalAnnotation
             operator.edgeType = edge.GraphicalEdge
             if e.modifiers() == QtCore.Qt.ControlModifier:
-                if e.key() == QtCore.Qt.Key_C:
+                key = e.key()
+                if key == QtCore.Qt.Key_C:
                     operator(fName="graph_copy")()
-                elif e.key() == QtCore.Qt.Key_X:
+                elif key == QtCore.Qt.Key_X:
                     operator(fName="graph_cut")()
-                elif e.key() == QtCore.Qt.Key_V:
+                elif key == QtCore.Qt.Key_V:
                     operator(fName="graph_paste")()
             else:
-                if e.key() == QtCore.Qt.Key_Delete:
+                key = e.key()
+                if key == QtCore.Qt.Key_Delete:
                     operator(fName="graph_remove_selection")()
+                elif key == QtCore.Qt.Key_Space:
+                    self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+
+    def keyReleaseEvent(self, e):
+        if not e.isAccepted():
+            key = e.key()
+            if key == QtCore.Qt.Key_Space:
+                self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
 
     #########################
     # Handling mouse events #
