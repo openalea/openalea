@@ -38,7 +38,7 @@ import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
 from metadatadict import MetaDataDict
-
+from interface import TypeNameInterfaceMap
 # Exceptions
 class RecursionError (Exception):
     """todo"""
@@ -241,7 +241,11 @@ class AbstractPort(dict, Observed, HasAdHoc):
 
     def get_interface(self):
         """Gets the interface  """
-        return self.get("interface", None)
+        interf = self.get("interface", None)
+        if isinstance(interf, str):
+            return TypeNameInterfaceMap()[interf]
+        else:
+            return interf
 
     def get_tip(self, current_value = None):
         """ Return the tool tip """
