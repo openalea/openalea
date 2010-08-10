@@ -216,9 +216,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         gradient.setColorAt(self.endPos, self.__bottomColor)
         brush = QtGui.QBrush(gradient)
 
-        if(self.vertex().block):
-            brush.setStyle(QtCore.Qt.BDiagPattern)
-
         self.setPen(pen)
         self.setBrush(brush)
 
@@ -263,7 +260,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             key = event[1]
             if key == "delay":
                 self.update_delay_item()
-            elif key == "lazy":
+            elif key == "lazy" or key == "blocked":
                 self.update_colors()
         elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
@@ -354,6 +351,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         painter.setBrush(brush)
         painter.drawPath(path)
 
+        if(self.vertex().block):
+            brush.setStyle(QtCore.Qt.BDiagPattern)
+            painter.setBrush(brush)
+            painter.drawPath(path)
+
+
     ################
     # Qt Overloads #
     ################
@@ -384,11 +387,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
 
     mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
                                    "mousePressEvent")
-    ##########################################################################
-    # itemChange = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem, #
-    #                           "itemChange")                                #
-    ##########################################################################
-
 
 
 class GraphicalVertex(ObserverOnlyGraphicalVertex):
