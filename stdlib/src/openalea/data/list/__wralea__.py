@@ -2,12 +2,12 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -32,7 +32,7 @@ __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Nodes for standard data structure creation, edition and visualisation.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
-               
+
 
 __all__ = []
 
@@ -43,13 +43,25 @@ list_ = Factory( name="list",
               category="datatype",
               nodemodule="lists",
               nodeclass="List",
-              
+
               inputs=(dict(name="list", interface=ISequence),),
               outputs=(dict(name="list", interface=ISequence),),
               )
 
+slice_ = Factory( name="slice",
+              category="datatype",
+              nodemodule="lists",
+              nodeclass="Slice",
 
-__all__.append('list_')
+              inputs=(dict(name="list", interface="ISequence"),
+                      dict(name="start", interface="IInt"),
+                      dict(name="end", interface="IInt"),
+                      dict(name="stride", interface="IInt")),
+              outputs=(dict(name="list", interface="ISequence"),),
+              )
+
+
+__all__ += ['list_', 'slice_']
 
 
 
