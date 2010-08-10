@@ -62,6 +62,7 @@ class DataflowView( qt.View ):
 
         self.__annoNotAdded = True
         self.__annoToolBar = anno.AnnotationTextToolbar(None)
+        self.__annoToolBar.setSleepOnDisappear(True)
 
 
 
@@ -196,6 +197,7 @@ class DataflowView( qt.View ):
             if self.__annoNotAdded:
                 self.scene().addItem(self.__annoToolBar)
                 self.__annoNotAdded = False
+            self.__annoToolBar.wakeup()
             self.__annoToolBar.setPos(firstAnno.sceneBoundingRect().topRight())
             self.__annoToolBar.set_annotation(firstAnno)
             self.__annoToolBar.appear()
