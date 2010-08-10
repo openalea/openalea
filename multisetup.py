@@ -45,14 +45,15 @@ except ImportError:
 
 dirs = """
 deploy 
-deploygui 
-core 
-scheduler 
+deploygui
+core
+scheduler
 grapheditor
-visualea 
-stdlib 
+visualea
+stdlib
 sconsx
 misc
+pkg_builder
 openalea_meta
 """.split()
 
