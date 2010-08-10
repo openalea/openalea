@@ -172,10 +172,9 @@ class DataflowView( qt.View ):
                     self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
 
     def keyReleaseEvent(self, e):
-        if not e.isAccepted():
-            key = e.key()
-            if key == QtCore.Qt.Key_Space:
-                self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        key = e.key()
+        if key == QtCore.Qt.Key_Space:
+            self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
 
     #########################
     # Handling mouse events #
