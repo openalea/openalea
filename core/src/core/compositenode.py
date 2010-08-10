@@ -164,7 +164,7 @@ class CompositeNodeFactory(AbstractFactory):
                 print "-> Cannot find '%s:%s'" % (pkg, fact)
                 node = self.create_fake_node(vid)
                 node.raise_exception = True
-                node.notify_listeners(('data_modified', ))
+                node.notify_listeners(('data_modified', None, None ))
 
             new_df.add_node(node, vid, False)
 
