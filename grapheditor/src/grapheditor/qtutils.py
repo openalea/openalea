@@ -222,6 +222,8 @@ class AleaQGraphicsVanishingMixin(object):
         self.__timer.setFrameRange(0, self.__numFrames)
         self.__timer.frameChanged.connect(self.__onFrameChanged)
         self.__lowOpacity = baseOpacity
+        self.__toSleep = False
+        self.__sleeping = False
         self.setOpacity(self.__lowOpacity)
 
     def setBaseOpactity(self, opacity):
@@ -229,6 +231,8 @@ class AleaQGraphicsVanishingMixin(object):
 
     def __onFrameChanged(self, frame):
         opacity = frame*(1.0-self.__lowOpacity)/self.__numFrames + self.__lowOpacity
+        if opacity == self.__lowOpacity and self.__toSleep:
+            self.__sleeping = True
         self.setOpacity(opacity)
 
     def setVanishingEnabled(self, val):
@@ -249,6 +253,12 @@ class AleaQGraphicsVanishingMixin(object):
     def vanishingTime(self):
         return self.__vanishingTime
 
+    def wakeup(self):
+        self.__sleeping = False
+
+    def setSleepOnDisappear(self, val):
+        self.__toSleep = val
+
     def disappear(self):
         if not self.__vanEnabled:
             return
@@ -266,6 +276,8 @@ class AleaQGraphicsVanishingMixin(object):
             self.__timer.start()
 
     def appear(self):
+        if self.__sleeping:
+            return
         if not self.__vanEnabled:
             return
 
