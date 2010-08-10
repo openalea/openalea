@@ -193,7 +193,7 @@ class DataflowView( qt.View ):
             self.__annoToolBar.appear()
         else:
             if not self.__annoNotAdded and self.__annoToolBar not in items:
-                self.__annoToolBar.set_annotation(None)
+                #self.__annoToolBar.set_annotation(None)
                 self.__annoToolBar.disappear()
 
         qt.View.mouseMoveEvent(self, e)

@@ -33,23 +33,19 @@ from openalea.visualea import images_rc
 class AnnotationTextToolbar(AleaQGraphicsToolbar):
     def __init__(self, parent):
         AleaQGraphicsToolbar.__init__(self, parent)
-        self.fontButton = AleaQGraphicsFontButton(self)
         self.fontColorButton = AleaQGraphicsFontColorButton(self)
-        self.colorWheel = AleaQGraphicsColorWheel(radius=12, parent=self)
-        self.colorWheel.setVanishingEnabled(False)
-        self.addItem(self.fontButton)
+        self.annotationColor = AleaQGraphicsColorWheel(radius=12, parent=self)
+        self.annotationColor.setVanishingEnabled(False)
         self.addItem(self.fontColorButton)
-        self.addItem(self.colorWheel)
+        self.addItem(self.annotationColor)
         self.refreshGeometry()
         self.setBaseOpactity(0.001)
 
     def set_annotation(self, anno):
-        self.colorWheel.colorChanged.disconnect()
-        self.fontButton.fontChanged.disconnect()
+        self.annotationColor.colorChanged.disconnect()
         self.fontColorButton.fontColorChanged.disconnect()
         if anno is not None:
-            self.colorWheel.colorChanged.connect(anno._onColorWheelChanged)
-            self.fontButton.fontChanged.connect(anno._onTextFontChanged)
+            self.annotationColor.colorChanged.connect(anno._onAnnotationColorChanged)
             self.fontColorButton.fontColorChanged.connect(anno._onTextFontColorChanged)
 
 
@@ -77,17 +73,19 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
+
         rectP2 = self.get_view_data("rectP2")
         rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
         qtutils.MemoRects.setRect(self,rect)
+
         self.setHeaderRect(self.__textItem.boundingRect())
 
-        txt = self.get_view_data("htmlText")
-        if txt:
-            self.set_text(txt, html=True)
-        else:
-            txt = self.get_view_data("text")
-            self.set_text(txt)
+        txt = self.get_view_data("text")
+        self.set_text(txt)
+
+        txtCol = self.get_view_data("textColor")
+        if txtCol:
+            self.__textItem.setDefaultTextColor(QtGui.QColor(*txtCol))
 
         color = self.get_view_data("color")
         if color:
@@ -106,31 +104,20 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
         self.setHeaderRect(rect)
         self.deaf(True)
         text = unicode(self.__textItem.toPlainText())
-        htmlText=unicode(self.__textItem.toHtml())
         if(text != self.__def_string__):
             self.store_view_data(text=text)
-            self.store_view_data(htmlText=htmlText)
         self.deaf(False)
 
-    def _onColorWheelChanged(self, color):
+    def _onAnnotationColorChanged(self, color):
         self.store_view_data(color=[color.red(),
                                     color.green(),
                                     color.blue()])
 
-    def _onTextFontChanged(self, font):
-        cursor = self.__textItem.textCursor()
-        fmt = cursor.charFormat()
-        fmt.setFont(font)
-        cursor.mergeCharFormat(fmt)
-
     def _onTextFontColorChanged(self, color):
-        cursor = self.__textItem.textCursor()
-        fmt = cursor.charFormat()
-        brush = fmt.foreground()
-        brush.setColor(color)
-        fmt.setForeground(QtGui.QBrush(color))
-        cursor.mergeCharFormat(fmt)
-        self.update()
+        self.__textItem.setDefaultTextColor(color)
+        self.store_view_data(textColor=[color.red(),
+                                    color.green(),
+                                    color.blue()])
 
     def setRect(self, rect):
         self.deaf(True)
@@ -145,32 +132,28 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     def notify(self, sender, event):
         if event:
             if event[0] == "metadata_changed":
-                if event[1] == "text" and not self.htmlHasBeenSet:
+                key = event[1]
+                if key == "text":
                     self.set_text(event[2])
-                    return
-                elif event[1] == "htmlText":
-                    text = event[2]
-                    if text is not None:
-                        self.set_text(text, html=True)
-                        self.htmlHasBeenSet = True
-                elif event[1] == "rectP2":
+                elif key == "textColor":
+                    col = event[2]
+                    if col:
+                        self.__textItem.setDefaultTextColor(QtGui.QColor(*col))
+                elif key == "rectP2":
                     rect = QtCore.QRectF(0,0,event[2][0],event[2][1])
                     qtutils.MemoRects.setRect(self,rect)
                     self.setHeaderRect(self.__textItem.boundingRect())
-                elif event[1] == "color":
+                elif key == "color":
                     col = event[2]
                     if col:
                         color = QtGui.QColor(*col)
                         self.setColor(color)
         qtgraphview.Vertex.notify(self, sender, event)
 
-    def set_text(self, text, html=False):
+    def set_text(self, text):
         if text == u"" or text == None :
             text = self.__def_string__
-        if not html:
-            self.__textItem.setPlainText(text)
-        else:
-            self.__textItem.setHtml(text)
+        self.__textItem.setPlainText(text)
 
     def store_view_data(self, **kwargs):
         for k, v in kwargs.iteritems():
