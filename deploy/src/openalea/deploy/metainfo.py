@@ -81,5 +81,9 @@ def get_metadata(module):
         import openalea.deploy.pkginfo as pkginfo
         raise ImportError
     import os
-    metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..','..'))
+    try:
+        metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..'))
+    except:
+        metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..','..'))
+
     return metadata
