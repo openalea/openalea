@@ -47,8 +47,17 @@ setup(
                  "upload_dist = openalea.misc.upload_dist:main",
                  "gforge_upload = openalea.misc.gforge_upload:main",
                  ],
+
+            "wralea": [ 
+                        "openalea.misc.test = misc_wralea_test",
+            ]
+
     }
 
     )
 
+
+#            "wralea": [ "openalea.misc = misc_wralea",
+#                        "openalea.misc.test = misc_wralea_test",
+# #           ]
 
