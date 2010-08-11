@@ -4,6 +4,7 @@ Author: Thomas Cokelaer
 """
 from openalea.visualea.helpwidget import *
 
+text1 = "This is a simple docstring"
 rst1 = """<div class="document">
 <p>This is a simple docstring</p>
 </div>
@@ -25,8 +26,7 @@ rst2 = """<div class="document">
 
 
 def test_rst2alea():
-
-    res = rst2alea("This is a simple docstring")
+    res = rst2alea(text1)
     assert res == rst1, res
     res = rst2alea("This is a simple docstring\n\n:param a: test")
     assert res == rst2, res
@@ -37,8 +37,9 @@ app = QApplication([])
 
 def test_helpwidget():
     help = HelpWidget()
-    help.set_rst("This is a simple docstring")
-    #assert help.getHtml()==rst1
+
+    help.set_rst(text1)
+    assert text1 in help.toHtml()
 
 
 
