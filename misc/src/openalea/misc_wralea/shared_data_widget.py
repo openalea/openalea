@@ -25,6 +25,12 @@ class SharedDataBrowser(NodeWidget, QDialog):
         self.data = None
         self.output_filename = None
 
+        self.widget_layout()
+
+        self.notify(node, ("input_modified", 0))
+        self.notify(node, ("caption_modified",node.get_caption() ) )
+
+    def widget_layout(self):
         layout = QGridLayout()
         self.setLayout(layout)
 
@@ -56,10 +62,7 @@ class SharedDataBrowser(NodeWidget, QDialog):
 
         # add QEdit for the glob
         self.widget_glob = QLineEdit(self)
-        #self.connect(self.widget_glob, SIGNAL("activated(QString)"), self.update_glob)
         self.connect(self.widget_glob, SIGNAL("textChanged(QString)"), self.update_glob)
-        #todo
-        #self.widget_glob.textChanged.connect(self.update_glob)
         layout.addWidget(self.widget_glob, 2, 1,1,2)
         self.widget_glob.setText(self.glob)
 
@@ -75,19 +78,21 @@ class SharedDataBrowser(NodeWidget, QDialog):
         self.setWindowTitle("SharedData browser")
         self.setGeometry(250, 200, 350, 550)
 
-        #self.widgets = []
-        self.notify(node, ("input_modified", 0))
 
     def notify(self, sender, event):
         # Notification sent by node 
+        if event[0] == 'caption_modified' :
+            self.window().setWindowTitle(event[1])
 
         if(event[0] != "input_modified"): return
 
-        print 'from user inputs'
-        print self.node.get_input(0)
-        print self.node.get_input(1)
+        # if inputs are modified and run is presse, then we are here
         if len(self.node.get_input(0))!=0:
-            self.packages = self.node.get_input(0)
+            # if packages is a string, there is only one package and cast to a list must be done
+            if type(self.packages)==list:
+                self.packages = self.node.get_input(0)
+            else:
+                self.packages = [self.node.get_input(0)]
             self.widget_combo_packages.clear()
             for i, elt in enumerate(self.packages):
                 elt_name = str(elt)
@@ -96,11 +101,15 @@ class SharedDataBrowser(NodeWidget, QDialog):
         if self.node.get_input(1)!=None:
             self.glob = self.node.get_input(1)
             self.widget_glob.setText(self.glob)
+        
+        if self.node.get_input(2)!=None:
+            self.data = self.node.get_input(2)
+            self.widget_data.setText(self.data)
 
         #self.node.out_indices = [True for i in self.in_list]
         self.update_packages(self.package)
         self.update_glob(self.glob) #does also update_data
-        self.node.output_filename2 = str(self.output_filename)
+        self.node._output = str(self.output_filename)
 
 
     def update_packages(self, package):
@@ -112,7 +121,9 @@ class SharedDataBrowser(NodeWidget, QDialog):
         try:
             cmd = 'import openalea.%s as mypackage' % self.package
             exec(cmd)
-            self.path = mypackage.shared_data_path 
+            from openalea.deploy.shared_data import get_shared_data_path
+            self.path = get_shared_data_path(mypackage.__path__)
+
             from openalea.deploy.metainfo import get_metadata
             cmd = 'import openalea;metadata = get_metadata(openalea.%s)' % self.package
             exec(cmd)
@@ -141,31 +152,25 @@ class SharedDataBrowser(NodeWidget, QDialog):
         import glob
         import os
         filenames = []
-        print self.path, self.glob
         try:
             filenames = glob.glob(str(self.path) +  os.sep + str(self.glob))
         except:
             pass
         self.widget_combo_data.clear()
-        print filenames
         for i, elt in enumerate(filenames):
             elt_name = str(elt)
             self.widget_combo_data.addItem(os.path.basename(elt_name))
         
         if len(filenames) == 1:
-            print 'a', str(filenames[0])
             #self.output_filename = str(filenames[0])
             self.output_filename = os.path.join(str(self.path), os.sep, str(filenames[0]))
-            print 'output=',self.output_filename
-            self.node.output_filename2 = str(self.output_filename)
+            self.node._output = str(self.output_filename)
 
     def selection_data(self, data):
         self.data = data
         import os
         self.output_filename = os.path.join(self.path,  str(self.data))
-        print 'bbbb'
-        print self.path, self.output_filename
-        self.node.output_filename2 = str(self.output_filename)
+        self.node._output = str(self.output_filename)
 
     def update_glob(self, glob):
         self.glob = glob
