@@ -36,7 +36,11 @@ from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
 from openalea.visualea.node_treeview import SearchListView, SearchModel
 from openalea.visualea.node_widget import SignalSlotListener
 import metainfo
+
 from openalea.visualea import helpwidget
+from openalea import misc
+from os.path import join as pj
+
 
 from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
@@ -120,7 +124,11 @@ class MainWindow(QtGui.QMainWindow,
         self.datapoolListView.setModel(self.datapool_model)
         self.vboxlayout4.addWidget(self.datapoolListView)
 
+        # help widget
         self.helpWidget = helpwidget.HelpWidget()
+        css = pj(misc.__path__[0], "..", "..", "..",
+                 "share", "_static", "openalea.css")
+        self.helpWidget.set_stylesheet_file(css)
         self.poolTabWidget.addTab(self.helpWidget, "Help")
 
         # use view

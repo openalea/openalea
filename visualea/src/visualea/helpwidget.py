@@ -70,7 +70,21 @@ class HelpWidget( QtGui.QTextBrowser ):
         QtGui.QTextBrowser.__init__(self, parent)
         self.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.setOpenExternalLinks(True)
+        self.css = None
 
     def set_rst(self, txt):
+        if self.css:
+            print "I have a css!"
+            self.document().setDefaultStyleSheet(self.css)
         txt = rst2alea(txt)
         self.setHtml(txt)
+
+    def set_stylesheet_file(self, file):
+        try:
+            f = open(file)
+            self.css = f.read()
+            f.close()
+        except Exception, e:
+            print e
+
+
