@@ -55,10 +55,10 @@ class Bool(Node):
 
 
 class Int(Node):
-    """
-    :param ins: The stored value
-    :param outs: todo
-    
+    """Int Node
+
+    :param ins: the stored value (default is zero)
+    :param outs: the integer value
     """
 
     def __init__(self, ins, outs):
