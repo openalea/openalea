@@ -21,7 +21,10 @@ from PyQt4 import QtGui, QtCore
 def rst2alea(text=""):
     """Convert docstring into HTML (assuming docstring is in reST format)
 
-    This function uses docutils. Ideally it should use Sphinx
+    This function uses docutils. Ideally it should use Sphinx. Consequently
+    many directives are notunderstood and even rise many error messages.
+    In order to prevent such messages, the cleanup method remove them.
+
 
     :param text: the docstring
 
@@ -29,12 +32,27 @@ def rst2alea(text=""):
 
     .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
     """
+    def cleanup(text):
+        newtext = ''
+        for line in text.splitlines():
+            if line.find('System Message')>=0 or line.find('Unknown directive')>=0:
+                pass
+            else:
+                newtext += line + '\n'
+        return newtext
     try:
         from docutils import core
+        import docutils.core
+        import docutils.parsers.rst
+        from openalea.misc.sphinx_configuration import extensions
+        #for ext in extensions:
+        #    docutils.parsers.rst.directives.register_directive('TestDirective', ext)
+
+
         from docutils.writers.html4css1 import Writer
         w = Writer()
         res = core.publish_parts(text, writer=w)['html_body']
-        return res
+        return cleanup(res)
     except:
         res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
         if text is not None:
@@ -42,7 +60,7 @@ def rst2alea(text=""):
         for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
             res = res.replace(name, '<b>'+name.replace(':','') + '</b>')
         res = res.replace('\n','<br />')
-        return res
+        return cleanup(res)
 
 
 
