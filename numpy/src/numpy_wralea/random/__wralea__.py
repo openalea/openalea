@@ -37,17 +37,19 @@ __all__ = []
 
 randn = Factory(name = "randn",
     description = "Return a sample (or samples) from the “standard normal” distribution.",
+    authors=['Thomas Cokelaer','Eric Moscardi'],
     category = "numpy",
     inputs = (dict(name='n', interface=IInt),),
-    outputs = (dict(name='array', interface= ISequence),),
+    outputs = (dict(name='array', interface= None),),
     nodemodule = "vnumpy",
-    nodeclass = "randn",
+    nodeclass = "wra_randn",
     )
 
 __all__.append("randn")
 
 standard_normal = Factory(name = "standard_normal",
     description = "Returns samples from a Standard Normal distribution (mean=0, stdev=1).",
+    authors='Eric Moscardi',
     category = "numpy",
     inputs = (dict(name='size', interface=ITuple),),
     outputs = (dict(name='array', interface= None),),
