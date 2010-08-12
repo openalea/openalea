@@ -24,19 +24,24 @@ from openalea.visualea.dataflowview import DataflowView, GraphicalGraph
 from openalea.visualea.util import exception_display
 import openalea.grapheditor.base
 
+
 class InspectorView(DataflowView, AbstractListener):
-    def __init__(self, parent, graph, strategy, mainOperator, parentOperator, clone=False):
-        DataflowView.__init__(self, parent, graph, strategy, clone)
+    def __init__(self, parent):
+        DataflowView.__init__(self, parent)
         AbstractListener.__init__(self)
         self.setWindowFlags(QtCore.Qt.Window)
-        self.setWindowTitle("Inspecting " + graph.get_caption())
+
+
+
+
+    def set_operators(self, mainOperator, parentOperator):
         self.__mainOperator   = mainOperator
         self.__parentOperator = parentOperator
         self.initialise(mainOperator)
         self.initialise(parentOperator)
         mainOperator.get_session().add_graph_view(self)
 
-    @exception_display        
+    @exception_display
     def notify(self, sender, event):
         if(event):
             if(event[0] == "graphoperator_graphsaved"):
@@ -48,6 +53,6 @@ class InspectorView(DataflowView, AbstractListener):
             return
         super(Inspector, self).notify(sender, event)
 
-        
+
 class CompositeInspector(GraphicalGraph):
     __graphViewType__ = InspectorView
