@@ -855,6 +855,7 @@ class AbstractFactory(Observed):
                  delay = 0,
                  view=None,
                  alias=None,
+                 authors=None,
                  **kargs):
         """
         Create a factory.
@@ -867,6 +868,7 @@ class AbstractFactory(Observed):
         :param lazy: enable lazy evaluation (default = False)
         :param view: custom view (default = None)
         :param alias: list of alias name
+        :param authors: authors of the node. If Node, it should be replaced by the package authors.
 
         .. note:: inputs and outputs parameters are list of dictionnary such
 
@@ -890,6 +892,7 @@ class AbstractFactory(Observed):
         self.view = view
         self.delay = delay
         self.alias = alias
+        self.authors = authors
     # Package property
 
     def set_pkg(self, port):
@@ -949,18 +952,37 @@ class AbstractFactory(Observed):
             name = '_%s' % (id(self))
         return name
 
-    def get_tip(self, asRst=False):
-        """ Return the node description """
+    def get_authors(self):
+        """returns node authors
 
+        if no authors is found within the node, then it takes the authors field
+        found in its package.
+        """
+        if self.authors == None or self.authors=='':
+            authors = self.package.metainfo['authors'] + ' (wralea authors)'
+        else:
+            authors = self.authors
+        return authors
+
+    def get_tip(self, asRst=False):
+        """ Return the node description 
+
+        if no authors is found within the node, then it takes the authors field
+        found in its package.
+        """
+
+        
         if not asRst:
             return "<b>Name:</b> %s<br/>" % (self.name, ) + \
                    "<b>Category:</b> %s<br/>" % (self.category, ) + \
                    "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
+                   "<b>Authors:</b> %s<br/>" % (self.get_authors(), ) + \
                    "<b>Description:</b> %s<br/>" % (self.description, )
         else:
             return "**Name:** %s\n\n" % (self.name, ) + \
                    "**Category:** %s\n\n" % (self.category, ) + \
                    "**Package:** %s\n\n" % (self.package.name, ) + \
+                   "**Authors:** %s\n\n" % (self.get_authors(), ) + \
                    "**Description:** %s\n\n" % (self.description, )
 
     def instantiate(self, call_stack=[]):
@@ -1034,6 +1056,7 @@ class NodeFactory(AbstractFactory):
                  widgetmodule = None,
                  widgetclass = None,
                  search_path = None,
+                 authors = None,
                  **kargs):
         """Create a node factory.
 
@@ -1055,7 +1078,7 @@ class NodeFactory(AbstractFactory):
         outputs = (dict(name='y', interface=IInt)
         """
         AbstractFactory.__init__(self, name, description, category,
-                                 inputs, outputs, **kargs)
+                                 inputs, outputs, authors=authors,**kargs)
 
         # Factory info
         self.nodemodule_name = nodemodule
@@ -1083,6 +1106,7 @@ class NodeFactory(AbstractFactory):
         caller_dir = os.path.dirname(os.path.abspath(inspect.stack()[1][1]))
         if(not caller_dir in self.search_path):
             self.search_path.append(caller_dir)
+
 
     def get_python_name(self):
         """ Return a python valid name """
@@ -1400,6 +1424,7 @@ class PyNodeFactoryWriter(object):
     nodefactory_template = """
 
 $NAME = Factory(name=$PNAME,
+                authors=$AUTHORS,
                 description=$DESCRIPTION,
                 category=$CATEGORY,
                 nodemodule=$NODEMODULE,
@@ -1419,7 +1444,9 @@ $NAME = Factory(name=$PNAME,
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
+
         result = fstr.safe_substitute(NAME=f.get_python_name(),
+                                      AUTHORS=repr(f.get_authors()),
                                       PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
                                       CATEGORY=repr(f.category),
