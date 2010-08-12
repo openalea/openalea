@@ -258,12 +258,18 @@ class Vertex(Element):
             QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
-            self.setVisible(False)
+            #Needs to be visible or else won't receive events
+            #we override paint in order to hide the item
+            self.setVisible(True)
+
 
         def position_changed(self, *args):
             """reimplemented to do nothing. otherwise caught
             position changes from the model (????) and ignored
             the position it was forced to"""
+            pass
+
+        def paint(self, painter, options, widget):
             pass
 
         itemChange = qtutils.mixin_method(Connector, QtGui.QGraphicsEllipseItem,
