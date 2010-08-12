@@ -23,7 +23,7 @@ from openalea.grapheditor import qtgraphview
 
 class ColorOperators(graphOpBase.Base):
 
-    
+
     def graph_set_selection_color(self):
         master = self.master
         items = master.get_graph_view().scene().get_selected_items(master.vertexType)
@@ -45,13 +45,13 @@ class ColorOperators(graphOpBase.Base):
         color = [color.red(), color.green(), color.blue()]
         for i in items:
             try:
-                i.vertex().get_ad_hoc_dict().set_metadata("userColor", color)
                 i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", True)
+                i.vertex().get_ad_hoc_dict().set_metadata("userColor", color)
             except Exception, e:
                 print "graph_set_selection_color exception", e
                 pass
 
-    
+
     def graph_use_user_color(self, useit):
         master = self.master
         items = master.get_graph_view().scene().get_selected_items(master.vertexType)
