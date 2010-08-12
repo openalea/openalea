@@ -62,5 +62,14 @@ tuple3 = Factory( name="tuple3",
 
 __all__.append('tuple3')
 
+tuple_ = Factory( name="tuple",
+              description="Python tuple",
+              category="datatype",
+              nodemodule="tuples",
+              nodeclass="Tuple",
+              inputs=(dict(name="tuple", interface=ITuple),),
+              outputs=(dict(name="tuple", interface = ITuple),),
+              )
 
+__all__.append('tuple_')
 

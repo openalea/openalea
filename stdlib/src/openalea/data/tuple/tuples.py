@@ -37,3 +37,10 @@ class Tuple3(Node):
     def __call__(self, inputs):
         return ( (inputs[0], inputs[1], inputs[2]), )
 
+class Tuple(Node):
+    """
+    Python Tuple
+    """
+    def __call__(self, inputs):
+        return (eval(str(inputs[0])), )
+
