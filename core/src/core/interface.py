@@ -255,6 +255,11 @@ class ITuple3(IInterface):
     def default(cls):
         return (None, None, None)
 
+class ITuple(IInterface):
+    """ Tuple """
+    __pytype__ = types.TupleType
+    __color__  = color_palette.fuchsia
+
 
 class IFunction(IInterface):
     """ Function interface """
