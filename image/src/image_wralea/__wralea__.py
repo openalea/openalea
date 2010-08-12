@@ -75,6 +75,17 @@ size3 = Factory(name = "size3",
 
 __all__.append("size3")
 
+
+lena = Factory(name = "lena",
+                description = "lena image",
+                category = "image",
+                nodemodule = "scipy",
+                nodeclass = "lena",
+                outputs = (dict(name = "img", interface = None),),
+                )
+
+__all__.append("lena")
+
 ###################################################
 #
 #		palette
