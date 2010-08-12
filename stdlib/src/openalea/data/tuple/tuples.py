@@ -42,5 +42,5 @@ class Tuple(Node):
     Python Tuple
     """
     def __call__(self, inputs):
-        return (eval(str(inputs[0])), )
+        return inputs
 
