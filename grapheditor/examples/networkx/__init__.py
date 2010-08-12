@@ -13,22 +13,6 @@ from openalea.grapheditor import Observed, ObservedVertex, GraphAdapterBase
 from openalea.grapheditor import basenotifiers
 import weakref
 
-
-#----------------------
-# -- the graph model --
-#----------------------
-# class NXObservedNode( ObservedVertex ):
-#     """ An observable networkx node """
-#     def __init__(self, graph):
-#         ObservedVertex.__init__(self)
-#         self.g = weakref.ref(graph)
-
-#     def notify_update(self, **kwargs):
-#         for item in kwargs.iteritems():
-#             self.notify_listeners(item)
-#         pos = self.g().node[self]["position"]
-#         self.notify_position(pos) # defined in base
-
 class NXObservedGraph( GraphAdapterBase, Observed ):
     """An adapter to networkx.Graph"""
     def __init__(self):
@@ -67,8 +51,6 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         if g.has_edge(*edge):
             return
         else:
-            # proxy = NXObservedProxyEdge(edge, g)
-            # g.add_edge(*edge, proxy=proxy, **kwargs)
             g.add_edge(*edge, **kwargs)
             self.notify_listeners(("edge_added", ("default", edge, src_vertex, tgt_vertex)))
 
@@ -77,7 +59,6 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         edge.sort(lambda x, y: cmp(id(x), id(y)))
         edge = tuple(edge)
         print "remove", edge
-        #proxy = self.graph.edge[src_vertex][tgt_vertex]["proxy"]
         self.graph.remove_edge(edge[0], edge[1])
         self.notify_listeners(("edge_removed", ("default",edge)))
 
@@ -88,8 +69,6 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
     def set_vertex_data(self, vertex, **kwargs):
         if vertex in self.graph:
             self.graph.node[vertex].update(kwargs)
-
-            #vertex.notify_update(**kwargs)
             pos = kwargs.get('position', None)
             if pos:
                 self.notify_listeners(("vertex_event",
@@ -97,12 +76,8 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
                                         basenotifiers.get_vertex_notify_position_message(pos))))
 
     def set_edge_data(self, edge_proxy, **kwargs):
+        #nothing right now"
         pass
-        # if g.has_edge(*edge):
-        #     v1, v2 = edge_proxy.edge
-        #     self.graph.edge[v1][2].update(kwargs)
-        #     edge_proxy.notify_update(**kwargs)
-        #     self.notify("edge_event", vertex, **kwargs)
 
 #------------------------
 # -- the graph qt view --
