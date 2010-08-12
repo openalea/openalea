@@ -212,8 +212,14 @@ class Connector(Element):
         obs = self.get_observed()
         if pos is None:
             pos  = self.get_scene_center()
+        edges = []
         #the following line is quirky because it relies on core.observer.Observed.listeners
-        edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
+        if hasattr(obs, "listeners"):
+            edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
+        elif hasattr(self, "fakeParent"):
+            observers = self.fakeParent.scene().widgetmap.get(obs)
+            if observers:
+                edges = [l() for l in observers if l is not None and isinstance(l(), Edge)]
         for e in edges:
             e.notify(obs, ("metadata_changed", "connectorPosition", pos))
 
@@ -255,12 +261,13 @@ class Vertex(Element):
     class InvisibleConnector(QtGui.QGraphicsEllipseItem, Connector):
         size = 10
         def __init__(self, parent, *args, **kwargs):
-            QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, parent)
+            QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, None)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
             #Needs to be visible or else won't receive events
             #we override paint in order to hide the item
             self.setVisible(True)
+            self.fakeParent = parent
 
 
         def position_changed(self, *args):
@@ -294,7 +301,7 @@ class Vertex(Element):
         self.setFlag(qtutils.ItemSendsGeometryChanges)
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
-            self.__defaultConnector = Vertex.InvisibleConnector(None, vertex, graph)
+            self.__defaultConnector = Vertex.InvisibleConnector(self, vertex, graph)
 
     vertex = baselisteners.GraphElementListenerBase.get_observed
 
@@ -375,7 +382,6 @@ class Edge(Element):
 
     def __init__(self, edge=None, graph=None, src=None, dst=None):
         Element.__init__(self, edge, graph)
-
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setZValue(0.5)
         self.srcPoint = QtCore.QPointF()
@@ -388,11 +394,14 @@ class Edge(Element):
                                QtCore.Qt.RoundJoin))
 
         self.dstBBox = self.srcBBox = None
-        if src: self.set_observed_source(src)
-        if dst: self.set_observed_destination(dst)
+        if src is not None: self.set_observed_source(src)
+        if dst is not None: self.set_observed_destination(dst)
         self.setPath(self.__edge_creator.get_path(self.srcPoint, self.dstPoint))
 
     edge = baselisteners.GraphElementListenerBase.get_observed
+
+    def initialise_from_model(self):
+        pass
 
     def set_edge_creator(self, creator):
         self.__edge_creator = creator

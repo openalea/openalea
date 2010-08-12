@@ -24,3 +24,7 @@ class ObservedVertex(observer.Observed):
     def notify_position(self, pos):
         self.notify_listeners(("metadata_changed", "position", pos))
 
+
+def get_vertex_notify_position_message(pos):
+    return  ("metadata_changed", "position", pos)
+

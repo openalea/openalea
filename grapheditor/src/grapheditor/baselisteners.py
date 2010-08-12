@@ -99,6 +99,7 @@ class GraphViewBase(object):
     def set_canvas(self, canvas):
         raise NotImplementedError
 
+
 class GraphListenerBase(observer.AbstractListener):
     """This object strictly watches the given graph.
     It deduces the correct representation out
@@ -171,10 +172,17 @@ class GraphListenerBase(observer.AbstractListener):
     # Observer methods come next. They DO NOT modify the model. #
     #############################################################
     def notify(self, sender, event):
-        if(event[0]=="vertex_added") : self.vertex_added(*event[1])
-        elif(event[0]=="edge_added") : self.edge_added(*event[1])
-        elif(event[0]=="vertex_removed") : self.vertex_removed(*event[1])
-        elif(event[0]=="edge_removed") : self.edge_removed(*event[1])
+        if len(event) < 2:
+            return
+        mainEvent = event[0]
+        eventData = event[1]
+        if(mainEvent=="vertex_added") : self.vertex_added(*eventData)
+        elif(mainEvent=="edge_added") : self.edge_added(*eventData)
+        elif(mainEvent=="vertex_removed") : self.vertex_removed(*eventData)
+        elif(mainEvent=="edge_removed") : self.edge_removed(*eventData)
+
+        elif(mainEvent=="vertex_event") : self.vertex_event(*eventData)
+        elif(mainEvent=="edge_event") : self.edge_event(*eventData)
 
     def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
@@ -194,6 +202,19 @@ class GraphListenerBase(observer.AbstractListener):
     def edge_removed(self, vtype, edgeModel):
         if edgeModel is None : return
         return self._element_removed(edgeModel)
+
+    def vertex_event(self, vertex, data):
+        observers = self.widgetmap.get(vertex)
+        if observers:
+            for obs in observers:
+                obs().notify(vertex, data)
+
+    def edge_event(self, edge, data):
+        observers = self.widgetmap.get(edge)
+        if observers:
+            for obs in observers:
+                obs().notify(vertex, data)
+
 
     ##################################################################
     # Protected controller methods come next. They MODIFY the model. #
@@ -262,7 +283,12 @@ class GraphListenerBase(observer.AbstractListener):
     def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
         widget.initialise_from_model()
-        return self._register_widget_with_model(widget, model)
+        if hasattr(model, "__iter__"):
+            for m in model:
+                self._register_widget_with_model(widget, m)
+        else:
+            self._register_widget_with_model(widget, model)
+        return widget
 
     def _register_widget_with_model(self, widget, model):
         """
