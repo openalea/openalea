@@ -1,5 +1,5 @@
 
-# This file has been generated at Wed Aug 11 08:47:32 2010
+# This file has been generated at Thu Aug 12 11:32:43 2010
 
 from openalea.core import *
 
@@ -10,20 +10,19 @@ __editable__ = True
 __description__ = 'shortcut to the script make_develop'
 __license__ = 'CECILL-C'
 __url__ = 'http://openalea.gforge.inria.fr'
+__alias__ = []
 __version__ = '0.0.1'
 __authors__ = 'moscardi, cokelaer'
 __institutes__ = 'INRIA/CIRAD'
 __icon__ = ''
 
 
-__all__ = ['openalea_packages_openalea_packages', 'multisetup_multisetup', 'alinea_packages_alinea_packages', 'commands_commands', 'vplants_packages_vplants_packages', 'list_packages_list_packages', 'shared_data_SharedDataBrowser', 'list_selector_Select']
-
-
-
+__all__ = ['openalea_packages_openalea_packages', 'multisetup_multisetup', 'alinea_packages_alinea_packages', 'commands_commands', 'vplants_packages_vplants_packages', 'list_packages_list_packages', 'list_selector_Select', 'shared_data_SharedDataBrowser']
 
 
 
 openalea_packages_openalea_packages = Factory(name='openalea_packages',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='List of packages to release from openalea project',
                 category='data i/o',
                 nodemodule='openalea_packages',
@@ -38,6 +37,7 @@ openalea_packages_openalea_packages = Factory(name='openalea_packages',
 
 
 multisetup_multisetup = Factory(name='multisetup',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='Multi Setup allows to build and install all the packages',
                 category='data i/o',
                 nodemodule='multisetup',
@@ -52,6 +52,7 @@ multisetup_multisetup = Factory(name='multisetup',
 
 
 alinea_packages_alinea_packages = Factory(name='alinea_packages',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='List of packages to release from alinea project',
                 category='data i/o',
                 nodemodule='alinea_packages',
@@ -66,6 +67,7 @@ alinea_packages_alinea_packages = Factory(name='alinea_packages',
 
 
 commands_commands = Factory(name='commands',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='List of commands for setup.py',
                 category='data i/o',
                 nodemodule='commands',
@@ -80,6 +82,7 @@ commands_commands = Factory(name='commands',
 
 
 vplants_packages_vplants_packages = Factory(name='vplants_packages',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='List of packages to release from vplants project',
                 category='data i/o',
                 nodemodule='vplants_packages',
@@ -94,6 +97,7 @@ vplants_packages_vplants_packages = Factory(name='vplants_packages',
 
 
 list_packages_list_packages = Factory(name='list_packages',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='List of packages from a directory',
                 category='data i/o',
                 nodemodule='list_packages',
@@ -107,23 +111,8 @@ list_packages_list_packages = Factory(name='list_packages',
 
 
 
-shared_data_SharedDataBrowser = Factory(name='SharedDataBrowser',
-                description='This Widget allows to select data file from known openalea data shared directories',
-                category='data i/o',
-                nodemodule='shared_data',
-                nodeclass='SharedDataBrowser',
-                inputs=[{'interface': ISequence, 'name': 'packages', 'value': [], 'desc': ''}, 
-                        {'interface': IStr, 'name': 'glob', 'value': '*'}, 
-                        {'interface': IStr, 'name': 'filename', 'value': None}],
-                outputs=[{'interface': IStr, 'name': 'filename'}],
-                widgetmodule='shared_data_widget',
-                widgetclass='SharedDataBrowser',
-               )
-
-
-
-
 list_selector_Select = Factory(name='list_selector',
+                authors='moscardi, cokelaer (wralea authors)',
                 description='This Widget allows to select some elements in a list',
                 category='data i/o',
                 nodemodule='list_selector',
@@ -132,6 +121,21 @@ list_selector_Select = Factory(name='list_selector',
                 outputs=[{'interface': ISequence, 'name': 'out_list', 'desc': ''}],
                 widgetmodule='list_selector_widget',
                 widgetclass='ListSelector',
+               )
+
+
+
+
+shared_data_SharedDataBrowser = Factory(name='SharedDataBrowser',
+                authors='Thomas Cokelaer',
+                description='This Widget allows to select data file from known openalea data shared directories',
+                category='data i/o',
+                nodemodule='shared_data',
+                nodeclass='SharedDataBrowser',
+                inputs=[{'interface': ISequence, 'name': 'packages', 'value': [], 'desc': ''}, {'interface': IStr, 'name': 'glob', 'value': '*'}, {'interface': IStr, 'name': 'filename', 'value': None}],
+                outputs=[{'interface': IStr, 'name': 'filename'}],
+                widgetmodule='shared_data_widget',
+                widgetclass='SharedDataBrowser',
                )
 
 
