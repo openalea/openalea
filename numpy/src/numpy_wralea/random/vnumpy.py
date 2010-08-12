@@ -2,7 +2,6 @@ from openalea.core import Node, IInt
 from openalea.core.external import add_docstring
 
 
-
 class randn(Node):
 
     
@@ -17,4 +16,9 @@ class randn(Node):
         from numpy.random import randn
         return randn(self.get_input('n'))
 
+def wra_standard_normal(size):
+    from numpy.random import standard_normal
+    return (standard_normal(size),)
+
+wra_standard_normal.__doc__ = numpy.random.standard_normal.__doc__
 

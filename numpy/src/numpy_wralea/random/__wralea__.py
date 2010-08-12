@@ -46,4 +46,13 @@ randn = Factory(name = "randn",
 
 __all__.append("randn")
 
+standard_normal = Factory(name = "standard_normal",
+    description = "Returns samples from a Standard Normal distribution (mean=0, stdev=1).",
+    category = "numpy",
+    inputs = (dict(name='size', interface=ITuple),),
+    outputs = (dict(name='array', interface= None),),
+    nodemodule = "vnumpy",
+    nodeclass = "wra_standard_normal",
+    )
 
+__all__.append("standard_normal")
