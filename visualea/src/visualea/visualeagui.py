@@ -54,23 +54,25 @@ def main(args):
 
         mess = QtGui.QMessageBox.warning(None, "Error",
                                          "Visualea need QT library >=4.5.2")
-
-        return 
+        return
 
     #splash screen
     import metainfo
 
-    pix=QtGui.QPixmap(":/icons/splash.png")
+    pix = QtGui.QPixmap(":/icons/splash.png")
     splash = QtGui.QSplashScreen(pix)
 
     splash.show()
-    splash.showMessage(
-        metainfo.get_copyrigth() +
-        "Version : %s \n"%(metainfo.get_version(),) + 
-        "Loading modules...",
-        QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
 
-    
+    message = QtCore.QString(
+        metainfo.get_copyright() +
+        "Version : %s\n"%(metainfo.get_version(),) + 
+        "Loading modules...")
+
+    splash.showMessage(message, QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
+
+    app.processEvents() #make sure qt really display the message before importing the modules.
+
     time.clock()
 
     session = Session()

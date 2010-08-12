@@ -12,6 +12,6 @@ def get_version():
 
 url = "http://openalea.gforge.inria.fr"
 
-def get_copyrigth():
+def get_copyright():
 
-    return u"Copyright \xa9  2006-2010 INRIA - CIRAD - INRA\n"
+    return u"Copyright \xa9 2006-2010 INRIA/CIRAD/INRA\n"
