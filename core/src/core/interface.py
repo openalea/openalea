@@ -260,7 +260,6 @@ class ITuple(IInterface):
     __pytype__ = types.TupleType
     __color__  = color_palette.fuchsia
 
-
 class IFunction(IInterface):
     """ Function interface """
     __color__  = color_palette.white
