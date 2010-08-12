@@ -581,8 +581,6 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         self.update_list()
         self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
-        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
-                     self.itemchanged)
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
@@ -931,8 +929,10 @@ class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
 
     @lock_notify      
     def valueChanged(self, newval):
-        self.node.set_input(self.param_str, str(newval))
-        
+        try:
+            self.node.set_input(self.param_str, eval(str(newval)))
+        except:
+            pass
         
     def notify(self, sender, event):
         """ Notification sent by node """
