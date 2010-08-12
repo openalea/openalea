@@ -584,3 +584,31 @@ sign = Factory(name = "sign",
     )
 __all__.append("sign")
 
+sign = Factory(name = "power",
+    description = "wralea to numpy.power function",
+    authors='Thomas Cokelaer',
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        dict(name='power', interface=IFloat, showwidget=False),
+        ),
+    outputs = (dict(name='array', interface= ISequence),), nodemodule="numpy",
+    nodeclass = "power",
+    )
+__all__.append("power")
+
+mean = Factory(name = "mean",
+    description = "wralea to numpy.mean function",
+    authors='Thomas Cokelaer',
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=ISequence, showwidget=False),
+        dict(name='axis', interface=IInt,  value=None),
+        dict(name='dtype', interface=None, value=None),
+        ),
+    outputs = None,
+    nodemodule="math",
+    nodeclass = "mean",
+    )
+__all__.append("mean")
+

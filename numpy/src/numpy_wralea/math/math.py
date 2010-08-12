@@ -26,3 +26,7 @@ def inv(array):
 def putmask(array, mask, values):
     import numpy as np
     return (np.putmask(array, mask, values))
+
+def mean(array, axis=None, dtype=None):
+    from numpy import mean
+    return (mean(array, axis, dtype),)
