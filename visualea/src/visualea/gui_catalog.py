@@ -581,6 +581,8 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         self.update_list()
         self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
+        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
+                     self.itemchanged)
         self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
@@ -893,4 +895,47 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         self.colorwidget.update()
         
 
+class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
+    """
+    Tuple widget
+    """
+    # Corresponding Interface & Metaclass
+    __interface__ = ITuple
+    __metaclass__ = make_metaclass()
 
+    def __init__(self, node, parent, parameter_str, interface):
+        """
+        @param parameter_str : the parameter key the widget is associated to
+        @param interface : instance of interface object
+        """
+
+        QtGui.QWidget.__init__(self, parent)
+        IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+
+        self.hboxlayout = QtGui.QHBoxLayout(self)
+
+        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setSpacing(5)
+
+
+        self.label = QtGui.QLabel(self)
+        self.label.setText(node.get_input_port(name=parameter_str).get_label())
+        self.hboxlayout.addWidget(self.label)
+
+        self.subwidget = QtGui.QLineEdit (self)
+        self.hboxlayout.addWidget(self.subwidget)
+        
+        self.notify(None, None)
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(QString)"), self.valueChanged)
+
+
+    @lock_notify      
+    def valueChanged(self, newval):
+        self.node.set_input(self.param_str, str(newval))
+        
+        
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        
+        s = str(self.node.get_input(self.param_str))
+        self.subwidget.setText(s)
