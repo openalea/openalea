@@ -30,3 +30,7 @@ def putmask(array, mask, values):
 def mean(array, axis=None, dtype=None):
     from numpy import mean
     return (mean(array, axis, dtype),)
+
+def std(array, axis=None, dtype=None, ddof=0):
+    from numpy import std
+    return (std(a=array, axis=axis, dtype=dtype, ddof=ddof),)

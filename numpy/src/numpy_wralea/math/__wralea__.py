@@ -41,15 +41,20 @@ list_type = ['bool', 'uint8', 'uint16', 'uint32', 'uint64', 'int8', 'int16', 'in
 # for the convolve function:
 modes = ['full','valid','same']
 
-std = Factory(name = "std",
-		description = "Compute the standard deviation along the specified axis.",
-		category = "numpy",
-		inputs = (dict(name='array', interface=None),),
-		outputs = (dict(name='std', interface= IFloat),),
-                nodemodule = "math",
-		nodeclass = "wra_std",
-		)
-
+std =  Factory(name = "std",
+    description = "Compute the standard deviation along the specified axis",
+    authors='Eric Moscardi',
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=None),
+        dict(name='axis', interface=IInt,  value=None),
+        dict(name='dtype', interface=None, value=None),
+        dict(name='ddof', interface=IInt, value=0),
+        ),
+    outputs = None,
+    nodemodule="math",
+    nodeclass = "std",
+    )
 __all__.append("std")
 
 dot = Factory(name = "dot",
