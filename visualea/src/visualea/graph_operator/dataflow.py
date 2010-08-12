@@ -194,7 +194,7 @@ class DataflowOperators(graphOpBase.Base):
                 pass
         else:
             widget = master.get_graph_view()
-            s = widget.scene().get_selected_items( [master.vertexType, master.annotationType] )
+            s = widget.scene().get_selected_items( (master.vertexType, master.annotationType) )
             if(not s): return
 
             #Are we copying in an annotation? Big hack

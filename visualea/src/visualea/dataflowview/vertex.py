@@ -497,8 +497,12 @@ class GraphicalInVertex(GraphicalVertex):
         #fix input or output node position
         midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
         first = True
-        itemGeoms = self.scene().get_items(filterType=GraphicalVertex, subcall= lambda x: x.boundingRect().translated(x.pos()))
-        bounds = reduce(lambda x,y: x|y, itemGeoms)
+        itemGeoms = self.scene().get_items(filterType=qtgraphview.Vertex,
+                                           subcall= lambda x: x.boundingRect().translated(x.pos()))
+        if len(itemGeoms) > 0:
+            bounds = reduce(lambda x,y: x|y, itemGeoms)
+        else:
+            bounds = QtCore.QRectF(0,0,1,1)
         midX = bounds.center().x()
         y = bounds.top() - self.boundingRect().height()*2
         self.store_view_data(position=[midX, y])
@@ -512,8 +516,12 @@ class GraphicalOutVertex(GraphicalVertex):
         #fix input or output node position
         midX, top, bottom, left, right = 0.0, 0.0, 0.0, 0.0, 0.0
         first = True
-        itemGeoms = self.scene().get_items(filterType=GraphicalVertex, subcall= lambda x: x.boundingRect().translated(x.pos()))
-        bounds = reduce(lambda x,y: x|y, itemGeoms)
+        itemGeoms = self.scene().get_items(filterType=qtgraphview.Vertex,
+                                           subcall= lambda x: x.boundingRect().translated(x.pos()))
+        if len(itemGeoms) > 0:
+            bounds = reduce(lambda x,y: x|y, itemGeoms)
+        else:
+            bounds = QtCore.QRectF(0,0,1,1)
         midX = bounds.center().x()
         y = bounds.bottom()
         self.store_view_data(position=[midX, y])
