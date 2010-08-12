@@ -195,6 +195,10 @@ class Package(PackageDict):
         except:
             pass
         try:
+            str += "<b>Authors :</b> %s<br/>\n"%(self.metainfo['authors'], )
+        except:
+            pass
+        try:
             str += "<b>Institutes :</b> %s<br/>\n"%(self.metainfo['institutes'], )
         except:
             pass
@@ -409,6 +413,7 @@ def %s(%s):
                               outputs=outputs,
                               nodemodule=classname,
                               nodeclass=classname,
+                              authors='',
                               search_path = [localdir])
 
         self.add_factory(factory)
