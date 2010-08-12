@@ -10,9 +10,13 @@ pm.init(verbose=False)
 # nodes are run.
 # In order to have the gnuplot interface, run this script with python instead of nosetests 
 
-def test_pylab_nodes():
-    res = run(('openalea.pylab.nodes', 'PyLabRandom'),{},pm=pm)
-    assert len(res[0]) == 100
+def test_pylab_test_acorr():
+    res = run(('openalea.pylab.test', 'acorr'),{},pm=pm)
+    assert res == []
 
-res = test_pylab_nodes()
+
+def test_pylab_test_plot():
+    res = run(('openalea.pylab.test', 'plot'),{},pm=pm)
+    assert res == []
+
 
