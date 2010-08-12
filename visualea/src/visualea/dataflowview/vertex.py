@@ -265,6 +265,8 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
                 self.store_view_data(useUserColor = False)
+            else:
+                self.update_colors()
         elif eventTopKey == "exception_state_changed":
             self.update_colors()
         elif eventTopKey == "hiddenPortChange":
