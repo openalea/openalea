@@ -417,7 +417,7 @@ py_pylab_PyLabFillBetween = Factory(name='PyLabFillBetween',
                )
 
 py_pylab_PyLabErrorBar = Factory(name='PyLabErrorBar',
-                description='pylab.fontproperties interface.',
+                description='pylab.errorbar',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabErrorBar',
@@ -429,7 +429,7 @@ py_pylab_PyLabErrorBar = Factory(name='PyLabErrorBar',
                )
 
 py_pylab_PyLabImshow = Factory(name='PyLabImshow',
-                description='pylab.fontproperties interface.',
+                description='pylab.imshow wralea.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabImshow',

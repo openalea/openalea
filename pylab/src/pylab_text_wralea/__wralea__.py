@@ -51,6 +51,7 @@ __all__ = [
 'py_pylab_PyLabGrid',
 'py_pylab_PyLabMeshGrid',
 'py_pylab_PyLabData1',
+'py_pylab_PyLabOrigin',
 ]
 
 
@@ -412,5 +413,12 @@ py_pylab_PyLabData1 = Factory(name='PyLabData1',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabData1',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+py_pylab_PyLabOrigin = Factory(name='PyLabOrigin',
+                description='enum origni (lower/upper/none) used by imshow ',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabOrigin',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )

@@ -28,8 +28,8 @@ from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
-
-
+from openalea.core.external import add_docstring
+import pylab
 
 #sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
@@ -2065,17 +2065,14 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
 
 
 class PyLabImshow(Plotting):
-    """ .. todo:: tohis documentation
-
-
-    todo: origin=None, extent=None,"""
-
+    @add_docstring(pylab.imshow)
     def __init__(self):
         self.aspect = ['None', 'auto', 'equal']
         self.interpolation = ['None', 'nearest', 'bilinear',
           'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
           'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
           'bessel', 'mitchell', 'sinc', 'lanczos']
+        self.origin = ['None', 'upper', 'lower']
         inputs = [
                     {'name':'image'},
                     {'name':"cmap", 'interface':IEnumStr(cmaps.keys()), 'value':'None'},
@@ -2084,7 +2081,7 @@ class PyLabImshow(Plotting):
                     {'name':"alpha", 'interface':IFloat(0., 1., 0.01), 'value':1},
                     {'name':"vmin", 'interface':IFloat, 'value':None},
                     {'name':"vmax", 'interface':IFloat, 'value':None},
-                    {'name':'kwargs (Artist)','interface':IDict, 'value':{}},
+                    {'name':'kwargs','interface':IDict, 'value':{}},
         ]
         #norm is not implemented: use vmin/vmax instead
         Plotting.__init__(self, inputs)
@@ -2095,14 +2092,9 @@ class PyLabImshow(Plotting):
         self.figure()
         self.axes()
 
-        try:
-            kwds = self.get_input('kwargs (Patch)')
-            del kwds['fill']
-        except:
-            kwds = {}
+        kwds = self.get_input('kwargs')
 
         X = self.get_input('image')
-        print self.get_input('cmap')
         if self.get_input('cmap'):
             kwds['cmap']=get_cmap(self.get_input('cmap'))
         kwds['alpha'] = self.get_input('alpha')
@@ -2112,15 +2104,11 @@ class PyLabImshow(Plotting):
             kwds['interpolation'] = self.get_input('interpolation')
         if self.get_input('aspect')!='None':
             kwds['aspect'] = self.get_input('aspect')
-        print kwds
         c = imshow(X, **kwds)
         self.properties()
         return self.axes_shown
 
     """
-      *origin*: [ None | 'upper' | 'lower' ]
-        Place the [0,0] index of the array in the upper left or lower left
-        corner of the axes. If *None*, default to rc ``image.origin``.
       *extent*: [ None | scalars (left, right, bottom, top) ]
         Data limits for the axes.  The default assigns zero-based row,
         column indices to the *x*, *y* centers of the pixels.

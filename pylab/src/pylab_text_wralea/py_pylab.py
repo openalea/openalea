@@ -130,6 +130,10 @@ colors = {
     'white':'w',
     'None':'None'}
 
+origins = {'lower':'lower',
+    'upper':'upper',
+    'none':'None',
+    }
 
 from pylab import Line2D
 
@@ -1248,4 +1252,14 @@ class PyLabYTicks(Node):
         return res
 
 
+class PyLabOrigin(Node):
 
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='origin', interface=IEnumStr(origins), value=None)
+        self.add_output(name='output', interface=IDict, value={})
+
+    def __call__(self, inputs):
+        kwds = {}
+        kwds['origin'] = self.get_input('origin') 
+        return (kwds ,)
