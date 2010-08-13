@@ -195,7 +195,6 @@ class Plotting(Node):
 
     It also guarantee to have at least 1 output defined within each Plotting nodes.
 
-    .. warning:: show and subplot are obsolet
     :author: Thomas Cokelaer
     """
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
@@ -213,7 +212,7 @@ class Plotting(Node):
 
         self.add_input(name="show",   interface=IBool, value=True)
         self.add_input(name="grid",   interface=IBool, value=True)
-        self.add_input(name="subplot",interface=IInt(1,20,1), value=1)
+        self.add_input(name="subplot",interface=ISequence, value=[1,1])
         self.add_input(name="xlabel", interface=IStr,  value="")
         self.add_input(name="ylabel", interface=IStr,  value = "")
         self.add_input(name="title",  interface=IStr,  value = "")
@@ -386,6 +385,8 @@ class Plotting(Node):
         """
         from pylab import subplot
 
+        input = self.get_input('subplot')
+        print 'subplot', input
         try:
             row = self.get_input('subplot')[0]
             column = self.get_input('subplot')[1]
@@ -398,6 +399,10 @@ class Plotting(Node):
             kwds = {}
         # this is a hack to prevent colorbar to add-on in an axes when called several times
         # calling subplot(2,1,1) or subplot(111) 
+        print row
+        print column
+        print number
+        print kwds
         if self.subplot_call == 1:
             subplot(row, column, number, **kwds)
             self.subplot_call = 2
@@ -2074,7 +2079,7 @@ class PyLabImshow(Plotting):
           'bessel', 'mitchell', 'sinc', 'lanczos']
         self.origin = ['None', 'upper', 'lower']
         inputs = [
-                    {'name':'image'},
+                    {'name':'image', 'interface':ISequence},
                     {'name':"cmap", 'interface':IEnumStr(cmaps.keys()), 'value':'None'},
                     {'name':"interpolation", 'interface':IEnumStr(self.interpolation), 'value':'None'},
                     {'name':"aspect", 'interface':IEnumStr(self.aspect), 'value':'None'},
@@ -2087,7 +2092,7 @@ class PyLabImshow(Plotting):
         Plotting.__init__(self, inputs)
 
     def __call__(self, inputs):
-        from pylab import imshow, cla
+        from pylab import imshow, hold, cla, subplot, show
 
         self.figure()
         self.axes()
@@ -2095,6 +2100,8 @@ class PyLabImshow(Plotting):
         kwds = self.get_input('kwargs')
 
         X = self.get_input('image')
+        if type(X)!=list:
+            X = [X]
         if self.get_input('cmap'):
             kwds['cmap']=get_cmap(self.get_input('cmap'))
         kwds['alpha'] = self.get_input('alpha')
@@ -2104,8 +2111,24 @@ class PyLabImshow(Plotting):
             kwds['interpolation'] = self.get_input('interpolation')
         if self.get_input('aspect')!='None':
             kwds['aspect'] = self.get_input('aspect')
-        c = imshow(X, **kwds)
-        self.properties()
+
+        row = self.get_input('subplot')[0]
+        column = self.get_input('subplot')[1]
+        count = 0
+        assert len(X) == row * column, 'len(X)=%s and row*colum=%s' % (len(X), row*column)
+        hold(True)
+        for r in range(1, row+1):
+            for c in range(1, column+1):
+                count+=1
+                subplot(row,column,count)
+                try:
+                    imshow(X[count-1], **kwds)
+                    hold(True)
+                except:
+                    pass
+        #show()
+                self.properties()
+        hold(False)
         return self.axes_shown
 
     """
