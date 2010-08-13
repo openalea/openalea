@@ -212,7 +212,7 @@ class Plotting(Node):
 
         self.add_input(name="show",   interface=IBool, value=True)
         self.add_input(name="grid",   interface=IBool, value=True)
-        self.add_input(name="subplot",interface=ISequence, value=[1,1])
+        self.add_input(name="subplot",interface=ISequence, value=None)
         self.add_input(name="xlabel", interface=IStr,  value="")
         self.add_input(name="ylabel", interface=IStr,  value = "")
         self.add_input(name="title",  interface=IStr,  value = "")
@@ -2112,10 +2112,17 @@ class PyLabImshow(Plotting):
         if self.get_input('aspect')!='None':
             kwds['aspect'] = self.get_input('aspect')
 
-        row = self.get_input('subplot')[0]
-        column = self.get_input('subplot')[1]
+        try:
+            row = self.get_input('subplot')[0]
+            column = self.get_input('subplot')[1]
+        except:
+            from pylab import ceil, floor, sqrt
+            row, column  = int(ceil(sqrt(len(X)))), int(floor(sqrt(len(X))))
+            if row*column < len(X):
+                row, column  = int(ceil(sqrt(len(X)))), int(ceil(sqrt(len(X))))
+            
         count = 0
-        assert len(X) == row * column, 'len(X)=%s and row*colum=%s' % (len(X), row*column)
+        #assert len(X) == row * column, 'len(X)=%s and row*colum=%s' % (len(X), row*column)
         hold(True)
         for r in range(1, row+1):
             for c in range(1, column+1):
