@@ -70,6 +70,17 @@ size = Factory(name = "size",
 
 __all__.append("size")
 
+max = Factory(name = "max",
+                description = "Return the maximum along an axis",
+                category = "numpy",
+                inputs = (dict(name='array', interface=None),
+                          dict(name='axis', interface=IInt, value=None),),
+                outputs = (dict(name='out', interface= None),),
+                nodemodule = "infos",
+                nodeclass = "wra_max",
+              )
+
+__all__.append("max")
 
 #dtype = Factory(name = "dtype",
 #		description = "Number of elements in the array",
