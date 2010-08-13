@@ -18,11 +18,14 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: $ "
 
 
-def inv(array):
-    from numpy import linalg
-    return (linalg.inv(array))
+#def inv(array):
+#    from numpy import linalg
+#    return (linalg.inv(array))
 
 
-def putmask(array, mask, values):
-    import numpy as np
-    return (np.putmask(array, mask, values))
+#def putmask(array, mask, values):
+#    import numpy as np
+#    return (np.putmask(array, mask, values))
+
+
+

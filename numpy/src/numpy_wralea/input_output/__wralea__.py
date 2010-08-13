@@ -6,6 +6,7 @@
 #    Copyright 2006 - 2010 INRIA - CIRAD - INRA
 #
 #    File author(s): Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+#                    Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #    Distributed under the Cecill-C License.
 #    See accompanying file LICENSE.txt or copy at
@@ -35,24 +36,36 @@ __icon__ = 'icon.png'
 __all__ = []
 
 
-
-save = Factory(name = "save",
-    description = "Save an array to a binary file in NumPy .npy format.",
+loadtxt = Factory(name = "loadtxt",
+    description = "Load data from a text file.",
     category = "numpy",
-    inputs = (dict(name='filename', interface=IStr), dict(name='array', interface=ISequence)),
-    nodeclass = "save",
+    inputs = (dict(name='filename', interface= IFileStr),),
+    outputs = (dict(name='array', interface= ISequence),), 
+    nodemodule = "numpy",
+    nodeclass = "loadtxt",
 )
-__all__.append("save")
+__all__.append("loadtxt")
 
 
-mmap = [None, 'r+', 'r', 'w+', 'c']
-load = Factory(name = "load",
-    description = "Load a pickled, .npy, or .npz binary file.",
-    category = "numpy",
-    inputs = (dict(name='filename', interface=IStr), dict(name='mmap_mode', interface=IEnumStr(mmap))),
-    outputs = (dict(name='array', interface= ISequence),), nodemodule = "numpy",
-    nodeclass = "load",
-)
+#save = Factory(name = "save",
+#    description = "Save an array to a binary file in NumPy .npy format.",
+#    category = "numpy",
+#    inputs = (dict(name='filename', interface=IFileStr), dict(name='array', interface=ISequence)),
+#    nodeclass = "save",
+#)
+#__all__.append("save")
+
+
+mmap = ['r+', 'r', 'w+', 'c']
+load = Factory( name = "load",
+                description = "Load a pickled, .npy, or .npz binary file.",
+                category = "numpy",
+                inputs = (  dict(name='filename', interface= IFileStr), 
+                            dict(name='mmap_mode', interface= IEnumStr(mmap))),
+                outputs = (dict(name='array', interface= None),), 
+                nodemodule = "numpy",
+                nodeclass = "load",
+                )
 __all__.append("load")
 
 #this one needs a little bit of work to have dynamic number args 

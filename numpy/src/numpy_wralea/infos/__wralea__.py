@@ -50,8 +50,8 @@ __all__.append("ndim")
 shape = Factory(name = "shape",
                 description = "Tuple of array dimensions",
                 category = "numpy",
-                inputs = (dict(name='array', interface=ISequence),),
-                outputs = (dict(name='shape', interface= ITuple3),),
+                inputs = (dict(name='array', interface=None),),
+                outputs = (dict(name='shape', interface= ITuple),),
                 nodemodule = "numpy",
                 nodeclass = "shape",
                )
