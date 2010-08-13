@@ -21,9 +21,8 @@ __revision__ = " $Id: $ "
 from openalea.core import Factory
 from openalea.core.interface import *
 
-
 __name__ = "openalea.numpy.creation"
-__alias__ = ["numpy.creation"]
+__alias__ = []
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -60,16 +59,15 @@ array = Factory(name= "array",
 
 __all__.append("array")
 
-
 zeros = Factory(name= "zeros",
            	description= "Return a new array of given shape and type, filled with zeros",
            	category = "numpy",
-		inputs = ( dict(name='shape', interface=ISequence),
+		inputs = ( dict(name='shape', interface=ITuple),
      		   dict(name='dtype', interface=IEnumStr(list_type),
                     		value='float64'),
 			dict(name='order', interface=IEnumStr(['C', 'F']),
 				value='C'),),
-     	outputs = (dict(name='array', interface=ISequence),),
+     	outputs = (dict(name='array', interface=None),),
            	nodemodule = "numpy",
            	nodeclass = "zeros",
             )
