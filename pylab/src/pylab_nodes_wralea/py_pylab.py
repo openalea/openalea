@@ -212,7 +212,7 @@ class Plotting(Node):
 
         self.add_input(name="show",   interface=IBool, value=True)
         self.add_input(name="grid",   interface=IBool, value=True)
-        self.add_input(name="subplot",interface=ISequence, value=None)
+        self.add_input(name="subplot",interface=ISequence, value=[])
         self.add_input(name="xlabel", interface=IStr,  value="")
         self.add_input(name="ylabel", interface=IStr,  value = "")
         self.add_input(name="title",  interface=IStr,  value = "")
@@ -925,10 +925,7 @@ class PyLabRandom(Node):
         M = self.get_input("max")
         n = self.get_input("length")
 
-        if m and M:
-            res = m + (M-m)* random(n)
-        else:
-            res = random(n)
+        res = m + (M-m)* random(n)
 
         return(res,)
 
@@ -2079,7 +2076,7 @@ class PyLabImshow(Plotting):
           'bessel', 'mitchell', 'sinc', 'lanczos']
         self.origin = ['None', 'upper', 'lower']
         inputs = [
-                    {'name':'image', 'interface':ISequence},
+                    {'name':'image', 'interface':None},
                     {'name':"cmap", 'interface':IEnumStr(cmaps.keys()), 'value':'None'},
                     {'name':"interpolation", 'interface':IEnumStr(self.interpolation), 'value':'None'},
                     {'name':"aspect", 'interface':IEnumStr(self.aspect), 'value':'None'},
