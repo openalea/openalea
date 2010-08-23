@@ -54,6 +54,7 @@ stdlib
 sconsx
 misc
 pkg_builder
+image
 openalea_meta
 """.split()
 
