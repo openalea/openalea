@@ -17,7 +17,6 @@
 
 from PyQt4 import QtGui, QtCore
 
-
 def rst2alea(text=""):
     """Convert docstring into HTML (assuming docstring is in reST format)
 
@@ -42,7 +41,7 @@ def rst2alea(text=""):
         return newtext
     try:
         from docutils import core
-        import docutils.core
+        import docutils.core2
         import docutils.parsers.rst
         from openalea.misc.sphinx_configuration import extensions
         #for ext in extensions:
@@ -54,7 +53,7 @@ def rst2alea(text=""):
         res = core.publish_parts(text, writer=w)['html_body']
         return cleanup(res)
     except:
-        res = '<i>For a better rendering, install docutils or sphinx !</i><br/>'
+        res = ''
         if text is not None:
             res += text
         for name in [':Parameters:', ':Returns:', ':Keywords:', ':Author:', ':Authors:']:
