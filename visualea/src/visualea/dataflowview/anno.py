@@ -52,9 +52,6 @@ class AnnotationTextToolbar(AleaQGraphicsToolbar):
 ##################
 # The Annotation #
 ##################
-
-
-
 class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     """ Text annotation on the data flow """
 
@@ -69,11 +66,11 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
+        self.__visualStyle = 0
 
     annotation = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
-
         rectP2 = self.get_view_data("rectP2")
         rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
         qtutils.MemoRects.setRect(self,rect)
@@ -91,6 +88,12 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
         if color:
             color = QtGui.QColor(*color)
             self.setColor(color)
+
+        vStyle = self.get_view_data("visualStyle")
+        if vStyle is None and not rect.isValid():
+            vStyle = 0 #simple
+        self.__visualStyle = vStyle
+        self.__update_paint_style()
 
         qtgraphview.Vertex.initialise_from_model(self)
 
@@ -121,7 +124,9 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
     def setRect(self, rect):
         self.deaf(True)
-        p2 = rect.width(), rect.height()
+        p2 = -1, -1
+        if not self.__visualStyle == 0 : #box
+            p2 = rect.width(), rect.height()
         self.store_view_data(rectP2=p2)
         qtutils.MemoRects.setRect(self, rect)
         self.deaf(False)
@@ -148,6 +153,11 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
                     if col:
                         color = QtGui.QColor(*col)
                         self.setColor(color)
+                elif key == "visualStyle":
+                    vStyle = event[2]
+                    if vStyle is None: vStyle = 0
+                    self.__visualStyle = vStyle
+                    self.__update_paint_style()
         qtgraphview.Vertex.notify(self, sender, event)
 
     def set_text(self, text):
@@ -161,3 +171,36 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
     def get_view_data(self, key):
         return self.vertex().get_ad_hoc_dict().get_metadata(key)
+
+    def contextMenuEvent(self, event):
+        operator = GraphOperator()
+        operator.identify_focused_graph_view()
+        widget = operator.get_graph_view()
+        operator.set_annotation_item(self)
+
+        menu = qtutils.AleaQMenu(widget)
+        styleMenu = menu.addMenu("Style...")
+        styleMenu.addAction(operator("Simple", styleMenu,
+                                     "annotation_change_style_simple"))
+        styleMenu.addAction(operator("Box", styleMenu,
+                                     "annotation_change_style_box"))
+        #display the menu...
+        menu.move(event.screenPos())
+        menu.show()
+        event.accept()
+
+    def __paint_box_style(self, painter, options, widget):
+        qtutils.MemoRects.paint(self, painter, options, widget)
+
+    def __paint_simple_style(self, painter, options, widget):
+        return
+
+    def __update_paint_style(self):
+        if self.__visualStyle == 0: #simple
+            self.paint = self.__paint_simple_style
+            textRect = self.__textItem.boundingRect()
+            self.setRect(textRect)
+            self.setHeaderRect(textRect)
+        elif self.__visualStyle == 1: #box
+            self.paint = self.__paint_box_style
+        self.update()

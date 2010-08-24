@@ -37,10 +37,6 @@ import openalea.grapheditor.base
 
 
 class DataflowView( qt.View ):
-    # This class is in an intermediate state
-    # between using GraphEditor's qtgraphview.View extensibility
-    # and simple subclassing. I'm doing this because I don't
-    # like big migrations. -- DB
 
     def __init__(self, parent):
         qt.View.__init__(self, parent)
@@ -53,8 +49,6 @@ class DataflowView( qt.View ):
         self.__annoNotAdded = True
         self.__annoToolBar = anno.AnnotationTextToolbar(None)
         self.__annoToolBar.setSleepOnDisappear(True)
-
-
 
     ####################################################
     # Handling the drag and drop events over the graph #
@@ -188,7 +182,9 @@ class DataflowView( qt.View ):
                 self.scene().addItem(self.__annoToolBar)
                 self.__annoNotAdded = False
             self.__annoToolBar.wakeup()
-            self.__annoToolBar.setPos(firstAnno.sceneBoundingRect().topRight())
+            pos = firstAnno.sceneBoundingRect().topLeft()
+            pos.setY(pos.y() - self.__annoToolBar.rect().height()/self.matrix().m22())
+            self.__annoToolBar.setPos(pos)
             self.__annoToolBar.set_annotation(firstAnno)
             self.__annoToolBar.appear()
         else:

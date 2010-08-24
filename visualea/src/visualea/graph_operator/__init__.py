@@ -23,7 +23,7 @@ from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
 
 def do_imports():
-    import dataflow, layout, color, vertex, port
+    import dataflow, layout, color, vertex, port, anno
 
 class GraphOperator(Observed):
 
@@ -37,7 +37,7 @@ class GraphOperator(Observed):
         do_imports()
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
                        color.ColorOperators(self), vertex.VertexOperators(self),
-                       port.PortOperators(self)]
+                       port.PortOperators(self), anno.AnnotationOperators(self) ]
 
         self.__availableNames = {}
 
@@ -51,6 +51,7 @@ class GraphOperator(Observed):
         self.__interpreter  = None
         self.__pkgmanager   = None
         self.vertexItem     = None
+        self.annotationItem = None
         self.portItem       = None
 
         if(graphView):
@@ -122,6 +123,9 @@ class GraphOperator(Observed):
 
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
+
+    def set_annotation_item(self, annotationItem):
+        self.annotationItem = weakref.ref(annotationItem)
 
     def set_port_item(self, portitem):
         self.portItem = weakref.ref(portitem)
