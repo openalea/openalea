@@ -90,7 +90,7 @@ class AleaSignal(object):
             c(*args)
 
 ###############################################
-# A QGraphicsWidget that looks like a post it #
+# A QGraphicsWidget that looks like a post-it #
 ###############################################
 class MemoRects(QtGui.QGraphicsRectItem):
     __handleSize    = 7.5
@@ -102,7 +102,6 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.__handlePoly = QtGui.QPolygonF([QtCore.QPointF(0, -self.__handleSize),
                                              QtCore.QPointF(0, 0),
                                              QtCore.QPointF(-self.__handleSize,0)])
-        self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
         # -- handle --
         self.__handlePos  = QtCore.QPointF(0,0)
@@ -134,7 +133,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
 
     def setHeaderRect(self, rect):
         myRect = self.boundingRect()
-        self.__headerContentRect = rect.adjusted(0,0,0,0)
+        self.__headerContentRect = rect.adjusted(0,0,0,0)#copy
 
         rect.setX(0); rect.setY(0)
         myRect.setX(0); myRect.setY(0)

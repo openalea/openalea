@@ -31,7 +31,6 @@ from openalea.visualea import images_rc
 """
 """
 
-
 class EvalObserver( observer.AbstractListener ):
     def __init__(self, callback):
         observer.AbstractListener.__init__(self)
