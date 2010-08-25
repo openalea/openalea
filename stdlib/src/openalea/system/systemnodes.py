@@ -20,7 +20,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from openalea.core import *
-        
+from tempfile import TemporaryFile
 
 def system_cmd(str_list):
     """ Execute a system command
@@ -31,3 +31,23 @@ def system_cmd(str_list):
     import subprocess
 
     return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
+
+def shell_command(cmd, directory):
+    """ Execute a command in a shell
+    cmd : the command as a string
+    dir : the directory where the cmd is executed
+    Output : status
+    """
+    from subprocess import Popen,STDOUT, PIPE
+
+    
+    output_stream = TemporaryFile(mode='r+w+b')
+    p = Popen(cmd, shell=True, cwd=directory,
+        stdin=PIPE, stdout=output_stream, stderr=STDOUT)
+    status = p.wait()
+
+    output_stream.seek(0)
+    s= output_stream.read()
+    output_stream.close()
+    return status,s
+

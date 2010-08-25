@@ -55,6 +55,23 @@ cmd = Factory(name="command",
 
 __all__.append('cmd')
 
+shcmd = Factory(name="shell command", 
+             description="Call a shell command in a specific directory", 
+             category="misc,Python", 
+             nodemodule="systemnodes",
+             nodeclass="shell_command",
+             inputs = (dict(name="command", interface=IStr, 
+                            desc='The command line to execute in a shell'),  
+                       dict(name='cwd', interface=IDirStr, desc='The working directory where the command wille be executed.') 
+                       ),
+             outputs = ( dict(name="status", desc='status'), 
+                        dict(name="output", interface=ITextStr, desc='output stream of the command'),),
+                     )
+
+
+
+__all__.append('shcmd')
+
 
 vprint = Factory(name="vprint", 
              description="Visual Print", 
