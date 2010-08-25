@@ -17,6 +17,8 @@
 
 from PyQt4 import QtGui, QtCore
 
+#from openalea.visualea import lightsphinx
+
 def rst2alea(text=""):
     """Convert docstring into HTML (assuming docstring is in reST format)
 
@@ -31,6 +33,10 @@ def rst2alea(text=""):
 
     .. todo:: implement conversion with Sphinx to have all SPhinx's directives interpreted.
     """
+
+    # res = lightsphinx.aFunction(text)
+    # return res
+
     def cleanup(text):
         newtext = ''
         for line in text.splitlines():
@@ -47,7 +53,6 @@ def rst2alea(text=""):
         #for ext in extensions:
         #    docutils.parsers.rst.directives.register_directive('TestDirective', ext)
 
-
         from docutils.writers.html4css1 import Writer
         w = Writer()
         res = core.publish_parts(text, writer=w)['html_body']
@@ -61,8 +66,6 @@ def rst2alea(text=""):
         res = res.replace('\n','<br />')
         return cleanup(res)
 
-
-
 class HelpWidget( QtGui.QTextBrowser ):
 
     def __init__(self, parent=None):
@@ -73,7 +76,6 @@ class HelpWidget( QtGui.QTextBrowser ):
 
     def set_rst(self, txt):
         if self.css:
-            print "I have a css!"
             self.document().setDefaultStyleSheet(self.css)
         txt = rst2alea(txt)
         self.setHtml(txt)
