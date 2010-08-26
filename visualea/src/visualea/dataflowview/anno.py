@@ -24,9 +24,6 @@ from openalea.grapheditor.qtutils import *
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import images_rc
 
-
-
-
 ###############
 # The toolbar #
 ###############
@@ -72,7 +69,10 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
     def initialise_from_model(self):
         rectP2 = self.get_view_data("rectP2")
-        rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
+        if rectP2 is not None:
+            rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
+        else:
+            rect = QtCore.QRectF()
         qtutils.MemoRects.setRect(self,rect)
 
         self.setHeaderRect(self.__textItem.boundingRect())
@@ -137,26 +137,30 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     def notify(self, sender, event):
         if event:
             if event[0] == "metadata_changed":
-                key = event[1]
+                key   = event[1]
+                value = event[2]
+                if value is None:
+                    return
+                # -- value is a string --
                 if key == "text":
-                    self.set_text(event[2])
+                    self.set_text(value)
+                # -- value is a color tuple --
                 elif key == "textColor":
-                    col = event[2]
-                    if col:
-                        self.__textItem.setDefaultTextColor(QtGui.QColor(*col))
+                    if value:
+                        self.__textItem.setDefaultTextColor(QtGui.QColor(*value))
+                elif key == "color":
+                    if value:
+                        color = QtGui.QColor(*value)
+                        self.setColor(color)
+                # -- value is a position tuple --
                 elif key == "rectP2":
-                    rect = QtCore.QRectF(0,0,event[2][0],event[2][1])
+                    rect = QtCore.QRectF(0,0,value[0],value[1])
                     qtutils.MemoRects.setRect(self,rect)
                     self.setHeaderRect(self.__textItem.boundingRect())
-                elif key == "color":
-                    col = event[2]
-                    if col:
-                        color = QtGui.QColor(*col)
-                        self.setColor(color)
+                # -- value is an int in [0, 1] --
                 elif key == "visualStyle":
-                    vStyle = event[2]
-                    if vStyle is None: vStyle = 0
-                    self.__visualStyle = vStyle
+                    if value is None: value = 0
+                    self.__visualStyle = value
                     self.__update_paint_style()
         qtgraphview.Vertex.notify(self, sender, event)
 

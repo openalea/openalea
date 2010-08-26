@@ -53,7 +53,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     default_bottom_color             = QtGui.QColor(100, 100, 255, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
     default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
-    default_lazy_color               = QtGui.QColor(255, 132, 148, 255) #ugly pink
+    default_unlazy_color               = QtGui.QColor(69, 184, 12, 255)
 
     #gradient stops
     startPos = 0.0
@@ -195,8 +195,8 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.__topColor    = self.default_error_color
                 self.__bottomColor = self.__topColor.darker()
                 self.__penColor    = self.default_pen_error_color
-            elif self.vertex().lazy:
-                self.__topColor = self.default_lazy_color
+            elif not self.vertex().lazy:
+                self.__topColor = self.default_unlazy_color
                 self.__bottomColor = self.__topColor.darker()
             elif self.vertex().user_application:
                 self.__topColor = self.default_user_application_color
