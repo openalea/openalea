@@ -45,9 +45,9 @@ from os.path import join as pj
 from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
 
-#from openalea.grapheditor import qtgraphview
 from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
+import traceback
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
@@ -497,6 +497,7 @@ class MainWindow(QtGui.QMainWindow,
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e
+            traceback.print_exc()
             return
         #/gengraph
 
