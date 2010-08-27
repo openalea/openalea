@@ -2,8 +2,9 @@
 
 
 .. testsetup::
-    
+
     import openalea.lpy as lpy
+    from openalea.lpy import AxialTree
     from PyQt4.QtCore import *
     from PyQt4.QtGui import *
     import time
@@ -30,6 +31,7 @@ First, import some modules
 .. code-block:: python
 
     import openalea.lpy as lpy
+    from openalea.lpy import AxialTree
     from PyQt4.QtCore import *
     from PyQt4.QtGui import *
     import time
@@ -41,7 +43,7 @@ and then, read the lsystem:
 
 .. doctest::
 
-    >>> l = lpy.Lsystem('example.lpy')
+    >>> l = lpy.Lsystem('source/tutorials/example.lpy')
 
 execute it:
 
@@ -65,8 +67,8 @@ that you can save into a PNG file as follows:
 .. image:: output.png
     :width: 50%
     :align: center
-    
-    
+
+
 
 Extract information from the lsystem
 =====================================
