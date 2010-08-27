@@ -54,6 +54,7 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
     __def_string__ = u"click to edit"
 
+
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
         qtutils.MemoRects.__init__(self, QtCore.QRectF())
@@ -89,13 +90,16 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
             color = QtGui.QColor(*color)
             self.setColor(color)
 
-        # if an annotation has already a rectP2 field but no visualStyle, it should use the new box style and 
-        # we should store the visualStyle in the wralea (see store_view_data here below)
+        # if an annotation has already a rectP2 field but no visualStyle,
+        # it should use the new box style and
+        # we should store the visualStyle in
+        # the wralea (see store_view_data here below)
         vStyle = self.get_view_data("visualStyle")
-        if not rect.isValid():
-            vStyle = 0 #simple
-        else:
-            vStyle = 1 #box
+        if vStyle is None:
+            if rect.isValid():
+                vStyle = 1 #box
+            else:
+                vStyle = 0 #simple
         self.store_view_data(visualStyle = vStyle)
 
 
