@@ -280,6 +280,11 @@ def initialise_graph_view_from_model(graphView, graphModel):
         edgedata = "default", eid, src_port, dst_port
         graphView.notify(graphModel, ("edge_added", edgedata))
 
+    #make the sceneRect a tad bigger
+    sceneRect = graphView.sceneRect()
+    sceneRect.adjust(-50, -50, 50, 50)
+    graphView.setSceneRect( sceneRect )
+
 
 GraphicalGraph = openalea.grapheditor.qt.QtGraphStrategyMaker( graphView            = DataflowView,
                                                                vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
