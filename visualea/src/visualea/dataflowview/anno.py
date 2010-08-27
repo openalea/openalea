@@ -72,7 +72,7 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
         if rectP2 is not None:
             rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
         else:
-            rect = QtCore.QRectF()
+            rect = QtCore.QRectF(0,0,-1,-1)
         qtutils.MemoRects.setRect(self,rect)
 
         self.setHeaderRect(self.__textItem.boundingRect())
@@ -89,9 +89,16 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
             color = QtGui.QColor(*color)
             self.setColor(color)
 
+        # if an annotation has already a rectP2 field but no visualStyle, it should use the new box style and 
+        # we should store the visualStyle in the wralea (see store_view_data here below)
         vStyle = self.get_view_data("visualStyle")
-        if vStyle is None and not rect.isValid():
+        if not rect.isValid():
             vStyle = 0 #simple
+        else:
+            vStyle = 1 #box
+        self.store_view_data(visualStyle = vStyle)
+
+
         self.__visualStyle = vStyle
         self.__update_paint_style()
 
