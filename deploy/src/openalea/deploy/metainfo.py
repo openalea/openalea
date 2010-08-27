@@ -63,27 +63,3 @@ def read_metainfo(filename, section='metainfo', verbose=False):
 
     return metadata
 
-
-def get_metadata(module):
-    """
-
-    >>> import openalea.sta_tool as sa
-    >>> d = metainfo.get_metadata(sa)
-    >>> d.name
-    'VPlants.Stat-Tool'
-
-    """
-    try:
-        import pkginfo
-    except:
-        import warning
-        warning.warn("Missing pkginfo package. You should install it. Using hack version instead.")
-        import openalea.deploy.pkginfo as pkginfo
-        raise ImportError
-    import os
-    try:
-        metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..'))
-    except:
-        metadata = pkginfo.get_metadata(os.path.join(module.__path__[0], '..','..'))
-
-    return metadata

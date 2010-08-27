@@ -280,4 +280,21 @@ def is_virtual_env():
     import site
     return hasattr(site, "virtual_addsitepackages")
 
-    
+   
+
+
+def get_metadata(name):
+    """return metadata of an egg
+
+    :param name: string of a valid namespace
+
+    return generator containing PKGINFO
+
+    >>> dist = get_metadata('openalea.core')
+    >>> list(dist)
+    :author: Thomas Cokelaer
+    """
+    import pkg_resources
+    dist = pkg_resources.get_distribution(name)
+    return dist._get_metadata('PKG-INFO')
+ 
