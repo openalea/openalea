@@ -70,7 +70,7 @@ def initialise_standard_metadata():
     Annotation.extend_ad_hoc_slots("textColor", list, None)
     Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
     Annotation.extend_ad_hoc_slots("color", list, None)
-    Annotation.extend_ad_hoc_slots("visualStyle", int, 0)
+    Annotation.extend_ad_hoc_slots("visualStyle", int, None)
     #we declare what are the node model ad hoc data we require:
     AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
     AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
