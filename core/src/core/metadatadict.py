@@ -61,8 +61,10 @@ class MetaDataDict(observer.Observed):
 
     def update(self, other):
         assert isinstance(other, self.__class__)
-        self._metaValues = other._metaValues.copy()
-        self._metaTypes = other._metaTypes.copy()
+        # self._metaValues = other._metaValues.copy()
+        # self._metaTypes = other._metaTypes.copy()
+        self._metaValues.update(other._metaValues.copy())
+        self._metaTypes.update(other._metaTypes.copy())
 
     def set_slots(self, slots, useSlotDefaults=True):
         for name, value in slots.iteritems():

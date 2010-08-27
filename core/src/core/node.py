@@ -58,6 +58,7 @@ def gen_port_list(size):
         mylist.append(dict(name='t'+str(i), interface=None, value=i))
     return mylist
 
+
 def initialise_standard_metadata():
     """Declares the standard keys used by the Node structures. Called at the end of this file"""
     #we declare what are the node model ad hoc data we require:
@@ -69,11 +70,10 @@ def initialise_standard_metadata():
     Annotation.extend_ad_hoc_slots("textColor", list, None)
     Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
     Annotation.extend_ad_hoc_slots("color", list, None)
-    Annotation.extend_ad_hoc_slots("visualStyle", int, None)
+    Annotation.extend_ad_hoc_slots("visualStyle", int, 0)
     #we declare what are the node model ad hoc data we require:
     AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
     AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
-
 
 
 ########################
@@ -103,13 +103,16 @@ class HasAdHoc(AbstractListener):
 
     def __init__(self):
         AbstractListener.__init__(self)
-        self.set_ad_hoc_dict(MetaDataDict())
+        self.__ad_hoc_dict = MetaDataDict(slots=self.__ad_hoc_slots__)
+        self.initialise(self.__ad_hoc_dict)
+#        self.set_ad_hoc_dict(, False)
 
     def notify(self, sender, event):
         if(sender == self.__ad_hoc_dict):
             self.notify_listeners(event)
 
     def set_ad_hoc_dict(self, d, useSlotDefault=True):
+        print "call to set_ad_hoc_dict hijacked"; return
         self.__ad_hoc_dict = d
         if hasattr(self, "__ad_hoc_slots__"):
             d.set_slots(self.__ad_hoc_slots__, useSlotDefault)
@@ -192,15 +195,6 @@ class AbstractNode(Observed, HasAdHoc):
         self.notify_listeners(("exception_state_changed", val))
 
     raise_exception = property(get_raise_exception, set_raise_exception)
-
-class Annotation(AbstractNode):
-    def __init__(self):
-        AbstractNode.__init__(self)
-
-    def to_script (self):
-        """Script translation of this node.
-        """
-        return ""
 
 class AbstractPort(dict, Observed, HasAdHoc):
     """
@@ -296,6 +290,14 @@ class OutputPort(AbstractPort):
         AbstractPort.__init__(self, node)
 
 
+class Annotation(AbstractNode):
+    def __init__(self):
+        AbstractNode.__init__(self)
+
+    def to_script (self):
+        """Script translation of this node.
+        """
+        return ""
 
 class Node(AbstractNode):
     """
@@ -965,13 +967,13 @@ class AbstractFactory(Observed):
         return authors
 
     def get_tip(self, asRst=False):
-        """ Return the node description 
+        """ Return the node description
 
         if no authors is found within the node, then it takes the authors field
         found in its package.
         """
 
-        
+
         if not asRst:
             return "<b>Name:</b> %s<br/>" % (self.name, ) + \
                    "<b>Category:</b> %s<br/>" % (self.category, ) + \

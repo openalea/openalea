@@ -33,7 +33,7 @@ from openalea.core.pkgmanager import PackageManager, UnknownPackageError
 from openalea.core.package import UnknownNodeError
 from openalea.core.dataflow import DataFlow, InvalidEdge
 from openalea.core.settings import Settings
-import metadatadict
+from openalea.core.metadatadict import MetaDataDict
 
 
 class IncompatibleNodeError(Exception):
@@ -244,7 +244,8 @@ class CompositeNodeFactory(AbstractFactory):
                 port, v = vs[:2]
                 node.set_input(port, eval(v))
                 if(len(vs)>2):
-                    node.input_desc[port].set_ad_hoc_dict(vs[2])
+                    d = MetaDataDict(vs[2])
+                    node.input_desc[port].get_ad_hoc_dict().update(d)
             except:
                 continue
 
@@ -303,8 +304,8 @@ class CompositeNodeFactory(AbstractFactory):
     def load_ad_hoc_data(self, node, elt_data, elt_ad_hoc=None):
         if elt_ad_hoc and len(elt_ad_hoc):
             #reading 0.8+ files.
-            d = metadatadict.MetaDataDict(dict=elt_ad_hoc)
-            node.set_ad_hoc_dict(d, useSlotDefault=False)
+            d = MetaDataDict(dict=elt_ad_hoc)
+            node.get_ad_hoc_dict().update(d)
         else:
             #extracting ad hoc data from old files.
             #we parse the Node class' __ad_hoc_from_old_map__
@@ -319,7 +320,7 @@ class CompositeNodeFactory(AbstractFactory):
                     for key in oldKeys:
                         data.append(elt_data.pop(key, None))
                     if len(data) == 1 : data = data[0]
-                    if data is None or (isinstance(data, list) and None in data):
+                    if data is None or (isinstance(data, list) and None in data): #?
                         data = default
                     if data is None : continue
                     node.get_ad_hoc_dict().set_metadata(newKey, _type(data))
