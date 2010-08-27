@@ -197,7 +197,7 @@ class PoolReader(Node):
         key = inputs[0]
         obj = self.pool.get(key)
         if key in self.pool:
-            self.set_caption("pool [%s]"%(repr(key), ))
+            self.set_caption("%s"%(key, ))
         return (obj, )
 
 
@@ -216,10 +216,38 @@ class PoolWriter(Node):
 
         key = inputs[0]
         obj = inputs[1]
-        self.set_caption("set pool[%s]"%(key))
+        self.set_caption("%s = %s"%(key, obj))
         self.pool[key] = obj
         return (obj, )
 
+class PoolDefault(Node):
+    """
+    In : Name (key), Default Value
+    Out : Object (value)
+    """
+
+    def __init__(self, inputs, outputs):
+
+        Node.__init__(self, inputs, outputs)
+        self.pool = DataPool()
+
+    def reset(self):
+        if hasattr(self,'key'):
+            del self.pool[self.key]
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        key = inputs[0]
+        default_value = inputs[1]
+        self.default = default_value
+        self.key = key
+        obj = self.pool.setdefault(key, default_value)
+        if key in self.pool:
+            self.set_caption("%s"%(key,))
+        else:
+            self.set_caption("%s = %s"%(key,default_value))
+        return (obj, )
 
 class InitNode(Node):
     """
@@ -423,6 +451,22 @@ class WhileMultiVar(Node):
 
         return values
 
+def while_multi2(values, test, function):
+        cpt = 0
+        while(test(*values)):
+            newvals = function(*values)
+
+            # Test for infinite loop
+            if(values == newvals):
+                cpt +=1
+                if(cpt > 1000):
+                    raise RuntimeError("Infinite Loop")
+            else:
+                values = newvals
+
+            print values
+
+        return values
 
 def system_cmd(str_list):
     """ Execute a system command
@@ -433,6 +477,19 @@ def system_cmd(str_list):
     import subprocess
 
     return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
+
+def shell_command(cmd, directory):
+    """ Execute a command in a shell
+    cmd : the command as a string
+    dir : the directory where the cmd is executed
+    Output : status
+    """
+    from subprocess import Popen,STDOUT, PIPE
+
+    p = Popen(cmd, shell=True, cwd=directory,
+        stdin=PIPE, stdout=STDOUT, stderr=STDOUT)
+    status = p.wait()
+    return status,
 
 class For(Node):
     """ While Loop Univariate
