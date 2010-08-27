@@ -41,7 +41,7 @@ def shell_command(cmd, directory):
     from subprocess import Popen,STDOUT, PIPE
 
     
-    output_stream = TemporaryFile(mode='r+w+b')
+    output_stream = TemporaryFile()
     p = Popen(cmd, shell=True, cwd=directory,
         stdin=PIPE, stdout=output_stream, stderr=STDOUT)
     status = p.wait()
