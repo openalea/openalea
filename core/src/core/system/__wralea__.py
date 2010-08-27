@@ -136,6 +136,18 @@ poolwriter = Factory(name="pool writer",
 
 __all__.append('poolwriter')
 
+pool_rw = Factory(name="pool setdefault",
+             description="pool.setdefault(key,value).",
+             category="flow control",
+             nodemodule="systemnodes",
+             nodeclass="PoolDefault",
+             inputs = (dict(name='Key', interface=IStr),
+                       dict(name='Value', interface=None),),
+             outputs = (dict(name='Obj', interface=None),),
+             lazy = False,
+             )
+
+__all__.append('pool_rw')
 
 
 #     nf = Factory(name="list accumulator", 
@@ -226,6 +238,20 @@ whilemulti = Factory(name="while multivariate",
 
 __all__.append('whilemulti')
 
+whilemulti2 = Factory(name="while multivariate2", 
+             description="While Loop (Multivariate)", 
+             category="flow control", 
+             nodemodule="systemnodes",
+             nodeclass="while_multi2",
+             inputs = (dict(name="InitValues", interface=ISequence, value=[]),  
+                       dict(name="Test", interface=IFunction, value=None),  
+                       dict(name="Functions", interface=IFunction, value=None),  
+                       ),
+             outputs = ( dict(name="Results", interface=ISequence), ),
+             )
+
+
+__all__.append('whilemulti2')
 
 cmd = Factory(name=protected("command"), 
              description="Call a system command", 

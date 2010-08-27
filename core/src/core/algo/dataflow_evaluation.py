@@ -225,14 +225,14 @@ class PriorityEvaluation(BrutEvaluation):
         if (vtx_id is not None):
             return self.eval_vertex(vtx_id, *args)
 
-        # Select the leafs (list of (vid, actor))
-        leafs = [(vid, df.actor(vid))
+        # Select the leaves (list of (vid, actor))
+        leaves = [(vid, df.actor(vid))
               for vid in df.vertices() if df.nb_out_edges(vid)==0]
 
-        leafs.sort(cmp_priority)
+        leaves.sort(cmp_priority)
 
         # Excecute
-        for vid, actor in leafs:
+        for vid, actor in leaves:
             self.eval_vertex(vid, *args)
 
 
