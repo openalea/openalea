@@ -151,7 +151,6 @@ def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
         del kwds['marker']
         del kwds['markersize']
         del kwds['markeredgewidth']
-        del kwds['markersize']
         del kwds['fillstyle']
         del kwds['markeredgecolor']
 
@@ -489,6 +488,8 @@ class PlotxyInterface(Colors, LineStyles, Markers):
             from pylab import step as plot
         elif plottype=='fill':
             from pylab import fill as plot
+        elif plottype=='hist':
+            from pylab import hist as plot
 
         xinputs = self.get_input("x")
         yinputs = self.get_input("y")
@@ -1082,7 +1083,7 @@ class PyLabLine2D(Node, Colors, LineStyles, Markers):
         xdata=self.get_input('xdata')
         ydata=self.get_input('ydata')
         #why?
-        if len(ydata)==0:
+        if ydata == None or len(ydata)==0:
             ydata = xdata
             xdata = range(0, len(ydata))
         output = Line2D(
@@ -1278,7 +1279,7 @@ class PyLabCohere(Plotting, Detrends):
 
 
     def __call__(self, inputs):
-        from pylab import cohere, cla, detrend_none, detrend_linear, detrend_mean, hold
+        from pylab import cohere, cla, detrend_none, detrend_linear, detrend_mean, hold, Line2D
         import pylab
         cla()
         self.figure()
@@ -1903,23 +1904,31 @@ class PyLabQuiver(Plotting, Colors):
         V = self.get_input('V')
         C = self.get_input('C')
         kwds = {}
+
         for key in ['units', 'angles', 'scale', 'width', 'headwidth', 'headlength', 'headaxislength', 'minshaft', 'minlength']:
             kwds[key]=self.get_input(key)
         if self.get_input('color')!='None':
             kwds['color']=self.colors[self.get_input('color')]
         for key, value in self.get_input('polycollection').iteritems():
             kwds[key]=value
-        
+
         if X is None and Y is None and C is None and U is not None and V is not None:
             c = quiver(U, V, **kwds)
-        if X is None and Y is None and C is not None and U is not None and V is not None:
+        elif X is None and Y is None and C is not None and U is not None and V is not None:
             c = quiver(U, V, C, **kwds)
-        if X is not None and Y is not None and C is None and U is not None and V is not None:
+        elif X is not None and Y is not None and C is None and U is not None and V is not None:
             c = quiver(X, Y, U, V, **kwds)
-        if X is not None and Y is not None and C is not None and U is not None and V is not None:
+        elif X is not None and Y is not None and C is not None and U is not None and V is not None:
             c = quiver(X, Y, U, V, C, **kwds)
+        else:
+            raise SyntaxError('Wrong usage. See documentation. ')
 
-        self.properties()
+        print X
+        print Y
+        print U
+        #self.properties()
+        from pylab import show
+        show()
         return self.axes_shown
 
 
