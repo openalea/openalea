@@ -12,3 +12,12 @@ def wra_standard_normal(size):
 
 wra_standard_normal.__doc__ = standard_normal.__doc__
 
+
+
+def wra_standard_normal(size):
+    return (standard_normal(size),)
+
+wra_standard_normal.__doc__ = standard_normal.__doc__
+
+
+
