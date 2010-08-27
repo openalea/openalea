@@ -1,5 +1,5 @@
 
-# This file has been generated at Fri Aug 27 18:18:05 2010
+# This file has been generated at Fri Aug 27 18:22:28 2010
 
 from openalea.core import *
 

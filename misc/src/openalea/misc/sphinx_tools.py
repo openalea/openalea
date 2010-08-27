@@ -2,6 +2,9 @@
 openalea package.
 
 
+!DEPRECATED! too much of automatisation. See instead the package builder package that use
+the template here below to prepare a sphinx layout automatically.
+
 Example:
 
 >>> python sphinx_tools --package core
