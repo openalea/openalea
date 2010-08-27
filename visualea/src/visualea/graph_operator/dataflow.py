@@ -180,6 +180,7 @@ class DataflowOperators(graphOpBase.Base):
         scene = widget.scene()
         realGraph = scene.get_graph()
         node  = factory.instantiate([realGraph.factory.get_id()])
+        node.get_ad_hoc_dict().set_metadata("visualStyle", 1)
         scene.add_vertex(node, position=[position.x(), position.y()])
 
 

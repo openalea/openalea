@@ -176,6 +176,15 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     def get_view_data(self, key):
         return self.vertex().get_ad_hoc_dict().get_metadata(key)
 
+    def mousePressEvent(self, event):
+        #let a lmb click anywhere in the header activate
+        #text edition:
+        if event.button()==QtCore.Qt.LeftButton and \
+               self._MemoRects__headerRect.contains( event.pos() ):
+            self.__textItem.setFocus()
+        else:
+            MemoRects.mousePressEvent(self, event)
+
     def contextMenuEvent(self, event):
         operator = GraphOperator()
         operator.identify_focused_graph_view()

@@ -166,7 +166,9 @@ class MemoRects(QtGui.QGraphicsRectItem):
             newRect = QtCore.QRectF(0.,0., bottomRight.x(), bottomRight.y())
             if newRect.contains(self.__headerContentRect.adjusted(0,0,0,self.__handleSize)):
                 self.setRect(newRect)
-                self.__headerRect = QtCore.QRectF(0.,0., bottomRight.x(), self.__headerContentRect.height())
+                self.__headerRect = QtCore.QRectF(0.,0.,
+                                                  bottomRight.x(),
+                                                  self.__headerContentRect.height())
                 self.__moveHandleBottomRightTo(newRect.bottomRight())
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, event)

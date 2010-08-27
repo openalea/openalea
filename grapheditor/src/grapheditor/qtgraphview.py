@@ -337,8 +337,6 @@ class Vertex(Element):
         assert isinstance(connector, Connector)
         self.__connectors.remove(connector)
 
-
-
     #####################
     # ----Qt World----  #
     #####################
