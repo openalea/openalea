@@ -114,9 +114,6 @@ class SharedDataBrowser(NodeWidget, QDialog):
 
     def update_packages(self, package):
         self.package = package
-        valid_keys = {'name':'name', 'package':'name', 'pkg_name':'name', 'url':'home_page',  'authors':'author', 
-            'author_email':'authors_email', 'version':'version'}
-            
 
         try:
             cmd = 'import openalea.%s as mypackage' % self.package
@@ -124,23 +121,26 @@ class SharedDataBrowser(NodeWidget, QDialog):
             from openalea.deploy.shared_data import get_shared_data_path
             self.path = get_shared_data_path(mypackage.__path__)
 
-            from openalea.deploy.metainfo import get_metadata
-            cmd = 'import openalea;metadata = get_metadata(openalea.%s)' % self.package
-            exec(cmd)
+            from openalea.deploy.util import get_metadata
+            try:
+                cmd = "import openalea;metadata = get_metadata(\'openalea.%s\')" % self.package
+                exec(cmd)
+            except:
+                cmd = "import vplants;metadata = get_metadata(\'vplants.%s\')" % self.package
+                exec(cmd)
         except:
             self.widget_browser_packages.setText("Could not import this package (%s) or retrieve metainfo" % self.package)
         txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % self.package
-        for key, value in valid_keys.iteritems():
-            if key=='url':
-                try:
-                    txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), getattr(metadata,value))
-                except:
-                    txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (key.title(), 'not filled!!')
+        for line in metadata:
+            try:
+                val1, val2 = line.split(':')
+            except:
+                val1 = line
+                val2 = 'not filled'
+            if val1=='Home-page':
+                txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (val1.title(),val2)
             else:
-                try:
-                    txt += '<b>%s</b>: %s<br/>' % (key.title(), getattr(metadata,value))
-                except:
-                    txt += '<b>%s</b>: %s<br/>' % (key.title(), 'not filled')
+                txt += '<b>%s</b>: %s<br/>' % (val1 , val2)
 
         self.widget_browser_packages.setText(txt)
 
@@ -165,6 +165,7 @@ class SharedDataBrowser(NodeWidget, QDialog):
             #self.output_filename = str(filenames[0])
             self.output_filename = os.path.join(str(self.path), os.sep, str(filenames[0]))
             self.node._output = str(self.output_filename)
+            self.node.set_input(2, self.node._output)
 
     def selection_data(self, data):
         self.data = data
