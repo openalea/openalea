@@ -1,8 +1,6 @@
 ###############################################################################
 # -*- python -*-
 #
-#       amlPy function implementation
-#
 #       Copyright or (C) or Copr. 2010 INRIA - CIRAD - INRA
 #
 #       File author(s): Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
@@ -15,11 +13,12 @@
 #
 ###############################################################################
 
-__doc__="""pylab plotting nodes
-"""
+__doc__="""pylab plotting nodes"""
 
-__license__= "Cecill-C"
-__revision__=" $Id: py_stat.py 7897 2010-02-09 09:06:21Z cokelaer $ "
+__license__ = "$Licence: $"
+__revision__ = " $Revision$ "
+__author__ = "$Author$"
+__date__ = "$Date$"
 
 #//////////////////////////////////////////////////////////////////////////////
 
