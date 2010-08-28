@@ -15,7 +15,6 @@
 
 __doc__="""pylab plotting nodes"""
 
-__license__ = "$Licence: $"
 __revision__ = " $Revision$ "
 __author__ = "$Author$"
 __date__ = "$Date$"
