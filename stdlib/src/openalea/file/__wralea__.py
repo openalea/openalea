@@ -102,7 +102,17 @@ files_glob = Factory(name='glob',
                 widgetclass=None,
                )
 
-
+files_copy = Factory(name='copy',
+                description='Copy data and mode bits ("cp src dst")',
+                category='File,IO',
+                nodemodule='shutil',
+                nodeclass='copy',
+                inputs=({'interface': IFileStr, 'name': 'src'},{'interface': IFileStr, 'name': 'dest'},),
+                outputs=({'name': 'status'},),
+                widgetmodule=None,
+                widgetclass=None,
+               )
+__all__.append('files_copy')
 
 
 viewfile = CompositeNodeFactory(name='viewfile',
