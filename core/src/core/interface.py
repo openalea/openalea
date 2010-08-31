@@ -125,6 +125,11 @@ class IStr(IInterface):
     def default(cls):
         return str()
 
+class ISlice(IInterface):
+    """ String interface """
+
+    __pytype__ = types.SliceType
+    __color__  = color_palette.maroon
 
 class IFileStr(IStr):
     """ File Path interface """
