@@ -84,6 +84,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.__penColor    = self.default_pen_color
 
         # ----- Layout of the item -----
+        ph = GraphicalPort.HEIGHT
         self.vLayout = qtutils.VerticalLayout(margins=(self.outMargins, self.outMargins,
                                                        0., 0.),
                                               center=True)
@@ -91,7 +92,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.inPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
                                                      innerMargins=(self.portSpacing,0.),
                                                      center=True,
-                                                     mins=(5, 5))
+                                                     mins=(ph, ph))
         #  Caption
         self._caption = QtGui.QGraphicsSimpleTextItem(self)
         self.vLayout.addItem(self._caption)
@@ -99,7 +100,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.outPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
                                                       innerMargins=(self.portSpacing,0.),
                                                       center=True,
-                                                      mins=(5, 5))
+                                                      mins=(ph, ph))
 
         # Small dots when the vertex has hidden ports
         hiddenPortItem = HiddenPort(self)
@@ -155,7 +156,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.set_graphical_tooltip(vertex.get_tip())
         self.set_graphical_caption(vertex.caption)
         #self.refresh_geometry() already done by set_graphical_caption
-        self.update_colors() #last because gradient depense on geometry
+        self.update_colors() #last because gradient depends on geometry
 
     def terminate_from_model(self):
         vertex = self.vertex()
@@ -356,7 +357,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             brush.setStyle(QtCore.Qt.BDiagPattern)
             painter.setBrush(brush)
             painter.drawPath(path)
-
 
     ################
     # Qt Overloads #
@@ -576,7 +576,7 @@ class HiddenPort (QtGui.QGraphicsItem):
 # --------------------------- ConnectorType ---------------------------------
 class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     """ A vertex port """
-    MAX_TIPLEN = 2000
+    MAX_TIPLEN = 400
     WIDTH      = 10.0
     HEIGHT     = 10.0
 
