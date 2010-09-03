@@ -516,6 +516,7 @@ class Layout(object):
             x, y, w, h = self._boundingRect()
             w = max(w, self._minWidth)
             h = max(h, self._minHeight)
+
             self._boundCache = QtCore.QRectF(x, y, w, h)
             if self._parent:
                 self._parent.boundCache = None
@@ -691,7 +692,7 @@ class AleaQMenu(QtGui.QMenu):
         rect = QtCore.QRect(pos, self.sizeHint())
         #fix the position of the menu if it tries to popup too close to the lower & right edges.
         #bad fixing strategy probably: what if we were create arabian menus?
-        #We should maube sublcass QMenu to handle screen real estate and reuse it.
+        #We should maybe sublcass QMenu to handle screen real estate and reuse it.
         desktopGeom = QtGui.QApplication.desktop().availableGeometry(self.parent())
         contained, edges = qrect_contains(desktopGeom, rect, True)
         if not contained and edges.count(0) > 0:
