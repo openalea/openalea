@@ -64,6 +64,7 @@ setup(
                    'openalea.tutorial.functional = openalea.tutorial.functional',
                    'openalea.tutorial.multiprocess = openalea.tutorial.multiprocess',
                    'openalea.multiprocessing = openalea.multiprocessing',
+                   'openalea.path = openalea.path',
 
                    # Deprecated
                    'catalog.color = deprecated', 
