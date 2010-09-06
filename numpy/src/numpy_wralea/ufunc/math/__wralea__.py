@@ -22,8 +22,8 @@ from openalea.core import Factory
 from openalea.core.interface import *
 
 
-__name__ = "openalea.numpy.math"
-__alias__ = ["numpy.math"]
+__name__ = "openalea.numpy.ufunc.math"
+
 
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
@@ -31,7 +31,7 @@ __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Numpy wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
-__icon__ = 'icon.png'
+
 
 __all__ = []
 
@@ -132,10 +132,10 @@ __all__.append("convolve")
 cumsum = Factory(name = "cumsum",
 		description = "Return the cumulative sum of the elements along a given axis",
 		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence),
+		inputs = (dict(name='array', interface=None),
 			  dict(name='axis', interface=IInt),
 			  dict(name='dtype', interface=IEnumStr(list_type), value='float64'),),
-		outputs = (dict(name='array', interface= ISequence),),
+		outputs = (dict(name='array', interface= None),),
                 nodemodule = "numpy",
 		nodeclass = "cumsum",
 		)
@@ -207,22 +207,6 @@ __all__.append("inv")
 #		)
 
 #__all__.append("poly1d")
-
-
-reshape = Factory(name = "reshape",
-		description = "Gives a new shape to an array without changing its data",
-		category = "numpy",
-		inputs = (dict(name='array', interface=ISequence,
-				showwidget=False),
-			  dict(name='newshape', interface=ISequence),
-			  dict(name='order', interface=IEnumStr(['C', 'F']),
-				value='C'),),
-		outputs = (dict(name='array', interface= ISequence),),
-                nodemodule = "numpy",
-		nodeclass = "reshape",
-		)
-
-__all__.append("reshape")
 
 
 putmask = Factory(name = "putmask",
@@ -626,4 +610,57 @@ mean = Factory(name = "mean",
     nodeclass = "mean",
     )
 __all__.append("mean")
+
+sum = Factory(name = "sum",
+    description = "Sum of array elements over a given axis",
+    authors='Eric Moscardi',
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=None),
+        dict(name='axis', interface=IInt,  value=None),
+        dict(name='dtype', interface=IEnumStr(list_type), value='float64')),
+    outputs = None,
+    nodemodule="math",
+    nodeclass = "wra_sum",
+    )
+__all__.append("sum")
+
+min = Factory(name = "min",
+    description = "Return the minimum along an axis",
+    authors='Eric Moscardi',
+    category = "numpy",
+    inputs = (
+        dict(name='array', interface=None),
+        dict(name='axis', interface=IInt,  value=None),),
+    outputs = None,
+    nodemodule="math",
+    nodeclass = "wra_min",
+    )
+__all__.append("min")
+
+max = Factory(name = "max",
+                description = "Return the maximum along an axis",
+                authors='Eric Moscardi',
+                category = "numpy",
+                inputs = (dict(name='array', interface=None),
+                          dict(name='axis', interface=IInt, value=None),),
+                outputs = (dict(name='out', interface= None),),
+                nodemodule = "math",
+                nodeclass = "wra_max",
+              )
+
+__all__.append("max")
+
+add = Factory(name = "add",
+                description = "Add arguments element-wise",
+                authors='Eric Moscardi',
+                category = "numpy",
+                inputs = (dict(name='x1', interface=None),
+                          dict(name='x2', interface=None),),
+                outputs = (dict(name='out', interface= None),),
+                nodemodule = "numpy",
+                nodeclass = "add",
+              )
+
+__all__.append("add")
 

@@ -30,7 +30,6 @@ __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Numpy wrapping and utils module.'
 __url__ = 'http://openalea.gforge.inria.fr'
-__icon__ = 'icon.png'
 
 __all__ = []
 
@@ -40,7 +39,7 @@ list_type = ['bool', 'uint8', 'uint16', 'uint32', 'uint64', 'int8', 'int16', 'in
 array = Factory(name= "array",
         description= "Create an array",
         category = "numpy",
-        inputs = ( dict(name='object', interface=ISequence),
+        inputs = ( dict(name='object', interface=None),
         dict(name='dtype',
         interface=IEnumStr(list_type),
         value='float64'),
@@ -52,9 +51,9 @@ array = Factory(name= "array",
         value=False),
         dict(name='ndmin', interface= IInt,
         value=0),),
-        outputs = (dict(name='array', interface=ISequence),),
+        outputs = (dict(name='array', interface=None),),
         nodemodule = "basics",
-        nodeclass = "array",
+        nodeclass = "wra_array",
             )
 
 __all__.append("array")
@@ -74,35 +73,68 @@ zeros = Factory(name= "zeros",
 
 __all__.append("zeros")
 
+zeros_like = Factory(name= "zeros_like",
+           	     description= "Return an array of zeros with the same shape and type as a given array",
+           	     category = "numpy",
+		     inputs = ( dict(name='a', interface=None),),
+     	             outputs = (dict(name='array', interface=None),),
+           	     nodemodule = "numpy",
+           	     nodeclass = "zeros_like",
+                    )
+
+__all__.append("zeros_like")
+
 ones = Factory(name= "ones",
-               description= "Return a new array of given shape and type, filled with ones",
-               category = "numpy",
-        inputs = ( dict(name='shape', interface=ISequence),
-                dict(name='dtype', interface=IEnumStr(list_type),
-                            value='float64'),
-            dict(name='order', interface=IEnumStr(['C', 'F']),
-                value='C'),),
-         outputs = (dict(name='array', interface=ISequence),),
-               nodemodule = "numpy",
-               nodeclass = "ones",
+           	description= "Return a new array of given shape and type, filled with ones",
+           	category = "numpy",
+		inputs = ( dict(name='shape', interface=ITuple),
+     		   dict(name='dtype', interface=IEnumStr(list_type),
+                    		value='float64'),
+			dict(name='order', interface=IEnumStr(['C', 'F']),
+				value='C'),),
+     	outputs = (dict(name='array', interface=ISequence),),
+           	nodemodule = "numpy",
+           	nodeclass = "ones",
             )
 
 __all__.append("ones")
 
+ones_like = Factory(name= "ones_like",
+           	     description= "Returns an array of ones with the same shape and type as a given array",
+           	     category = "numpy",
+		     inputs = ( dict(name='x', interface=None),),
+     	             outputs = (dict(name='array', interface=None),),
+           	     nodemodule = "numpy",
+           	     nodeclass = "ones_like",
+                    )
+
+__all__.append("ones_like")
+
 empty = Factory(name= "empty",
-               description= "Return a new array of given shape and type, filled with ones",
-               category = "numpy",
-        inputs = ( dict(name='shape', interface=ISequence),
-                dict(name='dtype', interface=IEnumStr(list_type),
-                            value='float64'),
-            dict(name='order', interface=IEnumStr(['C', 'F']),
-                value='C'),),
-         outputs = (dict(name='array', interface=ISequence),),
-               nodemodule = "numpy",
-               nodeclass = "empty",
+           	description= "Return a new array of given shape and type, without initializing entries",
+           	category = "numpy",
+		inputs = ( dict(name='shape', interface=ISequence),
+     		   dict(name='dtype', interface=IEnumStr(list_type),
+                    		value='float64'),
+			dict(name='order', interface=IEnumStr(['C', 'F']),
+				value='C'),),
+     	outputs = (dict(name='array', interface=ISequence),),
+           	nodemodule = "numpy",
+           	nodeclass = "empty",
             )
 
 __all__.append("empty")
+
+empty_like = Factory(name= "empty_like",
+           	     description= "Return a new array with the same shape and type as a given array",
+           	     category = "numpy",
+		     inputs = ( dict(name='a', interface=None),),
+     	             outputs = (dict(name='array', interface=None),),
+           	     nodemodule = "numpy",
+           	     nodeclass = "empty_like",
+                    )
+
+__all__.append("empty_like")
 
 arange = Factory(name= "arange",
                description= "Return evenly spaced values within a given interval",
@@ -123,22 +155,17 @@ arange = Factory(name= "arange",
 __all__.append("arange")
 
 linspace = Factory(name= "linspace",
-               description= "Return evenly spaced numbers over a specified interval",
-               category = "numpy",
-        inputs = ( dict(name='start', interface=IFloat,
-                value=0),
-                dict(name='stop', interface=IFloat,
-                value=0),
-                dict(name='num', interface=IFloat,
-                value=50),
-                dict(name='endpoint', interface=IBool,
-                value=True),
-                dict(name='retstep', interface=IBool,
-                value=True),),
-         outputs = (dict(name='samples', interface=ISequence),
-                dict(name='step', interface=IFloat),),
-               nodemodule = "numpy",
-               nodeclass = "linspace",
+           	description= "Return evenly spaced numbers over a specified interval",
+           	category = "numpy",
+		inputs = ( dict(name='start', interface=IFloat,value=0),
+     		           dict(name='stop', interface=IFloat,value=0),
+     		           dict(name='num', interface=IFloat,value=50),
+     		           dict(name='endpoint', interface=IBool,value=True),
+     		           dict(name='retstep', interface=IBool,value=True),),
+     	        outputs = (dict(name='samples', interface=None),
+                           dict(name='step', interface=IFloat),),
+           	nodemodule = "numpy",
+           	nodeclass = "linspace",
             )
 
 __all__.append("linspace")
@@ -215,26 +242,73 @@ __all__.append("triu")
 
 
 diag = Factory(name= "diag",
-               description= "Extract a diagonal or construct a diagonal array",
-               category = "numpy",
-        inputs = ( dict(name='v', interface=IInt),
-                dict(name='k', interface=IInt, value=0),),
-         outputs = (dict(name='array', interface=ISequence),),
-               nodemodule = "numpy",
-               nodeclass = "diag",
+           	description= "Create a two-dimensional array with the flattened input as a diagonal",
+           	category = "numpy",
+		inputs = ( dict(name='v', interface=None),
+     		           dict(name='k', interface=IInt, value=0),),
+            	outputs = (dict(name='array', interface=None),),
+           	nodemodule = "numpy",
+           	nodeclass = "diag",
             )
 
 __all__.append("diag")
 
+diagflat = Factory(name= "diagflat",
+           	description= "Extract a diagonal or construct a diagonal array",
+           	category = "numpy",
+		inputs = ( dict(name='v', interface=None),
+     		           dict(name='k', interface=IInt, value=0),),
+     	        outputs = (dict(name='array', interface=None),),
+           	nodemodule = "numpy",
+           	nodeclass = "diagflat",
+            )
+
+__all__.append("diagflat")
 
 vander = Factory(name= "vander",
-               description= "Generate a Van der Monde matrix",
-               category = "numpy",
-        inputs = ( dict(name='x', interface=ISequence),
-                dict(name='N', interface=IInt, value=None),),
-         outputs = (dict(name='array', interface=ISequence),),
-               nodemodule = "numpy",
-               nodeclass = "vander",
+           	description= "Generate a Van der Monde matrix",
+           	category = "numpy",
+		inputs = ( dict(name='x', interface=ITuple),
+     		           dict(name='N', interface=IInt, value=None),),
+     	        outputs = (dict(name='array', interface=None),),
+           	nodemodule = "numpy",
+           	nodeclass = "vander",
             )
 
 __all__.append("vander")
+
+fromfunction = Factory(name= "fromfunction",
+           	description= "Construct an array by executing a function over each coordinate",
+           	category = "numpy",
+		inputs = ( dict(name="func_str", interface=None),
+                           dict(name='shape', interface=ITuple),
+                           dict(name='dtype', interface=IEnumStr(list_type), value='float64'),),
+     	        outputs = (dict(name='array', interface=None),),
+           	nodemodule = "basics",
+           	nodeclass = "wra_fromfunction",
+            )
+
+__all__.append("fromfunction")
+
+identity = Factory(name= "identity",
+           	description= "Return the identity array",
+           	category = "numpy",
+		inputs = ( dict(name='n', interface=IInt),
+                           dict(name='dtype', interface=IEnumStr(list_type),value='float64'),),
+     	        outputs = (dict(name='array', interface=ISequence),),
+           	nodemodule = "numpy",
+           	nodeclass = "identity",
+                )
+
+__all__.append("identity")
+
+loadtxt = Factory(name = "loadtxt",
+    description = "Load data from a text file.",
+    category = "numpy",
+    inputs = (dict(name='filename', interface= IFileStr),),
+    outputs = (dict(name='array', interface= None),), 
+    nodemodule = "numpy",
+    nodeclass = "loadtxt",
+)
+__all__.append("loadtxt")
+

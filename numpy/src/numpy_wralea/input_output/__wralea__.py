@@ -36,17 +36,6 @@ __icon__ = 'icon.png'
 __all__ = []
 
 
-loadtxt = Factory(name = "loadtxt",
-    description = "Load data from a text file.",
-    category = "numpy",
-    inputs = (dict(name='filename', interface= IFileStr),),
-    outputs = (dict(name='array', interface= ISequence),), 
-    nodemodule = "numpy",
-    nodeclass = "loadtxt",
-)
-__all__.append("loadtxt")
-
-
 #save = Factory(name = "save",
 #    description = "Save an array to a binary file in NumPy .npy format.",
 #    category = "numpy",

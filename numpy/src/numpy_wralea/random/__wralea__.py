@@ -34,6 +34,17 @@ __icon__ = 'icon.png'
 
 __all__ = []
     
+rand = Factory(name = "rand",
+    description = "Random values in a given shape.",
+    authors=['Eric Moscardi'],
+    category = "numpy",
+    inputs = (dict(name='d', interface=IInt),),
+    outputs = (dict(name='array', interface= None),),
+    nodemodule = "vnumpy",
+    nodeclass = "wra_rand",
+    )
+
+__all__.append("rand")
 
 randn = Factory(name = "randn",
     description = "Return a sample (or samples) from the “standard normal” distribution.",
@@ -46,6 +57,18 @@ randn = Factory(name = "randn",
     )
 
 __all__.append("randn")
+
+random = Factory(name = "random",
+    description = "Return random floats in the half-open interval [0.0, 1.0).",
+    authors=['Eric Moscardi'],
+    category = "numpy",
+    inputs = (dict(name='size', interface=ITuple),),
+    outputs = (dict(name='array', interface= None),),
+    nodemodule = "vnumpy",
+    nodeclass = "wra_random",
+    )
+
+__all__.append("random")
 
 standard_normal = Factory(name = "standard_normal",
     description = "Returns samples from a Standard Normal distribution (mean=0, stdev=1).",

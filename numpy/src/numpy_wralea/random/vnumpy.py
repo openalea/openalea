@@ -1,11 +1,23 @@
 from openalea.core import Node, IInt
 from openalea.core.external import add_docstring
-from numpy.random import randn, standard_normal
+from numpy.random import rand, randn, random, standard_normal
+
+def wra_rand(d):
+    return (rand(d),)
+
+wra_rand.__doc__ = rand.__doc__
 
 def wra_randn(n):
     return (randn(n),)
 
 wra_randn.__doc__ = randn.__doc__
+
+
+def wra_random(size):
+    return (random(size),)
+
+wra_random.__doc__ = random.__doc__
+
 
 def wra_standard_normal(size):
     return (standard_normal(size),)

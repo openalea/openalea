@@ -19,7 +19,7 @@ __revision__ = " $Id: $ "
 
 import numpy as np
 
-def array(array, dtype, copy, order, subok, ndim):
+def wra_array(array, dtype, copy, order, subok, ndim):
     return (np.array(array, dtype=dtype, copy=copy, order=order, subok=subok, ndmin=ndim))
 
 def zeros(shape, dtype, order):
@@ -36,3 +36,6 @@ def arange(start, stop, step, dtype):
 
 def linspace(start, stop, num, endpoint, retstep):
     return (np.linspace(start, stop, num=num, endpoint=endpoint, retstep=retstep))
+
+def wra_fromfunction(f, shape, dtype):
+    return (np.fromfunction(f,shape,dtype=dtype))

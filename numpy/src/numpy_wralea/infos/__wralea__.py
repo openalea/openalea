@@ -70,39 +70,28 @@ size = Factory(name = "size",
 
 __all__.append("size")
 
-max = Factory(name = "max",
-                description = "Return the maximum along an axis",
-                category = "numpy",
-                inputs = (dict(name='array', interface=None),
-                          dict(name='axis', interface=IInt, value=None),),
-                outputs = (dict(name='out', interface= None),),
+
+dtype = Factory(name = "dtype",
+		description = "Create a data type object",
+		category = "numpy",
+		inputs = (dict(name='array', interface=None),),
+		outputs = (dict(name='dtype', interface= None),),
                 nodemodule = "infos",
-                nodeclass = "wra_max",
-              )
+		nodeclass = "wra_dtype",
+		)
 
-__all__.append("max")
-
-#dtype = Factory(name = "dtype",
-#		description = "Number of elements in the array",
-#		category = "numpy",
-#		inputs = (dict(name='array', interface=ISequence),),
-#		outputs = (dict(name='dtype', interface= IInt),),
-#               nodemodule = "numpy",
-#		nodeclass = "dtype",
-#		)
-
-#__all__.append("dtype")
+__all__.append("dtype")
 
 
-#itemsize = Factory(name = "itemsize",
-#		description = "The element size of this data-type object",
-#		category = "numpy",
-#		inputs = (dict(name='array', interface=ISequence),),
-#		outputs = (dict(name='itemsize', interface= IInt),),
-#               nodemodule = "numpy",
-#		nodeclass = "itemsize",
-#		)
+itemsize = Factory(name = "itemsize",
+		description = "The element size of this data-type object",
+		category = "numpy",
+		inputs = (dict(name='array', interface=None),),
+		outputs = (dict(name='itemsize', interface= IInt),),
+                nodemodule = "infos",
+		nodeclass = "wra_itemsize",
+		)
 
-#__all__.append("itemsize")
+__all__.append("itemsize")
 
 

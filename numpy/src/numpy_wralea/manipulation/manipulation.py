@@ -16,14 +16,11 @@
 """
 
 __license__= "Cecill-C"
-__revision__ = " $Id:  $ "
+__revision__ = " $Id $ "
 
-from numpy import dtype
+import numpy as np
 
-def wra_dtype(a):
-    return a.dtype,
+def wra_flatten(a, order='C'):
+    return(a.flatten(order),)
 
-wra_dtype.__doc__ = dtype.__doc__
-
-def wra_itemsize(a):
-    return a.itemsize,
+wra_flatten.__doc__ = np.ndarray.flatten.__doc__

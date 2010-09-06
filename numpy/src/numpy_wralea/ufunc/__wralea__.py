@@ -1,7 +1,7 @@
 # -*- python -*-
 # -*- coding: latin-1 -*-
 #
-#       math : numpy package
+#       ufunc : numpy package
 #
 #       Copyright 2006 - 2010 INRIA - CIRAD - INRA  
 #
@@ -14,23 +14,22 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 ################################################################################
 
-__license__ = "Cecill-C"
+
+__doc__ = """ openalea.numpy """
 __revision__ = " $Id: $ "
 
-
-def inv(array):
-    from numpy import linalg
-    return (linalg.inv(array))
+from openalea.core import Factory
+from openalea.core.interface import *
 
 
-def putmask(array, mask, values):
-    import numpy as np
-    return (np.putmask(array, mask, values))
+__name__ = "openalea.numpy.ufunc"
 
-def mean(array, axis=None, dtype=None):
-    from numpy import mean
-    return (mean(array, axis, dtype),)
 
-def std(array, axis=None, dtype=None, ddof=0):
-    from numpy import std
-    return (std(a=array, axis=axis, dtype=dtype, ddof=ddof),)
+__version__ = '0.0.1'
+__license__ = 'CECILL-C'
+__authors__ = 'OpenAlea Consortium'
+__institutes__ = 'INRIA/CIRAD'
+__description__ = 'Numpy wrapping and utils module.'
+__url__ = 'http://openalea.gforge.inria.fr'
+
+
