@@ -1,4 +1,4 @@
 This is an OpenAlea package that interface most of the 
-`Scipy Numpy <http://matplotlib.sourceforge.net/index.html>`_ functionalities
+`Scipy Numpy <http://numpy.scipy.org/>`_ functionalities
 as nodes in VisuAlea. 
 

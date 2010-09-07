@@ -1,246 +1,264 @@
+List of Numpy functionalities available as VisuAlea nodes
+#########################################################
 
-List of Numpy functionalities available as visualea nodes
-===========================================================
+Array creation routines
+***********************
 
-=============== ========================================================
-Creation
-=============== ========================================================
-arange()	Return evenly spaced values within a given interval
-array()		Create an array
-diag()          Extract a diagonal or construct a diagonal array        
-empty()		Return a new array of given shape and type, without initializing entries
-eye()           Return a 2-D array with ones on the diagonal and zeros elsewhere
-linspace()	Return evenly spaced numbers over a specified interval
-ones()		Return a new array of given shape and type, filled with ones
-tri()           Construct an array filled with ones at and below the given diagonal
-vander()        Generate a Van der Monde matrix (not running for the moment)
-zeros()		Return a new array of given shape and type, filled with zeros
-=============== ========================================================
-=============== ========================================================
-infos
-=============== ========================================================
-ndim		Number of array dimensions
-shape		Tuple of array dimensions
-size		Number of elements in the array
-=============== ========================================================
-=============== ========================================================
-Array math
-=============== ========================================================
-clip()		Clip (limit) the values in an array
-cross()		Return the cross product of two (arrays of) vectors
-cumprod()	Return the cumulative product of elements along a given axis
-cumsum()	Return the cumulative sum of the elements along a given axis
-diff()		Calculate the n-th order discrete difference along given axis
-digitize()	Return the indices of the bins to which each value in input array belongs
-dot()		Dot product of two arrays
-inv()		Compute the (multiplicative) inverse of a matrix
-outer()		Compute the outer product of two vectors
-poly1d		A one-dimensional polynomial class
-reshape()	Gives a new shape to an array without changing its data
-putmask()	Changes elements of an array based on conditional and input values
-=============== ========================================================
+.. currentmodule:: numpy
+
+Ones and zeros
+--------------
+.. autosummary::
+   :toctree: generated/
+
+   empty
+   empty_like
+   eye
+   identity
+   ones
+   ones_like
+   zeros
+   zeros_like
+
+From existing data
+------------------
+.. autosummary::
+   :toctree: generated/
+
+   array
+   fromfunction
+   loadtxt
+
+.. todo:: asarray, asanyarray, ascontiguousarray, asmatrix, copy, frombuffer, fromfile, fromiter, fromstring
+
+Numerical ranges
+----------------
+.. autosummary::
+   :toctree: generated/
+
+   arange
+   linspace
+   logspace
+
+.. todo:: meshgrid, mgrid, ogrid
+
+Building matrices
+-----------------
+.. autosummary::
+   :toctree: generated/
+
+   diag
+   diagflat
+   tri
+   tril
+   triu
+   vander
+
+The Matrix class
+----------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: mat, bmat
+
+Mathematical functions
+**********************
+
+.. currentmodule:: numpy
+
+Trigonometric functions
+-----------------------
+.. autosummary::
+   :toctree: generated/
+
+   sin
+   cos
+   tan
+   arcsin
+   arccos
+   arctan
+   degrees
+   radians
+   deg2rad
+   rad2deg
+
+.. todo:: arctan2, hypot, unwrap
+
+Hyperbolic functions
+--------------------
+.. autosummary::
+   :toctree: generated/
+
+   sinh
+   cosh
+   tanh
+   arcsinh
+   arccosh
+   arctanh
+
+Rounding
+--------
+.. autosummary::
+   :toctree: generated/
+
+   rint
+   floor
+   ceil
+   trunc
+
+.. todo:: around, round_, fix
+
+Sums, products, differences
+---------------------------
+.. autosummary::
+   :toctree: generated/
+
+   sum
+   cumprod
+   cumsum
+   diff
+   cross
+
+.. todo:: prod, nansum, ediff1d, gradient, trapz
+
+Exponents and logarithms
+------------------------
+.. autosummary::
+   :toctree: generated/
+
+   exp
+   expm1
+   exp2
+   log
+   log10
+
+.. todo:: log2, log1p, logaddexp, logaddexp2
+
+Other special functions
+-----------------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: i0, sinc
+
+Floating point routines
+-----------------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: signbit, copysign, frexp, ldexp
+
+Arithmetic operations
+---------------------
+.. autosummary::
+   :toctree: generated/
+
+   add
+   
+.. todo:: reciprocal, negative, multiply, divide, power, subtract, true_divide, floor_divide, fmod, mod, modf, remainder
+
+Handling complex numbers
+------------------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: angle, real, imag, conj
+
+Miscellaneous
+-------------
+.. autosummary::
+   :toctree: generated/
+
+   convolve
+   clip
+   sqrt
+   square
+   absolute
+   fabs
+
+.. todo:: sign, maximum, minimum, nan_to_num, real_if_close, interp
+
+Array manipulation routines
+***************************
+
+This is the list of nodes available within VisuAlea in the **numpy.manipulation** package.
+
+.. currentmodule:: numpy
+
+Changing array shape
+--------------------
+.. autosummary::
+   :toctree: generated/
 
 
-to be add in Visualea
-=====================
+   reshape
+   ravel
+   ndarray.flatten
 
-=============== ========================================================
-Function         Description
-=============== ========================================================
-dtype		Create a data type object
-itemsize	The element size of this data-type object
-...
-[]
-abs()
-absolute()
-accumulate()
-add()
-all()
-allclose()
-alltrue()
-angle()
-any()
-append()
-apply_along_axis()
-apply_over_axes()
-arccos()
-arccosh()
-arcsin()
-arcsinh()
-arctan()
-arctan2()
-arctanh()
-argmax()
-argmin()
-argsort()
-arrayrange()
-array_split()
-asarray()
-asanyarray()
-asmatrix()
-astype()
-atleast_1d()
-atleast_2d()
-atleast_3d()
-average()
-beta()
-binary_repr()
-bincount()
-binomial()
-bitwise_and()
-bitwise_or()
-bitwise_xor()
-bmat()
-broadcast()
-bytes()
-c_[]
-cast[]()
-ceil()
-choose()
-column_stack()
-compress()
-concatenate()
-conj()
-conjugate()
-copy()
-corrcoef()
-cos()
-cov()
-delete()
-diagflat()
-diagonal()
-dsplit()
-dstack()
-empty_like()
-expand_dims()
-fft()
-fftfreq()
-fftshift()
-fill()
-finfo()
-fix()
-flat
-flatten()
-fliplr()
-flipud()
-floor()
-fromarrays()
-frombuffer()
-fromfile()
-fromfunction()
-fromiter()
-generic
-gumbel()
-histogram()
-hsplit()
-hstack()
-hypot()
-identity()
-ifft()
-imag
-index_exp[]
-indices()
-inf
-inner()
-insert()
-inv()
-iscomplex()
-iscomplexobj()
-item()
-ix_()
-lexsort()
-loadtxt()
-logical_and()
-logical_not()
-logical_or()
-logical_xor()
-logspace()
-lstsq()
-mat()
-matrix()
-max()
-maximum()
-mean()
-median()
-mgrid[]
-min()
-minimum()
-multiply()
-nan
-ndenumerate()
-ndindex()
-newaxis
-nonzero()
-ogrid()
-ones_like()
-outer()
-permutation()
-piecewise()
-pinv()
-poisson()
-poly1d()
-polyfit()
-prod()
-ptp()
-put()
-r_[]
-rand()
-randint()
-randn()
-random_integers()
-random_sample()
-ranf()
-ravel()
-real
-recarray()
-reduce()
-repeat()
-resize()
-rollaxis()
-round()
-rot90()
-s_[]
-sample()
-savetxt()
-searchsorted()
-seed()
-select()
-set_printoptions()
-shuffle()
-slice()
-solve()
-sometrue()
-sort()
-split()
-squeeze()
-std()
-standard_normal()
-sum()
-svd()
-swapaxes()
-T
-take()
-tensordot()
-tile()
-tofile()
-tolist()
-trace()
-transpose()
-tril()
-trim_zeros()
-triu()
-typeDict()
-uniform()
-unique()
-unique1d()
-var()
-vdot()
-vectorize()
-view()
-vonmises()
-vsplit()
-vstack()
-weibull()
-where()
-zeros_like()
-=============== ========================================================
+.. todo:: ndarray.flat
+
+Transpose-like operations
+-------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   transpose
+
+.. todo:: rollaxis, swapaxes, ndarray.T
+
+Changing number of dimensions
+-----------------------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: atleast_1d, atleast_2d, atleast_3d, broadcast, broadcast_arrays, expand_dims, squeeze
+
+Changing kind of array
+----------------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: asarray, asanyarray, asmatrix, asfarray, asfortranarray, asscalar, require
+
+Joining arrays
+--------------
+.. autosummary::
+   :toctree: generated/
+
+   hstack
+   vstack
+
+.. todo:: column_stack, concatenate, dstack
+
+Splitting arrays
+----------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: array_split, dsplit, hsplit, split, vsplit
+
+Tiling arrays
+-------------
+.. autosummary::
+   :toctree: generated/
+
+.. todo:: tile, repeat
+
+Adding and removing elements
+----------------------------
+.. autosummary::
+   :toctree: generated/
+
+   unique
+
+.. todo:: delete, insert, append, resize, trim_zeros
+
+Rearranging elements
+--------------------
+.. autosummary::
+   :toctree: generated/
+
+   reshape
+
+.. todo:: fliplr, flipud, roll, rot90

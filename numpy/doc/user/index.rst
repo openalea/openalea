@@ -155,11 +155,7 @@ For this reason, it is usually better to use the function linspace that receives
 
    **Figure 10: Linspace array in VisuAlea**
 
-.. todo:: Check the list and verify the behavior
-
-
-See nodes available within VisuAlea in `numpy.creation <numpy_creation.html>`_ package.
-
+See nodes available within VisuAlea in `numpy.creation <todo.html>`_ package.
 
 Basic Operations
 ================
@@ -202,11 +198,7 @@ By default, these operations apply to the array as if it were a list of numbers,
 
    **Figure 15: Using of the connector axis in VisuAlea**
 
-.. todo:: Check the list and verify the behavior
-
-**The following nodes are available within VisuAlea in numpy.math package**
-
-    all,  alltrue,  any,  apply along axis,  argmax,  argmin,  argsort,  average,  bincount,  ceil,  clip,  conj,  conjugate,  corrcoef,  cov,  cross,  cumprod,  cumsum,  diff,  dot,  floor, inner, inv, lexsort, max, maximum, mean, median, min, minimum, nonzero, outer, prod, re, round, sometrue, sort, std, sum, trace, transpose, var, vdot, vectorize, where
+See nodes available within VisuAlea in `numpy.math <todo.html>`_ package.
 
 Indexing, Slicing and Iterating
 ===============================
@@ -268,12 +260,6 @@ Iterating over multidimensional arrays is done with respect to the first axis:
 
 .. todo:: add dataflow
 
-.. todo:: Check the list and verify the behavior
-
-**The following nodes are available within VisuAlea in numpy. package**
-
-    newaxis, ndenumerate, indices, index exp
-
 Shape Manipulation
 ==================
 
@@ -298,19 +284,4 @@ Several arrays can be stacked together, along different axes:
 
    **Figure 21: Stacking together different arrays in VisuAlea**
 
-See nodes available within VisuAlea in `numpy.manipulation <numpy_manipulation.html>`_ package.
-
-Less Basic
-==========
-
-Universal Functions
--------------------
-
-NumPy provides mathematical functions, called "universal functions"(ufunc), that operate on the ndarray object. 
-In VisuAlea, these functions are available in `numpy.ufunc <numpy_ufunc.html>` package :
-
-.. _Fig_22:
-.. figure:: images/ufunc.png
-
-   **Figure 22: Universal Functions in VisuAlea**
-
+See nodes available within VisuAlea in `numpy.manipulation <todo.html>`_ package.
