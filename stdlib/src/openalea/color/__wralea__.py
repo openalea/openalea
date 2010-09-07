@@ -37,6 +37,7 @@ color = Factory(name = "color",
                 outputs = (dict(name = "RGB", interface = IColor),),
                 )
 
+Alias(color,'rgb')
 __all__.append("color")
 
 black = Factory(name = "black",
@@ -116,7 +117,7 @@ random = Factory(name = "random",
 
 __all__.append("random")
 
-rgb = Factory(name="rgb",
+hsv2rgb = Factory(name="hsv2rgb",
               description="RGB tuple",
               category="datatype,image",
               nodemodule="py_color",
@@ -128,9 +129,9 @@ rgb = Factory(name="rgb",
               outputs=(dict(name="RGB", interface = IColor),),
               )
 
-__all__.append("rgb")
+__all__.append("hsv2rgb")
 
-hsv = Factory(name="hsv",
+rgb2hsv = Factory(name="rgb2hsv",
               description="HSV tuple",
               category="datatype,image",
               nodemodule="py_color",
@@ -142,7 +143,8 @@ hsv = Factory(name="hsv",
                       dict(name="alpha", interface=IInt),),
               )
 
-__all__.append("hsv")
+__all__.append("rgb2hsv")
+Alias(rgb2hsv,"hsv")
 
 colormap = Factory(name='colormap', 
                    description='defines a color map from a range of values [I,J] to RGB', 
@@ -159,7 +161,7 @@ colormap = Factory(name='colormap',
                    widgetmodule=None,
                    widgetclass=None,
                  )
-		 
+         
 rgbcolormap = Factory(name='rgbcolormap', 
                    description='defines a RGB color map from 2 colors given in HSV', 
                    category='Visualization,image', 
@@ -178,4 +180,4 @@ rgbcolormap = Factory(name='rgbcolormap',
                    widgetmodule=None,
                    widgetclass=None,
                  )
-	
+    

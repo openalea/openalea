@@ -21,8 +21,8 @@ from openalea.core.interface import IInterface
 from openalea.core.color_palette import lime
 
 class IColor(IInterface) :
-	"""Interface for colors expressed as triplet of values
-	"""
-	__pytype__ = tuple
-	__color__ = lime
+    """Interface for colors expressed as triplet of values
+    """
+    __pytype__ = tuple
+    __color__ = lime
 
