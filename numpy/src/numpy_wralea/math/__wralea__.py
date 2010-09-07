@@ -22,7 +22,7 @@ from openalea.core import Factory
 from openalea.core.interface import *
 
 
-__name__ = "openalea.numpy.ufunc.math"
+__name__ = "openalea.numpy.math"
 
 
 __version__ = '0.0.1'
