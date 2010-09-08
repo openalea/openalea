@@ -24,6 +24,13 @@ from PyQt4 import QtCore, QtGui
 from openalea.core.interface import * #IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify         
 
+def isiterable(seq):
+    try:
+        iter(seq)
+        return True
+    except TypeError:
+        return False
+    return False
 
 class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
     """
@@ -452,7 +459,8 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         self.updating = True
 
         self.subwidget.clear()
-        if(not seq): return
+
+        if not isiterable(seq): return
         for elt in seq :
             item = QtGui.QListWidgetItem(str(elt))
             item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
