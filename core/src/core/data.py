@@ -84,6 +84,8 @@ class DataFactory(AbstractFactory):
         self.editors = editors
         self.includes = includes
 
+    def is_data(self):
+        return True
     def is_valid(self):
         """
         Return True if the factory has associated data.

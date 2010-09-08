@@ -20,9 +20,13 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import sys
+from time import clock
 import traceback as tb
 from openalea.core import ScriptLibrary
 
+# print the evaluation time
+# This variable has to be retrieve by the settings
+quantify = False
 
 __evaluators__ = []
 
@@ -201,6 +205,7 @@ class BrutEvaluation(AbstractEvaluation):
 
     def eval(self, *args):
         """ Evaluate the whole dataflow starting from leaves"""
+        t0 = clock()
         df = self._dataflow
 
         # Unvalidate all the nodes
@@ -210,6 +215,10 @@ class BrutEvaluation(AbstractEvaluation):
         for vid in (vid for vid in df.vertices() if df.nb_out_edges(vid)==0):
             self.eval_vertex(vid)
 
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
+
 
 class PriorityEvaluation(BrutEvaluation):
     """ Support priority between nodes and selective"""
@@ -217,6 +226,7 @@ class PriorityEvaluation(BrutEvaluation):
 
     def eval(self, vtx_id=None, *args):
         """todo"""
+        t0 = clock()
 
         df = self._dataflow
         # Unvalidate all the nodes
@@ -234,6 +244,10 @@ class PriorityEvaluation(BrutEvaluation):
         # Excecute
         for vid, actor in leaves:
             self.eval_vertex(vid, *args)
+
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
 
 
 class GeneratorEvaluation(AbstractEvaluation):
@@ -297,6 +311,8 @@ class GeneratorEvaluation(AbstractEvaluation):
             self.reeval = ret
 
     def eval(self, vtx_id=None):
+        t0 = clock()
+
         df = self._dataflow
 
         if (vtx_id is not None):
@@ -317,6 +333,9 @@ class GeneratorEvaluation(AbstractEvaluation):
                     self.clear()
                     self.eval_vertex(vid)
 
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
         return False
 
 
@@ -445,6 +464,7 @@ class LambdaEvaluation(PriorityEvaluation):
         :param vtx_id: vertex id to start the evaluation
         :param context: list a value to assign to lambda variables
         """
+        t0 = clock()
 
         self.lambda_value.clear()
 
@@ -455,6 +475,10 @@ class LambdaEvaluation(PriorityEvaluation):
 
         PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
         self.lambda_value.clear() # do not keep context in memory
+        
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
 
 
 DefaultEvaluation = LambdaEvaluation
@@ -846,6 +870,8 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
             self._stop = True
 
     def eval(self, vtx_id=None):
+        t0 = clock()
+
         self.clear()
 
         df = self._dataflow
@@ -879,6 +905,10 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
         # Reset the state
         self.clear()
         self._current_cycle = 0
+
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
 
         return False
 

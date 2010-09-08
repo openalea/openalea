@@ -34,7 +34,7 @@ from path import path
 from pkg_resources import iter_entry_points
 
 from openalea.core.singleton import Singleton
-from openalea.core.package import UserPackage, PyPackageReader
+from openalea.core.package import Package, UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.pkgdict import PackageDict, is_protected, protected
@@ -787,6 +787,137 @@ class PackageManager(object):
         if(best) : match.insert(0, best)
         return match
 
+
+    ####################################################################################
+    # Methods to introspect globally the PkgManager
+    ####################################################################################
+
+    def get_packages(self, pkg_name=None):
+        """
+        Return all public packages.
+        """
+        if pkg_name and is_protected(pkg_name):
+            pkg_name = None
+        if pkg_name and pkg_name in self:
+            pkgs = [pkg_name]
+        else:
+            pkgs = set(pk.name for pk in self.itervalues() if not is_protected(pk.name))
+        return [self[p] for p in pkgs]
+
+
+    def get_data(self, pattern='*.*',pkg_name=None):
+        """ Return all data that match the pattern. """
+        pkgs = self.get_packages(pkg_name)
+        datafiles = [f for p in pkgs for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name,pattern)]
+        return datafiles
+
+    def get_composite_nodes(self, pkg_name=None):
+        pkgs = self.get_packages(pkg_name)
+        cn = [f for p in pkgs for f in p.itervalues() if f.is_composite_node() ]
+        return cn
+
+    def get_nodes(self, pkg_name=None):
+        pkgs = self.get_packages(pkg_name)
+        nf = [f for p in pkgs for f in p.itervalues() if f.is_node() ]
+        return nf
+
+    def _dependencies(self, factory):
+        f = factory
+        if not f.is_composite_node():
+            return
+
+        for p,n in f.elt_factory.values():
+            if is_protected(p) or is_protected(n):
+                continue
+            try:
+                fact = self[p][n]
+            except:
+                #print p, n
+                continue
+            yield fact
+            
+            for df in self._dependencies(fact):
+                yield df
+
+    def _missing_dependencies(self, factory, l=[]):
+        
+        f = factory
+        if not f.is_composite_node():
+            return
+
+        for p,n in f.elt_factory.values():
+            if is_protected(p) or is_protected(n):
+                continue
+            try:
+                fact = self[p][n]
+            except:
+                l.append((p, n))
+                continue
+            yield fact
+            
+            for df in self._missing_dependencies(fact,l):
+                yield df
+
+    def _missing(self, factory, l=[]):
+        list(self._missing_dependencies(factory,l))
+        return l
+
+    def missing_dependencies(self,package_or_factory=None):
+        """ Return all the dependencies of a package or a factory. """
+        f = package_or_factory
+        if f is None:
+            return self._all_missing_dependencies()
+        if isinstance(f, Package):
+            return self._missing_pkg_dependencies(f)
+        else:
+            return self._missing_cn_dependencies(f)
+
+    def dependencies(self, package_or_factory=None):
+        """ Return all the dependencies of a package or a factory. """
+        f = package_or_factory
+        if f is None:
+            return self._all_dependencies()
+        if isinstance(f, Package):
+            return self._pkg_dependencies(f)
+        else:
+            return self._cn_dependencies(f)
+        
+    def _all_dependencies(self):
+        return dict((pkg.name, self._pkg_dependencies(pkg)) for pkg in self.get_packages())
+
+    def _pkg_dependencies(self, package):
+        cns = [f for f in package.itervalues() if f.is_composite_node() ]
+        factories = set((f.package.name, f.name) for cn_factory in cns for f in self._dependencies(cn_factory) if f.package.name != package.name)
+        return dict([(package.name,sorted(factories))])
+
+    def _cn_dependencies(self, factory):
+        factories = set((f.package.name, f.name) for f in self._dependencies(factory))
+        return dict([(factory.name,sorted(factories))])
+        
+    def _all_missing_dependencies(self):
+        d = {}
+        for pkg in self.get_packages():
+            m = self._missing_pkg_dependencies(pkg)
+            if m:
+                d[pkg.name] = m
+        return d
+    def _missing_pkg_dependencies(self, package):
+        cns = [f for f in package.itervalues() if f.is_composite_node() ]
+        l=[]
+        for cn in cns:
+           self._missing(cn,l)
+        factories = set(l)
+        if factories:
+            return sorted(factories)
+        return None
+
+    def _missing_cn_dependencies(self, factory):
+        l=[]
+        factories = set(self._missing(factory,l))
+        if factories:
+            return sorted(factories)
+        return None
+        
 
 def cmp_name(x, y):
     """ Comparison function """
