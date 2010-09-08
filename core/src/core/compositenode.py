@@ -35,7 +35,7 @@ from openalea.core.dataflow import DataFlow, InvalidEdge
 from openalea.core.settings import Settings
 from openalea.core.metadatadict import MetaDataDict
 
-
+quantify = False
 class IncompatibleNodeError(Exception):
     """todo"""
     pass
@@ -83,6 +83,8 @@ class CompositeNodeFactory(AbstractFactory):
         self.doc = kargs.get('doc', "")
         self.__doc__ = self.doc
 
+    def is_composite_node(self):
+        return True
 
     def get_documentation(self):
         return self.__doc__
@@ -503,7 +505,8 @@ class CompositeNode(Node, DataFlow):
 
         if node_id is None, then all the nodes without sons are evaluated
         """
-
+        import time
+        t0 = time.clock()
         if(self.evaluating):
             return
         if(vtx_id != None):
@@ -515,7 +518,9 @@ class CompositeNode(Node, DataFlow):
             algo.eval(vtx_id)
         finally:
             self.evaluating = False
-
+        t1 = time.clock()
+        if quantify:
+            print 'Evalation time: %s'%(t1-t0)
     # Functions used by the node evaluator
 
     def eval(self):

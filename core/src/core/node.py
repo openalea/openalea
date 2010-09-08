@@ -1023,6 +1023,15 @@ class AbstractFactory(Observed):
         """ Remove files depending of factory """
         pass
 
+    def is_data(self):
+        return False
+
+    def is_node(self):
+        return False
+
+    def is_composite_node(self):
+        return False
+
     def __getstate__(self):
         odict = self.__dict__.copy() # copy the dict since we change it
         odict['__pkg__'] = None # remove weakref reference
@@ -1109,6 +1118,9 @@ class NodeFactory(AbstractFactory):
         if(not caller_dir in self.search_path):
             self.search_path.append(caller_dir)
 
+
+    def is_node(self): 
+        return True
 
     def get_python_name(self):
         """ Return a python valid name """
