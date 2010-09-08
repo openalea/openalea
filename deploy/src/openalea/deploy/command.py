@@ -1072,7 +1072,7 @@ class system_deploy(Command):
     system dependencies (rpms, debs, etc...)
     """
 
-    import system_dependencies as sys_deps
+    sys_deps = None
 
     description = "Install all required dependencies of a project using the platform's installer"
 
@@ -1085,6 +1085,9 @@ class system_deploy(Command):
 
 
     def initialize_options(self):
+        if system_deploy.sys_deps is None:
+            import system_dependencies as sys_deps
+            system_deploy.sys_deps = sys_deps
         self.project = None
         self.platform = None
         self.dev = False
