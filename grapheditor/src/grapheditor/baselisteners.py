@@ -45,6 +45,9 @@ class GraphElementListenerBase(observer.AbstractListener):
         self.set_graph(graph)
         return
 
+    def category(self):
+        return "base"
+
     def set_observed(self, observed):
         if self.get_observed():
             raise Exception("Clear observer before setting a new one")
@@ -76,8 +79,9 @@ class GraphElementListenerBase(observer.AbstractListener):
         #currently, the grapheditor widget maps models with graphical items
         #to track which graphic item to delete when something is being
         #deleted in the model:
-        self.get_view()._unregister_widget_from_model(self, old)
-        self.get_view()._register_widget_with_model(self, new)
+        t = self.category()
+        self.get_view()._unregister_widget_from_model(self, old, t)
+        self.get_view()._register_widget_with_model(self, new, t)
 
     def set_graph(self, graph):
         if(graph is not None):
@@ -187,30 +191,30 @@ class GraphListenerBase(observer.AbstractListener):
     def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
         vertexWidget = self.__strategyCls.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
-        return self._element_added(vertexWidget, vertexModel)
+        return self._element_added(vertexWidget, vertexModel, "vertex")
 
     def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
         if edgeModel is None : return
         edgeWidget = self.__strategyCls.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
-        return self._element_added(edgeWidget, edgeModel)
+        return self._element_added(edgeWidget, edgeModel, "edge")
 
     def vertex_removed(self, vtype, vertexModel):
         if vertexModel is None : return
-        return self._element_removed(vertexModel)
+        return self._element_removed(vertexModel, "vertex")
 
     def edge_removed(self, vtype, edgeModel):
         if edgeModel is None : return
-        return self._element_removed(edgeModel)
+        return self._element_removed(edgeModel, "edge")
 
     def vertex_event(self, vertex, data):
-        observers = self.widgetmap.get(vertex)
+        observers = self.widgetmap.setdefault("vertex",{}).get(vertex)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
 
     def edge_event(self, edge, data):
-        observers = self.widgetmap.get(edge)
+        observers = self.widgetmap.setdefault("edge",{}).get(edge)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
@@ -276,21 +280,27 @@ class GraphListenerBase(observer.AbstractListener):
     def get_edge_types(self):
         return self.__graphAdapter.get_edge_types()
 
+    def get_graphical_edges_connected_to(self, cmodel):
+        edgeMap = self.widgetmap.setdefault("edge",{})
+        retSet = set()
+        for edgeModel, graphicalEdges in edgeMap.iteritems():
+            if hasattr(edgeModel, "__iter__") and cmodel in edgeModel:
+                retSet |= graphicalEdges
+            elif edgeModel == cmodel:
+                retSet |= graphicalEdges
+        return retSet
+
 
     ###############################################################
     # Internal book-keeping methods to make all system's gc happy #
     ###############################################################
-    def _element_added(self, widget, model):
+    def _element_added(self, widget, model, t):
         widget.add_to_view(self.get_scene())
         widget.initialise_from_model()
-        if hasattr(model, "__iter__"):
-            for m in model:
-                self._register_widget_with_model(widget, m)
-        else:
-            self._register_widget_with_model(widget, model)
+        self._register_widget_with_model(widget, model, t)
         return widget
 
-    def _register_widget_with_model(self, widget, model):
+    def _register_widget_with_model(self, widget, model,t):
         """
         This method maps widgets to models. A single model
         can be viewed be many widgets.
@@ -303,26 +313,17 @@ class GraphListenerBase(observer.AbstractListener):
         It uses the weakref callback to maintain the mapping up-to-date.
         """
         widgetWeakRef = weakref.ref(widget, self._widget_died)
-        modelWidgets = self.widgetmap.get(model, None)
-        if not modelWidgets: self.widgetmap[model] = set()
-        self.widgetmap[model].add(widgetWeakRef)
-        self.widgetmap[widgetWeakRef] = model
+        widgetTypeMap = self.widgetmap.setdefault(t,{})
+        modelWidgets = widgetTypeMap.setdefault(model, set())
+        modelWidgets.add(widgetWeakRef)
+#        widgetTypeMap[widgetWeakRef] = model
+        self.widgetmap[widgetWeakRef] = t
         self.post_addition(widget) #virtual function call
         return widget
 
-    def _unregister_widget_from_model(self, widget, model):
+    def _element_removed(self, model, t):
         if model is None : return
-        widgets = self.widgetmap.get(model, None)
-        if(widgets is None): return
-        toDiscard = None
-        for widgetWeakRef in widgets:
-            if widgetWeakRef() == widget : toDiscard = widgetWeakRef; break
-        if toDiscard:
-            widgets.discard(toDiscard)
-
-    def _element_removed(self, model):
-        if model is None : return
-        widgets = self.widgetmap.pop(model, None)
+        widgets = self.widgetmap.setdefault(t, {}).pop(model, None)
         if(widgets is None): return
         for widgetWeakRef in widgets:
             self.widgetmap.pop(widgetWeakRef, None)
@@ -330,8 +331,22 @@ class GraphListenerBase(observer.AbstractListener):
             widget.remove_from_view(self.get_scene())
             del widgetWeakRef
 
+    def _unregister_widget_from_model(self, widget, model, t):
+        if model is None : return
+        widgets = self.widgetmap.setdefault(t, {}).get(model, None)
+        if(widgets is None): return
+        toDiscard = None
+        for widgetWeakRef in widgets:
+            if widgetWeakRef() == widget : toDiscard = widgetWeakRef; break
+        if toDiscard:
+            widgets.discard(toDiscard)
+
+
     def _widget_died(self, widgetWeakRef):
-        model = self.widgetmap.pop(widgetWeakRef, None)
+        t = self.widgetmap.pop(widgetWeakRef, None)
+        if t is None:
+            return
+        model = self.widgetmap.setdefault(t,{}).pop(widgetWeakRef, None)
         if not model: return
             # raise Exception("__widget_died without associated model")
         modelWidgets = self.widgetmap.get(model, None)
