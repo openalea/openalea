@@ -194,6 +194,9 @@ class Connector(Element):
         self.__makeConnectionMouseButton = QtCore.Qt.LeftButton
         self.__makeConnectionModifiers   = QtCore.Qt.ControlModifier
 
+    def category(self):
+        return "connector"
+
     def set_connection_button(self, button):
         self.__makeConnectionMouseButton = button
 
@@ -217,9 +220,10 @@ class Connector(Element):
         if hasattr(obs, "listeners"):
             edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
         elif hasattr(self, "fakeParent"):
-            observers = self.fakeParent.scene().widgetmap.get(obs)
+            par = self.fakeParent
+            observers = par.scene().get_graphical_edges_connected_to(obs)
             if observers:
-                edges = [l() for l in observers if l is not None and isinstance(l(), Edge)]
+                edges = [l() for l in observers if l is not None]
         for e in edges:
             e.notify(obs, ("metadata_changed", "connectorPosition", pos))
 
@@ -270,9 +274,10 @@ class Vertex(Element):
             self.fakeParent = parent
 
 
+
         def position_changed(self, *args):
             """reimplemented to do nothing. otherwise caught
-            position changes from the model (????) and ignored
+            position changes from the model and ignored
             the position it was forced to"""
             pass
 
@@ -302,6 +307,9 @@ class Vertex(Element):
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
             self.__defaultConnector = Vertex.InvisibleConnector(self, vertex, graph)
+
+    def category(self):
+        return "vertex"
 
     vertex = baselisteners.GraphElementListenerBase.get_observed
 
@@ -395,6 +403,9 @@ class Edge(Element):
         if src is not None: self.set_observed_source(src)
         if dst is not None: self.set_observed_destination(dst)
         self.setPath(self.__edge_creator.get_path(self.srcPoint, self.dstPoint))
+
+    def category(self):
+        return "edge"
 
     edge = baselisteners.GraphElementListenerBase.get_observed
 
