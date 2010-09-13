@@ -46,7 +46,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     # --- PAINTING STUFF ---
     # Color Definition
     default_pen_color                = QtGui.QColor(QtCore.Qt.black)
-    default_pen_selected_color       = QtGui.QColor(QtCore.Qt.white)
+    default_pen_selected_color       = QtGui.QColor(QtCore.Qt.lightGray)
     default_pen_error_color          = QtGui.QColor(QtCore.Qt.red)
 
     default_top_color                = QtGui.QColor(200, 200, 200, 255)
