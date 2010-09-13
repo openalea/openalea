@@ -2,12 +2,12 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -20,8 +20,8 @@ from openalea.core import Node, ITextStr
 
 def pymap(func, seq):
     """ map(func, seq) """
-    
-    if func and seq:
+
+    if func is not None and seq is not None and len(seq):
         return ( map(func, seq), )
     else:
         return ( [], )
@@ -29,8 +29,8 @@ def pymap(func, seq):
 
 def pyfilter(func, seq):
     """ filter(func, seq) """
-    
-    if func and seq:
+
+    if func is not None and seq is not None and len(seq):
         return ( filter(func, seq), )
     else:
         return ( [], )
@@ -39,7 +39,7 @@ def pyfilter(func, seq):
 def pyreduce(func, seq):
     """ reduce(func, seq) """
 
-    if func and seq:
+    if func is not None and seq is not None and len(seq):
         return ( reduce(func, seq), )
     else:
         return ( [], )
@@ -51,11 +51,11 @@ def pyapply(func, seq):
 
     try:
         seq = list(seq)
-        
+
     except TypeError:
         seq = list([seq])
 
-    if func:
+    if func is not None:
         return apply(func, seq)
     else:
         return ()
@@ -78,7 +78,7 @@ def pyfunction(func_str):
         # local dictionary
         d = {}
         exec(str(func_str), d, globals())
-        
+
         return d.get(name, None)
     else:
         return None
@@ -97,12 +97,12 @@ class pyfunction(Node):
         self.add_output( name="function")
 
     def __call__(self, inputs):
-        """ inputs is the list of input values 
+        """ inputs is the list of input values
 
         :returns: the value
         """
         func_str = inputs[0]
-        if func_str:
+        if func_str is not None:
             # Extract the function name
             l = func_str.split('\n')
             line = ''
@@ -126,7 +126,7 @@ class pyfunction(Node):
             # local dictionary
             d = {}
             exec(str(func_str), d)
-            
+
             return (d.get(name, None), )
         else:
             return None
