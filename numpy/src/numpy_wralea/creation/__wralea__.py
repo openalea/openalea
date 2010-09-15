@@ -187,6 +187,24 @@ logspace = Factory(name= "logspace",
 __all__.append("logspace")
 
 
+
+meshgrid = Factory(name="meshgrid",
+                description="Return coordinate matrices from two coordinate vectors.",
+                category= "numpy",
+                inputs = (dict(name='x', interface=ISequence, value=[]),
+                        dict(name='y', interface=ISequence, value=[])),
+                outputs = (dict(name='X', interface=ISequence, value=[]),
+                        dict(name='Y', interface=ISequence, value=[])),
+               nodemodule = "numpy",
+               nodeclass = "meshgrid",
+                )
+
+__all__.append("meshgrid")
+
+
+
+
+
 eye = Factory(name= "eye",
                description= "Return a 2-D array with ones on the diagonal and zeros elsewhere",
                category = "numpy",
