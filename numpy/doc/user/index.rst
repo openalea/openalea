@@ -50,6 +50,7 @@ Now, it is time to run the dataflow. Press Ctrl+R or right click on the :class:`
 We have just created an array object. The array a has several attributes --or properties : 
 
 .. code-block:: python
+
     >>> a.shape
     (2, 5)
     >>> a.ndim 
@@ -155,48 +156,57 @@ For this reason, it is usually better to use the function linspace that receives
 
    **Figure 10: Linspace array in VisuAlea**
 
-See nodes available within VisuAlea in `numpy.creation <todo.html>`_ package.
+Meshgrid can easily be created using the :func:`~numpy.meshgrid`.
+
+..  _Fig_11:
+.. figure:: images/meshgrid.png
+
+    **Figure 11: Meshgrid usage in VisuAlea**
+
+
+
+.. seealso See nodes available within VisuAlea in `numpy.creation <todo.html>`_ package.
 
 Basic Operations
 ================
 
 Arithmetic operators on arrays apply elementwise. A new array is created and filled with the result. 
 
-.. _Fig_11:
+.. _Fig_12:
 .. figure:: images/subtraction.png
 
-   **Figure 11: Subtraction of two arrays in VisuAlea**
-
-.. _Fig_12:
-.. figure:: images/sinus.png
-
-   **Figure 12: Multiplication using a integer and the sinus of an array in VisuAlea**
+   **Figure 12: Subtraction of two arrays in VisuAlea**
 
 .. _Fig_13:
+.. figure:: images/sinus.png
+
+   **Figure 13: Multiplication using a integer and the sinus of an array in VisuAlea**
+
+.. _Fig_14:
 .. figure:: images/mask.png
 
-   **Figure 12: Check if the values of an array is less than the value 35 in VisuAlea**
+   **Figure 14: Check if the values of an array is less than the value 35 in VisuAlea**
 
 Unlike in many matrix languages, the product operator * operates elementwise in NumPy arrays. The matrix product can be performed using the :class:`~numpy.dot` node :
 
-.. _Fig_13:
+.. _Fig_15:
 .. figure:: images/dot.png
 
-   **Figure 13: Matrix product in VisuAlea**
+   **Figure 15: Matrix product in VisuAlea**
 
 Many unary operations, like computing the sum of all the elements in the array, are implemented as nodes in VisuAlea :
 
-.. _Fig_14:
+.. _Fig_16:
 .. figure:: images/sum.png
 
-   **Figure 14: Unary operations in VisuAlea**
+   **Figure 16: Unary operations in VisuAlea**
 
 By default, these operations apply to the array as if it were a list of numbers, regardless of its shape. However, by specifying the connector axis you can apply an operation along the specified axis of an array: 
 
-.. _Fig_15:
+.. _Fig_17:
 .. figure:: images/axis.png
 
-   **Figure 15: Using of the connector axis in VisuAlea**
+   **Figure 17: Using of the connector axis in VisuAlea**
 
 See nodes available within VisuAlea in `numpy.math <todo.html>`_ package.
 
@@ -215,10 +225,10 @@ One dimensional arrays can be indexed, sliced and iterated over pretty much like
 
 In VisuAlea, you need to use the nodes `slice` and `getitem` as follow :
 
-.. _Fig_16:
+.. _Fig_18:
 .. figure:: images/getitem.png
 
-   **Figure 16: Basic slicing in VisuAlea**
+   **Figure 18: Basic slicing in VisuAlea**
 
 
 As the same way, the following example :
@@ -233,27 +243,27 @@ As the same way, the following example :
 
 can be done in VisuAlea :
 
-.. _Fig_17:
+.. _Fig_19:
 .. figure:: images/getitem2.png
 
-   **Figure 17: Basic slicing in VisuAlea**
+   **Figure 19: Basic slicing in VisuAlea**
 
 Reversed an array :
 
-.. _Fig_18:
+.. _Fig_20:
 .. figure:: images/reverse.png
 
-   **Figure 18: Reverse an array in VisuAlea**
+   **Figure 20: Reverse an array in VisuAlea**
 
 
 .. todo:: Modify elements in an array
 
 Slicing multidimensional arrays : 
 
-.. _Fig_19:
+.. _Fig_21:
 .. figure:: images/fromfunction.png
 
-   **Figure 19: Slicing multidimensional arrays in VisuAlea**
+   **Figure 21: Slicing multidimensional arrays in VisuAlea**
 
 
 Iterating over multidimensional arrays is done with respect to the first axis: 
@@ -268,10 +278,10 @@ Changing the shape of an array
 
 An array has a shape, given by the number of elements along each axis. The shape of an array can be changed with various nodes : 
 
-.. _Fig_20:
+.. _Fig_22:
 .. figure:: images/ravel.png
 
-   **Figure 20: Changing the shape of an array in VisuAlea**
+   **Figure 22: Changing the shape of an array in VisuAlea**
 
 
 Stacking together different arrays
@@ -279,9 +289,9 @@ Stacking together different arrays
 
 Several arrays can be stacked together, along different axes: 
 
-.. _Fig_21:
+.. _Fig_23:
 .. figure:: images/vhstack.png
 
-   **Figure 21: Stacking together different arrays in VisuAlea**
+   **Figure 23: Stacking together different arrays in VisuAlea**
 
 See nodes available within VisuAlea in `numpy.manipulation <todo.html>`_ package.

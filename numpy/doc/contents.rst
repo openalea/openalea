@@ -27,10 +27,15 @@ Documentation
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
 
     User Guide<user/index.rst>   
+..    user/numpy_creation.rst
+    user/todo.rst
+    user/numpy_ufunc.rst
+    user/numpy_manipulation.rst
 
-..    Reference Guide<user/autosum.rst>
+    Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/numpy.pdf>`_ version of |numpy| documentation is 
   available.
