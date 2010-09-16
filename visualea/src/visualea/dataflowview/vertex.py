@@ -628,6 +628,7 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
                         self.hide()
                     else:
                         self.show()
+                    self.parentItem().refresh_geometry()
         qtgraphview.Connector.notify(self, sender, event)
 
     def clear_observed(self, *args):
