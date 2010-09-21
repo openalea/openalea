@@ -1,5 +1,5 @@
 Source: openalea-visualea
-Maintainer: OpenAlea consortium <christophe pradal at cirad fr, Thomas Cokelaer at sophia inria fr, samuel.dufour@sophia.inria.fr>
+Maintainer: christophe pradal <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
