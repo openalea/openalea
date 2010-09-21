@@ -1,0 +1,6 @@
+openalea-grapheditor (0.9.0-1) unstable; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+  * Update debian files
+
+ -- Daniel Barbeau <daniel.barbeau@sophia.inria.fr>  Tue, 21 Sep 2010 16:49:26 +0200
