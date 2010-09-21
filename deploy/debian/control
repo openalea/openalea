@@ -8,7 +8,7 @@ XS-Python-Version: current
 
 Package: python-openalea.deploy
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python:Depends}, python-setuptools, python-soappy
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: "Setuptools extension for OpenAlea"
