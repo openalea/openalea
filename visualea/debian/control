@@ -8,7 +8,7 @@ XS-Python-Version: current
 
 Package: python-openalea.visualea
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-openalea.core, python-openalea.grapheditor, python-openalea.core
+Depends: ${misc:Depends}, ${python:Depends}, python-openalea.core, python-openalea.grapheditor, python-openalea.core, python-qscintilla2
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: OpenAlea visual programming environment.
