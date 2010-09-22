@@ -1,5 +1,9 @@
-openalea (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+openalea (0.9.0-1ubuntu1ppa3) lucid; urgency=low
 
+  [ OpenAlea consortium ]
   * source package automatically created by stdeb 0.6.0
 
- -- OpenAlea consortium <christophe.pradal@cirad.fr>  Wed, 22 Sep 2010 14:02:37 +0200
+  [ Christophe Pradal ]
+  * Remove scons from setup.py 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 00:30:35 +0200
