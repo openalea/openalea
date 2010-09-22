@@ -98,31 +98,31 @@ def _validate_md5(egg_name, data):
 try:
     import os.path
     import urllib, getpass, urllib2
-    
+
     #raises an error if timeouts.
-    urllib2.urlopen("http://gforge.inria.fr/", timeout=4) 
-    
+    urllib2.urlopen("http://gforge.inria.fr/", timeout=4)
+
     filename = os.path.join(os.getcwd(), "auth.py")
     try:
         os.remove(filename)
-        os.remove(filename+"c")        
+        os.remove(filename+"c")
     except:
         pass
-    
+
     urllib.urlretrieve( "http://gforge.inria.fr/scm/viewvc.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
                         filename )
 
     import auth
     #now that it is imported (in memory), we don't need it anymore:
     os.remove(filename)
-    os.remove(filename+"c")    
+    os.remove(filename+"c")
 
     GFORGE_LOGIN_AVAILABLE = True
 except Exception, e:
     print e
     print >> sys.stderr, ("GForge authentification disabled")
     GFORGE_LOGIN_AVAILABLE = False
-    
+
 def cli_login():
     if not GFORGE_LOGIN_AVAILABLE : print "GForge not available, auth module cannot be loaded."
     print 'GFORGE login\n'
@@ -251,11 +251,11 @@ def main(argv, version=DEFAULT_VERSION):
             "You have an obsolete version of setuptools installed.  Please\n"
             "remove it from your system entirely before rerunning this script.")
             sys.exit(2)
-    
+
     req = "setuptools>="+version
     import pkg_resources
     try:
-        pkg_resources.require(req)                
+        pkg_resources.require(req)
     except pkg_resources.VersionConflict:
         try:
             from setuptools.command.easy_install import main
@@ -264,14 +264,14 @@ def main(argv, version=DEFAULT_VERSION):
         main(list(argv)+[download_setuptools(delay=0)])
         sys.exit(0) # try to force an exit
     else:
-        # hardcoded version of --install-dir        
+        # hardcoded version of --install-dir
         if '--install-dir' in argv:
             argv = None
 
         if argv:
             from setuptools.command.easy_install import main
             main(argv)
-        else:            
+        else:
             print "Setuptools version %s or greater has been installed." % \
                 version
             print '(Run "ez_setup.py -U setuptools" to reinstall or upgrade.)'
@@ -365,7 +365,7 @@ def welcome_setup():
     except:
         pass
     print  """
-    
+
 -----------------------------------------------------------------------------
 -                       OPENALEA Installation Initialisation                -
 -----------------------------------------------------------------------------
@@ -524,7 +524,7 @@ def non_root_initialisation():
     if opts.install_dir:
         print " * .pydistutils configuration "
         # this file must be present and valid for non-root installation.
-        home = os.environ['HOME']
+        home = os.path.expanduser("~")
         file = home + '/.pydistutils.cfg'
 
         # check the presence of the file and check its content
@@ -646,11 +646,11 @@ if (__name__ == "__main__"):
         try:    sys.argv.remove('--no-enter-request')
         except: pass
         try:    sys.argv.remove('-n')
-        except: pass        
+        except: pass
 
     # Execute the script in 2 process
     # This part is called the second time.
-    if("openalea" in sys.argv):       
+    if("openalea" in sys.argv):
         # Second call: install openalea.
         if opts.gforge :
             cli_login()
@@ -679,7 +679,7 @@ if (__name__ == "__main__"):
         # Install setup tools
         print '\nInstalling setuptools if needed\n'.upper()
         install_setuptools()
-  
+
         # Start again in an other process with openalea option
         # to take into account modifications
         if opts.install_dir:

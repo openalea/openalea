@@ -10,6 +10,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+#testing buildbot
 """
 Multisetup allows to build and install all the packages of OpenAlea
 found in this directory.
