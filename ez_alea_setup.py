@@ -43,6 +43,7 @@ md5_data = {
     'setuptools-0.6c11-py2.4.egg': 'bd639f9b0eac4c42497034dec2ec0c2b',
     'setuptools-0.6c11-py2.5.egg': '64c94f3bf7a72a13ec83e0b24f2749b2',
     'setuptools-0.6c11-py2.6.egg': 'bfa92100bd772d5a213eedd356d64086',
+    'setuptools-0.6c11-py2.7.egg': 'fe1f997bc722265116870bc7919059ea',
     'setuptools-0.6c2-py2.3.egg': 'f0064bf6aa2b7d0f3ba0b43f20817c27',
     'setuptools-0.6c2-py2.4.egg': '616192eec35f47e8ea16cd6a122b7277',
     'setuptools-0.6c3-py2.3.egg': 'f181fa125dfe85a259c9cd6f1d7b78fa',

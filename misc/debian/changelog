@@ -1,6 +1,10 @@
 openalea-misc (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
+  [ OpenAlea consortium, Christophe Pradal, Thomas Cokelaer ]
   * source package automatically created by stdeb 0.6.0
   * update changelog and control files
 
- -- OpenAlea consortium, Christophe Pradal, Thomas Cokelaer <christophe.pradal@cirad.fr>  Tue, 22 Sep 2010 10:40:52 +0200
+  [ Christophe Pradal ]
+  * Upload package to PPA
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 22 Sep 2010 10:54:59 +0200
