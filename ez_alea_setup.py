@@ -582,7 +582,7 @@ def non_root_initialisation():
     # check that ~/.pydistutils is not present
     if(not 'win32' in sys.platform):
         if not opts.install_dir:
-            home = os.environ['HOME']
+            home = os.path.expanduser("~")
             file = home + '/.pydistutils.cfg'
             if os.path.isfile(file):
                 print """
