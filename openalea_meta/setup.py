@@ -65,7 +65,7 @@ setup(
 
     package_dir={"":"src" },
 
-    scons_scripts=['SConstruct'],
+    #scons_scripts=['SConstruct'],
 
     # Add package platform libraries if any
     include_package_data=True,
