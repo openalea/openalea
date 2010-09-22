@@ -2,4 +2,4 @@ openalea-numpy (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
   * source package automatically created by stdeb 0.6.0
 
- -- OpenAlea consortium <christophe.pradal@cirad.fr, Eric.Moscardi@sophia.inria.fr, Thomas.Cokelaer@sophia.inria.fr, Daniel.Barbeau@sophia.inria.fr>  Wed, 22 Sep 2010 13:23:37 +0200
+ -- OpenAlea consortium <christophe.pradal@cirad.fr>  Wed, 22 Sep 2010 13:23:37 +0200
