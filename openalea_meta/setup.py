@@ -22,8 +22,8 @@ else:
                              'scipy',
                              'numpy']
 
-if platform != 'darwin':
-    external_dependencies.append('PIL<=1.1.6')
+#if platform != 'darwin':
+#    external_dependencies.append('PIL<=1.1.6')
 
 alea_dependencies = [
 'openalea.core >= 0.8.0.dev',
