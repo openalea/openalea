@@ -10,7 +10,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, scons
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
-Description: Scons Extension to build multi-platform packages for OpenAle
+Description: Scons Extension to build multi-platform packages for OpenAlea
  .
  Scons Configuration Utilities for OpenAlea.
  .

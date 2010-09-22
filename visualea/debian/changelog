@@ -3,4 +3,4 @@ openalea-visualea (0.9.0-1ubuntu1ppa1) lucid; urgency=low
   * source package automatically created by stdeb 0.6.0
   * modify control dependencies
 
- -- OpenAlea consortium <christophe pradal at cirad fr, Thomas Cokelaer at sophia inria fr, samuel.dufour@sophia.inria.fr>  Tue, 21 Sep 2010 17:19:04 +0200
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 22 Sep 2010 10:40:04 +0200
