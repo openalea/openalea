@@ -1,3 +1,10 @@
+openalea (0.9.0-1ubuntu1ppa5) lucid; urgency=low
+
+  * Add openalea.deploygui in the dependencies 
+  * 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 16:45:16 +0200
+
 openalea (0.9.0-1ubuntu1ppa4) lucid; urgency=low
 
   [ Christophe Pradal ]
