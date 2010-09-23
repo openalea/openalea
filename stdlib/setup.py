@@ -26,6 +26,7 @@ setup(
     url = url,
     license = license,
 
+    namespace_packages = ['openalea'],
     create_namespaces=False,
     zip_safe=False,
 
