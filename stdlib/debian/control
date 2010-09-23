@@ -1,5 +1,5 @@
 Source: openalea-stdlib
-Maintainer: Christophe Pradal <christophe.pradal@cirad fr>
+Maintainer: Christophe Pradal <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy

@@ -1,6 +1,6 @@
-openalea-stdlib (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+openalea-stdlib (0.9.0-1ubuntu1ppa2) lucid; urgency=low
 
   * source package automatically created by stdeb 0.6.0
   * debianize this package
 
- -- Christophe Pradak <christophe.pradal@cirad fr>  Tue, 21 Sep 2010 17:57:06 +0200
+ -- Christophe Pradak <christophe.pradal@cirad.fr>  Tue, 21 Sep 2010 17:57:06 +0200
