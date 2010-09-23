@@ -5,5 +5,6 @@ openalea (0.9.0-1ubuntu1ppa3) lucid; urgency=low
 
   [ Christophe Pradal ]
   * Remove scons from setup.py 
+  * Add openalea.deploygui in the dependencies 
 
- -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 00:30:35 +0200
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 09:59:12 +0200
