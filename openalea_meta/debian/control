@@ -6,7 +6,7 @@ Build-Depends: python-setuptools (>= 0.6b3), python-all-dev, debhelper (>= 7), p
 Standards-Version: 3.8.4
 
 Package: python-openalea
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}, python-openalea.visualea, python-openalea.misc, python-openalea.stdlib, python-openalea.sconsx, python-openalea.pkgbuilder, python-openalea.numpy, python-openalea.image, python-openalea.pylab, python-openalea.deploygui
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
