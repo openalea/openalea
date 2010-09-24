@@ -2,4 +2,5 @@
         needs="X11" \
         section="Applications/Science/Biology" \
         title="VisuAlea" \
-        command="/usr/bin/visualea"
+        command="/usr/bin/visualea"\
+        icon="/usr/share/pyshared/share/openalea_icon.xpm"
