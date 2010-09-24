@@ -168,7 +168,7 @@ class OsInterface(object):
         if fake:
             print command
         else:
-            subprocess.Popen(command.split(" "))
+            subprocess.call(command.strip().split(" "))
 
 
 

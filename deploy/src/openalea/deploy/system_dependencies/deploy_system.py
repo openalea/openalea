@@ -7,31 +7,35 @@ def install_dependencies(software, osname=None, fake=False):
     theOs = dependency.OsInterfaceFactory().create(osname)
     dependencies = dependency.DependencySolver(software, osname)
 
+    vrun = False
+    vdev = False
+    voth = False
+
     if len(dependencies.runtime_distribution_packages()):
         print "Do you wish to install the required runtime packages:\n"
         print reduce(lambda x,y: str(x)+" "+str(y),
                      dependencies.runtime_distribution_packages(), "") + " (y/n)?"
-        v = raw_input()
-        if v == "y":
-            theOs.install_packages(dependencies.runtime_distribution_packages(), fake)
+        vrun = raw_input()
 
     if len(dependencies.development_distribution_packages()):
         print "Do you wish to install the development packages:\n"
         print reduce(lambda x,y: str(x)+" "+str(y),
                      dependencies.development_distribution_packages(), "") + " (y/n)?"
-        v = raw_input()
-        if v == "y":
-            theOs.install_packages(dependencies.development_distribution_packages(), fake)
+        vdev = raw_input()
+
 
     if len(dependencies.other_packages()):
         print "Do you wish to install the other packages:\n"
         print reduce(lambda x,y: str(x)+" "+str(y),
                      dependencies.other_packages(), "") + " (y/n)?"
-        v = raw_input()
-        if v == "y":
-            theOs.install_packages(dependencies.other_packages(), fake)
+        voth = raw_input()
 
-
+    if vrun == "y":
+        theOs.install_packages(dependencies.runtime_distribution_packages(), fake)
+    if vdev == "y":
+        theOs.install_packages(dependencies.development_distribution_packages(), fake)
+    if voth == "y":
+        theOs.install_packages(dependencies.other_packages(), fake)
 
 usage = """
 Usage:
