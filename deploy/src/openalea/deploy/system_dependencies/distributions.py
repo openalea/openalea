@@ -17,11 +17,11 @@ import dependency
 # -- our dependency tree --
 
 canonical_dependencies = {
-    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "svn-dev"],
+    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla"],
     "vplants"  : ["openalea", "pyqt4", "boostpython", "qhull", "cgal", "glut",
                   "pyqt4-dev", "sip4-dev", "qhull-dev",
                   "cgal-dev", "boostpython-dev", "glut-dev",
-                  "compilers", "bison-dev", "flex-dev"],
+                  "compilers", "bison-dev", "flex-dev", "svn-dev"],
     "alinea"   : ["vplants", "openalea"]
 }
 
@@ -36,7 +36,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
     def __init__(self):
         d = {"bison-dev" : "bison",
              "boostpython" : "libboost-python",
-             "boostpython-dev" : "libboost-python-",
+             "boostpython-dev" : "libboost-python-dev",
              "cgal" :  "libcgal",
              "cgal-dev" : "libcgal-dev",
              "compiler" : "g++ gfortran",
@@ -47,6 +47,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "numpy" : "python-numpy",
              "pyqt4" : "python-qt4",
              "pyqt4-dev" : "python-qt4-dev",
+             "pyqscintilla" : "python-qscintilla2",
              "qhull" : "libqhull",
              "qhull-dev" : "libqhull-dev",
              "scipy" : "python-scipy",
@@ -76,6 +77,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "numpy" : "numpy",
              "pyqt4" : "PyQt4",
              "pyqt4-dev" : "PyQt4-devel",
+             "pyqscintilla" : "qscintilla-python",
              "qhull" : "qhull",
              "qhull-dev" : "qhull-dev",
              "scipy" : "scipy",
