@@ -20,7 +20,7 @@ canonical_dependencies = {
     "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla"],
     "vplants"  : ["openalea", "pyqt4", "boostpython", "qhull", "cgal", "glut",
                   "pyqt4-dev", "sip4-dev", "qhull-dev", "pyopengl",
-                  "cgal-dev", "boostpython-dev", "glut-dev",
+                  "cgal-dev", "boostpython-dev", "glut-dev", "readline", "readline-dev",
                   "compilers-dev", "bison-dev", "flex-dev", "svn-dev", "scons-dev"],
     "alinea"   : ["vplants", "openalea"]
 }
@@ -37,7 +37,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
         d = {"bison-dev" : "bison",
              "boostpython" : "libboost-python",
              "boostpython-dev" : "libboost-python-dev",
-             "cgal" :  "libcgal",
+             "cgal" :  "libcgal3",
              "cgal-dev" : "libcgal-dev",
              "compilers-dev" : "g++ gfortran",
              "flex-dev" : "flex",
@@ -49,8 +49,10 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "pyqt4" : "python-qt4",
              "pyqt4-dev" : "python-qt4-dev",
              "pyqscintilla" : "python-qscintilla2",
-             "qhull" : "libqhull",
+             "qhull" : "libqhull5",
              "qhull-dev" : "libqhull-dev",
+             "readline": "readline-common",
+             "readline-dev": "libreadline-dev",
              "sip4-dev" : "python-sip4",
              "scipy" : "python-scipy",
              "scons-dev" :  "scons",
@@ -66,7 +68,12 @@ class Ubuntu_Karmic_PackageNames(Ubuntu_PackageNames):
 class Ubuntu_Lucid_PackageNames(Ubuntu_PackageNames):
     def __init__(self):
         Ubuntu_PackageNames.__init__(self)
-        self.update({"sip4-dev":"python-sip-dev"})
+        self.update({
+             "boostpython" : "libboost-python1.40.0",
+             "boostpython-dev" : "libboost-python1.40-dev",
+             "cgal" :  "libcgal4",
+             "sip4-dev":"python-sip-dev",             
+        })
 
 # ------------------ FEDORA ------------------
 class Fedora_PackageNames(dependency.DistributionPackageNames):
@@ -88,6 +95,8 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "pyqscintilla" : "qscintilla-python",
              "qhull" : "qhull",
              "qhull-dev" : "qhull-dev",
+             "readline": "readline",
+             "readline-dev": "readline-devel readline",
              "scipy" : "scipy",
              "sip4-dev" : "sip-devel",
              "scons-dev" :  "scons",
