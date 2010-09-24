@@ -331,7 +331,8 @@ class DependencySolver(object):
             distribCls = DistributionPackageFactory().create(_platform)
             if distribCls:
                 for pkg in self.__canonical_deps:
-                    self.__translation[pkg] = distribCls[pkg]
+                    if pkg not in self.__dep_tree__:
+                        self.__translation[pkg] = distribCls[pkg]
         else:
             print "No decanonification"
 
