@@ -21,7 +21,7 @@ canonical_dependencies = {
     "vplants"  : ["openalea", "pyqt4", "boostpython", "qhull", "cgal", "glut",
                   "pyqt4-dev", "sip4-dev", "qhull-dev", "pyopengl",
                   "cgal-dev", "boostpython-dev", "glut-dev", "readline", "readline-dev",
-                  "compilers-dev", "bison-dev", "flex-dev", "svn-dev", "scons-dev"],
+                  "compilers-dev", "bison-dev", "flex-dev", "svn-dev", "scons-dev", "nose-dev"],
     "alinea"   : ["vplants", "openalea"]
 }
 
@@ -44,6 +44,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "glut" : "freeglut3",
              "glut-dev" : "freeglut3-dev",
              "matplotlib" : "python-matplotlib",
+             "nose-dev" : "python-nose",
              "numpy" : "python-numpy",
              "pyopengl":"python-opengl",
              "pyqt4" : "python-qt4",
@@ -88,6 +89,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "glut" : "freeglut",
              "glut-dev" : "freeglut-devel",
              "matplotlib" : "python-matplotlib",
+             "nose-dev" : "python-nose",
              "numpy" : "numpy",
              "pyopengl":"PyOpenGL",
              "pyqt4" : "PyQt4",
