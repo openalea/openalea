@@ -17,7 +17,7 @@ import dependency
 # -- our dependency tree --
 
 canonical_dependencies = {
-    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla"],
+    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla", "setuptools"],
     "vplants"  : [
                     "bison-dev",
                     "boostmath",
@@ -79,6 +79,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "readline": "readline-common",
              "readline-dev": "libreadline-dev",
              "rpy2" : "python-rpy2",
+             "setuptools" : "python-setuptools",
              "sip4-dev" : "python-sip4",
              "scipy" : "python-scipy",
              "scons-dev" :  "scons",
@@ -89,7 +90,12 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
 class Ubuntu_Karmic_PackageNames(Ubuntu_PackageNames):
     def __init__(self):
         Ubuntu_PackageNames.__init__(self)
-        self["boostpython"] = dependency.EggDependency("boostpython")
+        self.update({
+             "boostmath" : "libboost-math1.38.0",
+             "boostmath-dev" : "libboost-math1.38-dev libboost1.38-dev",
+             "boostpython" : "libboost-python1.38.0",
+             "boostpython-dev" : "libboost-python1.38-dev",
+        })
 
 class Ubuntu_Lucid_PackageNames(Ubuntu_PackageNames):
     def __init__(self):
