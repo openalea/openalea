@@ -34,7 +34,8 @@ def wra_save (filename, img) :
 	return img,
 
 wra_save.__doc__ = save.__doc__
-def wra_imread (filename) :
+
+def wra_imread (filename) :
 	"""Read an image file
 	
 	.. warning:: supported format are either the classical format for images

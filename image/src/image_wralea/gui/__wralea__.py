@@ -115,4 +115,16 @@ select_box = Factory( name= "SelectBox",
 
 __all__.append('select_box')
 
+display = Factory(  name= "Display", 
+		    description= "",
+		    category = "",
+		    nodemodule = "viewer",
+		    nodeclass = "display",
+		    inputs=(dict(name="images", interface=None),
+			    dict(name="palette_name", interface=IStr, value="grayscale"),
+			    dict(name="color_index_max", interface=IInt, value=None),),
+		    outputs=(dict(name="view", interface=None),),
+                                )
+
+__all__.append('display')
 
