@@ -61,13 +61,13 @@ setup(
 
     include_package_data = True,
     entry_points = {
-            "wralea": [ "openalea.pylab = pylab_main_wralea",
-                        "openalea.pylab.demo = pylab_demo_wralea",
-                        "openalea.pylab.nodes = pylab_nodes_wralea",
-                        "openalea.pylab.text = pylab_text_wralea",
-                        "openalea.pylab.test = pylab_test_wralea",
-                        "openalea.pylab.patches = pylab_patches_wralea",
-                        "openalea.pylab.mplot3d = pylab_3d_wralea",
+            "wralea": [ "openalea.pylab = openalea.pylab_main_wralea",
+                        "openalea.pylab.demo = openalea.pylab_demo_wralea",
+                        "openalea.pylab.nodes = openalea.pylab_nodes_wralea",
+                        "openalea.pylab.text = openalea.pylab_text_wralea",
+                        "openalea.pylab.test = openalea.pylab_test_wralea",
+                        "openalea.pylab.patches = openalea.pylab_patches_wralea",
+                        "openalea.pylab.mplot3d = openalea.pylab_3d_wralea",
             ]
             },
 
