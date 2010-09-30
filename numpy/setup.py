@@ -15,7 +15,7 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
-pkgs = [ pkg for pkg in find_packages('src') if namespace not in pkg]
+pkgs = [ pkg for pkg in find_packages('src') if namespace not in pkg] 
 top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
 packages = [ namespace + "." + pkg for pkg in pkgs]
 package_dir = dict( [('','src')] + [(namespace + "." + pkg,  "src/" + pkg) for pkg in top_pkgs] )
@@ -32,7 +32,7 @@ setup(
     license = license,
 
     namespace_packages = ['openalea'],
-    create_namespaces=False,
+    create_namespaces=True,
     zip_safe=False,
 
     packages=packages,
