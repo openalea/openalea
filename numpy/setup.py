@@ -50,9 +50,9 @@ setup(
 
     # entry_points
     entry_points = {
-        "wralea": ['openalea.numpy = numpy_wralea', 
-                   'openalea.numpy.demo = numpy_demo_wralea', 
-                   'openalea.numpy.test = numpy_test_wralea', 
+        "wralea": ['openalea.numpy = openalea.numpy_wralea', 
+                   'openalea.numpy.demo = openalea.numpy_demo_wralea', 
+                   'openalea.numpy.test = openalea.numpy_test_wralea', 
               ],
         },
 
