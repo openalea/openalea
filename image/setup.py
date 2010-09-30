@@ -65,8 +65,8 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = {
-            'wralea': ['openalea.image = image_wralea',
-                       'openalea.image.demo = image_demo_wralea']
+            'wralea': ['openalea.image = openalea.image_wralea',
+                       'openalea.image.demo = openalea.image_demo_wralea']
         },
 
     )
