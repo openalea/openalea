@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/image" >
+    <file>rotate_left.png</file>
+    <file>rotate_right.png</file>
+    <file>close.png</file>
+    <file>snapshot.png</file>
+  </qresource>
+</RCC>

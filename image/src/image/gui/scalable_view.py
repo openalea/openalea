@@ -19,8 +19,7 @@ This module provide a 2D QPixmap view on spatial images
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-__all__ = ["PixmapView","PixmapStackView",
-           "ScalableLabel","ScalableGraphicsView"]
+__all__ = ["ScalableLabel","ScalableGraphicsView"]
 
 from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
@@ -101,3 +100,8 @@ class ScalableGraphicsView (QGraphicsView) :
 			t.scale(s,s)
 			self.setMatrix(t)
 
+	def mousePressEvent (self, event) :
+		self.emit(SIGNAL("mouse_press"),event.pos(),self)
+	
+	def mouseMoveEvent (self, event) :
+		self.emit(SIGNAL("mouse_move"),event)
