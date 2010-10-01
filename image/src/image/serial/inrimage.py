@@ -1,10 +1,11 @@
 # -*- python -*-
 #
-#       spatial_image.serial: read/write spatial nd images
+#       image.serial: read/write spatial nd images
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
