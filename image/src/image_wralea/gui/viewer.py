@@ -17,8 +17,7 @@
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-from openalea.image import SpatialImage
-from openalea.spatial_image import SlideViewer, palette_factory
+from openalea.image import SpatialImage, SlideViewer, palette_factory
 
 def display (images, palette_name, color_index_max) :
     if isinstance(images,SpatialImage) :

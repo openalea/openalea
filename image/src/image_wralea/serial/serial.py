@@ -22,7 +22,9 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from os.path import exists
 from numpy import issubdtype
-from openalea.image import load,save,imread,imsave,read_inrimage,write_inrimage
+from pylab import imread,imsave
+from openalea.image import load,save,read_inrimage,write_inrimage,read_lsm
+
 
 def wra_load (filename, mmap_mode) :
 	return load(filename,mmap_mode),
@@ -35,11 +37,11 @@ def wra_save (filename, img) :
 
 wra_save.__doc__ = save.__doc__
 
-def wra_imread (filename) :
+def wra_imread (filename,channel) :
 	"""Read an image file
 	
 	.. warning:: supported format are either the classical format for images
-	             like png and jpg or the inrimage format for spatial nd images
+	             like png and jpg or lsm and inrimage format for spatial nd images
 	
 	:Parameters:
 	 - `filename` (str)
@@ -50,9 +52,12 @@ def wra_imread (filename) :
 		raise IOError("The requested file do not exist: %s" % filename)
 	
 	try :
-		return imread(filename),
-	except IOError :
-		return read_inrimage(filename),
+                return read_lsm(filename,channel),
+	except :
+                try:
+                        return imread(filename),
+		except :
+		        return read_inrimage(filename),
 
 def wra_imsave (filename, img) :
 	"""Save an image into a file
