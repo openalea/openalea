@@ -50,6 +50,8 @@ class PointSelectionWidget(NodeWidget,PointSelection) :
         if event[0] == 'input_modified' :
             image = self.node.get_input(0)
             if image is not None :
+                if image.ndim == 2:
+                    image = image.reshape(image.shape + (1,))
                 if not isinstance(image,SpatialImage):
                     image = SpatialImage(image)
                 self.set_palette(palette_factory("grayscale",image.max() ))
