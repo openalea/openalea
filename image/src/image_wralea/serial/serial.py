@@ -23,7 +23,12 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from os.path import exists
 from numpy import issubdtype
 from pylab import imread,imsave
-from openalea.image import load,save,read_inrimage,write_inrimage,read_lsm
+from openalea.image import load,save,read_inrimage,write_inrimage
+try:
+    from openalea.image import read_lsm
+    lsm_loaded = True
+except ImportError:
+    lsm_loaded = False
 
 
 def wra_load (filename, mmap_mode) :
@@ -50,14 +55,17 @@ def wra_imread (filename,channel) :
 	"""
 	if not exists(filename) :
 		raise IOError("The requested file do not exist: %s" % filename)
-	
-	try :
-                return read_lsm(filename,channel),
+        
+        if lsm_loaded:
+    	        try :
+                        return read_lsm(filename,channel),
+	        except :
+                        pass
+        try:
+                return imread(filename),
 	except :
-                try:
-                        return imread(filename),
-		except :
-		        return read_inrimage(filename),
+		return read_inrimage(filename),
+
 
 def wra_imsave (filename, img) :
 	"""Save an image into a file

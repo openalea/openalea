@@ -33,7 +33,7 @@ def wra_points2transfo (image1,points1,image2,points2) :
 
     if not isinstance(image2,SpatialImage) :
 	image2 = SpatialImage(image2)
-
+    
     vrx = image1.resolution[0]
     vry = image1.resolution[1]
     vrz = image1.resolution[2]
@@ -49,5 +49,9 @@ def wra_points2transfo (image1,points1,image2,points2) :
     points2[:,1] *= vfy
     points2[:,2] *= vfz
 
-    T = cp2transfo(list(points1),list(points2))
+    print points1
+    print points2
+
+
+    T = cp2transfo(points1,points2)
     return T,

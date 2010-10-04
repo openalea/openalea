@@ -20,10 +20,15 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: $ "
 
 import numpy as np
-from pylsm import lsmreader
 from ..spatial_image import SpatialImage
 
-__all__ = ["read_lsm"]
+__all__ = []
+
+try:
+    from pylsm import lsmreader
+    __all__.append("read_lsm")
+except ImportError:
+    pass
 
 def read_lsm(filename,channel=0):
     """Read an lsm image
