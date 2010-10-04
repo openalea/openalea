@@ -108,13 +108,11 @@ def cp2transfo(x,y):
                [  0.        ,   0.        ,   0.        ,   1.        ]])
       
     """
-    x = np.array(x)
     #compute barycenters
     # nx vectors of dimension kx
     nx,kx = x.shape
     x_barycenter = x.sum(0)/float(nx)
 
-    y = np.array(y)
     # nx vectors of dimension kx
     ny,ky = y.shape
     y_barycenter = y.sum(0)/float(ny)
