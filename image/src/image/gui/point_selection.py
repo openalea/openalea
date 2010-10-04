@@ -317,7 +317,7 @@ class PointSelection (QMainWindow) :
         item_coords = self._item.mapFromScene(sc_coords)
         img = self._view.image()
         if img is not None :
-            i,j,k = self._view.data_coordinates(event.x(),event.y())
+            i,j,k = self._view.data_coordinates(item_coords.x(),item_coords.y())
             self.emit(SIGNAL("mouse_moved"), (i,j,k))
 
     def slice_changed (self, ind) :
