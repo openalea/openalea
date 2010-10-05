@@ -417,20 +417,14 @@ class PointSelection (QMainWindow) :
             self.emit(SIGNAL("points_changed"),self)
 
 def point_selection (image, palette_name = "grayscale", color_index_max = None) :
-    qapp = QApplication.instance()
-    if qapp is None :
-        qapp = QApplication([])
 
     w = PointSelection()
     w.set_image(image)	
-    
     if color_index_max is None :
         cmax = image.max()
     else :
         cmax = color_index_max
-
     palette = palette_factory(palette_name,cmax)
     w.set_palette(palette)
-
     w.show()
-    qapp.exec_()
+    return w
