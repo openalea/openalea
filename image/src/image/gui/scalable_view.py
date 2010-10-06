@@ -19,11 +19,12 @@ This module provide a 2D QPixmap view on spatial images
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-__all__ = ["ScalableLabel","ScalableGraphicsView"]
 
 from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
+
+__all__ = ["ScalableLabel","ScalableGraphicsView"]
 
 class ScalableLabel (QLabel) :
 	"""Scalable label that respect the ratio of the pixmap it display
@@ -80,28 +81,35 @@ class ScalableLabel (QLabel) :
 		QLabel.setPixmap(self,pix)
 		self._compute_ratio()
 
-
-class ScalableGraphicsView (QGraphicsView) :
-	"""Graphics View that always zoom to fit it's content
-	"""
 	
-	def __init__ (self, *args, **kwargs) :
-		QGraphicsView.__init__(self,*args,**kwargs)
-		self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-		self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-	
-	def resizeEvent (self, event) :
-		sc = self.scene()
-		if sc is not None and event.oldSize() != event.size() :
-			s = min(event.size().width() / sc.width(),
-			        event.size().height() / sc.height() )
-			
-			t = QMatrix()
-			t.scale(s,s)
-			self.setMatrix(t)
-
 	def mousePressEvent (self, event) :
-		self.emit(SIGNAL("mouse_press"),event.pos(),self)
+		self.emit(SIGNAL("mouse_press"),event)
 	
 	def mouseMoveEvent (self, event) :
 		self.emit(SIGNAL("mouse_move"),event)
+
+class ScalableGraphicsView (QGraphicsView) :
+    """Graphics View that always zoom to fit it's content
+    """
+	
+    def __init__ (self, *args, **kwargs) :
+        QGraphicsView.__init__(self,*args,**kwargs)
+	self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	
+    def resizeEvent (self, event) :
+	sc = self.scene()
+	if sc is not None and event.oldSize() != event.size() :
+            if sc.width() > 0 and sc.height() > 0 :
+		s = min(event.size().width() / sc.width(),
+			event.size().height() / sc.height() )
+			
+	        t = QMatrix()
+	        t.scale(s,s)
+	        self.setMatrix(t)
+
+    def mousePressEvent (self, event) :
+	self.emit(SIGNAL("mouse_press"),event.pos(),self)
+	
+    def mouseMoveEvent (self, event) :
+    	self.emit(SIGNAL("mouse_move"),event)

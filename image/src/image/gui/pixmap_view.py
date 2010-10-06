@@ -20,10 +20,14 @@ This module provide a 2D QPixmap view on spatial images
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
+__all__ = ["PixmapView","PixmapStackView",
+           "ScalableLabel","ScalableGraphicsView"]
+
 from numpy import array,uint32
 from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
+
 
 class PixmapView (object) :
 	"""Base class for 2D views on spatial images
@@ -351,3 +355,92 @@ class PixmapStackView (PixmapView) :
 			#j = (w_pix - x_pix) * w / w_pix
 		return x_pix,y_pix
 
+
+class ScalableLabel (QLabel) :
+	"""Scalable label that respect the ratio of the pixmap it display
+	"""
+	def __init__ (self, parent = None) :
+		QLabel.__init__(self,parent)
+		self.setScaledContents(True)
+		
+		self._ratio = 1.
+		self._resolution = (1.,1.)
+	
+	def _compute_ratio (self) :
+		pix = self.pixmap()
+		if pix is not None :
+			vx,vy = self._resolution
+			self._ratio = (pix.height() * vy) / (pix.width() * vx)
+	
+	def set_resolution (self, x_scale, y_scale) :
+		"""Set the resolution of the image
+		
+		:Parameters:
+		 - `x_scale` (float) - size of a pixel in x direction
+		 - `y_scale` (float) - size of a pixel in y direction
+		"""
+		self._resolution = (x_scale,y_scale)
+		self._compute_ratio()
+	
+	def pixmap_coordinates (self, x_screen, y_screen) :
+		"""Compute pixmaps coordinates that map the given point on the screen
+		
+		:Parameters:
+		 - `x_screen` (int)
+		 - `y_screen` (int)
+		"""
+		pix = self.pixmap()
+		if pix is None :
+			return None
+		
+		x_pix = x_screen * pix.width() / self.width()
+		y_pix = y_screen * pix.height() / self.height()
+		
+		return x_pix,y_pix
+	
+	def resizeEvent (self, event) :
+		if event.oldSize() != event.size() :
+			w = event.size().width()
+			h = event.size().height()
+			if int(w * self._ratio) <= h :
+				self.resize(w,w * self._ratio)
+			else :
+				self.resize(h / self._ratio,h)
+	
+	def setPixmap (self, pix) :
+		QLabel.setPixmap(self,pix)
+		self._compute_ratio()
+
+	
+	def mousePressEvent (self, event) :
+		self.emit(SIGNAL("mouse_press"),event)
+	
+	def mouseMoveEvent (self, event) :
+		self.emit(SIGNAL("mouse_move"),event)
+
+
+class ScalableGraphicsView (QGraphicsView) :
+    """Graphics View that always zoom to fit it's content
+    """
+	
+    def __init__ (self, *args, **kwargs) :
+        QGraphicsView.__init__(self,*args,**kwargs)
+	self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	
+    def resizeEvent (self, event) :
+	sc = self.scene()
+	if sc is not None and event.oldSize() != event.size() :
+            if sc.width() > 0 and sc.height() > 0 :
+		s = min(event.size().width() / sc.width(),
+			event.size().height() / sc.height() )
+			
+	        t = QMatrix()
+	        t.scale(s,s)
+	        self.setMatrix(t)
+
+    def mousePressEvent (self, event) :
+	self.emit(SIGNAL("mouse_press"),event.pos(),self)
+	
+    def mouseMoveEvent (self, event) :
+    	self.emit(SIGNAL("mouse_move"),event)
