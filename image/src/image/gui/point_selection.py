@@ -30,8 +30,7 @@ from PyQt4.QtGui import (QApplication,QMainWindow,QGraphicsScene,QGraphicsPixmap
 
 import numpy as np
 
-from pixmap_view import PixmapStackView
-from scalable_view import ScalableGraphicsView
+from pixmap_view import PixmapStackView, ScalableGraphicsView
 from palette import palette_names, palette_factory
 
 from ..serial import load
