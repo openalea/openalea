@@ -2,31 +2,28 @@
 
 # Header
 import os, sys
+from os import listdir
+from os.path import exists
 pj= os.path.join
 
 from setuptools import setup
 
-#Check OS
-"""
-if not sys.platform.startswith('win'):
-    print 'This package contain only Boost binary for MS Windows'
-    print 'Please use your system installer to install Boost library'
-    exit(1);
-"""
 
 # Package name
-name= 'BoostPython'
-version= '1.41'
-
-
-# Description of the package
+name= 'Boost'
+version= '1.44'
 
 # Short description
-description= 'Boost.Python binary and header for Ubuntu 9.10' 
-
-
+description= 'Boost libs and headers.' 
 license= 'Boost Software License V 1.0' 
 
+#find boost include dir in cwd when boost is installed using --prefix
+#into cwd. The include directory has a subdirectory named "boost-X_YY[_Z]"
+cwd = os.getcwd()
+includeDir = pj("include", "boost-"+version.replace(".", "_"))
+if not exists(pj(cwd,includeDir)):
+    raise Exception("Include directory " + includeDir + " not found")
+    sys.exit(-1)
 
 # For other meta-information, please read the Python distutils documentation.
 
@@ -39,12 +36,11 @@ setup(
     license=license,
 
     lib_dirs = { 'lib' : 'lib' },
-    inc_dirs = { 'include' : 'include' },
+    inc_dirs = { 'include' : includeDir },
 
     zip_safe = False,
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
- 
     )
 
 
