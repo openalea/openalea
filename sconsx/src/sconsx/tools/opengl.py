@@ -40,9 +40,10 @@ class OpenGL:
            self._default['msvc_include'] = pj(MVSdir, 'Include')
            self._default['msvc_lib'] = pj(MVSdir, 'Lib')
         
-           mgw_dir = r'C:\MinGW'
-           self._default['mgw_include'] = pj(mgw_dir, 'include')
-           self._default['mgw_lib'] = pj(mgw_dir, 'lib', 'GL')
+           mgw_dir = find_executable_path_from_env("mingw32-make.exe", strip_bin=True)           
+           mgw_dir = mgw_dir or r'C:\MinGW'
+           self._default['mgw_include'] = pj(mgw_dir, 'include', 'GL')
+           self._default['mgw_lib'] = pj(mgw_dir, 'lib')
         
            self._default['include'] = self._default['msvc_include']
            self._default['lib'] = self._default['msvc_lib']
@@ -87,10 +88,10 @@ class OpenGL:
               env.Append(LINKFLAGS=['-framework',str(fmk)])
           return
       if env.get('compiler', 'mingw') == 'mingw':
-          if env['gl_includes'] == self._default['mgw_include']:
-              env['gl_includes'] = self._default['msvc_include']
-          if env['gl_lib'] == self._default['mgw_lib']:
-              env['gl_lib'] = self._default['msvc_lib']
+          if env['gl_includes'] == self._default['msvc_include']:
+              env['gl_includes'] = self._default['mgw_include']
+          if env['gl_lib'] == self._default['msvc_lib']:
+              env['gl_lib'] = self._default['mgw_lib']
 
       env.AppendUnique(CPPPATH=[env['gl_includes']])
       env.AppendUnique(LIBPATH=[env['gl_lib']])
