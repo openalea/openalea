@@ -24,6 +24,7 @@ __revision__ = "$Id$"
 
 import os, sys
 #import string
+from os.path import exists
 pj = os.path.join
 
 from SCons.Script import SConsignFile, Help
@@ -72,7 +73,7 @@ def import_tool(name, import_dir):
         
     try:
         mod = __import__('sconsx_ext.'+name)
-        print "import local definition of tool '"+name+"'"
+        print "import local definition of tool '"+name+"'", "at", mod.__path__
         mod = getattr(mod, name)
     except ImportError:
         try:
@@ -206,7 +207,6 @@ def GetPlatform():
 
 platform = GetPlatform()
 
-
 #------------------------------------------------------------------------------
 # User Configuration class
 
@@ -226,7 +226,6 @@ class Config(object):
         for t in self.init_tools:
             self.add_tool(t)
 
-
     def add_tool(self, tool):
         """
         Add a specific tool and its dependencies recursively in the tool set.
@@ -245,12 +244,13 @@ class Config(object):
         try:
             mod = import_tool(tool, self.dir)
             t = mod.create(self)
-        except:
+        except Exception, e:
             # Try to import EGG LIB
+            print "trying egglib import", e
             mod = import_tool("egglib", self.dir)
             t = mod.create(tool, self)
-            
-            
+                        
+                        
         self._walk.pop()
         self.tools.append(t)
     
@@ -351,3 +351,20 @@ def ALEASolution(options, tools=[], dir=[]):
     env.Prepend(LIBPATH='$build_libdir')
 
     return env
+
+
+# -- locate executables in the path, use with caution --    
+def find_executable_path_from_env(exe, strip_bin=True):
+    paths = os.environ["PATH"].split(os.pathsep)
+    okPath = None
+    for p in paths:
+        if exists(pj(p,exe)):
+            okPath = p
+            break
+
+    bin = okPath[-4:]
+    if strip_bin and okPath and "bin" in bin and os.sep in bin:
+        return okPath[:-4]              
+    else:
+        return okPath
+    
