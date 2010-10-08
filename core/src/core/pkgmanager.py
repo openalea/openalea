@@ -500,7 +500,7 @@ class PackageManager(object):
         if DEBUG:
             t2 = time.clock()
             dt1 = t2 - t1
-            print 'readers takes %f sec: %f'% (dt1, (dt1/(dt+dt1))*100)
+            print 'readers takes %f sec: '% (dt1,)
 
         return readers
 
@@ -553,6 +553,22 @@ class PackageManager(object):
 
         return readers
 
+    def find_all_wralea(self):
+        """
+        Find on the system all wralea.py files
+
+        :return : a list of file paths
+        """
+
+        files = set()
+        directories = self.get_wralea_path()
+        recursive = True
+
+        files = set( f.abspath() for p in directories for f in path(p).walkfiles('*wralea*.py'))
+        return files
+
+    def create_readers(self, wralea_files):
+        return  map(self.get_pkgreader, wralea_files)
 
 
     def get_pkgreader(self, filename):
@@ -584,7 +600,11 @@ class PackageManager(object):
         self.set_user_wralea_path()
         if DEBUG:
             t1 = time.clock()
-        readerlist = self.find_wralea_files()
+
+        wralea_files = self.find_all_wralea()
+        readerlist = self.create_readers(wralea_files)
+
+        #readerlist = self.find_wralea_files()
 
         if DEBUG:
             t2 = time.clock()
