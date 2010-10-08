@@ -1,0 +1,440 @@
+# The point of this file is to create an inno setup script to install openalea/vplants
+# on a machine without having to rely on an internet connection during installation
+# while leveraging the power off eggs for later updates.
+
+# It uses the following strategy:
+# 0 ) Prepare working dir (remove it if necessary and [re]create it)
+# 1 ) from a map of package names and bit masks we:
+# - go fetch installers for our Python version in srcDir and copy them into the working dir
+# - copy test files for packages whose bitmask says it should be tested
+# - configure template_win_inst.iss.in in various ways, filling in the blanks:
+    # * files to be packaged into the installer
+    # * generating testing and installation code
+    # * etc...
+# 2 ) Write down the configured template_win_inst to the working directory.
+
+
+
+
+# -- Some Flags : DONT CHANGE THESE IF YOU DON'T KNOW WHAT YOU'RE DOING --
+NOFLAG = 0
+# Is it an egg or an exe?
+EGG     = 2**0
+EXE     = 2**1
+ZIPDIST = 2**2
+MSI     = 2**3
+# Does the egg depend on python version?
+PY_DEP  = 2**4
+# Is it for runtime or development?
+RUNTIME = 2**5
+DEVELOP = 2**6
+# Should we test for it
+TEST_ME = 2**7
+# If it can't be installed
+NOT_INSTALLABLE = 2**8 #if tested and not installable, then fatal!
+
+
+
+# -- Installer and dependency packages description are declared here but are actually defined in the
+# -- conf file.
+APPNAME=None
+APPVERSION=None
+thirdPartyPackages = None
+
+#########################################################################################
+# IF YOU JUST WANTED TO EDIT THE PACKAGES, YOU'RE DONE, THE REST IS JUST THE DIRTY CODE #
+#########################################################################################
+
+import sys, os
+from os.path import exists, join as pj
+import shutil, glob, string
+
+
+class StrictTemplate(string.Template):
+    idpattern = r"[_A-Z0-9]*"
+
+# What options do we accept (to lazy to use getopts)
+goodOptions = set([ "conf",
+                    "pyMaj",
+                    "pyMin",
+                    "srcDir",
+                    "eggGlobs",
+                    "runtime"])
+
+def print_usage():
+    msg="""
+makeWinInstaller conf=vplants.conf pyMaj=2 pyMin=6 srcDir=%HOMEPATH%\Downloads\ eggGlobs="VPlants*.egg|Openalea*.egg" runtime=True
+makeWinInstaller conf=openalea.conf pyMaj=2 pyMin=7 srcDir=%HOMEPATH%\Downloads\ eggGlobs="Openalea*.egg" runtime=False
+
+You can have multiple globs, just use: eggGlobs="Openalea*.egg|Vplants*.egg".
+The glob will be mangled with to incorporate python version information so you
+should NOT write "Openalea*py2.6.egg" because it will be done automatically.
+"""
+    print msg
+
+# function to test bitmasks
+def bt(val, bit):
+    return bit==(val&bit)
+
+# -- The following globals are configured in the "if __name__ == '__main__'" section. --
+#Subset of package names that will be incorporated wether we're building runtime or "sdk".
+dependenciesToProcess=None    
+# create easy names for the packages. This might aswell disappear one day
+easyThirdPartyNames = None
+# create package testing python module names for the packages that want to be tested
+thirdPartyTests = None
+
+installerExtensions = { 0:"",
+                        EGG:".egg",
+                        EXE:".exe",
+                        ZIPDIST:".zip",
+                        MSI:".msi",
+                        }
+
+###########################################################################################
+# The following strings will be used as templates to create PascalScript in the installer #
+# that test and installs the modules that we wan to install and/or test                   #
+###########################################################################################
+python_package_test_template = """
+(*** Function to detect $PACKAGE ***)
+function Detect$PACKAGE(): Boolean;
+var
+  ResultCode: Integer;
+begin
+  ExtractTemporaryFile('$PACKAGE_TEST');
+  Result:=(Exec(GetPythonDirectory()+'python.exe', MyTempDir()+'$PACKAGE_TEST', '',
+          SW_HIDE, ewWaitUntilTerminated, ResultCode)) and (ResultCode=0);
+end;
+
+"""
+
+python_package_install_template_exe = """
+(*** Function to install $PACKAGE ***)
+function Install$PACKAGE(): Boolean;
+begin
+  ExtractTemporaryFile('$PACKAGE_INSTALLER');
+  Result := InstallExe(MyTempDir()+'$PACKAGE_INSTALLER');
+end;
+
+"""
+
+python_package_install_template_egg = """
+(*** Function to install $PACKAGE ***)
+function Install$PACKAGE(): Boolean;
+begin
+       ExtractTemporaryFile('$PACKAGE_INSTALLER');
+       Result := InstallEgg( MyTempDir()+'$PACKAGE_INSTALLER');
+end;
+
+"""
+
+python_package_install_template_zipdist = """
+(*** Function to install $PACKAGE ***)
+function Install$PACKAGE(): Boolean;
+begin
+       ExtractTemporaryFile('$PACKAGE_INSTALLER');
+       Result := InstallZipdist( MyTempDir()+'$PACKAGE_INSTALLER');
+end;
+
+"""
+
+python_package_install_template_msi = """
+(*** Function to install $PACKAGE ***)
+function Install$PACKAGE(): Boolean;
+begin
+       ExtractTemporaryFile('$PACKAGE_INSTALLER');
+       Result := InstallMsi( MyTempDir()+'$PACKAGE_INSTALLER');
+end;
+
+"""
+
+#"ti" stands for "test and install"
+python_package_ti_template_exe=python_package_test_template+python_package_install_template_exe
+python_package_ti_template_egg=python_package_test_template+python_package_install_template_egg
+python_package_ti_template_zipdist=python_package_test_template+python_package_install_template_zipdist
+python_package_ti_template_msi=python_package_test_template+python_package_install_template_msi
+
+
+
+def get_wd(options):
+    pyMaj, pyMin = options["pyMaj"], options["pyMin"]
+    instDir = pj(os.getcwd(), pyMaj+"."+pyMin)
+    return instDir
+
+def prepare_working_dir(options):
+    instDir = get_wd(options)
+    if exists(instDir):
+        shutil.rmtree(instDir, ignore_errors=True)
+    os.mkdir(instDir)
+
+def _processInstaller(mask, runtimeMode):
+    if (runtimeMode==True and bt(mask, RUNTIME)) or (runtimeMode==False and bt(mask, DEVELOP)):
+        return True
+    return False
+    
+def _makeInstallerGlob(srcDir, pk, v):
+    srcDir  = options["srcDir"]
+    pyMaj  = options["pyMaj"]
+    pyMin  = options["pyMin"]
+
+    identifier = pk+"*"
+    if bt(v, PY_DEP):
+        identifier+=pyMaj+"."+pyMin+"*"
+    if bt(v, MSI): identifier+=".msi"
+    elif bt(v, ZIPDIST): identifier+=".zip"
+    elif bt(v, EGG): identifier+=".egg"
+    elif bt(v, EXE): identifier+=".exe"
+    else:
+        raise Exception("Unknown installer type: " + pk +":"+str(v))
+    try:
+        return glob.glob(pj(srcDir, identifier))[0]
+    except:
+        return "No installer found for "+pk+" with glob "+pj(srcDir, identifier)
+
+def copy_installer_files(options):
+    print "Copying binaries..."
+    
+    for pk in dependenciesToProcess:
+        mask = thirdPartyPackages[pk]
+        if bt(mask, NOT_INSTALLABLE):
+            continue
+        ef = _makeInstallerGlob(options, pk, mask)
+        src, dst = ef, pj(get_wd(options), easyThirdPartyNames[pk])
+        print "\t"+src+" => "+dst+"...",
+        shutil.copyfile(src, dst)
+        print "ok"
+
+    print "Copying environment testing scripts..."
+    for f in thirdPartyTests.itervalues():
+        src, dst = f, pj(get_wd(options), f)
+        print "\t"+src+" => "+dst+"...",
+        shutil.copyfile(src, dst)
+        print "ok"
+
+def copy_eggs(options):
+    globs = options["eggGlobs"]
+    files = []
+    for g in globs:
+        files += glob.glob(g)
+    print "Copying egg..."
+    for f in files:
+        src, dst = f, pj(get_wd(options), f)
+        print "\t"+src+" => "+dst+"...",
+        shutil.copyfile(src, dst)
+        print "ok"
+    options["eggs"] = files
+
+    
+def __generate_pascal_test_install_code(options):
+    final = ""
+    testVariables = {}
+
+    for pk in dependenciesToProcess:
+        mask = thirdPartyPackages[pk]
+        if bt(mask,TEST_ME):
+            testVariables[pk] = pk+"Installed"
+            if bt(mask, NOT_INSTALLABLE):
+                template = StrictTemplate(python_package_test_template)
+                final += template.substitute(PACKAGE=pk,
+                                             PACKAGE_TEST=thirdPartyTests[pk])
+            else:            
+                #"ti" stands for "test and install"
+                if bt(mask, MSI): template = python_package_ti_template_msi
+                elif bt(mask, ZIPDIST): template = python_package_ti_template_zipdist
+                elif bt(mask, EGG): template = python_package_ti_template_egg
+                elif bt(mask, EXE): template = python_package_ti_template_exe
+                else: raise Exception("Unknown installer type: " + k +":"+str(mask))
+                template = StrictTemplate(template)
+                final+=template.substitute(PACKAGE=pk,
+                                           PACKAGE_TEST=thirdPartyTests[pk],
+                                           PACKAGE_INSTALLER=easyThirdPartyNames[pk])
+        else:
+            if bt(mask, MSI): template = python_package_install_msi_template
+            elif bt(mask, ZIPDIST): template = python_package_install_zipdist_template
+            elif bt(mask, EGG): template = python_package_install_egg_template
+            elif bt(mask, EXE): template = python_package_install_exe_template
+            else: raise Exception("Unknown installer type: " + k +":"+str(mask))
+            template = StrictTemplate(template)
+            final+=template.substitute(PACKAGE=pk,
+                                       PACKAGE_INSTALLER=easyThirdPartyNames[pk])
+                                       
+    return final, testVariables
+
+#must be run after "copy eggs"    
+def __generate_inno_installer_files_group(options):
+    final = ""
+    #installers
+    for pk, f in easyThirdPartyNames.iteritems():
+        if bt(thirdPartyPackages[pk], NOT_INSTALLABLE):
+            continue
+        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
+        
+    #eggs 
+    for f in options["eggs"]:
+        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
+        
+    #test scripts
+    for f in thirdPartyTests.itervalues():
+        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
+    return final
+
+    
+testReportingPascalTemplate = StrictTemplate(
+"""
+  if not $VAR then
+    caption := caption+#13+'$PACKAGE is not installed, $APPNAME will install it for you.'
+  else
+    caption := caption+#13+'$PACKAGE is already installed.';
+""")
+
+testFatalReportingPascalTemplate = StrictTemplate(
+"""
+  if not $VAR then
+    begin
+        caption := caption+#13+'$PACKAGE is not installed, please install it first. Setup will abort';
+        MsgBox('$PACKAGE is missing, installation will abort soon.', mbCriticalError, MB_OK);
+        ABORTINSTALL := True;
+    end
+  else
+    caption := caption+#13+'$PACKAGE is already installed.';
+""")
+
+def __generate_pascal_detect_env_body(testVars):
+    testing = ""
+    reporting = ""
+    
+    for pk in dependenciesToProcess:
+        mask = thirdPartyPackages[pk]  
+        if bt(mask, TEST_ME):                 
+            var = testVars[pk]
+            testing += "  "+ var + " := PyInstalled and Detect"+pk+"();\n"
+                    
+            if bt(mask, NOT_INSTALLABLE): #if tested and not installable, then fatal!
+                reporting += testFatalReportingPascalTemplate.substitute(PACKAGE=pk,
+                                                                         VAR=var,
+                                                                         APPNAME=APPNAME)
+            else:       
+                reporting += testReportingPascalTemplate.substitute(PACKAGE=pk,
+                                                                    VAR=var,
+                                                                    APPNAME=APPNAME)
+    return testing, reporting
+            
+installationPascalTemplate = StrictTemplate(
+"""
+  if res and not $VAR then
+    begin
+      WizardForm.StatusLabel.Caption:='Installing $PACKAGE, please wait...'; 
+      WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + $STEP;
+      WizardForm.Update();
+      res := Install$PACKAGE();
+    end;
+""")    
+
+def __generate_pascal_deploy_body(testVars, step):
+    installation = ""
+    
+    for pk in dependenciesToProcess:
+        mask = thirdPartyPackages[pk]
+        if bt(mask, NOT_INSTALLABLE):
+            continue
+        var = testVars[pk]
+        installation += installationPascalTemplate.substitute(PACKAGE=pk,
+                                                              VAR=var,
+                                                              STEP=step)
+    return installation
+          
+
+    
+def configure_inno_setup(options):
+    print "Configuring inno script...",
+    f = open("template_win_inst.iss.in")
+    s = f.read()
+    f.close()
+
+    template = StrictTemplate(s)
+    eggs = options["eggs"]
+    eggnum = len(eggs)
+
+    eggArrayInit = ""
+    visualeaId = -1
+    for i, e in enumerate(eggs):
+        eggArrayInit+="Eggs[%i] := '%s';\n"%(i, e)
+        if "Visualea" in e:
+            visualeaId = str(i)            
+            
+    step = int(100./(eggnum+len(dependenciesToProcess)))    
+    installAndDetect, testVars = __generate_pascal_test_install_code(options)
+    testingBody, reportingBody =__generate_pascal_detect_env_body(testVars)
+    installationBody = __generate_pascal_deploy_body(testVars, step)
+    
+    s = template.substitute(APPNAME=APPNAME,
+                            APPVERSION=APPVERSION,
+                            #configure Python Major and Minor
+                            PYTHONMAJOR=options["pyMaj"],
+                            PYTHONMINOR=options["pyMin"],
+                            TEST_VARIABLES=reduce(lambda x,y: x+", "+y, testVars.itervalues(), "dummy"),
+                            INSTALLER_FILES=__generate_inno_installer_files_group(options),
+                            #configure number of eggs
+                            EGGMAXID=str(eggnum-1),
+                            #configure the initialisation of egg array
+                            EGGINIT=eggArrayInit,
+                            #configure other pascal code
+                            STEP=step,
+                            INSTALL_AND_DETECTION_CODE=installAndDetect,
+                            TEST_VAR_RESULTS=testingBody,
+                            DEPLOY_BODY=installationBody,
+                            REPORT_VAR_RESULTS=reportingBody,
+                            VISUALEAEGGID=visualeaId,                            
+                            )
+
+    f = open( pj(get_wd(options), "template_win_inst.iss"), "w" )
+    f.write(s)
+    f.close()
+    print "ok"
+
+def make_stitcher(options):
+    """Creates a function that inserts the pyX.X string
+    in the egg glob string if it's not there already."""
+    pyfix = "py"+options["pyMaj"]+"."+options["pyMin"]+"*"
+    def __stitch_egg_names(eggName):
+        if pyfix in eggName:
+            return eggName
+        part = eggName.partition(".egg")
+        return part[0] + pyfix + part[1]
+    return __stitch_egg_names
+
+
+def read_conf_file(options):
+        confFile = options["conf"]
+        print "Reading conf file:", confFile, "...",
+        execfile(confFile, globals())
+        print "Done"
+    
+if __name__ == "__main__":
+    options = dict(map(lambda x: x.split('='), sys.argv[1:]))
+       
+    if not set(options.iterkeys()) == goodOptions:
+        #print options.keys(), goodOptions
+        print_usage()
+        sys.exit(-1)
+
+    options["eggGlobs"] = map(make_stitcher(options), options["eggGlobs"].split("|"))
+    
+    print "The following egg globs will be used:", options["eggGlobs"]
+    read_conf_file(options)
+    
+    installerMode = eval(options["runtime"])
+    dependenciesToProcess = [pk for pk, mask in thirdPartyPackages.iteritems() 
+                            if _processInstaller(mask, installerMode)]
+    # create easy names for the packages. This might aswell disappear one day
+    easyThirdPartyNames = dict((k, k+installerExtensions[thirdPartyPackages[k]&0xf]) \
+                               for k in dependenciesToProcess)
+
+    # create package testing python module names for the packages that want to be tested
+    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k],TEST_ME))    
+        
+    prepare_working_dir(options)
+    copy_installer_files(options)
+    copy_eggs(options)
+    configure_inno_setup(options)
+    print "Done"

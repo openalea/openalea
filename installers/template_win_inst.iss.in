@@ -1,0 +1,211 @@
+; Template installer configured by makeWinInstaller.py ;
+
+
+[Setup]
+AppName=$APPNAME for Python $PYTHONMAJOR.$PYTHONMINOR
+AppVersion=$APPVERSION
+DefaultDirName=None
+DefaultGroupName=$APPNAME
+OutputBaseFilename=$APPNAME-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
+;SetupIconFile=..\..\visualea\share\openalea_icon.ico
+
+Uninstallable=no
+Compression=lzma/max
+
+DisableDirPage=yes
+DisableProgramGroupPage=yes
+DisableReadyPage=yes
+
+[Files]
+$INSTALLER_FILES
+
+
+[Code]
+type
+  TEggArray = Array [0..$EGGMAXID] of String;
+
+const
+  PythonMajorVersion = $PYTHONMAJOR       ;
+  PythonMinorVersion = $PYTHONMINOR       ;
+
+var
+  Eggs :  TEggArray;
+  DetectEnvironmentPage: TOutputMsgWizardPage;
+  AbortInstall : Boolean;
+  PyInstalled, $TEST_VARIABLES: Boolean;
+
+(*** ------------------------- ***)
+(*** Various utility functions ***)
+(*** ------------------------- ***)
+procedure InitEggArray();
+begin
+$EGGINIT
+end;
+
+(* GetTempDir doesn't work and typing ExpandConstant('{tmp}') is boring *)
+function MyTempDir(): String;
+begin
+    Result := ExpandConstant('{tmp}\');
+end;
+
+(* Return the directory of the python executable *)
+function GetPythonDirectory(): String;
+begin
+  Result:=ExpandConstant(Format('{reg:HKLM\Software\Python\PythonCore\%d.%d\InstallPath,|None}',[PythonMajorVersion,PythonMinorVersion]))
+end;
+
+(* Install eggs *)
+function InstallEgg(egg:String): Boolean;
+var
+   ResultCode: Integer;
+begin
+  Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
+                 '-N ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
+(* Install msi files *)
+function InstallMsi(msi:String): Boolean;
+var
+   ResultCode: Integer;
+begin
+  Result := Exec('msiexec','/i '+ msi,'', SW_SHOW, ewWaitUntilTerminated, ResultCode) and (ResultCode=0);
+end;
+
+(* Install exe files *)
+function InstallExe(exe:String): Boolean;
+var
+   ResultCode: Integer;
+begin
+  Result := Exec( exe, '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) and (ResultCode=0);
+end;
+
+(* Install zipdist files *)
+function InstallZipdist(zipdist:String): Boolean;
+var
+   ResultCode: Integer;
+begin
+  Result := False;
+end;
+
+(*** --------------------------------------------------- ***)
+(*** Functions to detect and install required components ***)
+(*** --------------------------------------------------- ***)
+function DetectPython: Boolean;
+begin
+  Result := RegKeyExists(HKLM, Format('Software\Python\PythonCore\%d.%d\InstallPath', [PythonMajorVersion,PythonMinorVersion])) and
+            DirExists(GetPythonDirectory()) and FileExists(GetPythonDirectory()+'\python.exe');
+end;
+
+
+$INSTALL_AND_DETECTION_CODE
+
+
+(*** ---------------------------------- ***)
+(*** Functions used to install $APPNAME ***)
+(*** ---------------------------------- ***)
+function Install$APPNAME(): Boolean;
+     var i:Integer;
+     var s:String;
+begin
+     Result:=False;
+     for i:=0 to high(Eggs) do begin
+       s := Eggs[i];     
+       WizardForm.StatusLabel.Caption:='Installing '+s;
+       WizardForm.Update();      
+       ExtractTemporaryFile(s);
+       Result := InstallEgg( MyTempDir()+s);
+       WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + $STEP;
+     end;
+     Result := True;
+end;
+
+
+(*** ------------------------------------------------------- ***)
+(*** Function called at the very beggining of the setup proc ***)
+(*** ------------------------------------------------------- ***)
+procedure Deploy();
+var
+  res : Boolean;
+begin
+  res := PyInstalled
+  WizardForm.StatusLabel.Caption:='Preparing installation';
+  WizardForm.Update();
+
+  $DEPLOY_BODY
+  
+  if res then
+    begin
+      WizardForm.StatusLabel.Caption:='Installing $APPNAME, please wait...';
+      WizardForm.Update();      
+      WizardForm.Update();
+      res := Install$APPNAME();
+    end;
+   if res then
+      WizardForm.ProgressGauge.Position := 100;
+      WizardForm.Update();
+end;
+
+procedure DetectEnv(Sender: TWizardPage);
+var
+  DetectInfo : TNewStaticText;
+  caption : String;
+begin
+  PyInstalled   := DetectPython();
+  
+  $TEST_VAR_RESULTS
+
+  DetectInfo := TNewStaticText.Create(Sender);
+  DetectInfo.Parent := Sender.Surface;
+  DetectInfo.AutoSize := True;
+  DetectInfo.Top := 60;
+
+  $REPORT_VAR_RESULTS
+
+  DetectInfo.Caption := caption;
+end;
+
+
+procedure CurPageChanged(id:Integer);
+begin
+  case id of
+    wpInstalling:
+      Deploy()
+  end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+    Result := ''
+    if ABORTINSTALL then
+        Result := 'Some components cannot be installed by this installer. Please install them yourself and re-run this installer.';
+end;
+
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode: Integer;
+begin
+   case CurStep of
+      ssInstall :
+            begin
+            end;
+      ssPostInstall:
+      begin
+        (*** Exec(GetPythonDirectory()+'python.exe', '-c "import sys;sys.path.append(\"'+ GetPythonDirectory()+'Lib\site-packages\'+Eggs[$VISUALEAEGGID]+'\");import visualea_postinstall as vp;vp.install()', '',
+              SW_HIDE, ewWaitUntilTerminated, ResultCode) ***)
+      end
+   end;
+end;
+
+
+procedure InitializeWizard();
+begin
+    InitEggArray();
+    DetectEnvironmentPage := CreateOutputMsgPage(wpWelcome,
+                          'Information', '$APPNAME Installer will try to detect your environment.',
+                          '$APPNAME requires Python and several extensions.'+#13 +
+                          'This installer will install the required softs.');
+    DetectEnvironmentPage.onActivate := @DetectEnv;
+end;
+
+
