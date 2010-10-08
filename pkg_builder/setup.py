@@ -23,7 +23,8 @@ setup(
 
     packages = find_packages('src'),
     package_dir={ '' : 'src' },
-    zip_safe = True,
+    include_package_data = True,
+    zip_safe = False,
 
     # Dependencies
     install_requires = ['openalea.core'],
