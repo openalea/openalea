@@ -17,9 +17,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: $ "
 
-from numpy import sum, min, max
-
-
 def inv(array):
     from numpy import linalg
     return (linalg.inv(array))
@@ -38,16 +35,19 @@ def std(array, axis=None, dtype=None, ddof=0):
     return (std(a=array, axis=axis, dtype=dtype, ddof=ddof),)
 
 def wra_sum(array, axis, dtype):
+    from numpy import sum
     return (sum(a=array, axis=axis, dtype=dtype),)
 
 wra_sum.__doc__ = sum.__doc__
 
 def wra_min(array, axis):
+    from numpy import min
     return (min(a=array, axis=axis),)
 
 wra_min.__doc__ = min.__doc__
 
 def wra_max(a, axis=None):
+    from numpy import max
     return(max(a, axis=axis),)
 
 wra_max.__doc__ = max.__doc__
