@@ -22,6 +22,7 @@ __revision__ = "$Id$"
 
 import os, sys
 from openalea.sconsx.config import *
+from os.path import join as pj
 
 exists = os.path.exists
 
@@ -52,21 +53,22 @@ class QT:
                   from openalea.deploy import get_base_dir
                   qt_dir = get_base_dir("qt4-dev")
             except:
-              if isinstance(platform, Win32):
-                    try:
+                if isinstance(platform, Win32):
+                    try:                 
                         from openalea.deploy import get_base_dir
                         qt_dir = get_base_dir("qt4")
-                    except:
-                        qt_dir = pj('C:','Qt','4.5.2')
+                    except:                                             
+                        # Try to locate bin/moc in PATH
+                        qt_dir = find_executable_path_from_env("moc.exe", strip_bin=True)
                 
-              elif isinstance(platform, Posix):
-                qt_dir = pj('/usr', 'lib', 'qt4')
-                if not exists(pj(qt_dir, 'bin')):
-                    # Use LSB spec
-                    qt_dir = '/usr'
-                    qt_bin = '/usr/bin'
-                    qt_inc = '/usr/include/qt4'
-                    qt_lib = '/usr/lib'
+                elif isinstance(platform, Posix):
+                    qt_dir = pj('/usr', 'lib', 'qt4')
+                    if not exists(pj(qt_dir, 'bin')):
+                        # Use LSB spec
+                        qt_dir = '/usr'
+                        qt_bin = '/usr/bin'
+                        qt_inc = '/usr/include/qt4'
+                        qt_lib = '/usr/lib'
 
         self._default["QTDIR"] = qt_dir
         self._default["QT4_BINPATH"] = qt_bin
