@@ -24,25 +24,18 @@ import os, sys
 from openalea.sconsx.config import *
 from boost_base import Boost
 
-class Boost_Python(Boost):
-
-    def depends(self):
-        return Boost.depends(self)+['python']
-
-    # -- reimplement this from boost_base.Boost --
-    def get_default_defines(self):
-        return 'BOOST_PYTHON_DYNAMIC_LIB'
+class Boost_Math_C99(Boost):
 
     # -- reimplement this from boost_base.Boost --
     def configure(self, config):
-        if not config.conf.CheckCXXHeader('boost/python.hpp'):
-            print "Error: boost.python headers not found."
+        if not config.conf.CheckCXXHeader('boost/math/distributions.hpp'):
+            print "Error: boost.math headers not found."
             sys.exit(-1)
 
 
 def create(config):
     " Create boost tool "
-    boost = Boost_Python(config)
+    boost = Boost_Math_C99(config)
 
     deps= boost.depends()
     for lib in deps:
