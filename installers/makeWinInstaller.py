@@ -46,9 +46,10 @@ thirdPartyPackages = None
 #########################################################################################
 
 import sys, os
-from os.path import exists, join as pj
+from os.path import exists, join as pj, basename
 import shutil, glob, string
 
+CWD = str(os.getcwd())
 
 class StrictTemplate(string.Template):
     idpattern = r"[_A-Z0-9]*"
@@ -155,10 +156,14 @@ python_package_ti_template_zipdist=python_package_test_template+python_package_i
 python_package_ti_template_msi=python_package_test_template+python_package_install_template_msi
 
 
-
+def _processInstaller(mask, runtimeMode):
+    if (runtimeMode==True and bt(mask, RUNTIME)) or (runtimeMode==False and bt(mask, DEVELOP)):
+        return True
+    return False
+    
 def get_wd(options):
     pyMaj, pyMin = options["pyMaj"], options["pyMin"]
-    instDir = pj(os.getcwd(), pyMaj+"."+pyMin)
+    instDir = pj(CWD, APPNAME+"-"+pyMaj+"."+pyMin)
     return instDir
 
 def prepare_working_dir(options):
@@ -167,11 +172,6 @@ def prepare_working_dir(options):
         shutil.rmtree(instDir, ignore_errors=True)
     os.mkdir(instDir)
 
-def _processInstaller(mask, runtimeMode):
-    if (runtimeMode==True and bt(mask, RUNTIME)) or (runtimeMode==False and bt(mask, DEVELOP)):
-        return True
-    return False
-    
 def _makeInstallerGlob(srcDir, pk, v):
     srcDir  = options["srcDir"]
     pyMaj  = options["pyMaj"]
@@ -195,7 +195,7 @@ def copy_installer_files(options):
     print "Copying binaries..."
     
     for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk]
+        mask = thirdPartyPackages[pk][0]
         if bt(mask, NOT_INSTALLABLE):
             continue
         ef = _makeInstallerGlob(options, pk, mask)
@@ -203,7 +203,7 @@ def copy_installer_files(options):
         print "\t"+src+" => "+dst+"...",
         shutil.copyfile(src, dst)
         print "ok"
-
+    
     print "Copying environment testing scripts..."
     for f in thirdPartyTests.itervalues():
         src, dst = f, pj(get_wd(options), f)
@@ -217,20 +217,21 @@ def copy_eggs(options):
     for g in globs:
         files += glob.glob(g)
     print "Copying egg..."
-    for f in files:
-        src, dst = f, pj(get_wd(options), f)
+    localFiles = map(basename, files)
+    for f, filename in zip(files, localFiles):
+        src, dst = f, pj(get_wd(options), filename)
         print "\t"+src+" => "+dst+"...",
         shutil.copyfile(src, dst)
         print "ok"
-    options["eggs"] = files
+    options["eggs"] = localFiles
 
     
 def __generate_pascal_test_install_code(options):
     final = ""
-    testVariables = {}
+    testVariables = {"python":"PyInstalled"} #there's always this variable
 
     for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk]
+        mask = thirdPartyPackages[pk][0]
         if bt(mask,TEST_ME):
             testVariables[pk] = pk+"Installed"
             if bt(mask, NOT_INSTALLABLE):
@@ -243,20 +244,23 @@ def __generate_pascal_test_install_code(options):
                 elif bt(mask, ZIPDIST): template = python_package_ti_template_zipdist
                 elif bt(mask, EGG): template = python_package_ti_template_egg
                 elif bt(mask, EXE): template = python_package_ti_template_exe
-                else: raise Exception("Unknown installer type: " + k +":"+str(mask))
+                else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
                 template = StrictTemplate(template)
                 final+=template.substitute(PACKAGE=pk,
                                            PACKAGE_TEST=thirdPartyTests[pk],
                                            PACKAGE_INSTALLER=easyThirdPartyNames[pk])
         else:
-            if bt(mask, MSI): template = python_package_install_msi_template
-            elif bt(mask, ZIPDIST): template = python_package_install_zipdist_template
-            elif bt(mask, EGG): template = python_package_install_egg_template
-            elif bt(mask, EXE): template = python_package_install_exe_template
-            else: raise Exception("Unknown installer type: " + k +":"+str(mask))
-            template = StrictTemplate(template)
-            final+=template.substitute(PACKAGE=pk,
-                                       PACKAGE_INSTALLER=easyThirdPartyNames[pk])
+            if bt(mask, NOT_INSTALLABLE):
+                continue
+            else:
+                if bt(mask, MSI): template = python_package_install_template_msi
+                elif bt(mask, ZIPDIST): template = python_package_install_template_zipdist
+                elif bt(mask, EGG): template = python_package_install_template_egg
+                elif bt(mask, EXE): template = python_package_install_template_exe
+                else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
+                template = StrictTemplate(template)
+                final+=template.substitute(PACKAGE=pk,
+                                           PACKAGE_INSTALLER=easyThirdPartyNames[pk])
                                        
     return final, testVariables
 
@@ -265,7 +269,7 @@ def __generate_inno_installer_files_group(options):
     final = ""
     #installers
     for pk, f in easyThirdPartyNames.iteritems():
-        if bt(thirdPartyPackages[pk], NOT_INSTALLABLE):
+        if bt(thirdPartyPackages[pk][0], NOT_INSTALLABLE):
             continue
         final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
         
@@ -304,8 +308,8 @@ def __generate_pascal_detect_env_body(testVars):
     reporting = ""
     
     for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk]  
-        if bt(mask, TEST_ME):                 
+        mask = thirdPartyPackages[pk][0]  
+        if bt(mask, TEST_ME) or pk == "python":                 
             var = testVars[pk]
             testing += "  "+ var + " := PyInstalled and Detect"+pk+"();\n"
                     
@@ -334,7 +338,7 @@ def __generate_pascal_deploy_body(testVars, step):
     installation = ""
     
     for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk]
+        mask = thirdPartyPackages[pk][0]
         if bt(mask, NOT_INSTALLABLE):
             continue
         var = testVars[pk]
@@ -343,7 +347,8 @@ def __generate_pascal_deploy_body(testVars, step):
                                                               STEP=step)
     return installation
           
-
+def _generate_post_install_code(options):
+    return ""
     
 def configure_inno_setup(options):
     print "Configuring inno script...",
@@ -363,16 +368,20 @@ def configure_inno_setup(options):
             visualeaId = str(i)            
             
     step = int(100./(eggnum+len(dependenciesToProcess)))    
-    installAndDetect, testVars = __generate_pascal_test_install_code(options)
+    detect, testVars = __generate_pascal_test_install_code(options)
     testingBody, reportingBody =__generate_pascal_detect_env_body(testVars)
     installationBody = __generate_pascal_deploy_body(testVars, step)
     
+    modeStr = "" if eval(options["runtime"]) else "dev"
     s = template.substitute(APPNAME=APPNAME,
                             APPVERSION=APPVERSION,
+                            INSTTYPE=modeStr.upper(),
                             #configure Python Major and Minor
                             PYTHONMAJOR=options["pyMaj"],
                             PYTHONMINOR=options["pyMin"],
+                            #the pascal booleans that store if this or that package is installed or not.
                             TEST_VARIABLES=reduce(lambda x,y: x+", "+y, testVars.itervalues(), "dummy"),
+                            #the files that will be packed by the installer.
                             INSTALLER_FILES=__generate_inno_installer_files_group(options),
                             #configure number of eggs
                             EGGMAXID=str(eggnum-1),
@@ -380,14 +389,20 @@ def configure_inno_setup(options):
                             EGGINIT=eggArrayInit,
                             #configure other pascal code
                             STEP=step,
-                            INSTALL_AND_DETECTION_CODE=installAndDetect,
+                            #configure the functions that detect and install packages
+                            INSTALL_AND_DETECTION_CODE=detect,
+                            #configure the body of DetectEnv that tests
                             TEST_VAR_RESULTS=testingBody,
-                            DEPLOY_BODY=installationBody,
+                            #configure the body of DetectEnv that reports
                             REPORT_VAR_RESULTS=reportingBody,
-                            VISUALEAEGGID=visualeaId,                            
+                            #configure the body of Deploy that installs the soft
+                            DEPLOY_BODY=installationBody,
+                            #Code to run on post install
+                            POSTINSTALLCODE=_generate_post_install_code(options),                            
                             )
 
-    f = open( pj(get_wd(options), "template_win_inst.iss"), "w" )
+    
+    f = open( pj(get_wd(options), APPNAME+"_installer_"+modeStr+".iss"), "w" )
     f.write(s)
     f.close()
     print "ok"
@@ -424,14 +439,14 @@ if __name__ == "__main__":
     read_conf_file(options)
     
     installerMode = eval(options["runtime"])
-    dependenciesToProcess = [pk for pk, mask in thirdPartyPackages.iteritems() 
+    dependenciesToProcess = [pk for pk, (mask, order) in sorted(thirdPartyPackages.iteritems(), key=lambda x:x[1][1]) 
                             if _processInstaller(mask, installerMode)]
     # create easy names for the packages. This might aswell disappear one day
-    easyThirdPartyNames = dict((k, k+installerExtensions[thirdPartyPackages[k]&0xf]) \
+    easyThirdPartyNames = dict((k, k+installerExtensions[thirdPartyPackages[k][0]&0xf]) \
                                for k in dependenciesToProcess)
 
     # create package testing python module names for the packages that want to be tested
-    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k],TEST_ME))    
+    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k][0],TEST_ME))    
         
     prepare_working_dir(options)
     copy_installer_files(options)

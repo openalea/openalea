@@ -6,7 +6,7 @@ AppName=$APPNAME for Python $PYTHONMAJOR.$PYTHONMINOR
 AppVersion=$APPVERSION
 DefaultDirName=None
 DefaultGroupName=$APPNAME
-OutputBaseFilename=$APPNAME-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
+OutputBaseFilename=$APPNAME-$INSTTYPE-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
 ;SetupIconFile=..\..\visualea\share\openalea_icon.ico
 
 Uninstallable=no
@@ -32,7 +32,7 @@ var
   Eggs :  TEggArray;
   DetectEnvironmentPage: TOutputMsgWizardPage;
   AbortInstall : Boolean;
-  PyInstalled, $TEST_VARIABLES: Boolean;
+  $TEST_VARIABLES: Boolean;
 
 (*** ------------------------- ***)
 (*** Various utility functions ***)
@@ -59,7 +59,7 @@ function InstallEgg(egg:String): Boolean;
 var
    ResultCode: Integer;
 begin
-  Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
+  Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
                  '-N ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
@@ -84,13 +84,14 @@ function InstallZipdist(zipdist:String): Boolean;
 var
    ResultCode: Integer;
 begin
-  Result := False;
+   Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
+                  zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 (*** --------------------------------------------------- ***)
 (*** Functions to detect and install required components ***)
 (*** --------------------------------------------------- ***)
-function DetectPython: Boolean;
+function Detectpython: Boolean;
 begin
   Result := RegKeyExists(HKLM, Format('Software\Python\PythonCore\%d.%d\InstallPath', [PythonMajorVersion,PythonMinorVersion])) and
             DirExists(GetPythonDirectory()) and FileExists(GetPythonDirectory()+'\python.exe');
@@ -127,7 +128,7 @@ procedure Deploy();
 var
   res : Boolean;
 begin
-  res := PyInstalled
+  res := True
   WizardForm.StatusLabel.Caption:='Preparing installation';
   WizardForm.Update();
 
@@ -150,7 +151,7 @@ var
   DetectInfo : TNewStaticText;
   caption : String;
 begin
-  PyInstalled   := DetectPython();
+  PyInstalled   := True; (*fixed by TEST_VAR_RESULTS*)
   
   $TEST_VAR_RESULTS
 
@@ -191,8 +192,7 @@ begin
             end;
       ssPostInstall:
       begin
-        (*** Exec(GetPythonDirectory()+'python.exe', '-c "import sys;sys.path.append(\"'+ GetPythonDirectory()+'Lib\site-packages\'+Eggs[$VISUALEAEGGID]+'\");import visualea_postinstall as vp;vp.install()', '',
-              SW_HIDE, ewWaitUntilTerminated, ResultCode) ***)
+        $POSTINSTALLCODE
       end
    end;
 end;
