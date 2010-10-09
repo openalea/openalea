@@ -20,10 +20,13 @@
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
-import os, sys
-from openalea.sconsx.config import *
+import os, sys, glob, re
+#from openalea.sconsx.config import *
 
 from os.path import join as pj
+
+reg  = r".*boost.*([0-9]\.[0-9][0-9]\.?[0-9]?).*"
+regc = re.compile(reg)
 
 class Boost:
     def __init__(self, config):
@@ -105,10 +108,21 @@ class Boost:
         env.Append(CPPFLAGS='$%s_flags'%(self.name,))
 
         #boost > 1.43 changed naming scheme.
-        #get version, from user boost
+        #get version, from user boost or system
         if not self.__usingEgg:
             boostInc = env['boost_includes']
-            version = boostInc.split("-")[1]
+            versionInInc = boostInc.count("-") > 0
+            if versionInInc:
+                version = boostInc.split("-")[1]
+            else:
+                boostLibs = glob.glob("/usr/lib/*boost*.so*")
+                version   = None
+                #find versions in there
+                for lib in boostLibs:
+                    res = regc.search(lib)
+                    if res and len(res.groups()):
+                        version = res.groups()[0]
+                        break                
         #get version, from egg
         else:
             from openalea.deploy import get_metainfo
