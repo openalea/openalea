@@ -51,7 +51,7 @@ class Boost:
         print "This build is running under:", platform
 
         # -- lets now look for decent flags --
-        self._default['flags'] = '-ftemplate-depth-100 ' if isPosix else ''
+        self._default['flags'] = self.get_default_flags()
         self._default['defines'] = self.get_default_defines()
 
         # -- lets now look for decent include dirs --
@@ -71,6 +71,10 @@ class Boost:
             except ImportError, e:                
                 self._default['include'] = '/usr/include' if isPosix else pj(os.getcwd(), "include")
                 self._default['lib']     = '/usr/lib' if isPosix else pj(os.getcwd(), "lib")
+
+
+    def get_default_flags(self):
+        return ''
 
     def get_default_defines(self):
         return ''
