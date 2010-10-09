@@ -125,6 +125,7 @@ class Boost:
                     res = regc.search(lib)
                     if res and len(res.groups()):
                         version = res.groups()[0]
+                        version.replace('.', "_")
                         break                
         #get version, from egg
         else:
@@ -132,7 +133,8 @@ class Boost:
             version = get_metainfo("boost", "version").replace(".", "_")
             
         underScores = version.count("_")
-        print "we foudn this version:", version, underScores
+        if underScores == 0:
+            seperator = "."
         if underScores == 1:
             maj, min = map(int, version.split("_"))
             patch = 0
