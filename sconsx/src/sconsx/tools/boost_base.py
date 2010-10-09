@@ -51,7 +51,7 @@ class Boost:
         print "This build is running under:", platform
 
         # -- lets now look for decent flags --
-        self._default['flags'] = '-ftemplate-depth-100' if isPosix else ''
+        self._default['flags'] = '-ftemplate-depth-100 ' if isPosix else ''
         self._default['defines'] = self.get_default_defines()
 
         # -- lets now look for decent include dirs --
