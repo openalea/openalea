@@ -113,33 +113,28 @@ class Boost:
         #boost > 1.43 changed naming scheme.
         #get version, from user boost or system
         if not self.__usingEgg:
-            boostInc = env['boost_includes']
-            versionInInc = boostInc.count("-") > 0
-            if versionInInc:
-                version = boostInc.split("-")[1]
-            else:
-                boostLibs = glob.glob("/usr/lib/*boost*.so*")
-                version   = None
-                #find versions in there
-                for lib in boostLibs:
-                    res = regc.search(lib)
-                    if res and len(res.groups()):
-                        version = res.groups()[0]
-                        version.replace('.', "_")
-                        break                
+            boostLibs = glob.glob(pj(env['boost_lib'],'*boost*.so*'))
+            version   = None
+            #find versions in there
+            for lib in boostLibs:
+                res = regc.search(lib)
+                if res and len(res.groups()):
+                    version = res.groups()[0]
+                    break                
         #get version, from egg
         else:
             from openalea.deploy import get_metainfo
-            version = get_metainfo("boost", "version").replace(".", "_")
+            version = get_metainfo("boost", "version")
             
-        underScores = version.count("_")
-        if underScores == 0:
-            seperator = "."
-        if underScores == 1:
-            maj, min = map(int, version.split("_"))
+        print "version:", version
+        periods = version.count(".")
+        if periods == 1:
+            maj, min = map(int, version.split("."))
             patch = 0
-        elif underScores == 2:
-            maj, min, patch = map(int, version.split("_"))
+        elif periods == 2:
+            maj, min, patch = map(int, version.split("."))
+        else:
+            raise Exception("Cannot determine the version of boost.")
 
         if maj >= 1 and min >= 43 and (env['compiler'] == 'mingw' or platform==Cygwin):            
             boost_name= self.name + env['boost_libs_suffix'] + "-" + version +".dll"
