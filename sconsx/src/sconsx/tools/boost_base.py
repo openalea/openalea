@@ -105,6 +105,8 @@ class Boost:
     def update(self, env):
         """ Update the environment with specific flags """
 
+        print "update:", self._default
+
         env.AppendUnique(CPPPATH=[env['boost_includes']])
         env.AppendUnique(LIBPATH=[env['boost_lib']])
         env.Append(CPPDEFINES='$%s_defines'%(self.name,))
@@ -126,7 +128,6 @@ class Boost:
             from openalea.deploy import get_metainfo
             version = get_metainfo("boost", "version")
             
-        print "version:", version
         periods = version.count(".")
         if periods == 1:
             maj, min = map(int, version.split("."))
