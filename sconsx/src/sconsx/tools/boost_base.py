@@ -21,7 +21,7 @@ __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
 import os, sys, glob, re
-#from openalea.sconsx.config import *
+from openalea.sconsx.config import *
 
 from os.path import join as pj
 
@@ -42,10 +42,14 @@ class Boost:
         return deps
 
     def default(self):
-        isPosix = isinstance(platform, Posix)        
-        
         self._default['libs_suffix'] = '$compiler_libs_suffix'
-        
+        self._default['flags'] = ''
+        self._default['defines'] = ''
+
+        isPosix = isinstance(platform, Posix)        
+
+        print "This build is running under:", platform
+
         # -- lets now look for decent flags --
         self._default['flags'] = '-ftemplate-depth-100' if isPosix else ''
         self._default['defines'] = self.get_default_defines()
@@ -58,7 +62,6 @@ class Boost:
             self._default['include'] = pj(base_dir, 'include')
             self._default['lib'] = pj(base_dir, 'lib')
             self.__usingEgg = True
-            print "Using egg for", self.name
         except:
             try:
                 import openalea.config as conf
