@@ -132,6 +132,7 @@ class Boost:
             version = get_metainfo("boost", "version").replace(".", "_")
             
         underScores = version.count("_")
+        print "we foudn this version:", version, underScores
         if underScores == 1:
             maj, min = map(int, version.split("_"))
             patch = 0
