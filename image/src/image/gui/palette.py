@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       spatial_image.visu : spatial nd images
+#       image: image manipulation
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
@@ -19,26 +19,37 @@ This module provide a set of palettes to associate colors to data
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
+from colorsys import hsv_to_rgb,rgb_to_hsv
+from numpy import array,uint32
+
 palette_names = ["grayscale","rainbow","bwrainbow"]
 
 __all__ = palette_names + ["palette_names","palette_factory"]
 
-from PyQt4.QtGui import QColor
+def bw () :
+	"""Black and white palette
+	"""
+	return array([(0,0,0),(255,255,255)],uint32)
 
-def grayscale (cmax) :
+def grayscale (cmax, alpha = False) :
 	"""Grayscale values ranging from 0 to 255
 	
 	:Parameters:
 	 - `cmax` (int) - data maximum value
 	
-	:Returns Type: list of int
+	:Returns Type: list of (R,G,B,(A) )
 	"""
-	pal = [QColor(i * 255. / cmax,
-	              i * 255. / cmax,
-	              i * 255. / cmax,
-	              255).rgba() for i in xrange(cmax + 1)]
+	if alpha :
+		pal = [(int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
+	else :
+		pal = [(int(i * 255. / cmax),
+		        int(i * 255. / cmax),
+		        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
 	
-	return pal
+	return array(pal,uint32)
 
 def rainbow (cmax) :
 	"""Rainbow values ranging from red to blue and violet
@@ -46,16 +57,15 @@ def rainbow (cmax) :
 	:Parameters:
 	 - `cmax` (int) - data maximum value
 	
-	:Returns Type: list of int
+	:Returns Type: list of (R,G,B)
 	"""
-	pal = [QColor.fromHsv(i * 359. / cmax,
-	                      255,
-	                      255,
-	                      255).rgba() for i in xrange(cmax + 1)]
+	cmax = float(cmax)
+	pal = [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
+	       for i in xrange(int(cmax + 1) )]
 	
-	return pal
+	return array(pal,uint32)
 
-def bwrainbow (cmax) :
+def bwrainbow (cmax, alpha = False) :
 	"""Black, White plus Rainbow values ranging from red to blue and violet
 	
 	:Parameters:
@@ -63,16 +73,20 @@ def bwrainbow (cmax) :
 	
 	:Returns Type: list of int
 	"""
-	pal = [QColor(255,255,255,0).rgba(),
-	       QColor(0,0,0,0).rgba()] \
-	    + [QColor.fromHsv(int(i * 359. / (cmax - 2.) ),
-	                      255,
-	                      255,
-	                      255).rgba() for i in xrange(cmax - 1)]
+	cmax = float(cmax)
+	if alpha :
+		pal = [(255,255,255,0),(0,0,0,0)] \
+			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
+			   for i in xrange(int(cmax - 1) )]
+	else :
+		pal = [(255,255,255),(0,0,0)] \
+			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
+			   for i in xrange(int(cmax - 1) )]
 	
-	return pal
+	return array(pal,uint32)
 
 def palette_factory (palname, cmax) :
 	assert palname in palette_names
 	return globals()[palname](cmax)
+
 

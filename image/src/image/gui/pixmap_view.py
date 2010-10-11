@@ -27,7 +27,7 @@ from numpy import array,uint32
 from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
-
+from pixmap import to_img, to_pix
 
 class PixmapView (object) :
 	"""Base class for 2D views on spatial images
@@ -202,12 +202,13 @@ class PixmapStackView (PixmapView) :
 		pix = []
 		for z in xrange(data.shape[2]) :
 			#dat = pal[data[:,:,z] ].flatten('F')
-			dat = pal[data[:,:,z] ].flatten()
-			img = QImage(dat,
-			             data.shape[0],
-			             data.shape[1],
-			             QImage.Format_ARGB32)
-			pix.append(QPixmap.fromImage(img).transformed(tr) )
+			dat = pal[data[:,:,z] ]
+			#img = QImage(dat,
+			#             data.shape[0],
+			#             data.shape[1],
+			#             QImage.Format_ARGB32)
+                        dat = to_pix (dat)
+			pix.append(dat.transformed(tr) )
 		
 		self._pixmaps = pix
 		self._current_slice = min(max(self._current_slice,0),len(pix) - 1)
