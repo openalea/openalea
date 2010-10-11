@@ -14,7 +14,7 @@ class DummyNode (object) :
 qapp = QApplication([])
 
 w = SelectBoxWidget(DummyNode() )
-w.setPixmap(QPixmap("/home/chopard/Bureau/toto.png") )
+w.setPixmap(QPixmap("4_ocean_currents.png") )
 
 w.show()
 
