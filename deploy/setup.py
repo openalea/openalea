@@ -36,6 +36,7 @@ setup(
     author = authors,
     author_email = authors_email,
     description = description,
+    long_description = long_description,
     license = license,
     keywords = keywords,
     url = url,
