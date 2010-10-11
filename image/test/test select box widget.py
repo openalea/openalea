@@ -1,10 +1,13 @@
 from PyQt4.QtGui import QApplication,QPixmap
-from select_box_widget import SelectBoxWidget
+from openalea.image_wralea.gui.select_box_widget import SelectBoxWidget
 
 class DummyNode (object) :
 	def set_input (self, *args) :
 		pass
-	
+
+	def get_input(self, *args):
+		pass
+
 	def register_listener (self, *args) :
 		pass
 
