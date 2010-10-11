@@ -24,16 +24,13 @@ from square import square
 from scipy.ndimage import rotate
 
 
-def test_open():
-    """Test point selection tools
-    """
-    qapp = QApplication([])
+qapp = QApplication([])
 
-    im1 = square()
-    im2 = rotate(im1, 30)
-    im2 = SpatialImage(im2,im1.resolution)
+im1 = square()
+im2 = rotate(im1, 30)
+im2 = SpatialImage(im2,im1.resolution)
 
-    w1 = point_selection (im1)
-    w2 = point_selection (im2)
+w1 = point_selection (im1)
+w2 = point_selection (im2)
     
-    qapp.exec_()
+qapp.exec_()
