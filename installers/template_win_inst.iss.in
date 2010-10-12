@@ -84,8 +84,12 @@ function InstallZipdist(zipdist:String): Boolean;
 var
    ResultCode: Integer;
 begin
-   Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
-                  zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+   if FileExists(GetPythonDirectory()+'\Scripts\alea_install.exe') then
+       Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
+	              zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+   else
+       Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
+                      zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 (*** --------------------------------------------------- ***)
@@ -110,9 +114,9 @@ function Install$APPNAME(): Boolean;
 begin
      Result:=False;
      for i:=0 to high(Eggs) do begin
-       s := Eggs[i];     
+       s := Eggs[i];
        WizardForm.StatusLabel.Caption:='Installing '+s;
-       WizardForm.Update();      
+       WizardForm.Update();
        ExtractTemporaryFile(s);
        Result := InstallEgg( MyTempDir()+s);
        WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + $STEP;
@@ -133,11 +137,11 @@ begin
   WizardForm.Update();
 
   $DEPLOY_BODY
-  
+
   if res then
     begin
       WizardForm.StatusLabel.Caption:='Installing $APPNAME, please wait...';
-      WizardForm.Update();      
+      WizardForm.Update();
       WizardForm.Update();
       res := Install$APPNAME();
     end;
@@ -152,7 +156,7 @@ var
   caption : String;
 begin
   PyInstalled   := True; (*fixed by TEST_VAR_RESULTS*)
-  
+
   $TEST_VAR_RESULTS
 
   DetectInfo := TNewStaticText.Create(Sender);
