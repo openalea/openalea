@@ -21,15 +21,13 @@ __revision__=" $Id: $ "
 
 __all__ = ["display","SlideViewer"]
 
-from ..serial import load
-from pixmap_view import PixmapStackView
-from scalable_view import ScalableLabel
+from ..spatial_image import SpatialImage
 
 from PyQt4.QtCore import Qt,QObject,SIGNAL
 from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,
                         QSlider,QToolBar)
 from palette import palette_names,palette_factory
-#from pixmap_view import PixmapStackView,ScalableLabel
+from pixmap_view import PixmapStackView,ScalableLabel
 
 from slide_viewer_ui import Ui_MainWindow
 
@@ -205,37 +203,23 @@ class SlideViewer (QMainWindow) :
 		self._last_mouse_y = event.y()
 		self.fill_infos()
 
-def display (filenames, palette_name = "grayscale", color_index_max = None) :
-    	#test for list of images to display
-	if isinstance(filenames,str) :
-		filenames = [filenames]
-	
-	qapp = QApplication.instance()
-	if qapp is None :
-		qapp = QApplication([])
-	
-	w_list = []
-	for fname in filenames :
-		img = load(fname)
+def display (image, palette_name = "grayscale", color_index_max = None) :
+    """
+    """	
+    w = SlideViewer()
 		
-		w = SlideViewer()
-		
-		if color_index_max is None :
-			cmax = img.max()
-		else :
-			cmax = color_index_max
-		
-		palette = palette_factory(palette_name,cmax)
-		
-		w.set_palette(palette,palette_name)
-		w.set_image(img)
-		
-		w.show()
-		w.setWindowTitle(fname)
-		w_list.append(w)
-	
-	qapp.exec_()
-	
-	return w_list
+    if not isinstance(image,SpatialImage):
+        image = SpatialImage(image)
 
-
+    if color_index_max is None :
+	cmax = image.max()
+    else :
+	cmax = color_index_max
+		
+    palette = palette_factory(palette_name,cmax)
+		
+    w.set_palette(palette,palette_name)
+    w.set_image(image)
+		
+    w.show()
+    return w
