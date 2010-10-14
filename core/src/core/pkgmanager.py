@@ -564,7 +564,7 @@ class PackageManager(object):
         directories = self.get_wralea_path()
         recursive = True
 
-        files = set( f.abspath() for p in directories for f in path(p).walkfiles('*wralea*.py'))
+        files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).walkfiles('*wralea*.py'))
         return files
 
     def create_readers(self, wralea_files):
