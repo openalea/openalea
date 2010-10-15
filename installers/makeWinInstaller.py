@@ -487,7 +487,10 @@ if __name__ == "__main__":
             
         if not set(options.iterkeys()) == goodOptions:
             print_usage()
-            print set(options.iterkeys()), goodOptions
+            print "You didn't supply the following arguments:"
+            missing = goodOptions-set(options.iterkeys())
+            for i in missing:
+                print "\t", i
             sys.exit(-1)
 
     print options["eggGlobs"]

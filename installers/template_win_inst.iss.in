@@ -59,8 +59,12 @@ function InstallEgg(egg:String): Boolean;
 var
    ResultCode: Integer;
 begin
-  Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
-                 '-N ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+   if FileExists(GetPythonDirectory()+'\Scripts\alea_install.exe') then
+      Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
+	                 '-N ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+   else
+      Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
+                     '-N ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 (* Install msi files *)
@@ -86,7 +90,7 @@ var
 begin
    if FileExists(GetPythonDirectory()+'\Scripts\alea_install.exe') then
        Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
-	              zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+	                  zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
    else
        Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
                       zipdist, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
