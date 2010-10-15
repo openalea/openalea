@@ -66,6 +66,24 @@ def rst2alea(text=""):
         res = res.replace('\n','<br />')
         return cleanup(res)
 
+        
+
+import re
+line_re = re.compile(r"^(.*?)", re.MULTILINE)
+bold_re = re.compile(r"\*\*(.*?)\*\*")
+bold2_re = re.compile(r":(.*?):")
+#bold3_re = re.compile(r"\*\*(.*?)\*\*")
+
+def simple_rst_to_html(rst):
+    if not isinstance(rst, str):
+        return ""
+    html = line_re.sub(r'\1<br/>', rst)
+    html = bold_re.sub(r'<b>\1</b>', html)
+    html = bold2_re.sub(r'<b>\1</b>', html)
+    #html = bold3_re.sub(r'<b>\1</b>', html)
+    return html
+        
+        
 class HelpWidget( QtGui.QTextBrowser ):
 
     def __init__(self, parent=None):
@@ -74,10 +92,10 @@ class HelpWidget( QtGui.QTextBrowser ):
         self.setOpenExternalLinks(True)
         self.css = None
 
-    def set_rst(self, txt):
+    def set_rst(self, txt):        
         if self.css:
             self.document().setDefaultStyleSheet(self.css)
-        txt = rst2alea(txt)
+        txt = simple_rst_to_html(txt)
         self.setHtml(txt)
 
     def set_stylesheet_file(self, file):
@@ -86,6 +104,7 @@ class HelpWidget( QtGui.QTextBrowser ):
             self.css = f.read()
             f.close()
         except Exception, e:
-            print e
+            pass
+            
 
 
