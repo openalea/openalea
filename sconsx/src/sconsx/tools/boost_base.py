@@ -109,15 +109,13 @@ class Boost:
     def update(self, env):
         """ Update the environment with specific flags """
 
-        print "update:", self._default
-
         env.AppendUnique(CPPPATH=[env['boost_includes']])
         env.AppendUnique(LIBPATH=[env['boost_lib']])
         env.Append(CPPDEFINES='$%s_defines'%(self.name,))
         env.Append(CPPFLAGS='$%s_flags'%(self.name,))
 
         #boost > 1.43 changed naming scheme.
-        #get version, from user boost or system
+        # ---- get version, from user boost or system
         if not self.__usingEgg:
             boostLibs = glob.glob(pj(env['boost_lib'],'*boost*.so*'))
             version   = None
@@ -139,10 +137,14 @@ class Boost:
         elif periods == 2:
             maj, min, patch = map(int, version.split("."))
         else:
-            raise Exception("Cannot determine the version of boost.")
+            raise Exception("Cannot determine the version of boost.")        
+        # ---- OK we have the version numbers (maj, min, patch) and string (version)
+        
+        version = version.replace(".", "_")
 
-        if maj >= 1 and min >= 43 and (env['compiler'] == 'mingw' or platform==Cygwin):            
-            boost_name= self.name + env['boost_libs_suffix'] + "-" + version +".dll"
+        
+        if maj >= 1 and min >= 43 and (env['compiler'] == 'mingw' or platform==Cygwin):    
+            boost_name= self.name +".dll" #on Windows we now only support boost compilations with --layout=system
         else:
             boost_name= self.name + env['boost_libs_suffix']
         env.AppendUnique(LIBS=[boost_name])
