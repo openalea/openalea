@@ -19,6 +19,7 @@ __icon__ = 'icon.png'
 
 __all__ = [
 'py_pylab_PyLabFigure',
+'py_pylab_PyLabFigure2',
 'py_pylab_PyLabXLabel',
 'py_pylab_PyLabLegend',
 'py_pylab_PyLabTextOptions',
@@ -27,11 +28,10 @@ __all__ = [
 'py_pylab_PyLabFontProperties',
 'py_pylab_PyLabAxis',
 'py_pylab_PyLabAxes',
+'py_pylab_PyLabAxes2',
 'py_pylab_PyLabColorBar',
 'py_pylab_PyLabGetCurrentFigure',
-'py_pylab_PyLabARange',
 'py_pylab_PyLabExp',
-'py_pylab_PyLabCos',
 'py_pylab_PyLabSaveFig',
 'py_pylab_PyLabColorMap',
 'py_pylab_PyLabAnnotate',
@@ -49,12 +49,23 @@ __all__ = [
 'py_pylab_PyLabXTicks',
 'py_pylab_PyLabYTicks',
 'py_pylab_PyLabGrid',
-'py_pylab_PyLabMeshGrid',
 'py_pylab_PyLabData1',
 'py_pylab_PyLabOrigin',
 ]
 
 
+
+py_pylab_PyLabFigure2 = Factory(name='PyLabFigure2',
+                description='pylab.figure interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabFigure2',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
 
 py_pylab_PyLabFigure = Factory(name='PyLabFigure',
                 description='pylab.figure interface.',
@@ -112,6 +123,18 @@ py_pylab_PyLabTextOptions = Factory(name='PyLabTextOptions',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabTextOptions',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
+
+py_pylab_PyLabAxes2 = Factory(name='PyLabAxes2',
+                description='pylab.axes interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxes2',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,
@@ -194,17 +217,6 @@ py_pylab_PyLabGetCurrentFigure = Factory(name='PyLabGetCurrentFigure',
                 lazy=False
                )
 
-py_pylab_PyLabARange = Factory(name='PyLabARange',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabARange',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabExp = Factory(name='PyLabExp',
                 description='pylab.fontproperties interface.',
@@ -218,17 +230,6 @@ py_pylab_PyLabExp = Factory(name='PyLabExp',
                 lazy=False
                )
 
-py_pylab_PyLabCos = Factory(name='PyLabCos',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabCos',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 
 py_pylab_PyLabSaveFig = Factory(name='PyLabSaveFig',
@@ -399,13 +400,6 @@ py_pylab_PyLabGrid = Factory(name='PyLabGrid',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabGrid',
-                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
-                )
-py_pylab_PyLabMeshGrid = Factory(name='PyLabMeshGrid',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabMeshGrid',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
 py_pylab_PyLabData1 = Factory(name='PyLabData1',

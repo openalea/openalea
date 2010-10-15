@@ -29,8 +29,12 @@ from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
-#matplotlib.pyplot.rcParams
+from pylab import *
 
+#matplotlib.pyplot.rcParams
+scale = {'linear':'linear',
+    'log':'log',
+    'symlog':'symlog'}
 axis = {
     'off':'off',
     'manual':'manual',
@@ -171,7 +175,7 @@ class Locations():
     """location class used by :class:`PyLabLegend`
 
     """
-    def __init__():
+    def __init__(self):
 
         self.locations = {
             'best' : 0,
@@ -267,22 +271,6 @@ def PyLabExp(t):
     from pylab import exp
     return (exp(t))
 
-def PyLabCos(t, w=1.):
-    from pylab import cos
-    return (cos(w*t))
-
-class PyLabMeshGrid(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='x', interface=ISequence, value=[])
-        self.add_input(name='y', interface=ISequence, value=[])
-        self.add_output(name='X', interface=ISequence, value=[])
-        self.add_output(name='Y', interface=ISequence, value=[])
-
-    def __call__(self, inputs):
-        from pylab import meshgrid
-        X,Y = meshgrid(self.get_input('x'),self.get_input('y'))
-        return (X, Y,)
 
 class PyLabData1(Node):
     def __init__(self):
@@ -303,33 +291,19 @@ class PyLabData1(Node):
 
         return Z
 
-class PyLabARange(Node):
-    """pylab.arange interface
-
-    Returns a float range
-
-    :param min: minimum value
-    :param max: maximum value
-    :param step: a step. Length of the output sequence is (max-min)/step
-
-    :authors: Thomas Cokelaer
-    """
+class CustomizeAxes(object):
     def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="min", interface=IFloat, value=0.)
-        self.add_input(name="max", interface=IFloat, value=1.)
-        self.add_input(name="step", interface=IFloat, value=0.01)
-        self.add_output(name='arange')
+        pass
+    def get_axes(self):
+        axes = self.get_input('axes')
+        if type(axes)!=list:
+            axes = [axes]
+        for axe in axes:
+            import matplotlib
+            assert axe.__module__ in [matplotlib.axes.__name__,matplotlib.projections.polar.__name__], 'input must be a valid axes from matplotlib.axes %s given for %s' % (type(axes), axes)
+        return axes
 
-    def __call__(self, inputs):
-        from pylab import arange
-        m = self.get_input('min')
-        M = self.get_input('max')
-        s = self.get_input('step')
-        return (arange(m, M, s),)
-
-
-class PyLabLegend(Node):
+class PyLabLegend(Node, CustomizeAxes):
     """VisuAlea version of pylab.legend
 
     :param *shadow*: draw a shadow behind legend. 
@@ -350,7 +324,9 @@ class PyLabLegend(Node):
     """
     def __init__(self):
         Node.__init__(self)
+        CustomizeAxes.__init__(self)
         self.locations = Locations().locations
+        self.add_input(name='axes')
         self.add_input(name="shadow", interface=IBool, value=False)
         self.add_input(name="location", interface=IEnumStr(self.locations.keys()), value=0)
         self.add_input(name="numpoints", interface=IInt, value=2)
@@ -387,7 +363,60 @@ class PyLabLegend(Node):
         kwds['title'] = self.get_input('title')
         kwds['prop'] = self.get_input('prop')
 
-        return kwds
+        axes = self.get_axes()
+        for axe in axes:
+            axe.legend(**kwds)
+            axe.get_figure().canvas.draw()
+        return self.get_input('axes')
+
+class PyLabFigure2(Node):
+    """pylab.figure interface
+
+    Create figure
+
+    :authors: Thomas Cokelaer
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name="axes", interface=ISequence, value=[])
+        self.add_input(name="num", interface=IInt, value=1)
+        self.add_input(name="figsize", interface=ISequence, value=(8, 6))
+        self.add_input(name="dpi", interface=IFloat, value=80.)
+        self.add_input(name="facecolor", interface=IEnumStr(colors.keys()), value='white')
+        self.add_input(name="edgecolor", interface=IEnumStr(colors.keys()), value='black')
+        self.add_input(name="frameon", interface=IBool, value=True)
+        self.add_input(name="subplotpars", interface=ISequence, value=None)
+        self.add_input(name="kwds", interface=IDict, value={})
+
+        self.add_output(name="kwds", interface=IDict, value={})
+
+    def __call__(self, inputs):
+        from pylab import figure
+        from copy import deepcopy
+        try:
+            kwds = self.get_input('kwds')
+        except:
+            kwds = {}
+        kwds['num'] = self.get_input('num')
+        kwds['edgecolor']=self.get_input('edgecolor')
+        kwds['frameon']=self.get_input('frameon')
+        kwds['subplotpars']=self.get_input('subplotpars')
+
+        c = self.get_input('axes')
+        if type(c) != list:
+            c = [c]
+        if len(c) == 0:
+            return None
+
+
+        fignum = c[0].figure.number
+        self.fig = figure(fignum)
+        self.fig.set_facecolor(self.get_input('facecolor'))
+        self.fig.set_edgecolor(self.get_input('edgecolor'))
+        self.fig.set_frameon(self.get_input('frameon'))
+        self.fig.set_dpi(self.get_input('dpi'))
+        self.fig.canvas.draw()
+        return self.fig
 
 class PyLabFigure(Node):
     """pylab.figure interface
@@ -398,24 +427,35 @@ class PyLabFigure(Node):
     """
     def __init__(self):
         Node.__init__(self)
+        self.add_input(name="axes", interface=ISequence, value=[])
         self.add_input(name="num", interface=IInt, value=1)
-        self.add_input(name="figsize", interface=ITuple3, value=(8, 6))
+        self.add_input(name="figsize", interface=ISequence, value=(8, 6))
         self.add_input(name="dpi", interface=IFloat, value=80.)
         self.add_input(name="facecolor", interface=IEnumStr(colors.keys()), value='white')
         self.add_input(name="edgecolor", interface=IEnumStr(colors.keys()), value='black')
+        self.add_input(name="kwds", interface=IDict, value={})
 
         self.add_output(name="kwds", interface=IDict, value={})
 
     def __call__(self, inputs):
         from pylab import figure
-        kwds={}
-        kwds['num']=self.get_input('num')
-        kwds['figsize']=self.get_input('figsize')
+        try:
+            kwds = self.get_input('kwds')
+        except:
+            kwds = {}
+        kwds['num'] = self.get_input('num')
         kwds['facecolor']=self.get_input('facecolor')
         kwds['edgecolor']=self.get_input('edgecolor')
         kwds['dpi']=self.get_input('dpi')
         fig = figure(**kwds)
-        return kwds
+        fig.clf()
+        c = self.get_input('axes')
+        if type(c) != list:
+            c = [c]
+        for axe in c:
+            fig.add_axes(axe)
+        fig.show()
+        return fig
 
 
 
@@ -781,7 +821,6 @@ class PyLabSaveFig(Node):
 
     def __call__(self, inputs):
         from pylab import savefig
-
         kwds = {}
         kwds['dpi'] = self.get_input('dpi')
         kwds['facecolor']=self.get_input('facecolor')
@@ -790,21 +829,9 @@ class PyLabSaveFig(Node):
         kwds['papertype']=self.get_input('papertype')
         kwds['format']=self.get_input('format')
         kwds['transparent']=self.get_input('transparent')
-
         savefig(self.get_input('fname'), **kwds)
 
 
-class PyLabGetCurrentFigure(Node):
-    """ should include hanning, ...."""
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='input')
-        self.add_output(name='GetCurrentFigure')
-
-    def __call__(self, inputs):
-        from pylab import gcf
-        res = gcf()
-        return res
 
 class PyLabColorMap(Node):
 
@@ -1252,6 +1279,39 @@ class PyLabYTicks(Node):
         return res
 
 
+class PyLabGrid(Node, CustomizeAxes):
+    which = {'major':'major','minor':'minor', 'both':'both'}
+    def __init__(self):
+        Node.__init__(self)
+        CustomizeAxes.__init__(self)
+
+        self.add_input(name='axes')
+        self.add_input(name='b', interface=IBool, value=True)
+        self.add_input(name='which', interface=IEnumStr(PyLabGrid.which.keys()), value='major')
+        self.add_input(name='linestyle', interface=IEnumStr(linestyles.keys()),   value='dotted')
+        self.add_input(name='color', interface=IEnumStr(colors.keys()),   value='black')
+        self.add_input(name='linewidth', interface=IFloat, value=1.0)
+        self.add_input(name='kwargs', interface=IDict, value={})
+
+        self.add_output(name='axes')
+
+    def __call__(self, inputs):
+        kwds = {}
+        for key, value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
+        kwds['linestyle']=linestyles[self.get_input("linestyle")]
+        kwds['color']=colors[self.get_input("color")]
+        kwds['linewidth']=self.get_input("linewidth")
+        kwds['b']=self.get_input("b")
+        kwds['which']=self.get_input("which")
+
+        axes = self.get_axes()
+        for axe in axes:
+            axe.grid(**kwds)
+            axe.get_figure().canvas.draw()
+        return self.get_input('axes')
+
+
 class PyLabOrigin(Node):
 
     def __init__(self):
@@ -1263,3 +1323,68 @@ class PyLabOrigin(Node):
         kwds = {}
         kwds['origin'] = self.get_input('origin') 
         return (kwds ,)
+
+
+class PyLabAxes2(Node):
+    def __init__(self):
+        Node.__init__(self)
+        #[left, bottom, width,      height]
+        self.add_input(name='input')
+        self.add_input(name='clear', interface=IBool, value=True)
+        self.add_input(name='left',     interface=IFloat(0, 1, 0.01), value=0.12)
+        self.add_input(name='bottom',   interface=IFloat(0, 1, 0.01), value=0.12)
+        self.add_input(name='width',    interface=IFloat(0, 1, 0.01), value=0.78)
+        self.add_input(name='height',   interface=IFloat(0, 1, 0.01), value=0.78)
+        self.add_input(name='axisbg',   interface=IEnumStr(colors.keys()), value='white')
+        self.add_input(name='frameon',  interface=IBool, value=True)
+        self.add_input(name='polar',    interface=IBool, value=False)
+        self.add_input(name='xscale',    interface=IEnumStr(scale.keys()), value='linear')
+        self.add_input(name='yscale',    interface=IEnumStr(scale.keys()), value='linear')
+        self.add_input(name='xticks',    interface=IEnumStr(ticks.keys()), value='auto')
+        self.add_input(name='yticks',    interface=IEnumStr(ticks.keys()), value='auto')
+        self.add_input(name='kwargs',    interface=IDict, value={})
+        self.add_output(name='axes', interface=IDict, value={})
+
+        self.axe = None
+
+    def __call__(self, inputs):
+        from pylab import axes, gcf
+        kwds = {}
+        position = [self.get_input('left'),  self.get_input('bottom'),
+                            self.get_input('width'), self.get_input('height')]
+        if self.get_input('xticks')=='None':
+            kwds['xticks'] = []
+        if self.get_input('yticks')=='None':
+            kwds['yticks'] = []
+
+        input_axes = self.get_input('input')
+
+        # case of an empty input, we need to create the axes if it does not exist, or clean the existing one.
+        if input_axes == None:
+            print 'Axes2: input axes is none'
+            #this command return the current axe if it exist otherwise it creates a new one
+            input_axes = axes(position, polar=self.get_input('polar'))
+            if self.get_input('clear')==True:
+                input_axes.clear()
+            input_axes.set_axis_bgcolor(self.get_input('axisbg'))
+            input_axes.set_frame_on(self.get_input('frameon'))
+            input_axes.set_xscale(self.get_input('xscale'))
+            input_axes.set_yscale(self.get_input('yscale'))
+            f = input_axes.get_figure()
+            f.canvas.draw()
+            return input_axes
+
+        #else
+        print 'Axes2: input axes is not none'
+        if type(input_axes)!=list: input_axes = [input_axes]
+
+        for axe in input_axes:
+            axe.set_position(position)
+            axe.set_axis_bgcolor(self.get_input('axisbg'))
+            axe.set_frame_on(self.get_input('frameon'))
+            axe.set_xscale(self.get_input('xscale'))
+            axe.set_yscale(self.get_input('yscale'))
+        f = gcf()
+        f.canvas.draw()
+
+        return input_axes

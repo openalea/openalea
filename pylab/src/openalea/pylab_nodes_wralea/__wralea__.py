@@ -23,11 +23,11 @@ __all__ = [
     'py_pylab_PyLabPlot',
     'py_pylab_PyLabHist',
     'py_pylab_PyLabScatter',
-    'py_pylab_PyLabRandom',
     'py_pylab_PyLabAcorr',
     'py_pylab_PyLabLine2D',
     'py_pylab_PyLabPolar',
     'py_pylab_PyLabPie',
+    'py_pylab_PyLabImageGrid',
 #    'py_pylab_PyLabBar',
     'py_pylab_PyLabLogLog',
     'py_pylab_PyLabSemiLogx',
@@ -95,8 +95,6 @@ py_pylab_PyLabPlot = Factory(name='PyLabPlot',
                )
 
 
-
-
 py_pylab_PyLabHist = Factory(name='PyLabHist',
                 description='pylab.hist interface.',
                 category='visualization, data processing',
@@ -125,20 +123,6 @@ py_pylab_PyLabScatter = Factory(name='PyLabScatter',
                )
 
 
-
-
-
-py_pylab_PyLabRandom = Factory(name='PyLabRandom',
-                description='pylab.random interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabRandom',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 
 
@@ -440,3 +424,14 @@ py_pylab_PyLabImshow = Factory(name='PyLabImshow',
                 lazy=False
                )
 
+py_pylab_ImageGrid = Factory(name='PyLabImageGrid',
+                description='pylab.plot interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab2',
+                nodeclass='PyLabImageGrid',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+            )

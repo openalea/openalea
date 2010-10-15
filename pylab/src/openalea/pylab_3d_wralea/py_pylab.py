@@ -15,7 +15,7 @@
 #
 ###############################################################################
 
-__doc__="""VisuAlea implemtation of pylab.mplot3d
+__doc__="""VisuAlea implementation of pylab.mplot3d
 """
 
 __license__= "Cecill-C"

@@ -172,6 +172,95 @@ def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
     return kwds
 
 
+class Plotting2(Node):
+    """This class provides common connector related to decorate a figure or axes.
+
+    It is a base class to all Plotting nodes so that they inherits from the Node class, 
+    and get common connectors:
+
+        * label
+        * colorbar
+
+
+    It also guarantee to have at least 1 output defined within each Plotting nodes.
+
+    :author: Thomas Cokelaer
+    """
+    ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
+    ERROR_FAILURE = 'Failed to generate the image. check your entries.'
+
+    def __init__(self,  inputs={}):
+        Node.__init__(self)
+        self._title = None
+        self._ylabel = None
+        self._xlabel = None
+        self.axe = None
+        self.fig = None
+
+        self.add_input(name="axes")
+        for input in inputs:
+            self.add_input(**input)
+
+        self.add_input(name="figure", interface=IInt(1,100,1), value=1)
+
+        self.add_output(name='axes')
+
+    def figure(self):
+        """call figure()"""
+        from pylab import figure
+        assert type(self.get_input('figure')) == int
+        if self.fig == None:
+            fig = figure(self.get_input('figure'))
+            #print 'new figure created ', self.get_input('figure')
+            self.fig = fig
+        else:
+            fig = figure(self.get_input('figure'))
+            if fig == self.fig:
+                #print 'figure exist already, nothing to do'
+                pass
+            else:
+                print 'figure not found. Maybe it was closed !!! consider reloading this node.'
+                
+                self.fig = fig
+                del self.axe
+                self.axe = None
+                #raise ValueError('figure not found. Maybe it was closed !!! consider reloading this node.')
+
+        return self.fig
+
+    #def legend(self):
+    #    args = self.get_input('legend')
+    #    if type(args)==bool:
+    #        if args:
+    #            self.axe.legend()
+    #    else:
+    #        self.axe.legend(**args)
+    def axes(self):
+        #sometimes, we want to add data to existing axe provided as an input argument. In such case, we do not want to clean
+        # the axe and create a new one.
+        if self.get_input('axes') != None:
+            axes = self.get_input('axes')
+            from pylab import Axes
+            assert type(axes)==Axes, 'input must be a Axes type from matplotlib'
+            self.axe = axes
+            return
+        #if an axe already exist, no need to create a new one: we simply clean it
+        if self.axe:
+            self.axe.cla()
+        #else, we need to create a new axe. Note, the use of label. Indeed, if same position is used, and same default label then
+        # no new axes is created. See add_axes help. Our label is the number of axes.
+        else:
+            label='axe' + str(len(self.fig.get_axes()))
+            self.axe = self.fig.add_axes([.1,.1,.8,.8], label=label)
+
+
+    def properties(self):
+        """This is an alias method that calls legend, title, xlabel, ylabel, 
+        grid, colorbar and show"""
+        #self.legend()
+        self.fig.canvas.draw()
+        self.fig.show()
+
 
 class Plotting(Node):
     """This class provides common connector related to decorate a figure or axes.
@@ -551,7 +640,8 @@ class PlotxyInterface(Colors, LineStyles, Markers):
                     plot(x, y, **kwds)
         pass
 
-class PyLabPlot(Plotting, PlotxyInterface):
+
+class PyLabPlot(Plotting2, PlotxyInterface):
     """VisuAlea version of pylab.plot
 
     The x connector must be connected. It must be in one of the following format:
@@ -582,31 +672,38 @@ class PyLabPlot(Plotting, PlotxyInterface):
     def __init__(self):
         PlotxyInterface.__init__(self)
         inputs = [
-                    {'name':'x',            'interface':None,                           'value':None},
-                    {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
-                    {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
+                    {'name':'x',          'interface':None,                           'value':None},
+                    {'name':'y',          'interface':None,                           'value':None},
+                    {'name':'marker',     'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
+                    {'name':'markersize', 'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',  'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',      'interface':IEnumStr(self.colors.keys()),   'value':'blue'},
+                    {'name':'scalex',     'interface':IBool, 'value':True},
+                    {'name':'scaley',     'interface':IBool, 'value':True},
         ]
-        Plotting.__init__(self, inputs)
+        Plotting2.__init__(self, inputs)
+        self.add_input(name='kwargs', interface=IDict, value={})
 
     def __call__(self, inputs):
-        from pylab import cla
+        from pylab import figure
 
-        self.figure()
-        self.axes()
-        cla()
         kwds = {}
+        for key,value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=self.markers[self.get_input("marker")]
         kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
         kwds['color']=self.colors[self.get_input("color")]
+        kwds['scaley']=self.get_input("scaley")
+        kwds['scalex']=self.get_input("scalex")
 
+        self.figure()
+        self.axes()
         self.call('plot', kwds)
-
         self.properties()
-        return self.axes_shown
+
+        return self.axe
+
 
 
 class PyLabLogLog(Plotting, PlotxyInterface):
@@ -767,6 +864,8 @@ class PyLabHist(Plotting):
         #rectangle
         self.add_input(name="kwargs", interface = IDict, value={'alpha':1., 'animated':False})
 
+        self.add_output(name="axes")
+        
         self.add_output(name="position")
         self.add_output(name="counts")
         """
@@ -795,7 +894,7 @@ class PyLabHist(Plotting):
         from pylab import cla, hold, hist, Line2D
         self.figure()
         self.axes()
-        cla()
+        #cla()
         kwds={}
         kwds['bins']=self.get_input("bins")
         kwds['normed']=self.get_input("normed")
@@ -818,9 +917,9 @@ class PyLabHist(Plotting):
             for x in xinputs:
                 if type(x)==Line2D:
                     line2dkwds = get_kwds_from_line2d(x, kwds, type='hist')
-                    res = hist(x.get_ydata(orig=False),**line2dkwds)
+                    res = self.axe.hist(x.get_ydata(orig=False),**line2dkwds)
                 else:
-                    res = hist(x,**kwds)
+                    res = self.axe.hist(x,**kwds)
             hold(True)
         except ValueError, e:
             res = (None, None)
@@ -828,8 +927,7 @@ class PyLabHist(Plotting):
             raise ValueError('tttt')
 
         self.properties()
-        return (res, res[1],res[0])
- #range=None   bottom=None,    rwidth=None,
+        return (self.axe,res, res[1],res[0])
 
 
 class PyLabAcorr(Plotting, Detrends):
@@ -897,36 +995,6 @@ class PyLabAcorr(Plotting, Detrends):
 
 #//////////////////////////////////////////////////////////////////////////////
 
-class PyLabRandom(Node):
-    """pylab.random interface
-
-    Returns uniform random distribution array between a
-    minimum (0.)  and maximum value (1)
-
-    :param length: length of the random array
-    :param min: min value (default is 0.)
-    :param max: max value  (default is 1)
-
-    :authors: Thomas Cokelaer
-    """
-    def __init__(self):
-        #from pylab import random
-        #self.__doc__ += random.__doc__
-        Node.__init__(self)
-        self.add_input(name="length", interface = IInt, value=100)
-        self.add_input(name="min", interface = IFloat, value=0.)
-        self.add_input(name="max", interface = IFloat, value=1.)
-        self.add_output(name="result")
-
-    def __call__(self, inputs):
-        from pylab import random
-        m = self.get_input("min")
-        M = self.get_input("max")
-        n = self.get_input("length")
-
-        res = m + (M-m)* random(n)
-
-        return(res,)
 
 
 class PyLabAbsolute(Node):
@@ -2181,3 +2249,64 @@ class PyLabImshow(Plotting):
       visible: [True | False]         
       zorder: any number         
     """
+
+
+
+class PyLabPlot(Plotting, PlotxyInterface):
+    """VisuAlea version of pylab.plot
+
+    The x connector must be connected. It must be in one of the following format:
+
+        * a 1-D array.
+            * If nothing is connected to `y`, then `x` is used as `y` (similarly to pylab.plot behaviour)
+            * A 1-D array of same length may be connected to `y`.
+            * Several 1-D arrays of same length as `x` may be connected to `y`. Therefore, 
+              these arrays have the same `x` data
+        * a Line2D object (see :ref:`Line2D`). `y` must  be empty in such case.
+        * a list of Line2D objects. `y` must be empty in such case
+
+    In order to customize the input data at will, it is necesserary to convert the xy data into a 
+    :class:`PyLabLine2D` object and to pass it to the `x` connector. In such case, the y connector
+    becomes useless.
+
+    :param x: either an array or a PyLabLine2D object or a list of PyLabLine2D objects.
+    :param y: either an array or list of arrays
+    :param marker: circle marker by default
+    :param markersize: marker size  (float, default=10)
+    :param linestyle: solid line by default (default=solid)
+    :param color: (default=blue)
+
+    :return: the axes in which the data are plotted.
+
+    :authors: Thomas Cokelaer
+    """
+    def __init__(self):
+        PlotxyInterface.__init__(self)
+        inputs = [
+                    {'name':'x',            'interface':None,                           'value':None},
+                    {'name':'y',            'interface':None,                           'value':None},
+                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
+                    {'name':'markersize',   'interface':IFloat,                         'value':10},
+                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
+        ]
+        Plotting.__init__(self, inputs)
+
+    def __call__(self, inputs):
+        from pylab import cla
+
+        self.figure()
+        self.axes()
+        cla()
+        kwds = {}
+        kwds['markersize']=self.get_input("markersize")
+        kwds['marker']=self.markers[self.get_input("marker")]
+        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
+        kwds['color']=self.colors[self.get_input("color")]
+
+        self.call('plot', kwds)
+
+        self.properties()
+        return self.axes_shown
+
+
