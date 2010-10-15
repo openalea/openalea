@@ -22,8 +22,12 @@ license= 'Boost Software License V 1.0'
 cwd = os.getcwd()
 includeDir = pj("include", "boost-"+version.replace(".", "_"))
 if not exists(pj(cwd,includeDir)):
-    raise Exception("Include directory " + includeDir + " not found")
-    sys.exit(-1)
+    secondTry = pj(cwd, "include")
+    if exists(pj(secondTry, "boost")):
+        includeDir = secondTry
+    else:
+        raise Exception("Include directory 'boost' not found in " + includeDir + " or " + secondTry + ".")
+        sys.exit(-1)
 
 # For other meta-information, please read the Python distutils documentation.
 
