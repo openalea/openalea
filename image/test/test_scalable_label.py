@@ -25,7 +25,10 @@ from openalea.image import imread
 from openalea.image.gui import to_pix,ScalableLabel
 from numpy import zeros,uint32
 
-img = imread("4_ocean_currents.png")
+try:
+    img = imread("4_ocean_currents.png")
+except:
+    img = imread("test/4_ocean_currents.png")
 
 #img = zeros( (100,50,3),uint32)
 #img[10:20,10:30,1] = 255

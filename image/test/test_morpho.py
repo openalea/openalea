@@ -25,7 +25,10 @@ def test_component_labeling_with_threshold_image():
     :Parameters : 
     - `threshold image`
     """
-    img = np.load('labels.npy')
+    try:
+        img = np.load('labels.npy')
+    except:
+        img = np.load('test/labels.npy')
     assert img.shape == (1024, 1344)
 
     thresh_im = np.where(img < 127, False, True)
@@ -49,7 +52,10 @@ def test_component_labeling_with_threshold():
     - `threshold`
     """
 
-    img = np.load('labels.npy')
+    try:
+        img = np.load('labels.npy')
+    except:
+        img = np.load('test/labels.npy')
     assert img.shape == (1024, 1344)
 
     out,nlabels = component_labeling(img, threshold=127)    
@@ -71,7 +77,10 @@ def test_component_labeling_with_number_labels():
     :Parameters : 
     - `number_labels`
     """
-    img = np.load('labels.npy')
+    try:
+        img = np.load('labels.npy')
+    except:
+        img = np.load('test/labels.npy')
     assert img.shape == (1024, 1344)
 
     out,nlabels = component_labeling(img, threshold=127, number_labels=3)    
