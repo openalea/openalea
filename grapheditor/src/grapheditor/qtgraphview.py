@@ -595,11 +595,12 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     def register_view(self,  view):
         self.__views.add(weakref.ref(view))
 
-    def unregister_view(self,  view):
+    def unregister_view(self,  view, scene):
         toDiscard = None
         for v in self.__views:
             if v() == view : toDiscard = v; break
-        self.__views.remove(toDiscard)
+        if toDiscard:
+            self.__views.remove(toDiscard)
         try: self.get_graph().unregister_listener(view)
         except : pass
         if len(self.__views)==0:
@@ -714,7 +715,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
     """A View implementing client customisation """
 
     #A few signals that strangely enough don't exist in QWidget
-    closing = QtCore.pyqtSignal(baselisteners.GraphListenerBase, QtGui.QGraphicsScene)
+    closing = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene)
 
     ####################################
     # ----Instance members follow----  #
