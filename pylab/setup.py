@@ -1,38 +1,50 @@
 # -*- coding: utf-8 -*-
 __revision__ = "$Id: setup.py 2249 2010-02-08 17:27:37Z cokelaer $"
 
-
 import sys
 import os
 
 from setuptools import setup, find_packages
+from openalea.deploy.metainfo import read_metainfo
 
 # Reads the metainfo file
-from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 
-pkgs = [ pkg for pkg in find_packages('src') if namespace not in pkg]
+pkg_root_dir = 'src'
+pkgs = [ pkg for pkg in find_packages(pkg_root_dir)]
 top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
-packages = [ namespace + "." + pkg for pkg in pkgs]
-package_dir = dict( [('','src')] + [(namespace + "." + pkg,  "src/" + pkg) for pkg in top_pkgs] )
+packages = pkgs
+package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs] )
 
-setup_requires = ['openalea.deploy']
+
+# Define global variables 
+has_scons = False
+if has_scons:
+    build_prefix = "build-scons"
+    scons_scripts=['SConstruct']
+    lib_dirs = {'lib' : build_prefix+'/lib' }
+    inc_dirs = { 'include' : build_prefix+'/include' }
+    bin_dirs = { 'bin' : build_prefix+'/bin' }
+else:
+    build_prefix = None
+    scons_scripts=None
+    lib_dirs = None
+    inc_dirs = None
+    bin_dirs = None
+
+
+setup_requires = ['openalea.deploy', 'openalea.numpy']
+if("win32" in sys.platform):
+    install_requires = []
+else:
+    install_requires = []
+    
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
 
-
-# scons build-prefix 
-#(to be kept only if you contruct C/C++ binaries)
-
-#build_prefix = "build-scons"
-install_requires = []
-
-
-# setup function call
-#
 setup(
     # Meta data (no edition needed if you correctly defined the variables above)
     name=name,
@@ -44,35 +56,41 @@ setup(
     url=url,
     license=license,
     keywords = '',	
+    
     # package installation
     packages= packages,	
     package_dir= package_dir,
+
     # Namespace packages creation by deploy
-    namespace_packages = [namespace],
-    create_namespaces = True,
-    # tell setup not  tocreate a zip file but install the egg as a directory (recomended to be set to False)
+    #namespace_packages = [namespace],
+    #create_namespaces = True,
     zip_safe= False,
+    
     # Dependencies
     setup_requires = setup_requires,
     install_requires = install_requires,
     dependency_links = dependency_links,
 
 
-    #lib_dirs = {'lib' : build_prefix+'/lib' },
-    #inc_dirs = { 'include' : build_prefix+'/include' },
-
+    lib_dirs = lib_dirs,
+    inc_dirs = inc_dirs,
+    bin_dirs = bin_dirs,
+    
     include_package_data = True,
+    
     entry_points = {
-            "wralea": [ "openalea.pylab = pylab_main_wralea",
-                        "openalea.pylab.demo = pylab_demo_wralea",
-                        "openalea.pylab.nodes = pylab_nodes_wralea",
-                        "openalea.pylab.text = pylab_text_wralea",
-                        "openalea.pylab.test = pylab_test_wralea",
-                        "openalea.pylab.patches = pylab_patches_wralea",
-                        "openalea.pylab.mplot3d = pylab_3d_wralea",
+            "wralea": [ "pylab = openalea.pylab_main_wralea",
+                        "pylab.demo = openalea.pylab_demo_wralea",
+                        "pylab.nodes = openalea.pylab_nodes_wralea",
+                        "pylab.plotting = openalea.pylab_plotting_wralea",
+                        "pylab.datasets = openalea.pylab_datasets_wralea",
+                        "pylab.decorators = openalea.pylab_decorators_wralea",
+                        "pylab.text = openalea.pylab_text_wralea",
+                        "pylab.test = openalea.pylab_test_wralea",
+                        "pylab.patches = openalea.pylab_patches_wralea",
+                        "pylab.mplot3d = openalea.pylab_3d_wralea",
             ]
             },
-
 
     )
 

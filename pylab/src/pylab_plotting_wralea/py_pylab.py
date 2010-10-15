@@ -74,6 +74,26 @@ class Colors():
             'white':'w',
             'None':'None'
              }
+    def get_valid_color(self, color='blue'):
+
+        if color in self.colors.keys():
+            print '1'
+            return self.colors[color]
+        elif type(color)==str:
+            if len(color)!=7 or color[0]!='#':
+                raise ValueError('hexa string must be like #ffffff')
+            print '2', color
+            return color
+        else:
+            print '3',
+            from matplotlib.colors import rgb2hex
+            try:
+                import numpy
+                c = rgb2hex(numpy.array(color)/256.)
+                print c
+                return c
+            except:
+                raise TypeError('colors must be valid matplotlib symbol, or a string (hex code) or a RGB list/array. %s provided' % color)
 
 class DrawStyles():
     """Provides a list of valid draw styles
@@ -172,7 +192,7 @@ def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
     return kwds
 
 
-class Plotting2(Node):
+class Plotting(Node):
     """This class provides common connector related to decorate a figure or axes.
 
     It is a base class to all Plotting nodes so that they inherits from the Node class, 
@@ -236,20 +256,32 @@ class Plotting2(Node):
     #    else:
     #        self.axe.legend(**args)
     def axes(self):
+
+
+
         #sometimes, we want to add data to existing axe provided as an input argument. In such case, we do not want to clean
         # the axe and create a new one.
         if self.get_input('axes') != None:
+            print 'Input axes found. Using it (%s)'  % self.get_input('axes')
             axes = self.get_input('axes')
-            from pylab import Axes
-            assert type(axes)==Axes, 'input must be a Axes type from matplotlib'
+            import matplotlib
+            assert axes.__module__ in [matplotlib.axes.__name__,matplotlib.projections.polar.__name__], 'input must be a valid axes from matplotlib.axes %s given for %s' % (type(axes), axes)
             self.axe = axes
+            self.axe.hold(True)
             return
         #if an axe already exist, no need to create a new one: we simply clean it
         if self.axe:
-            self.axe.cla()
+            from pylab import sca, cla
+            print 'No input axe, but axes already set. Clear it. %s' % self.axe, self.axe.__str__
+            #set the current axe to be axe of the node currently run
+            #sca(self.axe)
+            self.axe.clear()
+            self.axe.get_figure().canvas.draw()
+            sca(self.axe)
         #else, we need to create a new axe. Note, the use of label. Indeed, if same position is used, and same default label then
         # no new axes is created. See add_axes help. Our label is the number of axes.
         else:
+            print 'No input axe and not axes set. Creating a new one.'
             label='axe' + str(len(self.fig.get_axes()))
             self.axe = self.fig.add_axes([.1,.1,.8,.8], label=label)
 
@@ -261,254 +293,6 @@ class Plotting2(Node):
         self.fig.canvas.draw()
         self.fig.show()
 
-
-class Plotting(Node):
-    """This class provides common connector related to decorate a figure or axes.
-
-    It is a base class to all Plotting nodes so that they inherits from the Node class, 
-    and get common connectors:
-
-        * grid
-        * xlabel
-        * ylabel
-        * title
-        * figure
-        * legend
-        * colorbar
-        * axes
-        * axis
-
-
-    It also guarantee to have at least 1 output defined within each Plotting nodes.
-
-    :author: Thomas Cokelaer
-    """
-    ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
-    ERROR_FAILURE = 'Failed to generate the image. check your entries.'
-
-    def __init__(self,  inputs={}):
-        Node.__init__(self)
-        self._show = True
-        self._title = None
-        self._ylabel = None
-        self._xlabel = None
-
-        for input in inputs:
-            self.add_input(**input)
-
-        self.add_input(name="show",   interface=IBool, value=True)
-        self.add_input(name="grid",   interface=IBool, value=True)
-        self.add_input(name="subplot",interface=ISequence, value=[])
-        self.add_input(name="xlabel", interface=IStr,  value="")
-        self.add_input(name="ylabel", interface=IStr,  value = "")
-        self.add_input(name="title",  interface=IStr,  value = "")
-        self.add_input(name="figure", interface=IInt(1,20,1), value=1)
-        self.add_input(name='legend', interface=IBool, value=True)
-        self.add_input(name='colorbar', interface=IBool, value=False)
-        self.add_input(name='axes',   interface=IDict, value={})
-        self.add_input(name='axis',   interface=IDict, value={'type':'normal', 'xmin':None, 'xmax':None, 'ymin':None, 'ymax':None})
-
-        self.add_output(name='output')
-        self.colorbar_called = False
-        self.subplot_call = 1
-        self.axes_shown = None
-        self.fig = None
-
-    def colorbar(self):
-        """call pylab.colorbar()
-
-        .. warning:: a known issue with pylab is that colorbar cannot be deleted.
-            except by using a clf() call, which delete also all other axes and not
-            only the current one. So, we add a mechanism to call colorbar if not 
-            already called.
-        
-        It can also inherit from the :class:`PyLabColorbar` keywords arguments.
-        """
-        from pylab import colorbar
-        if self.colorbar_called == True:
-            return
-        if type(self.get_input('colorbar'))==bool:
-            if self.get_input('colorbar')==True:
-                colorbar()
-                self.corlorbar_called=True
-                self.set_input('colorbar', False)
-        else:
-            kwds = self.get_input('colorbar')
-            colorbar(**kwds)
-            self.colorbar_called=True
-
-    def show(self):
-        """call pylab.show"""
-        from pylab import show
-        if self.get_input('show'):
-            show()
-
-    def grid(self):
-        """call pylab.grid"""
-        from pylab import grid
-        grid(self.get_input('grid'))
-
-    def figure(self):
-        """call pylab.figure()
-
-        It can also inherit from the :class:`PyLabrFigure` keywords arguments.
-        """
-        from pylab import figure
-        args = self.get_input('figure')
-        if type(args)==int:
-            fig = figure(args)
-        else:
-            fig = figure(**args)
-
-        self.fig = fig
-
-    def axes(self):
-        """call pylab.axes
-
-        if an axes is called, we first delete the previous one.
-
-        It can also inherit from the :class:`PyLabAxes` keywords arguments.
-        """
-        if self.axes_shown is not None:
-            try:
-                self.fig.delaxes(self.axes_shown)
-            except:
-                pass
-        if len(self.get_input('axes'))>0:
-            from pylab import axes
-            import copy
-            args = self.get_input('axes')
-            kwds = copy.deepcopy(args)
-            #using axes([], ...) does not have the same behaviour as axes(position=[], ...)
-            del kwds['position']
-            self.axes_shown = axes(args['position'], **kwds)
-        else:
-            self.axes_shown = None
-
-    def axis(self):
-        """call pylab.axis
-
-        it can also inherit from the :class:`PyLabAxis` keywords arguments
-
-        """
-        from pylab import axis
-        import copy
-        kwds = copy.deepcopy(self.get_input('axis'))
-        type = kwds['type']
-        del kwds['type']
-        if type!='manual':
-            axis(type)
-        else:
-            print 'b'
-            print kwds
-            axis(**kwds)
-
-    def title(self):
-        """call pylab.title
-
-        it can also inherit from the :class:`PyLabTitle` keywords arguments
-
-        """
-        from pylab import title
-        try:
-            import copy
-            text = self.get_input('title')['text']
-            kwds = copy.deepcopy(self.get_input('title'))
-            del kwds['text']
-            title(text, **kwds)
-        except:
-            title(self.get_input('title'))
-
-    def xlabel(self):
-        """call pylab.xlabel
-
-        it can also inherit from the :class:`PyLabXLabel` keywords arguments
-
-        """
-        from pylab import xlabel
-        try:
-            import copy
-            text = self.get_input('xlabel')['text']
-            kwds = copy.deepcopy(self.get_input('xlabel'))
-            del kwds['text']
-            xlabel(text, **kwds)
-        except:
-            xlabel(self.get_input('xlabel'))
-
-    def ylabel(self):
-        """call pylab.ylabel
-
-        it can also inherit from the :class:`PyLabYLabel` keywords arguments
-
-        """
-        from pylab import ylabel
-        try:
-            import copy
-            text = self.get_input('ylabel')['text']
-            kwds = copy.deepcopy(self.get_input('ylabel'))
-            del kwds['text']
-            ylabel(text, kwds)
-        except:
-            ylabel(self.get_input('ylabel'))
-
-    def legend(self):
-        """call pylab.legend
-
-        it can also inherit from the :class:`PyLabLegend` keywords arguments
-
-        """
-        from pylab import legend
-        args = self.get_input('legend')
-        if type(args)==bool:
-            if args:
-                legend()
-        else:
-            legend(**args)
-
-    def subplot(self):
-        """
-        .. warning::  obsolet
-        """
-        from pylab import subplot
-
-        input = self.get_input('subplot')
-        print 'subplot', input
-        try:
-            row = self.get_input('subplot')[0]
-            column = self.get_input('subplot')[1]
-            number = self.get_input('subplot')[2]
-            kwds = self.get_input('subplot')[3]
-        except:
-            row = 1
-            column = 1
-            number = 1
-            kwds = {}
-        # this is a hack to prevent colorbar to add-on in an axes when called several times
-        # calling subplot(2,1,1) or subplot(111) 
-        print row
-        print column
-        print number
-        print kwds
-        if self.subplot_call == 1:
-            subplot(row, column, number, **kwds)
-            self.subplot_call = 2
-        else:
-            subplot(int(str(row)+str(column)+str(number)), **kwds)
-            self.subplot_call = 1
-
-
-    def properties(self):
-        """This is an alias method that calls legend, title, xlabel, ylabel, 
-        grid, axis, colorbar and show"""
-        self.legend()
-        self.title()
-        self.xlabel()
-        self.ylabel()
-        self.grid()
-        self.axis()
-        self.colorbar()
-        self.set_input('colorbar', False)
-        self.show()
 
 
 
@@ -616,8 +400,11 @@ class PlotxyInterface(Colors, LineStyles, Markers):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
-                    plot(x, **kwds)
-                    hold(True)
+                    try:
+                        plot(x, **kwds)
+                    except:
+                        raise ValueError("plot failed")
+                    self.axe.hold(True)
 
         else:
             if len(xinputs)==1 and len(yinputs)!=1:
@@ -629,19 +416,25 @@ class PlotxyInterface(Colors, LineStyles, Markers):
                         kwds['color']=color[1]
                     except:
                         print 'no more colors'
-                    plot(xinputs[0], y, **kwds)
-                    hold(True)
+                    try:
+                        plot(xinputs[0], y, **kwds)
+                    except:
+                        raise ValueError("plot failed")
+                    self.axe.hold(True)
             else:
                 if len(xinputs)!=len(yinputs):
                     print 'warning more x inputs than y inputs. correct the connectors'
                 # plot([x1,x2], [y1,y2])
                 # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
-                    plot(x, y, **kwds)
+                    try:
+                        plot(x, y, **kwds)
+                    except:
+                        raise ValueError("plot failed")
         pass
 
 
-class PyLabPlot(Plotting2, PlotxyInterface):
+class PyLabPlot(Plotting, PlotxyInterface):
     """VisuAlea version of pylab.plot
 
     The x connector must be connected. It must be in one of the following format:
@@ -681,22 +474,24 @@ class PyLabPlot(Plotting2, PlotxyInterface):
                     {'name':'scalex',     'interface':IBool, 'value':True},
                     {'name':'scaley',     'interface':IBool, 'value':True},
         ]
-        Plotting2.__init__(self, inputs)
-        self.add_input(name='kwargs', interface=IDict, value={})
+        Plotting.__init__(self, inputs)
+        self.add_input(name='kwargs', interface=IDict, value={'label':None})
 
     def __call__(self, inputs):
+        print 'Calling PyLabPlot'
         from pylab import figure
 
+        #todo label must be cast into string
         kwds = {}
         for key,value in self.get_input('kwargs').iteritems():
             kwds[key] = value
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=self.markers[self.get_input("marker")]
         kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.colors[self.get_input("color")]
+        kwds['color']=self.get_valid_color(self.get_input("color"))
         kwds['scaley']=self.get_input("scaley")
         kwds['scalex']=self.get_input("scalex")
-
+        print kwds
         self.figure()
         self.axes()
         self.call('plot', kwds)
@@ -731,7 +526,9 @@ class PyLabLogLog(Plotting, PlotxyInterface):
         from pylab import cla
 
         self.figure()
-        self.axes()
+        self.axes(
+        #todo label must be cast into strinca
+)
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
@@ -816,7 +613,7 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
         return self.axes_shown
 
 
-class PyLabHist(Plotting):
+class PyLabHist(Plotting, Colors):
     """pylab.hist interface
 
     :param x: the input data (1D array)
@@ -842,10 +639,10 @@ class PyLabHist(Plotting):
     """
 
     def __init__(self):
+        Colors.__init__(self)
         self.histtype = {'bar':'bar','barstacked':'barstacked',  'step' :'step','stepfilled':'stepfilled'}
         self.orientation = {'horizontal':'horizontal', 'vertical':'vertical'}
         self.align = {'mid':'mid', 'right':'right', 'left':'left'}
-        self.colors = Colors().colors 
         inputs = [
             {'name':'x'},
             {'name':'bins',         'interface':IInt, 'value':10},
@@ -898,7 +695,7 @@ class PyLabHist(Plotting):
         kwds={}
         kwds['bins']=self.get_input("bins")
         kwds['normed']=self.get_input("normed")
-        kwds['facecolor']=self.colors[self.get_input("facecolor")]
+        kwds['facecolor']=self.get_valid_color(self.get_input("facecolor"))
         kwds['label']=self.get_input("label")
         kwds['log']=self.get_input("log")
         kwds['orientation']=self.orientation[self.get_input("orientation")]
@@ -926,6 +723,7 @@ class PyLabHist(Plotting):
             print e
             raise ValueError('tttt')
 
+        hold(False)
         self.properties()
         return (self.axe,res, res[1],res[0])
 
@@ -997,29 +795,10 @@ class PyLabAcorr(Plotting, Detrends):
 
 
 
-class PyLabAbsolute(Node):
-    """pylab.absolute interface
-
-    Returns absolute values of the input data
-
-    :authors: Thomas Cokelaer
-    """
-    def __init__(self):
-        #from pylab import absolute
-        #self.__doc__+=absolute.__doc__
-        Node.__init__(self)
-        self.add_input(name="data")
-        self.add_output(name="result")
-
-    def __call__(self, inputs):
-        from pylab import absolute
-        data = self.get_input("data")
-        return (absolute(data),)
 
 
 
-
-class PyLabScatter(Plotting):
+class PyLabScatter(Plotting, Colors):
     """VisuAlea version of pylab.scatter
 
     create a scatter plot of the x-y input data
@@ -1044,8 +823,7 @@ class PyLabScatter(Plotting):
     :author: Thomas Cokelaer
     """
     def __init__(self):
-        self.colors = Colors().colors
-        print self.colors
+        Colors.__init__(self)
         self.markers = Markers().markers
         inputs = [
             {'name':'x',        'value':None},
@@ -1065,7 +843,7 @@ class PyLabScatter(Plotting):
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
-        color = self.get_input("color")
+        color = self.get_valid_color(self.get_input("color"))
         self.figure()
         self.axes()
         cla()
@@ -1141,11 +919,17 @@ class PyLabLine2D(Node, Colors, LineStyles, Markers):
         self.add_input(name="fillstyle", interface=IEnumStr(self.fillstyles), value='full')
         self.add_input(name="label", interface=IStr, value=None)
         self.add_input(name="alpha", interface=IFloat(0.,1., step=0.1), value=1.0)
+        self.add_input(name="kwargs", interface=IDict, value={})
 
         self.add_output(name="line2d")
 
     def __call__(self, inputs):
         from pylab import Line2D
+
+        kwds = {}
+        for key, value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
+
         xdata=self.get_input('xdata')
         ydata=self.get_input('ydata')
         #why?
@@ -1164,7 +948,7 @@ class PyLabLine2D(Node, Colors, LineStyles, Markers):
             markeredgewidth=self.get_input('markeredgewidth'),
             linewidth=self.get_input('linewidth'),
             fillstyle=self.get_input('fillstyle'),
-            alpha=self.get_input('alpha'),
+            alpha=self.get_input('alpha'),**kwds
         )
         return (output, )
 
@@ -2250,63 +2034,5 @@ class PyLabImshow(Plotting):
       zorder: any number         
     """
 
-
-
-class PyLabPlot(Plotting, PlotxyInterface):
-    """VisuAlea version of pylab.plot
-
-    The x connector must be connected. It must be in one of the following format:
-
-        * a 1-D array.
-            * If nothing is connected to `y`, then `x` is used as `y` (similarly to pylab.plot behaviour)
-            * A 1-D array of same length may be connected to `y`.
-            * Several 1-D arrays of same length as `x` may be connected to `y`. Therefore, 
-              these arrays have the same `x` data
-        * a Line2D object (see :ref:`Line2D`). `y` must  be empty in such case.
-        * a list of Line2D objects. `y` must be empty in such case
-
-    In order to customize the input data at will, it is necesserary to convert the xy data into a 
-    :class:`PyLabLine2D` object and to pass it to the `x` connector. In such case, the y connector
-    becomes useless.
-
-    :param x: either an array or a PyLabLine2D object or a list of PyLabLine2D objects.
-    :param y: either an array or list of arrays
-    :param marker: circle marker by default
-    :param markersize: marker size  (float, default=10)
-    :param linestyle: solid line by default (default=solid)
-    :param color: (default=blue)
-
-    :return: the axes in which the data are plotted.
-
-    :authors: Thomas Cokelaer
-    """
-    def __init__(self):
-        PlotxyInterface.__init__(self)
-        inputs = [
-                    {'name':'x',            'interface':None,                           'value':None},
-                    {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
-                    {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
-        ]
-        Plotting.__init__(self, inputs)
-
-    def __call__(self, inputs):
-        from pylab import cla
-
-        self.figure()
-        self.axes()
-        cla()
-        kwds = {}
-        kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.colors[self.get_input("color")]
-
-        self.call('plot', kwds)
-
-        self.properties()
-        return self.axes_shown
 
 
