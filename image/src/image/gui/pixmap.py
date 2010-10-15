@@ -41,9 +41,9 @@ def to_img (img) :
 	else :
 		dat += 4278190080
 	
-	qimg = QImage(dat.flatten('C'),
-	              img.shape[1],
+	qimg = QImage(dat.flatten('F'),
 	              img.shape[0],
+	              img.shape[1],
 	              QImage.Format_ARGB32)
 	
 	return qimg.copy()
