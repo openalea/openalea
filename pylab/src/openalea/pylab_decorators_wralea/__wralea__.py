@@ -4,7 +4,7 @@
 from openalea.core import Factory
 
 
-__name__ = 'openalea.pylab.decorators'
+__name__ = 'openalea.pylab.Axes decorators'
 
 __editable__ = False
 __description__ = 'pylab text, fonts and colors.'
@@ -33,20 +33,11 @@ __all__ = [
 'py_pylab_PyLabXTicks',
 'py_pylab_PyLabYTicks',
 'py_pylab_PyLabSaveFig',
-
+'py_pylab_PyLabAxesDecorator',
 
 'py_pylab_PyLabTextOptions',
 'py_pylab_PyLabColorBar',
 'py_pylab_PyLabColorMap',
-'py_pylab_PyLabAnnotate',
-'py_pylab_PyLabBBox',
-'py_pylab_PyLabYAArow',
-'py_pylab_PyLabFancyArrowPatch',
-'py_pylab_PyLabAxhline',
-'py_pylab_PyLabAxvline',
-'py_pylab_PyLabAxhspan',
-'py_pylab_PyLabAxvspan',
-'py_pylab_PyLabBox',
 'py_pylab_PyLabOrigin',
 ]
 
@@ -360,4 +351,11 @@ py_pylab_PyLabOrigin = Factory(name='PyLabOrigin',
                 nodemodule='py_pylab',
                 nodeclass='PyLabOrigin',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+py_pylab_PyLabAxesDecorator = Factory(name='PyLabAxesDecorator',
+                description='todo',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabAxesDecorator',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None
                 )

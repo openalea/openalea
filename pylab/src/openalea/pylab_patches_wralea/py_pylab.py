@@ -29,42 +29,10 @@ from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
 
-styles = {
-    'italic':'italic',
-    'normal':'normal',
-    'oblique':'oblique'}
-
-colors = {
-    'blue':'b',
-    'green':'g',
-    'red':'r',
-    'cyan':'c',
-    'magenta':'m',
-    'yellow':'y',
-    'black':'k',
-    'white':'w',
-    'None':'None'}
-
-from pylab import Line2D
-
-drawstyles = {}
-for key,value in Line2D.drawStyles.iteritems():
-    drawstyles[value.replace('_draw_','')]=key
-
-# line style --, -., .....
-linestyles = {}
-for key,value in Line2D.lineStyles.iteritems():
-    linestyles[value.replace('_draw_','')]=key
-
-# markers : o, square, ...
-markers = {}
-for key,value in Line2D.markers.iteritems():
-    markers[value.replace('_draw_','')]=key
+from openalea.pylab import tools
 
 
-
-
-class PyLabPatch(Node):
+class PyLabPatchDictionary(Node):
     """VisuAlea version of pylab.patch
 
 
@@ -74,13 +42,13 @@ class PyLabPatch(Node):
         Node.__init__(self)
         self.add_input(name='alpha', interface=IFloat(0,1,0.1), value=1.)
         self.add_input(name='axes', interface=IDict, value={})
-        self.add_input(name='color', interface=IEnumStr(colors.keys()), value='None')
-        self.add_input(name='edgecolor', interface=IEnumStr(colors.keys()), value='black')
-        self.add_input(name='facecolor', interface=IEnumStr(colors.keys()), value='blue')
+        self.add_input(name='color', interface=IEnumStr(tools.colors.keys()), value='None')
+        self.add_input(name='edgecolor', interface=IEnumStr(tools.colors.keys()), value='black')
+        self.add_input(name='facecolor', interface=IEnumStr(tools.colors.keys()), value='blue')
         self.add_input(name='figure', interface=IDict, value=None)
         self.add_input(name='fill', interface=IBool, value=True)
         self.add_input(name='label', interface=IStr, value=None)
-        self.add_input(name='linestyle', interface=IEnumStr(linestyles.keys()), value='solid')
+        self.add_input(name='linestyle', interface=IEnumStr(tools.linestyles.keys()), value='solid')
         self.add_input(name='linewidth', interface=IFloat, value=None)
 
         self.add_output(name='output')
@@ -107,9 +75,9 @@ zorder  any number
         for x in ['alpha', 'axes', 'figure', 'fill', 'label', 'linestyle', 'linewidth']:
             kwds[x]=self.get_input(x)
         if self.get_input('color')!='None':
-            kwds['color'] = colors[self.get_input('color')] 
-        kwds['edgecolor'] = colors[self.get_input('edgecolor')]
-        kwds['facecolor'] = colors[self.get_input('facecolor')]
+            kwds['color'] = tools.colors[self.get_input('color')] 
+        kwds['edgecolor'] = tools.colors[self.get_input('edgecolor')]
+        kwds['facecolor'] = tools.colors[self.get_input('facecolor')]
         return kwds
 
 
@@ -120,7 +88,7 @@ class PyLabCircle(Node):
     :param *x*: x coordinate of circle's center
     :param *y*: y coordinate of circle's center
     :param *radius*: radius of the circle
-    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
     """
 
     def __init__(self):
@@ -146,7 +114,7 @@ class PyLabEllipse(Node):
     :param *width*: width of horizontal axis
     :param *height*: length of vertical axis
     :param *angle*:  rotation in degrees (anti-clockwise)
-    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
     """
     def __init__(self):
         from matplotlib.patches import Ellipse
@@ -169,28 +137,6 @@ class PyLabEllipse(Node):
         return c
 
 
-class PyLabAddPatches(Node):
-    """Assemble several patches into an axes"""
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='axe', interface=IDict, value=None)
-        self.add_input(name='patches', interface=ISequence,  value=[])
-        self.add_output(name='return',value=None)
-
-    def __call__(self, inputs):
-        from pylab import Circle, draw
-
-        axe = self.get_input('axe')
-        if axe is not None:
-            patches2add = []
-            #if type(self.get_input('patches'))!=list:
-            #    patches = list(self.get_input('patches'))
-            #else:
-            patches = self.get_input('patches')
-            for patch in patches:
-                axe.add_patch(patch)
-            draw()
-        #return axe
 
 
 
@@ -201,7 +147,7 @@ class PyLabRectangle(Node):
     :param *y*: y coordinate of lower left rectangle
     :param *width*: width of the rectangle
     :param *height*: height of the rectangle
-    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
     """
     def __init__(self):
         Node.__init__(self)
@@ -229,7 +175,7 @@ class PyLabWedge(Node):
     :param *theta1*:
     :param *theta2*:
     :param *width*: if provided, then a partial wedge is drawn from inner radius *r* - *width* to outer radius *r*.
-    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
     """
     def __init__(self):
         Node.__init__(self)
@@ -256,7 +202,7 @@ class PyLabPolygon(Node):
     :param *x*: array with shape Nx1
     :param *y*: array with shape Nx1.
     :param *closed*: polygon will be closed so the starting and ending points are the same (default is True)
-    :param *patch*:  a :class:`PyLabPatch` object (optional)
+    :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
 
     """
     def __init__(self):

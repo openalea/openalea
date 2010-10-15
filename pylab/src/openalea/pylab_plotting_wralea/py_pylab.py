@@ -27,169 +27,12 @@ from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
 
 from openalea.core.external import add_docstring
-import pylab
+
+from openalea.pylab import tools
+
 
 #sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
-from pylab import cm, get_cmap
-maps=[m for m in cm.datad if not m.endswith("_r")]
-cmaps = {}
-for c in maps:
-    cmaps[c] = get_cmap(c)
-cmaps['None'] = None
-
-
-class Detrends():
-    """Provides a list of valid detrend options
-
-        * 'none':
-        * 'linear'
-        * 'mean'
-    """
-    def __init__(self):
-
-        self.detrends = {
-            'none':'detrend_none',
-            'linear':'detrend_linear',
-            'mean':'detrend_mean'
-            }
-
-
-class Colors():
-    """Provide a dictionary of colors
-
-    'blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'purple', 'black', 'white', 'None',
-    """
-    def __init__(self):
-
-        self.colors = {
-            'blue':'b',
-            'green':'g',
-            'red':'r',
-            'cyan':'c',
-            'magenta':'m',
-            'yellow':'y',
-            'purple':'purple',
-            'black':'k',
-            'white':'w',
-            'None':'None'
-             }
-    def get_valid_color(self, color='blue'):
-
-        if color in self.colors.keys():
-            print '1'
-            return self.colors[color]
-        elif type(color)==str:
-            if len(color)!=7 or color[0]!='#':
-                raise ValueError('hexa string must be like #ffffff')
-            print '2', color
-            return color
-        else:
-            print '3',
-            from matplotlib.colors import rgb2hex
-            try:
-                import numpy
-                c = rgb2hex(numpy.array(color)/256.)
-                print c
-                return c
-            except:
-                raise TypeError('colors must be valid matplotlib symbol, or a string (hex code) or a RGB list/array. %s provided' % color)
-
-class DrawStyles():
-    """Provides a list of valid draw styles
-
-    Found by introspection in pylab.Line2D.drawStyles
-    """
-    def __init__(self):
-        from pylab import Line2D
-        self.drawstyles = {}
-        for key,value in Line2D.drawStyles.iteritems():
-            self.drawstyles[value.replace('_draw_','')]=key
-
-
-class LineStyles():
-    """Provides a list of valid draw styles
-
-    Found by introspection in pylab.Line2D.lineStyles
-
-        *  --
-        * -.
-        *  ...
-    """
-
-    def __init__(self):
-        from pylab import Line2D
-        self.linestyles = {}
-        for key,value in Line2D.lineStyles.iteritems():
-            self.linestyles[value.replace('_draw_','')]=key
-
-class Markers():
-    """Provides a list of valid markers
-
-    Found by introspection in pylab.Line2D.markers
-
-        *  circle : o,
-        * square, ...
-    """
-
-    def __init__(self):
-        from pylab import Line2D
-        self.markers = {}
-        for key,value in Line2D.markers.iteritems():
-            self.markers[value.replace('_draw_','')]=key
-
-
-def get_kwds_from_line2d(line2d, input_kwds={}, type=None):
-    """create a dict from line2d properties
-    """
-    import copy
-    kwds = copy.deepcopy(input_kwds)
-    if type=='stem':
-        return input_kwds
-    
-    kwds['color']=line2d.get_color()
-    kwds['facecolor']=line2d.get_color()
-    kwds['linestyle']=line2d.get_linestyle()
-    kwds['linewidth']=line2d.get_linewidth()
-    if type!='linecollection':
-        kwds['marker']=line2d.get_marker()
-        kwds['markersize']=line2d.get_markersize()
-        kwds['markeredgewidth']=line2d.get_markeredgewidth()
-        kwds['markersize']=line2d.get_markersize()
-        kwds['fillstyle']=line2d.get_fillstyle()
-        kwds['markeredgecolor']=line2d.get_markeredgecolor()
-    kwds['label']=line2d.get_label()
-    kwds['alpha']=line2d.get_alpha()
-
-
-
-    if type=='hist':
-        del kwds['color']
-        del kwds['linestyle']
-        del kwds['marker']
-        del kwds['markersize']
-        del kwds['markeredgewidth']
-        del kwds['fillstyle']
-        del kwds['markeredgecolor']
-
-    if type in ['csd', 'psd', 'step']:
-        del kwds['facecolor']
-
-    if type=='specgram':
-        del kwds['facecolor']
-        del kwds['color']
-        del kwds['linewidth']
-        del kwds['linestyle']
-        del kwds['marker']
-        del kwds['markersize']
-        del kwds['markeredgewidth']
-        del kwds['fillstyle']
-        del kwds['markeredgecolor']
-
-    if type=='plot':
-        del kwds['facecolor']
-
-    return kwds
 
 
 class Plotting(Node):
@@ -296,7 +139,7 @@ class Plotting(Node):
 
 
 
-class PlotxyInterface(Colors, LineStyles, Markers):
+class PlotxyInterface():
     """A base class common to some plotting functions
 
     The plotting functions that uses this base class are:
@@ -326,9 +169,7 @@ class PlotxyInterface(Colors, LineStyles, Markers):
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
 
     def __init__(self):
-        Colors.__init__(self)
-        LineStyles.__init__(self)
-        Markers.__init__(self)
+        pass
 
 
     def call(self, plottype, kwds):
@@ -379,7 +220,7 @@ class PlotxyInterface(Colors, LineStyles, Markers):
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
                     print kwds
-                    line2dkwds = get_kwds_from_line2d(x, kwds, type=plottype)
+                    line2dkwds = tools.get_kwds_from_line2d(line2d=x, input_kwds=kwds, type=plottype)
                     print line2dkwds
                     #returns the processed data ?
                     if plottype in ['specgram', 'psd']:
@@ -393,7 +234,7 @@ class PlotxyInterface(Colors, LineStyles, Markers):
                     hold(True)
             #plot([x1,None,x2,None, ...) and plot(x1)
             else:
-                c = enumerate(self.colors)
+                c = enumerate(tools.colors)
                 for x in xinputs:
                     try:
                         color = c.next()
@@ -409,7 +250,7 @@ class PlotxyInterface(Colors, LineStyles, Markers):
         else:
             if len(xinputs)==1 and len(yinputs)!=1:
                 # plot(x,y) and plot(x, [y1,y2])
-                c = enumerate(self.colors)
+                c = enumerate(tools.colors)
                 for y in yinputs:
                     try:
                         color = c.next()
@@ -467,10 +308,10 @@ class PyLabPlot(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x',          'interface':None,                           'value':None},
                     {'name':'y',          'interface':None,                           'value':None},
-                    {'name':'marker',     'interface':IEnumStr(self.markers.keys()),  'value':'circle'},
+                    {'name':'marker',     'interface':IEnumStr(tools.markers.keys()),  'value':'circle'},
                     {'name':'markersize', 'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',  'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',      'interface':IEnumStr(self.colors.keys()),   'value':'blue'},
+                    {'name':'linestyle',  'interface':IEnumStr(tools.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',      'interface':IEnumStr(tools.colors.keys()),   'value':'blue'},
                     {'name':'scalex',     'interface':IBool, 'value':True},
                     {'name':'scaley',     'interface':IBool, 'value':True},
         ]
@@ -479,16 +320,15 @@ class PyLabPlot(Plotting, PlotxyInterface):
 
     def __call__(self, inputs):
         print 'Calling PyLabPlot'
-        from pylab import figure
 
         #todo label must be cast into string
         kwds = {}
         for key,value in self.get_input('kwargs').iteritems():
             kwds[key] = value
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.get_valid_color(self.get_input("color"))
+        kwds['marker']=tools.markers[self.get_input("marker")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.get_valid_color(self.get_input("color"))
         kwds['scaley']=self.get_input("scaley")
         kwds['scalex']=self.get_input("scalex")
         print kwds
@@ -515,10 +355,10 @@ class PyLabLogLog(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(tools.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(tools.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(tools.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
 
@@ -532,9 +372,9 @@ class PyLabLogLog(Plotting, PlotxyInterface):
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.colors[self.get_input("color")]
+        kwds['marker']=tools.markers[self.get_input("marker")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.colors[self.get_input("color")]
 
         self.call('loglog', kwds)
         self.properties()
@@ -553,10 +393,10 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(tools.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(tools.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(tools.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
 
@@ -568,9 +408,9 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.colors[self.get_input("color")]
+        kwds['marker']=tools.markers[self.get_input("marker")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.colors[self.get_input("color")]
 
         self.call('semilogy', kwds)
         self.properties()
@@ -589,10 +429,10 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x',            'interface':None,                           'value':None},
                     {'name':'y',            'interface':None,                           'value':None},
-                    {'name':'marker',       'interface':IEnumStr(self.markers.keys()),       'value':'circle'},
+                    {'name':'marker',       'interface':IEnumStr(tools.markers.keys()),       'value':'circle'},
                     {'name':'markersize',   'interface':IFloat,                         'value':10},
-                    {'name':'linestyle',    'interface':IEnumStr(self.linestyles.keys()),    'value':'solid'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'blue'},
+                    {'name':'linestyle',    'interface':IEnumStr(tools.linestyles.keys()),    'value':'solid'},
+                    {'name':'color',        'interface':IEnumStr(tools.colors.keys()),        'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
 
@@ -604,16 +444,16 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
         cla()
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['linestyle']=self.linestyles[self.get_input("linestyle")]
-        kwds['color']=self.colors[self.get_input("color")]
+        kwds['marker']=tools.markers[self.get_input("marker")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.colors[self.get_input("color")]
 
         self.call('semilogy', kwds)
         self.properties()
         return self.axes_shown
 
 
-class PyLabHist(Plotting, Colors):
+class PyLabHist(Plotting):
     """pylab.hist interface
 
     :param x: the input data (1D array)
@@ -639,19 +479,17 @@ class PyLabHist(Plotting, Colors):
     """
 
     def __init__(self):
-        Colors.__init__(self)
-        self.histtype = {'bar':'bar','barstacked':'barstacked',  'step' :'step','stepfilled':'stepfilled'}
-        self.orientation = {'horizontal':'horizontal', 'vertical':'vertical'}
-        self.align = {'mid':'mid', 'right':'right', 'left':'left'}
+
+       
         inputs = [
             {'name':'x'},
             {'name':'bins',         'interface':IInt, 'value':10},
-            {'name':'facecolor',    'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+            {'name':'facecolor',    'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
             {'name':'normed',       'interface':IBool, 'value':False},
             {'name':'cumulative',   'interface':IBool, 'value':False},
-            {'name':'histtype',     'interface':IEnumStr(self.histtype.keys()), 'value':'bar'},
-            {'name':'align',        'interface':IEnumStr(self.align.keys()), 'value':'mid'},
-            {'name':'orientation',  'interface':IEnumStr(self.orientation.keys()), 'value':'vertical'},
+            {'name':'histtype',     'interface':IEnumStr(tools.histtype.keys()), 'value':'bar'},
+            {'name':'align',        'interface':IEnumStr(tools.align.keys()), 'value':'mid'},
+            {'name':'orientation',  'interface':IEnumStr(tools.orientations.keys()), 'value':'vertical'},
             {'name':'log',          'interface':IBool,  'value':False},
             {'name':'label',          'interface':IStr,  'value':''}
         ]
@@ -695,13 +533,13 @@ class PyLabHist(Plotting, Colors):
         kwds={}
         kwds['bins']=self.get_input("bins")
         kwds['normed']=self.get_input("normed")
-        kwds['facecolor']=self.get_valid_color(self.get_input("facecolor"))
+        kwds['facecolor']=tools.get_valid_color(self.get_input("facecolor"))
         kwds['label']=self.get_input("label")
         kwds['log']=self.get_input("log")
-        kwds['orientation']=self.orientation[self.get_input("orientation")]
+        kwds['orientation']=tools.orientations[self.get_input("orientation")]
         kwds['figure']=self.get_input("figure")
-        kwds['histtype']=self.histtype[self.get_input("histtype")]
-        kwds['align']=self.align[self.get_input("align")]
+        kwds['histtype']=tools.histtype[self.get_input("histtype")]
+        kwds['align']=tools.align[self.get_input("align")]
         kwds['cumulative']=self.get_input("cumulative")
         #!! facecolor is alrady in the Hist node, so override it if available in kwargs dict
         for key,value in self.get_input('kwargs').iteritems():
@@ -713,7 +551,7 @@ class PyLabHist(Plotting, Colors):
         try:
             for x in xinputs:
                 if type(x)==Line2D:
-                    line2dkwds = get_kwds_from_line2d(x, kwds, type='hist')
+                    line2dkwds = tools.get_kwds_from_line2d(x, kwds, type='hist')
                     res = self.axe.hist(x.get_ydata(orig=False),**line2dkwds)
                 else:
                     res = self.axe.hist(x,**kwds)
@@ -728,7 +566,7 @@ class PyLabHist(Plotting, Colors):
         return (self.axe,res, res[1],res[0])
 
 
-class PyLabAcorr(Plotting, Detrends):
+class PyLabAcorr(Plotting):
     """pylab.acorr interface
 
      Plot the autocorrelation of x. If normed = True, normalize
@@ -749,13 +587,12 @@ class PyLabAcorr(Plotting, Detrends):
     """
 
     def __init__(self):
-        Detrends.__init__(self)
         inputs = [
                     {'name':'x', 'interface':None, 'value':None},
                     {'name':"maxlags",   'interface':IInt,  'value':10},
                     {'name':"normed",    'interface':IBool, 'value':False},
                     {'name':"usevlines", 'interface':IBool, 'value':True},
-                    {'name':'detrend', 'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
+                    {'name':'detrend', 'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},
                     {'name':"kwargs",    'interface':IDict, 'value':{}}
                 ]
         Plotting.__init__(self, inputs)
@@ -798,7 +635,7 @@ class PyLabAcorr(Plotting, Detrends):
 
 
 
-class PyLabScatter(Plotting, Colors):
+class PyLabScatter(Plotting):
     """VisuAlea version of pylab.scatter
 
     create a scatter plot of the x-y input data
@@ -823,14 +660,12 @@ class PyLabScatter(Plotting, Colors):
     :author: Thomas Cokelaer
     """
     def __init__(self):
-        Colors.__init__(self)
-        self.markers = Markers().markers
         inputs = [
             {'name':'x',        'value':None},
             {'name':'y',        'value':None},
             {'name':'sizes',    'value':20},
-            {'name':"color",    'interface':IEnumStr(self.colors.keys()),  'value':'blue'},
-            {'name':"marker",   'interface':IEnumStr(self.markers.keys()), 'value' : 'circle'},
+            {'name':"color",    'interface':IEnumStr(tools.colors.keys()),  'value':'blue'},
+            {'name':"marker",   'interface':IEnumStr(tools.markers.keys()), 'value' : 'circle'},
             {'name':"label",    'interface':IStr,       'value':None},
             {'name':"alpha",    'interface':IFloat,     'value' : 0.5},
         ]
@@ -843,12 +678,12 @@ class PyLabScatter(Plotting, Colors):
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
-        color = self.get_valid_color(self.get_input("color"))
+        color = tools.get_valid_color(self.get_input("color"))
         self.figure()
         self.axes()
         cla()
         res = scatter(x,y, s=sizes,c=color,
-                marker=self.markers[self.get_input("marker")],
+                marker=tools.markers[self.get_input("marker")],
                 alpha=self.get_input("alpha"),
                 label=self.get_input("label"))
         self.properties()
@@ -872,11 +707,10 @@ class PyLabBoxPlot(Plotting):
 
     """
     def __init__(self):
-        self.markers = Markers().markers
         inputs = [
             {'name':"x"},
             {'name':"notch",    'interface':IInt, 'value':0},
-            {'name':"sym",      'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
+            {'name':"sym",      'interface':IEnumStr(tools.markers.keys()), 'value':'circle'},
             {'name':"vert",     'interface':IInt,  'value':1},
         ]
         Plotting.__init__(self, inputs)
@@ -889,7 +723,7 @@ class PyLabBoxPlot(Plotting):
         self.axes()
         cla()
         res = boxplot(x, 
-                sym=self.markers[self.get_input("sym")],
+                sym=tools.markers[self.get_input("sym")],
                 vert=self.get_input("vert"),
                 notch=self.get_input("notch"))
         self.properties()
@@ -898,25 +732,21 @@ class PyLabBoxPlot(Plotting):
 
 
 
-class PyLabLine2D(Node, Colors, LineStyles, Markers):
+class PyLabLine2D(Node):
     """todo"""
     def __init__(self):
-        self.fillstyles=['top','full','bottom','left','right']
-        Colors.__init__(self)
-        LineStyles.__init__(self)
-        Markers.__init__(self)
         Node.__init__(self)
 
         self.add_input(name="xdata", value=[])
         self.add_input(name="ydata", value=[])
-        self.add_input(name="linestyle", interface=IEnumStr(self.linestyles.keys()), value='solid')
-        self.add_input(name="color", interface=IEnumStr(self.colors.keys()),value='blue')
-        self.add_input(name="marker", interface=IEnumStr(self.markers.keys()),value='circle')
+        self.add_input(name="linestyle", interface=IEnumStr(tools.linestyles.keys()), value='solid')
+        self.add_input(name="color", interface=IEnumStr(tools.colors.keys()),value='blue')
+        self.add_input(name="marker", interface=IEnumStr(tools.markers.keys()),value='circle')
         self.add_input(name="markersize", interface=IInt, value=10)
         self.add_input(name="markeredgewidth", interface=IFloat(0.,10,0.1) , value=None)
-        self.add_input(name="markeredgecolor", interface=IEnumStr(self.colors.keys()), value='None')
+        self.add_input(name="markeredgecolor", interface=IEnumStr(tools.colors.keys()), value='None')
         self.add_input(name="linewidth", interface=IFloat, value=1.)
-        self.add_input(name="fillstyle", interface=IEnumStr(self.fillstyles), value='full')
+        self.add_input(name="fillstyle", interface=IEnumStr(tools.fillstyles), value='full')
         self.add_input(name="label", interface=IStr, value=None)
         self.add_input(name="alpha", interface=IFloat(0.,1., step=0.1), value=1.0)
         self.add_input(name="kwargs", interface=IDict, value={})
@@ -939,12 +769,12 @@ class PyLabLine2D(Node, Colors, LineStyles, Markers):
         output = Line2D(
             xdata=xdata,
             ydata=ydata,
-            linestyle=self.linestyles[self.get_input('linestyle')],
-            color=self.colors[self.get_input('color')],
-            marker=self.markers[self.get_input('marker')],
+            linestyle=tools.linestyles[self.get_input('linestyle')],
+            color=tools.colors[self.get_input('color')],
+            marker=tools.markers[self.get_input('marker')],
             label=self.get_input('label'),
             markersize=self.get_input('markersize'),
-            markeredgecolor=self.colors[self.get_input('markeredgecolor')],
+            markeredgecolor=tools.colors[self.get_input('markeredgecolor')],
             markeredgewidth=self.get_input('markeredgewidth'),
             linewidth=self.get_input('linewidth'),
             fillstyle=self.get_input('fillstyle'),
@@ -1082,7 +912,7 @@ class PyLabBar(Plotting):
             print height
             res = bar(left[1:], height, width=width)
         else:
-            c = enumerate(self.colors)
+            c = enumerate(tools.colors)
             for x,y in zip(left, height):
                 color = c.next()
                 #width = x[1]-x[0]
@@ -1094,7 +924,7 @@ class PyLabBar(Plotting):
 
         return res
 
-class PyLabCohere(Plotting, Detrends):
+class PyLabCohere(Plotting):
     """ A function or a vector of length *NFFT*. To create window
           vectors see :func:`window_hanning`, :func:`window_none`,
           :func:`numpy.blackman`, :func:`numpy.hamming`,
@@ -1109,18 +939,16 @@ class PyLabCohere(Plotting, Detrends):
     def __init__(self):
         #     window = mlab.window_hanning, noverlap=0, pad_to=None,
         #     sides='default', scale_by_freq=None, **kwargs)
-        Detrends.__init__(self)
-        self.sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
         inputs = [
             {'name':'x',            'interface':None,   'value':None},
             {'name':'y',            'interface':None,   'value':None},
             {'name':'NFFT',         'interface':IInt,   'value':256},
             {'name':'Fs',           'interface':IFloat, 'value':2.},
-            {'name':'detrend',      'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
+            {'name':'detrend',      'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},
             #{'name':'window',       'interface':None, 'value':'tobedone'},
             {'name':'noverlap',     'interface':IInt,   'value':0},
             {'name':'pad_to',       'interface':IInt,   'value':None},
-            {'name':'sides',        'interface':IEnumStr(self.sides.keys()), 'value':'default'},
+            {'name':'sides',        'interface':IEnumStr(tools.sides.keys()), 'value':'default'},
             #{'name':'scale_by_freq','interface':IBool,  'value':True},
             {'name':'Fc',           'interface':IFloat, 'value':0},
             ]
@@ -1156,7 +984,7 @@ class PyLabCohere(Plotting, Detrends):
                 xinputs = [xinputs]
             if type(xinputs[0])==Line2D:
                 for x in xinputs:
-                    line2dkwds = get_kwds_from_line2d(x, kwds)
+                    line2dkwds = tools.get_kwds_from_line2d(x, kwds)
                     #returns the processed data ?
                     cxy, freq = cohere(x.get_xdata(orig=False), x.get_ydata(orig=False),**line2dkwds)
                     hold(True)
@@ -1171,16 +999,14 @@ class PyLabHexBin(Plotting):
     """ .. todo:: tohis documentation"""
 
     def __init__(self):
-        self.colors = Colors().colors
-        scales = {'linear':'linear','log':'log'}
         inputs = [
             {'name':"x"},
             {'name':"y"},
             {'name':"bins", 'interface':ISequence, 'value':[]},
             #bins could be 'log', None, integer or sequence
             {'name':"gridsize", 'interface':IInt, 'value':100},
-            {'name':"xscale", 'interface':IEnumStr(scales.keys()), 'value':'linear'},
-            {'name':"yscale", 'interface':IEnumStr(scales.keys()), 'value':'linear'},
+            {'name':"xscale", 'interface':IEnumStr(tools.keys()), 'value':'linear'},
+            {'name':"yscale", 'interface':IEnumStr(tools.keys()), 'value':'linear'},
             {'name':"mincnt", 'interface':IInt, 'value':None},
             {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
             {'name':"marginals", 'interface':IBool, 'value':False},
@@ -1190,7 +1016,7 @@ class PyLabHexBin(Plotting):
             {'name':"vmax", 'interface':IFloat, 'value':None},
             {'name':"extent", 'value':None},
             {'name':"linewidths", 'interface':IFloat(0,10,1), 'value':None},
-            {'name':"edgecolors", 'interface':IEnumStr(self.colors.keys()), 'value':None},
+            {'name':"edgecolors", 'interface':IEnumStr(tools.colors.keys()), 'value':None},
             {'name':"cmap", 'interface':IStr, 'value':None},
         ]
 
@@ -1235,14 +1061,13 @@ class PyLabCLabel(Node):
     """ .. todo:: tohis documentation"""
 
     def __init__(self):
-        self.colors = Colors().colors
         Node.__init__(self)
         self.add_input(name='fontsize', interface=IInt, value=10)
         self.add_input(name='inline', interface=IBool, value=True)
         self.add_input(name='rightside_up', interface=IBool, value=True)
         self.add_input(name='inline_spacing', interface=IInt, value=5)
         self.add_input(name='fmt', interface=IStr, value='%1.3f')
-        self.add_input(name='colors', interface=IEnumStr(self.colors.keys()), value=None)
+        self.add_input(name='colors', interface=IEnumStr(tools.colors.keys()), value=None)
         # colors may be a list such as ('r', 'green', 'blue', (1,1,0), '#afeeee', '0.5')
         self.add_output(name='kwds')
 
@@ -1255,7 +1080,7 @@ class PyLabCLabel(Node):
         kwds['inline_spacing'] = self.get_input('inline_spacing')
         kwds['fmt'] = self.get_input('fmt')
         try:
-            kwds['colors'] = self.colors[self.get_input('colors')]
+            kwds['colors'] = tools.colors[self.get_input('colors')]
         except:
             kwds['colors'] = self.get_input('colors')
 
@@ -1320,7 +1145,6 @@ class PyLabContour(Plotting):
 
     def __init__(self):
 
-        self.linestyles = LineStyles().linestyles
         inputs = [
             {'name':"X"},
             {'name':"Y"},
@@ -1328,7 +1152,7 @@ class PyLabContour(Plotting):
             {'name':"n", 'interface':IInt, 'value':None},
             {'name':"filled", 'interface':IBool, 'value':False},
             {'name':"linewidths", 'interface':IInt, 'value':1.},
-            {'name':"linestyles", 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
+            {'name':"linestyles", 'interface':IEnumStr(tools.linestyles.keys()), 'value':'solid'},
             {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
             {'name':"cmap", 'interface':IStr, 'value':None},
             #{'name':"origin", 'interface':IStr, 'value':None},could be lower, upper, image
@@ -1355,7 +1179,7 @@ class PyLabContour(Plotting):
         if self.get_input('linestyles') in [None, 'None']:
             kwds['linestyles']='solid'
         else:
-            kwds['linestyles']=self.linestyles[self.get_input('linestyles')]
+            kwds['linestyles']=tools.linestyles[self.get_input('linestyles')]
         if self.get_input('cmap'):
             kwds['cmap']=self.get_input('cmap')
 
@@ -1399,7 +1223,7 @@ class PyLabContour(Plotting):
         return CS
 
 
-class PsdInterface(Detrends):
+class PsdInterface():
     """base class for the :class:`PyLabSpecgram`, :class:`PyLabCsd`, :class:`PyLabPsd` classes.
 
     :param type: either 'xy' or 'x' to specify number of inputs.
@@ -1429,10 +1253,7 @@ class PsdInterface(Detrends):
 
     """
     def __init__(self, type='x', noverlap=0, nfft=256, cmap=False):
-        from pylab import mlab
-        Detrends.__init__(self)
-        self.windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
-        self.sides = ['default','onesided','twosided']
+       
         self.kwds = {}
         if type=='xy':
             self.inputs = [
@@ -1447,11 +1268,11 @@ class PsdInterface(Detrends):
             {'name':"Fs",       'interface':IInt, 'value':2},
             {'name':"Fc",       'interface':IInt, 'value':0},
             {'name':"noverlap", 'interface':IInt, 'value':noverlap},
-            {'name':"sides", 'interface':IEnumStr(self.sides), 'value':'default'},
+            {'name':"sides", 'interface':IEnumStr(tools.sides), 'value':'default'},
             {'name':"pad_to", 'interface':IInt, 'value':None},
-            {'name':'detrend', 'interface':IEnumStr(self.detrends.keys()), 'value':'none'},
+            {'name':'detrend', 'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},
             {'name':'scale_by_freq', 'interface':IBool, 'value':True},
-            {'name':"window", 'interface':IEnumStr(self.windows.keys()), 'value':'hanning'},])
+            {'name':"window", 'interface':IEnumStr(tools.windows.keys()), 'value':'hanning'},])
 
         if cmap:
             self.inputs.extend([{'name':"cmap", 'interface':IStr, 'value':None}])
@@ -1476,7 +1297,7 @@ class PsdInterface(Detrends):
     def _set_window(self):
         """Get the correct windowing function. """
         if self.get_input('window') in ['hanning', 'none']:
-            self.kwds['window']=self.windows[self.get_input('window')]
+            self.kwds['window']=tools.windows[self.get_input('window')]
         else:
             self.kwds['window'] = self.get_input('window')
             assert len(self.kwds['window'])==self.kwds['NFFT'], '!! NFFT and window''s length must be equal'
@@ -1644,12 +1465,12 @@ class PyLabStem(Plotting, PlotxyInterface):
         inputs = [
             {'name': 'x'},
             {'name': 'y'},
-            {'name':'marker_color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
-            {'name':'line_color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
-            {'name':'base_color', 'interface':IEnumStr(self.colors.keys()), 'value':'red'},
-            {'name':'marker_style', 'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
-            {'name':'line_style', 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
-            {'name':'base_style', 'interface':IEnumStr(self.linestyles.keys()), 'value':'solid'},
+            {'name':'marker_color', 'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
+            {'name':'line_color', 'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
+            {'name':'base_color', 'interface':IEnumStr(tools.colors.keys()), 'value':'red'},
+            {'name':'marker_style', 'interface':IEnumStr(tools.markers.keys()), 'value':'circle'},
+            {'name':'line_style', 'interface':IEnumStr(tools.linestyles.keys()), 'value':'solid'},
+            {'name':'base_style', 'interface':IEnumStr(tools.linestyles.keys()), 'value':'solid'},
         ]
         Plotting.__init__(self, inputs)
 
@@ -1660,9 +1481,9 @@ class PyLabStem(Plotting, PlotxyInterface):
         self.axes()
         cla()
         kwds = {}
-        kwds['markerfmt'] = self.colors[self.get_input('marker_color')]+ self.markers[self.get_input('marker_style')]
-        kwds['basefmt'] = self.colors[self.get_input('base_color')]+ self.linestyles[self.get_input('base_style')]
-        kwds['linefmt'] = self.colors[self.get_input('line_color')]+ self.linestyles[self.get_input('line_style')]
+        kwds['markerfmt'] = tools.colors[self.get_input('marker_color')]+ tools.markers[self.get_input('marker_style')]
+        kwds['basefmt'] = tools.colors[self.get_input('base_color')]+ tools.linestyles[self.get_input('base_style')]
+        kwds['linefmt'] = tools.colors[self.get_input('line_color')]+ tools.linestyles[self.get_input('line_style')]
         c = self.call('stem', kwds)
         self.properties()
         return self.axes_shown
@@ -1688,9 +1509,9 @@ class PyLabStep(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x', 'interface':None, 'value':None},
                     {'name':'y', 'interface':None, 'value':None},
-                    {'name':'marker', 'interface':IEnumStr(self.markers.keys()), 'value':'circle'},
+                    {'name':'marker', 'interface':IEnumStr(tools.markers.keys()), 'value':'circle'},
                     {'name':'markersize', 'interface':IFloat, 'value':10},
-                    {'name':'color', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+                    {'name':'color', 'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
         ]
         Plotting.__init__(self, inputs)
 
@@ -1703,8 +1524,8 @@ class PyLabStep(Plotting, PlotxyInterface):
 
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
-        kwds['marker']=self.markers[self.get_input("marker")]
-        kwds['color']=self.colors[self.get_input("color")]
+        kwds['marker']=tools.markers[self.get_input("marker")]
+        kwds['color']=tools.colors[self.get_input("color")]
         c = self.call('step', kwds)
         self.properties()
         return self.axes_shown
@@ -1712,22 +1533,19 @@ class PyLabStep(Plotting, PlotxyInterface):
 
 
 
-class PyLabQuiver(Plotting, Colors):
+class PyLabQuiver(Plotting):
     """ .. todo:: tohis documentation"""
 
     def __init__(self):
-        Colors.__init__(self)
-        self.angles = ['uv', 'xy']
-        self.units= ['width','height','dots','inches','x','y']
-        self.pivots = ['tail', 'middle', 'tip']
+        
         inputs = [
                     {'name':'X',            'interface':None,                           'value':None},
                     {'name':'Y',            'interface':None,                           'value':None},
                     {'name':'U',            'interface':None,                           'value':None},
                     {'name':'V',            'interface':None,                           'value':None},
                     {'name':'C',            'interface':None,                           'value':None},
-                    {'name':'units',        'interface':IEnumStr(self.units),           'value':'width'},
-                    {'name':'angles',       'interface':IEnumStr(self.angles),          'value':'uv'},
+                    {'name':'units',        'interface':IEnumStr(tools.units),           'value':'width'},
+                    {'name':'angles',       'interface':IEnumStr(tools.angles),          'value':'uv'},
                     {'name':'scale',        'interface':IFloat,                         'value':None},
                     {'name':'width',        'interface':IFloat(0.005, 1, 0.005),      'value':None},
                     {'name':'headwidth',    'interface':IFloat,                         'value':3},
@@ -1735,8 +1553,8 @@ class PyLabQuiver(Plotting, Colors):
                     {'name':'headaxislength','interface':IFloat,                        'value':4.5},
                     {'name':'minshaft',     'interface':IFloat,                         'value':1},
                     {'name':'minlength',    'interface':IFloat,                         'value':1},
-                    {'name':'pivot',        'interface':IEnumStr(self.pivots),               'value':'tail'},
-                    {'name':'color',        'interface':IEnumStr(self.colors.keys()),        'value':'None'},
+                    {'name':'pivot',        'interface':IEnumStr(tools.pivots),               'value':'tail'},
+                    {'name':'color',        'interface':IEnumStr(tools.colors.keys()),        'value':'None'},
                     {'name':'polycollection', 'interface':IDict,        'value':{}},
         ]
         Plotting.__init__(self, inputs)
@@ -1758,7 +1576,7 @@ class PyLabQuiver(Plotting, Colors):
         for key in ['units', 'angles', 'scale', 'width', 'headwidth', 'headlength', 'headaxislength', 'minshaft', 'minlength']:
             kwds[key]=self.get_input(key)
         if self.get_input('color')!='None':
-            kwds['color']=self.colors[self.get_input('color')]
+            kwds['color']=tools.colors[self.get_input('color')]
         for key, value in self.get_input('polycollection').iteritems():
             kwds[key]=value
 
@@ -1802,7 +1620,7 @@ class PyLabFill(Plotting, PlotxyInterface):
                     {'name':'x'},
                     {'name':'y'},
                     {'name':'linewidth', 'interface':IFloat, 'value':1},
-                    {'name':'facecolor', 'interface':IEnumStr(self.colors.keys()), 'value':'blue'},
+                    {'name':'facecolor', 'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
                     {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
@@ -1814,7 +1632,7 @@ class PyLabFill(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         kwds = self.get_input('kwargs (Patch)')
-        kwds['facecolor'] = self.colors[self.get_input('facecolor')]
+        kwds['facecolor'] = tools.colors[self.get_input('facecolor')]
         kwds['linewidth'] = self.get_input('linewidth')
 
         c = self.call('fill', kwds)
@@ -1926,19 +1744,13 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
 
 
 class PyLabImshow(Plotting):
-    @add_docstring(pylab.imshow)
+    #@add_docstring(pylab.imshow)
     def __init__(self):
-        self.aspect = ['None', 'auto', 'equal']
-        self.interpolation = ['None', 'nearest', 'bilinear',
-          'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
-          'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-          'bessel', 'mitchell', 'sinc', 'lanczos']
-        self.origin = ['None', 'upper', 'lower']
         inputs = [
                     {'name':'image', 'interface':None},
-                    {'name':"cmap", 'interface':IEnumStr(cmaps.keys()), 'value':'None'},
-                    {'name':"interpolation", 'interface':IEnumStr(self.interpolation), 'value':'None'},
-                    {'name':"aspect", 'interface':IEnumStr(self.aspect), 'value':'None'},
+                    {'name':"cmap", 'interface':IEnumStr(tools.cmaps.keys()), 'value':'None'},
+                    {'name':"interpolation", 'interface':IEnumStr(tools.interpolation), 'value':'None'},
+                    {'name':"aspect", 'interface':IEnumStr(tools.aspect), 'value':'None'},
                     {'name':"alpha", 'interface':IFloat(0., 1., 0.01), 'value':1},
                     {'name':"vmin", 'interface':IFloat, 'value':None},
                     {'name':"vmax", 'interface':IFloat, 'value':None},

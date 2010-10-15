@@ -5,8 +5,239 @@ scale = {'linear':'linear',
     'log':'log',
     'symlog':'symlog'}
 
+ticks= {'auto':'auto', 'None':'None'}
+
+axis = {
+    'off':'off',
+    'manual':'manual',
+    'equal':'equal',
+    'tight':'tight',
+    'scaled':'scaled',
+    'image':'image',
+    'auto':'auto',
+    'normal':'normal'
+    }
+
+sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
 
+detrends = {
+    'none':'detrend_none',
+    'linear':'detrend_linear',
+    'mean':'detrend_mean'
+    }
+
+streches = {
+    'ultra-condensed':'ultra-condensed',
+    'extra-condensed':'extra-condensed',
+    'condensed':'condensed',
+    'semi-condensed':'semi-condensed',
+    'normal':'normal',
+    'semi-expanded':'semi-expanded',
+    'expanded':'expanded',
+    'extra-expanded':'extra-expanded' ,
+    'ultra-expanded':'ultra-expanded'
+    }
+
+weights = {
+    'ultralight':'ultralight',
+    'light':'light',
+    'normal':'normal',
+    'regular':'regular',
+    'book':'book',
+    'medium':'medium',
+    'roman':'roman',
+    'semibold':'semibold',
+    'demibold':'demibold',
+    'demi':'demi',
+    'bold':'bold',
+    'heavy':'heavy',
+    'extra bold':'extra bold',
+    'black':'black'
+    }
+
+
+sizes = {
+    'xx-small':'xx-small',
+    'x-small':'x-small',
+    'small':'small',
+    'medium':'medium',
+    'large':'large',
+    'x-large':'x-large',
+    'xx-large':'xx-large'
+    }
+
+styles = {
+    'italic':'italic',
+    'normal':'normal',
+    'oblique':'oblique'}
+
+variants = {
+    'normal':'normal',
+    'small-caps':'small-caps'}
+
+families = {
+    'serif':'serif',
+    'sans-serif':'sans-serif',
+    'cursive':'cursive',
+    'fantasy':'fantisy',
+    'monospace':'monospace'}
+
+horizontalalignment = {
+    'center':'center',
+    'right':'right' ,
+    'left':'left' }
+
+verticalalignment = {
+    'center':'center' ,
+    'top':'top' ,
+    'bottom':'bottom' ,
+    'baseline':'baseline'}
+
+
+origins = {'lower':'lower',
+    'upper':'upper',
+    'none':'None',
+    }
+
+extensions = {'png':'png',
+    'pdf':'pdf',
+    'ps':'ps',
+    'eps':'eps',
+    'svg':'svg'
+    }
+
+
+fillstyles={'top':'top',
+    'full':'full',
+    'bottom':'bottom',
+    'left':'left',
+    'right':'right',
+    }
+orientations = {'vertical':'vertical','horizontal':'horizontal'}
+
+histtype = {'bar':'bar','barstacked':'barstacked',  'step' :'step','stepfilled':'stepfilled'}
+        
+align = {'mid':'mid', 'right':'right', 'left':'left'}
+        
+orientation_fig = {
+    'portrait':'portrait',
+    'landscape':'landscape'}
+
+
+papertypes = {}
+for x in ['letter',
+    'legal', 'executive','ledger','a0',
+    'a1','a2','a3','a4','a5','a6','a7','a8',
+    'a9','a10','b0','b1','b2','b3','b4',
+    'b5','b6','b7','b8','b9','b10']:
+    papertypes[x] = x
+    
+    
+arrowstyles={}
+for x in ['-','->','-[','-|>','<-', '<->','<|-', '<|-|>', 'fancy', 'simple', 'wedge']:
+    arrowstyles[x] = x
+
+ecs = {'none':'none','':''}
+
+connectionstyles = {}
+for x in ['angle', 'angle3','arc','arc3', 'bar']:
+    connectionstyles[x]=x
+
+boxstyles = {}
+for x in ['round', 'round4', 'larrow','rarrow','roundtooth', 'sawtooth', 'square']:
+    boxstyles[x] = x
+
+xycoords = {}
+for x in ['figure points', 'figure pixels', 'figure fraction', 'axes points', 'axes pixels', 'axes fraction', 'data', 'offset points', 'polar']:
+    xycoords[x]=x
+
+which = {'major':'major','minor':'minor', 'both':'both'}
+        
+fillstyles=['top','full','bottom','left','right']
+
+locations = {
+            'best' : 0,
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4,
+            'right'        : 5,
+            'center left'  : 6,
+            'center right' : 7,
+            'lower center' : 8,
+            'upper center' : 9,
+            'center'       : 10,}
+
+sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
+        
+from pylab import mlab
+
+windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
+sides = ['default','onesided','twosided']
+
+from pylab import cm, get_cmap
+maps=[m for m in cm.datad if not m.endswith("_r")]
+cmaps = {}
+for c in maps:
+    cmaps[c] = get_cmap(c)
+cmaps['None'] = None
+
+angles = ['uv', 'xy']
+units= ['width','height','dots','inches','x','y']
+pivots = ['tail', 'middle', 'tip']
+interpolation = ['None', 'nearest', 'bilinear',
+          'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
+          'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+          'bessel', 'mitchell', 'sinc', 'lanczos']
+aspect = ['None', 'auto', 'equal']
+origin = ['None', 'upper', 'lower']
+colors =  {
+           'blue':'b',
+           'green':'g',
+           'red':'r',
+           'cyan':'c',
+           'magenta':'m',            
+           'purple':'purple',
+           'yellow':'y',
+           'black':'k',
+           'white':'w',
+           'None':'None'}
+        
+        
+def get_valid_color(color='blue'):
+
+    if color in colors.keys():
+        print '1'
+        return colors[color]
+    elif type(color)==str:
+        if len(color)!=7 or color[0]!='#':
+            raise ValueError('hexa string must be like #ffffff')
+        print '2', color
+        return color
+    else:
+        print '3',
+        from matplotlib.colors import rgb2hex
+        try:
+            import numpy
+            c = rgb2hex(numpy.array(color)/256.)
+            print c
+            return c
+        except:
+            raise TypeError('colors must be valid matplotlib symbol, or a string (hex code) or a RGB list/array. %s provided' % color)
+
+from pylab import Line2D
+drawstyles = {}
+for key,value in Line2D.drawStyles.iteritems():
+    drawstyles[value.replace('_draw_','')]=key
+
+linestyles = {}
+for key,value in Line2D.lineStyles.iteritems():
+    linestyles[value.replace('_draw_','')]=key
+
+markers = {}
+for key,value in Line2D.markers.iteritems():
+    markers[value.replace('_draw_','')]=key
 
 
 
@@ -210,3 +441,111 @@ scale = {'linear':'linear',
  'ytick.minor.pad': 4,
  'ytick.minor.size': 2}
 """
+
+
+
+class Line2DFactory():
+    def __init__(self, line2d):
+        self.line2d = line2d
+        self.kwds = line2d.properties()
+        
+    def get_kwds(self, type='standard'):
+        if type == 'axhline':
+            del self.kwds['transform']
+
+
+def get_kwds_from_line2d(line2d=None, input_kwds={}, type=None):
+    """create a dict from line2d properties
+    """
+    import copy
+    kwds = copy.deepcopy(input_kwds)
+    if type=='stem':
+        return input_kwds
+    if line2d!=None:
+        kwds['color']=line2d.get_color()    
+        kwds['facecolor']=line2d.get_color()
+        kwds['linestyle']=line2d.get_linestyle()
+        kwds['linewidth']=line2d.get_linewidth()
+        if type!='linecollection':
+            kwds['marker']=line2d.get_marker()
+            kwds['markersize']=line2d.get_markersize()
+            kwds['markeredgewidth']=line2d.get_markeredgewidth()
+            kwds['markersize']=line2d.get_markersize()
+            kwds['fillstyle']=line2d.get_fillstyle()
+            kwds['markeredgecolor']=line2d.get_markeredgecolor()
+            kwds['label']=line2d.get_label()
+            kwds['alpha']=line2d.get_alpha()
+    
+    if type=='hist':
+        for x in ['color','linestyle','marker','markersize','markeredgewidth','fillstyle','markeredgecolor']:
+                try:
+                    del kwds[x]
+                except:
+                    pass
+    if type in ['csd', 'psd', 'step']:
+        try:
+            del kwds['facecolor']
+        except:
+            pass
+        
+    if type=='specgram':
+        for x in s['facecolor','color','linewidth',
+                   'linestyle','marker','markersize','markeredgewidth',
+                   'fillstyle','markeredgecolor']:
+            try:
+                del kwds[x]
+            except:
+                pass
+
+    if type=='plot':
+        try:
+            del kwds['facecolor']
+        except:
+            pass
+
+    return kwds
+
+
+
+
+
+def line2d2kwds(line2d, kwds={}):
+    try:
+        for key, value in line2d.properties().properties():
+            kwds[key] = value
+    except:
+        print 'warning: line2d may not be a valid Line2D object'
+        pass
+    return kwds
+
+
+def text2kwds(text, kwds={}):
+    try:
+        for key, value in text.properties().properties():
+            kwds[key] = value
+    except:
+        print 'warning: text may not be a valid Text object'
+        pass
+    return kwds
+
+def font2kwds(font, kwds={}):
+    pass
+
+
+
+class CustomizeAxes(object):
+    def __init__(self):
+        pass
+    
+    def get_axes(self):
+        axes = self.get_input('axes')
+        if axes == None:
+            return axes
+        
+        if type(axes)!=list:
+            axes = [axes]
+            for axe in axes:
+                import matplotlib
+                assert axe.__module__ in [matplotlib.axes.__name__,matplotlib.projections.polar.__name__], 'input must be a valid axes from matplotlib.axes %s given for %s' % (type(axes), axes)
+            return axes
+

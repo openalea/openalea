@@ -18,22 +18,21 @@ __icon__ = 'icon.png'
 
 
 __all__ = [
-'py_pylab_PyLabPatch',
+'py_pylab_PyLabPatchDictionary',
 'py_pylab_PyLabCircle',
 'py_pylab_PyLabEllipse',
 'py_pylab_PyLabRectangle',
-'py_pylab_PyLabAddPatches',
 'py_pylab_PyLabPolygon',
 'py_pylab_PyLabWedge',
 ]
 
 
 
-py_pylab_PyLabPatch = Factory(name='PyLabPatch',
+py_pylab_PyLabPatchDictionary = Factory(name='PyLabPatchDictionary',
                 description='pylab.fontproperties interface.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
-                nodeclass='PyLabPatch',
+                nodeclass='PyLabPatchDictionary',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                )
 
@@ -44,13 +43,7 @@ py_pylab_PyLabCircle = Factory(name='PyLabCircle',
                 nodeclass='PyLabCircle',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
-py_pylab_PyLabAddPatches = Factory(name='PyLabAddPatches',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabAddPatches',
-                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
-                )
+
 
 py_pylab_PyLabEllipse = Factory(name='PyLabEllipse',
                 description='pylab.fontproperties interface.',
