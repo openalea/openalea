@@ -6,7 +6,7 @@ AppName=$APPNAME for Python $PYTHONMAJOR.$PYTHONMINOR
 AppVersion=$APPVERSION
 DefaultDirName=None
 DefaultGroupName=$APPNAME
-OutputBaseFilename=$APPNAME-$INSTTYPE-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
+OutputBaseFilename=$APPNAME$INSTTYPE-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
 ;SetupIconFile=..\..\visualea\share\openalea_icon.ico
 
 Uninstallable=no
