@@ -63,12 +63,15 @@ goodOptions = set([ "conf",
                     "pyMin",
                     "srcDir",
                     "eggGlobs",
+                    "eggDir",
                     "runtime",
                     "arch" ])
 
 def print_usage():
     msg="""
 makeWinInstaller conf=vplants.conf pyMaj=2 pyMin=6 srcDir=%HOMEPATH%\Downloads\ eggGlobs="VPlants*.egg|Openalea*.egg" runtime=True arch=i386
+
+
 makeWinInstaller conf=openalea.conf pyMaj=2 pyMin=7 srcDir=%HOMEPATH%\Downloads\ eggGlobs="Openalea*.egg" runtime=False arch=x86_64
 
 You can have multiple globs, just use: eggGlobs="Openalea*.egg|Vplants*.egg".
@@ -172,12 +175,13 @@ def prepare_working_dir(options):
         shutil.rmtree(instDir, ignore_errors=True)
     os.mkdir(instDir)
 
+import traceback
 def copy_installer_files(options):
     srcDir  = options["srcDir"]
     pyMaj  = options["pyMaj"]
     pyMin  = options["pyMin"]
 
-    def globInstaller(srcDir, pk, mask):
+    def globInstaller(pk, mask):
         arch = "win32" if options["arch"] == "i386" else "64"
         
         identifier = pk+"*"
@@ -200,7 +204,9 @@ def copy_installer_files(options):
             else:
                 return glob.glob(pj(srcDir, identifier))[0]
         except:
-            return "No installer found for "+pk+" with glob "+pj(srcDir, identifier)
+            traceback.print_exc()
+            print srcDir, identifier
+            return "No installer found for "+pk+" with for "+srcDir+" "+identifier
 
             
     print "Copying binaries..."    
@@ -208,7 +214,7 @@ def copy_installer_files(options):
         mask = thirdPartyPackages[pk][0]
         if bt(mask, NOT_INSTALLABLE):
             continue
-        ef = globInstaller(options, pk, mask)
+        ef = globInstaller(pk, mask)
         src, dst = ef, pj(get_wd(options), easyThirdPartyNames[pk])
         print "\t"+src+" => "+dst+"...",
         shutil.copyfile(src, dst)
@@ -442,9 +448,9 @@ def make_stitcher(options):
     pyfix = "py"+options["pyMaj"]+"."+options["pyMin"]+"*"
     def __stitch_egg_names(eggName):
         if pyfix in eggName:
-            return eggName
+            return pj(options["eggDir"], eggName)
         part = eggName.partition(".egg")
-        return part[0] + pyfix + part[1]
+        return pj(options["eggDir"], part[0] + pyfix + part[1])
     return __stitch_egg_names
 
 
@@ -461,20 +467,35 @@ def processInstaller(mask, runtimeMode):
     return False           
         
         
+        
+        
+        
+        
+        
+        
 if __name__ == "__main__":
     options = dict(map(lambda x: x.split('='), sys.argv[1:]))
 
+    # -- Read the configuration file given on command line
+    read_conf_file(options)
+    
     # -- Quick options parsing, either all options are satisfied or the process halts.
     if not set(options.iterkeys()) == goodOptions:
-        print_usage()
-        sys.exit(-1)
+        # -- eggGlobs can given in the conf file, and if it is, we find it in the global dict
+        if "eggGlobs" not in options and "eggGlobs" in globals():
+            options["eggGlobs"] = globals()["eggGlobs"]
+            
+        if not set(options.iterkeys()) == goodOptions:
+            print_usage()
+            print set(options.iterkeys()), goodOptions
+            sys.exit(-1)
 
+    print options["eggGlobs"]
     # -- Fix the egg globs to include python version and architecture dependency.
     options["eggGlobs"] = map(make_stitcher(options), options["eggGlobs"].split("|"))
     print "The following egg globs will be used:", options["eggGlobs"]
     
-    # -- Read the configuration file given on command line
-    read_conf_file(options)
+
     
     # -- Filter the dependencies to process according to the type of installer (for runtimes or devtools)
     installerMode = eval(options["runtime"])

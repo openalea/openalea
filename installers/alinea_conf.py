@@ -2,6 +2,8 @@
 APPNAME="Alinea"
 APPVERSION="0.9"
 
+eggGlobs = "Alinea*.egg"
+
 # package -> (installerFlags, installationOrder)
 thirdPartyPackages = {   "python"  :    (NOT_INSTALLABLE|RUNTIME|DEVELOP,          0), #always tested
                          "openalea":    (NOT_INSTALLABLE|RUNTIME|DEVELOP|TEST_ME,  1),

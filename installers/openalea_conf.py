@@ -2,14 +2,18 @@
 APPNAME="OpenAlea"
 APPVERSION="0.9"
 
+eggGlobs = "OpenAlea*.egg"
+
 # package -> (installerFlags, installationOrder)
 thirdPartyPackages = {   "python":      (MSI|RUNTIME|DEVELOP, 0),
                          "pywin32":     (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 1),
                          "setuptools":  (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 2),
-#                         "PyQt":       (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 3),
+#                         "PyQt":       (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 3), #when using standard installer
                          "qt4":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 3),
                          "numpy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 4),
                          "scipy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 5),
+                         "matplotlib":  (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 6),                         
+                         "pil":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 7),
                          }
                          
 
