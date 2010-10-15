@@ -50,7 +50,7 @@ class PointSelection (QMainWindow) :
         self._points = []
         self._id_gen = IdSetGenerator()
 
-        self._view = PixmapStackView()
+        self._view = PixmapStackView(order='F')
 
         #QGraphicsScene
         self._scene = QGraphicsScene()

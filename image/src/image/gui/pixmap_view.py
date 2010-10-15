@@ -178,7 +178,7 @@ class PixmapView (object) :
 class PixmapStackView (PixmapView) :
 	"""Pixmap view of a spatial image as a stack of images
 	"""
-	def __init__ (self, img = None, palette = None) :
+	def __init__ (self, img = None, palette = None, order='C') :
 		"""Constructor
 		
 		:Parameters:
@@ -187,7 +187,8 @@ class PixmapStackView (PixmapView) :
 		"""
 		self._pixmaps = []
 		self._current_slice = 0
-		
+		self.order = order
+
 		PixmapView.__init__(self,img,palette)
 	
 	def _reconstruct_pixmaps (self) :
@@ -207,7 +208,7 @@ class PixmapStackView (PixmapView) :
 			#             data.shape[0],
 			#             data.shape[1],
 			#             QImage.Format_ARGB32)
-                        dat = to_pix (dat)
+                        dat = to_pix (dat,self.order)
 			pix.append(dat.transformed(tr) )
 		
 		self._pixmaps = pix
