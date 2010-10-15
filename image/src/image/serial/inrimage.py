@@ -135,10 +135,10 @@ def read_inrimage (filename) :
 	mat = np.fromstring(f.read(size),ntyp)
         if vdim != 1 : 
 	    mat = mat.reshape( (zdim,xdim,ydim,vdim) )
-	    mat = mat.transpose(2,1,0,3)
+	    mat = mat.transpose(1,2,0,3)
         else:
 	    mat = mat.reshape( (zdim,xdim,ydim) )
-	    mat = mat.transpose(2,1,0)
+	    mat = mat.transpose(1,2,0)
 	
 	#create SpatialImage
 	res = tuple(float(prop.pop(k) ) for k in ("VX","VY","VZ") )

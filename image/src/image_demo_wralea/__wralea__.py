@@ -14,7 +14,7 @@ __alias__ = []
 __version__ = '0.8.0'
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
-__icon__ = 'icon.png'
+#__icon__ = 'icon.png'
 
 
 __all__ = ['_5009393488']

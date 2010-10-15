@@ -35,7 +35,10 @@ from palette import palette_names, palette_factory
 
 from ..serial import load
 
-from openalea.container.utils import IdSetGenerator
+try:
+    from openalea.container.utils import IdSetGenerator
+except ImportError:
+    from id_generator import IdSetGenerator
 
 
 class PointSelection (QMainWindow) :

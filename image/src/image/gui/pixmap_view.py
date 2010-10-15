@@ -202,7 +202,7 @@ class PixmapStackView (PixmapView) :
 		pix = []
 		for z in xrange(data.shape[2]) :
 			#dat = pal[data[:,:,z] ].flatten('F')
-			dat = pal[data[:,:,z] ]
+			dat = pal[ uint32(data[:,:,z]) ]
 			#img = QImage(dat,
 			#             data.shape[0],
 			#             data.shape[1],
