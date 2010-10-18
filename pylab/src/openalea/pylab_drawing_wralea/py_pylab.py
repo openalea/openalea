@@ -25,7 +25,7 @@ __revision__=" $Id$ "
 
 from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
-    ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
+    ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict, ITuple 
 
 import pylab
 from openalea.core.external import add_docstring
@@ -36,17 +36,6 @@ from openalea.pylab.tools import CustomizeAxes
 
 
 
-class PyLabBox(Node):
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name='input')
-        self.add_output(name='output')
-
-    def __call__(self, inputs):
-        from pylab import box
-        box()
-
-
 
 
 
@@ -55,25 +44,38 @@ class PyLabFancyArrowPatch(Node):
 
     def __init__(self):
         Node.__init__(self)
+        
+        self.get_input('axes')
+        
         self.add_input(name='arrowstyle', interface=IEnumStr(tools.arrowstyles.keys()), value='simple')
-        self.add_input(name='edgecolor', interface=IEnumStr(tools.colors.keys()), value='none')
         self.add_input(name='connectionstyle', interface=IEnumStr(tools.connectionstyles.keys()), value='arc3')
+        self.add_input(name='relpos', interface=ITuple, value=(0.5,0.5))
+        self.add_input(name='patchA', interface=IDict, value=None)
+        self.add_input(name='patchB', interface=IDict, value=None)
+        self.add_input(name='shrinkA', interface=IDict, value=None)
+        self.add_input(name='shrinkB', interface=IDict, value=None)
         self.add_input(name='mutation_scale', interface=IFloat, value=1)
+        self.add_input(name='mutation_aspect', interface=IFloat, value=1)
+        self.add_input(name='pathPatch', interface=IDict, value=None)
         #todo for connection style, connectionstyle="angle,angleA=0,angleB=-90,rad=10"
         #todo for arrowstyle:head_length=0.4,head_width=0.2 tail_width=0.3,shrink_factor=0.5 
-        self.add_output(name='output', interface=IDict)
+        self.add_output(name='axes')
 
     def __call__(self, inputs):
 
         kwds = {}
         kwds['arrowstyle'] = self.get_input('arrowstyle')
-        kwds['edgecolor'] = self.get_input('edgecolor')
-        kwds['connectionstyle'] = self.get_input('connectionstyle')
-        kwds['mutation_scale'] = self.get_input('mutation_scale')
+        #kwds['edgecolor'] = self.get_input('edgecolor')
+        #kwds['connectionstyle'] = self.get_input('connectionstyle')
+        #kwds['mutation_scale'] = self.get_input('mutation_scale')
 
         return kwds
 
-class PyLabYAArow(Node):
+class PyLabYAArowDict(Node):
+    """
+    
+    to be used as an input dictionary by Annotate node for instance
+    """
     # do not call the class but use its args and kwrags for others like BBox
     def __init__(self):
         Node.__init__(self)
@@ -83,7 +85,7 @@ class PyLabYAArow(Node):
         self.add_input(name='frac', interface=IFloat(0,1,0.05), value=0.1)
         self.add_input(name='alpha', interface=IFloat(0,1,0.05), value=1)
         self.add_input(name='color', interface=IEnumStr(tools.colors.keys()), value='blue')
-    
+        self.add_input(name='kwargs', interface=IDict, value={})
         self.add_output(name='output', interface=IDict, value = {})
     """
       animated: [True | False]         
@@ -136,21 +138,31 @@ class PyLabBBox(Node):
         return kwds 
 
 class PyLabAnnotate(Node):
-
-
-    """ should include colornap and colorbar options"""
+    """ call annotate method of the current axe
+    
+    :param axes:
+    :param text: 
+    :param xy: a tuple to set the xy coordinates of the arrow
+    :param xytext: a tuple to set the xy coordinates of the text
+    :param xycoords: type of coordinates used to place xy tuple
+    :param xytext: type of coordinates used to place xytext tuple
+    :param arrowprops: could be a YAArrow or FancyArrowPatch dictionary.
+    :param kwargs:
+    
+    """
     def __init__(self):
-        
         Node.__init__(self)
+        
+        self.add_input(name='axes')
+        
         self.add_input(name='text', interface=IStr, value=None)
-        self.add_input(name='x target position', interface=IFloat, value=0)
-        self.add_input(name='y target position', interface=IFloat, value=0)
-        self.add_input(name='x text position', interface=IFloat, value=0)
-        self.add_input(name='y text position', interface=IFloat, value=0)
-        self.add_input(name='target coords', interface=IEnumStr(tools.xycoords.keys()), value='data')
-        self.add_input(name='text coords', interface=IEnumStr(tools.xycoords.keys()), value='data')
-        self.add_input(name='arrowprops', interface=IDict, value={'arrowstyle':'->', 'connectionstyle':'arc3', 'rad':.2})
-        self.add_input(name='bbox', interface=IDict, value=None)
+        self.add_input(name='xy', interface=ITuple, value=(0,0))
+        self.add_input(name='xytext', interface=ITuple, value=None)
+        self.add_input(name='xycoords', interface=IEnumStr(tools.xycoords.keys()), value='data')
+        self.add_input(name='textcoords', interface=IEnumStr(tools.xycoords.keys()), value='data')
+        self.add_input(name='arrowprops', interface=IDict, value={'arrowstyle':'->', 'connectionstyle':'arc3'})
+        #self.add_input(name='bbox', interface=IDict, value=None)
+        self.add_input(name='kwargs(text properties)', interface=IDict, value={})
         self.add_output(name='output')
 
     """
@@ -194,18 +206,22 @@ alpha: float (0.0 transparent through 1.0 opaque)
 
 
     def __call__(self, inputs):
-        from pylab import annotate, show
+        from pylab import annotate, gca
         kwds = {}
-        
+        kwds = self.get_input('kwargs(text properties)')
         s = self.get_input('text')
-        xy = [self.get_input('x target position'), self.get_input('y target position')]
-        xytext = [self.get_input('x text position'), self.get_input('y text position')]
-        xycoords = self.get_input('target coords')
-        textcoords = self.get_input('text coords')
+        xy = self.get_input('xy')
+        xytext = self.get_input('xytext')
+        xycoords = self.get_input('xycoords')
+        textcoords = self.get_input('textcoords')
 
-        annotate(s, xy, xytext, xycoords=xycoords, textcoords=textcoords, bbox=self.get_input('bbox'), arrowprops=self.get_input('arrowprops'))
-        show()
-        return None
+        axe = gca()
+        axe.annotate(s, xy, xytext, xycoords=xycoords, 
+                 textcoords=textcoords, 
+                 arrowprops=self.get_input('arrowprops'), **kwds)
+        axe.get_figure().canvas.draw()
+        
+        return self.get_input('axes')
 
 
 
@@ -354,7 +370,7 @@ class PyLabAxhspan(Node, CustomizeAxes):
         self.add_input(name='xmax', interface=IFloat, value=1)
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs (Patch)', interface=IDict, value={})
-        self.add_input(name='kwargs or line2d', interface=IDict, value={'alpha':1.})
+        #self.add_input(name='kwargs or line2d', interface=IDict, value={'alpha':1.})
                 
         self.add_output(name="axes")
     def __call__(self, inputs):
@@ -364,7 +380,7 @@ class PyLabAxhspan(Node, CustomizeAxes):
                 xmax=self.get_input('xmax'), **self.get_input('kwargs (Patch)'))
         return res
 
-class PyLabAxvspan(Node):
+class PyLabAxvspan(Node, CustomizeAxes):
     """VisuAlea version of pylab.axvspan
 
     :param *xmin*: starting x position
@@ -381,13 +397,18 @@ class PyLabAxvspan(Node):
     """
     def __init__(self):
         Node.__init__(self)
+        CustomizeAxes.__init__(self)
+        
+        self.add_input(name='axes')
+
         self.add_input(name='xmin', interface=IFloat, value=0)
         self.add_input(name='xmax', interface=IFloat, value=0.5)
         self.add_input(name='ymin', interface=IFloat, value=0)
         self.add_input(name='ymax', interface=IFloat, value=1)
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs (Patch)', interface=IDict, value={})
-        self.add_output(name='output')
+        
+        self.add_output(name='axes')
 
     def __call__(self, inputs):
         from pylab import axvspan

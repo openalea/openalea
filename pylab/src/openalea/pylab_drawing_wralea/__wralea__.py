@@ -19,14 +19,13 @@ __icon__ = 'icon.png'
 
 __all__ = [
 'py_pylab_PyLabAnnotate',
-'py_pylab_PyLabBBox',
-'py_pylab_PyLabYAArow',
+'py_pylab_PyLabYAArowDict',
 'py_pylab_PyLabFancyArrowPatch',
 'py_pylab_PyLabAxhline',
 'py_pylab_PyLabAxvline',
 'py_pylab_PyLabAxhspan',
 'py_pylab_PyLabAxvspan',
-'py_pylab_PyLabBox',
+'py_pylab_PyLabBBox',
 ]
 
 
@@ -58,11 +57,11 @@ py_pylab_PyLabBBox = Factory(name='PyLabBBox',
 
 
 
-py_pylab_PyLabYAArow = Factory(name='PyLabYAArow',
+py_pylab_PyLabYAArowDict = Factory(name='PyLabYAArowDict',
                 description='pylab.fontproperties interface.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
-                nodeclass='PyLabYAArow',
+                nodeclass='PyLabYAArowDict',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,
@@ -120,11 +119,4 @@ py_pylab_PyLabAxvspan = Factory(name='PyLabAxvspan',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
 
-py_pylab_PyLabBox = Factory(name='PyLabBox',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabBox',
-                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
-                )
 

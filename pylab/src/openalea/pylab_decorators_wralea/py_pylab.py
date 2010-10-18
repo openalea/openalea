@@ -735,8 +735,8 @@ class PyLabGrid(Node, CustomizeAxes):
         kwds = {}
         for key, value in self.get_input('kwargs').iteritems():
             kwds[key] = value
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.colors[self.get_input("color")]
         kwds['linewidth']=self.get_input("linewidth")
         kwds['b']=self.get_input("b")
         kwds['which']=self.get_input("which")
@@ -873,4 +873,26 @@ class PyLabAxesDecorator(Node):
                 print 'this object is not accepted bu AxesDecorator!. Skipped'
                 print this
         return self.get_input("axes")
-        
+
+
+
+
+class PyLabBox(Node):
+    """call pylab.box on the current axes
+    
+    :param axes: an input pylab.axes
+    :param on' boolean to turn on or off the box of the current axe
+    
+    :return: the input axes
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='axes')
+        self.add_input(name='on', interface=IBool, value=True)
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import box, gca
+        box(self.get_input('on'))
+        gca().get_figure().canvas.draw()
+        return self.get_input('axes')        

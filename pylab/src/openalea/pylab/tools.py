@@ -18,7 +18,12 @@ axis = {
     'normal':'normal'
     }
 
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
+extends = {'neither':'neither',
+           'both':'both',
+           'min':'min',
+           'max':'max'           
+           }
+#sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
 
 detrends = {
@@ -97,7 +102,8 @@ verticalalignment = {
 
 origins = {'lower':'lower',
     'upper':'upper',
-    'none':'None',
+    'None':None,
+    'image':'image'
     }
 
 extensions = {'png':'png',
@@ -169,11 +175,11 @@ locations = {
             'upper center' : 9,
             'center'       : 10,}
 
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
         
-from pylab import mlab
-
-windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
+from matplotlib import mlab
+windows = {'hanning':mlab.window_hanning,
+           'hamming, bartlett, blackman, kaiser (use numpy.window)':None, 
+           'none':mlab.window_none}
 sides = ['default','onesided','twosided']
 
 from pylab import cm, get_cmap
@@ -191,7 +197,6 @@ interpolation = ['None', 'nearest', 'bilinear',
           'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
           'bessel', 'mitchell', 'sinc', 'lanczos']
 aspect = ['None', 'auto', 'equal']
-origin = ['None', 'upper', 'lower']
 colors =  {
            'blue':'b',
            'green':'g',
@@ -202,7 +207,7 @@ colors =  {
            'yellow':'y',
            'black':'k',
            'white':'w',
-           'None':'None'}
+           'None':None}
         
         
 def get_valid_color(color='blue'):
@@ -511,7 +516,7 @@ def get_kwds_from_line2d(line2d=None, input_kwds={}, type=None):
 
 def line2d2kwds(line2d, kwds={}):
     try:
-        for key, value in line2d.properties().properties():
+        for key, value in line2d.properties().iteritems():
             kwds[key] = value
     except:
         print 'warning: line2d may not be a valid Line2D object'
@@ -540,7 +545,9 @@ class CustomizeAxes(object):
     def get_axes(self):
         axes = self.get_input('axes')
         if axes == None:
-            return axes
+            from pylab import gca
+            axes = gca()
+            return [axes]
         
         if type(axes)!=list:
             axes = [axes]

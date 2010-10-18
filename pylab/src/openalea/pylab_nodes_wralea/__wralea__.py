@@ -19,24 +19,12 @@ __icon__ = 'icon.png'
 
 __all__ = [
     'py_pylab_PyLabAbsolute',
-    'py_pylab_PyLabBoxPlot',
-    'py_pylab_PyLabPlot',
-    'py_pylab_PyLabHist',
     'py_pylab_PyLabScatter',
-    'py_pylab_PyLabAcorr',
-    'py_pylab_PyLabLine2D',
     'py_pylab_PyLabPolar',
     'py_pylab_PyLabPie',
     'py_pylab_PyLabImageGrid',
 #    'py_pylab_PyLabBar',
-    'py_pylab_PyLabLogLog',
-    'py_pylab_PyLabSemiLogx',
-    'py_pylab_PyLabSemiLogy',
-    'py_pylab_PyLabCohere',
     'py_pylab_PyLabHexBin',
-    'py_pylab_PyLabContour',
-    'py_pylab_PyLabContourf',
-    'py_pylab_PyLabCLabel',
     'py_pylab_PyLabCsd',
     'py_pylab_PyLabPsd',
     'py_pylab_PyLabSpecgram',
@@ -46,7 +34,6 @@ __all__ = [
     'py_pylab_PyLabQuiver',
     'py_pylab_PyLabFill',
     'py_pylab_PyLabFillBetween',
-    'py_pylab_PyLabErrorBar',
     'py_pylab_PyLabImshow',
 ]
 

@@ -32,7 +32,6 @@ __all__ = [
     'py_pylab_PyLabCohere',
     'py_pylab_PyLabHexBin',
     'py_pylab_PyLabContour',
-    'py_pylab_PyLabContourf',
     'py_pylab_PyLabCLabel',
     'py_pylab_PyLabCsd',
     'py_pylab_PyLabPsd',
@@ -254,17 +253,6 @@ py_pylab_PyLabContour = Factory(name='PyLabContour',
                 lazy=False
                )
 
-py_pylab_PyLabContourf = Factory(name='PyLabContourf',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabContour',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabCLabel = Factory(name='PyLabCLabel',
                 description='pylab.fontproperties interface.',

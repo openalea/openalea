@@ -39,10 +39,18 @@ __all__ = [
 'py_pylab_PyLabColorBar',
 'py_pylab_PyLabColorMap',
 'py_pylab_PyLabOrigin',
+'py_pylab_PyLabBox',
 ]
 
 
 
+py_pylab_PyLabBox = Factory(name='PyLabBox',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabBox',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
 
 py_pylab_PyLabFigure = Factory(name='PyLabFigure',
                 description='pylab.figure interface.',

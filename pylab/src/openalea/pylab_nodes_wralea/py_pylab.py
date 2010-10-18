@@ -1336,7 +1336,7 @@ class PyLabCohere(Plotting, Detrends):
             #{'name':'window',       'interface':None, 'value':'tobedone'},
             {'name':'noverlap',     'interface':IInt,   'value':0},
             {'name':'pad_to',       'interface':IInt,   'value':None},
-            {'name':'sides',        'interface':IEnumStr(self.sides.keys()), 'value':'default'},
+            {'name':'sides',        'interface':IEnumStr(self.sides), 'value':'default'},
             #{'name':'scale_by_freq','interface':IBool,  'value':True},
             {'name':'Fc',           'interface':IFloat, 'value':0},
             ]
