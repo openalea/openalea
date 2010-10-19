@@ -1212,53 +1212,45 @@ class PyLabCLabel(Node):
 
 
 
-class PcolorInterface():
-    """ .. todo:: tohis documentation"""
+
+        
+
+#class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
+class PyLabPcolor(Plotting):
+    """ .. todo:: tohis documentation
+
+
+    .. note:: pcolormesh is equivalent to pcolor. """
     def __init__(self):
         self.inputs = []
         self.inputs.append({'name': 'X', 'value':None})
         self.inputs.append({'name': 'Y', 'value':None})
         self.inputs.append({'name': 'Z', 'value':None})
         self.inputs.append({'name':"cmap", 'interface':IStr, 'value':None})
-        """todo:: norm, vmin/vmax, shading, edgecolor, alpha"""
-    def get_kwds(self):
-
-        self.kwds = {}
-        if self.get_input('cmap'):
-            self.kwds['cmap'] = self.get_input('cmap')
-
-    def __call__(self, inputs):
-        raise NotImplementedError
 
 
-#class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
-class PyLabPcolor(Plotting, PcolorInterface):
-    """ .. todo:: tohis documentation
-
-
-    .. note:: pcolormesh is equivalent to pcolor. """
-    def __init__(self):
-        PcolorInterface.__init__(self)
         Plotting.__init__(self, self.inputs)
-
+        self.add_output(name='output')
+        
     def __call__(self, inputs):
         from pylab import pcolor, cla
         self.figure()
         self.axes()
-        cla()
+        
+        kwds = {}
         X = self.get_input('X')
         Y = self.get_input('Y')
         Z = self.get_input('Z')
-        self.get_kwds()
+        
         if X is not None and Y is not None:
-            pcolor(X, Y, Z, **self.kwds)
+            output = pcolor(X, Y, Z, **kwds)
         elif Z is not None:
-            pcolor(Z, **self.kwds)
+            output = pcolor(Z, **kwds)
         else:
             raise ValueError('Z is compulsary. If X provided, Y must be provided as well.')
 
         self.properties() 
-        return self.axes_shown
+        return self.axe, output
 
 
 
@@ -1460,7 +1452,7 @@ class PsdInterface():
         raise NotImplementedError
 
 
-class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
+class PyLabPsd(Plotting):
     """VisuAlea version of pylab.psd
 
     :param x: the signal to analyse (a 1D- array)
@@ -1483,32 +1475,75 @@ class PyLabPsd(PsdInterface, Plotting,PlotxyInterface):
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
-        PsdInterface.__init__(self, type='x')
-        Plotting.__init__(self, self.inputs)
-        PlotxyInterface.__init__(self)
-
+        inputs = [
+            {'name':'x'},
+            {'name':'NFFT',         'interface':IInt,   'value':256},
+            {'name':'Fs',           'interface':IFloat, 'value':2.},
+            {'name':'Fc',           'interface':IFloat, 'value':0},
+            {'name':'detrend',      'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},        
+            {'name':'window',       'interface':IEnumStr(tools.windows.keys()), 'value':'hanning'},
+            {'name':'noverlap',     'interface':IInt,   'value':0},
+            {'name':'pad_to',       'interface':IInt,   'value':None},
+            {'name':'sides',        'interface':IEnumStr(tools.sides), 'value':'default'},
+            {'name':'scale_by_freq','interface':IBool,  'value':None},
+            {'name':'kwargs(line2d)','interface':IDict,  'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        self.add_output(name='output')
+        
+        
     def __call__(self, inputs):
-        from pylab import cla
-
-        kwds=self._get_kwds()
-        self._set_window()
+        
+        from pylab import  psd, Line2D
         self.figure()
         self.axes()
-        cla()
 
-        #psd has no y, yet, self.call requires an x and a y input. So let us cheat:
+        kwds = {}
+        line2d = self.get_input('kwargs(line2d)')
+        if type(line2d)==Line2D:
+            kwds = line2d.properties()
+        else:
+            for key,value in self.get_input('kwargs(line2d)').iteritems():
+                kwds[key] = value
+        print kwds
+        for this in ['axes', 'children', 'path','data','ydata','xdata',
+                     'xydata','transformed_clip_path_and_affine', 'transform' ]:
+            try:
+                del kwds[this]
+            except:
+                pass  
+                
+        x = self.get_input('x')
+
+        
+        NFFT = self.get_input('NFFT')
+        Fs = self.get_input('Fs')
+        Fc = self.get_input('Fc')
+        import pylab
+        from pylab import detrend_none, detrend_mean, detrend_mean
+        detrend = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+
         try:
-            self.get_input('y')
+            window = tools.windows[self.get_input('window')]
         except:
-            self.add_input(name='y', value=None)
+            window = self.get_input('window')
+        
+        noverlap = self.get_input('noverlap')
+        pad_to = self.get_input('pad_to')
+        sides = self.get_input('sides')
+        scale_by_freq = self.get_input('scale_by_freq')
+        
 
-        c = self.call('psd',self.kwds)
+        res = psd(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend, 
+                  window=window, noverlap=noverlap, pad_to=pad_to,
+                  sides=sides, scale_by_freq=scale_by_freq, **kwds)
+
+
         self.properties()
-        #todo return self.axes_shown
-        return c
+        return self.axe, res
 
 
-class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
+class PyLabCsd(Plotting):
     """VisuAlea version of pylab.csd
 
     :param x: the signal to analyse (a 1D- array)
@@ -1533,21 +1568,77 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
     """
 
     def __init__(self):
-        PsdInterface.__init__(self, type='xy')
-        Plotting.__init__(self, self.inputs)
-        PlotxyInterface.__init__(self)
+        inputs = [
+            {'name':'x'},
+            {'name':'y'},
+            {'name':'NFFT',         'interface':IInt,   'value':256},
+            {'name':'Fs',           'interface':IFloat, 'value':2.},
+            {'name':'Fc',           'interface':IFloat, 'value':0},
+            {'name':'detrend',      'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},        
+            {'name':'window',       'interface':IEnumStr(tools.windows.keys()), 'value':'hanning'},
+            {'name':'noverlap',     'interface':IInt,   'value':0},
+            {'name':'pad_to',       'interface':IInt,   'value':None},
+            {'name':'sides',        'interface':IEnumStr(tools.sides), 'value':'default'},
+            {'name':'scale_by_freq','interface':IBool,  'value':None},
+            {'name':'kwargs(line2d)','interface':IDict,  'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        self.add_output(name='output')
+        
+
 
     def __call__(self, inputs):
-        from pylab import cla
-
-        self._get_kwds()
-        self._set_window()
+        
+        from pylab import  csd, Line2D
         self.figure()
         self.axes()
-        cla()
-        c = self.call('csd',self.kwds)
+
+        kwds = {}
+        line2d = self.get_input('kwargs(line2d)')
+        if type(line2d)==Line2D:
+            kwds = line2d.properties()
+        else:
+            for key,value in self.get_input('kwargs(line2d)').iteritems():
+                kwds[key] = value
+        print kwds
+        for this in ['axes', 'children', 'path','data','ydata','xdata',
+                     'xydata','transformed_clip_path_and_affine', 'transform' ]:
+            try:
+                del kwds[this]
+            except:
+                pass  
+                
+        x = self.get_input('x')
+        y = self.get_input('y')
+        
+        NFFT = self.get_input('NFFT')
+        Fs = self.get_input('Fs')
+        Fc = self.get_input('Fc')
+        import pylab
+        from pylab import detrend_none, detrend_mean, detrend_mean
+        detrend = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+
+        try:
+            window = tools.windows[self.get_input('window')]
+        except:
+            window = self.get_input('window')
+        
+        noverlap = self.get_input('noverlap')
+        pad_to = self.get_input('pad_to')
+        sides = self.get_input('sides')
+        scale_by_freq = self.get_input('scale_by_freq')
+        
+
+        res = csd(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend, 
+                  window=window, noverlap=noverlap, pad_to=pad_to,
+                  sides=sides, scale_by_freq=scale_by_freq, **kwds)
+
+
         self.properties()
-        return self.axes_shown
+        return self.axe, res
+
+        
+        
 
 class PyLabSpecgram(Plotting):
     """VisuAlea version of pylab.psd
@@ -1617,7 +1708,9 @@ class PyLabSpecgram(Plotting):
         NFFT = self.get_input('NFFT')
         Fs = self.get_input('Fs')
         Fc = self.get_input('Fc')
-        #detrend = getattr(pylab, 'detrend_'+self.get_input('detrend'))
+        import pylab
+        from pylab import detrend_none, detrend_mean, detrend_linear
+        detrend = getattr(pylab, 'detrend_'+self.get_input('detrend'))
         try:
             window = tools.windows[self.get_input('window')]
         except:
@@ -1628,7 +1721,7 @@ class PyLabSpecgram(Plotting):
         scale_by_freq = self.get_input('scale_by_freq')
         cmap = self.get_input('cmap')
 
-        res = specgram(x, NFFT=NFFT, Fs=Fs, Fc=Fc, 
+        res = specgram(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend, 
                                window=window, noverlap=noverlap, pad_to=pad_to,
                                sides=sides, cmap=cmap,**kwds)
 

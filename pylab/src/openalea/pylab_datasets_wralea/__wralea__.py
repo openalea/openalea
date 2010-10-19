@@ -19,6 +19,7 @@ __icon__ = 'icon.png'
 
 __all__ = [
 'py_pylab_PyLabBivariateNormal',
+'py_pylab_PyLabSinWave',
 ]
 
 
@@ -28,5 +29,13 @@ py_pylab_PyLabBivariateNormal = Factory(name='PyLabBivariateNormal',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabBivariateNormal',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=True
+                )
+
+py_pylab_PyLabSinWave = Factory(name='PyLabSinWave',
+                description='A*sin(2 pi w t)',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabSinWave',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=True
                 )
