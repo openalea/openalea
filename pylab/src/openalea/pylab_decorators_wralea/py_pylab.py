@@ -475,7 +475,18 @@ class PyLabSaveFig(Node):
         savefig(self.get_input('fname'), **kwds)
 
 
+class PyLabShow(Node):
 
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='dummy')
+        self.add_output(name='dummy')
+        
+    def __call__(self, inputs):
+        from pylab import show
+        show()
+        return self.get_input('dummy')
+    
 class PyLabColorMap(Node):
 
     def __init__(self):
@@ -501,7 +512,7 @@ class PyLabColorMap(Node):
                 subplot(int(l/2)+l%2+1, 2, index+1)
                 print int(l/2)+l%2, 2, (index+1)/2+(index+1)%2+1
                 axis("off")
-                imshow(a.transpose(),aspect='auto',cmap=get_cmap(m),origin="lower")
+                imshow(a.transpose(),aspect='auto',cmap=tools.get_cmap(m),origin="lower")
                 #title(m,rotation=0,fontsize=10)
                 text(0.5,0.5, m)
             show()
@@ -512,6 +523,7 @@ class PyLabColorMap(Node):
             imshow(a.transpose(),aspect='auto',cmap=get_cmap(maps),origin="lower")
             title(maps,rotation=0,fontsize=10)
             show()
+        from pylab import get_cmap
         res = get_cmap(maps)
         return res
 
@@ -524,45 +536,7 @@ class Windowing(Node):
     def __call__(self, inputs):
         pass
 
-class PyLabColorBar(Node):
 
-    """ should include colornap and colorbar options"""
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input(name='orientation', interface=IEnumStr(tools.orientations.keys()), value='vertical')
-        self.add_input(name='fraction', interface=IFloat(0.,1,0.01), value=0.15)
-        self.add_input(name='pad', interface=IFloat(0.,1,0.01), value=0.05)
-        self.add_input(name='shrink', interface=IFloat(0.,1,0.01), value=1)
-        self.add_input(name='aspect', interface=IFloat(1,100,0.01), value=20)
-        self.add_input(name='drawedges', interface=IBool, value=False)
-        self.add_input(name='ticks', interface=ISequence, value=[])
-        self.add_input(name='format', interface=IStr, value=None)
-        self.add_input(name='label', interface=IStr, value=None)
-        self.add_input(name='cmap', interface=IEnumStr, value=None)
-        self.add_input(name='show', interface=IBool, value=False)
-        self.add_output(name='kwargs', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import colorbar
-        kwds = {}
-        kwds['fraction'] = self.get_input('fraction')
-        kwds['orientation'] = self.get_input('orientation') #no need for dictionary conversion since key==value
-        kwds['pad'] = self.get_input('pad')
-        kwds['shrink'] = self.get_input('shrink')
-        kwds['aspect'] = self.get_input('aspect')
-        kwds['drawedges'] = self.get_input('drawedges')
-        if len(self.get_input('ticks'))>0:
-            kwds['ticks'] = self.get_input('ticks')
-        kwds['format'] = self.get_input('format')
-
-        if self.get_input('show'):
-            c = colorbar(**kwds)
-
-        if self.get_input('label') is not None:
-            c.set_label(self.get_input('label'))
-
-        return kwds
 
 
 

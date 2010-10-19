@@ -34,15 +34,22 @@ __all__ = [
 'py_pylab_PyLabYTicks',
 'py_pylab_PyLabSaveFig',
 'py_pylab_PyLabAxesDecorator',
+'py_pylab_PyLabShow',
 
 'py_pylab_PyLabTextOptions',
-'py_pylab_PyLabColorBar',
 'py_pylab_PyLabColorMap',
 'py_pylab_PyLabOrigin',
 'py_pylab_PyLabBox',
 ]
 
 
+py_pylab_PyLabShow = Factory(name='PyLabShow',
+                description='calls pylab.show',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabShow',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None
+                )
 
 py_pylab_PyLabBox = Factory(name='PyLabBox',
                 description='pylab.fontproperties interface.',
@@ -172,18 +179,6 @@ py_pylab_PyLabFontProperties = Factory(name='PyLabFontProperties',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabFontProperties',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
-
-py_pylab_PyLabColorBar = Factory(name='PyLabColorBar',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabColorBar',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,

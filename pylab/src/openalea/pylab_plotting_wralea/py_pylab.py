@@ -96,9 +96,6 @@ class Plotting(Node):
     #    else:
     #        self.axe.legend(**args)
     def axes(self):
-
-
-
         #sometimes, we want to add data to existing axe provided as an input argument. In such case, we do not want to clean
         # the axe and create a new one.
         if self.get_input('axes') != None:
@@ -685,30 +682,58 @@ class PyLabScatter(Plotting):
             {'name':'sizes',    'value':20},
             {'name':"color",    'interface':IEnumStr(tools.colors.keys()),  'value':'blue'},
             {'name':"marker",   'interface':IEnumStr(tools.markers.keys()), 'value' : 'circle'},
-            {'name':"label",    'interface':IStr,       'value':None},
-            {'name':"alpha",    'interface':IFloat,     'value' : 0.5},
+            {'name':"cmap",   'interface':IEnumStr(tools.cmaps.keys()), 'value' : 'jet'},
+            {'name':"norm",   'interface':IFloat, 'value' : None},
+            {'name':"vmin",   'interface':IFloat, 'value' : None},
+            {'name':"vmax",   'interface':IFloat, 'value' : None},
+            {'name':"alpha",   'interface':IFloat, 'value' : 1},
+            {'name':"faceted",   'interface':IBool, 'value' : True},
+            {'name':"linewidths",    'interface':None,     'value' : None},
+            {'name':"verts",    'interface':None,     'value' : None},
+            {'name':"kwargs",    'interface':IDict,     'value' : {'edgecolors':'none', 'facecolors':'none'}},
         ]
 
         Plotting.__init__(self, inputs)
-
+        self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import scatter, cla
+        from pylab import scatter
         x = self.get_input("x")
         y = self.get_input("y")
         sizes = self.get_input("sizes")
-        color = tools.get_valid_color(self.get_input("color"))
+        try:
+            color = tools.get_valid_color(self.get_input("color"))
+        except:
+            color = self.get_input('color')
+        marker = tools.markers[self.get_input('marker')]
+        cmap = tools.cmaps[self.get_input('cmap')]
+        norm = self.get_input('norm')
+        vmin = self.get_input('vmin')
+        vmax = self.get_input('vmax')
+        if vmin == vmax:
+            vmin = None
+            vmax = None
+        alpha = self.get_input('alpha')
+        faceted = self.get_input('faceted')
+
+        linewidths = self.get_input('linewidths')
+        verts = self.get_input('verts')
+        
+        kwds = {}
+        for key, value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
+            
         self.figure()
         self.axes()
-        cla()
+        
         res = scatter(x,y, s=sizes,c=color,
-                marker=tools.markers[self.get_input("marker")],
-                alpha=self.get_input("alpha"),
-                label=self.get_input("label"))
+                marker=marker,norm=norm, vmin=vmin,vmax=vmax,
+                alpha=alpha, cmap=cmap, faceted=faceted, linewidths=linewidths,
+                verts=verts)
         self.properties()
         
 
-        return self.get_input('axes'), res
+        return self.axe, res
 
 
 
@@ -887,17 +912,17 @@ class PyLabPie(Plotting):
             {'name':'pctdistance',  'interface':IFloat, 'value':0.6},
             {'name':'labeldistance','interface':IFloat, 'value':1.1},
             {'name':'shadow',       'interface':IBool,  'value':False},
-            {'name':'hold',         'interface':IBool,  'value':False},
-            {'name':'autopct',      'interface':IStr,   'value':None}
+            {'name':'autopct',      'interface':IStr,   'value':None},
+            {'name':'hold',      'interface':IBool,   'value':True}
         ]
-
         Plotting.__init__(self, inputs)
+        self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import pie, cla
+        from pylab import pie
         self.figure()
         self.axes()
-        cla()
+        
         kwds = {}
         kwds['explode'] = self.get_input('explode')
         kwds['colors'] = self.get_input('colors')
@@ -905,13 +930,14 @@ class PyLabPie(Plotting):
         kwds['pctdistance'] = self.get_input('pctdistance')
         kwds['labeldistance'] = self.get_input('labeldistance')
         kwds['shadow'] = self.get_input('shadow')
-        kwds['hold'] = self.get_input('hold')
         kwds['autopct'] = self.get_input('autopct')
+        #hold is not valid when calling axe.pie but is valid is calling pylab.pie
+        #kwds['hold'] = self.get_input('hold')
 
-        res = pie(self.get_input('x'), **kwds)
+        res = self.axe.pie(self.get_input('x'), **kwds)
 
         self.properties()
-        return res
+        return self.axe, res
 
 
 class PyLabBar(Plotting):
@@ -1055,65 +1081,88 @@ class PyLabCohere(Plotting):
 
 
 class PyLabHexBin(Plotting):
-    """ .. todo:: tohis documentation"""
+    """ .. todo:: tohis documentation
+    
+    see pylab.hexbin for details
+    
+    :param x: a 1d array
+    :param y: a 1d array
+    :param C: If *C* is specified, it specifies values at the coordinate (x[i],y[i])
+    
+    ..todo:: norm/extent/reduce_c_function
+    
+    the kwargs can be : matplotlib.collections.Collection().properties()
+    """
 
     def __init__(self):
+        import numpy as np
         inputs = [
             {'name':"x"},
             {'name':"y"},
-            {'name':"bins", 'interface':ISequence, 'value':[]},
-            #bins could be 'log', None, integer or sequence
+            {'name':"C", 'interface':None, 'value':None},
             {'name':"gridsize", 'interface':IInt, 'value':100},
-            {'name':"xscale", 'interface':IEnumStr(tools.keys()), 'value':'linear'},
-            {'name':"yscale", 'interface':IEnumStr(tools.keys()), 'value':'linear'},
-            {'name':"mincnt", 'interface':IInt, 'value':None},
-            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
-            {'name':"marginals", 'interface':IBool, 'value':False},
-            #{'name':"norm", 'interface':matplotlib.colors.Normalize, 'value':[vmin,vmax]},
-            # inorm sets vmin and vmax. So choose either norm method or vmin/vmax method.
+            {'name':"bins", 'interface':IInt, 'value':None},
+            {'name':"xscale", 'interface':IEnumStr(tools.scale.keys()), 'value':'linear'},
+            {'name':"yscale", 'interface':IEnumStr(tools.scale.keys()), 'value':'linear'},
+            {'name':"cmap", 'interface':IEnumStr(tools.cmaps.keys()), 'value':'jet'},
+            {'name':"norm", 'interface':None, 'value':None},
             {'name':"vmin", 'interface':IFloat, 'value':None},
             {'name':"vmax", 'interface':IFloat, 'value':None},
-            {'name':"extent", 'value':None},
+            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
             {'name':"linewidths", 'interface':IFloat(0,10,1), 'value':None},
-            {'name':"edgecolors", 'interface':IEnumStr(tools.colors.keys()), 'value':None},
-            {'name':"cmap", 'interface':IStr, 'value':None},
+            {'name':"edgecolors", 'interface':IEnumStr(tools.colors.keys()), 'value':'None'},
+            {'name':"reduce_C_function", 'interface':None, 'value':np.mean},
+            {'name':"mincnt", 'interface':IInt, 'value':None},
+            {'name':"marginals", 'interface':IBool, 'value':True},
+            {'name':"extent", 'interface':None, 'value':None},
+            {'name':"kwargs(collection)", 'interface':IDict, 'value':{}},
         ]
 
         """         reduce_C_function = np.mean, """
         Plotting.__init__(self, inputs)
-
+        self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import hexbin, cla
+        from pylab import hexbin
+        
+        x = self.get_input('x')
+        y = self.get_input('y')
+        C = self.get_input('C')
+        gridsize = self.get_input('gridsize')
+        bins = self.get_input('bins')
+        
+        xscale = self.get_input('xscale')
+        yscale = self.get_input('yscale')
+        cmap = self.get_input('cmap')
+        norm = self.get_input('norm')
+        vmin = self.get_input('vmin')
+        vmax = self.get_input('vmax')
+        alpha = self.get_input('alpha')
+        linewidths = self.get_input('linewidths')
+        edgecolors = tools.colors[self.get_input('edgecolors')]
+        reduce_C_function = self.get_input('reduce_C_function')
+        mincnt = self.get_input('mincnt') 
+        marginals = self.get_input('marginals')
+        extent = self.get_input('extent')
+        
         kwds={}
-        if len(self.get_input('bins'))>=1:
-            kwds['bins'] = self.get_input('bins')
-        else:
-            kwds['bins'] = None
-        kwds['xscale'] = self.get_input('xscale')
-        kwds['yscale'] = self.get_input('yscale')
-        kwds['gridsize'] = self.get_input('gridsize')
-        #None by default
-        if self.get_input('mincnt'):
-            kwds['mincnt'] = self.get_input('mincnt')
-        if self.get_input('cmap'):
-            kwds['cmap'] = self.get_input('cmap')
-
-        kwds['marginals'] = self.get_input('marginals')
-        kwds['alpha'] = self.get_input('alpha')
-        kwds['vmin'] = self.get_input('vmin')
-        kwds['vmax'] = self.get_input('vmax')
-        kwds['linewidths'] = self.get_input('linewidths')
-        if self.get_input('edgecolors'):
-            kwds['edgecolors'] = self.colors[self.get_input('edgecolors')]
-
-
+        for key, value in self.get_input('kwargs(collection)'):
+            kwds[key] = value
+        
         self.figure()
         self.axes()
-        cla()
-        hexbin(self.get_input('x'), self.get_input('y'), **kwds)
+        
+        output = hexbin(x, y, C=C, gridsize=gridsize, bins=bins, 
+                        xscale=xscale, yscale=yscale, 
+                        cmap=cmap, norm=norm, vmin=vmin, vmax=vmax,
+                        alpha=alpha, linewidths=linewidths, edgecolors=edgecolors,
+                        reduce_C_function=reduce_C_function, 
+                        marginals=marginals, extent=extent,
+                        mincnt=mincnt,
+                        **kwds)
+        
         self.properties()
-        return self.axes_shown
+        return self.axe, output
 
 
 class PyLabCLabel(Node):
@@ -1500,7 +1549,7 @@ class PyLabCsd(Plotting,PlotxyInterface, PsdInterface):
         self.properties()
         return self.axes_shown
 
-class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
+class PyLabSpecgram(Plotting):
     """VisuAlea version of pylab.psd
 
     :param x: the signal to analyse (a 1D- array)
@@ -1524,29 +1573,67 @@ class PyLabSpecgram(Plotting,PlotxyInterface, PsdInterface):
     """
 
     def __init__(self):
-        PsdInterface.__init__(self, type='x', noverlap=128, cmap=True)
-        Plotting.__init__(self, self.inputs)
-        PlotxyInterface.__init__(self)
+
+        
+        inputs = [
+            {'name':'x'},
+            {'name':'NFFT',         'interface':IInt,   'value':256},
+            {'name':'Fs',           'interface':IFloat, 'value':2.},
+            {'name':'Fc',           'interface':IFloat, 'value':0},
+            {'name':'detrend',      'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},        
+            {'name':'window',       'interface':IEnumStr(tools.windows.keys()), 'value':'hanning'},
+            {'name':'noverlap',     'interface':IInt,   'value':128},
+            {'name':'xextent',     'interface':IInt,   'value':None},
+            {'name':'cmap',     'interface':IEnumStr(tools.cmaps.keys()),   'value':'jet'},
+            {'name':'pad_to',       'interface':IInt,   'value':None},
+            {'name':'sides',        'interface':IEnumStr(tools.sides), 'value':'default'},
+            {'name':'scale_by_freq','interface':IBool,  'value':True},
+            {'name':'kwargs(line2d)','interface':IDict,  'value':{}},
+        ]
+        Plotting.__init__(self, inputs)
+        self.add_output(name='output')
         #         xextent=None, 
 
     def __call__(self, inputs):
-        from pylab import cla
-
-        self._get_kwds()
-        self._set_window()
+        from pylab import  specgram, Line2D
         self.figure()
         self.axes()
-        print self.kwds
-        cla()
-        if self.get_input('cmap'):
-            self.kwds['cmap'] = self.get_input('cmap')
+
+        kwds = {}
+        line2d = self.get_input('kwargs(line2d)')
+        if type(line2d)==Line2D:
+            kwds = line2d.properties()
+        else:
+            for key,value in self.get_input('kwargs(line2d)').iteritems():
+                kwds[key] = value
+        for x in ['children',  'path','data','ydata','xdata','xydata','transformed_clip_path_and_affine' ]:
+            try:
+                del kwds[x]
+            except:
+                pass  
+                
+        x = self.get_input('x')
+    
+        NFFT = self.get_input('NFFT')
+        Fs = self.get_input('Fs')
+        Fc = self.get_input('Fc')
+        #detrend = getattr(pylab, 'detrend_'+self.get_input('detrend'))
         try:
-            self.get_input('y')
+            window = tools.windows[self.get_input('window')]
         except:
-            self.add_input(name='y', value=None)
-        c = self.call('specgram',self.kwds)
+            window = self.get_input('window')
+        noverlap = self.get_input('noverlap')
+        pad_to = self.get_input('pad_to')
+        sides = self.get_input('sides')
+        scale_by_freq = self.get_input('scale_by_freq')
+        cmap = self.get_input('cmap')
+
+        res = specgram(x, NFFT=NFFT, Fs=Fs, Fc=Fc, 
+                               window=window, noverlap=noverlap, pad_to=pad_to,
+                               sides=sides, cmap=cmap,**kwds)
+
         self.properties()
-        return self.axes_shown
+        return self.axe, res
 
 
 class PyLabStem(Plotting, PlotxyInterface):
@@ -1579,20 +1666,19 @@ class PyLabStem(Plotting, PlotxyInterface):
             {'name':'base_style', 'interface':IEnumStr(tools.linestyles.keys()), 'value':'solid'},
         ]
         Plotting.__init__(self, inputs)
+        self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import cla
 
         self.figure()
         self.axes()
-        cla()
         kwds = {}
         kwds['markerfmt'] = tools.colors[self.get_input('marker_color')]+ tools.markers[self.get_input('marker_style')]
         kwds['basefmt'] = tools.colors[self.get_input('base_color')]+ tools.linestyles[self.get_input('base_style')]
         kwds['linefmt'] = tools.colors[self.get_input('line_color')]+ tools.linestyles[self.get_input('line_style')]
         c = self.call('stem', kwds)
         self.properties()
-        return self.axes_shown
+        return self.axe, c
 
 
 class PyLabStep(Plotting, PlotxyInterface):
@@ -1615,26 +1701,32 @@ class PyLabStep(Plotting, PlotxyInterface):
         inputs = [
                     {'name':'x', 'interface':None, 'value':None},
                     {'name':'y', 'interface':None, 'value':None},
+                    {'name':'where', 'interface':IEnumStr(['post','pre','mid']), 'value':'pre'},
                     {'name':'marker', 'interface':IEnumStr(tools.markers.keys()), 'value':'circle'},
                     {'name':'markersize', 'interface':IFloat, 'value':10},
                     {'name':'color', 'interface':IEnumStr(tools.colors.keys()), 'value':'blue'},
+                    {'name':'kwargs', 'interface':IDict, 'value':{}}
         ]
         Plotting.__init__(self, inputs)
-
+        self.add_output(name='output')
+        
     def __call__(self, inputs):
-        from pylab import cla
+        from pylab import cla, gcf
 
         self.figure()
         self.axes()
-        cla()
 
         kwds = {}
         kwds['markersize']=self.get_input("markersize")
         kwds['marker']=tools.markers[self.get_input("marker")]
         kwds['color']=tools.colors[self.get_input("color")]
+        kwds['where'] = self.get_input('where')
+        #todo add kwargs
         c = self.call('step', kwds)
+        gcf().canvas.draw()
         self.properties()
-        return self.axes_shown
+        
+        return self.axe, c
 
 
 
@@ -1664,7 +1756,8 @@ class PyLabQuiver(Plotting):
                     {'name':'polycollection', 'interface':IDict,        'value':{}},
         ]
         Plotting.__init__(self, inputs)
-
+        self.add_output(name='output')
+        
     def __call__(self, inputs):
         from pylab import quiver, cla
 
@@ -1697,13 +1790,8 @@ class PyLabQuiver(Plotting):
         else:
             raise SyntaxError('Wrong usage. See documentation. ')
 
-        print X
-        print Y
-        print U
-        #self.properties()
-        from pylab import show
-        show()
-        return self.axes_shown
+        self.properties()
+        return self.axe, c
 
 
 class PyLabFill(Plotting, PlotxyInterface):
@@ -1730,10 +1818,10 @@ class PyLabFill(Plotting, PlotxyInterface):
                     {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
+        self.add_output(name='output')
         #todo : as many patch as x/y
 
     def __call__(self, inputs):
-        from pylab import fill, cla
 
         self.figure()
         self.axes()
@@ -1744,7 +1832,7 @@ class PyLabFill(Plotting, PlotxyInterface):
         c = self.call('fill', kwds)
 
         self.properties()
-        return self.get_input('axes'), c
+        return self.axe, c
     
     
 class PyLabFillBetween(Plotting, PlotxyInterface):
@@ -1767,28 +1855,35 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
                     {'name':'y1'},
                     {'name':'y2'},
                     {'name':'where', 'interface':IStr, 'value':'None'},
+                    {'name':'interpolate', 'interface':IBool, 'value':False},
                     {'name':'kwargs (Patch)','interface':IDict, 'value':{}},
         ]
         Plotting.__init__(self, inputs)
-        #todo : as many patch as x/y
+        self.add_output(name='output')
+
 
     def __call__(self, inputs):
-        from pylab import fill_between, cla
+        from pylab import fill_between
 
         self.figure()
         self.axes()
+
+        kwds = self.get_input('kwargs (Patch)')
         try:
-            kwds = self.get_input('kwargs (Patch)')
             del kwds['fill']
         except:
-            kwds = {}
+            pass
+        
         x = self.get_input('x')
         y1 = self.get_input('y1')
         y2 = self.get_input('y2')
         where = eval(str(self.get_input('where')))
-        c = fill_between(x, y1, y2, where=where, **kwds)
+        interpolate = self.get_input('interpolate')
+        
+        c = self.axe.fill_between(x, y1, y2, where=where, interpolate=interpolate, **kwds)
+        
         self.properties()
-        return self.axes_shown
+        return self.axe, c
 
 
 
@@ -1883,67 +1978,90 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
 
 
 class PyLabImshow(Plotting):
+    """See pylab.imshow for behaviour and parameters documentation.
+    
+    :additional argument:
+    
+        * arrangment a tuple/;ist of 2 integers: If N images are connected to 
+        the input, the default behaviour is to use pylab.subplot to create a 
+        n x m grid such that n is close to m.
+        
+        You can overwrite this arbitrary layout by setting yourself the n and m 
+        values using the arrangment but then n x m must be equal to N.
+        
+    .. note:: if you set vmin or vmax, you cannot get back its original value (None)
+        To reset them, either you need to reload the whole node, or set them to equal values
+        like 0 and 0
+    """
     #@add_docstring(pylab.imshow)
     def __init__(self):
         inputs = [
                     {'name':'image', 'interface':None},
-                    {'name':"cmap", 'interface':IEnumStr(tools.cmaps.keys()), 'value':'None'},
-                    {'name':"interpolation", 'interface':IEnumStr(tools.interpolation), 'value':'None'},
-                    {'name':"aspect", 'interface':IEnumStr(tools.aspect), 'value':'None'},
+                    {'name':"cmap", 'interface':IEnumStr(tools.cmaps.keys()), 'value':'jet'},
+                    {'name':"interpolation", 'interface':IEnumStr(tools.interpolations.keys()), 'value':'None'},
+                    {'name':"aspect", 'interface':IEnumStr(tools.aspects.keys()), 'value':'None'},
                     {'name':"alpha", 'interface':IFloat(0., 1., 0.01), 'value':1},
                     {'name':"vmin", 'interface':IFloat, 'value':None},
                     {'name':"vmax", 'interface':IFloat, 'value':None},
+                    {'name':'arrangment','interface':ITuple, 'value':(1,1)},
                     {'name':'kwargs','interface':IDict, 'value':{}},
         ]
         #norm is not implemented: use vmin/vmax instead
         Plotting.__init__(self, inputs)
-
+        self.add_output(name='output')
+        
+        
     def __call__(self, inputs):
-        from pylab import imshow, hold, cla, subplot, show
+        from pylab import imshow, hold, subplot, show
 
         self.figure()
-        self.axes()
+        #self.axes()
 
+        axes = []
         kwds = self.get_input('kwargs')
 
         X = self.get_input('image')
         if type(X)!=list:
             X = [X]
-        if self.get_input('cmap'):
-            kwds['cmap']=get_cmap(self.get_input('cmap'))
-        kwds['alpha'] = self.get_input('alpha')
-        kwds['vmin'] = self.get_input('vmin')
-        kwds['vmax'] = self.get_input('vmax')
-        if self.get_input('interpolation')!='None':
-            kwds['interpolation'] = self.get_input('interpolation')
-        if self.get_input('aspect')!='None':
-            kwds['aspect'] = self.get_input('aspect')
+            
+        cmap = self.get_input('cmap')
+        alpha = self.get_input('alpha')
+        vmin = self.get_input('vmin')
+        vmax = self.get_input('vmax')
+        print vmin, vmax
+        if vmin==vmax:
+            vmin = None
+            vmax = None
+        interpolation = tools.interpolations[self.get_input('interpolation')]
+        aspect = tools.aspects[self.get_input('aspect')]
 
+        #create the proper grid 
         try:
-            row = self.get_input('subplot')[0]
-            column = self.get_input('subplot')[1]
+            row = self.get_input('arrangment')[0]
+            column = self.get_input('arrangment')[1]
+            if row*column != len(X):
+                assert False
         except:
             from pylab import ceil, floor, sqrt
             row, column  = int(ceil(sqrt(len(X)))), int(floor(sqrt(len(X))))
             if row*column < len(X):
                 row, column  = int(ceil(sqrt(len(X)))), int(ceil(sqrt(len(X))))
             
+        print row, column
         count = 0
-        #assert len(X) == row * column, 'len(X)=%s and row*colum=%s' % (len(X), row*column)
-        hold(True)
         for r in range(1, row+1):
             for c in range(1, column+1):
                 count+=1
-                subplot(row,column,count)
-                try:
-                    imshow(X[count-1], **kwds)
-                    hold(True)
-                except:
-                    pass
-        #show()
-                self.properties()
-        hold(False)
-        return self.axes_shown
+                if count > len(X):
+                    break
+                axe = subplot(row,column,count)
+                axes.append(axe)
+               
+                im = imshow(X[count-1], cmap=cmap, interpolation=interpolation, 
+                                aspect=aspect, vmin=vmin, vmax=vmax,**kwds)
+                
+        self.properties()
+        return axes, im
 
     """
       *extent*: [ None | scalars (left, right, bottom, top) ]
@@ -1984,6 +2102,69 @@ class PyLabImshow(Plotting):
       visible: [True | False]         
       zorder: any number         
     """
+    
+    
+class PyLabColorBar(Node):
 
+    """ should include colornap and colorbar options"""
+    def __init__(self):
+
+        Node.__init__(self)
+        self.add_input(name='ax')
+        self.add_input(name='cax')
+        self.add_input(name='orientation', interface=IEnumStr(tools.orientations.keys()), value='vertical')
+        self.add_input(name='fraction', interface=IFloat(0.,1,0.01), value=0.15)
+        self.add_input(name='pad', interface=IFloat(0.,1,0.01), value=0.05)
+        self.add_input(name='shrink', interface=IFloat(0.,1,0.01), value=1)
+        self.add_input(name='aspect', interface=IFloat(1,100,0.01), value=20)
+        self.add_input(name='extend', interface=IEnumStr(tools.extends.keys()), value='neither')
+        self.add_input(name='spacing', interface=IEnumStr(tools.spacings.keys()), value='uniform')
+        self.add_input(name='ticks', interface=None, value=None)
+        self.add_input(name='format', interface=IStr, value=None)
+        self.add_input(name='drawedges', interface=IBool, value=False)
+        self.add_input(name='cmap', interface=IEnumStr(tools.cmaps.keys()), value='jet')
+        self.add_input(name='kwargs', interface=IDict, value={})
+        
+        self.add_output(name='axes')
+        self.add_output(name='output')
+        
+        self.colorbar = []
+
+    def __call__(self, inputs):
+        from pylab import colorbar, gcf
+        
+        # cleanup the colorbars
+        if len(self.colorbar) != 0:
+            for this_colorbar in self.colorbar:
+                f = this_colorbar.ax.get_figure()
+                f.delaxes(this_colorbar.ax)
+            self.colorbar = []
+            
+        ax = self.get_input('ax')
+        if type(ax) != list:
+            ax = [ax]
+        
+        cax = self.get_input('cax')
+        
+        kwds = {}
+        kwds['fraction'] = self.get_input('fraction')
+        kwds['orientation'] = self.get_input('orientation') #no need for dictionary conversion since key==value
+        kwds['pad'] = self.get_input('pad')
+        kwds['shrink'] = self.get_input('shrink')
+        kwds['aspect'] = self.get_input('aspect')
+        kwds['drawedges'] = self.get_input('drawedges')
+        #if len(self.get_input('ticks'))>0:
+        #    kwds['ticks'] = self.get_input('ticks')
+        kwds['format'] = self.get_input('format')
+        
+        cmap = self.get_input('cmap')
+
+        for this_ax in ax:
+            c = colorbar(ax=this_ax, cax=cax, cmap=cmap,**kwds)
+            self.colorbar.append(c)
+                
+        gcf().canvas.draw()
+        
+        return ax, self.colorbar
 
 

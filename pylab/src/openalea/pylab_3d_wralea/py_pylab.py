@@ -70,7 +70,6 @@ class PyLabPlot3D(Plotting):
         from pylab import cla,plot
         from mpl_toolkits.mplot3d import Axes3D
 
-        #first, we select the figure, we use subplot() that may be overwritten by axes()
         self.figure()
         self.axes()
         ax = Axes3D(self.fig)

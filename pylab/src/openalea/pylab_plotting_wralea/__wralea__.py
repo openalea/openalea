@@ -19,7 +19,8 @@ __icon__ = 'icon.png'
 
 __all__ = [
     'py_pylab_PyLabBoxPlot',
-    'py_pylab_PyLabPlot',
+    'py_pylab_PyLabPlot',  
+    'py_pylab_PyLabColorBar',
     'py_pylab_PyLabHist',
     'py_pylab_PyLabScatter',
     'py_pylab_PyLabAcorr',
@@ -48,6 +49,18 @@ __all__ = [
 
 
 
+
+py_pylab_PyLabColorBar = Factory(name='PyLabColorBar',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabColorBar',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
 
 
 

@@ -1,10 +1,29 @@
 """Some parameters"""
 
 
-scale = {'linear':'linear',
-    'log':'log',
-    'symlog':'symlog'}
+def build_dict(inputs, add_none=False):
+    output = {}
+    for this in inputs:
+        output[this] = this
+    if add_none:
+        output['None'] = None
+    
+    return output
 
+
+
+
+
+arrowstyles = build_dict(['-','->','-[','-|>','<-', '<->','<|-', '<|-|>', 'fancy', 'simple', 'wedge'])   
+boxstyles = build_dict(['round', 'round4', 'larrow','rarrow','roundtooth', 'sawtooth', 'square'])
+connectionstyles = build_dict(['angle', 'angle3','arc','arc3', 'bar'])
+ecs = {'none':'none','':''}
+extends = {'neither':'neither', 'both':'both',  'min':'min', 'max':'max' }
+fillstyles=['top','full','bottom','left','right']
+xycoords = build_dict(['figure points', 'figure pixels', 'figure fraction', 'axes points', 'axes pixels', 'axes fraction', 'data', 'offset points', 'polar'])
+which = build_dict(['major', 'minor', 'both'])
+spacings = { 'uniform':'uniform','proportional':'proportional'} 
+scale = {'linear':'linear', 'log':'log', 'symlog':'symlog'}
 ticks= {'auto':'auto', 'None':'None'}
 
 axis = {
@@ -17,13 +36,6 @@ axis = {
     'auto':'auto',
     'normal':'normal'
     }
-
-extends = {'neither':'neither',
-           'both':'both',
-           'min':'min',
-           'max':'max'           
-           }
-#sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
 
 detrends = {
@@ -139,28 +151,8 @@ for x in ['letter',
     'b5','b6','b7','b8','b9','b10']:
     papertypes[x] = x
     
-    
-arrowstyles={}
-for x in ['-','->','-[','-|>','<-', '<->','<|-', '<|-|>', 'fancy', 'simple', 'wedge']:
-    arrowstyles[x] = x
+            
 
-ecs = {'none':'none','':''}
-
-connectionstyles = {}
-for x in ['angle', 'angle3','arc','arc3', 'bar']:
-    connectionstyles[x]=x
-
-boxstyles = {}
-for x in ['round', 'round4', 'larrow','rarrow','roundtooth', 'sawtooth', 'square']:
-    boxstyles[x] = x
-
-xycoords = {}
-for x in ['figure points', 'figure pixels', 'figure fraction', 'axes points', 'axes pixels', 'axes fraction', 'data', 'offset points', 'polar']:
-    xycoords[x]=x
-
-which = {'major':'major','minor':'minor', 'both':'both'}
-        
-fillstyles=['top','full','bottom','left','right']
 
 locations = {
             'best' : 0,
@@ -192,11 +184,18 @@ cmaps['None'] = None
 angles = ['uv', 'xy']
 units= ['width','height','dots','inches','x','y']
 pivots = ['tail', 'middle', 'tip']
-interpolation = ['None', 'nearest', 'bilinear',
+
+
+interpolations = build_dict(['nearest', 'bilinear',
           'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
           'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-          'bessel', 'mitchell', 'sinc', 'lanczos']
-aspect = ['None', 'auto', 'equal']
+          'bessel', 'mitchell', 'sinc', 'lanczos'], add_none=True)
+    
+
+
+
+
+aspects = build_dict(['auto', 'equal'], add_none=True)
 colors =  {
            'blue':'b',
            'green':'g',
