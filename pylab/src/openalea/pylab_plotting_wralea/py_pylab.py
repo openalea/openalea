@@ -32,6 +32,7 @@ from openalea.pylab import tools
 
 
 
+
 class Plotting(Node):
     """This class provides common connector related to decorate a figure or axes.
 
@@ -196,9 +197,15 @@ class PlotxyInterface():
             from pylab import fill as plot
         elif plottype=='hist':
             from pylab import hist as plot
+        elif plottype=='polar':
+            from pylab import polar as plot
 
-        xinputs = self.get_input("x")
-        yinputs = self.get_input("y")
+        try:
+            xinputs = self.get_input("x")
+            yinputs = self.get_input("y")
+        except:
+            xinputs = self.get_input("theta")
+            yinputs = self.get_input("r")
 
         # convert x and y inputs into lists
         if xinputs == None:
@@ -239,7 +246,7 @@ class PlotxyInterface():
                         plot(x, **kwds)
                     except:
                         raise ValueError("plot failed")
-                    self.axe.hold(True)
+                    hold(True)
 
         else:
             if len(xinputs)==1 and len(yinputs)!=1:
@@ -254,8 +261,11 @@ class PlotxyInterface():
                     try:
                         plot(xinputs[0], y, **kwds)
                     except:
+                        print xinputs[0]
+                        print y
+                        print kwds
                         raise ValueError("plot failed")
-                    self.axe.hold(True)
+                    hold(True)
             else:
                 if len(xinputs)!=len(yinputs):
                     print 'warning more x inputs than y inputs. correct the connectors'
@@ -265,6 +275,9 @@ class PlotxyInterface():
                     try:
                         plot(x, y, **kwds)
                     except:
+                        print x
+                        print y
+                        print kwds
                         raise ValueError("plot failed")
         pass
 
@@ -686,7 +699,7 @@ class PyLabScatter(Plotting):
             {'name':"norm",   'interface':IFloat, 'value' : None},
             {'name':"vmin",   'interface':IFloat, 'value' : None},
             {'name':"vmax",   'interface':IFloat, 'value' : None},
-            {'name':"alpha",   'interface':IFloat, 'value' : 1},
+            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
             {'name':"faceted",   'interface':IBool, 'value' : True},
             {'name':"linewidths",    'interface':None,     'value' : None},
             {'name':"verts",    'interface':None,     'value' : None},
@@ -883,21 +896,49 @@ drawstyle=None,
 """
 
 
-class PyLabPolar(Node):
+class PyLabPolar(Plotting, PlotxyInterface):
 
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="r")
-        self.add_input(name="theta")
-        self.add_input(name="kwargs", interface = IDict, value = {})
-        self.add_output(name="figure")
-
+    def __init__(self):        
+        
+        PlotxyInterface.__init__(self)
+        inputs = [
+                  {'name':"theta"},
+                  {'name':"r"},
+                  {'name':"kwargs(line2d)", 'interface':IDict, 'value':{}}
+                  ]
+        Plotting.__init__(self, inputs)
+        self.add_output(name='output')
+        
     def __call__(self, inputs):
-        from pylab import polar, show
-        kwargs = self.get_input('kwargs')
-        fig = polar(self.get_input('r'), self.get_input('theta'), **kwargs)
-        show()
-        return (fig,)
+        from pylab import polar, gca, sca, cla
+        
+        self.figure()
+        #do not use that method that is not appropriate to a polar axe
+        #self.axes()
+        
+        kwds = {}
+        for key, value in self.get_input('kwargs(line2d)').iteritems():
+            kwds[key] = value
+        try:
+            del kwds['facecolor']
+        except:
+            pass
+        
+        if self.get_input('axes') is not None:
+            sca(self.get_input('axes'))
+            self.axe = gca()
+        else:
+            if self.axe != None:
+                sca(self.axe)
+                cla()
+            
+                
+        output = self.call('polar', kwds)
+        
+        self.axe = gca()
+        
+        self.properties()
+        return self.axe, output
 
 
 
@@ -1222,30 +1263,46 @@ class PyLabPcolor(Plotting):
 
     .. note:: pcolormesh is equivalent to pcolor. """
     def __init__(self):
-        self.inputs = []
-        self.inputs.append({'name': 'X', 'value':None})
-        self.inputs.append({'name': 'Y', 'value':None})
-        self.inputs.append({'name': 'Z', 'value':None})
-        self.inputs.append({'name':"cmap", 'interface':IStr, 'value':None})
+        Node.__init__(self)
+        inputs = [
+            {'name':"X"},
+            {'name':"Y"},
+            {'name':"Z"},            
+            {'name':'cmap', 'interface':IEnumStr(tools.cmaps.keys()), 'value':'jet'},
+            {'name':"norm", 'interface':None, 'value':None},                        
+            {'name':"vmin",   'interface':IFloat, 'value' : None},
+            {'name':"vmax",   'interface':IFloat, 'value' : None},
+            {'name':"alpha", 'interface':IFloat(0,1,0.1), 'value':1.0},
+            {'name':"shading",   'interface':IEnumStr(tools.shadings.keys()), 'value' : 'flat'},
+            {'name':"kwargs(polycollection)",    'interface':IDict,     'value' : {}},
+        ]
 
-
-        Plotting.__init__(self, self.inputs)
+        Plotting.__init__(self, inputs)
         self.add_output(name='output')
-        
+
     def __call__(self, inputs):
         from pylab import pcolor, cla
         self.figure()
         self.axes()
-        
+
         kwds = {}
         X = self.get_input('X')
         Y = self.get_input('Y')
         Z = self.get_input('Z')
-        
+        cmap = self.get_input('cmap')
+        norm = self.get_input('norm')
+        vmin = self.get_input('vmin')
+        vmax = self.get_input('vmax')
+        alpha = self.get_input('alpha')
+        shading = self.get_input('shading')
+        kwds = {}
+        for key, value in self.get_input('kwargs(polycollection)').iteritems():
+            kwds[key] = value
+
         if X is not None and Y is not None:
-            output = pcolor(X, Y, Z, **kwds)
+            output = pcolor(X, Y, Z, cmap=cmap, norm=norm, vmin=vmin, vmax=vmax, alpha=alpha, shading=shading, **kwds)
         elif Z is not None:
-            output = pcolor(Z, **kwds)
+            output = pcolor(Z, cmap=cmap, norm=norm, vmin=vmin, vmax=vmax, alpha=alpha, shading=shading, **kwds)
         else:
             raise ValueError('Z is compulsary. If X provided, Y must be provided as well.')
 

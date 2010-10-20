@@ -25,7 +25,7 @@ which = build_dict(['major', 'minor', 'both'])
 spacings = { 'uniform':'uniform','proportional':'proportional'} 
 scale = {'linear':'linear', 'log':'log', 'symlog':'symlog'}
 ticks= {'auto':'auto', 'None':'None'}
-
+shadings = build_dict(['flat', 'faceted'])
 axis = {
     'off':'off',
     'manual':'manual',
@@ -486,7 +486,7 @@ def get_kwds_from_line2d(line2d=None, input_kwds={}, type=None):
                     del kwds[x]
                 except:
                     pass
-    if type in ['csd', 'psd', 'step']:
+    if type in ['csd', 'psd', 'step', 'polar']:
         try:
             del kwds['facecolor']
         except:
@@ -555,3 +555,11 @@ class CustomizeAxes(object):
                 assert axe.__module__ in [matplotlib.axes.__name__,matplotlib.projections.polar.__name__], 'input must be a valid axes from matplotlib.axes %s given for %s' % (type(axes), axes)
             return axes
 
+
+
+parameters = {
+
+
+
+
+}
