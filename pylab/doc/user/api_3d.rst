@@ -25,6 +25,8 @@ Plots where x and y are 1-D arrays
 .. autosummary::
 
     PyLabPlot3D
+    PyLabContour3D
+    PyLabContourf3D
 
 
 Api 

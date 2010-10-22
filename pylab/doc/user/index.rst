@@ -211,3 +211,118 @@ Gallery
 
 .. |gallery_polar_df| image:: gallery_polar_df.png
    :width: 70%
+
+
+
+test
+========
+
+
+.. plot::
+    :include-source:
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    pm.init(verbose=False)
+    run_and_display(('openalea.pylab.test', 'cohere'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'contour'),{},pm=pm)
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'hexbin'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'boxplot'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'errorbar'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'mcontourf3d'),{},pm=pm)
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'plot'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'quiver'),{},pm=pm)
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'plot'),{},pm=pm)
+
+
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'Line2D and multi plot'),{},pm=pm)
+
+
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'SeveralAxesOnSameFigure'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'imshow'),{},pm=pm)
+
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'scatter and histograms'),{},pm=pm)
+
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'scatter demo'),{},pm=pm)
+
+
+
+
+
+
+
+
+
+
+
+
+

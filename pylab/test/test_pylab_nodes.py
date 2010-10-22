@@ -3,9 +3,9 @@ from openalea.core.alea import *
 pm = PackageManager()
 pm.init(verbose=False)
 
-test_names = ['acorr', 'boxplot', 'cohere', 'contour', 'csd', 'errorbar', 'fill', 'hexbin', 'hist', 'loglog', 'pcolor', 'pie',  'plot', 'polar', 'psd', 'quiver', 'scatter', 'specgram', 'stem', 'step']
+test_names = ['acorr', 'boxplot', 'cohere', 'colorbar', 'contour', 'csd', 'errorbar', 'fill', 'hexbin', 'hist', 'imshow', 'loglog', 'pcolor', 'pie',  'plot', 'polar', 'psd', 'quiver', 'scatter', 'specgram', 'stem', 'step', 'xcorr']
 
-demo_names = ['imshow', 'polar_demo','labels demo','cross spectral density and windowing','hexbin and colorbar','SeveralAxesOnSameFigure','pie demo','scatter and histograms','scatter demo','Line2D and multi plot','test_image.npy','fill_between','patches','plot demos']
+demo_names = ['polar_demo','labels demo','cross spectral density and windowing','hexbin and colorbar','SeveralAxesOnSameFigure','pie demo','scatter and histograms','scatter demo','Line2D and multi plot','test_image.npy','fill_between','patches','plot demos']
 
 
 datasets = ['PyLabBivariateNormal']

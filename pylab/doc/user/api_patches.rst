@@ -1,22 +1,8 @@
 Patches nodes
 ##################
 
-.. contents::
 .. sectionauthor:: Thomas Cokelaer
-.. moduleauthor:: Thomas Cokelaer
 .. currentmodule:: openalea.pylab_patches_wralea.py_pylab
-
-
-Overview
-========
-
-
-Here is a general overview of the relation between classes.
-
-.. inheritance-diagram:: openalea.pylab_patches_wralea.py_pylab
-       :parts: 1
-
-
 
 
 Patches related
@@ -27,7 +13,6 @@ Patches related
 ============================ =========================================
 ============================ =========================================
 :class:`PyLabAddPatches`     Assemble several patches into an axes
-
 ============================ =========================================
 
 
