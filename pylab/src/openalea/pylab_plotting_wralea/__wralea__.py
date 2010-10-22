@@ -24,6 +24,7 @@ __all__ = [
     'py_pylab_PyLabHist',
     'py_pylab_PyLabScatter',
     'py_pylab_PyLabAcorr',
+    'py_pylab_PyLabXcorr',
     'py_pylab_PyLabLine2D',
     'py_pylab_PyLabPolar',
     'py_pylab_PyLabPie',
@@ -122,6 +123,18 @@ py_pylab_PyLabScatter = Factory(name='PyLabScatter',
 
 
 
+py_pylab_PyLabXcorr = Factory(name='PyLabXcorr',
+                description='pylab.hist interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabXcorr',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+               )
+
+
 
 
 
@@ -134,7 +147,6 @@ py_pylab_PyLabAcorr = Factory(name='PyLabAcorr',
                 outputs=None,
                 widgetmodule=None,
                 widgetclass=None,
-                lazy=False
                )
 
 

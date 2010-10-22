@@ -470,13 +470,19 @@ class PyLabSaveFig(Node):
         kwds['edgecolor']= self.get_input('edgecolor')
         kwds['orientation']=self.get_input('orientation')
         kwds['papertype']=self.get_input('papertype')
-        kwds['format']=extensions[self.get_input('format')]
+        kwds['format']=tools.extensions[self.get_input('format')]
         kwds['transparent']=self.get_input('transparent')
         savefig(self.get_input('fname'), **kwds)
 
 
 class PyLabShow(Node):
-
+    """This node simply calls pylab.show(), which may be useful sometimes.
+    
+    The input and output connectors are not used by the function itself. There 
+    are present to allow this node to be used in a dataflow. Therefore the
+    output is simply set to be the input parameter.    
+    
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='dummy')

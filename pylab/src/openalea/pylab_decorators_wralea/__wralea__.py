@@ -2,17 +2,18 @@
 # This file has been generated at Sat Mar  6 21:17:54 2010
 
 from openalea.core import Factory
+from openalea.pylab import version, authors
 
 
 __name__ = 'openalea.pylab.Axes decorators'
 
 __editable__ = False
-__description__ = 'pylab text, fonts and colors.'
+__description__ = 'Utilities to manipulate axes or add components on them.'
 __license__ = 'CECILL-C'
 __url__ = 'http://openalea.gforge.inria.fr/doc/openalea/pylab/doc/_build/html/contents.html'
 __alias__ = []
-__version__ = '0.8.0'
-__authors__ = 'Thomas Cokelaer'
+__version__ = version
+__authors__ = authors
 __institutes__ = 'INRIA/CIRAD'
 __icon__ = 'icon.png'
 
@@ -35,16 +36,14 @@ __all__ = [
 'py_pylab_PyLabSaveFig',
 'py_pylab_PyLabAxesDecorator',
 'py_pylab_PyLabShow',
-
 'py_pylab_PyLabTextOptions',
 'py_pylab_PyLabColorMap',
-'py_pylab_PyLabOrigin',
 'py_pylab_PyLabBox',
 ]
 
 
 py_pylab_PyLabShow = Factory(name='PyLabShow',
-                description='calls pylab.show',
+                description='calls pylab.show()',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabShow',

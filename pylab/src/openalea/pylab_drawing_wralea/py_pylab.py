@@ -239,8 +239,18 @@ class PyLabAxhline(Node,CustomizeAxes):
     :param *kwargs or Line2D*: connect a Line2D object (optional)
 
     :returns: pylab.axhline output
+    
+    .. seealso:: in VisuAlea, see pylab/test/boxplot composite node.
+
+    .. plot::
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'axhline'),{},pm=pm)
+    
+    
     :author: Thomas Cokelaer
-    .. todo:: should include colormap and colorbar options
+    
 
     """
     def __init__(self):
