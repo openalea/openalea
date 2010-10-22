@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'numpyext.only_directives',
     'matplotlib.sphinxext.plot_directive',
+    'openalea.misc.dataflow_directive',
     #'numpyext.numpydoc',
     #'numpyext.plot_directive',
     ]
@@ -274,6 +275,6 @@ intersphinx_mapping = {'http://docs.python.org/': None,
                        'http://openalea.gforge.inria.fr/doc/openalea/stdlib/doc/_build/html': None,
                        'http://openalea.gforge.inria.fr/doc/vplants/stat_tool/doc/_build/html': None,
                        'http://openalea.gforge.inria.fr/doc/vplants/sequence_analysis/doc/_build/html': None,
-
-
                     }
+
+
