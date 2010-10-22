@@ -13,7 +13,7 @@
 #
 ###############################################################################
 
-__doc__="""pylab plotting nodes"""
+__doc__="""Pylab plotting nodes for VisuAlea"""
 __revision__ = " $Revision$ "
 __author__ = "$Author$"
 __date__ = "$Date$"
@@ -30,16 +30,17 @@ from openalea.pylab import tools
 
 
 class Plotting(Node):
-    """This class provides common connector related to decorate a figure or axes.
+    """This class provides common connector to plotting nodes that are defined in this module.
 
-    It is a base class to all Plotting nodes so that they inherits from the Node class,
-    and get common connectors:
+    Classes that inherits from `Plotting` are ensured to inherits from `Node` and to have a common 
+    API where :
 
-        * label
-        * colorbar
+        * the first input connector is reserved for connecting a pylab axes
+        * the first output connector is reserved for connecting a pylab axes
+        * the last input connector is reseverd to set the pylab.figure number
 
+    It also provides several methods that check validity of input axes, update the figure and so on.
 
-    It also guarantee to have at least 1 output defined within each Plotting nodes.
 
     """
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
@@ -47,9 +48,6 @@ class Plotting(Node):
 
     def __init__(self,  inputs={}):
         Node.__init__(self)
-        self._title = None
-        self._ylabel = None
-        self._xlabel = None
         self.axe = None
         self.fig = None
 
@@ -58,16 +56,22 @@ class Plotting(Node):
             self.add_input(**input)
 
         self.add_input(name="figure", interface=IInt(1,100,1), value=1)
-
         self.add_output(name='axes')
 
     def figure(self):
-        """call figure()"""
+        """calls pylab.figure() taking care of existing figure
+
+
+        If a node is executed for the first time, the figure object is stored. This is
+        useful in cases where thre user kills the figure manually. In such case, 
+        we clean the axes that are left in memory before creating a new figure.
+
+
+         """
         from pylab import figure
         assert type(self.get_input('figure')) == int
         if self.fig == None:
             fig = figure(self.get_input('figure'))
-            #print 'new figure created ', self.get_input('figure')
             self.fig = fig
         else:
             fig = figure(self.get_input('figure'))
@@ -84,14 +88,14 @@ class Plotting(Node):
 
         return self.fig
 
-    #def legend(self):
-    #    args = self.get_input('legend')
-    #    if type(args)==bool:
-    #        if args:
-    #            self.axe.legend()
-    #    else:
-    #        self.axe.legend(**args)
     def axes(self):
+        """If no axes is connected to the first input connector, this method checks if an 
+        axes was already created. If so, we clean it otherwise, we create a new one.
+
+        If an axes is provided, the current axe is the input one. Therefore the input axe is used 
+        to superimpose new data. 
+
+        """
         #sometimes, we want to add data to existing axe provided as an input argument. In such case, we do not want to clean
         # the axe and create a new one.
         if self.get_input('axes') != None:
@@ -106,8 +110,6 @@ class Plotting(Node):
         if self.axe:
             from pylab import sca, cla
             print 'No input axe, but axes already set. Clear it. %s' % self.axe, self.axe.__str__
-            #set the current axe to be axe of the node currently run
-            #sca(self.axe)
             self.axe.clear()
             self.axe.get_figure().canvas.draw()
             sca(self.axe)
@@ -119,9 +121,8 @@ class Plotting(Node):
             self.axe = self.fig.add_axes([.1,.1,.8,.8], label=label)
 
 
-    def properties(self):
-        """This is an alias method that calls legend, title, xlabel, ylabel,
-        grid, colorbar and show"""
+    def update_figure(self):
+        """This method updates the figure using pylab.figure.canvas.draw and pylab.show methods"""
         #self.legend()
         self.fig.canvas.draw()
         self.fig.show()
@@ -132,7 +133,7 @@ class Plotting(Node):
 class PlotxyInterface():
     """A base class common to some plotting functions
 
-    The plotting functions that uses this base class are:
+    The plotting functions that uses this base class are those that plot 2D curves (xy). For instance:
 
         * plot
         * loglog
@@ -142,17 +143,12 @@ class PlotxyInterface():
         * step
         * fill
 
-    They are plotting x data or x verus y data.
+    This is used to manage the different possible x and y inputs. See :class:`PyLabPlot` for more explanation.
 
-    This is used to manage the different possible x and y inputs.
-
-    See :class:`PyLabPlot` for more explanation.
-
-    It inherits from :class:`Colors`, :class:`LineStyles` and :class:`Markers` so that if there are
-    several inputs a basic combination of different colors and line styles are used.
-
-    For more tunable colors and line styles, use the :class:`Line2D` convertor before passing
+    For more tunable colors and linestyles, use the :class:`Line2D` convertor before passing
     the data to a node.
+
+    This class provides a method :meth:`call` that manage the inputs data and arguments smoothly.
 
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
@@ -264,14 +260,10 @@ class PlotxyInterface():
             else:
                 if len(xinputs)!=len(yinputs):
                     print 'warning more x inputs than y inputs. correct the connectors'
-                # plot([x1,x2], [y1,y2])
-                # plot([x1], [y1])
                 for x,y in zip(xinputs, yinputs):
                     try:
                         output = plot(x, y, **kwds)
                     except:
-                        #print x
-                        #print y
                         #print kwds
                         raise ValueError("plot failed")
         return output
@@ -340,9 +332,9 @@ class PyLabPlot(Plotting, PlotxyInterface):
                     {'name':'color',      'interface':IEnumStr(tools.colors.keys()),   'value':'blue'},
                     {'name':'scalex',     'interface':IBool, 'value':True},
                     {'name':'scaley',     'interface':IBool, 'value':True},
+                    {'name':'kwargs',     'interface':IDict, 'value':{'label':None}},
         ]
         Plotting.__init__(self, inputs)
-        self.add_input(name='kwargs', interface=IDict, value={'label':None})
         self.add_output(name="output")
 
     def __call__(self, inputs):
@@ -360,7 +352,7 @@ class PyLabPlot(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         output = self.call('plot', kwds)
-        self.properties()
+        self.update_figure()
 
         return self.axe, output
 
@@ -428,7 +420,7 @@ class PyLabLogLog(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         self.call('loglog', kwds)
-        self.properties()
+        self.update_figure()
 
         return self.axe, None
 
@@ -491,7 +483,7 @@ class PyLabSemiLogy(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         self.call('semilogy', kwds)
-        self.properties()
+        self.update_figure()
 
         return self.axe, None
 
@@ -555,7 +547,7 @@ class PyLabSemiLogx(Plotting, PlotxyInterface):
         self.figure()
         self.axes()
         self.call('semilogx', kwds)
-        self.properties()
+        self.update_figure()
 
         return self.axe, None
 
@@ -581,7 +573,7 @@ class PyLabHist(Plotting):
         * The first connector is the current axe.
         * The second connector is the output of pylab.hist that is a tuple (lags, c, linecol, b)
 
-    .. dataflow:: openalea.pylab.test hist2
+    .. dataflow:: openalea.pylab.test hist
         :width: 50%
 
         **The `openalea.pylab.test.hist` dataflow.**
@@ -591,7 +583,7 @@ class PyLabHist(Plotting):
 
         from openalea.core.alea import *
         pm = PackageManager()
-        run_and_display(('openalea.pylab.test', 'hist2'),{},pm=pm)
+        run_and_display(('openalea.pylab.test', 'hist'),{},pm=pm)
 
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
@@ -655,7 +647,7 @@ class PyLabHist(Plotting):
             raise ValueError('tttt')
 
         hold(False)
-        self.properties()
+        self.update_figure()
         return (self.axe,res, res[1],res[0])
 
 
@@ -748,7 +740,7 @@ class PyLabAcorr(Plotting):
             for key,value in self.get_input('kwargs(line2d)').iteritems():
                 kwds[key] = value
 
-        print kwds
+        #print kwds
         kwds['maxlags'] = self.get_input("maxlags")
         kwds['normed'] = self.get_input("normed")
         kwds['usevlines'] = self.get_input("usevlines")
@@ -761,11 +753,10 @@ class PyLabAcorr(Plotting):
 
         #line2dkwds = get_kwds_from_line2d(x, self.get_input('kwargs'), type='linecollection')
         #returns the processed data ?
-        print 'hthere'
         for x in xinputs:
             res =  acorr(x, **kwds)
             hold(True)
-        self.properties()
+        self.update_figure()
 
 
         return self.get_input('axes'), res
@@ -864,7 +855,6 @@ class PyLabXcorr(Plotting):
             for key,value in self.get_input('kwargs(line2d)').iteritems():
                 kwds[key] = value
 
-        print kwds
         kwds['maxlags'] = self.get_input("maxlags")
         kwds['normed'] = self.get_input("normed")
         kwds['usevlines'] = self.get_input("usevlines")
@@ -881,11 +871,10 @@ class PyLabXcorr(Plotting):
 
         #line2dkwds = get_kwds_from_line2d(x, self.get_input('kwargs'), type='linecollection')
         #returns the processed data ?
-        print 'hthere'
         for x, y in zip(xinputs,yinputs):
             res =  xcorr(x, y, **kwds)
             hold(True)
-        self.properties()
+        self.update_figure()
 
 
         return self.get_input('axes'), res
@@ -907,7 +896,10 @@ class PyLabScatter(Plotting):
     :param title: none by default
     :param figure: figure number
 
-    :return: the axes object
+    :returns:
+
+        - The first connector is the current axe.
+        - The second connector is the output of pylab.scatter
 
     .. todo:: deal with several multiple x-y data sets (e.g., line 2D?)
 
@@ -984,7 +976,7 @@ class PyLabScatter(Plotting):
                 marker=marker,norm=norm, vmin=vmin,vmax=vmax,
                 alpha=alpha, cmap=cmap, faceted=faceted, linewidths=linewidths,
                 verts=verts)
-        self.properties()
+        self.update_figure()
 
 
         return self.axe, res
@@ -1061,12 +1053,29 @@ class PyLabBoxPlot(Plotting):
                 bootstrap =self.get_input('bootstrap'),
                 patch_artist =self.get_input('patch_artist'),
                 )
-        self.properties()
+        self.update_figure()
         return self.get_input('axes'), res
 
 
 class PyLabLine2D(Node):
-    """todo
+    """Convert x and y inputs into a pylab.Line2D objects.
+
+    :param xdata: a x array
+    :param ydata: a y array of same length as x
+    :param linestyle: a valid pylab linestyle
+    :param color: a valid pylab color
+    :param marker: a valid pylab marker
+    :param markersize:
+    :param markeredgewidth:
+    :param markercolor:
+    :param linewidth:
+    :param fillstyle:
+    :param label: a label that will be used when legend() is called
+    :param alpha: transparency
+    :param kwargs: all other valid Line2D properties (key/value)
+
+    :return: a Line2D object that can be connected to some of the OpenAlea.PyLab nodes.
+
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
@@ -1119,7 +1128,7 @@ class PyLabLine2D(Node):
 
 
 class PyLabPolar(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.polar for details.
     :Example:
 
     .. dataflow:: openalea.pylab.test polar
@@ -1175,13 +1184,30 @@ class PyLabPolar(Plotting, PlotxyInterface):
 
         self.axe = gca()
 
-        self.properties()
+        self.update_figure()
         return self.axe, output
 
 
 
 class PyLabPie(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.pie for details.
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test pie
+        :width: 50%
+
+        **The `openalea.pylab.test.pie` dataflow.**
+
+    .. plot::
+        :width: 50%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'pie'),{},pm=pm )
+
+
+
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
@@ -1217,7 +1243,7 @@ class PyLabPie(Plotting):
 
         res = self.axe.pie(self.get_input('x'), **kwds)
 
-        self.properties()
+        self.update_figure()
         return self.axe, res
 
 
@@ -1253,9 +1279,6 @@ class PyLabBar(Plotting):
         res = None
         if type(left[0])==float:
             width = left[1] - left[0]
-            print width
-            print left
-            print height
             res = bar(left[1:], height, width=width)
         else:
             c = enumerate(tools.colors)
@@ -1265,7 +1288,7 @@ class PyLabBar(Plotting):
                 width=0.1
                 res = bar(x[1:],y, width=width, color=color[1], alpha=0.5)
                 hold(True)
-        self.properties()
+        self.update_figure()
 
         return self.axe, res
 
@@ -1374,7 +1397,6 @@ class PyLabCohere(Plotting):
                             del line2dkwds[this]
                         except:
                             pass
-                    print line2dkwds
                     #returns the processed data ?
                     cxy, freq = cohere(x.get_xdata(orig=False), x.get_ydata(orig=False),
                                        NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
@@ -1382,7 +1404,7 @@ class PyLabCohere(Plotting):
                                sides=sides, **line2dkwds)
                     hold(True)
 
-        self.properties()
+        self.update_figure()
         return self.get_input('axes'), (cxy, freq)
 
 
@@ -1487,16 +1509,15 @@ class PyLabHexBin(Plotting):
                         mincnt=mincnt,
                         **kwds)
 
-        self.properties()
+        self.update_figure()
         return self.axe, output
 
 
 class PyLabCLabel(Node):
-    """See pylab.boxplot help for detailed help.
+    """This is used by PyLabContour to set the label of isocontours
 
-
-
-     .. todo:: tohis documentation"""
+    .. seealso:: PyLabContour
+    """
 
     def __init__(self):
         Node.__init__(self)
@@ -1547,7 +1568,7 @@ class PyLabCLabel(Node):
 
 #class PyLabPcolormesh(Plotting, PcolorInterface): is exactly the same as pcolor but the color optio does not exist.
 class PyLabPcolor(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.pcolor for details
 
     :Example:
 
@@ -1613,14 +1634,14 @@ class PyLabPcolor(Plotting):
         else:
             raise ValueError('Z is compulsary. If X provided, Y must be provided as well.')
 
-        self.properties()
+        self.update_figure()
         return self.axe, output
 
 
 
 
 class PyLabContour(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.contour for details.
 
     :Example:
 
@@ -1749,7 +1770,7 @@ class PyLabContour(Plotting):
 
         from pylab import  gca
         gca().get_figure().canvas.draw()
-        self.properties()
+        self.update_figure()
         return self.get_input('axes'), CS
 
 
@@ -1827,7 +1848,6 @@ class PyLabPsd(Plotting):
         else:
             for key,value in self.get_input('kwargs(line2d)').iteritems():
                 kwds[key] = value
-        print kwds
         for this in ['axes', 'children', 'path','data','ydata','xdata',
                      'xydata','transformed_clip_path_and_affine', 'transform' ]:
             try:
@@ -1861,12 +1881,12 @@ class PyLabPsd(Plotting):
                   sides=sides, scale_by_freq=scale_by_freq, **kwds)
 
 
-        self.properties()
+        self.update_figure()
         return self.axe, res
 
 
 class PyLabCsd(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.csd for details
 
 
     VisuAlea version of pylab.csd
@@ -1940,7 +1960,6 @@ class PyLabCsd(Plotting):
         else:
             for key,value in self.get_input('kwargs(line2d)').iteritems():
                 kwds[key] = value
-        print kwds
         for this in ['axes', 'children', 'path','data','ydata','xdata',
                      'xydata','transformed_clip_path_and_affine', 'transform' ]:
             try:
@@ -1974,17 +1993,17 @@ class PyLabCsd(Plotting):
                   sides=sides, scale_by_freq=scale_by_freq, **kwds)
 
 
-        self.properties()
+        self.update_figure()
         return self.axe, res
 
 
 
 
 class PyLabSpecgram(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.specgram for details.
 
 
-    VisuAlea version of pylab.psd
+    VisuAlea version of pylab.specgram
 
     :param x: the signal to analyse (a 1D- array)
     :param NFFT: The number of data points used in each block for
@@ -2083,12 +2102,12 @@ class PyLabSpecgram(Plotting):
                                window=window, noverlap=noverlap, pad_to=pad_to,
                                sides=sides, cmap=cmap,**kwds)
 
-        self.properties()
+        self.update_figure()
         return self.axe, res
 
 
 class PyLabStem(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.stem for details.
 
     VisuAlea version of pylab.stem
 
@@ -2144,12 +2163,12 @@ class PyLabStem(Plotting, PlotxyInterface):
         kwds['basefmt'] = tools.colors[self.get_input('base_color')]+ tools.linestyles[self.get_input('base_style')]
         kwds['linefmt'] = tools.colors[self.get_input('line_color')]+ tools.linestyles[self.get_input('line_style')]
         c = self.call('stem', kwds)
-        self.properties()
+        self.update_figure()
         return self.axe, c
 
 
 class PyLabStep(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.step for details.
 
     VisuAlea version of pylab.step
 
@@ -2208,7 +2227,7 @@ class PyLabStep(Plotting, PlotxyInterface):
         #todo add kwargs
         c = self.call('step', kwds)
         gcf().canvas.draw()
-        self.properties()
+        self.update_figure()
 
         return self.axe, c
 
@@ -2216,7 +2235,7 @@ class PyLabStep(Plotting, PlotxyInterface):
 
 
 class PyLabQuiver(Plotting):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.quiver for details.
 
 
     :Example:
@@ -2292,12 +2311,12 @@ class PyLabQuiver(Plotting):
         else:
             raise SyntaxError('Wrong usage. See documentation. ')
 
-        self.properties()
+        self.update_figure()
         return self.axe, c
 
 
 class PyLabFill(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.fill for details.
 
 
 
@@ -2350,12 +2369,12 @@ class PyLabFill(Plotting, PlotxyInterface):
 
         c = self.call('fill', kwds)
 
-        self.properties()
+        self.update_figure()
         return self.axe, c
 
 
 class PyLabFillBetween(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.fillbetween for details.
 
 
 
@@ -2419,7 +2438,7 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
 
         c = self.axe.fill_between(x, y1, y2, where=where, interpolate=interpolate, **kwds)
 
-        self.properties()
+        self.update_figure()
         return self.axe, c
 
 
@@ -2429,7 +2448,7 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
 
 
 class PyLabErrorBar(Plotting, PlotxyInterface):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.errorbar for details.
 
     :param x: 1D array
     :param y: 1D array
@@ -2495,14 +2514,12 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
 
         if type(self.get_input('kwargs(line2d)')) == Line2D:
             kwds = tools.line2d2kwds(self.get_input('kwargs(line2d)'))
-            print kwds
             for this in ['axes', 'children',  'path', 'data', 'xdata', 'ydata',
                          'xydata','transform', 'transformed_clip_path_and_affine',]:
                     try:
                         del kwds[this]
                     except:
                         pass
-            print kwds
         else:
             kwds = self.get_input('kwargs(line2d)')
 
@@ -2525,7 +2542,7 @@ class PyLabErrorBar(Plotting, PlotxyInterface):
                      capsize=capsize, uplims=uplims, lolims=lolims,
                      xuplims = xuplims, xlolims=xlolims, **kwds)
 
-        self.properties()
+        self.update_figure()
         return self.get_input('axes'), c
 
 
@@ -2629,7 +2646,6 @@ class PyLabImshow(Plotting):
         alpha = self.get_input('alpha')
         vmin = self.get_input('vmin')
         vmax = self.get_input('vmax')
-        print vmin, vmax
         if vmin==vmax:
             vmin = None
             vmax = None
@@ -2648,7 +2664,6 @@ class PyLabImshow(Plotting):
             if row*column < len(X):
                 row, column  = int(ceil(sqrt(len(X)))), int(ceil(sqrt(len(X))))
 
-        print row, column
         count = 0
         for r in range(1, row+1):
             for c in range(1, column+1):
@@ -2661,7 +2676,7 @@ class PyLabImshow(Plotting):
                 im = imshow(X[count-1], cmap=cmap, interpolation=interpolation,
                                 aspect=aspect, vmin=vmin, vmax=vmax,**kwds)
 
-        self.properties()
+        self.update_figure()
         return axes, im
 
     """
@@ -2687,7 +2702,7 @@ class PyLabImshow(Plotting):
 
 
 class PyLabColorBar(Node):
-    """See pylab.boxplot help for detailed help.
+    """See pylab.colorbar for details
 
     :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
 

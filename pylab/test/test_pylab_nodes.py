@@ -5,7 +5,7 @@ pm.init(verbose=False)
 
 test_names = ['acorr', 'boxplot', 'cohere', 'colorbar', 'contour', 'csd', 'errorbar', 'fill', 'hexbin', 'hist', 'imshow', 'loglog', 'pcolor', 'pie',  'plot', 'polar', 'psd', 'quiver', 'scatter', 'specgram', 'stem', 'step', 'xcorr']
 
-demo_names = ['polar_demo','labels demo','cross spectral density and windowing','hexbin and colorbar','SeveralAxesOnSameFigure','pie demo','scatter and histograms','scatter demo','Line2D and multi plot','test_image.npy','fill_between','patches','plot demos']
+demo_names = ['polar_demo','labels_demo','cross_spectral_density_windowing','hexbin_and_colorbar','SeveralAxesOnSameFigure','pie_demo','scatter_and_histograms','scatter_demo','Line2D_and_multiplots','test_image.npy','fill_between','patches','plot_demos']
 
 
 datasets = ['PyLabBivariateNormal']

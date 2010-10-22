@@ -49,11 +49,20 @@ class PyLabPlot3D(Plotting):
 
     .. todo:: a mechanism of line3d for full customisation + allow several xyz entries
   
+    :Example:
+
+    .. dataflow:: openalea.pylab.test mplot3d
+        :width: 50%
+
+        **The `openalea.pylab.test.mplot3d` dataflow.**
+
     .. plot::
+        :width: 50%
 
         from openalea.core.alea import *
         pm = PackageManager()
-        run_and_display(('openalea.pylab.test', 'mplot3d'),{},pm=pm)
+        run_and_display(('openalea.pylab.test', 'mplot3d'),{},pm=pm )
+
     """
     def __init__(self):
         inputs = [
@@ -85,20 +94,26 @@ class PyLabPlot3D(Plotting):
         z = self.get_input('z')
         ax.plot(x,y,z, **kwds)
 
-        self.properties()
+        self.update_figure()
         return ax
 
 
 class PyLabContour3D(Plotting):
     """not for production!! For testing and showing contour3d possibilities.
     
-    
+    :Example:
+
+    .. dataflow:: openalea.pylab.test mcontour3d
+        :width: 50%
+
+        **The `openalea.pylab.test.mcontour3d` dataflow.**
+
     .. plot::
+        :width: 50%
 
         from openalea.core.alea import *
         pm = PackageManager()
-        run_and_display(('openalea.pylab.test', 'mcontour3d'),{},pm=pm)
-        
+        run_and_display(('openalea.pylab.test', 'mcontour3d'),{},pm=pm )
     """
     def __init__(self):
         inputs = [
@@ -122,14 +137,22 @@ class PyLabContour3D(Plotting):
         z = self.get_input('z')
         ax.contour(x,y,z, **kwds)
 
-        self.properties()
+        self.update_figure()
         return ax
 
 class PyLabContourf3D(Plotting):
     """not for production!! For testing and showing contour3d possibilities.
-    
-    
+
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test mcontourf3d
+        :width: 50%
+
+        **The `openalea.pylab.test.mcontourf3d` dataflow.**
+
     .. plot::
+        :width: 50%
 
         from openalea.core.alea import *
         pm = PackageManager()
@@ -158,5 +181,5 @@ class PyLabContourf3D(Plotting):
         z = self.get_input('z')
         ax.contourf(x,y,z, **kwds)
 
-        self.properties()
+        self.update_figure()
         return ax

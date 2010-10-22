@@ -25,28 +25,20 @@ __revision__=" $Id$ "
 
 from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
-    ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict, ITuple 
+    ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict, ITuple
 
 import pylab
 from openalea.core.external import add_docstring
 from openalea.pylab import tools
 from openalea.pylab.tools import CustomizeAxes
 
-
-
-
-
-
-
-
-
 class PyLabFancyArrowPatch(Node):
 
     def __init__(self):
         Node.__init__(self)
-        
+
         self.get_input('axes')
-        
+
         self.add_input(name='arrowstyle', interface=IEnumStr(tools.arrowstyles.keys()), value='simple')
         self.add_input(name='connectionstyle', interface=IEnumStr(tools.connectionstyles.keys()), value='arc3')
         self.add_input(name='relpos', interface=ITuple, value=(0.5,0.5))
@@ -58,7 +50,7 @@ class PyLabFancyArrowPatch(Node):
         self.add_input(name='mutation_aspect', interface=IFloat, value=1)
         self.add_input(name='pathPatch', interface=IDict, value=None)
         #todo for connection style, connectionstyle="angle,angleA=0,angleB=-90,rad=10"
-        #todo for arrowstyle:head_length=0.4,head_width=0.2 tail_width=0.3,shrink_factor=0.5 
+        #todo for arrowstyle:head_length=0.4,head_width=0.2 tail_width=0.3,shrink_factor=0.5
         self.add_output(name='axes')
 
     def __call__(self, inputs):
@@ -73,7 +65,7 @@ class PyLabFancyArrowPatch(Node):
 
 class PyLabYAArowDict(Node):
     """
-    
+
     to be used as an input dictionary by Annotate node for instance
     """
     # do not call the class but use its args and kwrags for others like BBox
@@ -88,27 +80,27 @@ class PyLabYAArowDict(Node):
         self.add_input(name='kwargs', interface=IDict, value={})
         self.add_output(name='output', interface=IDict, value = {})
     """
-      animated: [True | False]         
-      antialiased or aa: [True | False]  or None for default         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      contains: a callable function         
-      edgecolor or ec: mpl color spec, or None for default, or 'none' for no color         
-      facecolor or fc: mpl color spec, or None for default, or 'none' for no color         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      fill: [True | False]         
-      gid: an id string         
-      hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]         
-      label: any string         
-      linestyle or ls: ['solid' | 'dashed' | 'dashdot' | 'dotted']         
-      linewidth or lw: float or None for default         
-      lod: [True | False]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
+      animated: [True | False]
+      antialiased or aa: [True | False]  or None for default
+      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]
+      contains: a callable function
+      edgecolor or ec: mpl color spec, or None for default, or 'none' for no color
+      facecolor or fc: mpl color spec, or None for default, or 'none' for no color
+      figure: a :class:`matplotlib.figure.Figure` instance
+      fill: [True | False]
+      gid: an id string
+      hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+      label: any string
+      linestyle or ls: ['solid' | 'dashed' | 'dashdot' | 'dotted']
+      linewidth or lw: float or None for default
+      lod: [True | False]
+      picker: [None|float|boolean|callable]
+      rasterized: [True | False | None]
       snap: unknown
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      visible: [True | False]         
-      zorder: any number         
+      transform: :class:`~matplotlib.transforms.Transform` instance
+      url: a url string
+      visible: [True | False]
+      zorder: any number
     """
 
     def __call__(self, inputs):
@@ -135,26 +127,26 @@ class PyLabBBox(Node):
         kwds = {}
         kwds['boxstyle'] = self.get_input('boxstyle') + ',pad='+str(self.get_input('pad'))
         kwds['fc'] = str(self.get_input('fc'))
-        return kwds 
+        return kwds
 
 class PyLabAnnotate(Node):
     """ call annotate method of the current axe
-    
+
     :param axes:
-    :param text: 
+    :param text:
     :param xy: a tuple to set the xy coordinates of the arrow
     :param xytext: a tuple to set the xy coordinates of the text
     :param xycoords: type of coordinates used to place xy tuple
     :param xytext: type of coordinates used to place xytext tuple
     :param arrowprops: could be a YAArrow or FancyArrowPatch dictionary.
     :param kwargs:
-    
+
     """
     def __init__(self):
         Node.__init__(self)
-        
+
         self.add_input(name='axes')
-        
+
         self.add_input(name='text', interface=IStr, value=None)
         self.add_input(name='xy', interface=ITuple, value=(0,0))
         self.add_input(name='xytext', interface=ITuple, value=None)
@@ -166,42 +158,42 @@ class PyLabAnnotate(Node):
         self.add_output(name='output')
 
     """
-alpha: float (0.0 transparent through 1.0 opaque)         
-      animated: [True | False]         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      backgroundcolor: any matplotlib color         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: any matplotlib color         
-      contains: a callable function         
-      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      fontproperties or font_properties: a :class:`matplotlib.font_manager.FontProperties` instance         
-      gid: an id string         
-      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]         
-      label: any string         
-      linespacing: float (multiple of font size)         
-      lod: [True | False]         
-      multialignment: ['left' | 'right' | 'center' ]         
-      picker: [None|float|boolean|callable]         
-      position: (x,y)         
-      rasterized: [True | False | None]         
-      rotation: [ angle in degrees | 'vertical' | 'horizontal' ]         
+alpha: float (0.0 transparent through 1.0 opaque)
+      animated: [True | False]
+      axes: an :class:`~matplotlib.axes.Axes` instance
+      backgroundcolor: any matplotlib color
+      clip_box: a :class:`matplotlib.transforms.Bbox` instance
+      clip_on: [True | False]
+      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]
+      color: any matplotlib color
+      contains: a callable function
+      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
+      figure: a :class:`matplotlib.figure.Figure` instance
+      fontproperties or font_properties: a :class:`matplotlib.font_manager.FontProperties` instance
+      gid: an id string
+      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
+      label: any string
+      linespacing: float (multiple of font size)
+      lod: [True | False]
+      multialignment: ['left' | 'right' | 'center' ]
+      picker: [None|float|boolean|callable]
+      position: (x,y)
+      rasterized: [True | False | None]
+      rotation: [ angle in degrees | 'vertical' | 'horizontal' ]
       rotation_mode: unknown
-      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]         
+      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
       snap: unknown
  snap: unknown
-      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]         
-      style or fontstyle: [ 'normal' | 'italic' | 'oblique']         
-      text: string or anything printable with '%s' conversion.         
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      variant or fontvariant: [ 'normal' | 'small-caps' ]         
-      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]         
-      visible: [True | False]         
-      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]         
-      zorder: any number         
+      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]
+      style or fontstyle: [ 'normal' | 'italic' | 'oblique']
+      text: string or anything printable with '%s' conversion.
+      transform: :class:`~matplotlib.transforms.Transform` instance
+      url: a url string
+      variant or fontvariant: [ 'normal' | 'small-caps' ]
+      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]
+      visible: [True | False]
+      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]
+      zorder: any number
     """
 
 
@@ -216,18 +208,18 @@ alpha: float (0.0 transparent through 1.0 opaque)
         textcoords = self.get_input('textcoords')
 
         axe = gca()
-        axe.annotate(s, xy, xytext, xycoords=xycoords, 
-                 textcoords=textcoords, 
+        axe.annotate(s, xy, xytext, xycoords=xycoords,
+                 textcoords=textcoords,
                  arrowprops=self.get_input('arrowprops'), **kwds)
         axe.get_figure().canvas.draw()
-        
+
         return self.get_input('axes')
 
 
 
 
 
-             
+
 
 class PyLabAxhline(Node,CustomizeAxes):
     """VisuAlea version of pylab.axhline
@@ -239,7 +231,7 @@ class PyLabAxhline(Node,CustomizeAxes):
     :param *kwargs or Line2D*: connect a Line2D object (optional)
 
     :returns: pylab.axhline output
-    
+
     .. seealso:: in VisuAlea, see pylab/test/boxplot composite node.
 
     .. plot::
@@ -247,55 +239,55 @@ class PyLabAxhline(Node,CustomizeAxes):
         from openalea.core.alea import *
         pm = PackageManager()
         run_and_display(('openalea.pylab.test', 'axhline'),{},pm=pm)
-    
-    
+
+
     :author: Thomas Cokelaer
-    
+
 
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
-        
+
         self.add_input(name='axes')
         self.add_input(name='y', interface=IFloat, value=0.5)
         self.add_input(name='xmin', interface=IFloat, value=0.)
         self.add_input(name='xmax', interface=IFloat, value=1.)
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs or line2d', interface=IDict, value={'alpha':1.})
-                
+
         self.add_output(name="axes")
         self.add_output(name="line2d")
-        
+
     def __call__(self, inputs):
         from pylab import axhline, Line2D
-      
 
-        kwds = {}        
+
+        kwds = {}
         y = self.get_input('y')
         xmin = self.get_input('xmin')
         xmax = self.get_input('xmax')
         hold = self.get_input('hold')
-        
+
         axes = self.get_axes()
-        
+
         if type(self.get_input('kwargs or line2d')) == Line2D:
             line2d = self.get_input('kwargs or line2d')
             kwds = line2d.properties()
-            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']: 
+            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
                 del kwds[this]
         else:
             kwds = self.get_input('kwargs or line2d')
-        
-        for axe in axes: 
+
+        for axe in axes:
             line2d = axhline(y, xmin=xmin, xmax=xmax, hold=hold, **kwds)
             axe.add_line(line2d)
             axe.get_figure().canvas.draw()
-            
+
         return self.get_input('axes'), line2d
 
 
-         
+
 
 class PyLabAxvline(Node,CustomizeAxes):
     """VisuAlea version of pylab.axhline
@@ -314,43 +306,43 @@ class PyLabAxvline(Node,CustomizeAxes):
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
-        
+
         self.add_input(name='axes')
         self.add_input(name='x', interface=IFloat, value=0.5)
         self.add_input(name='ymin', interface=IFloat, value=0.)
         self.add_input(name='ymax', interface=IFloat, value=1.)
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs or line2d', interface=IDict, value={'alpha':1.})
-                
+
         self.add_output(name="axes")
         self.add_output(name="line2d")
-                
+
     def __call__(self, inputs):
         from pylab import axvline, Line2D
         #cleanup
-       
-        kwds = {}        
+
+        kwds = {}
         x = self.get_input('x')
         ymin = self.get_input('ymin')
         ymax = self.get_input('ymax')
         hold = self.get_input('hold')
-        
+
         axes = self.get_axes()
-        
+
         if type(self.get_input('kwargs or line2d')) == Line2D:
             line2d = self.get_input('kwargs or line2d')
             kwds = line2d.properties()
-            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']: 
+            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
                 del kwds[this]
         else:
             kwds = self.get_input('kwargs or line2d')
-        
-        for axe in axes: 
+
+        for axe in axes:
             print x, ymin, ymax, hold, kwds
             line2d = axvline(x, ymin=ymin, ymax=ymax, hold=hold, **kwds)
             axe.add_line(line2d)
             axe.get_figure().canvas.draw()
-            
+
         return self.get_input('axes'), line2d
 
 class PyLabAxhspan(Node, CustomizeAxes):
@@ -371,9 +363,9 @@ class PyLabAxhspan(Node, CustomizeAxes):
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
-        
+
         self.add_input(name='axes')
-        
+
         self.add_input(name='ymin', interface=IFloat, value=0)
         self.add_input(name='ymax', interface=IFloat, value=0.5)
         self.add_input(name='xmin', interface=IFloat, value=0)
@@ -381,7 +373,7 @@ class PyLabAxhspan(Node, CustomizeAxes):
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs (Patch)', interface=IDict, value={})
         #self.add_input(name='kwargs or line2d', interface=IDict, value={'alpha':1.})
-                
+
         self.add_output(name="axes")
     def __call__(self, inputs):
         from pylab import axhspan
@@ -408,7 +400,7 @@ class PyLabAxvspan(Node, CustomizeAxes):
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
-        
+
         self.add_input(name='axes')
 
         self.add_input(name='xmin', interface=IFloat, value=0)
@@ -417,7 +409,7 @@ class PyLabAxvspan(Node, CustomizeAxes):
         self.add_input(name='ymax', interface=IFloat, value=1)
         self.add_input(name='hold', interface=IBool, value=True)
         self.add_input(name='kwargs (Patch)', interface=IDict, value={})
-        
+
         self.add_output(name='axes')
 
     def __call__(self, inputs):

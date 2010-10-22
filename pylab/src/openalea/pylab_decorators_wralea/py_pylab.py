@@ -232,43 +232,6 @@ class PyLabTextOptions(Node):
 
         return ( kwds,)
 
-""" 
-      animated: [True | False]         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      bbox: rectangle prop dict         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]    i
- clip_on: [True | False]         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: any matplotlib color         
-      contains: a callable function         
-      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      gid: an id string         
-      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]         
-      label: any string         
-      linespacing: float (multiple of font size)         
-      lod: [True | False]         
-      multialignment: ['left' | 'right' | 'center' ]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
-      rotation_mode: unknown
-      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]         
-      snap: unknown
-      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]         
-      style or fontstyle: [ 'normal' | 'italic' | 'oblique']         
-      text: string or anything printable with '%s' conversion.         
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      variant or fontvariant: [ 'normal' | 'small-caps' ]         
-      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]         
-      visible: [True | False]         
-      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]         
-      zorder: any number         
-"""
-
 
 class PyLabPolar(Node):
 
@@ -514,9 +477,9 @@ class PyLabColorMap(Node):
             l = len(tools.cmaps)
             subplots_adjust(top=0.9,bottom=0.05,left=0.01,right=0.99)
             for index, m in enumerate(tools.cmaps):
-                print index
+                #print index
                 subplot(int(l/2)+l%2+1, 2, index+1)
-                print int(l/2)+l%2, 2, (index+1)/2+(index+1)%2+1
+                #print int(l/2)+l%2, 2, (index+1)/2+(index+1)%2+1
                 axis("off")
                 imshow(a.transpose(),aspect='auto',cmap=tools.get_cmap(m),origin="lower")
                 #title(m,rotation=0,fontsize=10)
@@ -777,7 +740,6 @@ class PyLabAxes(Node):
 
         # case of an empty input, we need to create the axes if it does not exist, or clean the existing one.
         if input_axes == None:
-            print 'Axes2: input axes is none'
             #this command return the current axe if it exist otherwise it creates a new one
             input_axes = axes(position, polar=self.get_input('polar'))
             if self.get_input('clear')==True:
@@ -791,7 +753,6 @@ class PyLabAxes(Node):
             return input_axes
 
         #else
-        print 'Axes2: input axes is not none'
         if type(input_axes)!=list: input_axes = [input_axes]
 
         for axe in input_axes:
