@@ -133,7 +133,7 @@ If you do not want to use the :class:`PyLabLine2D`, you can still connect severa
 Other examples scatter, hexbin, ...
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are many more plotting nodes such as :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabScatter` or :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabHexbin`. They all work on the same principle as those described previously in the case of :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabPlot`. The :ref:`Gallery section<secgallery>` shows examples.
+There are many more plotting nodes such as :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabScatter` or :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabHexbin`. They all work on the same principle as those described previously in the case of :class:`~openalea.pylab_nodes_wralea.py_pylab.PyLabPlot`. The :ref:`Examples section<sec_example>` shows examples.
 
 
 .. _sectext:
@@ -192,39 +192,21 @@ Interest of the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabShow` nodes
 
 3D plotting
 -----------
-.. todo:: in progress
-
-.. _secgallery:
-Gallery
-=======
-
-====================== =================== =====================
-====================== =================== =====================
-|gallery_polar_text|   |gallery_polar|     |gallery_polar_df|
-====================== =================== =====================
-
-
-.. |gallery_polar_text| replace:: To create a polar plot, first get some data (here) :math:`2\pi t` and change the axes to  polar using the :class:`PyLabAxes`
-
-.. |gallery_polar| image:: gallery_polar.png
-   :width: 70%
-
-.. |gallery_polar_df| image:: gallery_polar_df.png
-   :width: 70%
+.. todo:: for now, this is experimental. plot3d and contour3d are available.
 
 
 
-test
+.. _sec_example:
+Examples
 ========
 
+The following screenshots can be created using dataflows such as the following one. For more dataflows and images see the reference guide.
 
-.. plot::
-    :include-source:
 
-    from openalea.core.alea import *
-    pm = PackageManager()
-    pm.init(verbose=False)
-    run_and_display(('openalea.pylab.test', 'cohere'),{},pm=pm)
+.. dataflow:: openalea.pylab.test contour
+    :width: 50%
+ 
+    **see :class:`~openalea.pylab.plotting.PyLabContour`**
 
 .. plot::
 
@@ -232,12 +214,6 @@ test
     pm = PackageManager()
     run_and_display(('openalea.pylab.test', 'contour'),{},pm=pm)
 
-
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.test', 'hexbin'),{},pm=pm)
 
 .. plot::
 
@@ -262,38 +238,15 @@ test
 
     from openalea.core.alea import *
     pm = PackageManager()
-    run_and_display(('openalea.pylab.test', 'plot'),{},pm=pm)
-
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
     run_and_display(('openalea.pylab.test', 'quiver'),{},pm=pm)
 
 
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.test', 'plot'),{},pm=pm)
-
-
-
 
 .. plot::
 
     from openalea.core.alea import *
     pm = PackageManager()
-    run_and_display(('openalea.pylab.demo', 'Line2D and multi plot'),{},pm=pm)
-
-
-
-
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.demo', 'SeveralAxesOnSameFigure'),{},pm=pm)
+    run_and_display(('openalea.pylab.demo', 'polar_scatter'),{},pm=pm)
 
 .. plot::
 
@@ -307,21 +260,6 @@ test
     from openalea.core.alea import *
     pm = PackageManager()
     run_and_display(('openalea.pylab.demo', 'scatter and histograms'),{},pm=pm)
-
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.demo', 'scatter demo'),{},pm=pm)
-
-
-
-
-
-
-
-
-
 
 
 

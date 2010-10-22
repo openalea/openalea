@@ -136,284 +136,274 @@ xcorr           plot the autocorrelation function of x and y
 
 pylab functions to be implemented in openalea.numpy or openalea.pylab ?
 ========================================================================
-
-pylab.hypergeometric           pylab.nan_to_num               pylab.select    pylab.nbytes
-pylab.add                      pylab.i0                       pylab.ndarray
-pylab.add_docstring            pylab.identity                 pylab.ndenumerate
-pylab.add_newdoc               pylab.ifft                     pylab.ndim                     pylab.setbufsize
-pylab.add_newdocs              pylab.diagflat                 pylab.ifft2                    pylab.ndindex
-pylab.alen                     pylab.diagonal                 pylab.ifftn                    pylab.negative                 pylab.setdiff1d
-pylab.all                      pylab.ifftshift                pylab.negative_binomial        pylab.seterr
- pylab.ihfft                    .seterrcall
-pylab.ALLOW_THREADS            pylab.digitize                 pylab.iinfo                    pylab.newaxis                  pylab.seterrobj
-pylab.alltrue                  pylab.disconnect               pylab.imag                     pylab.newbuffer                pylab.setmember1d
-pylab.alterdot                 pylab.disp                     pylab.imread                   pylab.new_figure_manager       pylab.set_numeric_ops
-pylab.amap                     pylab.dist                     pylab.imsave                   pylab.NINF                     pylab.setp
-pylab.amax                     pylab.distances_along_curve    pylab.noncentral_chisquare     pylab.set_printoptions
-pylab.amin                     pylab.dist_point_to_segment    pylab.IndexDateFormatter       pylab.noncentral_f             pylab.set_state
-pylab.angle                    pylab.divide                   pylab.index_exp                pylab.nonzero                  pylab.set_string_function
-pylab.IndexLocator             pylab.norm                     pylab.setxor1d
-pylab.Annotation                                  pylab.indices                  pylab.normal                   pylab.shape
-pylab.any                      pylab.double                   pylab.inexact                  pylab.normalize
-pylab.append                   pylab.drange                   pylab.inf                      pylab.Normalize
-pylab.apply_along_axis         pylab.Inf                      pylab.norm_flat
-pylab.apply_over_axes          pylab.Infinity                 pylab.normpdf
-pylab.dsplit                   pylab.info                     pylab.not_equal                pylab.short
-pylab.dstack                   pylab.infty
-pylab.nper                     pylab.show_config
-pylab.inner                    pylab.npv                      pylab.shuffle
-pylab.ediff1d                  pylab.insert                   pylab.NullFormatter            pylab.sign
-pylab.eig                      pylab.inside_poly              pylab.NullLocator              pylab.signbit
-pylab.eigh                     pylab.num2date                 pylab.signedinteger
-pylab.eigvals                  pylab.int0                     pylab.num2epoch                pylab.silent_list
-pylab.argmax                   pylab.eigvalsh                 pylab.int16                    pylab.number
-pylab.argmin                   pylab.emath                    pylab.int32                    pylab.NZERO               pylab.sinc
-pylab.argsort                                    pylab.obj2sctype               pylab.single
-pylab.argwhere                 pylab.empty_like               pylab.int8                    pylab.singlecomplex
-pylab.around                   pylab.entropy                  pylab.int_asbuffer             pylab.object0
-pylab.array                    pylab.epoch2num                pylab.intc                     pylab.ogrid                    pylab.size
-pylab.array2string             pylab.equal                    pylab.integer                                    pylab.Slider
-pylab.array_equal              pylab.ERR_CALL                 pylab.interactive              pylab.ones_like                pylab.slopes
-pylab.array_equiv              pylab.ERR_DEFAULT              pylab.interp                                       pylab.solve
-pylab.array_repr               pylab.ERR_DEFAULT2             pylab.intersect1d              pylab.over                     pylab.sometrue
-pylab.array_split              pylab.ERR_IGNORE               pylab.intersect1d_nu           pylab.PackageLoader            pylab.sort
-pylab.array_str                pylab.ERR_LOG                  pylab.intp                     pylab.packbits                 pylab.sort_complex
-pylab.arrow                   pylab.pareto                   pylab.source
-pylab.Arrow                    pylab.ERR_PRINT                pylab.invert                   pylab.path_length
-pylab.ioff
-pylab.asanyarray               pylab.errstate                 pylab.ion                      pylab.split
-pylab.asarray                  pylab.ERR_WARN                 pylab.ipmt                     pylab.permutation
-pylab.asarray_chkfinite        pylab.exception_to_str         pylab.irefft                   pylab.pi
-pylab.ascontiguousarray                              pylab.irefft2
-pylab.asfarray                 pylab.expand_dims              pylab.irefftn                  pylab.piecewise
-pylab.asfortranarray           pylab.expm1                    pylab.irfft                    pylab.PINF                     pylab.squeeze
-pylab.asmatrix                 pylab.exponential              pylab.irfft2                                        pylab.standard_cauchy
-pylab.asscalar                 pylab.exp_safe                 pylab.irfftn                   pylab.pinv                     pylab.standard_exponential
-pylab.atleast_1d               pylab.extract                  pylab.irr                      pylab.pkgload                  pylab.standard_gamma
-pylab.atleast_2d                    pylab.is_closed_polygon        pylab.place                    pylab.standard_normal
-pylab.atleast_3d               pylab.f                        pylab.iscomplex                pylab.plot                     pylab.standard_t
-pylab.AutoLocator              pylab.fabs                     pylab.iscomplexobj             pylab.plot_date                pylab.std
- pylab.isfinite                 pylab.plotfile
-b.average                  pylab.fastCopyAndTranspose                     pylab.plotting
-pylab.fft                      pylab.ishold                   pylab.plt                      pylab.stineman_interp
-pylab.fft2                     pylab.isinf                    pylab.pmt
-pylab.fftfreq                  pylab.isinteractive            pylab.poisson
-pylab.fftn                     pylab.isnan
-pylab.fftpack                  pylab.isneginf                 pylab.PolarAxes                pylab.string0
-pylab.fftpack_lite             pylab.is_numlike               pylab.poly                     pylab.strpdate2num
-pylab.fftshift                 pylab.isposinf                 pylab.poly1d                   pylab.SU
-pylab.bar                      pylab.fftsurr                  pylab.ispower2                 pylab.polyadd                  pylab.subplot
-pylab.barbs                    pylab.figaspect                pylab.isreal                   pylab.poly_below               pylab.subplots_adjust
-pylab.barh                     pylab.isrealobj                pylab.poly_between             pylab.subplot_tool
-pylab.isscalar                 pylab.polyder                  pylab.SubplotTool
-pylab.base_repr                pylab.fignum_exists            pylab.issctype                 pylab.polydiv                  pylab.subtract
-pylab.bench                    pylab.figtext                  pylab.is_string_like           pylab.polyfit                  pylab.sum
-pylab.beta
-pylab.binary_repr           pylab.issubdtype               pylab.polyint                  pylab.suptitle
-pylab.bincount                 pylab.FigureCanvasBase         pylab.issubsctype              pylab.polymul                  pylab.svd
-pylab.binomial                  pylab.isvector                 pylab.polysub                  pylab.swapaxes
-pylab.bitwise_and                  pylab.iterable                 pylab.polyval                  pylab.switch_backend
-pylab.bitwise_not              pylab.power                    pylab.sys
-pylab.bitwise_or               pylab.fill_betweenx                                 pylab.ppmt                     pylab.table
-pylab.bitwise_xor              pylab.find                     pylab.prctile                  pylab.take
-pylab.bivariate_normal         pylab.find_common_type         pylab.kron                     pylab.prctile_rank
-pylab.findobj                  pylab.l1norm                   pylab.prepca
-pylab.bmat                     pylab.finfo                    pylab.l2norm                                       pylab.tensordot
-pylab.bone                     pylab.fix                      pylab.lapack_lite              pylab.prod                     pylab.tensorinv
-     pylab.FixedFormatter           pylab.laplace                  pylab.product                  pylab.tensorsolve
-pylab.bool8                    pylab.FixedLocator             pylab.ldexp                    pylab.test
-pylab.flag                     pylab.left_shift               pylab.ptp                      pylab.Tester
-pylab.flatiter                 pylab.legend                   pylab.put                      pylab.text
-pylab.broadcast                pylab.flatnonzero              pylab.less                                       pylab.Text
-pylab.broadcast_arrays         pylab.flatten                  pylab.less_equal               pylab.pv                       pylab.TH
-pylab.broken_barh              pylab.flexible                 pylab.levypdf                  pylab.pylab_setup              pylab.thetagrids
+.. pylab.hypergeometric           pylab.nan_to_num               pylab.select    pylab.nbytes
+    pylab.add                      pylab.i0                       pylab.ndarray
+    pylab.add_docstring            pylab.identity                 pylab.ndenumerate
+    pylab.add_newdoc               pylab.ifft                     pylab.ndim                     pylab.setbufsize
+    pylab.add_newdocs              pylab.diagflat                 pylab.ifft2                    pylab.ndindex
+    pylab.alen                     pylab.diagonal                 pylab.ifftn                    pylab.negative                 pylab.setdiff1d
+    pylab.all                      pylab.ifftshift                pylab.negative_binomial        pylab.seterr
+     pylab.ihfft                    .seterrcall
+    pylab.ALLOW_THREADS            pylab.digitize                 pylab.iinfo                    pylab.newaxis                  pylab.seterrobj
+    pylab.alltrue                  pylab.disconnect               pylab.imag                     pylab.newbuffer                pylab.setmember1d
+    pylab.alterdot                 pylab.disp                     pylab.imread                   pylab.new_figure_manager       pylab.set_numeric_ops
+    ylab.amap                     pylab.dist                     pylab.imsave                   pylab.NINF                     pylab.setp
+    pylab.amax                     pylab.distances_along_curve    pylab.noncentral_chisquare     pylab.set_printoptions
+    pylab.amin                     pylab.dist_point_to_segment    pylab.IndexDateFormatter       pylab.noncentral_f             pylab.set_state
+    pylab.angle                    pylab.divide                   pylab.index_exp                pylab.nonzero                  pylab.set_string_function
+    pylab.IndexLocator             pylab.norm                     pylab.setxor1d
+    pylab.Annotation                                  pylab.indices                  pylab.normal                   pylab.shape
+    pylab.any                      pylab.double                   pylab.inexact                  pylab.normalize
+    pylab.append                   pylab.drange                   pylab.inf                      pylab.Normalize
+    pylab.apply_along_axis         pylab.Inf                      pylab.norm_flat
+    pylab.apply_over_axes          pylab.Infinity                 pylab.normpdf
+    pylab.dsplit                   pylab.info                     pylab.not_equal                pylab.short
+    pylab.dstack                   pylab.infty
+    pylab.nper                     pylab.show_config
+    pylab.inner                    pylab.npv                      pylab.shuffle
+    pylab.ediff1d                  pylab.insert                   pylab.NullFormatter            pylab.sign
+    pylab.eig                      pylab.inside_poly              pylab.NullLocator              pylab.signbit
+    pylab.eigh                     pylab.num2date                 pylab.signedinteger
+    pylab.eigvals                  pylab.int0                     pylab.num2epoch                pylab.silent_list
+    pylab.argmax                   pylab.eigvalsh                 pylab.int16                    pylab.number
+    pylab.argmin                   pylab.emath                    pylab.int32                    pylab.NZERO               pylab.sinc
+    pylab.argsort                                    pylab.obj2sctype               pylab.single
+    pylab.argwhere                 pylab.empty_like               pylab.int8                    pylab.singlecomplex
+    pylab.around                   pylab.entropy                  pylab.int_asbuffer             pylab.object0
+    pylab.array                    pylab.epoch2num                pylab.intc                     pylab.ogrid                    pylab.size
+    pylab.array2string             pylab.equal                    pylab.integer                                    pylab.Slider
+    pylab.array_equal              pylab.ERR_CALL                 pylab.interactive              pylab.ones_like                pylab.slopes
+    pylab.array_equiv              pylab.ERR_DEFAULT              pylab.interp                                       pylab.solve
+    pylab.array_repr               pylab.ERR_DEFAULT2             pylab.intersect1d              pylab.over                     pylab.sometrue
+    pylab.array_split              pylab.ERR_IGNORE               pylab.intersect1d_nu           pylab.PackageLoader            pylab.sort
+    pylab.array_str                pylab.ERR_LOG                  pylab.intp                     pylab.packbits                 pylab.sort_complex
+    pylab.arrow                   pylab.pareto                   pylab.source
+    pylab.Arrow                    pylab.ERR_PRINT                pylab.invert                   pylab.path_length
+    pylab.ioff
+    pylab.asanyarray               pylab.errstate                 pylab.ion                      pylab.split
+    pylab.asarray                  pylab.ERR_WARN                 pylab.ipmt                     pylab.permutation
+    pylab.asarray_chkfinite        pylab.exception_to_str         pylab.irefft                   pylab.pi
+    pylab.ascontiguousarray                              pylab.irefft2
+    pylab.asfarray                 pylab.expand_dims              pylab.irefftn                  pylab.piecewise
+    pylab.asfortranarray           pylab.expm1                    pylab.irfft                    pylab.PINF                     pylab.squeeze
+    pylab.asmatrix                 pylab.exponential              pylab.irfft2                                        pylab.standard_cauchy
+    pylab.asscalar                 pylab.exp_safe                 pylab.irfftn                   pylab.pinv                     pylab.standard_exponential
+    pylab.atleast_1d               pylab.extract                  pylab.irr                      pylab.pkgload                  pylab.standard_gamma
+    pylab.atleast_2d                    pylab.is_closed_polygon        pylab.place                    pylab.standard_normal
+    pylab.atleast_3d               pylab.f                        pylab.iscomplex                pylab.plot                     pylab.standard_t
+    pylab.AutoLocator              pylab.fabs                     pylab.iscomplexobj             pylab.plot_date                pylab.std
+     pylab.isfinite                 pylab.plotfile
+    b.average                  pylab.fastCopyAndTranspose                     pylab.plotting
+    pylab.fft                      pylab.ishold                   pylab.plt                      pylab.stineman_interp
+    pylab.fft2                     pylab.isinf                    pylab.pmt
+    pylab.fftfreq                  pylab.isinteractive            pylab.poisson
+    pylab.fftn                     pylab.isnan
+    pylab.fftpack                  pylab.isneginf                 pylab.PolarAxes                pylab.string0
+    pylab.fftpack_lite             pylab.is_numlike               pylab.poly                     pylab.strpdate2num
+    pylab.fftshift                 pylab.isposinf                 pylab.poly1d                   pylab.SU
+    pylab.bar                      pylab.fftsurr                  pylab.ispower2                 pylab.polyadd                  pylab.subplot
+    pylab.barbs                    pylab.figaspect                pylab.isreal                   pylab.poly_below               pylab.subplots_adjust
+    pylab.barh                     pylab.isrealobj                pylab.poly_between             pylab.subplot_tool
+    pylab.isscalar                 pylab.polyder                  pylab.SubplotTool
+    pylab.base_repr                pylab.fignum_exists            pylab.issctype                 pylab.polydiv                  pylab.subtract
+    pylab.bench                    pylab.figtext                  pylab.is_string_like           pylab.polyfit                  pylab.sum
+    pylab.beta
+    pylab.binary_repr           pylab.issubdtype               pylab.polyint                  pylab.suptitle
+    pylab.bincount                 pylab.FigureCanvasBase         pylab.issubsctype              pylab.polymul                  pylab.svd
+    pylab.binomial                  pylab.isvector                 pylab.polysub                  pylab.swapaxes
+    pylab.bitwise_and                  pylab.iterable                 pylab.polyval                  pylab.switch_backend
+    pylab.bitwise_not              pylab.power                    pylab.sys
+    pylab.bitwise_or               pylab.fill_betweenx                                 pylab.ppmt                     pylab.table
+    pylab.bitwise_xor              pylab.find                     pylab.prctile                  pylab.take
+    pylab.bivariate_normal         pylab.find_common_type         pylab.kron                     pylab.prctile_rank
+    pylab.findobj                  pylab.l1norm                   pylab.prepca
+    pylab.bmat                     pylab.finfo                    pylab.l2norm                                       pylab.tensordot
+    pylab.bone                     pylab.fix                      pylab.lapack_lite              pylab.prod                     pylab.tensorinv
+             pylab.FixedFormatter           pylab.laplace                  pylab.product                  pylab.tensorsolve
+    pylab.bool8                    pylab.FixedLocator             pylab.ldexp                    pylab.test
+    pylab.flag                     pylab.left_shift               pylab.ptp                      pylab.Tester
+    pylab.flatiter                 pylab.legend                   pylab.put                      pylab.text
+    pylab.broadcast                pylab.flatnonzero              pylab.less                                       pylab.Text
+    pylab.broadcast_arrays         pylab.flatten                  pylab.less_equal               pylab.pv                       pylab.TH
+    pylab.broken_barh              pylab.flexible                 pylab.levypdf                  pylab.pylab_setup              pylab.thetagrids
             pylab.fliplr                   pylab.lexsort                  pylab.PZERO                    pylab.TickHelper
     pylab.flipud                   pylab.liaupunov                pylab.qr                       pylab.tile
-pylab.Button                     pylab.linalg
-pylab.LinAlgError                             pylab.trace
-pylab.transpose
-pylab.LinearLocator            pylab.radians                  pylab.trapz
-
-pylab.can_cast                 pylab.FLOATING_POINT_SUPPORT   pylab.little_endian            pylab.rand                     pylab.triangular
-pylab.cast                     pylab.floor                    pylab.load                     pylab.randint
-pylab.cbook                    pylab.floor_divide             pylab.loads                    pylab.trim_zeros
-pylab.cdouble                  pylab.fmod                     pylab.loadtxt
-pylab.format_parser            pylab.Locator                  pylab.random_integers
-pylab.center_matrix            pylab.FormatStrFormatter                             pylab.random_sample            pylab.true_divide
-pylab.cfloat                   pylab.Formatter                                    pylab.ranf                     pylab.TU
-pylab.char                     pylab.FPE_DIVIDEBYZERO         pylab.log1p                    pylab.rank                     pylab.twinx
-pylab.character                pylab.FPE_INVALID              pylab.log2                     pylab.RankWarning              pylab.twiny
-pylab.chararray                pylab.FPE_OVERFLOW             pylab.LogFormatter             pylab.rate                     pylab.typecodes
-pylab.chisquare                pylab.FPE_UNDERFLOW            pylab.LogFormatterExponent     pylab.ravel                    pylab.typeDict
-pylab.cholesky                 pylab.FR                       pylab.LogFormatterMathtext     pylab.rayleigh                 pylab.typeNA
-pylab.choose                   pylab.frange                   pylab.logical_and              pylab.rc                       pylab.typename
-pylab.frexp                    pylab.logical_not              pylab.rcdefaults               pylab.ubyte
-pylab.frombuffer               pylab.logical_or               pylab.rcParams                 pylab.ufunc
-pylab.fromfile                 pylab.logical_xor              pylab.rcParamsDefault          pylab.UFUNC_BUFSIZE_DEFAULT
-pylab.fromfunction             pylab.logistic                 pylab.real                     pylab.UFUNC_PYVALS_NAME
-pylab.fromiter                 pylab.LogLocator               pylab.real_if_close            pylab.uint
-pylab.clim                     pylab.frompyfunc               pylab.rec                      pylab.uint0
-pylab.clip                     pylab.fromregex                pylab.lognormal                pylab.rec2csv                  pylab.uint16
-pylab.CLIP                     pylab.fromstring               pylab.logseries                pylab.rec_append_fields        pylab.uint32
-pylab.clongdouble              pylab.FuncFormatter                         pylab.recarray                 pylab.uint64
-pylab.clongfloat               pylab.fv                       pylab.longcomplex              pylab.rec_drop_fields          pylab.uint8
-pylab.gamma                    pylab.longdouble               pylab.reciprocal               pylab.uintc
-pylab.gca                      pylab.longest_contiguous_ones  pylab.rec_join                 pylab.uintp
-pylab.cohere                   pylab.gcf                      pylab.longest_ones             pylab.record                   pylab.ulonglong
-pylab.gci                      pylab.longfloat
-pylab.colormaps                pylab.generic                  pylab.longlong
-pylab.colors                   pylab.geometric                pylab.lookfor                   pylab.uniform
-pylab.column_stack             pylab.get                      pylab.lstsq                    pylab.refft                    pylab.union1d
-pylab.common_type              pylab.get_array_wrap           pylab.ma                       pylab.refft2                   pylab.unique
-pylab.compare_chararrays       pylab.MachAr                   pylab.refftn                   pylab.unique1d
- pylab.get_backend              pylab.mat                      pylab.register_cmap            pylab.unpackbits
-pylab.getbuffer                pylab.math                     pylab.relativedelta            pylab.unravel_index
-pylab.getbufsize               pylab.matplotlib               pylab.remainder                pylab.unsignedinteger
-pylab.matrix                   pylab.repeat                   pylab.unwrap
-pylab.complexfloating          pylab.get_current_fig_manager  pylab.matrix_power               pylab.ushort
-pylab.compress                 pylab.geterr                   pylab.matshow                  pylab.require
-pylab.concatenate              pylab.geterrcall               pylab.MAXDIMS                  pylab.reshape                  pylab.var
-pylab.cond                     pylab.geterrobj                pylab.maximum                  pylab.resize                   pylab.vdot
-pylab.conj                     pylab.get_fignums              pylab.maximum_sctype           pylab.restoredot               pylab.vectorize
-pylab.conjugate                pylab.get_include              pylab.MaxNLocator              pylab.rfft                     pylab.vector_lengths
-pylab.connect                  pylab.get_numarray_include     pylab.may_share_memory         pylab.rfft2                    pylab.vlines
-pylab.get_numpy_include        pylab.mean                     pylab.rfftn                    pylab.void
-pylab.getp                     pylab.median                   pylab.rgrids                   pylab.void0
-pylab.convolve                 pylab.get_plot_commands        pylab.memmap                   pylab.right_shift              pylab.vonmises
-pylab.get_printoptions                        pylab.vsplit
-pylab.get_scale_docs           pylab.mgrid                    pylab.rk4                      pylab.vstack
-pylab.copy                     pylab.get_scale_names          pylab.minimum                  pylab.rms_flat                 pylab.waitforbuttonpress
-pylab.corrcoef                 pylab.get_sparse_matrix        pylab.minorticks_off           pylab.roll                     pylab.wald
-pylab.correlate                pylab.get_state                pylab.minorticks_on            pylab.rollaxis                 pylab.warnings
-pylab.get_xyz_where            pylab.mintypecode              pylab.roots                    pylab.WE
+    pylab.Button                     pylab.linalg
+    pylab.LinAlgError                             pylab.trace
+    pylab.transpose
+    pylab.LinearLocator            pylab.radians                  pylab.trapz
+    pylab.can_cast                 pylab.FLOATING_POINT_SUPPORT   pylab.little_endian            pylab.rand                     pylab.triangular
+    pylab.cast                     pylab.floor                    pylab.load                     pylab.randint
+    pylab.cbook                    pylab.floor_divide             pylab.loads                    pylab.trim_zeros
+    pylab.cdouble                  pylab.fmod                     pylab.loadtxt
+    pylab.format_parser            pylab.Locator                  pylab.random_integers
+    pylab.center_matrix            pylab.FormatStrFormatter                             pylab.random_sample            pylab.true_divide
+    pylab.cfloat                   pylab.Formatter                                    pylab.ranf                     pylab.TU
+    pylab.char                     pylab.FPE_DIVIDEBYZERO         pylab.log1p                    pylab.rank                     pylab.twinx
+    pylab.character                pylab.FPE_INVALID              pylab.log2                     pylab.RankWarning              pylab.twiny
+    pylab.chararray                pylab.FPE_OVERFLOW             pylab.LogFormatter             pylab.rate                     pylab.typecodes
+    pylab.chisquare                pylab.FPE_UNDERFLOW            pylab.LogFormatterExponent     pylab.ravel                    pylab.typeDict
+    pylab.cholesky                 pylab.FR                       pylab.LogFormatterMathtext     pylab.rayleigh                 pylab.typeNA
+    pylab.choose                   pylab.frange                   pylab.logical_and              pylab.rc                       pylab.typename
+    pylab.frexp                    pylab.logical_not              pylab.rcdefaults               pylab.ubyte
+    pylab.frombuffer               pylab.logical_or               pylab.rcParams                 pylab.ufunc
+    pylab.fromfile                 pylab.logical_xor              pylab.rcParamsDefault          pylab.UFUNC_BUFSIZE_DEFAULT
+    pylab.fromfunction             pylab.logistic                 pylab.real                     pylab.UFUNC_PYVALS_NAME
+    pylab.fromiter                 pylab.LogLocator               pylab.real_if_close            pylab.uint
+    pylab.clim                     pylab.frompyfunc               pylab.rec                      pylab.uint0
+    pylab.clip                     pylab.fromregex                pylab.lognormal                pylab.rec2csv                  pylab.uint16
+    pylab.CLIP                     pylab.fromstring               pylab.logseries                pylab.rec_append_fields        pylab.uint32
+    pylab.clongdouble              pylab.FuncFormatter                         pylab.recarray                 pylab.uint64
+    pylab.clongfloat               pylab.fv                       pylab.longcomplex              pylab.rec_drop_fields          pylab.uint8
+    pylab.gamma                    pylab.longdouble               pylab.reciprocal               pylab.uintc
+    pylab.gca                      pylab.longest_contiguous_ones  pylab.rec_join                 pylab.uintp
+    pylab.cohere                   pylab.gcf                      pylab.longest_ones             pylab.record                   pylab.ulonglong
+    pylab.gci                      pylab.longfloat
+    pylab.colormaps                pylab.generic                  pylab.longlong
+    pylab.colors                   pylab.geometric                pylab.lookfor                   pylab.uniform
+    pylab.column_stack             pylab.get                      pylab.lstsq                    pylab.refft                    pylab.union1d
+    pylab.common_type              pylab.get_array_wrap           pylab.ma                       pylab.refft2                   pylab.unique
+    pylab.compare_chararrays       pylab.MachAr                   pylab.refftn                   pylab.unique1d
+    pylab.get_backend              pylab.mat                      pylab.register_cmap            pylab.unpackbits
+    pylab.getbuffer                pylab.math                     pylab.relativedelta            pylab.unravel_index
+    pylab.getbufsize               pylab.matplotlib               pylab.remainder                pylab.unsignedinteger
+    pylab.matrix                   pylab.repeat                   pylab.unwrap
+    pylab.complexfloating          pylab.get_current_fig_manager  pylab.matrix_power               pylab.ushort
+    pylab.compress                 pylab.geterr                   pylab.matshow                  pylab.require
+    pylab.concatenate              pylab.geterrcall               pylab.MAXDIMS                  pylab.reshape                  pylab.var
+    pylab.cond                     pylab.geterrobj                pylab.maximum                  pylab.resize                   pylab.vdot
+    pylab.conj                     pylab.get_fignums              pylab.maximum_sctype           pylab.restoredot               pylab.vectorize
+    pylab.conjugate                pylab.get_include              pylab.MaxNLocator              pylab.rfft                     pylab.vector_lengths
+    pyla    b.connect                  pylab.get_numarray_include     pylab.may_share_memory         pylab.rfft2                    pylab.vlines
+    pylab.get_numpy_include        pylab.mean                     pylab.rfftn                    pylab.void
+    pylab.getp                     pylab.median                   pylab.rgrids                   pylab.void0
+    pylab.convolve                 pylab.get_plot_commands        pylab.memmap                   pylab.right_shift              pylab.vonmises
+    pylab.get_printoptions                        pylab.vsplit
+    pylab.get_scale_docs           pylab.mgrid                    pylab.rk4                      pylab.vstack
+    pylab.copy                     pylab.get_scale_names          pylab.minimum                  pylab.rms_flat                 pylab.waitforbuttonpress
+    pylab.corrcoef                 pylab.get_sparse_matrix        pylab.minorticks_off           pylab.roll                     pylab.wald
+    pylab.correlate                pylab.get_state                pylab.minorticks_on            pylab.rollaxis                 pylab.warnings
+    pylab.get_xyz_where            pylab.mintypecode              pylab.roots                    pylab.WE
                 pylab.ginput                   pylab.MinuteLocator            pylab.rot90                    pylab.WeekdayLocator
-pylab.cov                      pylab.gradient                 pylab.MINUTELY                              pylab.WEEKLY
-   pylab.gray                     pylab.mirr                     pylab.row_stack                pylab.weibull
-ylab.greater                  pylab.mlab                     pylab.rrule                    pylab.where
-pylab.csingle                  pylab.greater_equal            pylab.MO                       pylab.RRuleLocator             pylab.who
-pylab.csv2rec                                      pylab.mod                                    pylab.Widget
-pylab.ctypeslib                pylab.griddata                 pylab.modf                     pylab.SA
+    pylab.cov                      pylab.gradient                 pylab.MINUTELY                              pylab.WEEKLY
+    pylab.gray                     pylab.mirr                     pylab.row_stack                pylab.weibull
+    ylab.greater                  pylab.mlab                     pylab.rrule                    pylab.where
+    pylab.csingle                  pylab.greater_equal            pylab.MO                       pylab.RRuleLocator             pylab.who
+    pylab.csv2rec                                      pylab.mod                                    pylab.Widget
+    pylab.ctypeslib                pylab.griddata                 pylab.modf                     pylab.SA
                 pylab.gumbel                   pylab.MonthLocator             pylab.safe_eval
-pylab.cumproduct               pylab.MONTHLY                  pylab.sample                   pylab.winter
+    pylab.cumproduct               pylab.MONTHLY                  pylab.sample                   pylab.winter
                      pylab.movavg                   pylab.save                     pylab.WRAP
-pylab.DAILY                      pylab.mpl                      pylab.xcorr
-pylab.DataSource               pylab.helper                   pylab.msort                    pylab.savetxt                  pylab.xlabel
-pylab.date2num                 pylab.hexbin                   pylab.multinomial              pylab.savez
-pylab.DateFormatter            pylab.hfft                     pylab.MultipleLocator          pylab.ScalarFormatter          pylab.xscale
-pylab.DateLocator              pylab.hist                     pylab.multiply                 pylab.ScalarType
-pylab.datestr2num              pylab.histogram                pylab.multivariate_normal      pylab.scatter                  pylab.YearLocator
-pylab.DayLocator               pylab.histogram2d              pylab.mx2num                   pylab.sci                      pylab.YEARLY
-pylab.dedent                   pylab.histogramdd              ylab.sctype2char              pylab.ylabel
-pylab.degrees                  pylab.hlines                   pylab.nan                      pylab.sctypeDict
-pylab.NaN                      pylab.sctypeNA                 pylab.yscale
-pylab.NAN                      pylab.sctypes                  pylab.yticks
-pylab.delete                   pylab.HourLocator              pylab.nanargmax                pylab.searchsorted             pylab.zeros
-pylab.demean                   pylab.HOURLY                   pylab.nanargmin                pylab.SecondLocator            pylab.zeros_like
-pylab.deprecate                pylab.hsplit                   pylab.nanmax                   pylab.SECONDLY                 pylab.zipf
-pylab.deprecate_with_doc       pylab.hstack                   pylab.nanmin                   pylab.seed
-pylab.det                      pylab.hsv                      pylab.nansum                   pylab.segments_intersec
-
-
-pylab.matplotlib.afm
-pylab.matplotlib.artist                  pylab.matplotlib.matplotlib_fname
-pylab.matplotlib.minor1
-pylab.matplotlib.minor2
-pylab.matplotlib.backend_bases           pylab.matplotlib.finance                 pylab.matplotlib.s
-pylab.matplotlib.backends                pylab.matplotlib.fontconfig_pattern      pylab.matplotlib.mpl                     pylab.matplotlib.scale
-pylab.matplotlib.bezier                  pylab.matplotlib.font_manager
-pylab.matplotlib.blocking_input          pylab.matplotlib.ft2font                 pylab.matplotlib.shutil
-pylab.matplotlib.generators             pylab.matplotlib.spines
-pylab.matplotlib.cbook                   pylab.matplotlib.nn
-pylab.matplotlib.checkdep_dvipng         pylab.matplotlib.get_backend
-pylab.matplotlib.checkdep_ghostscript    pylab.matplotlib.nxutils
-pylab.matplotlib.checkdep_pdftops        pylab.matplotlib.get_configdir           pylab.matplotlib.offsetbox               pylab.matplotlib.table
-pylab.matplotlib.checkdep_ps_distiller                    pylab.matplotlib.tempfile
-pylab.matplotlib.checkdep_tex            pylab.matplotlib.get_data_path           pylab.matplotlib.patches                 pylab.matplotlib.text
-pylab.matplotlib.checkdep_usetex         pylab.matplotlib.path                    pylab.matplotlib.ticker
-pylab.matplotlib.get_example_data        pylab.matplotlib.tight_bbox
-
-pylab.matplotlib.get_home                pylab.matplotlib.tmp
-pylab.matplotlib.get_py2exe_datafiles    pylab.matplotlib.projections             pylab.matplotlib.transforms
-pylab.matplotlib.collections             pylab.matplotlib.pylab                   pylab.matplotlib.units
-pylab.matplotlib.use
-pylab.matplotlib.image                   pylab.matplotlib.pyparsing
-pylab.matplotlib.compare_versions        pylab.matplotlib.pyplot                  pylab.matplotlib.validate_backend
-pylab.matplotlib.validate_cairo_format
-pylab.matplotlib.converter               pylab.matplotlib.interactive            ylab.matplotlib.validate_toolbar
-
-pylab.matplotlib.dates                   pylab.matplotlib.is_string_like          pylab.matplotlib.rcdefaults
-pylab.matplotlib.key                     pylab.matplotlib.rcParams
-pylab.matplotlib.widgets
-pylab.matplotlib.lines                   pylab.matplotlib.rcParamsDefault
-pylab.matplotlib.major                   pylab.matplotlib.rcsetup
-pylab.matplotlib.mathtext                pylab.matplotlib.re
-
-
-pylab.matplotlib.mlab.amap                              pylab.matplotlib.mlab.FormatDate                        pylab.matplotlib.mlab.np
-pylab.matplotlib.mlab.base_repr                         pylab.matplotlib.mlab.FormatDatetime                    pylab.matplotlib.mlab.nxutils
-pylab.matplotlib.mlab.binary_repr                       pylab.matplotlib.mlab.FormatFloat                       pylab.matplotlib.mlab.operator
-pylab.matplotlib.mlab.bivariate_normal                  pylab.matplotlib.mlab.FormatFormatStr                   pylab.matplotlib.mlab.os
-pylab.matplotlib.mlab.FormatInt                         pylab.matplotlib.mlab.path_length
-pylab.matplotlib.mlab.cbook                             pylab.matplotlib.mlab.FormatMillions                    pylab.matplotlib.mlab.poly_below
-pylab.matplotlib.mlab.center_matrix                     pylab.matplotlib.mlab.FormatObj                         pylab.matplotlib.mlab.poly_between
-pylab.matplotlib.mlab.FormatPercent                     pylab.matplotlib.mlab.prctile
- pylab.matplotlib.mlab.FormatString                      pylab.matplotlib.mlab.prctile_rank
-pylab.matplotlib.mlab.cohere_pairs                      pylab.matplotlib.mlab.FormatThousands                   pylab.matplotlib.mlab.prepca
-pylab.matplotlib.mlab.frange
-pylab.matplotlib.mlab.contiguous_regions                pylab.matplotlib.mlab.quad2cubic
-pylab.matplotlib.mlab.copy                              pylab.matplotlib.mlab.get_formatd                       pylab.matplotlib.mlab.rec2csv
-pylab.matplotlib.mlab.cross_from_above                  pylab.matplotlib.mlab.get_sparse_matrix                 pylab.matplotlib.mlab.rec2txt
-pylab.matplotlib.mlab.cross_from_below                  pylab.matplotlib.mlab.get_xyz_where                     pylab.matplotlib.mlab.rec_append_fields
-pylab.matplotlib.mlab.griddata                          .matplotlib.mlab.rec_drop_fields
-pylab.matplotlib.mlab.csv                               pylab.matplotlib.mlab.rec_groupby
-pylab.matplotlib.mlab.csv2rec                           pylab.matplotlib.mlab.identity                          pylab.matplotlib.mlab.rec_join
-pylab.matplotlib.mlab.csvformat_factory                 pylab.matplotlib.mlab.rec_keep_fields
-pylab.matplotlib.mlab.defaultformatd                    pylab.matplotlib.mlab.inside_poly                       pylab.matplotlib.mlab.rec_summarize
-pylab.matplotlib.mlab.is_closed_polygon
-pylab.matplotlib.mlab.demean                            pylab.matplotlib.mlab.ispower2
-pylab.matplotlib.mlab.kwdocd                            pylab.matplotlib.mlab.rk4
-pylab.matplotlib.mlab.l1norm                            pylab.matplotlib.mlab.rms_flat
-pylab.matplotlib.mlab.l2norm                            pylab.matplotlib.mlab.safe_isinf
-pylab.matplotlib.mlab.less_simple_linear_interpolation  pylab.matplotlib.mlab.safe_isnan
-pylab.matplotlib.mlab.dist                              pylab.matplotlib.mlab.levypdf                           pylab.matplotlib.mlab.save
-pylab.matplotlib.mlab.distances_along_curve             pylab.matplotlib.mlab.liaupunov                         pylab.matplotlib.mlab.segments_intersect
-pylab.matplotlib.mlab.dist_point_to_segment             pylab.matplotlib.mlab.load
-pylab.matplotlib.mlab.division                          pylab.matplotlib.mlab.log2                              pylab.matplotlib.mlab.slopes
-pylab.matplotlib.mlab.entropy                           pylab.matplotlib.mlab.longest_ones                      pylab.matplotlib.mlab.stineman_interp
-pylab.matplotlib.mlab.exp_safe                          pylab.matplotlib.mlab.ma
-pylab.matplotlib.mlab.exp_safe_MAX                      pylab.matplotlib.mlab.math                              pylab.matplotlib.mlab.vector_lengths
-pylab.matplotlib.mlab.exp_safe_MIN                      pylab.matplotlib.mlab.movavg                            pylab.matplotlib.mlab.verbose
-pylab.matplotlib.mlab.fftsurr                           pylab.matplotlib.mlab.warnings
-pylab.matplotlib.mlab.FIFOBuffer
-pylab.matplotlib.mlab.find                              pylab.matplotlib.mlab.norm_flat
-pylab.matplotlib.mlab.FormatBool                        pylab.matplotlib.mlab.normpdf
-
-
-matplotlib.afm                     matplotlib.dates
-matplotlib.artist                  matplotlib.default                 matplotlib._havedate               matplotlib.patches                 matplotlib.shutil
-matplotlib.image                   matplotlib.path                    matplotlib.spines
-matplotlib.backend_bases
-matplotlib.backends
-matplotlib.bezier                   matplotlib.projections             matplotlib.table
-matplotlib.blocking_input          matplotlib.is_string_like          matplotlib.pylab                   matplotlib.tempfile
-matplotlib.text
-matplotlib.cbook                   matplotlib.key                     matplotlib.pyparsing               matplotlib.ticker
-matplotlib.checkdep_dvipng               matplotlib.tight_bbox
-matplotlib.checkdep_ghostscript    matplotlib.finance                 matplotlib.lines
-matplotlib.checkdep_pdftops        matplotlib.fontconfig_pattern      matplotlib.major
-matplotlib.checkdep_ps_distiller   matplotlib.font_manager            matplotlib.mathtext                 matplotlib.transforms
-matplotlib.checkdep_tex            matplotlib.ft2font                 matplotlib.rcdefaults              matplotlib.units
-matplotlib.checkdep_usetex         matplotlib.generators              matplotlib.matplotlib_fname
-matplotlib.minor1                  matplotlib.rcParams
-matplotlib.minor2                  matplotlib.RcParams                matplotlib.validate_backend
-matplotlib.mlab                    matplotlib.rcParamsDefault         matplotlib.validate_cairo_format
-matplotlib.get_configdir           matplotlib.mpl                     matplotlib.rcsetup                 matplotlib.validate_toolbar
-matplotlib.collections           matplotlib.re
-matplotlib.get_data_path
-matplotlib.compare_versions     matplotlib.get_example_data        matplotlib.nn
- matplotlib.widgets
-matplotlib.get_home                matplotlib.nxutils                 matplotlib.s
-matplotlib.get_py2exe_datafiles    matplotlib.offsetbox               matplotlib.scale
+    pylab.DAILY                      pylab.mpl                      pylab.xcorr
+    pylab.DataSource               pylab.helper                   pylab.msort                    pylab.savetxt                  pylab.xlabel
+    pylab.date2num                 pylab.hexbin                   pylab.multinomial              pylab.savez
+    pylab.DateFormatter            pylab.hfft                     pylab.MultipleLocator          pylab.ScalarFormatter          pylab.xscale
+    pylab.DateLocator              pylab.hist                     pylab.multiply                 pylab.ScalarType
+    pylab.datestr2num              pylab.histogram                pylab.multivariate_normal      pylab.scatter                  pylab.YearLocator
+    pylab.DayLocator               pylab.histogram2d              pylab.mx2num                   pylab.sci                      pylab.YEARLY
+    pylab.dedent                   pylab.histogramdd              ylab.sctype2char              pylab.ylabel
+    pylab.degrees                  pylab.hlines                   pylab.nan                      pylab.sctypeDict
+    pylab.NaN                      pylab.sctypeNA                 pylab.yscale
+    pylab.NAN                      pylab.sctypes                  pylab.yticks
+    pylab.delete                   pylab.HourLocator              pylab.nanargmax                pylab.searchsorted             pylab.zeros
+    pylab.demean                   pylab.HOURLY                   pylab.nanargmin                pylab.SecondLocator            pylab.zeros_like
+    pylab.deprecate                pylab.hsplit                   pylab.nanmax                   pylab.SECONDLY                 pylab.zipf
+    pylab.deprecate_with_doc       pylab.hstack                   pylab.nanmin                   pylab.seed
+    pylab.det                      pylab.hsv                      pylab.nansum                   pylab.segments_intersec
+    pylab.matplotlib.afm
+    pylab.matplotlib.artist                  pylab.matplotlib.matplotlib_fname
+    pylab.matplotlib.minor1
+    pylab.matplotlib.minor2
+    pylab.matplotlib.backend_bases           pylab.matplotlib.finance                 pylab.matplotlib.s
+    pylab.matplotlib.backends                pylab.matplotlib.fontconfig_pattern      pylab.matplotlib.mpl                     pylab.matplotlib.scale
+    pylab.matplotlib.bezier                  pylab.matplotlib.font_manager
+    pylab.matplotlib.blocking_input          pylab.matplotlib.ft2font                 pylab.matplotlib.shutil
+    pylab.matplotlib.generators             pylab.matplotlib.spines
+    pylab.matplotlib.cbook                   pylab.matplotlib.nn
+    pylab.matplotlib.checkdep_dvipng         pylab.matplotlib.get_backend
+    pylab.matplotlib.checkdep_ghostscript    pylab.matplotlib.nxutils
+    pylab.matplotlib.checkdep_pdftops        pylab.matplotlib.get_configdir           pylab.matplotlib.offsetbox               pylab.matplotlib.table
+    pylab.matplotlib.checkdep_ps_distiller                    pylab.matplotlib.tempfile
+    pylab.matplotlib.checkdep_tex            pylab.matplotlib.get_data_path           pylab.matplotlib.patches                 pylab.matplotlib.text
+    pylab.matplotlib.checkdep_usetex         pylab.matplotlib.path                    pylab.matplotlib.ticker
+    pylab.matplotlib.get_example_data        pylab.matplotlib.tight_bbox
+    pylab.matplotlib.get_home                pylab.matplotlib.tmp
+    pylab.matplotlib.get_py2exe_datafiles    pylab.matplotlib.projections             pylab.matplotlib.transforms
+    pylab.matplotlib.collections             pylab.matplotlib.pylab                   pylab.matplotlib.units
+    pylab.matplotlib.use
+    pylab.matplotlib.image                   pylab.matplotlib.pyparsing
+    pylab.matplotlib.compare_versions        pylab.matplotlib.pyplot                  pylab.matplotlib.validate_backend
+    pylab.matplotlib.validate_cairo_format
+    pylab.matplotlib.converter               pylab.matplotlib.interactive            ylab.matplotlib.validate_toolbar
+    pylab.matplotlib.dates                   pylab.matplotlib.is_string_like          pylab.matplotlib.rcdefaults
+    pylab.matplotlib.key                     pylab.matplotlib.rcParams
+    pylab.matplotlib.widgets
+    pylab.matplotlib.lines                   pylab.matplotlib.rcParamsDefault
+    pylab.matplotlib.major                   pylab.matplotlib.rcsetup
+    pylab.matplotlib.mathtext                pylab.matplotlib.re
+    pylab.matplotlib.mlab.amap                              pylab.matplotlib.mlab.FormatDate                        pylab.matplotlib.mlab.np
+    pylab.matplotlib.mlab.base_repr                         pylab.matplotlib.mlab.FormatDatetime                    pylab.matplotlib.mlab.nxutils
+    pylab.matplotlib.mlab.binary_repr                       pylab.matplotlib.mlab.FormatFloat                       pylab.matplotlib.mlab.operator
+    pylab.matplotlib.mlab.bivariate_normal                  pylab.matplotlib.mlab.FormatFormatStr                   pylab.matplotlib.mlab.os
+    pylab.matplotlib.mlab.FormatInt                         pylab.matplotlib.mlab.path_length
+    pylab.matplotlib.mlab.cbook                             pylab.matplotlib.mlab.FormatMillions                    pylab.matplotlib.mlab.poly_below
+    pylab.matplotlib.mlab.center_matrix                     pylab.matplotlib.mlab.FormatObj                         pylab.matplotlib.mlab.poly_between
+        pylab.matplotlib.mlab.FormatPercent                     pylab.matplotlib.mlab.prctile
+     pylab.matplotlib.mlab.FormatString                      pylab.matplotlib.mlab.prctile_rank
+    pylab.matplotlib.mlab.cohere_pairs                      pylab.matplotlib.mlab.FormatThousands                   pylab.matplotlib.mlab.prepca
+    pylab.matplotlib.mlab.frange
+    pylab.matplotlib.mlab.contiguous_regions                pylab.matplotlib.mlab.quad2cubic
+    pylab.matplotlib.mlab.copy                              pylab.matplotlib.mlab.get_formatd                       pylab.matplotlib.mlab.rec2csv
+    pylab.matplotlib.mlab.cross_from_above                  pylab.matplotlib.mlab.get_sparse_matrix                 pylab.matplotlib.mlab.rec2txt
+    pylab.matplotlib.mlab.cross_from_below                  pylab.matplotlib.mlab.get_xyz_where                     pylab.matplotlib.mlab.rec_append_fields
+    pylab.matplotlib.mlab.griddata                          .matplotlib.mlab.rec_drop_fields
+    pylab.matplotlib.mlab.csv                               pylab.matplotlib.mlab.rec_groupby
+    pylab.matplotlib.mlab.csv2rec                           pylab.matplotlib.mlab.identity                          pylab.matplotlib.mlab.rec_join
+    pylab.matplotlib.mlab.csvformat_factory                 pylab.matplotlib.mlab.rec_keep_fields
+    pylab.matplotlib.mlab.defaultformatd                    pylab.matplotlib.mlab.inside_poly                       pylab.matplotlib.mlab.rec_summarize
+    pylab.matplotlib.mlab.is_closed_polygon
+    pylab.matplotlib.mlab.demean                            pylab.matplotlib.mlab.ispower2
+    pylab.matplotlib.mlab.kwdocd                            pylab.matplotlib.mlab.rk4
+    pylab.matplotlib.mlab.l1norm                            pylab.matplotlib.mlab.rms_flat
+    pylab.matplotlib.mlab.l2norm                            pylab.matplotlib.mlab.safe_isinf
+    pylab.matplotlib.mlab.less_simple_linear_interpolation  pylab.matplotlib.mlab.safe_isnan
+    pylab.matplotlib.mlab.dist                              pylab.matplotlib.mlab.levypdf                           pylab.matplotlib.mlab.save
+    pylab.matplotlib.mlab.distances_along_curve             pylab.matplotlib.mlab.liaupunov                         pylab.matplotlib.mlab.segments_intersect
+    pylab.matplotlib.mlab.dist_point_to_segment             pylab.matplotlib.mlab.load
+    pylab.matplotlib.mlab.division                          pylab.matplotlib.mlab.log2                              pylab.matplotlib.mlab.slopes
+    pylab.matplotlib.mlab.entropy                           pylab.matplotlib.mlab.longest_ones                      pylab.matplotlib.mlab.stineman_interp
+    pylab.matplotlib.mlab.exp_safe                          pylab.matplotlib.mlab.ma
+    pylab.matplotlib.mlab.exp_safe_MAX                      pylab.matplotlib.mlab.math                              pylab.matplotlib.mlab.vector_lengths
+    pylab.matplotlib.mlab.exp_safe_MIN                      pylab.matplotlib.mlab.movavg                            pylab.matplotlib.mlab.verbose
+    pylab.matplotlib.mlab.fftsurr                           pylab.matplotlib.mlab.warnings
+    pylab.matplotlib.mlab.FIFOBuffer
+    pylab.matplotlib.mlab.find                              pylab.matplotlib.mlab.norm_flat
+    pylab.matplotlib.mlab.FormatBool                        pylab.matplotlib.mlab.normpdf
+    matplotlib.afm                     matplotlib.dates
+    matplotlib.artist                  matplotlib.default                 matplotlib._havedate               matplotlib.patches                 matplotlib.shutil
+    matplotlib.image                   matplotlib.path                    matplotlib.spines
+    matplotlib.backend_bases
+    matplotlib.backends
+    matplotlib.bezier                   matplotlib.projections             matplotlib.table
+    matplotlib.blocking_input          matplotlib.is_string_like          matplotlib.pylab                   matplotlib.tempfile
+    matplotlib.text
+    matplotlib.cbook                   matplotlib.key                     matplotlib.pyparsing               matplotlib.ticker
+    matplotlib.checkdep_dvipng               matplotlib.tight_bbox
+    matplotlib.checkdep_ghostscript    matplotlib.finance                 matplotlib.lines
+    matplotlib.checkdep_pdftops        matplotlib.fontconfig_pattern      matplotlib.major
+    matplotlib.checkdep_ps_distiller   matplotlib.font_manager            matplotlib.mathtext                 matplotlib.transforms
+    matplotlib.checkdep_tex            matplotlib.ft2font                 matplotlib.rcdefaults              matplotlib.units
+    matplotlib.checkdep_usetex         matplotlib.generators              matplotlib.matplotlib_fname
+    matplotlib.minor1                  matplotlib.rcParams
+    matplotlib.minor2                  matplotlib.RcParams                matplotlib.validate_backend
+    matplotlib.mlab                    matplotlib.rcParamsDefault         matplotlib.validate_cairo_format
+    matplotlib.get_configdir           matplotlib.mpl                     matplotlib.rcsetup                 matplotlib.validate_toolbar
+    matplotlib.collections           matplotlib.re
+    matplotlib.get_data_path
+    matplotlib.compare_versions     matplotlib.get_example_data        matplotlib.nn
+     matplotlib.widgets
+    matplotlib.get_home                matplotlib.nxutils                 matplotlib.s
+    matplotlib.get_py2exe_datafiles    matplotlib.offsetbox               matplotlib.scale
 
 
 cumsum    - the cumulative sum along a dimension
