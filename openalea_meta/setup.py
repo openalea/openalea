@@ -14,7 +14,7 @@ for key,value in metadata.iteritems():
 
 platform = sys.platform
 if platform.startswith('win'):
-    external_dependencies = ['matplotlib<=0.99.1',
+    external_dependencies = ['matplotlib>=0.99.1',
                              'scipy>=0.7.1',
                              'numpy>=1.4.0']
 else:
@@ -26,15 +26,19 @@ else:
 #    external_dependencies.append('PIL<=1.1.6')
 
 alea_dependencies = [
-'openalea.core >= 0.8.0.dev',
-'openalea.deploy >= 0.8.0.dev',
-'openalea.deploygui >= 0.8.0.dev',
-'openalea.grapheditor >=0.8.0.dev',
-'openalea.misc >=0.8.0.dev',
-'openalea.visualea >= 0.8.0.dev',
-'openalea.stdlib >= 0.8.0.dev',
-'openalea.sconsx >=0.8.0.dev',
-'openalea.scheduler >=0.8.0.dev',
+'openalea.core == 0.9.0',
+'openalea.deploy == 0.9.0',
+'openalea.deploygui == 0.9.0',
+'openalea.grapheditor == 0.9.0',
+'openalea.misc == 0.9.0',
+'openalea.visualea == 0.9.0',
+'openalea.stdlib == 0.9.0',
+'openalea.sconsx == 0.9.0',
+'openalea.scheduler == 0.9.0',
+'openalea.numpy == 0.9.0',
+'openalea.pylab == 0.9.0',
+'openalea.image == 0.9.0',
+'openalea.pkgbuilder == 0.9.0',
 #'openalea.container >=2.0.1.dev', part of vplants 
 #'openalea.mtg >=0.7.0.dev', part of vplants
 ]

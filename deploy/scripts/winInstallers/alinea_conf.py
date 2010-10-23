@@ -11,3 +11,6 @@ thirdPartyPackages = {   "python"  :    (NOT_INSTALLABLE|RUNTIME|DEVELOP,       
                          "r"       :    (EXE|ARCH|RUNTIME|TEST_ME,       3),
                          "rpy2"    :    (MSI|PY_DEP|ARCH|RUNTIME|TEST_ME,4),
                          }
+                         
+                         
+                         

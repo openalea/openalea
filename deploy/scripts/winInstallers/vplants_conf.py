@@ -17,3 +17,44 @@ thirdPartyPackages = {   "python":      (NOT_INSTALLABLE|RUNTIME|DEVELOP, 0), #a
                          "qt4_dev":     (EGG|ARCH|DEVELOP|TEST_ME, 9),
                          "mingw":       (EGG|ARCH|DEVELOP, 10)
                          }
+                         
+
+                         
+tissue = ["celltissue", "genepattern", "growth", "tissue", "tissueedit", "tissueshape", 
+          "tissueview", "vmanalysis"]
+                         
+manuallyInstalled = ["VPlants"]
+#, "OpenAlea.Container", "VPlants.Tree", "VPlants.Tree_Statistic", "VPlants.Lpy",
+                     #"OpenAlea.pglviewer", "VPlants.svgdraw", "VPlants.mechanics", "VPlants.physics"] +["VPlants.Tissue."+t for t in tissue]
+
+manInstTemplate = StrictTemplate("""
+    WizardForm.StatusLabel.Caption:='Installing $PACKAGE';
+    WizardForm.Update();
+    Result := InstallEgg('$PACKAGE', '-H None -i ' + MyTempDir() + ' -f ' + MyTempDir()); 
+""")    
+                         
+def generate_pascal_install_code(options):        
+    s = """
+var i, incr:Integer;
+var s:String;
+begin
+    Result:=False;
+    incr := (100 - WizardForm.ProgressGauge.Position)/high(Eggs)/2;
+    for i:=0 to high(Eggs) do begin
+        s := Eggs[i];
+        WizardForm.StatusLabel.Caption:='Uncompressing '+s;
+        WizardForm.Update();
+        ExtractTemporaryFile(s);
+        WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + incr;
+    end;
+    """
+    
+    for pk in manuallyInstalled:
+        s += manInstTemplate.substitute(PACKAGE=pk)
+        
+    s += """               
+     WizardForm.ProgressGauge.Position := 100;
+    end;
+    """ 
+
+    return s
