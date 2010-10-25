@@ -61,7 +61,7 @@ setup(
                    'openalea.stat = openalea.stat',
                    'openalea.system = openalea.system',
                    'openalea.tutorial = openalea.tutorial',
-                   'openalea.tutorial.design = openalea.tutorial.design',
+                   'openalea.tutorial.design pattern = openalea.tutorial.pattern',
                    'openalea.tutorial.functional = openalea.tutorial.functional',
                    'openalea.tutorial.multiprocess = openalea.tutorial.multiprocess',
                    'openalea.multiprocessing = openalea.multiprocessing',
