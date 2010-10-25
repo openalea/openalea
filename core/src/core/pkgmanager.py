@@ -1015,7 +1015,7 @@ class PseudoGroup(PackageDict):
             try:
                 self[str(id(key))].add_name(remain, value)
             except Exception, e:
-                print 'Unable to found the nodes: %s'%value
+                print 'Unable to find these nodes: %s'%value
                 print e
                 pass
 
