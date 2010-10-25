@@ -3,11 +3,10 @@ pm = PackageManager()
 pm.init(verbose=False)
 from pylab import *
 
-tests = ['contour', 'cohere']
+tests = ['acorr']
 
 for test in tests:
     res = run_and_display(('openalea.pylab.test', test),{},pm=pm)
-    #savefig('%.png', test)
-    #close('all')
-    import time
+    savefig('%.png', test)
+    close('all')
 

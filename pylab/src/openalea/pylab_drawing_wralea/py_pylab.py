@@ -15,12 +15,9 @@
 #
 ###############################################################################
 
-__doc__="""pylab nodes related to drawings in an axe"""
-
+__doc__="""pylab nodes related to drawings in a pylab.axes"""
 __license__= "Cecill-C"
 __revision__=" $Id$ "
-
-#//////////////////////////////////////////////////////////////////////////////
 
 
 from openalea.core import Node
@@ -28,11 +25,17 @@ from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict, ITuple
 
 import pylab
-from openalea.core.external import add_docstring
 from openalea.pylab import tools
 from openalea.pylab.tools import CustomizeAxes
 
+
 class PyLabFancyArrowPatch(Node):
+    """
+
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         Node.__init__(self)
@@ -67,6 +70,9 @@ class PyLabYAArowDict(Node):
     """
 
     to be used as an input dictionary by Annotate node for instance
+
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     # do not call the class but use its args and kwrags for others like BBox
     def __init__(self):
@@ -79,29 +85,6 @@ class PyLabYAArowDict(Node):
         self.add_input(name='color', interface=IEnumStr(tools.colors.keys()), value='blue')
         self.add_input(name='kwargs', interface=IDict, value={})
         self.add_output(name='output', interface=IDict, value = {})
-    """
-      animated: [True | False]
-      antialiased or aa: [True | False]  or None for default
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]
-      contains: a callable function
-      edgecolor or ec: mpl color spec, or None for default, or 'none' for no color
-      facecolor or fc: mpl color spec, or None for default, or 'none' for no color
-      figure: a :class:`matplotlib.figure.Figure` instance
-      fill: [True | False]
-      gid: an id string
-      hatch: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
-      label: any string
-      linestyle or ls: ['solid' | 'dashed' | 'dashdot' | 'dotted']
-      linewidth or lw: float or None for default
-      lod: [True | False]
-      picker: [None|float|boolean|callable]
-      rasterized: [True | False | None]
-      snap: unknown
-      transform: :class:`~matplotlib.transforms.Transform` instance
-      url: a url string
-      visible: [True | False]
-      zorder: any number
-    """
 
     def __call__(self, inputs):
         kwds = {}
@@ -113,6 +96,10 @@ class PyLabYAArowDict(Node):
         return kwds
 
 class PyLabBBox(Node):
+    """See pylab.bbox
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         Node.__init__(self)
@@ -141,6 +128,8 @@ class PyLabAnnotate(Node):
     :param arrowprops: could be a YAArrow or FancyArrowPatch dictionary.
     :param kwargs:
 
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -156,46 +145,6 @@ class PyLabAnnotate(Node):
         #self.add_input(name='bbox', interface=IDict, value=None)
         self.add_input(name='kwargs(text properties)', interface=IDict, value={})
         self.add_output(name='output')
-
-    """
-alpha: float (0.0 transparent through 1.0 opaque)
-      animated: [True | False]
-      axes: an :class:`~matplotlib.axes.Axes` instance
-      backgroundcolor: any matplotlib color
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance
-      clip_on: [True | False]
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]
-      color: any matplotlib color
-      contains: a callable function
-      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
-      figure: a :class:`matplotlib.figure.Figure` instance
-      fontproperties or font_properties: a :class:`matplotlib.font_manager.FontProperties` instance
-      gid: an id string
-      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
-      label: any string
-      linespacing: float (multiple of font size)
-      lod: [True | False]
-      multialignment: ['left' | 'right' | 'center' ]
-      picker: [None|float|boolean|callable]
-      position: (x,y)
-      rasterized: [True | False | None]
-      rotation: [ angle in degrees | 'vertical' | 'horizontal' ]
-      rotation_mode: unknown
-      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
-      snap: unknown
- snap: unknown
-      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]
-      style or fontstyle: [ 'normal' | 'italic' | 'oblique']
-      text: string or anything printable with '%s' conversion.
-      transform: :class:`~matplotlib.transforms.Transform` instance
-      url: a url string
-      variant or fontvariant: [ 'normal' | 'small-caps' ]
-      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]
-      visible: [True | False]
-      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]
-      zorder: any number
-    """
-
 
     def __call__(self, inputs):
         from pylab import annotate, gca
@@ -216,11 +165,6 @@ alpha: float (0.0 transparent through 1.0 opaque)
         return self.get_input('axes')
 
 
-
-
-
-
-
 class PyLabAxhline(Node,CustomizeAxes):
     """VisuAlea version of pylab.axhline
 
@@ -234,16 +178,23 @@ class PyLabAxhline(Node,CustomizeAxes):
 
     .. seealso:: in VisuAlea, see pylab/test/boxplot composite node.
 
+    :Example:
+
+    .. dataflow:: openalea.pylab.test axhline_axvline
+        :width: 40%
+
+        **The openalea.pylab.test.axhline/axvline dataflow.**
+
     .. plot::
+        :width: 40%
 
         from openalea.core.alea import *
         pm = PackageManager()
-        run_and_display(('openalea.pylab.test', 'axhline'),{},pm=pm)
+        run_and_display(('openalea.pylab.test', 'axhline_axvline'),{},pm=pm)
 
 
-    :author: Thomas Cokelaer
-
-
+    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -299,9 +250,13 @@ class PyLabAxvline(Node,CustomizeAxes):
     :param *kwargs or Line2D*: connect a Line2D object (optional)
 
     :returns: pylab.axhline output
-    :author: Thomas Cokelaer
+
     .. todo:: should include colormap and colorbar options
 
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhline` for 
+        dataflow example.
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -348,17 +303,32 @@ class PyLabAxvline(Node,CustomizeAxes):
 class PyLabAxhspan(Node, CustomizeAxes):
     """VisuAlea version of pylab.axvspan
 
-    :param *ymin*: starting y position
-    :param *ymax*: ending y position
-    :param *xmin*: starting x position
-    :param *xmax*: ending x position
-    :param *hol*: True by default
-    :param *kwargs Patch*: connect a Patch object (optional)
+    :param float xmin: starting x position
+    :param float xmax: ending x position
+    :param float ymin: starting y position
+    :param float ymax: ending y position
+    :param bool hold: True by default
+    :param dict kwargs: connect a Patch object (optional)
 
     :returns: pylab.axhspan output
-    :author: Thomas Cokelaer
 
-    .. todo:: should include colormap and colorbar options
+    :Example:
+
+    .. dataflow:: openalea.pylab.test axhspan_axvspan
+        :width: 40%
+
+        **The openalea.pylab.test.axhline/axvline dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'axhspan_axvspan'),{},pm=pm)
+
+    .. todo:i: should include colormap and colorbar options
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -382,27 +352,29 @@ class PyLabAxhspan(Node, CustomizeAxes):
                 xmax=self.get_input('xmax'), **self.get_input('kwargs (Patch)'))
         return res
 
+
 class PyLabAxvspan(Node, CustomizeAxes):
     """VisuAlea version of pylab.axvspan
 
-    :param *xmin*: starting x position
-    :param *xmax*: ending x position
-    :param *ymin*: starting y position
-    :param *ymax*: ending y position
-    :param *hol*: True by default
-    :param *kwargs Patch*: connect a Patch object (optional)
+    :param float xmin: starting x position
+    :param float xmax: ending x position
+    :param float ymin: starting y position
+    :param float ymax: ending y position
+    :param bool hold: True by default
+    :param kwargs: connect a Patch object (optional)
 
     :returns: pylab.axvspan output
 
-    :author: Thomas Cokelaer
-    .. todo:: should include colormap and colorbar options
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhspan` for 
+        dataflow example.
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
 
         self.add_input(name='axes')
-
         self.add_input(name='xmin', interface=IFloat, value=0)
         self.add_input(name='xmax', interface=IFloat, value=0.5)
         self.add_input(name='ymin', interface=IFloat, value=0)

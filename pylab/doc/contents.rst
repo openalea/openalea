@@ -2,7 +2,7 @@
 
 .. _pylab:
 
-.. module:: pylab
+.. module:: openalea.pylab
 
 OpenAlea Pylab documentation
 ###############################

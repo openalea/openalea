@@ -2,7 +2,6 @@
 ##################
 
 .. contents::
-.. sectionauthor:: Thomas Cokelaer
 .. moduleauthor:: Thomas Cokelaer
 .. currentmodule:: openalea.pylab_3d_wralea.py_pylab
 

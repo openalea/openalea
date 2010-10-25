@@ -63,6 +63,7 @@ class PyLabSinWave(Node):
         t = self.get_input('t')
         A = self.get_input('A')
         w = self.get_input('w')
-        return A * sin(2*pi*w*t) 
+	print A, w, pi
+        return A * sin(2.*pi*w*t) 
     
     

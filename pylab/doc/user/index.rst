@@ -181,22 +181,42 @@ Several plot with Axes
 
 Adding patches
 --------------
-.. todo:: in progress
-
-Here, we look at a particular set of nodes that can be found in :mod:`patches <openalea.pylab_patches_wralea.py_pylab>`
 
 
-Interest of the :class:`~openalea.pylab_text_wralea.py_pylab.PyLabShow` nodes
------------------------------------------------------------------------------
-.. todo:: in progress
+With pylab, it is possible to add patches such as circle, ellipse, polygon, etc on top of a axe.
+Some of those patches are available as visualea nodse. Look at the :mod:`patches <openalea.pylab_patches_wralea.py_pylab>` reference section to see how to use them. There is also a demo available called `patches`, which dataflow looks like:
+
+.. dataflow:: openalea.pylab.demo patches
+    :width: 50%
+ 
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.demo', 'patches'),{},pm=pm)
+
+
 
 3D plotting
 -----------
-.. todo:: for now, this is experimental. plot3d and contour3d are available.
+Some 3D plotting are available. See :mod:`patches <openalea.pylab_3d_wralea.py_pylab>` module in the reference. The following dataflow gives you a flavor of what it looks like.
+
+
+.. dataflow:: openalea.pylab.test mcontourf3d
+    :width: 50%
+ 
+.. plot::
+
+    from openalea.core.alea import *
+    pm = PackageManager()
+    run_and_display(('openalea.pylab.test', 'mcontourf3d'),{},pm=pm)
 
 
 
 .. _sec_example:
+
+
+
 Examples
 ========
 
@@ -206,14 +226,13 @@ The following screenshots can be created using dataflows such as the following o
 .. dataflow:: openalea.pylab.test contour
     :width: 50%
  
-    **see :class:`~openalea.pylab.plotting.PyLabContour`**
+    **see :class:`openalea.pylab.plotting.PyLabContour**
 
 .. plot::
 
     from openalea.core.alea import *
     pm = PackageManager()
     run_and_display(('openalea.pylab.test', 'contour'),{},pm=pm)
-
 
 .. plot::
 
@@ -227,20 +246,12 @@ The following screenshots can be created using dataflows such as the following o
     pm = PackageManager()
     run_and_display(('openalea.pylab.test', 'errorbar'),{},pm=pm)
 
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.test', 'mcontourf3d'),{},pm=pm)
-
 
 .. plot::
 
     from openalea.core.alea import *
     pm = PackageManager()
     run_and_display(('openalea.pylab.test', 'quiver'),{},pm=pm)
-
-
 
 .. plot::
 
@@ -252,14 +263,7 @@ The following screenshots can be created using dataflows such as the following o
 
     from openalea.core.alea import *
     pm = PackageManager()
-    run_and_display(('openalea.pylab.demo', 'imshow'),{},pm=pm)
-
-
-.. plot::
-
-    from openalea.core.alea import *
-    pm = PackageManager()
-    run_and_display(('openalea.pylab.demo', 'scatter and histograms'),{},pm=pm)
+    run_and_display(('openalea.pylab.demo', 'scatter_and_histograms'),{},pm=pm)
 
 
 

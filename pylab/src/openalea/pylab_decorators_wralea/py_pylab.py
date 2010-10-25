@@ -457,7 +457,11 @@ class PyLabShow(Node):
         return self.get_input('dummy')
     
 class PyLabColorMap(Node):
+    """
 
+
+    tobe done
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='colormap', interface=IEnumStr(tools.cmaps.keys()), value='jet')

@@ -1,8 +1,8 @@
 Axes decorators
-##########################
+###############
+
 .. todo:: in progress
 
-.. sectionauthor:: Thomas Cokelaer
 .. currentmodule:: openalea.pylab_decorators_wralea.py_pylab
 
 
@@ -10,30 +10,27 @@ Overview
 ========
 
 
+.. autosummary::
 
-================================== ===========================================
-================================== ===========================================
-:class:`PyLabShow`                 VisuAlea version of pylab.show
-:class:`PyLabXLabel`               VisuAlea version of pylab.xlabel
-:class:`PyLabYLabel`               VisuAlea version of pylab.ylabel
-:class:`PyLabFigure`
-:class:`PyLabLegend`
-:class:`PyLabTextOptions`
-:class:`PyLabTitle`
-:class:`PyLabFontProperties`
-:class:`PyLabAxis`
-:class:`PyLabAxes`
-:class:`PyLabColorBar`
-:class:`PyLabGetCurrentFigure`
-:class:`PyLabSaveFig`
-:class:`PyLabColorMap`
-:class:`PyLabBox`
-:class:`PyLabXLim`
-:class:`PyLabYLim`
-:class:`PyLabXTicks`
-:class:`PyLabYTicks`
-:class:`PyLabGrid`
-================================== ===========================================
+    PyLabAxes
+    PyLabAxis
+    PyLabBox
+    PyLabClearFigure
+    PyLabColorMap
+    PyLabFigure
+    PyLabFontProperties
+    PyLabGrid
+    PyLabLegend
+    PyLabSaveFig
+    PyLabShow
+    PyLabTextOptions
+    PyLabTitle
+    PyLabXLabel
+    PyLabXLim
+    PyLabXTicks
+    PyLabYLabel
+    PyLabYLim
+    PyLabYTicks
 
 Api 
 ===

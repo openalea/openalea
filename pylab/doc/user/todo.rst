@@ -11,12 +11,48 @@ Implementation
 .. contents::
 
 
+How to generate this documentation
+====================================
+
+::
+
+    cd doc
+    make html
+
+Since openalea.pylab is based upon matplotlib/pylab, we can take advantage of existing sphinx extensions provided 
+within the matplotlib library. Indeed, there is a sphinx extension called **plot_directive** that works as follows.  
+If you include the following code in your docstring::
+
+    .. plot:: 
+
+        from pylab import *
+        plot(randn(100), randn(100), 'or')
+
+thenm sphinx generates the following image and include it in your final HTML version:
+
+.. plot:: 
+
+    from pylab import *
+    plot(randn(100), randn(100), 'or')
+
+Then, within VisuAlea (in the openalea.misc package), we developed a sphinx extension that allows to include a VisuAlea dataflow. It works as follows::
+
+    .. dataflow:: openalea.pylab.demo scatter_and_histograms
+
+where **openalea.pylab.demo** is your wralea package name and **scatter_and_histograms** the name of your composite node.
+
+.. dataflow:: openalea.pylab.demo scatter_and_histograms
+
+.. warning:: Issue with the dataflow extension (about 20% of the dataflow generated do not show the edges
+.. warning:: Issue with the plot_directive extension. Before compiling the documentation, you must edit the openalea.pylab.plotting.py_pylab.py file to comment the code within the  *update_figure* method in the class *Plotting*. Otherwise you will obtain a single figure (if several are requested).
+
 API
 ====
 First input and output node connectors are reserved !!
 -------------------------------------------------------
 
 Let us consider the following example where we plot a x,y data sets.
+::
 
     from pylab import *
     x = arange(0, 10, 0.1)
@@ -80,13 +116,15 @@ arguments
 Plotting functions have most of their arguments available within VisuAlea. Usually they appear as connectors
 in the same order as in pylab documentation.
 
-.. warning:: the last connector should be a kwargs to take as much argument as needed.
+.. warning:: the last connector should be a kwargs to take as much argument as needed. This is especially important if
+   the pylab api changes, or you do not want to add too many connectors.
 
 
 to be added in Visualea
 ========================
 
 =============== ========================================================
+Function         Description
 =============== ========================================================
 quiverkey       that takes as input the output of quiver node. Add
                 legend with quiver arrow legend.
@@ -94,15 +132,6 @@ spy             plot sparsity pattern using markers or image
 hlines
 twinx
 plot_date
-=============== ========================================================
-
-
-TODO or cleanup
-===============
-
-=============== ========================================================
-Function         Description
-=============== ========================================================
 arrow           add an arrow to the axes
 barbs           a (wind) barb plot
 barh            a horizontal bar chart
@@ -128,7 +157,6 @@ rgrids          customize the radial grids and labels for polar
 setp            set a graphics property
 table           add a table to the plot
 thetagrids      customize the radial theta grids and labels for polar
-xcorr           plot the autocorrelation function of x and y
 =============== ========================================================
 
 
@@ -191,17 +219,11 @@ pylab functions to be implemented in openalea.numpy or openalea.pylab ?
     pylab.atleast_1d               pylab.extract                  pylab.irr                      pylab.pkgload                  pylab.standard_gamma
     pylab.atleast_2d                    pylab.is_closed_polygon        pylab.place                    pylab.standard_normal
     pylab.atleast_3d               pylab.f                        pylab.iscomplex                pylab.plot                     pylab.standard_t
-    pylab.AutoLocator              pylab.fabs                     pylab.iscomplexobj             pylab.plot_date                pylab.std
+    pylab.plot_date
      pylab.isfinite                 pylab.plotfile
     b.average                  pylab.fastCopyAndTranspose                     pylab.plotting
-    pylab.fft                      pylab.ishold                   pylab.plt                      pylab.stineman_interp
-    pylab.fft2                     pylab.isinf                    pylab.pmt
-    pylab.fftfreq                  pylab.isinteractive            pylab.poisson
-    pylab.fftn                     pylab.isnan
-    pylab.fftpack                  pylab.isneginf                 pylab.PolarAxes                pylab.string0
-    pylab.fftpack_lite             pylab.is_numlike               pylab.poly                     pylab.strpdate2num
-    pylab.fftshift                 pylab.isposinf                 pylab.poly1d                   pylab.SU
-    pylab.bar                      pylab.fftsurr                  pylab.ispower2                 pylab.polyadd                  pylab.subplot
+    pylab.ishold                   pylab.plt                      pylab.stineman_interp
+    pylab.isinf                    pylab.pmt
     pylab.barbs                    pylab.figaspect                pylab.isreal                   pylab.poly_below               pylab.subplots_adjust
     pylab.barh                     pylab.isrealobj                pylab.poly_between             pylab.subplot_tool
     pylab.isscalar                 pylab.polyder                  pylab.SubplotTool
@@ -227,11 +249,6 @@ pylab functions to be implemented in openalea.numpy or openalea.pylab ?
     pylab.broadcast_arrays         pylab.flatten                  pylab.less_equal               pylab.pv                       pylab.TH
     pylab.broken_barh              pylab.flexible                 pylab.levypdf                  pylab.pylab_setup              pylab.thetagrids
             pylab.fliplr                   pylab.lexsort                  pylab.PZERO                    pylab.TickHelper
-    pylab.flipud                   pylab.liaupunov                pylab.qr                       pylab.tile
-    pylab.Button                     pylab.linalg
-    pylab.LinAlgError                             pylab.trace
-    pylab.transpose
-    pylab.LinearLocator            pylab.radians                  pylab.trapz
     pylab.can_cast                 pylab.FLOATING_POINT_SUPPORT   pylab.little_endian            pylab.rand                     pylab.triangular
     pylab.cast                     pylab.floor                    pylab.load                     pylab.randint
     pylab.cbook                    pylab.floor_divide             pylab.loads                    pylab.trim_zeros
@@ -242,10 +259,10 @@ pylab functions to be implemented in openalea.numpy or openalea.pylab ?
     pylab.char                     pylab.FPE_DIVIDEBYZERO         pylab.log1p                    pylab.rank                     pylab.twinx
     pylab.character                pylab.FPE_INVALID              pylab.log2                     pylab.RankWarning              pylab.twiny
     pylab.chararray                pylab.FPE_OVERFLOW             pylab.LogFormatter             pylab.rate                     pylab.typecodes
-    pylab.chisquare                pylab.FPE_UNDERFLOW            pylab.LogFormatterExponent     pylab.ravel                    pylab.typeDict
-    pylab.cholesky                 pylab.FR                       pylab.LogFormatterMathtext     pylab.rayleigh                 pylab.typeNA
-    pylab.choose                   pylab.frange                   pylab.logical_and              pylab.rc                       pylab.typename
-    pylab.frexp                    pylab.logical_not              pylab.rcdefaults               pylab.ubyte
+    pylab.FPE_UNDERFLOW            pylab.LogFormatterExponent     pylab.typeDict
+      pylab.FR                       pylab.LogFormatterMathtext     pylab.typeNA
+    pylab.choose                   pylab.frange                   pylab.rc                       pylab.typename
+    pylab.rcdefaults               pylab.ubyte
     pylab.frombuffer               pylab.logical_or               pylab.rcParams                 pylab.ufunc
     pylab.fromfile                 pylab.logical_xor              pylab.rcParamsDefault          pylab.UFUNC_BUFSIZE_DEFAULT
     pylab.fromfunction             pylab.logistic                 pylab.real                     pylab.UFUNC_PYVALS_NAME
@@ -294,7 +311,7 @@ pylab functions to be implemented in openalea.numpy or openalea.pylab ?
                 pylab.gumbel                   pylab.MonthLocator             pylab.safe_eval
     pylab.cumproduct               pylab.MONTHLY                  pylab.sample                   pylab.winter
                      pylab.movavg                   pylab.save                     pylab.WRAP
-    pylab.DAILY                      pylab.mpl                      pylab.xcorr
+    pylab.DAILY                      pylab.mpl                  
     pylab.DataSource               pylab.helper                   pylab.msort                    pylab.savetxt                  pylab.xlabel
     pylab.date2num                 pylab.hexbin                   pylab.multinomial              pylab.savez
     pylab.DateFormatter            pylab.hfft                     pylab.MultipleLocator          pylab.ScalarFormatter          pylab.xscale
@@ -545,10 +562,6 @@ Axes3D.cohere
 Axes3D.connect
 Axes3D.contains
 Axes3D.contains_point
-Axes3D.contour
-Axes3D.contour3D
-Axes3D.contourf
-Axes3D.contourf3D
 Axes3D.convert_xunits
 Axes3D.convert_yunits
 Axes3D.create_axes
