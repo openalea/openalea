@@ -49,7 +49,7 @@ setup(
                  ],
 
             "wralea": [ 
-                        "openalea.misc.test = misc_wralea_test",
+                        "openalea.misc.test = openalea.misc_wralea_test",
             ]
 
     }
