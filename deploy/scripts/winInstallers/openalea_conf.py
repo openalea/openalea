@@ -1,9 +1,9 @@
 # -- Installer and dependency packages description : EDIT THIS --
 APPNAME="OpenAlea"
 APPVERSION="0.9"
+setup = {"LicenseFile":"LICENSE.TXT", "WizardSmallImageFile":"oalogo.bmp"}
 
 eggGlobs = "OpenAlea*.egg"
-
 
 # package -> (installerFlags, installationOrder)
 thirdPartyPackages = {   "python":      (MSI|RUNTIME|DEVELOP, 0),

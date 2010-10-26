@@ -1,6 +1,7 @@
 # -- Installer and dependency packages description : EDIT THIS --
 APPNAME="VPlants"
 APPVERSION="0.9"
+setup = {"LicenseFile":"LICENSE.TXT", "WizardSmallImageFile":"vplogo.bmp"}  
 
 eggGlobs = "VPlants*.egg|OpenAlea*.egg"
 
@@ -16,16 +17,9 @@ thirdPartyPackages = {   "python":      (NOT_INSTALLABLE|RUNTIME|DEVELOP, 0), #a
                          "pyqglviewer": (EGG|ARCH|PY_DEP|RUNTIME|DEVELOP|TEST_ME, 8),
                          "qt4_dev":     (EGG|ARCH|DEVELOP|TEST_ME, 9),
                          "mingw":       (EGG|ARCH|DEVELOP, 10)
-                         }
-                         
-
-                         
-tissue = ["celltissue", "genepattern", "growth", "tissue", "tissueedit", "tissueshape", 
-          "tissueview", "vmanalysis"]
+                         }                         
                          
 manuallyInstalled = ["VPlants"]
-#, "OpenAlea.Container", "VPlants.Tree", "VPlants.Tree_Statistic", "VPlants.Lpy",
-                     #"OpenAlea.pglviewer", "VPlants.svgdraw", "VPlants.mechanics", "VPlants.physics"] +["VPlants.Tissue."+t for t in tissue]
 
 manInstTemplate = StrictTemplate("""
     WizardForm.StatusLabel.Caption:='Installing $PACKAGE';

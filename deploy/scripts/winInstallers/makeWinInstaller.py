@@ -70,7 +70,7 @@ goodOptions = { "conf":str,
                 "arch":str,
                 "setup":dict}
                     
-optionsThatCanBeInConf = set(["eggGlobs"])
+optionsThatCanBeInConf = set(["eggGlobs", "setup"])
                             
 optionDefaults = {"runtime":True,
                   "pyMaj":sys.version_info[0],
@@ -267,12 +267,9 @@ def copy_eggs(options):
     # However, we don't explicitly know which egg has the os in the name
     # so simply encoding the os in the glob is a bad idea. What we do is:
     # [glob for project_prefix*python_version.egg] + [glob for project_prefix*python_version*os.egg]
-    # The egg globs at this stage have the project_prefix*python_version*.egg form.
-    
-    arch = "win32" if options["arch"] == "i386" else "64"
-    
-    globs = options["eggGlobs"]    
-    
+    # The egg globs at this stage have the project_prefix*python_version*.egg form.   
+    arch = "win32" if options["arch"] == "i386" else "64"    
+    globs = options["eggGlobs"]        
     
     files = []
     for g in globs:
@@ -295,7 +292,8 @@ def copy_eggs(options):
 # -- Override me to generate innosetup [setup] section.       
 def generate_inno_installer_setup_group(options):    
     final = ""
-    setupStuff = options["setup"]
+    setupStuff = options.get("setup", {})
+    setupStuff.update(globals().get("setup", {}))
     print "-------------------------------->", setupStuff
     for k, v in setupStuff.iteritems():
         basev = basename(v)
@@ -531,14 +529,10 @@ def read_conf_file(options):
         execfile(confFile, globals())
         print "Done"
 
-
 def processInstaller(mask, runtimeMode):
     if (runtimeMode==True and bt(mask, RUNTIME)) or (runtimeMode==False and bt(mask, DEVELOP)):
         return True
-    return False           
-        
-        
-        
+    return False                                   
         
 def printMissingArgs(input):
     goodSet = set(goodOptions.iterkeys())
@@ -546,7 +540,20 @@ def printMissingArgs(input):
     for i in missing:
         print "\t", i         
     return missing
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
         
 if __name__ == "__main__":
     options = dict(map(lambda x: x.split('='), sys.argv[1:]))
@@ -555,7 +562,7 @@ if __name__ == "__main__":
     read_conf_file(options)
     goodSet = set(goodOptions.iterkeys())
     
-    # -- Quick options parsing, either all options are satisfied or the process halts.
+    # -- Quick options parsing, first check if all required options are given.
     if not set(options.iterkeys()) == goodSet:
     
         # -- some options can be given in the conf file, and if they are, we find them in the global dict
@@ -574,6 +581,7 @@ if __name__ == "__main__":
                 if opt not in options:
                     options[opt] = val
         
+        # -- are we dead -- ?
         curOpts = set(options.iterkeys())
         if not set(options.iterkeys()) == goodSet:
             print_usage()
@@ -581,6 +589,7 @@ if __name__ == "__main__":
             printMissingArgs(curOpts)
             sys.exit(-1)
 
+            
     options = dict((k, evalOption(v, goodOptions[k])) for k, v in options.iteritems())
     # pyMaj and pyMin are also handy as string:
     options["pyMajStr"] = str(options["pyMaj"])

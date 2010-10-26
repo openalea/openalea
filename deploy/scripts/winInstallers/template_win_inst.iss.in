@@ -187,7 +187,8 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  ResultCode: Integer;
+  ResultCode, int1, int2, int3: Integer;
+  str1, str2, str3: String;  
 begin
    case CurStep of
       ssInstall :
