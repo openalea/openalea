@@ -3,9 +3,16 @@ from openalea.core.alea import *
 pm = PackageManager()
 pm.init(verbose=False)
 
-test_names = ['acorr', 'boxplot', 'cohere', 'colorbar', 'contour', 'csd', 'errorbar', 'fill', 'hexbin', 'hist', 'imshow', 'loglog', 'pcolor', 'pie',  'plot', 'polar', 'psd', 'quiver', 'scatter', 'specgram', 'stem', 'step', 'xcorr']
+test_names = ['acorr', 'annotation', 'axhline_axvline', 'axhspan_axvspan', 'boxplot', 
+    'cohere', 'circle', 'cohere', 'colorbar', 'contour', 'csd', 'ellipse', 'errorbar', 
+    'figure', 'fill', 'fill_between', 'grid', 'hexbin', 'hist', 'imshow', 'legend', 
+    'loglog', 'mcontour3d', 'mcontourf3d', 'mplot3d', 'patches', 'pcolor', 'pie',  
+    'plot', 'polygon', 'polar', 'psd', 'quiver', 'rectangle', 'scatter', 
+    'semilogx', 'semilogy', 'specgram', 'stem', 'step', 'tickparams', 'title', 
+    'tutorial_plot', 'tutorial_plot_line2d', 'tutorial_plot_line2d_2', 'wedge', 'xcorr', 
+    'xylabels', 'xylim', 'xyticks']
 
-demo_names = ['polar_demo','labels_demo','cross_spectral_density_windowing','hexbin_and_colorbar','SeveralAxesOnSameFigure','pie_demo','scatter_and_histograms','scatter_demo','Line2D_and_multiplots','test_image.npy','fill_between','patches','plot_demos']
+demo_names = ['polar_scatter', 'polar_demo','labels_demo','cross_spectral_density_windowing','hexbin_and_colorbar','SeveralAxesOnSameFigure','pie_demo','scatter_and_histograms','scatter_demo','Line2D_and_multiplots','test_image.npy','fill_between','patches','plot_demos']
 
 
 datasets = ['PyLabBivariateNormal']

@@ -25,6 +25,7 @@ Overview
     PyLabShow
     PyLabTextOptions
     PyLabTitle
+    PyLabTickParams
     PyLabXLabel
     PyLabXLim
     PyLabXTicks

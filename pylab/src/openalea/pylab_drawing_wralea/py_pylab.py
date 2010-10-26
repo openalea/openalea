@@ -29,18 +29,33 @@ from openalea.pylab import tools
 from openalea.pylab.tools import CustomizeAxes
 
 
-class PyLabFancyArrowPatch(Node):
-    """
+class PyLabFancyArrowDict(Node):
+    """Create a dictionary to store arrow key/value pairs.
 
+    This is then passed to an :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` node.
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
-    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    :param str arrowstyle:
+    :param str connectionstyle: default is 'arc3'
+    :param tuple relpos: default is (0.5,0.5)
+    :param dict patchA: default is None
+    :param dict patchB: default is None
+    :param dict shrinkA: default is None
+    :param dict shrinkB: default is None
+    :param float mutation_scale: default is 1
+    :param float mutation_aspect: default is 1
+    :param dict pathPatch: default is None
+    :param ec: to be done. is it the style?
+    :param dict kwargs: default is {}
+
+    :return: a dictionary containing the arrow properties
+
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` for a dataflow example.
     """
 
     def __init__(self):
         Node.__init__(self)
 
-        self.get_input('axes')
+        #self.get_input('axes')
 
         self.add_input(name='arrowstyle', interface=IEnumStr(tools.arrowstyles.keys()), value='simple')
         self.add_input(name='connectionstyle', interface=IEnumStr(tools.connectionstyles.keys()), value='arc3')
@@ -52,26 +67,47 @@ class PyLabFancyArrowPatch(Node):
         self.add_input(name='mutation_scale', interface=IFloat, value=1)
         self.add_input(name='mutation_aspect', interface=IFloat, value=1)
         self.add_input(name='pathPatch', interface=IDict, value=None)
+        self.add_input(name='ec', interface=IEnumStr(tools.linestyles.keys()), value='solid')
+        self.add_input(name='kwargs', interface=IDict, value={})
         #todo for connection style, connectionstyle="angle,angleA=0,angleB=-90,rad=10"
         #todo for arrowstyle:head_length=0.4,head_width=0.2 tail_width=0.3,shrink_factor=0.5
-        self.add_output(name='axes')
+        self.add_output(name='dict', interface=IDict, value={})
 
     def __call__(self, inputs):
 
         kwds = {}
         kwds['arrowstyle'] = self.get_input('arrowstyle')
-        #kwds['edgecolor'] = self.get_input('edgecolor')
-        #kwds['connectionstyle'] = self.get_input('connectionstyle')
-        #kwds['mutation_scale'] = self.get_input('mutation_scale')
+        kwds['relpos'] = self.get_input('relpos')
+        kwds['connectionstyle'] = self.get_input('connectionstyle')
+        kwds['mutation_scale'] = self.get_input('mutation_scale')
+        kwds['patchA'] = self.get_input('patchA')
+        kwds['patchB'] = self.get_input('patchB')
+        kwds['mutation_scale'] = self.get_input('mutation_scale')
+        kwds['mutation_aspect'] = self.get_input('mutation_aspect')
+        #kwds['ec'] = tools.linestyles[self.get_input('ec')]
+        for key, value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
 
-        return kwds
+        print kwds
+
+        return (kwds,)
 
 class PyLabYAArowDict(Node):
-    """
+    """Create a dictionary to store yaarow key/value pairs.
 
-    to be used as an input dictionary by Annotate node for instance
+    This is then passed to an :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` node.
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    :param float width:
+    :param float headwidth:
+    :param float frac:
+    :param float alpha:
+    :param str color:
+    :param dict kwargs:
+
+    :return: a dictionary containing the arrow properties
+
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` for a dataflow example.
+
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     # do not call the class but use its args and kwrags for others like BBox
@@ -96,7 +132,17 @@ class PyLabYAArowDict(Node):
         return kwds
 
 class PyLabBBox(Node):
-    """See pylab.bbox
+    """Create a dictionary to store bbox key/value pairs.
+
+    This is then passed to an :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` node.
+
+    :param str boxstyle:
+    :param float fc:
+    :param float pad:
+
+    :return: a dictionary containing the *boxstyle*, *fc* and *pad* keys
+
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAnnotate` for a dataflow example.
 
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
@@ -117,18 +163,40 @@ class PyLabBBox(Node):
         return kwds
 
 class PyLabAnnotate(Node):
-    """ call annotate method of the current axe
+    """Annotate the *x*, *y* point *xy* with text. See pylab.annotate for details
 
-    :param axes:
-    :param text:
-    :param xy: a tuple to set the xy coordinates of the arrow
-    :param xytext: a tuple to set the xy coordinates of the text
-    :param xycoords: type of coordinates used to place xy tuple
-    :param xytext: type of coordinates used to place xytext tuple
-    :param arrowprops: could be a YAArrow or FancyArrowPatch dictionary.
-    :param kwargs:
+    If the dictionary has a key *arrowstyle*, a FancyArrowDict
+    instance is created with the given dictionary and is
+    drawn. Otherwise, a YAArow patch instance is created and
+    drawn. Valid keys for YAArow are
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    :param axes: an optional axes where new data will be plotted.
+    :param text: the text to add in the axe
+    :param tuple xy: a tuple to set the xy coordinates of the arrow's head
+    :param tuple xytext: a tuple to set the xy coordinates of the text
+    :param str xycoords: type of coordinates used to place xy tuple
+    :param str xytext: type of coordinates used to place xytext tuple
+    :param dict arrowprops: could be a PyLabYAArrow or PyLabFancyArrowDict dictionary.
+    :param dict bbox: bbox where to insert the text. Use PyLabBbox dictionary
+    :param dict kwargs:
+
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabFancyArrowDict` and
+        :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabYAArowDict`
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test annotation
+        :width: 40%
+
+        **The openalea.pylab.test.annotation dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'annotation'),{},pm=pm)
+
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
@@ -138,11 +206,11 @@ class PyLabAnnotate(Node):
 
         self.add_input(name='text', interface=IStr, value=None)
         self.add_input(name='xy', interface=ITuple, value=(0,0))
-        self.add_input(name='xytext', interface=ITuple, value=None)
+        self.add_input(name='xytext', interface=ITuple, value=(0,0))
         self.add_input(name='xycoords', interface=IEnumStr(tools.xycoords.keys()), value='data')
         self.add_input(name='textcoords', interface=IEnumStr(tools.xycoords.keys()), value='data')
         self.add_input(name='arrowprops', interface=IDict, value={'arrowstyle':'->', 'connectionstyle':'arc3'})
-        #self.add_input(name='bbox', interface=IDict, value=None)
+        self.add_input(name='bbox', interface=IDict, value=None)
         self.add_input(name='kwargs(text properties)', interface=IDict, value={})
         self.add_output(name='output')
 
@@ -155,26 +223,34 @@ class PyLabAnnotate(Node):
         xytext = self.get_input('xytext')
         xycoords = self.get_input('xycoords')
         textcoords = self.get_input('textcoords')
+        bbox = self.get_input('bbox')
 
         axe = gca()
         axe.annotate(s, xy, xytext, xycoords=xycoords,
                  textcoords=textcoords,
+                 bbox=bbox,
                  arrowprops=self.get_input('arrowprops'), **kwds)
-        axe.get_figure().canvas.draw()
+        #SPHINX DATAFLOW bug. Comment this line for a proper rendering
+        #axe.get_figure().canvas.draw()
+        from pylab import  gca
+        gca().get_figure().canvas.draw()
 
         return self.get_input('axes')
 
 
 class PyLabAxhline(Node,CustomizeAxes):
-    """VisuAlea version of pylab.axhline
+    """Draw a horizontal line at *y* from *xmin* to *xmax*. See pylab.axhline for details.
 
-    :param *y*: the y position
-    :param *xmin*: starting x position
-    :param *xmax*: ending x position
-    :param *hold*: True by default
-    :param *kwargs or Line2D*: connect a Line2D object (optional)
+    :param axes: an optional axes where new data will be plotted.
+    :param float *y*: the y position
+    :param float *xmin*: starting x position
+    :param float *xmax*: ending x position
+    :param bool *hold*: True by default
+    :param dict *kwargs or Line2D*: connect a Line2D object (optional)
 
-    :returns: pylab.axhline output
+    :returns:
+        * current axe
+        * pylab.axhline output
 
     .. seealso:: in VisuAlea, see pylab/test/boxplot composite node.
 
@@ -192,8 +268,6 @@ class PyLabAxhline(Node,CustomizeAxes):
         pm = PackageManager()
         run_and_display(('openalea.pylab.test', 'axhline_axvline'),{},pm=pm)
 
-
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
@@ -241,19 +315,20 @@ class PyLabAxhline(Node,CustomizeAxes):
 
 
 class PyLabAxvline(Node,CustomizeAxes):
-    """VisuAlea version of pylab.axhline
+    """Draw a vertical line at *y* from *xmin* to *xmax*. See pylab.axhline for details.
 
-    :param *x*: the x position
-    :param *ymin*: starting y position
-    :param *ymax*: ending y position
-    :param *hold*: True by default
-    :param *kwargs or Line2D*: connect a Line2D object (optional)
+    :param axes: an optional axes where new data will be plotted.
+    :param float *x*: the x position
+    :param float *ymin*: starting y position
+    :param float *ymax*: ending y position
+    :param int *hold*: True by default
+    :param dict *kwargs or Line2D*: connect a Line2D object (optional)
 
-    :returns: pylab.axhline output
+    :returns:
+        * current axe
+        * pylab.axhline output
 
-    .. todo:: should include colormap and colorbar options
-
-    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhline` for 
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhline` for
         dataflow example.
 
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
@@ -293,7 +368,6 @@ class PyLabAxvline(Node,CustomizeAxes):
             kwds = self.get_input('kwargs or line2d')
 
         for axe in axes:
-            print x, ymin, ymax, hold, kwds
             line2d = axvline(x, ymin=ymin, ymax=ymax, hold=hold, **kwds)
             axe.add_line(line2d)
             axe.get_figure().canvas.draw()
@@ -301,16 +375,22 @@ class PyLabAxvline(Node,CustomizeAxes):
         return self.get_input('axes'), line2d
 
 class PyLabAxhspan(Node, CustomizeAxes):
-    """VisuAlea version of pylab.axvspan
+    """Axis Horizontal Span. See pylab.axvspan for details
 
+    Draw a horizontal span (rectangle) from *ymin* to *ymax*.
+    With the default values of *xmin* = 0 and *xmax* = 1.
+
+    :param axes: an optional axes where new data will be plotted.
     :param float xmin: starting x position
     :param float xmax: ending x position
     :param float ymin: starting y position
     :param float ymax: ending y position
     :param bool hold: True by default
-    :param dict kwargs: connect a Patch object (optional)
+    :param kwargs: connect a Patch/polygon object (optional) to further customize the span
 
-    :returns: pylab.axhspan output
+    :returns:
+        * current axe
+        * pylab.axhspan output
 
     :Example:
 
@@ -325,8 +405,6 @@ class PyLabAxhspan(Node, CustomizeAxes):
         from openalea.core.alea import *
         pm = PackageManager()
         run_and_display(('openalea.pylab.test', 'axhspan_axvspan'),{},pm=pm)
-
-    .. todo:i: should include colormap and colorbar options
 
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
@@ -347,25 +425,29 @@ class PyLabAxhspan(Node, CustomizeAxes):
         self.add_output(name="axes")
     def __call__(self, inputs):
         from pylab import axhspan
-        print self.get_input('kwargs (Patch)')
         res = axhspan(self.get_input('ymin'), self.get_input('ymax'), xmin=self.get_input('xmin'),
                 xmax=self.get_input('xmax'), **self.get_input('kwargs (Patch)'))
         return res
 
 
 class PyLabAxvspan(Node, CustomizeAxes):
-    """VisuAlea version of pylab.axvspan
+    """Axis Vertical Span. See pylab.axhspan for details
+
+    Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
+    the default values of *ymin* = 0 and *ymax* = 1.
 
     :param float xmin: starting x position
     :param float xmax: ending x position
     :param float ymin: starting y position
     :param float ymax: ending y position
     :param bool hold: True by default
-    :param kwargs: connect a Patch object (optional)
+    :param kwargs: connect a Patch/polygon object (optional) to further customize the span
 
-    :returns: pylab.axvspan output
+    :returns:
+        * current axe
+        * pylab.axhspan output
 
-    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhspan` for 
+    .. seealso:: :class:`~openalea.pylab_drawing_wralea.py_pylab.PyLabAxhspan` for
         dataflow example.
 
     .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
@@ -386,7 +468,6 @@ class PyLabAxvspan(Node, CustomizeAxes):
 
     def __call__(self, inputs):
         from pylab import axvspan
-        print self.get_input('kwargs (Patch)')
         res = axvspan(self.get_input('xmin'), self.get_input('xmax'), ymin=self.get_input('ymin'),
                 ymax=self.get_input('ymax'), **self.get_input('kwargs (Patch)'))
         return res

@@ -19,16 +19,16 @@ How to generate this documentation
     cd doc
     make html
 
-Since openalea.pylab is based upon matplotlib/pylab, we can take advantage of existing sphinx extensions provided 
-within the matplotlib library. Indeed, there is a sphinx extension called **plot_directive** that works as follows.  
-If you include the following code in your docstring::
+Since openalea.pylab is based upon matplotlib/pylab, we can take advantage of a sphinx extension provided 
+within the matplotlib library called **plot_directive**, which works as follows. If you include 
+a valid pylab code as follows::
 
     .. plot:: 
 
         from pylab import *
         plot(randn(100), randn(100), 'or')
 
-thenm sphinx generates the following image and include it in your final HTML version:
+then sphinx generates the following image and include it in your final HTML version:
 
 .. plot:: 
 
@@ -44,7 +44,7 @@ where **openalea.pylab.demo** is your wralea package name and **scatter_and_hist
 .. dataflow:: openalea.pylab.demo scatter_and_histograms
 
 .. warning:: Issue with the dataflow extension (about 20% of the dataflow generated do not show the edges
-.. warning:: Issue with the plot_directive extension. Before compiling the documentation, you must edit the openalea.pylab.plotting.py_pylab.py file to comment the code within the  *update_figure* method in the class *Plotting*. Otherwise you will obtain a single figure (if several are requested).
+.. warning:: Issue with the plot_directive extension. Before compiling the documentation, you must edit the openalea.pylab.plotting.py_pylab.py file to comment the code within the  *update_figure* method in the class *Plotting*. Otherwise you will obtain a single figure (if several are requested). Also in the colorBar class, you need to comment figure.canvas.draw() at the end of the class code.
 
 API
 ====

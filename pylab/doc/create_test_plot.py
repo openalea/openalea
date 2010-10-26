@@ -3,7 +3,7 @@ pm = PackageManager()
 pm.init(verbose=False)
 from pylab import *
 
-tests = ['acorr']
+tests = ['annotation']
 
 for test in tests:
     res = run_and_display(('openalea.pylab.test', test),{},pm=pm)

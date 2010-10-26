@@ -67,7 +67,7 @@ class PyLabPlot3D(Plotting):
         pm = PackageManager()
         run_and_display(('openalea.pylab.test', 'mplot3d'),{},pm=pm )
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         inputs = [
@@ -145,7 +145,7 @@ class PyLabContour3D(Plotting):
         run_and_display(('openalea.pylab.test', 'mcontour3d'),{},pm=pm )
 
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         inputs = [
@@ -203,7 +203,7 @@ class PyLabContourf3D(Plotting):
         run_and_display(('openalea.pylab.test', 'mcontourf3d'),{},pm=pm)
 
 
-    :author: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         inputs = [

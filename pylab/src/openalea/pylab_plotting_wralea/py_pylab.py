@@ -130,6 +130,7 @@ class Plotting(Node):
             work properly. When you want to generate the sphinx documentation, comment the code to 
             get the best output possible.
         """
+        #SPHINX DATAFLOW bug. Comment this line for a proper rendering
         #self.fig.canvas.draw()
         #self.fig.show()
 
@@ -1197,6 +1198,7 @@ class PyLabLine2D(Node):
 class PyLabPolar(Plotting, PlotxyInterface):
     """Make a polar plot. See pylab.polar for details.
 
+    :param axes: an optional axes where new data will be plotted.
     :param array theta:
     :param array r:
     :param dict kwargs:  Connect a :class:`~openalea.pylab_plotting_wralea.py_pylab.PyLabLine2D` 
@@ -1334,6 +1336,7 @@ class PyLabPie(Plotting):
         #hold is not valid when calling axe.pie but is valid is calling pylab.pie
         #kwds['hold'] = self.get_input('hold')
 
+        print kwds
         res = self.axe.pie(self.get_input('x'), **kwds)
 
         self.update_figure()
@@ -1962,17 +1965,6 @@ class PyLabContour(Plotting):
 class PyLabPsd(Plotting):
     """The power spectral density. See pylab.psd for details.
 
-            {'name':'NFFT',         'interface':IInt,   'value':256},
-            {'name':'Fs',           'interface':IFloat, 'value':2.},
-            {'name':'Fc',           'interface':IFloat, 'value':0},
-            {'name':'detrend',      'interface':IEnumStr(tools.detrends.keys()), 'value':'none'},
-            {'name':'window',       'interface':IEnumStr(tools.windows.keys()), 'value':'hanning'},
-            {'name':'noverlap',     'interface':IInt,   'value':0},
-            {'name':'pad_to',       'interface':IInt,   'value':None},
-            {'name':'sides',        'interface':IEnumStr(tools.sides), 'value':'default'},
-            {'name':'scale_by_freq','interface':IBool,  'value':None},
-            {'name':'kwargs(line2d)','interface':IDict,  'value':{}},
-
     :param axes: an optional axes where new data will be plotted.
     :param array x: input x array
     :param NFFT: The number of data points used in each block for
@@ -2433,7 +2425,9 @@ class PyLabStep(Plotting, PlotxyInterface):
         kwds['where'] = self.get_input('where')
         #todo add kwargs
         c = self.call('step', kwds)
-        gcf().canvas.draw()
+        #gcf().canvas.draw()
+        from pylab import  gca
+        gca().get_figure().canvas.draw()
         self.update_figure()
 
         return self.axe, c
@@ -3061,8 +3055,11 @@ class PyLabColorBar(Node):
             c = colorbar(ax=this_ax, cax=cax, cmap=cmap,**kwds)
             self.colorbar.append(c)
 
-        self.update_figure()
+
+        #comment this if you want sphinx to give a proper rendering...
         #gcf().canvas.draw()
+        from pylab import  gca
+        gca().get_figure().canvas.draw()
 
         return ax, self.colorbar
 

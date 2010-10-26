@@ -28,9 +28,11 @@ __all__ = [
 'py_pylab_PyLabAxes',
 'py_pylab_PyLabGrid',
 'py_pylab_PyLabFontProperties',
+'py_pylab_PyLabTextProperties',
 'py_pylab_PyLabAxis',
 'py_pylab_PyLabTitle',
 'py_pylab_PyLabCLF',
+'py_pylab_PyLabTickParams',
 'py_pylab_PyLabXTicks',
 'py_pylab_PyLabYTicks',
 'py_pylab_PyLabSaveFig',
@@ -47,6 +49,14 @@ py_pylab_PyLabShow = Factory(name='PyLabShow',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
                 nodeclass='PyLabShow',
+                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
+                )
+
+py_pylab_PyLabTickParams = Factory(name='PyLabTickParams',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabTickParams',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
 
@@ -171,6 +181,18 @@ py_pylab_PyLabCLF = Factory(name='PyLabClearFigure',
                 lazy=False
                )
 
+
+py_pylab_PyLabTextProperties = Factory(name='PyLabTextProperties',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabTextProperties',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
 
 
 py_pylab_PyLabFontProperties = Factory(name='PyLabFontProperties',

@@ -2,9 +2,6 @@ Reference guide
 ###############
 
 
-
-.. sectionauthor:: Thomas Cokelaer
-
 .. toctree::
     :maxdepth: 1
 

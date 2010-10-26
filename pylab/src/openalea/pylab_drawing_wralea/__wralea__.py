@@ -20,7 +20,7 @@ __icon__ = 'icon.png'
 __all__ = [
 'py_pylab_PyLabAnnotate',
 'py_pylab_PyLabYAArowDict',
-'py_pylab_PyLabFancyArrowPatch',
+'py_pylab_PyLabFancyArrowDict',
 'py_pylab_PyLabAxhline',
 'py_pylab_PyLabAxvline',
 'py_pylab_PyLabAxhspan',
@@ -70,11 +70,11 @@ py_pylab_PyLabYAArowDict = Factory(name='PyLabYAArowDict',
                )
 
 
-py_pylab_PyLabFancyArrowPatch = Factory(name='PyLabFancyArrowPatch',
+py_pylab_PyLabFancyArrowDict = Factory(name='PyLabFancyArrowDict',
                 description='pylab.fontproperties interface.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
-                nodeclass='PyLabFancyArrowPatch',
+                nodeclass='PyLabFancyArrowDict',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,

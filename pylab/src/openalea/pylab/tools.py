@@ -97,7 +97,7 @@ families = {
     'serif':'serif',
     'sans-serif':'sans-serif',
     'cursive':'cursive',
-    'fantasy':'fantisy',
+    'fantasy':'fantasy',
     'monospace':'monospace'}
 
 horizontalalignment = {
