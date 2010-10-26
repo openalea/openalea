@@ -24,9 +24,9 @@ and visualea nodes to wrap numpy algorithms
 ###########
 import os
 
-rc_file = "src/image/gui/icons/icons.qrc"
-out_file = "src/image/gui/icons_rc.py"
-os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
+# rc_file = "src/image/gui/icons/icons.qrc"
+# out_file = "src/image/gui/icons_rc.py"
+# os.system("pyrcc4 -o %s %s" % (out_file,rc_file) )
 
 # setup function call
 #
