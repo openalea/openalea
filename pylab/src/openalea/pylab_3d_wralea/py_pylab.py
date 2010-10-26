@@ -116,7 +116,7 @@ class PyLabPlot3D(Plotting):
         z = self.get_input('z')
         res = ax.plot(x,y,z, **kwds)
 
-        self.update_figure()
+        self.update_figure('3d')
         return ax
 
 
@@ -174,7 +174,7 @@ class PyLabContour3D(Plotting):
         levels = self.get_input('levels')
         ax.contour(x,y,z, levels=levels,  **kwds)
 
-        self.update_figure()
+        self.update_figure('3d')
         return ax
 
 
@@ -231,5 +231,5 @@ class PyLabContourf3D(Plotting):
 
         ax.contourf(x,y,z, **kwds)
 
-        self.update_figure()
+        self.update_figure('3d')
         return ax

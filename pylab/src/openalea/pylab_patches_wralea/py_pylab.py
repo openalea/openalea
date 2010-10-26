@@ -50,6 +50,7 @@ class PyLabPatchDictionary(Node):
     :return: a dictionary that can be used by patches to provide optional 
         arguments.
 
+
     .. todo:: cleanup by removing figure, axes and adding a kwargs connector. also 3 colors arguments
         seem redundant.
 

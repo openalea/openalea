@@ -872,7 +872,7 @@ class PyLabXLim(Node, CustomizeAxes):
             for axe in axes:
                 axe.set_xlim(xmin=xmin, xmax=xmax, **kwds)
                 #SPHINX HACK
-                #axe.get_figure().canvas.draw()
+                axe.get_figure().canvas.draw()
         return axes
 
 
@@ -913,7 +913,7 @@ class PyLabYLim(Node, CustomizeAxes):
         for axe in axes:
             axe.set_ylim(ymin=ymin, ymax=ymax, **kwds)
             #SPHINX HACK
-            #axe.get_figure().canvas.draw()
+            axe.get_figure().canvas.draw()
         return self.get_input('axes')
 
 

@@ -39,8 +39,6 @@ class Plotting(Node):
         * the last input connector is reseverd to set the pylab.figure number
 
     It also provides several methods that check validity of input axes, update the figure and so on.
-
-
     """
     ERROR_NOXDATA = 'No data connected to the x connector. Connect a line2D, an array or a list of line2Ds or arrays'
     ERROR_FAILURE = 'Failed to generate the image. check your entries.'
@@ -122,7 +120,7 @@ class Plotting(Node):
             self.axe = self.fig.add_axes([.1,.1,.8,.8], label=label)
 
 
-    def update_figure(self):
+    def update_figure(self, type=None):
         """This method updates the figure using pylab.figure.canvas.draw and pylab.show methods
 
 
@@ -131,8 +129,9 @@ class Plotting(Node):
             get the best output possible.
         """
         #SPHINX DATAFLOW bug. Comment this line for a proper rendering
-        #self.fig.canvas.draw()
-        #self.fig.show()
+        if type!='3d':
+            self.fig.canvas.draw()
+        self.fig.show()
 
 
 
@@ -1213,6 +1212,7 @@ class PyLabPolar(Plotting, PlotxyInterface):
         :width: 50%
 
         **The `openalea.pylab.test.polar` dataflow.**
+
 
     .. plot::
         :width: 50%

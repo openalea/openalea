@@ -224,9 +224,11 @@ Adding patches
 With pylab, it is possible to add patches such as circle, ellipse, polygon, etc on top of a axe.
 Some of those patches are available as visualea nodse. Look at the :mod:`patches <openalea.pylab_patches_wralea.py_pylab>` reference section to see how to use them. There is also a demo available called `patches`, which dataflow looks like:
 
+
 .. dataflow:: openalea.pylab.demo patches
     :width: 50%
- 
+
+
 .. plot::
 
     from openalea.core.alea import *
