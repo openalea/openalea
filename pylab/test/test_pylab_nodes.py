@@ -9,7 +9,7 @@ test_names = ['acorr', 'annotation', 'axhline_axvline', 'axhspan_axvspan', 'boxp
     'loglog', 'mcontour3d', 'mcontourf3d', 'mplot3d', 'patches', 'pcolor', 'pie',  
     'plot', 'polygon', 'polar', 'psd', 'quiver', 'rectangle', 'scatter', 
     'semilogx', 'semilogy', 'specgram', 'stem', 'step', 'tickparams', 'title', 
-    'tutorial_plot', 'tutorial_plot_line2d', 'tutorial_plot_line2d_2', 'wedge', 'xcorr', 
+    'tutorial_plot', 'tutorial_plot_line2d', 'wedge', 'xcorr', 
     'xylabels', 'xylim', 'xyticks']
 
 demo_names = ['polar_scatter', 'polar_demo','labels_demo','cross_spectral_density_windowing','hexbin_and_colorbar','SeveralAxesOnSameFigure','pie_demo','scatter_and_histograms','scatter_demo','Line2D_and_multiplots','test_image.npy','fill_between','patches','plot_demos']
