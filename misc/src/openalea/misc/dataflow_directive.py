@@ -1,7 +1,6 @@
 """A special directive for including a visualea dataflow.
 
-usage
-=====
+:Example:
 
 ::
 
@@ -16,9 +15,9 @@ options are identical to the image/plot/figure directives (width, scale, height,
 
 An additional caption may be added
 
-Based on plot_directives from matplotlib.
+Based on *plot_directive* from matplotlib.
 
-author: Thomas Cokelaer
+.. moduleauthor:: Thomas Cokelaer
 """
 
 from PyQt4 import QtGui
@@ -143,6 +142,17 @@ def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir):
     #print '########################################################3'
     #image = pixmap.toImage()
     #image.save(filename+'.pdf', 'PDF')
+
+    
+    #painter2 = QtGui.QPainter(pixmap)
+    #picture = QtGui.QPicture()
+    #painter2.begin(picture)
+    #view.scene().render(painter2)
+
+    #painter2.end()
+    #picture.save(filename+'.pdf', "PDF")
+
+
     view.close()
     return 1
 
@@ -176,7 +186,7 @@ def render_figures(plot_path, package_name, node_name, tmpdir, destdir):
         all_exists = True
         for format in ['png']:
             outname = os.path.join(
-                tmpdir, '%s_%02d.%s' % (basename, i, format))
+                tmpdir, '%s.%s' % (basename, format))
             if out_of_date(plot_path, outname):
                 all_exists = False
                 break

@@ -1,4 +1,12 @@
-"""Sphinx conf.py file that is common to all OpenAlea packages"""
+"""Sphinx conf.py file that is common to all OpenAlea packages
+
+
+Based on Sphinx configuration example with the proper extensions for 
+OpenAlea documentation. 
+
+
+.. warning:: Edit this file if you know what you are doing only !!!!
+"""
 # -*- coding: utf-8 -*-
 #
 # documentation build configuration file, created by
@@ -276,5 +284,4 @@ intersphinx_mapping = {'http://docs.python.org/': None,
                        'http://openalea.gforge.inria.fr/doc/vplants/stat_tool/doc/_build/html': None,
                        'http://openalea.gforge.inria.fr/doc/vplants/sequence_analysis/doc/_build/html': None,
                     }
-
 

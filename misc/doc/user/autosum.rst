@@ -9,11 +9,10 @@ Reference guide
 Class Inheritance diagram
 ==========================
 
-.. inheritance-diagram:: openalea.misc.gendoc
-.. inheritance-diagram:: openalea.misc.multisetup
-.. inheritance-diagram:: openalea.misc.path
-.. inheritance-diagram:: openalea.misc.sphinx_tools
-.. inheritance-diagram:: openalea.misc.upload_dist
+.. .. inheritance-diagram:: openalea.misc.gendoc
+.. .. inheritance-diagram:: openalea.misc.multisetup
+.. .. inheritance-diagram:: openalea.misc.path
+.. .. inheritance-diagram:: openalea.misc.upload_dist
 .. .. inheritance-diagram:: openalea.misc.openalea_distrib
 .. .. inheritance-diagram:: openalea.misc.sphinx_configuration
 
@@ -33,11 +32,8 @@ Download the source file :download:`../../src/openalea/misc/multisetup.py`.
 .. automodule:: openalea.misc.multisetup
     :members:
     :undoc-members:
-    :inherited-members:
     :show-inheritance:
     :synopsis: script to download projects from the SVN and compile them
-
-
 
 
 .. currentmodule:: openalea.misc.sphinx_tools
@@ -45,13 +41,9 @@ Download the source file :download:`../../src/openalea/misc/multisetup.py`.
 :mod:`openalea.misc.sphinx_tools` module
 ==========================================
 
-Download the source file :download:`../../src/openalea/misc/sphinx_tools.py`.
-
-
 .. automodule:: openalea.misc.sphinx_tools
     :members:
     :undoc-members:
-    :inherited-members:
     :show-inheritance:
     :synopsis: script to download projects from the SVN and compile them
 
@@ -61,13 +53,33 @@ Download the source file :download:`../../src/openalea/misc/sphinx_tools.py`.
 :mod:`openalea.misc.path` module
 ==========================================
 
-Download the source file :download:`../../src/openalea/misc/path.py`.
-
-
 .. automodule:: openalea.misc.path
     :members:
     :undoc-members:
-    :inherited-members:
-    :show-inheritance:
     :synopsis: An object representing a path to a file or directory
+
+:mod:`openalea.misc.dataflow_directive` module
+===============================================
+
+.. automodule:: openalea.misc.dataflow_directive
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :synopsis: sphinx directive dedicated to openalea
+
+:mod:`openalea.misc.autosum_generator` module
+===============================================
+
+.. automodule:: openalea.misc.autosum_generator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`openalea.misc.sphinx_configuration` module
+================================================
+
+.. automodule:: openalea.misc.sphinx_configuration
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

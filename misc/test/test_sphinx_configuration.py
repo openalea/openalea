@@ -18,6 +18,7 @@ def test_sphinx():
         'sphinx.ext.viewcode',
         'numpyext.only_directives',
         'matplotlib.sphinxext.plot_directive',
+        'openalea.misc.dataflow_directive'
         ]
 
     for extension in extensions:
