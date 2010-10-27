@@ -946,6 +946,9 @@ class CompositeNode(Node, DataFlow):
         dst_port = nodeDst.input_desc[port_dst]
 
         edgedata = "default", eid, src_port, dst_port
+        #connected ports cannot be hidden:
+        nodeSrc.set_port_hidden(port_src, False)
+        nodeDst.set_port_hidden(port_dst, False)
         self.notify_listeners(("edge_added", edgedata))
 
     def disconnect(self, src_id, port_src, dst_id, port_dst):
