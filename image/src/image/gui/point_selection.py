@@ -29,6 +29,7 @@ from PyQt4.QtGui import (QApplication,QMainWindow,QGraphicsScene,QGraphicsPixmap
                          QFileDialog,QMessageBox)
 
 import numpy as np
+from openalea.image.gui import icons_rc
 
 from pixmap_view import PixmapStackView, ScalableGraphicsView
 from palette import palette_names, palette_factory
@@ -105,14 +106,14 @@ class PointSelection (QMainWindow) :
 
         # QWidgetAction : "Rotation Left" 
         self._action_left = self._toolbar.addAction("left rotation")
-        self._action_left.setIcon(QIcon(":image/rotate_left.png") )
+        self._action_left.setIcon(QIcon(":/image/rotate_left.png") )
         QObject.connect(self._action_left, 
                         SIGNAL("triggered(bool)"),
                         self.rotate_left)
 
         # QWidgetAction : "Rotation Right" 
         self._action_right = self._toolbar.addAction("right rotation")
-        self._action_right.setIcon(QIcon(":image/rotate_right.png") )
+        self._action_right.setIcon(QIcon(":/image/rotate_right.png") )
         QObject.connect(self._action_right,
                         SIGNAL("triggered(bool)"),
                         self.rotate_right)
@@ -121,13 +122,13 @@ class PointSelection (QMainWindow) :
         self._action_add = self._toolbar.addAction("Add point")
         self._action_add.setCheckable(True)
         self._toolgroup.addAction(self._action_add)
-        self._action_add.setIcon(QIcon(":image/add.png") )
+        self._action_add.setIcon(QIcon(":/image/add.png") )
 
         # QWidgetAction : "Delete point" 
         self._action_delete = self._toolbar.addAction("Delete point")
         self._action_delete.setCheckable(True)
         self._toolgroup.addAction(self._action_delete)
-        self._action_delete.setIcon(QIcon(":image/delete.png") )
+        self._action_delete.setIcon(QIcon(":/image/delete.png") )
 
         ################### palette ###################
         self._palette_select = QComboBox()
