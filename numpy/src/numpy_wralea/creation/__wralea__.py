@@ -189,6 +189,7 @@ __all__.append("logspace")
 
 
 meshgrid = Factory(name="meshgrid",
+                authors="Thomas Cokelaer",
                 description="Return coordinate matrices from two coordinate vectors.",
                 category= "numpy",
                 inputs = (dict(name='x', interface=ISequence, value=[]),
