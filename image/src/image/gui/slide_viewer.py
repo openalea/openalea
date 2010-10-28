@@ -34,13 +34,12 @@ from slide_viewer_ui import Ui_MainWindow
 class SlideViewer (QMainWindow) :
 	"""Display each image in a stack using a slider
 	"""
-	def __init__ (self, order='C') :
+	def __init__ (self) :
 		QMainWindow.__init__(self)
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.order=order
 		#central label
-		self._im_view = PixmapStackView(order=self.order)
+		self._im_view = PixmapStackView()
 		self._label = ScalableLabel()
 		self.setCentralWidget(self._label)
 		
@@ -203,10 +202,10 @@ class SlideViewer (QMainWindow) :
 		self._last_mouse_y = event.y()
 		self.fill_infos()
 
-def display (image, palette_name = "grayscale", color_index_max = None,order="C") :
+def display (image, palette_name = "grayscale", color_index_max = None) :
     """
     """	
-    w = SlideViewer(order)
+    w = SlideViewer()
 		
     if not isinstance(image,SpatialImage):
         image = SpatialImage(image)

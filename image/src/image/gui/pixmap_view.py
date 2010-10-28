@@ -178,7 +178,7 @@ class PixmapView (object) :
 class PixmapStackView (PixmapView) :
 	"""Pixmap view of a spatial image as a stack of images
 	"""
-	def __init__ (self, img = None, palette = None, order='C') :
+	def __init__ (self, img = None, palette = None) :
 		"""Constructor
 		
 		:Parameters:
@@ -187,14 +187,18 @@ class PixmapStackView (PixmapView) :
 		"""
 		self._pixmaps = []
 		self._current_slice = 0
-		self.order = order
 
 		PixmapView.__init__(self,img,palette)
 	
 	def _reconstruct_pixmaps (self) :
 		pal = self.palette()
 		data = self.image()
-		
+
+		if data.flags.c_contiguous :
+                    order = 'C'
+                else:
+                    order = 'F'
+
 		#rotation
 		tr = QTransform()
 		tr.rotate(self._transform)
@@ -208,7 +212,7 @@ class PixmapStackView (PixmapView) :
 			#             data.shape[0],
 			#             data.shape[1],
 			#             QImage.Format_ARGB32)
-                        dat = to_pix (dat,self.order)
+                        dat = to_pix (dat,order)
 			pix.append(dat.transformed(tr) )
 		
 		self._pixmaps = pix
@@ -343,16 +347,20 @@ class PixmapStackView (PixmapView) :
 		        x_pix = i * w_pix / w
 			y_pix = j * h_pix / h
 		elif self._transform == 90 :
-			y_pix = i * h / h_pix
-			x_pix = (w_pix - j) * w_pix / w
+			#y_pix = i * h / h_pix
+			#x_pix = (w_pix - j) * w_pix / w
+                        y_pix = i
+			x_pix = (w_pix - j)
 			#i = (h_pix - y_pix) * h / h_pix
 			#j = x_pix * w / w_pix
 		elif self._transform == 180 :
 			x_pix = (w_pix - i) * w_pix / w
 			y_pix = (h_pix - j) * h_pix / h
 		elif self._transform == 270 :
-			y_pix = (h_pix - i) * h_pix / h
-			x_pix = j * w_pix / w
+			#y_pix = (h_pix - i) * h_pix / h
+			#x_pix = j * w_pix / w
+			y_pix = (h_pix - i) 
+			x_pix = j
 			#i = y_pix * h / h_pix
 			#j = (w_pix - x_pix) * w / w_pix
 		return x_pix,y_pix

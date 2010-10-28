@@ -33,7 +33,7 @@ def to_img (img,order='C') :
 	
 	:Returns Type: QImage
 	"""
-	img = array(img,uint32)
+	img = array(img,uint32).transpose(1,0,2)
 	dat = (img[...,0] << 16) + (img[...,1] << 8) + img[...,2]
 	
 	if img.shape[2] == 4 :
@@ -41,7 +41,7 @@ def to_img (img,order='C') :
 	else :
 		dat += 4278190080
 	
-	qimg = QImage(dat.flatten(order),
+	qimg = QImage(dat.flatten('C'),
 	              img.shape[1],
 	              img.shape[0],
 	              QImage.Format_ARGB32)
