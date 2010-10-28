@@ -299,7 +299,7 @@ class PyLabAxhline(Node,CustomizeAxes):
         if type(self.get_input('kwargs or line2d')) == Line2D:
             line2d = self.get_input('kwargs or line2d')
             kwds = line2d.properties()
-            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
+            for this in ['transform','children','axes','path', 'data', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
                 del kwds[this]
         else:
             kwds = self.get_input('kwargs or line2d')
@@ -363,7 +363,7 @@ class PyLabAxvline(Node,CustomizeAxes):
         if type(self.get_input('kwargs or line2d')) == Line2D:
             line2d = self.get_input('kwargs or line2d')
             kwds = line2d.properties()
-            for this in ['transform','children','axes','path', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
+            for this in ['transform','children','axes','path', 'data', 'xdata', 'ydata', 'xydata','transformed_clip_path_and_affine']:
                 del kwds[this]
         else:
             kwds = self.get_input('kwargs or line2d')

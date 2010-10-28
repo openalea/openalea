@@ -468,7 +468,8 @@ class PyLabTextProperties(Node):
         from matplotlib.font_manager import FontProperties
         fp = FontProperties(**kwds['fontproperties'])
         kwds['fontproperties'] = fp
-        #del kwds['fontproperties']
+        #hack for matplotlib <1.0.0
+        del kwds['agg_filter']
         return kwds
 
 
@@ -770,12 +771,17 @@ class PyLabTickParams(Node, CustomizeAxes):
         kwds['labelleft'] = self.get_input('labelleft')
         kwds['labelright'] = self.get_input('labelright')
 
-        from pylab import tick_params
-        axes = self.get_axes()
-        for axe in axes:
-            axe.tick_params(**kwds)
-            axe.get_figure().canvas.draw()
-        return axes
+        try:
+            from pylab import tick_params
+            axes = self.get_axes()
+            for axe in axes:
+                axe.tick_params(**kwds)
+                axe.get_figure().canvas.draw()
+            return axes
+        except:
+            import warnings
+            warnings.warn('\nWARNING: tickparams not available on your system. Consider installing a maplotlib version>=1')
+            return self.get_axes()
 
 class PyLabYTicks(Node, CustomizeAxes):
     """Set the tick locations and labels. See pylab.xticks for details.

@@ -1248,7 +1248,7 @@ class PyLabPolar(Plotting, PlotxyInterface):
         self.add_output(name='output')
 
     def __call__(self, inputs):
-        from pylab import polar, gca, sca, cla
+        from pylab import polar, gca,cla
 
         self.figure()
         #do not use that method that is not appropriate to a polar axe
@@ -1267,8 +1267,16 @@ class PyLabPolar(Plotting, PlotxyInterface):
             self.axe = gca()
         else:
             if self.axe != None:
-                sca(self.axe)
-                cla()
+                try:
+                    from pylab import sca
+                    sca(self.axe)
+                    cla()
+                except:
+                    from pylab import Figure
+                    f = self.axe.get_figure()
+                    Figure.sca(f, self.axe)
+                    cla()
+                    
 
 
         output = self.call('polar', kwds)
@@ -2686,9 +2694,10 @@ class PyLabFillBetween(Plotting, PlotxyInterface):
         y1 = self.get_input('y1')
         y2 = self.get_input('y2')
         where = eval(str(self.get_input('where')))
+        #hack matplotlib < 1.0.0 interpolate does not exist
         interpolate = self.get_input('interpolate')
 
-        c = self.axe.fill_between(x, y1, y2, where=where, interpolate=interpolate, **kwds)
+        c = self.axe.fill_between(x, y1, y2, where=where, **kwds)
 
         self.update_figure()
         return self.axe, c

@@ -1,3 +1,5 @@
+* 27 Oct 2010: fix some bugs to be back compatible with matplotlib 0.99
+   (whereas the official release is made for matplotlib 1.0.0
 * 26 Oct 2010: **documentation finalised and uploaded on the wiki**
 * 20 Oct 2010: **major refactoring before first release**
     - Completion of 2D plotting nodes witha  uniform api with the first input and output
