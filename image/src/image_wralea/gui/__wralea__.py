@@ -128,8 +128,7 @@ display = Factory(  name= "display",
 		    nodeclass = "display",
 		    inputs=(dict(name="images", interface=None),
 			    dict(name="palette_name", interface=IStr, value="grayscale"),
-			    dict(name="color_index_max", interface=IInt, value=None),
-                            dict(name='order', interface=IEnumStr(["C", "F"]), value="C"),),
+			    dict(name="color_index_max", interface=IInt, value=None),),
 		    outputs=(dict(name="view", interface=None),),
                                 )
 

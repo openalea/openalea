@@ -19,11 +19,11 @@ __revision__=" $Id: $ "
 
 from openalea.image import SpatialImage, SlideViewer, palette_factory
 
-def display (image, palette_name, color_index_max,order) :
+def display (image, palette_name, color_index_max) :
     if not isinstance(image,SpatialImage) :
 	image = SpatialImage(image)
 	
-    w = SlideViewer(order)
+    w = SlideViewer()
 		
     if color_index_max is None :
 	cmax = image.max()

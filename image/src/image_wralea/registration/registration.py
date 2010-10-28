@@ -49,9 +49,5 @@ def wra_points2transfo (image1,points1,image2,points2) :
     points2[:,1] *= vfy
     points2[:,2] *= vfz
 
-    print points1
-    print points2
-
-
     T = cp2transfo(points1,points2)
     return T,
