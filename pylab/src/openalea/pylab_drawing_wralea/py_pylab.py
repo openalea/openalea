@@ -304,6 +304,7 @@ class PyLabAxhline(Node,CustomizeAxes):
         else:
             kwds = self.get_input('kwargs or line2d')
 
+
         for axe in axes:
             line2d = axhline(y, xmin=xmin, xmax=xmax, hold=hold, **kwds)
             axe.add_line(line2d)

@@ -429,7 +429,8 @@ class PyLabTextProperties(Node):
         self.add_input(name='horizontalalignment', interface=IEnumStr(tools.horizontalalignment.keys()), value='left')
         self.add_input(name='rotation', interface=IFloat(-180,180,10), value=0)
         self.add_input(name='verticalalignment', interface=IEnumStr(tools.verticalalignment.keys()), value='baseline')
-        self.add_input(name='kwargs',   interface=IDict, value = {'agg_filter': None,
+        self.add_input(name='kwargs',   interface=IDict, value = {
+            #'agg_filter': None,
 #            'animated': False,
 #            'axes': None,
 #            'clip_box': None,

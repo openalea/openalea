@@ -107,11 +107,21 @@ class Plotting(Node):
             return
         #if an axe already exist, no need to create a new one: we simply clean it
         if self.axe:
-            from pylab import sca, cla
-            print 'No input axe, but axes already set. Clear it. %s' % self.axe, self.axe.__str__
-            self.axe.clear()
-            self.axe.get_figure().canvas.draw()
-            sca(self.axe)
+            try:
+                #matplotlib 1.0.0
+                from pylab import sca, cla
+                print 'No input axe, but axes already set. Clear it. %s' % self.axe, self.axe.__str__
+                self.axe.clear()
+                self.axe.get_figure().canvas.draw()
+                sca(self.axe)
+            except:
+                #matplotlib 0.99.1
+                from pylab import Figure
+                print 'No input axe, but axes already set. Clear it. %s' % self.axe, self.axe.__str__
+                self.axe.clear()
+                self.axe.get_figure().canvas.draw()
+                f = self.axe.get_figure()
+                Figure.sca(f, self.axe)
         #else, we need to create a new axe. Note, the use of label. Indeed, if same position is used, and same default label then
         # no new axes is created. See add_axes help. Our label is the number of axes.
         else:
@@ -1108,6 +1118,11 @@ class PyLabBoxPlot(Plotting):
 
         x = self.get_input("x")
 
+        #hack for matplotlib <1.0
+        bootstrap =self.get_input('bootstrap')
+        patch_artist =self.get_input('patch_artist')
+        #bootstrap not used 
+
         res = boxplot(x,
                 sym=tools.markers[self.get_input("marker")]+tools.colors[self.get_input("color")],
                 vert=self.get_input("vert"),
@@ -1116,8 +1131,6 @@ class PyLabBoxPlot(Plotting):
                 positions=self.get_input('positions'),
                 widths=self.get_input('widths'),
                 hold =self.get_input('hold'),
-                bootstrap =self.get_input('bootstrap'),
-                patch_artist =self.get_input('patch_artist'),
                 )
 
         self.update_figure()
