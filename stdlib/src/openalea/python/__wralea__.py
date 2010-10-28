@@ -47,7 +47,7 @@ getitem = Factory( name="getitem",
                    category="Python",
                    
                    inputs=[dict(name="obj", interface=None), 
-                           dict(name="key", interface=None, value=0),],
+                           dict(name="key", interface='IInt', value=0),],
                    nodemodule="operator",
                    nodeclass="getitem",
                    widgetmodule="python",
