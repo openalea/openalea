@@ -146,7 +146,7 @@ def run(component, inputs, pm=None, vtx_id=-1):
         return node.outputs
     else:
         node.eval_as_expression(vtx_id)
-        return node.node(vtx_id).output
+        return node.node(vtx_id).outputs
 
 def query(component, pm=None):
     """ show help of component """

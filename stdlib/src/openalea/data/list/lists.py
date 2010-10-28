@@ -28,8 +28,7 @@ class List(Node):
         """ inputs is the list of input values """
         import copy
         try:
-            iter( inputs[0] )
-            return (copy.copy(inputs[0]), )
+            return (list(inputs[0]), )
         except:
             return ([copy.copy(inputs[0])], )
 
