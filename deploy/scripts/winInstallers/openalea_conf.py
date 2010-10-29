@@ -13,7 +13,7 @@ thirdPartyPackages = {   "python":      (MSI|RUNTIME|DEVELOP, 0),
                          "qt4":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 3),
                          "numpy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 4),
                          "scipy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 5),
-                         "matplotlib":  (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 6),                         
+                         "matplotlib":  (EXE|PY_DEP|ARCH|RUNTIME|TEST_ME, 6),                         
                          "pil":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 7),
                          }
                          
@@ -54,14 +54,17 @@ end;"""
 # -- Let's do something smarter for openalea, to add it to start menu. --
                          
 postInstallPascalTemplate = StrictTemplate("""
-    Exec(GetPythonDirectory()+'python.exe', '-c "import sys;sys.path.append(\\"'+ GetPythonDirectory()+'Lib\\site-packages\\'+Eggs[$VISUALEAEGGID]+'\\");import visualea_postinstall as vp;vp.install()', '',
-          SW_HIDE, ewWaitUntilTerminated, ResultCode)""")
+    Exec(GetPythonDirectory()+'python.exe', '-c "import sys;sys.path.append(\\"'+ GetPythonDirectory()+'Lib\\site-packages\\'+Eggs[$EGGID]+'\\");import $EGGNAME' + '_postinstall as pi;pi.install()', '',
+          SW_HIDE, ewWaitUntilTerminated, ResultCode);""")
           
 def generate_pascal_post_install_code(options):
     eggs = options["eggs"]
-    visualeaId = -1
+    s=""
+    names = ["visualea", "deploygui"]
+
     for i, e in enumerate(eggs):
-        if "Visualea" in e:
-            visualeaId = str(i)
+        for p in names:
+            if p in e.lower():
+                s += postInstallPascalTemplate.substitute(EGGID=str(i), EGGNAME=p)
             
-    return postInstallPascalTemplate.substitute(VISUALEAEGGID=visualeaId)        
+    return s
