@@ -826,8 +826,9 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking
         on some operating systems"""
-        self.closing.emit(self, self.scene())
-        self.setScene(None)
+        if self.testAttribute(QtCore.Qt.WA_DeleteOnClose):
+            self.closing.emit(self, self.scene())
+            self.setScene(None)
         return QtGui.QGraphicsView.closeEvent(self, evt)
 
     #########################
