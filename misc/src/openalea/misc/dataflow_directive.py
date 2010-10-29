@@ -25,7 +25,7 @@ from openalea.core.alea import *
 from openalea.visualea.dataflowview import GraphicalGraph
 app = QtGui.QApplication([])
 
-pm = PackageManager()
+pm = PackageManager(verbose=False)
 pm.init()
 import matplotlib.cbook as cbook
 
