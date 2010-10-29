@@ -99,10 +99,10 @@ class PackageManager(object):
 
     __metaclass__ = Singleton
 
-    def __init__ (self):
+    def __init__ (self, verbose=True):
         """ Constructor """
         self.log = Logger()
-
+        self.verbose = verbose
         # remove namespace option
         #self.include_namespace = self.get_include_namespace()
 
@@ -202,7 +202,8 @@ class PackageManager(object):
         for epoint in iter_entry_points("wralea"):
 
             # Get Deprecated packages
-            print epoint.name, epoint.module_name
+            if self.verbose:
+                print epoint.name, epoint.module_name
             if(epoint.module_name == "deprecated"):
                 self.deprecated_pkg.add(epoint.name.lower())
                 continue
