@@ -375,7 +375,7 @@ class SearchModel (QAbstractListModel) :
         if (role == QtCore.Qt.DisplayRole):
             if(index.column() == 1):
                 return QVariant(str(item.package.get_id()))
-            return QVariant(str(item.name))
+            return QVariant(str(item.name+ " ("+item.package.name+")"))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
