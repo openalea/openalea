@@ -52,7 +52,7 @@ std =  Factory(name = "std",
         dict(name='ddof', interface=IInt, value=0),
         ),
     outputs = None,
-    nodemodule="math",
+    nodemodule="numpy_math",
     nodeclass = "std",
     )
 __all__.append("std")
@@ -188,7 +188,7 @@ inv = Factory(name = "inv",
 		category = "numpy",
 		inputs = (dict(name='array', interface=ISequence),),
 		outputs = (dict(name='array', interface= ISequence),),
-                nodemodule = "math",
+                nodemodule = "numpy_math",
 		nodeclass = "inv",
 		)
 
@@ -606,7 +606,7 @@ mean = Factory(name = "mean",
         dict(name='dtype', interface=None, value=None),
         ),
     outputs = None,
-    nodemodule="math",
+    nodemodule="numpy",
     nodeclass = "mean",
     )
 __all__.append("mean")
@@ -620,7 +620,7 @@ sum = Factory(name = "sum",
         dict(name='axis', interface=IInt,  value=None),
         dict(name='dtype', interface=IEnumStr(list_type), value='float64')),
     outputs = None,
-    nodemodule="math",
+    nodemodule="numpy_math",
     nodeclass = "wra_sum",
     )
 __all__.append("sum")
@@ -633,7 +633,7 @@ min = Factory(name = "min",
         dict(name='array', interface=None),
         dict(name='axis', interface=IInt,  value=None),),
     outputs = None,
-    nodemodule="math",
+    nodemodule="numpy_math",
     nodeclass = "wra_min",
     )
 __all__.append("min")
@@ -645,7 +645,7 @@ max = Factory(name = "max",
                 inputs = (dict(name='array', interface=None),
                           dict(name='axis', interface=IInt, value=None),),
                 outputs = (dict(name='out', interface= None),),
-                nodemodule = "math",
+                nodemodule = "numpy_math",
                 nodeclass = "wra_max",
               )
 
