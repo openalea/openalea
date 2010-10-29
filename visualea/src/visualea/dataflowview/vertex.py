@@ -53,7 +53,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     default_bottom_color             = QtGui.QColor(100, 100, 255, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
     default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
-    default_unlazy_color               = QtGui.QColor(69, 184, 12, 255)
+    default_unlazy_color             = QtGui.QColor(200,  255, 160, 255)
 
     #gradient stops
     startPos = 0.0
@@ -196,11 +196,11 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.__topColor    = self.default_error_color
                 self.__bottomColor = self.__topColor.darker()
                 self.__penColor    = self.default_pen_error_color
-            elif not self.vertex().lazy:
-                self.__topColor = self.default_unlazy_color
-                self.__bottomColor = self.__topColor.darker()
             elif self.vertex().user_application:
                 self.__topColor = self.default_user_application_color
+                self.__bottomColor = self.__topColor.darker()                
+            elif not self.vertex().lazy:
+                self.__topColor = self.default_unlazy_color
                 self.__bottomColor = self.__topColor.darker()
         else:
             userColor = self.get_view_data("userColor")
@@ -260,8 +260,8 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             key = event[1]
             if key == "delay":
                 self.update_delay_item()
-            elif key == "lazy" or key == "blocked":
-                self.update_colors()
+            elif key == "lazy" or key == "blocked" or key == "user_application":
+                self.update_colors()                
         elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
                 self.store_view_data(useUserColor = False)
