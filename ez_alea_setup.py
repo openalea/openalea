@@ -361,7 +361,7 @@ def welcome_setup():
         if len(revision) > 2:
             revision = revision[2]
         else:
-            revision = '0.8'
+            revision = '0.9'
         print "Running ez_alea_setup version %s" % revision
     except:
         pass
