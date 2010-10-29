@@ -17,7 +17,7 @@ __institutes__ = 'INRIA/CIRAD'
 __icon__ = ''
 
 
-__all__ = ['files_DirName', 'files_joinpath', 'files_FileReadlines', 'parentdir_parentdir', 'files_py_write', 'files_glob', 'viewfile', 'files_FileName', 'files_FileRead', 'files_py_tmpnam', 'files_PackageDir']
+__all__ = ['files_DirName', 'files_joinpath', 'expand_user', 'files_FileReadlines', 'parentdir_parentdir', 'files_py_write', 'files_glob', 'viewfile', 'files_FileName', 'files_FileRead', 'files_py_tmpnam', 'files_PackageDir']
 
 
 
@@ -33,8 +33,6 @@ files_DirName = Factory(name='dirname',
                )
 
 
-
-
 files_joinpath = Factory(name='joinpath',
                 description='Join several strings to form a path',
                 category='File,IO',
@@ -46,7 +44,16 @@ files_joinpath = Factory(name='joinpath',
                 widgetclass=None,
                )
 
-
+expand_user = Factory(name='expand_user_dir',
+                description='Replaces tilde by user home dir',
+                category='File,IO',
+                nodemodule='files',
+                nodeclass='expanduser',
+                inputs=({'interface': IStr, 'name': 'path', 'value': ''},),
+                outputs=({'interface': IStr, 'name': 'path'},),
+                widgetmodule=None,
+                widgetclass=None,
+               )
 
 
 files_FileReadlines = Factory(name='readlines',
