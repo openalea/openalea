@@ -27,6 +27,8 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.core import observer, node
 import compositenode_inspector
 
+INSPECTOR_EDGE_OFFSET = 15
+
 class VertexOperators(graphOpBase.Base):
     __vertexWidgetMap__ = weakref.WeakKeyDictionary()
 
@@ -43,6 +45,32 @@ class VertexOperators(graphOpBase.Base):
         if not isinstance(vertex, CompositeNode):
             return
         widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = view)
+        
+        ###################################
+        # -- Let's fix the window size -- #
+        ###################################       
+        scRectF = widget.scene().itemsBoundingRect()
+        tl      = scRectF.topLeft()
+        # -- check the rect doesn't have crazy negative values or too close to screen edge
+        # -- or else we loose window or window decorations.
+        scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET*2)
+        
+        scRect     = scRectF.toRect()        
+        screenGeom = QtGui.QApplication.instance().desktop().screenGeometry(widget)
+        if screenGeom.contains(scRect):
+            widget.setGeometry(scRect)
+        else:
+            if scRect.width() > screenGeom.width():
+                ratio    = screenGeom.width() / scRectF.width()*0.75
+                scRect.setWidth(ratio*scRect.width())
+            if scRect.height() > screenGeom.height():
+                ratio    = screenGeom.height() / scRectF.height()*0.75
+                scRect.setHeight(ratio*scRect.height())
+            widget.setGeometry(scRect)    
+        ##################
+        # -- Finished -- #
+        ##################
+        
         widget.set_operators(master.__main__.operator, master)
         widget.setWindowTitle("Inspecting " + vertex.get_caption())
         widget.show_entire_scene()
