@@ -764,13 +764,13 @@ class IOConfigDialog(QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         self.inModel = QtGui.QStandardItemModel(len(inputs), 4)
         self.inModel.setHorizontalHeaderLabels(["Name", "Interface", "Value", "Description"])
         self.inTable.setModel(self.inModel)
-
+        self.inTable.setEditTriggers (QtGui.QAbstractItemView.AllEditTriggers)
         self.inTable.setItemDelegate(delegate)
 
         self.outModel = QtGui.QStandardItemModel(len(outputs), 3)
         self.outModel.setHorizontalHeaderLabels(["Name", "Interface", "Description"])
         self.outTable.setModel(self.outModel)
-
+        self.outTable.setEditTriggers (QtGui.QAbstractItemView.AllEditTriggers)
         self.outTable.setItemDelegate(delegate)
 
         #self.inTable.setItemDelegateForColumn(1, ComboBoxDeletegate())
