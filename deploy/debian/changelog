@@ -1,3 +1,9 @@
+openalea-deploy (0.9.0-2ubuntu1ppa1) lucid; urgency=low
+
+  * final version for release 0.9.0
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 20:35:22 +0200
+
 openalea-deploy (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
   * source package automatically created by stdeb 0.6.0
