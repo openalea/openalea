@@ -1,3 +1,9 @@
+openalea (0.9.0-2~ppa7) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:23:03 +0200
+
 openalea (0.9.0-1ubuntu1ppa6) lucid; urgency=low
 
   * Add openalea.scheduler in the dependencies 

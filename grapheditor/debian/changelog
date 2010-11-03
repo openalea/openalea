@@ -1,6 +1,13 @@
+openalea-grapheditor (0.9.0-2~ppa2) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:05:24 +0200
+
 openalea-grapheditor (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
   * source package automatically created by stdeb 0.6.0
   * Update debian files
 
- --Christophe Pradal  <christophe.pradal@cirad.fr>  Tue, 22 Sep 2010 10:40:26 +0200
+ -- Christophe Pradal  <christophe.pradal@cirad.fr>  Tue, 22 Sep 2010 10:40:26 +0200
+

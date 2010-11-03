@@ -36,9 +36,10 @@ else:
     bin_dirs = None
 
 
-setup_requires = ['openalea.deploy', 'openalea.numpy']
+#setup_requires = ['openalea.deploy', 'openalea.numpy']
+setup_requires = ['openalea.deploy']
 if("win32" in sys.platform):
-    install_requires = []
+    install_requires = ['openalea.numpy']
 else:
     install_requires = []
     

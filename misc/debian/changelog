@@ -1,3 +1,15 @@
+openalea-misc (0.9.0-2~ppa3) lucid; urgency=low
+
+  * Fix bug in email address 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Sat, 30 Oct 2010 01:20:55 +0200
+
+openalea-misc (0.9.0-2~ppa2) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:06:02 +0200
+
 openalea-misc (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
   [ OpenAlea consortium, Christophe Pradal, Thomas Cokelaer ]

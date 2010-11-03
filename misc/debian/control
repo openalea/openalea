@@ -1,5 +1,5 @@
 Source: openalea-misc
-Maintainer: OpenAlea consortium, Christophe Pradal, Thomas Cokelaer <christophe pradal at cirad fr, Thomas Cokelaer at sophia inria fr>
+Maintainer: OpenAlea consortium, Christophe Pradal, Thomas Cokelaer <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
