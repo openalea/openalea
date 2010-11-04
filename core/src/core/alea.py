@@ -133,14 +133,20 @@ def run_and_display(component, inputs, gui=False, pm=None):
         start_qt(factory, node)
 
 
-def run(component, inputs, pm=None):
-    """ run component with inputs. can exit by exception. """
+def run(component, inputs, pm=None, vtx_id=-1):
+    """ Run component with inputs. can exit by exception.
+
+    If node_id is given, eval the dataflow from that node and return the result.
+    """
 
     _factory, node = get_node(component, inputs, pm)
 
-    node.eval()
-    return node.outputs
-
+    if vtx_id < 0:
+        node.eval()
+        return node.outputs
+    else:
+        node.eval_as_expression(vtx_id)
+        return node.node(vtx_id).outputs
 
 def query(component, pm=None):
     """ show help of component """

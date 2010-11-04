@@ -6,15 +6,16 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
+#testing buildbot
 """
 Multisetup allows to build and install all the packages of OpenAlea
 found in this directory.
 
-:Examples: 
+:Examples:
 
     # Developer mode : Installation of the packages
     python multisetup.py develop
@@ -27,7 +28,7 @@ found in this directory.
     python multisetup.py nosetests -w test install bdist_egg -d ../dist sdist -d ../dist
 
 .. todo::
-    - multisetup -h 
+    - multisetup -h
         * list of the options
 """
 import os, sys
@@ -43,8 +44,9 @@ except ImportError:
         print e
 
 
+
 dirs = """
-deploy 
+deploy
 deploygui
 core
 scheduler
@@ -55,6 +57,8 @@ sconsx
 misc
 pkg_builder
 image
+numpy
+pylab
 openalea_meta
 """.split()
 
