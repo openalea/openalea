@@ -247,7 +247,7 @@ latex_documents = [
    u'username from metainfo.ini', 'manual'),
 ]
 
-latex_elements = { 'inputenc': '\\usepackage[utf8x]{inputenc}' }
+latex_elements = { 'inputenc': '\\usepackage[utf8]{inputenc}' }
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
