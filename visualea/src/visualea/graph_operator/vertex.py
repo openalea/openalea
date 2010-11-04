@@ -27,8 +27,11 @@ from openalea.visualea.dialogs import DictEditor, ShowPortDialog, NodeChooser
 from openalea.core import observer, node
 import compositenode_inspector
 
+INSPECTOR_EDGE_OFFSET = 15
+
 class VertexOperators(graphOpBase.Base):
     __vertexWidgetMap__ = weakref.WeakKeyDictionary()
+    __compositeWidgetMap__ = weakref.WeakKeyDictionary()
 
     def __init__(self, master):
         graphOpBase.Base.__init__(self, master)
@@ -42,11 +45,48 @@ class VertexOperators(graphOpBase.Base):
         view   = master.get_graph_view()
         if not isinstance(vertex, CompositeNode):
             return
-        widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = view)
-        widget.set_operators(master.__main__.operator, master)
-        widget.setWindowTitle("Inspecting " + vertex.get_caption())
-        widget.show_entire_scene()
-        widget.show()
+            
+        widget= VertexOperators.__compositeWidgetMap__.get(vertex, None)
+        if(widget):
+            if(widget.isVisible()):
+                widget.raise_ ()
+                widget.activateWindow ()
+            else:
+                widget.show()
+            return
+        else:
+            widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = view)
+            VertexOperators.__compositeWidgetMap__[vertex] = widget
+            
+            ###################################
+            # -- Let's fix the window size -- #
+            ###################################       
+            scRectF = widget.scene().itemsBoundingRect()
+            tl      = scRectF.topLeft()
+            # -- check the rect doesn't have crazy negative values or too close to screen edge
+            # -- or else we loose window or window decorations.
+            scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET*2)
+            
+            scRect     = scRectF.toRect()        
+            screenGeom = QtGui.QApplication.instance().desktop().screenGeometry(widget)
+            if screenGeom.contains(scRect):
+                widget.setGeometry(scRect)
+            else:
+                if scRect.width() > screenGeom.width():
+                    ratio    = screenGeom.width() / scRectF.width()*0.75
+                    scRect.setWidth(ratio*scRect.width())
+                if scRect.height() > screenGeom.height():
+                    ratio    = screenGeom.height() / scRectF.height()*0.75
+                    scRect.setHeight(ratio*scRect.height())
+                widget.setGeometry(scRect)    
+            ##################
+            # -- Finished -- #
+            ##################
+            
+            widget.set_operators(master.__main__.operator, master)
+            widget.setWindowTitle("Inspecting " + vertex.get_caption())
+            widget.show_entire_scene()            
+            widget.show()
 
     @exception_display
     @busy_cursor

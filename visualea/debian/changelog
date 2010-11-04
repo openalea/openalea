@@ -1,0 +1,27 @@
+openalea-visualea (0.9.0-2~ppa5) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:12:58 +0200
+
+openalea-visualea (0.9.0-1ubuntu1ppa4) lucid; urgency=low
+
+  * update menu file
+  * update version to 0.9 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 24 Sep 2010 10:42:54 +0200
+
+openalea-visualea (0.9.0-1ubuntu1ppa2) lucid; urgency=low
+
+  * add menu file and a new icon
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 16:16:14 +0200
+
+openalea-visualea (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+  * modify control dependencies
+  * add python-qscintilla2 as dependency 
+  * 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 16:15:14 +0200

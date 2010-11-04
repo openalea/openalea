@@ -72,30 +72,18 @@ class GraphOperator(Observed):
 
     def bind_action(self, action, fName, *otherSlots):
         func, argcount = self.__get_wrapped(fName)
-        action.triggered[""].connect(self.identify_focused_graph_view )
-        action.triggered[bool].connect(self.identify_focused_graph_view )
-        if (argcount) < 2 :
-            action.triggered[""].connect(func)
-            for f in otherSlots:
-                action.triggered[""].connect(f)
-        else:
-            action.triggered[bool].connect(func)
-            for f in otherSlots:
-                action.triggered[bool].connect(f)
+        action.triggered.connect(self.identify_focused_graph_view )
+        action.triggered.connect(func)
+        for f in otherSlots:
+            action.triggered.connect(f)
         return action
 
     def unbind_action(self, action, fName=None, *otherSlots):
         func, argcount = self.__get_wrapped(fName)
-        action.triggered[""].disconnect(self.identify_focused_graph_view )
-        action.triggered[bool].disconnect(self.identify_focused_graph_view )
-        if (argcount) < 2 :
-            action.triggered[""].disconnect(func)
-            for f in otherSlots:
-                action.triggered[""].disconnect(f)
-        else:
-            action.triggered[bool].disconnect(func)
-            for f in otherSlots:
-                action.triggered[bool].disconnect(f)
+        action.triggered.disconnect(self.identify_focused_graph_view )
+        action.triggered.disconnect(func)
+        for f in otherSlots:
+            action.triggered.disconnect(f)
         return action
 
     def __add__(self, other):
@@ -108,11 +96,29 @@ class GraphOperator(Observed):
 
     def __get_wrapped(self, fName):
         func = self.__availableNames.get(fName)
-        def wrapped(*args, **kwargs):
+        argcount = func.func_code.co_argcount
+
+        #used for graph_operator methods that don't
+        #handle the QAction's boolean sent by trigger
+        def wrappedGOPNoBool(*args, **kwargs):
+            graphView = self.get_graph_view()
+            if self.get_graph() is None : return
+            #we receive a boolean from the triggered signal,
+            #but we cant handle it
+            args = args[1:]
+            return func(*args, **kwargs)
+        #used for graph_operator methods that DO
+        #handle the QAction's boolean sent by trigger
+        def wrappedGOPBool(*args, **kwargs):
             graphView = self.get_graph_view()
             if self.get_graph() is None : return
             return func(*args, **kwargs)
-        return wrapped, func.func_code.co_argcount
+
+
+        if argcount < 2:
+            return wrappedGOPNoBool, argcount
+        else:
+            return wrappedGOPBool, argcount
 
     ###########
     # setters #
