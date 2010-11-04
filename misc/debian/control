@@ -1,0 +1,15 @@
+Source: openalea-misc
+Maintainer: OpenAlea consortium, Christophe Pradal, Thomas Cokelaer <christophe.pradal@cirad.fr>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
+Standards-Version: 3.8.4
+XS-Python-Version: current
+
+Package: python-openalea.misc
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-openalea.deploy, python-openalea.core, python-sphinx
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: Miscellaneous tools for OpenAlea administration.
+
