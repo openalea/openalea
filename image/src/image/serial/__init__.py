@@ -22,5 +22,4 @@ __revision__=" $Id: $ "
 from scipy.misc.pilutil import imread,imsave
 from basics import save,load
 from inrimage import *
-
-
+from lsm import *

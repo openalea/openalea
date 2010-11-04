@@ -19,10 +19,12 @@ __icon__ = 'icon.png'
 
 __all__ = [
     'py_pylab_PyLabBoxPlot',
-    'py_pylab_PyLabPlot',
+    'py_pylab_PyLabPlot',  
+    'py_pylab_PyLabColorBar',
     'py_pylab_PyLabHist',
     'py_pylab_PyLabScatter',
     'py_pylab_PyLabAcorr',
+    'py_pylab_PyLabXcorr',
     'py_pylab_PyLabLine2D',
     'py_pylab_PyLabPolar',
     'py_pylab_PyLabPie',
@@ -32,7 +34,6 @@ __all__ = [
     'py_pylab_PyLabCohere',
     'py_pylab_PyLabHexBin',
     'py_pylab_PyLabContour',
-    'py_pylab_PyLabContourf',
     'py_pylab_PyLabCLabel',
     'py_pylab_PyLabCsd',
     'py_pylab_PyLabPsd',
@@ -49,6 +50,18 @@ __all__ = [
 
 
 
+
+py_pylab_PyLabColorBar = Factory(name='PyLabColorBar',
+                description='pylab.fontproperties interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabColorBar',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+                lazy=False
+               )
 
 
 
@@ -110,6 +123,18 @@ py_pylab_PyLabScatter = Factory(name='PyLabScatter',
 
 
 
+py_pylab_PyLabXcorr = Factory(name='PyLabXcorr',
+                description='pylab.hist interface.',
+                category='visualization, data processing',
+                nodemodule='py_pylab',
+                nodeclass='PyLabXcorr',
+                inputs=None,
+                outputs=None,
+                widgetmodule=None,
+                widgetclass=None,
+               )
+
+
 
 
 
@@ -122,7 +147,6 @@ py_pylab_PyLabAcorr = Factory(name='PyLabAcorr',
                 outputs=None,
                 widgetmodule=None,
                 widgetclass=None,
-                lazy=False
                )
 
 
@@ -254,17 +278,6 @@ py_pylab_PyLabContour = Factory(name='PyLabContour',
                 lazy=False
                )
 
-py_pylab_PyLabContourf = Factory(name='PyLabContourf',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabContour',
-                inputs=None,
-                outputs=None,
-                widgetmodule=None,
-                widgetclass=None,
-                lazy=False
-               )
 
 py_pylab_PyLabCLabel = Factory(name='PyLabCLabel',
                 description='pylab.fontproperties interface.',

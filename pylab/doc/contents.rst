@@ -2,7 +2,7 @@
 
 .. _pylab:
 
-.. module:: pylab
+.. module:: openalea.pylab
 
 OpenAlea Pylab documentation
 ###############################
@@ -36,10 +36,7 @@ Documentation
 - A `PDF <../latex/main.pdf>`_ version of |pylab| documentation is 
   available.
 
-.. seealso::
-
-   More documentation can be found on the
-   `openalea <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:pylab:pylab:pylab>`__ wiki.
+.. seealso:: `openalea <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:pylab:pylab:pylab>`__ wiki.
 
 Authors
 =======

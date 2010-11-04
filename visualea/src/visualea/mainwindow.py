@@ -99,7 +99,7 @@ class MainWindow(QtGui.QMainWindow,
             NodeFactoryTreeView(self, self.packageview)
         self.packageTreeView.setModel(self.pkg_model)
         self.vboxlayout1.addWidget(self.packageTreeView)
-        # self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
+        self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # category tree view
         self.cat_model = CategoryModel(self.pkgmanager)
@@ -107,7 +107,7 @@ class MainWindow(QtGui.QMainWindow,
             NodeFactoryTreeView(self, self.categoryview)
         self.categoryTreeView.setModel(self.cat_model)
         self.vboxlayout2.addWidget(self.categoryTreeView)
-        # self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
+        self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # search list view
         self.search_model = SearchModel()
@@ -115,7 +115,7 @@ class MainWindow(QtGui.QMainWindow,
             SearchListView(self, self.searchview)
         self.searchListView.setModel(self.search_model)
         self.vboxlayout3.addWidget(self.searchListView)
-        # self.searchListView.clicked.connect(self.on_package_manager_focus_change)
+        self.searchListView.clicked.connect(self.on_package_manager_focus_change)
 
         # data pool list view
         self.datapool_model = DataPoolModel(session.datapool)
@@ -125,11 +125,11 @@ class MainWindow(QtGui.QMainWindow,
         self.vboxlayout4.addWidget(self.datapoolListView)
 
         # help widget
-        # self.helpWidget = helpwidget.HelpWidget()
-        # css = pj(misc.__path__[0], "..", "..", "..",
-        #          "share", "_static", "openalea.css")
-        # self.helpWidget.set_stylesheet_file(css)
-        # self.poolTabWidget.addTab(self.helpWidget, "Help")
+        self.helpWidget = helpwidget.HelpWidget()
+        css = pj(misc.__path__[0], "..", "..", "..",
+                 "share", "_static", "openalea.css")
+        self.helpWidget.set_stylesheet_file(css)
+        self.poolTabWidget.addTab(self.helpWidget, "Help")
 
         # use view
       #   self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
@@ -493,7 +493,7 @@ class MainWindow(QtGui.QMainWindow,
         gwidget = None
         try:
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
-            # gwidget.scene().focusedItemChanged.connect(self.on_scene_focus_change)
+            gwidget.scene().focusedItemChanged.connect(self.on_scene_focus_change)
             self.session.add_graph_view(gwidget)
         except Exception, e:
             print "open_widget_tab", e

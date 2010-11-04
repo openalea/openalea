@@ -1,12 +1,31 @@
 """Some parameters"""
 
 
-scale = {'linear':'linear',
-    'log':'log',
-    'symlog':'symlog'}
+def build_dict(inputs, add_none=False):
+    output = {}
+    for this in inputs:
+        output[this] = this
+    if add_none:
+        output['None'] = None
+    
+    return output
 
+
+
+
+
+arrowstyles = build_dict(['-','->','-[','-|>','<-', '<->','<|-', '<|-|>', 'fancy', 'simple', 'wedge'])   
+boxstyles = build_dict(['round', 'round4', 'larrow','rarrow','roundtooth', 'sawtooth', 'square'])
+connectionstyles = build_dict(['angle', 'angle3','arc','arc3', 'bar'])
+ecs = {'none':'none','':''}
+extends = {'neither':'neither', 'both':'both',  'min':'min', 'max':'max' }
+fillstyles=['top','full','bottom','left','right']
+xycoords = build_dict(['figure points', 'figure pixels', 'figure fraction', 'axes points', 'axes pixels', 'axes fraction', 'data', 'offset points', 'polar'])
+which = build_dict(['major', 'minor', 'both'])
+spacings = { 'uniform':'uniform','proportional':'proportional'} 
+scale = {'linear':'linear', 'log':'log', 'symlog':'symlog'}
 ticks= {'auto':'auto', 'None':'None'}
-
+shadings = build_dict(['flat', 'faceted'])
 axis = {
     'off':'off',
     'manual':'manual',
@@ -17,8 +36,6 @@ axis = {
     'auto':'auto',
     'normal':'normal'
     }
-
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
 
 
 detrends = {
@@ -80,7 +97,7 @@ families = {
     'serif':'serif',
     'sans-serif':'sans-serif',
     'cursive':'cursive',
-    'fantasy':'fantisy',
+    'fantasy':'fantasy',
     'monospace':'monospace'}
 
 horizontalalignment = {
@@ -97,7 +114,8 @@ verticalalignment = {
 
 origins = {'lower':'lower',
     'upper':'upper',
-    'none':'None',
+    'None':None,
+    'image':'image'
     }
 
 extensions = {'png':'png',
@@ -133,28 +151,8 @@ for x in ['letter',
     'b5','b6','b7','b8','b9','b10']:
     papertypes[x] = x
     
-    
-arrowstyles={}
-for x in ['-','->','-[','-|>','<-', '<->','<|-', '<|-|>', 'fancy', 'simple', 'wedge']:
-    arrowstyles[x] = x
+            
 
-ecs = {'none':'none','':''}
-
-connectionstyles = {}
-for x in ['angle', 'angle3','arc','arc3', 'bar']:
-    connectionstyles[x]=x
-
-boxstyles = {}
-for x in ['round', 'round4', 'larrow','rarrow','roundtooth', 'sawtooth', 'square']:
-    boxstyles[x] = x
-
-xycoords = {}
-for x in ['figure points', 'figure pixels', 'figure fraction', 'axes points', 'axes pixels', 'axes fraction', 'data', 'offset points', 'polar']:
-    xycoords[x]=x
-
-which = {'major':'major','minor':'minor', 'both':'both'}
-        
-fillstyles=['top','full','bottom','left','right']
 
 locations = {
             'best' : 0,
@@ -169,11 +167,11 @@ locations = {
             'upper center' : 9,
             'center'       : 10,}
 
-sides = { 'default':'default',  'onesided':'onesided',  'twosided':'twosided' }
         
-from pylab import mlab
-
-windows = {'hanning':mlab.window_hanning, 'hamming, nartlett, blackman, kaiser (use numpy.window)':None, 'none':mlab.window_none}
+from matplotlib import mlab
+windows = {'hanning':mlab.window_hanning,
+           'hamming, bartlett, blackman, kaiser (use numpy.window)':None, 
+           'none':mlab.window_none}
 sides = ['default','onesided','twosided']
 
 from pylab import cm, get_cmap
@@ -186,12 +184,18 @@ cmaps['None'] = None
 angles = ['uv', 'xy']
 units= ['width','height','dots','inches','x','y']
 pivots = ['tail', 'middle', 'tip']
-interpolation = ['None', 'nearest', 'bilinear',
+
+
+interpolations = build_dict(['nearest', 'bilinear',
           'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
           'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-          'bessel', 'mitchell', 'sinc', 'lanczos']
-aspect = ['None', 'auto', 'equal']
-origin = ['None', 'upper', 'lower']
+          'bessel', 'mitchell', 'sinc', 'lanczos'], add_none=True)
+    
+
+
+
+
+aspects = build_dict(['auto', 'equal'], add_none=True)
 colors =  {
            'blue':'b',
            'green':'g',
@@ -202,7 +206,7 @@ colors =  {
            'yellow':'y',
            'black':'k',
            'white':'w',
-           'None':'None'}
+           'None':None}
         
         
 def get_valid_color(color='blue'):
@@ -482,7 +486,7 @@ def get_kwds_from_line2d(line2d=None, input_kwds={}, type=None):
                     del kwds[x]
                 except:
                     pass
-    if type in ['csd', 'psd', 'step']:
+    if type in ['csd', 'psd', 'step', 'polar']:
         try:
             del kwds['facecolor']
         except:
@@ -511,7 +515,7 @@ def get_kwds_from_line2d(line2d=None, input_kwds={}, type=None):
 
 def line2d2kwds(line2d, kwds={}):
     try:
-        for key, value in line2d.properties().properties():
+        for key, value in line2d.properties().iteritems():
             kwds[key] = value
     except:
         print 'warning: line2d may not be a valid Line2D object'
@@ -540,7 +544,9 @@ class CustomizeAxes(object):
     def get_axes(self):
         axes = self.get_input('axes')
         if axes == None:
-            return axes
+            from pylab import gca
+            axes = gca()
+            return [axes]
         
         if type(axes)!=list:
             axes = [axes]
@@ -549,3 +555,11 @@ class CustomizeAxes(object):
                 assert axe.__module__ in [matplotlib.axes.__name__,matplotlib.projections.polar.__name__], 'input must be a valid axes from matplotlib.axes %s given for %s' % (type(axes), axes)
             return axes
 
+
+
+parameters = {
+
+
+
+
+}

@@ -39,7 +39,7 @@ class FrameAnimator (QMainWindow) :
 	def __init__ (self, parent = None) :
 		QMainWindow.__init__(self,parent)
 		
-		self._pix_no_frames = QPixmap(":image/ghostbuster.png")
+		self._pix_no_frames = QPixmap(":/image/forbidden.png")
 		
 		self._frames = [] #list of frame
 		self._current_frame = None #currently displayed frame

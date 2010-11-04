@@ -699,10 +699,14 @@ class Node(AbstractNode):
         # Copy outputs
         # only one output
         if len(self.outputs) == 1:
-            if hasattr(outlist, "__getitem__") and len(outlist) == 1:
-                self.outputs[0] = outlist[0]
-            else:
+            try:
+                if hasattr(outlist, "__getitem__") and len(outlist) == 1:
+                    self.outputs[0] = outlist[0]
+                else:
+                    self.outputs[0] = outlist
+            except TypeError:
                 self.outputs[0] = outlist
+
             self.output_desc[0].notify_listeners(("tooltip_modified",))
 
         else: # multi output

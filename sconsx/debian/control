@@ -1,0 +1,24 @@
+Source: openalea-sconsx
+Maintainer: Christophe Pradal <christophe.pradal@cirad.fr>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
+Standards-Version: 3.8.4
+
+Package: python-openalea.sconsx
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, scons
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: Scons Extension to build multi-platform packages for OpenAlea
+ .
+ Scons Configuration Utilities for OpenAlea.
+ .
+ SConsX is a set of tools to enhance multi platform configuration,
+ build and installation.
+ This package extends scons with:
+     * automatic dependency between tools,
+     * default path for library depending on the platform ( Linux, Windows or Cygwin )
+     * automatic option settings
+     * Support for different compilers on Linux and Windows (e.g. gcc, msvc, mingw)
+ .

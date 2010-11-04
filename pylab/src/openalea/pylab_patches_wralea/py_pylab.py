@@ -15,28 +15,46 @@
 #
 ###############################################################################
 
-__doc__="""VisuAlea implementation of pylab.matplotlib.patch
-"""
-
+__doc__="""VisuAlea nodes related to pylab.patches functionalities"""
 __license__= "Cecill-C"
 __revision__=" $Id: py_stat.py 7897 2010-02-09 09:06:21Z cokelaer $ "
 
 #//////////////////////////////////////////////////////////////////////////////
 
-
 from openalea.core import Node
 from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
     ISequence, IEnumStr, IStr, IDirStr, ITuple3, IDict
-
 
 from openalea.pylab import tools
 
 
 class PyLabPatchDictionary(Node):
-    """VisuAlea version of pylab.patch
+    """VisuAlea version of pylab.patch.
+
+    This node allows you to customize a patch object such as 
+    :meth:`pylab.patches.Circle` and therefore all nodes in VisuAlea 
+    that are in the patches directory including for instance
+    :class:`PyLabCircle`, :class:`PyLabPolygon` and so on. 
+
+    :param float alpha: The alpha blending value. (default is 1.0)
+    :param axes:
+    :param color:
+    :param edgecolor:
+    :param facecolor:
+    :param figure:
+    :param fill:
+    :param label:
+    :param linestyle:
+    :param linewidth:
+
+    :return: a dictionary that can be used by patches to provide optional 
+        arguments.
 
 
-    .. todo:: finalise the options?
+    .. todo:: cleanup by removing figure, axes and adding a kwargs connector. also 3 colors arguments
+        seem redundant.
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -52,24 +70,6 @@ class PyLabPatchDictionary(Node):
         self.add_input(name='linewidth', interface=IFloat, value=None)
 
         self.add_output(name='output')
-    """animated    [True | False]
-antialiased or aa   [True | False] or None for default
-axes    an Axes instance
-clip_box    a matplotlib.transforms.Bbox instance
-clip_on     [True | False]
-clip_path   [ (Path, Transform) | Patch | None ]
-contains    a callable function
-gid     an id string
-hatch   [ '/' | '\' | '|' | '-' | '+' | 'x''| 'o' | 'O' | '.' | '*' ]
-lod     True  False
-picker  [None|float|boolean|callable]
-rasterized  [True | False | None]
-snap    unknown
-transform   Transform instance
-url     a url string
-visible     [True | False]
-zorder  any number
-    """
     def __call__(self, inputs):
         kwds = {}
         for x in ['alpha', 'axes', 'figure', 'fill', 'label', 'linestyle', 'linewidth']:
@@ -83,12 +83,32 @@ zorder  any number
 
 
 class PyLabCircle(Node):
-    """VisuAlea version of Circle
+    """Create true circle at center *xy*. See matplotlib.patches.Circle for details
 
     :param *x*: x coordinate of circle's center
     :param *y*: y coordinate of circle's center
     :param *radius*: radius of the circle
     :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
+
+    :return: a circle patch
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test circle
+        :width: 40%
+
+        **The `openalea.pylab.test.circle` dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'circle'),{},pm=pm )
+
+    .. todo:: vectorize version
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
 
     def __init__(self):
@@ -107,7 +127,7 @@ class PyLabCircle(Node):
         return c
 
 class PyLabEllipse(Node):
-    """VisuAlea version of Ellipse
+    """Create ellipse patch. See matplotlib.patches.Ellipse for details
 
     :param *x*: x coordinate of ellipse center
     :param *y*: y coordinate of ellipse center
@@ -115,6 +135,25 @@ class PyLabEllipse(Node):
     :param *height*: length of vertical axis
     :param *angle*:  rotation in degrees (anti-clockwise)
     :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
+    
+    :return: an ellipse patch
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test ellipse
+        :width: 40%
+
+        **The `openalea.pylab.test.ellipse` dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'ellipse'),{},pm=pm )
+
+    .. todo:: vectorize version
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         from matplotlib.patches import Ellipse
@@ -136,18 +175,32 @@ class PyLabEllipse(Node):
             **self.get_input('patch'))
         return c
 
-
-
-
-
 class PyLabRectangle(Node):
-    """VisuAlea version of Rectangle
+    """Create Rectangle patch. See matplotlib.patches.Rectangle for details
 
     :param *x*: x coordinate of lower left rectangle
     :param *y*: y coordinate of lower left rectangle
     :param *width*: width of the rectangle
     :param *height*: height of the rectangle
     :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
+    :return: a rectangle patch
+    
+    :Example:
+
+    .. dataflow:: openalea.pylab.test rectangle
+        :width: 40%
+
+        **The `openalea.pylab.test.rectangle` dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'rectangle'),{},pm=pm )
+
+    .. todo:: vectorize version
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -167,7 +220,7 @@ class PyLabRectangle(Node):
         return c
 
 class PyLabWedge(Node):
-    """VisuAlea version of Wedge
+    """Create Wedge patch. See matplotlib.patches.Wedge for details
 
     :param *x*: x-coordinate of wedge's center
     :param *y*: y-coordinate of wedge's center
@@ -176,6 +229,25 @@ class PyLabWedge(Node):
     :param *theta2*:
     :param *width*: if provided, then a partial wedge is drawn from inner radius *r* - *width* to outer radius *r*.
     :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
+
+    :return: a wedge patch
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test wedge
+        :width: 40%
+
+        **The `openalea.pylab.test.wedge` dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'wedge'),{},pm=pm )
+
+    .. todo:: vectorize version
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -197,13 +269,31 @@ class PyLabWedge(Node):
         return c
 
 class PyLabPolygon(Node):
-    """VisuAlea version of Polygon
+    """Create Polygon patch. See matplotlib.patches.Ellipse for details
 
     :param *x*: array with shape Nx1
     :param *y*: array with shape Nx1.
     :param *closed*: polygon will be closed so the starting and ending points are the same (default is True)
     :param *patch*:  a :class:`PyLabPatchDictionary` object (optional)
 
+    :return: a polygon patch
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test polygon
+        :width: 40%
+
+        **The `openalea.pylab.test.polygon` dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'polygon'),{},pm=pm )
+
+    .. todo:: vectorize version
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)

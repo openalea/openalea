@@ -81,3 +81,18 @@ standard_normal = Factory(name = "standard_normal",
     )
 
 __all__.append("standard_normal")
+
+
+uniform = Factory(name = "uniform",
+    description = "Draw samples from a uniform distribution.",
+    authors='Thomas Cokelaer',
+    category = "numpy",
+    inputs = (dict(name='low', interface=IFloat, value=0.0),
+            dict(name='high', interface=IFloat, value=1.0),
+            dict(name='size', interface=IInt, value=1)),
+    outputs = (dict(name='ndarray', interface= None),),
+    nodemodule = "vnumpy",
+    nodeclass = "wra_uniform",
+    )
+
+__all__.append("uniform")

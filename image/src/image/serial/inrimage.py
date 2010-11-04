@@ -1,10 +1,11 @@
 # -*- python -*-
 #
-#       spatial_image.serial: read/write spatial nd images
+#       image.serial: read/write spatial nd images
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -100,9 +101,10 @@ def read_inrimage (filename) :
 	ydim = int(prop.pop("YDIM") )
 	zdim = int(prop.pop("ZDIM") )
 	vdim = int(prop.pop("VDIM") )
-	if vdim != 1 :
-		msg = "don't know how to handle vectorial pixel values"
-		raise NotImplementedError(msg)
+        
+	#if vdim != 1 :
+        #	msg = "don't know how to handle vectorial pixel values"
+	#	raise NotImplementedError(msg)
 
 	#find data type
 	pixsize = int(prop.pop("PIXSIZE","0").split(" ")[0])
@@ -129,10 +131,14 @@ def read_inrimage (filename) :
 		raise UserWarning(msg)
 
 	#read datas
-	size = ntyp.itemsize * xdim * ydim * zdim
+	size = ntyp.itemsize * xdim * ydim * zdim * vdim
 	mat = np.fromstring(f.read(size),ntyp)
-	mat = mat.reshape( (zdim,xdim,ydim) )
-	mat = mat.transpose(2,1,0)
+        if vdim != 1 : 
+	    mat = mat.reshape( (zdim,xdim,ydim,vdim) )
+	    mat = mat.transpose(2,1,0,3)
+        else:
+	    mat = mat.reshape( (zdim,xdim,ydim) )
+	    mat = mat.transpose(2,1,0)
 	
 	#create SpatialImage
 	res = tuple(float(prop.pop(k) ) for k in ("VX","VY","VZ") )
@@ -200,6 +206,10 @@ def write_inrimage (filename, img) :
 		"unable to write that type of datas : %s" % str(img.dtype)
 		raise UserWarning(msg)
 	
+        #mandatory else an error occurs when reading image
+        info['#GEOMETRY']='CARTESIAN'
+        info['CPU']='decm'
+        
 	#write header
 	header = "#INRIMAGE-4#{\n"
 	for k in specific_header_keys :#HACK pas bo to ensure order of specific headers
@@ -221,8 +231,9 @@ def write_inrimage (filename, img) :
 	f.write(header)
 
 	#write datas
-	lmat = img.transpose(2,1,0)
-	f.write(lmat.tostring() )
+	#lmat = img.transpose(2,1,0)
+	#f.write(lmat.tostring() )
+        f.write(img.transpose().tostring() )
 
 	#return
 	if zipped :

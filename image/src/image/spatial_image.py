@@ -41,8 +41,11 @@ class SpatialImage (ndarray) :
 		 - `info` (dict of str|any) - metainfo
 		"""
 		#initialize datas
-		obj = asarray(input_array).view(cls)
-		
+                if input_array.flags.f_contiguous :
+                        obj = asarray(input_array,order='F').view(cls)
+		else :
+                        obj = asarray(input_array,order='F').view(cls)
+        
 		#assert resolution
 		if resolution is None :
 			if vdim == 1 :

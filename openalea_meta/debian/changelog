@@ -1,0 +1,36 @@
+openalea (0.9.0-2~ppa7) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:23:03 +0200
+
+openalea (0.9.0-1ubuntu1ppa6) lucid; urgency=low
+
+  * Add openalea.scheduler in the dependencies 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 24 Sep 2010 09:56:35 +0200
+
+openalea (0.9.0-1ubuntu1ppa5) lucid; urgency=low
+
+  * Add openalea.deploygui in the dependencies 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 24 Sep 2010 09:56:35 +0200
+
+openalea (0.9.0-1ubuntu1ppa4) lucid; urgency=low
+
+  [ Christophe Pradal ]
+  * change arch from any to all
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 14:47:27 +0200
+
+Oopenalea (0.9.0-1ubuntu1ppa3) lucid; urgency=low
+
+  [ OpenAlea consortium ]
+  * source package automatically created by stdeb 0.6.0
+
+  [ Christophe Pradal ]
+  * Remove scons from setup.py 
+  * Add openalea.deploygui in the dependencies 
+  * 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 23 Sep 2010 14:46:20 +0200

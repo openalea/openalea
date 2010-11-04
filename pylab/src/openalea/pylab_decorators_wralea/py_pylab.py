@@ -36,10 +36,10 @@ from openalea.pylab.tools import CustomizeAxes
 
 
 class PyLabLegend(Node, CustomizeAxes):
-    """VisuAlea version of pylab.legend
+    """Add a legend to the axe. see pylab.legend for details
 
-    :param *shadow*: draw a shadow behind legend. 
-    :param *location*: legend location. See :class:`Locations` 
+    :param *shadow*: draw a shadow behind legend.
+    :param *location*: legend location. See :class:`Locations`
     :param *numpoints*: the number of points in the legend for line
     :param *markercolor*:
     :param *fancybox*: draw a frame with a round fancybox
@@ -47,17 +47,31 @@ class PyLabLegend(Node, CustomizeAxes):
     :param *mode*: if mode is "expand", the legend will be horizontally expanded
     :param *title*: the legend title
     :param *prop*: connect an optional :class`PyLabFontProperties` object to customise further
-    
+
     .. todo::   *scatterpoints*: integer, *scatteroffsets*: , markerscale*: expand
       *bbox_to_anchor* ,  *bbox_transform*
         borderpad, labelspacing, handlelength,andletextpad,  borderaxespad,  columnspacing
 
-    :author: Thomas Cokelaer
+    :Example:
+
+    .. dataflow:: openalea.pylab.test legend
+        :width: 40%
+
+        **The openalea.pylab.demo.figure dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'legend'),{},pm=pm )
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
-        
+
         self.add_input(name='axes')
         self.add_input(name="shadow", interface=IBool, value=False)
         self.add_input(name="location", interface=IEnumStr(tools.locations.keys()), value=0)
@@ -101,11 +115,33 @@ class PyLabLegend(Node, CustomizeAxes):
         return self.get_input('axes')
 
 class PyLabFigure(Node):
-    """pylab.figure interface
+    """see pylab.figure for details.
 
-    Create figure
+    :param axes:
+    :param num:
+    :param figsize:
+    :param dpi:
+    :param facecolor:
+    :param edgecolor:
+    :param frameon:
+    :param subplotpars:
 
-    :authors: Thomas Cokelaer
+    :Example:
+
+    .. dataflow:: openalea.pylab.test figure
+        :width: 40%
+
+        **The openalea.pylab.demo.figure dataflow.**
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'figure'),{},pm=pm )
+
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -146,52 +182,18 @@ class PyLabFigure(Node):
         self.fig.set_edgecolor(self.get_input('edgecolor'))
         self.fig.set_frameon(self.get_input('frameon'))
         self.fig.set_dpi(self.get_input('dpi'))
-        self.fig.canvas.draw()
+        #SPHINX
+        #self.fig.canvas.draw()
         return self.fig
 
 
 class PyLabAxis(Node, CustomizeAxes):
+    """axis tuning. See pylab.axis for details
 
-    def __init__(self):
-        Node.__init__(self)
-        CustomizeAxes.__init__(self)
-
-        self.add_input(name="axes")
-
-        self.add_input(name='type', interface=IEnumStr(tools.axis.keys()), value='normal')
-        self.add_input(name='xmin', interface=IFloat(step=0.1), value=0.)
-        self.add_input(name='xmax', interface=IFloat(step=0.1), value=1.)
-        self.add_input(name='ymin', interface=IFloat(step=0.1), value=0.)
-        self.add_input(name='ymax', interface=IFloat(step=0.1), value=1.)
-
-        self.add_input(name='kwargs', interface=IDict, value={})
-
-        self.add_output(name="axes")
-
-    def __call__(self, inputs):
-
-        kwds = {}
-        type = self.get_input('type')
-        kwds['xmin'] = self.get_input('xmin')
-        kwds['xmax'] = self.get_input('xmax')
-        kwds['ymin'] = self.get_input('ymin')
-        kwds['ymax'] = self.get_input('ymax')
-
-        axes = self.get_axes()
-        for axe in axes:
-            if type=='manual':
-                axe.axis(**kwds)
-            else:
-                axe.axis(type, **kwds)
-            axe.get_figure().canvas.draw()
-
-        return self.get_input('axes')
- 
+    .. warning:: not for production
 
 
-
-
-class PyLabTextOptions(Node):
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>"""
 
     def __init__(self):
 
@@ -201,7 +203,7 @@ class PyLabTextOptions(Node):
         self.add_input(name="fontsize", interface=IFloat, value=12.)
         self.add_input(name="alpha", interface=IFloat(0., 1., step=0.1), value=0.5)
         self.add_input(name="color", interface=IEnumStr(tools.colors.keys()), value='blue')
-        self.add_input(name='backgroundcolor', interface=IEnumStr(colors.keys()), value='white')
+        self.add_input(name='backgroundcolor', interface=IEnumStr(tools.colors.keys()), value='white')
         self.add_input(name='rotation', interface=IFloat, value='horizontal')
         #self.add_input(name="withdash", interface=IBool, value=False)
         self.add_input(name="kwargs", interface=IDict, value={})
@@ -232,69 +234,35 @@ class PyLabTextOptions(Node):
 
         return ( kwds,)
 
-""" 
-      animated: [True | False]         
-      axes: an :class:`~matplotlib.axes.Axes` instance         
-      bbox: rectangle prop dict         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]    i
- clip_on: [True | False]         
-      clip_box: a :class:`matplotlib.transforms.Bbox` instance         
-      clip_on: [True | False]         
-      clip_path: [ (:class:`~matplotlib.path.Path`,         :class:`~matplotlib.transforms.Transform`) |         :class:`~matplotlib.patches.Patch` | None ]         
-      color: any matplotlib color         
-      contains: a callable function         
-      family or fontfamily or fontname or name: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]         
-      figure: a :class:`matplotlib.figure.Figure` instance         
-      gid: an id string         
-      horizontalalignment or ha: [ 'center' | 'right' | 'left' ]         
-      label: any string         
-      linespacing: float (multiple of font size)         
-      lod: [True | False]         
-      multialignment: ['left' | 'right' | 'center' ]         
-      picker: [None|float|boolean|callable]         
-      rasterized: [True | False | None]         
-      rotation_mode: unknown
-      size or fontsize: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]         
-      snap: unknown
-      stretch or fontstretch: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]         
-      style or fontstyle: [ 'normal' | 'italic' | 'oblique']         
-      text: string or anything printable with '%s' conversion.         
-      transform: :class:`~matplotlib.transforms.Transform` instance         
-      url: a url string         
-      variant or fontvariant: [ 'normal' | 'small-caps' ]         
-      verticalalignment or va or ma: [ 'center' | 'top' | 'bottom' | 'baseline' ]         
-      visible: [True | False]         
-      weight or fontweight: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]         
-      zorder: any number         
-"""
-
-
-class PyLabPolar(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="r")
-        self.add_input(name="theta")
-        self.add_input(name="kwargs", interface = IDict, value = {})
-        self.add_output(name="figure")
-
-    def __call__(self, inputs):
-        from pylab import polar, show
-        kwargs = self.get_input('kwargs')
-        fig = polar(self.get_input('r'), self.get_input('theta'), **kwargs)
-        show()
-        return (fig,)
-
 
 class PyLabXLabel(Node, CustomizeAxes):
-    """VisuAlea version of pylab.xlabel
+    """Add a label on the x-axis. See pylab.xlabel for details
 
-    :param text:
-    :param fontsize:
-    :param verticalalignement:
-    :param horizontalalignment:
-    :param text properties: output of a :class:`TextProperties` Node
+    :param axes: an optional axes where new data will be plotted.
+    :param str text:
+    :param int fontsize: font size (default 12)
+    :param str verticalalignement: (default is top)
+    :param str horizontalalignment: (default is center)
+    :param dict textproperties: output of a :class:`PyLabFontProperties` Node
+    :param dict kwargs: any other key/value pair
+    :return: the current axes
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test xylabels
+        :width: 40%
+
+        **The openalea.pylab.test.title dataflow.** Add a title to an existing
+        axes.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'xylabels'),{},pm=pm)
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -305,8 +273,10 @@ class PyLabXLabel(Node, CustomizeAxes):
         self.add_input(name="text", interface=IStr, value=None)
         self.add_input(name="fontsize", interface=IFloat, value=12.)
         self.add_input(name="labelpad", interface=IInt, value=None)
-        self.add_input(name="verticalalignment", interface=IEnumStr(tools.verticalalignment.keys()), value='top')
-        self.add_input(name="horizontalalignment", interface=IEnumStr(tools.horizontalalignment.keys()), value='center')
+        self.add_input(name="verticalalignment", interface=IEnumStr(tools.verticalalignment.keys()),
+            value='top')
+        self.add_input(name="horizontalalignment", interface=IEnumStr(tools.horizontalalignment.keys()),
+            value='center')
         self.add_input(name="text properties", interface=IDict, value={})
         self.add_input(name='kwargs', interface=IDict, value={})
 
@@ -314,15 +284,17 @@ class PyLabXLabel(Node, CustomizeAxes):
 
     def __call__(self, inputs):
         kwds = {}
-        kwds['fontsize'] = self.get_input('fontsize')
-        kwds['labelpad'] = self.get_input('labelpad')
-        kwds['verticalalignment'] = self.get_input('verticalalignment')
-        kwds['horizontalalignment'] = self.get_input('horizontalalignment')
         for key, value in self.get_input('text properties').iteritems():
             kwds[key]=value
 
         for key, value in self.get_input('kwargs').iteritems():
             kwds[key] = value
+
+        #input text and fontproperties are overwritten
+        kwds['fontsize'] = self.get_input('fontsize')
+        kwds['labelpad'] = self.get_input('labelpad')
+        kwds['verticalalignment'] = self.get_input('verticalalignment')
+        kwds['horizontalalignment'] = self.get_input('horizontalalignment')
 
         axes = self.get_axes()
         for axe in axes:
@@ -330,14 +302,19 @@ class PyLabXLabel(Node, CustomizeAxes):
             axe.get_figure().canvas.draw()
         return axes
 
+
 class PyLabYLabel(Node, CustomizeAxes):
-    """VisuAlea version of axes.set_ylabel or ylabel
+    """Add a label on the x-axis. See pylab.xlabel for details
 
     :param text:
     :param fontsize:
     :param verticalalignement:
     :param horizontalalignment:
     :param text properties: output of a :class:`TextProperties` Node
+
+    :Example: See :class:`~openalea.pylab_decorators_wralea.py_pylab.PyLabXLabel`
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -348,24 +325,29 @@ class PyLabYLabel(Node, CustomizeAxes):
         self.add_input(name="text", interface=IStr, value=None)
         self.add_input(name="fontsize", interface=IFloat, value=12.)
         self.add_input(name="labelpad", interface=IInt, value=None)
-        self.add_input(name="verticalalignment", interface=IEnumStr(tools.verticalalignment.keys()), value='top')
-        self.add_input(name="horizontalalignment", interface=IEnumStr(tools.horizontalalignment.keys()), value='center')
+        self.add_input(name="verticalalignment", interface=IEnumStr(tools.verticalalignment.keys()), 
+            value='center')
+        self.add_input(name="horizontalalignment", interface=IEnumStr(tools.horizontalalignment.keys()), 
+            value='right')
         self.add_input(name="text properties", interface=IDict, value={})
-        self.add_input(name='kwargs', interface=IDict, value={})
+        self.add_input(name='kwargs', interface=IDict, value={'rotation':'vertical'})
 
         self.add_output(name="axes")
 
     def __call__(self, inputs):
         kwds = {}
-        kwds['fontsize'] = self.get_input('fontsize')
-        kwds['labelpad'] = self.get_input('labelpad')
-        kwds['verticalalignment'] = self.get_input('verticalalignment')
-        kwds['horizontalalignment'] = self.get_input('horizontalalignment')
+
         for key, value in self.get_input('text properties').iteritems():
+            print key, value
             kwds[key]=value
 
         for key, value in self.get_input('kwargs').iteritems():
             kwds[key] = value
+
+        kwds['fontsize'] = self.get_input('fontsize')
+        kwds['labelpad'] = self.get_input('labelpad')
+        kwds['verticalalignment'] = self.get_input('verticalalignment')
+        kwds['horizontalalignment'] = self.get_input('horizontalalignment')
 
         axes = self.get_axes()
         for axe in axes:
@@ -375,6 +357,31 @@ class PyLabYLabel(Node, CustomizeAxes):
 
 
 class PyLabTitle(Node, CustomizeAxes):
+    """Add a title to the current axe. See pylab.title for details
+
+    :param axes:
+    :param str text:
+    :param int fontsize: (default 12)
+    :param str color: (default black)
+    :param dict kwargs: (defaut {})
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test title
+        :width: 40%
+
+        **The openalea.pylab.test.title dataflow.** Add a title to an existing
+        axes.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'title'),{},pm=pm)
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         from matplotlib import font_manager
@@ -382,11 +389,9 @@ class PyLabTitle(Node, CustomizeAxes):
         CustomizeAxes.__init__(self)
 
         self.add_input(name="axes")
-
         self.add_input(name="text", interface=IStr, value=None)
         self.add_input(name="fontsize", interface=IFloat, value=12)
         self.add_input(name="color", interface=IEnumStr(tools.colors.keys()), value='black')
-        #self.add_input(name="fontproperties", interface=IDict, value=font_manager.FontProperties())
         self.add_input(name='kwargs', interface=IDict, value={})
 
         self.add_output(name='axes')
@@ -394,10 +399,7 @@ class PyLabTitle(Node, CustomizeAxes):
     def __call__(self, inputs):
         kwds = {}
         kwds['fontsize'] = self.get_input('fontsize')
-        #kwargs['fontproperties'] = self.get_input('fontproperties')
         kwds['color'] = self.get_input('color')
-        #if 'text' in kwargs.keys():
-        #    self.set_input('text', kwargs['text'], notify=True)
         for key, value in self.get_input('kwargs').iteritems():
             kwds[key]=value
 
@@ -412,10 +414,86 @@ class PyLabTitle(Node, CustomizeAxes):
 
 
 
+class PyLabTextProperties(Node):
+    """Create a TextProperties dict. See pylab.Text for details.
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='alpha',    interface=IFloat(0,1,0.1), value=1)
+        self.add_input(name='color',    interface=IEnumStr(tools.colors.keys()), value='k')
+        self.add_input(name='fontproperties', interface=IDict, value={'family':'sans-serif',
+            'size':12, 'stretch':'normal', 'style':'normal', 'weight':'normal',
+            'variant':'normal'})
+        self.add_input(name='horizontalalignment', interface=IEnumStr(tools.horizontalalignment.keys()), value='left')
+        self.add_input(name='rotation', interface=IFloat(-180,180,10), value=0)
+        self.add_input(name='verticalalignment', interface=IEnumStr(tools.verticalalignment.keys()), value='baseline')
+        self.add_input(name='kwargs',   interface=IDict, value = {
+            #'agg_filter': None,
+#            'animated': False,
+#            'axes': None,
+#            'clip_box': None,
+#            'clip_on': True,
+#            'clip_path': None,
+#            'contains': None,
+#            'figure': None,
+#            'gid': None,
+#            'path_effects': None,
+#            'picker': None,
+#            'rasterized': None,
+#            'rotation_mode': None,
+#            'snap': None,
+#            'text': '',
+#            'transform': None,
+            'url': None,
+#            'visible': True,
+            'zorder': 3})
+
+        self.add_output(name='kwds', interface=IDict, value={})
+
+    def __call__(self,inputs):
+        kwds = {}
+
+        for input in self.input_desc:
+            if input['name'] != 'kwargs':
+                kwds[input['name']] = self.get_input(input['name'])
+            else:
+                # the kwargs
+                for k,v in self.get_input('kwargs').iteritems():
+                    kwds[k] = v
+
+        # finally clear up the fontproperties dictionary and replace it by an instance of font properties.
+        from pylab import matplotlib
+        from matplotlib.font_manager import FontProperties
+        fp = FontProperties(**kwds['fontproperties'])
+        kwds['fontproperties'] = fp
+        #hack for matplotlib <1.0.0
+        del kwds['agg_filter']
+        return kwds
 
 
 
 class PyLabFontProperties(Node):
+    """A Font properties selector. See matplotlib.font_manager.FontProperties for details.
+
+    .. warning:: not to be used alone. Connect this node to a TextProperties node.
+
+    :param str family:
+    :param str style:
+    :param str weight:
+    :param str variant:
+    :param str stretch:
+    :param str size:
+    :param str fname: connect to a file with your fonts
+    :param dict kwargs: any other key/value pair
+
+    :return: a dictionary to be used by a FontProperties instance.
+
+    .. seealso:: TextProperties
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
 
     def __init__(self):
         Node.__init__(self)
@@ -425,8 +503,8 @@ class PyLabFontProperties(Node):
         self.add_input(name='weight', interface=IEnumStr(tools.weights.keys()), value='normal')
         self.add_input(name='stretch', interface=IEnumStr(tools.streches.keys()), value='normal')
         self.add_input(name='size', interface=IEnumStr(tools.sizes.keys()), value='medium')
-        #todo size could be number, similarly for stretch and weight
-        #self.add_input(name='fname', fname=None)
+        self.add_input(name='fname', interface=IStr, value=None)
+        self.add_input(name='kwargs', interface=IDict, value={})
         #self.add_input(name='_init', _init=None)
         #todo style, variant and strethc do not seem to work
         self.add_output(name='kwds', interface=IDict, value={})
@@ -435,10 +513,15 @@ class PyLabFontProperties(Node):
         kwds = {}
         kwds['family'] = self.get_input('family')
         kwds['style'] = self.get_input('style')
-        kwds['size'] = self.get_input('size')
+        # !!! size must be translated into number.
+        from pylab import matplotlib
+        from matplotlib import font_manager
+        kwds['size'] = font_manager.font_scalings[self.get_input('size')]
         kwds['variant'] = self.get_input('variant')
         kwds['weight'] = self.get_input('weight')
         kwds['stretch'] = self.get_input('stretch')
+        for key, value in self.get_input('kwargs').iteritems():
+            kwds[key] = value
 
         return kwds
 
@@ -446,7 +529,10 @@ class PyLabFontProperties(Node):
 
 
 class PyLabSaveFig(Node):
-    """ should include hanning, ...."""
+    """Save the current figure in a file. See pylab.savefig for details. 
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         from matplotlib.pyplot import rcParams
         Node.__init__(self)
@@ -470,14 +556,36 @@ class PyLabSaveFig(Node):
         kwds['edgecolor']= self.get_input('edgecolor')
         kwds['orientation']=self.get_input('orientation')
         kwds['papertype']=self.get_input('papertype')
-        kwds['format']=extensions[self.get_input('format')]
+        kwds['format']=tools.extensions[self.get_input('format')]
         kwds['transparent']=self.get_input('transparent')
         savefig(self.get_input('fname'), **kwds)
 
 
+class PyLabShow(Node):
+    """This node simply calls pylab.show(), which may be useful sometimes.
+
+    The input and output connectors are not used by the function itself. There
+    are present to allow this node to be used in a dataflow. Therefore the
+    output is simply set to be the input parameter.
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='dummy')
+        self.add_output(name='dummy')
+
+    def __call__(self, inputs):
+        from pylab import show
+        show()
+        return self.get_input('dummy')
 
 class PyLabColorMap(Node):
+    """Plot all colormap
 
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='colormap', interface=IEnumStr(tools.cmaps.keys()), value='jet')
@@ -497,11 +605,11 @@ class PyLabColorMap(Node):
             l = len(tools.cmaps)
             subplots_adjust(top=0.9,bottom=0.05,left=0.01,right=0.99)
             for index, m in enumerate(tools.cmaps):
-                print index
+                #print index
                 subplot(int(l/2)+l%2+1, 2, index+1)
-                print int(l/2)+l%2, 2, (index+1)/2+(index+1)%2+1
+                #print int(l/2)+l%2, 2, (index+1)/2+(index+1)%2+1
                 axis("off")
-                imshow(a.transpose(),aspect='auto',cmap=get_cmap(m),origin="lower")
+                imshow(a.transpose(),aspect='auto',cmap=tools.get_cmap(m),origin="lower")
                 #title(m,rotation=0,fontsize=10)
                 text(0.5,0.5, m)
             show()
@@ -512,71 +620,44 @@ class PyLabColorMap(Node):
             imshow(a.transpose(),aspect='auto',cmap=get_cmap(maps),origin="lower")
             title(maps,rotation=0,fontsize=10)
             show()
+        from pylab import get_cmap
         res = get_cmap(maps)
         return res
-
-
-class Windowing(Node):
-    """ should include hanning, ...."""
-    def __init__(self):
-        pass
-
-    def __call__(self, inputs):
-        pass
-
-class PyLabColorBar(Node):
-
-    """ should include colornap and colorbar options"""
-    def __init__(self):
-
-        Node.__init__(self)
-        self.add_input(name='orientation', interface=IEnumStr(tools.orientations.keys()), value='vertical')
-        self.add_input(name='fraction', interface=IFloat(0.,1,0.01), value=0.15)
-        self.add_input(name='pad', interface=IFloat(0.,1,0.01), value=0.05)
-        self.add_input(name='shrink', interface=IFloat(0.,1,0.01), value=1)
-        self.add_input(name='aspect', interface=IFloat(1,100,0.01), value=20)
-        self.add_input(name='drawedges', interface=IBool, value=False)
-        self.add_input(name='ticks', interface=ISequence, value=[])
-        self.add_input(name='format', interface=IStr, value=None)
-        self.add_input(name='label', interface=IStr, value=None)
-        self.add_input(name='cmap', interface=IEnumStr, value=None)
-        self.add_input(name='show', interface=IBool, value=False)
-        self.add_output(name='kwargs', interface=IDict, value={})
-
-    def __call__(self, inputs):
-        from pylab import colorbar
-        kwds = {}
-        kwds['fraction'] = self.get_input('fraction')
-        kwds['orientation'] = self.get_input('orientation') #no need for dictionary conversion since key==value
-        kwds['pad'] = self.get_input('pad')
-        kwds['shrink'] = self.get_input('shrink')
-        kwds['aspect'] = self.get_input('aspect')
-        kwds['drawedges'] = self.get_input('drawedges')
-        if len(self.get_input('ticks'))>0:
-            kwds['ticks'] = self.get_input('ticks')
-        kwds['format'] = self.get_input('format')
-
-        if self.get_input('show'):
-            c = colorbar(**kwds)
-
-        if self.get_input('label') is not None:
-            c.set_label(self.get_input('label'))
-
-        return kwds
 
 
 
 
 class PyLabXTicks(Node, CustomizeAxes):
-    """VisuAlea version of pylab.xticks
+    """Set the tick locations and labels. See pylab.xticks for details.
 
+    :param axes: the current axes to manipulate.
+    :param array locs: (default is empty)
+    :param array labels: (default is empty)
+    :param float orientation:
+    :returns: the current axes
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test xyticks
+        :width: 40%
+
+        **The openalea.pylab.test.xyticks dataflow.** play with the ticklabels. Notice
+        the xlabel at 2.5 and the ylabel orientation.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'xyticks'),{},pm=pm)
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
 
         self.add_input(name='axes')
-
         self.add_input(name='locs', interface=ISequence, value=[])
         self.add_input(name='labels', interface=ISequence, value=[])
         self.add_input(name='rotation', interface=IFloat, value=0)
@@ -594,29 +675,134 @@ class PyLabXTicks(Node, CustomizeAxes):
 
         for axe in axes:
             locs = self.get_input('locs')
-            if len(locs) == 0:
-                locs = axe.get_xticks()
-            axe.set_xticks(locs)
-
+            if len(locs) != 0:
+                axe.set_xticks(locs)
             labels = self.get_input('labels')
-            if len(labels) == 0:
-                labels = axe.get_xticklabels()
-            axe.set_xticklabels(labels,  **kwds)
+            if len(labels) != 0:
+                axe.set_xticklabels(labels, **kwds)
+            axe.set_yticklabels([x.get_text() for x in axe.get_yticklabels()], **kwds)
             axe.get_figure().canvas.draw()
         return axes
 
-class PyLabYTicks(Node, CustomizeAxes):
-    """VisuAlea version of pylab.xticks
 
+class PyLabTickParams(Node, CustomizeAxes):
+    """Tune the ticks on an axis. See pylab.tick_params for details.
+
+    :param axes: the axes to tune.
+    :param str axis: which axis to manipulate ('x', 'y', 'both') (default is 'both')
+    :param bool reset: set all parameters to defaults
+    :param str which: apply arguments to major ticks only (default is major)
+    :param str direction: ['in' | 'out'] Puts ticks inside or outside the axes.
+    :param int length: Tick length in points
+    :param int width: Tick width in points
+    :param int pad: Distance in points between tick and label.
+    :param labelsize: (default 12)
+    :param labelcolor: (default black)
+    :param zorder: (default 0)
+    :param bool bottom: default True
+    :param bool top:
+    :param bool left:
+    :param bool right:
+    :param bool labelbottom: (default True)
+    :param bool labeltop:  (default False)
+    :param bool labelleft:  (default True)
+    :param bool labelright: (default False)
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test tickparams
+        :width: 40%
+
+        **The openalea.pylab.demo.polar_demo dataflow.** In order to plot a x/y pair of
+        vectors into a polar plane, you must use the PyLabAxes node and set the polar to True.
+        Indeed, there is no mecanism to set the axes to polar after PyLabPlot has been called.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'tickparams'),{},pm=pm )
+
+    """
+    def __init__(self):
+        self.daxis = {'in':'in', 'out':'out', 'both':'both'}
+        self.ddirection = {'in':'in', 'out':'out'}
+        Node.__init__(self)
+        CustomizeAxes.__init__(self)
+        self.add_input(name='axes')
+        self.add_input(name='axis', interface=IEnumStr(self.daxis.keys()), value='both')
+        self.add_input(name='reset', interface=IBool, value=False)
+        self.add_input(name='direction', interface=IEnumStr(self.ddirection.keys()), value='in')
+        self.add_input(name='length', interface=IInt, value=4)
+        self.add_input(name='width', interface=IInt, value=1)
+        self.add_input(name='color', interface=IEnumStr(tools.colors.keys()), value='black')
+        self.add_input(name='pad', interface=IInt, value=1)
+        self.add_input(name='labelsize', interface=IInt, value=12)
+        self.add_input(name='labelcolor', interface=IEnumStr(tools.colors.keys()), value='black')
+        self.add_input(name='zorder', interface=IInt, value=0)
+        self.add_input(name='bottom', interface=IBool, value=False)
+        self.add_input(name='top', interface=IBool, value=False)
+        self.add_input(name='left', interface=IBool, value=False)
+        self.add_input(name='right', interface=IBool, value=False)
+        self.add_input(name='labelbottom', interface=IBool, value=True)
+        self.add_input(name='labeltop', interface=IBool, value=False)
+        self.add_input(name='labelleft', interface=IBool, value=True)
+        self.add_input(name='labelright', interface=IBool, value=False)
+
+    def __call__(self, inputs):
+        kwds = {}
+        kwds['axis'] = self.daxis[self.get_input('axis')]
+        kwds['reset'] = self.get_input('reset')
+        kwds['direction'] = self.ddirection[self.get_input('direction')]
+        kwds['length'] = self.get_input('length')
+        kwds['width'] = self.get_input('width')
+        kwds['color'] = tools.colors[self.get_input('color')]
+        kwds['pad'] = self.get_input('pad')
+        kwds['labelsize'] = self.get_input('labelsize')
+        kwds['labelcolor'] = tools.colors[self.get_input('labelcolor')]
+        kwds['zorder'] = self.get_input('zorder')
+        kwds['bottom'] = self.get_input('bottom')
+        kwds['top'] = self.get_input('top')
+        kwds['left'] = self.get_input('left')
+        kwds['right'] = self.get_input('right')
+        kwds['labelbottom'] = self.get_input('labelbottom')
+        kwds['labeltop'] = self.get_input('labeltop')
+        kwds['labelleft'] = self.get_input('labelleft')
+        kwds['labelright'] = self.get_input('labelright')
+
+        try:
+            from pylab import tick_params
+            axes = self.get_axes()
+            for axe in axes:
+                axe.tick_params(**kwds)
+                axe.get_figure().canvas.draw()
+            return axes
+        except:
+            import warnings
+            warnings.warn('\nWARNING: tickparams not available on your system. Consider installing a maplotlib version>=1')
+            return self.get_axes()
+
+class PyLabYTicks(Node, CustomizeAxes):
+    """Set the tick locations and labels. See pylab.xticks for details.
+
+    :param axes: the current axes to manipulate.
+    :param array locs: (default is empty)
+    :param array labels: (default is empty)
+    :param float orientation:
+    :returns: the current axes
+
+    :Example: see :class:`~openalea.pylab_decorators_wralea.py_pylab.PyLabXTicks`
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
 
         self.add_input(name='axes')
-
-        self.add_input(name='locs', interface=ISequence, value=None)
-        self.add_input(name='labels', interface=ISequence, value=None)
+        self.add_input(name='locs', interface=ISequence, value=[])
+        self.add_input(name='labels', interface=ISequence, value=[])
         self.add_input(name='rotation', interface=IFloat, value=0)
         self.add_input(name='kwargs(text properties)', interface=IDict, value={})
 
@@ -632,18 +818,16 @@ class PyLabYTicks(Node, CustomizeAxes):
 
         for axe in axes:
             locs = self.get_input('locs')
-            if len(locs) == 0:
-                locs = axe.get_yticks()
-            axe.set_yticks(locs)
-
+            if len(locs) != 0:
+                axe.set_yticks(locs)
             labels = self.get_input('labels')
-            if len(labels) == 0:
-                labels = axe.get_yticklabels()
-            axe.set_yticklabels(labels,  **kwds)
+            if len(labels) != 0:
+                axe.set_yticklabels(labels)
+            axe.set_yticklabels([x.get_text() for x in axe.get_yticklabels()], **kwds)
             axe.get_figure().canvas.draw()
         return axes
 
-    
+
 class PyLabXLim(Node, CustomizeAxes):
     """VisuAlea version of pylab.xlim
 
@@ -651,18 +835,35 @@ class PyLabXLim(Node, CustomizeAxes):
     :param xmin:
     :param xmax:
     :param kwargs:
-    
+
     :return: modified axes
 
-    xmin must be less than xmax
+    :Example:
+
+    .. dataflow:: openalea.pylab.test xylim
+        :width: 40%
+
+        **The openalea.pylab.test.xylim dataflow.** Add a title to an existing
+        axes.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'xylim'),{},pm=pm)
+
+    .. note:: xmin must be less than xmax
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
 
     """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
         self.add_input(name='axes')
-        self.add_input(name='xmin', interface=IFloat, value=None )
-        self.add_input(name='xmax', interface=IFloat, value=None )
+        self.add_input(name='xmin', interface=IFloat, value=0. )
+        self.add_input(name='xmax', interface=IFloat, value=0. )
         self.add_input(name='kwargs', interface=IDict, value={})
         self.add_output(name='axes')
 
@@ -673,10 +874,12 @@ class PyLabXLim(Node, CustomizeAxes):
         axes = self.get_axes()
         xmin = self.get_input('xmin')
         xmax = self.get_input('xmax')
-        assert xmin<xmax, 'xmin must be less than xmax'
-        for axe in axes:
-            axe.set_xlim(xmin=xmin, xmax=xmax, **kwds)
-            axe.get_figure().canvas.draw()
+        assert xmin<=xmax, 'xmin must be less than xmax'
+        if xmin != xmax:
+            for axe in axes:
+                axe.set_xlim(xmin=xmin, xmax=xmax, **kwds)
+                #SPHINX HACK
+                axe.get_figure().canvas.draw()
         return axes
 
 
@@ -688,10 +891,14 @@ class PyLabYLim(Node, CustomizeAxes):
     :param ymin:
     :param ymax:
     :param kwargs:
-    
+
     :return: modified axes
 
-    ymin must be less than ymax
+    .. seealso:: :class:`~openalea.pylab_decorators_wralea.py_pylab.PyLabXLim`
+
+    .. note:: ymin must be less than ymax
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
     """
     def __init__(self):
         Node.__init__(self)
@@ -712,11 +919,42 @@ class PyLabYLim(Node, CustomizeAxes):
         assert ymin<ymax, 'ymin must be less than ymax'
         for axe in axes:
             axe.set_ylim(ymin=ymin, ymax=ymax, **kwds)
+            #SPHINX HACK
             axe.get_figure().canvas.draw()
         return self.get_input('axes')
 
 
 class PyLabGrid(Node, CustomizeAxes):
+    """Add a grid to an axes. See pylab.grid for details
+
+    :param axes: an input axes
+    :param bool b: Set the grid on (default is True)
+    :param str which: where to set the lines (default is major ticks)
+    :param str linestyle: style of the lines (default is dotted)
+    :param str color: color of the lines )(default is black)
+    :param float linewidth: width of the lines (default is 1)
+    :param dict kwargs: further properties to fully customize the grid
+
+    :returns: the current axes
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.test grid
+        :width: 40%
+
+        **The openalea.pylab.demo.polar_demo dataflow.** In order to plot a x/y pair of
+        vectors into a polar plane, you must use the PyLabAxes node and set the polar to True.
+        Indeed, there is no mecanism to set the axes to polar after PyLabPlot has been called.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.test', 'grid'),{},pm=pm )
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
@@ -735,8 +973,8 @@ class PyLabGrid(Node, CustomizeAxes):
         kwds = {}
         for key, value in self.get_input('kwargs').iteritems():
             kwds[key] = value
-        kwds['linestyle']=linestyles[self.get_input("linestyle")]
-        kwds['color']=colors[self.get_input("color")]
+        kwds['linestyle']=tools.linestyles[self.get_input("linestyle")]
+        kwds['color']=tools.colors[self.get_input("color")]
         kwds['linewidth']=self.get_input("linewidth")
         kwds['b']=self.get_input("b")
         kwds['which']=self.get_input("which")
@@ -749,7 +987,11 @@ class PyLabGrid(Node, CustomizeAxes):
 
 
 class PyLabOrigin(Node):
+    """Set the origin. See pylab.imshow for instance.
 
+    .. warning: not yet for production
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name='origin', interface=IEnumStr(origins), value=None)
@@ -757,11 +999,51 @@ class PyLabOrigin(Node):
 
     def __call__(self, inputs):
         kwds = {}
-        kwds['origin'] = self.get_input('origin') 
+        kwds['origin'] = self.get_input('origin')
         return (kwds ,)
 
 
 class PyLabAxes(Node):
+    """Create an axes. See pylab.axes for details.
+
+    This node is useful if you want to create a polar axes.
+
+    :param input: an optional input axes
+    :param bool clean: clear the axe if True (default is True)
+    :param float left: left boundary limit of the axes (default is 0.12)
+    :param float bottom: bottom boundary limit of the axes (default is 0.12)
+    :param float width: width of the axes (default is 0.78)
+    :param float height: height of the axes (default is 0.78)
+    :param str axisbg: color of the axes background
+    :param bool frameon: set the frame on (default is True)
+    :param bool polar: set the axes in polar mode (default is False)
+    :param str xscale: set the x axes scale (default is linear)
+    :param str yscale: set the y axes scale (default is linear)
+    :param str xticks: set the xticks (default is auto)
+    :param str xticks: set the yticks (default is auto)
+    :param dict kwargs: more arguments may be provided as a dictionary
+
+    :return: the current axes
+
+    :Example:
+
+    .. dataflow:: openalea.pylab.demo polar_demo
+        :width: 40%
+
+        **The openalea.pylab.demo.polar_demo dataflow.** In order to plot a x/y pair of
+        vectors into a polar plane, you must use the PyLabAxes node and set the polar to True.
+        Indeed, there is no mecanism to set the axes to polar after PyLabPlot has been called.
+
+    .. plot::
+        :width: 40%
+
+        from openalea.core.alea import *
+        pm = PackageManager()
+        run_and_display(('openalea.pylab.demo', 'polar_demo'),{},pm=pm )
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
+
     def __init__(self):
         Node.__init__(self)
         #[left, bottom, width,      height]
@@ -797,7 +1079,6 @@ class PyLabAxes(Node):
 
         # case of an empty input, we need to create the axes if it does not exist, or clean the existing one.
         if input_axes == None:
-            print 'Axes2: input axes is none'
             #this command return the current axe if it exist otherwise it creates a new one
             input_axes = axes(position, polar=self.get_input('polar'))
             if self.get_input('clear')==True:
@@ -811,7 +1092,6 @@ class PyLabAxes(Node):
             return input_axes
 
         #else
-        print 'Axes2: input axes is not none'
         if type(input_axes)!=list: input_axes = [input_axes]
 
         for axe in input_axes:
@@ -827,7 +1107,13 @@ class PyLabAxes(Node):
 
 
 class PyLabClearFigure(Node, CustomizeAxes):
+    """a simple code to clear a figure. See pylab.clf  for details
 
+    :param axes: an axes to clear
+    :return: the current axes
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         Node.__init__(self)
         CustomizeAxes.__init__(self)
@@ -852,13 +1138,22 @@ class PyLabClearFigure(Node, CustomizeAxes):
 
 
 class PyLabAxesDecorator(Node):
-    
+    """Node to connect patches or axes decorators to an axes
+
+    :param axes: the axe to complete
+    :param whatever: a connector to use for connecting other nodes that add patches or
+        decorators such as title and labels.
+
+    :return: the current axes
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
     def __init__(self):
         Node.__init__(self)
         self.add_input(name="axes")
         self.add_input(name="whatever", interface=ISequence, value=[])
         self.add_output(name="axes")
-        
+
     def __call__(self, inputs):
         whatever = self.get_input('whatever')
         if type(whatever)!=list:
@@ -866,11 +1161,37 @@ class PyLabAxesDecorator(Node):
         import matplotlib
         from pylab import gca
         for this in whatever:
-            try:
-                gca().add_patch(this)
-                gca().get_figure().canvas.draw()
-            except:
-                print 'this object is not accepted bu AxesDecorator!. Skipped'
-                print this
+            if this != None:
+                try:
+                    gca().add_patch(this)
+                    gca().get_figure().canvas.draw()
+                except:
+                    raise ValueError('an invalid object is connected to AxesDecorator. Only patches and artist object accepted for now.')
         return self.get_input("axes")
-        
+
+
+
+
+class PyLabBox(Node):
+    """See pylab.box for details
+
+    .. warning: not yet for production
+
+    :param axes: an input pylab.axes
+    :param on' boolean to turn on or off the box of the current axe
+
+    :return: the current axes
+
+    .. sectionauthor:: Thomas Cokelaer <Thomas.Cokelaer@sophia.inria.fr>
+    """
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input(name='axes')
+        self.add_input(name='on', interface=IBool, value=True)
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from pylab import box, gca
+        box(self.get_input('on'))
+        gca().get_figure().canvas.draw()
+        return self.get_input('axes')

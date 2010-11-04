@@ -48,3 +48,22 @@ class PyLabBivariateNormal(Node):
 
         return Z
 
+class PyLabSinWave(Node):
+    def __init__(self):
+        import numpy as np
+        Node.__init__(self)
+        self.add_input(name='t', interface=ISequence, value=[])
+        self.add_input(name='A', interface=IFloat, value=1.)
+        self.add_input(name='w', interface=IFloat, value=1.)
+        self.add_output(name='output')
+
+    def __call__(self, inputs):
+        from numpy import sin, pi
+        
+        t = self.get_input('t')
+        A = self.get_input('A')
+        w = self.get_input('w')
+	print A, w, pi
+        return A * sin(2.*pi*w*t) 
+    
+    

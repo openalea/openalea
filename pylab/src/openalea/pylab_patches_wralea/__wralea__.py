@@ -2,17 +2,18 @@
 # This file has been generated at Sat Mar  6 21:17:54 2010
 
 from openalea.core import Factory
+from openalea.pylab import version, authors
 
 
 __name__ = 'openalea.pylab.patches'
 
 __editable__ = False
-__description__ = 'pylab text, fonts and colors.'
+__description__ = 'patches (ellipse, rectangle) from pylab.patches'
 __license__ = 'CECILL-C'
 __url__ = 'http://openalea.gforge.inria.fr/doc/openalea/pylab/doc/_build/html/contents.html'
 __alias__ = []
-__version__ = '0.8.0'
-__authors__ = 'Thomas Cokelaer'
+__version__ = version
+__authors__ = authors
 __institutes__ = 'INRIA/CIRAD'
 __icon__ = 'icon.png'
 

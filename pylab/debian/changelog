@@ -1,0 +1,23 @@
+openalea-pylab (0.9.0-2~ppa4) lucid; urgency=low
+
+  * fix problem in setup.py 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Sat, 30 Oct 2010 01:44:38 +0200
+
+openalea-pylab (0.9.0-2~ppa3) lucid; urgency=low
+
+  * Once again
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Sat, 30 Oct 2010 01:27:45 +0200
+
+openalea-pylab (0.9.0-2~ppa2) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:20:02 +0200
+
+openalea-pylab (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 22 Sep 2010 13:29:13 +0200

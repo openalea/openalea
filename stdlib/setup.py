@@ -26,6 +26,7 @@ setup(
     url = url,
     license = license,
 
+    namespace_packages = ['openalea'],
     create_namespaces=False,
     zip_safe=False,
 
@@ -60,7 +61,7 @@ setup(
                    'openalea.stat = openalea.stat',
                    'openalea.system = openalea.system',
                    'openalea.tutorial = openalea.tutorial',
-                   'openalea.tutorial.design = openalea.tutorial.design',
+                   'openalea.tutorial.design pattern = openalea.tutorial.pattern',
                    'openalea.tutorial.functional = openalea.tutorial.functional',
                    'openalea.tutorial.multiprocess = openalea.tutorial.multiprocess',
                    'openalea.multiprocessing = openalea.multiprocessing',

@@ -92,6 +92,13 @@ def glob(pattern):
     return (ret, )
 
 
+def expanduser(pth):
+    """Join several strings to form a path"""
+
+    p = path.path(pth)
+    ret = p.expanduser()
+    return (ret, )    
+    
 def joinpath(pathlist):
     """Join several strings to form a path"""
 

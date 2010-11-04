@@ -1,11 +1,17 @@
 <RCC>
     <qresource prefix="/image" >
-        <file>ghostbuster.png</file>
+        <file>forbidden.png</file>
         <file>loop.png</file>
         <file>pause.png</file>
         <file>play.png</file>
         <file>step.png</file>
         <file>stop.png</file>
+        <file>rotate_left.png</file>
+        <file>rotate_right.png</file>
+        <file>add.png</file>
+        <file>delete.png</file>
+        <file>close.png</file>
+        <file>snapshot.png</file>        
     </qresource>
     <qresource prefix="/cursor" >
         <file>pick.png</file>

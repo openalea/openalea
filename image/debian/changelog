@@ -1,0 +1,17 @@
+openalea-image (0.9.0-2~ppa4) lucid; urgency=low
+
+  * Once again
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Sat, 30 Oct 2010 01:25:21 +0200
+
+openalea-image (0.9.0-2~ppa2) lucid; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:17:31 +0200
+
+openalea-image (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+
+ -- OpenAlea consortium <christophe.pradal@cirad.fr>  Wed, 22 Sep 2010 13:08:41 +0200

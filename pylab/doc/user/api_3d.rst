@@ -2,7 +2,6 @@
 ##################
 
 .. contents::
-.. sectionauthor:: Thomas Cokelaer
 .. moduleauthor:: Thomas Cokelaer
 .. currentmodule:: openalea.pylab_3d_wralea.py_pylab
 
@@ -25,6 +24,8 @@ Plots where x and y are 1-D arrays
 .. autosummary::
 
     PyLabPlot3D
+    PyLabContour3D
+    PyLabContourf3D
 
 
 Api 

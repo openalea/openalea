@@ -24,7 +24,10 @@ try:
     import rpy2.rpy_classic  as rpy
     rpy.set_default_mode(rpy.BASIC_CONVERSION)
 except:
-    import rpy
+    try:
+        import rpy
+    except ImportError:
+        raise ImportError("Install rpy2 to use this module")
 
 #from scipy import stats
 #import scipy

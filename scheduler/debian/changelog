@@ -1,0 +1,12 @@
+openalea-scheduler (0.9.0-1~ppa2) lucid; urgency=low
+
+  *  Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 21:23:58 +0200
+
+openalea-scheduler (0.9.0-1~ppa1) lucid; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+  * debianize and add dependencies
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 24 Sep 2010 09:45:45 +0200

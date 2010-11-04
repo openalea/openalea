@@ -29,9 +29,8 @@ class InspectorView(DataflowView, AbstractListener):
     def __init__(self, parent):
         DataflowView.__init__(self, parent)
         AbstractListener.__init__(self)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
         self.setWindowFlags(QtCore.Qt.Window)
-
-
 
 
     def set_operators(self, mainOperator, parentOperator):

@@ -62,7 +62,8 @@ setup(
     # Namespace packages creation by deploy
     namespace_packages = [namespace],
     create_namespaces = True,
-    # tell setup not  tocreate a zip file but install the egg as a directory (recomended to be set to False)
+    # tell setup not  to create a zip file but install 
+    #the egg as a directory (recomended to be set to False)
     zip_safe= False,
     # Dependencies
     setup_requires = setup_requires,

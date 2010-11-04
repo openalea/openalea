@@ -2,31 +2,30 @@
 # This file has been generated at Sat Mar  6 21:17:54 2010
 
 from openalea.core import Factory
-
+from openalea.pylab import version, authors
 
 __name__ = 'openalea.pylab.Drawing'
 
 __editable__ = False
-__description__ = 'pylab text, fonts and colors.'
+__description__ = 'nodes that add features in an axe (no input data required)'
 __license__ = 'CECILL-C'
 __url__ = 'http://openalea.gforge.inria.fr/doc/openalea/pylab/doc/_build/html/contents.html'
 __alias__ = []
-__version__ = '0.8.0'
-__authors__ = 'Thomas Cokelaer'
+__version__ = version
+__authors__ = authors
 __institutes__ = 'INRIA/CIRAD'
 __icon__ = 'icon.png'
 
 
 __all__ = [
 'py_pylab_PyLabAnnotate',
-'py_pylab_PyLabBBox',
-'py_pylab_PyLabYAArow',
-'py_pylab_PyLabFancyArrowPatch',
+'py_pylab_PyLabYAArowDict',
+'py_pylab_PyLabFancyArrowDict',
 'py_pylab_PyLabAxhline',
 'py_pylab_PyLabAxvline',
 'py_pylab_PyLabAxhspan',
 'py_pylab_PyLabAxvspan',
-'py_pylab_PyLabBox',
+'py_pylab_PyLabBBox',
 ]
 
 
@@ -58,11 +57,11 @@ py_pylab_PyLabBBox = Factory(name='PyLabBBox',
 
 
 
-py_pylab_PyLabYAArow = Factory(name='PyLabYAArow',
+py_pylab_PyLabYAArowDict = Factory(name='PyLabYAArowDict',
                 description='pylab.fontproperties interface.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
-                nodeclass='PyLabYAArow',
+                nodeclass='PyLabYAArowDict',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,
@@ -71,11 +70,11 @@ py_pylab_PyLabYAArow = Factory(name='PyLabYAArow',
                )
 
 
-py_pylab_PyLabFancyArrowPatch = Factory(name='PyLabFancyArrowPatch',
+py_pylab_PyLabFancyArrowDict = Factory(name='PyLabFancyArrowDict',
                 description='pylab.fontproperties interface.',
                 category='visualization, data processing',
                 nodemodule='py_pylab',
-                nodeclass='PyLabFancyArrowPatch',
+                nodeclass='PyLabFancyArrowDict',
                 inputs=None,
                 outputs=None,
                 widgetmodule=None,
@@ -120,11 +119,4 @@ py_pylab_PyLabAxvspan = Factory(name='PyLabAxvspan',
                 inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
                 )
 
-py_pylab_PyLabBox = Factory(name='PyLabBox',
-                description='pylab.fontproperties interface.',
-                category='visualization, data processing',
-                nodemodule='py_pylab',
-                nodeclass='PyLabBox',
-                inputs=None, outputs=None, widgetmodule=None, widgetclass=None, lazy=False
-                )
 

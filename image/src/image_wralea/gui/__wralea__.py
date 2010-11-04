@@ -115,4 +115,40 @@ select_box = Factory( name= "SelectBox",
 
 __all__.append('select_box')
 
+#########################################
+#
+#	display
+#
+#########################################
+
+display = Factory(  name= "display", 
+		    description= "",
+		    category = "",
+		    nodemodule = "viewer",
+		    nodeclass = "display",
+		    inputs=(dict(name="images", interface=None),
+			    dict(name="palette_name", interface=IStr, value="grayscale"),
+			    dict(name="color_index_max", interface=IInt, value=None),),
+		    outputs=(dict(name="view", interface=None),),
+                                )
+
+__all__.append('display')
+
+
+point_selection = Factory(name= "Point Selection", 
+			  description= "enable to select points in an image",
+			  category = "image",
+			  nodemodule = "point_selection_node",
+			  nodeclass = "point_selection",
+			  widgetmodule = "point_selection_widget",
+			  widgetclass = "PointSelectionWidget",
+                          inputs=(dict(name="image", interface=None),
+			          dict(name="points", interface=None),
+                                  dict(name="new_points", interface=None, hide=True),),
+			  outputs=(dict(name="image", interface=None),
+			           dict(name="points", interface=None,),),
+                          lazy=True
+			  )
+
+__all__.append('point_selection')
 

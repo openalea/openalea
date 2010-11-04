@@ -49,8 +49,10 @@ def test_save_datapool():
     asession.load('test.pic')
 
     assert asession.datapool['i'] == [1, 2, 3]
-    os.remove('test.pic')
-
+    try:
+        os.remove('test.pic')
+    except:
+        os.remove('test.pic.db')
 
 def test_save_workspace():
     pm = PackageManager()
@@ -78,7 +80,10 @@ def test_save_workspace():
 
     asession.workspaces = []
     asession.load('test.pic')
-    os.remove('test.pic')
+    try:
+        os.remove('test.pic')
+    except:
+        os.remove('test.pic.db')
 
     i = asession.workspaces[0]
     assert type(i) == type(instance)

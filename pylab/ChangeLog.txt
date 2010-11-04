@@ -1,3 +1,12 @@
+* 27 Oct 2010: fix some bugs to be back compatible with matplotlib 0.99
+   (whereas the official release is made for matplotlib 1.0.0
+* 26 Oct 2010: **documentation finalised and uploaded on the wiki**
+* 20 Oct 2010: **major refactoring before first release**
+    - Completion of 2D plotting nodes witha  uniform api with the first input and output
+      connectors being used to pass on the axes on which data are plotted
+    - all nodes related to axes manipulation are now in wralea_decorators
+    - all internal code common to all wraleas are now in openalea.pylab.tools
+    - Some 3d plotting added
 * 8 April 2010: start documentation
 * 6 April 2010: most of pylab plotting functionalities (plot, quiver, contour, scatter, ...) available within VisuAlea. Starting 3d plots (e.g., line3d).
 * 10 March 2010: starting layout of this package

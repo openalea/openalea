@@ -23,7 +23,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from PyQt4.QtGui import QPixmap,QImage
 from numpy import array,zeros,uint32,uint8
 
-def to_img (img) :
+def to_img (img,order='C') :
 	"""Transform an image array into a QImage
 	
 	:Parameters:
@@ -33,7 +33,7 @@ def to_img (img) :
 	
 	:Returns Type: QImage
 	"""
-	img = array(img,uint32)
+	img = array(img,uint32).transpose(1,0,2)
 	dat = (img[...,0] << 16) + (img[...,1] << 8) + img[...,2]
 	
 	if img.shape[2] == 4 :
@@ -48,7 +48,7 @@ def to_img (img) :
 	
 	return qimg.copy()
 
-def to_pix (img) :
+def to_pix (img,order='C') :
 	"""Transform an image array into a QPixmap
 	
 	:Parameters:
@@ -57,7 +57,7 @@ def to_pix (img) :
 	
 	:Returns Type: QPixmap
 	"""
-	return QPixmap.fromImage(to_img(img) )
+	return QPixmap.fromImage(to_img(img,order) )
 
 def to_tex (img) :
 	"""Transform an image array into an array usable for texture in opengl
