@@ -1,0 +1,13 @@
+openalea-deploygui (0.9.0-2~ppa2) lucid; urgency=low
+
+  * final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 20:38:11 +0200
+
+openalea-deploygui (0.9.0-1ubuntu1ppa1) lucid; urgency=low
+
+  * source package automatically created by stdeb 0.6.0
+  * change unstable to lucid and update the version number
+  * add pyqt4 and openalea.deploy as dependencies
+
+ -- Christophe Pradal, Samuel Dufour-Kowalski <christophe.pradal@cirad.fr>  Tue, 21 Sep 2010 15:22:40 +0200
