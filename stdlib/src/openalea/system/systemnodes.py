@@ -21,6 +21,7 @@ __revision__ = " $Id$ "
 
 from openalea.core import *
 from tempfile import TemporaryFile
+import platform
 
 def system_cmd(str_list):
     """ Execute a system command
@@ -42,12 +43,18 @@ def shell_command(cmd, directory):
 
     
     output_stream = TemporaryFile()
-    p = Popen(cmd, shell=True, cwd=directory,
-        stdin=PIPE, stdout=output_stream, stderr=STDOUT)
-    status = p.wait()
+    if platform.system() == 'Darwin':
+        p = Popen(cmd, shell=True, cwd=directory,
+                    stdin=PIPE, stdout=output_stream, stderr=PIPE)
+        status = p.communicate()
+    else:
+        p = Popen(cmd, shell=True, cwd=directory,
+                    stdin=PIPE, stdout=output_stream, stderr=STDOUT)
+        status = p.wait()
 
     output_stream.seek(0)
     s= output_stream.read()
     output_stream.close()
     return status,s
+
 
