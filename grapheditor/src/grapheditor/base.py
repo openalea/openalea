@@ -144,19 +144,17 @@ def GraphStrategyMaker(graphView, vertexWidgetMap, edgeWidgetMap,
         __vertexWidgetMap__      = vertexWidgetMap
         __edgeWidgetMap__        = edgeWidgetMap
         __connectorTypes__       = connectorTypes
-        __graphViewInitialiser__ = staticmethod(graphViewInitialiser)
+        __graphViewInitialiser__ = staticmethod(graphViewInitialiser \
+                                                if graphViewInitialiser \
+                                                else lambda x,y:x)
         __adapterType__          = adapterType
 
         @classmethod
         def create_view(cls, graph, observableGraph=None, parent=None,
                         clone=False, *args, **kwargs):
             """Instanciates the view"""
-            adapter         = graph if cls.__adapterType__ is None else cls.__adapterType__(graph)
-            observableGraph = graph if observableGraph is None else observableGraph
-
             view = cls.__graphViewType__(parent, *args,**kwargs)
-            scene = cls.__sceneType__.make_scene(cls, graph, adapter,
-                                                 observableGraph, clone)
+            scene = cls.__sceneType__._make_scene(cls, graph, observableGraph, clone)
             scene.initialise_from_model()
             view.set_canvas(scene)
             return view

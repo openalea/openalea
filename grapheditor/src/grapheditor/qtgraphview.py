@@ -571,7 +571,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
 
     @classmethod
-    def _make_scene(cls, graph, clone=False):
+    def make_scene(cls, graph, clone=False):
         if graph is not None:
             #if the graph has already a qtgraphview.Scene GraphListener
             #reuse it:
@@ -603,7 +603,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
             self.__views.remove(toDiscard)
         try: self.get_graph().unregister_listener(view)
         except : pass
-        if len(self.__views)==0:
+        if len(self.__views)==0: #cleanup before suicide?
             self.clear()
 
     #################################
@@ -634,12 +634,21 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def rebuild(self):
         """ Build the scene with graphic vertex and edge"""
+        g  = self.get_graph()
+        ga = self.get_adapter()
+        go = self.get_observable_graph()
         self.clear()
+        self.set_graph(g, ga, go)
         self.initialise_from_model()
 
     def clear(self):
         """ Remove all items from the scene """
-        QtGui.QGraphicsScene.clear(self)
+        #do not use the following even though it is faster.
+        #qt might just delete stuff that is owned by Python.
+        #QtGui.QGraphicsScene.clear(self)
+        items = self.items()
+        for i in items:
+            self.removeItem(i) #let gc do the rest.
         baselisteners.GraphListenerBase.clear(self)
         gc.collect()
 
