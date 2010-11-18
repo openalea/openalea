@@ -91,6 +91,8 @@ from openalea.grapheditor.qt import (Vertex, View, mixin_method,
                                      DefaultGraphicalVertex)
 from random import randint as rint # for random colors
 
+
+
 class GraphicalNode( DefaultGraphicalVertex, QtGui.QGraphicsEllipseItem  ):
     def initialise_from_model(self):
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex()]["position"]))
@@ -153,6 +155,12 @@ class MainWindow(QtGui.QMainWindow):
         self.setMinimumSize(800,600)
         self.__graph = NXObservedGraph()
         self.__graphView = GraphicalGraph.create_view(self.__graph, parent=self)
+        for p in range(100):
+            self.__graph.add_vertex(p, position=[rint(0,200), rint(0,200)],
+                                   color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
+        for p in range(100):
+            self.__graph.add_edge(rint(0,100), rint(0,100))
+
         self.setCentralWidget(self.__graphView)
 
 

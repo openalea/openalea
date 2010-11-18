@@ -367,8 +367,9 @@ Do you want to continue?""",
         oldGraph = graph
         newGraph = graph.factory.instantiate()
 
+        widget.scene().clear()
         widget.scene().set_graph(newGraph)
-        widget.scene().rebuild()
+        widget.scene().initialise_from_model()
         master.notify_listeners(("graphoperator_graphreloaded", widget, newGraph, oldGraph))
 
 

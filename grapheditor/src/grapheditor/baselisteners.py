@@ -112,14 +112,14 @@ class GraphListenerBase(observer.AbstractListener):
     It is MVC oriented.
     """
     @classmethod
-    def make_scene(cls, stratCls, g, ga, gobs, clone=False, *args, **kwargs):
-        scene = cls._make_scene(g, clone, *args, **kwargs)
+    def _make_scene(cls, stratCls, g, observableGraph=None, clone=False, *args, **kwargs):
+        scene = cls.make_scene(g, clone, *args, **kwargs)
         scene.set_strategy(stratCls)
-        scene.set_graph(g, ga, gobs)
+        scene.set_graph(g, observableGraph)
         return scene
 
     @classmethod
-    def _make_scene(cls, *args, **kwargs):
+    def make_scene(cls, *args, **kwargs):
         raise NotImplementedError
 
     def __init__(self):
@@ -153,11 +153,16 @@ class GraphListenerBase(observer.AbstractListener):
     def get_graph(self):
         return self.__graph
 
-    def set_graph(self, graph, adapter=None, observable=None):
+    def set_graph(self, graph, adapter=None, observableGraph=None):
+        if self.__graph is not None:
+            raise Exception("graph already set, use .clear() method before")
         self.__graph           = graph
         #obtaining types from the strategy.
-        self.__observableGraph = observable
-        self.__graphAdapter    = adapter
+        cls = self.__strategyCls
+        self.__graphAdapter = adapter if adapter is not None else \
+                              (graph if cls.__adapterType__ is None \
+                               else cls.__adapterType__(graph))
+        self.__observableGraph = graph if observableGraph is None else observableGraph
         self.__observableGraph.register_listener(self)
 
     def get_adapter(self):
@@ -170,7 +175,11 @@ class GraphListenerBase(observer.AbstractListener):
         self.__strategyCls.initialise_graph_view(self, self.get_graph())
 
     def clear(self):
-        self.widgetmap = {}
+        self.__observableGraph.unregister_listener(self)
+        self.__graph = None
+        self.__graphAdapter = None
+        self.__observableGraph = None
+        self.widgetmap.clear()
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
