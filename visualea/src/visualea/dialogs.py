@@ -608,6 +608,13 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         except:
             self.edge_style = "Spline"
 
+        try:
+            showCue = eval(config.get("UI", "EvalCue"))
+            self.evalCue.setCheckState(QtCore.Qt.Checked if showCue
+                                            else QtCore.Qt.Unchecked)
+        except:
+            self.evalCue.setCheckState(QtCore.Qt.Unchecked)
+
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
 
@@ -666,6 +673,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config = Settings()
         config.set("UI", "DoubleClick", repr(d[index]))
         config.set("UI", "EdgeStyle", edge_style)
+        config.set("UI", "EvalCue", str(self.evalCue.checkState()==QtCore.Qt.Checked))
         config.write_to_disk()
 
         if edge_style != self.edge_style:

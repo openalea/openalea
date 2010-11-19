@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'resources/preferences.ui'
 #
-# Created: Thu Jul  1 17:13:46 2010
-#      by: PyQt4 UI code generator 4.7.3
+# Created: Fri Nov 19 16:49:21 2010
+#      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Preferences(object):
     def setupUi(self, Preferences):
         Preferences.setObjectName("Preferences")
-        Preferences.resize(606, 350)
+        Preferences.resize(596, 369)
         self.gridlayout = QtGui.QGridLayout(Preferences)
         self.gridlayout.setMargin(9)
         self.gridlayout.setSpacing(6)
@@ -23,6 +23,11 @@ class Ui_Preferences(object):
         self.buttonBox.setObjectName("buttonBox")
         self.gridlayout.addWidget(self.buttonBox, 1, 0, 1, 1)
         self.tabWidget = QtGui.QTabWidget(Preferences)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy)
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtGui.QWidget()
         self.tab.setObjectName("tab")
@@ -64,8 +69,14 @@ class Ui_Preferences(object):
         self.vboxlayout.addLayout(self.hboxlayout)
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtGui.QWidget()
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tab_3.sizePolicy().hasHeightForWidth())
+        self.tab_3.setSizePolicy(sizePolicy)
         self.tab_3.setObjectName("tab_3")
         self.gridlayout2 = QtGui.QGridLayout(self.tab_3)
+        self.gridlayout2.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
         self.gridlayout2.setMargin(9)
         self.gridlayout2.setSpacing(6)
         self.gridlayout2.setObjectName("gridlayout2")
@@ -87,11 +98,14 @@ class Ui_Preferences(object):
         self.label_edge_style = QtGui.QLabel(self.tab_3)
         self.label_edge_style.setObjectName("label_edge_style")
         self.gridlayout2.addWidget(self.label_edge_style, 1, 0, 1, 1)
+        self.evalCue = QtGui.QCheckBox(self.tab_3)
+        self.evalCue.setObjectName("evalCue")
+        self.gridlayout2.addWidget(self.evalCue, 2, 0, 1, 2)
         self.tabWidget.addTab(self.tab_3, "")
         self.gridlayout.addWidget(self.tabWidget, 0, 0, 1, 1)
 
         self.retranslateUi(Preferences)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), Preferences.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), Preferences.reject)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
@@ -114,5 +128,6 @@ class Ui_Preferences(object):
         self.comboBox.setItemText(1, QtGui.QApplication.translate("Preferences", "Polyline", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox.setItemText(2, QtGui.QApplication.translate("Preferences", "Line", None, QtGui.QApplication.UnicodeUTF8))
         self.label_edge_style.setText(QtGui.QApplication.translate("Preferences", "Edge Style", None, QtGui.QApplication.UnicodeUTF8))
+        self.evalCue.setText(QtGui.QApplication.translate("Preferences", "Show evaluation cue (side effect: slows down evaluation)", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("Preferences", "UI", None, QtGui.QApplication.UnicodeUTF8))
 
