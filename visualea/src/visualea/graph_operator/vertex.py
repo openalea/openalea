@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#       Copyright 2006-2010 INRIA - CIRAD - INRA
 #
 #       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
@@ -45,7 +45,7 @@ class VertexOperators(graphOpBase.Base):
         view   = master.get_graph_view()
         if not isinstance(vertex, CompositeNode):
             return
-            
+
         widget= VertexOperators.__compositeWidgetMap__.get(vertex, None)
         if(widget):
             if(widget.isVisible()):
@@ -57,17 +57,17 @@ class VertexOperators(graphOpBase.Base):
         else:
             widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = view)
             VertexOperators.__compositeWidgetMap__[vertex] = widget
-            
+
             ###################################
             # -- Let's fix the window size -- #
-            ###################################       
+            ###################################
             scRectF = widget.scene().itemsBoundingRect()
             tl      = scRectF.topLeft()
             # -- check the rect doesn't have crazy negative values or too close to screen edge
             # -- or else we loose window or window decorations.
             scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET*2)
-            
-            scRect     = scRectF.toRect()        
+
+            scRect     = scRectF.toRect()
             screenGeom = QtGui.QApplication.instance().desktop().screenGeometry(widget)
             if screenGeom.contains(scRect):
                 widget.setGeometry(scRect)
@@ -78,14 +78,14 @@ class VertexOperators(graphOpBase.Base):
                 if scRect.height() > screenGeom.height():
                     ratio    = screenGeom.height() / scRectF.height()*0.75
                     scRect.setHeight(ratio*scRect.height())
-                widget.setGeometry(scRect)    
+                widget.setGeometry(scRect)
             ##################
             # -- Finished -- #
             ##################
-            
+
             widget.set_operators(master.__main__.operator, master)
             widget.setWindowTitle("Inspecting " + vertex.get_caption())
-            widget.show_entire_scene()            
+            widget.show_entire_scene()
             widget.show()
 
     @exception_display
