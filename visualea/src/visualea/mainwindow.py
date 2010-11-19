@@ -456,7 +456,7 @@ class MainWindow(QtGui.QMainWindow,
         #ok, we now need to delete ell the open widgets
         #of this workspace. THIS IS DEFINITELY HACKISH
         g = w.scene().get_graph()
-        for a in range( g.nb_vertices()-2 ):
+        for a in g:
             actor = g.actor(a)
             aw = VertexOperators.__vertexWidgetMap__.get(actor)
             if aw:
