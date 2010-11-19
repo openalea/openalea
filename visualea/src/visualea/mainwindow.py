@@ -47,6 +47,7 @@ from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
+from graph_operator.vertex import VertexOperators
 import traceback
 
 class MainWindow(QtGui.QMainWindow,
@@ -451,6 +452,18 @@ class MainWindow(QtGui.QMainWindow,
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
         self.session.close_workspace(cindex, False)
+
+        #ok, we now need to delete ell the open widgets
+        #of this workspace. THIS IS DEFINITELY HACKISH
+        g = w.scene().get_graph()
+        for a in range( g.nb_vertices()-2 ):
+            actor = g.actor(a)
+            aw = VertexOperators.__vertexWidgetMap__.get(actor)
+            if aw:
+                aw.close()
+                del VertexOperators.__vertexWidgetMap__[actor]
+
+        #finally we close the dataflowview.
         w.close()
         del w
 
