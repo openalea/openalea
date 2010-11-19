@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
-    <height>350</height>
+    <width>596</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,8 +32,14 @@
    </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -108,10 +114,19 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>UI</string>
       </attribute>
       <layout class="QGridLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
        <property name="margin">
         <number>9</number>
        </property>
@@ -167,6 +182,13 @@
         <widget class="QLabel" name="label_edge_style">
          <property name="text">
           <string>Edge Style</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="evalCue">
+         <property name="text">
+          <string>Show evaluation cue (side effect: slows down evaluation)</string>
          </property>
         </widget>
        </item>

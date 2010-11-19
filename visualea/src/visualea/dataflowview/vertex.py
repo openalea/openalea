@@ -77,7 +77,6 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                       0, 0, 1, 1, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
 
-
         # ----- The colors -----
         self.__topColor    = self.default_top_color
         self.__bottomColor = self.default_bottom_color
@@ -198,7 +197,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.__penColor    = self.default_pen_error_color
             elif self.vertex().user_application:
                 self.__topColor = self.default_user_application_color
-                self.__bottomColor = self.__topColor.darker()                
+                self.__bottomColor = self.__topColor.darker()
             elif not self.vertex().lazy:
                 self.__topColor = self.default_unlazy_color
                 self.__bottomColor = self.__topColor.darker()
@@ -251,6 +250,11 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         """ Notification sent by the vertex associated to the item """
         if event is None : return
 
+        try:
+            refresh = eval(Settings().get("UI", "EvalCue"))
+        except:
+            refresh=True
+
         eventTopKey = event[0]
         if eventTopKey == "data_modified":
             key = event[1]
@@ -261,7 +265,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             if key == "delay":
                 self.update_delay_item()
             elif key == "lazy" or key == "blocked" or key == "user_application":
-                self.update_colors()                
+                self.update_colors()
         elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
             if event[2] is None:
                 self.store_view_data(useUserColor = False)
@@ -273,12 +277,13 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             self.update_hidden_port_item()
         elif(eventTopKey=="tooltip_modified"):
             self.set_graphical_tooltip(event[1])
-        elif(eventTopKey == "start_eval"):
-            self._busyItem.setVisible(self.isVisible())
-            QtGui.QApplication.processEvents()
-        elif(eventTopKey == "stop_eval"):
-            self._busyItem.setVisible(False)
-            QtGui.QApplication.processEvents()
+        if refresh:
+            if(eventTopKey == "start_eval"):
+                self._busyItem.setVisible(self.isVisible())
+                QtGui.QApplication.processEvents()
+            elif(eventTopKey == "stop_eval"):
+                self._busyItem.setVisible(False)
+                QtGui.QApplication.processEvents()
         elif(eventTopKey == "input_port_added"):
             self.add_port(event[1])
         elif(eventTopKey == "output_port_added"):
