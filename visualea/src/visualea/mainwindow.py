@@ -26,7 +26,7 @@ from PyQt4.QtCore import SIGNAL
 import ui_mainwindow
 from openalea.visualea.shell import get_shell_class
 
-from openalea.core import cli
+from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings,NoSectionError,NoOptionError
 from code import InteractiveInterpreter as Interpreter
@@ -86,13 +86,25 @@ class MainWindow(QtGui.QMainWindow,
         #last opened nodes
         self._last_opened = []
 
+        #lower tab pane : python shell, logger...
+        self.lowerpane = QtGui.QTabWidget(parent=self.splitter)
+
         # python interpreter
         interpreter = Interpreter()
         cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
-                                            cli.get_welcome_msg(),
-                                            parent=self.splitter)
+                                            cli.get_welcome_msg())
+        self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
+
+        if logger.QT_LOGGING_MODEL_AVAILABLE:
+            # openalea logger
+            self.loggerView = QtGui.QTableView()
+            self.loggerView.verticalHeader().hide()
+            self.loggerView.setAlternatingRowColors(True)
+            self.loggerView.setModel(logger.LoggerOffice().get_handler("qt"))
+            self.loggerView.resizeColumnsToContents()
+            self.lowerpane.addTab(self.loggerView, "Logging")
 
         # package tree view
         self.pkg_model = PkgModel(self.pkgmanager)
