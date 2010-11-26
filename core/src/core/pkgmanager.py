@@ -39,16 +39,13 @@ from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
-from openalea.core import logger as LOGGER
+from openalea.core import logger
 
 
 # Exceptions
 import time
 DEBUG = True
 DEBUG = False
-
-
-#LOGGER = get_logger(__name__)
 
 class UnknowFileType(Exception):
     pass
@@ -82,7 +79,7 @@ class Logger(object):
         f.write("%i %s\n"%(self.log_index, msg))
         f.close()
         self.log_index +=1
-
+        logger.debug(msg)
 
     def print_log(self):
         """ Print log file """
@@ -175,7 +172,7 @@ class PackageManager(object):
                 self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
 
         except Exception, e:
-            LOGGER.error(str(e))
+            logger.error(str(e))
             #self.log.add(str(e))
 
 
@@ -223,14 +220,14 @@ class PackageManager(object):
             try:
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
             except ImportError, e:
-                LOGGER.error("Cannot load %s : %s"%(epoint.module_name, e))
+                logger.error("Cannot load %s : %s"%(epoint.module_name, e))
                 #self.log.add("Cannot load %s : %s"%(epoint.module_name, e))
                 continue
 
             l = list(m.__path__)
             for p in l :
                 p = os.path.abspath(p)
-                LOGGER.info("Wralea entry point: %s (%s) "%(epoint.module_name, p))
+                logger.info("Wralea entry point: %s (%s) "%(epoint.module_name, p))
                 #self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
                 self.add_wralea_path(p, self.sys_wralea_path)
 
@@ -337,7 +334,7 @@ class PackageManager(object):
 
         # Test if the package is deprecated
         if(package.name.lower() in self.deprecated_pkg):
-            LOGGER.warning("Deprecated : Ignoring %s"%(package.name))
+            logger.warning("Deprecated : Ignoring %s"%(package.name))
             #self.log.add("Deprecated : Ignoring %s"%(package.name))
             del(package)
             return
@@ -416,7 +413,7 @@ class PackageManager(object):
 
         if(not os.path.exists(dirname) or
            not os.path.isdir(dirname)):
-            LOGGER.error("Package directory : %s does not exists."%(dirname,))
+            logger.error("Package directory : %s does not exists."%(dirname,))
             #self.log.add("Package directory : %s does not exists."%(dirname,))
             return None
 
@@ -425,7 +422,7 @@ class PackageManager(object):
         # find wralea
         readers = self.find_wralea_dir(dirname)
         if not readers:
-            LOGGER.info("Search Vlab objects.")
+            logger.info("Search Vlab objects.")
             #self.log.add("Search Vlab objects.")
             readers = self.find_vlab_dir(dirname)
         ret = None
@@ -433,7 +430,7 @@ class PackageManager(object):
             if r:
                 ret = r.register_packages(self)
             else:
-                LOGGER.error("Unable to load package %s."%(dirname, ))
+                logger.error("Unable to load package %s."%(dirname, ))
                 #self.log.add("Unable to load package %s."%(dirname, ))
                 ret = None
 
@@ -457,7 +454,7 @@ class PackageManager(object):
 
         spec_files = set()
         if(not os.path.isdir(directory)):
-            LOGGER.error("Not a directory", directory, repr(directory))
+            logger.error("Not a directory", directory, repr(directory))
             #self.log.add("Not a directory", directory, repr(directory))
             return []
 
@@ -470,7 +467,7 @@ class PackageManager(object):
             spec_files.update( p.glob(spec_name) )
 
         for f in spec_files:
-            LOGGER.info("Package Manager : found  VLAB %s" % p)
+            logger.info("Package Manager : found  VLAB %s" % p)
             #self.log.add("Package Manager : found  VLAB %s" % p)
 
         return map(self.get_pkgreader, spec_files)
@@ -489,7 +486,7 @@ class PackageManager(object):
 
         wralea_files = set()
         if(not os.path.isdir(directory)):
-            LOGGER.warning("%s Not a directory"%repr(directory))
+            logger.warning("%s Not a directory"%repr(directory))
             #self.log.add("%s Not a directory"%repr(directory))
             return []
 
@@ -504,7 +501,7 @@ class PackageManager(object):
             wralea_files.update( p.glob("*wralea*.py") )
 
         for f in wralea_files:
-            LOGGER.info("Package Manager : found %s" % f)
+            logger.info("Package Manager : found %s" % f)
             #self.log.add("Package Manager : found %s" % f)
 
         if DEBUG:
