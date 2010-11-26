@@ -21,13 +21,24 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-import logging, weakref, sys, os
+import logging, weakref, sys, os, os.path
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
 from openalea.core.singleton import Singleton
 
 
 #: If True, no default initialisation will be done. Not recommended though.
 DONT_DEFAULT = False
+
+
+#: The QLogHandlerItemModel class is only created if PyQt4 is available
+# otherwise ties core with PyQt and could prevent UI-less usage of core.
+try:
+    from PyQt4 import QtCore, QtGui
+    QT_LOGGING_MODEL_AVAILABLE=True
+except Exception, e:
+    print __name__+".QLogHandlerItemModel won't be available"
+    QT_LOGGING_MODEL_AVAILABLE=False
+
 
 
 #######################
@@ -76,37 +87,6 @@ class BaseLogger(object):
         self.__pyLogger.critical(msg)
 
 
-########################################################
-# -------- Some Logging handlers for Openalea -------- #
-########################################################
-# --- We place the QLogHandlerItemModel in a try except because it
-# otherwise ties core with PyQt ---
-try:
-    import collections, re
-    from PyQt4 import QtCore, QtGui
-
-    class QLogHandlerItemModel(QtGui.QStandardItemModel, logging.Handler):
-        """A Handler that stores the logs in a QStandardItemModel, directly usable
-        by QtGui.QTableViews"""
-        def __init__(self, length=2000, level=NOTSET):
-            QtGui.QStandardItemModel.__init__(self)
-            logging.Handler.__init__(self, level)
-            self.fields = LoggerOffice().get_format().split(" - ")
-            self.setHorizontalHeaderLabels(self.fields)
-            #self.setHorizontalHeaderLabels(["Time", "Origin", "Level", "Description"])
-            self.__length = length
-
-        def emit(self, record):
-            if self.rowCount() > self.__length:
-                print self.rowCount(), self.__length
-                self.removeRow(0)
-            vals = self.format(record).split(" - ")
-            self.appendRow(map(QtGui.QStandardItem, vals ))
-
-    QT_LOGGING_MODEL_AVAILABLE=True
-except:
-    QT_LOGGING_MODEL_AVAILABLE=False
-
 
 
 ############################
@@ -118,8 +98,10 @@ class LoggerOffice(object):
     def __init__(self, level=DEBUG):
         logging.info("Logger started")
         # -- our formatter --
-        self.__format = "%(asctime)s - %(lineno)d - %(pathname)s - %(levelname)s - %(message)s"
-        self.__formatter = logging.Formatter(self.__format)
+        self.__format = "%(levelname)s - %(asctime)s - %(message)s - %(pathname)s - %(lineno)d"
+        #self.__format = "%(message)s - %(pathname)s - %(lineno)d - %(levelname)s - %(asctime)s"
+        self.__dformat = "%H:%M:%S"
+        self.__formatter = logging.Formatter(self.__format, self.__dformat)
 
         # -- user defined handlers --
         self.__handlers = {}
@@ -140,6 +122,11 @@ class LoggerOffice(object):
 
     def get_format(self):
         return self.__format
+
+    def get_date_format(self):
+        return self.__dformat
+
+
 
     ############
     # HANDLERS #
@@ -249,6 +236,11 @@ class LoggerOffice(object):
             ha = QLogHandlerItemModel(level=level)
             ha.setFormatter(self.__formatter)
             self.__handlers["qt"] = ha
+
+        flogger = logging.FileHandler(os.path.expanduser("~/.openalea/log.log"))
+        flogger.setLevel(level)
+        self.__handlers["file"] = flogger
+
         # -- default loggers --
         self.make_default_logger()
 
@@ -268,7 +260,7 @@ class LoggerOffice(object):
 
 # Copied and hacked out of logging.__init__.py
 # _srcfile is used when walking the stack to check when we've got the first
-# caller stack frame.
+# caller stack frame that is not from this file
 if __file__[-4:].lower() in ['.pyc', '.pyo']:
     _srcfile = __file__[:-4] + '.py'
 else:
@@ -296,6 +288,61 @@ class PatchedPyLogger(logging.Logger):
         return rv
 
 logging.setLoggerClass(PatchedPyLogger)
+
+
+
+
+
+
+########################################################
+# -------- Some Logging handlers for Openalea -------- #
+########################################################
+if QT_LOGGING_MODEL_AVAILABLE:
+    class QLogHandlerItemModel(QtGui.QStandardItemModel, logging.Handler):
+        """A Handler that stores the logs in a QStandardItemModel, directly usable
+        by QtGui.QTableViews"""
+
+        cyan    = 146, 188, 227
+        green   = 146, 231, 62
+        yellow  = 236, 235, 130
+        orange  = 236, 169, 35
+        red     = 255, 28, 28
+        __colormap__ = { "DEBUG"   : QtGui.QColor(*cyan),
+                         "INFO"    : QtGui.QColor(*green),
+                         "WARNING" : QtGui.QColor(*yellow),
+                         "ERROR"   : QtGui.QColor(*orange),
+                         "CRITICAL": QtGui.QColor(*red)
+                         }
+
+        def __init__(self, length=2000, level=NOTSET):
+            QtGui.QStandardItemModel.__init__(self)
+            logging.Handler.__init__(self, level)
+            self.fields = [s[2].upper()+s[3:-2] for s in LoggerOffice().get_format().split(" - ")]
+
+            # -- if we find the "Levelname" column it will be used for colouring --
+            try:
+                self.messageTypeIndex = self.fields.index("Levelname")
+            except:
+                self.messageTypeIndex = None
+
+            self.setHorizontalHeaderLabels(self.fields)
+            self.__length = length
+
+        def emit(self, record):
+            if self.rowCount() > self.__length:
+                self.removeRow(0)
+            vals = self.format(record).split(" - ")
+            items = map(QtGui.QStandardItem, vals )
+
+            # -- optionnal colouring --
+            if self.messageTypeIndex is not None:
+                msgType = vals[self.messageTypeIndex]
+                color = QtGui.QBrush(QLogHandlerItemModel.__colormap__[msgType])
+                items[self.messageTypeIndex].setBackground(color)
+            self.appendRow(items)
+
+
+
 
 if not DONT_DEFAULT:
     LoggerOffice().set_defaults(DEBUG)
