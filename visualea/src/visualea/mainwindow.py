@@ -88,6 +88,7 @@ class MainWindow(QtGui.QMainWindow,
 
         #lower tab pane : python shell, logger...
         self.lowerpane = QtGui.QTabWidget()
+        self.splitter.addWidget(self.lowerpane)
 
         # python interpreter
         interpreter = Interpreter()
