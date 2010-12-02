@@ -25,6 +25,7 @@ from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
 from openalea.visualea.shell import get_shell_class
+import components
 
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
@@ -48,6 +49,7 @@ from openalea.visualea.dialogs import PreferencesDialog, NewData
 from openalea.visualea import dataflowview
 from graph_operator import GraphOperator
 from graph_operator.vertex import VertexOperators
+
 import traceback
 
 class MainWindow(QtGui.QMainWindow,
@@ -100,12 +102,9 @@ class MainWindow(QtGui.QMainWindow,
 
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
-            self.loggerView = QtGui.QTableView()
-            self.loggerView.verticalHeader().hide()
-            self.loggerView.setAlternatingRowColors(True)
-            self.loggerView.setModel(logger.LoggerOffice().get_handler("qt"))
-            self.loggerView.resizeColumnsToContents()
-            self.lowerpane.addTab(self.loggerView, "Logging")
+            model = logger.LoggerOffice().get_handler("qt")
+            view = components.ComponentRegistry().create_editor_for(model)
+            self.lowerpane.addTab(view, "Logging")
 
         # package tree view
         self.pkg_model = PkgModel(self.pkgmanager)
@@ -274,7 +273,7 @@ class MainWindow(QtGui.QMainWindow,
         last_open = "[%s]" % ",".join("'%s'" % item for item in self._last_opened)
         settings.set("WorkSpace","last",last_open)
 
-        settings.write_to_disk()
+        settings.write()
 
     def read_settings (self) :
         """Read application settings.
@@ -546,7 +545,6 @@ class MainWindow(QtGui.QMainWindow,
 
 
     def add_pkgdir(self):
-
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Package/Directory")
         if(dirname):
             self.pkgmanager.load_directory(str(dirname))
@@ -738,8 +736,12 @@ class MainWindow(QtGui.QMainWindow,
     def open_preferences(self):
         """ Open Preference dialog """
 
+        # dialog2 = components.ComponentPreferenceBrowser(self)
+        # dialog2.show()
         dialog = PreferencesDialog(self)
+        dialog.show()
         ret = dialog.exec_()
+
         # ! does not return anythin and do not use ret ?
 
     # Drag and drop support
