@@ -127,7 +127,6 @@ class LoggerOffice(object):
         return self.__dformat
 
 
-
     ############
     # HANDLERS #
     ############
@@ -239,6 +238,7 @@ class LoggerOffice(object):
 
         flogger = logging.FileHandler(os.path.expanduser("~/.openalea/log.log"))
         flogger.setLevel(level)
+        flogger.setFormatter(self.__formatter)
         self.__handlers["file"] = flogger
 
         # -- default loggers --
@@ -326,11 +326,12 @@ if QT_LOGGING_MODEL_AVAILABLE:
                 self.messageTypeIndex = None
 
             self.setHorizontalHeaderLabels(self.fields)
-            self.__length = length
+            self.length = length
 
         def emit(self, record):
-            if self.rowCount() > self.__length:
+            while self.rowCount() > self.length:
                 self.removeRow(0)
+
             vals = self.format(record).split(" - ")
             items = map(QtGui.QStandardItem, vals )
 
@@ -373,3 +374,10 @@ if not DONT_DEFAULT:
 #     for i in xrange(r):
 #         i += i
 
+def deprecateWarn(f):
+    def deprecated(*args, **kwargs):
+        v = f(*args, **kwargs)
+        name = "%s (%s:%s)" % (f.__name__, str(f.__module__), str(f.func_code.co_firstlineno))
+        warning( name + " is deprecated.")
+        return v
+    return deprecated
