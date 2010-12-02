@@ -28,7 +28,8 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
 from openalea.core.session import Session
-
+from openalea.visualea.components import ComponentRegistry
+from openalea.core.node import Factory, Node
 
 import ui_newgraph
 import ui_tofactory
@@ -618,6 +619,11 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
 
+        # for cname, c in ComponentRegistry().iteritems():
+        #     conf = Settings().get_section_with_type(cname, ignoreVersion=True)
+        #     self.build_gui_for_component(cname, conf)
+
+
 
     def add_search_path(self):
         """ Package Manager : Add a path in the list """
@@ -674,7 +680,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config.set("UI", "DoubleClick", repr(d[index]))
         config.set("UI", "EdgeStyle", edge_style)
         config.set("UI", "EvalCue", str(self.evalCue.checkState()==QtCore.Qt.Checked))
-        config.write_to_disk()
+        config.write()
 
         if edge_style != self.edge_style:
             self.edge_style = edge_style
@@ -692,9 +698,7 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config = Settings()
         config.set("editor", "use_external", repr(use_ext))
         config.set("editor", "command", command)
-        config.write_to_disk()
-
-
+        config.write()
 
 
     def accept(self):
@@ -706,7 +710,30 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
         self.valid_editor()
         QtGui.QDialog.accept(self)
 
+    def build_gui_for_component(self, componentName, conf):
+        top = QtGui.QGroupBox(self)
+        inputs  = tuple([dict(name=k, interface=i, value=v) \
+                        for k,(i,v) in conf.iteritems()])
+        outputs = tuple([dict(name=k, interface=i, value=v) \
+                        for k,(i,v) in conf.iteritems()])
+        print inputs, outputs
 
+        f = Factory(name=componentName,
+                    nodemodule = "openalea.visualea.dialogs",
+                    nodeclass  = "PreferenceNode",
+                    inputs  = inputs,
+                    outputs = outputs
+                    )
+        w = f.instantiate_widget(parent=top)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(w)
+        top.setLayout(layout)
+        self.tabWidget.addTab(top, componentName)
+        top.show()
+
+class PreferenceNode(Node):
+    def __call__(self, inputs=()):
+        return inputs
 
 class ComboDelegate(QtGui.QItemDelegate):
     """

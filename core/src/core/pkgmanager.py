@@ -182,7 +182,7 @@ class PackageManager(object):
         config = Settings()
         config.set("pkgmanager", "path", repr(list(self.user_wralea_path)))
 #        config.set("pkgmanager", "include_namespace", repr(self.include_namespace))
-        config.write_to_disk()
+        config.write()
 
 
     def set_sys_wralea_path(self):
