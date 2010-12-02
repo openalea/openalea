@@ -31,3 +31,11 @@ class Singleton(type):
         if cls.instance is None:
             cls.instance=super(Singleton, cls).__call__(*args, **kw)
         return cls.instance
+
+
+import weakref
+class ProxySingleton(Singleton):
+    """ Singleton Metaclass which returns a proxy """
+
+    def __call__(cls, *args, **kw):
+        return weakref.proxy(Singleton.__call__(cls, *args, **kw))
