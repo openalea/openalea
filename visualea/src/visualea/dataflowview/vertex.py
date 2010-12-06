@@ -101,6 +101,10 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                       center=True,
                                                       mins=(ph, ph))
 
+        # Editor
+        self.__editor = None
+
+
         # Small dots when the vertex has hidden ports
         hiddenPortItem = HiddenPort(self)
         hiddenPortItem.setVisible(False)
@@ -161,6 +165,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         vertex = self.vertex()
         self.remove_ports(lambda x: isinstance(x, InputPort))
         self.remove_ports(lambda x: isinstance(x, OutputPort))
+
+    def set_editor_instance(self, editor):
+        self.__editor = editor
+
+    def get_editor_instance(self):
+        return self.__editor
 
     ###########
     # Queries #
@@ -256,7 +266,10 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             refresh=True
 
         eventTopKey = event[0]
-        if eventTopKey == "data_modified":
+        if eventTopKey == "close":
+            if self.__editor:
+                self.__editor.close()
+        elif eventTopKey == "data_modified":
             key = event[1]
             if key == "caption":
                 self.set_graphical_caption(event[2])
