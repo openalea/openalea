@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
@@ -40,15 +40,15 @@ class SignalSlotListener(AbstractListener):
     """ Listener with QT Signal/Slot support """
 
     def __init__(self):
-        AbstractListener.__init__(self)        
+        AbstractListener.__init__(self)
         # Create a QObject if necessary
         if(not isinstance(self, QtCore.QObject)):
             self.obj = QtCore.QObject()
             self.qobj = weakref.ref(self.obj)
         else:
             self.qobj = weakref.ref(self)
-        
-            
+
+
         self.qobj().connect(self.qobj(), QtCore.SIGNAL("notify"), self.notify)
 
 
@@ -58,7 +58,7 @@ class SignalSlotListener(AbstractListener):
         @param sender : the observed object which send notification
         @param event : the data associated to the notification
         """
-        
+
         try:
             self.qobj().emit(QtCore.SIGNAL("notify"), sender, event)
         except Exception, e:
@@ -77,7 +77,7 @@ class NodeWidget(SignalSlotListener):
 
     def __init__(self, node, autonomous=False):
         """ Init the widget with the associated node """
-        
+
         self.__node = node
 
         SignalSlotListener.__init__(self)
@@ -103,13 +103,13 @@ class NodeWidget(SignalSlotListener):
         and must be overloaded
         """
         pass
-    
+
 
     def is_empty(self):
         return False
 
 
-   
+
 
 class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     """
@@ -118,7 +118,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     """
 
     type_map = InterfaceWidgetMap()
-    
+
     @lock_notify
     def __init__(self, node, parent, autonomous=False):
         """ Constructor """
@@ -127,10 +127,12 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         NodeWidget.__init__(self, node)
         self.setMinimumSize(100, 20)
 
+
         self.widgets = []
         self.empty = True
 
         self.vboxlayout = QtGui.QVBoxLayout(self)
+        self.vboxlayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
 
         if  node.factory.view is None:
             # we create the widget in default way
@@ -145,19 +147,20 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             #elif node.factory.view.layout=="|": layout = QtGui.QVBoxLayout(self)
             #layout.setMargin(3)
             #layout.setSpacing(2)
-            #    
+            #
             ## we use custom view defined by user
             #for i in node.factory.view.content:
             #    self.place( self,  i, layout )
             self.place_group( self, node.factory.view, self.vboxlayout)
 
-        if autonomous: 
+        if autonomous:
             self.set_autonomous()
+
 
 
     def set_autonomous(self):
         """ Add Run bouton and close button """
-        
+
         runbutton = QtGui.QPushButton("Run", self)
         exitbutton = QtGui.QPushButton("Exit", self)
         self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
@@ -170,7 +173,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
 
     @exception_display
-    @busy_cursor    
+    @busy_cursor
     def run(self):
         self.node.eval()
 
@@ -178,7 +181,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def exit(self):
         self.parent().close()
 
-    
+
     def place( self, widget,  item, layout ):
         """
         Place
@@ -190,7 +193,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         elif isinstance( item, Group ):
             self.place_group(widget, item, layout)
 
-    
+
     def place_item( self,  widget, port,  layout ):
         """
         Place item : ?
@@ -203,11 +206,11 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         if not port.get('showwidget', not port.is_hidden()):
             self.widgets.append(None)
             return
-        
+
         # interface class or instance ?
         if(type(interface) == IInterfaceMetaClass):
             interface = interface()
-        
+
         wclass = self.type_map.get(interface.__class__, None)
 
         if(wclass):
@@ -229,12 +232,12 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
 #             layout.addWidget(label)
 
-                
+
     def place_group( self, widget, group, layout ):
         """<Short description of the function functionality.>
-        
+
         <Long description of the function functionality.>
-        
+
         :param widget: <Description of arg1 meaning>
         :type widget:  <Description of arg1 type>
 
@@ -242,7 +245,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         :raise Exception: <Description of situation raising `Exception`>
 
         """
-        
+
         if group.layout=="-" or  group.layout=="|":
             groupW = QtGui.QGroupBox(widget)
             groupW.setTitle(group.label)
@@ -265,7 +268,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
                 tab.addTab(groupW, name)
             self.place(groupW, i, nlayout)
 
-    
+
     def notify(self, sender, event):
         """ Function called by observed objects """
 
@@ -276,7 +279,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 
                 widget.notify(sender, event)
                 widget.update_state()
-                
+
 
     def is_empty(self):
         return bool(self.empty)
