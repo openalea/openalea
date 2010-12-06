@@ -30,7 +30,6 @@ import compositenode_inspector
 INSPECTOR_EDGE_OFFSET = 15
 
 class VertexOperators(graphOpBase.Base):
-    __vertexWidgetMap__ = weakref.WeakKeyDictionary()
     __compositeWidgetMap__ = weakref.WeakKeyDictionary()
 
     def __init__(self, master):
@@ -96,8 +95,9 @@ class VertexOperators(graphOpBase.Base):
 
     def vertex_open(self):
         master = self.master
-        vertex = master.vertexItem().vertex()
-        vwidget = VertexOperators.__vertexWidgetMap__.get(vertex, None)
+        item = master.vertexItem()
+        vertex = item.vertex()
+        vwidget = item.get_editor_instance()
         if(vwidget):
             if(vwidget.isVisible()):
                 vwidget.raise_ ()
@@ -123,11 +123,12 @@ class VertexOperators(graphOpBase.Base):
         if title == "":
             title = factory.get_id()
 
-        VertexOperators.__vertexWidgetMap__[vertex] = open_dialog(master.get_graph_view(),
-                                                                  innerWidget,
-                                                                  title,
-                                                                  False)
+        vwidget = open_dialog(master.get_graph_view(),
+                              innerWidget,
+                              title,
+                              False)
 
+        item.set_editor_instance(vwidget)
 
     def vertex_remove(self):
         master = self.master

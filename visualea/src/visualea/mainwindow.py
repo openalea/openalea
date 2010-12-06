@@ -200,10 +200,6 @@ class MainWindow(QtGui.QMainWindow,
                      self.reopen_last)
         # daniel was here: now the menu is built using the graph operator.
         self.operator = GraphOperator()
-        # self.operator.set_main(self)
-        # self.operator.vertexType = dataflowview.vertex.GraphicalVertex
-        # self.operator.annotationType = dataflowview.anno.GraphicalAnnotation
-        # self.operator.edgeType = dataflowview.edge.GraphicalEdge
         self.operator.register_listener(self)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
@@ -464,17 +460,8 @@ class MainWindow(QtGui.QMainWindow,
         w = self.tabWorkspace.widget(cindex)
         self.tabWorkspace.removeTab(cindex)
         self.session.close_workspace(cindex, False)
-
-        #ok, we now need to delete ell the open widgets
-        #of this workspace. THIS IS DEFINITELY HACKISH
         g = w.scene().get_graph()
-        for a in g:
-            actor = g.actor(a)
-            aw = VertexOperators.__vertexWidgetMap__.get(actor)
-            if aw:
-                aw.close()
-                del VertexOperators.__vertexWidgetMap__[actor]
-
+        g.close()
         #finally we close the dataflowview.
         w.close()
         del w
@@ -505,16 +492,6 @@ class MainWindow(QtGui.QMainWindow,
         Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
         """
-        # Test if the node is already opened
-        for i in range(self.tabWorkspace.count()):
-            widget = self.tabWorkspace.widget(i)
-            other = widget.scene().get_graph()
-            if other:
-                if(graph is other):
-                    self.tabWorkspace.setCurrentIndex(i)
-                    return
-
-        #gengraph
         gwidget = None
         try:
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
@@ -524,7 +501,7 @@ class MainWindow(QtGui.QMainWindow,
             print "open_widget_tab", e
             traceback.print_exc()
             return
-        #/gengraph
+
 
         if(not caption) :
             i = self.session.workspaces.index(graph)
@@ -540,7 +517,6 @@ class MainWindow(QtGui.QMainWindow,
         QtCore.QCoreApplication.instance().notify(gwidget, QtCore.QEvent(QtCore.QEvent.WindowActivate))
         if gwidget is not None :
             gwidget.show_entire_scene()
-
         return index
 
 
