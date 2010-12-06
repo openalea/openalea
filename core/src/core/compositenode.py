@@ -411,6 +411,12 @@ class CompositeNode(Node, DataFlow):
     def copy_to(self, other):
         raise NotImplementedError
 
+    def close(self):
+        for vid in set(self.vertices()):
+            node = self.actor(vid)
+            node.close()
+        Node.close(self)
+
     def reset(self):
         """ Reset nodes """
 
@@ -886,6 +892,7 @@ class CompositeNode(Node, DataFlow):
         if vtx_id == self.id_in : self.id_in = None
         elif vtx_id == self.id_out : self.id_out = None
         self.remove_vertex(vtx_id)
+        node.close()
         self.notify_vertex_removal(node)
         self.notify_listeners(("graph_modified", ))
         self.graph_modified = True

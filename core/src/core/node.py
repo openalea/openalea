@@ -167,6 +167,9 @@ class AbstractNode(Observed, HasAdHoc):
         if(notify):
             self.notify_listeners(("data_modified", key, value))
 
+    def close(self):
+        self.notify_listeners(("close", self))
+
     def reset(self):
         """ Reset Node """
         pass
@@ -1123,7 +1126,7 @@ class NodeFactory(AbstractFactory):
             self.search_path.append(caller_dir)
 
 
-    def is_node(self): 
+    def is_node(self):
         return True
 
     def get_python_name(self):
