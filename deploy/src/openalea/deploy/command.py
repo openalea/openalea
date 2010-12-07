@@ -1067,52 +1067,6 @@ class egg_upload(Command):
         uploader.run()
 
 
-class system_deploy(Command):
-    """ extension to setuptools to automatically install
-    system dependencies (rpms, debs, etc...)
-    """
-
-    sys_deps = None
-
-    description = "Install all required dependencies of a project using the platform's installer"
-
-    user_options = [('project=', None, 'openalea, vplant or alinea'),
-                    ('platform=', None, 'the platform to deploy on (windows, fedora, ubuntu, karmic, ubuntu karmic.' + \
-                     'Defaults to the current one'),
-                    ('dev', None, 'if specified, installs dev packages'),
-                    ('dry-run', None, 'if specified, nothing will be done besides printing'),
-                    ('yes-to-all', None, 'reply yes to all questions')]
-
-
-    def initialize_options(self):
-        if system_deploy.sys_deps is None:
-            import system_dependencies as sys_deps
-            system_deploy.sys_deps = sys_deps
-        self.project = None
-        self.platform = None
-        self.dev = False
-        self.dry_run = False
-        self.yes_to_all = False
-
-    def finalize_options(self):
-        if self.project is None:
-            raise ValueError(" --project must be provided")
-        else:
-            projects = self.sys_deps.get_canonincal_dependencies().keys()
-            if self.project.lower() not in projects:
-                raise ValueError(" project must be one of %s"%(str(projects),))
-
-        if self.platform is None:
-            self.platform = self.sys_deps.get_platform()
-            print 'Using current platform:', self.platform
-
-    def run(self):
-        self.sys_deps.deploy_runtime_dependencies(self.project, self.platform, self.dry_run)
-        if self.dev:
-            self.sys_deps.deploy_development_dependencies(self.project, self.platform, self.dry_run)
-
-
-
 
 class pylint(Command):
     """ pylint extensions to setuptools

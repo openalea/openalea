@@ -80,7 +80,6 @@ setup(
                  "pylint = openalea.deploy.command:pylint",
                  "clean = openalea.deploy.command:clean",
                  "egg_upload = openalea.deploy.command:egg_upload",
-                 "system_deploy = openalea.deploy.command:system_deploy",
                  ],
 
               "console_scripts": [
