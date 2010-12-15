@@ -135,3 +135,4 @@ def test_functor():
     s = sgn.Signature(nofunctor)
     assert s.get_name() == 'nofunctor'
     assert s.get_parameters() == []
+    assert s.isValid == False
