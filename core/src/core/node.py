@@ -31,7 +31,7 @@ import sys
 import string
 import types
 from copy import copy, deepcopy
-from weakref import ref
+from weakref import ref, proxy
 
 #from signature import get_parameters
 import signature as sgn
@@ -121,6 +121,7 @@ class HasAdHoc(AbstractListener):
     def get_ad_hoc_dict(self):
         return self.__ad_hoc_dict
 
+
 class AbstractNode(Observed, HasAdHoc):
     """
     An AbstractNode is the atomic entity in a dataflow.
@@ -147,6 +148,11 @@ class AbstractNode(Observed, HasAdHoc):
         self.internal_data = {}
         self.factory = None
 
+        # -- the ugly back reference --
+        # !! Christophe, don't look at this one.
+        # proxy to higher level structure, aka CompositeNode.
+        self._composite_node = None
+
         # The default layout
         self.view = None
         self.user_application = None
@@ -160,6 +166,13 @@ class AbstractNode(Observed, HasAdHoc):
         self.internal_data["id"] = self.__id
         if(self.factory):
             self.internal_data["factory"] = str(self.factory) + " : \"" + self.factory.get_id() + "\""
+
+    def _init_internal_data(self, d):
+        self.internal_data.update(d)
+
+    # -- the ugly back reference --
+    def set_compositenode(self, upper):
+        self._composite_node = proxy(upper)
 
     def set_data(self, key, value, notify=True):
         """ Set internal node data """
@@ -198,6 +211,7 @@ class AbstractNode(Observed, HasAdHoc):
         self.notify_listeners(("exception_state_changed", val))
 
     raise_exception = property(get_raise_exception, set_raise_exception)
+
 
 class AbstractPort(dict, Observed, HasAdHoc):
     """

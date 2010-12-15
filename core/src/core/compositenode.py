@@ -34,6 +34,7 @@ from openalea.core.package import UnknownNodeError
 from openalea.core.dataflow import DataFlow, InvalidEdge
 from openalea.core.settings import Settings
 from openalea.core.metadatadict import MetaDataDict
+import logger
 
 quantify = True
 
@@ -329,7 +330,8 @@ class CompositeNodeFactory(AbstractFactory):
                     node.get_ad_hoc_dict().set_metadata(newKey, _type(data))
 
         #finally put the internal data (elt_data) where it has always been expected.
-        node.internal_data.update(elt_data)
+        node._init_internal_data(elt_data)
+#        node.internal_data.update(elt_data)
 
     def instantiate_node(self, vid, call_stack=None):
         """ Partial instantiation
@@ -527,7 +529,8 @@ class CompositeNode(Node, DataFlow):
             self.evaluating = False
         t1 = time.time()
         if quantify:
-            print 'Evalation time: %s'%(t1-t0)
+            logger.info('Evaluation time: %s'%(t1-t0))
+            print 'Evaluation time: %s'%(t1-t0)
     # Functions used by the node evaluator
 
     def eval(self):
@@ -843,6 +846,9 @@ class CompositeNode(Node, DataFlow):
         """
         vid = self.add_vertex(vid)
 
+        # -- NOOOOOO THE UGLY BACK REFERENCE --
+        node.set_compositenode(self)
+
         node.set_id(vid)
         for local_pid in xrange(node.get_nb_input()):
             self.add_in_port(vid, local_pid)
@@ -990,7 +996,8 @@ class CompositeNode(Node, DataFlow):
 
         oldnode = self.actor(vid)
         caption = newnode.caption
-        newnode.internal_data.update(oldnode.internal_data)
+        newnode._init_internal_data(oldnode.internal_data)
+        # newnode.internal_data.update(oldnode.internal_data)
         newnode.caption = caption
 
         if(oldnode.get_nb_input() != newnode.get_nb_input() or
