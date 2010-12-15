@@ -1,0 +1,139 @@
+
+
+import types
+from inspect import getmembers, ismethod, isfunction, isbuiltin
+from openalea.visualea.node_widget import NodeWidget, DefaultNodeWidget
+from openalea.core.observer import lock_notify
+from PyQt4 import QtGui, QtCore
+
+class SelectCallable(QtGui.QWidget, NodeWidget):
+    """ This Widget allows to select an element in a list
+    or in a dictionnary """
+
+
+
+    def __init__(self, node, parent):
+        """
+        @param node
+        @param parent
+        """
+        QtGui.QWidget.__init__(self, parent)
+        NodeWidget.__init__(self, node)
+
+        # -- imitate DefaultNodeWidget : refactor DefaultNodeWidget??? --
+        # this is because we reuse the same code from DefaultNodeWidget
+        # to build the UI.
+        self.widgets = []
+        self.empty   = True
+        # -- end of imitate DefaultNodeWidget --
+
+        # -- own custom layout
+        self.setMinimumSize(100, 20)
+        self.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                           QtGui.QSizePolicy.Fixed)
+        self._mainLayout = QtGui.QVBoxLayout(self)
+        self._mainLayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self._mainLayout.setMargin(3)
+        self._mainLayout.setSpacing(2)
+
+        # -- the method name selection group box -- #
+        self.__methodGBox = QtGui.QGroupBox("Method to wrap")
+        self.__methodGBox.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                                        QtGui.QSizePolicy.Fixed)
+        self._mainLayout.addWidget(self.__methodGBox, 0, QtCore.Qt.AlignTop)
+
+        methNameLayout = QtGui.QHBoxLayout()
+        methNameLayout.setMargin(3)
+        methNameLayout.setSpacing(2)
+
+        methNameLabel  = QtGui.QLabel("Method name:")
+        self.__methodComboBox = QtGui.QComboBox()
+        self.__lockChoice     = QtGui.QPushButton()
+        style = QtGui.QApplication.style()
+        self.__lockChoice.setCheckable(True)
+        self.__lockChoice.setIcon(style.standardIcon(QtGui.QStyle.SP_DialogApplyButton))
+        self.__lockChoice.toggled.connect(self._methodChosen)
+        methNameLayout.addWidget(methNameLabel, 0, QtCore.Qt.AlignLeft)
+        methNameLayout.addWidget(self.__methodComboBox, 0, QtCore.Qt.AlignLeft)
+        methNameLayout.addWidget(self.__lockChoice, 0, QtCore.Qt.AlignLeft)
+
+        self.__methodGBox.setLayout(methNameLayout)
+
+        # -- The method's inputs widget --
+        self.__vboxlayout = QtGui.QVBoxLayout()
+        self._mainLayout.addLayout(self.__vboxlayout, 0)
+
+        # -- map between string and combobox index --
+        self.map_index = {}
+
+        # -- initialisation --
+        self.notify(node, ("input_modified", 0))
+        self.__isInit =True
+        toggled = bool(self.node.internal_data["methodName"] and
+                       self.node.internal_data["methodSig"])
+        self.__lockChoice.setChecked(toggled)
+        self.__isInit =False
+        #self._methodChosen(toggled , noNode=True )
+
+
+    def notify(self, sender, event):
+        """ Notification sent by node """
+        eventName = event[0]
+        if eventName == "input_modified":
+            inputIndex = event[1]
+            if inputIndex == 0: # index of modified input
+                # Read Inputs
+                instance = self.node.get_input(inputIndex)
+                # Update Combo Box
+                seq = getmembers(instance,
+                                 lambda x : ismethod(x) or isfunction(x) or isbuiltin(x))
+                self.update_list(seq)
+
+                currentMethodName = self.node.get_method_name()
+                index = self.map_index.get(currentMethodName, -1)
+                self.__methodComboBox.setCurrentIndex(index)
+
+
+    def update_list(self, seq):
+        """ Rebuild the list """
+        self.map_index.clear()
+        self.__methodComboBox.clear()
+        for s in seq:
+            name = s[0]
+            if name.startswith("_"):
+                continue
+            self.__methodComboBox.addItem(name)
+            self.map_index[name] = self.__methodComboBox.count() - 1
+
+
+    def _methodChosen(self, toggled):
+        style = QtGui.QApplication.style()
+        if toggled:
+            self.__methodComboBox.setEnabled(False)
+            self.__lockChoice.setIcon(style.standardIcon(QtGui.QStyle.SP_DialogCancelButton))
+            if not self.__isInit:
+                self.node.set_method_name(str(self.__methodComboBox.currentText()))
+            DefaultNodeWidget.do_layout(self, self.node, self.__vboxlayout)
+        else:
+            self.__methodComboBox.setEnabled(True)
+            self.__lockChoice.setIcon(style.standardIcon(QtGui.QStyle.SP_DialogApplyButton))
+
+            if not self.__isInit:
+                self.node.discard_method_name()
+
+            for i in range(self.__vboxlayout.count()):
+                it = self.__vboxlayout.itemAt(0)
+                if it:
+                    self.__vboxlayout.removeItem(it)
+                    it.widget().setAttribute(QtCore.Qt.WA_DeleteOnClose)
+                    it.widget().close()
+            self.widgets = []
+
+            # refresh the layout (without these three lines, the widget won't shrink!)
+            self._mainLayout.activate()
+            self.parentWidget().layout().activate()
+            self.parentWidget().setGeometry(self.geometry())
+
+
+
+

@@ -2,12 +2,12 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -32,9 +32,9 @@ __url__ = 'http://openalea.gforge.inria.fr'
 __all__ = []
 
 # Factories
-ifelse = Factory(name="ifelse", 
-                 description="Condition", 
-                 category="Python", 
+ifelse = Factory(name="ifelse",
+                 description="Condition",
+                 category="Python",
                  nodemodule="python",
                  nodeclass="py_ifelse",
                  )
@@ -45,8 +45,8 @@ __all__.append('ifelse')
 getitem = Factory( name="getitem",
                    description="Python __getitem__",
                    category="Python",
-                   
-                   inputs=[dict(name="obj", interface=None), 
+
+                   inputs=[dict(name="obj", interface=None),
                            dict(name="key", interface='IInt', value=0),],
                    nodemodule="operator",
                    nodeclass="getitem",
@@ -87,7 +87,7 @@ keys = Factory( name="keys",
 
 __all__.append('keys')
 
-    
+
 values = Factory(name="values",
                  description="Python values()",
                  category="Python",
@@ -98,7 +98,7 @@ values = Factory(name="values",
 
 __all__.append('values')
 
-    
+
 items = Factory(name="items",
                  description="Python items()",
                  category="Python",
@@ -114,7 +114,7 @@ range_ = Factory(name="range",
                  nodemodule="python",
                  nodeclass="pyrange",
                  )
-    
+
 
 __all__.append('range_')
 
@@ -125,7 +125,7 @@ enum_ = Factory(name="enumerate",
                 nodemodule="python",
                 nodeclass="pyenumerate",
                 )
-    
+
 __all__.append('enum_')
 
 
@@ -138,11 +138,11 @@ len_ = Factory(name="len",
 
 
 __all__.append('len_')
-    
 
-print_ = Factory(name="print", 
-                 description="Console output", 
-                 category="Python", 
+
+print_ = Factory(name="print",
+                 description="Console output",
+                 category="Python",
                  nodemodule="python",
                  nodeclass="py_print",
                  #outputs=(),
@@ -153,9 +153,9 @@ print_ = Factory(name="print",
 __all__.append('print_')
 
 
-method_ = Factory(name="method", 
-                  description="Calls object method", 
-                  category="Python", 
+method_ = Factory(name="method",
+                  description="Calls object method",
+                  category="Python",
                   nodemodule="python",
                   nodeclass="py_method",
                   inputs=(dict(name="obj", interface=None),
@@ -166,14 +166,14 @@ method_ = Factory(name="method",
 
 __all__.append('method_')
 
-    
-    
+
+
 getattr_ = Factory( name="getattr",
                     description="Gets class attribute",
                     category="Python",
                     nodemodule="python",
                     nodeclass="py_getattr",
-                    
+
                     inputs=(dict(name="obj", interface=None),
                             dict(name="member_name", interface=IStr)),
                     outputs=(dict(name="member"),),
@@ -209,9 +209,9 @@ exec_ = Factory( name="exec",
 __all__.append('exec_')
 
 
-zip_ = Factory( name="zip", 
-                description="Zip 2 sequences", 
-                category="Python", 
+zip_ = Factory( name="zip",
+                description="Zip 2 sequences",
+                category="Python",
                 nodemodule="python",
                 nodeclass="py_zip",
                 )
@@ -219,9 +219,9 @@ zip_ = Factory( name="zip",
 
 __all__.append('zip_')
 
-flatten_ = Factory( name="flatten", 
-              description="flatten list", 
-              category="Python", 
+flatten_ = Factory( name="flatten",
+              description="flatten list",
+              category="Python",
               nodemodule="python",
               nodeclass="py_flatten",
               )
@@ -229,9 +229,9 @@ flatten_ = Factory( name="flatten",
 
 __all__.append('flatten_')
 
-extract_ = Factory( name= "extract", 
-                  description= "Extract element from a list or a dict", 
-                  category = "Python", 
+extract_ = Factory( name= "extract",
+                  description= "Extract element from a list or a dict",
+                  category = "Python",
                   nodemodule = "python",
                   nodeclass = "extract",
                   inputs = [dict(name='indexable' , interface=ISequence, value=[]),
@@ -243,8 +243,8 @@ extract_ = Factory( name= "extract",
 __all__.append('extract_')
 
 pysum = Factory( name = "sum",
-                 description= sum.__doc__, 
-                 category = "Python", 
+                 description= sum.__doc__,
+                 category = "Python",
                  nodemodule = "python",
                  nodeclass = "pysum",
                  inputs = [dict(name='sequence' , interface=ISequence, value=[]),],
@@ -252,8 +252,8 @@ pysum = Factory( name = "sum",
                )
 __all__.append('pysum')
 pymean = Factory( name = "mean",
-                 description= "Compute the mean of a sequence", 
-                 category = "Python", 
+                 description= "Compute the mean of a sequence",
+                 category = "Python",
                  nodemodule = "python",
                  nodeclass = "pymean",
                  inputs = [dict(name='sequence' , interface=ISequence, value=[]),],
@@ -262,9 +262,9 @@ pymean = Factory( name = "mean",
 __all__.append('pymean')
 
 # DEPRECATED
-fwrite = Factory(name="fwrite", 
-                 description="File output", 
-                 category="Python", 
+fwrite = Factory(name="fwrite",
+                 description="File output",
+                 category="Python",
                  nodemodule="python",
                  nodeclass="py_fwrite",
                  inputs=(dict(name="x", interface=IStr),
@@ -278,9 +278,9 @@ fwrite = Factory(name="fwrite",
 __all__.append('fwrite_')
 
 
-fread = Factory(name="fread", 
-                description="File input", 
-                category="Python", 
+fread = Factory(name="fread",
+                description="File input",
+                category="Python",
                 nodemodule="python",
                 nodeclass="FileRead",
                 inputs=(dict(name="filename", interface=IFileStr),
@@ -289,6 +289,19 @@ fread = Factory(name="fread",
                 lazy = False,
                 )
 
-
-
 __all__.append('fread')
+
+
+select_callable = Factory(name='select callable',
+                           authors='Daniel BARBEAU (INRIA)',
+                           description='Given an object, it allows to select a member of the object. The node morphs into the given method.',
+                           category='Experimental HardCore', #this is true!
+                           nodemodule='wrap_method',
+                           nodeclass='SelectCallable',
+                           inputs=[{'interface': None, 'name': 'object', 'value': None, 'desc': 'the object to inspect'}],
+                           outputs=[],
+                           widgetmodule='wrap_method_gui',
+                           widgetclass='SelectCallable',
+                           )
+
+__all__.append('select_callable')
