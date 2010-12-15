@@ -243,3 +243,14 @@ start =  Factory(name='start',
                 inputs=({'interface': IFileStr, 'name': 'path', 'value': '.'},),
                )
 __all__.append('start')
+
+httpfile =  Factory(name='http file',
+                description='Copy a network object denoted by a URL to a local file, if necessary. If the URL points to a local file, or a valid cached copy of the object exists, the object is not copied. ',
+                category='File,IO, http',
+                nodemodule='urllib',
+                nodeclass='urlretrieve',
+                inputs=({'interface': IStr, 'name': 'url'},),
+                outputs=(dict(name='filename',interface=IFileStr),
+                        dict(name='headers', interface=None)),
+               )
+__all__.append('httpfile')
