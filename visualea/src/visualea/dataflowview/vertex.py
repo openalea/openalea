@@ -302,9 +302,9 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         elif(eventTopKey == "output_port_added"):
             self.add_port(event[1])
         elif(eventTopKey == "cleared_input_ports"):
-            self.remove_ports(lambda x: isinstance(x, InputPort))
+            self.remove_ports(lambda x: isinstance(x.port(), InputPort))
         elif(eventTopKey == "cleared_output_ports"):
-            self.remove_ports(lambda x: isinstance(x, OutputPort))
+            self.remove_ports(lambda x: isinstance(x.port(), OutputPort))
         self.update()
         qtgraphview.Vertex.notify(self, sender, event)
 
@@ -321,18 +321,25 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             if gp:
                 l.addItem(gp)
                 self.add_connector(gp)
+                self.refresh_geometry()
 
     def remove_port(self, modelPort):
         if isinstance(modelPort, InputPort)    : l=self.inPortLayout
         elif isinstance(modelPort, OutputPort) : l=self.outPortLayout
-        for gp in l:
+        for gp in l._items[:]:
             if gp.port() == modelPort:
                 l.removeItem(gp)
+                gp.remove_from_view(self.scene())
                 self.remove_connector(gp)
+                del gp
+                self.refresh_geometry()
 
     def remove_ports(self, filter=lambda x:True):
-        for con in self.connectors(filter):
-            self.remove_port(con.port())
+        for con in list(self.iter_connectors(filter)):
+            l = self.inPortLayout if isinstance(con.port(), InputPort) else self.outPortLayout
+            l.removeItem(con)
+            con.remove_from_view(self.scene())
+            self.remove_connector(con)
 
     #####################################################################
     # Code related to the layout of subitems and geometry of the vertex #
