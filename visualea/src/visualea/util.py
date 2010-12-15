@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -11,7 +11,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -39,7 +39,7 @@ def busy_cursor(f):
         except:
             QtGui.QApplication.restoreOverrideCursor ()
             raise
-        
+
     return wrapped
 
 
@@ -69,10 +69,10 @@ def exception_display(f):
             txt += '<B>'+title+'</B><BR>'
             errorbox.showMessage(txt)
             errorbox.exec_()
-        
+
     def wrapped(*args):
         try:
-            return f(*args)            
+            return f(*args)
         except EvaluationException, e:
             self = args[0]
             if not isinstance(self, QtGui.QWidget):
@@ -80,7 +80,7 @@ def exception_display(f):
             txt = e.exception.__class__.__name__+': '+ str(e.exception)
             display_error(self,txt,e.exc_info)
             raise e.exception
-        
+
         except Exception, e:
             self = args[0]
             if not isinstance(self,QtGui.QWidget):
@@ -103,11 +103,11 @@ def open_dialog(parent, widget, title, delete_on_close=True):
     if(delete_on_close):
         dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     widget.setParent(dialog)
-    
+
     vboxlayout = QtGui.QVBoxLayout(dialog)
     vboxlayout.setMargin(3)
     vboxlayout.setSpacing(5)
-    vboxlayout.addWidget(widget)
+    vboxlayout.addWidget(widget, 0, QtCore.Qt.AlignTop)
 
     dialog.setWindowTitle(title)
     dialog.show()
@@ -139,7 +139,7 @@ class IconGrabber(object):
 
 
     def hide(self):
-        
+
         self.splash.close()
         self.splash = None
 
@@ -147,18 +147,18 @@ class IconGrabber(object):
 
 def grab_icon(parent):
     """ Return QPixmap under the cursor"""
-    
+
     HEIGHT = 48
     WIDTH = 48
 
     grab = IconGrabber()
     grab.show()
 
-    QtGui.QMessageBox.information(parent, 
+    QtGui.QMessageBox.information(parent,
                                   "Grab Icon", "Put the image under the icon frame and click ok")
 
     point = grab.splash.pos()
-    pix = QtGui.QPixmap.grabWindow(QtGui.QApplication.desktop().winId(), 
+    pix = QtGui.QPixmap.grabWindow(QtGui.QApplication.desktop().winId(),
                                    point.x()+2, point.y()+2, WIDTH, HEIGHT)
 
     grab.hide()
