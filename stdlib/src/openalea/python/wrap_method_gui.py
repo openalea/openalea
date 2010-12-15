@@ -1,4 +1,21 @@
+# -*- python -*-
+#
+#       OpenAlea.StdLib
+#
+#       Copyright 2006-2010 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+################################################################################
 
+__doc__ = """ A GUI for stdlid.python.wrap_method.SelectCallable """
+__revision__ = " $Id$ "
 
 import types
 from inspect import getmembers, ismethod, isfunction, isbuiltin
@@ -7,11 +24,6 @@ from openalea.core.observer import lock_notify
 from PyQt4 import QtGui, QtCore
 
 class SelectCallable(QtGui.QWidget, NodeWidget):
-    """ This Widget allows to select an element in a list
-    or in a dictionnary """
-
-
-
     def __init__(self, node, parent):
         """
         @param node
@@ -73,8 +85,6 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
                        self.node.internal_data["methodSig"])
         self.__lockChoice.setChecked(toggled)
         self.__isInit =False
-        #self._methodChosen(toggled , noNode=True )
-
 
     def notify(self, sender, event):
         """ Notification sent by node """
@@ -92,7 +102,6 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
                 currentMethodName = self.node.get_method_name()
                 index = self.map_index.get(currentMethodName, -1)
                 self.__methodComboBox.setCurrentIndex(index)
-
 
     def update_list(self, seq):
         """ Rebuild the list """
