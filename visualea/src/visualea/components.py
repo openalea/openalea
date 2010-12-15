@@ -74,6 +74,9 @@ class Component(object):
     @abstract
     def create_editor_for(self, obj, *args, **kwargs): pass
 
+    @abstract
+    def close_editor_of(self, obj): pass
+
 
 
 class ComponentWithSettings(Component):
@@ -209,8 +212,50 @@ if logger.QT_LOGGING_MODEL_AVAILABLE:
 
 
 
-import ui_components_pref
 
+
+
+from openalea.core.compositenode import CompositeNode
+class Dataflow(ComponentWithSettings):
+
+    SettingsDesc = [("Node doubleclick action","Open"),
+                    ("Edge style", "Spline"),
+                    ("Show evaluation cue", "False")]
+
+    def __init__(self, *args, **kwargs):
+        ComponentWithSettings.__init__(self, *args, **kwargs)
+        self.__views = []
+
+    def get_version(self):
+        return "0.9"
+
+    def supported_types(self, *args, **kwargs):
+        return (CompositeNode,)
+
+    def create_editor_for(self, obj, *args, **kwargs):
+        assert isinstance(obj, self.supported_types())
+        gwidget = dataflowview.GraphicalGraph.create_view(obj, parent=kwargs.get("parent"))
+        return gwidget
+
+    def set_setting_node_doubleclick_action(self, v):
+        pass
+
+    def set_setting_edge_style(self, v):
+        pass
+
+    def set_setting_show_evaluation_cue(self, v):
+        pass
+
+
+# -- !!! be sure to instantiate it or else it won't get registered --
+# -- !!! No worries: it IS a singleton, multiple imports won't reinstantiate it ---
+Dataflow()
+
+
+#####################################################################################
+# EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF #
+#####################################################################################
+import ui_components_pref
 class ComponentPreferenceBrowser(QtGui.QDialog, ui_components_pref.Ui_Dialog):
 
     def __init__(self, parent):
@@ -234,4 +279,7 @@ class ComponentPreferenceBrowser(QtGui.QDialog, ui_components_pref.Ui_Dialog):
             self.stack.addWidget(widget)
 
         self.compoList.currentRowChanged.connect(self.stack.setCurrentIndex)
+#####################################################################################
+# EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF #
+#####################################################################################
 
