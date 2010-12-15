@@ -127,39 +127,19 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         NodeWidget.__init__(self, node)
         self.setMinimumSize(100, 20)
 
-
         self.widgets = []
         self.empty = True
 
         self.vboxlayout = QtGui.QVBoxLayout(self)
         self.vboxlayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
 
-        if  node.factory.view is None:
-            # we create the widget in default way
-            #print node.input_desc
-            layout = self.vboxlayout
-            layout.setMargin(3)
-            layout.setSpacing(2)
-            for port in node.input_desc:
-                self.place_item( self, port, layout)
-        else:
-            #if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
-            #elif node.factory.view.layout=="|": layout = QtGui.QVBoxLayout(self)
-            #layout.setMargin(3)
-            #layout.setSpacing(2)
-            #
-            ## we use custom view defined by user
-            #for i in node.factory.view.content:
-            #    self.place( self,  i, layout )
-            self.place_group( self, node.factory.view, self.vboxlayout)
+        DefaultNodeWidget.do_layout(self, node, self.vboxlayout)
 
         if autonomous:
             self.set_autonomous()
 
-
-
     def set_autonomous(self):
-        """ Add Run bouton and close button """
+        """ Add Run and close buttons """
 
         runbutton = QtGui.QPushButton("Run", self)
         exitbutton = QtGui.QPushButton("Exit", self)
@@ -181,20 +161,58 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def exit(self):
         self.parent().close()
 
+    def notify(self, sender, event):
+        """ Function called by observed objects """
 
-    def place( self, widget,  item, layout ):
+        if(event and event[0] == "input_modified"):
+            input_index = event[1]
+            widget = self.widgets[input_index]
+            if widget and not widget.is_notification_locked():
+
+                widget.notify(sender, event)
+                widget.update_state()
+
+
+    def is_empty(self):
+        return bool(self.empty)
+
+
+
+    @staticmethod
+    def do_layout(widget, node, layout):
+        if  node.factory.view is None:
+            # we create the widget in default way
+            #print node.input_desc
+            layout.setMargin(3)
+            layout.setSpacing(2)
+            for port in node.input_desc:
+                DefaultNodeWidget.place_item(widget, port, layout)
+        else:
+            #if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
+            #elif node.factory.view.layout=="|": layout = QtGui.QVBoxLayout(self)
+            #layout.setMargin(3)
+            #layout.setSpacing(2)
+            #
+            ## we use custom view defined by user
+            #for i in node.factory.view.content:
+            #    self.place( self,  i, layout )
+            DefaultNodeWidget.place_group(widget, node.factory.view, layout)
+
+
+    @staticmethod
+    def place( widget,  item, layout ):
         """
         Place
         """
         if isinstance( item, Item ):
-            p = self.node.get_input_port( item.name )
-            self.place_item( widget, p, layout)
+            p = widget.node.get_input_port( item.name )
+            DefaultNodeWidget.place_item( widget, p, layout)
 
         elif isinstance( item, Group ):
-            self.place_group(widget, item, layout)
+            DefaultNodeWidget.place_group(widget, item, layout)
 
-
-    def place_item( self,  widget, port,  layout ):
+    @staticmethod
+    def place_item( widget, port,  layout ):
         """
         Place item : ?
         """
@@ -204,27 +222,28 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         ## Hidden state
         ## TODO
         if not port.get('showwidget', not port.is_hidden()):
-            self.widgets.append(None)
+            widget.widget.append(None)
+            #self.widgets.append(None)
             return
 
         # interface class or instance ?
         if(type(interface) == IInterfaceMetaClass):
             interface = interface()
 
-        wclass = self.type_map.get(interface.__class__, None)
+        wclass = DefaultNodeWidget.type_map.get(interface.__class__, None)
 
         if(wclass):
             #print widget
-            widgetT = wclass(self.node, widget, name, interface)
+            widgetT = wclass(widget.node, widget, name, interface)
             widgetT.update_state()
-            layout.addWidget(widgetT)
-            self.widgets.append(widgetT)
-            self.empty = False
+            layout.addWidget(widgetT, 0, QtCore.Qt.AlignTop)
+            widget.widgets.append(widgetT)
+            widget.empty = False
         else:
-            self.widgets.append(None)
+            widget.widgets.append(None)
 
         # If there is no subwidget, add the name
-        if( self.empty ):
+        if( widget.empty ):
             pass
 #             label = QtGui.QLabel(self)
 #             label.setText(self.node.__class__.__name__+
@@ -233,7 +252,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
 #             layout.addWidget(label)
 
 
-    def place_group( self, widget, group, layout ):
+    @staticmethod
+    def place_group(widget, group, layout ):
         """<Short description of the function functionality.>
 
         <Long description of the function functionality.>
@@ -250,37 +270,23 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             groupW = QtGui.QGroupBox(widget)
             groupW.setTitle(group.label)
             layout.addWidget( groupW )
-            if group.layout=="-": nlayout = QtGui.QHBoxLayout(self)
-            else: nlayout = QtGui.QVBoxLayout(self)
+            if group.layout=="-": nlayout = QtGui.QHBoxLayout(widget)
+            else: nlayout = QtGui.QVBoxLayout(widget)
             groupW.setLayout(nlayout)
         else:
-            tab=QtGui.QTabWidget( self )
+            tab=QtGui.QTabWidget( widget )
             layout.addWidget( tab )
 
         for i in group.content:
             if group.layout=="t":
                 groupW = QtGui.QWidget()
-                nlayout = QtGui.QVBoxLayout(self)
+                nlayout = QtGui.QVBoxLayout(widget)
                 groupW.setLayout(nlayout)
                 if isinstance( i, Item ):
-                    name=self.node.get_input_port( i.name ).get_label()
+                    name=widget.node.get_input_port( i.name ).get_label()
                 else: name=group.label
                 tab.addTab(groupW, name)
-            self.place(groupW, i, nlayout)
+            DefaultNodeWidget.place(groupW, i, nlayout)
 
 
-    def notify(self, sender, event):
-        """ Function called by observed objects """
-
-        if(event and event[0] == "input_modified"):
-            input_index = event[1]
-            widget = self.widgets[input_index]
-            if widget and not widget.is_notification_locked():
-
-                widget.notify(sender, event)
-                widget.update_state()
-
-
-    def is_empty(self):
-        return bool(self.empty)
 
