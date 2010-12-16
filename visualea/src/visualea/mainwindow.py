@@ -103,7 +103,7 @@ class MainWindow(QtGui.QMainWindow,
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
             model = logger.LoggerOffice().get_handler("qt")
-            view = components.ComponentRegistry().create_editor_for(model)
+            view = components.ComponentRegistry().create_editor_for(model, parent=self.lowerpane)
             self.lowerpane.addTab(view, "Logging")
 
         # package tree view
