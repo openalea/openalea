@@ -53,15 +53,18 @@ class SelectCallable(Node):
 
     def set_method_name(self, name):
         instance = self.get_input(0)
-        if instance and name:
+        if instance is not None and name is not None:
             meth = getattr(instance, name, None)
             if meth:
                 sig = Signature(meth)
                 inputs = sig.get_all_parameters()
-                prefix = str(instance)
+                prefix = type(instance).__name__ if not hasattr(instance, "__name__") \
+                         else instance.__name__
                 if len(prefix)>15:
                     prefix = prefix[:5]+"..."+prefix[-5:]
                 self.set_caption(prefix+" : "+name)
+
+                # self.set_caption(name)
                 self.internal_data["methodName"] = name
                 self.internal_data["methodSig"] = sig
                 self.__doc__ = sig.get_doc()
