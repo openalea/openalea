@@ -37,7 +37,7 @@ class Signature(object):
     def __init__(self, f):
         """ f is a function object or instance method,
         functor class are managed but need to be tested more carefully"""
-        if isinstance(f, dict):
+        if isinstance(f, dict):   #recreate from serialised
             self.name = f.get("name")
             self.f_doc = f.get("f_doc")
             self.parameters = f.get("parameters", [])
@@ -45,7 +45,7 @@ class Signature(object):
             self.keywords = f.get("keywords", False)
             self.isMethod = f.get("isMethod", False)
             self.isValid  = f.get("isValid", True)
-        elif isinstance(f, Signature):
+        elif isinstance(f, Signature):  #copy contructor
             self.name = f.name
             self.f_doc = f.f_doc
             self.parameters = copy.deepcopy(f.parameters)
@@ -53,7 +53,7 @@ class Signature(object):
             self.keywords = f.keywords
             self.isMethod = f.isMethod
             self.isValid  = f.isValid
-        else:
+        else: #normal function inspection
             self.name = f.__name__
             self.f_doc = inspect.getdoc(f)
             self.parameters = []
@@ -163,8 +163,8 @@ class Signature(object):
         elif inspect.isbuiltin(function):
             # builtins have no argument description
             # we can only try to do some rough docstring parsing.
-            args, defaults = Signature.regexp_args(function)
-            return args, defaults, None, None, False
+            args, defaults, varargs, keywords = Signature.regexp_args(function)
+            return args, defaults, varargs, keywords, False
 
         elif inspect.isclass(function) and "__call__" in function.__dict__:
             func = function.__call__
@@ -180,25 +180,20 @@ class Signature(object):
     def regexp_args(function):
         assert inspect.isbuiltin(function)
         name = function.__name__
-        re_str = r"\S*\."+name+r"\s*\(([(){}\[\]a-zA-Z0-9*,\s]*)\).*"
+        re_str = r"\s*.*"+name+r"\s*\(([(){}\[\]a-zA-Z0-9*='\",\s]*)\).*"
         m = re.match(re_str, inspect.getdoc(function))
 
-        if m is None:
-            return [], []
-        else:
+        args, defaults, varargs, keywords = [], [], None, None
+        if m is not None:
             prototype = [ s.strip() for s in  m.groups()[0].split(",") ]
-            args      = []
-            defaults  = []
-            varargs   = None
-            keywords  = None
             for arg in prototype:
                 if "=" in arg:
                     n,v = arg.split("=")
                     try:
-                        eval(v)
+                        v = eval(v)
                     except:
                         pass
-                    defaults.append([a,v])
+                    defaults.append([n,v])
                 elif len(arg)>0:
                     starCount = arg.count("*")
                     if starCount == 0:
@@ -209,7 +204,7 @@ class Signature(object):
                         keywords = arg
                     else:
                         raise Exception("Unknown argument type : "+arg)
-            return args, defaults, varargs, keywords
+        return args, defaults, varargs, keywords
 
 
 #def get_parameters(f):
