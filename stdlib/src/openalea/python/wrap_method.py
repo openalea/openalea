@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-__doc__ = """ A node that morphs its inputs according to a userèchosen method of the input object. """
+__doc__ = """ A node that morphs its inputs according to a user chosen method of the input object. """
 __revision__ = " $Id$ "
 
 from openalea.core.node import Node
