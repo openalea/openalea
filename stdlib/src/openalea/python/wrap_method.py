@@ -112,4 +112,5 @@ class SelectCallable(Node):
 
         # -- finally transfer listeners so that GUIs update correctly --
         inputDescs[0].transfer_listeners(self.input_desc[0])
+        outputDescs[0].transfer_listeners(self.output_desc[0])
 
