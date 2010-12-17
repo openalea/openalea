@@ -807,8 +807,8 @@ class CompositeNode(Node, DataFlow):
 
             # Copy internal data
             sgfactory.elt_data[vid] = copy.deepcopy(kdata)
-            #Forward compatibility for versions earlier than 0.8.0
-            #We do the exact opposite than in load_ad_hoc_data, have a look there.
+            # Forward compatibility for versions earlier than 0.8.0
+            # We do the exact opposite than in load_ad_hoc_data, have a look there.
             if hasattr(node, "__ad_hoc_from_old_map__"):
                 for newKey, oldKeys in node.__ad_hoc_from_old_map__.iteritems():
                     if len(oldKeys)==0: continue

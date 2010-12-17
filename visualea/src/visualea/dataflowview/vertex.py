@@ -231,7 +231,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     def set_graphical_caption(self, caption):
         """Sets the name displayed in the vertex widget, doesn't change
         the vertex data"""
-        if caption == "":
+        if caption == "" or caption == None:
             caption = " "
         if len(caption)>20 :
             caption = caption[:20]+"..."

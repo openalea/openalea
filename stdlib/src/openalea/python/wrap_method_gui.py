@@ -41,17 +41,17 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
 
         # -- own custom layout
         self.setMinimumSize(100, 20)
-        self.setSizePolicy(QtGui.QSizePolicy.Fixed,
-                           QtGui.QSizePolicy.Fixed)
+        # self.setSizePolicy(QtGui.QSizePolicy.Preferred,
+        #                    QtGui.QSizePolicy.Preferred)
         self._mainLayout = QtGui.QVBoxLayout(self)
-        self._mainLayout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self._mainLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self._mainLayout.setMargin(3)
         self._mainLayout.setSpacing(2)
 
         # -- the method name selection group box -- #
         self.__methodGBox = QtGui.QGroupBox("Method to wrap")
-        self.__methodGBox.setSizePolicy(QtGui.QSizePolicy.Fixed,
-                                        QtGui.QSizePolicy.Fixed)
+        # self.__methodGBox.setSizePolicy(QtGui.QSizePolicy.Preferred,
+        #                                 QtGui.QSizePolicy.Preferred)
         self._mainLayout.addWidget(self.__methodGBox, 0, QtCore.Qt.AlignTop)
 
         methNameLayout = QtGui.QHBoxLayout()
@@ -66,7 +66,7 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
         self.__lockChoice.setIcon(style.standardIcon(QtGui.QStyle.SP_DialogApplyButton))
         self.__lockChoice.toggled.connect(self._methodChosen)
         methNameLayout.addWidget(methNameLabel, 0, QtCore.Qt.AlignLeft)
-        methNameLayout.addWidget(self.__methodComboBox, 0, QtCore.Qt.AlignLeft)
+        methNameLayout.addWidget(self.__methodComboBox)
         methNameLayout.addWidget(self.__lockChoice, 0, QtCore.Qt.AlignLeft)
 
         self.__methodGBox.setLayout(methNameLayout)
@@ -91,7 +91,7 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
         eventName = event[0]
         if eventName == "input_modified":
             inputIndex = event[1]
-            if inputIndex == 0: # index of modified input
+            if inputIndex == 0: # instance has changed
                 # Read Inputs
                 instance = self.node.get_input(inputIndex)
                 # Update Combo Box
@@ -113,15 +113,31 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
                 continue
             self.__methodComboBox.addItem(name)
             self.map_index[name] = self.__methodComboBox.count() - 1
+        self.refresh_layout()
+
+    def refresh_layout(self):
+        # refresh the layout (without these three lines, the widget won't shrink!)
+        self.__methodGBox.layout().activate()
+        self._mainLayout.activate()
+        parent = self.parentWidget()
+        if parent is not None:
+            parent.layout().activate()
+            parent.setGeometry(QtCore.QRect())
 
 
     def _methodChosen(self, toggled):
         style = QtGui.QApplication.style()
         if toggled:
+            methodName = str(self.__methodComboBox.currentText())
+            instance = self.node.get_input(0)
+            # if instance is not None and not hasattr(instance, methodName):
+            #     QtGui.QMessageBox.warning(self, "Type error", "Object of type " + str(type(instance)) + " does not have \n" + \
+            #     "such attribute " + methodName)
+            #     return
             self.__methodComboBox.setEnabled(False)
             self.__lockChoice.setIcon(style.standardIcon(QtGui.QStyle.SP_DialogCancelButton))
             if not self.__isInit:
-                self.node.set_method_name(str(self.__methodComboBox.currentText()))
+                self.node.set_method_name(methodName)
             DefaultNodeWidget.do_layout(self, self.node, self.__vboxlayout)
         else:
             self.__methodComboBox.setEnabled(True)
@@ -138,11 +154,7 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
                     it.widget().close()
             self.widgets = []
 
-            # refresh the layout (without these three lines, the widget won't shrink!)
-            self._mainLayout.activate()
-            self.parentWidget().layout().activate()
-            self.parentWidget().setGeometry(self.geometry())
-
+            self.refresh_layout()
 
 
 

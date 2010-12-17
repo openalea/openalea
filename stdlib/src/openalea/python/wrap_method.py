@@ -36,16 +36,14 @@ class SelectCallable(Node):
             return getattr(inputs[0], methodName)(*inputs[1:]),
 
     def _init_internal_data(self, d):
+        """This method is called after the node has been instantiated, to
+        fill in the internal_data dictionnary."""
         Node._init_internal_data(self, d)
-        methodSig = d.get("methodSig")
+        inputs = d.get("methodSig")
         methodName = d.get("methodName")
-        if methodSig:
-            sig = Signature(methodSig)
-            inputs = sig.get_all_parameters()
-            self.set_caption(methodName)
+        if inputs and methodName:
             self.internal_data["methodName"] = methodName
-            self.internal_data["methodSig"] = sig
-            self.__doc__ = sig.get_doc()
+            self.internal_data["methodSig"] = inputs
             self.build_ports(inputs)
 
     def get_method_name(self):
@@ -66,7 +64,7 @@ class SelectCallable(Node):
 
                 # self.set_caption(name)
                 self.internal_data["methodName"] = name
-                self.internal_data["methodSig"] = sig
+                self.internal_data["methodSig"] = inputs
                 self.__doc__ = sig.get_doc()
                 self.build_ports(inputs)
 
