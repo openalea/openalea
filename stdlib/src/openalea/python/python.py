@@ -108,7 +108,9 @@ def py_eval(str):
 
 def py_exec(str):
     """ Python exec """
-    exec(str)
+    l= {}
+    exec(str, globals(),l)
+    return l
 
 
 def py_zip(s1=(), s2=()):

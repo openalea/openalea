@@ -202,7 +202,7 @@ exec_ = Factory( name="exec",
                   nodeclass="py_exec",
 
                   inputs=(dict(name="code", interface=ITextStr),),
-                  outputs=(),
+                  outputs=(dict(name="locals", interface=IDict),),
                   )
 
 
