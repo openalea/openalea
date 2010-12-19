@@ -27,7 +27,9 @@ from ..spatial_image import SpatialImage
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
-           "high_level","color_select","border","end_margin","stroke"]
+           "high_level","color_select",
+           "border","end_margin","stroke",
+           "reverse_image","color2grey"]
 
 def bounding_box (mask) :
 	"""Compute the bounding box of a mask
@@ -97,7 +99,7 @@ def apply_mask (img, mask, background_color = None) :
 		return rollaxis(array([R,G,B,alpha],img.dtype),0,len(img.shape) )
 	else :
 		raise NotImplementedError
-def flatten (img_list, alpha = False) :
+def flatten (img_list, alpha = False) :
 	"""Concatenate all images into a single image
 	
 	Use alpha to blend images one on top of each other
@@ -296,4 +298,26 @@ def stroke(img, width, outside=False):
         mat[width:-width,width:-width,width:-width] = img[width:-width,width:-width,width:-width]
 
     return mat
+
+
+def reverse_image (image ) :
+    """
+    """
+    return ( 255 - image )
+
+
+def color2grey (image):
+    """
+    Convert a color image into a grey-level image.
+    """
+    if image.ndim != 4:
+        print "Error : Not a color image"
+        return -1
+    
+    if not isinstance(image,SpatialImage) :
+	image = SpatialImage(image)
+
+    return (SpatialImage(image[:,:,:,0],image.resolution),
+            SpatialImage(image[:,:,:,1],image.resolution),
+            SpatialImage(image[:,:,:,2],image.resolution))
 

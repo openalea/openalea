@@ -17,7 +17,7 @@
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-__all__ = ["cp2transfo"]
+__all__ = ["cp2transfo", "angles2transfo"]
 
 
 import numpy as np
@@ -204,3 +204,58 @@ def cp2transfo(x,y):
 
     return T
 
+from math import radians,cos,sin
+from scipy.ndimage import center_of_mass
+
+def angles2transfo(image1, image2, angleX=0, angleY=0, angleZ=0) :
+    """
+    Compute transformation matrix between 2 images from the angles in each directions.
+
+    :Parameters:
+     - `image1` (SpatialImage) - 
+     - `image2` (SpatialImage) - 
+     - `angleX` (int) - Rotation through angleX (degree)
+     - `angleY` (int) - Rotation through angleY (degree)
+     - `angleZ` (int) - Rotation through angleZ (degree)
+         
+    :Returns:
+     - matrix (numpy array) - Transformation matrix
+    """
+    x = np.array(center_of_mass(image1))
+    y = np.array(center_of_mass(image2))
+
+    # Rx rotates the y-axis towards the z-axis
+    thetaX = radians(angleX)
+    Rx = np.zeros((3,3))
+    Rx[0,0] = 1.
+    Rx[1,1] = Rx[2,2] = cos(thetaX)
+    Rx[1,2] = -sin(thetaX)
+    Rx[2,1] = sin(thetaX)
+
+    # Ry rotates the z-axis towards the x-axis
+    thetaY = radians(angleY)
+    Ry = np.zeros((3,3))
+    Ry[0,0] = Ry[2,2] = cos(thetaY)
+    Ry[0,2] = sin(thetaY)
+    Ry[2,0] = -sin(thetaY)
+    Ry[1,1] = 1.
+
+    # Rz rotates the x-axis towards the y-axis
+    thetaZ = radians(angleZ)
+    Rz = np.zeros((3,3))
+    Rz[0,0] = Rz[1,1] = cos(thetaZ)
+    Rz[1,0] = sin(thetaZ)
+    Rz[0,1] = -sin(thetaZ)
+    Rz[2,2] = 1.
+
+    # General rotations
+    R = np.dot(np.dot(Rx,Ry),Rz)
+    
+    t = y - np.dot(R,x)
+
+    matrix = np.zeros((4,4))
+    matrix[0:3,0:3] = R
+    matrix[0:3,3] = t
+    matrix[2,2] = matrix[3,3] = 1.
+
+    return matrix

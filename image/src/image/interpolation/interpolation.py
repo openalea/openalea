@@ -100,14 +100,14 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
     vox,voy,voz = output_voxels
 
     #scaling matrix  
-    _output_scaling = np.diag([vox,voy,voz])
-    _input_scaling = np.diag([1. / vx, 1. / vy, 1. / vz])
+    #_output_scaling = np.diag([vox,voy,voz])
+    #_input_scaling = np.diag([1. / vx, 1. / vy, 1. / vz])
 
     #change of basis
-    R = np.dot(_input_scaling, np.dot(_R, _output_scaling) )
-    t = np.dot(_input_scaling, _t)
+    #R = np.dot(_input_scaling, np.dot(_R, _output_scaling) )
+    #t = np.dot(_input_scaling, _t)
 
-    _output = affine_transform(_data, R, offset = list(t), order=order, output_shape=output_shape, mode=mode, cval=cval, prefilter=prefilter)
+    _output = affine_transform(_data, _R, offset = list(_t), order=order, output_shape=output_shape, mode=mode, cval=cval, prefilter=prefilter)
 
     output = SpatialImage(_output, output_voxels)
     return output

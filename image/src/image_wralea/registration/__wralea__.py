@@ -38,4 +38,39 @@ points2transfo = Factory( name= "points2transfo",
 
 __all__.append('points2transfo')
 
+angles2transfo = Factory( name= "angles2transfo", 
+			     description= "Compute transformation matrix between 2 images from the angles in each directions",
+			     category = "image",
+			     nodemodule = "registration",
+			     nodeclass = "wra_angles2transfo",
+                             inputs=(dict(name="image1", interface=None),
+                                     dict(name="image2", interface=None),
+                                     dict(name="angle X", interface=IInt, value=0),
+			             dict(name="angle Y", interface=IInt, value=0),
+			             dict(name="angle Z", interface=IInt, value=0),),
+			     outputs=(dict(name="transformation matrix", interface=None),),
+			    )
 
+__all__.append('angles2transfo')
+
+
+asclepios_baladin = False
+try :
+    from openalea.asclepios import baladin
+    asclepios_baladin = True
+except :
+    pass
+
+if asclepios_baladin:
+    block_matching = Factory(name='Pyramidal Block Matching',
+                    description='Block-Matching algorithm.',
+                    category='image',
+                    nodemodule='registration',
+                    nodeclass='BlockMatching',
+                    inputs=None,
+                    outputs=None,
+                    widgetmodule=None,
+                    widgetclass=None,
+                    lazy=True
+                    )
+    __all__.append("block_matching")

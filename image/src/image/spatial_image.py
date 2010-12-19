@@ -42,7 +42,7 @@ class SpatialImage (ndarray) :
 		"""
 		#initialize datas
                 if input_array.flags.f_contiguous :
-                        obj = asarray(input_array,order='F').view(cls)
+                        obj = asarray(input_array).view(cls)
 		else :
                         obj = asarray(input_array,order='F').view(cls)
         

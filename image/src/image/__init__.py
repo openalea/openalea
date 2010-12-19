@@ -26,3 +26,4 @@ from serial import *
 from spatial_image import SpatialImage
 from interpolation import *
 from registration import *
+from image_test import *
