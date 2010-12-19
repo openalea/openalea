@@ -31,6 +31,12 @@ def test_read_sequence():
     # Test of read_sequence with "directory path"
     res = read_sequence(directory, verbose=verbose)
     assert res.shape == (460, 460, 59)
+    assert res.resolution == (1,1,1)
+
+    # Test of read_sequence with "voxels_size" parameter
+    res = read_sequence(directory, voxels_size=(0.2, 0.2, 1.), verbose=verbose)
+    assert res.shape == (460, 460, 59)
+    assert res.resolution == (0.2, 0.2, 1.)
 
     # Test of read_sequence with "number_images" parameter
     res = read_sequence(directory, number_images=10, verbose=verbose)
