@@ -4,7 +4,8 @@
 #
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
-#       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#       File author(s): Eric Moscardi <eric.moscardi@inria.fr>
+#                       Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -19,9 +20,13 @@ This module redefine load and save to account for spatial images
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
+import Image,ImageOps
+import os, fnmatch
+
 from struct import pack,unpack,calcsize
 from pickle import dumps,loads
 import numpy as np
+
 from ..spatial_image import SpatialImage
 
 def save (file, img) :
@@ -86,3 +91,69 @@ def load (file, mmap_mode=None) :
 		file.seek(0)
 		return np.load(file,mmap_mode)
 
+##################################################
+# TODO : Read voxels size in xlm file if provided #
+##################################################
+def read_sequence ( directory, grayscale=True, number_images=None, start=0, increment=1, filename_contains="", voxels_size=None, verbose=True) :
+    """
+    Convert a sequence of images in a folder as a numpy array.
+    The images must all be the same size and type.
+    They can be in TIFF, .... format.
+
+    - `grayscale` (bool) - convert the image to grayscale
+    - `number_images` (int) - specify how many images to open
+    - `start` (int) - used to start with the nth image in the folder (default = 0 for the first image)
+    - `increment` (int) - set to "n" to open every "n" image (default = 1 for opening all images)
+    - `filename_contains` (str) - only files whose name contains that string are opened
+    - `voxels_size (tuple) - specify voxels size
+    - `verbose` (bool) - verbose mode
+    """
+    
+    _images = []
+    _files = []
+
+    if verbose : print "Loading : "
+    for f in os.listdir(directory):
+        if fnmatch.fnmatch(f, '*%s*' %filename_contains):
+            try :
+                im = Image.open(os.path.join(directory, f))
+                _files.append(f)
+                if grayscale is True :
+                    _images.append(ImageOps.grayscale(im))
+                else: 
+                    _images.append(im)
+            except :
+                if verbose : print "\t warning : cannot open %s" %f
+            
+    if len(_images) == 0 :
+        if verbose : print "\t no images loaded"
+        return -1
+        
+    xdim, ydim = _images[0].size
+
+    if number_images is None :
+        zdim = round(float(len(_images) - start)/ increment)
+        _nmax = len(_images) - start
+    else :
+        zdim = number_images
+        _nmax = number_images * increment
+
+    if _images[0].mode == 'RGB':
+        nd_image = np.zeros((xdim,ydim,zdim, 3), dtype=np.uint8)
+
+    nd_image = np.zeros((xdim,ydim,zdim))
+
+    j = 0
+    for i in _images[start:_nmax+start:increment] :
+        if i.size == _images[start].size :
+            nd_image[:,:,j] = i
+            if verbose : print "\t ./%s" %_files[_images.index(i)]
+            j += 1
+        else :
+            if verbose : print "%s : wrong size - %s expected, %s found" %(_files[_images.index(i)], _images[start].size, i.size)
+    result = nd_image.transpose(1,0,2)
+
+    if voxels_size is None :  
+        return SpatialImage(result)
+    else :
+        return SpatialImage(result, voxels_size)
