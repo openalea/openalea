@@ -25,7 +25,7 @@ from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
 from openalea.visualea.shell import get_shell_class
-import components
+
 
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
@@ -47,6 +47,7 @@ from openalea.visualea.dialogs import NewGraph, NewPackage
 from openalea.visualea.dialogs import PreferencesDialog, NewData
 
 from openalea.visualea import dataflowview
+from openalea.visualea.logger import LoggerView
 from graph_operator import GraphOperator
 from graph_operator.vertex import VertexOperators
 
@@ -103,7 +104,7 @@ class MainWindow(QtGui.QMainWindow,
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
             model = logger.LoggerOffice().get_handler("qt")
-            view = components.ComponentRegistry().create_editor_for(model, parent=self.lowerpane)
+            view = LoggerView(parent=self.lowerpane, model=model)
             self.lowerpane.addTab(view, "Logging")
 
         # package tree view
