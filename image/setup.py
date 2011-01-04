@@ -66,8 +66,13 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = {
             'wralea': ['openalea.image = openalea.image_wralea',
+                        'openalea.image.serial = openalea.image_wralea.serial',
+                        'openalea.image.interpolation = openalea.image_wralea.interpolation',
+                        'openalea.image.algo = openalea.image_wralea.algo',
+                        'openalea.image.registration = openalea.image_wralea.registration',
+                        'openalea.image.gui = openalea.image_wralea.gui',
                        'openalea.image.demo = openalea.image_demo_wralea',
-                       'openalea.image.test = openalea.image_test_wralea']
+                       'openalea.image.test = openalea.image_tuto_wralea']
         },
 
     )
