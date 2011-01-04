@@ -712,9 +712,6 @@ class MainWindow(QtGui.QMainWindow,
 
     def open_preferences(self):
         """ Open Preference dialog """
-
-        # dialog2 = components.ComponentPreferenceBrowser(self)
-        # dialog2.show()
         dialog = PreferencesDialog(self)
         dialog.show()
         ret = dialog.exec_()

@@ -28,7 +28,6 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
 from openalea.core.session import Session
-#from openalea.visualea.components import ComponentRegistry
 from openalea.core.node import Factory, Node
 
 import ui_newgraph
@@ -618,12 +617,6 @@ class PreferencesDialog(QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
         self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
-
-        # for cname, c in ComponentRegistry().iteritems():
-        #     conf = Settings().get_section_with_type(cname, ignoreVersion=True)
-        #     self.build_gui_for_component(cname, conf)
-
-
 
     def add_search_path(self):
         """ Package Manager : Add a path in the list """
