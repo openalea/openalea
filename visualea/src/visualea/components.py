@@ -24,6 +24,8 @@ __revision__ = " $Id$ "
 from openalea.core.singleton import Singleton
 from openalea.core.settings import Settings
 from openalea.core import logger
+from PyQt4 import QtCore, QtGui
+
 
 def abstract(f):
     def abstractM(*args, **kwargs):
@@ -139,30 +141,16 @@ class ComponentWithSettings(Component):
                 name = k.replace(" ", "_").lower()
                 getattr(self, "set_setting_"+name)(v)
 
+#####################################################################################
+# EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF #
+#####################################################################################
 
-##########################################
-# SOME EXAMPLE COMPONENT IMPLEMENTATIONS #
-##########################################
-from PyQt4 import QtCore, QtGui
-from openalea.core.interface import IEnumStr, IFileStr, IInt
 
+
+# -- SOME EXAMPLE COMPONENT IMPLEMENTATIONS --
 if logger.QT_LOGGING_MODEL_AVAILABLE:
     import logging
-
-    class CompactTableView(QtGui.QTableView):
-        def __init__(self, *args, **kwargs):
-            QtGui.QTableView.__init__(self, *args, **kwargs)
-            rowHeight = self.fontMetrics().height() + 2;
-            self.verticalHeader().setDefaultSectionSize(rowHeight);
-            self.verticalHeader().setStyleSheet(
-                "QHeaderView::section {" + \
-                "padding-bottom: 0px;" + \
-                "padding-top: 0px;" + \
-                "padding-left: 0px;" + \
-                "padding-right: 1px;" + \
-                "margin: 1px;" + \
-                "}")
-
+    from openalea.visualea.logger import LoggerView
 
     class Logging(ComponentWithSettings):
 
@@ -173,7 +161,6 @@ if logger.QT_LOGGING_MODEL_AVAILABLE:
         def __init__(self, *args, **kwargs):
             ComponentWithSettings.__init__(self, *args, **kwargs)
             self.__view = None
-            self.__proxymodel = None
 
         def get_version(self):
             return "0.9"
@@ -186,66 +173,10 @@ if logger.QT_LOGGING_MODEL_AVAILABLE:
                 return self.__view
             model = obj
             assert isinstance(model, self.supported_types())
-            view = CompactTableView(parent=parent)
-            proxyModel = QtGui.QSortFilterProxyModel(view)
-            proxyModel.setSourceModel(model)
-            proxyModel.setDynamicSortFilter(True)
-            self.__proxyModel = proxyModel
-            view.verticalHeader().hide()
-            view.setAlternatingRowColors(True)
-            view.setModel(proxyModel)
-            view.resizeColumnsToContents()
-            view.resizeRowsToContents()
-            view.horizontalHeader().sectionPressed.connect(self.on_section_pressed)
+            view = LoggerView(parent=parent, model=model)
             self.__view = view
+
             return view
-
-        def on_section_pressed(self, section):
-            if section == 0:
-                menu = QtGui.QMenu(self.__view)
-                filterMenu = menu.addMenu("Filter...")
-                #sortMenu   = menu.addMenu("Sort...")
-
-                # --filtering--
-                showAll = filterMenu.addAction("Show All")
-                showDebug = filterMenu.addAction("Show Debug")
-                showInfo = filterMenu.addAction("Show Info")
-                showWarning = filterMenu.addAction("Show Warning")
-                showError = filterMenu.addAction("Show Error")
-                showCritical = filterMenu.addAction("Show Critical")
-
-                showAll.triggered.connect(self.show_all)
-                showDebug.triggered.connect(self.show_debug)
-                showInfo.triggered.connect(self.show_info)
-                showWarning.triggered.connect(self.show_warning)
-                showError.triggered.connect(self.show_error)
-                showCritical.triggered.connect(self.show_critical)
-
-                menu.popup(menu.mapFromGlobal(QtGui.QCursor.pos()))
-
-        def show_all(self):
-            self.__proxyModel.setFilterWildcard("*")
-            self.__proxyModel.setFilterKeyColumn(0)
-
-        def show_debug(self):
-            self.__proxyModel.setFilterFixedString("DEBUG")
-            self.__proxyModel.setFilterKeyColumn(0)
-
-        def show_info(self):
-            self.__proxyModel.setFilterFixedString("INFO")
-            self.__proxyModel.setFilterKeyColumn(0)
-
-        def show_warning(self):
-            self.__proxyModel.setFilterFixedString("WARNING")
-            self.__proxyModel.setFilterKeyColumn(0)
-
-        def show_error(self):
-            self.__proxyModel.setFilterFixedString("ERROR")
-            self.__proxyModel.setFilterKeyColumn(0)
-
-        def show_critical(self):
-            self.__proxyModel.setFilterFixedString("CRITICAL")
-            self.__proxyModel.setFilterKeyColumn(0)
 
         def set_setting_level(self, v):
             self._logger.debug("set_setting_level " + v)
@@ -306,9 +237,6 @@ class Dataflow(ComponentWithSettings):
 Dataflow()
 
 
-#####################################################################################
-# EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF #
-#####################################################################################
 import ui_components_pref
 class ComponentPreferenceBrowser(QtGui.QDialog, ui_components_pref.Ui_Dialog):
 
@@ -336,4 +264,5 @@ class ComponentPreferenceBrowser(QtGui.QDialog, ui_components_pref.Ui_Dialog):
 #####################################################################################
 # EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF - EXPERIMENTAL STUFF #
 #####################################################################################
+
 
