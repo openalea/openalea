@@ -236,7 +236,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             #print widget
             widgetT = wclass(widget.node, widget, name, interface)
             widgetT.update_state()
-            layout.addWidget(widgetT, 0, QtCore.Qt.AlignTop)
+            layout.addWidget(widgetT, 0)#, QtCore.Qt.AlignTop)
             widget.widgets.append(widgetT)
             widget.empty = False
         else:
