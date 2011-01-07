@@ -150,13 +150,15 @@ class IFileStr(IStr):
 
 class IDirStr(IStr):
     """ Directory Path interface """
-    __color__  = color_palette.maroon
     pass
 
 
 class ITextStr(IStr):
     """ Long String interface """
-    __color__  = color_palette.maroon
+    pass
+
+class ICodeStr(IStr):
+    """ Source code interface """
     pass
 
 
@@ -255,7 +257,7 @@ class IDateTime(IInterface):
 class ITuple3(IInterface):
     """ Tuple3 """
     __color__  = color_palette.fuchsia
-    
+
     @classmethod
     def default(cls):
         return (None, None, None)
