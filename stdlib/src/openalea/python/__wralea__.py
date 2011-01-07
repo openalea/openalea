@@ -209,6 +209,19 @@ exec_ = Factory( name="exec",
 __all__.append('exec_')
 
 
+source_code = Factory( name="source code",
+                  description="Execute python code",
+                  category="Python",
+                  nodemodule="python",
+                  nodeclass="py_exec",
+                  inputs=(dict(name="code", interface=ICodeStr),),
+                  outputs=(dict(name="locals", interface=IDict),),
+                  )
+
+
+__all__.append('source_code')
+
+
 zip_ = Factory( name="zip",
                 description="Zip 2 sequences",
                 category="Python",
