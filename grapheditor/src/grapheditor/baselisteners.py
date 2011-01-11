@@ -163,7 +163,8 @@ class GraphListenerBase(observer.AbstractListener):
                               (graph if cls.__adapterType__ is None \
                                else cls.__adapterType__(graph))
         self.__observableGraph = graph if observableGraph is None else observableGraph
-        self.__observableGraph.register_listener(self)
+        if self.__observableGraph:
+            self.__observableGraph.register_listener(self)
 
     def get_adapter(self):
         return self.__graphAdapter
