@@ -580,6 +580,8 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
                 existingScene = Scene(None)
                 cls.__instanceMap__[graph] = existingScene
             return existingScene
+        else:
+            return Scene(None)
 
     def __init__(self, parent):
         QtGui.QGraphicsScene.__init__(self, parent)
@@ -723,8 +725,18 @@ def deprecate(methodName, newName=None):
 class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphViewBase):
     """A View implementing client customisation """
 
+    class AcceptEvent(object):
+        def __init__(self):
+            self.accept = False
+
     #A few signals that strangely enough don't exist in QWidget
-    closing = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene)
+    closing       = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene)
+
+    # Some other signals that can be useful
+    copyRequest   = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    cutRequest    = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    pasteRequest  = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    deleteRequest = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
 
     ####################################
     # ----Instance members follow----  #
@@ -821,6 +833,24 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
             action(event)
         else:
             QtGui.QGraphicsView.keyPressEvent(self, event)
+
+        if not event.isAccepted():
+            key = event.key()
+            scene = self.scene()
+            acceptEvent = View.AcceptEvent()
+            if event.modifiers() == QtCore.Qt.ControlModifier:
+                if key == QtCore.Qt.Key_C:
+                    self.copyRequest.emit(self, scene, acceptEvent)
+                elif key == QtCore.Qt.Key_X:
+                    self.cutRequest.emit(self, scene, acceptEvent)
+                elif key == QtCore.Qt.Key_V:
+                    self.pasteRequest.emit(self, scene, acceptEvent)
+            else:
+                if key == QtCore.Qt.Key_Delete:
+                    self.deleteRequest.emit(self, scene, acceptEvent)
+            if acceptEvent.accept:
+                event.accept()
+
 
     def keyReleaseEvent(self, event):
         combo = event.modifiers().__int__(), event.key()
