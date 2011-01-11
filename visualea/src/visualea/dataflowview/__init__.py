@@ -50,55 +50,96 @@ class DataflowView( qt.View ):
         self.__annoToolBar = anno.AnnotationTextToolbar(None)
         self.__annoToolBar.setSleepOnDisappear(True)
 
+        self.copyRequest.connect(self.on_copy_request)
+        self.cutRequest.connect(self.on_cut_request)
+        self.pasteRequest.connect(self.on_paste_request)
+        self.deleteRequest.connect(self.on_delete_request)
+
+    def get_graph_operator(self):
+        operator=GraphOperator(self, self.scene().get_graph())
+        operator.vertexType = vertex.GraphicalVertex
+        operator.annotationType = anno.GraphicalAnnotation
+        operator.edgeType = edge.GraphicalEdge
+        return operator
+
+    def on_copy_request(self, view, scene, a):
+        operator = self.get_graph_operator()
+        operator(fName="graph_copy")()
+        a.accept = True
+
+    def on_cut_request(self, view, scene, a):
+        operator = self.get_graph_operator()
+        operator(fName="graph_cut")()
+        a.accept = True
+
+    def on_paste_request(self, view, scene, a):
+        operator = self.get_graph_operator()
+        operator(fName="graph_paste")()
+        a.accept = True
+
+    def on_delete_request(self, view, scene, a):
+        operator = self.get_graph_operator()
+        operator(fName="graph_remove_selection")()
+        a.accept = True
+
     ####################################################
     # Handling the drag and drop events over the graph #
     ####################################################
-    def node_factory_drop_handler(self, event):
-        """ Drag and Drop from the PackageManager """
-        if (event.mimeData().hasFormat("openalea/nodefactory")):
-            pieceData = event.mimeData().data("openalea/nodefactory")
-            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+    def __drop_from_factory(self, factory, pos):
+        try:
+            scene = self.scene()
+            scene.clearSelection()
+            scene.select_added_items(True)
+            realGraph = scene.get_graph()
+            node = factory.instantiate([realGraph.factory.get_id()])
+            scene.add_vertex(node, position=pos)
+            return node
+        except RecursionError:
+            mess = QtGui.QMessageBox.warning(self, "Error",
+                                             "A graph cannot be contained in itself.")
+            return None
 
-            package_id = QtCore.QString()
-            factory_id = QtCore.QString()
 
-            dataStream >> package_id >> factory_id
-
-            # Add new node
-            pkgmanager = PackageManager()
-            pkg = pkgmanager[str(package_id)]
-            factory = pkg.get_factory(str(factory_id))
-
-            #check if no other instance of this factory is opened
-            operator = GraphOperator()
-            operator.identify_focused_graph_view()
+    def __check_factory(self, factory):
+            # -- Check if no other instance of this factory is opened --
+            operator = self.get_graph_operator()
             session = operator.get_session()
             for ws in session.workspaces:
                 if factory == ws.factory:
                     res = QtGui.QMessageBox.warning(self, "Other instances are already opened!",
-                                      """You are trying to insert a composite node that has already been opened.
-    Doing this might cause confusion later on.
-    Do you want to continue?""",
-                                      QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+                                                    "You are trying to insert a composite node that has already been opened.\n" +\
+                                                    "Doing this might cause confusion later on.\n" +\
+                                                    "Do you want to continue?",
+                                                    QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
                     if res == QtGui.QMessageBox.Cancel:
-                        return
+                        return False
                     else:
                         break
+            return True
 
 
-            position = self.mapToScene(event.pos())
-            try:
-                scene = self.scene()
-                realGraph = scene.get_graph()
-                scene.clearSelection()
-                scene.select_added_items(True)
-                node = factory.instantiate([realGraph.factory.get_id()])
-                scene.add_vertex(node, position=[position.x(), position.y()])
-            except RecursionError:
-                mess = QtGui.QMessageBox.warning(self, "Error",
-                                                 "A graph cannot be contained in itself.")
+    def node_factory_drop_handler(self, event):
+        """ Drag and Drop from the PackageManager """
+        if (event.mimeData().hasFormat("openalea/nodefactory")):
+            # -- retreive the data from the event mimeData --
+            pieceData = event.mimeData().data("openalea/nodefactory")
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
+            package_id = QtCore.QString()
+            factory_id = QtCore.QString()
+            dataStream >> package_id >> factory_id
+
+            # -- find node factory --
+            pkgmanager = PackageManager()
+            pkg = pkgmanager[str(package_id)]
+            factory = pkg.get_factory(str(factory_id))
+
+            # -- see if we can safely open this factory (with user input) --
+            if not self.__check_factory(factory):
                 return
 
+            # -- instantiate the new node at the given position --
+            position = self.mapToScene(event.pos())
+            self.__drop_from_factory(factory, [position.x(), position.y()])
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 
@@ -106,37 +147,24 @@ class DataflowView( qt.View ):
     def node_datapool_drop_handler(self, event):
         # Drag and Drop from the DataPool
         if(event.mimeData().hasFormat("openalea/data_instance")):
+            # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data("openalea/data_instance")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-
             data_key = QtCore.QString()
-
             dataStream >> data_key
             data_key = str(data_key)
 
-            # Add new node
+            # -- find node factory --
             pkgmanager = PackageManager()
             pkg = pkgmanager["system"]
             factory = pkg.get_factory("pool reader")
 
+            # -- instantiate the new node at the given position --
             position = self.mapToScene(event.pos())
-
-            # Set key val
-            try:
-                scene = self.scene()
-                scene.clearSelection()
-                scene.select_added_items(True)
-                realGraph = scene.get_graph()
-                node = factory.instantiate([realGraph.factory.get_id()])
-                scene.add_vertex(node, [position.x(), position.y()])
-            except RecursionError:
-                mess = QtGui.QMessageBox.warning(self, "Error",
-                                                 "A graph cannot be contained in itself.")
-                return
-
-            node.set_input(0, data_key)
-            node.set_caption("pool ['%s']"%(data_key,))
-
+            node = self.__drop_from_factory(factory, [position.x(), position.y()])
+            if node:
+                node.set_input(0, data_key)
+                node.set_caption("pool ['%s']"%(data_key,))
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 
@@ -146,24 +174,8 @@ class DataflowView( qt.View ):
     def keyPressEvent(self, e):
         qt.View.keyPressEvent(self, e)
         if not e.isAccepted():
-            operator=GraphOperator(self, self.scene().get_graph())
-            operator.vertexType = vertex.GraphicalVertex
-            operator.annotationType = anno.GraphicalAnnotation
-            operator.edgeType = edge.GraphicalEdge
-            if e.modifiers() == QtCore.Qt.ControlModifier:
-                key = e.key()
-                if key == QtCore.Qt.Key_C:
-                    operator(fName="graph_copy")()
-                elif key == QtCore.Qt.Key_X:
-                    operator(fName="graph_cut")()
-                elif key == QtCore.Qt.Key_V:
-                    operator(fName="graph_paste")()
-            else:
-                key = e.key()
-                if key == QtCore.Qt.Key_Delete:
-                    operator(fName="graph_remove_selection")()
-                elif key == QtCore.Qt.Key_Space:
-                    self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
+            if e.key() == QtCore.Qt.Key_Space:
+                self.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
 
     def keyReleaseEvent(self, e):
         key = e.key()
