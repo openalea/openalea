@@ -9,9 +9,7 @@ them.
 """
 
 import networkx as nx
-from openalea.grapheditor import Observed, ObservedVertex, GraphAdapterBase
-from openalea.grapheditor import basenotifiers
-import weakref
+from openalea.grapheditor import Observed, GraphAdapterBase, basenotifiers
 
 class NXObservedGraph( GraphAdapterBase, Observed ):
     """An adapter to networkx.Graph"""
@@ -25,6 +23,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         vtx = self.count#NXObservedNode(self.graph)
         self.count += 1
         self.add_vertex(vtx, **kwargs)
+        return vtx
 
     def add_vertex(self, vertex, **kwargs):
         if vertex in self.graph:
@@ -93,21 +92,24 @@ from random import randint as rint # for random colors
 
 
 
-class GraphicalNode( DefaultGraphicalVertex, QtGui.QGraphicsEllipseItem  ):
+class GraphicalNode( DefaultGraphicalVertex  ):
     def initialise_from_model(self):
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex()]["position"]))
         color = self.graph().graph.node[self.vertex()]["color"]
         brush = QtGui.QBrush(color)
         self.setBrush(brush)
 
-    def get_view_data(self, *args, **kwargs):
-        return self.graph().graph.node[self.vertex()][args[0]]
-
     def store_view_data(self, **kwargs):
-        """This call is executed while self is in "deaf" mode to avoid infinite loops"""
         pos = kwargs.get('position', None)
         if pos is not None:
             self.graph().set_vertex_data(self.vertex(), position=pos)
+        return None
+
+    def get_view_data(self, key):
+        return self.graph().graph.node[self.vertex()][key]
+
+    def store_view_data(self, **kwargs):
+        """This call is executed while self is in "deaf" mode to avoid infinite loops"""
 
 
 

@@ -66,7 +66,7 @@ class GraphElementListenerBase(observer.AbstractListener):
         return None
 
     def initialise_from_model(self):
-        pos = self.get_view_data("position")
+        pos = self.get_view_data("position") or self.default_position()
         if pos:
             self.position_changed(*pos)
 
@@ -98,6 +98,27 @@ class GraphElementListenerBase(observer.AbstractListener):
                 if(event[2]):
                     self.position_changed(*event[2])
 
+    def get_view(self):
+        return self.scene()
+
+    def add_to_view(self, view):
+        """An element adds itself to the given view"""
+        raise NotImplementedError
+
+    def remove_from_view(self, view):
+        """An element removes itself from the given view"""
+        raise NotImplementedError
+
+    def position_changed(self, *args):
+        """Updates the item's **graphical** position from
+        model notifications. """
+        raise NotImplementedError
+
+    def lock_position(self, val=True):
+        raise NotImplementedError
+
+    def default_position(self):
+        raise NotImplementedError
 
 class GraphViewBase(object):
     def set_canvas(self, canvas):
@@ -207,7 +228,9 @@ class GraphListenerBase(observer.AbstractListener):
         if edgeModel is None : return
         edgeWidget = self.__strategyCls.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
+
         return self._element_added(edgeWidget, edgeModel, "edge")
+
 
     def vertex_removed(self, vtype, vertexModel):
         if vertexModel is None : return
@@ -296,7 +319,7 @@ class GraphListenerBase(observer.AbstractListener):
         for edgeModel, graphicalEdges in edgeMap.iteritems():
             if hasattr(edgeModel, "__iter__") and cmodel in edgeModel:
                 retSet |= graphicalEdges
-            elif edgeModel == cmodel:
+            elif edgeModel == cmodel: #what???????
                 retSet |= graphicalEdges
         return retSet
 
@@ -310,7 +333,7 @@ class GraphListenerBase(observer.AbstractListener):
         self._register_widget_with_model(widget, model, t)
         return widget
 
-    def _register_widget_with_model(self, widget, model,t):
+    def _register_widget_with_model(self, widget, model, t):
         """
         This method maps widgets to models. A single model
         can be viewed be many widgets.
