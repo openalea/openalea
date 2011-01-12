@@ -182,6 +182,8 @@ class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
     def lock_position(self, val=True):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
 
+    def default_position(self):
+        return [0.0, 0.0]
 
 #------*************************************************------#
 class Connector(Element):
@@ -219,9 +221,12 @@ class Connector(Element):
         #the following line is quirky because it relies on core.observer.Observed.listeners
         if hasattr(obs, "listeners"):
             edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
-        elif hasattr(self, "fakeParent"):
+        elif hasattr(self, "fakeParent"): #I am a defaultConnector
             par = self.fakeParent
-            observers = par.scene().get_graphical_edges_connected_to(obs)
+            scene = par.scene()
+            if scene is None:
+                return
+            observers = scene.get_graphical_edges_connected_to(obs)
             if observers:
                 edges = [l() for l in observers if l is not None]
         for e in edges:
@@ -345,34 +350,30 @@ class Vertex(Element):
         assert isinstance(connector, Connector)
         self.__connectors.remove(connector)
 
+    def notify_position_change(self):
+        if self.__defaultConnector:
+            center = self.sceneBoundingRect().center()
+            self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
+                                            center.y()-Vertex.InvisibleConnector.size/2.0 )
+            self.__defaultConnector.notify_position_change()
+        for c in self.__connectors:
+            c.notify_position_change()
+
     #####################
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
-            if self.__defaultConnector:
-                center = self.sceneBoundingRect().center()
-                self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
-                                                center.y()-Vertex.InvisibleConnector.size/2.0 )
-                self.__defaultConnector.notify_position_change()
-            for c in self.__connectors:
-                c.notify_position_change()
+            self.notify_position_change()
 
         elif change == qtutils.ItemPositionHasChanged:
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data(position=[point.x(), point.y()])
             self.deaf(False)
+            self.notify_position_change()
 
-            if self.__defaultConnector:
-                center = self.sceneBoundingRect().center()
-                self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
-                                                center.y()-Vertex.InvisibleConnector.size/2.0 )
-                self.__defaultConnector.notify_position_change()
-            for c in self.__connectors:
-                c.notify_position_change()
-
-            return value
+        return value
 
     def paint(self, painter, option, widget):
         """Qt-specific call to paint things."""
