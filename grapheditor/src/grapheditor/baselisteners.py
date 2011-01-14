@@ -194,7 +194,9 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__observableGraph
 
     def initialise_from_model(self):
-        self.__strategyCls.initialise_graph_view(self, self.get_graph())
+        g = self.get_graph()
+        if g is not None:
+            self.__strategyCls.initialise_graph_view(self, g)
 
     def clear(self):
         self.__observableGraph.unregister_listener(self)
