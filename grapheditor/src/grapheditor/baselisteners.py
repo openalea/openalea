@@ -224,12 +224,19 @@ class GraphListenerBase(observer.AbstractListener):
         vertexWidget = self.__strategyCls.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
         return self._element_added(vertexWidget, vertexModel, "vertex")
 
+
     def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
         if edgeModel is None : return
         edgeWidget = self.__strategyCls.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
 
-        return self._element_added(edgeWidget, edgeModel, "edge")
+        w = self._element_added(edgeWidget, edgeModel, "edge")
+
+        # needed to place the edge tips at the right position
+        self.vertex_event(src, "notify_position_change")
+        self.vertex_event(dst, "notify_position_change")
+
+        return w
 
 
     def vertex_removed(self, vtype, vertexModel):
