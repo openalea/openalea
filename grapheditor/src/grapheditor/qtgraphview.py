@@ -350,6 +350,12 @@ class Vertex(Element):
         assert isinstance(connector, Connector)
         self.__connectors.remove(connector)
 
+    def notify(self, sender, event):
+        if event=="notify_position_change":
+            self.notify_position_change()
+        else:
+            Element.notify(self, sender, event)
+
     def notify_position_change(self):
         if self.__defaultConnector:
             center = self.sceneBoundingRect().center()
@@ -532,8 +538,6 @@ class FloatingEdge( Edge ):
             if(srcVertex == None or dstVertex == None):
                 return
             self.scene().add_edge(srcVertex, dstVertex)
-            sItem.notify_position_change()
-            dItem.notify_position_change()
         except Exception, e:
             pass
             # print "consolidation failed :", type(e), e,\
@@ -633,7 +637,8 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         return dstPortItem
 
     def post_addition(self, element):
-        element.setSelected(self.__selectAdditions)
+        if self.__selectAdditions:
+            element.setSelected(True)
 
     def rebuild(self):
         """ Build the scene with graphic vertex and edge"""
@@ -953,6 +958,6 @@ class DefaultGraphicalVertex( Vertex, QtGui.QGraphicsEllipseItem  ):
     mousePressEvent = qtutils.mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
                                    "mousePressEvent")
     itemChange = qtutils.mixin_method(Vertex, QtGui.QGraphicsEllipseItem,
-                              "itemChange")
+                                      "itemChange")
     paint = qtutils.mixin_method(QtGui.QGraphicsEllipseItem, None,
                          "paint")
