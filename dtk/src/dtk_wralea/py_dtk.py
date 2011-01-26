@@ -13,7 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-dtkCorePath = "/Users/moscardi/Work/dtk/dtk_build/modules"
+dtkCorePath = "/Users/moscardi/Work/medinria/dtk/build/modules"
 
 try:
     sys.path.insert(0, dtkCorePath)
@@ -91,7 +91,7 @@ class dtkView(DtkNode):
 
         if self.dtk_factory is None:
             self.dtk_factory = core.dtkAbstractViewFactory.instance().create(self.name())
-            self.dtk_factory.showMaximized()
+            #self.dtk_factory.showMaximized()
 
         self.data('dtkData')
         self.setProperty()
