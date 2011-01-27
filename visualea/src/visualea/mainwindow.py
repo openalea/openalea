@@ -373,13 +373,21 @@ class MainWindow(QtGui.QMainWindow,
                 self.actionUseCustomColor.setChecked(True)
                 break
 
+    def edit_data(self, filename):
+        import components
+        try:
+            w = components.ComponentRegistry().create_editor_for_file(filename)
+            self.tabWorkspace.addTab(w, filename)
+        except Exception, e:
+            print e
+            logger.warning("No editor found for file " + filename + ". Giving up")
+
     def open_compositenode(self, factory):
         """ open a  composite node editor """
         node = factory.instantiate()
 
         self.session.add_workspace(node, notify=False)
         self.open_widget_tab(node, factory=factory)
-
         self.add_last_open(factory.__pkg_id__,factory.name)
 
 
@@ -459,11 +467,12 @@ class MainWindow(QtGui.QMainWindow,
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
         w = self.tabWorkspace.widget(cindex)
+        if isinstance(w, dataflowview.DataflowView):
+            self.session.close_workspace(cindex, False)
+            g = w.scene().get_graph()
+            g.close()
+        #finally we close the widget
         self.tabWorkspace.removeTab(cindex)
-        self.session.close_workspace(cindex, False)
-        g = w.scene().get_graph()
-        g.close()
-        #finally we close the dataflowview.
         w.close()
         del w
 
@@ -495,7 +504,9 @@ class MainWindow(QtGui.QMainWindow,
         """
         gwidget = None
         try:
-            gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
+            import components
+            gwidget = components.ComponentRegistry().create_editor_for_instance(graph,
+                                                                                parent=self)
             gwidget.scene().focusedItemChanged.connect(self.on_scene_focus_change)
             self.session.add_graph_view(gwidget)
         except Exception, e:
