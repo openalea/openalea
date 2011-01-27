@@ -23,6 +23,7 @@ __revision__ = " $Id$ "
 
 import logging, weakref, sys, os, os.path
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
+import logging.handlers
 from openalea.core.singleton import Singleton
 
 
@@ -66,28 +67,37 @@ def get_logger(name):
 class BaseLogger(object):
     def __init__(self, name):
         self.__name = name.lower()
-        self.__pyLogger = weakref.proxy(LoggerOffice().add_py_logger(self.__name))
+        self.pyLogger = weakref.proxy(LoggerOffice().add_py_logger(self.__name))
 
     def get_name(self):
         return self.__name
 
     def debug(self, msg):
-        self.__pyLogger.debug(msg)
+        self.pyLogger.debug(msg)
 
     def info(self, msg):
-        self.__pyLogger.info(msg)
+        self.pyLogger.info(msg)
 
     def warning(self, msg):
-        self.__pyLogger.warning(msg)
+        self.pyLogger.warning(msg)
 
     def error(self, msg):
-        self.__pyLogger.error(msg)
+        self.pyLogger.error(msg)
 
     def critical(self, msg):
-        self.__pyLogger.critical(msg)
+        self.pyLogger.critical(msg)
 
+    def setLevel(self, level):
+         self.pyLogger.setLevel(level)
 
+    def log(self, level, msg, *args, **kwargs):
+        self.pyLogger.log(level, msg, *args, **kwargs)
 
+    def addHandler(self, hdlr):
+        self.pyLogger.addHandler(hdlr)
+    
+    def removeHandler(self, hdlr):
+        self.pyLogger.removeHandler(hdlr)
 
 ############################
 # Openalea Logging Central #
@@ -236,7 +246,9 @@ class LoggerOffice(object):
             ha.setFormatter(self.__formatter)
             self.__handlers["qt"] = ha
 
-        flogger = logging.FileHandler(os.path.expanduser("~/.openalea/log.log"))
+        flogger = logging.handlers.TimedRotatingFileHandler(os.path.expanduser("~/.openalea/log.log"), 
+            when='midnight', 
+            backupCount=30)
         flogger.setLevel(level)
         flogger.setFormatter(self.__formatter)
         self.__handlers["file"] = flogger

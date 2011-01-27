@@ -35,6 +35,7 @@ import shutil
 from openalea.core.pkgdict import PackageDict, protected
 from openalea.core.path import path as _path
 from openalea.core.vlab import vlab_object
+from openalea.core import logger
 
 # Exceptions
 
