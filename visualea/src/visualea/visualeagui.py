@@ -4,7 +4,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -12,7 +12,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -26,6 +26,7 @@ import sys, os
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
+from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
 
@@ -46,7 +47,7 @@ def set_stdout():
 def main(args):
     set_stdout()
     app = QtGui.QApplication(args)
-    
+    logger.default_init(level=logger.DEBUG, handlers=["qt", "file"])
     # Check Version
     version = QtCore.QT_VERSION_STR
     # QT_VERSION_STR implement __le__ operator
@@ -66,7 +67,7 @@ def main(args):
 
     message = QtCore.QString(
         metainfo.get_copyright() +
-        "Version : %s\n"%(metainfo.get_version(),) + 
+        "Version : %s\n"%(metainfo.get_version(),) +
         "Loading modules...")
 
     splash.showMessage(message, QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
@@ -92,16 +93,16 @@ def main(args):
             print e
     """
 
-    QtGui.QApplication.processEvents()    
+    QtGui.QApplication.processEvents()
 
     win = MainWindow(session)
-    win.show()    
+    win.show()
     splash.finish(win);
     return app.exec_()
 
 
 
-    
+
 if __name__ == "__main__":
     main(sys.argv)
-    
+
