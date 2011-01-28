@@ -815,8 +815,8 @@ class SplittableUI(QtGui.QWidget):
                 else:
                     tearOffB.show()
                     tearOffT.show()
-                tearOffB.move(geom.left(), geom.bottom()+1-th)
-                tearOffT.move(geom.right()-th, geom.top()+1)
+                tearOffB.move(geom.left()+1, geom.bottom()+1-th)
+                tearOffT.move(geom.right()-th+1, geom.top()+1)
                 return
 
             sp = SplittableUI.__spacing__
@@ -944,10 +944,14 @@ class SplittableUI(QtGui.QWidget):
             painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
             if self._hovered:
-                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,100))
+                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,200))
             else:
-                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,20))
+                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,70))
             painter.setBrush(brush)
+
+            pen = painter.pen()
+            pen.setColor(QtGui.QColor(0,0,0,0))
+            painter.setPen(pen)
 
             adj = painter.pen().width()
             rect = self.contentsRect().adjusted(adj,adj,-adj,-adj)
