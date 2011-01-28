@@ -801,60 +801,63 @@ class SplittableUI(QtGui.QWidget):
             else:
                 # ok, no child, so we probably have a widget and our geometry
                 # has already been computed by parent
+
                 widget = self.g.get_property(vid, "widget")
                 geom = self.geomCache[vid]
                 if widget is not None:
                     widget.setGeometry(geom)
 
+                th = SplittableUI.TearOff.__ideal_height__
                 tearOffB,tearOffT = self.g.get_property(vid, "tearOffWidgets")
-                if geom.height() < 20 or geom.width() <20:
+                if geom.height() <  th or geom.width() < th:
                     tearOffB.hide()
                     tearOffT.hide()
                 else:
                     tearOffB.show()
                     tearOffT.show()
-                tearOffB.move(geom.left(), geom.bottom()-20)
-                tearOffT.move(geom.right()-20, geom.top())
+                tearOffB.move(geom.left(), geom.bottom()+1-th)
+                tearOffT.move(geom.right()-th, geom.top()+1)
                 return
 
-            margin = SplittableUI.__hspacing__
+            sp = SplittableUI.__spacing__
             containerGeom = self.geomCache[vid]
 
             direction = self.g.get_property(vid, "splitDirection")
-            amount     = self.g.get_property(vid, "amount")
+            amount    = self.g.get_property(vid, "amount")
 
             # -- The node has children : it doesn't have a widget
             # but it does have a handle that separates the widgets
             # we must place it accordingly
             handle = self.g.get_property(vid, "handleWidget")
             hgeom = handle.geometry()
+
+            containerWidth = (containerGeom.width() - sp) if direction == QtCore.Qt.Horizontal else containerGeom.width()
+            containerHeight = (containerGeom.height() - sp) if direction == QtCore.Qt.Vertical else containerGeom.height()
+
             if direction == QtCore.Qt.Horizontal:
-                firstHeight = secondHeight = containerGeom.height()
-                firstWidth  = (containerGeom.width() * amount)# - margin
-                secondWidth = containerGeom.width() - firstWidth - 2*margin
+                firstHeight = secondHeight = containerHeight
+                firstWidth  = containerWidth * amount
+                secondWidth = containerWidth - firstWidth
                 firstX, firstY = containerGeom.x(), containerGeom.y()
-                secondX, secondY = firstX + firstWidth + 2*margin, firstY
+                secondX, secondY = firstX + firstWidth + sp, firstY
                 hgeom.moveLeft(firstX++firstWidth)
                 hgeom.moveTop(firstY)
-                hgeom.setHeight(firstHeight)
+                hgeom.setHeight(containerHeight)
             else:
-                firstWidth = secondWidth = containerGeom.width()
-                firstHeight   = containerGeom.height() * amount# - margin
-                secondHeight  = containerGeom.height() - firstHeight - margin
+                firstWidth = secondWidth = containerWidth
+                firstHeight   = containerHeight * amount
+                secondHeight  = containerHeight - firstHeight
                 firstX, firstY = containerGeom.x(), containerGeom.y()
-                secondX, secondY = firstX, firstY + firstHeight + 2*margin
+                secondX, secondY = firstX, firstY + firstHeight + sp
                 hgeom.moveTop(firstY+firstHeight)
                 hgeom.moveLeft(firstX)
-                hgeom.setWidth(firstWidth)
+                hgeom.setWidth(containerWidth)
             firstGeom = QtCore.QRect(firstX, firstY, firstWidth, firstHeight)
             secondGeom = QtCore.QRect(secondX, secondY, secondWidth, secondHeight)
 
             self.geomCache[fid] = firstGeom
             self.geomCache[sid] = secondGeom
-
             handle.setGeometry(hgeom)
-
-
 
 
     class TearOff(QtGui.QWidget, DraggableWidget):
@@ -872,6 +875,8 @@ class SplittableUI(QtGui.QWidget):
         CollapseToFirst   = 1 #: Collapse second child to first
         CollapseToForeign = 2 #: Collapse the pane to another that is not sibling
 
+        __ideal_height__ = 10
+
         def __init__(self, graph, refVid, parent, bottom=False):
             """Contruct the TearOff.
             :Parameters:
@@ -887,8 +892,8 @@ class SplittableUI(QtGui.QWidget):
             self._g = graph
             self._vid = refVid
             self._bottom=bottom
-            self.setFixedHeight(20)
-            self.setFixedWidth(20)
+            self.setFixedHeight(self.__ideal_height__)
+            self.setFixedWidth(self.__ideal_height__)
 
         def _fixGeometry(self, newPt, geom):
             """ We abuse this _fixGeometry method to find out how
@@ -937,15 +942,19 @@ class SplittableUI(QtGui.QWidget):
         def paintEvent(self, event):
             painter = QtGui.QPainter(self)
             painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
             if self._hovered:
                 brush   = QtGui.QBrush(QtGui.QColor(120,190,255,100))
             else:
                 brush   = QtGui.QBrush(QtGui.QColor(120,190,255,20))
             painter.setBrush(brush)
-            painter.drawEllipse(self.contentsRect().adjusted(2,2,-2,-2))
 
-
-
+            adj = painter.pen().width()
+            rect = self.contentsRect().adjusted(adj,adj,-adj,-adj)
+            if self._bottom:
+                painter.drawConvexPolygon(rect.bottomRight(), rect.bottomLeft(), rect.topLeft())
+            else:
+                painter.drawConvexPolygon(rect.topRight(), rect.bottomRight(), rect.topLeft())
 
 
     class SplitterHandle(QtGui.QWidget, DraggableWidget):
@@ -1002,7 +1011,7 @@ class SplittableUI(QtGui.QWidget):
             else:
                 geom.setX(newPt.x())
             self.handleMoved.emit(self._refVid, geom.topLeft(), self._orientation)
-            return geom, False
+            return geom, True #DO NOT MODIFY THE GEOMETRY! IT WILL BE DONE BY THE GRAPH UPDATE
 
         ##############################
         # Qt Event reimplementations #
@@ -1018,6 +1027,7 @@ class SplittableUI(QtGui.QWidget):
             if self._hovered: opt.state |= QStyle.State_MouseOver
             if self._isMoving: opt.state |= QStyle.State_Sunken
             if self.isEnabled(): opt.state |= QStyle.State_Enabled
+            #painter.fillRect(self.rect(), QtCore.Qt.blue)
             self.style().drawControl(QStyle.CE_Splitter, opt, painter, self)
     ###################################################################################
     # /end Inner classes not meant to be seen by others - Inner classes not meant to  #
