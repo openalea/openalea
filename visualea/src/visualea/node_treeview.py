@@ -795,9 +795,6 @@ Do you want to continue?""",
                         break
 
             self.edit_node()
-        elif isinstance(obj, DataFactory):
-            f=obj.get_pkg_data().repr
-            self.edit_data(f)
         elif (not isinstance(obj, Package)):
             self.open_node()
 
@@ -820,10 +817,6 @@ Do you want to continue?""",
             urlstr = obj.get_metainfo('url')
             QtGui.QDesktopServices.openUrl(QtCore.QUrl(urlstr))
 
-    @busy_cursor
-    @exception_display
-    def edit_data(self, data):
-        self.main_win().edit_data(data)
 
     @busy_cursor
     @exception_display
