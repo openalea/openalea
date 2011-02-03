@@ -20,24 +20,30 @@ Simple Tutorial
 ===============
 
 Just to see how easy it is to log something::
+
     from openalea.core import logger
     a = 1234
     logger.debug("This is an evil value %d"%a)
 
 This examples uses the defaults of the openalea.core.logger module:
-This is one base logger name "openalea" that logs to a default stream
+There is one base logger name "openalea" that logs to a default stream
 handler (prints out the logs to stderr).
 
 There are more default loggers available::
+
     logger.default_init(level=logger.DEBUG, handlers=["file"])
 
 This line will make logs go to rotating files in ~/.openalea/.
 
 If you're running PyQt4::
+
     logger.default_init(level=logger.DEBUG, handlers=["qt"])
+
 Will make your logs go to a QStandardItemModel that you can get
 this way::
+
     itemModel = logger.get_handler("qt")
+
 You can directly use it in a QListView.
 
 
@@ -45,6 +51,7 @@ Per-package loggers
 ===================
 The previous example used the central OpenAlea logger. However, we recommend
 you use a specific logger for your package, eg. Openalea.MTG::
+
     from openalea.core import logger
     mylogger = logger.get_logger("Openalea.MTG")
     [...]
@@ -52,6 +59,7 @@ you use a specific logger for your package, eg. Openalea.MTG::
 
 This will print nothing as `mylogger` is attached to no handler.
 You can attach it to Openalea's handlers if they are any available::
+
     logger.connect_loggers_to_handlers(mylogger, logger.get_handler_names())
     mylogger.debug("Execution reached this other place...")
 
@@ -77,6 +85,7 @@ Logging typically happens at different levels, from the less important to the wo
 You have access to 5 default logging levels: DEBUG, INFO, WARNING, ERROR and CRITICAL.
 
 Through the openalea.core.logger module::
+
     logger.debug(str)
     logger.info(str)
     logger.warning(str)
@@ -84,6 +93,7 @@ Through the openalea.core.logger module::
     logger.critical(str)
 
 Or a custom logger::
+
     mylogger = logger.get_logger("Openalea.MTG")
     mylogger.debug(str)
     mylogger.info(str)
@@ -91,17 +101,18 @@ Or a custom logger::
     mylogger.error(str)
     mylogger.critical(str)
 
-You can also send logs of arbitrary levels using the log(level (int), msg (str)) module
-function (or mylogger.log(int, str)).
+You can also send logs of arbitrary levels using the log(level (int), msg (str)) module function (or mylogger.log(int, str)).
 
 Logger objects can be set to ignore logs that happen at levels lower than a chosen one.
 The same goes for handlers.
 
 In openalea.core.logger, you can set all loggers and handlers to have the same level::
+
     logger.set_global_logger_level(logger.INFO) #DEBUG logs will not be sent to handlers
     logger.set_global_handler_level(logger.ERROR) #DEBUG and ERROR logs will be ignored by handlers.
 
 Of course you can do this more selectively::
+
     lg = logger.get_logger("Openalea.MTG")
     # lg will not send logs below the CRITICAL level:
     lg.setLevel(logger.CRITICAL)
@@ -371,7 +382,9 @@ class LoggerOffice(object):
     ############
     # DEFAULTS #
     ############
-    def set_defaults(self, level=logging.DEBUG, handlers=[logging.NullHandler()]):
+    def set_defaults(self, level=logging.DEBUG, handlers=None):
+        if handlers is None:
+            handlers = ["stream"]
         # -- default handlers --
         if QT_LOGGING_MODEL_AVAILABLE and "qt" in handlers:
             ha = self.get_handler('qt') or QLogHandlerItemModel(level=level)
@@ -394,7 +407,9 @@ class LoggerOffice(object):
         self.make_default_logger(handlers)
         self.set_global_logger_level(level)
 
-    def make_default_logger(self, handlers=[logging.NullHandler()]):
+    def make_default_logger(self, handlers=None):
+        if handlers is None:
+            handlers = ["stream"]
         self.__oaRootLogger = self.add_logger("openalea")
         self.disconnect_loggers_from_handlers("openalea", defaultHandlerNames[:])
         self.connect_loggers_to_handlers("openalea", handlers)
