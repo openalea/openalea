@@ -168,7 +168,7 @@ Download the source file :download:`../../src/core/datapool.py`.
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: DataPool is a global dictionnary to share data between node 
+    :synopsis: DataPool is a global dictionnary to share data between node
 
 .. currentmodule:: openalea.core.external
 
@@ -196,7 +196,7 @@ Download the source file :download:`../../src/core/graph/graph.py`.
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: This module provide a simple pure python implementation for a 
+    :synopsis: This module provide a simple pure python implementation for a
 
 
 .. currentmodule:: openalea.core.graph.interface.graph
@@ -279,6 +279,25 @@ Download the source file :download:`../../src/core/interface.py`.
     :synopsis: This module defines Interface classes (I/O types)
 
 
+
+
+.. currentmodule:: openalea.core.logger
+
+:mod:`openalea.core.logger` module
+====================================
+
+Download the source file :download:`../../src/core/logger.py`.
+
+
+.. automodule:: openalea.core.logger
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: This module defines the logger api for Openalea related software.
+
+
+
 .. currentmodule:: openalea.core.metaclass
 
 :mod:`openalea.core.metaclass` module
@@ -292,7 +311,7 @@ Download the source file :download:`../../src/core/metaclass.py`.
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis:  todo 
+    :synopsis:  todo
 
 
 .. currentmodule:: openalea.core.node
