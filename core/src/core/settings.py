@@ -30,6 +30,8 @@ from openalea.core import logger
 # path = '.', '/home/user/directory'
 
 
+settingsLogger = logger.get_logger(__name__)
+
 
 ##############################################################################
 # Directories functions
@@ -96,10 +98,10 @@ def get_userpkg_dir(name='user_pkg'):
     return wraleahome
 
 
+
 ####################
 # Settings classes #
 ####################
-
 class Settings(object, SafeConfigParser):
     """ Retrieve and set user configuration """
 
@@ -109,7 +111,7 @@ class Settings(object, SafeConfigParser):
     def __init__(self):
         object.__init__(self)
         SafeConfigParser.__init__(self)
-        self.__logger = logger.get_logger(__name__)
+
         self.__sectionHandlers = {}
 
         filename = 'openalea.cfg'
@@ -128,13 +130,13 @@ class Settings(object, SafeConfigParser):
     def read(self):
         """Overriden method to read the configuration
         from Openalea's default configuration file"""
-        self.__logger.debug("Reading configuration file from " + self.configfile)
+        settingsLogger.debug("Reading configuration file from " + self.configfile)
         SafeConfigParser.read(self, [self.configfile])
 
     def write(self):
         """Overriden method to write the configuration
         to Openalea's default configuration file"""
-        self.__logger.debug("Writing configuration file to " + self.configfile)
+        settingsLogger.debug("Writing configuration file to " + self.configfile)
         where = open(self.configfile, "w")
         SafeConfigParser.write(self, where)
         where.close()
@@ -159,7 +161,7 @@ class Settings(object, SafeConfigParser):
             self.add_section(section)
             SafeConfigParser.set(self, "AutoAddedConfItems", section, str(True))
         if self.has_option("AutoAddedConfItems", section):
-            self.__logger.warning("Automatic addition of sections will be discarded by the end of the next release cycle (0.10 or 1.0) : " + section)
+            settingsLogger.warning("Automatic addition of sections will be discarded by the end of the next release cycle (0.10 or 1.0) : " + section)
 
         # mangle option name:
         option = option.lower().replace(" ", "_")
@@ -168,7 +170,7 @@ class Settings(object, SafeConfigParser):
         if not self.has_option(section, option):
             SafeConfigParser.set(self, "AutoAddedConfItems", longname, str(True))
         if self.has_option("AutoAddedConfItems", longname):
-            self.__logger.warning("Automatic addition of options will be discarded by the end of the next release cycle (0.10 or 1.0) : " + longname)
+            settingsLogger.warning("Automatic addition of options will be discarded by the end of the next release cycle (0.10 or 1.0) : " + longname)
             #raise NoOptionError(option, section)
 
 
