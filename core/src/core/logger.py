@@ -341,11 +341,14 @@ class LoggerOffice(object):
     #################################
     # Logger to handler connections #
     #################################
-    def connect_loggers_to_handlers(self, loggers, handlers):
+    def connect_loggers_to_handlers(self, loggers, handlers, noDisconnect=False):
         loggers  = self.__iterable_check(loggers)
         handlers = self.__iterable_check(handlers)
         for logger in loggers:
             if isinstance(logger, str): logger = self.get_logger(logger)
+            if not noDisconnect:
+                for h in logger.handlers[:]:
+                    logger.removeHandler(h)
             for handler in handlers:
                 if isinstance(handler, str): handler = self.get_handler(handler)
                 if None in [handler, logger]:
@@ -389,6 +392,8 @@ class LoggerOffice(object):
         if QT_LOGGING_MODEL_AVAILABLE and "qt" in handlers:
             ha = self.get_handler('qt') or QLogHandlerItemModel(level=level)
             self.add_handler("qt", ha)
+        elif "qt" in self.__handlers:
+            del self.__handlers["qt"]
 
         if "file" in handlers:
             fname = os.path.expanduser("~/.openalea/log.log")
@@ -397,11 +402,15 @@ class LoggerOffice(object):
                                                                       backupCount=30)
             ha.setLevel(level)
             self.add_handler("file", ha)
+        elif "file" in self.__handlers:
+            del self.__handlers["file"]
 
         if "stream" in handlers:
             ha = self.get_handler('stream') or logging.StreamHandler()
             ha.setLevel(level)
             self.add_handler("stream", ha)
+        elif "stream" in self.__handlers:
+            del self.__handlers["stream"]
 
         # -- default loggers --
         self.make_default_logger(handlers)
