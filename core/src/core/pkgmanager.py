@@ -60,7 +60,7 @@ class UnknownPackageError (Exception):
 
 
 # Logging
-pmanLogger = logger.get_logger("pkgmanager")
+pmanLogger = logger.get_logger(__name__)
 logger.connect_loggers_to_handlers(pmanLogger, logger.get_handler_names())
 
 class Logger(object):
