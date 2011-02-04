@@ -77,10 +77,10 @@ class MainWindow(QtGui.QMainWindow,
         GraphOperator.edgeType = dataflowview.edge.GraphicalEdge
 
 
-        self.pkgmanager = session.pkgmanager
+#        self.pkgmanager = session.pkgmanager
 
         # Set observer
-        self.initialise(session)
+#        self.initialise(session)
 
         self.tabWorkspace.removeTab(0)
         self.tabWorkspace.setTabsClosable(True)
@@ -95,7 +95,7 @@ class MainWindow(QtGui.QMainWindow,
 
         # python interpreter
         interpreter = Interpreter()
-        cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
+#        cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())
@@ -108,20 +108,20 @@ class MainWindow(QtGui.QMainWindow,
             self.lowerpane.addTab(view, "Logging")
 
         # package tree view
-        self.pkg_model = PkgModel(self.pkgmanager)
-        self.packageTreeView = \
-            NodeFactoryTreeView(self, self.packageview)
-        self.packageTreeView.setModel(self.pkg_model)
-        self.vboxlayout1.addWidget(self.packageTreeView)
-        self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
+        # self.pkg_model = PkgModel(self.pkgmanager)
+        # self.packageTreeView = \
+        #     NodeFactoryTreeView(self, self.packageview)
+        # self.packageTreeView.setModel(self.pkg_model)
+        # self.vboxlayout1.addWidget(self.packageTreeView)
+        # self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # category tree view
-        self.cat_model = CategoryModel(self.pkgmanager)
-        self.categoryTreeView = \
-            NodeFactoryTreeView(self, self.categoryview)
-        self.categoryTreeView.setModel(self.cat_model)
-        self.vboxlayout2.addWidget(self.categoryTreeView)
-        self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
+        # self.cat_model = CategoryModel(self.pkgmanager)
+        # self.categoryTreeView = \
+        #     NodeFactoryTreeView(self, self.categoryview)
+        # self.categoryTreeView.setModel(self.cat_model)
+        # self.vboxlayout2.addWidget(self.categoryTreeView)
+        # self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # search list view
         self.search_model = SearchModel()
@@ -132,11 +132,11 @@ class MainWindow(QtGui.QMainWindow,
         self.searchListView.clicked.connect(self.on_package_manager_focus_change)
 
         # data pool list view
-        self.datapool_model = DataPoolModel(session.datapool)
-        self.datapoolListView = \
-            DataPoolListView(self, session.datapool, self.pooltab)
-        self.datapoolListView.setModel(self.datapool_model)
-        self.vboxlayout4.addWidget(self.datapoolListView)
+        # self.datapool_model = DataPoolModel(session.datapool)
+        # self.datapoolListView = \
+        #     DataPoolListView(self, session.datapool, self.pooltab)
+        # self.datapoolListView.setModel(self.datapool_model)
+        #self.vboxlayout4.addWidget(self.datapoolListView)
 
         # help widget
         self.helpWidget = helpwidget.HelpWidget()
@@ -181,7 +181,7 @@ class MainWindow(QtGui.QMainWindow,
         self.actionNew_Python_Node.triggered.connect( self.new_python_node)
         self.actionNew_Package.triggered.connect( self.new_package)
         self.action_Data_File.triggered.connect( self.new_data)
-        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
+#        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
 
         # DataPool Menu
         self.actionClear_Data_Pool.triggered.connect( self.clear_data_pool)
@@ -238,10 +238,49 @@ class MainWindow(QtGui.QMainWindow,
         # self.connect(action, SIGNAL("triggered()"), self.debug)
 
         # final init
-        self.session = session
-        self.session.simulate_workspace_addition()
+        # self.session = session
+        # self.session.simulate_workspace_addition()
         #load personnal GUI settings
         self.read_settings()
+
+    def on_session_started(self, session):
+        self.initialise(session)
+        self.session = session
+
+        # -- configure the interpreter --
+        cli.init_interpreter(self.interpreterWidget.interpreter,
+                             session,
+                             {"tabs":self.tabWorkspace})
+
+
+        # -- now, many package manager related views --
+        self.pkgmanager = session.pkgmanager
+        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
+
+        # package tree view
+        self.pkg_model = PkgModel(self.pkgmanager)
+        self.packageTreeView = \
+            NodeFactoryTreeView(self, self.packageview)
+        self.packageTreeView.setModel(self.pkg_model)
+        self.vboxlayout1.addWidget(self.packageTreeView)
+        self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
+
+        # category tree view
+        self.cat_model = CategoryModel(self.pkgmanager)
+        self.categoryTreeView = \
+            NodeFactoryTreeView(self, self.categoryview)
+        self.categoryTreeView.setModel(self.cat_model)
+        self.vboxlayout2.addWidget(self.categoryTreeView)
+        self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
+
+        # data pool list view
+        self.datapool_model = DataPoolModel(session.datapool)
+        self.datapoolListView = \
+            DataPoolListView(self, session.datapool, self.pooltab)
+        self.datapoolListView.setModel(self.datapool_model)
+        self.vboxlayout4.addWidget(self.datapoolListView)
+
+        self.session.simulate_workspace_addition()
 
     def debug (self) :
         v = self.packageTreeView
@@ -480,7 +519,7 @@ class MainWindow(QtGui.QMainWindow,
                 widget = self.tabWorkspace.widget(i)
                 if(node != widget.scene().get_graph()):
                     self.close_tab_workspace(i)
-                self.open_widget_tab(node, factory=node.factory, pos = i)
+                    self.open_widget_tab(node, factory=node.factory, pos = i)
 
         # close last tabs
         removelist = range( len(self.session.workspaces), self.tabWorkspace.count())
