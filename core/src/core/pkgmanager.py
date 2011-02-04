@@ -60,6 +60,9 @@ class UnknownPackageError (Exception):
 
 
 # Logging
+pmanLogger = logger.get_logger("pkgmanager")
+logger.connect_loggers_to_handlers(pmanLogger, logger.get_handler_names())
+
 class Logger(object):
     """ OpenAlea logging class """
 
@@ -79,7 +82,7 @@ class Logger(object):
         f.write("%i %s\n"%(self.log_index, msg))
         f.close()
         self.log_index +=1
-        logger.debug(msg)
+        pmanLogger.debug(msg)
 
     def print_log(self):
         """ Print log file """
@@ -206,7 +209,7 @@ class PackageManager(object):
 
             # Get Deprecated packages
             if self.verbose:
-                print epoint.name, epoint.module_name
+                pmanLogger.debug(epoint.name +" "+ epoint.module_name)
             if(epoint.module_name == "deprecated"):
                 self.deprecated_pkg.add(epoint.name.lower())
                 continue
