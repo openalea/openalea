@@ -84,6 +84,7 @@ class Compiler:
                            
         opts.Add('rpath', 'A list of paths to search for shared libraries')
 
+        opts.Add('EXTRA_CCFLAGS', 'Specific user flags for c compiler', '')
         opts.Add('EXTRA_CXXFLAGS', 'Specific user flags for c++ compiler', '')
         opts.Add('EXTRA_CPPDEFINES', 'Specific c++ defines', '')
         opts.Add('EXTRA_LINKFLAGS', 'Specific user flags for c++ linker', '')
@@ -107,6 +108,7 @@ class Compiler:
                 env['compiler_libs_suffix'] = '-mgw'
 
         env.Append(RPATH=Split('$rpath'))
+        env.Append(CCFLAGS=Split(env['EXTRA_CCFLAGS']))
         env.Append(CXXFLAGS=Split(env['EXTRA_CXXFLAGS']))
         env.Append(CPPDEFINES=Split(env['EXTRA_CPPDEFINES']))
         env.Append(LINKFLAGS=Split(env['EXTRA_LINKFLAGS']))

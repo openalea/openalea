@@ -40,15 +40,20 @@ class Gcc:
       t = Tool('gcc')
       t(env)
 
+      CCFLAGS = []
       CXXFLAGS = []
       if env["warnings"]:
+         CCFLAGS += ['-W', '-Wall']
          CXXFLAGS += ['-W', '-Wall']
 
       if env["debug"]:
+         CCFLAGS.extend(['-g'])
          CXXFLAGS.extend(['-g'])
       else:
+         CCFLAGS.extend(['-DNDEBUG', '-O2'])
          CXXFLAGS.extend(['-DNDEBUG', '-O2'])
 
+      env.AppendUnique(CCFLAGS=CCFLAGS)
       env.AppendUnique(CXXFLAGS=CXXFLAGS)
 
 
