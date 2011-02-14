@@ -394,7 +394,7 @@ Do you want to continue?""",
 
         graph, tempfactory = self.__get_current_factory(name)
         from openalea.visualea.dataflowview import GraphicalGraph
-        w = GraphicalGraph(graph).create_view(widget, clone=True)
+        w = GraphicalGraph.create_view(graph, parent=widget, clone=True)
         w.setWindowFlags(QtCore.Qt.Window)
         w.setWindowTitle('Preview Application')
         w.show()
