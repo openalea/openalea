@@ -45,7 +45,7 @@ class Openalea(QtGui.QApplication):
         # -- redirect stdout to null if pythonw --
         set_stdout()
         # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
-        logger.default_init(level=logger.DEBUG, handlers=["qt"])
+        logger.default_init(level=logger.ERROR, handlers=["qt"]) #TODO get level from settings
         logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
         if __debug__:
             logger.set_global_logger_level(logger.DEBUG)
@@ -56,6 +56,7 @@ class Openalea(QtGui.QApplication):
         # -- main window --
         self.win = MainWindow(None)
         self.win.show()
+        self.win.raise_()
         self.sessionStarted.connect(self.win.on_session_started)
         # -- start session in a thread --
         self.sessionth = threadit(timeit, self, self.__cb_session_thread_end, Session)
@@ -147,7 +148,7 @@ def threadit(f, parent=None, endCb=None, *args, **kwargs):
     """
     class CustomThread(QtCore.QThread):
         def __init__(self, target, parent=parent, args=[], kwargs={}):
-            QtCore.QThread.__init__(self, parent=parent)
+            QtCore.QThread.__init__(self, parent)
             self.target = target
             self.args   = args
             self.kwargs = kwargs
