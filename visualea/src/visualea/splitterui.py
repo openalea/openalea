@@ -127,144 +127,6 @@ class RubberBandScrollArea(QtGui.QScrollArea):
 
 
 
-class Niche(QtGui.QFrame):
-    """A customized QtGui.QFrame that includes a content area and a
-    header area. The header holds a static button to the left, and
-    a t-constrained RubberBandScrollArea to its right. This area can
-    hold a menu bar.
-
-    Obeys to Qt naming convention.
-    """
-
-    panelMenuRequest = QtCore.pyqtSignal(QtGui.QWidget)
-
-
-    ###################################################################################
-    # Inner classes not meant to be seen by others - Inner classes not meant to be... #
-    ###################################################################################
-    class Header(QtGui.QFrame):
-        """Implementation of the are that holds the button and toolbar area
-
-        Obeys to Qt naming convention.
-        """
-
-        __ideal_height__ = 27 # this is fixed, never got it right otherwise.
-        widgetMenuRequest = QtCore.pyqtSignal(QtCore.QPoint)
-
-
-        def __init__(self, parent=None, windowsflags=QtCore.Qt.Widget):
-            QtGui.QFrame.__init__(self, parent, windowsflags)
-            self.__lay = QtGui.QHBoxLayout()
-            self.__lay.setContentsMargins(1,1,1,1)
-            self.__lay.setSpacing(1)
-
-            self.__but = QtGui.QPushButton("Win")
-            self.__but.setSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
-            self.__but.clicked.connect(self.__onButtonClicked)
-
-            self.__lay.addWidget(self.__but)
-
-            self.headerScr = RubberBandScrollArea()
-            # -- lock scrolling to X --
-            self.headerScr.setYScrollable(False)
-            # -- appearance --
-            self.headerScr.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            self.headerScr.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            self.headerScr.setFrameShape(QtGui.QFrame.NoFrame)
-            self.headerScr.setFrameShadow(QtGui.QFrame.Sunken)
-
-            self.__lay.addWidget(self.headerScr)
-            self.__fixSize()
-            self.setLayout(self.__lay)
-
-        def setToolbar(self, toolbar):
-            """Set the widget held by the scrollable
-            toolbar area to the right.
-
-            :Parameters:
-             - `toolbar` (QtGui.QWidget) - the widget that serves as a toolbar.
-            """
-            self.headerScr.setWidget(toolbar)
-            self.__fixSize()
-
-        def toolbar(self):
-            """Retreive the toolbar widget"""
-            self.headerScr.widget()
-
-        def __fixSize(self):
-            """Forces all subwidgets to a decent size. Private."""
-            szY = self.__ideal_height__
-            self.__but.setMaximumHeight(szY)
-            self.__but.setMinimumHeight(szY)
-            self.setMaximumHeight(szY+5)
-            self.setMinimumHeight(szY+5)
-
-        def __onButtonClicked(self, checked):
-            origin = self.__but.geometry().bottomLeft()
-            origin = self.mapToGlobal(origin)
-            self.widgetMenuRequest.emit(origin)
-
-    ###################################################################################
-    # /end Inner classes not meant to be seen by others - Inner classes not meant to  #
-    ###################################################################################
-
-    widgetMenuRequest = QtCore.pyqtSignal(QtCore.QPoint)
-
-
-    def __init__(self, parent=None, windowsflags=QtCore.Qt.Widget):
-        """Contructs a Niche.
-        :Parameters:
-         - `parent` (QtGui.QWidget) - A reference to the parent
-         - `windowsflags` (QtCore.Qt.WindowType) - The type of widget to build
-        """
-        QtGui.QFrame.__init__(self, parent, windowsflags)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.setFrameShadow(QtGui.QFrame.Sunken)
-
-        self.__lay = QtGui.QVBoxLayout()
-        self.__lay.setContentsMargins(1,1,1,1)
-        self.setLayout(self.__lay)
-
-        self.__header = Niche.Header()
-        self.__header.widgetMenuRequest.connect(self.widgetMenuRequest)
-
-        self.__contentScr = RubberBandScrollArea()
-        self.__contentScr.setFrameShape(QtGui.QFrame.NoFrame)
-        self.__content = None
-
-        self.__lay.addWidget(self.__header)
-        self.__lay.addWidget(self.__contentScr)
-
-
-    def setContent(self, widget):
-        """Set the widget to host within the content pane of the niche
-        :Parameters:
-         - `widget` (QtGui.QWidget) - The widget to host. The Niche takes ownership
-        """
-        if self.__content == widget:
-            return
-        self.__contentScr.setWidget(widget)
-        self.__content = widget
-
-    setWidget = setContent
-
-    def content(self):
-        """Retreive the hosted widget. Doesn't change ownership"""
-        return self.__contentScr.widget()
-
-    def setToolbar(self, toolbar):
-        """Set the toolbar of the niche
-        :Parameters:
-         - toolbar (QtGui.QWidget) - The widgets that serves as toolbar.
-        """
-        self.__header.setToolbar(toolbar)
-
-    def toolbar(self):
-        """Retreive the toolbar widget. Doesn't change ownership"""
-        return self.__header.toolbar()
-
-
-
 from collections import deque
 class BinaryTree(object):
     """A quirky binary tree that only implements
@@ -556,6 +418,7 @@ class DraggableWidget(object):
         self._oldpos    = None
         self._startpos  = None
         self._hovered   = False
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setAttribute(QtCore.Qt.WA_Hover)
 
     def _fixGeometry(self, newPt, geom):
@@ -593,7 +456,7 @@ class DraggableWidget(object):
             self._isMoving = True
             # this is in local coordinates
             self._offset   = event.pos() - self.contentsRect().topLeft()
-            #this is in global coordinates
+            # this is in global coordinates
             self._oldpos   = event.pos() - self._offset + self.geometry().topLeft()
             self._startpos = event.pos() - self._offset + self.geometry().topLeft()
         else:
@@ -624,8 +487,7 @@ class DraggableWidget(object):
 
 class SplittableUI(QtGui.QWidget):
     """A widget that tries to mimic the Blender UI.
-    Each pane contains a `Niche` that in
-    turn contents a content pane and a toolbar pane."""
+    Each pane contains a settable widget."""
 
     __spacing__ = 8
     __hspacing__ = __spacing__/2
@@ -636,31 +498,27 @@ class SplittableUI(QtGui.QWidget):
     reprProps = ["amount", "splitDirection"]
 
     widgetMenuRequest = QtCore.pyqtSignal(QtCore.QPoint, int)
+    dragEnterEventTest = QtCore.pyqtSignal(QtGui.QDragEnterEvent)
+    dropHandlerRequest = QtCore.pyqtSignal(int, QtGui.QDropEvent)
 
 
     def __init__(self, parent=None, content=None):
         """Contruct a SplittableUI.
         :Parameters:
-         - parent (QtGui.QWidget) - The parent widget
-         - content (QtGui.QWidget) - The widget to display in niche at level 0
+         - parent (QtGui.QWidget)  - The parent widget
+         - content (QtGui.QWidget) - The widget to display in pane at level 0
         """
         QtGui.QWidget.__init__(self, parent)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.setAcceptDrops(True)
         # -- our backbone: --
         self._g = BinaryTree()
         # -- contains geometry information (a vid->QRect mapping) --
         self._geomCache = {}
-
-        self._pal = 0 # : used during testing
-
         # -- initialising the pane at level 0 --
-        wid = self.__new_niche(content, 0)
-        # wid = Niche(parent=self)
-        # wid.setContent(QtGui.QLabel())
-        self.__install_child(0, wid)
-        # if content is not None:
-        #     wid.setContent(content)
         self._geomCache[0] = self.contentsRect()
+        self._install_child(0, content)
+
 
     def splitPane(self, content, paneId, direction, amount):
         """Split a pane into two.
@@ -681,24 +539,19 @@ class SplittableUI(QtGui.QWidget):
         except BinaryTree.ParentCompleteException:
             return
 
-        widgetFromParent = self.__split_parent(paneId, direction, amount)
-        # -- We create a container for the newly created pane --
-        container_widget = self.__new_niche(content, paneId)
+        widgetFromParent = self._split_parent(paneId, direction, amount)
         # -- transfer the parent's widget to either child
         # and install container in other child --
         if amount < 0.5:
-            # container_widget.content().setText(str(fid))
-            # widgetFromParent.content().setText(str(sid))
-            self.__install_child(sid, widgetFromParent)
-            self.__install_child(fid, container_widget)
+            self._install_child(sid, widgetFromParent)
+            self._install_child(fid, content)
         else:
-            # container_widget.content().setText(str(sid))
-            # widgetFromParent.content().setText(str(fid))
-            self.__install_child(fid, widgetFromParent)
-            self.__install_child(sid, container_widget)
+            self._install_child(fid, widgetFromParent)
+            self._install_child(sid, content)
 
         self.computeGeoms(paneId)
-        container_widget.show()
+        if content is not None:
+            content.show()
 
     def collapsePane(self, paneId, toSecond=True):
         """Collapse paneId's chhildren into one. The content of one child migrates
@@ -721,8 +574,8 @@ class SplittableUI(QtGui.QWidget):
         fid, sid = g.children(paneId)
         # -- retreive widgets, one will move up to parent
         # the other will be returned to caller
-        fst_widget = self.__uninstall_child(fid)
-        sec_widget = self.__uninstall_child(sid)
+        fst_widget = self._uninstall_child(fid)
+        sec_widget = self._uninstall_child(sid)
 
         if toSecond:
             ret = sec_widget
@@ -731,14 +584,14 @@ class SplittableUI(QtGui.QWidget):
             ret = fst_widget
             ins = sec_widget
 
-        # ins.content().setText(str(paneId))
-
-        self.__unsplit_parent(paneId)
-        self.__install_child(paneId, ins)
+        self._unsplit_parent(paneId)
+        self._install_child(paneId, ins)
 
         g.collapse_node(paneId)
         self.computeGeoms(paneId)
-        ret.setParent(None)
+
+        if ret is not None:
+            ret.hide()
         return ret
 
     def paneAtPos(self, pos):
@@ -751,124 +604,138 @@ class SplittableUI(QtGui.QWidget):
         """Returns the content widget at position `pos` in local coordinates."""
         paneId = self.paneAtPos(pos)
         widget = self._g.get_property(paneId, "widget")
-        return widget.content() if widget is not None else None
+        return widget
 
-    def toolbarAtPos(self, pos):
-        """Returns the toolbar widget at position `pos` in local coordinates."""
-        paneId = self.paneAtPos(pos)
-        widget = self._g.get_property(paneId, "widget")
-        return widget.toolbar() if widget is not None else None
-
-    def setContentAt(self, paneId, wid):
+    def setContentAt(self, paneId, wid, **kwargs):
         """Sets the content of paneId."""
-        if paneId not in self._g:
-            return False
-        widget = self._g.get_property(paneId, "widget")
-        if widget:
-            widget.setContent(wid)
-            return True
+        g = self._g
 
-    def setToolbarAt(self, paneId, toolbar):
-        """Sets the toolbar of paneId."""
-        if paneId not in self._g:
-            return False
-        widget = self._g.get_property(paneId, "widget")
-        if widget:
-            widget.setToolbar(toolbar)
-            return True
+        if paneId not in g:
+            return None
+
+        # -- if the content is already is self, move it to the new vid --
+        oldPaneId = self.hasContent(wid)
+        if oldPaneId>=0:
+            self.takeContentAt(oldPaneId, self)
+
+        # -- get the old content --
+        widget = self._install_child(paneId, wid, **kwargs)
+
+        self._raise_overlays(paneId)
+
+        self.computeGeoms(paneId)
+        return widget
 
     def computeGeoms(self, baseNode=0):
         """Recompute all the geometry starting at node `baseNode`.
         It is effectively hierarchical."""
-        visitor = SplittableUI.GeometryComputingVisitor(self._g, self._geomCache)
+        visitor = self.GeometryComputingVisitor(self._g, self._geomCache)
         self._g.visit_i_breadth_first(visitor, baseNode)
+
+    def takeContentAt(self, paneId, reparent=None):
+        if self._g.has_property(paneId, "widget"):
+            wid = self._g.get_property(paneId, "widget")
+            self._g.set_property(paneId, "widget", None)
+            if wid is not None:
+                wid.hide()
+                wid.setParent(reparent)
+                return wid
+        return None
+
+    def takeAllContents(self, reparent=None):
+        taken = []
+        for vid in self._g._properties.iterkeys():
+            wid = self.takeContentAt(vid, reparent)
+            if wid is not None:
+                taken.append(wid)
+        return taken
+
+    def hasContent(self, widget):
+        for vid, prop in self._g._properties.iteritems():
+            if "widget" in prop and prop["widget"]==widget:
+                return vid
+        return -1
+
 
     #############
     # Internals #
     #############
-    def __new_niche(self, content, paneId):
-        niche = Niche(parent=self)
-        niche.widgetMenuRequest.connect(self.__onWidgetMenuRequest)
-        if content is None:
-            content = QtGui.QLabel(str(paneId))
-            content.setMinimumWidth(100)
-            palette = content.palette()
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor.fromHsl(self._pal, 100, 100))
-            content.setPalette(palette)
-        niche.setContent(content)
-        return niche
-
-    def __split_parent(self, paneId, direction, amount):
+    def _split_parent(self, paneId, direction, amount):
         g = self._g
-
         # -- The pane at paneId will be divided : it will not
         # contain a widget anymore (it will be transfered to
         # a child) and it's tear offs will be removed --
-        self.__remove_tearOffs(paneId)
+        self._remove_tearOffs(paneId)
         hasWid = g.has_property(paneId, "widget")
         widgetFromParent = g.pop_property(paneId, "widget") if hasWid else None
         # -- we must create the splitter handle that separates the children --
         handle = SplittableUI.SplitterHandle(g, paneId, direction, self)
         handle.handleMoved.connect(self._onHandleMoved)
-        handle.show()
         g.set_property(paneId, "handleWidget", handle)
         # -- we store other properties used for layout computation --
         g.set_property(paneId, "splitDirection", direction)
         g.set_property(paneId, "amount", amount)
         return widgetFromParent
 
-    def __unsplit_parent(self, paneId):
+    def _unsplit_parent(self, paneId):
         g = self._g
         # -- paneId is not split anymore
         # -- remove associated widgets
         g.pop_property(paneId, "splitDirection")
         g.pop_property(paneId, "amount")
         h = g.pop_property(paneId, "handleWidget")
-        h.setParent(None)
         h.close()
 
-    def __install_child(self, paneId, widget):
-        self._g.set_property(paneId, "widget", widget)
-        self.__install_tearOffs(paneId)
+    def _install_child(self, paneId, widget, **kwargs):
+        g = self._g
+        # -- get the old content --
+        oldWidget = None
+        if g.has_property(paneId, "widget"):
+            oldWidget = g.get_property(paneId, "widget")
+            if oldWidget is not None:
+                oldWidget.hide()
 
-    def __install_tearOffs(self, paneId):
+        # -- place the new content --
+        if widget is not None:
+            widget.setParent(self)
+            widget.show()
+        g.set_property(paneId, "widget", widget)
+
+        if not kwargs.get("noTearOffs", False):
+            self._install_tearOffs(paneId)
+        return oldWidget
+
+    def _install_tearOffs(self, paneId):
         """Utility function to create the tear off widgets associated to pane `paneId`."""
         g = self._g
         tearOffs = SplittableUI.TearOff(g, paneId, self, bottom=True),\
                    SplittableUI.TearOff(g, paneId, self, bottom=False)
         g.set_property(paneId, "tearOffWidgets", tearOffs)
         for t in tearOffs:
-            t.show()
-            t.raise_()
             t.splitRequest.connect(self._onSplitRequest)
             t.collapseRequest.connect(self._onCollapseRequest)
 
-    def __uninstall_child(self, paneId):
+    def _uninstall_child(self, paneId):
         g = self._g
         hasWid =  g.has_property(paneId, "widget")
         widget = g.pop_property(paneId, "widget") if hasWid else None
         self._geomCache.pop(paneId, None)
-        self.__remove_tearOffs(paneId)
+        self._remove_tearOffs(paneId)
         return widget
 
-    def __remove_tearOffs(self, paneId):
+    def _remove_tearOffs(self, paneId):
         """Utility function to remove the tear off widgets associated to pane `paneId`."""
         if not self._g.has_property(paneId, "tearOffWidgets"):
             return
         parTearOffs = self._g.pop_property(paneId, "tearOffWidgets")
         for t in parTearOffs:
             t.close()
-            t.setParent(None)
 
+    def _raise_overlays(self, paneId):
+        # -- tearoffs would be covered by new widget, let's raise them --
+        for t in self._g.get_property(paneId, "tearOffWidgets"):
+            t.raise_()
 
-    ##############################
-    # Qt Event reimplementations #
-    ##############################
-    def resizeEvent(self, event):
-        """Reimplemented to call `computeGeoms`."""
-        self._geomCache[0] = self.contentsRect()
-        self.computeGeoms(baseNode=0)
-        QtGui.QWidget.resizeEvent(self, event)
 
     ###################
     # Signal handlers #
@@ -878,9 +745,8 @@ class SplittableUI(QtGui.QWidget):
         `paneId` will be split following `orientation` at `amount`*pane-width/height."""
         if self._g.has_children(paneId):
             return
-        fake = None#QtGui.QLabel(self)
+        fake = None
 
-        self._pal += 10
         if amount == 0.0:
             amount += 0.05
         elif amount == 1.0:
@@ -920,7 +786,7 @@ class SplittableUI(QtGui.QWidget):
         self._g.set_property(paneId, "amount", newAmount)
         self.computeGeoms(paneId)
 
-    def __onWidgetMenuRequest(self, point):
+    def _onWidgetMenuRequest(self, point):
         pt = self.mapFromGlobal(point)
         paneId = self.paneAtPos(pt)
         self.widgetMenuRequest.emit(point, paneId)
@@ -932,8 +798,9 @@ class SplittableUI(QtGui.QWidget):
     def fromString(cls, rep, parent=None):
         g, tup = BinaryTree.fromString(rep)
 
-        newWid = SplittableUI(parent=parent)
-        w0 = newWid.__uninstall_child(0)
+        print cls
+        newWid = cls(parent=parent)
+        w0 = newWid._uninstall_child(0)
         if w0:
             w0.setParent(None)
             w0.close()
@@ -947,8 +814,25 @@ class SplittableUI(QtGui.QWidget):
 
 
 
+    ##############################
+    # Qt Event reimplementations #
+    ##############################
+    def resizeEvent(self, event):
+        """Reimplemented to call `computeGeoms`."""
+        self._geomCache[0] = self.contentsRect()
+        self.computeGeoms(baseNode=0)
+        QtGui.QWidget.resizeEvent(self, event)
 
+    def dragEnterEvent(self, event):
+        """While the user hasn't released the object, this method is called
+        to tell qt if the view accepts the object or not."""
+        self.dragEnterEventTest.emit(event)
 
+    def dropEvent(self, event):
+        paneId = self.paneAtPos(event.pos())
+        if paneId is None:
+            return
+        self.dropHandlerRequest.emit(paneId, event)
 
 
     ###################################################################################
@@ -983,22 +867,26 @@ class SplittableUI(QtGui.QWidget):
                 # ok, no child, so we probably have a widget and our geometry
                 # has already been computed by parent
 
-                widget = self.g.get_property(vid, "widget")
                 geom = self.geomCache[vid]
-                if widget is not None:
-                    widget.setGeometry(geom)
+
+                if self.g.has_property(vid, "widget"):
+                    widget = self.g.get_property(vid, "widget")
+                    if widget is not None:
+                        widget.move(geom.x(), geom.y())
+                        widget.resize(geom.width(), geom.height())
 
                 th = SplittableUI.TearOff.__ideal_height__
-                tearOffB,tearOffT = self.g.get_property(vid, "tearOffWidgets")
+                tearOffB,tearOffT = toffs = self.g.get_property(vid, "tearOffWidgets")
                 if geom.height() <  th or geom.width() < th:
-                    tearOffB.hide()
-                    tearOffT.hide()
+                    for t in toffs:
+                        t.hide()
                 else:
-                    tearOffB.show()
-                    tearOffT.show()
+                    for t in toffs:
+                        t.show()
                 tearOffB.move(geom.left()+1, geom.bottom()+1-th)
                 tearOffT.move(geom.right()-th+1, geom.top()+1)
                 return False, False #don't ignore first or second child
+
 
             sp = SplittableUI.__spacing__
             containerGeom = self.geomCache[vid]
@@ -1007,7 +895,7 @@ class SplittableUI(QtGui.QWidget):
             amount    = self.g.get_property(vid, "amount")
 
             # -- The node has children : it doesn't have a widget
-            # but it does have a handle that separates the widgets
+            # but it does have a handle that separates the child widgets
             # we must place it accordingly
             handle = self.g.get_property(vid, "handleWidget")
             hgeom = handle.geometry()
@@ -1078,15 +966,13 @@ class SplittableUI(QtGui.QWidget):
         def visit(self, vid):
             """
             """
-
             if not self.g.has_children(vid):
-                w = self.wid._SplittableUI__new_niche(None, vid)
-                self.wid._SplittableUI__install_child(vid, w)
+                self.wid._install_child(vid, None)
                 return False, False
 
             direction = self.g.get_property(vid, "splitDirection")
             amount = self.g.get_property(vid, "amount")
-            self.wid._SplittableUI__split_parent(vid, direction, amount)
+            self.wid._split_parent(vid, direction, amount)
 
             return False, False
 
@@ -1112,19 +998,19 @@ class SplittableUI(QtGui.QWidget):
             """Contruct the TearOff.
             :Parameters:
              - `graph` (BinaryTree) - the graph that manages the layout
-             - `refVid` (int) - the id of the pane who contains two children seperated by this handle
+             - `refVid` (int) - the id of the pane this tear off belongs to
              - `parent` (SplitterUI) - The parent splittable ui.
              - `bottom` (bool) - Is this tear off at the bottom left?
             """
 
             QtGui.QWidget.__init__(self, parent)
             DraggableWidget.__init__(self)
-            self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             self._g = graph
             self._vid = refVid
             self._bottom=bottom
             self.setFixedHeight(self.__ideal_height__)
             self.setFixedWidth(self.__ideal_height__)
+            self.show()
 
         def _fixGeometry(self, newPt, geom):
             """ We abuse this _fixGeometry method to find out how
@@ -1207,7 +1093,6 @@ class SplittableUI(QtGui.QWidget):
             """
             QtGui.QWidget.__init__(self, parent)
             DraggableWidget.__init__(self)
-            self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             self._g           = graph
             self._refVid      = refVid
             self._orientation = orientation
@@ -1216,6 +1101,17 @@ class SplittableUI(QtGui.QWidget):
                 self.setFixedHeight(self._thickness)
             else:
                 self.setFixedWidth(self._thickness)
+            self.show()
+
+        def _fixGeometry(self, newPt, geom):
+            """Validate newPt and fix geom accordingly"""
+            newPt = self.__valid_position(newPt)
+            if self._orientation == QtCore.Qt.Vertical:
+                geom.setY(newPt.y())
+            else:
+                geom.setX(newPt.x())
+            self.handleMoved.emit(self._refVid, geom.topLeft(), self._orientation)
+            return geom, True #DO NOT MODIFY THE GEOMETRY! IT WILL BE DONE BY THE GRAPH UPDATE
 
         def __valid_position(self, pt):
             """PRIVATE: checks if pt is within the parent's geometry and returns a pt that
@@ -1235,16 +1131,6 @@ class SplittableUI(QtGui.QWidget):
             elif val > max_: val = max_
             fix(val)
             return pt
-
-        def _fixGeometry(self, newPt, geom):
-            """Validate newPt and fix geom accordingly"""
-            newPt = self.__valid_position(newPt)
-            if self._orientation == QtCore.Qt.Vertical:
-                geom.setY(newPt.y())
-            else:
-                geom.setX(newPt.x())
-            self.handleMoved.emit(self._refVid, geom.topLeft(), self._orientation)
-            return geom, True #DO NOT MODIFY THE GEOMETRY! IT WILL BE DONE BY THE GRAPH UPDATE
 
         ##############################
         # Qt Event reimplementations #
