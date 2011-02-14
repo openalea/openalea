@@ -227,7 +227,7 @@ def set_global_handler_level(level):
     """Set level of all known handlers to level."""
     LoggerOffice().set_global_handler_level(level)
 
-def default_init(level=logging.DEBUG, handlers=defaultHandlerNames[:]):
+def default_init(level=logging.ERROR, handlers=defaultHandlerNames[:]):
     """Configure the LoggerOffice with a default `openalea` logger
     and handlers named in `handlers`. The latter is a list of strings
     from "qt", "file", "stream".
@@ -385,7 +385,7 @@ class LoggerOffice(object):
     ############
     # DEFAULTS #
     ############
-    def set_defaults(self, level=logging.DEBUG, handlers=None):
+    def set_defaults(self, level=logging.ERROR, handlers=None):
         if handlers is None:
             handlers = ["stream"]
         # -- default handlers --
@@ -466,7 +466,7 @@ class PatchedPyLogger(logging.Logger):
 
 
 logging.setLoggerClass(PatchedPyLogger)
-default_init(level=logging.DEBUG, handlers=["stream"])
+default_init(level=logging.ERROR, handlers=["stream"])
 
 
 
