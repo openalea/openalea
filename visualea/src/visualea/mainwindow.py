@@ -282,6 +282,7 @@ class MainWindow(QtGui.QMainWindow,
 
         self.session.simulate_workspace_addition()
 
+
     def debug (self) :
         v = self.packageTreeView
         print "items",v.expanded_items
