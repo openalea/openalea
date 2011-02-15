@@ -37,6 +37,25 @@ from urlparse import urlparse as uparse
 #make urlparse correctly handle the glorious "oa" protocol :)
 urlparse.uses_query.append("oa")
 
+
+
+##################################################################
+# The following dirty block code is currently needed because     #
+# the GraphOperators need a reference to the main window.        #
+# This is a big design flaw that will be adressed in the future. #
+# Not doing this currenly breaks dataflow editing.               #
+# Doing it unbreaks some parts of the dataflow editing.          #
+##################################################################
+from openalea.visualea.mainwindow import MainWindow
+from PyQt4 import QtGui
+app = QtGui.QApplication.instance()
+if app:
+    app.post_status_message("Discretly starting visualea because of design issues")
+    va = MainWindow(None)
+    va.on_session_started(app.get_session())
+    va.hide()
+
+
 class DataflowviewFactory(WidgetFactory):
     __name__ = "Dataflowview"
     def _make_instance(self, parsedUrl, parent):

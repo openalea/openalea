@@ -143,8 +143,9 @@ class MainWindow(QtGui.QMainWindow):
 
         Extension.q.applicationListChanged.connect(self.__onExtensionListChange)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
-        Extension.entry_point_init()
 
+    def init_extensions(self):
+        Extension.entry_point_init()
 
     def __new_splittable(self, skeleton=None):
         if skeleton == None:

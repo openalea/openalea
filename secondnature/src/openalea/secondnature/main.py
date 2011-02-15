@@ -63,6 +63,11 @@ def level_two(args):
             else:
                 logger.set_global_logger_level(logger.WARNING)
 
+            # -- status clearout timer --
+            self.__statusTimeout = QtCore.QTimer(self)
+            self.__statusTimeout.setSingleShot(True)
+            self.__statusTimeout.timeout.connect(self.clear_status_message)
+
             # -- main window --
             self.win = mainwindow.MainWindow(None)
             self.win.statusBar().showMessage("Starting up! Please wait")
@@ -70,9 +75,26 @@ def level_two(args):
             self.win.show()
 
             # -- start session in a thread --
-            self.sessionth = threadit(Session, self, self.__cb_session_thread_end)
+            self.sessionth = threadit(self.__start_session, self,
+                                      self.__cb_session_thread_end)
+
+        def post_status_message(self, msg, timeout=2000):
+            if self.__statusTimeout.isActive():
+                self.__statusTimeout.stop()
+            self.win.statusBar().showMessage(msg)
+            self.__statusTimeout.start(timeout)
+
+        def clear_status_message(self):
+            self.win.statusBar().clearMessage()
+
+        def get_session(self):
+            return self.__session
+
+        def __start_session(self):
+            self.__session = Session()
 
         def __cb_session_thread_end(self):
+            self.win.init_extensions()
             self.win.statusBar().clearMessage()
             self.win.setEnabled(True)
 
