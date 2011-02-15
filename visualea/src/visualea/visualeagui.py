@@ -55,6 +55,7 @@ class Openalea(QtGui.QApplication):
         self.splash = show_splash_screen()
         # -- main window --
         self.win = MainWindow(None)
+        self.win.setEnabled(False)
         self.win.show()
         self.win.raise_()
         self.sessionStarted.connect(self.win.on_session_started)
@@ -63,6 +64,7 @@ class Openalea(QtGui.QApplication):
 
     def __cb_session_thread_end(self):
         self.splash.finish(self.win)
+        self.win.setEnabled(True)
         self.sessionStarted.emit(self.sessionth.retVal)
 
     @staticmethod
