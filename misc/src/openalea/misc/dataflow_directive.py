@@ -291,6 +291,7 @@ def plot_directive(name, arguments, options, content, lineno,
     in _plot_directive.
     """
     # The user may provide a filename *or* Python code content, but not both
+
     if len(arguments):
 
         plot_path = './build'
@@ -314,8 +315,10 @@ def plot_directive(name, arguments, options, content, lineno,
 
             return _plot_directive(plot_path, basedir, package_name, node_name, caption,
                                options, state_machine)
-        except:
+        except Exception, e:
+            print e
             DataflowWarning("dataflow sphinx extension failed while processing %s %s" % (package_name, node_name))
+    return list()
 
 def mark_plot_labels(app, document):
     """
