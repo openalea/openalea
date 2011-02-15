@@ -17,16 +17,12 @@ An additional caption may be added
 
 Based on *plot_directive* from matplotlib.
 
-.. moduleauthor:: Thomas Cokelaer
+.. moduleauthor:: Thomas Cokelaer, Daniel Barbeau
 """
 
-from PyQt4 import QtGui
-from openalea.core.alea import *
-from openalea.visualea.dataflowview import GraphicalGraph
-app = QtGui.QApplication([])
 
-pm = PackageManager(verbose=False)
-pm.init()
+from openalea.core.alea import *
+
 import matplotlib.cbook as cbook
 
 import sys, os, shutil, imp, warnings, cStringIO, re
@@ -107,53 +103,66 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
+
+
+
+
+from PyQt4 import QtGui, QtCore
+from openalea.visualea.dataflowview import GraphicalGraph
+# create the application only once!
+app = QtGui.QApplication([])
+class DataflowRenderer(QtGui.QWidget):
+    def __init__(self, plot_path, package_name, node_name, 
+                 basename, tmpdir, destdir, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+
+        # -- fetch the composite node --
+        pm = PackageManager(verbose=False)
+        pm.init()
+        pkg = pm[package_name]
+        factory = pkg.get_factory(node_name)
+        node = factory.instantiate()
+
+        outname = 'dataflow_' + node_name
+        outpath = os.path.join(tmpdir, outname)
+
+        self.filename = outpath 
+
+        # -- we create the view whose content we will 
+        # render to file --
+        self.view = GraphicalGraph.create_view(node, parent=self)
+        self.timerId = self.startTimer(0)
+
+    def timerEvent(self, event):
+        # -- compute the view rect --
+        rect = self.view.scene().sceneRect()
+        matrix = self.view.matrix()
+        rect = matrix.mapRect(rect)
+
+        # -- our canvas filled with white --
+        self.pixmap = QtGui.QPixmap(rect.width(), rect.height())
+        self.pixmap.fill()
+    
+        painter = QtGui.QPainter(self.pixmap)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.view.scene().render(painter)
+        painter.end()
+
+        self.pixmap.save(self.filename+'.png', "png")
+
+        QtCore.QCoreApplication.processEvents()
+        self.killTimer(self.timerId)
+        QtCore.QCoreApplication.exit()
+
 def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir):
     """
     Import a Python module from a path, and run the function given by
     name, if package_name is not None.
     """
-    pkg = pm[package_name]
-
-    factory = pkg.get_factory(node_name)
-    node = factory.instantiate()
-
-    view = GraphicalGraph.create_view(node)
-    view.show()
-
-    outname = 'dataflow_' + node_name
-    outpath = os.path.join(tmpdir, outname)
-
-    filename = outpath 
-
-    rect = view.scene().sceneRect()
-    matrix = view.matrix()
-    rect = matrix.mapRect(rect)
-
-    pixmap = QtGui.QPixmap(rect.width(), rect.height())
-    pixmap.fill()
-    painter = QtGui.QPainter(pixmap)
-    painter.setRenderHint(QtGui.QPainter.Antialiasing)
-    view.update()
-    #view.render(painter)
-    view.scene().render(painter)
-    painter.end()
-    pixmap.save(filename+'.png', "png")
-    #pixmap.save(filename+'.svg', "svg")
-    #print '########################################################3'
-    #image = pixmap.toImage()
-    #image.save(filename+'.pdf', 'PDF')
-
-    
-    #painter2 = QtGui.QPainter(pixmap)
-    #picture = QtGui.QPicture()
-    #painter2.begin(picture)
-    #view.scene().render(painter2)
-
-    #painter2.end()
-    #picture.save(filename+'.pdf', "PDF")
 
 
-    view.close()
+    wid = DataflowRenderer(plot_path, package_name, node_name, basename, tmpdir, destdir)
+    app.exec_()
     return 1
 
 
