@@ -1,0 +1,7 @@
+setup.py
+visualeapg.py
+Visualea_Extension.egg-info/PKG-INFO
+Visualea_Extension.egg-info/SOURCES.txt
+Visualea_Extension.egg-info/dependency_links.txt
+Visualea_Extension.egg-info/entry_points.txt
+Visualea_Extension.egg-info/top_level.txt
