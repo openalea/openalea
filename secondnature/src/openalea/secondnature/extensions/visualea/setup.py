@@ -1,5 +1,21 @@
+# -*- python -*-
+#
+#       OpenAlea.SecondNature
+#
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
-
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 
 from setuptools import setup
@@ -10,9 +26,9 @@ setup( name = "Visualea Extension",
        py_modules = ['visualeapg'],
        entry_points = {"openalea.app.layout":["visualea.df1 = visualeapg:df1",
                                               "visualea.df2 = visualeapg:df2"],
-                       "openalea.app.singleton_view":["visualea.pm = visualeapg:pmanager_f",
-                                                      "visualea.lo = visualeapg:logger_f"],
-                       "openalea.app.data_editor":["Visualea.oa = visualeapg:dataflow_f"],
-                       "openalea.ext":["Visualea = visualeapg.visualea"]
+                       "openalea.app.widget_factory":["visualea.pm = visualeapg:pmanager_f",
+                                                      "visualea.lo = visualeapg:logger_f",
+                                                      "Visualea.oa = visualeapg:dataflow_f"],
+#                       "openalea.ext":["Visualea = visualeapg.visualea"]
                        }
     )

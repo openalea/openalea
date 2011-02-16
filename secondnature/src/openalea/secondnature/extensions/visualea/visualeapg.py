@@ -1,42 +1,27 @@
+# -*- python -*-
+#
+#       OpenAlea.Secondnature
+#
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
-from openalea.secondnature.applications import *
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
+from openalea.secondnature.extendable_objects import *
 
-sk = "{0: [1, 2], 2: [3, 4]},"+\
-     "{0: None, 1: 0, 2: 0, 3: 2, 4: 2},"+\
-     "{0: {'amount': 0.2, 'splitDirection': 1},"+\
-     "1: {},"+\
-     "2: {'amount': 0.7, 'splitDirection': 2},"+\
-     "3: {}, 4: {}}"
-
-
-from openalea.core.pkgmanager import PackageManager
-
-class PackageManagerFactory(SingletonWidgetFactory):
-    __name__ = "PackageManager"
-    def _make_instance(self, *args, **kwargs):
-        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
-        model = PkgModel(PackageManager())
-        view  = NodeFactoryTreeView(None, None)
-        view.setModel(model)
-        return PaneGroup(view)
-
-class LoggerFactory(SingletonWidgetFactory):
-    __name__ = "Logger"
-    def _make_instance(self, *args, **kwargs):
-        from openalea.visualea.logger import LoggerView
-        from openalea.core.logger import LoggerOffice
-        model = LoggerOffice().get_handler("qt")
-        return PaneGroup(LoggerView(None, model=model))
-
-
-from openalea.visualea import dataflowview
 import urlparse
-from urlparse import urlparse as uparse
-
 #make urlparse correctly handle the glorious "oa" protocol :)
 urlparse.uses_query.append("oa")
-
 
 
 ##################################################################
@@ -56,44 +41,97 @@ if app:
     va.hide()
 
 
+from openalea.visualea import dataflowview
+from openalea.core.pkgmanager import PackageManager
+
+class PackageManagerFactory(SingletonWidgetFactory):
+    __name__ = "PackageManager"
+    __namespace__ = "Visualea"
+
+    def handles(self, input):
+        False
+
+    def creates_without_data(self):
+        return True
+
+    def _instanciate_space(self, input, parent):
+        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
+        model = PkgModel(PackageManager())
+        view  = NodeFactoryTreeView(None, None)
+        view.setModel(model)
+        return model, LayoutSpace(self.__name__, self.__namespace__, view )
+
+class LoggerFactory(SingletonWidgetFactory):
+    __name__ = "Logger"
+    __namespace__ = "Visualea"
+
+    def handles(self, input):
+        False
+
+    def creates_without_data(self):
+        return True
+
+    def _instanciate_space(self, input, parent):
+        from openalea.visualea.logger import LoggerView
+        from openalea.core.logger import LoggerOffice
+        model = LoggerOffice().get_handler("qt")
+        view = LoggerView(None, model=model)
+        return model, LayoutSpace(self.__name__, self.__namespace__, view )
+
+
 class DataflowviewFactory(WidgetFactory):
     __name__ = "Dataflowview"
-    def _make_instance(self, parsedUrl, parent):
-        if parsedUrl is None:
+    __namespace__ = "Visualea"
+    def _instanciate_space(self, input, parent):
+        if not self.handles(input):
             return
 
-        if parsedUrl.scheme != "oa":
+        if input is None:
+            return
+
+        if input.scheme != "oa":
             return #unhandled url protocol
 
-        if parsedUrl.netloc != "local":
+        if input.netloc != "local":
             return #unhandled oa location
 
-        pName = parsedUrl.path.strip("/")
-        fName = parsedUrl.query
+        pName = input.path.strip("/")
+        fName = input.query
         pm = PackageManager()
         package = pm[pName]
         factory = package.get_factory(fName)
         node = factory.instantiate()
         gwidget = dataflowview.GraphicalGraph.create_view(node, parent=parent)
-        return node, gwidget
+        return node, LayoutSpace(self.__name__, self.__namespace__, gwidget)
 
-    def handles(self, parsedUrl ):
-        good = True
-        good &= (parsedUrl.scheme == "oa")
-        good &= (parsedUrl.netloc == "local")
+    def handles(self, input):
+        good = isinstance(input, urlparse.ParseResult)
+        good &= (input.scheme == "oa")
+        good &= (input.netloc == "local")
         return good
 
 
 
 # -- instantiate widget factories --
-pmanager_f = PackageManagerFactory("Visualea")
-logger_f   = LoggerFactory("Visualea")
-dataflow_f = DataflowviewFactory("Visualea")
+pmanager_f = PackageManagerFactory()
+logger_f   = LoggerFactory()
+dataflow_f = DataflowviewFactory()
+
+
+
 
 
 # -- instantiate layouts --
-df1 = Layout("Visualea",
-             "Dataflow Editing",
+sk = "{0: [1, 2], 2: [3, 4]},"+\
+     "{0: None, 1: 0, 2: 0, 3: 2, 4: 2},"+\
+     "{0: {'amount': 0.2, 'splitDirection': 1},"+\
+     "1: {},"+\
+     "2: {'amount': 0.7, 'splitDirection': 2},"+\
+     "3: {}, 4: {}}"
+
+
+df1 = Layout("Dataflow Editing",
+             "Visualea",
              skeleton = sk,
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
@@ -101,33 +139,11 @@ df1 = Layout("Visualea",
              widgetmap={1:"Visualea.PackageManager",
                         4:"Visualea.Logger"})
 
-df2 = Layout("Visualea",
-             "Dataflow Editing2",
+df2 = Layout("Dataflow Editing2",
+             "Visualea",
              skeleton=sk,
              widgetmap={4:"Visualea.PackageManager",
                         3:"Visualea.Logger"})
-
-
-
-
-###########################################
-# Trying another sort of declaration type #
-###########################################
-# from openalea.visualea.mainwindow_2 import DocumentManager
-
-# class Visualea(ExtensionBase2):
-#     __layouts__ = {df1, df2}
-#     __wid_factories__ = {pmanager_f, logger_f, dataflow_f}
-
-#     def iter_layouts(self):
-#         return iter(self.__layouts__)
-
-#     def iter_widget_factories(self):
-#         return iter(self.__wid_factories__)
-
-#     def default_documents(self):
-
-
 
 
 

@@ -1,120 +1,32 @@
+# -*- python -*-
+#
+#       OpenAlea.SecondNature
+#
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
-
-
-
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
 
 
 from PyQt4 import QtGui, QtCore
 
-from openalea.visualea.splitterui import RubberBandScrollArea, SplittableUI, DraggableWidget
-from openalea.secondnature.applications import Extension
+import urlparse
 
-
-class CustomSplittable(SplittableUI):
-
-    paneMenuRequest = QtCore.pyqtSignal(int, QtCore.QPoint)
-
-    def _raise_overlays(self, paneId):
-        SplittableUI._raise_overlays(self, paneId)
-        tb  = self._g.get_property(paneId, "toolButtonWidget")
-        tb.raise_()
-
-    def _split_parent(self, paneId, direction, amount):
-        w = SplittableUI._split_parent(self, paneId, direction, amount)
-        self._remove_toolbutton(paneId)
-        return w
-
-    def _install_child(self, paneId, widget, **kwargs):
-        w = SplittableUI._install_child(self, paneId, widget, **kwargs)
-        if not kwargs.get("noToolButton", False):
-            self._install_toolbutton(paneId)
-        return w
-
-    def _uninstall_child(self, paneId):
-        w = SplittableUI._uninstall_child(self, paneId)
-        self._remove_toolbutton(paneId)
-        return w
-
-    def _install_toolbutton(self, paneId):
-        g = self._g
-        toolbutton = CustomSplittable.ToolButton(paneId, self)
-        toolbutton.show()
-        toolbutton.clicked.connect(self.paneMenuRequest)
-        g.set_property(paneId, "toolButtonWidget", toolbutton)
-
-    def _remove_toolbutton(self, paneId):
-        g = self._g
-        if not g.has_property(paneId, "toolButtonWidget"):
-            return
-        toolbut = g.pop_property(paneId, "toolButtonWidget")
-        toolbut.close()
-
-
-    class ToolButton(QtGui.QWidget, DraggableWidget):
-
-        clicked = QtCore.pyqtSignal(int, QtCore.QPoint)
-        __ideal_height__ = 10
-
-        def __init__(self, refVid, parent):
-            QtGui.QWidget.__init__(self, parent)
-            DraggableWidget.__init__(self)
-            self.vid = refVid
-            self.setFixedHeight(self.__ideal_height__)
-            self.setFixedWidth(self.__ideal_height__)
-
-        def mouseReleaseEvent(self, event):
-            ret = DraggableWidget.mouseReleaseEvent(self, event)
-            if self.rect().contains(event.pos()):
-                self.clicked.emit(self.vid, self.mapToParent(event.pos()))
-            return ret
-
-        def paintEvent(self, event):
-            painter = QtGui.QPainter(self)
-            painter.setRenderHint(QtGui.QPainter.Antialiasing)
-
-            if self._hovered:
-                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,200))
-            else:
-                brush   = QtGui.QBrush(QtGui.QColor(120,190,255,70))
-            painter.setBrush(brush)
-
-            pen = painter.pen()
-            pen.setColor(QtGui.QColor(0,0,0,255))
-            pen.setWidth(1)
-            painter.setPen(pen)
-
-            adj = pen.width()
-            rect = self.contentsRect().adjusted(adj,adj,-adj,-adj)
-            painter.drawEllipse(rect)
-
-            center = rect.center()
-            x = center.x()+adj
-            y = center.y()+adj
-            ls = [QtCore.QPoint(x, rect.top()+1+adj),
-                  QtCore.QPoint(x, rect.bottom()-1),
-                  QtCore.QPoint(rect.left()+1+adj, y),
-                  QtCore.QPoint(rect.right()-1, y)]
-            painter.drawLines(ls)
-
-
-    class GeometryComputingVisitor(SplittableUI.GeometryComputingVisitor):
-        def visit(self, vid):
-            igF, igS = SplittableUI.GeometryComputingVisitor.visit(self, vid)
-            if not self.g.has_children(vid):
-                geom = self.geomCache[vid]
-                tb = self.g.get_property(vid, "toolButtonWidget")
-                th = CustomSplittable.ToolButton.__ideal_height__
-                if geom.height() <  th or geom.width() < th:
-                    tb.hide()
-                else:
-                    tb.show()
-
-                tb.move(geom.left()+1, geom.top()+1)
-                return False, False #don't ignore first or second child
-            return igF, igS
-
-
-
+from openalea.secondnature.splittable import CustomSplittable
+from openalea.secondnature.managers import init_sources
+from openalea.secondnature.managers import LayoutManager
+from openalea.secondnature.managers import WidgetFactoryManager
+from openalea.secondnature.managers import ExtensionManager
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -141,11 +53,11 @@ class MainWindow(QtGui.QMainWindow):
         self.setStatusBar(self._statusBar)
         self.setCentralWidget(self.__splittable)
 
-        Extension.q.applicationListChanged.connect(self.__onExtensionListChange)
+        LayoutManager().itemListChanged.connect(self.__onLayoutListChanged)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
 
     def init_extensions(self):
-        Extension.entry_point_init()
+        init_sources()
 
     def __new_splittable(self, skeleton=None):
         if skeleton == None:
@@ -167,41 +79,66 @@ class MainWindow(QtGui.QMainWindow):
         s.dropHandlerRequest.connect(self.__on_splitter_pane_drop)
         return s, taken
 
-    def __onExtensionListChange(self):
-        layouts = Extension.get_layout_names()
+    def __onLayoutListChanged(self, layoutNames):
         self._layoutMode.clear()
-        self._layoutMode.addItems(layouts)
+        self._layoutMode.addItems(layoutNames)
         self._layoutMode.setCurrentIndex(-1)
+
+    def __setSpaceAt(self, paneId, space):
+        content, menu, toolbar = space.content, space.menu, space.toolbar
+        if content is not None:
+            self.__setContentAt(paneId, content)
+        if menu is not None:
+            pass #self.__setMenuAt(paneId, menu)
+        if toolbar is not None:
+            pass #self.__setToolbarAt(paneId, toolbar)
 
     def __setContentAt(self, paneId, content):
         if self.__splittable:
             self.__splittable.setContentAt(paneId,
                                            content,
                                            noTearOffs=True, noToolButton=True)
+    def __setMenuAt(self, paneId, menu):
+        pass
+
+    def __setToolbarAt(self, paneId, tb):
+        pass
 
     def __on_splitter_drag_enter(self, event):
-        # we only support ONE url
-        urls = event.mimeData().urls()
-        if len(urls) == 0:
-            return
-        url = str(urls[0].toString())
-        if Extension.has_url_handler(url):
-            event.acceptProposedAction()
+        #this is the hackiest part and concept-grinding bit of the problem
+        #whatever that means...
+        mimeData = event.mimeData()
+        if mimeData.hasUrls():
+            # we only support ONE url
+            urls = mimeData.urls()
+            if len(urls) == 0:
+                return
+            url = str(urls[0].toString())
+            parsedUrl = urlparse.urlparse(url)
+            if WidgetFactoryManager().has_handler_for(parsedUrl):
+                event.acceptProposedAction()
 
     def __on_splitter_pane_drop(self, paneId, event):
-        # we only support ONE url
-        urls = event.mimeData().urls()
-        if len(urls) == 0:
-            return
-        url = str(urls[0].toString())
+        #this is the hackiest part and concept-grinding bit of the problem
+        #whatever that means...
+        mimeData = event.mimeData()
+        if mimeData.hasUrls():
+            # we only support ONE url
+            urls = mimeData.urls()
+            if len(urls) == 0:
+                return
+            url = str(urls[0].toString())
 
-        if url == "":
-            return
+            if url == "":
+                return
 
-        obj, editor = Extension.create_editor_for(url, self.__splittable)
-        dm = DocumentManager()
-        dm.watch(obj, url, editor)
-        self.__setContentAt(paneId, editor)
+            parsedUrl = urlparse.urlparse(url)
+            data, space = WidgetFactoryManager().create_space_for(parsedUrl,
+                                                                  self.__splittable)
+            if None not in {data, space}:
+                dm = DocumentManager()
+                dm.watch(data, url, space)
+                self.__setSpaceAt(paneId, space)
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
@@ -215,13 +152,8 @@ class MainWindow(QtGui.QMainWindow):
 
         # layoutNames encodes the application name and the layout name:
         # they are seperated by a period.
-        appName, layout = layoutName.split(".")
-        app             = Extension.get_application(appName)
+        layout = LayoutManager().get(layoutName)
 
-        if app is None:
-            return
-
-        layout = app.layouts().get(layout)
         if not layout:
             return
 
@@ -232,14 +164,9 @@ class MainWindow(QtGui.QMainWindow):
         widgetmap = layout.widgetmap
 
         for paneId, widgetName in widgetmap.iteritems():
-            app, widgetName = widgetName.split(".")
-            app = Extension.get_application(app)
-            wid = app.create_widget(widgetName)
-            if wid:
-                if wid.widget is not None:
-                    self.__setContentAt(paneId, wid.widget)
-
-
+            data, space  = WidgetFactoryManager().create_space(widgetName, parent=None)
+            if space:
+                self.__setSpaceAt(paneId, space)
 
 
     ######################
@@ -254,7 +181,7 @@ class MainWindow(QtGui.QMainWindow):
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
         widMenu = menu.addMenu("Controlers")
-        widgetNames = Extension.get_widget_names()
+        widgetNames = WidgetFactoryManager().no_data_factory_names()
         for widName in widgetNames:
             action = widMenu.addAction(widName)
             func = self.__make_widget_pane_handler(paneId, widName)
@@ -268,27 +195,24 @@ class MainWindow(QtGui.QMainWindow):
             action.triggered.connect(func)
         menu.popup(pos)
 
-    # Each time the user pressed the "+" button of a pane a new menu
+    # Each time the user presses the "+" button of a pane a new menu
     # is created and it's actions are bound to new slots create on
-    # the fly by the following "__make_*_pane_handler.
+    # the fly by the following "__make_*_pane_handler methods.
     # The reason is that otherwise we don't know which pane
     # requests the action. This is rougly equivalent to C++' bind1st.
+    # Todo : objectify this
     def __make_clear_pane_handler(self, paneId):
         def on_clear_chosen(checked):
             self.__splittable.takeContentAt(paneId, None)
         func = on_clear_chosen
         return func
 
-
     def __make_widget_pane_handler(self, paneId, widgetName):
         def on_widget_chosen(checked):
-            app, widName = widgetName.split(".")
-            app = Extension.get_application(app)
-            wid = app.create_widget(widName)
-            if wid:
-                widget = wid.widget
-                if widget is not None:
-                    self.__setContentAt(paneId, widget)
+            data, space = WidgetFactoryManager().create_space(widgetName, None)
+            if space:
+                self.__setSpaceAt(paneId, space)
+
         func = on_widget_chosen
         return func
 
@@ -296,9 +220,9 @@ class MainWindow(QtGui.QMainWindow):
         def on_document_chosen(checked):
             dm = DocumentManager()
             doc = dm[url]
-            widget = doc.editor
-            if widget is not None:
-                self.__setContentAt(paneId, widget)
+            space = doc.editor
+            if space is not None:
+                self.__setSpaceAt(paneId, space)
         func = on_document_chosen
         return func
 

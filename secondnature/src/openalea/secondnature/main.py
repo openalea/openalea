@@ -1,22 +1,19 @@
 #!/usr/bin/python
-
 # -*- python -*-
 #
-#       OpenAlea.Visualea: OpenAlea graphical user interface
+#       OpenAlea.SecondNature
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
 #
-#       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
-#                       Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
-#       Distributed under the CeCILL v2 License.
+#       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-################################################################################
-"""Wrapper to start Visualea with correct environment variables"""
+###############################################################################
 
 __license__ = "CeCILL v2"
 __revision__ = " $Id$"
