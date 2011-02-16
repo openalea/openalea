@@ -43,6 +43,7 @@ if app:
 
 from openalea.visualea import dataflowview
 from openalea.core.pkgmanager import PackageManager
+from openalea.core.compositenode import CompositeNodeFactory
 
 class PackageManagerFactory(SingletonWidgetFactory):
     __name__ = "PackageManager"
@@ -50,9 +51,6 @@ class PackageManagerFactory(SingletonWidgetFactory):
 
     def handles(self, input):
         False
-
-    def creates_without_data(self):
-        return True
 
     def _instanciate_space(self, input, parent):
         from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
@@ -68,9 +66,6 @@ class LoggerFactory(SingletonWidgetFactory):
     def handles(self, input):
         False
 
-    def creates_without_data(self):
-        return True
-
     def _instanciate_space(self, input, parent):
         from openalea.visualea.logger import LoggerView
         from openalea.core.logger import LoggerOffice
@@ -82,30 +77,36 @@ class LoggerFactory(SingletonWidgetFactory):
 class DataflowviewFactory(WidgetFactory):
     __name__ = "Dataflowview"
     __namespace__ = "Visualea"
+
+    def __init__(self):
+        WidgetFactory.__init__(self)
+        self.__emptyNodeFactory = CompositeNodeFactory("Dataflow")
+
     def _instanciate_space(self, input, parent):
-        if not self.handles(input):
-            return
-
+        node = None
         if input is None:
-            return
+            node = self.__emptyNodeFactory.instantiate()
+            node.set_caption("new dataflow")
 
-        if input.scheme != "oa":
-            return #unhandled url protocol
+        if node is None: #isinstance(input, urlparse.ParseResult):
+            if input.scheme != "oa":
+                return None, None #unhandled url protocol
 
-        if input.netloc != "local":
-            return #unhandled oa location
+            if input.netloc != "local":
+                return None, None#unhandled oa location
 
-        pName = input.path.strip("/")
-        fName = input.query
-        pm = PackageManager()
-        package = pm[pName]
-        factory = package.get_factory(fName)
-        node = factory.instantiate()
+            pName = input.path.strip("/")
+            fName = input.query
+            pm = PackageManager()
+            package = pm[pName]
+            factory = package.get_factory(fName)
+            node = factory.instantiate()
+
         gwidget = dataflowview.GraphicalGraph.create_view(node, parent=parent)
         return node, LayoutSpace(self.__name__, self.__namespace__, gwidget)
 
     def handles(self, input):
-        good = isinstance(input, urlparse.ParseResult)
+        good = isinstance(input, [urlparse.ParseResult, CompositeNode])
         good &= (input.scheme == "oa")
         good &= (input.netloc == "local")
         return good

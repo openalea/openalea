@@ -176,29 +176,19 @@ def init_layout_sources():
 #################################
 class WidgetFactoryManager(AbstractSourceManager):
     def has_handler_for(self, input):
-        factories = self.gather_items()
-        for it in factories.itervalues():
-            if it.handles(input):
-                return it
+        if input is not None:
+            factories = self.gather_items()
+            for it in factories.itervalues():
+                if it.handles(input):
+                    return it
         return None
 
-    def no_data_factory_names(self):
+    def create_space(self, name=None, input=None, parent=None):
         factories = self.gather_items()
-        return [f for f, v in factories.iteritems() if v.creates_without_data()]
+        factory   = factories.get(name)
+        factory   = factory or self.has_handler_for(input)
+        return factory(input, parent)
 
-    def create_space_for(self, input, parent):
-        factory = self.has_handler_for(input)
-        if not factory:
-            return None, None
-        else:
-            return factory(input, parent)
-
-    def create_space(self, name, parent):
-        factories = self.gather_items()
-        if name not in factories:
-            return #TODO : raise something dude
-        else:
-            return factories[name](None, parent)
 
 class WidgetFactorySourceMixin(object):
     __concrete_manager__ = WidgetFactoryManager
@@ -236,6 +226,28 @@ class ExtensionSourceEntryPoints(ExtensionSourceMixin, EntryPointSourceBase):
 
 def init_extension_sources():
     ExtensionSourceEntryPoints()
+
+
+#################################
+# DOCUMENT MANAGER CLASSES #
+#################################
+class DocumentManager(AbstractSourceManager):
+    pass
+
+class DocumentSourceMixin(object):
+    __concrete_manager__ = DocumentManager
+
+class DocumentSourceEntryPoints(DocumentSourceMixin, EntryPointSourceBase):
+
+    __entry_point__ = "openalea.app.document"
+
+    def __init__(self):
+        DocumentSourceMixin.__init__(self)
+        EntryPointSourceBase.__init__(self)
+
+
+def init_document_sources():
+    DocumentSourceEntryPoints()
 
 
 

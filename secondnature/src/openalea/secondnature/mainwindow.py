@@ -27,6 +27,7 @@ from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
 from openalea.secondnature.managers import WidgetFactoryManager
 from openalea.secondnature.managers import ExtensionManager
+from openalea.secondnature.extendable_objects import SingletonWidgetFactory
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -80,6 +81,7 @@ class MainWindow(QtGui.QMainWindow):
         return s, taken
 
     def __onLayoutListChanged(self, layoutNames):
+        layoutNames.sort()
         self._layoutMode.clear()
         self._layoutMode.addItems(layoutNames)
         self._layoutMode.setCurrentIndex(-1)
@@ -133,12 +135,15 @@ class MainWindow(QtGui.QMainWindow):
                 return
 
             parsedUrl = urlparse.urlparse(url)
-            data, space = WidgetFactoryManager().create_space_for(parsedUrl,
-                                                                  self.__splittable)
-            if None not in {data, space}:
-                dm = DocumentManager()
-                dm.watch(data, url, space)
+            data, space = WidgetFactoryManager().create_space(input=parsedUrl)
+            if space is not None:
+                self.__register_document(data, url, space)
                 self.__setSpaceAt(paneId, space)
+
+    def __register_document(self, data, url, space):
+        if None not in {data, space}:
+            dm = DocumentManager()
+            dm.watch(data, url, space)
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
@@ -164,10 +169,9 @@ class MainWindow(QtGui.QMainWindow):
         widgetmap = layout.widgetmap
 
         for paneId, widgetName in widgetmap.iteritems():
-            data, space  = WidgetFactoryManager().create_space(widgetName, parent=None)
+            data, space  = WidgetFactoryManager().create_space(name=widgetName)
             if space:
                 self.__setSpaceAt(paneId, space)
-
 
     ######################
     # Pane Menu handlers #
@@ -180,14 +184,25 @@ class MainWindow(QtGui.QMainWindow):
         action = menu.addAction("Empty")
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
-        widMenu = menu.addMenu("Controlers")
-        widgetNames = WidgetFactoryManager().no_data_factory_names()
+        widgetFactories = WidgetFactoryManager().gather_items()
+
+        newMenu = menu.addMenu("New...")
+        newWidgetNames = [f for f,v in widgetFactories.iteritems() \
+                          if not isinstance(v, SingletonWidgetFactory)]
+        for widName in newWidgetNames:
+            action = newMenu.addAction(widName)
+            func = self.__make_widget_pane_handler(paneId, widName)
+            action.triggered.connect(func)
+
+        widMenu = menu.addMenu("Tools...")
+        widgetNames = [f for f,v in widgetFactories.iteritems() \
+                          if isinstance(v, SingletonWidgetFactory)]
         for widName in widgetNames:
             action = widMenu.addAction(widName)
             func = self.__make_widget_pane_handler(paneId, widName)
             action.triggered.connect(func)
 
-        docMenu = menu.addMenu("Documents")
+        docMenu = menu.addMenu("Documents...")
         dm = DocumentManager()
         for data, doc in dm:
             action = docMenu.addAction(doc.url)
@@ -196,7 +211,7 @@ class MainWindow(QtGui.QMainWindow):
         menu.popup(pos)
 
     # Each time the user presses the "+" button of a pane a new menu
-    # is created and it's actions are bound to new slots create on
+    # is created and it's actions are bound to new slots created on
     # the fly by the following "__make_*_pane_handler methods.
     # The reason is that otherwise we don't know which pane
     # requests the action. This is rougly equivalent to C++' bind1st.
@@ -209,7 +224,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def __make_widget_pane_handler(self, paneId, widgetName):
         def on_widget_chosen(checked):
-            data, space = WidgetFactoryManager().create_space(widgetName, None)
+            data, space = WidgetFactoryManager().create_space(name=widgetName)
+            url = "blabla://sillydomain/"+str(data)
+            self.__register_document(data, url, space)
             if space:
                 self.__setSpaceAt(paneId, space)
 
