@@ -222,7 +222,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         ## Hidden state
         ## TODO
         if not port.get('showwidget', not port.is_hidden()):
-            widget.widget.append(None)
+            widget.widgets.append(None)
             #self.widgets.append(None)
             return
 
