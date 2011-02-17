@@ -32,14 +32,6 @@ class InspectorView(DataflowView, AbstractListener):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
         self.setWindowFlags(QtCore.Qt.Window)
 
-
-    def set_operators(self, mainOperator, parentOperator):
-        self.__mainOperator   = mainOperator
-        self.__parentOperator = parentOperator
-        self.initialise(mainOperator)
-        self.initialise(parentOperator)
-        mainOperator.get_session().add_graph_view(self)
-
     @exception_display
     def notify(self, sender, event):
         if(event):

@@ -41,7 +41,7 @@ class VertexOperators(graphOpBase.Base):
         from openalea.visualea.dataflowview import GraphicalGraph
         master = self.master
         vertex = master.vertexItem().vertex()
-        view   = master.get_graph_view()
+        parwidget = master.get_sensible_parent()
         if not isinstance(vertex, CompositeNode):
             return
 
@@ -54,7 +54,7 @@ class VertexOperators(graphOpBase.Base):
                 widget.show()
             return
         else:
-            widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = view)
+            widget = compositenode_inspector.CompositeInspector.create_view(vertex, parent = parwidget)
             VertexOperators.__compositeWidgetMap__[vertex] = widget
 
             ###################################
@@ -81,8 +81,6 @@ class VertexOperators(graphOpBase.Base):
             ##################
             # -- Finished -- #
             ##################
-
-            widget.set_operators(master.__main__.operator, master)
             widget.setWindowTitle("Inspecting " + vertex.get_caption())
             widget.show_entire_scene()
             widget.show()
@@ -95,6 +93,7 @@ class VertexOperators(graphOpBase.Base):
 
     def vertex_open(self):
         master = self.master
+        widget = master.get_sensible_parent()
         item = master.vertexItem()
         vertex = item.vertex()
         vwidget = item.get_editor_instance()
@@ -123,7 +122,7 @@ class VertexOperators(graphOpBase.Base):
         if title == "":
             title = factory.get_id()
 
-        vwidget = open_dialog(master.get_graph_view(),
+        vwidget = open_dialog(widget,
                               innerWidget,
                               title,
                               False)
@@ -150,7 +149,8 @@ class VertexOperators(graphOpBase.Base):
         """ Replace a node by an other """
         master  = self.master
         adapter = master.get_graph_scene().get_adapter()
-        dialog = NodeChooser(master.get_graph_view())
+        widget = master.get_sensible_parent()
+        dialog = NodeChooser(widget)
         vItem = master.vertexItem()
         dialog.search('', vItem.vertex().get_nb_input(),
                       vItem.vertex().get_nb_output())
@@ -193,7 +193,8 @@ class VertexOperators(graphOpBase.Base):
 
     def vertex_show_hide_ports(self):
         """ Open port show/hide dialog """
-        editor = ShowPortDialog(self.master.vertexItem().vertex(), self.master.get_graph_view())
+        widget = self.master.get_sensible_parent()
+        editor = ShowPortDialog(self.master.vertexItem().vertex(), widget)
         editor.exec_()
 
 
@@ -213,7 +214,8 @@ class VertexOperators(graphOpBase.Base):
     def vertex_edit_internals(self):
         """ Edit node internal data """
         master = self.master
-        editor = DictEditor(master.vertexItem().vertex().internal_data, self.master.get_graph_view())
+        widget = master.get_sensible_parent()
+        editor = DictEditor(master.vertexItem().vertex().internal_data, widget)
         ret = editor.exec_()
 
         if(ret):

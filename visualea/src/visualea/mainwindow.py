@@ -70,17 +70,11 @@ class MainWindow(QtGui.QMainWindow,
         self.setAcceptDrops(True)
         self.setAttribute(QtCore.Qt.WA_QuitOnClose)
 
-        #configure GraphOperator class: TODO: make this a singleton
-        GraphOperator.__main__ = self
+        #configure GraphOperator class
         GraphOperator.vertexType = dataflowview.vertex.GraphicalVertex
         GraphOperator.annotationType = dataflowview.anno.GraphicalAnnotation
         GraphOperator.edgeType = dataflowview.edge.GraphicalEdge
 
-
-#        self.pkgmanager = session.pkgmanager
-
-        # Set observer
-#        self.initialise(session)
 
         self.tabWorkspace.removeTab(0)
         self.tabWorkspace.setTabsClosable(True)
@@ -107,21 +101,6 @@ class MainWindow(QtGui.QMainWindow,
             view = LoggerView(parent=self.lowerpane, model=model)
             self.lowerpane.addTab(view, "Logging")
 
-        # package tree view
-        # self.pkg_model = PkgModel(self.pkgmanager)
-        # self.packageTreeView = \
-        #     NodeFactoryTreeView(self, self.packageview)
-        # self.packageTreeView.setModel(self.pkg_model)
-        # self.vboxlayout1.addWidget(self.packageTreeView)
-        # self.packageTreeView.clicked.connect(self.on_package_manager_focus_change)
-
-        # category tree view
-        # self.cat_model = CategoryModel(self.pkgmanager)
-        # self.categoryTreeView = \
-        #     NodeFactoryTreeView(self, self.categoryview)
-        # self.categoryTreeView.setModel(self.cat_model)
-        # self.vboxlayout2.addWidget(self.categoryTreeView)
-        # self.categoryTreeView.clicked.connect(self.on_package_manager_focus_change)
 
         # search list view
         self.search_model = SearchModel()
@@ -131,13 +110,6 @@ class MainWindow(QtGui.QMainWindow,
         self.vboxlayout3.addWidget(self.searchListView)
         self.searchListView.clicked.connect(self.on_package_manager_focus_change)
 
-        # data pool list view
-        # self.datapool_model = DataPoolModel(session.datapool)
-        # self.datapoolListView = \
-        #     DataPoolListView(self, session.datapool, self.pooltab)
-        # self.datapoolListView.setModel(self.datapool_model)
-        #self.vboxlayout4.addWidget(self.datapoolListView)
-
         # help widget
         self.helpWidget = helpwidget.HelpWidget()
         css = pj(misc.__path__[0], "..", "..", "..",
@@ -145,10 +117,6 @@ class MainWindow(QtGui.QMainWindow,
         self.helpWidget.set_stylesheet_file(css)
         self.poolTabWidget.addTab(self.helpWidget, "Help")
 
-        # use view
-      #   self.datapoolListView2 = DataPoolListView(self, session.datapool, self.usetab)
-#         self.datapoolListView2.setModel(self.datapool_model)
-#         self.vboxlayout5.addWidget(self.datapoolListView2)
 
         # Widgets
         self.connect(self.tabWorkspace, SIGNAL("contextMenuEvent(QContextMenuEvent)"),
@@ -195,37 +163,39 @@ class MainWindow(QtGui.QMainWindow,
                      self.clear_python_console)
 
         # WorkspaceMenu
+        self.__operatorAction = dict([(self.action_Run, "graph_run"),
+                                      (self.actionInvalidate, "graph_invalidate"),
+                                      (self.actionReset, "graph_reset"),
+                                      (self.actionConfigure_I_O, "graph_configure_io"),
+                                      (self.actionGroup_Selection, "graph_group_selection"),
+                                      (self.action_Copy, "graph_copy"),
+                                      (self.action_Paste, "graph_paste"),
+                                      (self.action_Cut, "graph_cut"),
+                                      (self.action_Delete_2, "graph_remove_selection"),
+                                      (self.action_Close_current_workspace, "graph_close"),
+                                      (self.action_Export_to_Factory, "graph_export_to_factory"),
+                                      (self.actionReload_from_Model, "graph_reload_from_factory"),
+                                      (self.actionExport_to_Application, "graph_export_application"),
+                                      (self.actionPreview_Application, "graph_preview_application"),
+                                      (self.actionAlignHorizontally, "graph_align_selection_horizontal"),
+                                      (self.actionAlignLeft, "graph_align_selection_left"),
+                                      (self.actionAlignRight, "graph_align_selection_right"),
+                                      (self.actionAlignMean, "graph_align_selection_mean"),
+                                      (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally"),
+                                      (self.actionDistributeVertically, "graph_distribute_selection_vertically"),
+                                      (self.actionSetCustomColor, "graph_set_selection_color"),
+                                      (self.actionUseCustomColor, "graph_use_user_color")])
+
         self._last_open_action_group = QtGui.QActionGroup(self)
         self.connect(self._last_open_action_group,
                      SIGNAL("triggered(QAction*)"),
                      self.reopen_last)
-        # daniel was here: now the menu is built using the graph operator.
-        self.operator = GraphOperator()
-        self.operator.register_listener(self)
-        self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
-        self.operator + (self.action_Run, "graph_run")
-        self.operator + (self.actionInvalidate, "graph_invalidate")
-        self.operator + (self.actionReset, "graph_reset")
-        self.operator + (self.actionConfigure_I_O, "graph_configure_io")
-        self.operator + (self.actionGroup_Selection, "graph_group_selection")
-        self.operator + (self.action_Copy, "graph_copy")
-        self.operator + (self.action_Paste, "graph_paste")
-        self.operator + (self.action_Cut, "graph_cut")
-        self.operator + (self.action_Delete_2, "graph_remove_selection")
-        self.operator + (self.action_Close_current_workspace, "graph_close")
-        self.operator + (self.action_Export_to_Factory, "graph_export_to_factory")
-        self.operator + (self.actionReload_from_Model, "graph_reload_from_factory")
-        self.operator + (self.actionExport_to_Application, "graph_export_application")
-        self.operator + (self.actionPreview_Application, "graph_preview_application")
-        self.operator + (self.actionAlignHorizontally, "graph_align_selection_horizontal")
-        self.operator + (self.actionAlignLeft, "graph_align_selection_left")
-        self.operator + (self.actionAlignRight, "graph_align_selection_right")
-        self.operator + (self.actionAlignMean, "graph_align_selection_mean")
-        self.operator + (self.actionDistributeHorizontally, "graph_distribute_selection_horizontally")
-        self.operator + (self.actionDistributeVertically, "graph_distribute_selection_vertically")
-        self.operator + (self.actionSetCustomColor, "graph_set_selection_color")
-        self.operator + (self.actionUseCustomColor, "graph_use_user_color")
+        self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
+        self.menu_Workspace.aboutToShow.connect(self.__wsMenuHide)
+        for ac, fname in  self.__operatorAction.iteritems():
+            f = self.__make_operator_action_connector(ac, fname)
+            ac.triggered.connect(f)
 
         self.actionTo_script.triggered.connect(self.to_python_script)
 
@@ -399,19 +369,36 @@ class MainWindow(QtGui.QMainWindow,
 
         self.redo_last_open_menu()
 
-    def __wsMenuShow(self):
-        widget = self.tabWorkspace.currentWidget()
-        if widget is None:
+    def __wsMenuShow(self, abool=False):
+        graphview = self.tabWorkspace.currentWidget()
+        if not isinstance(graphview, dataflowview.DataflowView):
             return
 
-        #check if the current selection is coloured and tick the
-        #menu item if an item of the selection uses the user color.
-        items = widget.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
+        items = graphview.scene().get_selected_items(dataflowview.vertex.GraphicalVertex)
         self.actionUseCustomColor.setChecked(False)
         for i in items:
             if i.vertex().get_ad_hoc_dict().get_metadata("useUserColor"):
                 self.actionUseCustomColor.setChecked(True)
                 break
+
+    def __make_operator_action_connector(self, action, name):
+        def connector(aBool = None):
+            graphview = self.tabWorkspace.currentWidget()
+            if not isinstance(graphview, dataflowview.DataflowView):
+                return
+
+            # daniel was here: now the menu is built using the graph operator.
+            operator = GraphOperator(graph      = graphview.scene().get_graph(),
+                                     graphScene = graphview.scene(),
+                                     clipboard  = self.session.clipboard,
+                                     siblings   = self.session.workspaces)
+            operator.register_listener(self)
+            operator(fName=name)()
+
+        return connector
+
+    def __wsMenuHide(self):
+        pass
 
     def open_compositenode(self, factory):
         """ open a  composite node editor """
@@ -452,19 +439,21 @@ class MainWindow(QtGui.QMainWindow,
 
     def notify(self, sender, event):
         """ Notification from observed """
-        if event and sender == self.operator :
-            index = self.tabWorkspace.indexOf(event[1])
+        if event and isinstance(sender, GraphOperator) :
+            index = -1
+            for i in range(self.tabWorkspace.count()):
+                wid = self.tabWorkspace.widget(i)
+                if isinstance(wid, dataflowview.DataflowView) and wid.scene() == event[1]:
+                    index = i
+            if index <= -1: return
             if(event[0] == "graphoperator_graphsaved"):
-                if index > -1:
-                    self.reinit_treeview()
-                    caption = "Workspace %i - %s"%(index, event[2].name)
-                    self.tabWorkspace.setTabText(index, caption)
+                self.reinit_treeview()
+                caption = "Workspace %i - %s"%(index, event[2].name)
+                self.tabWorkspace.setTabText(index, caption)
             elif(event[0] == "graphoperator_graphclosed"):
-                if index > -1:
-                    self.close_tab_workspace(index)
+                self.close_tab_workspace(index)
             elif(event[0] == "graphoperator_graphreloaded"):
-                if index > -1:
-                    self.session.workspaces[index] = event[2]
+                self.session.workspaces[index] = event[2]
 
         if(type(sender) == type(self.session)):
             if(event and event[0]=="workspace_added"):
@@ -536,6 +525,8 @@ class MainWindow(QtGui.QMainWindow,
         gwidget = None
         try:
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
+            gwidget.set_clipboard(self.session.clipboard)
+            gwidget.set_siblings(self.session.workspaces)
             gwidget.scene().focusedItemChanged.connect(self.on_scene_focus_change)
             self.session.add_graph_view(gwidget)
         except Exception, e:

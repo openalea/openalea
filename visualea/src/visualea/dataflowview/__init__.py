@@ -41,6 +41,9 @@ class DataflowView( qt.View ):
     def __init__(self, parent):
         qt.View.__init__(self, parent)
 
+        self.__clipboard = None
+        self.__siblings  = None
+
         # -- Configure the drop handlers --
         mimeFormatsMap = {"openalea/nodefactory":self.node_factory_drop_handler,
                           "openalea/data_instance":self.node_datapool_drop_handler}
@@ -55,8 +58,19 @@ class DataflowView( qt.View ):
         self.pasteRequest.connect(self.on_paste_request)
         self.deleteRequest.connect(self.on_delete_request)
 
+    def set_clipboard(self, cnf):
+        self.__clipboard = cnf
+
+    def set_siblings(self, sibs):
+        self.__siblings = sibs
+
     def get_graph_operator(self):
-        operator=GraphOperator(self, self.scene().get_graph())
+        operator=GraphOperator(graph     = self.scene().get_graph(),
+                               graphScene= self.scene(),
+                               clipboard = self.__clipboard,
+                               siblings  = self.__siblings,
+                               )
+
         operator.vertexType = vertex.GraphicalVertex
         operator.annotationType = anno.GraphicalAnnotation
         operator.edgeType = edge.GraphicalEdge
@@ -73,8 +87,12 @@ class DataflowView( qt.View ):
         a.accept = True
 
     def on_paste_request(self, view, scene, a):
+        position = view.mapToScene(view.mapFromGlobal(view.cursor().pos()))
         operator = self.get_graph_operator()
-        operator(fName="graph_paste")()
+        self.setUpdatesEnabled(False)
+        operator(fName="graph_paste", position=position)()
+        self.setUpdatesEnabled(True)
+        self.update()
         a.accept = True
 
     def on_delete_request(self, view, scene, a):
@@ -82,6 +100,11 @@ class DataflowView( qt.View ):
         operator(fName="graph_remove_selection")()
         a.accept = True
 
+
+
+    #######################################################
+    # THIS DOESN'T BELONG HERE! OR AT LEAST NOT LIKE THIS #
+    #######################################################
     ####################################################
     # Handling the drag and drop events over the graph #
     ####################################################
@@ -103,13 +126,12 @@ class DataflowView( qt.View ):
     def __check_factory(self, factory):
             # -- Check if no other instance of this factory is opened --
             operator = self.get_graph_operator()
-            session = operator.get_session()
-            for ws in session.workspaces:
+            for ws in operator.get_siblings():
                 if factory == ws.factory:
                     res = QtGui.QMessageBox.warning(self, "Other instances are already opened!",
-                                                    "You are trying to insert a composite node that has already been opened.\n" +\
-                                                    "Doing this might cause confusion later on.\n" +\
-                                                    "Do you want to continue?",
+                    "You are trying to insert a composite node that has already been opened.\n" +\
+                    "Doing this might cause confusion later on.\n" +\
+                    "Do you want to continue?",
                                                     QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
                     if res == QtGui.QMessageBox.Cancel:
                         return False
@@ -210,13 +232,17 @@ class DataflowView( qt.View ):
     # Handling context menu on the graph view #
     ###########################################
     def contextMenuEvent(self, event):
-        if(self.itemAt(event.pos())):
-            QtGui.QGraphicsView.contextMenuEvent(self, event)
+
+        QtGui.QGraphicsView.contextMenuEvent(self, event)
+        if event.isAccepted():
             return
 
-        operator=GraphOperator(self)
+        scenePos = self.mapToScene(event.pos())
+
+        operator = self.get_graph_operator()
         menu = qt.AleaQMenu(self)
-        menu.addAction(operator("Add Annotation", menu, "graph_add_annotation"))
+        menu.addAction(operator("Add Annotation", menu,
+                                "graph_add_annotation", position=scenePos))
 
         # -- Evaluator submenu --
         evaluatorSubmenu = menu.addMenu("Evaluator")

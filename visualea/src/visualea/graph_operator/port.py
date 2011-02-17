@@ -59,8 +59,8 @@ class PortOperators(graphOpBase.Base):
 
         """
         master = self.master
-
-        (result, ok) = QtGui.QInputDialog.getText(master.get_graph_view(), "Data Pool", "Instance name",
+        widget = master.get_sensible_parent()
+        (result, ok) = QtGui.QInputDialog.getText(widget, "Data Pool", "Instance name",
                                                   QtGui.QLineEdit.Normal, )
         if(ok):
             from openalea.core.session import DataPool
@@ -80,9 +80,9 @@ class PortOperators(graphOpBase.Base):
         """
         # get the visualea master
         master = self.master
-
+        widget = master.get_sensible_parent()
         # pop up a widget to specify the instance name
-        (result, ok) = QtGui.QInputDialog.getText(master.get_graph_view(), "Console", "Instance name",
+        (result, ok) = QtGui.QInputDialog.getText(widget, "Console", "Instance name",
                                                   QtGui.QLineEdit.Normal, )
         result = str(result)
 
@@ -94,7 +94,7 @@ class PortOperators(graphOpBase.Base):
 
             overwrite = QtGui.QMessageBox.Ok
             if result in shell.interpreter.locals:
-                overwrite = QtGui.QMessageBox.warning(master.get_graph_view(), "Overwrite variable?",
+                overwrite = QtGui.QMessageBox.warning(widget, "Overwrite variable?",
                                                       "Variable name '" + result +"' is already used in the interpreter," +\
                                                       "Do you want to overwrite it?",
                                                       QtGui.QMessageBox.Ok|QtGui.QMessageBox.Cancel,

@@ -26,7 +26,7 @@ class ColorOperators(graphOpBase.Base):
 
     def graph_set_selection_color(self):
         master = self.master
-        items = master.get_graph_view().scene().get_selected_items(master.vertexType)
+        items = master.get_graph_scene().get_selected_items(master.vertexType)
         length = len(items)
         if(length==0): return
         if(length==1):
@@ -37,7 +37,8 @@ class ColorOperators(graphOpBase.Base):
         else:
             color = QtGui.QColor(100,100,100,255)
 
-        color = QtGui.QColorDialog.getColor(color, master.get_graph_view())
+        # todo give me a parent
+        color = QtGui.QColorDialog.getColor(color, None)
 
         if not color.isValid():
             return
@@ -54,7 +55,7 @@ class ColorOperators(graphOpBase.Base):
 
     def graph_use_user_color(self, useit):
         master = self.master
-        items = master.get_graph_view().scene().get_selected_items(master.vertexType)
+        items = master.get_graph_scene().get_selected_items(master.vertexType)
         if(not items): return
         scheduleASetColor = False
         for i in items:

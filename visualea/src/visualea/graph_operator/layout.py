@@ -27,12 +27,12 @@ class LayoutOperators(graphOpBase.Base):
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne"""
         master = self.master
-        widget = master.get_graph_view()
+        scene = master.get_graph_scene()
 
-        if widget is None :
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items( master.vertexType, lambda x: (x, x.get_view_data("position")) )
+        items = scene.get_selected_items( master.vertexType, lambda x: (x, x.get_view_data("position")) )
         count = len(items)
         if count > 1 :
             #find median base
@@ -42,7 +42,7 @@ class LayoutOperators(graphOpBase.Base):
             for item, pos in items :
                 item.store_view_data(position=[pos[0], ymean])
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return
 
@@ -50,11 +50,11 @@ class LayoutOperators(graphOpBase.Base):
     def graph_align_selection_left (self):
         """Align all items on their left side."""
         master = self.master
-        widget = master.get_graph_view()
-        if widget is None :
+        scene = master.get_graph_scene()
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x, x.get_view_data("position")) )
+        items = scene.get_selected_items(master.vertexType, lambda x: (x, x.get_view_data("position")) )
         count = len(items)
         if count > 1 :
             #find left ligne
@@ -64,7 +64,7 @@ class LayoutOperators(graphOpBase.Base):
             for item, pos in items :
                 item.store_view_data(position=[xmean, pos[1]])
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return
 
@@ -72,13 +72,13 @@ class LayoutOperators(graphOpBase.Base):
     def graph_align_selection_right (self):
         """Align all items on their right side"""
         master = self.master
-        widget = master.get_graph_view()
-        if widget is None :
+        scene = master.get_graph_scene()
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
-                                                                                x.get_view_data("position"),
-                                                                                x.boundingRect().width()) )
+        items = scene.get_selected_items(master.vertexType, lambda x: (x,
+                                                                       x.get_view_data("position"),
+                                                                       x.boundingRect().width()) )
         count = len(items)
         if count > 1 :
             #find left line
@@ -89,7 +89,7 @@ class LayoutOperators(graphOpBase.Base):
                 item.store_view_data(position=[xmean - width, pos[1]])
 
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return
 
@@ -97,13 +97,13 @@ class LayoutOperators(graphOpBase.Base):
     def graph_align_selection_mean (self):
         """Align all items vertically around a mean line."""
         master = self.master
-        widget = master.get_graph_view()
-        if widget is None :
+        scene = master.get_graph_scene()
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
-                                                                                x.get_view_data("position"),
-                                                                                x.boundingRect().width()) )
+        items = scene.get_selected_items(master.vertexType, lambda x: (x,
+                                                                       x.get_view_data("position"),
+                                                                       x.boundingRect().width()) )
         count = len(items)
         if count > 1 :
             #find left ligne
@@ -113,7 +113,7 @@ class LayoutOperators(graphOpBase.Base):
             for item, pos, width in items :
                 item.store_view_data(position=[xmean - width/2., pos[1]])
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return
 
@@ -121,13 +121,13 @@ class LayoutOperators(graphOpBase.Base):
     def graph_distribute_selection_horizontally (self):
         """distribute the horizontal distances between items."""
         master = self.master
-        widget = master.get_graph_view()
-        if widget is None :
+        scene = master.get_graph_scene()
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
-                                                                                x.get_view_data("position"),
-                                                                                x.boundingRect().width()) )
+        items = scene.get_selected_items(master.vertexType, lambda x: (x,
+                                                                       x.get_view_data("position"),
+                                                                       x.boundingRect().width()) )
 
         count = len(items)
         if count > 2 :
@@ -149,7 +149,7 @@ class LayoutOperators(graphOpBase.Base):
                 item.store_view_data(position=[current_x + dist, pos[1]])
                 current_x += dist + width
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return
 
@@ -157,13 +157,13 @@ class LayoutOperators(graphOpBase.Base):
     def graph_distribute_selection_vertically (self):
         """distribute the vertical distances between items."""
         master = self.master
-        widget = master.get_graph_view()
-        if widget is None :
+        scene = master.get_graph_scene()
+        if scene is None :
             return
 
-        items = widget.scene().get_selected_items(master.vertexType, lambda x: (x,
-                                                                                x.get_view_data("position"),
-                                                                                x.boundingRect().height()) )
+        items = scene.get_selected_items(master.vertexType, lambda x: (x,
+                                                                       x.get_view_data("position"),
+                                                                       x.boundingRect().height()) )
         count = len(items)
         if count > 1 :
             #find ymin,ymax of selected items
@@ -185,6 +185,6 @@ class LayoutOperators(graphOpBase.Base):
                 current_y += dist + height
 
             #notify
-            widget.scene().notify(None,("graph_modified",) )
+            scene.notify(None,("graph_modified",) )
 
         return

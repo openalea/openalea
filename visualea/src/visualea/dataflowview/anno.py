@@ -197,9 +197,9 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
             MemoRects.mousePressEvent(self, event)
 
     def contextMenuEvent(self, event):
-        operator = GraphOperator()
-        operator.identify_focused_graph_view()
-        widget = operator.get_graph_view()
+        operator = GraphOperator(graph=self.graph(),
+                                 graphScene = self.scene())
+        widget = operator.get_sensible_parent()
         operator.set_annotation_item(self)
 
         menu = qtutils.AleaQMenu(widget)
