@@ -428,8 +428,8 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
             except:
                 str = "['open']"
 
-            view = self.scene().views()[0]
-            operator=GraphOperator(view, self.graph())
+            operator=GraphOperator(graph=self.graph(),
+                                   graphScene = self.scene())
             operator.set_vertex_item(self)
 
             if('open' in str):
@@ -442,13 +442,13 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
         """ Context menu event : Display the menu"""
         self.setSelected(True)
 
-        operator = GraphOperator()
+        operator = GraphOperator(graph=self.graph(),
+                                 graphScene=self.scene() )
         operator.vertexType = GraphicalVertex
-        operator.identify_focused_graph_view()
         operator.set_vertex_item(self)
-        widget = operator.get_graph_view()
+        widget = operator.get_sensible_parent()
         menu = qtutils.AleaQMenu(widget)
-        items = widget.scene().get_selected_items(GraphicalVertex)
+        items = self.scene().get_selected_items(GraphicalVertex)
 
         menu.addAction(operator("Run",             menu, "vertex_run"))
         menu.addAction(operator("Open Widget",     menu, "vertex_open"))
@@ -682,10 +682,10 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     #################
     def contextMenuEvent(self, event):
         if isinstance(self.port(), OutputPort):
-            operator=GraphOperator()
-            operator.identify_focused_graph_view()
+            operator=GraphOperator(graph=self.graph,
+                                   graphScene=self.scene())
             operator.set_port_item(self)
-            menu = qtutils.AleaQMenu(operator.get_graph_view())
+            menu = qtutils.AleaQMenu(operator.get_sensible_parent())
             menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
             menu.addAction(operator("Send to console", menu, "port_send_to_console"))
             menu.addAction(operator("Print",        menu, "port_print_value"))

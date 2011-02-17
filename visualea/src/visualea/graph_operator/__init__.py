@@ -21,18 +21,18 @@ import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
 from openalea.grapheditor import qtgraphview
+from openalea.core.compositenode import CompositeNodeFactory
 
 def do_imports():
     import dataflow, layout, color, vertex, port, anno
 
 class GraphOperator(Observed):
 
-    __main__       = None
     vertexType     = None
     annotationType = None
     edgeType       = None
 
-    def __init__(self, graphView=None, graph=None):
+    def __init__(self, graph, graphScene=None, clipboard=None, siblings=None):
         Observed.__init__(self)
         do_imports()
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
@@ -45,45 +45,42 @@ class GraphOperator(Observed):
             for meth in dir(operator):
                 self.__availableNames[meth] = getattr(operator, meth)
 
-        self.graphView      = None
-        self.graph          = None
-        self.__session      = None
+        self.graph          = graph
+        self.scene          = graphScene
+        self.clipboard      = clipboard or CompositeNodeFactory("Clipboard")
+        self.siblings       = siblings or []
         self.__interpreter  = None
         self.__pkgmanager   = None
         self.vertexItem     = None
         self.annotationItem = None
         self.portItem       = None
 
-        if(graphView):
-            self.graphView = graphView
-        if(graph):
-            self.graph     = graph
 
     ######################################
     # Get Qt Actions for methods in here #
     ######################################
-    def get_action(self, actionName=None, parent=None, fName=None, *otherSlots):
+    def get_action(self, actionName=None, parent=None, fName=None, **kwargs):
         if actionName is None and parent is None and fName is not None:
-            return self.__get_wrapped(fName)[0]
-        graphView = self.get_graph_view()
+            return self.__get_wrapped(fName, kwargs)[0]
         action = QtGui.QAction(actionName, parent)
+        return self.bind_action(action, fName, kwargs)
 
-        return self.bind_action(action, fName, *otherSlots)
-
-    def bind_action(self, action, fName, *otherSlots):
-        func, argcount = self.__get_wrapped(fName)
-        action.triggered.connect(self.identify_focused_graph_view )
+    def bind_action(self, action, fName, kwargs=None):
+        func, argcount = self.__get_wrapped(fName, kwargs)
+        #self.unbind_action(action, fName)
         action.triggered.connect(func)
-        for f in otherSlots:
-            action.triggered.connect(f)
+        data = QtCore.QVariant(func)
+        action.setData(data)
         return action
 
-    def unbind_action(self, action, fName=None, *otherSlots):
-        func, argcount = self.__get_wrapped(fName)
-        action.triggered.disconnect(self.identify_focused_graph_view )
-        action.triggered.disconnect(func)
-        for f in otherSlots:
-            action.triggered.disconnect(f)
+    def unbind_action(self, action, fName=None):
+        data = action.data()
+        if not data.isNull() and data.isValid():
+            func = data.toPyObject()
+            action.triggered.disconnect(func)
+        # this is probably broken! __get_wrapped returns new functions each time
+        # func, argcount = self.__get_wrapped(fName)
+        # action.triggered.disconnect(func)
         return action
 
     def __add__(self, other):
@@ -94,14 +91,17 @@ class GraphOperator(Observed):
 
     __call__ = get_action
 
-    def __get_wrapped(self, fName):
+    def __get_wrapped(self, fName, kwargs=None):
         func = self.__availableNames.get(fName)
-        argcount = func.func_code.co_argcount
-
+        defaults = func.im_func.func_defaults
+        if defaults:
+            argcount = func.func_code.co_argcount - len(defaults)
+        else:
+            argcount = func.func_code.co_argcount
+        kwargs = kwargs or dict()
         #used for graph_operator methods that don't
         #handle the QAction's boolean sent by trigger
-        def wrappedGOPNoBool(*args, **kwargs):
-            graphView = self.get_graph_view()
+        def wrappedGOPNoBool(*args):
             if self.get_graph() is None : return
             #we receive a boolean from the triggered signal,
             #but we cant handle it
@@ -109,8 +109,7 @@ class GraphOperator(Observed):
             return func(*args, **kwargs)
         #used for graph_operator methods that DO
         #handle the QAction's boolean sent by trigger
-        def wrappedGOPBool(*args, **kwargs):
-            graphView = self.get_graph_view()
+        def wrappedGOPBool(*args):
             if self.get_graph() is None : return
             return func(*args, **kwargs)
 
@@ -123,10 +122,6 @@ class GraphOperator(Observed):
     ###########
     # setters #
     ###########
-    @classmethod
-    def set_main(self, main):
-        GraphOperator.__main__ = main
-
     def set_vertex_item(self, vertexItem):
         self.vertexItem = weakref.ref(vertexItem)
 
@@ -139,53 +134,28 @@ class GraphOperator(Observed):
     ###########
     # getters #
     ###########
-    @classmethod
-    def get_main(self):
-        return GraphOperator.__main__
-
-    def get_session(self):
-        return self.__main__.session
-
     def get_interpreter(self):
-        return self.__main__.interpreterWidget
+        return None
+
+    def get_clipboard(self):
+        return self.clipboard
+
+    def get_siblings(self):
+        return self.siblings
 
     def get_package_manager(self):
-        return self.__main__.pkgmanager
+        from openalea.core.pkgmanager import PackageManager
+        return PackageManager()
 
-    def identify_focused_graph_view(self, *args):
-        """Looks in various places to find which graph view
-        asked for an operation. Here is the strategy:
-        1) Ask the application for the widget in focus.
-            If it is a graph view that it becomes the GraphOperator's view.
-        2) If this fails, search in the session's list of
-            graph views for one that hasFocus() == True.
-        3) If this fails, return the current widget from MainWindow's tabwidget.
-        The identified view can then be retreived by : operator.get_graph_view()
-        This method is bound to every action created or decorated by the operator.
-
-        @note : this method might be better in Session?
-        """
-        self.graphView = None
-        gv = QtGui.QApplication.focusWidget()
-        if type(gv)==qtgraphview.View:
-            self.graphView = gv
-        else:
-            widgets = self.get_session().get_graph_views()
-            for i in widgets:
-                if i.hasFocus() : self.graphView = i
-            if not self.graphView:
-                self.graphView = self.__main__.tabWorkspace.currentWidget()
-        return self.graphView
-
-    def get_graph_view(self):
-        return self.graphView
+    def get_sensible_parent(self):
+        return QtGui.QApplication.topLevelWidgets()[0]
 
     def get_graph_scene(self):
-        return self.graphView.scene()
+        return self.scene
 
     def get_graph(self):
-        graphView = self.get_graph_view()
-        if graphView:
-            return graphView.scene().get_graph()
+        scene = self.get_graph_scene()
+        if scene:
+            return scene.get_graph()
         else:
             return self.graph

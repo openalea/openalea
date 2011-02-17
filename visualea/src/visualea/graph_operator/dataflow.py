@@ -43,7 +43,7 @@ class DataflowOperators(graphOpBase.Base):
 
     def graph_reset(self):
         master = self.master
-        widget = master.get_graph_view()
+        widget = master.get_sensible_parent()
         ret = QtGui.QMessageBox.question(widget,
                                          "Reset Workspace",
                                          "Reset will delete all input values.\n" + \
@@ -67,10 +67,10 @@ class DataflowOperators(graphOpBase.Base):
             if type(a) == type(b) : return 0
             return 1
 
-        if(not items): items = master.get_graph_view().scene().get_selected_items()
+        scene = master.get_graph_scene()
+        if(not items): items = scene.get_selected_items()
         if(not items): return
         items.sort(cmp)
-        scene = master.get_graph_scene()
         for i in items:
             if isinstance(i, master.vertexType):
                 if scene.get_adapter().is_vertex_protected(i.vertex()): continue
@@ -85,9 +85,9 @@ class DataflowOperators(graphOpBase.Base):
     def graph_group_selection(self):
         """Export selected nodes in a new factory"""
         master = self.master
-        widget = master.get_graph_view()
+        widget = master.get_sensible_parent()
         graph  = master.get_graph()
-        adapter = widget.scene().get_adapter()
+        scene  = master.get_graph_scene()
 
         # FIRST WE PREPARE THE USER INTERFACE STUFF
         # ------------------------------------------
@@ -109,7 +109,6 @@ class DataflowOperators(graphOpBase.Base):
         # NOW WE DO THE HARD WORK
         # -----------------------
         factory = dialog.create_cnfactory(pm)
-        scene = widget.scene()
         items = scene.get_selected_items(master.vertexType)
         if(not items): return None
 
@@ -125,10 +124,10 @@ class DataflowOperators(graphOpBase.Base):
 
         # Evaluate the new connections:
         def evaluate_new_connections(newGraph, newGPos, idList):
-            newId    = adapter.add_vertex(newGraph, [newGPos.x(), newGPos.y()])
+            newId    = scene.add_vertex(newGraph, [newGPos.x(), newGPos.y()])
             newEdges = graph.compute_external_io(idList, newId)
             for edges in newEdges:
-                adapter.add_edge((edges[0], edges[1]),
+                scene.add_edge((edges[0], edges[1]),
                                  (edges[2], edges[3]))
             self.graph_remove_selection(items)
 
@@ -161,23 +160,18 @@ class DataflowOperators(graphOpBase.Base):
             mess = QtGui.QMessageBox.warning(widget, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "You try to write in a System Package:\n")
-        master.notify_listeners(("graphoperator_graphsaved", widget, factory))
+        master.notify_listeners(("graphoperator_graphsaved", scene, factory))
 
 
 
     def graph_add_annotation(self, position=None):
-        # Get Position from cursor
-        widget = self.master.get_graph_view()
-        if(not position) :
-            position = widget.mapToScene(
-            widget.mapFromGlobal(widget.cursor().pos()))
+        scene = self.master.get_graph_scene()
 
         # Add new node
         pkgmanager = PackageManager()
         pkg        = pkgmanager["System"]
         factory    = pkg.get_factory("annotation")
 
-        scene = widget.scene()
         realGraph = scene.get_graph()
         node  = factory.instantiate([realGraph.factory.get_id()])
         node.get_ad_hoc_dict().set_metadata("visualStyle", 1)
@@ -188,79 +182,54 @@ class DataflowOperators(graphOpBase.Base):
     def graph_copy(self):
         """ Copy Selection """
         master = self.master
-        if(master.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
-            try:
-                master.get_interpreter().copy()
-            except:
-                pass
-        else:
-            widget = master.get_graph_view()
-            s = widget.scene().get_selected_items( (master.vertexType, master.annotationType) )
-            if(not s): return
+        scene = master.get_graph_scene()
+        s = scene.get_selected_items( (master.vertexType, master.annotationType) )
+        if(not s): return
 
-            #Are we copying in an annotation? Big hack
-            for i in s:
-                if i.hasFocus() : return
-
-            s = [i.vertex().get_id() for i in s]
-            master.get_session().clipboard.clear()
-            master.get_graph().to_factory(master.get_session().clipboard, s, auto_io=False)
-
+        s = [i.vertex().get_id() for i in s]
+        master.get_clipboard().clear()
+        master.get_graph().to_factory(master.get_clipboard(), s, auto_io=False)
 
     def graph_cut(self):
+        """ Cut selection """
         master = self.master
-        if(master.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
-            try:
-                master.get_interpreter().copy()
-            except:
-                pass
-        else:
-            widget = master.get_graph_view()
-            self.graph_copy()
-            self.graph_remove_selection()
+        self.graph_copy()
+        self.graph_remove_selection()
 
-
-    def graph_paste(self):
+    def graph_paste(self, position=None):
         """ Paste from clipboard """
         master = self.master
-        if(master.get_interpreter().hasFocus()): #this shouldn't be here, this file is not for interp
-            try:
-                master.get_interpreter().paste()
-            except:
-                pass
-        else:
-            widget = master.get_graph_view()
-            cnode = master.get_session().clipboard.instantiate()
+        scene  = master.get_graph_scene()
+        cnode = master.get_clipboard().instantiate()
 
-            min_x = min_y = float("inf")
-            for vid in cnode:
-                if vid in (cnode.id_in, cnode.id_out): continue
-                pos = cnode.node(vid).get_ad_hoc_dict().get_metadata("position")
-                min_x = min(pos[0], min_x); min_y = min(pos[1], min_y)
+        min_x = min_y = float("inf")
+        for vid in cnode:
+            if vid in (cnode.id_in, cnode.id_out): continue
+            pos = cnode.node(vid).get_ad_hoc_dict().get_metadata("position")
+            min_x = min(pos[0], min_x); min_y = min(pos[1], min_y)
 
-            position = widget.mapToScene(widget.mapFromGlobal(widget.cursor().pos()))
-            def lam(n):
-                x = n.get_ad_hoc_dict().get_metadata("position")
-                x[0] = x[0]-min_x + position.x()+10
-                x[1] = x[1]-min_y + position.y()+10
-                n.get_ad_hoc_dict().set_metadata("position", x)
 
-            modifiers = [("position", lam)]
-            widget.scene().clearSelection()
-            widget.scene().select_added_items(True)
-            widget.setUpdatesEnabled(False)
-            widget.scene().queue_call_notifications(master.get_session().clipboard.paste,
-                                                    master.get_graph(),
-                                                    modifiers,
-                                                    meta=True)
-            widget.setUpdatesEnabled(True)
-            widget.update()
+        def lam(n):
+            x = n.get_ad_hoc_dict().get_metadata("position")
+            x[0] = x[0]-min_x + position.x()+10
+            x[1] = x[1]-min_y + position.y()+10
+            n.get_ad_hoc_dict().set_metadata("position", x)
+
+        modifiers = [("position", lam)]
+        scene.clearSelection()
+        scene.select_added_items(True)
+        scene.queue_call_notifications(master.get_clipboard().paste,
+                                       master.get_graph(),
+                                       modifiers,
+                                       meta=True)
+
 
 
     def graph_close(self):
        # Try to save factory if widget is a graph
         master = self.master
-        widget = master.get_graph_view()
+        scene  = master.get_graph_scene()
+        widget = master.get_sensible_parent()
         if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
@@ -283,27 +252,28 @@ class DataflowOperators(graphOpBase.Base):
             print "graph_close exception", e
             pass
 
-        # Update session
-        master.notify_listeners(("graphoperator_graphclosed", widget))
+        #update any interested guy
+        master.notify_listeners(("graphoperator_graphclosed", scene))
 
 
     def graph_export_to_factory(self):
         """Export workspace to its factory"""
         master = self.master
-        widget = master.get_graph_view()
+        scene  = master.get_graph_scene()
+        widget = master.get_sensible_parent()
 
         # Get a composite node factory
         graph = master.get_graph()
 
         #check if no other instance of this factory is opened
-        session = master.get_session()
-        for ws in session.workspaces:
+        siblings = master.get_siblings()
+        for ws in siblings:
             if graph != ws and graph.factory == ws.factory:
                 res = QtGui.QMessageBox.warning(widget, "Other instances are opened!",
-                                  """You are trying to save a composite node that has been opened multiple times.
-Doing this may discard changes done in the other intances.
-Do you want to continue?""",
-                                  QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+                """You are trying to save a composite node that has been opened multiple times.
+                Doing this may discard changes done in the other intances.
+                Do you want to continue?""",
+                                                QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
                 if res == QtGui.QMessageBox.Cancel:
                     return
                 else:
@@ -326,13 +296,13 @@ Do you want to continue?""",
             mess = QtGui.QMessageBox.warning(widget, "Error",
                                              "Cannot write Graph model on disk. :\n"+
                                              "Trying to write in a System Package!\n")
-        master.notify_listeners(("graphoperator_graphsaved", widget, factory))
+        master.notify_listeners(("graphoperator_graphsaved", scene, factory))
 
 
     def graph_configure_io(self):
         """ Configure workspace IO """
         master = self.master
-        widget = master.get_graph_view()
+        widget = master.get_sensible_parent()
         graph  = master.get_graph()
         dialog = IOConfigDialog(graph.input_desc,
                                 graph.output_desc,
@@ -346,7 +316,8 @@ Do you want to continue?""",
     def graph_reload_from_factory(self):
         """ Reload a tab node """
         master = self.master
-        widget = master.get_graph_view()
+        scene  = master.get_graph_scene()
+        widget = master.get_sensible_parent()
         if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
@@ -367,10 +338,10 @@ Do you want to continue?""",
         oldGraph = graph
         newGraph = graph.factory.instantiate()
 
-        widget.scene().clear()
-        widget.scene().set_graph(newGraph)
-        widget.scene().initialise_from_model()
-        master.notify_listeners(("graphoperator_graphreloaded", widget, newGraph, oldGraph))
+        scene.clear()
+        scene.set_graph(newGraph)
+        scene.initialise_from_model()
+        master.notify_listeners(("graphoperator_graphreloaded", scene, newGraph, oldGraph))
 
 
     def __get_current_factory(self, name):
@@ -387,7 +358,7 @@ Do you want to continue?""",
     def graph_preview_application(self, name="Preview"):
         """ Open Application widget """
         master = self.master
-        widget = master.get_graph_view()
+        widget = master.get_sensible_parent()
         if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
@@ -404,7 +375,7 @@ Do you want to continue?""",
     def graph_export_application(self):
         """ Export current workspace composite node to an Application """
         master = self.master
-        widget = master.get_graph_view()
+        widget = master.get_sensible_parent()
         if isinstance(widget, InspectorView):
             # print "Forbidden in CompositeNodeInspector"
             return
