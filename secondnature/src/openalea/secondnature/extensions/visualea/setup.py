@@ -24,11 +24,11 @@ from setuptools import setup
 setup( name = "Visualea Extension",
        version = "0.1",
        py_modules = ['visualeapg'],
-       entry_points = {"openalea.app.layout":["visualea.df1 = visualeapg:df1",
+       entry_points = {"openalea.app.document" : ["visualea.pm = visualeapg:pmanager"],
+                       "openalea.app.layout":["visualea.df1 = visualeapg:df1",
                                               "visualea.df2 = visualeapg:df2"],
-                       "openalea.app.widget_factory":["visualea.pm = visualeapg:pmanager_f",
-                                                      "visualea.lo = visualeapg:logger_f",
-                                                      "Visualea.oa = visualeapg:dataflow_f"],
+                       "openalea.app.widget_factory":["Visualea.oa = visualeapg:dataflow_f",
+                                                      "Visualea.pmv = visualeapg:pmanager_f"],
 #                       "openalea.ext":["Visualea = visualeapg.visualea"]
                        }
     )

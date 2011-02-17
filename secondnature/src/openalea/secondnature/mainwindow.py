@@ -27,6 +27,7 @@ from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
 from openalea.secondnature.managers import WidgetFactoryManager
 from openalea.secondnature.managers import ExtensionManager
+from openalea.secondnature.managers import DocumentManager
 from openalea.secondnature.extendable_objects import SingletonWidgetFactory
 
 class MainWindow(QtGui.QMainWindow):
@@ -41,9 +42,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.__splittable = None
         self.__new_splittable()
-
-        #store temporary action for pane menu
-        self.__menuActions = {}
 
         #status bar
         self._statusBar  = QtGui.QStatusBar(self)
@@ -91,15 +89,16 @@ class MainWindow(QtGui.QMainWindow):
         if content is not None:
             self.__setContentAt(paneId, content)
         if menu is not None:
-            pass #self.__setMenuAt(paneId, menu)
+            self.__setMenuAt(paneId, menu)
         if toolbar is not None:
-            pass #self.__setToolbarAt(paneId, toolbar)
+            self.__setToolbarAt(paneId, toolbar)
 
     def __setContentAt(self, paneId, content):
         if self.__splittable:
             self.__splittable.setContentAt(paneId,
                                            content,
                                            noTearOffs=True, noToolButton=True)
+
     def __setMenuAt(self, paneId, menu):
         pass
 
@@ -135,21 +134,22 @@ class MainWindow(QtGui.QMainWindow):
                 return
 
             parsedUrl = urlparse.urlparse(url)
-            data, space = WidgetFactoryManager().create_space(input=parsedUrl)
-            if space is not None:
-                self.__register_document(data, url, space)
+            doc, space = WidgetFactoryManager().create_space(input=parsedUrl)
+            if None not in {doc, space}:
+                self.__register_document(doc, space)
                 self.__setSpaceAt(paneId, space)
 
-    def __register_document(self, data, url, space):
-        if None not in {data, space}:
+    def __register_document(self, doc, space):
+        if None not in {doc, space}:
             dm = DocumentManager()
-            dm.watch(data, url, space)
+            dm.add_document(doc)
+            dm.set_document_property(doc, "space", space)
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
         layout from the registered applications and installs a new splitter
         in the central window."""
-        # -- CHECKS TO DO THIS SAFELY! --
+
         if layoutName is None or layoutName == "":
             return
 
@@ -168,10 +168,15 @@ class MainWindow(QtGui.QMainWindow):
         # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE WIDGET MAP --
         widgetmap = layout.widgetmap
 
+        dm = DocumentManager()
+        wfm = WidgetFactoryManager()
         for paneId, widgetName in widgetmap.iteritems():
-            data, space  = WidgetFactoryManager().create_space(name=widgetName)
-            if space:
+            doc = dm.get(widgetName)
+            print "document", doc, widgetName
+            data, space  = wfm.create_space(input=doc.obj)
+            if space and doc:
                 self.__setSpaceAt(paneId, space)
+                dm.set_document_property(doc, "space", space)
 
     ######################
     # Pane Menu handlers #
@@ -194,19 +199,17 @@ class MainWindow(QtGui.QMainWindow):
             func = self.__make_widget_pane_handler(paneId, widName)
             action.triggered.connect(func)
 
-        widMenu = menu.addMenu("Tools...")
-        widgetNames = [f for f,v in widgetFactories.iteritems() \
-                          if isinstance(v, SingletonWidgetFactory)]
-        for widName in widgetNames:
-            action = widMenu.addAction(widName)
-            func = self.__make_widget_pane_handler(paneId, widName)
-            action.triggered.connect(func)
 
-        docMenu = menu.addMenu("Documents...")
         dm = DocumentManager()
-        for data, doc in dm:
-            action = docMenu.addAction(doc.url)
-            func = self.__make_document_pane_handler(paneId, doc.url)
+        toolMenu = menu.addMenu("Tools...")
+        docMenu = menu.addMenu("Documents...")
+
+        for source, doc in dm:
+            if doc.category == "system":
+                action = toolMenu.addAction(doc.fullname)
+            else:
+                action = docMenu.addAction(doc.fullname)
+            func = self.__make_document_pane_handler(paneId, doc)
             action.triggered.connect(func)
         menu.popup(pos)
 
@@ -224,20 +227,20 @@ class MainWindow(QtGui.QMainWindow):
 
     def __make_widget_pane_handler(self, paneId, widgetName):
         def on_widget_chosen(checked):
-            data, space = WidgetFactoryManager().create_space(name=widgetName)
-            url = "blabla://sillydomain/"+str(data)
-            self.__register_document(data, url, space)
+            doc, space = WidgetFactoryManager().create_space(name=widgetName)
+            self.__register_document(doc, space)
             if space:
                 self.__setSpaceAt(paneId, space)
 
         func = on_widget_chosen
         return func
 
-    def __make_document_pane_handler(self, paneId, url):
+    def __make_document_pane_handler(self, paneId, doc):
         def on_document_chosen(checked):
             dm = DocumentManager()
-            doc = dm[url]
-            space = doc.editor
+            space = dm.get_document_property(doc, "space")
+            if space is None:
+                data, space = WidgetFactoryManager().create_space(input=doc.obj)
             if space is not None:
                 self.__setSpaceAt(paneId, space)
         func = on_document_chosen
@@ -246,48 +249,3 @@ class MainWindow(QtGui.QMainWindow):
 
 
 
-
-from openalea.core.metaclass import make_metaclass
-from openalea.core.singleton import ProxySingleton
-
-class DocumentManager(QtCore.QObject):
-    """"""
-    class Document(object):
-        """"""
-        def __init__(self, url, editor, obj):
-            self.__url    = url
-            self.__editor = editor
-            self.__obj    = obj
-
-        url    = property(lambda x:x.__url)
-        editor = property(lambda x:x.__editor)
-        obj    = property(lambda x:x.__obj)
-
-        @url.setter
-        def url(self, value): self.__url=value
-        @editor.setter
-        def editor(self, value): self.__editor=value
-        @obj.setter
-        def obj(self, value): self.__obj=value
-
-    __metaclass__ = make_metaclass((ProxySingleton,),
-                                   (QtCore.pyqtWrapperType,))
-
-    def __init__(self):
-        QtCore.QObject.__init__(self)
-        self.__documents = {}
-        self.__urlToDoc  = {}
-
-    def watch(self, obj, url, editor):
-        doc = DocumentManager.Document(url, editor, obj)
-        self.__documents[obj] = doc
-        self.__urlToDoc[url] = doc
-
-    def discard(self, obj):
-        del self.__documents[obj]
-
-    def __getitem__(self, url):
-        return self.__urlToDoc[url]
-
-    def __iter__(self):
-        return self.__documents.iteritems()

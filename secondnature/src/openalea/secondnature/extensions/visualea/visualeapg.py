@@ -31,47 +31,39 @@ urlparse.uses_query.append("oa")
 # Not doing this currenly breaks dataflow editing.               #
 # Doing it unbreaks some parts of the dataflow editing.          #
 ##################################################################
-from openalea.visualea.mainwindow import MainWindow
-from PyQt4 import QtGui
-app = QtGui.QApplication.instance()
-if app:
-    app.post_status_message("Discretly starting visualea because of design issues")
-    va = MainWindow(None)
-    va.on_session_started(app.get_session())
-    va.hide()
+# from openalea.visualea.mainwindow import MainWindow
+# from PyQt4 import QtGui
+# app = QtGui.QApplication.instance()
+# if app:
+#     app.post_status_message("Discretly starting visualea because of design issues")
+#     va = MainWindow(None)
+#     va.on_session_started(app.get_session())
+#     va.hide()
 
 
 from openalea.visualea import dataflowview
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
+
+from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
+model = PkgModel(PackageManager())
+pmanager = Document("PackageManager", "Visualea", "PackageManager", model, category="system")
+
 
 class PackageManagerFactory(SingletonWidgetFactory):
     __name__ = "PackageManager"
     __namespace__ = "Visualea"
 
     def handles(self, input):
-        False
+        return isinstance(input, PkgModel)
 
     def _instanciate_space(self, input, parent):
-        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
-        model = PkgModel(PackageManager())
+        assert isinstance(input, PkgModel)
         view  = NodeFactoryTreeView(None, None)
-        view.setModel(model)
-        return model, LayoutSpace(self.__name__, self.__namespace__, view )
+        view.setModel(input)
+        return None, LayoutSpace(self.__name__, self.__namespace__, view )
 
-class LoggerFactory(SingletonWidgetFactory):
-    __name__ = "Logger"
-    __namespace__ = "Visualea"
 
-    def handles(self, input):
-        False
-
-    def _instanciate_space(self, input, parent):
-        from openalea.visualea.logger import LoggerView
-        from openalea.core.logger import LoggerOffice
-        model = LoggerOffice().get_handler("qt")
-        view = LoggerView(None, model=model)
-        return model, LayoutSpace(self.__name__, self.__namespace__, view )
 
 
 class DataflowviewFactory(WidgetFactory):
@@ -88,7 +80,7 @@ class DataflowviewFactory(WidgetFactory):
             node = self.__emptyNodeFactory.instantiate()
             node.set_caption("new dataflow")
 
-        if node is None: #isinstance(input, urlparse.ParseResult):
+        if node is None and isinstance(input, urlparse.ParseResult):
             if input.scheme != "oa":
                 return None, None #unhandled url protocol
 
@@ -103,10 +95,11 @@ class DataflowviewFactory(WidgetFactory):
             node = factory.instantiate()
 
         gwidget = dataflowview.GraphicalGraph.create_view(node, parent=parent)
-        return node, LayoutSpace(self.__name__, self.__namespace__, gwidget)
+        document = Document(node.caption, "Visualea", input, node)
+        return document, LayoutSpace(self.__name__, self.__namespace__, gwidget)
 
     def handles(self, input):
-        good = isinstance(input, [urlparse.ParseResult, CompositeNode])
+        good = isinstance(input, (urlparse.ParseResult, CompositeNode))
         good &= (input.scheme == "oa")
         good &= (input.netloc == "local")
         return good
@@ -114,10 +107,8 @@ class DataflowviewFactory(WidgetFactory):
 
 
 # -- instantiate widget factories --
-pmanager_f = PackageManagerFactory()
-logger_f   = LoggerFactory()
 dataflow_f = DataflowviewFactory()
-
+pmanager_f = PackageManagerFactory()
 
 
 
@@ -138,13 +129,13 @@ df1 = Layout("Dataflow Editing",
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
              widgetmap={1:"Visualea.PackageManager",
-                        4:"Visualea.Logger"})
+                        4:"Openalea.Logger"})
 
 df2 = Layout("Dataflow Editing2",
              "Visualea",
              skeleton=sk,
              widgetmap={4:"Visualea.PackageManager",
-                        3:"Visualea.Logger"})
+                        3:"Openalea.Logger"})
 
 
 

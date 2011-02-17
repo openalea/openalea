@@ -20,12 +20,12 @@ __revision__ = " $Id$ "
 
 class Base(object):
     def __init__(self, name, ns):
-        self.__name = name
+        self._name = name
         self.__ns = ns
 
-    name      = property(lambda x: x.__name)
+    name      = property(lambda x: x._name)
     namespace = property(lambda x: x.__ns)
-    fullname  = property(lambda x: ".".join([x.__ns, x.__name]))
+    fullname  = property(lambda x: ".".join([x.__ns, x._name]))
 
 
 
@@ -88,3 +88,18 @@ class SingletonWidgetFactory(WidgetFactory):
         return self.__data, self.__instance
 
 
+
+class Document(Base):
+    """"""
+    def __init__(self, name, ns, source, obj, category="user"):
+        Base.__init__(self, name, ns)
+        self.__source = source
+        self.__obj    = obj
+        self.__cat    = category
+
+    source    = property(lambda x:x.__source)
+    obj       = property(lambda x:x.__obj)
+    category  = property(lambda x:x.__cat)
+
+    def _set_name(self, name):
+        self._name = name
