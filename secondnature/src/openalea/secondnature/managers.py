@@ -168,11 +168,12 @@ class BuiltinSourceBase(AbstractSource):
 
     def __init__(self):
         AbstractSource.__init__(self)
-        name = ".".join(["builtins",self.__mod_name__])
+        name = ".".join(["openalea.secondnature.builtins",self.__mod_name__])
         try:
             self.mod = __import__(name,
                                   fromlist=[self.__mod_name__])
         except ImportError, e:
+            print e
             logger.error("Couldn't import " + name)
             self.mod = None
         self.__items = None
