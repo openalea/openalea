@@ -20,9 +20,9 @@ from openalea.secondnature.extendable_objects import Document
 
 #LOGGER
 from openalea.core.logger import LoggerOffice
-model = LoggerOffice().get_handler("qt")
+loggermodel = LoggerOffice().get_handler("qt")
 loggerurl = "oa://logger.local/"
-logger = Document("Logger", "Openalea", loggerurl, model, category="system")
+logger = Document("Logger", "Openalea", loggerurl, loggermodel, category="system")
 
 
 def get_builtins():

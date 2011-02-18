@@ -30,7 +30,9 @@ class LoggerFactory(SingletonWidgetFactory):
 
     def _instanciate_space(self, url):
         assert self.handles(url)
-        model = LoggerOffice().get_handler("qt")
+        from . import documents
+
+        model = documents.loggermodel
         view = LoggerView(None, model=model)
         return None, LayoutSpace(self.__name__, self.__namespace__, view )
 

@@ -72,7 +72,7 @@ class DataflowViewFactory(WidgetFactory):
                                        netloc="local",
                                        path  ="/unknown",
                                        params = "",
-                                       query ="?fac="+iname+"&ft=CompositeNodeFactory",
+                                       query ="fac="+iname+"&ft=CompositeNodeFactory",
                                        fragment = ""
                                        )
         else:

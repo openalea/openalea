@@ -207,10 +207,13 @@ class MainWindow(QtGui.QMainWindow):
         docMenu = menu.addMenu("Documents...")
 
         for source, doc in dm:
+            srcName = doc.name + " ("+doc.source+")"
+            # must escape the ampersand or Qt stips it as a mnemonic
+            srcName = srcName.replace("&","&&")
             if doc.category == "system":
-                action = toolMenu.addAction(doc.name + " ("+doc.source+")")
+                action = toolMenu.addAction(srcName)
             else:
-                action = docMenu.addAction(doc.name + " ("+doc.source+")")
+                action = docMenu.addAction(srcName)
             func = self.__make_document_pane_handler(paneId, doc)
             action.triggered.connect(func)
         menu.popup(pos)
