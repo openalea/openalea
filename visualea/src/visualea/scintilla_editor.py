@@ -386,7 +386,11 @@ class ScintillaCodeEditor(QtGui.QWidget):
         txt = self.editor.text()
         return txt
 
+    def document(self):
+        return self.editor.document()
 
+    def setDocument(self, doc):
+        self.editor.setDocument(doc)
 
 
 
