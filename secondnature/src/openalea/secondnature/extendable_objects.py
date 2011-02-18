@@ -66,11 +66,11 @@ class WidgetFactory(Base):
         """returns True or False"""
         raise NotImplementedError
 
-    def __call__(self, input, parent):
+    def __call__(self, input):
         """returns ( (input|derived input), LayoutSpace)"""
-        return self._instanciate_space(input, parent)
+        return self._instanciate_space(input)
 
-    def _instanciate_space(self, input, parent):
+    def _instanciate_space(self, input):
         """returns ( (input|derived input), LayoutSpace)"""
         raise NotImplementedError
 
@@ -81,10 +81,10 @@ class SingletonWidgetFactory(WidgetFactory):
         self.__instance = None
         self.__data     = None
 
-    def __call__(self, input, parent):
+    def __call__(self, input):
         if self.__instance is not None:
             return self.__data, self.__instance
-        self.__data, self.__instance = self._instanciate_space(input, parent)
+        self.__data, self.__instance = self._instanciate_space(input)
         return self.__data, self.__instance
 
 

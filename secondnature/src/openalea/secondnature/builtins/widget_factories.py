@@ -19,17 +19,19 @@ from openalea.secondnature.extendable_objects import *
 
 
 from openalea.visualea.logger import LoggerView
-from openalea.core.logger import QLogHandlerItemModel
+from openalea.core.logger import QLogHandlerItemModel, LoggerOffice
+
 class LoggerFactory(SingletonWidgetFactory):
     __name__ = "Logger"
     __namespace__ = "Openalea"
 
-    def handles(self, input):
-        return isinstance(input, QLogHandlerItemModel)
+    def handles(self, url):
+        return url.geturl() == "oa://logger.local/"
 
-    def _instanciate_space(self, input, parent):
-        assert isinstance(input, QLogHandlerItemModel)
-        view = LoggerView(None, model=input)
+    def _instanciate_space(self, url):
+        assert self.handles(url)
+        model = LoggerOffice().get_handler("qt")
+        view = LoggerView(None, model=model)
         return None, LayoutSpace(self.__name__, self.__namespace__, view )
 
 logger_f   = LoggerFactory()

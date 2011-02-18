@@ -475,7 +475,21 @@ class NodeFactoryView(object):
         mimeData = QtCore.QMimeData()
 
         mimeData.setData(mimetype, itemData)
-        mimeData.setUrls([QtCore.QUrl("oa://local/"+pkg_id+"?"+factory_id)])
+
+        #build an url
+        factory = PackageManager()[pkg_id][factory_id]
+        if isinstance(factory, DataFactory):
+            url = QtCore.QUrl("file://"+factory.get_pkg_data().repr)
+        else:
+            query   = ["fac="+factory_id]
+
+            ftname  = type(factory).__name__
+            query.append("ft="+ftname)
+
+            query = reduce(lambda x,y:"&".join((x,y)), query)
+            url = QtCore.QUrl("oa://local/"+pkg_id+"?"+query)
+
+        mimeData.setUrls([url])
 
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
@@ -794,10 +808,17 @@ Do you want to continue?""",
                         return
                     else:
                         break
-
             self.edit_node()
+        # elif isinstance(obj, DataFactory):
+        #     f=obj.get_pkg_data().repr
+        #     self.edit_data(f)
         elif (not isinstance(obj, Package)):
             self.open_node()
+
+
+    # @busy_cursor
+    # @exception_display
+    # def edit_node(self):
 
 
     @busy_cursor

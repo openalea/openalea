@@ -38,6 +38,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+
+
         self._mainMenu = QtGui.QMenuBar(self)
 
         self.__splittable = None
@@ -134,7 +136,7 @@ class MainWindow(QtGui.QMainWindow):
                 return
 
             parsedUrl = urlparse.urlparse(url)
-            doc, space = WidgetFactoryManager().create_space(input=parsedUrl)
+            doc, space = WidgetFactoryManager().create_space(url=parsedUrl)
             if None not in {doc, space}:
                 self.__register_document(doc, space)
                 self.__setSpaceAt(paneId, space)
@@ -173,7 +175,8 @@ class MainWindow(QtGui.QMainWindow):
         for paneId, widgetName in widgetmap.iteritems():
             doc = dm.get(widgetName)
             print "document", doc, widgetName
-            data, space  = wfm.create_space(input=doc.obj)
+            parsedUrl = urlparse.urlparse(doc.source)
+            data, space  = wfm.create_space(url=parsedUrl)
             if space and doc:
                 self.__setSpaceAt(paneId, space)
                 dm.set_document_property(doc, "space", space)
@@ -199,16 +202,15 @@ class MainWindow(QtGui.QMainWindow):
             func = self.__make_widget_pane_handler(paneId, widName)
             action.triggered.connect(func)
 
-
         dm = DocumentManager()
         toolMenu = menu.addMenu("Tools...")
         docMenu = menu.addMenu("Documents...")
 
         for source, doc in dm:
             if doc.category == "system":
-                action = toolMenu.addAction(doc.fullname)
+                action = toolMenu.addAction(doc.name + " ("+doc.source+")")
             else:
-                action = docMenu.addAction(doc.fullname)
+                action = docMenu.addAction(doc.name + " ("+doc.source+")")
             func = self.__make_document_pane_handler(paneId, doc)
             action.triggered.connect(func)
         menu.popup(pos)
@@ -227,7 +229,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def __make_widget_pane_handler(self, paneId, widgetName):
         def on_widget_chosen(checked):
-            doc, space = WidgetFactoryManager().create_space(name=widgetName)
+            doc, space = WidgetFactoryManager().create_space(widget_name=widgetName)
+            print "on_widget_chosen", doc.name, doc.fullname, doc.category, doc.source
             self.__register_document(doc, space)
             if space:
                 self.__setSpaceAt(paneId, space)
@@ -240,7 +243,8 @@ class MainWindow(QtGui.QMainWindow):
             dm = DocumentManager()
             space = dm.get_document_property(doc, "space")
             if space is None:
-                data, space = WidgetFactoryManager().create_space(input=doc.obj)
+                parsedUrl = urlparse.urlparse(doc.source)
+                data, space = WidgetFactoryManager().create_space(url=parsedUrl)
             if space is not None:
                 self.__setSpaceAt(paneId, space)
         func = on_document_chosen

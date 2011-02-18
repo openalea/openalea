@@ -18,7 +18,72 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 from PyQt4 import QtGui, QtCore
-from openalea.visualea.splitterui import SplittableUI, DraggableWidget
+from openalea.visualea.splitterui import SplittableUI, DraggableWidget, RubberBandScrollArea
+
+
+
+
+# class Header(QtGui.QFrame):
+#      """Implementation of the area that holds the menu and toolbar area
+
+#      Obeys to Qt naming convention.
+#      """
+
+#      __ideal_height__ = 27 # this is fixed, never got it right otherwise.
+#      widgetMenuRequest = QtCore.pyqtSignal(QtCore.QPoint)
+
+
+#      def __init__(self, parent=None, windowsflags=QtCore.Qt.Widget):
+#          QtGui.QFrame.__init__(self, parent, windowsflags)
+#          self.__lay = QtGui.QHBoxLayout()
+#          self.__lay.setContentsMargins(1,1,1,1)
+#          self.__lay.setSpacing(1)
+
+#          self.__but = QtGui.QPushButton("Win")
+#          self.__but.setSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
+#          self.__but.clicked.connect(self.__onButtonClicked)
+
+#          self.__lay.addWidget(self.__but)
+
+#          self.headerScr = RubberBandScrollArea()
+#          # -- lock scrolling to X --
+#          self.headerScr.setYScrollable(False)
+#          # -- appearance --
+#          self.headerScr.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+#          self.headerScr.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+#          self.headerScr.setFrameShape(QtGui.QFrame.NoFrame)
+#          self.headerScr.setFrameShadow(QtGui.QFrame.Sunken)
+
+#          self.__lay.addWidget(self.headerScr)
+#          self.__fixSize()
+#          self.setLayout(self.__lay)
+
+#      def setToolbar(self, toolbar):
+#          """Set the widget held by the scrollable
+#          toolbar area to the right.
+
+#          :Parameters:
+#           - `toolbar` (QtGui.QWidget) - the widget that serves as a toolbar.
+#          """
+#          self.headerScr.setWidget(toolbar)
+#          self.__fixSize()
+
+#      def toolbar(self):
+#          """Retreive the toolbar widget"""
+#          self.headerScr.widget()
+
+#      def __fixSize(self):
+#          """Forces all subwidgets to a decent size. Private."""
+#          szY = self.__ideal_height__
+#          self.__but.setMaximumHeight(szY)
+#          self.__but.setMinimumHeight(szY)
+#          self.setMaximumHeight(szY+5)
+#          self.setMinimumHeight(szY+5)
+
+#      def __onButtonClicked(self, checked):
+#          origin = self.__but.geometry().bottomLeft()
+#          origin = self.mapToGlobal(origin)
+#          self.widgetMenuRequest.emit(origin)
 
 class CustomSplittable(SplittableUI):
 
@@ -108,17 +173,16 @@ class CustomSplittable(SplittableUI):
 
 
     class GeometryComputingVisitor(SplittableUI.GeometryComputingVisitor):
-        def visit(self, vid):
-            igF, igS = SplittableUI.GeometryComputingVisitor.visit(self, vid)
-            if not self.g.has_children(vid):
-                geom = self.geomCache[vid]
-                tb = self.g.get_property(vid, "toolButtonWidget")
-                th = CustomSplittable.ToolButton.__ideal_height__
-                if geom.height() <  th or geom.width() < th:
-                    tb.hide()
-                else:
-                    tb.show()
+        def layout_pane(self, geom, vid):
+            igF, igS = super(self.__class__, self).layout_pane(geom, vid)
 
-                tb.move(geom.left()+1, geom.top()+1)
-                return False, False #don't ignore first or second child
-            return igF, igS
+            tb = self.g.get_property(vid, "toolButtonWidget")
+            th = CustomSplittable.ToolButton.__ideal_height__
+            if geom.height() <  th or geom.width() < th:
+                tb.hide()
+            else:
+                tb.show()
+
+            tb.move(geom.left()+1, geom.top()+1)
+            return False, False #don't ignore first or second child
+

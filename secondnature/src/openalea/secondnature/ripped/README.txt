@@ -1,4 +1,4 @@
-# -*- python -*-
+# -*- README -*-
 #
 #       OpenAlea.Secondnature
 #
@@ -14,16 +14,8 @@
 #
 ###############################################################################
 
+This directory contains modules ripped away from openalea.visualea because they needed tweaks to work
+properly out of the visualea context. The idea is that a good refactoring of the original files
+will eliminate the need for ripped out modules!
 
-from openalea.secondnature.extendable_objects import Document
-
-
-#LOGGER
-from openalea.core.logger import LoggerOffice
-model = LoggerOffice().get_handler("qt")
-loggerurl = "oa://logger.local/"
-logger = Document("Logger", "Openalea", loggerurl, model, category="system")
-
-
-def get_builtins():
-    return [logger]
+- node_treeview.py : some classes require a reference to visualea's mainwindow. Remove that dependency!

@@ -152,7 +152,7 @@ class EntryPointSourceBase(AbstractSource):
             try:
                 it = ep.load()
             except ImportError, e:
-                logger.error(self.name + " couldn't load " + str(ep) )
+                logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
             else:
                 self.items[it.fullname] = it
         self.itemListChanged.emit(self, self.items.copy())
@@ -229,17 +229,29 @@ class WidgetFactoryManager(AbstractSourceManager):
         if input is not None:
             factories = self.gather_items()
             for it in factories.itervalues():
-                if it.handles(input):
-                    return it
+                try:
+                    if it.handles(input):
+                        return it
+                except Exception, e:
+                    logger.error("WidgetFactoryManager encountered error in factory " + it.fullname + ":" +str(e))
+                    continue
         return None
 
 
-    def create_space(self, name=None, input=None, parent=None):
+    def create_space(self, widget_name=None, url=None):
+        """
+        Synopsis:
+        widget_name: ?
+        input: ?
+
+        :Exemple:
+
+        """
         factories = self.gather_items()
-        factory   = factories.get(name)
-        factory   = factory or self.has_handler_for(input)
+        factory   = factories.get(widget_name)
+        factory   = factory or self.has_handler_for(url)
         if factory is not None:
-            return factory(input, parent)
+            return factory(url)
         return None, None
 
 
