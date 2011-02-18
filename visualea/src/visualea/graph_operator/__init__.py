@@ -20,7 +20,6 @@ __revision__ = " $Id$ "
 import weakref
 from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
-from openalea.grapheditor import qtgraphview
 from openalea.core.compositenode import CompositeNodeFactory
 
 def do_imports():
