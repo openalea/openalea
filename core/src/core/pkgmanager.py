@@ -29,6 +29,7 @@ import sys
 import os
 import tempfile
 import glob
+import urlparse
 from path import path
 from fnmatch import fnmatch
 from pkg_resources import iter_entry_points
@@ -54,6 +55,14 @@ class UnknownPackageError (Exception):
     def __init__(self, name):
         Exception.__init__(self)
         self.message = "Cannot find package : %s"%(name)
+
+    def __str__(self):
+        return self.message
+
+class IllFormedUrlError (Exception):
+    def __init__(self, url):
+        Exception.__init__(self)
+        self.message = "Url is ill-formed : %s"%(url)
 
     def __str__(self):
         return self.message
@@ -107,6 +116,10 @@ class PackageManager(object):
     def __init__ (self, verbose=True):
         """ Constructor """
         self.log = Logger()
+
+        #make urlparse correctly handle the glorious "oa" protocol :)
+        urlparse.uses_query.append("oa")
+
         self.verbose = verbose
         # remove namespace option
         #self.include_namespace = self.get_include_namespace()
@@ -775,8 +788,30 @@ class PackageManager(object):
     def get(self, *args):
         return self.pkgs.get(*args)
 
-
     # Convenience functions
+    def get_node_from_url(self, url):
+        """Returns a node instance from the given url.
+
+        :Parameters:
+        - url - is either a string or a urlparse.ParseResult instance.
+        It is encoded this way: oa://*domain*/*packageName*?fac=*factoryName*&ft=*factoryType* .
+        "oa" means that it is meant to be used by openalea.
+        "domain" MUST BE "local" for now.
+        "packageName" is the name of the package
+        "factoryName" is the of factory
+        "factoryType" is one of {"CompositeNodeFactory", "NodeFactory", "DataFactory"}
+        """
+
+        if isinstance(url, str):
+            url = urlparse.urlparse(url)
+        assert isinstance(url, urlparse.ParseResult)
+        queries  = urlparse.parse_qs(url.query)
+        if "fac" not in queries:
+            raise IllFormedUrlError(url.geturl())
+        pkg_id = url.path.strip("/") #the path is preceded by one "/"
+        factory_id = queries["fac"][0]
+        return self.get_node(pkg_id, factory_id)
+
     def get_node(self, pkg_id, factory_id):
         """ Return a node instance giving a pkg_id and a factory_id """
         pkg = self[pkg_id]
