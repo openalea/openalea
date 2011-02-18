@@ -846,6 +846,26 @@ class SplittableUI(QtGui.QWidget):
             self.g = graph
             self.geomCache = geomCache
 
+
+        def layout_pane(self, geom, vid):
+            if self.g.has_property(vid, "widget"):
+                widget = self.g.get_property(vid, "widget")
+                if widget is not None:
+                    widget.move(geom.x(), geom.y())
+                    widget.resize(geom.width(), geom.height())
+
+            th = SplittableUI.TearOff.__ideal_height__
+            tearOffB,tearOffT = toffs = self.g.get_property(vid, "tearOffWidgets")
+            if geom.height() <  th or geom.width() < th:
+                for t in toffs:
+                    t.hide()
+            else:
+                for t in toffs:
+                    t.show()
+            tearOffB.move(geom.left()+1, geom.bottom()+1-th)
+            tearOffT.move(geom.right()-th+1, geom.top()+1)
+            return False, False #don't ignore first or second child
+
         def visit(self, vid):
             """
             Lays out all the widgets concerning vid.
@@ -861,32 +881,14 @@ class SplittableUI(QtGui.QWidget):
             Called by the binary tree structure. The order is dependent
             on the tree traversal method used."""
 
-            if self.g.has_children(vid):
-                fid, sid = self.g.children(vid)
-            else:
+            if not self.g.has_children(vid):
                 # ok, no child, so we probably have a widget and our geometry
                 # has already been computed by parent
-
                 geom = self.geomCache[vid]
+                return self.layout_pane(geom, vid)
 
-                if self.g.has_property(vid, "widget"):
-                    widget = self.g.get_property(vid, "widget")
-                    if widget is not None:
-                        widget.move(geom.x(), geom.y())
-                        widget.resize(geom.width(), geom.height())
 
-                th = SplittableUI.TearOff.__ideal_height__
-                tearOffB,tearOffT = toffs = self.g.get_property(vid, "tearOffWidgets")
-                if geom.height() <  th or geom.width() < th:
-                    for t in toffs:
-                        t.hide()
-                else:
-                    for t in toffs:
-                        t.show()
-                tearOffB.move(geom.left()+1, geom.bottom()+1-th)
-                tearOffT.move(geom.right()-th+1, geom.top()+1)
-                return False, False #don't ignore first or second child
-
+            fid, sid = self.g.children(vid)
 
             sp = SplittableUI.__spacing__
             containerGeom = self.geomCache[vid]
