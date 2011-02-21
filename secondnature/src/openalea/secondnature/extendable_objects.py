@@ -62,10 +62,6 @@ class WidgetFactory(Base):
     def get_icon(self):
         return NotImplementedError
 
-    def handles(self, input):
-        """returns True or False"""
-        raise NotImplementedError
-
     def __call__(self, input):
         """returns ( (input|derived input), LayoutSpace)"""
         return self._instanciate_space(input)
@@ -75,29 +71,44 @@ class WidgetFactory(Base):
         raise NotImplementedError
 
 
+
 class DocumentWidgetFactory(WidgetFactory):
+    __mimeformats__ = []
+
+    def get_mime_formats(self):
+        return self.__mimeformats__[:]
+
     def handles_mimetype(self, format):
         raise NotImplementedError
 
-    def new_document(self, name):
+    def new_document(self):
         raise NotImplementedError
 
-    def open_document(self, name):
+    def open_document(self, parsedUrl):
         raise NotImplementedError
 
-    def get_document_space(self, doc):
+    def get_document_space(self, document):
         raise NotImplementedError
+
 
 
 class ResourceWidgetFactory(WidgetFactory):
     def get_resource(self):
         raise NotImplementedError
 
+    def _get_resource_space(self, resource):
+        if not self.validate_resource(resource):
+            raise Exception("resource "+resource.fullname+" is not handled by "+self.fullname)
+        else:
+            return self.get_resource_space(resource)
+
     def validate_resource(self, resource):
         raise NotImplementedError
 
     def get_resource_space(self, resource):
         raise NotImplementedError
+
+
 
 
 class Document(Base):
@@ -114,5 +125,9 @@ class Document(Base):
 
     def _set_name(self, name):
         self._name = name
+
+
+    def save(self):
+        raise NotImplementedError
 
 Resource = Document

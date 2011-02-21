@@ -78,8 +78,8 @@ class AbstractSourceManager(QtCore.QObject):
                     continue
                 src.gather_items()
                 self._items.update(src.get_items())
-            self.itemListChanged.emit(list(self.iter_item_names()))
-        return self._items
+            self.itemListChanged.emit(list(self._items.iterkeys()))
+        return self._items.copy()
 
     def get(self, name):
         items = self.gather_items()
@@ -90,7 +90,7 @@ class AbstractSourceManager(QtCore.QObject):
 
     def update_with_source(self, src, items):
         self._items.update(items)
-        self.itemListChanged.emit(list(self.iter_item_names()))
+        self.itemListChanged.emit(list(self._items.iterkeys()))
 
 
 
@@ -275,23 +275,31 @@ doc_wid_classes = make_manager("DocumentWidgetFactory",
 DocumentWidgetFactoryManagerBase, DocumentWidgetFactorySourceMixin, (DocumentWidgetFactorySourceEntryPoints, DocumentWidgetFactorySourceBuiltin), init_docwidgetfactory_sources = doc_wid_classes
 
 class DocumentWidgetFactoryManager(DocumentWidgetFactoryManagerBase):
+    def __init__(self):
+        DocumentWidgetFactoryManagerBase.__init__(self)
+        self.__mimeMap = {}
+
+    def gather_items(self, refresh=True):
+        items = DocumentWidgetFactoryManagerBase.gather_items(self, refresh)
+        if refresh:
+            self.__mimeMap.clear()
+            for v in items.itervalues():
+                if v is None:
+                    continue
+                fmts = v.get_mime_formats()
+                for fmt in fmts:
+                    self.__mimeMap.setdefault(fmt, set()).add(v)
+        return items
+
     def get_handlers_for_mimedata(self, mimedata):
         fmts = mimedata.formats()
         factories = self.gather_items()
         handlers = set()
         for fm in fmts:
-            for fac in factories.itervalues():
-                ok = False
-                try:
-                    ok = fac.handles_mimetype(str(fm))
-                except Exception, e:
-                    logger.error("DocumentWidgetFactoryManager encountered error in factory " \
-                                 + fac.fullname + ":" +str(e))
-                else:
-                    if ok:
-                        handlers.add(fac)
-                    else:
-                        continue
+            fm = str(fm)
+            fmt_factories = self.__mimeMap.get(fm)
+            if fmt_factories is not None:
+                handlers.update(fmt_factories)
         return list(handlers)
 
 

@@ -29,7 +29,8 @@ from openalea.secondnature.managers import DocumentWidgetFactoryManager
 from openalea.secondnature.managers import ResourceWidgetFactoryManager
 from openalea.secondnature.managers import ExtensionManager
 from openalea.secondnature.managers import DocumentManager
-#from openalea.secondnature.extendable_objects import SingletonWidgetFactory
+
+sn_logger = get_logger(__name__)
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -39,7 +40,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        self.logger = get_logger(__name__)
+        self.logger = sn_logger
 
         self._mainMenu = QtGui.QMenuBar(self)
 
@@ -61,57 +62,13 @@ class MainWindow(QtGui.QMainWindow):
     def init_extensions(self):
         init_sources()
 
-    def __new_splittable(self, skeleton=None):
-        if skeleton == None:
-            s = CustomSplittable(parent=None)
-        else:
-            s = CustomSplittable.fromString(skeleton, parent=None)
-        s.setContentsMargins(0,0,0,0)
-
-        taken = None
-        if self.__splittable is not None:
-            # -- prevent deletion of C++ side of widgets by QObject mecanism --
-            taken = self.__splittable.takeAllContents(reparent=self)
-            self.__splittable.hide()
-
-        self.__splittable = s
-        self.setCentralWidget(s)
-        s.paneMenuRequest.connect(self.__onPaneMenuRequest)
-        s.dragEnterEventTest.connect(self.__on_splitter_drag_enter)
-        s.dropHandlerRequest.connect(self.__on_splitter_pane_drop)
-        return s, taken
-
-    def __onLayoutListChanged(self, layoutNames):
-        layoutNames.sort()
-        self._layoutMode.clear()
-        self._layoutMode.addItems(layoutNames)
-        self._layoutMode.setCurrentIndex(-1)
-
-    def __setSpaceAt(self, paneId, space):
-        content, menu, toolbar = space.content, space.menu, space.toolbar
-        if content is not None:
-            self.__setContentAt(paneId, content)
-        if menu is not None:
-            self.__setMenuAt(paneId, menu)
-        if toolbar is not None:
-            self.__setToolbarAt(paneId, toolbar)
-
-    def __setContentAt(self, paneId, content):
-        if self.__splittable:
-            self.__splittable.setContentAt(paneId,
-                                           content,
-                                           noTearOffs=True, noToolButton=True)
-
-    def __setMenuAt(self, paneId, menu):
-        pass
-
-    def __setToolbarAt(self, paneId, tb):
-        pass
-
+    #################################
+    # DRAG AND DROP RELATED METHODS #
+    #################################
     def __validate_mimedata(self, mimedata):
         good = False
-        for f in mimedata.formats():
-            print f
+        fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
+        self.logger.info("__validate_mimedata formats" + fmts)
         if mimedata.hasFormat("text/uri-list"):
             good = True
         urls = mimedata.urls()
@@ -119,8 +76,7 @@ class MainWindow(QtGui.QMainWindow):
         if len(urls) == 1:
             good = True
         if not good:
-            fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
-            self.logger.debug("invalid mimedata: "+fmts)
+            self.logger.error("invalid mimedata: "+fmts)
         return good
 
     def __on_splitter_drag_enter(self, event):
@@ -143,7 +99,12 @@ class MainWindow(QtGui.QMainWindow):
         elif nbHandlers == 1:
             fac = handlers[0]
         elif nbHandlers > 1:
-            fac = None
+            selector = DocumentEditorSelector( [h.fullname for h in handlers], self )
+            if selector.exec_() == QtGui.QDialog.Rejected:
+                return
+            else:
+                facName = selector.get_selected()
+                fac = filter(lambda x: x.fullname == facName, handlers)[0]
 
         url = str(mimeData.urls()[0].toString())
         parsedUrl = urlparse.urlparse(url)
@@ -154,11 +115,14 @@ class MainWindow(QtGui.QMainWindow):
             self.__register_document(doc, space)
             self.__setSpaceAt(paneId, space)
 
-    def __register_document(self, doc, space):
-        if None not in {doc, space}:
-            dm = DocumentManager()
-            dm.add_document(doc)
-            dm.set_document_property(doc, "space", space)
+    ####################################
+    # Layout selection related methods #
+    ####################################
+    def __onLayoutListChanged(self, layoutNames):
+        layoutNames.sort()
+        self._layoutMode.clear()
+        self._layoutMode.addItems(layoutNames)
+        self._layoutMode.setCurrentIndex(-1)
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
@@ -168,21 +132,20 @@ class MainWindow(QtGui.QMainWindow):
         if layoutName is None or layoutName == "":
             return
 
-        layoutName = str(layoutName)   # convert from QString to python str
-
-        # layoutNames encodes the application name and the layout name:
+        # convert from QString to python str
+        layoutName = str(layoutName)
+        # layoutNames encodes the application
+        # name and the layout name:
         # they are seperated by a period.
         layout = LayoutManager().get(layoutName)
-
         if not layout:
             return
 
-        # -- CHANGE THE LAYOUT --
+        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE RESOURCE MAP --
+        # create new splittable and retreive objects from previous
         newSplit, taken = self.__new_splittable(layout.skeleton)
 
-        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE RESOURCE MAP --
         resourcemap = layout.resourcemap
-
         rwfm = ResourceWidgetFactoryManager()
         for paneId, resourceName in resourcemap.iteritems():
             resFac = rwfm.get(resourceName)
@@ -190,13 +153,27 @@ class MainWindow(QtGui.QMainWindow):
                 self.logger.debug("__onLayoutChosen has None factory for "+resourceName)
                 continue
             res    = resFac.get_resource()
-            space  = resFac.get_resource_space(res)
+            try:
+                space  = resFac._get_resource_space(res)
+            except Exception, e:
+                print e
+                self.logger.error("__onLayoutChosen cannot display "+ \
+                                  resourceName+":"+\
+                                  e.message)
+                continue
             if space:
                 self.__setSpaceAt(paneId, space)
 
     ######################
     # Pane Menu handlers #
     ######################
+    # Each time the user presses the "+" button of a pane a new menu
+    # is created and it's actions are bound to new slots created on
+    # the fly by the following "__make_*_pane_handler methods.
+    # The reason is that otherwise we don't know which pane
+    # requests the action. This is rougly equivalent to C++' bind1st.
+    # Todo : objectify this
+
     def __onPaneMenuRequest(self, paneId, pos):
         pos = self.__splittable.mapToGlobal(pos)
         menu = QtGui.QMenu(self.__splittable)
@@ -232,12 +209,6 @@ class MainWindow(QtGui.QMainWindow):
             action.triggered.connect(func)
         menu.popup(pos)
 
-    # Each time the user presses the "+" button of a pane a new menu
-    # is created and it's actions are bound to new slots created on
-    # the fly by the following "__make_*_pane_handler methods.
-    # The reason is that otherwise we don't know which pane
-    # requests the action. This is rougly equivalent to C++' bind1st.
-    # Todo : objectify this
     def __make_clear_pane_handler(self, paneId):
         def on_clear_chosen(checked):
             self.__splittable.takeContentAt(paneId, None)
@@ -270,7 +241,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.logger.debug("on_res_widget_chosen has None factory for "+ widgetName)
             else:
                 res = fac.get_resource()
-                space = fac.get_resource_space(res)
+                space = fac._get_resource_space(res)
                 if res is None:
                     self.logger.debug("on_res_widget_chosen has None resource for "+ widgetName)
                 if space is None:
@@ -292,6 +263,84 @@ class MainWindow(QtGui.QMainWindow):
 
         func = on_document_chosen
         return func
+
+
+
+    ####################################
+    # SPACE CONTENT MANAGEMENT METHODS #
+    ####################################
+    def __new_splittable(self, skeleton=None):
+        if skeleton == None:
+            s = CustomSplittable(parent=None)
+        else:
+            s = CustomSplittable.fromString(skeleton, parent=None)
+        s.setContentsMargins(0,0,0,0)
+
+        taken = None
+        if self.__splittable is not None:
+            # -- prevent deletion of C++ side of widgets by QObject mecanism --
+            taken = self.__splittable.takeAllContents(reparent=self)
+            self.__splittable.hide()
+
+        self.__splittable = s
+        self.setCentralWidget(s)
+        s.paneMenuRequest.connect(self.__onPaneMenuRequest)
+        s.dragEnterEventTest.connect(self.__on_splitter_drag_enter)
+        s.dropHandlerRequest.connect(self.__on_splitter_pane_drop)
+        return s, taken
+
+    def __setSpaceAt(self, paneId, space):
+        content, menu, toolbar = space.content, space.menu, space.toolbar
+        if content is not None:
+            self.__setContentAt(paneId, content)
+        if menu is not None:
+            self.__setMenuAt(paneId, menu)
+        if toolbar is not None:
+            self.__setToolbarAt(paneId, toolbar)
+
+    def __setContentAt(self, paneId, content):
+        if self.__splittable:
+            self.__splittable.setContentAt(paneId,
+                                           content,
+                                           noTearOffs=True, noToolButton=True)
+
+    def __setMenuAt(self, paneId, menu):
+        pass
+
+    def __setToolbarAt(self, paneId, tb):
+        pass
+
+
+    ##############################
+    # DOCUMENT COMMODITY METHODS #
+    ##############################
+    def __register_document(self, doc, space):
+        if None not in {doc, space}:
+            dm = DocumentManager()
+            dm.add_document(doc)
+            dm.set_document_property(doc, "space", space)
+
+
+
+
+class DocumentEditorSelector(QtGui.QDialog):
+    def __init__(self, items, parent=None):
+        QtGui.QDialog.__init__(self, parent, QtCore.Qt.WindowOkButtonHint|
+                                             QtCore.Qt.WindowCancelButtonHint)
+        self.setWindowTitle("Select a tool")
+        self.__l = QtGui.QVBoxLayout()
+        self.__itemList = QtGui.QListWidget()
+        self.__buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok|
+                                                QtGui.QDialogButtonBox.Cancel)
+        self.__l.addWidget(self.__itemList)
+        self.__l.addWidget(self.__buttons)
+        self.setLayout(self.__l)
+        self.__itemList.addItems(items)
+        self.__buttons.accepted.connect(self.accept)
+        self.__buttons.rejected.connect(self.reject)
+
+    def get_selected(self):
+        return self.__itemList.currentItem().text()
 
 
 

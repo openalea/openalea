@@ -59,13 +59,11 @@ class PackageManagerFactory(ResourceWidgetFactory):
 class DataflowViewFactory(DocumentWidgetFactory):
     __name__ = "Dataflowview"
     __namespace__ = "Visualea"
+    __mimeformats__ = ["openalea/nodefactory"]
 
     def __init__(self):
         WidgetFactory.__init__(self)
         self.__ctr = 0
-
-    def handles_mimetype(self, format):
-        return format=="openalea/nodefactory"
 
     def new_document(self):
         iname = "Dataflow " + str(self.__ctr)

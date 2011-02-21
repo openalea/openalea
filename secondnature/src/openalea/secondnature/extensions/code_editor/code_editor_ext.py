@@ -26,13 +26,11 @@ import os.path as path
 class CodeEditorFactory(DocumentWidgetFactory):
     __name__ = "CodeEditor"
     __namespace__ = "CodeEditor"
+    __mimeformats__ = ["text/plain"]
 
     def __init__(self):
         WidgetFactory.__init__(self)
         self.__ctr = 0
-
-    def handles_mimetype(self, format):
-        return format=="text/plain"
 
     def new_document(self):
         text = ""

@@ -52,14 +52,6 @@ class LoggerFactory(ResourceWidgetFactory):
     def get_resource_space(self, res):
         return self.space
 
-    # def handles(self, url):
-    #     return url.geturl() == "oa://logger.local/"
-
-    # def _instanciate_space(self, url):
-    #     assert self.handles(url)
-    #     from . import documents
-
-
 logger_f   = LoggerFactory()
 
 def get_builtins():

@@ -28,6 +28,5 @@ setup( name = "Visualea Extension",
                                               "visualea.df2 = visualea_ext:df2"],
                        "openalea.app.document_widget_factory": ["Visualea.oa = visualea_ext:dataflow_f"],
                        "openalea.app.resource_widget_factory":["Visualea.pmv = visualea_ext:pmanager_f"],
-#                       "openalea.ext":["Visualea = visualea_ext.visualea"]
                        }
     )
