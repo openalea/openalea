@@ -798,7 +798,6 @@ class SplittableUI(QtGui.QWidget):
     def fromString(cls, rep, parent=None):
         g, tup = BinaryTree.fromString(rep)
 
-        print cls
         newWid = cls(parent=parent)
         w0 = newWid._uninstall_child(0)
         if w0:
