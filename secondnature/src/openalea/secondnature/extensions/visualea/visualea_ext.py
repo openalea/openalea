@@ -27,30 +27,36 @@ from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
 
 
-#lets create the PackageManager ressource
-from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
-model    = PkgModel(PackageManager())
-pmurl    = "oa://pm.local"
-pmanager = Document("PackageManager", "Visualea", pmurl, model, category="system")
 
 
-class PackageManagerFactory(SingletonWidgetFactory):
+class PackageManagerFactory(ResourceWidgetFactory):
     __name__ = "PackageManager"
     __namespace__ = "Visualea"
 
-    def handles(self, url):
-        return pmurl == url.geturl()
+    def __init__(self):
+        ResourceWidgetFactory.__init__(self)
+        #lets create the PackageManager ressource
+        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
+        self.model    = PkgModel(PackageManager())
+        self.pmurl    = "oa://pm.local"
+        self.pmanager = Resource("PackageManager", "Visualea", self.pmurl, self.model, category="system")
 
-    def _instanciate_space(self, url):
-        assert self.handles(url)
-        view = NodeFactoryTreeView(None)
-        view.setModel(model)
-        return None, LayoutSpace(self.__name__, self.__namespace__, view )
+        self.view = NodeFactoryTreeView(None)
+        self.view.setModel(self.model)
+        self.space = LayoutSpace(self.__name__, self.__namespace__, self.view )
+
+    def get_resource(self):
+        return self.pmanager
+
+    def validate_resource(self, resource):
+        return resource == self.pmanager
+
+    def get_resource_space(self, resource):
+        return self.space
 
 
 
-
-class DataflowViewFactory(WidgetFactory):
+class DataflowViewFactory(DocumentWidgetFactory):
     __name__ = "Dataflowview"
     __namespace__ = "Visualea"
 
@@ -58,42 +64,34 @@ class DataflowViewFactory(WidgetFactory):
         WidgetFactory.__init__(self)
         self.__ctr = 0
 
-    def split_query(self, query):
-        return urlparse.parse_qs(query)
+    def handles_mimetype(self, format):
+        return format=="openalea/nodefactory"
 
-    def _instanciate_space(self, url):
-        node = None
-        if url is None:
-            iname = "Dataflow " + str(self.__ctr)
-            node = CompositeNodeFactory(iname).instantiate()
-            self.__ctr += 1
-            node.set_caption(iname)
-            url = urlparse.ParseResult(scheme="oa",
-                                       netloc="local",
-                                       path  ="/unknown",
-                                       params = "",
-                                       query ="fac="+iname+"&ft=CompositeNodeFactory",
-                                       fragment = ""
-                                       )
-        else:
-            assert self.handles(url)
-            pm = PackageManager()
-            node = pm.get_node_from_url(url)
+    def new_document(self):
+        iname = "Dataflow " + str(self.__ctr)
+        node = CompositeNodeFactory(iname).instantiate()
+        self.__ctr += 1
+        node.set_caption(iname)
+        parsedUrl = urlparse.ParseResult(scheme="oa",
+                                         netloc="local",
+                                         path  ="/unknown",
+                                         params = "",
+                                         query ="fac="+iname+"&ft=CompositeNodeFactory",
+                                         fragment = ""
+                                         )
+        document = Document(node.caption, "Visualea", parsedUrl.geturl(), node)
+        return document
 
+    def open_document(self, parsedUrl):
+        pm = PackageManager()
+        node = pm.get_node_from_url(parsedUrl)
+        document = Document(node.caption, "Visualea", parsedUrl.geturl(), node)
+        return document
+
+    def get_document_space(self, document):
+        node = document.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node)
-        document = Document(node.caption, "Visualea", url.geturl(), node)
-        return document, LayoutSpace(self.__name__, self.__namespace__, gwidget)
-
-    def handles(self, url):
-        assert isinstance(url, urlparse.ParseResult)
-        good = False
-        if url.scheme == "oa" and url.netloc == "local":
-            queries = urlparse.parse_qs(url.query)
-            if "ft" not in queries or "CompositeNodeFactory" not in queries["ft"]:
-                good = False
-            else:
-                good = True
-        return good
+        return LayoutSpace(self.__name__, self.__namespace__, gwidget)
 
 
 
@@ -119,14 +117,14 @@ df1 = Layout("Dataflow Editing",
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
-             widgetmap={1:"Visualea.PackageManager",
-                        4:"Openalea.Logger"})
+             resourcemap={1:"Visualea.PackageManager",
+                          4:"Openalea.Logger"})
 
 df2 = Layout("Dataflow Editing2",
              "Visualea",
              skeleton=sk,
-             widgetmap={4:"Visualea.PackageManager",
-                        3:"Openalea.Logger"})
+             resourcemap={4:"Visualea.PackageManager",
+                          3:"Openalea.Logger"})
 
 
 

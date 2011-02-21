@@ -30,13 +30,13 @@ class Base(object):
 
 
 class Layout(Base):
-    def __init__(self, name, ns, skeleton, widgetmap):
+    def __init__(self, name, ns, skeleton, resourcemap):
         Base.__init__(self, name, ns)
         self.__skeleton  = skeleton
-        self.__widgetmap = widgetmap
+        self.__resourcemap = resourcemap
 
     skeleton  = property(lambda x: x.__skeleton)
-    widgetmap = property(lambda x: x.__widgetmap)
+    resourcemap = property(lambda x: x.__resourcemap)
 
 
 
@@ -59,8 +59,8 @@ class WidgetFactory(Base):
     def __init__(self):
         Base.__init__(self, self.__name__, self.__namespace__)
 
-    def creates_without_data(self):
-        return False
+    def get_icon(self):
+        return NotImplementedError
 
     def handles(self, input):
         """returns True or False"""
@@ -75,18 +75,29 @@ class WidgetFactory(Base):
         raise NotImplementedError
 
 
-class SingletonWidgetFactory(WidgetFactory):
-    def __init__(self):
-        WidgetFactory.__init__(self)
-        self.__instance = None
-        self.__data     = None
+class DocumentWidgetFactory(WidgetFactory):
+    def handles_mimetype(self, format):
+        raise NotImplementedError
 
-    def __call__(self, input):
-        if self.__instance is not None:
-            return self.__data, self.__instance
-        self.__data, self.__instance = self._instanciate_space(input)
-        return self.__data, self.__instance
+    def new_document(self, name):
+        raise NotImplementedError
 
+    def open_document(self, name):
+        raise NotImplementedError
+
+    def get_document_space(self, doc):
+        raise NotImplementedError
+
+
+class ResourceWidgetFactory(WidgetFactory):
+    def get_resource(self):
+        raise NotImplementedError
+
+    def validate_resource(self, resource):
+        raise NotImplementedError
+
+    def get_resource_space(self, resource):
+        raise NotImplementedError
 
 
 class Document(Base):
@@ -103,3 +114,5 @@ class Document(Base):
 
     def _set_name(self, name):
         self._name = name
+
+Resource = Document

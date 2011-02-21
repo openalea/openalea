@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.SecondNature
+#       OpenAlea.Secondnature
 #
 #       Copyright 2006-2011 INRIA - CIRAD - INRA
 #
@@ -14,16 +14,8 @@
 #
 ###############################################################################
 
-__license__ = "CeCILL v2"
-__revision__ = " $Id$ "
 
 
-from setuptools import setup
 
-
-setup( name = "Code Editor Extension",
-       version = "0.1",
-       py_modules = ['code_editor_ext'],
-       entry_points = {"openalea.app.document_widget_factory":["CodeEditor.edf = code_editor_ext:editor_f"]
-                       }
-    )
+def get_builtins():
+    return []

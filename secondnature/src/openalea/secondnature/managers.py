@@ -26,19 +26,25 @@ from openalea.core.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def init_sources():
     init_extension_sources()
-    init_widgetfactory_sources()
     init_layout_sources()
+    init_docwidgetfactory_sources()
+    init_reswidgetfactory_sources()
     init_document_sources()
-    LayoutManager().gather_items(refresh=True)
-    WidgetFactoryManager().gather_items(refresh=True)
     ExtensionManager().gather_items(refresh=True)
+    LayoutManager().gather_items(refresh=True)
+    DocumentWidgetFactoryManager().gather_items(refresh=True)
+    ResourceWidgetFactoryManager().gather_items(refresh=True)
     DocumentManager().gather_items(refresh=True)
 
 
 
 
+######################################################
+# Base classes and function for manager declarations #
+######################################################
 
 class AbstractSourceManager(QtCore.QObject):
 
@@ -85,8 +91,6 @@ class AbstractSourceManager(QtCore.QObject):
     def update_with_source(self, src, items):
         self._items.update(items)
         self.itemListChanged.emit(list(self.iter_item_names()))
-
-
 
 
 
@@ -153,6 +157,8 @@ class EntryPointSourceBase(AbstractSource):
                 it = ep.load()
             except ImportError, e:
                 logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
+            except SyntaxError, e:
+                logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
             else:
                 self.items[it.fullname] = it
         self.itemListChanged.emit(self, self.items.copy())
@@ -173,8 +179,7 @@ class BuiltinSourceBase(AbstractSource):
             self.mod = __import__(name,
                                   fromlist=[self.__mod_name__])
         except ImportError, e:
-            print e
-            logger.error("Couldn't import " + name)
+            logger.error("Couldn't import " + name + ":" + str(e))
             self.mod = None
         self.__items = None
 
@@ -193,90 +198,50 @@ class BuiltinSourceBase(AbstractSource):
 
 
 
+def make_manager(name, entry_point=None, builtin=None, is_base=False):
+
+    class MetaManager(AbstractSourceManager):
+        pass
+    MetaManager.__name__ = name+("ManagerBase"if is_base else "Manager")
+
+    class MetaSourceMixin(object):
+        __concrete_manager__ = MetaManager
+    MetaSourceMixin.__name__ = name+"SourceMixin"
+
+    sources = []
+
+    if entry_point is not None:
+        class MetaSourceEntryPoints(MetaSourceMixin, EntryPointSourceBase):
+            __entry_point__ = entry_point
+
+            def __init__(self):
+                MetaSourceMixin.__init__(self)
+                EntryPointSourceBase.__init__(self)
+        MetaSourceEntryPoints.__name__ = name+"SourceEntryPoints"
+        sources.append(MetaSourceEntryPoints)
+
+    if builtin is not None:
+        class MetaSourceBuiltin(MetaSourceMixin, BuiltinSourceBase):
+
+            __mod_name__ = builtin
+
+            def __init__(self):
+                MetaSourceMixin.__init__(self)
+                BuiltinSourceBase.__init__(self)
+        MetaSourceBuiltin.__name__ = name+"SourceBuiltin"
+        sources.append(MetaSourceBuiltin)
+
+    def meta_init_sources():
+        for src in sources:
+            src()
+
+    return MetaManager, MetaSourceMixin, sources, meta_init_sources
+
+#############################################################
+# End of base classes and function for manager declarations #
+#############################################################
 
 
-##########################
-# LAYOUT MANAGER CLASSES #
-##########################
-class LayoutManager(AbstractSourceManager):
-    pass
-
-class LayoutSourceMixin(object):
-    __concrete_manager__ = LayoutManager
-
-class LayoutSourceEntryPoints(LayoutSourceMixin, EntryPointSourceBase):
-
-    __entry_point__ = "openalea.app.layout"
-
-    def __init__(self):
-        LayoutSourceMixin.__init__(self)
-        EntryPointSourceBase.__init__(self)
-
-def init_layout_sources():
-    LayoutSourceEntryPoints()
-
-
-
-
-
-
-
-#################################
-# WIDGETFACTORY MANAGER CLASSES #
-#################################
-class WidgetFactoryManager(AbstractSourceManager):
-    def has_handler_for(self, input):
-        if input is not None:
-            factories = self.gather_items()
-            for it in factories.itervalues():
-                try:
-                    if it.handles(input):
-                        return it
-                except Exception, e:
-                    logger.error("WidgetFactoryManager encountered error in factory " + it.fullname + ":" +str(e))
-                    continue
-        return None
-
-
-    def create_space(self, widget_name=None, url=None):
-        """
-        Synopsis:
-        widget_name: ?
-        input: ?
-
-        :Exemple:
-
-        """
-        factories = self.gather_items()
-        factory   = factories.get(widget_name)
-        factory   = factory or self.has_handler_for(url)
-        if factory is not None:
-            return factory(url)
-        return None, None
-
-
-class WidgetFactorySourceMixin(object):
-    __concrete_manager__ = WidgetFactoryManager
-
-class WidgetFactorySourceBuiltin(WidgetFactorySourceMixin, BuiltinSourceBase):
-
-    __mod_name__ = "widget_factories"
-
-    def __init__(self):
-        WidgetFactorySourceMixin.__init__(self)
-        BuiltinSourceBase.__init__(self)
-
-class WidgetFactorySourceEntryPoints(WidgetFactorySourceMixin, EntryPointSourceBase):
-
-    __entry_point__ = "openalea.app.widget_factory"
-
-    def __init__(self):
-        WidgetFactorySourceMixin.__init__(self)
-        EntryPointSourceBase.__init__(self)
-
-def init_widgetfactory_sources():
-    WidgetFactorySourceEntryPoints()
-    WidgetFactorySourceBuiltin()
 
 
 
@@ -285,36 +250,74 @@ def init_widgetfactory_sources():
 #################################
 # EXTENSION MANAGER CLASSES #
 #################################
-class ExtensionManager(AbstractSourceManager):
-    pass
-
-class ExtensionSourceMixin(object):
-    __concrete_manager__ = ExtensionManager
-
-class ExtensionSourceEntryPoints(ExtensionSourceMixin, EntryPointSourceBase):
-
-    __entry_point__ = "openalea.app.extension"
-
-    def __init__(self):
-        ExtensionSourceMixin.__init__(self)
-        EntryPointSourceBase.__init__(self)
-
-
-def init_extension_sources():
-    ExtensionSourceEntryPoints()
+ExtensionManager, ExtensionSourceMixin, (ExtensionSourceEntryPoints,), init_extension_sources = make_manager("Extension",
+                                                                                                             entry_point="openalea.app.extension")
 
 
 
 
+##########################
+# LAYOUT MANAGER CLASSES #
+##########################
+LayoutManager, LayoutSourceMixin, (LayoutSourceEntryPoints, LayoutSourceBuiltin), init_layout_sources = make_manager("Layout",
+                                                                                                                     entry_point="openalea.app.layout",
+                                                                                                                     builtin="layouts")
 
 
 
-#################################
+
+##########################################
+# DOCUMENT WIDGETFACTORY MANAGER CLASSES #
+##########################################
+doc_wid_classes = make_manager("DocumentWidgetFactory",
+                               entry_point="openalea.app.document_widget_factory",
+                               builtin="document_widget_factories", is_base=True)
+DocumentWidgetFactoryManagerBase, DocumentWidgetFactorySourceMixin, (DocumentWidgetFactorySourceEntryPoints, DocumentWidgetFactorySourceBuiltin), init_docwidgetfactory_sources = doc_wid_classes
+
+class DocumentWidgetFactoryManager(DocumentWidgetFactoryManagerBase):
+    def get_handlers_for_mimedata(self, mimedata):
+        fmts = mimedata.formats()
+        factories = self.gather_items()
+        handlers = set()
+        for fm in fmts:
+            for fac in factories.itervalues():
+                ok = False
+                try:
+                    ok = fac.handles_mimetype(str(fm))
+                except Exception, e:
+                    logger.error("DocumentWidgetFactoryManager encountered error in factory " \
+                                 + fac.fullname + ":" +str(e))
+                else:
+                    if ok:
+                        handlers.add(fac)
+                    else:
+                        continue
+        return list(handlers)
+
+
+DocumentWidgetFactorySourceMixin.__concrete_manager__ = DocumentWidgetFactoryManager
+
+###########################################
+# RESOURCES WIDGETFACTORY MANAGER CLASSES #
+###########################################
+res_wid_classes = make_manager("DocumentWidgetFactory", entry_point="openalea.app.resource_widget_factory",
+                           builtin="resource_widget_factories")
+ResourceWidgetFactoryManager, ResourceWidgetFactorySourceMixin, (ResourceWidgetFactorySourceEntryPoints, ResourceWidgetFactorySourceBuiltin), init_reswidgetfactory_sources = res_wid_classes
+
+
+
+############################
 # DOCUMENT MANAGER CLASSES #
-#################################
-class DocumentManager(AbstractSourceManager):
+############################
+DocumentManagerBase, DocumentSourceMixin, doc_sources, init_document_sources = make_manager("Document",
+                                                                                            entry_point="openalea.app.document",
+                                                                                            builtin="documents",
+                                                                                            is_base=True)
+DocumentSourceEntryPoints, DocumentSourceBuiltin = doc_sources
+
+class DocumentManager(DocumentManagerBase):
     def __init__(self):
-        AbstractSourceManager.__init__(self)
+        DocumentManagerBase.__init__(self)
         self.__usersrc = None
         self.__docprops = {}
 
@@ -358,24 +361,7 @@ class DocumentManager(AbstractSourceManager):
         return key in props
 
 
-class DocumentSourceMixin(object):
-    __concrete_manager__ = DocumentManager
-
-class DocumentSourceEntryPoints(DocumentSourceMixin, EntryPointSourceBase):
-
-    __entry_point__ = "openalea.app.document"
-
-    def __init__(self):
-        DocumentSourceMixin.__init__(self)
-        EntryPointSourceBase.__init__(self)
-
-class DocumentSourceBuiltin(DocumentSourceMixin, BuiltinSourceBase):
-
-    __mod_name__ = "documents"
-
-    def __init__(self):
-        DocumentSourceMixin.__init__(self)
-        BuiltinSourceBase.__init__(self)
+DocumentSourceMixin.__concrete_manager__ = DocumentManager
 
 
 class DocumentSourceUserDocuments(DocumentSourceMixin, AbstractSource):
@@ -401,8 +387,6 @@ class DocumentSourceUserDocuments(DocumentSourceMixin, AbstractSource):
         if doc.source in self.__items:
             return #TODO : raise something dude
 
-        #TODO: watch the doc.name! maybe duplicates!
-
         self.__items[doc.source] = doc
         self.itemListChanged.emit(self, self.__items.copy())
 
@@ -423,9 +407,4 @@ class DocumentSourceUserDocuments(DocumentSourceMixin, AbstractSource):
         self.itemListChanged.emit(self, self.__items.copy())
 
 
-
-def init_document_sources():
-    DocumentSourceEntryPoints()
-    DocumentSourceUserDocuments()
-    DocumentSourceBuiltin()
-
+doc_sources.append(DocumentSourceUserDocuments)

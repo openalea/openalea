@@ -52,7 +52,7 @@ def level_two(args):
         def __init__(self, args):
             QtGui.QApplication.__init__(self, args)
             # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
-            logger.default_init(level=logger.ERROR, handlers=["qt"]) #TODO get level from settings
+            logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
             logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
 
             if __debug__:

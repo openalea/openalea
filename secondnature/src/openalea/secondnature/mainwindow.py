@@ -21,14 +21,15 @@ __revision__ = " $Id$ "
 from PyQt4 import QtGui, QtCore
 
 import urlparse
-
+from openalea.core.logger import get_logger
 from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
-from openalea.secondnature.managers import WidgetFactoryManager
+from openalea.secondnature.managers import DocumentWidgetFactoryManager
+from openalea.secondnature.managers import ResourceWidgetFactoryManager
 from openalea.secondnature.managers import ExtensionManager
 from openalea.secondnature.managers import DocumentManager
-from openalea.secondnature.extendable_objects import SingletonWidgetFactory
+#from openalea.secondnature.extendable_objects import SingletonWidgetFactory
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -38,7 +39,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-
+        self.logger = get_logger(__name__)
 
         self._mainMenu = QtGui.QMenuBar(self)
 
@@ -107,39 +108,51 @@ class MainWindow(QtGui.QMainWindow):
     def __setToolbarAt(self, paneId, tb):
         pass
 
+    def __validate_mimedata(self, mimedata):
+        good = False
+        for f in mimedata.formats():
+            print f
+        if mimedata.hasFormat("text/uri-list"):
+            good = True
+        urls = mimedata.urls()
+        # we only support ONE url
+        if len(urls) == 1:
+            good = True
+        if not good:
+            fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
+            self.logger.debug("invalid mimedata: "+fmts)
+        return good
+
     def __on_splitter_drag_enter(self, event):
-        #this is the hackiest part and concept-grinding bit of the problem
-        #whatever that means...
         mimeData = event.mimeData()
-        if mimeData.hasUrls():
-            # we only support ONE url
-            urls = mimeData.urls()
-            if len(urls) == 0:
-                return
-            url = str(urls[0].toString())
-            parsedUrl = urlparse.urlparse(url)
-            if WidgetFactoryManager().has_handler_for(parsedUrl):
-                event.acceptProposedAction()
+        if not self.__validate_mimedata(mimeData):
+            return
+        handlers = DocumentWidgetFactoryManager().get_handlers_for_mimedata(mimeData)
+        if len(handlers) > 0:
+            event.acceptProposedAction()
 
     def __on_splitter_pane_drop(self, paneId, event):
-        #this is the hackiest part and concept-grinding bit of the problem
-        #whatever that means...
         mimeData = event.mimeData()
-        if mimeData.hasUrls():
-            # we only support ONE url
-            urls = mimeData.urls()
-            if len(urls) == 0:
-                return
-            url = str(urls[0].toString())
+        if not self.__validate_mimedata(mimeData):
+            return
 
-            if url == "":
-                return
+        handlers = DocumentWidgetFactoryManager().get_handlers_for_mimedata(mimeData)
+        nbHandlers = len(handlers)
+        if nbHandlers == 0:
+            return
+        elif nbHandlers == 1:
+            fac = handlers[0]
+        elif nbHandlers > 1:
+            fac = None
 
-            parsedUrl = urlparse.urlparse(url)
-            doc, space = WidgetFactoryManager().create_space(url=parsedUrl)
-            if None not in {doc, space}:
-                self.__register_document(doc, space)
-                self.__setSpaceAt(paneId, space)
+        url = str(mimeData.urls()[0].toString())
+        parsedUrl = urlparse.urlparse(url)
+        doc   = fac.open_document(parsedUrl)
+        space = fac.get_document_space(doc)
+
+        if None not in {doc, space}:
+            self.__register_document(doc, space)
+            self.__setSpaceAt(paneId, space)
 
     def __register_document(self, doc, space):
         if None not in {doc, space}:
@@ -167,19 +180,19 @@ class MainWindow(QtGui.QMainWindow):
         # -- CHANGE THE LAYOUT --
         newSplit, taken = self.__new_splittable(layout.skeleton)
 
-        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE WIDGET MAP --
-        widgetmap = layout.widgetmap
+        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE RESOURCE MAP --
+        resourcemap = layout.resourcemap
 
-        dm = DocumentManager()
-        wfm = WidgetFactoryManager()
-        for paneId, widgetName in widgetmap.iteritems():
-            doc = dm.get(widgetName)
-            print "document", doc, widgetName
-            parsedUrl = urlparse.urlparse(doc.source)
-            data, space  = wfm.create_space(url=parsedUrl)
-            if space and doc:
+        rwfm = ResourceWidgetFactoryManager()
+        for paneId, resourceName in resourcemap.iteritems():
+            resFac = rwfm.get(resourceName)
+            if resFac is None:
+                self.logger.debug("__onLayoutChosen has None factory for "+resourceName)
+                continue
+            res    = resFac.get_resource()
+            space  = resFac.get_resource_space(res)
+            if space:
                 self.__setSpaceAt(paneId, space)
-                dm.set_document_property(doc, "space", space)
 
     ######################
     # Pane Menu handlers #
@@ -192,28 +205,29 @@ class MainWindow(QtGui.QMainWindow):
         action = menu.addAction("Empty")
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
-        widgetFactories = WidgetFactoryManager().gather_items()
-
+        docWidgetFactories = DocumentWidgetFactoryManager().gather_items()
         newMenu = menu.addMenu("New...")
-        newWidgetNames = [f for f,v in widgetFactories.iteritems() \
-                          if not isinstance(v, SingletonWidgetFactory)]
+        newWidgetNames = list(docWidgetFactories.iterkeys())
         for widName in newWidgetNames:
             action = newMenu.addAction(widName)
-            func = self.__make_widget_pane_handler(paneId, widName)
+            func = self.__make_new_doc_pane_handler(paneId, widName)
+            action.triggered.connect(func)
+
+        resWidgetFactories = ResourceWidgetFactoryManager().gather_items()
+        resMenu = menu.addMenu("Tools...")
+        newWidgetNames = list(resWidgetFactories.iterkeys())
+        for widName in newWidgetNames:
+            action = resMenu.addAction(widName)
+            func = self.__make_resource_pane_handler(paneId, widName)
             action.triggered.connect(func)
 
         dm = DocumentManager()
-        toolMenu = menu.addMenu("Tools...")
         docMenu = menu.addMenu("Documents...")
-
         for source, doc in dm:
             srcName = doc.name + " ("+doc.source+")"
             # must escape the ampersand or Qt stips it as a mnemonic
             srcName = srcName.replace("&","&&")
-            if doc.category == "system":
-                action = toolMenu.addAction(srcName)
-            else:
-                action = docMenu.addAction(srcName)
+            action = docMenu.addAction(srcName)
             func = self.__make_document_pane_handler(paneId, doc)
             action.triggered.connect(func)
         menu.popup(pos)
@@ -230,15 +244,41 @@ class MainWindow(QtGui.QMainWindow):
         func = on_clear_chosen
         return func
 
-    def __make_widget_pane_handler(self, paneId, widgetName):
-        def on_widget_chosen(checked):
-            doc, space = WidgetFactoryManager().create_space(widget_name=widgetName)
-            print "on_widget_chosen", doc.name, doc.fullname, doc.category, doc.source
-            self.__register_document(doc, space)
-            if space:
-                self.__setSpaceAt(paneId, space)
+    def __make_new_doc_pane_handler(self, paneId, widgetName):
+        def on_doc_widget_chosen(checked):
+            fac  = DocumentWidgetFactoryManager().get(widgetName)
+            if not fac:
+                self.logger.debug("on_doc_widget_chosen has None factory for " + widgetName)
+            else:
+                doc = fac.new_document()
+                space = fac.get_document_space(doc)
+                if doc is None:
+                    self.logger.debug("on_res_widget_chosen has None document for "+ widgetName)
+                if space is None:
+                    self.logger.debug("on_res_widget_chosen has None space for " + widgetName)
+                else:
+                    self.__register_document(doc, space)
+                    self.__setSpaceAt(paneId, space)
 
-        func = on_widget_chosen
+        func = on_doc_widget_chosen
+        return func
+
+    def __make_resource_pane_handler(self, paneId, widgetName):
+        def on_res_widget_chosen(checked):
+            fac = ResourceWidgetFactoryManager().get(widgetName)
+            if fac is None:
+                self.logger.debug("on_res_widget_chosen has None factory for "+ widgetName)
+            else:
+                res = fac.get_resource()
+                space = fac.get_resource_space(res)
+                if res is None:
+                    self.logger.debug("on_res_widget_chosen has None resource for "+ widgetName)
+                if space is None:
+                    self.logger.debug("on_res_widget_chosen has None space for "+widgetName)
+                else:
+                    self.__setSpaceAt(paneId, space)
+
+        func = on_res_widget_chosen
         return func
 
     def __make_document_pane_handler(self, paneId, doc):
@@ -246,10 +286,10 @@ class MainWindow(QtGui.QMainWindow):
             dm = DocumentManager()
             space = dm.get_document_property(doc, "space")
             if space is None:
-                parsedUrl = urlparse.urlparse(doc.source)
-                data, space = WidgetFactoryManager().create_space(url=parsedUrl)
-            if space is not None:
+                self.logger.debug("on_document_chosen has None space for "+doc.source)
+            else:
                 self.__setSpaceAt(paneId, space)
+
         func = on_document_chosen
         return func
 

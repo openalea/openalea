@@ -15,15 +15,9 @@
 ###############################################################################
 
 
-from openalea.secondnature.extendable_objects import Document
-
-
-#LOGGER
-from openalea.core.logger import LoggerOffice
-loggermodel = LoggerOffice().get_handler("qt")
-loggerurl = "oa://logger.local/"
-logger = Document("Logger", "Openalea", loggerurl, loggermodel, category="system")
-
+########################################################################
+# This module can host documents that are always available to Openalea #
+########################################################################
 
 def get_builtins():
-    return [logger]
+    return []
