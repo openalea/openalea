@@ -481,9 +481,7 @@ class NodeFactoryView(object):
         #build an url
         factory = PackageManager()[pkg_id][factory_id]
         if isinstance(factory, DataFactory):
-            st = "file://"+urllib.pathname2url(factory.get_pkg_data().repr)
-            print "startDrag st", st
-            url = QtCore.QUrl(st)
+            url = QtCore.QUrl.fromLocalFile(factory.get_pkg_data().repr)
         else:
             query   = ["fac="+factory_id]
             ftname  = type(factory).__name__

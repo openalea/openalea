@@ -18,6 +18,9 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
+
+from PyQt4 import QtCore
+
 class Base(object):
     def __init__(self, name, ns):
         self._name = name
@@ -131,3 +134,5 @@ class Document(Base):
         raise NotImplementedError
 
 Resource = Document
+
+

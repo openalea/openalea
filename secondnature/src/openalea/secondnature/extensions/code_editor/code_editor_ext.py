@@ -17,10 +17,12 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
+
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.secondnature.extendable_objects import *
+from openalea.secondnature.urltools import file_url_to_path
 from openalea.visualea.scintilla_editor import ScintillaCodeEditor
 import urllib2
 import urlparse
@@ -66,7 +68,8 @@ class CodeEditorFactory(DocumentWidgetFactory):
                 name =  inspect.getsourcefile(mod_name)
             f = open(name)
         elif parsedUrl.scheme == "file":
-            name = parsedUrl.path#.strip("/")
+            name = file_url_to_path(url)
+            #name = parsedUrl.path#.strip("/")
             f = open(name)
         else:
             f = urllib2.urlopen(url)
