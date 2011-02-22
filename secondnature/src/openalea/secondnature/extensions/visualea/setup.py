@@ -21,7 +21,7 @@ __revision__ = " $Id$ "
 from setuptools import setup
 
 
-setup( name = "Visualea Extension",
+setup( name = "OAEX Visualea",
        version = "0.1",
        py_modules = ['visualea_ext'],
        entry_points = {"openalea.app.layout":["visualea.df1 = visualea_ext:df1",

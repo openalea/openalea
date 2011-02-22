@@ -111,7 +111,7 @@ class MainWindow(QtGui.QMainWindow):
         doc   = fac.open_document(parsedUrl)
         space = fac.get_document_space(doc)
 
-        if None not in {doc, space}:
+        if None not in [doc, space]:
             self.__register_document(doc, space)
             self.__setSpaceAt(paneId, space)
 
@@ -315,7 +315,7 @@ class MainWindow(QtGui.QMainWindow):
     # DOCUMENT COMMODITY METHODS #
     ##############################
     def __register_document(self, doc, space):
-        if None not in {doc, space}:
+        if None not in [doc, space]:
             dm = DocumentManager()
             dm.add_document(doc)
             dm.set_document_property(doc, "space", space)

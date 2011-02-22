@@ -25,7 +25,7 @@ import os, sys
 def level_one():
     envdict = os.environ
     os.execle(sys.executable, sys.executable, "-c",
-              "import sys; from openalea.secondnature import main;sys.argv+="+str(sys.argv)+";main.level_two(sys.argv)",
+              '"import sys; from openalea.secondnature import main;sys.argv+="'+str(sys.argv)+'";main.level_two(sys.argv)"',
               envdict)
 
 
@@ -101,7 +101,7 @@ def level_two(args):
 
 
 if( __name__ == "__main__"):
-    level_one()
+    level_two()
 
 
 

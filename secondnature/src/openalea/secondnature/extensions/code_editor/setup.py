@@ -21,7 +21,7 @@ __revision__ = " $Id$ "
 from setuptools import setup
 
 
-setup( name = "Code Editor Extension",
+setup( name = "OAEX Code Editor",
        version = "0.1",
        py_modules = ['code_editor_ext'],
        entry_points = {"openalea.app.document_widget_factory":["CodeEditor.edf = code_editor_ext:editor_f"]
