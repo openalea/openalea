@@ -17,40 +17,61 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
+from openalea.core.node import NodeFactory
+from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
 from openalea.secondnature.extendable_objects import *
 from openalea.visualea.scintilla_editor import ScintillaCodeEditor
 import urllib2
 import urlparse
 import os.path as path
+import inspect
 
 class CodeEditorFactory(DocumentWidgetFactory):
-    __name__ = "CodeEditor"
-    __namespace__ = "CodeEditor"
-    __mimeformats__ = ["text/plain"]
+    __name__        = "CodeEditor"
+    __namespace__   = "CodeEditor"
+    __mimeformats__ = ["text/plain", 
+                       "application/x-qt-windows-mime;value=\"FileName\"",
+                       NodeFactory.mimetype, 
+                       CompositeNodeFactory.mimetype]
 
     def __init__(self):
         WidgetFactory.__init__(self)
         self.__ctr = 0
+        self.pm = PackageManager()
 
     def new_document(self):
         text = ""
         name = "New code " + str(self.__ctr)
         self.__ctr += 1
-        url = urlparse.ParseResult(scheme="file",
-                                   netloc="",
-                                   path="unknown/"+name,
-                                   params="",
-                                   query="",
-                                   fragment=""
-                                   )
-        document = Document(name, "CodeEditor", url.geturl(), "")
+        parsedUrl = urlparse.ParseResult(scheme="file",
+                                         netloc="",
+                                         path="unknown/"+name,
+                                         params="",
+                                         query="",
+                                         fragment=""
+                                         )
+        document = Document(name, "CodeEditor", parsedUrl.geturl(), "")
         return document
 
     def open_document(self, parsedUrl):
         url = parsedUrl.geturl()
-        f = urllib2.urlopen(url)
+        if parsedUrl.scheme == "oa":
+            fac = self.pm.get_factory_from_url(parsedUrl)
+            if isinstance(fac, CompositeNodeFactory):
+                pkg  = self.pm.get_package_from_url(parsedUrl)[0]
+                name = pkg.get_wralea_path()
+            else:
+                mod_name = fac.get_node_module()
+                name =  inspect.getsourcefile(mod_name)
+            f = open(name)
+        elif parsedUrl.scheme == "file":
+            name = parsedUrl.path.strip("/")
+            f = open(name)
+        else:
+            f = urllib2.urlopen(url)
+            name = parsedUrl.path
         text = f.read()
-        name = parsedUrl.path
         f.close()
         document = Document(name, "CodeEditor", url, text)
         return document

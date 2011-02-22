@@ -59,7 +59,7 @@ class PackageManagerFactory(ResourceWidgetFactory):
 class DataflowViewFactory(DocumentWidgetFactory):
     __name__ = "Dataflowview"
     __namespace__ = "Visualea"
-    __mimeformats__ = ["openalea/nodefactory"]
+    __mimeformats__ = [CompositeNodeFactory.mimetype]
 
     def __init__(self):
         WidgetFactory.__init__(self)

@@ -30,6 +30,8 @@ from openalea.visualea.shell import get_shell_class
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings,NoSectionError,NoOptionError
+from openalea.core.node import NodeFactory
+from openalea.core.compositenode import CompositeNodeFactory
 from code import InteractiveInterpreter as Interpreter
 
 from openalea.visualea.node_treeview import NodeFactoryView, NodeFactoryTreeView, PkgModel, CategoryModel
@@ -780,7 +782,8 @@ class MainWindow(QtGui.QMainWindow,
 
     def on_package_manager_focus_change(self, item):
         pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
-        if len(pkg_id) and len(factory_id) and mimetype=="openalea/nodefactory":
+        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype, 
+                                                            CompositeNodeFactory.mimetype]:
             factory = self.pkgmanager[pkg_id][factory_id]
             factoryDoc = factory.get_documentation()
             txt = factory.get_tip(asRst=True) + "\n\n"

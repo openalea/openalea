@@ -442,14 +442,16 @@ class NodeFactoryView(object):
 
 
     def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat("openalea/nodefactory"):
+        mimedata = event.mimeData()
+        if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
             event.accept()
         else:
             event.ignore()
 
 
     def dragMoveEvent(self, event):
-        if event.mimeData().hasFormat("openalea/nodefactory"):
+        mimedata = event.mimeData()
+        if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
         else:
@@ -493,7 +495,7 @@ class NodeFactoryView(object):
         # put in the Mime Data pkg id and factory id
         obj = item.internalPointer()
 
-        if(obj.mimetype == "openalea/nodefactory"):
+        if obj.mimetype in [NodeFactory.mimetype, CompositeNodeFactory.mimetype]:
 
             factory_id = obj.get_id()
             pkg_id = obj.package.get_id()

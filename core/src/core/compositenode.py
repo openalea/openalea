@@ -44,6 +44,9 @@ class IncompatibleNodeError(Exception):
 
 
 class CompositeNodeFactory(AbstractFactory):
+
+    mimetype = "openalea/compositenodefactory"
+
     """
     The CompositeNodeFactory is able to create CompositeNode instances
     Each node has an unique id : the element id (elt_id)

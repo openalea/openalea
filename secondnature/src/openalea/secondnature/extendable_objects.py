@@ -78,8 +78,8 @@ class DocumentWidgetFactory(WidgetFactory):
     def get_mime_formats(self):
         return self.__mimeformats__[:]
 
-    def handles_mimetype(self, format):
-        raise NotImplementedError
+    # def handles_mimetype(self, format):
+        # raise NotImplementedError
 
     def new_document(self):
         raise NotImplementedError

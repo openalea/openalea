@@ -790,6 +790,10 @@ class PackageManager(object):
 
     # Convenience functions
     def get_node_from_url(self, url):
+        fac = self.get_factory_from_url(url)
+        return fac.instantiate()
+        
+    def get_factory_from_url(self, url):
         """Returns a node instance from the given url.
 
         :Parameters:
@@ -801,7 +805,12 @@ class PackageManager(object):
         "factoryName" is the of factory
         "factoryType" is one of {"CompositeNodeFactory", "NodeFactory", "DataFactory"}
         """
-
+        pkg, queries = self.get_package_from_url(url)#url.path.strip("/") #the path is preceded by one "/"
+        factory_id = queries["fac"][0]
+        factory = pkg[factory_id]
+        return factory
+        
+    def get_package_from_url(self, url):
         if isinstance(url, str):
             url = urlparse.urlparse(url)
         assert isinstance(url, urlparse.ParseResult)
@@ -809,8 +818,9 @@ class PackageManager(object):
         if "fac" not in queries:
             raise IllFormedUrlError(url.geturl())
         pkg_id = url.path.strip("/") #the path is preceded by one "/"
-        factory_id = queries["fac"][0]
-        return self.get_node(pkg_id, factory_id)
+        pkg = self[pkg_id]
+        return pkg, queries
+        
 
     def get_node(self, pkg_id, factory_id):
         """ Return a node instance giving a pkg_id and a factory_id """
