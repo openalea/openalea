@@ -1,3 +1,0 @@
-[gui_scripts]
-secondnature = openalea.secondnature.main:level_one
-
