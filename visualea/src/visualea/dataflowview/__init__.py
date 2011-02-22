@@ -30,7 +30,8 @@ from openalea.core.node import RecursionError
 from openalea.core.algo import dataflow_evaluation as evalmodule
 from openalea.grapheditor import qt
 #from openalea.grapheditor import baselisteners, qtgraphview, qtutils
-
+from openalea.core.node import NodeFactory
+from openalea.core.compositenode import CompositeNodeFactory
 import openalea.grapheditor.base
 
 
@@ -45,7 +46,8 @@ class DataflowView( qt.View ):
         self.__siblings  = None
 
         # -- Configure the drop handlers --
-        mimeFormatsMap = {"openalea/nodefactory":self.node_factory_drop_handler,
+        mimeFormatsMap = {node.NodeFactory.mimetype:self.node_factory_drop_handler,
+                          compositenode.CompositeNodeFactory.mimetype:self.node_factory_drop_handler,
                           "openalea/data_instance":self.node_datapool_drop_handler}
         self.set_mime_handler_map(mimeFormatsMap)
 
@@ -142,9 +144,11 @@ class DataflowView( qt.View ):
 
     def node_factory_drop_handler(self, event):
         """ Drag and Drop from the PackageManager """
-        if (event.mimeData().hasFormat("openalea/nodefactory")):
+        mimedata = event.mimeData()
+        if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):      
+            format = NodeFactory.mimetype if mimedata.hasFormat(NodeFactory.mimetype) else CompositeNodeFactory.mimetype
             # -- retreive the data from the event mimeData --
-            pieceData = event.mimeData().data("openalea/nodefactory")
+            pieceData = event.mimeData().data(format)
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
             package_id = QtCore.QString()
             factory_id = QtCore.QString()
