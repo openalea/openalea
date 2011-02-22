@@ -22,14 +22,10 @@ import os, sys
 
 
 
-def level_one():
-    envdict = os.environ
-    os.execle(sys.executable, sys.executable, "-c",
-              '"import sys; from openalea.secondnature import main;sys.argv+="'+str(sys.argv)+'";main.level_two(sys.argv)"',
-              envdict)
+def level_one(args=None):
+    if args is None:
+        args = sys.argv
 
-
-def level_two(args):
     # Restore default signal handler for CTRL+C
     import signal
 
@@ -49,8 +45,8 @@ def level_two(args):
         signal has been emitted."""
 
 
-        def __init__(self, args):
-            QtGui.QApplication.__init__(self, args)
+        def __init__(self, argv):
+            QtGui.QApplication.__init__(self, argv)
             # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
             logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
             logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
@@ -101,7 +97,7 @@ def level_two(args):
 
 
 if( __name__ == "__main__"):
-    level_two()
+    level_one()
 
 
 
