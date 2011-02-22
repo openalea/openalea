@@ -30,9 +30,9 @@ import inspect
 class CodeEditorFactory(DocumentWidgetFactory):
     __name__        = "CodeEditor"
     __namespace__   = "CodeEditor"
-    __mimeformats__ = ["text/plain", 
+    __mimeformats__ = ["text/plain",
                        "application/x-qt-windows-mime;value=\"FileName\"",
-                       NodeFactory.mimetype, 
+                       NodeFactory.mimetype,
                        CompositeNodeFactory.mimetype]
 
     def __init__(self):
@@ -66,7 +66,7 @@ class CodeEditorFactory(DocumentWidgetFactory):
                 name =  inspect.getsourcefile(mod_name)
             f = open(name)
         elif parsedUrl.scheme == "file":
-            name = parsedUrl.path.strip("/")
+            name = parsedUrl.path#.strip("/")
             f = open(name)
         else:
             f = urllib2.urlopen(url)

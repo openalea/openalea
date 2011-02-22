@@ -45,7 +45,7 @@ from openalea.visualea.code_editor import get_editor
 from openalea.visualea.util import grab_icon
 
 from openalea.visualea import images_rc
-
+import urllib
 
 # Utilities function
 
@@ -481,7 +481,8 @@ class NodeFactoryView(object):
         #build an url
         factory = PackageManager()[pkg_id][factory_id]
         if isinstance(factory, DataFactory):
-            st = ("file:///"+factory.get_pkg_data().repr).replace("\\","/")
+            st = "file://"+urllib.pathname2url(factory.get_pkg_data().repr)
+            print "startDrag st", st
             url = QtCore.QUrl(st)
         else:
             query   = ["fac="+factory_id]
