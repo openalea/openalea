@@ -216,7 +216,7 @@ class CodeWidgetFindReplace(QtGui.QWidget):
 
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent=parent)
+        QtGui.QWidget.__init__(self, parent)
 
         # - Find text -
         findLabel  = QtGui.QLabel("Find:")
@@ -275,7 +275,7 @@ class CodeWidgetPreferences(QtGui.QWidget):
     foldingToggled    = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent=parent)
+        QtGui.QWidget.__init__(self, parent)
 
         # - language chooser -
         label  = QtGui.QLabel("Language:")
@@ -323,7 +323,7 @@ class CodeWidgetPreferences(QtGui.QWidget):
 
 class SmallTabWidget(QtGui.QTabWidget):
     def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent=parent)
+        QtGui.QTabWidget.__init__(self, parent)
         self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         tabbar = self.tabBar()
         tabbar.setStyleSheet("QTabBar::tab {" +\
