@@ -28,17 +28,12 @@ logger = get_logger(__name__)
 
 
 def init_sources():
-    init_extension_sources()
     init_layout_sources()
-    init_docwidgetfactory_sources()
-    init_reswidgetfactory_sources()
+    init_applet_sources()
     init_document_sources()
-    ExtensionManager().gather_items(refresh=True)
     LayoutManager().gather_items(refresh=True)
-    DocumentWidgetFactoryManager().gather_items(refresh=True)
-    ResourceWidgetFactoryManager().gather_items(refresh=True)
+    AppletFactoryManager().gather_items(refresh=True)
     DocumentManager().gather_items(refresh=True)
-
 
 
 
@@ -126,18 +121,17 @@ class AbstractSource(QtCore.QObject):
 
 
 
-
 class EntryPointSourceBase(AbstractSource):
 
     __entry_point__ = None
 
     def __init__(self):
         AbstractSource.__init__(self)
+        self.pkg_resources = None
         try:
             import pkg_resources
         except ImportError:
             logger.error("Setuptools' pkg_resources not available. No entry point extensions.")
-            self.pkg_resources = None
         else:
             self.pkg_resources = pkg_resources
         self.__items = None
@@ -155,10 +149,9 @@ class EntryPointSourceBase(AbstractSource):
         for ep in self.pkg_resources.iter_entry_points(self.__entry_point__):
             try:
                 it = ep.load()
-            except ImportError, e:
+            except Exception, e:
                 logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
-            except SyntaxError, e:
-                logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
+                continue
             else:
                 self.items[it.fullname] = it
         self.itemListChanged.emit(self, self.items.copy())
@@ -175,12 +168,12 @@ class BuiltinSourceBase(AbstractSource):
     def __init__(self):
         AbstractSource.__init__(self)
         name = ".".join(["openalea.secondnature.builtins",self.__mod_name__])
+        self.mod = None
         try:
             self.mod = __import__(name,
                                   fromlist=[self.__mod_name__])
-        except ImportError, e:
+        except Exception, e:
             logger.error("Couldn't import " + name + ":" + str(e))
-            self.mod = None
         self.__items = None
 
     def is_valid(self):
@@ -244,47 +237,40 @@ def make_manager(name, entry_point=None, builtin=None, is_base=False):
 
 
 
-
-
-
-#################################
-# EXTENSION MANAGER CLASSES #
-#################################
-ExtensionManager, ExtensionSourceMixin, (ExtensionSourceEntryPoints,), init_extension_sources = make_manager("Extension",
-                                                                                                             entry_point="openalea.app.extension")
-
-
-
-
 ##########################
 # LAYOUT MANAGER CLASSES #
 ##########################
-LayoutManager, LayoutSourceMixin, (LayoutSourceEntryPoints, LayoutSourceBuiltin), init_layout_sources = make_manager("Layout",
-                                                                                                                     entry_point="openalea.app.layout",
-                                                                                                                     builtin="layouts")
-
-
+layout_classes = make_manager("Layout",
+                              entry_point="openalea.app.layout",
+                              builtin="layouts")
+LayoutManager = layout_classes[0]
+LayoutSourceMixin = layout_classes[1]
+LayoutSourceEntryPoints, LayoutSourceBuiltin = layout_classes[2]
+init_layout_sources = layout_classes[3]
 
 
 ##########################################
 # DOCUMENT WIDGETFACTORY MANAGER CLASSES #
 ##########################################
-doc_wid_classes = make_manager("DocumentWidgetFactory",
-                               entry_point="openalea.app.document_widget_factory",
-                               builtin="document_widget_factories", is_base=True)
-DocumentWidgetFactoryManagerBase, DocumentWidgetFactorySourceMixin, (DocumentWidgetFactorySourceEntryPoints, DocumentWidgetFactorySourceBuiltin), init_docwidgetfactory_sources = doc_wid_classes
+applet_classes = make_manager("AppletFactory",
+                               entry_point="openalea.app.applet_factory",
+                               builtin="applet_factories", is_base=True)
+AppletFactoryManagerBase = applet_classes[0]
+AppletFactorySourceMixin = applet_classes[1]
+AppletFactorySourceEntryPoints, AppletFactorySourceBuiltin = applet_classes[2]
+init_applet_sources = applet_classes[3]
 
-class DocumentWidgetFactoryManager(DocumentWidgetFactoryManagerBase):
+class AppletFactoryManager(AppletFactoryManagerBase):
     def __init__(self):
-        DocumentWidgetFactoryManagerBase.__init__(self)
+        AppletFactoryManagerBase.__init__(self)
         self.__mimeMap = {}
 
     def gather_items(self, refresh=True):
-        items = DocumentWidgetFactoryManagerBase.gather_items(self, refresh)
+        items = AppletFactoryManagerBase.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for v in items.itervalues():
-                if v is None:
+                if v is None or not v.supports_document_open():
                     continue
                 fmts = v.get_mime_formats()
                 for fmt in fmts:
@@ -303,25 +289,22 @@ class DocumentWidgetFactoryManager(DocumentWidgetFactoryManagerBase):
         return list(handlers)
 
 
-DocumentWidgetFactorySourceMixin.__concrete_manager__ = DocumentWidgetFactoryManager
-
-###########################################
-# RESOURCES WIDGETFACTORY MANAGER CLASSES #
-###########################################
-res_wid_classes = make_manager("DocumentWidgetFactory", entry_point="openalea.app.resource_widget_factory",
-                           builtin="resource_widget_factories")
-ResourceWidgetFactoryManager, ResourceWidgetFactorySourceMixin, (ResourceWidgetFactorySourceEntryPoints, ResourceWidgetFactorySourceBuiltin), init_reswidgetfactory_sources = res_wid_classes
+AppletFactorySourceMixin.__concrete_manager__ = AppletFactoryManager
 
 
 
 ############################
 # DOCUMENT MANAGER CLASSES #
 ############################
-DocumentManagerBase, DocumentSourceMixin, doc_sources, init_document_sources = make_manager("Document",
-                                                                                            entry_point="openalea.app.document",
-                                                                                            builtin="documents",
-                                                                                            is_base=True)
-DocumentSourceEntryPoints, DocumentSourceBuiltin = doc_sources
+doc_classes = make_manager("Document",
+                           entry_point="openalea.app.document",
+                           builtin="documents",
+                           is_base=True)
+
+DocumentManagerBase = doc_classes[0]
+DocumentSourceMixin = doc_classes[1]
+DocumentSourceEntryPoints, DocumentSourceBuiltin = doc_classes[2]
+init_document_sources = doc_classes[3]
 
 class DocumentManager(DocumentManagerBase):
     def __init__(self):
@@ -336,6 +319,10 @@ class DocumentManager(DocumentManagerBase):
     def add_document(self, doc):
         if self.__usersrc is not None:
             return self.__usersrc.add_document(doc)
+
+    def has_document(self, doc):
+        if self.__usersrc is not None:
+            return self.__usersrc.has_document(doc)
 
     def get_document(self, source=None, name=None):
         if self.__usersrc is not None:
@@ -392,11 +379,16 @@ class DocumentSourceUserDocuments(DocumentSourceMixin, AbstractSource):
     def add_document(self, doc):
         if doc is None:
             return #TODO : raise something dude
+        if not doc.registerable:
+            return #TODO : raise something dude
         if doc.source in self.__items:
             return #TODO : raise something dude
 
         self.__items[doc.source] = doc
         self.itemListChanged.emit(self, self.__items.copy())
+
+    def has_document(self, doc):
+        return doc.source in self.__items
 
     def get_document(self, source=None, name=None):
         if source is not None:
@@ -415,4 +407,4 @@ class DocumentSourceUserDocuments(DocumentSourceMixin, AbstractSource):
         self.itemListChanged.emit(self, self.__items.copy())
 
 
-doc_sources.append(DocumentSourceUserDocuments)
+doc_classes[2].append(DocumentSourceUserDocuments)

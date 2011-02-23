@@ -25,9 +25,7 @@ from openalea.core.logger import get_logger
 from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
-from openalea.secondnature.managers import DocumentWidgetFactoryManager
-from openalea.secondnature.managers import ResourceWidgetFactoryManager
-from openalea.secondnature.managers import ExtensionManager
+from openalea.secondnature.managers import AppletFactoryManager
 from openalea.secondnature.managers import DocumentManager
 
 sn_logger = get_logger(__name__)
@@ -84,7 +82,7 @@ class MainWindow(QtGui.QMainWindow):
         mimeData = event.mimeData()
         if not self.__validate_mimedata(mimeData):
             return
-        handlers = DocumentWidgetFactoryManager().get_handlers_for_mimedata(mimeData)
+        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData)
         if len(handlers) > 0:
             event.acceptProposedAction()
 
@@ -93,7 +91,7 @@ class MainWindow(QtGui.QMainWindow):
         if not self.__validate_mimedata(mimeData):
             return
 
-        handlers = DocumentWidgetFactoryManager().get_handlers_for_mimedata(mimeData)
+        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData)
         print handlers
         nbHandlers = len(handlers)
         if nbHandlers == 0:
@@ -110,11 +108,11 @@ class MainWindow(QtGui.QMainWindow):
 
         url = str(mimeData.urls()[0].toString())
         parsedUrl = urlparse.urlparse(url)
-        doc   = fac.open_document(parsedUrl)
-        space = fac.get_document_space(doc)
+
+        doc   = fac.open_document_and_register_it(parsedUrl)
+        space = fac(doc)
 
         if None not in [doc, space]:
-            self.__register_document(doc, space)
             self.__setSpaceAt(paneId, space)
 
     ####################################
@@ -147,20 +145,18 @@ class MainWindow(QtGui.QMainWindow):
         # create new splittable and retreive objects from previous
         newSplit, taken = self.__new_splittable(layout.skeleton)
 
-        resourcemap = layout.resourcemap
-        rwfm = ResourceWidgetFactoryManager()
-        for paneId, resourceName in resourcemap.iteritems():
-            resFac = rwfm.get(resourceName)
-            if resFac is None:
-                self.logger.debug("__onLayoutChosen has None factory for "+resourceName)
+        appletmap = layout.appletmap
+        afm = AppletFactoryManager()
+        for paneId, appletName in appletmap.iteritems():
+            appFac = afm.get(appletName)
+            if appFac is None:
+                self.logger.debug("__onLayoutChosen has None factory for "+appletName)
                 continue
-            res    = resFac.get_resource()
             try:
-                space  = resFac._get_resource_space(res)
+                space  = appFac()
             except Exception, e:
-                print e
                 self.logger.error("__onLayoutChosen cannot display "+ \
-                                  resourceName+":"+\
+                                  appletName+":"+\
                                   e.message)
                 continue
             if space:
@@ -181,23 +177,15 @@ class MainWindow(QtGui.QMainWindow):
         menu = QtGui.QMenu(self.__splittable)
         menu.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        action = menu.addAction("Empty")
+        action = menu.addAction("Clear")
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
-        docWidgetFactories = DocumentWidgetFactoryManager().gather_items()
-        newMenu = menu.addMenu("New...")
-        newWidgetNames = list(docWidgetFactories.iterkeys())
-        for widName in newWidgetNames:
-            action = newMenu.addAction(widName)
-            func = self.__make_new_doc_pane_handler(paneId, widName)
-            action.triggered.connect(func)
-
-        resWidgetFactories = ResourceWidgetFactoryManager().gather_items()
-        resMenu = menu.addMenu("Tools...")
-        newWidgetNames = list(resWidgetFactories.iterkeys())
-        for widName in newWidgetNames:
-            action = resMenu.addAction(widName)
-            func = self.__make_resource_pane_handler(paneId, widName)
+        appletMenu = menu.addMenu("Applets...")
+        appFactories = AppletFactoryManager().gather_items()
+        appletNames = list(appFactories.iterkeys())
+        for appName in appletNames:
+            action = appletMenu.addAction(appName)
+            func = self.__make_new_applet_pane_handler(paneId, appName)
             action.triggered.connect(func)
 
         dm = DocumentManager()
@@ -217,41 +205,22 @@ class MainWindow(QtGui.QMainWindow):
         func = on_clear_chosen
         return func
 
-    def __make_new_doc_pane_handler(self, paneId, widgetName):
-        def on_doc_widget_chosen(checked):
-            fac  = DocumentWidgetFactoryManager().get(widgetName)
+    def __make_new_applet_pane_handler(self, paneId, appletName):
+        def on_applet_chosen(checked):
+            fac  = AppletFactoryManager().get(appletName)
             if not fac:
-                self.logger.debug("on_doc_widget_chosen has None factory for " + widgetName)
+                self.logger.debug("on_applet_chosen has None factory for " + appletName)
             else:
-                doc = fac.new_document()
-                space = fac.get_document_space(doc)
+                doc = fac.new_document_and_register_it()
+                space = fac(doc)
                 if doc is None:
-                    self.logger.debug("on_res_widget_chosen has None document for "+ widgetName)
+                    self.logger.debug("on_applet_chosen has None document for "+ appletName)
                 if space is None:
-                    self.logger.debug("on_res_widget_chosen has None space for " + widgetName)
-                else:
-                    self.__register_document(doc, space)
-                    self.__setSpaceAt(paneId, space)
-
-        func = on_doc_widget_chosen
-        return func
-
-    def __make_resource_pane_handler(self, paneId, widgetName):
-        def on_res_widget_chosen(checked):
-            fac = ResourceWidgetFactoryManager().get(widgetName)
-            if fac is None:
-                self.logger.debug("on_res_widget_chosen has None factory for "+ widgetName)
-            else:
-                res = fac.get_resource()
-                space = fac._get_resource_space(res)
-                if res is None:
-                    self.logger.debug("on_res_widget_chosen has None resource for "+ widgetName)
-                if space is None:
-                    self.logger.debug("on_res_widget_chosen has None space for "+widgetName)
+                    self.logger.debug("on_applet_chosen has None space for " + appletName)
                 else:
                     self.__setSpaceAt(paneId, space)
 
-        func = on_res_widget_chosen
+        func = on_applet_chosen
         return func
 
     def __make_document_pane_handler(self, paneId, doc):

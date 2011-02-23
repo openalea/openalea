@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 
 
 from PyQt4 import QtCore
+from openalea.secondnature.managers import DocumentManager
 
 class Base(object):
     def __init__(self, name, ns):
@@ -33,13 +34,13 @@ class Base(object):
 
 
 class Layout(Base):
-    def __init__(self, name, ns, skeleton, resourcemap):
+    def __init__(self, name, ns, skeleton, appletmap):
         Base.__init__(self, name, ns)
         self.__skeleton  = skeleton
-        self.__resourcemap = resourcemap
+        self.__appletmap = appletmap
 
     skeleton  = property(lambda x: x.__skeleton)
-    resourcemap = property(lambda x: x.__resourcemap)
+    appletmap = property(lambda x: x.__appletmap)
 
 
 
@@ -51,88 +52,84 @@ class LayoutSpace(Base):
         self.__menu    = menu
         self.__toolbar = toolbar
 
-    menu    = property(lambda x:x.__menu)
     content = property(lambda x:x.__content)
+    menu    = property(lambda x:x.__menu)
     toolbar = property(lambda x:x.__toolbar)
 
 
-class WidgetFactory(Base):
+class AppletFactory(Base):
     __name__ = ""
     __namespace__ = ""
+    __mimeformats__ = []
+    __supports_open__ = True
+    __dm = None
+
     def __init__(self):
         Base.__init__(self, self.__name__, self.__namespace__)
-
-    def get_icon(self):
-        return NotImplementedError
-
-    def __call__(self, input):
-        """returns ( (input|derived input), LayoutSpace)"""
-        return self._instanciate_space(input)
-
-    def _instanciate_space(self, input):
-        """returns ( (input|derived input), LayoutSpace)"""
-        raise NotImplementedError
-
-
-
-class DocumentWidgetFactory(WidgetFactory):
-    __mimeformats__ = []
+        if AppletFactory.__dm is None:
+            AppletFactory.__dm = DocumentManager()
 
     def get_mime_formats(self):
         return self.__mimeformats__[:]
 
-    # def handles_mimetype(self, format):
-        # raise NotImplementedError
+    def supports_document_open(self):
+        return self.__supports_open__
+
+    def get_icon(self):
+        return NotImplementedError
 
     def new_document(self):
         raise NotImplementedError
 
     def open_document(self, parsedUrl):
+        raise NotImplementedError(self.__class__.__name__+" doesn't support document opening")
+
+    def get_applet_space(self, document):
         raise NotImplementedError
 
-    def get_document_space(self, document):
-        raise NotImplementedError
+    def new_document_and_register_it(self):
+        document = self.new_document()
+        if document and document.registerable:
+            self.__dm.add_document(document)
+        return document
 
+    def open_document_and_register_it(self, parsedUrl):
+        document = self.open_document(parsedUrl)
+        if document and document.registerable:
+            self.__dm.add_document(document)
+        return document
 
+    def get_applet_space_and_register_it(self, document=None):
+        document = document or self.new_document_and_register_it()
+        space = self.get_applet_space(document)
+        if self.__dm.has_document(document) and space:
+            self.__dm.set_document_property(document, "space", space)
+        return space
 
-class ResourceWidgetFactory(WidgetFactory):
-    def get_resource(self):
-        raise NotImplementedError
-
-    def _get_resource_space(self, resource):
-        if not self.validate_resource(resource):
-            raise Exception("resource "+resource.fullname+" is not handled by "+self.fullname)
-        else:
-            return self.get_resource_space(resource)
-
-    def validate_resource(self, resource):
-        raise NotImplementedError
-
-    def get_resource_space(self, resource):
-        raise NotImplementedError
-
+    __call__ = get_applet_space_and_register_it
 
 
 
 class Document(Base):
     """"""
-    def __init__(self, name, ns, source, obj, category="user"):
+    def __init__(self, name, ns, source, obj):
         Base.__init__(self, name, ns)
         self.__source = source
         self.__obj    = obj
-        self.__cat    = category
+        self._reg    = True
 
-    source    = property(lambda x:x.__source)
-    obj       = property(lambda x:x.__obj)
-    category  = property(lambda x:x.__cat)
+    source       = property(lambda x:x.__source)
+    obj          = property(lambda x:x.__obj)
+    registerable = property(lambda x:x._reg)
 
     def _set_name(self, name):
         self._name = name
 
-
     def save(self):
         raise NotImplementedError
 
-Resource = Document
-
+class UnregisterableDocument(Document):
+    def __init__(self, name, ns, source, obj):
+        Document.__init__(self, name, ns, source, obj)
+        self._reg = False
 

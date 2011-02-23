@@ -17,7 +17,12 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extendable_objects import *
+from openalea.secondnature.extendable_objects import AppletFactory
+from openalea.secondnature.extendable_objects import Layout
+from openalea.secondnature.extendable_objects import LayoutSpace
+from openalea.secondnature.extendable_objects import Document
+from openalea.secondnature.extendable_objects import UnregisterableDocument
+from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
 
 import urlparse
 
@@ -26,43 +31,37 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
 
-
-
-
-class PackageManagerFactory(ResourceWidgetFactory):
+class PackageManagerFactory(AppletFactory):
     __name__ = "PackageManager"
     __namespace__ = "Visualea"
+    __supports_open__ = False
 
     def __init__(self):
-        ResourceWidgetFactory.__init__(self)
+        AppletFactory.__init__(self)
         #lets create the PackageManager ressource
-        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
         self.model    = PkgModel(PackageManager())
         self.pmurl    = "oa://pm.local"
-        self.pmanager = Resource("PackageManager", "Visualea", self.pmurl, self.model, category="system")
+        self.pmanagerDoc = UnregisterableDocument("PackageManager", "Visualea",
+                                                  self.pmurl, self.model)
 
-        self.view = NodeFactoryTreeView(None)
-        self.view.setModel(self.model)
-        self.space = LayoutSpace(self.__name__, self.__namespace__, self.view )
+    def new_document(self):
+        return self.pmanagerDoc
 
-    def get_resource(self):
-        return self.pmanager
-
-    def validate_resource(self, resource):
-        return resource == self.pmanager
-
-    def get_resource_space(self, resource):
-        return self.space
+    def get_applet_space(self, document):
+        view = NodeFactoryTreeView(None)
+        view.setModel(self.model)
+        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        return space
 
 
 
-class DataflowViewFactory(DocumentWidgetFactory):
-    __name__ = "Dataflowview"
+class DataflowViewFactory(AppletFactory):
+    __name__ = "DataflowView"
     __namespace__ = "Visualea"
     __mimeformats__ = [CompositeNodeFactory.mimetype]
 
     def __init__(self):
-        WidgetFactory.__init__(self)
+        AppletFactory.__init__(self)
         self.__ctr = 0
 
     def new_document(self):
@@ -86,7 +85,7 @@ class DataflowViewFactory(DocumentWidgetFactory):
         document = Document(node.caption, "Visualea", parsedUrl.geturl(), node)
         return document
 
-    def get_document_space(self, document):
+    def get_applet_space(self, document):
         node = document.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node)
         return LayoutSpace(self.__name__, self.__namespace__, gwidget)
@@ -115,14 +114,11 @@ df1 = Layout("Dataflow Editing",
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
-             resourcemap={1:"Visualea.PackageManager",
-                          4:"Openalea.Logger"})
+             appletmap={1:"Visualea.PackageManager",
+                        3:"Visualea.DataflowView",
+                        4:"Openalea.Logger"})
 
-df2 = Layout("Dataflow Editing2",
-             "Visualea",
-             skeleton=sk,
-             resourcemap={4:"Visualea.PackageManager",
-                          3:"Openalea.Logger"})
+
 
 
 

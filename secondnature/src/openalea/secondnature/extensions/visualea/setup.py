@@ -21,12 +21,11 @@ __revision__ = " $Id$ "
 from setuptools import setup
 
 
-setup( name = "OAEX Visualea",
-       version = "0.1",
-       py_modules = ['visualea_ext'],
-       entry_points = {"openalea.app.layout":["visualea.df1 = visualea_ext:df1",
-                                              "visualea.df2 = visualea_ext:df2"],
-                       "openalea.app.document_widget_factory": ["Visualea.oa = visualea_ext:dataflow_f"],
-                       "openalea.app.resource_widget_factory":["Visualea.pmv = visualea_ext:pmanager_f"],
+setup( name         = "OAEX Visualea",
+       version      = "0.1",
+       py_modules   = ['visualea_ext'],
+       entry_points = {"openalea.app.layout":["visualea.df1 = visualea_ext:df1"],
+                       "openalea.app.applet_factory": ["Visualea.oa = visualea_ext:dataflow_f",
+                                                       "Visualea.pmv = visualea_ext:pmanager_f"],
                        }
     )

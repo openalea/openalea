@@ -48,7 +48,7 @@ def level_one(args=None):
         def __init__(self, argv):
             QtGui.QApplication.__init__(self, argv)
             # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
-            logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
+            logger.default_init(level=logger.DEBUG, handlers=["stream", "qt"]) #TODO get level from settings
             logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
 
             if __debug__:
@@ -87,7 +87,14 @@ def level_one(args=None):
             self.__session = Session()
 
         def __cb_session_thread_end(self):
-            self.win.init_extensions()
+            try:
+                self.win.init_extensions()
+            except Exception, e:
+                logger.error(e.message)
+
+            logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
+            logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
+
             self.win.statusBar().clearMessage()
             self.win.setEnabled(True)
 

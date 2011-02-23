@@ -17,19 +17,24 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-
-from openalea.core.node import NodeFactory
-from openalea.core.compositenode import CompositeNodeFactory
-from openalea.core.pkgmanager import PackageManager
-from openalea.secondnature.extendable_objects import *
-from openalea.secondnature.urltools import file_url_to_path
-from openalea.visualea.scintilla_editor import ScintillaCodeEditor
 import urllib2
 import urlparse
 import os.path as path
 import inspect
 
-class CodeEditorFactory(DocumentWidgetFactory):
+from openalea.core.node import NodeFactory
+from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
+
+from openalea.secondnature.extendable_objects import AppletFactory
+from openalea.secondnature.extendable_objects import Layout
+from openalea.secondnature.extendable_objects import LayoutSpace
+from openalea.secondnature.extendable_objects import Document
+from openalea.secondnature.urltools import file_url_to_path
+
+from openalea.visualea.scintilla_editor import ScintillaCodeEditor
+
+class CodeEditorFactory(AppletFactory):
     __name__        = "CodeEditor"
     __namespace__   = "CodeEditor"
     __mimeformats__ = ["text/plain",
@@ -38,7 +43,7 @@ class CodeEditorFactory(DocumentWidgetFactory):
                        CompositeNodeFactory.mimetype]
 
     def __init__(self):
-        WidgetFactory.__init__(self)
+        AppletFactory.__init__(self)
         self.__ctr = 0
         self.pm = PackageManager()
 
@@ -79,7 +84,7 @@ class CodeEditorFactory(DocumentWidgetFactory):
         document = Document(name, "CodeEditor", url, text)
         return document
 
-    def get_document_space(self, document):
+    def get_applet_space(self, document):
         widget = ScintillaCodeEditor()
         widget.setText(document.obj)
         return LayoutSpace(self.__name__, self.__namespace__, widget)
