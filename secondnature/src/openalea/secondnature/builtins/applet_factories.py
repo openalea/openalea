@@ -99,5 +99,37 @@ class InterpreterFactory(AppletFactory):
 interpreter_f   = InterpreterFactory()
 
 
+###################
+# PACKAGE MANAGER #
+###################
+class PackageManagerFactory(AppletFactory):
+    __name__ = "PackageManager"
+    __namespace__ = "Openalea"
+    __supports_open__ = False
+
+    def __init__(self):
+        AppletFactory.__init__(self)
+        #lets create the PackageManager ressource
+        from openalea.core.pkgmanager import PackageManager
+        from openalea.secondnature.ripped.node_treeview import PkgModel
+
+        self.model    = PkgModel(PackageManager())
+        self.pmurl    = "oa://pm.local"
+        self.pmanagerDoc = UnregisterableDocument("PackageManager", "Visualea",
+                                                  self.pmurl, self.model)
+
+    def new_document(self):
+        return self.pmanagerDoc
+
+    def get_applet_space(self, document):
+        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
+
+        view = NodeFactoryTreeView(None)
+        view.setModel(self.model)
+        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        return space
+
+pmanager_f = PackageManagerFactory()
+
 def get_builtins():
-    return [logger_f, interpreter_f]
+    return [logger_f, interpreter_f, pmanager_f]

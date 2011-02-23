@@ -21,38 +21,12 @@ from openalea.secondnature.extendable_objects import AppletFactory
 from openalea.secondnature.extendable_objects import Layout
 from openalea.secondnature.extendable_objects import LayoutSpace
 from openalea.secondnature.extendable_objects import Document
-from openalea.secondnature.extendable_objects import UnregisterableDocument
-from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView, PkgModel
 
 import urlparse
 
 from openalea.visualea import dataflowview
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
-
-
-class PackageManagerFactory(AppletFactory):
-    __name__ = "PackageManager"
-    __namespace__ = "Visualea"
-    __supports_open__ = False
-
-    def __init__(self):
-        AppletFactory.__init__(self)
-        #lets create the PackageManager ressource
-        self.model    = PkgModel(PackageManager())
-        self.pmurl    = "oa://pm.local"
-        self.pmanagerDoc = UnregisterableDocument("PackageManager", "Visualea",
-                                                  self.pmurl, self.model)
-
-    def new_document(self):
-        return self.pmanagerDoc
-
-    def get_applet_space(self, document):
-        view = NodeFactoryTreeView(None)
-        view.setModel(self.model)
-        space = LayoutSpace(self.__name__, self.__namespace__, view )
-        return space
-
 
 
 class DataflowViewFactory(AppletFactory):
@@ -94,9 +68,6 @@ class DataflowViewFactory(AppletFactory):
 
 # -- instantiate widget factories --
 dataflow_f = DataflowViewFactory()
-pmanager_f = PackageManagerFactory()
-
-
 
 
 # -- instantiate layouts --
@@ -114,7 +85,7 @@ df1 = Layout("Dataflow Editing",
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
-             appletmap={1:"Visualea.PackageManager",
+             appletmap={1:"Openalea.PackageManager",
                         3:"Visualea.DataflowView",
                         4:"Openalea.Logger"})
 

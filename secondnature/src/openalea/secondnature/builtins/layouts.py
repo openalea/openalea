@@ -14,8 +14,27 @@
 #
 ###############################################################################
 
+from openalea.secondnature.extendable_objects import Layout
+
+# -- instantiate layouts --
+sk = "{0: [1, 2], 2: [3, 4]},"+\
+     "{0: None, 1: 0, 2: 0, 3: 2, 4: 2},"+\
+     "{0: {'amount': 0.2, 'splitDirection': 1},"+\
+     "1: {},"+\
+     "2: {'amount': 0.7, 'splitDirection': 2},"+\
+     "3: {}, 4: {}}"
+
+
+default = Layout("Default",
+                 "Openalea",
+                 skeleton = sk,
+                 # the widgets we want are those  placed under the
+                 # `Visualea` application namespace.
+                 # but you could have "PlantGl.viewer" here too.
+                 appletmap={1:"Openalea.PackageManager",
+                            4:"Openalea.Logger"})
 
 
 
 def get_builtins():
-    return []
+    return [default]

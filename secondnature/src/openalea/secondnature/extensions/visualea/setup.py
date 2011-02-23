@@ -25,7 +25,6 @@ setup( name         = "OAEX Visualea",
        version      = "0.1",
        py_modules   = ['visualea_ext'],
        entry_points = {"openalea.app.layout":["visualea.df1 = visualea_ext:df1"],
-                       "openalea.app.applet_factory": ["Visualea.oa = visualea_ext:dataflow_f",
-                                                       "Visualea.pmv = visualea_ext:pmanager_f"],
+                       "openalea.app.applet_factory": ["Visualea.oa = visualea_ext:dataflow_f"],
                        }
     )
