@@ -20,7 +20,7 @@ __revision__ = " $Id$"
 
 import os, sys
 
-
+import traceback
 
 def level_one(args=None):
     if args is None:
@@ -90,6 +90,7 @@ def level_one(args=None):
             try:
                 self.win.init_extensions()
             except Exception, e:
+                traceback.print_exc()
                 logger.error(e.message)
 
             logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings

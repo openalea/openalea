@@ -17,12 +17,13 @@
 from openalea.secondnature.extendable_objects import Layout
 
 # -- instantiate layouts --
-sk = "{0: [1, 2], 2: [3, 4]},"+\
-     "{0: None, 1: 0, 2: 0, 3: 2, 4: 2},"+\
-     "{0: {'amount': 0.2, 'splitDirection': 1},"+\
-     "1: {},"+\
-     "2: {'amount': 0.7, 'splitDirection': 2},"+\
-     "3: {}, 4: {}}"
+sk = "{0: [1, 2], 1: [5, 6], 2: [3, 4]},"+\
+     "{0: None, 1: 0, 2: 0, 3: 2, 4: 2, 5: 1, 6: 1},"+\
+     "{0: {'amount': 0.7272727272727273, 'splitDirection': 2}, "+\
+     "1: {'amount': 0.16180555555555556, 'splitDirection': 1}, "+\
+     "2: {'amount': 0.960352422907489, 'splitDirection': 2},"+\
+     "3: {}, 4: {}, 5: {}, 6: {}}"
+
 
 
 default = Layout("Default",
@@ -31,8 +32,10 @@ default = Layout("Default",
                  # the widgets we want are those  placed under the
                  # `Visualea` application namespace.
                  # but you could have "PlantGl.viewer" here too.
-                 appletmap={1:"Openalea.PackageManager",
-                            4:"Openalea.Logger"})
+                 appletmap={3:"Openalea.Interpreter",
+                            4:"Openalea.Logger",
+                            5:"Openalea.PackageManager"},
+                 easy_name="Default Layout")
 
 
 

@@ -63,10 +63,10 @@ class MainWindow(QtGui.QMainWindow):
     def init_extensions(self):
         init_sources()
         # --choosing default layout--
-        index = self._layoutMode.findText("Openalea.Default")
+        index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
-            self._layoutMode.activated[QtCore.QString].emit("Openalea.Default")
+            self._layoutMode.activated[QtCore.QString].emit("Default Layout")
 
     #################################
     # DRAG AND DROP RELATED METHODS #

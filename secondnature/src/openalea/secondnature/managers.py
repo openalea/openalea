@@ -95,7 +95,7 @@ class AbstractSource(QtCore.QObject):
                                    (QtCore.pyqtWrapperType,))
 
     __concrete_manager__ = None
-
+    __key__ = "fullname"
 
     itemListChanged = QtCore.pyqtSignal(object, dict)
 
@@ -134,7 +134,7 @@ class EntryPointSourceBase(AbstractSource):
             logger.error("Setuptools' pkg_resources not available. No entry point extensions.")
         else:
             self.pkg_resources = pkg_resources
-        self.__items = None
+        self.items = None
 
     def is_valid(self):
         return self.pkg_resources is not None
@@ -153,7 +153,8 @@ class EntryPointSourceBase(AbstractSource):
                 logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
                 continue
             else:
-                self.items[it.fullname] = it
+                key = getattr(it, self.__key__)
+                self.items[key] = it
         self.itemListChanged.emit(self, self.items.copy())
 
     def get_items(self):
@@ -183,7 +184,7 @@ class BuiltinSourceBase(AbstractSource):
         if not self.is_valid():
             return None #TODO : raise something dude
         itemlist = self.mod.get_builtins()
-        self.__items = dict( (v.fullname, v) for v in itemlist)
+        self.__items = dict( (getattr(v, self.__key__), v) for v in itemlist)
         self.itemListChanged.emit(self, self.__items.copy())
 
     def get_items(self):
@@ -191,7 +192,7 @@ class BuiltinSourceBase(AbstractSource):
 
 
 
-def make_manager(name, entry_point=None, builtin=None, is_base=False):
+def make_manager(name, entry_point=None, builtin=None, is_base=False, key="fullname"):
 
     class MetaManager(AbstractSourceManager):
         pass
@@ -199,6 +200,7 @@ def make_manager(name, entry_point=None, builtin=None, is_base=False):
 
     class MetaSourceMixin(object):
         __concrete_manager__ = MetaManager
+        __key__ = key
     MetaSourceMixin.__name__ = name+"SourceMixin"
 
     sources = []
@@ -242,7 +244,8 @@ def make_manager(name, entry_point=None, builtin=None, is_base=False):
 ##########################
 layout_classes = make_manager("Layout",
                               entry_point="openalea.app.layout",
-                              builtin="layouts")
+                              builtin="layouts",
+                              key="easyname")
 LayoutManager = layout_classes[0]
 LayoutSourceMixin = layout_classes[1]
 LayoutSourceEntryPoints, LayoutSourceBuiltin = layout_classes[2]

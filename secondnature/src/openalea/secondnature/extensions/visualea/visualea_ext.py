@@ -87,7 +87,8 @@ df1 = Layout("Dataflow Editing",
              # but you could have "PlantGl.viewer" here too.
              appletmap={1:"Openalea.PackageManager",
                         3:"Visualea.DataflowView",
-                        4:"Openalea.Logger"})
+                        4:"Openalea.Logger"},
+             easy_name="Visual Programming")
 
 
 

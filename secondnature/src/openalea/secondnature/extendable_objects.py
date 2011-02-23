@@ -34,13 +34,15 @@ class Base(object):
 
 
 class Layout(Base):
-    def __init__(self, name, ns, skeleton, appletmap):
+    def __init__(self, name, ns, skeleton, appletmap, easy_name=None):
         Base.__init__(self, name, ns)
         self.__skeleton  = skeleton
         self.__appletmap = appletmap
+        self.__ezname    = easy_name
 
     skeleton  = property(lambda x: x.__skeleton)
     appletmap = property(lambda x: x.__appletmap)
+    easyname  = property(lambda x: x.__ezname or x.fullname)
 
 
 
