@@ -49,6 +49,7 @@ class MainWindow(QtGui.QMainWindow):
         self._statusBar  = QtGui.QStatusBar(self)
         self._layoutMode = QtGui.QComboBox(self)
         self._statusBar.addPermanentWidget(self._layoutMode)
+        self._layoutMode.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.__currentLayout = None
 
         self.setMenuBar(self._mainMenu)
@@ -58,8 +59,10 @@ class MainWindow(QtGui.QMainWindow):
         LayoutManager().itemListChanged.connect(self.__onLayoutListChanged)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
 
+
     def init_extensions(self):
         init_sources()
+        # --choosing default layout--
         index = self._layoutMode.findText("Openalea.Default")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
@@ -132,7 +135,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             ind = -1
         self._layoutMode.setCurrentIndex(ind)
-        self.setGeometry(QtCore.QRect())
+        self._layoutMode.adjustSize()
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
