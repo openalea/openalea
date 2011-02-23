@@ -14,6 +14,9 @@
 #
 ###############################################################################
 
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
+
 from openalea.secondnature.extendable_objects import Layout
 
 # -- instantiate layouts --

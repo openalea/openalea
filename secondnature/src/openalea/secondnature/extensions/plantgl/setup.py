@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.Secondnature
+#       OpenAlea.SecondNature
 #
 #       Copyright 2006-2011 INRIA - CIRAD - INRA
 #
@@ -17,9 +17,13 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-########################################################################
-# This module can host documents that are always available to Openalea #
-########################################################################
 
-def get_builtins():
-    return []
+from setuptools import setup
+
+
+setup( name         = "OAEX PlantGL",
+       version      = "0.1",
+       py_modules   = ['plantgl_ext'],
+       entry_points = {"openalea.app.applet_factory": ["visualea.curve2d_f = plantgl_ext:curve2d_f"],
+                       }
+     )

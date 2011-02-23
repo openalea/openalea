@@ -14,6 +14,9 @@
 #
 ###############################################################################
 
+__license__ = "CeCILL v2"
+__revision__ = " $Id$ "
+
 from openalea.secondnature.extendable_objects import AppletFactory
 from openalea.secondnature.extendable_objects import Document
 from openalea.secondnature.extendable_objects import UnregisterableDocument
