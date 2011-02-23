@@ -49,6 +49,7 @@ class MainWindow(QtGui.QMainWindow):
         self._statusBar  = QtGui.QStatusBar(self)
         self._layoutMode = QtGui.QComboBox(self)
         self._statusBar.addPermanentWidget(self._layoutMode)
+        self.__currentLayout = None
 
         self.setMenuBar(self._mainMenu)
         self.setStatusBar(self._statusBar)
@@ -126,7 +127,12 @@ class MainWindow(QtGui.QMainWindow):
         layoutNames.sort()
         self._layoutMode.clear()
         self._layoutMode.addItems(layoutNames)
-        self._layoutMode.setCurrentIndex(-1)
+        if self.__currentLayout:
+            ind = self._layoutMode.findText(self.__currentLayout)
+        else:
+            ind = -1
+        self._layoutMode.setCurrentIndex(ind)
+        self.setGeometry(QtCore.QRect())
 
     def __onLayoutChosen(self, layoutName):
         """Called when a user chooses a layout. Fetches the corresponding
@@ -165,6 +171,7 @@ class MainWindow(QtGui.QMainWindow):
                 continue
             if space:
                 self.__setSpaceAt(paneId, space)
+        self.__currentLayout = layoutName
 
     ######################
     # Pane Menu handlers #
