@@ -675,6 +675,7 @@ class SplittableUI(QtGui.QWidget):
         # -- we store other properties used for layout computation --
         g.set_property(paneId, "splitDirection", direction)
         g.set_property(paneId, "amount", amount)
+        self.__sticky_check(paneId, direction, amount)
         return widgetFromParent
 
     def _unsplit_parent(self, paneId):
@@ -736,6 +737,16 @@ class SplittableUI(QtGui.QWidget):
         for t in self._g.get_property(paneId, "tearOffWidgets"):
             t.raise_()
 
+    def __sticky_check(self, paneId, orientation, amount):
+        geom = self._geomCache.get(paneId)
+        sticky = 0
+        if geom:
+            refVal = geom.width() if orientation == QtCore.Qt.Horizontal else geom.height()
+            sp = SplittableUI.__spacing__
+            absAmount = amount * refVal
+            sticky = -1 if absAmount<=sp else (1 if absAmount>=(refVal-sp-1) else 0)
+        self._g.set_property(paneId, "sticky", sticky)
+
 
     ###################
     # Signal handlers #
@@ -770,6 +781,7 @@ class SplittableUI(QtGui.QWidget):
         self.collapsePane(parent,
                           toSecond=(collapseType==SplittableUI.TearOff.CollapseToSecond))
 
+
     def _onHandleMoved(self, paneId, position, orientation, newAmount=None):
         """Called when a handle widget moves. It triggers a recomputation
         of the layout at level `paneId`."""
@@ -783,6 +795,8 @@ class SplittableUI(QtGui.QWidget):
                 val = float(position.y())
                 topVal = geom.height()
             newAmount  = val/topVal
+
+        self.__sticky_check(paneId, orientation, newAmount)
         self._g.set_property(paneId, "amount", newAmount)
         self.computeGeoms(paneId)
 
@@ -846,19 +860,23 @@ class SplittableUI(QtGui.QWidget):
             self.geomCache = geomCache
 
 
-        def layout_pane(self, geom, vid):
+        def layout_pane(self, geom, vid, widgetSpace = None):
+            widget = None
             if self.g.has_property(vid, "widget"):
                 widget = self.g.get_property(vid, "widget")
-                if widget is not None:
-                    widget.move(geom.x(), geom.y())
-                    widget.resize(geom.width(), geom.height())
+            if widget is not None:
+                widgetGeom = widgetSpace or geom
+                widget.move(widgetGeom.topLeft())
+                widget.resize(widgetGeom.width(), widgetGeom.height())
 
             th = SplittableUI.TearOff.__ideal_height__
             tearOffB,tearOffT = toffs = self.g.get_property(vid, "tearOffWidgets")
             if geom.height() <  th or geom.width() < th:
+                if widget: widget.hide()
                 for t in toffs:
                     t.hide()
             else:
+                if widget: widget.show()
                 for t in toffs:
                     t.show()
             tearOffB.move(geom.left()+1, geom.bottom()+1-th)
@@ -894,34 +912,40 @@ class SplittableUI(QtGui.QWidget):
 
             direction = self.g.get_property(vid, "splitDirection")
             amount    = self.g.get_property(vid, "amount")
+            sticky    = self.g.get_property(vid, "sticky")
 
             # -- The node has children : it doesn't have a widget
             # but it does have a handle that separates the child widgets
             # we must place it accordingly
             handle = self.g.get_property(vid, "handleWidget")
-            hgeom = handle.geometry()
+            hgeom = QtCore.QRect()#handle.geometry()
 
             containerWidth = (containerGeom.width() - sp) if direction == QtCore.Qt.Horizontal else containerGeom.width()
             containerHeight = (containerGeom.height() - sp) if direction == QtCore.Qt.Vertical else containerGeom.height()
 
+            if vid==5:
+                print sticky
+
             if direction == QtCore.Qt.Horizontal:
                 firstHeight = secondHeight = containerHeight
-                firstWidth  = containerWidth * amount
-                secondWidth = containerWidth - firstWidth
+                firstWidth  = (containerWidth * amount) if sticky != -1 else 0
+                secondWidth = (containerWidth - firstWidth ) if sticky != 1 else 0
                 firstX, firstY = containerGeom.x(), containerGeom.y()
                 secondX, secondY = firstX + firstWidth + sp, firstY
                 hgeom.moveLeft(firstX++firstWidth)
                 hgeom.moveTop(firstY)
                 hgeom.setHeight(containerHeight)
+                hgeom.setWidth(sp)
             else:
                 firstWidth = secondWidth = containerWidth
-                firstHeight   = containerHeight * amount
-                secondHeight  = containerHeight - firstHeight
+                firstHeight   = (containerHeight * amount) if sticky != -1 else 0
+                secondHeight  = (containerHeight - firstHeight) if sticky != 1 else 0
                 firstX, firstY = containerGeom.x(), containerGeom.y()
                 secondX, secondY = firstX, firstY + firstHeight + sp
                 hgeom.moveTop(firstY+firstHeight)
                 hgeom.moveLeft(firstX)
                 hgeom.setWidth(containerWidth)
+                hgeom.setHeight(sp)
             firstGeom = QtCore.QRect(firstX, firstY, firstWidth, firstHeight)
             secondGeom = QtCore.QRect(secondX, secondY, secondWidth, secondHeight)
 
@@ -973,6 +997,7 @@ class SplittableUI(QtGui.QWidget):
 
             direction = self.g.get_property(vid, "splitDirection")
             amount = self.g.get_property(vid, "amount")
+
             self.wid._split_parent(vid, direction, amount)
 
             return False, False
@@ -1117,20 +1142,23 @@ class SplittableUI(QtGui.QWidget):
         def __valid_position(self, pt):
             """PRIVATE: checks if pt is within the parent's geometry and returns a pt that
             lies inside."""
-            parentGeom, thk = self.parent()._geomCache[self._refVid], self._thickness
+            parentGeom = self.parent()._geomCache[self._refVid]
+            thk        = self._thickness
+#            print "__valid_position", pt,
             if self._orientation == QtCore.Qt.Vertical:
                 val  = pt.y()
                 min_ = parentGeom.top() + thk
-                max_ = parentGeom.bottom() - thk
+                max_ = parentGeom.bottom()
                 fix = pt.setY
             else:
                 val  = pt.x()
                 min_ = parentGeom.left() + thk
-                max_ = parentGeom.right() - thk
+                max_ = parentGeom.right()
                 fix = pt.setX
             if   val < min_: val = min_
             elif val > max_: val = max_
             fix(val)
+#            print pt, min_, max_
             return pt
 
         ##############################
