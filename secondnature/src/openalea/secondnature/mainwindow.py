@@ -34,6 +34,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         self.setMinimumSize(500, 400)
+        self.showMaximized()
         self.setWindowTitle("Second Nature")
         self.setWindowFlags(QtCore.Qt.Window)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -275,11 +276,11 @@ class MainWindow(QtGui.QMainWindow):
         return s, taken
 
     def __setSpaceAt(self, paneId, space):
-        content, menu, toolbar = space.content, space.menu, space.toolbar
+        content, menuList, toolbar = space.content, space.menus, space.toolbar
         if content is not None:
             self.__setContentAt(paneId, content)
-        if menu is not None:
-            self.__setMenuAt(paneId, menu)
+        if menuList:
+            self.__setMenusAt(paneId, menuList)
         if toolbar is not None:
             self.__setToolbarAt(paneId, toolbar)
 
@@ -289,7 +290,7 @@ class MainWindow(QtGui.QMainWindow):
                                            content,
                                            noTearOffs=True, noToolButton=True)
 
-    def __setMenuAt(self, paneId, menu):
+    def __setMenusAt(self, paneId, menuList):
         pass
 
     def __setToolbarAt(self, paneId, tb):

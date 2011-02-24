@@ -48,14 +48,14 @@ class Layout(Base):
 
 class LayoutSpace(Base):
     """returned by widget factories"""
-    def __init__(self, name, ns, content, menu=None, toolbar=None):
+    def __init__(self, name, ns, content, menuList=None, toolbar=None):
         Base.__init__(self, name, ns)
         self.__content = content
-        self.__menu    = menu
+        self.__menuList    = menuList
         self.__toolbar = toolbar
 
     content = property(lambda x:x.__content)
-    menu    = property(lambda x:x.__menu)
+    menus   = property(lambda x:x.__menuList)
     toolbar = property(lambda x:x.__toolbar)
 
 
