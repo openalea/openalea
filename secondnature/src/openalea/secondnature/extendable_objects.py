@@ -114,11 +114,12 @@ class AppletFactory(Base):
 
 class Document(Base):
     """"""
-    def __init__(self, name, ns, source, obj):
+    def __init__(self, name, ns, source, obj, **kwargs):
         Base.__init__(self, name, ns)
         self.__source = source
         self.__obj    = obj
         self._reg    = True
+        self._props  = kwargs.copy()
 
     source       = property(lambda x:x.__source)
     obj          = property(lambda x:x.__obj)
@@ -129,6 +130,9 @@ class Document(Base):
 
     def save(self):
         raise NotImplementedError
+
+    def get_inner_property(self, key):
+        return self._props.get(key)
 
 class UnregisterableDocument(Document):
     def __init__(self, name, ns, source, obj):
