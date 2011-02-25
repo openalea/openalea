@@ -75,7 +75,7 @@ class MainWindow(QtGui.QMainWindow):
     def __validate_mimedata(self, mimedata):
         good = False
         fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
-        print fmts
+#        print fmts
         #self.logger.info("__validate_mimedata formats" + fmts)
         if mimedata.hasFormat("text/uri-list"):
             good = True
@@ -101,7 +101,7 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData)
-        print handlers
+#        print handlers
         nbHandlers = len(handlers)
         if nbHandlers == 0:
             return
