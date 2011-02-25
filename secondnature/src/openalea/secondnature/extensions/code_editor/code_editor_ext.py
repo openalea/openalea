@@ -26,10 +26,10 @@ from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 
-from openalea.secondnature.extendable_objects import AppletFactory
-from openalea.secondnature.extendable_objects import Layout
-from openalea.secondnature.extendable_objects import LayoutSpace
-from openalea.secondnature.extendable_objects import Document
+from openalea.secondnature.extension_objects import AppletFactory
+from openalea.secondnature.extension_objects import Layout
+from openalea.secondnature.extension_objects import LayoutSpace
+from openalea.secondnature.extension_objects import Document
 from openalea.secondnature.urltools import file_url_to_path
 
 from openalea.visualea.scintilla_editor import ScintillaCodeEditor

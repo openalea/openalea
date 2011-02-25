@@ -17,13 +17,13 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extendable_objects import AppletFactory
-from openalea.secondnature.extendable_objects import Layout
-from openalea.secondnature.extendable_objects import LayoutSpace
-from openalea.secondnature.extendable_objects import Document
+from openalea.secondnature.extension_objects import AppletFactory
+from openalea.secondnature.extension_objects import Layout
+from openalea.secondnature.extension_objects import LayoutSpace
+from openalea.secondnature.extension_objects import Document
+from openalea.secondnature.extension_objects import EscEventSwallower
 
 import urlparse
-
 
 
 
@@ -36,6 +36,7 @@ class Curve2DFactory(AppletFactory):
 
     def __init__(self):
         AppletFactory.__init__(self)
+        self.__pglEscSwallower = EscEventSwallower()
         self.__ctr = 0
 
     def new_document(self):
@@ -75,6 +76,7 @@ class Curve2DFactory(AppletFactory):
         constraint = document.get_inner_property("constraintType")
         editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
         editor.setCurve(curve)
+        editor.installEventFilter(self.__pglEscSwallower)
         return LayoutSpace(self.__name__, self.__namespace__, editor)
 
 
@@ -88,6 +90,7 @@ class NurbsPatchFactory(AppletFactory):
 
     def __init__(self):
         AppletFactory.__init__(self)
+        self.__pglEscSwallower = EscEventSwallower()
         self.__ctr = 0
 
     def new_document(self):
@@ -113,6 +116,7 @@ class NurbsPatchFactory(AppletFactory):
         patch = document.obj
         editor = nurbspatcheditor.NurbsPatchEditor(None)
         editor.setNurbsPatch(patch)
+        editor.installEventFilter(self.__pglEscSwallower)
         return LayoutSpace(self.__name__, self.__namespace__, editor)
 
 

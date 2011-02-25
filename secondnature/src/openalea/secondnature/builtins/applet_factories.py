@@ -17,10 +17,10 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extendable_objects import AppletFactory
-from openalea.secondnature.extendable_objects import Document
-from openalea.secondnature.extendable_objects import UnregisterableDocument
-from openalea.secondnature.extendable_objects import LayoutSpace
+from openalea.secondnature.extension_objects import AppletFactory
+from openalea.secondnature.extension_objects import Document
+from openalea.secondnature.extension_objects import UnregisterableDocument
+from openalea.secondnature.extension_objects import LayoutSpace
 
 # -- specific imports are inside the classes
 # to prevent errors when import this module --

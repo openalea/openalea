@@ -22,7 +22,7 @@ from openalea.visualea.splitterui import SplittableUI, DraggableWidget, RubberBa
 
 
 
-class Header(QtGui.QFrame):
+class Header(QtGui.QWidget):
      """Implementation of the area that holds the menu and toolbar area
 
      Obeys to Qt naming convention.
@@ -33,7 +33,7 @@ class Header(QtGui.QFrame):
 
 
      def __init__(self, parent=None):
-         QtGui.QFrame.__init__(self, parent, QtCore.Qt.Widget)
+         QtGui.QWidget.__init__(self, parent, QtCore.Qt.Widget)
          self.__lay = QtGui.QHBoxLayout()
          self.__lay.setContentsMargins(1,1,1,1)
          self.__lay.setSpacing(1)
@@ -91,6 +91,7 @@ class CustomSplittable(SplittableUI):
         g = self._g
         header = Header(self)
         g.set_property(paneId, "header", header)
+        self._raise_overlays(paneId)
         return w
 
     def _uninstall_child(self, paneId):

@@ -22,6 +22,7 @@ __revision__ = " $Id$ "
 from PyQt4 import QtCore
 from openalea.secondnature.managers import DocumentManager
 
+
 class Base(object):
     def __init__(self, name, ns):
         self._name = name
@@ -139,3 +140,10 @@ class UnregisterableDocument(Document):
         Document.__init__(self, name, ns, source, obj)
         self._reg = False
 
+
+class EscEventSwallower(QtCore.QObject):
+    def eventFilter(self, watched, event):
+        if event.type() in [QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease]:
+            if event.key() == QtCore.Qt.Key_Escape:
+                return True
+        return False
