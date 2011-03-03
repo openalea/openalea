@@ -847,10 +847,32 @@ class SplittableUI(QtGui.QWidget):
             return
         self.dropHandlerRequest.emit(paneId, event)
 
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        # paintingVisitor = self.DebugPaintingVisitor(self._g, self._geomCache, painter)
+        # self._g.visit_i_breadth_first(paintingVisitor)
+        QtGui.QWidget.paintEvent(self, event)
 
     ###################################################################################
     # Inner classes not meant to be seen by others - Inner classes not meant to be... #
     ###################################################################################
+    class DebugPaintingVisitor(object):
+        def __init__(self, graph, geomCache, painter):
+            self.g = graph
+            self.geomCache = geomCache
+            self.painter = painter
+
+        def visit(self, vid):
+            if not self.g.has_children(vid):
+                # ok, no child, so we probably have a widget and our geometry
+                # has already been computed by parent
+                geom = self.geomCache[vid]
+                color = QtGui.QColor.fromHsv(vid*10, 125, 125)
+                self.painter.fillRect(geom, color)
+                self.painter.drawText(geom.center(), str(vid))
+            return False, False
+
+
     class GeometryComputingVisitor(object):
         """A visitor that browses the graph describing
         the partitioning of the UI and computes the geometries
@@ -923,8 +945,6 @@ class SplittableUI(QtGui.QWidget):
             containerWidth = (containerGeom.width() - sp) if direction == QtCore.Qt.Horizontal else containerGeom.width()
             containerHeight = (containerGeom.height() - sp) if direction == QtCore.Qt.Vertical else containerGeom.height()
 
-            if vid==5:
-                print sticky
 
             if direction == QtCore.Qt.Horizontal:
                 firstHeight = secondHeight = containerHeight
@@ -1144,7 +1164,6 @@ class SplittableUI(QtGui.QWidget):
             lies inside."""
             parentGeom = self.parent()._geomCache[self._refVid]
             thk        = self._thickness
-#            print "__valid_position", pt,
             if self._orientation == QtCore.Qt.Vertical:
                 val  = pt.y()
                 min_ = parentGeom.top() + thk
@@ -1158,7 +1177,6 @@ class SplittableUI(QtGui.QWidget):
             if   val < min_: val = min_
             elif val > max_: val = max_
             fix(val)
-#            print pt, min_, max_
             return pt
 
         ##############################

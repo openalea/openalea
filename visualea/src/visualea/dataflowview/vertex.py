@@ -45,12 +45,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                   ):
     # --- PAINTING STUFF ---
     # Color Definition
-    default_pen_color                = QtGui.QColor(QtCore.Qt.black)
+    default_pen_color                = QtGui.QColor(QtCore.Qt.darkGray)
     default_pen_selected_color       = QtGui.QColor(QtCore.Qt.lightGray)
     default_pen_error_color          = QtGui.QColor(QtCore.Qt.red)
 
     default_top_color                = QtGui.QColor(200, 200, 200, 255)
-    default_bottom_color             = QtGui.QColor(100, 100, 255, 255)
+    default_bottom_color             = QtGui.QColor(160, 160, 200, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
     default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
     default_unlazy_color             = QtGui.QColor(200,  255, 160, 255)
@@ -65,7 +65,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     delayMargins     = 7.0
     evalColor        = QtGui.QColor(255, 0, 0, 200)
 
-    default_corner_radius = 3.0
+    default_corner_radius = 1.2
     default_margin        = 3.0
     pen_width             = 1.0
 
@@ -602,8 +602,8 @@ class HiddenPort (QtGui.QGraphicsItem):
 class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 400
-    WIDTH      = 10.0
-    HEIGHT     = 10.0
+    WIDTH      = 7.0
+    HEIGHT     = 7.0
 
     def __init__(self, parent, port):
         """
