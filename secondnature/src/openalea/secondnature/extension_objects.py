@@ -20,7 +20,7 @@ __revision__ = " $Id$ "
 
 
 from PyQt4 import QtCore
-from openalea.secondnature.managers import DocumentManager
+from openalea.secondnature.project import ProjectManager
 
 
 class Base(object):
@@ -66,11 +66,18 @@ class AppletFactory(Base):
     __mimeformats__ = []
     __supports_open__ = True
     __dm = None
+    __pm = None
 
     def __init__(self):
         Base.__init__(self, self.__name__, self.__namespace__)
-        if AppletFactory.__dm is None:
-            AppletFactory.__dm = DocumentManager()
+        if AppletFactory.__pm is None:
+            AppletFactory.__pm = ProjectManager()
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
 
     def get_mime_formats(self):
         return self.__mimeformats__[:]
@@ -90,23 +97,30 @@ class AppletFactory(Base):
     def get_applet_space(self, document):
         raise NotImplementedError
 
+    def __register_document(self, document):
+        if document and document.registerable:
+            proj = self.__pm.get_active_project()
+            proj.add_document(document)
+        else:
+            return #raise something
+
     def new_document_and_register_it(self):
         document = self.new_document()
-        if document and document.registerable:
-            self.__dm.add_document(document)
+        self.__register_document(document)
         return document
 
     def open_document_and_register_it(self, parsedUrl):
         document = self.open_document(parsedUrl)
-        if document and document.registerable:
-            self.__dm.add_document(document)
+        self.__register_document(document)
         return document
 
     def get_applet_space_and_register_it(self, document=None):
         document = document or self.new_document_and_register_it()
         space = self.get_applet_space(document)
-        if self.__dm.has_document(document) and space:
-            self.__dm.set_document_property(document, "space", space)
+        proj = self.__pm.get_active_project()
+
+        if proj and proj.has_document(document) and space:
+            proj.set_document_property(document, "space", space)
         return space
 
     __call__ = get_applet_space_and_register_it
@@ -127,6 +141,7 @@ class Document(Base):
     registerable = property(lambda x:x._reg)
 
     def _set_name(self, name):
+        print "document._set_name", name
         self._name = name
 
     def save(self):

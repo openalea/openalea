@@ -26,7 +26,8 @@ from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
 from openalea.secondnature.managers import AppletFactoryManager
-from openalea.secondnature.managers import DocumentManager
+from openalea.secondnature.project import ProjectManager
+from openalea.secondnature.project import Project
 
 sn_logger = get_logger(__name__)
 
@@ -56,6 +57,10 @@ class MainWindow(QtGui.QMainWindow):
         self.setMenuBar(self._mainMenu)
         self.setStatusBar(self._statusBar)
         self.setCentralWidget(self.__splittable)
+
+        pm = ProjectManager()
+        if not pm.has_active_project():
+            pm.new_active_project("New Project")
 
         LayoutManager().itemListChanged.connect(self.__onLayoutListChanged)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
@@ -197,21 +202,23 @@ class MainWindow(QtGui.QMainWindow):
 
         appletMenu = menu.addMenu("Applets...")
         appFactories = AppletFactoryManager().gather_items()
-        appletNames = list(appFactories.iterkeys())
+        appletNames = sorted(appFactories.iterkeys())
         for appName in appletNames:
             action = appletMenu.addAction(appName)
             func = self.__make_new_applet_pane_handler(paneId, appName)
             action.triggered.connect(func)
 
-        dm = DocumentManager()
-        docMenu = menu.addMenu("Documents...")
-        for source, doc in dm:
-            srcName = doc.name + " ("+doc.source+")"
-            # must escape the ampersand or Qt stips it as a mnemonic
-            srcName = srcName.replace("&","&&")
-            action = docMenu.addAction(srcName)
-            func = self.__make_document_pane_handler(paneId, doc)
-            action.triggered.connect(func)
+        pm = ProjectManager()
+        proj = pm.get_active_project()
+        if proj:
+            docMenu = menu.addMenu("Project Documents...")
+            for id, doc in proj:
+                srcName = doc.name# + " ("+doc.source+")"
+                # must escape the ampersand or Qt stips it as a mnemonic
+                srcName = srcName.replace("&","&&")
+                action = docMenu.addAction(srcName)
+                func = self.__make_document_pane_handler(proj, paneId, doc)
+                action.triggered.connect(func)
         menu.popup(pos)
 
     def __make_clear_pane_handler(self, paneId):
@@ -238,10 +245,9 @@ class MainWindow(QtGui.QMainWindow):
         func = on_applet_chosen
         return func
 
-    def __make_document_pane_handler(self, paneId, doc):
+    def __make_document_pane_handler(self, proj, paneId, doc):
         def on_document_chosen(checked):
-            dm = DocumentManager()
-            space = dm.get_document_property(doc, "space")
+            space = proj.get_document_property(doc, "space")
             if space is None:
                 self.logger.debug("on_document_chosen has None space for "+doc.source)
             else:
@@ -297,14 +303,6 @@ class MainWindow(QtGui.QMainWindow):
         pass
 
 
-    ##############################
-    # DOCUMENT COMMODITY METHODS #
-    ##############################
-    def __register_document(self, doc, space):
-        if None not in [doc, space]:
-            dm = DocumentManager()
-            dm.add_document(doc)
-            dm.set_document_property(doc, "space", space)
 
 
 

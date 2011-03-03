@@ -40,8 +40,8 @@ class LoggerFactory(AppletFactory):
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
         self.loggerurl = "oa://logger.local/"
-        self.loggerDoc = UnregisterableDocument("Logger",
-                                                "Openalea",
+        self.loggerDoc = UnregisterableDocument(self.__name__,
+                                                self.__namespace__,
                                                 self.loggerurl,
                                                 self.loggermodel)
 
@@ -72,8 +72,8 @@ class InterpreterFactory(AppletFactory):
 
         self.interpretermodel = Interpreter()
         self.interpreterurl = "oa://interpreter.local/"
-        self.interpreterDoc = UnregisterableDocument("Interpreter",
-                                                     "Openalea",
+        self.interpreterDoc = UnregisterableDocument(self.__name__,
+                                                     self.__namespace__,
                                                      self.interpreterurl,
                                                      self.interpretermodel)
 
@@ -91,9 +91,10 @@ class InterpreterFactory(AppletFactory):
 
         #managers:
         from openalea.secondnature import managers
+        from openalea.secondnature import project
         mgrs = {"layMan":managers.LayoutManager(),
                 "appMan":managers.AppletFactoryManager(),
-                "docMan":managers.DocumentManager()}
+                "prjMan":project.ProjectManager()}
         view  = self.shellCls(self.interpretermodel, cli.get_welcome_msg())
         cli.init_interpreter(self.interpretermodel, session, mgrs)
         space = LayoutSpace(self.__name__, self.__namespace__, view )
@@ -118,7 +119,8 @@ class PackageManagerFactory(AppletFactory):
 
         self.model    = PkgModel(PackageManager())
         self.pmurl    = "oa://pm.local"
-        self.pmanagerDoc = UnregisterableDocument("PackageManager", "Visualea",
+        self.pmanagerDoc = UnregisterableDocument(self.__name__,
+                                                  self.__namespace__,
                                                   self.pmurl, self.model)
 
     def new_document(self):
@@ -134,5 +136,39 @@ class PackageManagerFactory(AppletFactory):
 
 pmanager_f = PackageManagerFactory()
 
+
+###################
+# PROJECT MANAGER #
+###################
+class ProjectManagerFactory(AppletFactory):
+    __name__ = "ProjectManager"
+    __namespace__ = "Openalea"
+    __supports_open__ = False
+
+    def __init__(self):
+        AppletFactory.__init__(self)
+        #lets create the PackageManager ressource
+        from openalea.secondnature.project_view import ProjectManagerTreeModel
+
+        self.model    = ProjectManagerTreeModel()
+        self.pmurl    = "oa://projman.local"
+        self.pmanagerDoc = UnregisterableDocument(self.__name__,
+                                                  self.__namespace__,
+                                                  self.pmurl, self.model)
+
+    def new_document(self):
+        return self.pmanagerDoc
+
+    def get_applet_space(self, document):
+        from PyQt4 import QtGui
+
+        view = QtGui.QTreeView(None)
+        view.setModel(self.model)
+        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        return space
+
+projmanager_f = ProjectManagerFactory()
+
+
 def get_builtins():
-    return [logger_f, interpreter_f, pmanager_f]
+    return [logger_f, interpreter_f, pmanager_f, projmanager_f]

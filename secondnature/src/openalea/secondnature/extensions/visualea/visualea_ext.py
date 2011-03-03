@@ -36,12 +36,10 @@ class DataflowViewFactory(AppletFactory):
 
     def __init__(self):
         AppletFactory.__init__(self)
-        self.__ctr = 0
 
     def new_document(self):
-        iname = "Dataflow " + str(self.__ctr)
+        iname = "Dataflow"
         node = CompositeNodeFactory(iname).instantiate()
-        self.__ctr += 1
         node.set_caption(iname)
         parsedUrl = urlparse.ParseResult(scheme="oa",
                                          netloc="local",

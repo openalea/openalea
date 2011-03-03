@@ -25,6 +25,7 @@ setup( name         = "OAEX PlantGL",
        version      = "0.1",
        py_modules   = ['plantgl_ext'],
        entry_points = {"openalea.app.applet_factory": ["plantgl.curve2d_f = plantgl_ext:curve2d_f",
-                                                       "plantgl.nurbspatch_f = plantgl_ext:nurbspatch_f"],
+                                                       "plantgl.nurbspatch_f = plantgl_ext:nurbspatch_f",
+                                                       "plantgl.interpolatedprofile_f = plantgl_ext:interpolatedprofile_f"],
                        }
      )

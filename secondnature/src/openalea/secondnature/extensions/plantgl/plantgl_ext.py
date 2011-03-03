@@ -37,7 +37,6 @@ class Curve2DFactory(AppletFactory):
     def __init__(self):
         AppletFactory.__init__(self)
         self.__pglEscSwallower = EscEventSwallower()
-        self.__ctr = 0
 
     def new_document(self):
         from PyQt4 import QtGui
@@ -55,8 +54,7 @@ class Curve2DFactory(AppletFactory):
 
 
         data = constraint.defaultCurve()
-        iname = "Curve2D " + str(self.__ctr)
-        self.__ctr += 1
+        iname = "Curve2D"
         #ugh????? what is an url for a patch?
         parsedUrl = urlparse.ParseResult(scheme="oa",
                                          netloc="local",
@@ -91,14 +89,49 @@ class NurbsPatchFactory(AppletFactory):
     def __init__(self):
         AppletFactory.__init__(self)
         self.__pglEscSwallower = EscEventSwallower()
-        self.__ctr = 0
 
     def new_document(self):
         from vplants.plantgl.gui import nurbspatcheditor
 
         data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
-        iname = "NurbsPatch " + str(self.__ctr)
-        self.__ctr += 1
+        iname = "NurbsPatch"
+        #ugh????? what is an url for a patch?
+        parsedUrl = urlparse.ParseResult(scheme="oa",
+                                         netloc="local",
+                                         path  ="/unknown",
+                                         params = "",
+                                         query ="fac="+iname+"&ft=NurbsPatch",
+                                         fragment = ""
+                                         )
+        document = Document(iname, "PlantGL", parsedUrl.geturl(), data)
+        return document
+
+    def get_applet_space(self, document):
+        from vplants.plantgl.gui import nurbspatcheditor
+
+        patch = document.obj
+        editor = nurbspatcheditor.NurbsPatchEditor(None)
+        editor.setNurbsPatch(patch)
+        editor.installEventFilter(self.__pglEscSwallower)
+        return LayoutSpace(self.__name__, self.__namespace__, editor)
+
+
+class NurbsPatchFactory(AppletFactory):
+    __name__ = "NurbsPatch"
+    __namespace__ = "PlantGL"
+
+    # currently we don't know what is a nurbs url url, so we don't open anything:
+    __supports_open__ = False
+
+    def __init__(self):
+        AppletFactory.__init__(self)
+        self.__pglEscSwallower = EscEventSwallower()
+
+    def new_document(self):
+        from vplants.plantgl.gui import nurbspatcheditor
+
+        data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
+        iname = "NurbsPatch"
         #ugh????? what is an url for a patch?
         parsedUrl = urlparse.ParseResult(scheme="oa",
                                          netloc="local",
@@ -121,8 +154,57 @@ class NurbsPatchFactory(AppletFactory):
 
 
 
+class InterpolatedProfileFactory(AppletFactory):
+    __name__ = "InterpolatedProfile"
+    __namespace__ = "PlantGL"
+
+    # currently we don't know what is a nurbs url url, so we don't open anything:
+    __supports_open__ = False
+
+    def __init__(self):
+        AppletFactory.__init__(self)
+        self.__pglEscSwallower = EscEventSwallower()
+
+    def new_document(self):
+        from vplants.plantgl.scenegraph.interpolated_profile import CrossSection
+        from vplants.plantgl.scenegraph.interpolated_profile import InterpolatedProfile
+        from vplants.plantgl.scenegraph.interpolated_profile import CSplineMethod
+
+        crsSect1 = CrossSection((0., 0.), (0.5, 0.), (0.6, 0.1), (1., 0.))
+        crsSect2 = CrossSection((0., 2.), (0.5, 1.), (0.8, 0.3), (1., 0.))
+        crsSect3 = CrossSection((0., 0.), (0.5, 0.), (0.7, 0.8), (1., 0.))
+        tc = InterpolatedProfile(interpolator=CSplineMethod)
+
+        tc.set_param_range(-180.0, 180.0)
+        tc.add_cross_sections(-180, crsSect1,
+                              0, crsSect2,
+                              180, crsSect3)
+
+        iname = "InterpolatedProfile"
+
+        parsedUrl = urlparse.ParseResult(scheme="oa",
+                                         netloc="local",
+                                         path  ="/unknown",
+                                         params = "",
+                                         query ="fac="+iname+"&ft=InterpolatedProfile",
+                                         fragment = ""
+                                         )
+
+        document = Document(iname, "PlantGL", parsedUrl.geturl(), tc)
+        return document
+
+    def get_applet_space(self, document):
+        from vplants.plantgl.gui import interpolated_profile_gui
+
+        profile = document.obj
+        editor = interpolated_profile_gui.ProfileEditor(editingCentral=False)
+        editor.set_profile(profile)
+        editor.installEventFilter(self.__pglEscSwallower)
+        return LayoutSpace(self.__name__, self.__namespace__, editor)
+
+
 # -- instantiate widget factories --
 curve2d_f = Curve2DFactory()
 nurbspatch_f = NurbsPatchFactory()
-
+interpolatedprofile_f = InterpolatedProfileFactory()
 

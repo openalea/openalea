@@ -44,13 +44,11 @@ class CodeEditorFactory(AppletFactory):
 
     def __init__(self):
         AppletFactory.__init__(self)
-        self.__ctr = 0
         self.pm = PackageManager()
 
     def new_document(self):
         text = ""
-        name = "New code " + str(self.__ctr)
-        self.__ctr += 1
+        name = "New code"
         parsedUrl = urlparse.ParseResult(scheme="file",
                                          netloc="",
                                          path="unknown/"+name,
