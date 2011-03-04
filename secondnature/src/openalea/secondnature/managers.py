@@ -277,11 +277,10 @@ class AppletFactoryManager(AppletFactoryManagerBase):
                     self.__mimeMap.setdefault(fmt, set()).add(v)
         return items
 
-    def get_handlers_for_mimedata(self, mimedata):
-        fmts = mimedata.formats()
+    def get_handlers_for_mimedata(self, formats):
         factories = self.gather_items()
-        handlers = set()
-        for fm in fmts:
+        handlers = set() # for unicity
+        for fm in formats:
             fm = str(fm)
             fmt_factories = self.__mimeMap.get(fm)
             if fmt_factories is not None:

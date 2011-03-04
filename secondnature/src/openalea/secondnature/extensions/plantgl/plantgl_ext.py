@@ -30,9 +30,10 @@ import urlparse
 class Curve2DFactory(AppletFactory):
     __name__ = "Curve2D"
     __namespace__ = "PlantGL"
-
+    __mimeformats__ = ["application/plantgl-curve"]
     # currently we don't know how to create a curve url, so we don't open anything:
     __supports_open__ = False
+
 
     def __init__(self):
         AppletFactory.__init__(self)
@@ -55,17 +56,12 @@ class Curve2DFactory(AppletFactory):
 
         data = constraint.defaultCurve()
         iname = "Curve2D"
-        #ugh????? what is an url for a patch?
-        parsedUrl = urlparse.ParseResult(scheme="oa",
-                                         netloc="local",
-                                         path  ="/unknown",
-                                         params = "",
-                                         query ="fac="+iname+"&ft=Curve2D",
-                                         fragment = ""
-                                         )
 
-        document = Document(iname, "PlantGL", parsedUrl.geturl(),
-                            data, constraintType=constraint)
+        document = Document(iname,
+                            "PlantGL",
+                            data,
+                            mimetype=self.__mimeformats__[0],
+                            constraintType=constraint)
         return document
 
     def get_applet_space(self, document):
@@ -82,7 +78,7 @@ class Curve2DFactory(AppletFactory):
 class NurbsPatchFactory(AppletFactory):
     __name__ = "NurbsPatch"
     __namespace__ = "PlantGL"
-
+    __mimeformats__ = ["application/plantgl-nurbspatch"]
     # currently we don't know what is a nurbs url url, so we don't open anything:
     __supports_open__ = False
 
@@ -95,52 +91,9 @@ class NurbsPatchFactory(AppletFactory):
 
         data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
         iname = "NurbsPatch"
-        #ugh????? what is an url for a patch?
-        parsedUrl = urlparse.ParseResult(scheme="oa",
-                                         netloc="local",
-                                         path  ="/unknown",
-                                         params = "",
-                                         query ="fac="+iname+"&ft=NurbsPatch",
-                                         fragment = ""
-                                         )
-        document = Document(iname, "PlantGL", parsedUrl.geturl(), data)
-        return document
-
-    def get_applet_space(self, document):
-        from vplants.plantgl.gui import nurbspatcheditor
-
-        patch = document.obj
-        editor = nurbspatcheditor.NurbsPatchEditor(None)
-        editor.setNurbsPatch(patch)
-        editor.installEventFilter(self.__pglEscSwallower)
-        return LayoutSpace(self.__name__, self.__namespace__, editor)
-
-
-class NurbsPatchFactory(AppletFactory):
-    __name__ = "NurbsPatch"
-    __namespace__ = "PlantGL"
-
-    # currently we don't know what is a nurbs url url, so we don't open anything:
-    __supports_open__ = False
-
-    def __init__(self):
-        AppletFactory.__init__(self)
-        self.__pglEscSwallower = EscEventSwallower()
-
-    def new_document(self):
-        from vplants.plantgl.gui import nurbspatcheditor
-
-        data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
-        iname = "NurbsPatch"
-        #ugh????? what is an url for a patch?
-        parsedUrl = urlparse.ParseResult(scheme="oa",
-                                         netloc="local",
-                                         path  ="/unknown",
-                                         params = "",
-                                         query ="fac="+iname+"&ft=NurbsPatch",
-                                         fragment = ""
-                                         )
-        document = Document(iname, "PlantGL", parsedUrl.geturl(), data)
+        document = Document(iname, "PlantGL",
+                            data,
+                            mimetype=self.__mimeformats__[0])
         return document
 
     def get_applet_space(self, document):
@@ -157,7 +110,7 @@ class NurbsPatchFactory(AppletFactory):
 class InterpolatedProfileFactory(AppletFactory):
     __name__ = "InterpolatedProfile"
     __namespace__ = "PlantGL"
-
+    __mimeformats__ = ["application/plantgl-interpolatedcurve"]
     # currently we don't know what is a nurbs url url, so we don't open anything:
     __supports_open__ = False
 
@@ -182,15 +135,10 @@ class InterpolatedProfileFactory(AppletFactory):
 
         iname = "InterpolatedProfile"
 
-        parsedUrl = urlparse.ParseResult(scheme="oa",
-                                         netloc="local",
-                                         path  ="/unknown",
-                                         params = "",
-                                         query ="fac="+iname+"&ft=InterpolatedProfile",
-                                         fragment = ""
-                                         )
-
-        document = Document(iname, "PlantGL", parsedUrl.geturl(), tc)
+        document = Document(iname,
+                            "PlantGL",
+                            tc,
+                            mimetype=self.__mimeformats__[0] )
         return document
 
     def get_applet_space(self, document):

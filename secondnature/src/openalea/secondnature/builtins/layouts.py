@@ -37,7 +37,7 @@ default = Layout("Default",
                  # but you could have "PlantGl.viewer" here too.
                  appletmap={3:"Openalea.Interpreter",
                             4:"Openalea.Logger",
-                            5:"Openalea.PackageManager"},
+                            5:"Openalea.ProjectManager"},
                  easy_name="Default Layout")
 
 

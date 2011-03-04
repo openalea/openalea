@@ -39,10 +39,8 @@ class LoggerFactory(AppletFactory):
         AppletFactory.__init__(self)
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
-        self.loggerurl = "oa://logger.local/"
         self.loggerDoc = UnregisterableDocument(self.__name__,
                                                 self.__namespace__,
-                                                self.loggerurl,
                                                 self.loggermodel)
 
     def new_document(self):
@@ -71,10 +69,8 @@ class InterpreterFactory(AppletFactory):
         from code import InteractiveInterpreter as Interpreter
 
         self.interpretermodel = Interpreter()
-        self.interpreterurl = "oa://interpreter.local/"
         self.interpreterDoc = UnregisterableDocument(self.__name__,
                                                      self.__namespace__,
-                                                     self.interpreterurl,
                                                      self.interpretermodel)
 
         self.shellCls = get_shell_class()
@@ -118,10 +114,9 @@ class PackageManagerFactory(AppletFactory):
         from openalea.secondnature.ripped.node_treeview import PkgModel
 
         self.model    = PkgModel(PackageManager())
-        self.pmurl    = "oa://pm.local"
         self.pmanagerDoc = UnregisterableDocument(self.__name__,
                                                   self.__namespace__,
-                                                  self.pmurl, self.model)
+                                                  self.model)
 
     def new_document(self):
         return self.pmanagerDoc
@@ -151,10 +146,9 @@ class ProjectManagerFactory(AppletFactory):
         from openalea.secondnature.project_view import ProjectManagerTreeModel
 
         self.model    = ProjectManagerTreeModel()
-        self.pmurl    = "oa://projman.local"
         self.pmanagerDoc = UnregisterableDocument(self.__name__,
                                                   self.__namespace__,
-                                                  self.pmurl, self.model)
+                                                  self.model)
 
     def new_document(self):
         return self.pmanagerDoc
@@ -163,6 +157,7 @@ class ProjectManagerFactory(AppletFactory):
         from PyQt4 import QtGui
 
         view = QtGui.QTreeView(None)
+        view.setDragEnabled(True)
         view.setModel(self.model)
         space = LayoutSpace(self.__name__, self.__namespace__, view )
         return space

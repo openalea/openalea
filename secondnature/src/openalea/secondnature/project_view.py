@@ -29,6 +29,8 @@ def muteItemChange(f):
         self.itemChanged.connect(self._ProjectManagerTreeModel__on_item_changed)
     return muteWrapper
 
+
+
 class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
     projectRole  = QtCore.Qt.UserRole + 1
@@ -42,17 +44,40 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         self.__activeProjItem = None
 
         self.itemChanged.connect(self.__on_item_changed)
-        self.__projMan.activeProjectChanged.connect(self.__on_active_project_changed)
+        self.__projMan.activeProjectChanged.connect(self.set_active_project)
         #self.__projMan.activeProjectClosed.connect()
-        self.__projMan.activeProjectSaved.connect(self.__on_active_project_saved)
-        self.__projMan.activeProjectModified.connect(self.__on_active_project_modified)
 
         self.__activePrj = None
 
         activePrj = self.__projMan.get_active_project()
         if activePrj:
-            self.__on_active_project_changed(activePrj)
+            self.set_active_project(activePrj)
 
+    def set_active_project(self, proj):
+        # -- first disconnect previously connected slots --
+        if self.__activePrj:
+            self.__activePrj.document_added.disconnect(self.__on_document_added)
+            self.__activePrj.document_name_changed.disconnect(self.set_active_project)
+            self.__activePrj.project_name_changed.disconnect(self.__on_active_project_name_changed)
+            self.__activePrj.modified.disconnect(self.__on_active_project_modified)
+            self.__activePrj.saved.disconnect(self.__on_active_project_saved)
+        # -- then clear the view (maybe be less radical) --
+        self.clear()
+        # -- now set active project and reconnect slots to this one --
+        if proj:
+            self.__activePrj = proj
+            self.__activeProjItem = QtGui.QStandardItem(proj.name)
+            self.__activeProjItem.setData(QtCore.QVariant(proj), self.projectRole)
+            self.appendRow(self.__activeProjItem)
+            self.__activePrj.document_added.connect(self.__on_document_added)
+            self.__activePrj.document_name_changed.connect(self.__on_document_name_changed)
+            self.__activePrj.project_name_changed.connect(self.__on_active_project_name_changed)
+            self.__activePrj.modified.connect(self.__on_active_project_modified)
+            self.__activePrj.saved.connect(self.__on_active_project_saved)
+
+    ###################
+    # Protected slots #
+    ###################
     def __on_item_changed(self, item):
         proj = item.data(self.projectRole).toPyObject()
         print "__on_item_changed::proj", proj
@@ -64,45 +89,23 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
             if proj and doc:
                 proj.set_document_name(doc, str(item.text()))
 
-    def __on_active_project_changed(self, proj):
-        if self.__activePrj:
-            self.__activePrj.document_added.disconnect(self.__on_document_added)
-            self.__activePrj.document_name_changed.disconnect(self.__on_active_project_changed)
-            self.__activePrj.project_name_changed.disconnect(self.__on_active_project_name_changed)
-        self.clear()
-        if proj:
-            self.__activePrj = proj
-            self.__activeProjItem = QtGui.QStandardItem(proj.name)
-            self.__activeProjItem.setData(QtCore.QVariant(proj), self.projectRole)
-            self.appendRow(self.__activeProjItem)
-            self.__activePrj.document_added.connect(self.__on_document_added)
-            self.__activePrj.document_name_changed.connect(self.__on_document_name_changed)
-            self.__activePrj.project_name_changed.connect(self.__on_active_project_name_changed)
-
     @muteItemChange
     def __on_active_project_modified(self, proj):
         if self.__activeProjItem is None:
-            self.__on_active_project_changed(proj)
+            self.set_active_project(proj)
         self.__activeProjItem.setText(proj.name+" *")
 
     @muteItemChange
     def __on_active_project_name_changed(self, proj, name):
         if self.__activeProjItem is None:
-            self.__on_active_project_changed(proj)
+            self.set_active_project(proj)
         self.__activeProjItem.setText(name+" *")
 
     @muteItemChange
     def __on_active_project_saved(self, proj):
         if self.__activeProjItem is None:
-            self.__on_active_project_changed(proj)
+            self.set_active_project(proj)
         self.__activeProjItem.setText(proj.name)
-
-    def __on_document_added(self, proj, doc):
-        newItem  = QtGui.QStandardItem(doc.name)
-        newItem.setData(QtCore.QVariant(doc), self.documentRole)
-        parItem = self.__activeProjItem
-        parItem.appendRow(newItem)
-        self.__docItemMap[doc] = newItem
 
     @muteItemChange
     def __on_document_name_changed(self, proj, doc, fixed):
@@ -110,4 +113,32 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         if docItem:
             docItem.setText(fixed)
 
+    def __on_document_added(self, proj, doc):
+        newItem  = QtGui.QStandardItem(doc.name)
+        newItem.setData(QtCore.QVariant(doc), self.documentRole)
+        newItem.setDragEnabled(True)
+        parItem = self.__activeProjItem
+        parItem.appendRow(newItem)
+        self.__docItemMap[doc] = newItem
 
+    ################################
+    # QStandardItemModel extension #
+    ################################
+    def mimeTypes(self):
+        return QtGui.QStandardItemModel.mimeTypes(self) + [ProjectManager.mimeformat]
+
+    def mimeData(self, modelIndexes):
+        if len(modelIndexes) != 1:
+            return None
+
+        data    = QtGui.QStandardItemModel.mimeData(self, modelIndexes)
+        encoded = QtCore.QByteArray()
+
+        item = self.itemFromIndex(modelIndexes[0])
+        if item:
+            doc = item.data(self.documentRole).toPyObject()
+            if doc and self.__activePrj:
+                docId = self.__activePrj.get_document_id(doc)
+                encoded = QtCore.QByteArray.number(docId)
+        data.setData(ProjectManager.mimeformat, encoded)
+        return data

@@ -41,20 +41,20 @@ class DataflowViewFactory(AppletFactory):
         iname = "Dataflow"
         node = CompositeNodeFactory(iname).instantiate()
         node.set_caption(iname)
-        parsedUrl = urlparse.ParseResult(scheme="oa",
-                                         netloc="local",
-                                         path  ="/unknown",
-                                         params = "",
-                                         query ="fac="+iname+"&ft=CompositeNodeFactory",
-                                         fragment = ""
-                                         )
-        document = Document(node.caption, "Visualea", parsedUrl.geturl(), node)
+
+        document = Document(node.caption,
+                            "Visualea",
+                            node,
+                            mimetype=CompositeNodeFactory.mimetype)
         return document
 
     def open_document(self, parsedUrl):
         pm = PackageManager()
         node = pm.get_node_from_url(parsedUrl)
-        document = Document(node.caption, "Visualea", parsedUrl.geturl(), node)
+        document = Document(node.caption,
+                            "Visualea",
+                            node,
+                            mimetype=CompositeNodeFactory.mimetype)
         return document
 
     def get_applet_space(self, document):

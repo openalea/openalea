@@ -49,18 +49,15 @@ class CodeEditorFactory(AppletFactory):
     def new_document(self):
         text = ""
         name = "New code"
-        parsedUrl = urlparse.ParseResult(scheme="file",
-                                         netloc="",
-                                         path="unknown/"+name,
-                                         params="",
-                                         query="",
-                                         fragment=""
-                                         )
-        document = Document(name, "CodeEditor", parsedUrl.geturl(), "")
+        document = Document(name,
+                            "CodeEditor",
+                            "",
+                            mimetype = "text/plain")
         return document
 
     def open_document(self, parsedUrl):
         url = parsedUrl.geturl()
+
         if parsedUrl.scheme == "oa":
             fac = self.pm.get_factory_from_url(parsedUrl)
             if isinstance(fac, CompositeNodeFactory):
@@ -79,7 +76,11 @@ class CodeEditorFactory(AppletFactory):
             name = parsedUrl.path
         text = f.read()
         f.close()
-        document = Document(name, "CodeEditor", url, text)
+
+        document = Document(name,
+                            "CodeEditor",
+                            text,
+                            mimetype="text/plain")
         return document
 
     def get_applet_space(self, document):

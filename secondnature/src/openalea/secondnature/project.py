@@ -43,6 +43,7 @@ class Project(QtCore.QObject):
         self.__names    = {}
         self.__docIdCtr = 0
         self.__docs     = {}
+        self.__docToIds = {}
         self.__docprops = {}
 
     @property
@@ -56,9 +57,9 @@ class Project(QtCore.QObject):
         self.project_name_changed.emit(self, value)
 
     def __fix_name(self, name):
-        nbName = self.__names.setdefault(name, 1)
+        nbName = self.__names.setdefault(name, 0)
         self.__names[name] += 1
-        if nbName > 1:
+        if nbName > 0:
             name += " (%i)"%nbName
         return name
 
@@ -66,13 +67,17 @@ class Project(QtCore.QObject):
         name = self.__fix_name(doc.name)
         doc._set_name( name )
         self.__docs[self.__docIdCtr] = doc
+        self.__docToIds[doc] = self.__docIdCtr
         self.__docIdCtr += 1
 
         self.document_added.emit(self, doc)
         self.mark_as_modified()
 
+    def get_document_id(self, document):
+        return self.__docToIds.get(document, -1)
+
     def get_document(self, doc_id):
-        pass
+        return self.__docs.get(doc_id)
 
     def del_document(self, doc_id):
         self.mark_as_modified()
@@ -89,6 +94,11 @@ class Project(QtCore.QObject):
     def set_document_name(self, doc, name):
         if not self.has_document(doc):
             return #raise something
+        oldName = doc.name
+        oldNameCount = self.__names.setdefault(oldName, 1)
+        if oldNameCount > 0:
+            self.__names[oldName] -= 1
+
         fixedName = self.__fix_name(name)
         doc._set_name( fixedName )
         self.document_name_changed.emit(self, doc, fixedName)
@@ -149,9 +159,9 @@ class ProjectManager(QtCore.QObject):
 
     activeProjectChanged       = QtCore.pyqtSignal(object)
     activeProjectClosed        = QtCore.pyqtSignal(object)
-    activeProjectSaved         = QtCore.pyqtSignal(object)
-    activeProjectModified      = QtCore.pyqtSignal(object)
     aboutToCloseActiveProject  = QtCore.pyqtSignal(object, RefPOD)
+
+    mimeformat   = "application/secondnature-project-document-id"
 
     def __init__(self):
         QtCore.QObject.__init__(self)
@@ -169,8 +179,6 @@ class ProjectManager(QtCore.QObject):
             return # raise something
         self.__activeProject = project
         self.__activeProject.closed.connect(self.activeProjectClosed)
-        self.__activeProject.saved.connect(self.activeProjectSaved)
-        self.__activeProject.modified.connect(self.activeProjectModified)
         self.activeProjectChanged.emit(self.__activeProject)
 
     def get_active_project(self):

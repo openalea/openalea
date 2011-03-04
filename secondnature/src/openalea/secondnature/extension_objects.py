@@ -97,6 +97,11 @@ class AppletFactory(Base):
     def get_applet_space(self, document):
         raise NotImplementedError
 
+    def document_from_data(self, data, url, registerable=True):
+        docCls = Document if registerable else UnregisterableDocument
+        doc = docCls(self.__name__, self.__namespace__, url, data)
+        return doc
+
     def __register_document(self, document):
         if document and document.registerable:
             proj = self.__pm.get_active_project()
@@ -129,16 +134,16 @@ class AppletFactory(Base):
 
 class Document(Base):
     """"""
-    def __init__(self, name, ns, source, obj, **kwargs):
+    def __init__(self, name, ns, obj, mimetype="", **kwargs):
         Base.__init__(self, name, ns)
-        self.__source = source
         self.__obj    = obj
         self._reg    = True
         self._props  = kwargs.copy()
+        self._mimetype = mimetype
 
-    source       = property(lambda x:x.__source)
     obj          = property(lambda x:x.__obj)
     registerable = property(lambda x:x._reg)
+    mimetype     = property(lambda x:x._mimetype)
 
     def _set_name(self, name):
         print "document._set_name", name
@@ -151,8 +156,8 @@ class Document(Base):
         return self._props.get(key)
 
 class UnregisterableDocument(Document):
-    def __init__(self, name, ns, source, obj):
-        Document.__init__(self, name, ns, source, obj)
+    def __init__(self, name, ns, obj):
+        Document.__init__(self, name, ns, obj)
         self._reg = False
 
 

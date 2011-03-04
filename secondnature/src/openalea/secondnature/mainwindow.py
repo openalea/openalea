@@ -29,6 +29,7 @@ from openalea.secondnature.managers import AppletFactoryManager
 from openalea.secondnature.project import ProjectManager
 from openalea.secondnature.project import Project
 
+
 sn_logger = get_logger(__name__)
 
 class MainWindow(QtGui.QMainWindow):
@@ -83,10 +84,11 @@ class MainWindow(QtGui.QMainWindow):
 #        print fmts
         #self.logger.info("__validate_mimedata formats" + fmts)
         if mimedata.hasFormat("text/uri-list"):
-            good = True
-        urls = mimedata.urls()
-        # we only support ONE url
-        if len(urls) == 1:
+            urls = mimedata.urls()
+            # we only support ONE url
+            if len(urls) == 1:
+                good = True
+        elif mimedata.hasFormat(ProjectManager.mimeformat):
             good = True
         if not good:
             self.logger.error("invalid mimedata: "+fmts)
@@ -96,16 +98,15 @@ class MainWindow(QtGui.QMainWindow):
         mimeData = event.mimeData()
         if not self.__validate_mimedata(mimeData):
             return
-        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData)
+
+        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData.formats())
         if len(handlers) > 0:
             event.acceptProposedAction()
+        elif mimeData.hasFormat(ProjectManager.mimeformat):
+            event.acceptProposedAction()
 
-    def __on_splitter_pane_drop(self, paneId, event):
-        mimeData = event.mimeData()
-        if not self.__validate_mimedata(mimeData):
-            return
-
-        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData)
+    def __applet_factory_from_mime_formats(self, formats):
+        handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
 #        print handlers
         nbHandlers = len(handlers)
         if nbHandlers == 0:
@@ -119,14 +120,44 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 facName = selector.get_selected()
                 fac = filter(lambda x: x.fullname == facName, handlers)[0]
+        return fac
 
-        url = str(mimeData.urls()[0].toString())
-        parsedUrl = urlparse.urlparse(url)
 
-        doc   = fac.open_document_and_register_it(parsedUrl)
-        space = fac(doc)
+    def __on_splitter_pane_drop(self, paneId, event):
+        mimeData = event.mimeData()
+        if not self.__validate_mimedata(mimeData):
+            return
 
-        if None not in [doc, space]:
+        proj = ProjectManager().get_active_project()
+        fac = None
+        doc = None
+        space = None
+
+        if mimeData.hasUrls():
+            formats = mimeData.formats()
+            url = str(mimeData.urls()[0].toString())
+            parsedUrl = urlparse.urlparse(url)
+            fac = self.__applet_factory_from_mime_formats(formats)
+            if fac:
+                doc = fac.open_document_and_register_it(parsedUrl)
+        elif mimeData.hasFormat(ProjectManager.mimeformat):
+            docIdBytes = mimeData.data(ProjectManager.mimeformat)
+            if docIdBytes:
+                docId, ok = docIdBytes.toInt()
+                if ok and proj:
+                    doc = proj.get_document(docId)
+                    if doc:
+                        fac = self.__applet_factory_from_mime_formats([doc.mimetype])
+
+        # first try to retreive the space associated to this document
+        if proj and doc:
+            space = proj.get_document_property(doc, "space")
+        # if space is still none, we can always try to create a new space
+        if space is None and doc:
+            if fac:
+                space = fac(doc)
+
+        if space is not None:
             self.__setSpaceAt(paneId, space)
 
     ####################################
@@ -249,7 +280,7 @@ class MainWindow(QtGui.QMainWindow):
         def on_document_chosen(checked):
             space = proj.get_document_property(doc, "space")
             if space is None:
-                self.logger.debug("on_document_chosen has None space for "+doc.source)
+                self.logger.debug("on_document_chosen has None space for "+doc.name)
             else:
                 self.__setSpaceAt(paneId, space)
 
