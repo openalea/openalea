@@ -18,10 +18,10 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 from openalea.core.singleton import ProxySingleton
 from openalea.core.metaclass import make_metaclass
-
+import cPickle
 
 class RefPOD(object):
     def __init__(self, val):
@@ -40,7 +40,7 @@ class Project(QtCore.QObject):
         QtCore.QObject.__init__(self)
         self.__name     = name
         self.__modified = False
-        self.__names    = {}
+        self.__names    = set()
         self.__docIdCtr = 0
         self.__docs     = {}
         self.__docToIds = {}
@@ -52,15 +52,15 @@ class Project(QtCore.QObject):
 
     @name.setter
     def name(self, value):
-        print "new name:", value
         self.__name = value
         self.project_name_changed.emit(self, value)
 
     def __fix_name(self, name):
-        nbName = self.__names.setdefault(name, 0)
-        self.__names[name] += 1
-        if nbName > 0:
-            name += " (%i)"%nbName
+        i = 1
+        while name in self.__names:
+            name += " (%i)"%i
+            i += 1
+        self.__names.add(name)
         return name
 
     def add_document(self, doc):
@@ -95,10 +95,7 @@ class Project(QtCore.QObject):
         if not self.has_document(doc):
             return #raise something
         oldName = doc.name
-        oldNameCount = self.__names.setdefault(oldName, 1)
-        if oldNameCount > 0:
-            self.__names[oldName] -= 1
-
+        self.__names.discard(oldName)
         fixedName = self.__fix_name(name)
         doc._set_name( fixedName )
         self.document_name_changed.emit(self, doc, fixedName)
@@ -127,6 +124,13 @@ class Project(QtCore.QObject):
         return key in props
 
 
+    def close(self):
+        #...
+        self.closed.emit(self)
+        self.closed.disconnect()
+        self.saved.disconnect()
+        self.modified.disconnect()
+
 
     def mark_as_modified(self):
         self.__modified = True
@@ -136,18 +140,59 @@ class Project(QtCore.QObject):
         self.__modified = False
         self.saved.emit(self)
 
-    def save_to(self, file):
-        #...
-        self.saved.emit(self)
 
-    def close(self):
-        #...
-        self.closed.emit(self)
-        self.closed.disconnect()
-        self.saved.disconnect()
-        self.modified.disconnect()
-        self.doc_connected.disconnect()
+    #############
+    # Pickling  #
+    #############
+    def __getstate__(self):
+        return {"name":self.__name, "docs": self.__docs.copy()}
 
+    def __setstate__(self, state):
+        self.__name = state.get("name", "Unnamed")
+        self.__modified = False
+        self.__names = set()
+        self.__docs = state.get("docs", {})
+        self.__docIdCtr = len(self.__docs)
+        self.__docToIds = {}
+        self.__docprops = {}
+
+        for k, v in self.__docs.iteritems():
+            self.__docToIds[v] = k
+            self.__names.add(v.name)
+
+    def save_to(self, filepath):
+        toPic = PicklableProject(self)
+        with open(filepath, "w") as f:
+            cPickle.dump(toPic, f, 2)
+            self.saved.emit(self)
+
+    @classmethod
+    def load_from(cls, filepath):
+        pic = None
+        prj = None
+        with open(filepath, "r") as f:
+            pic = cPickle.load(f)
+        if pic:
+            prj =  cls.__fromPicklable(pic)
+        return prj
+
+    @classmethod
+    def __fromPicklable(cls, pic):
+        prj = Project(pic.name)
+        prj.__docs = pic.docs
+        prj.__docIdCtr = len(prj.__docs)
+
+        for k, v in prj.__docs.iteritems():
+            prj.__docToIds[v] = k
+            prj.__names.add(v.name)
+
+
+        return prj
+
+class PicklableProject(object):
+    def __init__(self, proj):
+        self.name = proj.name
+        self.docs = proj._Project__docs.copy()
 
 
 class ProjectManager(QtCore.QObject):

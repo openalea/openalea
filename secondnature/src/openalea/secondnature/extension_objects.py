@@ -146,7 +146,6 @@ class Document(Base):
     mimetype     = property(lambda x:x._mimetype)
 
     def _set_name(self, name):
-        print "document._set_name", name
         self._name = name
 
     def save(self):
