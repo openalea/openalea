@@ -515,7 +515,11 @@ if QT_LOGGING_MODEL_AVAILABLE:
             if self.messageTypeIndex is not None:
                 msgType = vals[self.messageTypeIndex]
                 color = QtGui.QBrush(QLogHandlerItemModel.__colormap__[msgType])
-                items[self.messageTypeIndex].setBackground(color)
+                it = items[self.messageTypeIndex]
+                foreground = it.foreground()
+                foreground.setColor(QtCore.Qt.black)
+                it.setForeground(foreground)
+                it.setBackground(color)
             self.appendRow(items)
 
 
