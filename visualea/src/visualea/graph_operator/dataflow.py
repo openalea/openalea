@@ -17,12 +17,13 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import base as graphOpBase
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import qtgraphview
+from openalea.visualea.graph_operator.base import Base
+
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
 from openalea.visualea.dialogs import NewGraph, FactorySelector
 from openalea.visualea.dialogs import IOConfigDialog
+
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import export_app
@@ -30,9 +31,7 @@ from openalea.core.algo import dataflow_evaluation as evalmodule
 from compositenode_inspector import InspectorView
 
 
-
-
-class DataflowOperators(graphOpBase.Base):
+class DataflowOperators(Base):
 
     @exception_display
     @busy_cursor

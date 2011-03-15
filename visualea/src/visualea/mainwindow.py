@@ -72,12 +72,6 @@ class MainWindow(QtGui.QMainWindow,
         self.setAcceptDrops(True)
         self.setAttribute(QtCore.Qt.WA_QuitOnClose)
 
-        #configure GraphOperator class
-        GraphOperator.vertexType = dataflowview.vertex.GraphicalVertex
-        GraphOperator.annotationType = dataflowview.anno.GraphicalAnnotation
-        GraphOperator.edgeType = dataflowview.edge.GraphicalEdge
-
-
         self.tabWorkspace.removeTab(0)
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
@@ -91,10 +85,11 @@ class MainWindow(QtGui.QMainWindow,
 
         # python interpreter
         interpreter = Interpreter()
-#        cli.init_interpreter(interpreter, session, {"tabs":self.tabWorkspace})
+        # interpreter init defered after session init
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())
+        GraphOperator.globalInterpreter = self.interpreterWidget
         self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
 
         if logger.QT_LOGGING_MODEL_AVAILABLE:
@@ -151,7 +146,6 @@ class MainWindow(QtGui.QMainWindow,
         self.actionNew_Python_Node.triggered.connect( self.new_python_node)
         self.actionNew_Package.triggered.connect( self.new_package)
         self.action_Data_File.triggered.connect( self.new_data)
-#        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
 
         # DataPool Menu
         self.actionClear_Data_Pool.triggered.connect( self.clear_data_pool)
@@ -206,12 +200,6 @@ class MainWindow(QtGui.QMainWindow,
         self.actionDisplay_Package_Manager.toggled.connect(self.display_leftpanel)
         self.actionDisplay_Workspaces.toggled.connect(self.display_rightpanel)
 
-        # action = self.menu_Workspace.addAction("DEBUG")
-        # self.connect(action, SIGNAL("triggered()"), self.debug)
-
-        # final init
-        # self.session = session
-        # self.session.simulate_workspace_addition()
         #load personnal GUI settings
         self.read_settings()
 
@@ -782,7 +770,7 @@ class MainWindow(QtGui.QMainWindow,
 
     def on_package_manager_focus_change(self, item):
         pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
-        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype, 
+        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype,
                                                             CompositeNodeFactory.mimetype]:
             factory = self.pkgmanager[pkg_id][factory_id]
             factoryDoc = factory.get_documentation()

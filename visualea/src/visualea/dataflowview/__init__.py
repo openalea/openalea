@@ -72,10 +72,6 @@ class DataflowView( qt.View ):
                                clipboard = self.__clipboard,
                                siblings  = self.__siblings,
                                )
-
-        operator.vertexType = vertex.GraphicalVertex
-        operator.annotationType = anno.GraphicalAnnotation
-        operator.edgeType = edge.GraphicalEdge
         return operator
 
     def on_copy_request(self, view, scene, a):
@@ -145,7 +141,7 @@ class DataflowView( qt.View ):
     def node_factory_drop_handler(self, event):
         """ Drag and Drop from the PackageManager """
         mimedata = event.mimeData()
-        if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):      
+        if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
             format = NodeFactory.mimetype if mimedata.hasFormat(NodeFactory.mimetype) else CompositeNodeFactory.mimetype
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data(format)

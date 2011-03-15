@@ -17,11 +17,10 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import base as graphOpBase
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import qtgraphview
+from openalea.visualea.graph_operator.base import Base
 
-class ColorOperators(graphOpBase.Base):
+class ColorOperators(Base):
 
 
     def graph_set_selection_color(self):
@@ -46,8 +45,8 @@ class ColorOperators(graphOpBase.Base):
         color = [color.red(), color.green(), color.blue()]
         for i in items:
             try:
-                i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", True)
                 i.vertex().get_ad_hoc_dict().set_metadata("userColor", color)
+                i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", True)
             except Exception, e:
                 print "graph_set_selection_color exception", e
                 pass
@@ -62,7 +61,7 @@ class ColorOperators(graphOpBase.Base):
             if(i.vertex().get_ad_hoc_dict().get_metadata("userColor") is None
                and useit):
                 scheduleASetColor = True
-                continue
+                break
             else:
                 i.vertex().get_ad_hoc_dict().set_metadata("useUserColor", useit)
                 i.setSelected(False)

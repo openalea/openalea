@@ -22,18 +22,20 @@ from PyQt4 import QtGui, QtCore
 from openalea.core.observer import Observed
 from openalea.core.compositenode import CompositeNodeFactory
 
-def do_imports():
-    import dataflow, layout, color, vertex, port, anno
 
 class GraphOperator(Observed):
 
-    vertexType     = None
-    annotationType = None
-    edgeType       = None
+    vertexType        = None
+    annotationType    = None
+    edgeType          = None
+    globalInterpreter = None
 
-    def __init__(self, graph, graphScene=None, clipboard=None, siblings=None):
+    def __init__(self, graph, graphScene=None, clipboard=None, siblings=None, interpreter=None):
         Observed.__init__(self)
+
         do_imports()
+        configure_dataflow_types()
+
         self.__ops = [ dataflow.DataflowOperators(self), layout.LayoutOperators(self),
                        color.ColorOperators(self), vertex.VertexOperators(self),
                        port.PortOperators(self), anno.AnnotationOperators(self) ]
@@ -44,15 +46,16 @@ class GraphOperator(Observed):
             for meth in dir(operator):
                 self.__availableNames[meth] = getattr(operator, meth)
 
-        self.graph          = graph
-        self.scene          = graphScene
-        self.clipboard      = clipboard or CompositeNodeFactory("Clipboard")
-        self.siblings       = siblings or []
-        self.__interpreter  = None
-        self.__pkgmanager   = None
-        self.vertexItem     = None
-        self.annotationItem = None
-        self.portItem       = None
+        self.__graph        = graph
+        self.__scene        = graphScene
+        self.__clipboard    = clipboard or CompositeNodeFactory("Clipboard")
+        self.__siblings     = siblings or []
+        self.__interpreter  = interpreter or GraphOperator.globalInterpreter
+
+        # when working on current item these can be set
+        self.__vertexItem     = None
+        self.__annotationItem = None
+        self.__portItem       = None
 
 
     ######################################
@@ -122,25 +125,25 @@ class GraphOperator(Observed):
     # setters #
     ###########
     def set_vertex_item(self, vertexItem):
-        self.vertexItem = weakref.ref(vertexItem)
+        self.__vertexItem = weakref.ref(vertexItem)
 
     def set_annotation_item(self, annotationItem):
-        self.annotationItem = weakref.ref(annotationItem)
+        self.__annotationItem = weakref.ref(annotationItem)
 
     def set_port_item(self, portitem):
-        self.portItem = weakref.ref(portitem)
+        self.__portItem = weakref.ref(portitem)
 
     ###########
     # getters #
     ###########
     def get_interpreter(self):
-        return None
+        return self.__interpreter
 
     def get_clipboard(self):
-        return self.clipboard
+        return self.__clipboard
 
     def get_siblings(self):
-        return self.siblings
+        return self.__siblings
 
     def get_package_manager(self):
         from openalea.core.pkgmanager import PackageManager
@@ -150,11 +153,33 @@ class GraphOperator(Observed):
         return QtGui.QApplication.topLevelWidgets()[0]
 
     def get_graph_scene(self):
-        return self.scene
+        return self.__scene
 
     def get_graph(self):
         scene = self.get_graph_scene()
         if scene:
             return scene.get_graph()
         else:
-            return self.graph
+            return self.__graph
+
+    def get_vertex_item(self):
+        return self.__vertexItem() if self.__vertexItem else None
+
+    def get_annotation_item(self):
+        return self.__annotationItem() if self.__annotationItem else None
+
+    def get_port_item(self):
+        return self.__portItem() if self.__portItem else None
+
+
+
+
+
+def do_imports():
+    import dataflow, layout, color, vertex, port, anno
+
+def configure_dataflow_types():
+    from openalea.visualea.dataflowview import vertex, anno, edge
+    GraphOperator.vertexType        = vertex.GraphicalVertex
+    GraphOperator.annotationType    = anno.GraphicalAnnotation
+    GraphOperator.edgeType          = edge.GraphicalEdge
