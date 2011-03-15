@@ -17,17 +17,17 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: color.py 2757 2010-08-12 14:43:58Z dbarbeau $ "
 
-import base as graphOpBase
-from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import qtgraphview
 
-class AnnotationOperators(graphOpBase.Base):
+from PyQt4 import QtGui, QtCore
+from openalea.visualea.graph_operator.base import Base
+
+class AnnotationOperators(Base):
     STYLE_SIMPLE=0
     STYLE_BOX=1
 
     def annotation_set_style(self, style):
         master = self.master
-        annotationItem = master.annotationItem()
+        annotationItem = master.get_annotation_item()
         annotationItem.store_view_data(visualStyle=style)
 
     def annotation_change_style_simple(self):

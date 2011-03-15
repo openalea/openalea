@@ -17,12 +17,10 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import base as graphOpBase
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import qtgraphview
+from openalea.visualea.graph_operator.base import Base
 
-class LayoutOperators(graphOpBase.Base):
-
+class LayoutOperators(Base):
 
     def graph_align_selection_horizontal(self):
         """Align all items on a median ligne"""

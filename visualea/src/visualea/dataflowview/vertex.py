@@ -50,7 +50,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     default_pen_error_color          = QtGui.QColor(QtCore.Qt.red)
 
     default_top_color                = QtGui.QColor(200, 200, 200, 255)
-    default_bottom_color             = QtGui.QColor(160, 160, 200, 255)
+    default_bottom_color             = QtGui.QColor(140, 140, 255, 255)
     default_error_color              = QtGui.QColor(255, 0, 0, 255)
     default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
     default_unlazy_color             = QtGui.QColor(200,  255, 160, 255)
@@ -279,10 +279,13 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.update_delay_item()
             elif key == "lazy" or key == "blocked" or key == "user_application":
                 self.update_colors()
-        elif(eventTopKey == "metadata_changed" and event[1]=="userColor"):
-            if event[2] is None:
-                self.store_view_data(useUserColor = False)
-            else:
+        elif eventTopKey == "metadata_changed":
+            if event[1]=="userColor":
+                if event[2] is None:
+                    self.store_view_data(useUserColor = False)
+                else:
+                    self.update_colors()
+            elif event[1]=="useUserColor":
                 self.update_colors()
         elif eventTopKey == "exception_state_changed":
             self.update_colors()

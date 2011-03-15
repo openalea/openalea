@@ -17,12 +17,11 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import base as graphOpBase
+
 from PyQt4 import QtGui, QtCore
-from openalea.grapheditor import qtgraphview
+from openalea.visualea.graph_operator.base import Base
 
-
-class PortOperators(graphOpBase.Base):
+class PortOperators(Base):
     """The PortOperators defines the output options of an output connector.
 
     An output connector can be sent to
@@ -41,9 +40,9 @@ class PortOperators(graphOpBase.Base):
     """
     def port_print_value(self):
         """ Print the value of the connector """
-
-        node = self.master.portItem().port().vertex()
-        data = str(node.get_output(self.master.portItem().port().get_id()))
+        portItem = self.master.get_port_item()
+        node = portItem.port().vertex()
+        data = str(node.get_output(portItem.port().get_id()))
         data = data[:500]+"[...truncated]" if len(data)>500 else data
         print data
 
@@ -60,13 +59,14 @@ class PortOperators(graphOpBase.Base):
         """
         master = self.master
         widget = master.get_sensible_parent()
+        portItem = master.get_port_item()
         (result, ok) = QtGui.QInputDialog.getText(widget, "Data Pool", "Instance name",
                                                   QtGui.QLineEdit.Normal, )
         if(ok):
             from openalea.core.session import DataPool
             datapool = DataPool()  # Singleton
 
-            port = self.master.portItem().port()
+            port = portItem.port()
             node = port.vertex()
             data = node.get_output(port.get_id())
             datapool[str(result)] = data
@@ -74,20 +74,19 @@ class PortOperators(graphOpBase.Base):
 
     def port_send_to_console(self):
         """a portconnector to send output on a port directly to the console.
-
-
         :authors: Thomas Cokelaer, Daniel Barbeau
         """
         # get the visualea master
         master = self.master
         widget = master.get_sensible_parent()
+        portItem = master.get_port_item()
         # pop up a widget to specify the instance name
         (result, ok) = QtGui.QInputDialog.getText(widget, "Console", "Instance name",
                                                   QtGui.QLineEdit.Normal, )
         result = str(result)
 
         if(ok):
-            port = self.master.portItem().port()
+            port = portItem.port()
             node = port.vertex()
             data = node.get_output(port.get_id())
             shell = master.get_interpreter()
