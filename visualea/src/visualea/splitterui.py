@@ -234,6 +234,9 @@ class BinaryTree(object):
             raise BinaryTree.BadIdException(vid)
         return self._toParents[vid]
 
+    def leaves(self):
+        return [vid for vid in self._properties if not self.has_children(vid)]
+
     def children(self, vid):
         """Returns the children of vid.
         :Parameters:
@@ -745,8 +748,19 @@ class SplittableUI(QtGui.QWidget):
             sp = SplittableUI.__spacing__
             absAmount = amount * refVal
             sticky = -1 if absAmount<=sp else (1 if absAmount>=(refVal-sp-1) else 0)
+        print "__sticky_check", paneId, sticky
         self._g.set_property(paneId, "sticky", sticky)
 
+    def full_sticky_check(self):
+        leaves = self._g.leaves()
+        leavesAncestors = set([self._g.parent(leaf) for leaf in leaves])
+        print leaves, leavesAncestors
+        for paneId in leavesAncestors:
+            if paneId == None:
+                continue
+            amount      = self._g.get_property(paneId, "amount")
+            orientation = self._g.get_property(paneId, "splitDirection")
+            self.__sticky_check(paneId, orientation, amount)
 
     ###################
     # Signal handlers #
@@ -781,7 +795,6 @@ class SplittableUI(QtGui.QWidget):
         self.collapsePane(parent,
                           toSecond=(collapseType==SplittableUI.TearOff.CollapseToSecond))
 
-
     def _onHandleMoved(self, paneId, position, orientation, newAmount=None):
         """Called when a handle widget moves. It triggers a recomputation
         of the layout at level `paneId`."""
@@ -801,7 +814,7 @@ class SplittableUI(QtGui.QWidget):
         self.computeGeoms(paneId)
 
     def _onWidgetMenuRequest(self, point):
-        pt = self.mapFromGlobal(point)
+        pt     = self.mapFromGlobal(point)
         paneId = self.paneAtPos(pt)
         self.widgetMenuRequest.emit(point, paneId)
 
@@ -849,9 +862,10 @@ class SplittableUI(QtGui.QWidget):
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
+        QtGui.QWidget.paintEvent(self, event)
         # paintingVisitor = self.DebugPaintingVisitor(self._g, self._geomCache, painter)
         # self._g.visit_i_breadth_first(paintingVisitor)
-        QtGui.QWidget.paintEvent(self, event)
+
 
     ###################################################################################
     # Inner classes not meant to be seen by others - Inner classes not meant to be... #
@@ -1104,14 +1118,15 @@ class SplittableUI(QtGui.QWidget):
             painter = QtGui.QPainter(self)
             painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
+            pen = painter.pen()
             if self._hovered:
                 brush   = QtGui.QBrush(QtGui.QColor(120,190,255,200))
+                pen.setColor(QtGui.QColor(255,255,255,255))
             else:
                 brush   = QtGui.QBrush(QtGui.QColor(120,190,255,70))
-            painter.setBrush(brush)
+                pen.setColor(QtGui.QColor(0,0,0,127))
 
-            pen = painter.pen()
-            pen.setColor(QtGui.QColor(0,0,0,0))
+            painter.setBrush(brush)
             painter.setPen(pen)
 
             adj = painter.pen().width()
